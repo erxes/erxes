@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   IconArrowLeft,
   IconCalendarTime,
@@ -12,8 +15,8 @@ import {
   Breadcrumb,
   Combobox,
   Command,
+  Form,
   Input,
-  Label,
   Popover,
   Separator,
   Switch,
@@ -30,8 +33,36 @@ import {
   MASTRA_SCHEDULE_CREATE,
   MASTRA_SCHEDULE_UPDATE,
 } from '~/graphql/mutations';
-import { Field, FormSection } from '~/components/FormLayout';
+import { FormSection } from '~/components/FormLayout';
 import { ScheduleTimingFields } from './ScheduleTimingFields';
+
+const scheduleFormSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string(),
+  agentId: z.string().min(1, 'Pick the agent this schedule should run'),
+  cron: z
+    .string()
+    .min(1, 'Cron expression is required')
+    .refine((value) => {
+      const fields = value.trim().split(/\s+/).length;
+      return fields >= 5 && fields <= 6;
+    }, 'Cron expression must have 5 or 6 fields'),
+  timezone: z.string(),
+  prompt: z.string().min(1, 'Prompt is required'),
+  isEnabled: z.boolean(),
+});
+
+type ScheduleFormValues = z.infer<typeof scheduleFormSchema>;
+
+const DEFAULT_VALUES: ScheduleFormValues = {
+  name: '',
+  description: '',
+  agentId: '',
+  cron: '0 9 * * *',
+  timezone: 'UTC',
+  prompt: '',
+  isEnabled: false,
+};
 
 interface IAgentOption {
   agentId: string;
@@ -97,14 +128,9 @@ export const ScheduleFormPage = () => {
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    agentId: '',
-    cron: '0 9 * * *',
-    timezone: 'UTC',
-    prompt: '',
-    isEnabled: false,
+  const form = useForm<ScheduleFormValues>({
+    resolver: zodResolver(scheduleFormSchema),
+    defaultValues: DEFAULT_VALUES,
   });
 
   const { data: scheduleData } = useQuery(MASTRA_SCHEDULE, {
@@ -115,53 +141,43 @@ export const ScheduleFormPage = () => {
   useEffect(() => {
     if (isEdit && scheduleData?.mastraSchedule) {
       const schedule = scheduleData.mastraSchedule;
-      setForm({
+      form.reset({
         name: schedule.name || '',
         description: schedule.description || '',
         agentId: schedule.agentId || '',
-        cron: schedule.cron || '0 9 * * *',
+        cron: schedule.cron || DEFAULT_VALUES.cron,
         timezone: schedule.timezone || 'UTC',
         prompt: schedule.prompt || '',
         isEnabled: schedule.isEnabled ?? false,
       });
     }
-  }, [scheduleData, isEdit]);
+  }, [scheduleData, isEdit, form]);
 
-  const mutationOptions = {
+  const mutationOptions = (successTitle: string) => ({
     refetchQueries: [{ query: MASTRA_SCHEDULES }],
     awaitRefetchQueries: true,
-    onCompleted: () => navigate('/erxes-agent/schedules'),
+    onCompleted: () => {
+      toast({ title: successTitle });
+      navigate('/erxes-agent/schedules');
+    },
     onError: (e: { message: string }) =>
       toast({ title: 'Error', description: e.message, variant: 'destructive' }),
-  };
+  });
   const [createSchedule, { loading: creating }] = useMutation(
     MASTRA_SCHEDULE_CREATE,
-    mutationOptions,
+    mutationOptions('Schedule created'),
   );
   const [updateSchedule, { loading: updating }] = useMutation(
     MASTRA_SCHEDULE_UPDATE,
-    mutationOptions,
+    mutationOptions('Schedule updated'),
   );
 
-  /** Patch one form field by key. */
-  const set = (k: string, v: string | boolean) =>
-    setForm((f) => ({ ...f, [k]: v }));
-
-  /** Save the schedule; the missing-agent case also disables both buttons. */
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.agentId) {
-      toast({
-        title: 'Agent required',
-        description: 'Pick the agent this schedule should run.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  /** Save the schedule; zod has already validated by the time this runs. */
+  const onSubmit = (doc: ScheduleFormValues) => {
     if (isEdit) {
-      updateSchedule({ variables: { _id: id, doc: form } });
+      updateSchedule({ variables: { _id: id, doc } });
     } else {
-      createSchedule({ variables: { doc: form } });
+      createSchedule({ variables: { doc } });
     }
   };
 
@@ -199,108 +215,153 @@ export const ScheduleFormPage = () => {
               <IconArrowLeft /> Back
             </Link>
           </Button>
-          <Button
-            type="submit"
-            form="schedule-form"
-            disabled={isSaving || !form.agentId}
-          >
+          <Button type="submit" form="schedule-form" disabled={isSaving}>
             {isSaving ? 'Saving…' : saveLabel}
           </Button>
         </PageHeader.End>
       </PageHeader>
 
       <div className="flex-1 overflow-auto p-4">
-        <form
-          id="schedule-form"
-          onSubmit={handleSubmit}
-          className="max-w-2xl mx-auto space-y-4"
-        >
-          <FormSection title="Basic Info">
-            <Field label="Name *">
-              <Input
-                value={form.name}
-                onChange={(e) => set('name', e.target.value)}
-                placeholder="Daily sales summary"
-                required
+        <Form {...form}>
+          <form
+            id="schedule-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="max-w-2xl mx-auto space-y-4"
+          >
+            <FormSection title="Basic Info">
+              <Form.Field
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control>
+                      <Input {...field} placeholder="Daily sales summary" />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
-            </Field>
 
-            <Field label="Description">
-              <Input
-                value={form.description}
-                onChange={(e) => set('description', e.target.value)}
-                placeholder="What this schedule does"
+              <Form.Field
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control>
+                      <Input {...field} placeholder="What this schedule does" />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
-            </Field>
 
-            <Field label="Agent *" hint="The agent this schedule runs.">
-              <SelectAgent
-                value={form.agentId}
-                onValueChange={(v) => set('agentId', v)}
+              <Form.Field
+                control={form.control}
+                name="agentId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Agent</Form.Label>
+                    <SelectAgent
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                    <Form.Description>
+                      The agent this schedule runs.
+                    </Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
-            </Field>
 
-            <Field
-              label="Prompt *"
-              hint="Sent to the agent as the user message on every run."
-            >
-              <Textarea
-                value={form.prompt}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  set('prompt', e.target.value)
-                }
-                placeholder="Summarize yesterday's new deals and flag anything unusual…"
-                rows={5}
-                required
+              <Form.Field
+                control={form.control}
+                name="prompt"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Prompt</Form.Label>
+                    <Form.Control>
+                      <Textarea
+                        {...field}
+                        placeholder="Summarize yesterday's new deals and flag anything unusual…"
+                        rows={5}
+                      />
+                    </Form.Control>
+                    <Form.Description>
+                      Sent to the agent as the user message on every run.
+                    </Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
-            </Field>
-          </FormSection>
+            </FormSection>
 
-          <FormSection title="Timing" description="How often the agent runs.">
-            <ScheduleTimingFields
-              key={id ?? 'new'}
-              cron={form.cron}
-              timezone={form.timezone}
-              onCronChange={(v) => set('cron', v)}
-              onTimezoneChange={(v) => set('timezone', v)}
-            />
-          </FormSection>
-
-          <FormSection title="Activation">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <Label className="font-medium">Enabled</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Disabled schedules never fire on the cron — you can still test
-                  them with “Run now”.
-                </p>
-              </div>
-              <Switch
-                checked={form.isEnabled}
-                onCheckedChange={(v: boolean) => set('isEnabled', v)}
+            <FormSection title="Timing" description="How often the agent runs.">
+              <Form.Field
+                control={form.control}
+                name="cron"
+                render={({ field }) => (
+                  <Form.Item>
+                    <ScheduleTimingFields
+                      key={id ?? 'new'}
+                      cron={field.value}
+                      timezone={form.watch('timezone')}
+                      onCronChange={field.onChange}
+                      onTimezoneChange={(tz) =>
+                        form.setValue('timezone', tz, { shouldDirty: true })
+                      }
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
+            </FormSection>
+
+            <FormSection title="Activation">
+              <Form.Field
+                control={form.control}
+                name="isEnabled"
+                render={({ field }) => (
+                  <Form.Item className="flex items-center justify-between gap-4 space-y-0">
+                    <div>
+                      <Form.Label>Enabled</Form.Label>
+                      <Form.Description className="mt-0.5">
+                        Disabled schedules never fire on the cron — you can
+                        still test them with “Run now”.
+                      </Form.Description>
+                    </div>
+                    <Form.Control>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <Alert>
+                <IconInfoCircle className="size-4" />
+                <Alert.Title>Background runs</Alert.Title>
+                <Alert.Description>
+                  Scheduled runs execute with the app token configured in
+                  General Settings, not your user session. Output lands in a
+                  dedicated chat thread named after the schedule.
+                </Alert.Description>
+              </Alert>
+            </FormSection>
+
+            <div className="flex gap-3 pb-4 sm:hidden">
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? 'Saving…' : saveLabel}
+              </Button>
+              <Button type="button" variant="outline" asChild>
+                <Link to="/erxes-agent/schedules">Cancel</Link>
+              </Button>
             </div>
-
-            <Alert>
-              <IconInfoCircle className="size-4" />
-              <Alert.Title>Background runs</Alert.Title>
-              <Alert.Description>
-                Scheduled runs execute with the app token configured in General
-                Settings, not your user session. Output lands in a dedicated
-                chat thread named after the schedule.
-              </Alert.Description>
-            </Alert>
-          </FormSection>
-
-          <div className="flex gap-3 pb-4 sm:hidden">
-            <Button type="submit" disabled={isSaving || !form.agentId}>
-              {isSaving ? 'Saving…' : saveLabel}
-            </Button>
-            <Button type="button" variant="outline" asChild>
-              <Link to="/erxes-agent/schedules">Cancel</Link>
-            </Button>
-          </div>
-        </form>
+          </form>
+        </Form>
       </div>
     </div>
   );
