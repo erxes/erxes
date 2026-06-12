@@ -361,6 +361,21 @@ export const conversationMutations = {
         });
       }
 
+
+      if (internal) {
+        const message = await models.ConversationMessages.addMessage(
+          doc,
+          userId,
+        );
+        const dbMessage = await models.ConversationMessages.getMessage(
+          message._id,
+        );
+
+        publishMessage(models, dbMessage);
+
+        return dbMessage;
+      }
+
       const serviceName = integration.kind.split('-')[0];
       const actionType = kind?.split('-')[1] || 'unknown';
 
