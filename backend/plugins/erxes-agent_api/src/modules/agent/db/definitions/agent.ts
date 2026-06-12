@@ -22,6 +22,10 @@ export const agentSchema = new Schema(
     allowedTools: [{ type: String }],
     memoryEnabled: { type: Boolean, default: true },
     maxSteps: { type: Number, default: 10 },
+    // Sampling temperature sent to the model. Unset → the provider/SDK default
+    // (the legacy OpenAI-compatible loop defaults to 0). Some models pin it:
+    // e.g. Kimi thinking models reject anything but 1.
+    temperature: { type: Number, min: 0, max: 2, label: 'Temperature' },
     isEnabled: { type: Boolean, default: true },
   },
   { timestamps: true },

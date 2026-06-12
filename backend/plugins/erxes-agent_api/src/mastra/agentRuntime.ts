@@ -23,7 +23,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, ToolsInput>();
 
 // Increment this whenever routing.ts, the meta-tools, or provider logic changes.
-const ROUTING_VERSION = 23;
+const ROUTING_VERSION = 24;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -129,6 +129,12 @@ export async function getOrCreateAgent(
     ? Math.max(configuredSteps, stepFloor)
     : configuredSteps;
 
+  // Configured sampling temperature. Unset → provider/SDK default (the legacy
+  // loop hardcodes 0, which models like Kimi thinking — "only 1 is allowed" —
+  // reject; setting it here lets the dashboard fix that per agent).
+  const temperature = agentConfig.temperature;
+  const hasTemperature = typeof temperature === 'number';
+
   const agent = new Agent({
     id: agentConfig.agentId,
     name: agentConfig.name,
@@ -139,9 +145,18 @@ export async function getOrCreateAgent(
     // OpenAI-compatible loop (generateLegacy/streamLegacy) reads its own two
     // keys and otherwise falls back to Mastra's internal default — all three
     // must be set or legacy turns get silently truncated mid-task.
-    defaultOptions: { maxSteps },
-    defaultGenerateOptionsLegacy: { maxSteps },
-    defaultStreamOptionsLegacy: { maxSteps },
+    defaultOptions: {
+      maxSteps,
+      ...(hasTemperature ? { modelSettings: { temperature } } : {}),
+    },
+    defaultGenerateOptionsLegacy: {
+      maxSteps,
+      ...(hasTemperature ? { temperature } : {}),
+    },
+    defaultStreamOptionsLegacy: {
+      maxSteps,
+      ...(hasTemperature ? { temperature } : {}),
+    },
     // The two legacy keys are read at runtime but missing from Mastra's
     // published AgentConfig type, hence the cast.
   } as unknown as ConstructorParameters<typeof Agent>[0]) as unknown as Agent;

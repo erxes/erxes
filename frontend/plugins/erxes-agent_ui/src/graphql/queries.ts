@@ -14,6 +14,7 @@ export const MASTRA_AGENTS = gql`
       allowedTools
       memoryEnabled
       maxSteps
+      temperature
       isEnabled
       createdAt
       updatedAt
@@ -59,6 +60,7 @@ export const MASTRA_AGENT = gql`
       allowedTools
       memoryEnabled
       maxSteps
+      temperature
       isEnabled
       createdAt
       updatedAt
