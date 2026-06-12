@@ -111,6 +111,16 @@ export default {
     return product?.isCheckRems?.[config.token] || false;
   },
 
+  hasSimilarity(product: IProductDocument & { hasSimilarity?: boolean }) {
+    // legacy groupedSimilarity lists precompute this from the group size;
+    // a field resolver overrides parent values, so pass theirs through
+    if (typeof product.hasSimilarity === 'boolean') {
+      return product.hasSimilarity;
+    }
+
+    return !!product.similarityId;
+  },
+
   async category(product: IProductDocument, _, { models }: IContext) {
     return models.ProductCategories.findOne({ _id: product.categoryId });
   },

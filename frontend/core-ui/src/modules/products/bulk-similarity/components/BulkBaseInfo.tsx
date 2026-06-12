@@ -41,7 +41,7 @@ export const BulkBaseInfo = () => {
             />
             <Form.Field
               control={form.control}
-              name="baseCode"
+              name="code"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Code</Form.Label>
@@ -225,8 +225,11 @@ export const BulkBaseInfo = () => {
             />
           </InfoCard.Content>
         </InfoCard>
-        <InfoCard title="Secondary images" className="md:col-span-2 h-full min-w-0">
-          <InfoCard.Content className="h-full min-w-0">
+        <InfoCard
+          title="Secondary images"
+          className="md:col-span-2 min-w-0 h-full"
+        >
+          <InfoCard.Content className="min-w-0 h-full">
             <Form.Field
               control={form.control}
               name="attachmentMore"

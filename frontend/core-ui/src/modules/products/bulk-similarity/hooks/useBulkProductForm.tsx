@@ -1,22 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useFields } from 'ui-modules';
 import {
   bulkSimilaritySchema,
   BulkSimilarityFormValues,
 } from '../constants/bulkSimilaritySchema';
-import {
-  IBulkRow,
-  IBulkSaveInput,
-  IMatrixRow,
-  IProductSimilarity,
-} from '../types';
-import { buildMatrix } from '../utils';
+import { IProductSimilarity } from '../types';
+import { buildRows, toSavePayload } from '../utils';
 
-const EMPTY_INFO: BulkSimilarityFormValues = {
+const EMPTY_VALUES: BulkSimilarityFormValues = {
   name: '',
-  baseCode: '',
+  code: '',
   categoryId: '',
   shortName: '',
   type: '',
@@ -27,205 +22,89 @@ const EMPTY_INFO: BulkSimilarityFormValues = {
   vendorId: '',
   scopeBrandIds: [],
   barcodeDescription: '',
+  properties: [],
+  rows: [],
+};
+
+const toFormValues = (
+  initial?: IProductSimilarity,
+): BulkSimilarityFormValues => {
+  const selection = initial?.propertiesData || {};
+  const fieldIds = Object.keys(selection);
+
+  return {
+    ...EMPTY_VALUES,
+    ...((initial?.info as Partial<BulkSimilarityFormValues>) || {}),
+    properties: fieldIds.map((fieldId) => ({
+      fieldId,
+      values: selection[fieldId],
+    })),
+    // seed rows from the saved products so the table is populated on first paint;
+    // the generation effect refines codes/labels once field defs load. labelOf
+    // falls back to the raw value here since field defs aren't available yet.
+    rows: buildRows({
+      fieldIds,
+      selection,
+      code: initial?.info?.code || '',
+      products: initial?.products,
+      starProductId: initial?.starProductId,
+      labelOf: (_fieldId, value) => value,
+    }),
+  };
 };
 
 export const useBulkProductForm = (initial?: IProductSimilarity) => {
   const form = useForm<BulkSimilarityFormValues>({
     resolver: zodResolver(bulkSimilaritySchema),
-    defaultValues: EMPTY_INFO,
+    defaultValues: toFormValues(initial),
+    mode: 'onChange',
   });
 
-  const info = form.watch();
+  const { control } = form;
+  const { fields: fieldDefs } = useFields({ contentType: 'core:product' });
 
-  const [selection, setSelection] = useState<Record<string, string[]>>(
-    initial?.propertiesData || {},
-  );
+  const rows = useFieldArray({ control, name: 'rows' });
 
-  const [fieldIds, setFieldIds] = useState<string[]>(
-    Object.keys(initial?.propertiesData || {}),
-  );
+  const watchedProperties = useWatch({ control, name: 'properties' }) || [];
+  const code = useWatch({ control, name: 'code' });
+  const fieldIds = watchedProperties.map((p) => p.fieldId);
 
+  const labelOf = (fieldId: string, value: string) =>
+    fieldDefs
+      .find((f) => f._id === fieldId)
+      ?.options?.find((o) => o.value === value)?.label ?? value;
+
+  // reset base info, property axes, and seeded rows when a different record opens.
   useEffect(() => {
-    form.reset({
-      ...EMPTY_INFO,
-      ...((initial?.info as Partial<BulkSimilarityFormValues>) || {}),
-    });
-    setSelection(initial?.propertiesData || {});
-    setFieldIds(Object.keys(initial?.propertiesData || {}));
+    form.reset(toFormValues(initial));
   }, [initial?._id]);
 
-  const [overrides, setOverrides] = useState<
-    Record<string, { code?: string; unitPrice?: number; isExcluded?: boolean }>
-  >({});
-  const [starRowKey, setStarRowKey] = useState<string | undefined>(undefined);
-
-  const { fields } = useFields({ contentType: 'core:product' });
-
-  const labelOf = useCallback(
-    (fieldId: string, value: string) => {
-      const field = fields.find((f) => f._id === fieldId);
-      const option = field?.options?.find((o) => o.value === value);
-      return option?.label ?? value;
-    },
-    [fields],
-  );
-
-  const matrix: IMatrixRow[] = useMemo(() => {
-    const base = buildMatrix({
-      fieldIds,
-      selection,
-      baseCode: info.baseCode || '',
-      products: initial?.products,
-      starProductId: initial?.starProductId,
-      labelOf,
-    });
-
-    return base.map((row) => {
-      const ov = overrides[row.key] || {};
-      return {
-        ...row,
-        code: ov.code ?? row.code,
-        unitPrice: ov.unitPrice ?? row.unitPrice,
-        isExcluded: ov.isExcluded ?? row.isExcluded,
-        isStar: starRowKey ? row.key === starRowKey : row.isStar,
-      };
-    });
-  }, [
-    fieldIds,
-    selection,
-    info.baseCode,
-    initial?.products,
-    initial?.starProductId,
-    labelOf,
-    overrides,
-    starRowKey,
-  ]);
-
-  const toggleFieldValue = useCallback(
-    (fieldId: string, value: string) => {
-      setFieldIds((prev) => (prev.includes(fieldId) ? prev : [...prev, fieldId]));
-      setSelection((prev) => {
-        const current = prev[fieldId] || [];
-        const next = current.includes(value)
-          ? current.filter((v) => v !== value)
-          : [...current, value];
-        return { ...prev, [fieldId]: next };
-      });
-    },
-    [],
-  );
-
-  const setFieldValues = useCallback((fieldId: string, values: string[]) => {
-    setFieldIds((prev) => (prev.includes(fieldId) ? prev : [...prev, fieldId]));
-    setSelection((prev) => ({ ...prev, [fieldId]: values }));
-  }, []);
-
-  const removeField = useCallback((fieldId: string) => {
-    setFieldIds((prev) => prev.filter((id) => id !== fieldId));
-    setSelection((prev) => {
-      const next = { ...prev };
-      delete next[fieldId];
-      return next;
-    });
-  }, []);
-
-  const setRowCode = useCallback((key: string, code: string) => {
-    setOverrides((prev) => ({ ...prev, [key]: { ...prev[key], code } }));
-  }, []);
-
-  const setRowPrice = useCallback((key: string, unitPrice?: number) => {
-    setOverrides((prev) => ({ ...prev, [key]: { ...prev[key], unitPrice } }));
-  }, []);
-
-  const toggleRowExcluded = useCallback((key: string, current?: boolean) => {
-    setOverrides((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], isExcluded: !current },
-    }));
-  }, []);
-
-  const setAllExcluded = useCallback(
-    (isExcluded: boolean) => {
-      setOverrides((prev) => {
-        const next = { ...prev };
-        for (const row of matrix) {
-          next[row.key] = { ...next[row.key], isExcluded };
-        }
-        return next;
-      });
-    },
-    [matrix],
-  );
-
-  const duplicateCodes = useMemo(() => {
-    const seen = new Map<string, number>();
-    for (const row of matrix) {
-      if (row.isExcluded) continue;
-      seen.set(row.code, (seen.get(row.code) || 0) + 1);
-    }
-    return new Set(
-      [...seen.entries()].filter(([, n]) => n > 1).map(([code]) => code),
+  // own the `rows` field array: (re)generate whenever the property axes, base code,
+  // the opened record, or the loaded field defs change — preserving user edits
+  // (code/unitPrice/isExcluded/isStar) for combinations that still exist.
+  // `initial?._id` keeps this in sync after the reset above swaps records in, and
+  // `fieldDefs.length` lets code suffixes fill in once the async field defs load.
+  useEffect(() => {
+    rows.replace(
+      buildRows({
+        fieldIds,
+        selection: Object.fromEntries(
+          watchedProperties.map((p) => [p.fieldId, p.values]),
+        ),
+        code: code || '',
+        products: initial?.products,
+        starProductId: initial?.starProductId,
+        labelOf,
+        previousRows: form.getValues('rows'),
+      }),
     );
-  }, [matrix]);
-
-  const includedCount = useMemo(
-    () => matrix.filter((r) => !r.isExcluded).length,
-    [matrix],
-  );
-
-  const validation = useMemo(() => {
-    const errors: string[] = [];
-
-    if (duplicateCodes.size > 0) {
-      errors.push(
-        `${duplicateCodes.size} duplicate ${
-          duplicateCodes.size === 1 ? 'code' : 'codes'
-        } across included products.`,
-      );
-    }
-
-    return { errors, canSave: errors.length === 0 };
-  }, [duplicateCodes]);
-
-  const buildSavePayload = useCallback(
-    (values: BulkSimilarityFormValues): IBulkSaveInput => {
-      const rows: IBulkRow[] = matrix.map((row) => ({
-        productId: row.productId,
-        code: row.code,
-        unitPrice: row.unitPrice,
-        isExcluded: row.isExcluded,
-      }));
-
-      return {
-        info: values,
-        propertiesData: selection,
-        rows,
-        starRowKey,
-      };
-    },
-    [matrix, selection, starRowKey],
-  );
+    form.trigger('rows');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(watchedProperties), code, initial?._id, fieldDefs.length]);
 
   return {
     form,
-    info,
-    selection,
-    fieldIds,
-    fields,
-    matrix,
-    starRowKey,
-    setStarRowKey,
-    toggleFieldValue,
-    setFieldValues,
-    removeField,
-    setRowCode,
-    setRowPrice,
-    toggleRowExcluded,
-    setAllExcluded,
-    labelOf,
-    duplicateCodes,
-    includedCount,
-    validation,
-    buildSavePayload,
+    fields: fieldDefs,
+    buildSavePayload: toSavePayload,
   };
 };

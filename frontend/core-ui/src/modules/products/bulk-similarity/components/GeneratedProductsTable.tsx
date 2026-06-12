@@ -4,8 +4,11 @@ import {
   IconStar,
   IconStarFilled,
 } from '@tabler/icons-react';
-import { useEffect, useMemo, useRef } from 'react';
-import { IMatrixRow } from '../types';
+import { useEffect, useRef } from 'react';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
+import { useBulkRows } from '../hooks/useBulkRows';
+import { useVariantFields } from '../hooks/useVariantFields';
 
 const EditableCell = ({
   value,
@@ -81,23 +84,13 @@ const EditableCell = ({
 };
 
 interface GeneratedProductsTableProps {
-  matrix: IMatrixRow[];
-  fieldIds: string[];
-  labelOf: (fieldId: string, value: string) => string;
   fieldName: (fieldId: string) => string;
-  starRowKey?: string;
-  duplicateCodes?: Set<string>;
-  defaultUnitPrice?: number;
-  onSetStar: (key: string) => void;
-  onSetCode: (key: string, code: string) => void;
-  onSetPrice: (key: string, price?: number) => void;
-  onToggleExcluded: (key: string, current?: boolean) => void;
-  onSetAllExcluded: (isExcluded: boolean) => void;
+  unitPrice?: number;
 }
 
-const statusBadge = (row: IMatrixRow) => {
-  if (row.isExcluded) return <Badge variant="secondary">skipped</Badge>;
-  if (row.productId) return <Badge variant="success">existing</Badge>;
+const statusBadge = (isExcluded: boolean, productId?: string) => {
+  if (isExcluded) return <Badge variant="secondary">skipped</Badge>;
+  if (productId) return <Badge variant="success">existing</Badge>;
   return <Badge variant="info">new</Badge>;
 };
 
@@ -120,43 +113,38 @@ const EmptyPanel = ({
 );
 
 export const GeneratedProductsTable = ({
-  matrix,
-  fieldIds,
-  labelOf,
   fieldName,
-  starRowKey,
-  duplicateCodes,
-  defaultUnitPrice,
-  onSetStar,
-  onSetCode,
-  onSetPrice,
-  onToggleExcluded,
-  onSetAllExcluded,
+  unitPrice,
 }: GeneratedProductsTableProps) => {
-  const includedCount = useMemo(
-    () => matrix.filter((r) => !r.isExcluded).length,
-    [matrix],
-  );
+  const { control, setValue } = useFormContext<BulkSimilarityFormValues>();
+  const { fieldIds, labelOf } = useVariantFields();
+  const {
+    rows,
+    duplicateCodes,
+    includedCount,
+    handleSetRowStar,
+    handleSetAllExcluded,
+  } = useBulkRows();
+  const watchedRows = useWatch({ control, name: 'rows' }) || [];
 
-  if (!matrix.length) {
+  if (!rows.length) {
     return (
       <EmptyPanel>Select field values above to generate products.</EmptyPanel>
     );
   }
 
-  if (matrix.length > 1000) {
+  if (rows.length > 1000) {
     return (
       <EmptyPanel variant="destructive">
         <IconAlertTriangle size={16} />
-        {matrix.length} combinations — too many to render. Reduce the selected
+        {rows.length} combinations — too many to render. Reduce the selected
         options.
       </EmptyPanel>
     );
   }
 
-  const allIncluded = includedCount === matrix.length;
-  const headerState: boolean | 'indeterminate' =
-    includedCount === 0 ? false : allIncluded ? true : 'indeterminate';
+  const allIncluded = includedCount === rows.length;
+  const headerState: boolean | 'indeterminate' = includedCount === 0 ? false : allIncluded ? true : 'indeterminate';
 
   return (
     <div className="overflow-auto max-h-[28rem] rounded-lg border">
@@ -171,7 +159,7 @@ export const GeneratedProductsTable = ({
                       <Checkbox
                         checked={headerState}
                         onCheckedChange={(checked) =>
-                          onSetAllExcluded(!checked)
+                          handleSetAllExcluded(!checked)
                         }
                         aria-label="Include all"
                       />
@@ -195,33 +183,54 @@ export const GeneratedProductsTable = ({
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {matrix.map((row) => {
-            const isDup = !row.isExcluded && duplicateCodes?.has(row.code);
-            const isStar = starRowKey ? row.key === starRowKey : row.isStar;
+          {rows.map((row, index) => {
+            const watchedRow = watchedRows[index];
+            const combination = watchedRow?.combination || {};
+            const isExcluded = !!watchedRow?.isExcluded;
+            const code = watchedRow?.code || '';
+            const isDup = !isExcluded && duplicateCodes?.has(code);
+
             return (
               <Table.Row
                 key={row.key}
                 className={cn(
-                  row.isExcluded && 'opacity-50',
+                  isExcluded && 'opacity-50',
                   isDup && 'bg-destructive/5',
                 )}
               >
                 <Table.Cell className="px-3">
-                  <Checkbox
-                    checked={!row.isExcluded}
-                    onCheckedChange={() =>
-                      onToggleExcluded(row.key, row.isExcluded)
-                    }
-                    aria-label="Include product"
+                  <Controller
+                    control={control}
+                    name={`rows.${index}.isExcluded`}
+                    render={({ field }) => (
+                      <Checkbox
+                        checked={!field.value}
+                        onCheckedChange={(checked) =>
+                          field.onChange(!checked)
+                        }
+                        aria-label="Include product"
+                      />
+                    )}
                   />
                 </Table.Cell>
                 <Table.Cell className="px-1">
                   <div className="flex gap-1 items-center">
-                    <EditableCell
-                      value={row.code}
-                      onCommit={(code) => onSetCode(row.key, code)}
-                      placeholder="code"
-                      className="font-mono"
+                    <Controller
+                      control={control}
+                      name={`rows.${index}.code`}
+                      render={({ field }) => (
+                        <EditableCell
+                          value={field.value}
+                          onCommit={(next) => {
+                            field.onChange(next);
+                            // mark as hand-edited so regeneration won't
+                            // overwrite it from the base code
+                            setValue(`rows.${index}.codeEdited`, true);
+                          }}
+                          placeholder="code"
+                          className="font-mono"
+                        />
+                      )}
                     />
                     {isDup && (
                       <Tooltip.Provider>
@@ -239,64 +248,75 @@ export const GeneratedProductsTable = ({
                   </div>
                 </Table.Cell>
                 <Table.Cell className="px-1">
-                  <EditableCell
-                    numeric
-                    align="right"
-                    value={
-                      row.unitPrice != null
-                        ? String(row.unitPrice)
-                        : defaultUnitPrice != null
-                          ? String(defaultUnitPrice)
-                          : ''
-                    }
-                    placeholder="0"
-                    disabled={row.isExcluded}
-                    edited={
-                      row.unitPrice != null &&
-                      row.unitPrice !== defaultUnitPrice
-                    }
-                    onCommit={(next) =>
-                      onSetPrice(
-                        row.key,
-                        next === '' ? undefined : Number(next),
-                      )
-                    }
+                  <Controller
+                    control={control}
+                    name={`rows.${index}.unitPrice`}
+                    render={({ field }) => (
+                      <EditableCell
+                        numeric
+                        align="right"
+                        value={
+                          field.value != null
+                            ? String(field.value)
+                            : unitPrice != null
+                              ? String(unitPrice)
+                              : ''
+                        }
+                        placeholder="0"
+                        disabled={isExcluded}
+                        edited={
+                          field.value != null &&
+                          field.value !== unitPrice
+                        }
+                        onCommit={(next) =>
+                          field.onChange(next === '' ? undefined : Number(next))
+                        }
+                      />
+                    )}
                   />
                 </Table.Cell>
                 {fieldIds.map((fieldId) => (
                   <Table.Cell key={fieldId} className="px-3">
                     <Badge variant="secondary">
-                      {labelOf(fieldId, row.combination[fieldId])}
+                      {labelOf(fieldId, combination[fieldId])}
                     </Badge>
                   </Table.Cell>
                 ))}
-                <Table.Cell className="px-3">{statusBadge(row)}</Table.Cell>
+                <Table.Cell className="px-3">
+                  {statusBadge(isExcluded, row.productId)}
+                </Table.Cell>
                 <Table.Cell className="px-3 text-center">
-                  <Tooltip.Provider>
-                    <Tooltip>
-                      <Tooltip.Trigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7"
-                          onClick={() => onSetStar(row.key)}
-                          disabled={row.isExcluded}
-                        >
-                          {isStar ? (
-                            <IconStarFilled
-                              size={14}
-                              className="text-warning"
-                            />
-                          ) : (
-                            <IconStar size={14} />
-                          )}
-                        </Button>
-                      </Tooltip.Trigger>
-                      <Tooltip.Content>
-                        {isStar ? 'Star product' : 'Set as star product'}
-                      </Tooltip.Content>
-                    </Tooltip>
-                  </Tooltip.Provider>
+                  <Controller
+                    control={control}
+                    name={`rows.${index}.isStar`}
+                    render={({ field }) => (
+                      <Tooltip.Provider>
+                        <Tooltip>
+                          <Tooltip.Trigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                              onClick={() => handleSetRowStar(row.key)}
+                              disabled={isExcluded}
+                            >
+                              {field.value ? (
+                                <IconStarFilled
+                                  size={14}
+                                  className="text-warning"
+                                />
+                              ) : (
+                                <IconStar size={14} />
+                              )}
+                            </Button>
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {field.value ? 'Star product' : 'Set as star product'}
+                          </Tooltip.Content>
+                        </Tooltip>
+                      </Tooltip.Provider>
+                    )}
+                  />
                 </Table.Cell>
               </Table.Row>
             );

@@ -19,7 +19,7 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
       const [, setEditId] = useQueryState<string>('similarityId');
       return (
         <RecordTableInlineCell>
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <Badge
               variant="secondary"
               className="cursor-pointer"
@@ -43,13 +43,13 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
     },
   },
   {
-    id: 'baseCode',
-    accessorKey: 'info.baseCode',
+    id: 'code',
+    accessorKey: 'info.code',
     header: () => <RecordTable.InlineHead label="Code" />,
     size: 120,
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        {row.original.info?.baseCode || '—'}
+        {row.original.info?.code || '—'}
       </RecordTableInlineCell>
     ),
   },
@@ -119,5 +119,4 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
       </RecordTableInlineCell>
     ),
   },
- 
 ];

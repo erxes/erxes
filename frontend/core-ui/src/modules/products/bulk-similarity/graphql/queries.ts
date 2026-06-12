@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const SIMILARITY_FIELDS = gql`
-  fragment SimilarityFields on ProductSimilarity {
+  fragment SimilarityFields on ProductBulkSimilarity {
     _id
-    title
     status
     info
     propertiesData
@@ -22,7 +21,7 @@ export const SIMILARITY_FIELDS = gql`
 
 export const PRODUCT_SIMILARITIES = gql`
   query ProductSimilarities($page: Int, $perPage: Int, $searchValue: String) {
-    productSimilarities(page: $page, perPage: $perPage, searchValue: $searchValue) {
+    productBulkSimilarities(page: $page, perPage: $perPage, searchValue: $searchValue) {
       ...SimilarityFields
     }
   }
@@ -31,13 +30,13 @@ export const PRODUCT_SIMILARITIES = gql`
 
 export const PRODUCT_SIMILARITIES_TOTAL_COUNT = gql`
   query ProductSimilaritiesTotalCount($searchValue: String) {
-    productSimilaritiesTotalCount(searchValue: $searchValue)
+    productBulkSimilaritiesTotalCount(searchValue: $searchValue)
   }
 `;
 
 export const PRODUCT_SIMILARITY = gql`
   query ProductSimilarity($_id: String!) {
-    productSimilarity(_id: $_id) {
+    productBulkSimilarity(_id: $_id) {
       ...SimilarityFields
     }
   }

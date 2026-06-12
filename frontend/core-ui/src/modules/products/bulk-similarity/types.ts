@@ -1,7 +1,7 @@
 export interface ISimilarityInfo {
   name?: string;
   shortName?: string;
-  baseCode: string;
+  code: string;
   categoryId?: string;
   type?: string;
   description?: string;
@@ -28,7 +28,6 @@ export interface ISimilarityProduct {
 
 export interface IProductSimilarity {
   _id: string;
-  title?: string;
   status?: string;
   info: ISimilarityInfo;
   // selection per field: { [fieldId]: selectedValues[] }
@@ -38,29 +37,19 @@ export interface IProductSimilarity {
   products?: ISimilarityProduct[];
 }
 
-// A generated matrix row (UI state, derived from selection × products).
-export interface IMatrixRow {
-  key: string;
-  productId?: string;
-  // single combination: { [fieldId]: value }
-  combination: Record<string, string>;
-  code: string;
-  unitPrice?: number;
-  isExcluded?: boolean;
-  isStar?: boolean;
-}
-
 export interface IBulkRow {
   productId?: string;
   code: string;
   unitPrice?: number;
   isExcluded?: boolean;
+  // present and true only on the row the user starred
+  isDefault?: boolean;
+  // selection for this product: { [fieldId]: [value] }
+  propertiesData: Record<string, string[]>;
 }
 
 export interface IBulkSaveInput {
-  title?: string;
   info: ISimilarityInfo;
   propertiesData: Record<string, string[]>;
   rows: IBulkRow[];
-  starRowKey?: string;
 }

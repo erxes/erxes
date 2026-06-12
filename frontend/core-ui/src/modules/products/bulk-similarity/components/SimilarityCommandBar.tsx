@@ -1,10 +1,10 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, useConfirm } from 'erxes-ui';
-import { useProductSimilarityMutations } from '../hooks/useProductSimilarities';
+import { useRemoveSimilarity } from '../hooks/useRemoveSimilarity';
 
 export const SimilarityCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
-  const { remove } = useProductSimilarityMutations();
+  const { remove } = useRemoveSimilarity();
   const { confirm } = useConfirm();
 
   const selectedIds = table

@@ -84,7 +84,7 @@ const configMutations: Record<string, Resolver> = {
     { type },
     { models, subdomain, config, posUser }: IContext,
   ) {
-    assertPosUser(posUser);
+    // assertPosUser(posUser);
 
     const address = await getServerAddress(subdomain);
 

@@ -2,18 +2,10 @@ import { Badge, Button, Input, Popover, Tooltip } from 'erxes-ui';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { useFields } from 'ui-modules';
+import { useVariantFields } from '../hooks/useVariantFields';
 
-interface VariantFieldPickerProps {
-  selection: Record<string, string[]>;
-  fieldIds: string[];
-  onToggleValue: (fieldId: string, value: string) => void;
-  onRemoveField: (fieldId: string) => void;
-}
-
-export const VariantFieldAddButton = ({
-  fieldIds,
-  onToggleValue,
-}: Pick<VariantFieldPickerProps, 'fieldIds' | 'onToggleValue'>) => {
+export const VariantFieldAddButton = () => {
+  const { fieldIds, handleToggleFieldValue } = useVariantFields();
   const { fields, loading } = useFields({ contentType: 'core:product' });
   const optionFields = fields.filter((f) => (f.options || []).length > 0);
 
@@ -22,17 +14,14 @@ export const VariantFieldAddButton = ({
       fields={optionFields}
       activeFieldIds={fieldIds}
       loading={loading}
-      onPick={(fieldId, value) => onToggleValue(fieldId, value)}
+      onPick={(fieldId, value) => handleToggleFieldValue(fieldId, value)}
     />
   );
 };
 
-export const VariantFieldPicker = ({
-  selection,
-  fieldIds,
-  onToggleValue,
-  onRemoveField,
-}: VariantFieldPickerProps) => {
+export const VariantFieldPicker = () => {
+  const { properties, fieldIds, handleToggleFieldValue, handleRemoveField } =
+    useVariantFields();
   const { fields } = useFields({ contentType: 'core:product' });
 
   const optionFields = fields.filter((f) => (f.options || []).length > 0);
@@ -45,11 +34,12 @@ export const VariantFieldPicker = ({
         </div>
       )}
 
-      {fieldIds.map((fieldId) => {
+      {properties.map((property) => {
+        const fieldId = property.fieldId;
         const field = optionFields.find((f) => f._id === fieldId);
         if (!field) return null;
         const options = field.options || [];
-        const selected = selection[fieldId] || [];
+        const selected = property.values || [];
 
         return (
           <div
@@ -69,7 +59,9 @@ export const VariantFieldPicker = ({
                     key={option.value}
                     variant={isOn ? 'default' : 'secondary'}
                     className="cursor-pointer"
-                    onClick={() => onToggleValue(fieldId, option.value)}
+                    onClick={() =>
+                      handleToggleFieldValue(fieldId, option.value)
+                    }
                   >
                     {option.label}
                   </Badge>
@@ -83,7 +75,7 @@ export const VariantFieldPicker = ({
                     variant="ghost"
                     size="icon"
                     className="shrink-0 size-7"
-                    onClick={() => onRemoveField(fieldId)}
+                    onClick={() => handleRemoveField(fieldId)}
                   >
                     <IconX size={14} />
                   </Button>

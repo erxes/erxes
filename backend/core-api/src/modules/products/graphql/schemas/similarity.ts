@@ -5,9 +5,8 @@ export const types = `
     values: [String]
   }
 
-  type ProductSimilarity {
+  type ProductBulkSimilarity {
     _id: String!
-    title: String
     status: String
     info: JSON
     propertiesData: JSON
@@ -21,13 +20,13 @@ export const types = `
 `;
 
 export const queries = `
-  productSimilarity(_id: String!): ProductSimilarity
-  productSimilarities(page: Int, perPage: Int, searchValue: String): [ProductSimilarity]
-  productSimilaritiesTotalCount(searchValue: String): Int
+  productBulkSimilarity(_id: String!): ProductBulkSimilarity
+  productBulkSimilarities(page: Int, perPage: Int, searchValue: String): [ProductBulkSimilarity]
+  productBulkSimilaritiesTotalCount(searchValue: String): Int
 `;
 
 export const mutations = `
-  productSimilarityBulkSave(_id: String, doc: JSON!): ProductSimilarity
-  productSimilarityRemove(_id: String!): String
-  productSimilaritySetStar(_id: String!, productId: String!): ProductSimilarity
+  productBulkSimilarityAdd(doc: JSON!): ProductBulkSimilarity
+  productBulkSimilarityEdit(_id: String!, doc: JSON!): ProductBulkSimilarity
+  productBulkSimilarityRemove(_id: String!): String
 `;

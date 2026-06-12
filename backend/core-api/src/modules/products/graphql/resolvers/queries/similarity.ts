@@ -11,14 +11,14 @@ const generateFilter = (searchValue?: string) => {
 
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
-    filter.$or = [{ title: regex }, { 'info.baseCode': regex }, { 'info.name': regex }];
+    filter.$or = [{ 'info.code': regex }, { 'info.name': regex }];
   }
 
   return filter;
 };
 
 export const productSimilarityQueries = {
-  async productSimilarity(
+  async productBulkSimilarity(
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -26,7 +26,7 @@ export const productSimilarityQueries = {
     return models.ProductSimilarities.getSimilarity(_id);
   },
 
-  async productSimilarities(
+  async productBulkSimilarities(
     _root: undefined,
     {
       page = 1,
@@ -44,11 +44,13 @@ export const productSimilarityQueries = {
       .lean();
   },
 
-  async productSimilaritiesTotalCount(
+  async productBulkSimilaritiesTotalCount(
     _root: undefined,
     { searchValue }: { searchValue?: string },
     { models }: IContext,
   ) {
-    return models.ProductSimilarities.countDocuments(generateFilter(searchValue));
+    return models.ProductSimilarities.countDocuments(
+      generateFilter(searchValue),
+    );
   },
 };

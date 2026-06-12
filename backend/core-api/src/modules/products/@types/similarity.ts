@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 export interface IProductSimilarityInfo {
   name?: string;
   shortName?: string;
-  baseCode: string;
+  code: string;
   categoryId?: string;
   type?: string;
   description?: string;
@@ -25,10 +25,11 @@ export interface IProductSimilarityRow {
   code: string;
   unitPrice?: number;
   isExcluded?: boolean;
+  isDefault?: boolean;
+  propertiesData: Record<string, string[]>;
 }
 
 export interface IProductSimilarity {
-  title?: string;
   status?: string;
   info: IProductSimilarityInfo;
   propertiesData: Record<string, any>;
@@ -44,12 +45,9 @@ export interface IProductSimilarityDocument
   updatedAt: Date;
 }
 
-// Input shape for bulkSaveSimilarity.
 export interface IProductSimilarityBulkInput {
   _id?: string;
-  title?: string;
   info: IProductSimilarityInfo;
   propertiesData: Record<string, any>;
   rows: IProductSimilarityRow[];
-  starRowKey?: string;
 }

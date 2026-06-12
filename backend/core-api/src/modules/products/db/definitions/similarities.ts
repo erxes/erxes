@@ -7,7 +7,7 @@ const infoSchema = new Schema(
   {
     name: { type: String, optional: true, label: 'Name' },
     shortName: { type: String, optional: true, label: 'Short name' },
-    baseCode: { type: String, label: 'Base code' },
+    code: { type: String, label: 'Base code' },
     categoryId: { type: String, optional: true, label: 'Category' },
     type: { type: String, optional: true, label: 'Type' },
     description: { type: String, optional: true, label: 'Description' },
@@ -29,7 +29,6 @@ export const productSimilaritySchema = schemaWrapper(
   new Schema(
     {
       _id: mongooseStringRandomId,
-      title: { type: String, optional: true, label: 'Title' },
       status: {
         type: String,
         enum: PRODUCT_SIMILARITY_STATUSES.ALL,

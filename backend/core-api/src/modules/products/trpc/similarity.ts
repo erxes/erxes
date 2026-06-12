@@ -20,19 +20,20 @@ export const similaritiesTrpcRouter = t.router({
     return ctx.models.ProductSimilarities.findOne(input || {}).lean();
   }),
 
-  bulkSave: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-    return ctx.models.ProductSimilarities.bulkSaveSimilarity(input);
+  add: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+    return ctx.models.ProductSimilarities.addSimilarity(input);
   }),
+
+  edit: t.procedure
+    .input(z.object({ _id: z.string() }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      const { _id, ...doc } = input;
+      return ctx.models.ProductSimilarities.editSimilarity(_id, doc as any);
+    }),
 
   remove: t.procedure
     .input(z.object({ _id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.models.ProductSimilarities.removeSimilarity(input._id);
-    }),
-
-  setStar: t.procedure
-    .input(z.object({ _id: z.string(), productId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      return ctx.models.ProductSimilarities.setStar(input._id, input.productId);
     }),
 });

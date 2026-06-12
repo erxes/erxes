@@ -61,7 +61,7 @@ const generateFilter = async (
   filter.status = { $ne: PRODUCT_STATUSES.DELETED };
 
   // one card per similarity group: standalone products + each group's star
-  if (params.collapseSimilarity) {
+  if (params.similarity) {
     const starProductIds = await models.ProductSimilarities.distinct(
       'starProductId',
       { status: { $ne: PRODUCT_SIMILARITY_STATUSES.DELETED } },
