@@ -313,6 +313,54 @@ export const MASTRA_WORKFLOW = gql`
   }
 `;
 
+export const MASTRA_SCHEDULES = gql`
+  query MastraSchedules {
+    mastraSchedules {
+      _id
+      name
+      description
+      agentId
+      cron
+      timezone
+      prompt
+      isEnabled
+      threadId
+      lastRunAt
+      lastStatus
+      lastError
+      lastReply
+      lastDurationMs
+      runCount
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const MASTRA_SCHEDULE = gql`
+  query MastraSchedule($_id: String!) {
+    mastraSchedule(_id: $_id) {
+      _id
+      name
+      description
+      agentId
+      cron
+      timezone
+      prompt
+      isEnabled
+      threadId
+      lastRunAt
+      lastStatus
+      lastError
+      lastReply
+      lastDurationMs
+      runCount
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export const MASTRA_WORKFLOW_RUNS = gql`
   query MastraWorkflowRuns($workflowId: String!, $page: Int, $perPage: Int) {
     mastraWorkflowRuns(
