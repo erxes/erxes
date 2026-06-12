@@ -225,23 +225,20 @@ export const getConversationContent = async (models: IModels, cdrParams) => {
 export function selectRelevantCdr(histories: any[]): any | null {
   if (!Array.isArray(histories) || histories.length === 0) return null;
 
-  const answeredLegs = histories.filter(
+  const answered = histories.find(
     (h) =>
-      h.disposition === 'ANSWERED' && h.billsec > 0 && h.actionType !== 'VM',
+      h.disposition === 'ANSWERED' &&
+      h.billsec > 0 &&
+      h.lastapp === 'Queue' &&
+      h.actionType !== 'VM',
   );
-
-  if (answeredLegs.length > 0) {
-    return answeredLegs.reduce((longest, h) =>
-      h.billsec > longest.billsec ? h : longest,
-    );
-  }
 
   const ivr = histories.find(
     (h) =>
       h.disposition === 'ANSWERED' &&
       h.billsec > 0 &&
       h.lastapp !== 'ForkCDR' &&
-      h.actionType?.includes('IVR'),
+      h.actionType.includes('IVR'),
   );
 
   const noAnswer = histories.find(
@@ -249,7 +246,7 @@ export function selectRelevantCdr(histories: any[]): any | null {
       h.disposition === 'NO ANSWER' && h.billsec === 0 && h.lastapp === 'Queue',
   );
 
-  return noAnswer || ivr || histories[histories.length - 1] || null;
+  return answered || noAnswer || ivr || histories[histories.length - 1] || null;
 }
 export const calculateFileDir = (doc) => {
   let fileDir = 'monitor';
