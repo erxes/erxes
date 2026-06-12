@@ -104,8 +104,8 @@ export async function runSchedule(args: {
     const reply = await runWithAuth(authCtx, () =>
       runAgentTurn({
         // Same narrowing as chat turns (turn.ts): Mastra's generate() output
-        // is wider than the slice TurnAgent consumes. NOSONAR
-        agent: agent as unknown as TurnAgent,
+        // is wider than the slice TurnAgent consumes.
+        agent: agent as unknown as TurnAgent, // NOSONAR typescript:S4325 — removing it fails tsc
         tools,
         convo,
         message: schedule.prompt,

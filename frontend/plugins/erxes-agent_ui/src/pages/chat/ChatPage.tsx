@@ -995,10 +995,10 @@ export const ChatPage = () => {
   useEffect(() => {
     if (selectedAgent && agentId && selectedAgent._id !== agentId) {
       const search = searchParams.toString();
-      navigate(
-        `/erxes-agent/chat/${selectedAgent._id}${search ? `?${search}` : ''}`,
-        { replace: true },
-      );
+      const suffix = search ? `?${search}` : '';
+      navigate(`/erxes-agent/chat/${selectedAgent._id}${suffix}`, {
+        replace: true,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAgent?._id, agentId]);

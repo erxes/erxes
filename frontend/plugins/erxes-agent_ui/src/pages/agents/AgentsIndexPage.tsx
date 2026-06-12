@@ -10,10 +10,7 @@ import {
   IconTool,
   IconCalendar,
   IconPencil,
-  IconTrash,
   IconMessageCircle,
-  IconToggleLeft,
-  IconToggleRight,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -32,6 +29,10 @@ import {
 import { PageHeader } from 'ui-modules';
 import { MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_AGENT_REMOVE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
+import {
+  ToggleDeleteMenuItems,
+  enabledStatusColumn,
+} from '~/components/RecordTableShared';
 import { useMastraAgentList, IMastraAgentRow } from './useMastraAgentList';
 
 type IAgent = IMastraAgentRow;
@@ -107,34 +108,11 @@ const AgentMoreCell = ({
                 <IconPencil className="size-4" /> Edit
               </Button>
             </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={handleToggle}
-              >
-                {agent.isEnabled ? (
-                  <>
-                    <IconToggleLeft className="size-4" /> Disable
-                  </>
-                ) : (
-                  <>
-                    <IconToggleRight className="size-4" /> Enable
-                  </>
-                )}
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8 text-destructive"
-                onClick={handleDelete}
-              >
-                <IconTrash className="size-4" /> Delete
-              </Button>
-            </Command.Item>
+            <ToggleDeleteMenuItems
+              isEnabled={agent.isEnabled}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+            />
           </Command.List>
         </Command>
       </Combobox.Content>
@@ -213,24 +191,7 @@ const baseColumns: ColumnDef<IAgent>[] = [
     },
     size: 110,
   },
-  {
-    id: 'status',
-    accessorKey: 'isEnabled',
-    header: () => (
-      <RecordTable.InlineHead icon={IconToggleRight} label="Status" />
-    ),
-    cell: ({ cell }) => {
-      const isEnabled = cell.getValue() as boolean;
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={isEnabled ? 'success' : 'secondary'}>
-            {isEnabled ? 'Active' : 'Disabled'}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
-  },
+  enabledStatusColumn<IAgent>(),
   {
     id: 'createdAt',
     accessorKey: 'createdAt',

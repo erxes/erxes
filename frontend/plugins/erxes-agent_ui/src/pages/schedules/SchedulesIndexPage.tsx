@@ -12,9 +12,6 @@ import {
   IconPencil,
   IconPlayerPlay,
   IconRobot,
-  IconTrash,
-  IconToggleLeft,
-  IconToggleRight,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -39,6 +36,10 @@ import {
   MASTRA_SCHEDULE_RUN_NOW,
   MASTRA_SCHEDULE_SET_ENABLED,
 } from '~/graphql/mutations';
+import {
+  ToggleDeleteMenuItems,
+  enabledStatusColumn,
+} from '~/components/RecordTableShared';
 
 export interface IScheduleRow {
   _id: string;
@@ -170,41 +171,18 @@ const ScheduleMoreCell = ({
                 <IconPencil className="size-4" /> Edit
               </Button>
             </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={() =>
-                  setEnabled({
-                    variables: {
-                      _id: schedule._id,
-                      isEnabled: !schedule.isEnabled,
-                    },
-                  })
-                }
-              >
-                {schedule.isEnabled ? (
-                  <>
-                    <IconToggleLeft className="size-4" /> Disable
-                  </>
-                ) : (
-                  <>
-                    <IconToggleRight className="size-4" /> Enable
-                  </>
-                )}
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8 text-destructive"
-                onClick={handleDelete}
-              >
-                <IconTrash className="size-4" /> Delete
-              </Button>
-            </Command.Item>
+            <ToggleDeleteMenuItems
+              isEnabled={schedule.isEnabled}
+              onToggle={() =>
+                setEnabled({
+                  variables: {
+                    _id: schedule._id,
+                    isEnabled: !schedule.isEnabled,
+                  },
+                })
+              }
+              onDelete={handleDelete}
+            />
           </Command.List>
         </Command>
       </Combobox.Content>
@@ -317,24 +295,7 @@ const baseColumns: ColumnDef<IScheduleRow>[] = [
     ),
     size: 150,
   },
-  {
-    id: 'status',
-    accessorKey: 'isEnabled',
-    header: () => (
-      <RecordTable.InlineHead icon={IconToggleRight} label="Status" />
-    ),
-    cell: ({ cell }) => {
-      const isEnabled = cell.getValue() as boolean;
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={isEnabled ? 'success' : 'secondary'}>
-            {isEnabled ? 'Active' : 'Disabled'}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
-  },
+  enabledStatusColumn<IScheduleRow>(),
   {
     id: 'lastRun',
     header: () => (

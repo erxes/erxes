@@ -16,6 +16,7 @@ import {
   getSaasOrganizations,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '../../connectionResolvers';
+import { pruneStaleJobSchedulers } from '../jobSchedulers';
 import { runSchedule } from './runner';
 
 const SERVICE = 'erxes-agent';
@@ -58,21 +59,7 @@ async function reconcileTenant(runQueue: Queue, tenant: string): Promise<void> {
     });
   }
 
-  // Page through ALL schedulers — the queue is shared across tenants, and a
-  // bounded read would stop pruning stale entries past the window.
-  const PAGE = 500;
-  const existing: Array<{ key?: string; id?: string | null }> = [];
-  for (let start = 0; ; start += PAGE) {
-    const batch = await runQueue.getJobSchedulers(start, start + PAGE - 1);
-    existing.push(...batch);
-    if (!batch.length || batch.length < PAGE) break;
-  }
-  for (const scheduler of existing) {
-    const key = scheduler.key ?? scheduler.id;
-    if (key?.startsWith(`agsched-${tenant}-`) && !desired.has(key)) {
-      await runQueue.removeJobScheduler(key);
-    }
-  }
+  await pruneStaleJobSchedulers(runQueue, `agsched-${tenant}-`, desired);
 
   for (const [id, { pattern, tz, scheduleId }] of desired) {
     try {
