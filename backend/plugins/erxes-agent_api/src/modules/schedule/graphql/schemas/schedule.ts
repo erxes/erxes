@@ -21,6 +21,16 @@ export const types = `
   }
 
   input MastraScheduleInput {
+    name: String!
+    description: String
+    agentId: String!
+    cron: String!
+    timezone: String
+    prompt: String!
+    isEnabled: Boolean
+  }
+
+  input MastraScheduleUpdateInput {
     name: String
     description: String
     agentId: String
@@ -38,7 +48,7 @@ export const queries = `
 
 export const mutations = `
   mastraScheduleCreate(doc: MastraScheduleInput!): MastraSchedule
-  mastraScheduleUpdate(_id: String!, doc: MastraScheduleInput!): MastraSchedule
+  mastraScheduleUpdate(_id: String!, doc: MastraScheduleUpdateInput!): MastraSchedule
   mastraScheduleRemove(_id: String!): JSON
   mastraScheduleSetEnabled(_id: String!, isEnabled: Boolean!): MastraSchedule
   mastraScheduleRunNow(_id: String!): MastraSchedule

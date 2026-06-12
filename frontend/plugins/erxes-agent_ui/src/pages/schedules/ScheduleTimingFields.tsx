@@ -50,6 +50,7 @@ const FREQUENCIES: { value: ScheduleFrequency; label: string }[] = [
   { value: 'custom', label: 'Custom (cron)' },
 ];
 
+/** Emit the cron expression for one structured timing choice. */
 export function buildCron(parts: TimingParts): string {
   const { freq, minute, hour, weekdays, dayOfMonth } = parts;
   if (freq === 'hourly') return `${minute} * * * *`;
@@ -61,62 +62,74 @@ export function buildCron(parts: TimingParts): string {
   return `${minute} ${hour} ${dayOfMonth} * *`;
 }
 
+/** Parse a plain decimal string; null for anything fancier. */
 const num = (s: string): number | null =>
-  /^\d+$/.test(s) ? parseInt(s, 10) : null;
+  /^\d+$/.test(s) ? Number.parseInt(s, 10) : null;
 
 /** Expand a cron weekday field ("1,3" / "1-5") to a day list; null if fancy. */
 function expandWeekdays(field: string): number[] | null {
   const days = new Set<number>();
   for (const part of field.split(',')) {
-    const range = part.match(/^(\d)-(\d)$/);
+    const range = /^(\d)-(\d)$/.exec(part);
     if (range) {
-      const [from, to] = [parseInt(range[1], 10), parseInt(range[2], 10)];
+      const from = Number.parseInt(range[1], 10);
+      const to = Number.parseInt(range[2], 10);
       if (from > to || to > 7) return null;
-      for (let d = from; d <= to; d++) days.add(d % 7);
+      for (let day = from; day <= to; day++) days.add(day % 7);
       continue;
     }
-    const d = num(part);
-    if (d == null || d > 7) return null;
-    days.add(d % 7);
+    const day = num(part);
+    if (day == null || day > 7) return null;
+    days.add(day % 7);
   }
   return days.size ? [...days] : null;
 }
 
 /** Read a cron back into builder parts; null when it needs the custom view. */
 export function parseCron(cron: string): TimingParts | null {
-  const f = cron.trim().split(/\s+/);
-  if (f.length !== 5) return null;
-  const minute = num(f[0]);
+  const fields = cron.trim().split(/\s+/);
+  if (fields.length !== 5) return null;
+  const minute = num(fields[0]);
   if (minute == null || minute > 59) return null;
 
-  if (f[1] === '*' && f[2] === '*' && f[3] === '*' && f[4] === '*') {
+  if (
+    fields[1] === '*' &&
+    fields[2] === '*' &&
+    fields[3] === '*' &&
+    fields[4] === '*'
+  ) {
     return { ...DEFAULT_PARTS, freq: 'hourly', minute };
   }
-  const hour = num(f[1]);
+  const hour = num(fields[1]);
   if (hour == null || hour > 23) return null;
 
-  if (f[2] === '*' && f[3] === '*') {
-    if (f[4] === '*') return { ...DEFAULT_PARTS, freq: 'daily', minute, hour };
-    const weekdays = expandWeekdays(f[4]);
+  if (fields[2] === '*' && fields[3] === '*') {
+    if (fields[4] === '*') {
+      return { ...DEFAULT_PARTS, freq: 'daily', minute, hour };
+    }
+    const weekdays = expandWeekdays(fields[4]);
     if (!weekdays) return null;
     return { ...DEFAULT_PARTS, freq: 'weekly', minute, hour, weekdays };
   }
 
-  if (f[3] === '*' && f[4] === '*') {
-    const dayOfMonth = num(f[2]);
+  if (fields[3] === '*' && fields[4] === '*') {
+    const dayOfMonth = num(fields[2]);
     if (dayOfMonth == null || dayOfMonth < 1 || dayOfMonth > 31) return null;
     return { ...DEFAULT_PARTS, freq: 'monthly', minute, hour, dayOfMonth };
   }
   return null;
 }
 
+/** Zero-pad to two digits for HH:MM rendering. */
 const pad = (n: number) => String(n).padStart(2, '0');
 
+/** English ordinal suffix: 1st, 2nd, 3rd, 4th… 11th–13th included. */
 function ordinal(n: number): string {
   if (n % 100 >= 11 && n % 100 <= 13) return `${n}th`;
   return `${n}${['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
 }
 
+/** Human-readable one-liner of when the schedule fires. */
 export function describeTiming(
   freq: ScheduleFrequency,
   parts: TimingParts,
@@ -136,11 +149,14 @@ export function describeTiming(
     return `Runs every ${names || 'Mon'} at ${time} · ${tz}`;
   }
   if (freq === 'monthly') {
-    return `Runs on the ${ordinal(parts.dayOfMonth)} of every month at ${time} · ${tz}`;
+    return `Runs on the ${ordinal(
+      parts.dayOfMonth,
+    )} of every month at ${time} · ${tz}`;
   }
   return `Runs on cron "${cron.trim() || '—'}" · ${tz}`;
 }
 
+/** Combobox over the browser-supported IANA timezones, UTC pinned first. */
 const SelectTimezone = ({
   value,
   onValueChange,
@@ -213,9 +229,11 @@ export const ScheduleTimingFields = ({
   const freq: ScheduleFrequency =
     customMode || !parsed ? 'custom' : parsed.freq;
 
+  /** Re-emit the cron with some builder parts changed. */
   const apply = (patch: Partial<TimingParts>) =>
     onCronChange(buildCron({ ...parts, ...patch }));
 
+  /** Switch frequency; "Custom" only flips the view, keeping the cron. */
   const pickFrequency = (next: ScheduleFrequency) => {
     if (next === 'custom') {
       setCustomMode(true);
@@ -225,6 +243,7 @@ export const ScheduleTimingFields = ({
     apply({ freq: next });
   };
 
+  /** Toggle one weekday in the weekly view. */
   const toggleWeekday = (day: number) => {
     const has = parts.weekdays.includes(day);
     const next = has
@@ -235,10 +254,14 @@ export const ScheduleTimingFields = ({
   };
 
   const timeValue = `${pad(parts.hour)}:${pad(parts.minute)}`;
+  /** Push an HH:MM time-input value into the cron. */
   const onTimeChange = (v: string) => {
-    const match = v.match(/^(\d{1,2}):(\d{1,2})$/);
+    const match = /^(\d{1,2}):(\d{1,2})$/.exec(v);
     if (match) {
-      apply({ hour: parseInt(match[1], 10), minute: parseInt(match[2], 10) });
+      apply({
+        hour: Number.parseInt(match[1], 10),
+        minute: Number.parseInt(match[2], 10),
+      });
     }
   };
 
@@ -293,7 +316,7 @@ export const ScheduleTimingFields = ({
             max={31}
             value={parts.dayOfMonth}
             onChange={(e) => {
-              const day = parseInt(e.target.value, 10);
+              const day = Number.parseInt(e.target.value, 10);
               if (day >= 1 && day <= 31) apply({ dayOfMonth: day });
             }}
             className="w-24"
@@ -310,7 +333,7 @@ export const ScheduleTimingFields = ({
             max={59}
             value={parts.minute}
             onChange={(e) => {
-              const minute = parseInt(e.target.value, 10);
+              const minute = Number.parseInt(e.target.value, 10);
               if (minute >= 0 && minute <= 59) apply({ minute });
             }}
             className="w-24"

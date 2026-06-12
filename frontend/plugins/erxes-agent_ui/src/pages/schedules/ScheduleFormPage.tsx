@@ -22,13 +22,18 @@ import {
   toast,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_AGENTS, MASTRA_SCHEDULE, MASTRA_SCHEDULES } from '~/graphql/queries';
+import {
+  MASTRA_AGENTS,
+  MASTRA_SCHEDULE,
+  MASTRA_SCHEDULES,
+} from '~/graphql/queries';
 import {
   MASTRA_SCHEDULE_CREATE,
   MASTRA_SCHEDULE_UPDATE,
 } from '~/graphql/mutations';
 import { ScheduleTimingFields } from './ScheduleTimingFields';
 
+/** Card wrapper for one group of related form fields. */
 const FormSection = ({
   title,
   description,
@@ -47,6 +52,7 @@ const FormSection = ({
   </Card>
 );
 
+/** Labeled form control with an optional hint line. */
 const Field = ({
   label,
   hint,
@@ -69,6 +75,7 @@ interface IAgentOption {
   isEnabled: boolean;
 }
 
+/** Combobox over the enabled agents; the schedule runs against the pick. */
 const SelectAgent = ({
   value,
   onValueChange,
@@ -89,7 +96,7 @@ const SelectAgent = ({
         <Combobox.Value
           value={selected ? selected.name : value || ''}
           placeholder="Select agent…"
-          loading={loading && !agents.length && !!value}
+          loading={loading && !agents.length && Boolean(value)}
         />
       </Combobox.Trigger>
       <Combobox.Content>
@@ -120,10 +127,11 @@ const SelectAgent = ({
   );
 };
 
+/** Create/edit form for one scheduled agent run. */
 export const ScheduleFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isEdit = !!id;
+  const isEdit = Boolean(id);
 
   const [form, setForm] = useState({
     name: '',
@@ -142,15 +150,15 @@ export const ScheduleFormPage = () => {
 
   useEffect(() => {
     if (isEdit && scheduleData?.mastraSchedule) {
-      const s = scheduleData.mastraSchedule;
+      const schedule = scheduleData.mastraSchedule;
       setForm({
-        name: s.name || '',
-        description: s.description || '',
-        agentId: s.agentId || '',
-        cron: s.cron || '0 9 * * *',
-        timezone: s.timezone || 'UTC',
-        prompt: s.prompt || '',
-        isEnabled: s.isEnabled ?? false,
+        name: schedule.name || '',
+        description: schedule.description || '',
+        agentId: schedule.agentId || '',
+        cron: schedule.cron || '0 9 * * *',
+        timezone: schedule.timezone || 'UTC',
+        prompt: schedule.prompt || '',
+        isEnabled: schedule.isEnabled ?? false,
       });
     }
   }, [scheduleData, isEdit]);
@@ -171,12 +179,21 @@ export const ScheduleFormPage = () => {
     mutationOptions,
   );
 
+  /** Patch one form field by key. */
   const set = (k: string, v: string | boolean) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  /** Save the schedule; the missing-agent case also disables both buttons. */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.agentId) return;
+    if (!form.agentId) {
+      toast({
+        title: 'Agent required',
+        description: 'Pick the agent this schedule should run.',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (isEdit) {
       updateSchedule({ variables: { _id: id, doc: form } });
     } else {
@@ -185,7 +202,9 @@ export const ScheduleFormPage = () => {
   };
 
   const isSaving = creating || updating;
+  const saveLabel = isEdit ? 'Save Changes' : 'Create Schedule';
 
+  // skipcq: JS-0415 — page scaffolding (header/breadcrumb) nests past the cap
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -221,7 +240,7 @@ export const ScheduleFormPage = () => {
             form="schedule-form"
             disabled={isSaving || !form.agentId}
           >
-            {isSaving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Schedule'}
+            {isSaving ? 'Saving…' : saveLabel}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -275,6 +294,7 @@ export const ScheduleFormPage = () => {
 
           <FormSection title="Timing" description="How often the agent runs.">
             <ScheduleTimingFields
+              key={id ?? 'new'}
               cron={form.cron}
               timezone={form.timezone}
               onCronChange={(v) => set('cron', v)}
@@ -309,8 +329,8 @@ export const ScheduleFormPage = () => {
           </FormSection>
 
           <div className="flex gap-3 pb-4 sm:hidden">
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Schedule'}
+            <Button type="submit" disabled={isSaving || !form.agentId}>
+              {isSaving ? 'Saving…' : saveLabel}
             </Button>
             <Button type="button" variant="outline" asChild>
               <Link to="/erxes-agent/schedules">Cancel</Link>

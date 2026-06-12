@@ -229,7 +229,10 @@ export const MASTRA_SCHEDULE_CREATE = gql`
 `;
 
 export const MASTRA_SCHEDULE_UPDATE = gql`
-  mutation MastraScheduleUpdate($_id: String!, $doc: MastraScheduleInput!) {
+  mutation MastraScheduleUpdate(
+    $_id: String!
+    $doc: MastraScheduleUpdateInput!
+  ) {
     mastraScheduleUpdate(_id: $_id, doc: $doc) {
       _id
       name

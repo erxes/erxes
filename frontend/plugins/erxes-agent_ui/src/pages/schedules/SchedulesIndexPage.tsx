@@ -61,6 +61,7 @@ export interface IScheduleRow {
 
 // ─── More menu cell ───────────────────────────────────────────────────────────
 
+/** Row actions: run now, view output thread, edit, enable/disable, delete. */
 const ScheduleMoreCell = ({
   schedule,
   refetch,
@@ -101,12 +102,14 @@ const ScheduleMoreCell = ({
       toast({ title: 'Error', description: e.message, variant: 'destructive' }),
   });
 
+  /** Confirm, then remove the schedule together with its output thread. */
   const handleDelete = () =>
     confirm({
       message: `Remove "${schedule.name}" and its output thread? This cannot be undone.`,
       options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
     }).then(() => removeSchedule({ variables: { _id: schedule._id } }));
 
+  // skipcq: JS-0415 — action menu scaffolding nests past the lint cap
   return (
     <Popover>
       <Popover.Trigger asChild>
@@ -140,7 +143,17 @@ const ScheduleMoreCell = ({
                 variant="ghost"
                 size="sm"
                 className="justify-start w-full h-8"
-                onClick={() => navigate(`/erxes-agent/chat/${schedule.agentId}`)}
+                disabled={!schedule.lastRunAt}
+                title={
+                  schedule.lastRunAt
+                    ? undefined
+                    : 'No output yet — the thread is created on the first run'
+                }
+                onClick={() =>
+                  navigate(
+                    `/erxes-agent/chat/${schedule.agentId}?thread=${schedule.threadId}`,
+                  )
+                }
               >
                 <IconMessageCircle className="size-4" /> View output
               </Button>
@@ -201,6 +214,14 @@ const ScheduleMoreCell = ({
 
 // ─── Columns ──────────────────────────────────────────────────────────────────
 
+/** Badge variant per run status — skipped is neutral, not a green success. */
+const STATUS_VARIANTS = {
+  failed: 'destructive',
+  skipped: 'secondary',
+  success: 'success',
+} as const;
+
+/** Status badge (with error tooltip on failure) plus relative run time. */
 const LastRunCell = ({ schedule }: { schedule: IScheduleRow }) => {
   if (!schedule.lastRunAt) {
     return (
@@ -211,7 +232,7 @@ const LastRunCell = ({ schedule }: { schedule: IScheduleRow }) => {
   }
   const failed = schedule.lastStatus === 'failed';
   const badge = (
-    <Badge variant={failed ? 'destructive' : 'success'}>
+    <Badge variant={STATUS_VARIANTS[schedule.lastStatus ?? 'success']}>
       {schedule.lastStatus}
     </Badge>
   );
@@ -325,9 +346,7 @@ const baseColumns: ColumnDef<IScheduleRow>[] = [
   {
     id: 'runCount',
     accessorKey: 'runCount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconPlayerPlay} label="Runs" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconPlayerPlay} label="Runs" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="text-sm tabular-nums">
@@ -341,6 +360,20 @@ const baseColumns: ColumnDef<IScheduleRow>[] = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+/** The full column set, with the actions column bound to this list's refetch. */
+const buildColumns = (refetch: () => void): ColumnDef<IScheduleRow>[] => [
+  {
+    id: 'more',
+    cell: ({ row }) => (
+      <ScheduleMoreCell schedule={row.original} refetch={refetch} />
+    ),
+    size: 33,
+  },
+  RecordTable.checkboxColumn as ColumnDef<IScheduleRow>,
+  ...baseColumns,
+];
+
+/** Record table of all agent schedules with row actions. */
 export const SchedulesIndexPage = () => {
   const { data, loading, refetch } = useQuery(MASTRA_SCHEDULES, {
     fetchPolicy: 'network-only',
@@ -349,21 +382,9 @@ export const SchedulesIndexPage = () => {
 
   const schedules: IScheduleRow[] = data?.mastraSchedules || [];
 
-  const columns = useMemo<ColumnDef<IScheduleRow>[]>(
-    () => [
-      {
-        id: 'more',
-        cell: ({ row }) => (
-          <ScheduleMoreCell schedule={row.original} refetch={refetch} />
-        ),
-        size: 33,
-      },
-      RecordTable.checkboxColumn as ColumnDef<IScheduleRow>,
-      ...baseColumns,
-    ],
-    [refetch],
-  );
+  const columns = useMemo(() => buildColumns(refetch), [refetch]);
 
+  // skipcq: JS-0415 — page scaffolding (header/empty state/table) nests past the cap
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -393,6 +414,7 @@ export const SchedulesIndexPage = () => {
       </PageHeader>
 
       {!loading && schedules.length === 0 ? (
+        // skipcq: JS-0415 — empty-state scaffolding nests past the lint cap
         <div className="flex-1 flex items-center justify-center p-4">
           <Empty className="border border-dashed max-w-sm w-full">
             <Empty.Header>
@@ -415,6 +437,7 @@ export const SchedulesIndexPage = () => {
           </Empty>
         </div>
       ) : (
+        // skipcq: JS-0415 — record-table scaffolding nests past the lint cap
         <div className="flex-1 min-h-0">
           <RecordTable.Provider
             columns={columns}

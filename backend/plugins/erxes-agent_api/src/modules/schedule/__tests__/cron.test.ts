@@ -14,13 +14,13 @@ describe('validateCron', () => {
   it('rejects empty and non-string input', () => {
     expect(() => validateCron('')).toThrow('required');
     expect(() => validateCron('   ')).toThrow('required');
-    expect(() => validateCron(undefined)).toThrow('required');
+    expect(() => validateCron()).toThrow('required');
     expect(() => validateCron({ $gt: '' })).toThrow('required');
   });
 
   it('rejects wrong field counts', () => {
-    expect(() => validateCron('0 9 * *')).toThrow('5 fields');
-    expect(() => validateCron('0 9 * * * * *')).toThrow('5 fields');
+    expect(() => validateCron('0 9 * *')).toThrow('5 or 6 fields');
+    expect(() => validateCron('0 9 * * * * *')).toThrow('5 or 6 fields');
   });
 
   it('rejects fields with cron-unsafe characters', () => {
@@ -31,7 +31,7 @@ describe('validateCron', () => {
 
 describe('validateTimezone', () => {
   it('defaults blank input to UTC', () => {
-    expect(validateTimezone(undefined)).toBe('UTC');
+    expect(validateTimezone()).toBe('UTC');
     expect(validateTimezone(null)).toBe('UTC');
     expect(validateTimezone('')).toBe('UTC');
   });

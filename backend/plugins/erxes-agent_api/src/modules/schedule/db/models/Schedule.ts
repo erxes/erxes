@@ -29,19 +29,25 @@ export interface IMastraScheduleModel extends Model<IMastraScheduleDocument> {
   ): Promise<void>;
 }
 
+/** Bind the MastraSchedule statics onto the schedule schema (mongoose loadClass). */
 export const loadScheduleClass = (_models: IModels) => {
+  /** Static lifecycle helpers for scheduled agent runs. */
+  // skipcq: JS-0327 — the mongoose loadClass pattern requires a class of statics
   class MastraSchedule {
+    /** Fetch one schedule; throws when it does not exist. */
     public static async getSchedule(_id: string) {
       const schedule = await _models.MastraSchedule.findOne({ _id });
       if (!schedule) throw new Error('Schedule not found');
       return schedule;
     }
 
-    public static async getSchedules() {
+    /** All schedules, newest first. */
+    public static getSchedules() {
       return _models.MastraSchedule.find().sort({ createdAt: -1 });
     }
 
-    public static async createSchedule(doc: IMastraSchedule) {
+    /** Create a schedule after validating its cron and timezone. */
+    public static createSchedule(doc: IMastraSchedule) {
       return _models.MastraSchedule.create({
         ...doc,
         cron: validateCron(doc.cron),
@@ -49,6 +55,7 @@ export const loadScheduleClass = (_models: IModels) => {
       });
     }
 
+    /** Patch a schedule, re-validating cron/timezone when they change. */
     public static async updateSchedule(
       _id: string,
       doc: Partial<IMastraSchedule>,
@@ -61,12 +68,13 @@ export const loadScheduleClass = (_models: IModels) => {
       const updated = await _models.MastraSchedule.findOneAndUpdate(
         { _id },
         { $set: patch },
-        { new: true },
+        { new: true, runValidators: true },
       );
       if (!updated) throw new Error('Schedule not found');
       return updated;
     }
 
+    /** Flip the cron gate; Run-now stays available regardless. */
     public static async setEnabled(_id: string, isEnabled: boolean) {
       const updated = await _models.MastraSchedule.findOneAndUpdate(
         { _id },
@@ -77,14 +85,20 @@ export const loadScheduleClass = (_models: IModels) => {
       return updated;
     }
 
+    /** Delete a schedule along with its output thread and messages. */
     public static async removeSchedule(_id: string) {
-      // The schedule's output thread (and its messages) goes with it.
+      // The schedule goes first: if the thread cleanup below fails, the
+      // leftovers are orphaned chat data, not a live schedule whose history
+      // already vanished. (No multi-document transaction — erxes must run on
+      // standalone Mongo, where transactions are unavailable.)
+      const result = await _models.MastraSchedule.deleteOne({ _id });
       const threadId = `schedule-${_id}`;
       await _models.MastraMessage.deleteMany({ threadId });
       await _models.MastraThread.deleteOne({ threadId });
-      return _models.MastraSchedule.deleteOne({ _id });
+      return result;
     }
 
+    /** Stamp last-run bookkeeping (status, error, reply, duration) on the doc. */
     public static async recordRun(
       _id: string,
       outcome: {

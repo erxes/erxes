@@ -43,15 +43,23 @@ export async function runSchedule(args: {
   const { models, subdomain, schedule } = args;
   const startedAt = Date.now();
 
+  /** Persists last-run bookkeeping; never rejects, so the outcome (and the
+   * "never throws" contract above) survives a failing recordRun write. */
   const finish = async (
     outcome: ScheduleRunOutcome,
   ): Promise<ScheduleRunOutcome> => {
-    await models.MastraSchedule.recordRun(schedule._id, {
-      status: outcome.status,
-      error: outcome.error,
-      reply: outcome.reply,
-      durationMs: Date.now() - startedAt,
-    });
+    try {
+      await models.MastraSchedule.recordRun(schedule._id, {
+        status: outcome.status,
+        error: outcome.error,
+        reply: outcome.reply,
+        durationMs: Date.now() - startedAt,
+      });
+    } catch (e) {
+      console.error(
+        `[erxes-agent:schedules] recordRun failed for ${schedule._id}: ${e?.message}`,
+      );
+    }
     return outcome;
   };
 
@@ -82,9 +90,9 @@ export async function runSchedule(args: {
     // Replay the thread's own history so successive runs can build on earlier
     // output (e.g. "compare with yesterday") — same gate as chat turns.
     const history =
-      agentConfig.memoryEnabled !== false
-        ? await models.MastraMessage.getRecent(threadId, HISTORY_LIMIT)
-        : [];
+      agentConfig.memoryEnabled === false
+        ? []
+        : await models.MastraMessage.getRecent(threadId, HISTORY_LIMIT);
     const convo: TurnMessage[] = [
       ...history.map((msg) => ({ role: msg.role, content: msg.content })),
       { role: 'user', content: schedule.prompt },
@@ -95,6 +103,8 @@ export async function runSchedule(args: {
 
     const reply = await runWithAuth(authCtx, () =>
       runAgentTurn({
+        // Same narrowing as chat turns (turn.ts): Mastra's generate() output
+        // is wider than the slice TurnAgent consumes. NOSONAR
         agent: agent as unknown as TurnAgent,
         tools,
         convo,
