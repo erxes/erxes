@@ -8,6 +8,7 @@ import {
   RecordTable,
   Separator,
 } from 'erxes-ui';
+import { Export } from 'ui-modules';
 import { useState } from 'react';
 import {
   ProjectsChangeLeadContent,
@@ -31,6 +32,7 @@ export const ProjectsCommandBar = () => {
   const [open, setOpen] = useState(false);
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const projectIds = selectedRows.map((row) => row.original._id);
   const [currentContent, setCurrentContent] = useState<string>('main');
   const { teamId } = useParams<{ teamId: string }>();
   return (
@@ -38,7 +40,14 @@ export const ProjectsCommandBar = () => {
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Separator.Inline />
-
+        <Export
+          pluginName="operation"
+          moduleName="project"
+          collectionName="project"
+          buttonVariant="secondary"
+          ids={projectIds}
+        />
+        <Separator.Inline />
         <Popover
           open={open}
           onOpenChange={() => {

@@ -4,6 +4,7 @@ import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
+import { TasksExportButton, TasksImportButton } from '@/task/components/TasksLayout';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useLocation, useParams } from 'react-router-dom';
 import { Can, PageHeader } from 'ui-modules';
@@ -42,6 +43,8 @@ export const TasksPage = () => {
         <div className="flex flex-col overflow-hidden w-full h-full">
           <PageSubHeader>
             <TasksFilter />
+            <TasksImportButton />
+            <TasksExportButton />
             <TasksViewControl />
           </PageSubHeader>
           <TasksView isCreatedView={isCreatedView} />
@@ -51,3 +54,4 @@ export const TasksPage = () => {
     </>
   );
 };
+
