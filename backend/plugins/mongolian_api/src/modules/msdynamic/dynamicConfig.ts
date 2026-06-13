@@ -21,7 +21,10 @@ const hasDynamicEndpoint = (value: Record<string, unknown>) => {
 };
 
 /* Config-iin brandId dutuu bol key-aar nooj neg format ruu oruulna */
-const normalizeConfig = (key: string, value: unknown): IDynamicConfig | null => {
+const normalizeConfig = (
+  key: string,
+  value: unknown,
+): IDynamicConfig | null => {
   if (!isRecord(value)) {
     return null;
   }
@@ -48,15 +51,18 @@ const normalizeConfigMap = (value: unknown): DynamicConfigMap => {
     return config ? { [config.brandId]: config } : {};
   }
 
-  return Object.entries(value).reduce<DynamicConfigMap>((acc, [key, config]) => {
-    const normalized = normalizeConfig(key || 'noBrand', config);
+  return Object.entries(value).reduce<DynamicConfigMap>(
+    (acc, [key, config]) => {
+      const normalized = normalizeConfig(key || 'noBrand', config);
 
-    if (normalized) {
-      acc[key || 'noBrand'] = normalized;
-    }
+      if (normalized) {
+        acc[key || 'noBrand'] = normalized;
+      }
 
-    return acc;
-  }, {});
+      return acc;
+    },
+    {},
+  );
 };
 
 /* Songoson brandiin config-iig avna, brand songoogui bol default config avna */
