@@ -8,7 +8,10 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { customersCount, generateFilter } from '~/modules/contacts/utils';
 
-export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
+export const customerQueries: Record<
+  string,
+  Resolver<undefined, unknown, IContext>
+> = {
   /**
    * Customers list
    */
@@ -57,7 +60,7 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Get one customer
    */
-  async customerDetail(
+  customerDetail(
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -65,7 +68,7 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
     return models.Customers.getCustomer(_id);
   },
 
-  async cpCustomerDetail(
+  cpCustomerDetail(
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -95,6 +98,8 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
           result = await Customers.find({
             _id: { $in: content },
           }).lean();
+          break;
+        default:
           break;
       }
 

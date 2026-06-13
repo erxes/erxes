@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useReducer } from 'react';
 import { useQuery, useApolloClient } from '@apollo/client';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   IconRobot,
   IconSend,
@@ -449,7 +449,9 @@ const isImageAttachment = (att: { name: string; type?: string }) =>
 const attachmentSrc = (att: ChatAttachment) =>
   /^https?:\/\//i.test(att.url)
     ? att.url
-    : `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(att.url)}&inline=true&name=${encodeURIComponent(att.name)}`;
+    : `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
+        att.url,
+      )}&inline=true&name=${encodeURIComponent(att.name)}`;
 
 const formatFileSize = (size?: number) => {
   if (!size || size <= 0) return '';
@@ -665,7 +667,9 @@ const ThinkingSection = ({ text, live }: { text: string; live?: boolean }) => {
           } ${live ? 'text-primary' : ''}`}
         />
         <IconSparkles
-          className={`size-3.5 shrink-0 ${live ? 'text-primary animate-pulse' : ''}`}
+          className={`size-3.5 shrink-0 ${
+            live ? 'text-primary animate-pulse' : ''
+          }`}
         />
         {live ? (
           <span className="ea-shimmer-text font-medium">Thinking…</span>
@@ -956,8 +960,13 @@ export const ChatPage = () => {
     !!storageData?.mastraAttachmentStorageStatus?.enabled;
 
   const agents = (data?.mastraAgents || []).filter((a: any) => a.isEnabled);
+  // The route is keyed by the agent record _id, but inbound links (e.g.
+  // Schedules → View output) may carry the agent slug — accept both.
   const selectedAgent = agentId
-    ? (agents.find((a: any) => a._id === agentId) ?? null)
+    ? agents.find(
+        (a: { _id: string; agentId: string }) =>
+          a._id === agentId || a.agentId === agentId,
+      ) ?? null
     : null;
 
   const [input, setInput] = useState('');
@@ -979,6 +988,31 @@ export const ChatPage = () => {
   const messages: Message[] = state?.messages ?? [];
   const chatLoading = state?.loading ?? false;
   const messagesLoading = state?.messagesLoading ?? false;
+
+  // Slug routes normalize to the _id route so the chat store stays keyed
+  // by _id no matter which link form brought the user here.
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    if (selectedAgent && agentId && selectedAgent._id !== agentId) {
+      const search = searchParams.toString();
+      const suffix = search ? `?${search}` : '';
+      navigate(`/erxes-agent/chat/${selectedAgent._id}${suffix}`, {
+        replace: true,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAgent?._id, agentId]);
+
+  // Deep link: ?thread=<id> (e.g. a schedule's output thread) opens that
+  // session once the agent's sessions have loaded.
+  const threadParam = searchParams.get('thread');
+  useEffect(() => {
+    if (!agentId || !threadParam || !sessionsLoaded) return;
+    if (threadParam !== activeThreadId) {
+      chatStore.selectSession(apolloClient, agentId, threadParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agentId, threadParam, sessionsLoaded]);
 
   // Track the viewed agent (clears its unread badge); clear on navigate away.
   useEffect(() => {

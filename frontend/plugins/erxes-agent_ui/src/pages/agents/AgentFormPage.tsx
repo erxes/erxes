@@ -12,11 +12,11 @@ import {
   Alert,
   Breadcrumb,
   Button,
-  Card,
   Checkbox,
   Label,
   Input,
   Separator,
+  Slider,
   Switch,
   Textarea,
   Tooltip,
@@ -28,6 +28,7 @@ import {
   MASTRA_AVAILABLE_ERXES_TOOLS,
 } from '~/graphql/queries';
 import { MASTRA_AGENT_CREATE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
+import { Field, FormSection } from '~/components/FormLayout';
 import {
   SelectModel,
   SelectProvider,
@@ -40,40 +41,6 @@ function toSlug(name: string) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 }
-
-const FormSection = ({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) => (
-  <Card className="shadow-none">
-    <Card.Header className="pb-3">
-      <Card.Title className="text-base">{title}</Card.Title>
-      {description && <Card.Description>{description}</Card.Description>}
-    </Card.Header>
-    <Card.Content className="space-y-4">{children}</Card.Content>
-  </Card>
-);
-
-const Field = ({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) => (
-  <div className="space-y-1.5">
-    <Label className="font-medium">{label}</Label>
-    {children}
-    {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-  </div>
-);
 
 export const AgentFormPage = () => {
   const { id } = useParams();
@@ -91,6 +58,7 @@ export const AgentFormPage = () => {
     allowedTools: [] as string[],
     memoryEnabled: true,
     maxSteps: 10,
+    temperature: null as number | null,
     isEnabled: true,
   });
   const [autoSlug, setAutoSlug] = useState(true);
@@ -163,6 +131,7 @@ export const AgentFormPage = () => {
         allowedTools: a.allowedTools || [],
         memoryEnabled: a.memoryEnabled ?? true,
         maxSteps: a.maxSteps ?? 10,
+        temperature: a.temperature ?? null,
         isEnabled: a.isEnabled ?? true,
       });
       setAutoSlug(false);
@@ -511,7 +480,9 @@ export const AgentFormPage = () => {
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-xs text-muted-foreground">
                     {allowed.length > 0
-                      ? `${allowed.length} rule${allowed.length !== 1 ? 's' : ''} selected`
+                      ? `${allowed.length} rule${
+                          allowed.length !== 1 ? 's' : ''
+                        } selected`
                       : 'Nothing selected yet — this agent will have no tools.'}
                   </p>
                   {allowed.length > 0 && (
@@ -582,7 +553,9 @@ export const AgentFormPage = () => {
                                   className="flex items-center gap-1.5 min-w-0 hover:opacity-80"
                                 >
                                   <IconChevronRight
-                                    className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${pluginOpen ? 'rotate-90' : ''}`}
+                                    className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${
+                                      pluginOpen ? 'rotate-90' : ''
+                                    }`}
                                   />
                                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                     {plugin}
@@ -636,7 +609,9 @@ export const AgentFormPage = () => {
                                             className="flex items-center gap-1.5 min-w-0"
                                           >
                                             <IconChevronRight
-                                              className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`}
+                                              className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${
+                                                open ? 'rotate-90' : ''
+                                              }`}
                                             />
                                             <span className="text-sm font-medium capitalize truncate">
                                               {module}
@@ -760,6 +735,53 @@ export const AgentFormPage = () => {
                     <Tooltip.Content className="max-w-xs">
                       Prevents infinite loops. Raise this if the agent
                       frequently stops mid-task.
+                    </Tooltip.Content>
+                  </Tooltip>
+                </Tooltip.Provider>
+              </div>
+            </Field>
+
+            <Separator />
+
+            <Field
+              label="Temperature"
+              hint="Sampling randomness (0–2). Some models only accept a fixed value — e.g. Kimi thinking models require 1."
+            >
+              <div className="flex items-center gap-3">
+                <Slider
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  value={[form.temperature ?? 1]}
+                  onValueChange={([v]: number[]) => set('temperature', v)}
+                  className="flex-1 max-w-xs"
+                />
+                <span className="w-16 text-sm tabular-nums text-muted-foreground">
+                  {form.temperature != null
+                    ? form.temperature.toFixed(1)
+                    : 'Default'}
+                </span>
+                {form.temperature != null && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => set('temperature', null)}
+                  >
+                    Use default
+                  </Button>
+                )}
+                <Tooltip.Provider>
+                  <Tooltip>
+                    <Tooltip.Trigger asChild>
+                      <IconInfoCircle className="size-4 text-muted-foreground" />
+                    </Tooltip.Trigger>
+                    <Tooltip.Content className="max-w-xs">
+                      Lower values give more deterministic answers, higher
+                      values more creative ones. If the provider rejects the
+                      configured value (e.g. &quot;only 1 is allowed&quot;), set
+                      it to the value the model requires.
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>

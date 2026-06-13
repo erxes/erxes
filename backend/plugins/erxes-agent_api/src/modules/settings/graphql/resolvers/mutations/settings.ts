@@ -1,7 +1,13 @@
 import { IContext } from '~/connectionResolvers';
+import { IMastraSettings } from '@/settings/@types/settings';
 
+/** Mutations for the plugin-wide Mastra settings document. */
 export const settingsMutations = {
-  mastraSettingsSave: async (_: any, { doc }: any, { models }: IContext) => {
+  mastraSettingsSave: (
+    _parent: undefined,
+    { doc }: { doc: IMastraSettings },
+    { models }: IContext,
+  ) => {
     return models.MastraSettings.saveSettings(doc);
   },
 };

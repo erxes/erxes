@@ -30,6 +30,7 @@ export const MASTRA_AGENT_CREATE = gql`
       allowedTools
       memoryEnabled
       maxSteps
+      temperature
       isEnabled
       createdAt
       updatedAt
@@ -51,6 +52,7 @@ export const MASTRA_AGENT_UPDATE = gql`
       allowedTools
       memoryEnabled
       maxSteps
+      temperature
       isEnabled
       createdAt
       updatedAt
@@ -206,6 +208,72 @@ export const MASTRA_WORKFLOW_SET_ENABLED = gql`
 export const MASTRA_WORKFLOW_VALIDATE = gql`
   mutation MastraWorkflowValidate($definition: JSON!) {
     mastraWorkflowValidate(definition: $definition)
+  }
+`;
+
+export const MASTRA_SCHEDULE_CREATE = gql`
+  mutation MastraScheduleCreate($doc: MastraScheduleInput!) {
+    mastraScheduleCreate(doc: $doc) {
+      _id
+      name
+      description
+      agentId
+      cron
+      timezone
+      prompt
+      isEnabled
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const MASTRA_SCHEDULE_UPDATE = gql`
+  mutation MastraScheduleUpdate(
+    $_id: String!
+    $doc: MastraScheduleUpdateInput!
+  ) {
+    mastraScheduleUpdate(_id: $_id, doc: $doc) {
+      _id
+      name
+      description
+      agentId
+      cron
+      timezone
+      prompt
+      isEnabled
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const MASTRA_SCHEDULE_REMOVE = gql`
+  mutation MastraScheduleRemove($_id: String!) {
+    mastraScheduleRemove(_id: $_id)
+  }
+`;
+
+export const MASTRA_SCHEDULE_SET_ENABLED = gql`
+  mutation MastraScheduleSetEnabled($_id: String!, $isEnabled: Boolean!) {
+    mastraScheduleSetEnabled(_id: $_id, isEnabled: $isEnabled) {
+      _id
+      isEnabled
+    }
+  }
+`;
+
+export const MASTRA_SCHEDULE_RUN_NOW = gql`
+  mutation MastraScheduleRunNow($_id: String!) {
+    mastraScheduleRunNow(_id: $_id) {
+      _id
+      lastRunAt
+      lastStatus
+      lastError
+      lastReply
+      lastDurationMs
+      runCount
+    }
   }
 `;
 

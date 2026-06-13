@@ -44,8 +44,9 @@ const workflowAutomationProducers = {
       };
     }
 
-    const workflow =
-      await context.models.MastraWorkflow.getWorkflow(workflowId);
+    const workflow = await context.models.MastraWorkflow.getWorkflow(
+      workflowId,
+    );
     if (!workflow.isEnabled) {
       return {
         result: {
@@ -57,7 +58,7 @@ const workflowAutomationProducers = {
 
     const envelope = buildAutomationEnvelope({
       triggerType: execution.triggerType,
-      target: (execution.target as Record<string, any>) || {},
+      target: (execution.target as Record<string, unknown>) || {},
     });
 
     const runPromise = runWorkflow({
@@ -65,20 +66,23 @@ const workflowAutomationProducers = {
       subdomain: context.subdomain,
       workflow,
       envelope,
-    }).catch((e) => {
+    }).catch((err) => {
       console.error(
-        `[erxes-agent:workflows] automation-triggered run failed: ${e?.message}`,
+        `[erxes-agent:workflows] automation-triggered run failed: ${err?.message}`,
       );
       return null;
     });
 
-    const settled = await Promise.race([
-      runPromise,
-      new Promise<null>((resolve) => {
-        const t = setTimeout(() => resolve(null), SYNC_RESULT_BUDGET_MS);
-        t.unref?.();
-      }),
-    ]);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<null>((resolve) => {
+      timer = setTimeout(() => resolve(null), SYNC_RESULT_BUDGET_MS);
+      timer.unref?.();
+    });
+
+    const settled = await Promise.race([runPromise, timeoutPromise]);
+    if (timer) {
+      clearTimeout(timer);
+    }
 
     if (!settled) {
       // Still running (waits / long judgments) — report and move on; the run
@@ -127,7 +131,9 @@ export const automations = {
     moduleName: 'automations',
     modules: { workflow: workflowAutomationProducers },
     methodName: TAutomationProducers.RECEIVE_ACTIONS,
-    extractModuleName: (input: any) => input.moduleName,
+    extractModuleName: (
+      input: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
+    ) => input.moduleName,
     generateModels,
   }),
 } as AutomationConfigs;

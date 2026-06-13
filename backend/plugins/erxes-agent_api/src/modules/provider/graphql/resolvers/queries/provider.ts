@@ -1,13 +1,29 @@
 import { IContext } from '~/connectionResolvers';
 import { PROVIDER_PRESETS } from '~/mastra/providers';
 
+// One entry of a provider's live model-listing response. Field names cover
+// the OpenAI/Anthropic/Mistral (`id`, `display_name`), Google (`name`,
+// `displayName`, `supportedGenerationMethods`) and Cohere (`name`) shapes.
+interface ProviderModelEntry {
+  id?: string;
+  name?: string;
+  display_name?: string;
+  displayName?: string;
+  supportedGenerationMethods?: string[];
+}
+
+/** Queries over configured providers, presets, and live model catalogs. */
 export const providerQueries = {
-  mastraProviders: async (_: any, __: any, { models }: IContext) => {
+  mastraProviders: (
+    _parent: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
     return models.MastraProvider.getProviders();
   },
 
-  mastraProvider: async (
-    _: any,
+  mastraProvider: (
+    _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
@@ -16,16 +32,20 @@ export const providerQueries = {
 
   // Returns static presets — used only by the "Add Provider" form in the UI
   // to pre-fill fields when a user picks a known provider.
-  mastraProviderPresets: async () => {
+  mastraProviderPresets: () => {
     return PROVIDER_PRESETS;
   },
 
   // Returns all known providers (from presets list) enriched with isConfigured.
-  mastraProviderCatalog: async (_: any, __: any, { models }: IContext) => {
+  mastraProviderCatalog: async (
+    _parent: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
     const storedProviders = await models.MastraProvider.find({
       isEnabled: true,
     });
-    const storedSet = new Set(storedProviders.map((p: any) => p.provider));
+    const storedSet = new Set(storedProviders.map((stored) => stored.provider));
 
     return PROVIDER_PRESETS.map((preset) => ({
       provider: preset.provider,
@@ -43,7 +63,7 @@ export const providerQueries = {
   // the endpoint is unreachable or unconfigured the list is empty and the UI
   // offers manual model-id entry.
   mastraProviderModels: async (
-    _: any,
+    _parent: undefined,
     { provider }: { provider: string },
     { models }: IContext,
   ) => {
@@ -51,7 +71,9 @@ export const providerQueries = {
     const stored = await models.MastraProvider.findOne({ provider });
 
     // Fall back to preset data for missing fields
-    const preset = PROVIDER_PRESETS.find((p) => p.provider === provider);
+    const preset = PROVIDER_PRESETS.find(
+      (entry) => entry.provider === provider,
+    );
 
     const apiKey =
       stored?.apiKey ||
@@ -88,7 +110,9 @@ export const providerQueries = {
       const auth = preset?.modelsAuth ?? 'bearer';
       if (auth === 'x-api-key') headers['x-api-key'] = apiKey;
       else if (auth === 'query') {
-        url += `${url.includes('?') ? '&' : '?'}key=${encodeURIComponent(apiKey)}`;
+        url += `${url.includes('?') ? '&' : '?'}key=${encodeURIComponent(
+          apiKey,
+        )}`;
       } else headers['Authorization'] = `Bearer ${apiKey}`;
 
       const res = await fetch(url, { headers });
@@ -99,44 +123,50 @@ export const providerQueries = {
         return [];
       }
 
-      const json: any = await res.json();
+      const json = (await res.json()) as {
+        data?: ProviderModelEntry[];
+        models?: ProviderModelEntry[];
+      };
       // OpenAI/Anthropic/Mistral style: { data: [{ id, name?, display_name? }] }
       // Google style:  { models: [{ name: "models/x", displayName, supportedGenerationMethods }] }
       // Cohere style:  { models: [{ name }] }
-      const list: any[] = Array.isArray(json.data)
+      const list: ProviderModelEntry[] = Array.isArray(json.data)
         ? json.data
         : Array.isArray(json.models)
-          ? json.models
-          : [];
+        ? json.models
+        : [];
 
       return (
         list
           // Google lists embedding/vision-only entries too — keep chat models.
           .filter(
-            (m: any) =>
-              !Array.isArray(m.supportedGenerationMethods) ||
-              m.supportedGenerationMethods.includes('generateContent'),
+            (model) =>
+              !Array.isArray(model.supportedGenerationMethods) ||
+              model.supportedGenerationMethods.includes('generateContent'),
           )
-          .map((m: any) => {
+          .map((model) => {
             const id =
-              m.id ||
-              (typeof m.name === 'string'
-                ? m.name.replace(/^models\//, '')
+              model.id ||
+              (typeof model.name === 'string'
+                ? model.name.replace(/^models\//, '')
                 : '');
             return {
               id,
               name:
-                m.display_name ||
-                m.displayName ||
-                (m.id ? m.name : undefined) ||
+                model.display_name ||
+                model.displayName ||
+                (model.id ? model.name : undefined) ||
                 id,
             };
           })
-          .filter((m: any) => m.id)
+          .filter((model) => model.id)
       );
-    } catch (e: any) {
+    } catch (err) {
+      const message =
+        (err as { message?: string } | null | undefined)?.message ||
+        String(err);
       console.warn(
-        `[mastra:providers] model listing for "${provider}" failed: ${e?.message || e}`,
+        `[mastra:providers] model listing for "${provider}" failed: ${message}`,
       );
       return [];
     }

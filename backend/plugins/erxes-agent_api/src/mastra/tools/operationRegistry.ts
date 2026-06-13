@@ -2,6 +2,10 @@ import {
   fetchAvailableErxesTools,
   fetchInputTypesMap,
   fetchObjectFieldsMap,
+  type ErxesToolSettings,
+  type GqlArgDef,
+  type GqlFieldDef,
+  type GqlTypeRef,
 } from './erxesTools';
 
 // One discovered erxes GraphQL operation (query or mutation) the agent can run.
@@ -11,8 +15,8 @@ export interface OperationMeta {
   plugin: string;
   module: string;
   description: string;
-  graphqlArgs: any[];
-  returnType: any;
+  graphqlArgs: GqlArgDef[];
+  returnType?: GqlTypeRef | null;
 }
 
 // The full, live picture of what the agent can do, derived from schema
@@ -22,8 +26,8 @@ export interface OperationMeta {
 export interface OperationRegistry {
   operations: Map<string, OperationMeta>;
   list: OperationMeta[];
-  inputTypesMap: Record<string, any[]>;
-  objectFieldsMap: Record<string, any[]>;
+  inputTypesMap: Record<string, GqlArgDef[]>;
+  objectFieldsMap: Record<string, GqlFieldDef[]>;
 }
 
 interface CacheEntry {
@@ -39,16 +43,18 @@ interface CacheEntry {
 const cache = new Map<string, CacheEntry>();
 const TTL_MS = 15 * 60 * 1000;
 
-function cacheKey(settings: any): string {
+/** Cache key for a registry: one entry per API URL + app token pair. */
+function cacheKey(settings: ErxesToolSettings | null | undefined): string {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
   return `${apiUrl}::${token}`;
 }
 
+/** Assemble the registry struct (name → meta map + search list + type maps). */
 function buildRegistry(
   operations: OperationMeta[],
-  inputTypesMap: Record<string, any[]>,
-  objectFieldsMap: Record<string, any[]>,
+  inputTypesMap: Record<string, GqlArgDef[]>,
+  objectFieldsMap: Record<string, GqlFieldDef[]>,
 ): OperationRegistry {
   const map = new Map<string, OperationMeta>();
   for (const op of operations) map.set(op.operation, op);
@@ -64,7 +70,7 @@ function buildRegistry(
  * blip in the gateway never wipes an agent's capabilities mid-conversation.
  */
 export async function getOperationRegistry(
-  settings: any,
+  settings: ErxesToolSettings | null,
   opts: { force?: boolean } = {},
 ): Promise<OperationRegistry> {
   const key = cacheKey(settings);
@@ -84,11 +90,7 @@ export async function getOperationRegistry(
       return hit.reg;
     }
 
-    const reg = buildRegistry(
-      operations as OperationMeta[],
-      inputTypesMap,
-      objectFieldsMap,
-    );
+    const reg = buildRegistry(operations, inputTypesMap, objectFieldsMap);
     cache.set(key, { reg, at: Date.now() });
     return reg;
   } catch {
@@ -97,7 +99,10 @@ export async function getOperationRegistry(
   }
 }
 
-export function invalidateOperationRegistry(settings?: any) {
+/** Drop the cached registry for these settings (or all registries when omitted). */
+export function invalidateOperationRegistry(
+  settings?: ErxesToolSettings | null,
+) {
   if (settings) cache.delete(cacheKey(settings));
   else cache.clear();
 }

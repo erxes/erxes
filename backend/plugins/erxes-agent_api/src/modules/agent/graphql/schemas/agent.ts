@@ -11,6 +11,7 @@ export const types = `
     allowedTools: [String]
     memoryEnabled: Boolean
     maxSteps: Int
+    temperature: Float
     isEnabled: Boolean
     createdAt: Date
     updatedAt: Date
@@ -27,6 +28,7 @@ export const types = `
     allowedTools: [String]
     memoryEnabled: Boolean
     maxSteps: Int
+    temperature: Float
     isEnabled: Boolean
   }
 

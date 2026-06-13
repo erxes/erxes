@@ -45,15 +45,15 @@ export interface KnowledgeContentType {
   list(gql: GqlExec, max: number): Promise<KnowledgeRecord[]>;
   /**
    * Live re-fetch by ids AS THE CALLER (user header or app token). Returns
-   * only ids the caller is currently allowed to see. Must fail closed: any
+   * only ids the caller is currently allowed to see. Must fail closed: every
    * error → treat as denied.
    */
   allowedIds(gql: GqlExec, ids: string[]): Promise<Set<string>>;
 }
 
 /** Normalize a date-ish value to ISO, or '' when absent. */
-const toIso = (d: unknown): string =>
-  d ? new Date(d as string | number | Date).toISOString() : '';
+const toIso = (dateValue: unknown): string =>
+  dateValue ? new Date(dateValue as string | number | Date).toISOString() : '';
 
 /** Compose "Label: value" lines, skipping empties, into a single chunk set. */
 function linesToChunks(
@@ -61,14 +61,17 @@ function linesToChunks(
   lines: Array<[string, unknown]>,
 ): ArticleChunk[] {
   const body = lines
-    .filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== '')
-    .map(([k, v]) => `${k}: ${String(v).trim()}`)
+    .filter(
+      ([, value]) =>
+        value !== undefined && value !== null && String(value).trim() !== '',
+    )
+    .map(([label, value]) => `${label}: ${String(value).trim()}`)
     .join('\n');
   const text = [title, body].filter(Boolean).join('\n');
   if (!text.trim()) return [];
-  return splitIntoChunks(text).map((t, chunkIndex) => ({
+  return splitIntoChunks(text).map((chunkText, chunkIndex) => ({
     chunkIndex,
-    text: t,
+    text: chunkText,
   }));
 }
 
@@ -144,13 +147,13 @@ const kbArticle: KnowledgeContentType = {
         { page, perPage: PAGE, status: 'publish' },
       );
       const batch: GqlData[] = data.knowledgeBaseArticles || [];
-      for (const a of batch) {
-        if (a.status !== 'publish' || a.isPrivate) continue;
+      for (const article of batch) {
+        if (article.status !== 'publish' || article.isPrivate) continue;
         out.push({
-          _id: a._id,
-          title: a.title || '',
-          chunks: articleToChunks(a),
-          modifiedDate: toIso(a.modifiedDate),
+          _id: article._id,
+          title: article.title || '',
+          chunks: articleToChunks(article),
+          modifiedDate: toIso(article.modifiedDate),
         });
       }
       if (batch.length < PAGE || (max > 0 && out.length >= max)) break;
@@ -167,8 +170,11 @@ const kbArticle: KnowledgeContentType = {
     );
     return new Set(
       (data.knowledgeBaseArticles || [])
-        .filter((a: GqlData) => a.status === 'publish' && !a.isPrivate)
-        .map((a: GqlData) => String(a._id)),
+        .filter(
+          (article: GqlData) =>
+            article.status === 'publish' && !article.isPrivate,
+        )
+        .map((article: GqlData) => String(article._id)),
     );
   },
 };
@@ -191,23 +197,25 @@ const customer: KnowledgeContentType = {
       (data) => data.customers || { list: [] },
       max,
     );
-    return docs.map((c) => {
+    return docs.map((customerDoc) => {
       const name =
-        [c.firstName, c.lastName].filter(Boolean).join(' ') ||
-        c.primaryEmail ||
-        c._id;
+        [customerDoc.firstName, customerDoc.lastName]
+          .filter(Boolean)
+          .join(' ') ||
+        customerDoc.primaryEmail ||
+        customerDoc._id;
       return {
-        _id: c._id,
+        _id: customerDoc._id,
         title: `Customer: ${name}`,
         chunks: linesToChunks(`Customer: ${name}`, [
-          ['Email', c.primaryEmail],
-          ['Phone', c.primaryPhone],
-          ['Position', c.position],
-          ['State', c.state],
-          ['Code', c.code],
-          ['Notes', htmlToText(c.description || '')],
+          ['Email', customerDoc.primaryEmail],
+          ['Phone', customerDoc.primaryPhone],
+          ['Position', customerDoc.position],
+          ['State', customerDoc.state],
+          ['Code', customerDoc.code],
+          ['Notes', htmlToText(customerDoc.description || '')],
         ]),
-        modifiedDate: toIso(c.updatedAt),
+        modifiedDate: toIso(customerDoc.updatedAt),
       };
     });
   },
@@ -235,14 +243,17 @@ const company: KnowledgeContentType = {
       (data) => data.companies || { list: [] },
       max,
     );
-    return docs.map((c) => ({
-      _id: c._id,
-      title: `Company: ${c.primaryName || c._id}`,
-      chunks: linesToChunks(`Company: ${c.primaryName || c._id}`, [
-        ['Email', c.primaryEmail],
-        ['Notes', htmlToText(c.description || '')],
-      ]),
-      modifiedDate: toIso(c.updatedAt),
+    return docs.map((companyDoc) => ({
+      _id: companyDoc._id,
+      title: `Company: ${companyDoc.primaryName || companyDoc._id}`,
+      chunks: linesToChunks(
+        `Company: ${companyDoc.primaryName || companyDoc._id}`,
+        [
+          ['Email', companyDoc.primaryEmail],
+          ['Notes', htmlToText(companyDoc.description || '')],
+        ],
+      ),
+      modifiedDate: toIso(companyDoc.updatedAt),
     }));
   },
   allowedIds: detailAllowedIds(
@@ -266,19 +277,24 @@ const product: KnowledgeContentType = {
         { page, perPage: PAGE },
       );
       const batch: GqlData[] = data.products || [];
-      for (const p of batch) {
-        if (p.status === 'deleted') continue;
+      for (const productDoc of batch) {
+        if (productDoc.status === 'deleted') continue;
         out.push({
-          _id: p._id,
-          title: `Product: ${p.name || p.code || p._id}`,
-          chunks: linesToChunks(`Product: ${p.name || p._id}`, [
-            ['Short name', p.shortName],
-            ['Code', p.code],
-            ['Description', htmlToText(p.description || '')],
-          ]),
+          _id: productDoc._id,
+          title: `Product: ${
+            productDoc.name || productDoc.code || productDoc._id
+          }`,
+          chunks: linesToChunks(
+            `Product: ${productDoc.name || productDoc._id}`,
+            [
+              ['Short name', productDoc.shortName],
+              ['Code', productDoc.code],
+              ['Description', htmlToText(productDoc.description || '')],
+            ],
+          ),
           // Products expose no updatedAt through GraphQL; createdAt means
           // edits re-embed only via the periodic full re-list (acceptable).
-          modifiedDate: toIso(p.createdAt),
+          modifiedDate: toIso(productDoc.createdAt),
         });
       }
       if (batch.length < PAGE || (max > 0 && out.length >= max)) break;
@@ -288,7 +304,7 @@ const product: KnowledgeContentType = {
   allowedIds: detailAllowedIds(
     'query KnowledgeVerifyProduct($_id: String) { productDetail(_id: $_id) { _id status } }',
     'productDetail',
-    (p) => p.status !== 'deleted',
+    (productDoc) => productDoc.status !== 'deleted',
   ),
 };
 
@@ -311,21 +327,21 @@ const deal: KnowledgeContentType = {
       max,
     );
     return docs
-      .filter((d) => d.status !== 'archived')
-      .map((d) => ({
-        _id: d._id,
-        title: `Deal: ${d.name || d._id}`,
-        chunks: linesToChunks(`Deal: ${d.name || d._id}`, [
-          ['Status', d.status],
-          ['Description', htmlToText(d.description || '')],
+      .filter((dealDoc) => dealDoc.status !== 'archived')
+      .map((dealDoc) => ({
+        _id: dealDoc._id,
+        title: `Deal: ${dealDoc.name || dealDoc._id}`,
+        chunks: linesToChunks(`Deal: ${dealDoc.name || dealDoc._id}`, [
+          ['Status', dealDoc.status],
+          ['Description', htmlToText(dealDoc.description || '')],
         ]),
-        modifiedDate: toIso(d.modifiedAt),
+        modifiedDate: toIso(dealDoc.modifiedAt),
       }));
   },
   allowedIds: detailAllowedIds(
     'query KnowledgeVerifyDeal($_id: String!) { dealDetail(_id: $_id) { _id status } }',
     'dealDetail',
-    (d) => d.status !== 'archived',
+    (dealDoc) => dealDoc.status !== 'archived',
   ),
 };
 
@@ -347,14 +363,14 @@ const task: KnowledgeContentType = {
       (data) => data.getTasks || { list: [] },
       max,
     );
-    return docs.map((t) => ({
-      _id: t._id,
-      title: `Task: ${t.name || t._id}`,
-      chunks: linesToChunks(`Task: ${t.name || t._id}`, [
-        ['Status', t.status],
-        ['Description', htmlToText(t.description || '')],
+    return docs.map((taskDoc) => ({
+      _id: taskDoc._id,
+      title: `Task: ${taskDoc.name || taskDoc._id}`,
+      chunks: linesToChunks(`Task: ${taskDoc.name || taskDoc._id}`, [
+        ['Status', taskDoc.status],
+        ['Description', htmlToText(taskDoc.description || '')],
       ]),
-      modifiedDate: toIso(t.updatedAt),
+      modifiedDate: toIso(taskDoc.updatedAt),
     }));
   },
   allowedIds: detailAllowedIds(
@@ -382,15 +398,15 @@ const conversation: KnowledgeContentType = {
       max,
     );
     return docs
-      .filter((c) => htmlToText(c.content || '').trim())
-      .map((c) => ({
-        _id: c._id,
-        title: `Conversation ${c._id}`,
+      .filter((convDoc) => htmlToText(convDoc.content || '').trim())
+      .map((convDoc) => ({
+        _id: convDoc._id,
+        title: `Conversation ${convDoc._id}`,
         chunks: linesToChunks(
-          `Customer conversation (status: ${c.status || 'unknown'})`,
-          [['Content', htmlToText(c.content || '')]],
+          `Customer conversation (status: ${convDoc.status || 'unknown'})`,
+          [['Content', htmlToText(convDoc.content || '')]],
         ),
-        modifiedDate: toIso(c.updatedAt || c.createdAt),
+        modifiedDate: toIso(convDoc.updatedAt || convDoc.createdAt),
       }));
   },
   allowedIds: detailAllowedIds(
