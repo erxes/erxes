@@ -106,6 +106,120 @@ const GeneralDateField = ({
   />
 );
 
+const CustomerAgentConditions = ({
+  control,
+}: {
+  control: Control<GeneralFormValues>;
+}) => (
+  <div className="col-span-2 space-y-4">
+    <div className="flex items-center">
+      <div className="flex-1 border-t" />
+      <Form.Label className="mx-2">
+        Customer &amp; agent conditions (optional)
+      </Form.Label>
+      <div className="flex-1 border-t" />
+    </div>
+
+    <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+      <Form.Field
+        control={control}
+        name="customerIds"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>CUSTOMERS</Form.Label>
+            <Form.Control>
+              <SelectCustomer
+                mode="multiple"
+                value={field.value}
+                onValueChange={(value) =>
+                  field.onChange(normalizeMultipleValue(value))
+                }
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="customerIdsExcluded"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>EXCLUDE CUSTOMERS</Form.Label>
+            <Form.Control>
+              <SelectCustomer
+                mode="multiple"
+                value={field.value}
+                onValueChange={(value) =>
+                  field.onChange(normalizeMultipleValue(value))
+                }
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="agentIds"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>AGENTS (SALESPEOPLE)</Form.Label>
+            <Form.Control>
+              <SelectMember
+                mode="multiple"
+                value={field.value}
+                onValueChange={(value) =>
+                  field.onChange(
+                    Array.isArray(value) ? value : value ? [value] : [],
+                  )
+                }
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="agentIdsExcluded"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>EXCLUDE AGENTS</Form.Label>
+            <Form.Control>
+              <SelectMember
+                mode="multiple"
+                value={field.value}
+                onValueChange={(value) =>
+                  field.onChange(
+                    Array.isArray(value) ? value : value ? [value] : [],
+                  )
+                }
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="customerSegmentId"
+        render={({ field }) => (
+          <Form.Item className="lg:col-span-2">
+            <Form.Label>CUSTOMER SEGMENT</Form.Label>
+            <Form.Control>
+              <SelectSegment
+                selected={field.value || undefined}
+                onSelect={(id) => field.onChange(id)}
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+    </div>
+  </div>
+);
+
 export const GeneralInfo = ({
   pricingId,
   pricingDetail,
@@ -659,121 +773,7 @@ export const GeneralInfo = ({
                 )}
               </div>
 
-              <div className="col-span-2 space-y-4">
-                <div className="flex items-center">
-                  <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">
-                    Customer &amp; agent conditions (optional)
-                  </Form.Label>
-                  <div className="flex-1 border-t" />
-                </div>
-
-                <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-                  <Form.Field
-                    control={form.control}
-                    name="customerIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>CUSTOMERS</Form.Label>
-                        <Form.Control>
-                          <SelectCustomer
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(normalizeMultipleValue(value))
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="customerIdsExcluded"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>EXCLUDE CUSTOMERS</Form.Label>
-                        <Form.Control>
-                          <SelectCustomer
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(normalizeMultipleValue(value))
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="agentIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>AGENTS (SALESPEOPLE)</Form.Label>
-                        <Form.Control>
-                          <SelectMember
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value)
-                                  ? value
-                                  : value
-                                    ? [value]
-                                    : [],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="agentIdsExcluded"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>EXCLUDE AGENTS</Form.Label>
-                        <Form.Control>
-                          <SelectMember
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value)
-                                  ? value
-                                  : value
-                                    ? [value]
-                                    : [],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="customerSegmentId"
-                    render={({ field }) => (
-                      <Form.Item className="lg:col-span-2">
-                        <Form.Label>CUSTOMER SEGMENT</Form.Label>
-                        <Form.Control>
-                          <SelectSegment
-                            selected={field.value || undefined}
-                            onSelect={(id) => field.onChange(id)}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              </div>
+              <CustomerAgentConditions control={form.control} />
             </InfoCard.Content>
           </InfoCard>
         </form>

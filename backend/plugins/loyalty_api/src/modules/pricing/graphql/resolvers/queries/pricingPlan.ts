@@ -234,7 +234,7 @@ export const pricingPlanQueries = {
     return await models.PricingPlans.getPricingPlan(id);
   },
 
-  pricingCheckDiscount: async (
+  pricingCheckDiscount: (
     _root: any,
     params: {
       prioritizeRule?: string;
