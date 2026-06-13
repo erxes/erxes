@@ -11,8 +11,7 @@
  */
 jest.mock('../product', () => ({
   getAllowedProducts: jest.fn(
-    async (_subdomain: string, _plan: unknown, productIds: string[]) =>
-      productIds,
+    (_subdomain: string, _plan: unknown, productIds: string[]) => productIds,
   ),
 }));
 

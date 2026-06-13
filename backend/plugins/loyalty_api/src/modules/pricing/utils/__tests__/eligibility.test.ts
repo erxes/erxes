@@ -46,7 +46,7 @@ const plan = (
 /** Make isInSegment resolve membership from a `${segmentId}:${entityId}` map. */
 const segmentMembership = (members: Record<string, boolean>) => {
   mockedTRPC.mockImplementation(
-    async ({
+    ({
       action,
       input,
     }: {
@@ -273,7 +273,7 @@ describe('planMatchesContext — customer AND agent combined', () => {
 
 describe('isInSegment — fail-closed + caching', () => {
   it('returns false (fails closed) when the segment service yields a falsy value', async () => {
-    mockedTRPC.mockResolvedValue(undefined);
+    mockedTRPC.mockResolvedValue(false);
     await expect(isInSegment(SUBDOMAIN, 'seg', 'c1')).resolves.toBe(false);
   });
 

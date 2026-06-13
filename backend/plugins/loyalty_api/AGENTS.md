@@ -91,8 +91,9 @@ The contract (tRPC `checkPricingInput`, GraphQL `checkDiscountParams`, and the
 
 - **sales_api** `…/mutations/loyaltyUtils.ts` — `customerId` (already fetched via
   `getCustomerIds`), `agentId = deal.assignedUserIds?.[0]`.
-- **posclient_api** `…/utils/pricing.ts` — `customerId = doc.customerId`,
-  `agentId = doc.userId` (cashier).
+- **posclient_api** `…/utils/pricing.ts` — `customerId = doc.customerId` only
+  (the POS order input has no cashier/agent field, so agent-targeted plans do
+  not apply at point of sale).
 - **mongolian_api** `…/handlers/handlePricing.ts` — from the deal.
 
 ### Implementation status
