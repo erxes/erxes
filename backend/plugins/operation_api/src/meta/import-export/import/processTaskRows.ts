@@ -1,8 +1,13 @@
 import mongoose from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { safeString, stringifyId } from '../utils';
+import {
+  ITask,
+  ITaskDocument,
+  ITaskUpdate,
+} from '@/task/@types/task';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { safeString, stringifyId, TASK_CONTENT_TYPE } from '../utils';
 
 const PRIORITY_BY_LABEL = new Map<string, number>([
   ['no priority', 0],
@@ -31,25 +36,74 @@ function escapeRegExp(val: string): string {
   return val.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\\$&`);
 }
 
+/**
+ * Returns a readable error message from an unknown thrown value.
+ */
 function getErrorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
 }
 
-interface ITaskDoc {
-  name?: string;
-  description?: string;
-  teamId?: unknown;
-  status?: unknown;
-  statusType?: number;
-  priority?: number;
-  assigneeId?: string;
-  projectId?: unknown;
-  cycleId?: unknown;
-  milestoneId?: unknown;
-  estimatePoint?: number;
-  startDate?: Date;
-  targetDate?: Date;
+type TImportTaskDoc = Partial<ITask> & {
   propertiesData?: Record<string, unknown>;
+};
+
+type TPreparedTaskDoc = ITask & {
+  name: string;
+  teamId: string;
+  status: string;
+  propertiesData?: Record<string, unknown>;
+};
+
+type TExistingTask = {
+  _id?: unknown;
+  name?: unknown;
+  teamId?: unknown;
+};
+
+type TPreparedRowDoc = {
+  row: Record<string, unknown>;
+  doc: TPreparedTaskDoc;
+};
+
+type TExistingTaskMaps = {
+  byId: Map<string, TExistingTask>;
+  byNameAndTeam: Map<string, TExistingTask>;
+};
+
+type TTaskSaveType = 'create' | 'update';
+
+type TTaskSaveResult = {
+  task: ITaskDocument;
+  type: TTaskSaveType;
+};
+
+interface ITagLookup {
+  _id?: unknown;
+  name?: string;
+}
+
+const toOptionalId = (value: unknown): string | undefined => {
+  const id = stringifyId(value);
+  return id || undefined;
+};
+
+const idsEqual = (left: unknown, right: unknown): boolean =>
+  stringifyId(left) === stringifyId(right);
+
+const getTaskKey = (name: string, teamId: unknown): string =>
+  `${name.toLowerCase()}_${stringifyId(teamId)}`;
+
+const splitListValue = (value: unknown): string[] =>
+  safeString(value)
+    .split(/[;,]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+/**
+ * Checks whether all required task fields were resolved.
+ */
+function isPreparedTaskDoc(doc: TImportTaskDoc): doc is TPreparedTaskDoc {
+  return Boolean(doc.name && doc.teamId && doc.status);
 }
 
 /**
@@ -59,7 +113,7 @@ interface ITaskDoc {
  * @param teamVal The raw team identifier value.
  * @returns A promise resolving to the team ID.
  */
-async function resolveTeam(models: IModels, teamVal?: unknown): Promise<unknown> {
+async function resolveTeam(models: IModels, teamVal?: unknown): Promise<string> {
   const val = safeString(teamVal).trim();
   if (!val) {
     throw new Error('Team is required');
@@ -68,7 +122,7 @@ async function resolveTeam(models: IModels, teamVal?: unknown): Promise<unknown>
   if (!team) {
     throw new Error(`Team not found: "${val}"`);
   }
-  return team._id;
+  return stringifyId(team._id);
 }
 
 /**
@@ -83,7 +137,7 @@ async function resolveStatus(
   models: IModels,
   teamId: unknown,
   statusVal?: unknown,
-): Promise<{ status: unknown; statusType: number }> {
+): Promise<{ status: string; statusType: number }> {
   const val = safeString(statusVal).trim();
   if (val) {
     const statusDoc = await models.Status.findOne({
@@ -92,7 +146,7 @@ async function resolveStatus(
     }).lean();
 
     if (statusDoc) {
-      return { status: statusDoc._id, statusType: statusDoc.type };
+      return { status: stringifyId(statusDoc._id), statusType: statusDoc.type };
     }
 
     throw new Error(`Status not found: "${val}"`);
@@ -104,7 +158,7 @@ async function resolveStatus(
     type: STATUS_TYPES.BACKLOG,
   }).lean();
   if (backlog) {
-    return { status: backlog._id, statusType: backlog.type };
+    return { status: stringifyId(backlog._id), statusType: backlog.type };
   }
 
   throw new Error('Status not resolved and Backlog status not found');
@@ -141,7 +195,11 @@ function resolvePriority(priorityVal?: unknown): number | undefined {
  * @param projectVal The raw project identifier value.
  * @returns A promise resolving to the project ID.
  */
-async function resolveProject(models: IModels, projectVal?: unknown): Promise<unknown> {
+async function resolveProject(
+  models: IModels,
+  projectVal?: unknown,
+  teamId?: unknown,
+): Promise<string | undefined> {
   const val = safeString(projectVal).trim();
   if (!val) {
     return undefined;
@@ -150,7 +208,15 @@ async function resolveProject(models: IModels, projectVal?: unknown): Promise<un
   if (!project) {
     throw new Error(`Project not found: "${val}"`);
   }
-  return project._id;
+  if (
+    teamId &&
+    Array.isArray(project.teamIds) &&
+    !project.teamIds.some((projectTeamId) => idsEqual(projectTeamId, teamId))
+  ) {
+    throw new Error(`Project "${val}" is not in the selected team`);
+  }
+
+  return toOptionalId(project._id);
 }
 
 /**
@@ -165,7 +231,7 @@ async function resolveCycle(
   models: IModels,
   teamId: unknown,
   cycleVal?: unknown,
-): Promise<unknown> {
+): Promise<string | undefined> {
   const val = safeString(cycleVal).trim();
   if (!val) {
     return undefined;
@@ -179,7 +245,11 @@ async function resolveCycle(
     throw new Error(`Cycle not found: "${val}"`);
   }
 
-  return cycle._id;
+  if (cycle.isCompleted) {
+    throw new Error(`Cannot add task to completed cycle: "${val}"`);
+  }
+
+  return toOptionalId(cycle._id);
 }
 
 /**
@@ -194,7 +264,7 @@ async function resolveMilestone(
   models: IModels,
   projectId: unknown,
   milestoneVal?: unknown,
-): Promise<unknown> {
+): Promise<string | undefined> {
   const val = safeString(milestoneVal).trim();
   if (!val) {
     return undefined;
@@ -213,7 +283,7 @@ async function resolveMilestone(
     throw new Error(`Milestone not found: "${val}"`);
   }
 
-  return milestone._id;
+  return toOptionalId(milestone._id);
 }
 
 /**
@@ -278,23 +348,13 @@ function resolveDates(startDateVal?: unknown, targetDateVal?: unknown): { startD
 }
 
 /**
- * Prepares a task document from a raw import row, resolving referenced entities.
- *
- * @param models The connection models for database queries.
- * @param row The raw row key-value pairs from the imported file.
- * @param userMap A lookup map resolving assignee strings to user IDs.
- * @returns A promise resolving to the prepared task document.
+ * Resolves basic task text fields from a raw import row.
  */
-async function prepareTaskDoc(
-  subdomain: string,
-  models: IModels,
+function resolveNameAndDescription(
   row: Record<string, unknown>,
-  userMap: Map<string, string>,
-): Promise<ITaskDoc> {
-  const doc: ITaskDoc = {};
-  const errors: string[] = [];
-
-  // --- Required: Name ---
+  doc: TImportTaskDoc,
+  errors: string[],
+): void {
   const rawName = row.name ?? row.Name ?? '';
   const name = safeString(rawName).trim();
   if (!name) {
@@ -303,15 +363,24 @@ async function prepareTaskDoc(
     doc.name = name;
   }
 
-  // --- Description ---
   const rawDescription = row.description ?? row.Description ?? '';
   const description = safeString(rawDescription).trim();
   if (description) {
     doc.description = description;
   }
+}
 
-  // --- Required: Team ---
-  let teamId: unknown = undefined;
+/**
+ * Resolves the required team and status values for a task row.
+ */
+async function resolveTaskTeamAndStatus(
+  models: IModels,
+  row: Record<string, unknown>,
+  doc: TImportTaskDoc,
+  errors: string[],
+): Promise<string | undefined> {
+  let teamId: string | undefined;
+
   try {
     teamId = await resolveTeam(models, row.teamId ?? row.Team);
     doc.teamId = teamId;
@@ -319,71 +388,123 @@ async function prepareTaskDoc(
     errors.push(getErrorMessage(e));
   }
 
-  // --- Status ---
+  if (!teamId) {
+    return undefined;
+  }
+
   try {
-    if (teamId) {
-      const statusInfo = await resolveStatus(models, teamId, row.status ?? row.Status);
-      doc.status = statusInfo.status;
-      doc.statusType = statusInfo.statusType;
-    }
+    const statusInfo = await resolveStatus(models, teamId, row.status ?? row.Status);
+    doc.status = statusInfo.status;
+    doc.statusType = statusInfo.statusType;
   } catch (e) {
     errors.push(getErrorMessage(e));
   }
 
-  // --- Priority ---
+  return teamId;
+}
+
+/**
+ * Resolves the optional assignee value using the prepared user lookup map.
+ */
+function resolveTaskAssignee(
+  row: Record<string, unknown>,
+  userMap: Map<string, string>,
+  doc: TImportTaskDoc,
+  errors: string[],
+): void {
+  const rawAssigneeVal = row.assigneeId ?? row.Assignee ?? '';
+  const assigneeVal = safeString(rawAssigneeVal).trim();
+  if (!assigneeVal) {
+    return;
+  }
+
+  const resolvedId = userMap.get(assigneeVal.toLowerCase());
+  if (!resolvedId) {
+    errors.push(`Assignee user not found: "${assigneeVal}"`);
+    return;
+  }
+
+  if (resolvedId === 'AMBIGUOUS') {
+    errors.push(
+      `Assignee identifier "${assigneeVal}" is ambiguous. Please use a more specific identifier like email or User ID.`,
+    );
+    return;
+  }
+
+  doc.assigneeId = resolvedId;
+}
+
+/**
+ * Resolves optional project and milestone references for a task row.
+ */
+async function resolveTaskProjectAndMilestone(
+  models: IModels,
+  row: Record<string, unknown>,
+  teamId: string | undefined,
+  doc: TImportTaskDoc,
+  errors: string[],
+): Promise<void> {
+  let projectId: string | undefined;
+
+  try {
+    projectId = await resolveProject(models, row.projectId ?? row.Project, teamId);
+    doc.projectId = projectId;
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
+
+  try {
+    doc.milestoneId = await resolveMilestone(
+      models,
+      projectId,
+      row.milestoneId ?? row.Milestone,
+    );
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
+}
+
+/**
+ * Resolves the optional cycle reference for a task row.
+ */
+async function resolveTaskCycle(
+  models: IModels,
+  row: Record<string, unknown>,
+  teamId: string | undefined,
+  doc: TImportTaskDoc,
+  errors: string[],
+): Promise<void> {
+  if (!teamId) {
+    return;
+  }
+
+  try {
+    doc.cycleId = await resolveCycle(models, teamId, row.cycleId ?? row.Cycle);
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
+}
+
+/**
+ * Resolves priority, estimate, and date values for a task row.
+ */
+function resolveTaskPriorityEstimateAndDates(
+  row: Record<string, unknown>,
+  doc: TImportTaskDoc,
+  errors: string[],
+): void {
   try {
     doc.priority = resolvePriority(row.priority ?? row.Priority);
   } catch (e) {
     errors.push(getErrorMessage(e));
   }
 
-  // --- Assignee ---
-  const rawAssigneeVal = row.assigneeId ?? row.Assignee ?? '';
-  const assigneeVal = safeString(rawAssigneeVal).trim();
-  if (assigneeVal) {
-    const resolvedId = userMap.get(assigneeVal.toLowerCase());
-    if (!resolvedId) {
-      errors.push(`Assignee user not found: "${assigneeVal}"`);
-    } else if (resolvedId === 'AMBIGUOUS') {
-      errors.push(`Assignee identifier "${assigneeVal}" is ambiguous. Please use a more specific identifier like email or User ID.`);
-    } else {
-      doc.assigneeId = resolvedId;
-    }
-  }
-
-  // --- Project ---
-  let projectId: unknown = undefined;
-  try {
-    projectId = await resolveProject(models, row.projectId ?? row.Project);
-    doc.projectId = projectId;
-  } catch (e) {
-    errors.push(getErrorMessage(e));
-  }
-
-  // --- Cycle ---
-  try {
-    if (teamId) {
-      doc.cycleId = await resolveCycle(models, teamId, row.cycleId ?? row.Cycle);
-    }
-  } catch (e) {
-    errors.push(getErrorMessage(e));
-  }
-
-  // --- Milestone ---
-  try {
-    doc.milestoneId = await resolveMilestone(models, projectId, row.milestoneId ?? row.Milestone);
-  } catch (e) {
-    errors.push(getErrorMessage(e));
-  }
-
-  // --- Estimate Point ---
   try {
     doc.estimatePoint = resolveEstimate(row.estimatePoint ?? row['Estimate Point']);
   } catch (e) {
     errors.push(getErrorMessage(e));
   }
 
-  // --- Dates ---
   try {
     const dates = resolveDates(
       row.startDate ?? row['Start Date'],
@@ -394,8 +515,84 @@ async function prepareTaskDoc(
   } catch (e) {
     errors.push(getErrorMessage(e));
   }
+}
 
-  // --- Custom properties passthrough and validation ---
+const buildTagMap = (tags: ITagLookup[]): Map<string, string> => {
+  const tagMap = new Map<string, string>();
+
+  for (const tag of tags) {
+    const id = toOptionalId(tag._id);
+    if (!id) {
+      continue;
+    }
+
+    tagMap.set(id.toLowerCase(), id);
+    if (tag.name) {
+      tagMap.set(tag.name.toLowerCase(), id);
+    }
+  }
+
+  return tagMap;
+};
+
+/**
+ * Resolves task tag names or IDs from a comma/semicolon-separated import value.
+ */
+async function resolveTaskTags(
+  subdomain: string,
+  row: Record<string, unknown>,
+  doc: TImportTaskDoc,
+  errors: string[],
+): Promise<void> {
+  const tagValues = splitListValue(row.tagIds ?? row.Tags);
+  if (!tagValues.length) {
+    return;
+  }
+
+  const tags: ITagLookup[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'tags',
+    action: 'find',
+    input: {
+      query: {
+        type: TASK_CONTENT_TYPE,
+        $or: [
+          { _id: { $in: tagValues } },
+          { name: { $in: tagValues } },
+        ],
+      },
+    },
+    defaultValue: [],
+  });
+
+  const tagMap = buildTagMap(tags);
+  const tagIds: string[] = [];
+
+  for (const tagValue of tagValues) {
+    const tagId = tagMap.get(tagValue.toLowerCase());
+    if (!tagId) {
+      errors.push(`Tag not found: "${tagValue}"`);
+    } else {
+      tagIds.push(tagId);
+    }
+  }
+
+  if (tagIds.length) {
+    doc.tagIds = Array.from(new Set(tagIds));
+  }
+}
+
+/**
+ * Extracts and validates custom field values from propertiesData-prefixed columns.
+ */
+async function resolveTaskCustomProperties(
+  subdomain: string,
+  row: Record<string, unknown>,
+  doc: TImportTaskDoc,
+  errors: string[],
+): Promise<void> {
   const propertiesData: Record<string, unknown> = {};
   for (const key of Object.keys(row)) {
     if (key.startsWith('propertiesData.')) {
@@ -407,24 +604,58 @@ async function prepareTaskDoc(
     }
   }
 
-  if (Object.keys(propertiesData).length > 0) {
-    try {
-      doc.propertiesData = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'fields',
-        action: 'validateFieldValues',
-        input: { data: propertiesData },
-        defaultValue: propertiesData,
-      });
-    } catch (e) {
-      errors.push(getErrorMessage(e));
-    }
+  if (Object.keys(propertiesData).length === 0) {
+    return;
   }
+
+  try {
+    doc.propertiesData = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'fields',
+      action: 'validateFieldValues',
+      input: { data: propertiesData },
+      defaultValue: propertiesData,
+    });
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
+}
+
+/**
+ * Prepares a task document from a raw import row, resolving referenced entities.
+ *
+ * @param subdomain The active subdomain/tenant identifier.
+ * @param models The connection models for database queries.
+ * @param row The raw row key-value pairs from the imported file.
+ * @param userMap A lookup map resolving assignee strings to user IDs.
+ * @returns A promise resolving to the prepared task document.
+ */
+async function prepareTaskDoc(
+  subdomain: string,
+  models: IModels,
+  row: Record<string, unknown>,
+  userMap: Map<string, string>,
+): Promise<TPreparedTaskDoc> {
+  const doc: TImportTaskDoc = {};
+  const errors: string[] = [];
+
+  resolveNameAndDescription(row, doc, errors);
+  const teamId = await resolveTaskTeamAndStatus(models, row, doc, errors);
+  resolveTaskAssignee(row, userMap, doc, errors);
+  await resolveTaskProjectAndMilestone(models, row, teamId, doc, errors);
+  await resolveTaskCycle(models, row, teamId, doc, errors);
+  resolveTaskPriorityEstimateAndDates(row, doc, errors);
+  await resolveTaskTags(subdomain, row, doc, errors);
+  await resolveTaskCustomProperties(subdomain, row, doc, errors);
 
   if (errors.length > 0) {
     throw new Error(errors.join(', '));
+  }
+
+  if (!isPreparedTaskDoc(doc)) {
+    throw new Error('Required task fields were not resolved');
   }
 
   return doc;
@@ -556,93 +787,210 @@ async function fetchAndBuildUserMap(
   return userMap;
 }
 
-interface IBulkWriteError {
-  name?: string;
-  message?: string;
-  result?: { insertedIds?: Record<number, unknown> };
-  writeErrors?: Array<{ index: number; errmsg?: string }>;
-}
+/**
+ * Converts raw import rows into validated task documents, collecting row errors.
+ */
+async function prepareTaskRows(
+  subdomain: string,
+  models: IModels,
+  rows: Record<string, unknown>[],
+  userMap: Map<string, string>,
+  errorRows: Record<string, unknown>[],
+): Promise<TPreparedRowDoc[]> {
+  const preparedRowDocs: TPreparedRowDoc[] = [];
 
-interface IRowDoc {
-  row: Record<string, unknown>;
-  doc: ITaskDoc;
-  meta: {
-    index: number;
-    _id?: unknown;
-    operationIndex?: number;
-  };
-}
+  for (const row of rows) {
+    try {
+      const doc = await prepareTaskDoc(subdomain, models, row, userMap);
+      preparedRowDocs.push({ row, doc });
+    } catch (e) {
+      errorRows.push({
+        ...row,
+        error: getErrorMessage(e),
+      });
+    }
+  }
 
-type TBulkWriteOp =
-  | { insertOne: { document: ITaskDoc } }
-  | { updateOne: { filter: Record<string, unknown>; update: Record<string, unknown> } };
+  return preparedRowDocs;
+}
 
 /**
- * Resolves per-row outcomes from a MongoBulkWriteError.
+ * Builds lookup conditions for imported rows that may update existing tasks.
  */
-function handleBulkWriteError(
-  errObj: IBulkWriteError,
-  rowDocs: IRowDoc[],
-  successRows: Record<string, unknown>[],
-  errorRows: Record<string, unknown>[],
-): void {
-  const insertedIds = errObj.result?.insertedIds || {};
-  const writeErrors = errObj.writeErrors || [];
-  const errorIndices = new Set(writeErrors.map((err) => err.index));
+function buildExistingTaskConditions(
+  preparedRowDocs: TPreparedRowDoc[],
+): Array<Record<string, unknown>> {
+  const orConditions: Array<Record<string, unknown>> = [];
 
-  for (let i = 0; i < rowDocs.length; i++) {
-    const { row, meta } = rowDocs[i];
-    if (errorIndices.has(i)) {
-      const err = writeErrors.find((we) => we.index === i);
-      errorRows.push({ ...row, error: err?.errmsg || 'Operation failed' });
-    } else {
-      if (meta.operationIndex !== undefined) {
-        const insertedId = insertedIds[meta.operationIndex] ?? (row._id || null);
-        successRows.push({ ...row, _id: insertedId });
-      } else {
-        successRows.push({ ...row, _id: meta._id });
-      }
+  for (const { row, doc } of preparedRowDocs) {
+    const rowIdVal = row._id ?? row.id;
+    const idStr = safeString(rowIdVal).trim();
+    if (idStr && mongoose.Types.ObjectId.isValid(idStr)) {
+      orConditions.push({ _id: idStr });
     }
+
+    orConditions.push({
+      name: { $regex: `^${escapeRegExp(doc.name)}$`, $options: 'i' },
+      teamId: doc.teamId,
+    });
+  }
+
+  return orConditions;
+}
+
+/**
+ * Indexes existing tasks by ID and by case-insensitive name/team pair.
+ */
+function indexExistingTasks(existingTasks: TExistingTask[]): TExistingTaskMaps {
+  const byId = new Map<string, TExistingTask>();
+  const byNameAndTeam = new Map<string, TExistingTask>();
+
+  for (const task of existingTasks) {
+    const id = toOptionalId(task._id);
+    if (id) {
+      byId.set(id, task);
+    }
+
+    const name = safeString(task.name);
+    const teamId = toOptionalId(task.teamId);
+    if (name && teamId) {
+      byNameAndTeam.set(getTaskKey(name, teamId), task);
+    }
+  }
+
+  return { byId, byNameAndTeam };
+}
+
+/**
+ * Loads and indexes existing tasks that match the incoming task rows.
+ */
+async function fetchExistingTaskMaps(
+  models: IModels,
+  preparedRowDocs: TPreparedRowDoc[],
+): Promise<TExistingTaskMaps> {
+  const orConditions = buildExistingTaskConditions(preparedRowDocs);
+  const existingTasks: TExistingTask[] = orConditions.length
+    ? await models.Task.find({ $or: orConditions }).lean()
+    : [];
+
+  return indexExistingTasks(existingTasks);
+}
+
+/**
+ * Finds an existing task for an import row by ID or name/team pair.
+ */
+function getExistingTask(
+  row: Record<string, unknown>,
+  doc: TPreparedTaskDoc,
+  existingMaps: TExistingTaskMaps,
+): TExistingTask | undefined {
+  const rowIdVal = row._id ?? row.id;
+  const idStr = safeString(rowIdVal).trim();
+  if (idStr && mongoose.Types.ObjectId.isValid(idStr)) {
+    const existingById = existingMaps.byId.get(idStr);
+    if (existingById) {
+      return existingById;
+    }
+  }
+
+  return existingMaps.byNameAndTeam.get(getTaskKey(doc.name, doc.teamId));
+}
+
+/**
+ * Adds a saved task to the in-memory lookup maps for subsequent rows.
+ */
+function rememberSavedTask(
+  existingMaps: TExistingTaskMaps,
+  task: ITaskDocument,
+): void {
+  const id = toOptionalId(task._id);
+  if (id) {
+    existingMaps.byId.set(id, task);
+  }
+
+  if (task.name && task.teamId) {
+    existingMaps.byNameAndTeam.set(getTaskKey(task.name, task.teamId), task);
   }
 }
 
 /**
- * Executes a MongoDB bulkWrite and handles per-row success/error output.
- *
- * @param models The database models.
- * @param operations The operations list.
- * @param rowDocs Prepared rows mapping.
- * @param successRows Destination array for successful rows.
- * @param errorRows Destination array for failed rows.
+ * Publishes realtime task change events after a successful import save.
  */
-async function executeBulkWrite(
+function publishTaskChange(type: TTaskSaveType, task: ITaskDocument): void {
+  graphqlPubsub.publish(`operationTaskChanged:${task._id}`, {
+    operationTaskChanged: {
+      type,
+      task,
+    },
+  });
+
+  graphqlPubsub.publish('operationTaskListChanged', {
+    operationTaskListChanged: {
+      type,
+      task,
+    },
+  });
+}
+
+/**
+ * Creates or updates a task through the task model service layer.
+ */
+async function saveTaskDoc({
+  models,
+  subdomain,
+  userId,
+  doc,
+  existingTask,
+}: {
+  models: IModels;
+  subdomain: string;
+  userId: string;
+  doc: TPreparedTaskDoc;
+  existingTask?: TExistingTask;
+}): Promise<TTaskSaveResult> {
+  if (existingTask) {
+    const _id = toOptionalId(existingTask._id);
+    if (!_id) {
+      throw new Error('Existing task id could not be resolved');
+    }
+
+    const updateDoc: ITaskUpdate = { ...doc, _id };
+    const task = await models.Task.updateTask({ doc: updateDoc, userId, subdomain });
+    return { task, type: 'update' };
+  }
+
+  const task = await models.Task.createTask({ doc, userId, subdomain });
+  return { task, type: 'create' };
+}
+
+/**
+ * Persists prepared task rows one-by-one and records per-row outcomes.
+ */
+async function savePreparedTaskRows(
   models: IModels,
-  operations: TBulkWriteOp[],
-  rowDocs: IRowDoc[],
+  subdomain: string,
+  userId: string,
+  preparedRowDocs: TPreparedRowDoc[],
+  existingMaps: TExistingTaskMaps,
   successRows: Record<string, unknown>[],
   errorRows: Record<string, unknown>[],
 ): Promise<void> {
-  try {
-    const result = await models.Task.bulkWrite(operations, { ordered: false });
+  for (const { row, doc } of preparedRowDocs) {
+    try {
+      const existingTask = getExistingTask(row, doc, existingMaps);
+      const result = await saveTaskDoc({
+        models,
+        subdomain,
+        userId,
+        doc,
+        existingTask,
+      });
 
-    for (const { row, meta } of rowDocs) {
-      if (meta.operationIndex !== undefined) {
-        const insertedId = result.insertedIds[meta.operationIndex];
-        successRows.push({ ...row, _id: insertedId });
-      } else {
-        successRows.push({ ...row, _id: meta._id });
-      }
-    }
-  } catch (error) {
-    const errObj = error as IBulkWriteError;
-
-    if (errObj.name === 'MongoBulkWriteError' || errObj.name === 'BulkWriteError') {
-      handleBulkWriteError(errObj, rowDocs, successRows, errorRows);
-    } else {
-      const errMsg = errObj.message || 'Operation failed';
-      for (const { row } of rowDocs) {
-        errorRows.push({ ...row, error: errMsg });
-      }
+      publishTaskChange(result.type, result.task);
+      rememberSavedTask(existingMaps, result.task);
+      successRows.push({ ...row, _id: result.task._id });
+    } catch (e) {
+      errorRows.push({ ...row, error: getErrorMessage(e) });
     }
   }
 }
@@ -653,124 +1001,46 @@ async function executeBulkWrite(
  * @param subdomain The active subdomain/tenant identifier.
  * @param models The connection models for database queries.
  * @param rows An array of raw task records to import.
+ * @param userId The user ID responsible for the import save operation.
  * @returns A promise resolving to an object containing successful and failed import rows.
  */
 export async function processTaskRows(
   subdomain: string,
   models: IModels,
   rows: Record<string, unknown>[],
+  userId: string,
 ): Promise<{ successRows: Record<string, unknown>[]; errorRows: Record<string, unknown>[] }> {
   const successRows: Record<string, unknown>[] = [];
   const errorRows: Record<string, unknown>[] = [];
 
   try {
     const userMap = await fetchAndBuildUserMap(subdomain, rows);
-
-    const preparedRowDocs: Array<{ row: Record<string, unknown>; doc: ITaskDoc }> = [];
-
-    for (const row of rows) {
-      try {
-        const doc = await prepareTaskDoc(subdomain, models, row, userMap);
-        preparedRowDocs.push({ row, doc });
-      } catch (e) {
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        errorRows.push({
-          ...row,
-          error: errorMessage,
-        });
-      }
-    }
+    const preparedRowDocs = await prepareTaskRows(
+      subdomain,
+      models,
+      rows,
+      userMap,
+      errorRows,
+    );
 
     if (preparedRowDocs.length === 0) {
       return { successRows, errorRows };
     }
 
-    // Find all existing tasks to determine if we insert or update (Deduplication)
-    const orConditions: Array<Record<string, unknown>> = [];
-    for (const { row, doc } of preparedRowDocs) {
-      const rowIdVal = row._id ?? row.id;
-      const idStr = safeString(rowIdVal).trim();
-      if (idStr && mongoose.Types.ObjectId.isValid(idStr)) {
-        orConditions.push({ _id: idStr });
-      }
-      if (doc.name && doc.teamId) {
-        orConditions.push({
-          name: { $regex: `^${escapeRegExp(doc.name)}$`, $options: 'i' },
-          teamId: doc.teamId,
-        });
-      }
-    }
-
-    const existingTasks = orConditions.length
-      ? (await models.Task.find({ $or: orConditions }).lean() as Array<Record<string, unknown>>)
-      : [];
-
-    const existingById = new Map<string, Record<string, unknown>>();
-    const existingByNameAndTeam = new Map<string, Record<string, unknown>>();
-
-    for (const task of existingTasks) {
-      const idStr = stringifyId(task._id);
-      if (idStr) {
-        existingById.set(idStr, task);
-      }
-      const teamIdStr = stringifyId(task.teamId);
-      if (task.name && teamIdStr) {
-        const key = `${safeString(task.name).toLowerCase()}_${teamIdStr}`;
-        existingByNameAndTeam.set(key, task);
-      }
-    }
-
-    const operations: TBulkWriteOp[] = [];
-    const rowDocs: IRowDoc[] = [];
-
-    for (let i = 0; i < preparedRowDocs.length; i++) {
-      const { row, doc } = preparedRowDocs[i];
-      let existingDoc: Record<string, unknown> | null = null;
-
-      const rowIdVal = row._id ?? row.id;
-      const idStr = safeString(rowIdVal).trim();
-      if (idStr && mongoose.Types.ObjectId.isValid(idStr)) {
-        existingDoc = existingById.get(idStr) || null;
-      }
-
-      if (!existingDoc && doc.name && doc.teamId) {
-        const teamIdStr = stringifyId(doc.teamId);
-        const key = `${doc.name.toLowerCase()}_${teamIdStr}`;
-        existingDoc = existingByNameAndTeam.get(key) || null;
-      }
-
-      if (existingDoc) {
-        operations.push({
-          updateOne: {
-            filter: { _id: existingDoc._id },
-            update: { $set: { ...doc, updatedAt: new Date() } },
-          },
-        });
-        rowDocs.push({
-          row,
-          doc,
-          meta: { index: i, _id: existingDoc._id },
-        });
-      } else {
-        const operationIndex = operations.length;
-        operations.push({
-          insertOne: { document: doc },
-        });
-        rowDocs.push({
-          row,
-          doc,
-          meta: { index: i, operationIndex },
-        });
-      }
-    }
-
-    if (operations.length) {
-      await executeBulkWrite(models, operations, rowDocs, successRows, errorRows);
-    }
+    const existingMaps = await fetchExistingTaskMaps(models, preparedRowDocs);
+    await savePreparedTaskRows(
+      models,
+      subdomain,
+      userId,
+      preparedRowDocs,
+      existingMaps,
+      successRows,
+      errorRows,
+    );
 
     return { successRows, errorRows };
   } catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
+    const errorMessage = getErrorMessage(e);
     return {
       successRows: [],
       errorRows: rows.map((r) => ({

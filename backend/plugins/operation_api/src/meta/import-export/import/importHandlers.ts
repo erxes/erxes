@@ -17,6 +17,7 @@ const TASK_SYSTEM_HEADERS = [
   { label: 'Project', key: 'projectId' },
   { label: 'Cycle', key: 'cycleId' },
   { label: 'Milestone', key: 'milestoneId' },
+  { label: 'Tags', key: 'tagIds' },
   { label: 'Estimate Point', key: 'estimatePoint' },
   { label: 'Start Date', key: 'startDate' },
   { label: 'Due Date', key: 'targetDate' },
@@ -38,7 +39,7 @@ export const taskImportHandlers = {
   },
 
   insertImportRows: async (
-    { collectionName, rows }: TInsertImportRowsInput,
+    { collectionName, rows, userId }: TInsertImportRowsInput,
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     if (collectionName !== 'task') {
@@ -49,6 +50,6 @@ export const taskImportHandlers = {
       throw new Error('Models not available in context');
     }
 
-    return await processTaskRows(subdomain, models, rows);
+    return await processTaskRows(subdomain, models, rows, userId);
   },
 };
