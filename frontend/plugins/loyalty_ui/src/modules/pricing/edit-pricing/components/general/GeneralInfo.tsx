@@ -26,7 +26,7 @@ import {
   SelectSegment,
   SelectTags,
 } from 'ui-modules';
-import { type Control } from 'react-hook-form';
+import { type Control, type ControllerRenderProps } from 'react-hook-form';
 
 interface GeneralInfoProps {
   pricingId?: string;
@@ -106,6 +106,48 @@ const GeneralDateField = ({
   />
 );
 
+/** Coerce a single-or-multi selector value into a string[] for the form. */
+const toArray = (value: string[] | string | null): string[] =>
+  Array.isArray(value) ? value : value ? [value] : [];
+
+/**
+ * Labeled form field for a customer/agent condition. Keeps the
+ * Form.Field/Item/Label/Control wrapper in one place so each selector below
+ * stays a one-liner (avoids duplicated blocks).
+ */
+function ConditionField<Name extends keyof GeneralFormValues>({
+  control,
+  name,
+  label,
+  className,
+  children,
+}: {
+  control: Control<GeneralFormValues>;
+  name: Name;
+  label: string;
+  className?: string;
+  children: (
+    field: ControllerRenderProps<GeneralFormValues, Name>,
+  ) => ReactNode;
+}) {
+  return (
+    <Form.Field
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item className={className}>
+          <Form.Label>{label}</Form.Label>
+          <Form.Control>{children(field)}</Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+}
+
+/**
+ * Customer & agent targeting conditions, extracted from GeneralInfo to keep the
+ * form's JSX nesting shallow.
+ */
 const CustomerAgentConditions = ({
   control,
 }: {
@@ -121,101 +163,71 @@ const CustomerAgentConditions = ({
     </div>
 
     <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-      <Form.Field
-        control={control}
-        name="customerIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>CUSTOMERS</Form.Label>
-            <Form.Control>
-              <SelectCustomer
-                mode="multiple"
-                value={field.value}
-                onValueChange={(value) =>
-                  field.onChange(normalizeMultipleValue(value))
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+      <ConditionField control={control} name="customerIds" label="CUSTOMERS">
+        {(field) => (
+          <SelectCustomer
+            mode="multiple"
+            value={field.value}
+            onValueChange={(value) => field.onChange(toArray(value))}
+          />
         )}
-      />
+      </ConditionField>
 
-      <Form.Field
+      <ConditionField
         control={control}
         name="customerIdsExcluded"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>EXCLUDE CUSTOMERS</Form.Label>
-            <Form.Control>
-              <SelectCustomer
-                mode="multiple"
-                value={field.value}
-                onValueChange={(value) =>
-                  field.onChange(normalizeMultipleValue(value))
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+        label="EXCLUDE CUSTOMERS"
+      >
+        {(field) => (
+          <SelectCustomer
+            mode="multiple"
+            value={field.value}
+            onValueChange={(value) => field.onChange(toArray(value))}
+          />
         )}
-      />
+      </ConditionField>
 
-      <Form.Field
+      <ConditionField
         control={control}
         name="agentIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>AGENTS (SALESPEOPLE)</Form.Label>
-            <Form.Control>
-              <SelectMember
-                mode="multiple"
-                value={field.value}
-                onValueChange={(value) =>
-                  field.onChange(
-                    Array.isArray(value) ? value : value ? [value] : [],
-                  )
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+        label="AGENTS (SALESPEOPLE)"
+      >
+        {(field) => (
+          <SelectMember
+            mode="multiple"
+            value={field.value}
+            onValueChange={(value) => field.onChange(toArray(value))}
+          />
         )}
-      />
+      </ConditionField>
 
-      <Form.Field
+      <ConditionField
         control={control}
         name="agentIdsExcluded"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>EXCLUDE AGENTS</Form.Label>
-            <Form.Control>
-              <SelectMember
-                mode="multiple"
-                value={field.value}
-                onValueChange={(value) =>
-                  field.onChange(
-                    Array.isArray(value) ? value : value ? [value] : [],
-                  )
-                }
-              />
-            </Form.Control>
-          </Form.Item>
+        label="EXCLUDE AGENTS"
+      >
+        {(field) => (
+          <SelectMember
+            mode="multiple"
+            value={field.value}
+            onValueChange={(value) => field.onChange(toArray(value))}
+          />
         )}
-      />
+      </ConditionField>
 
-      <Form.Field
+      <ConditionField
         control={control}
         name="customerSegmentId"
-        render={({ field }) => (
-          <Form.Item className="lg:col-span-2">
-            <Form.Label>CUSTOMER SEGMENT</Form.Label>
-            <Form.Control>
-              <SelectSegment
-                selected={field.value || undefined}
-                onSelect={(id) => field.onChange(id)}
-              />
-            </Form.Control>
-          </Form.Item>
+        label="CUSTOMER SEGMENT"
+        className="lg:col-span-2"
+      >
+        {(field) => (
+          <SelectSegment
+            selected={field.value || undefined}
+            onSelect={(id) => field.onChange(id)}
+          />
         )}
-      />
+      </ConditionField>
     </div>
   </div>
 );
