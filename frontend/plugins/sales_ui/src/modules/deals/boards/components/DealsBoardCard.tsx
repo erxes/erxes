@@ -7,7 +7,8 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
-import { CopyText, Separator, useQueryState } from 'erxes-ui';
+import { CopyText, Separator, cn, useQueryState } from 'erxes-ui';
+import { useMergeMode } from '@/deals/cards/components/detail/product/hooks/useMergeMode';
 import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
 import {
@@ -143,6 +144,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
   const setActiveDealAtom = useSetAtom(dealDetailSheetState);
   const [searchParams] = useQueryState<string>('archivedOnly');
+  const { isMergeMode, mergeTargetId, mergeInto } = useMergeMode();
   const { editDeals } = useDealsEdit();
   const { manageRelations } = useManageRelations();
   const [currentCustomers, setCurrentCustomers] = useState(
@@ -168,7 +170,15 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     stage,
     tagIds,
   } = deal;
+  const isMergeTarget = isMergeMode && _id === mergeTargetId;
+
   const onCardClick = () => {
+    // While merging, a click picks this deal as the merge source.
+    if (isMergeMode) {
+      if (isMergeTarget) return; // can't merge a deal into itself
+      mergeInto(_id);
+      return;
+    }
     setSalesItemId(_id);
     setActiveDealAtom(_id);
   };
@@ -178,9 +188,25 @@ export const DealsBoardCard = memo(function DealsBoardCard({
 
   return (
     <div
-      className={showArchivedBadge ? 'relative overflow-hidden' : ''}
+      className={cn(
+        (showArchivedBadge || isMergeMode) && 'relative overflow-hidden',
+        isMergeMode &&
+          !isMergeTarget &&
+          'ring-1 ring-primary/40 hover:ring-2 hover:ring-primary rounded-md cursor-pointer transition-shadow',
+        isMergeTarget && 'opacity-50',
+      )}
       onClick={() => onCardClick()}
     >
+      {isMergeMode && !isMergeTarget && (
+        // Capture every click on the card so inner controls don't swallow it.
+        <div
+          className="absolute inset-0 z-20 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            mergeInto(_id);
+          }}
+        />
+      )}
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
           placeholder="Start Date"

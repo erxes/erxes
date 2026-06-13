@@ -159,6 +159,38 @@ export const dealSchema = schemaWrapper(
       bothTotalAmount: { type: Number, label: 'Both Total Amount' },
       paymentsData: { type: Object, optional: true, label: 'Payments' },
       extraData: { type: Object, optional: true },
+
+      // --- merge tracking ---
+      mergedIntoId: {
+        type: String,
+        optional: true,
+        index: true,
+        esType: 'keyword',
+        label: 'Merged into deal',
+      },
+      mergedDealIds: {
+        type: [String],
+        optional: true,
+        esType: 'keyword',
+        label: 'Merged source deals',
+      },
+      mergedAt: { type: Date, optional: true, label: 'Merged at' },
+
+      // --- split tracking ---
+      splitSourceId: {
+        type: String,
+        optional: true,
+        index: true,
+        esType: 'keyword',
+        label: 'Split from deal',
+      },
+      splitChildIds: {
+        type: [String],
+        optional: true,
+        esType: 'keyword',
+        label: 'Split child deals',
+      },
+      splitAt: { type: Date, optional: true, label: 'Split at' },
     },
     {
       timestamps: true,

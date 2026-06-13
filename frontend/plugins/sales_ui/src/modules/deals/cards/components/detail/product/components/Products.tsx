@@ -3,6 +3,7 @@
 import { IProduct, IProductData } from 'ui-modules';
 
 import { IDeal } from '@/deals/types/deals';
+import { MergeSplitActions } from './MergeSplitActions';
 import ProductsList from './ProductsList';
 import ProductsPayment from './ProductPayment';
 import { Tabs } from 'erxes-ui';
@@ -30,6 +31,9 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
           </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="product">
+          <div className="mb-3 flex justify-end">
+            <MergeSplitActions deal={deal} />
+          </div>
           <ProductsList
             products={deal.products || ([] as IProduct[])}
             productsData={deal.productsData || ([] as IProductData[])}

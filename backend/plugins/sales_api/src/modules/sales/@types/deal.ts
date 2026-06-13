@@ -84,6 +84,20 @@ export interface IDeal {
   productsData?: IProductData[];
   paymentsData?: IPaymentsData;
   extraData?: any;
+
+  // --- merge tracking ---
+  // On a source deal: the target deal it was merged into.
+  mergedIntoId?: string;
+  // On a target deal: the source deals that were merged into it.
+  mergedDealIds?: string[];
+  mergedAt?: Date;
+
+  // --- split tracking ---
+  // On a child deal: the original deal it was split from.
+  splitSourceId?: string;
+  // On an original deal: the child deals produced by splitting it.
+  splitChildIds?: string[];
+  splitAt?: Date;
 }
 
 export interface IDealDocument extends IDeal, Document {
@@ -92,6 +106,18 @@ export interface IDealDocument extends IDeal, Document {
   updatedAt?: Date;
 
   customProperties?: Record<string, any>;
+}
+
+export interface IDealSplitInput {
+  name?: string;
+  stageId?: string;
+  assignedUserIds?: string[];
+  // Product line _ids (from the source deal's productsData) to move/copy
+  // into this child deal.
+  productIds?: string[];
+  // Optional explicit amount allocated to this child (partial allocation).
+  amount?: number;
+  description?: string;
 }
 
 export interface IDate {

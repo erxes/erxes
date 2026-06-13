@@ -1,5 +1,10 @@
 import { IContext } from '~/connectionResolvers';
-import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
+import {
+  IDeal,
+  IDealDocument,
+  IDealSplitInput,
+  IProductData,
+} from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
 import {
   createRelations,
@@ -131,6 +136,63 @@ export const dealMutations: Record<string, Resolver> = {
   ) {
     await checkPermission('dealsWatch');
     return models.Deals.watchDeal(_id, isAdd, user._id);
+  },
+
+  /**
+   * Merge multiple source deals into a target deal.
+   * Source deals are soft-marked `merged` (not hard deleted).
+   */
+  async dealsMerge(
+    _root,
+    {
+      sourceDealIds,
+      targetDealId,
+      name,
+    }: { sourceDealIds: string[]; targetDealId: string; name?: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('dealsEdit');
+
+    const target = await models.Deals.mergeDeals(
+      sourceDealIds,
+      targetDealId,
+      name,
+    );
+
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal: target,
+      oldDeal: target,
+    });
+
+    return target;
+  },
+
+  /**
+   * Split a deal into one or more child deals. The original is preserved.
+   */
+  async dealsSplit(
+    _root,
+    {
+      dealId,
+      splits,
+    }: { dealId: string; splits: IDealSplitInput[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('dealsEdit');
+
+    const children = await models.Deals.splitDeal(dealId, splits);
+
+    for (const child of children) {
+      const stage = await models.Stages.getStage(child.stageId);
+      await subscriptionWrapper(models, {
+        action: 'create',
+        deal: child,
+        pipelineId: stage.pipelineId,
+      });
+    }
+
+    return children;
   },
 
   async dealsCopy(

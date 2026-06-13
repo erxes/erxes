@@ -1,6 +1,9 @@
 import { ActivityLogInput } from 'erxes-api-shared/core-modules';
 import { buildDealTarget, getDealFieldLabel } from './utils';
 
+/** Minimal deal shape the merge/split activity builders need. */
+type DealActivitySubject = { _id: string; name?: string };
+
 export const buildDealFieldChangedActivity = (params: {
   deal: any;
   field: string;
@@ -212,6 +215,86 @@ export const generateDealConvertedActivityLog = (
   metadata: {
     conversationId,
     dealId: deal._id,
+  },
+});
+
+export const generateDealMergedActivityLog = (
+  deal: DealActivitySubject,
+  sourceDealIds: string[],
+): ActivityLogInput => ({
+  activityType: 'deal.merged',
+  target: buildDealTarget(deal),
+  action: {
+    type: 'merge',
+    description: `merged ${sourceDealIds.length} deal(s) into this deal`,
+  },
+  changes: {
+    mergedDealIds: sourceDealIds,
+    mergedAt: new Date(),
+  },
+  metadata: {
+    sourceDealIds,
+    targetDealId: deal._id,
+  },
+});
+
+export const generateDealMergedIntoActivityLog = (
+  deal: DealActivitySubject,
+  targetDealId: string,
+): ActivityLogInput => ({
+  activityType: 'deal.merged_into',
+  target: buildDealTarget(deal),
+  action: {
+    type: 'merge',
+    description: 'merged into another deal',
+  },
+  changes: {
+    mergedIntoId: targetDealId,
+    mergedAt: new Date(),
+  },
+  metadata: {
+    targetDealId,
+    sourceDealId: deal._id,
+  },
+});
+
+export const generateDealSplitActivityLog = (
+  deal: DealActivitySubject,
+  childDealIds: string[],
+): ActivityLogInput => ({
+  activityType: 'deal.split',
+  target: buildDealTarget(deal),
+  action: {
+    type: 'split',
+    description: `split into ${childDealIds.length} deal(s)`,
+  },
+  changes: {
+    splitChildIds: childDealIds,
+    splitAt: new Date(),
+  },
+  metadata: {
+    childDealIds,
+    sourceDealId: deal._id,
+  },
+});
+
+export const generateDealSplitChildActivityLog = (
+  deal: DealActivitySubject,
+  sourceDealId: string,
+): ActivityLogInput => ({
+  activityType: 'deal.split_child',
+  target: buildDealTarget(deal),
+  action: {
+    type: 'split',
+    description: 'created from a split deal',
+  },
+  changes: {
+    splitSourceId: sourceDealId,
+    splitAt: new Date(),
+  },
+  metadata: {
+    sourceDealId,
+    childDealId: deal._id,
   },
 });
 

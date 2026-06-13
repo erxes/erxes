@@ -92,7 +92,14 @@ export const generateFilter = async (
     filter,
     noSkipArchive
       ? {}
-      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+      : {
+          // Hide archived deals and merged source deals (the latter live on
+          // only for history/traceability after a merge).
+          status: {
+            $nin: [SALES_STATUSES.ARCHIVED, SALES_STATUSES.MERGED],
+          },
+          parentId: undefined,
+        },
   );
 
   let filterIds: string[] = [];

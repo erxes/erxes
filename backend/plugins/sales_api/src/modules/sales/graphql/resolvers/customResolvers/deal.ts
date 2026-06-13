@@ -91,16 +91,28 @@ export default {
   },
 
   async pipeline(deal: IDealDocument, _args: undefined, { loaders }: IContext) {
-    return await loaders.deal.pipelineByDealId.load(deal.stageId);
+    if (!deal.stageId) {
+      return null;
+    }
+    return (await loaders.deal.pipelineByDealId.load(deal.stageId)) || null;
   },
 
   async boardId(deal: IDealDocument, _args: undefined, { loaders }: IContext) {
+    if (!deal.stageId) {
+      return null;
+    }
     const pipeline = await loaders.deal.pipelineByDealId.load(deal.stageId);
-    return pipeline.boardId;
+    // Deal may reference a deleted stage/pipeline — don't crash the list.
+    return pipeline?.boardId ?? null;
   },
 
   async stage(deal: IDealDocument, _args: undefined, { models }: IContext) {
-    return models.Stages.getStage(deal.stageId);
+    if (!deal.stageId) {
+      return null;
+    }
+    // Use findOne (not getStage) so a deleted stage returns null instead of
+    // throwing and breaking the whole deals list / merge picker.
+    return models.Stages.findOne({ _id: deal.stageId });
   },
 
   async isWatched(deal: IDealDocument, _args: undefined, { user }: IContext) {
@@ -127,6 +139,46 @@ export default {
     }
 
     return { __typename: 'User', _id: deal.userId };
+  },
+
+  async mergedInto(deal: IDealDocument, _args: undefined, { models }: IContext) {
+    if (!deal.mergedIntoId) {
+      return null;
+    }
+    return models.Deals.findOne({ _id: deal.mergedIntoId });
+  },
+
+  async mergedDeals(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!deal.mergedDealIds?.length) {
+      return [];
+    }
+    return models.Deals.find({ _id: { $in: deal.mergedDealIds } });
+  },
+
+  async splitSource(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!deal.splitSourceId) {
+      return null;
+    }
+    return models.Deals.findOne({ _id: deal.splitSourceId });
+  },
+
+  async splitChildren(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!deal.splitChildIds?.length) {
+      return [];
+    }
+    return models.Deals.find({ _id: { $in: deal.splitChildIds } });
   },
 
   async vendorCustomers(

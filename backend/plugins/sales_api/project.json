@@ -48,6 +48,14 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/sales_api/Dockerfile . -t erxes/erxes-next-sales_api"
+    },
+
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "backend/plugins/sales_api/jest.config.ts"
+      }
     }
   }
 }

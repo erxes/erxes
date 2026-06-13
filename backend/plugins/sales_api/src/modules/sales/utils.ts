@@ -111,7 +111,10 @@ export const boardNumberGenerator = async (
   return number;
 };
 
-export const fillSearchTextItem = (doc: IDeal, item?: IDealDocument) => {
+export const fillSearchTextItem = (
+  doc: Partial<IDeal>,
+  item?: IDealDocument,
+) => {
   const { name = '', description = '' } = item || {};
   return validSearchText([doc.name ?? name, doc.description ?? description]);
 };
