@@ -57,12 +57,14 @@ export const mergeProductsData = (
   targetProductsData: IProductData[] = [],
   sourcesProductsData: IProductData[][] = [],
 ): IProductData[] => {
+  /** Identity for a product line — same product + uom + currency collapse. */
   const lineKey = (pd: IProductData) =>
     [pd.productId, pd.uom || '', pd.currency || ''].join('::');
 
   const byKey = new Map<string, IProductData>();
   const order: string[] = [];
 
+  /** Fold a list of product lines into the running byKey/order accumulators. */
   const ingest = (lines: IProductData[] = []) => {
     for (const line of lines) {
       if (!line || !line.productId) {

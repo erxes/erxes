@@ -29,8 +29,9 @@ export const ProductsSplit = ({
     },
   });
 
+  /** Fire the split mutation and reset the dialog on success. */
   const handleSplit = () => {
-    void splitDeal({
+    splitDeal({
       variables: {
         dealId,
         splits: [{ name: name.trim() || undefined, productIds }],

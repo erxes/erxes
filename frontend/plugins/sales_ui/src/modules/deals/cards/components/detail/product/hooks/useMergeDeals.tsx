@@ -9,6 +9,10 @@ import {
 import { MERGE_DEALS } from '@/deals/cards/components/detail/product/graphql/mutations/MergeSplitActions';
 import { useToast } from 'erxes-ui';
 
+/**
+ * Wraps the MERGE_DEALS mutation with success/error toasts and refreshes the
+ * board and deal-detail views once the merge completes.
+ */
 export const useMergeDeals = (options?: MutationHookOptions) => {
   const { toast } = useToast();
   const client = useApolloClient();
@@ -23,7 +27,7 @@ export const useMergeDeals = (options?: MutationHookOptions) => {
       // The source deal is now `merged` (hidden from the board) and the target
       // gained the merged relations/labels — refresh both views so the change
       // is visible immediately.
-      void client.refetchQueries({ include: ['Deals', 'DealDetail'] });
+      client.refetchQueries({ include: ['Deals', 'DealDetail'] });
       options?.onCompleted?.(data);
     },
     onError: (e) => {

@@ -1,6 +1,6 @@
-import * as dotenv from 'dotenv';
+import { config } from 'dotenv';
 
-dotenv.config();
+config();
 
 import { Db, MongoClient } from 'mongodb';
 
@@ -30,6 +30,10 @@ if (!MONGO_URL) {
 
 const client = new MongoClient(MONGO_URL);
 
+/**
+ * Connects to MongoDB and ensures the deal merge/split look-up indexes exist.
+ * Idempotent — `createIndex` is a no-op when the index already exists.
+ */
 const command = async () => {
   await client.connect();
 
@@ -44,10 +48,9 @@ const command = async () => {
   console.log('Deal merge/split indexes ensured.');
 
   await client.close();
-  process.exit(0);
 };
 
 command().catch((e) => {
   console.error(e);
-  process.exit(1);
+  process.exitCode = 1;
 });

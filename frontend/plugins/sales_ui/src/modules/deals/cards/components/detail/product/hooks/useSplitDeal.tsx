@@ -5,6 +5,10 @@ import { MutationHookOptions, useMutation } from '@apollo/client';
 import { SPLIT_DEAL } from '@/deals/cards/components/detail/product/graphql/mutations/MergeSplitActions';
 import { useToast } from 'erxes-ui';
 
+/**
+ * Wraps the SPLIT_DEAL mutation with success/error toasts reporting how many
+ * deals were produced by the split.
+ */
 export const useSplitDeal = (options?: MutationHookOptions) => {
   const { toast } = useToast();
 

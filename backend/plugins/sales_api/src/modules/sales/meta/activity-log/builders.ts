@@ -218,6 +218,7 @@ export const generateDealConvertedActivityLog = (
   },
 });
 
+/** Activity log for the target deal that absorbed one or more source deals. */
 export const generateDealMergedActivityLog = (
   deal: DealActivitySubject,
   sourceDealIds: string[],
@@ -238,6 +239,7 @@ export const generateDealMergedActivityLog = (
   },
 });
 
+/** Activity log for a source deal that was merged into another deal. */
 export const generateDealMergedIntoActivityLog = (
   deal: DealActivitySubject,
   targetDealId: string,
@@ -258,6 +260,7 @@ export const generateDealMergedIntoActivityLog = (
   },
 });
 
+/** Activity log for a source deal that was split into child deals. */
 export const generateDealSplitActivityLog = (
   deal: DealActivitySubject,
   childDealIds: string[],
@@ -278,6 +281,7 @@ export const generateDealSplitActivityLog = (
   },
 });
 
+/** Activity log for a child deal created from a split. */
 export const generateDealSplitChildActivityLog = (
   deal: DealActivitySubject,
   sourceDealId: string,

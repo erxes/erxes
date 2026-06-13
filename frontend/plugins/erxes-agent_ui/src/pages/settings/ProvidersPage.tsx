@@ -12,6 +12,20 @@ import {
   MASTRA_PROVIDER_REMOVE,
 } from '~/graphql/mutations';
 
+interface MastraProvider {
+  _id: string;
+  provider: string;
+  label?: string;
+  apiKey?: string;
+  baseUrl?: string;
+  modelsEndpoint?: string;
+  isOpenAICompatible?: boolean;
+  envKey?: string;
+  headers?: Record<string, string> | null;
+  isDefault?: boolean;
+  isEnabled?: boolean;
+}
+
 const EMPTY_FORM = {
   provider: '',
   apiKey: '',
@@ -48,10 +62,109 @@ const parseHeaders = (text: string): Record<string, string> => {
   return out;
 };
 
+// A single configured-provider row with edit/remove actions.
+const ConfiguredProviderCard = ({
+  provider: p,
+  onEdit,
+  onRemove,
+}: {
+  provider: MastraProvider;
+  onEdit: (p: MastraProvider) => void;
+  onRemove: (p: MastraProvider) => void;
+}) => {
+  const keyHint = p.apiKey
+    ? '••••••' + p.apiKey.slice(-4)
+    : p.envKey
+      ? `env: ${p.envKey}`
+      : 'No key';
+
+  return (
+    <div className="rounded-lg border bg-card p-4 flex items-center justify-between">
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold">{p.label || p.provider}</span>
+          {p.isDefault && <Badge>Default</Badge>}
+          {!p.isEnabled && <Badge variant="secondary">Disabled</Badge>}
+          {p.isOpenAICompatible && (
+            <Badge variant="secondary" className="text-xs">
+              OpenAI-compatible
+            </Badge>
+          )}
+        </div>
+        <div className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
+          <IconKey size={12} />
+          <span className="font-mono">{keyHint}</span>
+          {p.baseUrl && <span className="ml-2 text-xs">· {p.baseUrl}</span>}
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={() => onEdit(p)}>
+          Edit
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => onRemove(p)}>
+          <IconTrash className="text-destructive" size={16} />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// A selectable preset tile in the "add provider" grid.
+const PresetTile = ({
+  preset,
+  configured,
+  envOnly,
+  onSelect,
+}: {
+  preset: any;
+  configured: boolean;
+  envOnly: boolean;
+  onSelect: () => void;
+}) => (
+  <div
+    className={`rounded-lg border p-4 cursor-pointer transition-colors ${
+      envOnly
+        ? 'border-green-500/40 hover:border-green-500/70'
+        : 'border-border hover:border-primary/50'
+    }`}
+    role="button"
+    tabIndex={0}
+    onClick={onSelect}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onSelect();
+      }
+    }}
+  >
+    <div className="flex items-center justify-between mb-1">
+      <span className="font-semibold text-sm">{preset.label}</span>
+      {configured ? (
+        <Badge variant="secondary" className="text-xs">
+          <IconCheck size={10} className="mr-1" /> Configured
+        </Badge>
+      ) : envOnly ? (
+        <Badge variant="success" className="text-xs">
+          Via env
+        </Badge>
+      ) : null}
+    </div>
+    <p className="text-xs text-muted-foreground">
+      {preset.isOpenAICompatible ? 'OpenAI-compatible' : 'Native'} · models
+      listed live from the provider
+    </p>
+  </div>
+);
+
 export const ProvidersPage = () => {
   const { data: providersData, refetch } = useQuery(MASTRA_PROVIDERS);
   const { data: presetsData } = useQuery(MASTRA_PROVIDER_PRESETS);
   const { data: catalogData } = useQuery(MASTRA_PROVIDER_CATALOG);
+
+  // `editing` holds the provider key being added/edited, or '__custom__' for a custom entry
+  const [editing, setEditing] = useState<string | null>(null);
+  const [form, setForm] = useState<typeof EMPTY_FORM>({ ...EMPTY_FORM });
+
   const [saveProvider, { loading: saving }] = useMutation(
     MASTRA_PROVIDER_SAVE,
     {
@@ -65,11 +178,7 @@ export const ProvidersPage = () => {
     onCompleted: () => refetch(),
   });
 
-  // `editing` holds the provider key being added/edited, or '__custom__' for a custom entry
-  const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState<typeof EMPTY_FORM>({ ...EMPTY_FORM });
-
-  const providers = providersData?.mastraProviders || [];
+  const providers: MastraProvider[] = providersData?.mastraProviders || [];
   const presets: any[] = presetsData?.mastraProviderPresets || [];
   // Maps provider key → isConfigured (covers both DB docs and env-var-only providers)
   const catalogMap = new Map<string, boolean>(
@@ -81,7 +190,9 @@ export const ProvidersPage = () => {
 
   const handleAddPreset = (preset: any) => {
     setEditing(preset.provider);
-    const existing = providers.find((p: any) => p.provider === preset.provider);
+    const existing = providers.find(
+      (p) => p.provider === preset.provider,
+    );
     setForm({
       provider: preset.provider,
       apiKey: existing?.apiKey || '',
@@ -101,7 +212,7 @@ export const ProvidersPage = () => {
     setForm({ ...EMPTY_FORM });
   };
 
-  const handleEdit = (p: any) => {
+  const handleEdit = (p: MastraProvider) => {
     setEditing(p.provider);
     setForm({
       provider: p.provider,
@@ -142,7 +253,7 @@ export const ProvidersPage = () => {
     });
   };
 
-  const handleRemove = (p: any) => {
+  const handleRemove = (p: MastraProvider) => {
     if (window.confirm(`Remove provider "${p.label || p.provider}"?`)) {
       removeProvider({ variables: { _id: p._id } });
     }
@@ -154,7 +265,7 @@ export const ProvidersPage = () => {
       : presets.find((c: any) => c.provider === editing)?.label || editing;
 
   const isEdit =
-    editing && providers.some((p: any) => p.provider === providerKey);
+    editing && providers.some((p) => p.provider === providerKey);
 
   return (
     <div className="p-6 max-w-3xl space-y-8">
@@ -171,57 +282,13 @@ export const ProvidersPage = () => {
         <section>
           <h2 className="text-lg font-semibold mb-3">Configured Providers</h2>
           <div className="space-y-3">
-            {providers.map((p: any) => (
-              <div
+            {providers.map((p) => (
+              <ConfiguredProviderCard
                 key={p._id}
-                className="rounded-lg border bg-card p-4 flex items-center justify-between"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">
-                      {p.label || p.provider}
-                    </span>
-                    {p.isDefault && <Badge>Default</Badge>}
-                    {!p.isEnabled && (
-                      <Badge variant="secondary">Disabled</Badge>
-                    )}
-                    {p.isOpenAICompatible && (
-                      <Badge variant="secondary" className="text-xs">
-                        OpenAI-compatible
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
-                    <IconKey size={12} />
-                    <span className="font-mono">
-                      {p.apiKey
-                        ? '••••••' + p.apiKey.slice(-4)
-                        : p.envKey
-                          ? `env: ${p.envKey}`
-                          : 'No key'}
-                    </span>
-                    {p.baseUrl && (
-                      <span className="ml-2 text-xs">· {p.baseUrl}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(p)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemove(p)}
-                  >
-                    <IconTrash className="text-destructive" size={16} />
-                  </Button>
-                </div>
-              </div>
+                provider={p}
+                onEdit={handleEdit}
+                onRemove={handleRemove}
+              />
             ))}
           </div>
         </section>
@@ -238,45 +305,18 @@ export const ProvidersPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {presets.map((preset: any) => {
             const configured = providers.some(
-              (p: any) => p.provider === preset.provider,
+              (p) => p.provider === preset.provider,
             );
             const envOnly =
               !configured && catalogMap.get(preset.provider) === true;
             return (
-              <div
+              <PresetTile
                 key={preset.provider}
-                className={`rounded-lg border p-4 cursor-pointer transition-colors ${
-                  envOnly
-                    ? 'border-green-500/40 hover:border-green-500/70'
-                    : 'border-border hover:border-primary/50'
-                }`}
-                role="button"
-                tabIndex={0}
-                onClick={() => handleAddPreset(preset)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleAddPreset(preset);
-                  }
-                }}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-sm">{preset.label}</span>
-                  {configured ? (
-                    <Badge variant="secondary" className="text-xs">
-                      <IconCheck size={10} className="mr-1" /> Configured
-                    </Badge>
-                  ) : envOnly ? (
-                    <Badge variant="success" className="text-xs">
-                      Via env
-                    </Badge>
-                  ) : null}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {preset.isOpenAICompatible ? 'OpenAI-compatible' : 'Native'} ·
-                  models listed live from the provider
-                </p>
-              </div>
+                preset={preset}
+                configured={configured}
+                envOnly={envOnly}
+                onSelect={() => handleAddPreset(preset)}
+              />
             );
           })}
 
@@ -306,7 +346,7 @@ export const ProvidersPage = () => {
 
       {/* Add / Edit provider sheet */}
       <Sheet
-        open={!!editing}
+        open={Boolean(editing)}
         onOpenChange={(open) => {
           if (!open) setEditing(null);
         }}
@@ -427,7 +467,10 @@ export const ProvidersPage = () => {
                   id="providerOpenAI"
                   checked={form.isOpenAICompatible}
                   onCheckedChange={(checked) =>
-                    setForm((f) => ({ ...f, isOpenAICompatible: !!checked }))
+                    setForm((f) => ({
+                      ...f,
+                      isOpenAICompatible: Boolean(checked),
+                    }))
                   }
                 />
               </div>
@@ -436,14 +479,14 @@ export const ProvidersPage = () => {
                 <div>
                   <Label htmlFor="providerDefault">Default provider</Label>
                   <p className="text-xs text-muted-foreground">
-                    Used when an agent doesn't specify a provider.
+                    Used when an agent doesn&apos;t specify a provider.
                   </p>
                 </div>
                 <Switch
                   id="providerDefault"
                   checked={form.isDefault}
                   onCheckedChange={(checked) =>
-                    setForm((f) => ({ ...f, isDefault: !!checked }))
+                    setForm((f) => ({ ...f, isDefault: Boolean(checked) }))
                   }
                 />
               </div>
@@ -459,7 +502,7 @@ export const ProvidersPage = () => {
                   id="providerEnabled"
                   checked={form.isEnabled}
                   onCheckedChange={(checked) =>
-                    setForm((f) => ({ ...f, isEnabled: !!checked }))
+                    setForm((f) => ({ ...f, isEnabled: Boolean(checked) }))
                   }
                 />
               </div>

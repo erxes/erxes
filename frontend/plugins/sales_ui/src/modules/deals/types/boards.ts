@@ -18,7 +18,7 @@ export interface IBoardCount {
 
 export interface BaseBoardItem {
   _id: string;
-  columnId: string;
+  columnId?: string;
 }
 
 export interface BaseBoardColumn {

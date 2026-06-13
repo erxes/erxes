@@ -7,7 +7,8 @@ import {
 } from '@/deals/states/dealsBoardState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ColumnPaginationState } from '@/deals/types/boards';
+import { BoardDealColumn, ColumnPaginationState } from '@/deals/types/boards';
+import { IDeal } from '@/deals/types/deals';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
@@ -248,7 +249,7 @@ export const DealsBoard = () => {
           </Button>
         </div>
       )}
-      <GenericBoard<any, any>
+      <GenericBoard<IDeal, BoardDealColumn>
         initialState={boardState}
         onStateChange={handleStateChange}
         renderCard={(deal) => <DealsBoardCard deal={deal} />}

@@ -23,6 +23,7 @@ export const useMergeMode = () => {
   const mergeTargetId = searchParams.get('mergeTargetId');
   const mergeName = searchParams.get('mergeName');
 
+  /** Enter merge mode targeting `targetId`, closing the open deal detail. */
   const startMerge = (targetId: string, name: string) => {
     const next = new URLSearchParams(searchParams);
     next.set('mergeTargetId', targetId);
@@ -32,6 +33,7 @@ export const useMergeMode = () => {
     setSearchParams(next);
   };
 
+  /** Leave merge mode by clearing the merge query params. */
   const cancelMerge = () => {
     const next = new URLSearchParams(searchParams);
     next.delete('mergeTargetId');
@@ -39,11 +41,12 @@ export const useMergeMode = () => {
     setSearchParams(next);
   };
 
+  /** Merge `sourceDealId` into the current target deal, then exit merge mode. */
   const mergeInto = (sourceDealId: string) => {
     if (!mergeTargetId || sourceDealId === mergeTargetId) {
       return;
     }
-    void mergeDeals({
+    mergeDeals({
       variables: {
         sourceDealIds: [sourceDealId],
         targetDealId: mergeTargetId,
@@ -53,7 +56,7 @@ export const useMergeMode = () => {
   };
 
   return {
-    isMergeMode: !!mergeTargetId,
+    isMergeMode: Boolean(mergeTargetId),
     mergeTargetId,
     mergeName,
     startMerge,

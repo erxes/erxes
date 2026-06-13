@@ -112,7 +112,7 @@ export default {
     }
     // Use findOne (not getStage) so a deleted stage returns null instead of
     // throwing and breaking the whole deals list / merge picker.
-    return models.Stages.findOne({ _id: deal.stageId });
+    return await models.Stages.findOne({ _id: deal.stageId });
   },
 
   async isWatched(deal: IDealDocument, _args: undefined, { user }: IContext) {
@@ -149,7 +149,7 @@ export default {
     if (!deal.mergedIntoId) {
       return null;
     }
-    return models.Deals.findOne({ _id: deal.mergedIntoId });
+    return await models.Deals.findOne({ _id: deal.mergedIntoId });
   },
 
   async mergedDeals(
@@ -160,7 +160,7 @@ export default {
     if (!deal.mergedDealIds?.length) {
       return [];
     }
-    return models.Deals.find({ _id: { $in: deal.mergedDealIds } });
+    return await models.Deals.find({ _id: { $in: deal.mergedDealIds } });
   },
 
   async splitSource(
@@ -171,7 +171,7 @@ export default {
     if (!deal.splitSourceId) {
       return null;
     }
-    return models.Deals.findOne({ _id: deal.splitSourceId });
+    return await models.Deals.findOne({ _id: deal.splitSourceId });
   },
 
   async splitChildren(
@@ -182,7 +182,7 @@ export default {
     if (!deal.splitChildIds?.length) {
       return [];
     }
-    return models.Deals.find({ _id: { $in: deal.splitChildIds } });
+    return await models.Deals.find({ _id: { $in: deal.splitChildIds } });
   },
 
   async vendorCustomers(

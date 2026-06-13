@@ -25,6 +25,7 @@ export const MergeStartDialog = ({ deal }: { deal: IDeal }) => {
     if (open) setName(deal.name || '');
   }, [open, deal.name]);
 
+  /** Validate the name, then enter merge mode and close this dialog. */
   const handleStart = () => {
     if (!name.trim()) {
       toast({
