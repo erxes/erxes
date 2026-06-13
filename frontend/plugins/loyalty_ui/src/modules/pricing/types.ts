@@ -79,6 +79,13 @@ export interface IPricingPlanDetail {
   tags?: string[];
   tagsExcluded?: string[];
 
+  customerIds?: string[];
+  customerIdsExcluded?: string[];
+  customerSegmentIds?: string[];
+  agentIds?: string[];
+  agentIdsExcluded?: string[];
+  agentSegmentIds?: string[];
+
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;
   startDate?: string;

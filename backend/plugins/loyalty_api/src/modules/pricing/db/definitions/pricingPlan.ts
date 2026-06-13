@@ -34,6 +34,16 @@ export const pricingPlanSchema = schemaWrapper(new Schema({
   segments: { type: [String], default: [] },
   vendors: { type: [String], default: [] },
 
+  // Customer & agent targeting (dynamic conditions).
+  // Empty arrays mean "no constraint", so pre-existing plans behave unchanged.
+  customerIds: { type: [String], default: [] },
+  customerIdsExcluded: { type: [String], default: [] },
+  customerSegmentIds: { type: [String], default: [] },
+
+  agentIds: { type: [String], default: [] },
+  agentIdsExcluded: { type: [String], default: [] },
+  agentSegmentIds: { type: [String], default: [] },
+
   isStartDateEnabled: { type: Boolean, default: false },
   isEndDateEnabled: { type: Boolean, default: false },
   startDate: { type: Date },

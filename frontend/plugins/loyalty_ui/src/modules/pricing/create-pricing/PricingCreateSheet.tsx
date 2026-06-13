@@ -12,6 +12,8 @@ import { IconPlus } from '@tabler/icons-react';
 import { useCreatePricing } from '@/pricing/hooks/useCreatePricing';
 import {
   SelectCompany,
+  SelectCustomer,
+  SelectMember,
   SelectSegment,
   SelectTags,
   SelectProduct,
@@ -45,6 +47,11 @@ interface PricingFormValues {
   productTagIds: string[];
   excludeTagIds: string[];
   bundleProductIds: string[];
+  customerIds: string[];
+  customerIdsExcluded: string[];
+  customerSegmentId: string | null;
+  agentIds: string[];
+  agentIdsExcluded: string[];
 }
 
 type TargetFieldName =
@@ -119,6 +126,11 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       productTagIds: [],
       excludeTagIds: [],
       bundleProductIds: [],
+      customerIds: [],
+      customerIdsExcluded: [],
+      customerSegmentId: null,
+      agentIds: [],
+      agentIdsExcluded: [],
     },
   });
 
@@ -228,6 +240,15 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       if (values.appliesTo === 'bundle' && values.bundleProductIds.length) {
         doc.productsBundle = [values.bundleProductIds];
       }
+
+      // Customer & agent conditions are independent of `appliesTo`.
+      doc.customerIds = values.customerIds;
+      doc.customerIdsExcluded = values.customerIdsExcluded;
+      doc.customerSegmentIds = values.customerSegmentId
+        ? [values.customerSegmentId]
+        : [];
+      doc.agentIds = values.agentIds;
+      doc.agentIdsExcluded = values.agentIdsExcluded;
 
       await createPricing(doc);
 
@@ -641,6 +662,109 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   )}
                 />
               )}
+              <div className="flex items-center my-4">
+                <div className="flex-1 border-t" />
+                <Form.Label className="mx-2">
+                  Customer &amp; agent (optional)
+                </Form.Label>
+                <div className="flex-1 border-t" />
+              </div>
+
+              <Form.Field
+                control={form.control}
+                name="customerIds"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>CUSTOMERS</Form.Label>
+                    <Form.Control>
+                      <SelectCustomer
+                        mode="multiple"
+                        value={field.value}
+                        onValueChange={(value) =>
+                          field.onChange(Array.isArray(value) ? value : [value])
+                        }
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="customerIdsExcluded"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>EXCLUDE CUSTOMERS</Form.Label>
+                    <Form.Control>
+                      <SelectCustomer
+                        mode="multiple"
+                        value={field.value}
+                        onValueChange={(value) =>
+                          field.onChange(Array.isArray(value) ? value : [value])
+                        }
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="agentIds"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>AGENTS (SALESPEOPLE)</Form.Label>
+                    <Form.Control>
+                      <SelectMember
+                        mode="multiple"
+                        value={field.value}
+                        onValueChange={(value) =>
+                          field.onChange(
+                            Array.isArray(value) ? value : value ? [value] : [],
+                          )
+                        }
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="agentIdsExcluded"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>EXCLUDE AGENTS</Form.Label>
+                    <Form.Control>
+                      <SelectMember
+                        mode="multiple"
+                        value={field.value}
+                        onValueChange={(value) =>
+                          field.onChange(
+                            Array.isArray(value) ? value : value ? [value] : [],
+                          )
+                        }
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="customerSegmentId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>CUSTOMER SEGMENT</Form.Label>
+                    <Form.Control>
+                      <SelectSegment
+                        selected={field.value || undefined}
+                        onSelect={(id) => field.onChange(id)}
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
             </div>
 
             <Sheet.Footer className="px-5 py-4 border-t bg-background">

@@ -26,6 +26,16 @@ export interface IPricingPlan {
   tags?: string[];
   tagsExcluded?: string[];
 
+  // Customer & agent targeting (dynamic conditions).
+  // Empty arrays = no constraint, so existing plans are unaffected.
+  customerIds?: string[];
+  customerIdsExcluded?: string[];
+  customerSegmentIds?: string[];
+
+  agentIds?: string[];
+  agentIdsExcluded?: string[];
+  agentSegmentIds?: string[];
+
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;
 

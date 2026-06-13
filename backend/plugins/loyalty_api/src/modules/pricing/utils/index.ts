@@ -9,6 +9,7 @@ import {
   calculatePriceAdjust,
 } from './rule';
 import { getAllowedProducts } from './product';
+import { planMatchesContext, SegmentMembershipCache } from './eligibility';
 import { CalculatedRule, OrderItem } from '../types';
 
 export const getMainConditions = ({
@@ -263,6 +264,8 @@ export const checkPricing = async (params: {
   branchId: string;
   pipelineId: string;
   orderItems: OrderItem[];
+  customerId?: string;
+  agentId?: string;
 }) => {
   const {
     models,
@@ -273,6 +276,8 @@ export const checkPricing = async (params: {
     branchId,
     pipelineId,
     orderItems,
+    customerId,
+    agentId,
   } = params;
 
   const productIds = orderItems.map((p) => p.productId);
@@ -312,8 +317,23 @@ export const checkPricing = async (params: {
     return;
   }
 
+  // Memoize segment-membership checks across every plan in this request.
+  const segmentCache: SegmentMembershipCache = new Map();
+
   // Process each plan
   for (const plan of plans) {
+    // Customer + agent eligibility gate (product targeting is handled below).
+    if (
+      !(await planMatchesContext(
+        subdomain,
+        plan,
+        { customerId, agentId },
+        segmentCache,
+      ))
+    ) {
+      continue;
+    }
+
     const allowedProductIds = await getAllowedProducts(
       subdomain,
       plan,
@@ -329,7 +349,6 @@ export const checkPricing = async (params: {
 
     // Process each item
     for (const item of orderItems) {
-      console.log(item.productId)
       if (!allowedProductIds.includes(item.productId)) {
         continue;
       }

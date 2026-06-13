@@ -67,6 +67,14 @@ export const types = `
     tags: [String],
     tagsExcluded: [String],
 
+    customerIds: [String],
+    customerIdsExcluded: [String],
+    customerSegmentIds: [String],
+
+    agentIds: [String],
+    agentIdsExcluded: [String],
+    agentSegmentIds: [String],
+
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
 
@@ -169,6 +177,14 @@ export const types = `
     tags: [String],
     tagsExcluded: [String],
 
+    customerIds: [String],
+    customerIdsExcluded: [String],
+    customerSegmentIds: [String],
+
+    agentIds: [String],
+    agentIdsExcluded: [String],
+    agentSegmentIds: [String],
+
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
 
@@ -216,6 +232,14 @@ export const types = `
     vendors: [String],
     tags: [String],
     tagsExcluded: [String],
+
+    customerIds: [String],
+    customerIdsExcluded: [String],
+    customerSegmentIds: [String],
+
+    agentIds: [String],
+    agentIdsExcluded: [String],
+    agentSegmentIds: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -280,6 +304,8 @@ const checkDiscountParams = `
   departmentId: String
   branchId: String
   pipelineId: String
+  customerId: String
+  agentId: String
   products: [PricingCheckProduct]
 `;
 

@@ -89,6 +89,8 @@ const checkPricingInput = z.object({
   branchId: z.string().optional().default(''),
   products: z.array(pricingProductSchema),
   pipelineId: z.string().optional(),
+  customerId: z.string().optional(),
+  agentId: z.string().optional(),
 });
 
 const quantityRulesInput = z.object({
@@ -270,6 +272,8 @@ export const appRouter = t.router({
           branchId,
           products,
           pipelineId,
+          customerId,
+          agentId,
         } = input;
 
         // Map products to OrderItem type expected by checkPricing
@@ -290,6 +294,8 @@ export const appRouter = t.router({
           branchId,
           pipelineId: pipelineId || '',
           orderItems,
+          customerId,
+          agentId,
         });
       }),
 

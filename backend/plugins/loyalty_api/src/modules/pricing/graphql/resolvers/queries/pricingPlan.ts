@@ -231,7 +231,6 @@ export const pricingPlanQueries = {
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('pricingPlanView');
-    console.log(id)
     return await models.PricingPlans.getPricingPlan(id);
   },
 
@@ -243,6 +242,8 @@ export const pricingPlanQueries = {
       departmentId: string;
       branchId: string;
       pipelineId: string;
+      customerId?: string;
+      agentId?: string;
       products: Array<{
         itemId: string;
         productId: string;
@@ -260,6 +261,8 @@ export const pricingPlanQueries = {
       branchId,
       products,
       pipelineId,
+      customerId,
+      agentId,
     } = params;
 
     return checkPricing({
@@ -271,6 +274,8 @@ export const pricingPlanQueries = {
       branchId,
       pipelineId,
       orderItems: products || [],
+      customerId,
+      agentId,
     });
   },
 };
