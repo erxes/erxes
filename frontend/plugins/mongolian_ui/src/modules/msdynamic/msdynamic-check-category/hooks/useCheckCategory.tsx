@@ -53,8 +53,8 @@ export const useCheckCategory = () => {
 
   /* MS Dynamic bolon erxes category-uudiig haritsuulj check result avna */
   const toCheckCategory = async () => {
-    const brandId = (queryParams.brandId as string) || 'noBrand';
-    const categoryId = (queryParams.categoryId as string) || 'noCategory';
+    const brandId = queryParams.brandId || 'noBrand';
+    const categoryId = queryParams.categoryId || 'noCategory';
 
     try {
       setLoading(true);
@@ -110,7 +110,7 @@ export const useCheckCategory = () => {
 
   /* Songogdson tab-iin category-uudiig sync hiigeed table state shinechilne */
   const toSyncCategory = async () => {
-    const brandId = (queryParams.brandId as string) || 'noBrand';
+    const brandId = queryParams.brandId || 'noBrand';
     const rawCategoryId = queryParams.categoryId as string | undefined;
     const categoryId =
       rawCategoryId === 'noCategory' ? undefined : rawCategoryId;

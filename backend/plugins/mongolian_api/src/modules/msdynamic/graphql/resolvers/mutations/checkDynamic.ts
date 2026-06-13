@@ -55,14 +55,13 @@ export const msdynamicCheckMutations = {
 
     const productCodes = products.map((product) => product.code);
 
+    const auth = Buffer.from(username + ':' + password).toString('base64');
     const response = (await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
       {
         headers: {
           Accept: 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
-          ).toString('base64')}`,
+          Authorization: `Basic ${auth}`,
         },
       },
     ).then((r) => r.json())) as { value?: IDynamicProduct[] };
@@ -178,12 +177,11 @@ export const msdynamicCheckMutations = {
       defaultValue: [],
     })) as IProductCategory[];
 
+    const catAuth = Buffer.from(username + ':' + password).toString('base64');
     const response = (await fetch(itemCategoryApi, {
       headers: {
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64',
-        )}`,
+        Authorization: `Basic ${catAuth}`,
       },
     }).then((r) => r.json())) as { value?: IDynamicCategory[] };
 
@@ -195,31 +193,30 @@ export const msdynamicCheckMutations = {
         )
       : [];
 
-    const productCategoryCodes = productCategories
-      .map((category) => category.code)
-      .filter(Boolean);
-
-    const dynamicCategoryCodes = dynamicCategories
-      .map((category) => category.Code)
-      .filter(Boolean);
+    const productCategoryCodes = new Set(
+      productCategories.map((category) => category.code).filter(Boolean),
+    );
+    const dynamicCategoryCodes = new Set(
+      dynamicCategories.map((category) => category.Code).filter(Boolean),
+    );
 
     return {
       create: {
         items: dynamicCategories.filter(
           (category) =>
-            category.Code && !productCategoryCodes.includes(category.Code),
+            category.Code && !productCategoryCodes.has(category.Code),
         ),
       },
       update: {
         items: dynamicCategories.filter(
           (category) =>
-            category.Code && productCategoryCodes.includes(category.Code),
+            category.Code && productCategoryCodes.has(category.Code),
         ),
       },
       delete: {
         items: productCategories.filter(
           (category) =>
-            category.code && !dynamicCategoryCodes.includes(category.code),
+            category.code && !dynamicCategoryCodes.has(category.code),
         ),
       },
     };
