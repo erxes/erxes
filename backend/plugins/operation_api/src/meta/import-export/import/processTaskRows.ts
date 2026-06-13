@@ -31,6 +31,10 @@ function escapeRegExp(val: string): string {
   return val.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\\$&`);
 }
 
+function getErrorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
+
 interface ITaskDoc {
   name?: string;
   description?: string;
@@ -90,9 +94,11 @@ async function resolveStatus(
     if (statusDoc) {
       return { status: statusDoc._id, statusType: statusDoc.type };
     }
+
+    throw new Error(`Status not found: "${val}"`);
   }
 
-  // Fall back to Backlog
+  // Fall back to Backlog when status is empty
   const backlog = await models.Status.findOne({
     teamId,
     type: STATUS_TYPES.BACKLOG,
@@ -119,7 +125,13 @@ function resolvePriority(priorityVal?: unknown): number | undefined {
   if (!Number.isNaN(num) && num >= 0 && num <= 4) {
     return num;
   }
-  return PRIORITY_BY_LABEL.get(val.toLowerCase());
+
+  const priority = PRIORITY_BY_LABEL.get(val.toLowerCase());
+  if (priority === undefined) {
+    throw new Error(`Priority not found: "${val}"`);
+  }
+
+  return priority;
 }
 
 /**
@@ -162,7 +174,12 @@ async function resolveCycle(
     ...nameOrIdFilter(val),
     teamId,
   }).lean();
-  return cycle?._id;
+
+  if (!cycle) {
+    throw new Error(`Cycle not found: "${val}"`);
+  }
+
+  return cycle._id;
 }
 
 /**
@@ -179,14 +196,24 @@ async function resolveMilestone(
   milestoneVal?: unknown,
 ): Promise<unknown> {
   const val = safeString(milestoneVal).trim();
-  if (!val || !projectId) {
+  if (!val) {
     return undefined;
   }
+
+  if (!projectId) {
+    throw new Error('Milestone requires a Project to be specified');
+  }
+
   const milestone = await models.Milestone.findOne({
     ...nameOrIdFilter(val),
     projectId,
   }).lean();
-  return milestone?._id;
+
+  if (!milestone) {
+    throw new Error(`Milestone not found: "${val}"`);
+  }
+
+  return milestone._id;
 }
 
 /**
@@ -259,19 +286,22 @@ function resolveDates(startDateVal?: unknown, targetDateVal?: unknown): { startD
  * @returns A promise resolving to the prepared task document.
  */
 async function prepareTaskDoc(
+  subdomain: string,
   models: IModels,
   row: Record<string, unknown>,
   userMap: Map<string, string>,
 ): Promise<ITaskDoc> {
   const doc: ITaskDoc = {};
+  const errors: string[] = [];
 
   // --- Required: Name ---
   const rawName = row.name ?? row.Name ?? '';
   const name = safeString(rawName).trim();
   if (!name) {
-    throw new Error('Name is required');
+    errors.push('Name is required');
+  } else {
+    doc.name = name;
   }
-  doc.name = name;
 
   // --- Description ---
   const rawDescription = row.description ?? row.Description ?? '';
@@ -281,15 +311,31 @@ async function prepareTaskDoc(
   }
 
   // --- Required: Team ---
-  doc.teamId = await resolveTeam(models, row.teamId ?? row.Team);
+  let teamId: unknown = undefined;
+  try {
+    teamId = await resolveTeam(models, row.teamId ?? row.Team);
+    doc.teamId = teamId;
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
 
   // --- Status ---
-  const statusInfo = await resolveStatus(models, doc.teamId, row.status ?? row.Status);
-  doc.status = statusInfo.status;
-  doc.statusType = statusInfo.statusType;
+  try {
+    if (teamId) {
+      const statusInfo = await resolveStatus(models, teamId, row.status ?? row.Status);
+      doc.status = statusInfo.status;
+      doc.statusType = statusInfo.statusType;
+    }
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
 
   // --- Priority ---
-  doc.priority = resolvePriority(row.priority ?? row.Priority);
+  try {
+    doc.priority = resolvePriority(row.priority ?? row.Priority);
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
 
   // --- Assignee ---
   const rawAssigneeVal = row.assigneeId ?? row.Assignee ?? '';
@@ -297,41 +343,88 @@ async function prepareTaskDoc(
   if (assigneeVal) {
     const resolvedId = userMap.get(assigneeVal.toLowerCase());
     if (!resolvedId) {
-      throw new Error(`Assignee user not found: "${assigneeVal}"`);
+      errors.push(`Assignee user not found: "${assigneeVal}"`);
+    } else if (resolvedId === 'AMBIGUOUS') {
+      errors.push(`Assignee identifier "${assigneeVal}" is ambiguous. Please use a more specific identifier like email or User ID.`);
+    } else {
+      doc.assigneeId = resolvedId;
     }
-    if (resolvedId === 'AMBIGUOUS') {
-      throw new Error(`Assignee identifier "${assigneeVal}" is ambiguous. Please use a more specific identifier like email or User ID.`);
-    }
-    doc.assigneeId = resolvedId;
   }
 
   // --- Project ---
-  doc.projectId = await resolveProject(models, row.projectId ?? row.Project);
+  let projectId: unknown = undefined;
+  try {
+    projectId = await resolveProject(models, row.projectId ?? row.Project);
+    doc.projectId = projectId;
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
 
   // --- Cycle ---
-  doc.cycleId = await resolveCycle(models, doc.teamId, row.cycleId ?? row.Cycle);
+  try {
+    if (teamId) {
+      doc.cycleId = await resolveCycle(models, teamId, row.cycleId ?? row.Cycle);
+    }
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
 
   // --- Milestone ---
-  doc.milestoneId = await resolveMilestone(models, doc.projectId, row.milestoneId ?? row.Milestone);
+  try {
+    doc.milestoneId = await resolveMilestone(models, projectId, row.milestoneId ?? row.Milestone);
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
 
   // --- Estimate Point ---
-  doc.estimatePoint = resolveEstimate(row.estimatePoint ?? row['Estimate Point']);
+  try {
+    doc.estimatePoint = resolveEstimate(row.estimatePoint ?? row['Estimate Point']);
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
 
   // --- Dates ---
-  const dates = resolveDates(
-    row.startDate ?? row['Start Date'],
-    row.targetDate ?? row['Due Date'],
-  );
-  doc.startDate = dates.startDate;
-  doc.targetDate = dates.targetDate;
+  try {
+    const dates = resolveDates(
+      row.startDate ?? row['Start Date'],
+      row.targetDate ?? row['Due Date'],
+    );
+    doc.startDate = dates.startDate;
+    doc.targetDate = dates.targetDate;
+  } catch (e) {
+    errors.push(getErrorMessage(e));
+  }
 
-  // --- Custom properties passthrough ---
+  // --- Custom properties passthrough and validation ---
+  const propertiesData: Record<string, unknown> = {};
   for (const key of Object.keys(row)) {
     if (key.startsWith('propertiesData.')) {
-      doc.propertiesData ??= {};
       const fieldId = key.slice('propertiesData.'.length);
-      doc.propertiesData[fieldId] = row[key];
+      const val = row[key];
+      if (val !== undefined && val !== null && val !== '') {
+        propertiesData[fieldId] = val;
+      }
     }
+  }
+
+  if (Object.keys(propertiesData).length > 0) {
+    try {
+      doc.propertiesData = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'fields',
+        action: 'validateFieldValues',
+        input: { data: propertiesData },
+        defaultValue: propertiesData,
+      });
+    } catch (e) {
+      errors.push(getErrorMessage(e));
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(errors.join(', '));
   }
 
   return doc;
@@ -470,12 +563,26 @@ interface IBulkWriteError {
   writeErrors?: Array<{ index: number; errmsg?: string }>;
 }
 
+interface IRowDoc {
+  row: Record<string, unknown>;
+  doc: ITaskDoc;
+  meta: {
+    index: number;
+    _id?: unknown;
+    operationIndex?: number;
+  };
+}
+
+type TBulkWriteOp =
+  | { insertOne: { document: ITaskDoc } }
+  | { updateOne: { filter: Record<string, unknown>; update: Record<string, unknown> } };
+
 /**
  * Resolves per-row outcomes from a MongoBulkWriteError.
  */
 function handleBulkWriteError(
   errObj: IBulkWriteError,
-  rowDocs: Array<{ row: Record<string, unknown>; doc: ITaskDoc }>,
+  rowDocs: IRowDoc[],
   successRows: Record<string, unknown>[],
   errorRows: Record<string, unknown>[],
 ): void {
@@ -484,13 +591,17 @@ function handleBulkWriteError(
   const errorIndices = new Set(writeErrors.map((err) => err.index));
 
   for (let i = 0; i < rowDocs.length; i++) {
-    const { row } = rowDocs[i];
+    const { row, meta } = rowDocs[i];
     if (errorIndices.has(i)) {
       const err = writeErrors.find((we) => we.index === i);
-      errorRows.push({ ...row, error: err?.errmsg || 'Insert failed' });
+      errorRows.push({ ...row, error: err?.errmsg || 'Operation failed' });
     } else {
-      const insertedId = insertedIds[i] ?? (row._id || null);
-      successRows.push({ ...row, _id: insertedId });
+      if (meta.operationIndex !== undefined) {
+        const insertedId = insertedIds[meta.operationIndex] ?? (row._id || null);
+        successRows.push({ ...row, _id: insertedId });
+      } else {
+        successRows.push({ ...row, _id: meta._id });
+      }
     }
   }
 }
@@ -506,17 +617,21 @@ function handleBulkWriteError(
  */
 async function executeBulkWrite(
   models: IModels,
-  operations: Array<{ insertOne: { document: ITaskDoc } }>,
-  rowDocs: Array<{ row: Record<string, unknown>; doc: ITaskDoc }>,
+  operations: TBulkWriteOp[],
+  rowDocs: IRowDoc[],
   successRows: Record<string, unknown>[],
   errorRows: Record<string, unknown>[],
 ): Promise<void> {
   try {
     const result = await models.Task.bulkWrite(operations, { ordered: false });
 
-    for (let i = 0; i < rowDocs.length; i++) {
-      const { row } = rowDocs[i];
-      successRows.push({ ...row, _id: result.insertedIds[i] });
+    for (const { row, meta } of rowDocs) {
+      if (meta.operationIndex !== undefined) {
+        const insertedId = result.insertedIds[meta.operationIndex];
+        successRows.push({ ...row, _id: insertedId });
+      } else {
+        successRows.push({ ...row, _id: meta._id });
+      }
     }
   } catch (error) {
     const errObj = error as IBulkWriteError;
@@ -524,7 +639,7 @@ async function executeBulkWrite(
     if (errObj.name === 'MongoBulkWriteError' || errObj.name === 'BulkWriteError') {
       handleBulkWriteError(errObj, rowDocs, successRows, errorRows);
     } else {
-      const errMsg = errObj.message || 'Insert failed';
+      const errMsg = errObj.message || 'Operation failed';
       for (const { row } of rowDocs) {
         errorRows.push({ ...row, error: errMsg });
       }
@@ -551,19 +666,100 @@ export async function processTaskRows(
   try {
     const userMap = await fetchAndBuildUserMap(subdomain, rows);
 
-    const operations: Array<{ insertOne: { document: ITaskDoc } }> = [];
-    const rowDocs: Array<{ row: Record<string, unknown>; doc: ITaskDoc }> = [];
+    const preparedRowDocs: Array<{ row: Record<string, unknown>; doc: ITaskDoc }> = [];
 
     for (const row of rows) {
       try {
-        const doc = await prepareTaskDoc(models, row, userMap);
-        operations.push({ insertOne: { document: doc } });
-        rowDocs.push({ row, doc });
+        const doc = await prepareTaskDoc(subdomain, models, row, userMap);
+        preparedRowDocs.push({ row, doc });
       } catch (e) {
         const errorMessage = e instanceof Error ? e.message : String(e);
         errorRows.push({
           ...row,
           error: errorMessage,
+        });
+      }
+    }
+
+    if (preparedRowDocs.length === 0) {
+      return { successRows, errorRows };
+    }
+
+    // Find all existing tasks to determine if we insert or update (Deduplication)
+    const orConditions: Array<Record<string, unknown>> = [];
+    for (const { row, doc } of preparedRowDocs) {
+      const rowIdVal = row._id ?? row.id;
+      const idStr = safeString(rowIdVal).trim();
+      if (idStr && mongoose.Types.ObjectId.isValid(idStr)) {
+        orConditions.push({ _id: idStr });
+      }
+      if (doc.name && doc.teamId) {
+        orConditions.push({
+          name: { $regex: `^${escapeRegExp(doc.name)}$`, $options: 'i' },
+          teamId: doc.teamId,
+        });
+      }
+    }
+
+    const existingTasks = orConditions.length
+      ? (await models.Task.find({ $or: orConditions }).lean() as Array<Record<string, unknown>>)
+      : [];
+
+    const existingById = new Map<string, Record<string, unknown>>();
+    const existingByNameAndTeam = new Map<string, Record<string, unknown>>();
+
+    for (const task of existingTasks) {
+      const idStr = stringifyId(task._id);
+      if (idStr) {
+        existingById.set(idStr, task);
+      }
+      const teamIdStr = stringifyId(task.teamId);
+      if (task.name && teamIdStr) {
+        const key = `${safeString(task.name).toLowerCase()}_${teamIdStr}`;
+        existingByNameAndTeam.set(key, task);
+      }
+    }
+
+    const operations: TBulkWriteOp[] = [];
+    const rowDocs: IRowDoc[] = [];
+
+    for (let i = 0; i < preparedRowDocs.length; i++) {
+      const { row, doc } = preparedRowDocs[i];
+      let existingDoc: Record<string, unknown> | null = null;
+
+      const rowIdVal = row._id ?? row.id;
+      const idStr = safeString(rowIdVal).trim();
+      if (idStr && mongoose.Types.ObjectId.isValid(idStr)) {
+        existingDoc = existingById.get(idStr) || null;
+      }
+
+      if (!existingDoc && doc.name && doc.teamId) {
+        const teamIdStr = stringifyId(doc.teamId);
+        const key = `${doc.name.toLowerCase()}_${teamIdStr}`;
+        existingDoc = existingByNameAndTeam.get(key) || null;
+      }
+
+      if (existingDoc) {
+        operations.push({
+          updateOne: {
+            filter: { _id: existingDoc._id },
+            update: { $set: { ...doc, updatedAt: new Date() } },
+          },
+        });
+        rowDocs.push({
+          row,
+          doc,
+          meta: { index: i, _id: existingDoc._id },
+        });
+      } else {
+        const operationIndex = operations.length;
+        operations.push({
+          insertOne: { document: doc },
+        });
+        rowDocs.push({
+          row,
+          doc,
+          meta: { index: i, operationIndex },
         });
       }
     }
