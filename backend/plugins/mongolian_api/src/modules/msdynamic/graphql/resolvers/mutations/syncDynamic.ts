@@ -6,67 +6,7 @@ import {
 } from '../../../utils';
 import { consumeCustomers } from '~/modules/msdynamic/utilsCustomer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-<<<<<<< HEAD
-
-/**
- * Get DYNAMIC config from mnconfigs module
- */
-const normalizeDynamicConfigs = (configsMap: Record<string, any>) => {
-  return Object.entries(configsMap || {}).reduce((acc: any, [key, value]) => {
-    acc[key || 'noBrand'] = {
-      ...value,
-      brandId: value?.brandId || key || 'noBrand',
-    };
-    return acc;
-  }, {});
-};
-
-const pickDynamicConfig = (
-  configsMap: Record<string, any>,
-  brandId?: string,
-) => {
-  const hasSelectedBrand = brandId && brandId !== 'noBrand';
-  const config = hasSelectedBrand
-    ? configsMap[brandId]
-    : configsMap.noBrand || configsMap[''] || Object.values(configsMap)[0];
-
-  if (!config) {
-    throw new Error(
-      hasSelectedBrand
-        ? `MS Dynamic config not found for selected brand: ${brandId}`
-        : 'MS Dynamic config not found.',
-    );
-  }
-
-  return config.brandId ? config : { ...config, brandId: brandId || 'noBrand' };
-};
-
-const getDynamicConfig = async (models: any, brandId?: string) => {
-  const groupedConfig = await models.Configs.getConfig('DYNAMIC', '');
-
-  if (groupedConfig?.value && Object.keys(groupedConfig.value).length) {
-    return pickDynamicConfig(
-      normalizeDynamicConfigs(groupedConfig.value),
-      brandId,
-    );
-  }
-
-  const configs = await models.Configs.getConfigs('DYNAMIC');
-
-  if (!configs?.length) {
-    throw new Error('MS Dynamic config not found.');
-  }
-
-  const configsMap = configs.reduce((acc: any, conf: any) => {
-    acc[conf.subId || 'noBrand'] = conf.value;
-    return acc;
-  }, {});
-
-return pickDynamicConfig(normalizeDynamicConfigs(configsMap), brandId);
-};
-=======
 import { getDynamicConfig } from '../../../dynamicConfig';
->>>>>>> f5ec525f26 (sonar)
 
 /**
  * ============================
