@@ -3,8 +3,10 @@ import { Button, RecordTable } from 'erxes-ui';
 import { useMSDynamicSessionKey } from '../../hooks/useMSDynamicSessionKey';
 import { useCheckCategory } from '../hooks/useCheckCategory';
 import { getInventoryCategoryColumns } from './InventoryCategoryColumns';
-import { CategoryFilterType } from '../types/inventoryCategory';
-import { InventoryCategoryAction } from '../types/inventoryCategory';
+import {
+  CategoryFilterType,
+  InventoryCategoryAction,
+} from '../types/inventoryCategory';
 
 const categoryActions: Record<CategoryFilterType, InventoryCategoryAction> = {
   create: 'CREATE',
@@ -12,19 +14,20 @@ const categoryActions: Record<CategoryFilterType, InventoryCategoryAction> = {
   delete: 'DELETE',
 };
 
+/* Check result-iig RecordTable deer cursor session key-tei haruulna */
 export const InventoryCategoryRecordTable = () => {
   const { items, loading, selectedFilter, toSyncCategory } = useCheckCategory();
   const { sessionKey } = useMSDynamicSessionKey('categories');
   const action = categoryActions[selectedFilter];
   const data = items?.[selectedFilter]?.items || [];
-  const hasAnyData = Object.values(items).some(
+  const hasAnyData = Object.values(items || {}).some(
     (group) => (group?.items?.length || 0) > 0,
   );
 
   return (
     <RecordTable.Provider
       columns={getInventoryCategoryColumns(action)}
-      data={data.slice(0, 100)}
+      data={data}
       className="m-3"
       stickyColumns={['more', 'code']}
     >

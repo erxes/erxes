@@ -4,8 +4,10 @@ import { useAtom, atom } from 'jotai';
 import { useToast } from 'erxes-ui';
 
 import { mutations } from '../../graphql';
-import { CategoryFilterType } from '../types/inventoryCategory';
-import { InventoryCategoryItems } from '../types/inventoryCategory';
+import {
+  CategoryFilterType,
+  InventoryCategoryItems,
+} from '../types/inventoryCategory';
 import { useSyncCategory } from './useSyncCategory';
 
 interface CheckCategoryMutationResponse {
@@ -16,6 +18,7 @@ const itemsAtom = atom<InventoryCategoryItems>({});
 const loadingAtom = atom(false);
 const selectedFilterAtom = atom<CategoryFilterType>('create');
 
+/* Category check state, query param, sync action-uudiig neg hook bolgoj butsaana */
 export const useCheckCategory = () => {
   const [items, setItems] = useAtom(itemsAtom);
   const [loading, setLoading] = useAtom(loadingAtom);
@@ -34,18 +37,21 @@ export const useCheckCategory = () => {
       gql(mutations.toCheckCategories),
     );
 
+  /* Brand selector-iin utgiig URL query deer hadgalna */
   const setBrand = (brandId: string) => {
     const params = new URLSearchParams(location.search);
     params.set('brandId', brandId);
     navigate(`${location.pathname}?${params.toString()}`);
   };
 
+  /* Category selector-iin utgiig URL query deer hadgalna */
   const setCategory = (categoryId: string) => {
     const params = new URLSearchParams(location.search);
     params.set('categoryId', categoryId);
     navigate(`${location.pathname}?${params.toString()}`);
   };
 
+  /* MS Dynamic bolon erxes category-uudiig haritsuulj check result avna */
   const toCheckCategory = async () => {
     const brandId = (queryParams.brandId as string) || 'noBrand';
     const categoryId = (queryParams.categoryId as string) || 'noCategory';
@@ -102,9 +108,12 @@ export const useCheckCategory = () => {
     }
   };
 
+  /* Songogdson tab-iin category-uudiig sync hiigeed table state shinechilne */
   const toSyncCategory = async () => {
     const brandId = (queryParams.brandId as string) || 'noBrand';
-    const categoryId = (queryParams.categoryId as string) || 'noCategory';
+    const rawCategoryId = queryParams.categoryId as string | undefined;
+    const categoryId =
+      rawCategoryId === 'noCategory' ? undefined : rawCategoryId;
 
     const updatedItems = await syncCategoriesAction(
       items,

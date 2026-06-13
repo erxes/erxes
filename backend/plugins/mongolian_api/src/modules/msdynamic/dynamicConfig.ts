@@ -4,6 +4,7 @@ export interface IDynamicConfig extends Record<string, unknown> {
   brandId: string;
   itemApi?: string;
   itemCategoryApi?: string;
+  customerApi?: string;
   username?: string;
   password?: string;
 }
@@ -73,7 +74,7 @@ const pickDynamicConfig = (
   const hasSelectedBrand = Boolean(brandId && brandId !== 'noBrand');
   const config = hasSelectedBrand
     ? configsMap[brandId as string]
-    : configsMap.noBrand || configsMap[''] || Object.values(configsMap)[0];
+    : configsMap.noBrand || Object.values(configsMap)[0];
 
   if (!config) {
     throw new Error(

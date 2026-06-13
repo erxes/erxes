@@ -18,21 +18,25 @@ import {
   InventoryCategoryItem,
 } from '../types/inventoryCategory';
 
+/* Action-oos shaltgaalj erxes/dynamic category code-iig avna */
 const getCategoryCode = (
   category: InventoryCategoryItem,
   action: InventoryCategoryAction,
 ) => (action === 'DELETE' ? category.code : category.Code) || '';
 
+/* Action-oos shaltgaalj erxes/dynamic category name-iig avna */
 const getCategoryName = (
   category: InventoryCategoryItem,
   action: InventoryCategoryAction,
 ) => (action === 'DELETE' ? category.name : category.Name) || '-';
 
+/* Action-oos shaltgaalj erxes/dynamic category description-iig avna */
 const getCategoryDescription = (
   category: InventoryCategoryItem,
   action: InventoryCategoryAction,
 ) => (action === 'DELETE' ? category.description : category.Description) || '-';
 
+/* Sync action deer haruulah badge variant-iig songono */
 const getStatusBadgeVariant = (action: InventoryCategoryAction) => {
   if (action === 'DELETE') {
     return 'destructive';
@@ -84,7 +88,7 @@ export const getInventoryCategoryColumns = (
     ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        {row.original.syncStatus !== false ? (
+        {row.original.syncStatus === true ? (
           <Badge variant={getStatusBadgeVariant(action)}>Synced</Badge>
         ) : (
           <Badge variant="warning">Pending</Badge>

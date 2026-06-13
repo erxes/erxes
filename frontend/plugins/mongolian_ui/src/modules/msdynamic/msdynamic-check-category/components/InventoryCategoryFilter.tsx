@@ -9,13 +9,16 @@ const categoryFilters: { label: string; value: CategoryFilterType }[] = [
   { label: 'Delete Categories', value: 'delete' },
 ];
 
+/* Check hiisen category item-uudiig create/update/delete tab-aar shuune */
 export const InventoryCategoryFilter = () => {
   const { selectedFilter, items, setSelectedFilter } = useCheckCategory();
 
+  /* Songogdson tab-iig state deer hadgalna */
   const handleFilterClick = (filter: CategoryFilterType) => {
     setSelectedFilter(filter);
   };
 
+  /* Tab deer haruulah item count-iig tootsono */
   const getCount = (type: CategoryFilterType) => {
     return items?.[type]?.items?.length || 0;
   };

@@ -8,6 +8,11 @@ import { consumeCustomers } from '~/modules/msdynamic/utilsCustomer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getDynamicConfig } from '../../../dynamicConfig';
 
+export interface ISyncFailure {
+  category: unknown;
+  message: string;
+}
+
 /**
  * ============================
  * MS Dynamic Sync Mutations
@@ -16,12 +21,12 @@ import { getDynamicConfig } from '../../../dynamicConfig';
 export const msdynamicSyncMutations = {
   /* Songogdson erxes product-uudig neg negiig ni MS Dynamic ruu sync hiine */
   async toSyncMsdProducts(
-    _root,
+    _root: unknown,
     {
       brandId,
       action,
       products,
-    }: { brandId: string; action: string; products: any[] },
+    }: { brandId: string; action: string; products: unknown[] },
     { subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('msdSync');
@@ -38,8 +43,9 @@ export const msdynamicSyncMutations = {
           action.toLowerCase(),
           user,
         );
-      } catch (e: any) {
-        console.error('toSyncMsdProducts error:', e?.message);
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
+        console.error('toSyncMsdProducts error:', message);
       }
     }
 
@@ -66,6 +72,7 @@ export const msdynamicSyncMutations = {
 
     const models = await generateModels(subdomain);
     const config = await getDynamicConfig(models, brandId);
+    const failed: ISyncFailure[] = [];
 
     for (const category of categories || []) {
       try {
@@ -79,20 +86,30 @@ export const msdynamicSyncMutations = {
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : String(e);
         console.error('toSyncMsdProductCategories error:', message);
+        failed.push({ category, message });
       }
     }
 
-    return { status: 'success' };
+    if (!failed.length) {
+      return { status: 'success' };
+    }
+
+    return {
+      status:
+        failed.length === categories.length ? 'failure' : 'partial_failure',
+      failedCount: failed.length,
+      failed,
+    };
   },
 
   /* Songogdson hereglegch-uudiig neg negiig ni MS Dynamic ruu sync hiine */
   async toSyncMsdCustomers(
-    _root,
+    _root: unknown,
     {
       brandId,
       action,
       customers,
-    }: { brandId: string; action: string; customers: any[] },
+    }: { brandId: string; action: string; customers: unknown[] },
     { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('msdSync');
@@ -108,8 +125,9 @@ export const msdynamicSyncMutations = {
           customer,
           action.toLowerCase(),
         );
-      } catch (e: any) {
-        console.error('toSyncMsdCustomers error:', e?.message);
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
+        console.error('toSyncMsdCustomers error:', message);
       }
     }
 
@@ -118,7 +136,7 @@ export const msdynamicSyncMutations = {
 
   /* POS zahirag MS Dynamic ruu ilgeej, sync hariug temdeglene */
   async toSendMsdOrders(
-    _root,
+    _root: unknown,
     { orderIds }: { orderIds: string[] },
     { subdomain, user, checkPermission }: IContext,
   ) {
@@ -160,10 +178,11 @@ export const msdynamicSyncMutations = {
         order,
         config,
       );
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
       await models.SyncLogsMSD.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e?.message } },
+        { $set: { error: message } },
       );
       throw e;
     }

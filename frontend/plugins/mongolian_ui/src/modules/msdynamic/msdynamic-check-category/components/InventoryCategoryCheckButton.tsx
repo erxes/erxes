@@ -3,10 +3,12 @@ import { SelectBrand, SelectCategory } from 'ui-modules';
 
 import { useCheckCategory } from '../hooks/useCheckCategory';
 
+/* Category check hiih button bolon category/brand selector-uudiig haruulna */
 export const InventoryCategoryCheckButton = () => {
   const { loading, queryParams, setBrand, setCategory, toCheckCategory } =
     useCheckCategory();
 
+  /* Odoo bish, MS Dynamic category shalgah mutation-iig duudna */
   const handleCheck = async () => {
     await toCheckCategory();
   };

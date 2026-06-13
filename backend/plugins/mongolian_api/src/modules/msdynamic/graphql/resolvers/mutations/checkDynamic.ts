@@ -3,6 +3,24 @@ import { IContext, generateModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getDynamicConfig } from '../../../dynamicConfig';
 
+export interface IProductCode {
+  code?: string;
+}
+
+export interface IDynamicProduct {
+  No?: string;
+}
+
+export interface IProductCategory {
+  _id?: string;
+  code?: string;
+}
+
+export interface IDynamicCategory {
+  Code?: string;
+  Parent_Category?: string;
+}
+
 /**
  * ============================
  * MS Dynamic Check Mutations
@@ -11,7 +29,7 @@ import { getDynamicConfig } from '../../../dynamicConfig';
 export const msdynamicCheckMutations = {
   /* MS Dynamic product-iig erxes product-tei shalgaj, niitlel dun butsaana */
   async toCheckMsdProducts(
-    _root,
+    _root: unknown,
     { brandId }: { brandId: string },
     { subdomain, checkPermission }: IContext,
   ) {
@@ -26,18 +44,18 @@ export const msdynamicCheckMutations = {
 
     const { itemApi, username, password } = config;
 
-    const products = await sendTRPCMessage({
+    const products = (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
       action: 'find',
       input: { query: { status: { $ne: 'deleted' } } },
       defaultValue: [],
-    });
+    })) as IProductCode[];
 
-    const productCodes = products.map((p: any) => p.code);
+    const productCodes = products.map((product) => product.code);
 
-    const response = await fetch(
+    const response = (await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
       {
         headers: {
@@ -47,17 +65,14 @@ export const msdynamicCheckMutations = {
           ).toString('base64')}`,
         },
       },
-    ).then((r) => r.json());
+    ).then((r) => r.json())) as { value?: IDynamicProduct[] };
 
-    const resultCodes = response?.value?.map((r: any) => r.No) || [];
+    const resultCodes = response?.value?.map((result) => result.No) || [];
 
     return {
-      create: resultCodes.filter((c: string) => !productCodes.includes(c))
-        .length,
-      delete: productCodes.filter((c: string) => !resultCodes.includes(c))
-        .length,
-      matched: resultCodes.filter((c: string) => productCodes.includes(c))
-        .length,
+      create: resultCodes.filter((code) => !productCodes.includes(code)).length,
+      delete: productCodes.filter((code) => !resultCodes.includes(code)).length,
+      matched: resultCodes.filter((code) => productCodes.includes(code)).length,
     };
   },
 
@@ -126,6 +141,9 @@ export const msdynamicCheckMutations = {
     }
 
     const { itemCategoryApi, username, password } = config;
+    const hasSelectedCategory = Boolean(
+      categoryId && categoryId !== 'noCategory',
+    );
 
     const categoryQuery: {
       status: { $ne: string };
@@ -134,56 +152,73 @@ export const msdynamicCheckMutations = {
       status: { $ne: 'deleted' },
     };
 
-    if (categoryId && categoryId !== 'noCategory') {
+    let parentCategoryCode: string | undefined;
+
+    if (hasSelectedCategory) {
       categoryQuery.parentId = categoryId;
+
+      const parentCategory = (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'productCategories',
+        action: 'findOne',
+        input: { query: { _id: categoryId } },
+        defaultValue: null,
+      })) as IProductCategory | null;
+
+      parentCategoryCode = parentCategory?.code;
     }
 
-    const productCategories = await sendTRPCMessage({
+    const productCategories = (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'productCategories',
       action: 'find',
       input: { query: categoryQuery },
       defaultValue: [],
-    });
+    })) as IProductCategory[];
 
-    const response = await fetch(itemCategoryApi, {
+    const response = (await fetch(itemCategoryApi, {
       headers: {
         Accept: 'application/json',
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
           'base64',
         )}`,
       },
-    }).then((r) => r.json());
+    }).then((r) => r.json())) as { value?: IDynamicCategory[] };
 
     const dynamicCategories = Array.isArray(response?.value)
-      ? response.value
+      ? response.value.filter((category) =>
+          hasSelectedCategory
+            ? category.Parent_Category === parentCategoryCode
+            : true,
+        )
       : [];
 
     const productCategoryCodes = productCategories
-      .map((category: { code?: string }) => category.code)
+      .map((category) => category.code)
       .filter(Boolean);
 
     const dynamicCategoryCodes = dynamicCategories
-      .map((category: { Code?: string }) => category.Code)
+      .map((category) => category.Code)
       .filter(Boolean);
 
     return {
       create: {
         items: dynamicCategories.filter(
-          (category: { Code?: string }) =>
+          (category) =>
             category.Code && !productCategoryCodes.includes(category.Code),
         ),
       },
       update: {
         items: dynamicCategories.filter(
-          (category: { Code?: string }) =>
+          (category) =>
             category.Code && productCategoryCodes.includes(category.Code),
         ),
       },
       delete: {
         items: productCategories.filter(
-          (category: { code?: string }) =>
+          (category) =>
             category.code && !dynamicCategoryCodes.includes(category.code),
         ),
       },

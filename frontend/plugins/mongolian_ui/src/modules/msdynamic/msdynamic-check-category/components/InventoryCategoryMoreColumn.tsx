@@ -5,7 +5,7 @@ import { InventoryCategoryItem } from '../types/inventoryCategory';
 
 /* Renders the standard RecordTable more button for category comparison rows. */
 export const InventoryCategoryMoreColumnCell = ({
-  cell,
+  cell: _cell,
 }: {
   cell: Cell<InventoryCategoryItem, unknown>;
 }) => {

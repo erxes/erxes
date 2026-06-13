@@ -3,15 +3,16 @@ import { useToast } from 'erxes-ui';
 
 import { mutations } from '../../graphql';
 import {
+  CategoryFilterType,
   InventoryCategoryAction,
   InventoryCategoryItems,
 } from '../types/inventoryCategory';
-import { CategoryFilterType } from '../types/inventoryCategory';
 
 interface SyncCategoryMutationResponse {
   toSyncMsdProductCategories: { status: string };
 }
 
+/* UI filter-iig backend sync action ruu hurvuulna */
 const getAction = (filter: CategoryFilterType): InventoryCategoryAction => {
   switch (filter) {
     case 'create':
@@ -20,19 +21,23 @@ const getAction = (filter: CategoryFilterType): InventoryCategoryAction => {
       return 'UPDATE';
     case 'delete':
       return 'DELETE';
+    default:
+      return 'CREATE';
   }
 };
 
+/* Category sync mutation bolon local synced state update-iig udirdana */
 export const useSyncCategory = () => {
   const [mutate, { loading, error }] =
     useMutation<SyncCategoryMutationResponse>(gql(mutations.toSyncCategories));
   const { toast } = useToast();
 
+  /* Unsynced category-uudiig MS Dynamic ruu sync hiigeed shine state butsaana */
   const syncCategories = async (
     items: InventoryCategoryItems,
     selectedFilter: CategoryFilterType,
     brandId: string,
-    categoryId: string,
+    categoryId?: string,
   ): Promise<InventoryCategoryItems | undefined> => {
     const categoriesToSync =
       items?.[selectedFilter]?.items?.filter(
@@ -65,6 +70,7 @@ export const useSyncCategory = () => {
           [selectedFilter]: {
             ...items[selectedFilter],
             items: items[selectedFilter]?.items?.map((item) => {
+              /* Delete rows are erxes categories, create/update rows are MS Dynamic categories. */
               const wasSynced = categoriesToSync.some((syncedItem) =>
                 selectedFilter === 'delete'
                   ? syncedItem.code === item.code
@@ -86,6 +92,8 @@ export const useSyncCategory = () => {
 
         return updatedItems;
       }
+
+      return undefined;
     } catch (err) {
       toast({
         title: 'Error',
@@ -95,6 +103,7 @@ export const useSyncCategory = () => {
             : 'Failed to sync MS Dynamic categories',
         variant: 'destructive',
       });
+      return undefined;
     }
   };
 
