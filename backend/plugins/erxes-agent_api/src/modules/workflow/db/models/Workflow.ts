@@ -23,7 +23,7 @@ export interface IMastraWorkflowModel extends Model<IMastraWorkflowDocument> {
 // (with the live operation registry) before calling these; this re-check only
 // guards against definitions reaching Mongo through some future code path that
 // skipped it.
-const assertStructurallyValid = (definition: any) => {
+const assertStructurallyValid = (definition: unknown) => {
   const check = validateDefinition(definition);
   if (!check.ok) {
     const first = check.errors[0];

@@ -30,11 +30,14 @@ export function buildDigestBlock(
   entries: DigestEntry[],
   opts: { maxChars: number; maxEntries: number },
 ): LearnedDigest | null {
-  const ranked = [...entries].sort((a, b) => {
-    if (Boolean(a.pinned) !== Boolean(b.pinned)) return a.pinned ? -1 : 1;
-    const scoreA = (a.confidence ?? 0) * Math.log2(1 + (a.evidenceCount ?? 1));
-    const scoreB = (b.confidence ?? 0) * Math.log2(1 + (b.evidenceCount ?? 1));
-    return scoreB - scoreA;
+  const ranked = [...entries].sort((left, right) => {
+    if (Boolean(left.pinned) !== Boolean(right.pinned))
+      return left.pinned ? -1 : 1;
+    const scoreLeft =
+      (left.confidence ?? 0) * Math.log2(1 + (left.evidenceCount ?? 1));
+    const scoreRight =
+      (right.confidence ?? 0) * Math.log2(1 + (right.evidenceCount ?? 1));
+    return scoreRight - scoreLeft;
   });
 
   const header =
@@ -44,12 +47,12 @@ export function buildDigestBlock(
   const ids: string[] = [];
   let budget = opts.maxChars - header.length;
 
-  for (const e of ranked) {
+  for (const entry of ranked) {
     if (ids.length >= opts.maxEntries) break;
-    const line = `- [${e.type}] ${e.statement}`;
+    const line = `- [${entry.type}] ${entry.statement}`;
     if (line.length + 1 > budget) continue;
     lines.push(line);
-    ids.push(String(e._id));
+    ids.push(String(entry._id));
     budget -= line.length + 1;
   }
 
@@ -59,7 +62,7 @@ export function buildDigestBlock(
 
 /**
  * Load the digest for one agent's turn — approved lessons that are either
- * tenant-wide (no agentId) or belong to this agent. Best-effort: any failure
+ * tenant-wide (no agentId) or belong to this agent. Best-effort: every failure
  * returns null and the turn proceeds without a digest.
  */
 export async function readLearnedDigest(
@@ -82,9 +85,11 @@ export async function readLearnedDigest(
       maxChars: tuning.digestMaxChars,
       maxEntries: tuning.digestMaxEntries,
     });
-  } catch (e) {
+  } catch (err) {
+    const message =
+      (err as { message?: string } | null | undefined)?.message || String(err);
     // eslint-disable-next-line no-console
-    console.warn(`[mastra:learning] digest skipped: ${e?.message || e}`);
+    console.warn(`[mastra:learning] digest skipped: ${message}`);
     return null;
   }
 }

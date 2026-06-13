@@ -11,10 +11,7 @@ import {
   IconListNumbers,
   IconPencil,
   IconPlayerPlay,
-  IconTrash,
   IconEye,
-  IconToggleLeft,
-  IconToggleRight,
   IconVersions,
 } from '@tabler/icons-react';
 import {
@@ -39,6 +36,10 @@ import {
   MASTRA_WORKFLOW_RUN_START,
   MASTRA_WORKFLOW_SET_ENABLED,
 } from '~/graphql/mutations';
+import {
+  ToggleDeleteMenuItems,
+  enabledStatusColumn,
+} from '~/components/RecordTableShared';
 import { stepCount, triggerLabel } from './shared';
 
 export interface IWorkflowRow {
@@ -141,41 +142,18 @@ const WorkflowMoreCell = ({
                 <IconPencil className="size-4" /> Edit
               </Button>
             </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={() =>
-                  setEnabled({
-                    variables: {
-                      _id: workflow._id,
-                      isEnabled: !workflow.isEnabled,
-                    },
-                  })
-                }
-              >
-                {workflow.isEnabled ? (
-                  <>
-                    <IconToggleLeft className="size-4" /> Disable
-                  </>
-                ) : (
-                  <>
-                    <IconToggleRight className="size-4" /> Enable
-                  </>
-                )}
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8 text-destructive"
-                onClick={handleDelete}
-              >
-                <IconTrash className="size-4" /> Delete
-              </Button>
-            </Command.Item>
+            <ToggleDeleteMenuItems
+              isEnabled={workflow.isEnabled}
+              onToggle={() =>
+                setEnabled({
+                  variables: {
+                    _id: workflow._id,
+                    isEnabled: !workflow.isEnabled,
+                  },
+                })
+              }
+              onDelete={handleDelete}
+            />
           </Command.List>
         </Command>
       </Combobox.Content>
@@ -249,24 +227,7 @@ const baseColumns: ColumnDef<IWorkflowRow>[] = [
     ),
     size: 80,
   },
-  {
-    id: 'status',
-    accessorKey: 'isEnabled',
-    header: () => (
-      <RecordTable.InlineHead icon={IconToggleRight} label="Status" />
-    ),
-    cell: ({ cell }) => {
-      const isEnabled = cell.getValue() as boolean;
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={isEnabled ? 'success' : 'secondary'}>
-            {isEnabled ? 'Active' : 'Disabled'}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
-  },
+  enabledStatusColumn<IWorkflowRow>(),
   {
     id: 'updatedAt',
     accessorKey: 'updatedAt',

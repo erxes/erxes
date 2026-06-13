@@ -1,3 +1,30 @@
+
+
+## [3.0.34](https://github.com/erxes/erxes/compare/3.0.33...3.0.34) (2026-06-12)
+
+
+### Bug Fixes
+
+* **core:** filter team members by unit/branch/department and add conversation list indexes ([483ec7d](https://github.com/erxes/erxes/commit/483ec7d87f839451b50a81e970d2dc3d88908f4c))
+* fix empty state layout overflow in record table ([#7974](https://github.com/erxes/erxes/issues/7974)) ([0fac23e](https://github.com/erxes/erxes/commit/0fac23e0fb874eb0f478dba01caa1a759447afd2))
+* **frontline:** add conversation id to mobile chat notifications ([1675b0e](https://github.com/erxes/erxes/commit/1675b0e70987d34e0da01f87c8a70a00c7f1e5c1))
+* **frontline:** improve call CDR selection and handle internal conversation messages  ([368e888](https://github.com/erxes/erxes/commit/368e8889fb8d09bd9674c48b29e468adc48e53a7))
+* **frontline:** refine CDR selection to prioritize answered Queue legs ([c7b3b64](https://github.com/erxes/erxes/commit/c7b3b6457c2a248f6a8c426e97b2ce8f9cb72ed2))
+* resolve DeepSource JavaScript findings (agent plugin, contacts) ([#7990](https://github.com/erxes/erxes/issues/7990)) ([9c460ee](https://github.com/erxes/erxes/commit/9c460ee21b207e0ddbfdda366e4d1d66046d1af9))
+* send UOM code instead of name to prevent duplicate ([#7973](https://github.com/erxes/erxes/issues/7973)) ([fb155a2](https://github.com/erxes/erxes/commit/fb155a21eed1860989f93569aea85884ab609c05))
+* sync customer and clientportal ([#7977](https://github.com/erxes/erxes/issues/7977)) ([e77b132](https://github.com/erxes/erxes/commit/e77b1329e4e5ce238834a81d6f3e60f66f0b8f66))
+
+
+### Features
+
+* add agents ([f71adc7](https://github.com/erxes/erxes/commit/f71adc71689fc8429f216b64a84a271cf3bc7b96))
+* add property-based filtering ([#7984](https://github.com/erxes/erxes/issues/7984)) ([c62532f](https://github.com/erxes/erxes/commit/c62532f1a542fd3425b63ff40ccec08d158f2291))
+* **core:** add product data migration script between SaaS orgs  ([ad540a1](https://github.com/erxes/erxes/commit/ad540a1c84db31a30aa11f3a9988c99f1d0db47a))
+* **core:** migrate products  ([dca2bc7](https://github.com/erxes/erxes/commit/dca2bc757a45cc65f88c8e586cb7d97e2e28f4cc))
+* erxes AI Agents plugin — Mastra-powered agents, chat, workflows, and company-knowledge RAG ([#7985](https://github.com/erxes/erxes/issues/7985)) ([83ff2c3](https://github.com/erxes/erxes/commit/83ff2c3a0c5cfc336824be8989098082042c5a09))
+* **erxes-agent:** configurable temperature per agent ([#7997](https://github.com/erxes/erxes/issues/7997)) ([5f8da46](https://github.com/erxes/erxes/commit/5f8da469b65120792b00d4da6e039b99a4c79a29))
+* **operation:** add import/export to task and project command bars ([#7975](https://github.com/erxes/erxes/issues/7975)) ([1c68862](https://github.com/erxes/erxes/commit/1c688624224aafdce1486025534800df92c0e1d1))
+
 # Changelog
 
 ## [3.0.33](https://github.com/erxes/erxes/compare/3.0.32...3.0.33) (2026-06-11)

@@ -12,8 +12,8 @@
  */
 
 export interface RefScope {
-  trigger: Record<string, any>;
-  steps: Record<string, { output: any }>;
+  trigger: Record<string, unknown>;
+  steps: Record<string, { output: unknown }>;
   bindings: Record<string, { kind: string; id: string }>;
 }
 
@@ -28,15 +28,16 @@ const WHOLE_REF_RE = /^\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}$/;
 const ROOTS = ['trigger', 'steps', 'bindings'] as const;
 
 /** Extracts every `{{ path }}` expression from a JSON value, recursively. */
-export function collectRefs(value: any): string[] {
+export function collectRefs(value: unknown): string[] {
   const refs: string[] = [];
-  const walk = (v: any) => {
-    if (typeof v === 'string') {
-      for (const m of v.matchAll(REF_RE)) refs.push(m[1]);
-    } else if (Array.isArray(v)) {
-      v.forEach(walk);
-    } else if (v && typeof v === 'object') {
-      Object.values(v).forEach(walk);
+  /** Recursively gathers ref paths from strings, arrays, and objects. */
+  const walk = (node: unknown) => {
+    if (typeof node === 'string') {
+      for (const match of node.matchAll(REF_RE)) refs.push(match[1]);
+    } else if (Array.isArray(node)) {
+      node.forEach(walk);
+    } else if (node && typeof node === 'object') {
+      Object.values(node).forEach(walk);
     }
   };
   walk(value);
@@ -48,15 +49,16 @@ export function collectRefs(value: any): string[] {
  * indexing, spaces in paths, unclosed braces. Caught at validation so the
  * master agent gets an error instead of a silent runtime undefined.
  */
-export function findMalformedRefs(value: any): string[] {
+export function findMalformedRefs(value: unknown): string[] {
   const bad: string[] = [];
-  const walk = (v: any) => {
-    if (typeof v === 'string') {
-      if (v.replace(REF_RE, '').includes('{{')) bad.push(v);
-    } else if (Array.isArray(v)) {
-      v.forEach(walk);
-    } else if (v && typeof v === 'object') {
-      Object.values(v).forEach(walk);
+  /** Recursively flags strings whose `{{` was not consumed by the ref grammar. */
+  const walk = (node: unknown) => {
+    if (typeof node === 'string') {
+      if (node.replace(REF_RE, '').includes('{{')) bad.push(node);
+    } else if (Array.isArray(node)) {
+      node.forEach(walk);
+    } else if (node && typeof node === 'object') {
+      Object.values(node).forEach(walk);
     }
   };
   walk(value);
@@ -97,12 +99,13 @@ export function checkRef(
   return null;
 }
 
-function lookup(path: string, scope: RefScope): any {
+/** Walks one dot path through the scope, returning undefined on any dead end. */
+function lookup(path: string, scope: RefScope): unknown {
   const segs = path.split('.');
-  let cur: any = scope;
+  let cur: unknown = scope;
   for (const seg of segs) {
     if (cur === null || cur === undefined) return undefined;
-    cur = cur[seg];
+    cur = (cur as Record<string, unknown>)[seg];
   }
   // A binding reference resolves to the bound id — definitions stay portable
   // because the tenant-local id lives in the bindings map, not inline.
@@ -113,19 +116,25 @@ function lookup(path: string, scope: RefScope): any {
 }
 
 /** Resolves every ref in a JSON value against the runtime scope, recursively. */
-export function resolveValue(value: any, scope: RefScope): any {
+export function resolveValue(value: unknown, scope: RefScope): unknown {
   if (typeof value === 'string') {
     const whole = value.match(WHOLE_REF_RE);
     if (whole) return lookup(whole[1], scope);
-    return value.replace(REF_RE, (_, path) => {
-      const v = lookup(path, scope);
-      return v === undefined || v === null ? '' : String(v);
+    return value.replace(REF_RE, (_: string, path: string) => {
+      const resolved = lookup(path, scope);
+      return resolved === undefined || resolved === null
+        ? ''
+        : String(resolved);
     });
   }
-  if (Array.isArray(value)) return value.map((v) => resolveValue(v, scope));
+  if (Array.isArray(value)) {
+    return value.map((item) => resolveValue(item, scope));
+  }
   if (value && typeof value === 'object') {
-    const out: Record<string, any> = {};
-    for (const [k, v] of Object.entries(value)) out[k] = resolveValue(v, scope);
+    const out: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value)) {
+      out[key] = resolveValue(entry, scope);
+    }
     return out;
   }
   return value;

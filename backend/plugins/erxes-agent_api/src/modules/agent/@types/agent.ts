@@ -11,6 +11,7 @@ export interface IMastraAgent {
   allowedTools?: string[];
   memoryEnabled?: boolean;
   maxSteps?: number;
+  temperature?: number;
   isEnabled?: boolean;
 }
 

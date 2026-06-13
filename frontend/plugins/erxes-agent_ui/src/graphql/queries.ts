@@ -14,6 +14,7 @@ export const MASTRA_AGENTS = gql`
       allowedTools
       memoryEnabled
       maxSteps
+      temperature
       isEnabled
       createdAt
       updatedAt
@@ -59,6 +60,7 @@ export const MASTRA_AGENT = gql`
       allowedTools
       memoryEnabled
       maxSteps
+      temperature
       isEnabled
       createdAt
       updatedAt
@@ -305,6 +307,54 @@ export const MASTRA_WORKFLOW = gql`
       version
       isEnabled
       createdByUserId
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const MASTRA_SCHEDULES = gql`
+  query MastraSchedules {
+    mastraSchedules {
+      _id
+      name
+      description
+      agentId
+      cron
+      timezone
+      prompt
+      isEnabled
+      threadId
+      lastRunAt
+      lastStatus
+      lastError
+      lastReply
+      lastDurationMs
+      runCount
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const MASTRA_SCHEDULE = gql`
+  query MastraSchedule($_id: String!) {
+    mastraSchedule(_id: $_id) {
+      _id
+      name
+      description
+      agentId
+      cron
+      timezone
+      prompt
+      isEnabled
+      threadId
+      lastRunAt
+      lastStatus
+      lastError
+      lastReply
+      lastDurationMs
+      runCount
       createdAt
       updatedAt
     }

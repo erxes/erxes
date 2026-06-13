@@ -1,6 +1,11 @@
 import { z } from 'zod';
+import { createTool } from '@mastra/core/tools';
 import { getCurrentAuth } from '../requestContext';
-import { validateDefinition, WorkflowDefinition } from '../workflows/dsl';
+import {
+  validateDefinition,
+  WorkflowDefinition,
+  WorkflowStep,
+} from '../workflows/dsl';
 import {
   compileDefinition,
   CompiledDeps,
@@ -22,12 +27,36 @@ import { getOperationRegistry } from './operationRegistry';
  * deniable per agent via the existing `builtin:<key>` allowlist grammar.
  */
 
-// require(), not a static import: @mastra/core's .d.ts graph plus createTool's
-// generic inference OOMs ts-jest's worker type-checking this file. The untyped
-// alias skips both; runtime behavior is identical.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const tool: (cfg: any) => any = require('@mastra/core/tools').createTool;
+/** A created Mastra tool — the same erased registry type builtins.ts uses. */
+type MastraTool = ReturnType<typeof createTool>;
 
+/** Config shape this module passes to the loosely-typed createTool alias. */
+interface WorkflowToolConfig {
+  id: string;
+  description: string;
+  inputSchema: z.ZodTypeAny;
+  outputSchema: z.ZodTypeAny;
+  // Method syntax (bivariant) so each tool can declare its own input shape.
+  execute(input: never): Promise<unknown>;
+}
+
+/** One step record in a workflowSimulate dry-run trace. */
+interface SimulationTraceEvent {
+  step: 'operation' | 'agent';
+  operation?: string;
+  args?: Record<string, unknown>;
+  stepId?: string;
+  prompt?: string;
+  output?: Record<string, unknown>;
+  assumed?: boolean;
+}
+
+// Loosely-typed alias: createTool's full generic inference over this file's
+// many tool configs is deliberately skipped (it OOM'd the type-checker);
+// runtime behavior is identical.
+const tool = createTool as unknown as (cfg: WorkflowToolConfig) => MastraTool;
+
+/** Tenant of the current request (falls back to the non-saas 'os' tenant). */
 const tenant = () => getCurrentAuth()?.subdomain || 'os';
 
 /**
@@ -46,15 +75,16 @@ const requireTeamMember = () => {
   }
 };
 
+/** The tenant's plugin models, loaded lazily per call. */
 async function getModels() {
-  // Lazy require keeps connectionResolvers (mongoose models + erxes-api-shared
-  // types — the whole plugin's type graph) out of this file's static imports;
-  // ts-jest OOMs its worker type-checking that chain.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { generateModels } = require('../../connectionResolvers');
+  // Lazy dynamic import keeps connectionResolvers (mongoose models +
+  // erxes-api-shared — the whole plugin's module graph) out of this file's
+  // load-time imports; jest mocks it and production loads it on first use.
+  const { generateModels } = await import('../../connectionResolvers');
   return generateModels(tenant());
 }
 
+/** The requesting user's _id, decoded from the propagated user header. */
 function currentUserId(): string | undefined {
   const header = getCurrentAuth()?.userHeader;
   if (!header) return undefined;
@@ -65,9 +95,10 @@ function currentUserId(): string | undefined {
   }
 }
 
-const fail = (e: any) => ({
+/** Normalizes a thrown value into the tools' { success: false, error } shape. */
+const fail = (e: unknown) => ({
   success: false as const,
-  error: e?.message || String(e),
+  error: (e as { message?: string } | null | undefined)?.message || String(e),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -142,9 +173,9 @@ export const workflowGuideTool = tool({
     'Returns the workflow definition format reference (step types, data references, condition language, rules). ALWAYS call this before drafting or editing a workflow definition.',
   inputSchema: z.object({}),
   outputSchema: z.object({ guide: z.string() }),
-  execute: async () => {
+  execute: () => {
     requireTeamMember();
-    return { guide: GUIDE };
+    return Promise.resolve({ guide: GUIDE });
   },
 });
 
@@ -160,7 +191,7 @@ export const workflowValidateTool = tool({
     errors: z.array(z.object({ path: z.string(), message: z.string() })),
     instruction: z.string().optional(),
   }),
-  execute: async ({ definition }) => {
+  execute: async ({ definition }: { definition: Record<string, unknown> }) => {
     requireTeamMember();
     const models = await getModels();
     const settings = await models.MastraSettings.getSettings();
@@ -203,20 +234,31 @@ export const workflowSimulateTool = tool({
     errors: z.any().optional(),
     error: z.string().optional(),
   }),
-  execute: async ({ definition, triggerPayload, assumptions }) => {
+  execute: async ({
+    definition,
+    triggerPayload,
+    assumptions,
+  }: {
+    definition: Record<string, unknown>;
+    triggerPayload?: Record<string, unknown>;
+    assumptions?: Record<string, Record<string, unknown>>;
+  }) => {
     requireTeamMember();
     try {
       const models = await getModels();
       const settings = await models.MastraSettings.getSettings();
       const registry = await getOperationRegistry(settings);
       const check = validateDefinition(definition, registry);
-      if (!check.ok) return { success: false, errors: check.errors };
+      if (!check.ok || !check.definition) {
+        return { success: false, errors: check.errors };
+      }
 
-      const def = check.definition as WorkflowDefinition;
-      const trace: any[] = [];
+      const def = check.definition;
+      const trace: SimulationTraceEvent[] = [];
 
+      /** Auto-fills one agent output spec with type-appropriate sample values. */
       const sampleFor = (spec: Record<string, string>) => {
-        const out: Record<string, any> = {};
+        const out: Record<string, unknown> = {};
         for (const [field, raw] of Object.entries(spec)) {
           if (raw.endsWith('?')) continue;
           if (raw.startsWith('enum:')) out[field] = raw.slice(5).split(',')[0];
@@ -227,7 +269,11 @@ export const workflowSimulateTool = tool({
         return out;
       };
 
-      const findAgentStep = (steps: any[], id: string): any => {
+      /** Finds a step by id anywhere in the tree (branch arms, parallel members). */
+      const findAgentStep = (
+        steps: WorkflowStep[],
+        id: string,
+      ): WorkflowStep | null => {
         for (const s of steps) {
           if (s.id === id) return s;
           if (s.type === 'branch') {
@@ -249,23 +295,27 @@ export const workflowSimulateTool = tool({
       };
 
       const deps: CompiledDeps = {
-        executeOperation: async (operation, args) => {
+        executeOperation: (operation, args) => {
           trace.push({ step: 'operation', operation, args });
-          return { simulated: true, operation };
+          return Promise.resolve({ simulated: true, operation });
         },
-        runJudgment: async ({ prompt, outputSpec }) => {
+        runJudgment: ({ prompt, outputSpec }) => {
           // Match the judgment back to its step id via the resolved prompt's
           // origin — assumptions are keyed by step id, so locate the agent
           // step whose outputSpec matches this call.
           for (const [stepId, assumed] of Object.entries(assumptions || {})) {
-            const step = findAgentStep(def.steps as any[], stepId);
-            if (step && step.outputSchema === outputSpec) {
+            const step = findAgentStep(def.steps, stepId);
+            if (
+              step &&
+              step.type === 'agent' &&
+              step.outputSchema === outputSpec
+            ) {
               // Assumptions are usually PARTIAL (just the routing field) —
               // merge them over auto-sampled defaults so the remaining
               // required fields don't fail the step's schema validation.
               const output = {
                 ...sampleFor(outputSpec),
-                ...(assumed as object),
+                ...assumed,
               };
               trace.push({
                 step: 'agent',
@@ -274,7 +324,7 @@ export const workflowSimulateTool = tool({
                 output,
                 assumed: true,
               });
-              return output;
+              return Promise.resolve(output);
             }
           }
           const sampled = sampleFor(outputSpec);
@@ -284,11 +334,11 @@ export const workflowSimulateTool = tool({
             output: sampled,
             assumed: false,
           });
-          return sampled;
+          return Promise.resolve(sampled);
         },
       };
 
-      const wf: any = compileDefinition('simulation', def, deps);
+      const wf = compileDefinition('simulation', def, deps);
       const run = wf.createRunAsync
         ? await wf.createRunAsync()
         : await wf.createRun();
@@ -312,7 +362,7 @@ export const workflowSimulateTool = tool({
             ? String(result.error?.message || result.error)
             : undefined,
       };
-    } catch (e: any) {
+    } catch (e) {
       return fail(e);
     }
   },
@@ -335,24 +385,36 @@ export const workflowSaveTool = tool({
     errors: z.any().optional(),
     error: z.string().optional(),
   }),
-  execute: async ({ name, description, definition, enable }) => {
+  execute: async ({
+    name,
+    description,
+    definition,
+    enable,
+  }: {
+    name: string;
+    description?: string;
+    definition: Record<string, unknown>;
+    enable?: boolean;
+  }) => {
     requireTeamMember();
     try {
       const models = await getModels();
       const settings = await models.MastraSettings.getSettings();
       const registry = await getOperationRegistry(settings);
       const check = validateDefinition(definition, registry);
-      if (!check.ok) return { success: false, errors: check.errors };
+      if (!check.ok || !check.definition) {
+        return { success: false, errors: check.errors };
+      }
 
       const doc = await models.MastraWorkflow.createWorkflow({
         name,
         description,
-        definition: check.definition!,
+        definition: check.definition,
         isEnabled: Boolean(enable),
         createdByUserId: currentUserId(),
       });
       return { success: true, workflowId: doc._id, version: doc.version };
-    } catch (e: any) {
+    } catch (e) {
       return fail(e);
     }
   },
@@ -375,7 +437,19 @@ export const workflowUpdateTool = tool({
     errors: z.any().optional(),
     error: z.string().optional(),
   }),
-  execute: async ({ workflowId, name, description, definition, enable }) => {
+  execute: async ({
+    workflowId,
+    name,
+    description,
+    definition,
+    enable,
+  }: {
+    workflowId: string;
+    name?: string;
+    description?: string;
+    definition?: Record<string, unknown>;
+    enable?: boolean;
+  }) => {
     requireTeamMember();
     try {
       const models = await getModels();
@@ -385,14 +459,22 @@ export const workflowUpdateTool = tool({
         const check = validateDefinition(definition, registry);
         if (!check.ok) return { success: false, errors: check.errors };
       }
-      const patch: Record<string, any> = {};
+      const patch: {
+        name?: string;
+        description?: string;
+        definition?: WorkflowDefinition;
+        isEnabled?: boolean;
+      } = {};
       if (name !== undefined) patch.name = name;
       if (description !== undefined) patch.description = description;
-      if (definition !== undefined) patch.definition = definition;
+      if (definition !== undefined) {
+        // Validated above whenever provided — safe to treat as a definition.
+        patch.definition = definition as unknown as WorkflowDefinition;
+      }
       if (enable !== undefined) patch.isEnabled = enable;
       const doc = await models.MastraWorkflow.updateWorkflow(workflowId, patch);
       return { success: true, version: doc.version };
-    } catch (e: any) {
+    } catch (e) {
       return fail(e);
     }
   },
@@ -409,13 +491,13 @@ export const workflowListTool = tool({
     const models = await getModels();
     const docs = await models.MastraWorkflow.getWorkflows();
     return {
-      workflows: docs.map((d: any) => ({
-        _id: d._id,
-        name: d.name,
-        description: d.description,
-        version: d.version,
-        isEnabled: d.isEnabled,
-        triggerType: d.definition?.trigger?.type,
+      workflows: docs.map((doc) => ({
+        _id: doc._id,
+        name: doc.name,
+        description: doc.description,
+        version: doc.version,
+        isEnabled: doc.isEnabled,
+        triggerType: doc.definition?.trigger?.type,
       })),
     };
   },
@@ -430,7 +512,13 @@ export const workflowRunsTool = tool({
     limit: z.number().int().min(1).max(20).default(5),
   }),
   outputSchema: z.object({ runs: z.array(z.any()) }),
-  execute: async ({ workflowId, limit }) => {
+  execute: async ({
+    workflowId,
+    limit,
+  }: {
+    workflowId: string;
+    limit?: number;
+  }) => {
     requireTeamMember();
     const models = await getModels();
     const docs = await models.MastraWorkflowRun.getRuns({
@@ -438,16 +526,16 @@ export const workflowRunsTool = tool({
       perPage: limit ?? 5,
     });
     return {
-      runs: docs.map((r: any) => ({
-        _id: r._id,
-        status: r.status,
-        version: r.version,
-        stepsSummary: r.stepsSummary,
-        output: r.output,
-        error: r.error,
-        usage: r.usage,
-        startedAt: r.startedAt,
-        finishedAt: r.finishedAt,
+      runs: docs.map((run) => ({
+        _id: run._id,
+        status: run.status,
+        version: run.version,
+        stepsSummary: run.stepsSummary,
+        output: run.output,
+        error: run.error,
+        usage: run.usage,
+        startedAt: run.startedAt,
+        finishedAt: run.finishedAt,
       })),
     };
   },
@@ -471,7 +559,13 @@ export const workflowRunNowTool = tool({
     stepsSummary: z.any().optional(),
     error: z.string().optional(),
   }),
-  execute: async ({ workflowId, payload }) => {
+  execute: async ({
+    workflowId,
+    payload,
+  }: {
+    workflowId: string;
+    payload?: Record<string, unknown>;
+  }) => {
     requireTeamMember();
     try {
       const models = await getModels();
@@ -489,13 +583,13 @@ export const workflowRunNowTool = tool({
         stepsSummary: record.stepsSummary,
         error: record.error,
       };
-    } catch (e: any) {
+    } catch (e) {
       return fail(e);
     }
   },
 });
 
-export const WORKFLOW_BUILTIN_TOOLS: Record<string, any> = {
+export const WORKFLOW_BUILTIN_TOOLS: Record<string, MastraTool> = {
   workflowGuide: workflowGuideTool,
   workflowValidate: workflowValidateTool,
   workflowSimulate: workflowSimulateTool,

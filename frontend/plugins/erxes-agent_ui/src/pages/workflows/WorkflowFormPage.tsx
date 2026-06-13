@@ -11,7 +11,6 @@ import {
   Alert,
   Breadcrumb,
   Button,
-  Card,
   Input,
   Label,
   Separator,
@@ -26,6 +25,7 @@ import {
   MASTRA_WORKFLOW_UPDATE,
   MASTRA_WORKFLOW_VALIDATE,
 } from '~/graphql/mutations';
+import { Field, FormSection } from '~/components/FormLayout';
 import { WorkflowGraph } from './graph/WorkflowGraph';
 
 // Minimal valid starter so a hand-authored workflow begins from a runnable shape.
@@ -43,40 +43,6 @@ type ValidationResult = {
   ok: boolean;
   errors?: { path?: string; message: string }[];
 } | null;
-
-const FormSection = ({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) => (
-  <Card className="shadow-none">
-    <Card.Header className="pb-3">
-      <Card.Title className="text-base">{title}</Card.Title>
-      {description && <Card.Description>{description}</Card.Description>}
-    </Card.Header>
-    <Card.Content className="space-y-4">{children}</Card.Content>
-  </Card>
-);
-
-const Field = ({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) => (
-  <div className="space-y-1.5">
-    <Label className="font-medium">{label}</Label>
-    {children}
-    {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-  </div>
-);
 
 export const WorkflowFormPage = () => {
   const { id } = useParams();

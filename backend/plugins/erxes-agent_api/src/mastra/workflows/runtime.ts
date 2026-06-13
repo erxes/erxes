@@ -1,8 +1,17 @@
-import { compileDefinition, CompiledDeps, finalOutput } from './compiler';
+import {
+  compileDefinition,
+  CompiledDeps,
+  CompiledRunResult,
+  CompiledWorkflow,
+  finalOutput,
+} from './compiler';
 import { TriggerEnvelope } from './envelope';
 import { WorkflowDefinition } from './dsl';
 import { isOperationAllowed, ToolPolicy } from '../tools/scope';
 import { getOperationRegistry } from '../tools/operationRegistry';
+import type { IModels } from '~/connectionResolvers';
+import type { IMastraAgentDocument } from '@/agent/@types/agent';
+import type { ProviderDocLike } from '../providers';
 import type {
   IMastraWorkflowDocument,
   IMastraWorkflowRunDocument,
@@ -37,16 +46,17 @@ export function workflowDbName(tenant: string, env: Env = process.env): string {
   return `${prefix}_${tenant}`.replace(/[^a-zA-Z0-9_]/g, '_');
 }
 
-const storageCache = new Map<string, any>();
+const storageCache = new Map<string, unknown>();
 
-async function getWorkflowStorage(tenant: string): Promise<any> {
+/** Builds (and caches) the tenant's dedicated Mastra snapshot store. */
+function getWorkflowStorage(tenant: string): unknown {
   const dbName = workflowDbName(tenant);
   const hit = storageCache.get(dbName);
   if (hit) return hit;
 
   // require(), not import() — see the loader-deadlock note in compiler.ts.
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { MongoDBStore } = require('@mastra/mongodb');
+  const { MongoDBStore } = require('@mastra/mongodb'); // skipcq: JS-0359
   const storage = new MongoDBStore({
     id: `erxes-agent-workflows-${tenant}`,
     uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
@@ -57,7 +67,7 @@ async function getWorkflowStorage(tenant: string): Promise<any> {
 }
 
 /** Pulls the first JSON object out of a model reply (tolerates ```json fences). */
-export function extractJsonObject(text: string): Record<string, any> {
+export function extractJsonObject(text: string): Record<string, unknown> {
   // Index-scan the first ``` fence (regex with a lazy [\s\S]*? backtracks
   // super-linearly on pathological input).
   let candidate = text;
@@ -88,19 +98,33 @@ export function extractJsonObject(text: string): Record<string, any> {
  * schedule/automation runs, with the app token). The workflow policy is the
  * security boundary; judgment is classification only.
  */
-const judgeCache = new Map<string, any>();
+const judgeCache = new Map<string, JudgeAgent>();
 
-function getJudgeAgent(agentConfig: any, providers: any[]): any {
+/** The minimal Mastra Agent surface the judgment path invokes. */
+interface JudgeAgent {
+  generate(
+    messages: Array<{ role: string; content: string }>,
+  ): Promise<{ text?: unknown }>;
+  generateLegacy(
+    messages: Array<{ role: string; content: string }>,
+  ): Promise<{ text?: unknown }>;
+}
+
+/** Builds (and caches per agent version) the bare, tool-less judgment agent. */
+function getJudgeAgent(
+  agentConfig: IMastraAgentDocument,
+  providers: ProviderDocLike[],
+): JudgeAgent {
   const key = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}`;
   const hit = judgeCache.get(key);
   if (hit) return hit;
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { Agent } = require('@mastra/core/agent');
+  const { Agent } = require('@mastra/core/agent'); // skipcq: JS-0359
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { buildModel } = require('../providers');
+  const { buildModel } = require('../providers'); // skipcq: JS-0359
 
-  const judge = new Agent({
+  const judge: JudgeAgent = new Agent({
     id: `judge-${agentConfig._id}`,
     name: `${agentConfig.name} (judgment)`,
     instructions:
@@ -110,25 +134,21 @@ function getJudgeAgent(agentConfig: any, providers: any[]): any {
     defaultOptions: { maxSteps: 1 },
   });
 
-  for (const k of judgeCache.keys()) {
-    if (k.startsWith(`${agentConfig._id}:`)) judgeCache.delete(k);
+  for (const cachedKey of judgeCache.keys()) {
+    if (cachedKey.startsWith(`${agentConfig._id}:`)) {
+      judgeCache.delete(cachedKey);
+    }
   }
   judgeCache.set(key, judge);
   return judge;
 }
 
+/** The system prompt that constrains a judgment call to a strict JSON reply. */
 function judgmentInstruction(outputSpec: Record<string, string>): string {
   const fields = Object.entries(outputSpec)
-    .map(([k, v]) => `  "${k}": ${v}`)
+    .map(([field, spec]) => `  "${field}": ${spec}`)
     .join('\n');
-  return (
-    'You are one step inside an automated workflow. Respond with ONLY a JSON object ' +
-    '(no prose, no markdown) with exactly these fields:\n{\n' +
-    fields +
-    '\n}\n' +
-    "Field spec legend: a trailing '?' means optional; 'enum:a,b,c' means the value " +
-    'MUST be one of the listed options, verbatim.'
-  );
+  return `You are one step inside an automated workflow. Respond with ONLY a JSON object (no prose, no markdown) with exactly these fields:\n{\n${fields}\n}\nField spec legend: a trailing '?' means optional; 'enum:a,b,c' means the value MUST be one of the listed options, verbatim.`;
 }
 
 /**
@@ -142,7 +162,7 @@ function judgmentInstruction(outputSpec: Record<string, string>): string {
  *   against limits.maxLlmCalls.
  */
 export async function buildRunDeps(
-  models: any,
+  models: IModels,
   definition: WorkflowDefinition,
 ): Promise<{ deps: CompiledDeps; usage: { llmCalls: number } }> {
   const settings = await models.MastraSettings.getSettings();
@@ -184,15 +204,15 @@ export async function buildRunDeps(
       const agentConfig = await models.MastraAgent.getAgent(agentBindingId);
       const providers = await models.MastraProvider.find({ isEnabled: true });
       const judge = getJudgeAgent(agentConfig, providers);
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { isLegacyProvider } = require('../providers');
+      // Lazy import — providers.ts pulls AI-SDK chunks Jest cannot load.
+      const { isLegacyProvider } = await import('../providers');
       const legacy = isLegacyProvider(agentConfig.provider, providers);
 
       const convo = [
         { role: 'system', content: judgmentInstruction(outputSpec) },
         { role: 'user', content: prompt },
       ];
-      const res: any = legacy
+      const res = legacy
         ? await judge.generateLegacy(convo)
         : await judge.generate(convo);
       return extractJsonObject(String(res?.text ?? ''));
@@ -202,14 +222,17 @@ export async function buildRunDeps(
   return { deps, usage };
 }
 
+/** Condenses Mastra's per-step results into the run record's summary shape. */
 function summarizeSteps(
-  resultSteps: any,
+  resultSteps: CompiledRunResult['steps'] | undefined,
 ): Record<string, { status: string; error?: string }> {
   const summary: Record<string, { status: string; error?: string }> = {};
-  for (const [id, s] of Object.entries<any>(resultSteps || {})) {
+  for (const [id, stepResult] of Object.entries(resultSteps || {})) {
     summary[id] = {
-      status: s?.status || 'unknown',
-      ...(s?.error ? { error: String(s.error?.message || s.error) } : {}),
+      status: stepResult?.status || 'unknown',
+      ...(stepResult?.error
+        ? { error: String(stepResult.error?.message || stepResult.error) }
+        : {}),
     };
   }
   return summary;
@@ -225,13 +248,13 @@ function summarizeSteps(
  * edits never affect it (§11.3).
  */
 export async function runWorkflow(args: {
-  models: any;
+  models: IModels;
   subdomain: string;
   workflow: IMastraWorkflowDocument;
   envelope: TriggerEnvelope;
 }): Promise<IMastraWorkflowRunDocument> {
   const { models, subdomain, workflow, envelope } = args;
-  const definition = workflow.definition as WorkflowDefinition;
+  const definition = workflow.definition;
   const tenant = workflowTenant(subdomain);
   const key = `wf_${workflow._id}_v${workflow.version}`;
 
@@ -240,21 +263,21 @@ export async function runWorkflow(args: {
   const compiled = compileDefinition(key, definition, deps);
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { Mastra } = require('@mastra/core/mastra');
-  const storage = await getWorkflowStorage(tenant);
+  const { Mastra } = require('@mastra/core/mastra'); // skipcq: JS-0359
+  const storage = getWorkflowStorage(tenant);
   // A fresh instance per run is deliberate: the compiled graph closes over
   // run-scoped effect handlers, and resume-by-runId from a fresh instance is
   // the verified durability model (docs/WORKFLOW-SPEC.md §7).
   const mastra = new Mastra({
     workflows: { [key]: compiled },
     storage,
-    logger: false as any,
+    logger: false,
   });
 
-  const wf = mastra.getWorkflow(key);
-  const run: any = (wf as any).createRunAsync
-    ? await (wf as any).createRunAsync()
-    : await (wf as any).createRun();
+  const wf = mastra.getWorkflow(key) as CompiledWorkflow;
+  const run = wf.createRunAsync
+    ? await wf.createRunAsync()
+    : await wf.createRun();
 
   const record = await models.MastraWorkflowRun.createRun({
     workflowId: workflow._id,
@@ -267,7 +290,7 @@ export async function runWorkflow(args: {
   });
 
   try {
-    const result: any = await run.start({
+    const result = await run.start({
       inputData: { trigger: envelope, steps: {} },
     });
 
@@ -292,7 +315,7 @@ export async function runWorkflow(args: {
       usage,
       finishedAt: status === 'suspended' ? undefined : new Date(),
     });
-  } catch (e: any) {
+  } catch (e) {
     return models.MastraWorkflowRun.finishRun(record._id, {
       status: 'failed',
       error: e?.message || String(e),

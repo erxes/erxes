@@ -28,6 +28,7 @@ import {
   extractTextToolCall,
   synthesizeFromToolResults,
   toUserFacingError,
+  TurnAgent,
 } from '@/agent/turn';
 import {
   IMastraChatAttachment,
@@ -72,51 +73,86 @@ const llmRouteLimiter = rateLimit({
 
 interface StreamEvent {
   type: string;
-  [key: string]: any;
+  text?: string;
+  message?: string;
+  toolCallId?: string;
+  toolName?: string;
+  args?: unknown;
+  result?: unknown;
+  isError?: boolean;
+  reply?: string | null;
+  interrupted?: boolean;
+  messageId?: string | null;
+  threadId?: string;
+  title?: string;
+}
+
+// The slice of a raw Mastra/AI-SDK stream chunk payload that normalizeChunk
+// reads. Chunks are untyped wire data; the cast below declares only what we use.
+interface RawChunkPayload {
+  text?: string;
+  textDelta?: string;
+  toolCallId?: string;
+  toolName?: string;
+  args?: unknown;
+  input?: unknown;
+  result?: unknown;
+  output?: unknown;
+  isError?: boolean;
+  error?: unknown;
+  message?: string;
 }
 
 // Normalize Mastra stream chunks (modern `{type, payload}` and legacy AI-SDK
 // flat shapes) into the wire events above.
-function normalizeChunk(raw: any): StreamEvent | null {
-  const type = raw?.type;
-  const p = raw?.payload ?? raw;
+function normalizeChunk(raw: unknown): StreamEvent | null {
+  const chunk = (raw ?? {}) as {
+    type?: string;
+    payload?: RawChunkPayload;
+  } & RawChunkPayload;
+  const type = chunk.type;
+  const payload = chunk.payload ?? chunk;
 
   switch (type) {
     case 'text-delta': {
-      const text = p.text ?? p.textDelta ?? '';
+      const text = payload.text ?? payload.textDelta ?? '';
       return text ? { type: 'text', text } : null;
     }
     case 'reasoning': // legacy AI-SDK reasoning delta
     case 'reasoning-delta': {
-      const text = p.text ?? p.textDelta ?? '';
+      const text = payload.text ?? payload.textDelta ?? '';
       return text ? { type: 'thinking', text } : null;
     }
     case 'tool-call':
       return {
         type: 'tool_call',
-        toolCallId: p.toolCallId,
-        toolName: p.toolName,
-        args: p.args ?? p.input,
+        toolCallId: payload.toolCallId,
+        toolName: payload.toolName,
+        args: payload.args ?? payload.input,
       };
     case 'tool-result':
       return {
         type: 'tool_result',
-        toolCallId: p.toolCallId,
-        toolName: p.toolName,
-        result: p.result ?? p.output,
-        isError: !!p.isError,
+        toolCallId: payload.toolCallId,
+        toolName: payload.toolName,
+        result: payload.result ?? payload.output,
+        isError: Boolean(payload.isError),
       };
     case 'tool-error':
       return {
         type: 'tool_result',
-        toolCallId: p.toolCallId,
-        toolName: p.toolName,
-        result: p.error ?? p.result,
+        toolCallId: payload.toolCallId,
+        toolName: payload.toolName,
+        result: payload.error ?? payload.result,
         isError: true,
       };
     case 'error': {
-      const e = p.error ?? p;
-      const message = typeof e === 'string' ? e : e?.message || 'Agent error';
+      const errorValue = payload.error ?? payload;
+      const message =
+        typeof errorValue === 'string'
+          ? errorValue
+          : (errorValue as { message?: string } | null | undefined)?.message ||
+            'Agent error';
       return { type: 'error', message };
     }
     default:
@@ -127,23 +163,35 @@ function normalizeChunk(raw: any): StreamEvent | null {
 // Shape-check the attachments array a chat turn may carry. Returns the
 // sanitized list, or null when the payload is malformed.
 const MAX_ATTACHMENTS_PER_MESSAGE = 10;
-function sanitizeAttachments(raw: any): IMastraChatAttachment[] | null {
+function sanitizeAttachments(raw: unknown): IMastraChatAttachment[] | null {
   if (raw === undefined || raw === null) return [];
   if (!Array.isArray(raw) || raw.length > MAX_ATTACHMENTS_PER_MESSAGE)
     return null;
 
   const out: IMastraChatAttachment[] = [];
-  for (const a of raw) {
-    if (!a || typeof a.url !== 'string' || typeof a.name !== 'string')
+  for (const item of raw) {
+    const candidate = item as Record<string, unknown> | null | undefined;
+    if (
+      !candidate ||
+      typeof candidate.url !== 'string' ||
+      typeof candidate.name !== 'string'
+    )
       return null;
-    const url = a.url.trim();
-    const name = a.name.trim();
+    const url = candidate.url.trim();
+    const name = candidate.name.trim();
     if (!url || url.length > 2048 || !name || name.length > 512) return null;
     out.push({
       url,
       name,
-      type: typeof a.type === 'string' ? a.type.slice(0, 128) : undefined,
-      size: typeof a.size === 'number' && a.size >= 0 ? a.size : undefined,
+      type:
+        typeof candidate.type === 'string'
+          ? candidate.type.slice(0, 128)
+          : undefined,
+      size:
+        // skipcq: JS-W1031 — byte size from untrusted input, not a collection length
+        typeof candidate.size === 'number' && candidate.size >= 0
+          ? candidate.size
+          : undefined,
     });
   }
   return out;
@@ -249,7 +297,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     if (ev.type === 'tool_call') {
       const call: IMastraToolCall = {
         toolCallId: ev.toolCallId,
-        toolName: ev.toolName,
+        toolName: ev.toolName as string,
         args: ev.args,
       };
       acc.toolCalls.push(call);
@@ -264,7 +312,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       } else {
         const call: IMastraToolCall = {
           toolCallId: ev.toolCallId,
-          toolName: ev.toolName,
+          toolName: ev.toolName as string,
           result: ev.result,
           isError: ev.isError,
         };
@@ -309,38 +357,32 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     try {
       await runWithAuth(authCtx, async () => {
         const stream = await (isLegacy
-          ? agent.streamLegacy(
-              convo as any,
-              { abortSignal: controller.signal } as any,
-            )
-          : agent.stream(
-              convo as any,
-              { abortSignal: controller.signal } as any,
-            ));
+          ? agent.streamLegacy(convo, { abortSignal: controller.signal })
+          : agent.stream(convo, { abortSignal: controller.signal }));
 
-        for await (const chunk of stream.fullStream as any) {
+        for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);
           if (!ev) continue;
 
           if (ev.type === 'text') {
-            acc.text += ev.text;
+            acc.text += ev.text ?? '';
             thinkingOpen = false;
           } else if (ev.type === 'thinking') {
-            appendThinking(ev.text);
-            activity?.onThinking(ev.text);
+            appendThinking(ev.text ?? '');
+            activity?.onThinking(ev.text ?? '');
           } else if (ev.type === 'error') {
-            streamError = ev.message;
+            streamError = ev.message ?? null;
             continue; // surfaced after the loop so fallbacks still apply
           } else {
             recordToolCall(ev);
             if (ev.type === 'tool_call')
-              activity?.onToolCall(ev.toolName, ev.args);
+              activity?.onToolCall(ev.toolName ?? '', ev.args);
           }
 
           send(ev);
         }
       });
-    } catch (err: any) {
+    } catch (err) {
       // An abort lands here on most providers — that's an interrupt, not an error.
       if (!controller.signal.aborted) throw err;
     }
@@ -367,15 +409,19 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           depth: 0,
           extracted,
           rawText: trimmed,
-          onToolEvent: (e) => {
+          onToolEvent: (toolEvent) => {
             const ev: StreamEvent =
-              e.phase === 'call'
-                ? { type: 'tool_call', toolName: e.toolName, args: e.args }
+              toolEvent.phase === 'call'
+                ? {
+                    type: 'tool_call',
+                    toolName: toolEvent.toolName,
+                    args: toolEvent.args,
+                  }
                 : {
                     type: 'tool_result',
-                    toolName: e.toolName,
-                    result: e.result,
-                    isError: e.isError,
+                    toolName: toolEvent.toolName,
+                    result: toolEvent.result,
+                    isError: toolEvent.isError,
                   };
             recordToolCall(ev);
             send(ev);
@@ -440,7 +486,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
         send({ type: 'thread_title', threadId: prepared.sessionId, title });
       }
     }
-  } catch (err: any) {
+  } catch (err) {
     console.error('[mastra chat stream error]', err);
     send({ type: 'error', message: toUserFacingError(err).message });
   } finally {
@@ -494,9 +540,9 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
     const history = useHistory
       ? await models.MastraMessage.getRecent(conversationId, 20)
       : [];
-    const recentHistory = history.map((m: any) => ({
-      role: m.role,
-      content: m.content,
+    const recentHistory = history.map((msg) => ({
+      role: msg.role,
+      content: msg.content,
     }));
 
     const memCtx: MemoryContext = {
@@ -529,12 +575,12 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
     // Bot requests use the static app token from settings (no user session available)
     const authCtx = { token: settings?.erxesApiToken, subdomain };
     const isLegacy = isLegacyProvider(agentConfig.provider, providers);
-    const result = await runWithAuth(
-      authCtx,
-      () =>
-        (isLegacy
-          ? agent.generateLegacy(convo as any)
-          : agent.generate(convo as any)) as Promise<any>,
+    // The published Agent generics type tool results as wire chunks; this
+    // text-only webhook path reads only `.text`, hence the structural cast
+    // (same idiom as prepareChatTurn in @/agent/turn).
+    const turnAgent = agent as unknown as TurnAgent;
+    const result = await runWithAuth(authCtx, () =>
+      isLegacy ? turnAgent.generateLegacy(convo) : turnAgent.generate(convo),
     );
 
     const reply = result.text || '';
@@ -597,10 +643,15 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
     }
 
     return res.json({ responses: [{ type: 'text', text: reply }] });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[mastra bot endpoint error]', err);
     return res.json({
-      responses: [{ type: 'text', text: `Error: ${err.message}` }],
+      responses: [
+        {
+          type: 'text',
+          text: `Error: ${(err as { message?: string }).message}`,
+        },
+      ],
     });
   }
 });
