@@ -110,6 +110,7 @@ export const types = `
     assignedUsers: [User]
     stage: SalesStage
     labels: [SalesPipelineLabel]
+    pipelineId: String
     pipeline: SalesPipeline
     createdUser: User
     propertiesData: JSON

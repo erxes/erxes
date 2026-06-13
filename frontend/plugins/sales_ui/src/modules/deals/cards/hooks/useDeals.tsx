@@ -261,20 +261,39 @@ export const useDealDetail = (
           return prev;
         }
 
+        const prevDeal = prev.dealDetail;
+        const isStageChanged =
+          changedDeal.stageId && changedDeal.stageId !== prevDeal?.stageId;
+
+        if (isStageChanged) {
+          refetch();
+        }
+
+        const pipelineId =
+          changedDeal.stage?.pipelineId ||
+          changedDeal.pipelineId ||
+          prevDeal?.pipelineId ||
+          prevDeal?.stage?.pipelineId;
+
         return {
           ...prev,
           dealDetail: {
-            ...prev.dealDetail,
+            ...prevDeal,
             ...changedDeal,
+            pipeline: changedDeal.pipeline || prevDeal?.pipeline,
+            pipelineId,
+            stage: changedDeal.stage || prevDeal?.stage,
           },
         };
       },
     });
 
     return unsubscribe;
-  }, [finalId, subscribeToMore]);
+  }, [finalId, refetch, subscribeToMore]);
 
-  return { deal: data?.dealDetail, loading, error, refetch };
+  const deal = data?.dealDetail;
+
+  return { deal, loading: loading && !deal, error, refetch };
 };
 
 export function useDealsEdit(options?: MutationHookOptions<any, any>) {
@@ -390,24 +409,11 @@ export function useDealsRemove(options?: MutationHookOptions<any, any>) {
 }
 
 export function useDealsChange(options?: MutationHookOptions<any, any>) {
-  const [_id] = useAtom(dealDetailSheetState);
-  const [salesItemId] = useQueryState('salesItemId');
-
   const [changeDeals, { loading, error }] = useMutation(DEALS_CHANGE, {
     ...options,
     variables: {
       ...options?.variables,
     },
-    refetchQueries:
-      salesItemId || _id
-        ? [
-            {
-              query: GET_DEAL_DETAIL,
-              variables: { _id: salesItemId || _id },
-            },
-          ]
-        : [],
-    awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
         title: 'Successfully updated deal order',
