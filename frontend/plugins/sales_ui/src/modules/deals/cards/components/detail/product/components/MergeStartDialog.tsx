@@ -55,8 +55,8 @@ export const MergeStartDialog = ({ deal }: { deal: IDeal }) => {
         <Dialog.Header>
           <Dialog.Title>Merge deal</Dialog.Title>
           <Dialog.Description>
-            Name the merged deal, then pick a deal on the board to merge into
-            “{deal.name}”.
+            Name the merged deal, then pick a deal on the board to merge into “
+            {deal.name}”.
           </Dialog.Description>
         </Dialog.Header>
 

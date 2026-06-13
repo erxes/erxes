@@ -173,10 +173,7 @@ export const dealMutations: Record<string, Resolver> = {
    */
   async dealsSplit(
     _root,
-    {
-      dealId,
-      splits,
-    }: { dealId: string; splits: IDealSplitInput[] },
+    { dealId, splits }: { dealId: string; splits: IDealSplitInput[] },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');

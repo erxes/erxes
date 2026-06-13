@@ -30,8 +30,12 @@ export const DealsBoard = () => {
   const [, setAllDealsMap] = useAllDealsMap();
   const { columns, columnsLoading } = useDealsBoardData();
   const [pipelineId] = useQueryState<string>('pipelineId');
-  const { isMergeMode, mergeName, cancelMerge, loading: merging } =
-    useMergeMode();
+  const {
+    isMergeMode,
+    mergeName,
+    cancelMerge,
+    loading: merging,
+  } = useMergeMode();
   const { changeDeals } = useDealsChange();
   const { updateStagesOrder } = useStagesOrder();
   const [searchParams] = useSearchParams();
@@ -88,7 +92,13 @@ export const DealsBoard = () => {
     });
 
     setFetchMoreTriggers({});
-  }, [columnIdsKey, queryVariablesKey, setBoardState, setAllDealsMap, initColumn]);
+  }, [
+    columnIdsKey,
+    queryVariablesKey,
+    setBoardState,
+    setAllDealsMap,
+    initColumn,
+  ]);
 
   useEffect(() => {
     setBoardState((prev) => {

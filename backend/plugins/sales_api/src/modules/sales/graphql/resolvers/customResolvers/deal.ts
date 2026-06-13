@@ -141,7 +141,11 @@ export default {
     return { __typename: 'User', _id: deal.userId };
   },
 
-  async mergedInto(deal: IDealDocument, _args: undefined, { models }: IContext) {
+  async mergedInto(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
     if (!deal.mergedIntoId) {
       return null;
     }

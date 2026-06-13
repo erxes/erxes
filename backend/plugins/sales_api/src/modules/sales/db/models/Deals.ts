@@ -312,10 +312,7 @@ export const loadDealClass = (
      *   `splitChildIds`, so both stay traceable; the original is untouched
      * - relations are copied to each child; create/split activity logs emitted
      */
-    public static async splitDeal(
-      dealId: string,
-      splits: IDealSplitInput[],
-    ) {
+    public static async splitDeal(dealId: string, splits: IDealSplitInput[]) {
       const source = await models.Deals.getDeal(dealId);
       const sourceObj = source.toObject();
 

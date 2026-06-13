@@ -360,8 +360,8 @@ export const ProvidersPage = () => {
                 placeholder="https://api.example.com/v1"
               />
               <p className="text-xs text-muted-foreground">
-                Required for OpenAI-compatible providers. Leave empty for
-                native providers.
+                Required for OpenAI-compatible providers. Leave empty for native
+                providers.
               </p>
             </div>
 

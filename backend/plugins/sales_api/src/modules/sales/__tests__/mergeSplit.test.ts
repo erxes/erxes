@@ -136,7 +136,10 @@ describe('validateSplitInput', () => {
 });
 
 describe('selectSplitProductsData', () => {
-  const source = [pd({ _id: 'l1', productId: 'p1' }), pd({ _id: 'l2', productId: 'p2' })];
+  const source = [
+    pd({ _id: 'l1', productId: 'p1' }),
+    pd({ _id: 'l2', productId: 'p2' }),
+  ];
 
   it('selects only requested lines', () => {
     const lines = selectSplitProductsData({ productIds: ['l2'] }, source);
