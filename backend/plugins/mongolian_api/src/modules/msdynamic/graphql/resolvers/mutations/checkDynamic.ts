@@ -55,7 +55,7 @@ export const msdynamicCheckMutations = {
 
     const productCodes = products.map((product) => product.code);
 
-    const auth = Buffer.from(username + ':' + password).toString('base64');
+    const auth = Buffer.from(`${username}:${password}`).toString('base64');
     const response = (await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
       {
@@ -177,7 +177,7 @@ export const msdynamicCheckMutations = {
       defaultValue: [],
     })) as IProductCategory[];
 
-    const catAuth = Buffer.from(username + ':' + password).toString('base64');
+    const catAuth = Buffer.from(`${username}:${password}`).toString('base64');
     const response = (await fetch(itemCategoryApi, {
       headers: {
         Accept: 'application/json',
