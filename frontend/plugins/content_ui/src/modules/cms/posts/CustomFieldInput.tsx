@@ -11,9 +11,10 @@ import {
   Editor,
 } from 'erxes-ui';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
 import { SpreadsheetInput } from './SpreadsheetInput';
+import { GalleryUploader } from './GalleryUploader';
 
 export interface FieldDefinition {
   _id: string;
@@ -32,76 +33,44 @@ interface CustomFieldInputProps {
   onChange: (value: string | boolean | string[]) => void;
 }
 
-function ImageFieldInput({
-  value,
-  onChange,
-  buttonLabel = 'Upload file',
-  buttonClassName,
-}: {
-  value: CustomFieldValue;
-  onChange: (value: string) => void;
-  buttonLabel?: string;
-  buttonClassName?: string;
-}) {
-  const url = typeof value === 'string' ? value : '';
+const useAutoUpload = (uploadProps: ReturnType<typeof useErxesUpload>) => {
+  const uploadedBatchRef = useRef<string | null>(null);
 
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 1,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (added) => {
-      if (added[0]?.url) onChange(added[0].url);
-    },
-  });
+  const fileBatchKey = useMemo(() => {
+    if (!uploadProps.files.length) {
+      return '';
+    }
+
+    return uploadProps.files
+      .map((file) =>
+        [
+          file.name ?? '',
+          file.size ?? '',
+          file.type ?? '',
+          file.lastModified ?? '',
+        ].join(':'),
+      )
+      .join('|');
+  }, [uploadProps.files]);
 
   useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload();
+    if (!uploadProps.files.length) {
+      uploadedBatchRef.current = null;
+      return;
     }
-  }, [uploadProps.files.length]);
 
-  return (
-    <div className="space-y-2">
-      {url && (
-        <div className="relative group w-full rounded-md border overflow-hidden aspect-[3/1] bg-muted">
-          <img
-            src={readImage(url)}
-            alt="uploaded"
-            className="w-full h-full object-contain"
-          />
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute top-2 right-2 p-1 rounded-md bg-destructive text-white opacity-0 group-hover:opacity-100 transition"
-          >
-            <IconX size={14} />
-          </button>
-        </div>
-      )}
-      <div>
-        <input {...uploadProps.getInputProps()} />
-        <Button
-          variant="outline"
-          className={buttonClassName}
-          type="button"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
-        >
-          <IconUpload size={16} className="mr-2" />
-          {uploadProps.loading ? 'Uploading...' : url ? `Change ${buttonLabel.toLowerCase()}` : buttonLabel}
-        </Button>
-        <p className="text-xs text-muted-foreground mt-1">
-          Max 20MB · JPG, PNG, GIF, WebP, SVG
-        </p>
-      </div>
-      {!!uploadProps.errors.length && (
-        <p className="text-xs text-destructive">
-          {uploadProps.errors[0]?.message || 'Upload failed'}
-        </p>
-      )}
-    </div>
-  );
-}
+    if (
+      !fileBatchKey ||
+      uploadedBatchRef.current === fileBatchKey ||
+      uploadProps.loading
+    ) {
+      return;
+    }
+
+    uploadedBatchRef.current = fileBatchKey;
+    void uploadProps.onUpload();
+  }, [fileBatchKey, uploadProps]);
+};
 
 function FileFieldInput({
   value,
@@ -125,12 +94,7 @@ function FileFieldInput({
       if (url) onChange([url]);
     },
   });
-
-  useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload();
-    }
-  }, [uploadProps.files.length]);
+  useAutoUpload(uploadProps);
 
   const handleRemove = (url: string) => {
     onChange(urls.filter((u) => u !== url));
@@ -337,9 +301,15 @@ export const CustomFieldInput = ({
 
       case 'image':
         return (
-          <ImageFieldInput
-            value={value}
-            onChange={(url) => onChange(url)}
+          <GalleryUploader
+            value={
+              Array.isArray(value)
+                ? value
+                : typeof value === 'string' && value
+                  ? [value]
+                  : []
+            }
+            onChange={(urls) => onChange(urls)}
           />
         );
 
