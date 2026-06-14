@@ -10,6 +10,11 @@ interface GalleryUploaderProps {
 }
 
 const MAX_GALLERY_IMAGES = 100;
+const MAX_GALLERY_IMAGE_SIZE = 20 * 1024 * 1024;
+
+type UploadedFile = {
+  url: string;
+};
 
 export const GalleryUploader = ({
   value = [],
@@ -20,15 +25,20 @@ export const GalleryUploader = ({
   const urlsRef = useRef(urls);
   const uploadedBatchRef = useRef<string | null>(null);
 
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: maxImages,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (addedFiles) => {
+  const handleFilesAdded = useCallback(
+    (addedFiles: UploadedFile[]) => {
       const addedUrls = addedFiles.map((file) => file.url).filter(Boolean);
       const next = [...urlsRef.current, ...addedUrls].slice(0, maxImages);
       onChange(next);
     },
+    [maxImages, onChange],
+  );
+
+  const uploadProps = useErxesUpload({
+    allowedMimeTypes: ['image/*'],
+    maxFiles: maxImages,
+    maxFileSize: MAX_GALLERY_IMAGE_SIZE,
+    onFilesAdded: handleFilesAdded,
   });
 
   useEffect(() => {
@@ -68,7 +78,12 @@ export const GalleryUploader = ({
 
     uploadedBatchRef.current = fileBatchKey;
     void uploadProps.onUpload();
-  }, [fileBatchKey, uploadProps]);
+  }, [
+    fileBatchKey,
+    uploadProps.files.length,
+    uploadProps.loading,
+    uploadProps.onUpload,
+  ]);
 
   const handleRemove = useCallback(
     (index: number) => {
@@ -110,9 +125,13 @@ export const GalleryUploader = ({
     [onChange, urls],
   );
 
+  const pendingFiles = uploadProps.files.filter(
+    (file) => !uploadProps.successes.includes(file.name),
+  );
+
   return (
     <div className="space-y-2">
-      {urls.length > 0 && (
+      {(urls.length > 0 || pendingFiles.length > 0) && (
         <div className="relative">
           <div className="flex flex-wrap gap-4">
             {urls.map((url, index) => (
@@ -145,6 +164,23 @@ export const GalleryUploader = ({
                 </Button>
               </div>
             ))}
+            {pendingFiles.map((file, index) => (
+              <div
+                key={`${file.name}-${file.lastModified}-${index}`}
+                className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted"
+              >
+                {file.preview && (
+                  <img
+                    src={file.preview}
+                    alt={file.name}
+                    className="w-full h-full object-cover opacity-70"
+                  />
+                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-white/70 px-2 text-center text-xs text-muted-foreground">
+                  {uploadProps.loading ? 'Uploading...' : 'Ready'}
+                </div>
+              </div>
+            ))}
           </div>
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
@@ -174,6 +210,11 @@ export const GalleryUploader = ({
         {urls.length >= maxImages && (
           <p className="text-xs text-muted-foreground mt-1">
             Maximum {maxImages} images allowed
+          </p>
+        )}
+        {!!uploadProps.errors.length && (
+          <p className="text-xs text-destructive mt-1">
+            {uploadProps.errors[0]?.message || 'Upload failed'}
           </p>
         )}
       </div>
