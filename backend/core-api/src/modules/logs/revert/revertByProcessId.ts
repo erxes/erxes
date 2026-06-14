@@ -23,6 +23,20 @@ import {
 const REVERT_SOURCE = 'revert';
 const REVERT_ACTION = 'revertProcess';
 
+// Log actions that represent an actual document change (and so can be inverted).
+// Every mutation ALSO writes a generic `action:'mutation'` audit entry that
+// carries no contentType and changes nothing; such non-data entries must be
+// skipped outright, never surfaced as phantom "unrevertable" items on a revert
+// that otherwise fully succeeded.
+const DATA_CHANGE_ACTIONS = new Set<string>([
+  'create',
+  'update',
+  'delete',
+  'deleteMany',
+  'updateMany',
+  'bulkWrite',
+]);
+
 interface LeanLogEntry extends RevertableLogEntry {
   createdAt?: Date;
   userId?: string;
@@ -235,6 +249,13 @@ export const revertByProcessId = async (
   const simulated = new Map<string, Record<string, unknown> | null>();
 
   for (const entry of entries) {
+    // Skip non-data audit/meta entries (e.g. the per-mutation `mutation` wrapper
+    // log) — they change no document, so they are neither revertable nor a real
+    // gap. Surfacing them as "unrevertable" wrongly implies data was left behind.
+    if (!DATA_CHANGE_ACTIONS.has(entry.action)) {
+      continue;
+    }
+
     const contentType = entry.contentType;
     const config: ResolvedContentTypeConfig | undefined = contentType
       ? configMap.get(contentType)

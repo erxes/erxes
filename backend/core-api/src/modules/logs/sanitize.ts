@@ -18,6 +18,20 @@ const SECRET_KEY_PATTERNS = [
 const EMAIL_KEY_PATTERNS = [/email/i];
 const IP_KEY_PATTERNS = [/(^|[_-])ip$/i, /ipAddress/i];
 const PHONE_KEY_PATTERNS = [/phone/i, /mobile/i];
+const NAME_KEY_PATTERNS = [
+  /^firstName$/i,
+  /^lastName$/i,
+  /^middleName$/i,
+  /fullName/i,
+];
+// Denormalized search blobs concatenate names/emails/phones for indexing. They
+// are PII magnets and meaningless as a merge value, so redact them wholesale.
+const DERIVED_BLOB_KEY_PATTERNS = [/^searchText$/i];
+
+// Value-level fallback: an email embedded ANYWHERE in a string (e.g. a search
+// blob, a note, a username field) is masked regardless of its key name, so the
+// masking can't be defeated by PII hiding in an unexpected field.
+const EMBEDDED_EMAIL_REGEX = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
 const isSecretKey = (key: string) =>
   SECRET_KEY_PATTERNS.some((pattern) => pattern.test(key));
@@ -38,6 +52,12 @@ const isIpKey = (key: string) =>
 
 const isPhoneKey = (key: string) =>
   PHONE_KEY_PATTERNS.some((pattern) => pattern.test(key));
+
+const isNameKey = (key: string) =>
+  NAME_KEY_PATTERNS.some((pattern) => pattern.test(key));
+
+const isDerivedBlobKey = (key: string) =>
+  DERIVED_BLOB_KEY_PATTERNS.some((pattern) => pattern.test(key));
 
 const maskIdentifier = (value: string) => {
   if (!value) {
@@ -83,6 +103,17 @@ const maskPhone = (value: string) => {
 
   return `${'•'.repeat(Math.max(4, value.length - 2))}${value.slice(-2)}`;
 };
+
+const maskName = (value: string) => {
+  if (value.length <= 1) {
+    return '•';
+  }
+
+  return `${value.slice(0, 1)}${'•'.repeat(Math.max(3, value.length - 1))}`;
+};
+
+const redactEmbeddedEmails = (value: string) =>
+  value.replace(EMBEDDED_EMAIL_REGEX, (match) => maskEmail(match));
 
 export type SanitizeLogOptions = {
   exposeEmail?: boolean;
@@ -154,5 +185,15 @@ export const sanitizeLogValue = (
     return maskPhone(value);
   }
 
-  return value;
+  if (isNameKey(key)) {
+    return maskName(value);
+  }
+
+  if (isDerivedBlobKey(key)) {
+    return '[redacted]';
+  }
+
+  // Value-level fallback: mask any email embedded in an otherwise-unremarkable
+  // field, unless the caller has explicitly opted to expose emails.
+  return options.exposeEmail ? value : redactEmbeddedEmails(value);
 };

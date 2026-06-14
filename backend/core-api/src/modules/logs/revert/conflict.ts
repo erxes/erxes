@@ -19,6 +19,25 @@ import { FieldConflict } from './types';
  * No DB access — the caller supplies the live doc.
  */
 
+// Bookkeeping / derived fields that change as a side effect of every write and
+// carry no user intent. They must NOT be reported as conflicts: a merge UI would
+// ask the user to reconcile `updatedAt` (which always differs), and because they
+// differ on essentially every intervening write, including them would make nearly
+// every update-revert look conflicted. The revert's inverse still restores them;
+// we only suppress them from the human-facing conflict surface. Matching is on
+// the field's root segment so nested paths under these are covered too.
+const VOLATILE_FIELD_ROOTS = new Set<string>([
+  'updatedAt',
+  'modifiedAt',
+  'createdAt',
+  '__v',
+  'searchText',
+]);
+
+const isVolatilePath = (path: string): boolean =>
+  VOLATILE_FIELD_ROOTS.has(path) ||
+  VOLATILE_FIELD_ROOTS.has(path.split('.')[0]);
+
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   v !== null &&
   typeof v === 'object' &&
@@ -96,6 +115,9 @@ export function detectUpdateConflicts(
     flattenUpdated(diff.updated, '', updatedLeaves);
   }
   for (const leaf of updatedLeaves) {
+    if (isVolatilePath(leaf.path)) {
+      continue;
+    }
     const liveValue = liveDoc ? lodashGet(liveDoc, leaf.path, FIELD_ABSENT) : FIELD_ABSENT;
     if (liveValue === FIELD_ABSENT || !isEqual(liveValue, leaf.current)) {
       conflicts.push({
@@ -112,6 +134,9 @@ export function detectUpdateConflicts(
     const addedLeaves: Array<{ path: string; value: unknown }> = [];
     flattenLeafValues(diff.added, '', addedLeaves);
     for (const leaf of addedLeaves) {
+      if (isVolatilePath(leaf.path)) {
+        continue;
+      }
       const liveValue = liveDoc
         ? lodashGet(liveDoc, leaf.path, FIELD_ABSENT)
         : FIELD_ABSENT;
@@ -133,6 +158,9 @@ export function detectUpdateConflicts(
     const removedLeaves: Array<{ path: string; value: unknown }> = [];
     flattenLeafValues(diff.removed, '', removedLeaves);
     for (const leaf of removedLeaves) {
+      if (isVolatilePath(leaf.path)) {
+        continue;
+      }
       const liveValue = liveDoc
         ? lodashGet(liveDoc, leaf.path, FIELD_ABSENT)
         : FIELD_ABSENT;
