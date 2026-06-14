@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef } from 'react';
 
 type UploadProps = ReturnType<typeof import('erxes-ui').useErxesUpload>;
 
+/**
+ * Builds a stable identifier for the current selected upload batch.
+ */
 function getFileBatchKey(files: UploadProps['files']) {
   if (!files.length) {
     return '';
