@@ -12,7 +12,7 @@ import {
   isDestructiveOperation,
   resolveDestructiveOpsPolicy,
 } from '../tools/destructiveGuard';
-import { writeAgentAction } from '../auditLog';
+import { writeAgentAction, makeAgentProcessId } from '../auditLog';
 import { getOperationRegistry } from '../tools/operationRegistry';
 import type { IModels } from '~/connectionResolvers';
 import type { IMastraAgentDocument } from '@/agent/@types/agent';
@@ -212,6 +212,10 @@ export async function buildRunDeps(
           `operation "${operation}" deletes or merges data and is blocked for this workflow (set destructiveOps: "allow" to permit)`,
         );
       }
+      // Stamp a correlation id on mutations so every DB change is traceable/
+      // revertable as a unit; reads need none.
+      const processId = isMutation ? makeAgentProcessId() : undefined;
+
       const { executeErxesOperation } = await import('../tools/erxesTools');
       const result = await executeErxesOperation(
         meta,
@@ -219,6 +223,7 @@ export async function buildRunDeps(
         settings,
         registry.inputTypesMap,
         registry.objectFieldsMap,
+        processId,
       );
 
       // Audit trail: mutations only, best-effort.
@@ -238,6 +243,7 @@ export async function buildRunDeps(
           error: failed
             ? String((result as { error?: unknown }).error ?? '')
             : undefined,
+          processId,
         });
       }
 

@@ -451,8 +451,20 @@ export const checkServiceRunning = async (
   }
 };
 
-export const generateRequestProcess = () => {
-  const processId = nanoid(12);
+// nanoid's default alphabet, with a length window. A request MAY supply its own
+// correlation id via the x-erxes-process-id header — e.g. the AI agent stamps
+// each action so the resulting DB changes (and their synchronous cascade) share
+// one processId and can be traced/reverted together. Honored only when
+// well-formed; otherwise a fresh id is minted. This is a correlation hint, not a
+// trust boundary: a client can only group the changes of its OWN request.
+const PROCESS_ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
+
+export const generateRequestProcess = (incomingProcessId?: string) => {
+  const processId =
+    typeof incomingProcessId === 'string' &&
+    PROCESS_ID_RE.test(incomingProcessId)
+      ? incomingProcessId
+      : nanoid(12);
 
   return { processId };
 };

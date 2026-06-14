@@ -12,7 +12,7 @@ import {
   isDestructiveOperation,
   destructiveBlockedResult,
 } from './destructiveGuard';
-import type { AgentActionInput } from '../auditLog';
+import { makeAgentProcessId, type AgentActionInput } from '../auditLog';
 
 // LLMs sometimes pass the args object as a JSON string. Parse it back so the
 // execute tool always receives a real object.
@@ -207,12 +207,17 @@ export function buildErxesMetaTools(params: {
         return destructiveBlockedResult(operation);
       }
 
+      // Stamp a correlation id on mutations so every DB change this op makes is
+      // traceable/revertable as a unit; reads need none.
+      const processId = isMutation ? makeAgentProcessId() : undefined;
+
       const result = await executeErxesOperation(
         op,
         callArgs,
         settings,
         registry.inputTypesMap,
         registry.objectFieldsMap,
+        processId,
       );
 
       // Audit trail: record mutations only (executed or failed); reads are not
@@ -231,6 +236,7 @@ export function buildErxesMetaTools(params: {
           error: failed
             ? String((result as { error?: unknown }).error ?? '')
             : undefined,
+          processId,
         });
       }
 

@@ -5,7 +5,9 @@
  */
 jest.mock('@mastra/core/tools', () => ({ createTool: (cfg: unknown) => cfg }));
 
-const mockExecute = jest.fn(() => Promise.resolve({ ok: true }));
+const mockExecute = jest.fn((..._args: unknown[]) =>
+  Promise.resolve({ ok: true }),
+);
 jest.mock('../erxesTools', () => ({
   executeErxesOperation: (...args: unknown[]) => mockExecute(...args),
   graphqlTypeToString: () => 'String',
@@ -80,9 +82,11 @@ describe('execute_erxes_operation guard + audit', () => {
       destructive: true,
       status: 'blocked',
     });
+    // Nothing executed → no correlation id.
+    expect(calls[0].processId).toBeUndefined();
   });
 
-  it("records a successful mutation when destructiveOps is 'allow'", async () => {
+  it("records a successful mutation (with a correlation id) when destructiveOps is 'allow'", async () => {
     const calls: AgentActionInput[] = [];
     const tool = build(
       [{ operation: 'customersRemove', operationType: 'mutation' }],
@@ -93,10 +97,14 @@ describe('execute_erxes_operation guard + audit', () => {
     await tool.execute({ operation: 'customersRemove', args: {} });
 
     expect(mockExecute).toHaveBeenCalledTimes(1);
+    // The processId is the 6th arg to executeErxesOperation and is recorded.
+    const sentProcessId = mockExecute.mock.calls[0][5] as string;
+    expect(sentProcessId).toMatch(/^agt_/);
     expect(calls[0]).toMatchObject({
       operation: 'customersRemove',
       destructive: true,
       status: 'success',
+      processId: sentProcessId,
     });
   });
 
@@ -125,6 +133,8 @@ describe('execute_erxes_operation guard + audit', () => {
     await tool.execute({ operation: 'customers', args: {} });
 
     expect(mockExecute).toHaveBeenCalledTimes(1);
+    // Reads get no correlation id (nothing to revert).
+    expect(mockExecute.mock.calls[0][5]).toBeUndefined();
     expect(calls).toHaveLength(0);
   });
 });
