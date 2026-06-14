@@ -25,13 +25,12 @@ export default composePlugins(
       type: 'asset/resource',
     });
 
-    // Ignore high-volume directories so Watchpack doesn't exhaust file
-    // descriptors (EMFILE) on macOS. Workspace libs live under frontend/libs,
-    // not node_modules, so HMR for shared code still works.
-    config.watchOptions = {
-      ...config.watchOptions,
-      ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],
-    };
+    if (process.env.NODE_ENV !== 'production') {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],
+      };
+    }
     return config;
   },
 );

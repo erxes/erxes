@@ -63,8 +63,6 @@ const authenticateApi = async (req, res, next) => {
     );
   }
 
-  // Hand the verified integration downstream so receiveCdr / handleCallEvent
-  // resolve from it instead of re-matching by trunk name.
   req.callIntegration = integration;
   return next();
 };
@@ -191,7 +189,6 @@ const initCallApp = async (app) => {
     }
   });
 
-  // Live (CTI) call notifications forwarded by call-helper's UCM listener.
   app.post('/call/receiveCall', authenticateApi, async (req, res) => {
     try {
       const subdomain = getSubdomain(req);

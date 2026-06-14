@@ -47,10 +47,9 @@ const findIntegrationForEvent = async (
     if (direct) return direct;
   }
   return models.CallIntegrations.findOne({
-    $or: [
-      { srcTrunk: ev.srcTrunkName },
-      { dstTrunk: ev.dstTrunkName },
-    ].filter((c) => Object.values(c).some(Boolean)),
+    $or: [{ srcTrunk: ev.srcTrunkName }, { dstTrunk: ev.dstTrunkName }].filter(
+      (c) => Object.values(c).some(Boolean),
+    ),
   });
 };
 
@@ -171,9 +170,6 @@ export const handleCallEvent = async (
     throw new Error('event type required');
   }
 
-  // Prefer the integration resolved from the verified webhook signature; only
-  // fall back to trunk/inboxId matching from the (unauthenticated) body for
-  // unsigned legacy traffic during the grace window.
   const integration =
     verifiedIntegration || (await findIntegrationForEvent(models, ev));
   if (!integration) {
@@ -188,9 +184,7 @@ export const handleCallEvent = async (
   try {
     lock = await redlock.acquire([lockKey], SESSION_LOCK_TTL_MS);
   } catch (e) {
-    throw new Error(
-      `callEvent lock failure for ${ev.uniqueid}: ${e.message}`,
-    );
+    throw new Error(`callEvent lock failure for ${ev.uniqueid}: ${e.message}`);
   }
 
   try {
@@ -204,9 +198,7 @@ export const handleCallEvent = async (
         (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
 
       const customerPhone =
-        direction === 'incoming'
-          ? ev.callerIdNum || ''
-          : ev.calleeIdNum || '';
+        direction === 'incoming' ? ev.callerIdNum || '' : ev.calleeIdNum || '';
 
       session = await models.CallSessions.upsertSession({
         uniqueid: ev.uniqueid,
@@ -304,7 +296,11 @@ export const handleCallEvent = async (
     }
 
     await publishSession(subdomain, session, integration);
-    return { status: 'ok', uniqueid: ev.uniqueid, sessionStatus: session?.status };
+    return {
+      status: 'ok',
+      uniqueid: ev.uniqueid,
+      sessionStatus: session?.status,
+    };
   } finally {
     try {
       await lock?.release();
@@ -313,14 +309,6 @@ export const handleCallEvent = async (
     }
   }
 };
-
-// ---------------------------------------------------------------------------
-// call-helper (ucmListener.ts) compatibility adapter
-// ---------------------------------------------------------------------------
-// The call-helper UCM WebSocket listener POSTs a payload with a different shape
-// (`type: incoming_call|outgoing_call`, `caller`/`trunk`, ...) than the native
-// ICallEventPayload consumed by handleCallEvent. This adapter translates it so
-// the live (CTI) path creates a CallSession + conversation per ring.
 
 export interface IUcmCallPayload {
   type: 'incoming_call' | 'outgoing_call';
@@ -340,18 +328,12 @@ const ucmPayloadToCallEvent = (p: IUcmCallPayload): ICallEventPayload => {
   const isIncoming = p.type === 'incoming_call';
 
   return {
-    // ucmListener emits a single notification at ring time per call.
     type: 'ringing',
     uniqueid: p.uniqueid,
-    // linkedid ties the call's legs together; the CDR's uniqueid often equals
-    // this (not the live event's per-leg uniqueid), so it's the convergence key.
     linkedid: p.linkedid,
     callType: isIncoming ? 'incoming' : 'outgoing',
-    // For incoming the customer is the external caller; for outgoing the
-    // customer is the dialed party (`caller` is pickDialed() in ucmListener).
     callerIdNum: isIncoming ? p.caller : p.extension,
     calleeIdNum: isIncoming ? p.did : p.caller,
-    // srcTrunk = inbound trunk, dstTrunk = outbound trunk (integration schema).
     srcTrunkName: isIncoming ? p.trunk : undefined,
     dstTrunkName: isIncoming ? undefined : p.trunk,
     queueName: p.queue || undefined,
@@ -383,5 +365,4 @@ export const handleReceiveCall = async (
   );
 };
 
-// suppress unused import lint when sendTRPCMessage is reserved for later
 void sendTRPCMessage;

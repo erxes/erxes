@@ -166,9 +166,6 @@ const callQueries = {
     }
 
     try {
-      // Ownership: the queue must belong to one of the requester's
-      // integrations. Enforcement follows the same grace switch as the
-      // queueRealtimeUpdate subscription so both flip together per deploy.
       let owns = false;
       try {
         const queues = await models.CallIntegrations.getIntegrationQueuesByUser(

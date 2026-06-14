@@ -49,31 +49,30 @@ export default composePlugins(
     });
 
     config.devServer = {
-      ...(config.devServer),
+      ...config.devServer,
       client: {
-        ...(config.devServer?.client),
+        ...config.devServer?.client,
         logging: 'error',
       },
       devMiddleware: {
-        ...(config.devServer?.devMiddleware),
+        ...config.devServer?.devMiddleware,
         stats: 'errors-warnings',
       },
     };
 
     config.infrastructureLogging = {
-      ...(config.infrastructureLogging),
+      ...config.infrastructureLogging,
       level: 'error',
     };
 
     config.stats = 'errors-warnings';
 
-    // Ignore high-volume directories so Watchpack doesn't exhaust file
-    // descriptors (EMFILE) on macOS. Workspace libs live under frontend/libs,
-    // not node_modules, so HMR for shared code still works.
-    config.watchOptions = {
-      ...config.watchOptions,
-      ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],
-    };
+    if (process.env.NODE_ENV !== 'production') {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],
+      };
+    }
 
     return config;
   },
