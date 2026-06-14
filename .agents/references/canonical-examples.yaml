@@ -1,0 +1,55 @@
+# .agents/references/canonical-examples.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+# CANONICAL EXAMPLES — the gold-standard files to copy for each kind of work.
+#
+# When ROUTER.md STEP 3 says "open the reference file", and the feature-map entry
+# has no specific `reference_*`, use the closest match here. These are real,
+# convention-correct files. Copy their structure; do not invent new shapes.
+#
+# operation_* is the reference plugin (see manifest.yaml meta). Prefer it.
+# Keep these paths valid — if a file is moved, update it here.
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "1.0.0"
+reference_plugin:
+  frontend: frontend/plugins/operation_ui
+  backend: backend/plugins/operation_api
+  why: "Cleanest, most complete implementation of the erxes patterns."
+
+frontend:
+  list_table:
+    file: frontend/plugins/operation_ui/src/modules/task/components/TasksRecordTable.tsx
+    skill: create-table
+    copy: "RecordTable.CursorProvider + useRecordTableCursor + validateFetchMore. Named export. No raw <table>."
+  board_kanban:
+    file: frontend/plugins/operation_ui/src/modules/task/components/TasksBoard.tsx
+    skill: create-table
+    copy: "Column/card board layout with drag handling."
+  detail_sheet:
+    file: frontend/plugins/operation_ui/src/modules/task/components/TaskDetailSheet.tsx
+    skill: create-page
+    copy: "Side sheet detail view bound to a selected record."
+  create_edit_form:
+    file: frontend/plugins/loyalty_ui/src/modules/pricing/create-pricing/PricingCreateSheet.tsx
+    skill: create-form-drawer
+    copy: "Form.Field pattern + Zod schema + success/error toasts. erxes-ui dialog/sheet only."
+  filter_bar:
+    file: frontend/plugins/operation_ui/src/modules/task/components/TasksFilter.tsx
+    skill: create-table
+    copy: "Filter/search bar wired to the record table's query."
+
+backend:
+  entity_definition:
+    file: backend/plugins/operation_api/src/modules/team/db/definitions/team.ts
+    skill: create-backend-entity
+    copy: "Explicit `new Schema({...})` with typed fields. NO schemaWrapper."
+  entity_model:
+    file: backend/plugins/operation_api/src/modules/team/db/models/Team.ts
+    skill: create-backend-entity
+    copy: "loadXClass model with static business methods."
+
+conventions_reminder:
+  - "Named exports only — never `export default` in application code."
+  - "GraphQL operations are named + plugin-prefixed (e.g. operationTaskList)."
+  - "Reuse erxes-ui / ui-modules before building new primitives."
+  - "Keep new code beside the nearest sibling feature in the same plugin."

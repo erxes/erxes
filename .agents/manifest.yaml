@@ -1,7 +1,12 @@
 # .agents/manifest.yaml
 # Agent Manifest Protocol (AMP) v1.0
-# This file is the root contract for all AI agents working in this repository.
-# Agents MUST read this file first before any other .agents/ content.
+# This file is the registry + reference contract for the .agents/ system.
+#
+# >>> THE ENTRY POINT IS .agents/ROUTER.md (run via the /erxes command). <<<
+# Start there. ROUTER is the linear procedure; this manifest is the data it
+# (and humans) reference: rule layers, skill registry, plugin registry. You do
+# NOT need to execute the longer step-by-step "protocol:" block below — ROUTER
+# replaces it. The protocol block is kept for back-compat and tooling.
 
 version: "1.0.0"
 schema: "https://erxes.io/schemas/agent-manifest-v1"
@@ -250,10 +255,9 @@ plugins:
       nx_name: "mongolian_ui"
       path: "frontend/plugins/mongolian_ui"
       status: "active"
-    - name: "agent-assistant"
-      nx_name: "agent-assistant_ui"
-      path: "frontend/plugins/agent-assistant_ui"
-      port: 3015
+    - name: "erxes-agent"
+      nx_name: "erxes-agent_ui"
+      path: "frontend/plugins/erxes-agent_ui"
       status: "active"
   backend:
     - name: "content"
@@ -296,9 +300,9 @@ plugins:
       nx_name: "mongolian_api"
       path: "backend/plugins/mongolian_api"
       status: "active"
-    - name: "agent-assistant"
-      nx_name: "agent-assistant_api"
-      path: "backend/plugins/agent-assistant_api"
+    - name: "erxes-agent"
+      nx_name: "erxes-agent_api"
+      path: "backend/plugins/erxes-agent_api"
       status: "active"
     - name: "posclient"
       nx_name: "posclient_api"
@@ -399,8 +403,13 @@ validation:
 # How agents must behave when using this system.
 
 protocol:
-  # Step 1: ALWAYS read manifest.yaml first
-  entry_point: ".agents/manifest.yaml"
+  # THE entry point. Run this single linear file (via /erxes). It supersedes the
+  # numbered steps below (assemble-context → detect-scope → preflight → intake).
+  entry_point: ".agents/ROUTER.md"
+  command: "/erxes \"I want ...\""
+
+  # Legacy step-by-step protocol (reference only — ROUTER replaces this flow):
+  legacy_entry_point: ".agents/manifest.yaml"
 
   # Step 2: Load base context
   base_context_required: true

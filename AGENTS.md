@@ -1,5 +1,19 @@
 # erxes AI Operating Rules
 
+## ⟶ Start Here: one entry point
+
+**To build anything from a plain "I want ..." request, run `.agents/ROUTER.md`**
+(Claude Code: the `/erxes "I want ..."` command). ROUTER is the single linear
+procedure — it classifies the request, resolves the exact plugin/module from
+`.agents/maps/feature-map.yaml` (so you never guess or ask "which plugin"), asks
+only about the desired **outcome**, confirms scope, loads just the rules that
+scope needs, and builds by copying a real reference file.
+
+Everything below in this document is the **reference material** ROUTER draws on
+(rules, conventions, architecture). You do not need to execute the older
+"Protocol"/"Workflow" step lists yourself — ROUTER supersedes them. Read the
+specific rule sections when ROUTER's tier table (STEP 6) tells you to.
+
 ## Extended Documentation
 
 For detailed information, see the `.agents/` directory:
@@ -21,8 +35,9 @@ declared in `.agents/manifest.yaml` and enforced through contract-based skills.
 
 ### Entry Point
 
-**ALL agents MUST start by reading `.agents/manifest.yaml`**. This file
-declares:
+**The entry point is `.agents/ROUTER.md` (run via `/erxes`).** `manifest.yaml` is
+the registry/reference it uses — read it when you need the data below, not as a
+first step. This file declares:
 - Rule layers with precedence (constitution → global → category → plugin)
 - Skill registry with contracts
 - Plugin registry
@@ -104,9 +119,15 @@ behavior while keeping changes small.
 
 ## Workflow
 
+> **If you ran `/erxes` / `.agents/ROUTER.md`, you have already done this list** —
+> ROUTER STEP 0–6 *is* this workflow, automated and tiered. The steps below are
+> the manual/reference form (and the canonical detail for the "during" and
+> "after" phases). The `detect-scope → preflight → intake` steps are the legacy
+> scope mechanism; ROUTER STEP 2 + STEP 5 replace them. Don't run both.
+
 Before coding:
 
-1. **Read `.agents/manifest.yaml`** — This is the entry point.
+1. **Read `.agents/ROUTER.md`** — This is the entry point (or run `/erxes`).
 2. **Consult Semantic Index** — Read `.agents/skills/SEMANTIC_INDEX.md` to find the correct skills for your intent or to troubleshoot symptoms (404s, loading errors).
 3. **Assemble context** — Run `.agents/scripts/assemble-context.sh <path> [skill]`
    or follow the `assemble-context` skill to load all applicable rule layers.

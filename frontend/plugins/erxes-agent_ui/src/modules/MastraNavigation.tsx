@@ -4,6 +4,7 @@ import {
   IconMessageCircle,
   IconSitemap,
   IconBulb,
+  IconCalendarTime,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import { chatStore } from '~/pages/chat/chatStore';
@@ -42,6 +43,11 @@ export const MastraNavigation = () => {
         name="Workflows"
         icon={IconSitemap}
         path="erxes-agent/workflows"
+      />
+      <NavigationMenuLinkItem
+        name="Schedules"
+        icon={IconCalendarTime}
+        path="erxes-agent/schedules"
       />
       <NavigationMenuLinkItem
         name="Agent knowledge"

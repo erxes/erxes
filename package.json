@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "3.0.34",
+  "version": "3.0.36",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
@@ -212,6 +212,7 @@
     "@types/js-cookie": "^3.0.6",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "18.16.9",
+    "@types/ws": "^8.18.1",
     "@types/node-fetch": "^2.6.12",
     "@types/react": "18.3.1",
     "@types/react-color": "^3.0.13",
@@ -259,6 +260,8 @@
   "packageManager": "pnpm@9.12.3",
   "pnpm": {
     "overrides": {
+      "@types/ws": "^8.18.1",
+      "ioredis": "^5.6.1",
       "@mastra/core>zod": "^3.25.0",
       "@mastra/memory>zod": "^3.25.0",
       "@mastra/libsql>zod": "^3.25.0"

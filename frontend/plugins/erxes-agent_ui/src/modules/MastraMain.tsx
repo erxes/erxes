@@ -41,6 +41,18 @@ const LearningsIndexPage = lazy(() =>
   })),
 );
 
+const SchedulesIndexPage = lazy(() =>
+  import('~/pages/schedules/SchedulesIndexPage').then((m) => ({
+    default: m.SchedulesIndexPage,
+  })),
+);
+
+const ScheduleFormPage = lazy(() =>
+  import('~/pages/schedules/ScheduleFormPage').then((m) => ({
+    default: m.ScheduleFormPage,
+  })),
+);
+
 const MastraMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -55,6 +67,9 @@ const MastraMain = () => {
         <Route path="/workflows/edit/:id" element={<WorkflowFormPage />} />
         <Route path="/workflows/:id" element={<WorkflowDetailPage />} />
         <Route path="/learnings" element={<LearningsIndexPage />} />
+        <Route path="/schedules" element={<SchedulesIndexPage />} />
+        <Route path="/schedules/new" element={<ScheduleFormPage />} />
+        <Route path="/schedules/edit/:id" element={<ScheduleFormPage />} />
       </Routes>
     </Suspense>
   );
