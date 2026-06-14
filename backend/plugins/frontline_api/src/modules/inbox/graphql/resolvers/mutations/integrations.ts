@@ -406,7 +406,10 @@ export const integrationMutations = {
       }
     }
 
-    return models.Integrations.saveMessengerConfigs(_id, messengerDataWithoutApps as IMessengerData);
+    return models.Integrations.saveMessengerConfigs(
+      _id,
+      messengerDataWithoutApps as IMessengerData,
+    );
   },
 
   async integrationsSaveMessengerColorTheme(
