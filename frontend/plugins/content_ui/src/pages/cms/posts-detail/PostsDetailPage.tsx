@@ -46,7 +46,9 @@ export const PostsDetailPage = ({
   const handleClose = useCallback(() => {
     const typeCode = post?.type;
     const typeParam =
-      typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+      typeCode && typeCode !== 'post'
+        ? `?type=${encodeURIComponent(typeCode)}`
+        : '';
     navigate(`/content/cms/${websiteId}/posts${typeParam}`);
   }, [navigate, websiteId, post?.type]);
 

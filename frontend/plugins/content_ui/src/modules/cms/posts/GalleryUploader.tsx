@@ -2,6 +2,7 @@ import { Button, useErxesUpload } from 'erxes-ui';
 import { IconGripVertical, IconUpload, IconX } from '@tabler/icons-react';
 import { readImage } from 'erxes-ui/utils/core';
 import { DragEvent, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useAutoUpload } from './hooks/useAutoUpload';
 
 interface GalleryUploaderProps {
   value?: string[];
@@ -21,14 +22,18 @@ export const GalleryUploader = ({
   onChange,
   maxImages = MAX_GALLERY_IMAGES,
 }: GalleryUploaderProps) => {
-  const urls = useMemo(() => value.filter(Boolean), [value]);
+  const urls = useMemo(
+    () => Array.from(new Set(value.filter(Boolean))),
+    [value],
+  );
   const urlsRef = useRef(urls);
-  const uploadedBatchRef = useRef<string | null>(null);
 
   const handleFilesAdded = useCallback(
     (addedFiles: UploadedFile[]) => {
       const addedUrls = addedFiles.map((file) => file.url).filter(Boolean);
-      const next = [...urlsRef.current, ...addedUrls].slice(0, maxImages);
+      const next = Array.from(
+        new Set([...urlsRef.current, ...addedUrls]),
+      ).slice(0, maxImages);
       onChange(next);
     },
     [maxImages, onChange],
@@ -44,46 +49,7 @@ export const GalleryUploader = ({
   useEffect(() => {
     urlsRef.current = urls;
   }, [urls]);
-
-  const fileBatchKey = useMemo(() => {
-    if (!uploadProps.files.length) {
-      return '';
-    }
-
-    return uploadProps.files
-      .map((file) =>
-        [
-          file.name ?? '',
-          file.size ?? '',
-          file.type ?? '',
-          file.lastModified ?? '',
-        ].join(':'),
-      )
-      .join('|');
-  }, [uploadProps.files]);
-
-  useEffect(() => {
-    if (!uploadProps.files.length) {
-      uploadedBatchRef.current = null;
-      return;
-    }
-
-    if (
-      !fileBatchKey ||
-      uploadedBatchRef.current === fileBatchKey ||
-      uploadProps.loading
-    ) {
-      return;
-    }
-
-    uploadedBatchRef.current = fileBatchKey;
-    void uploadProps.onUpload();
-  }, [
-    fileBatchKey,
-    uploadProps.files.length,
-    uploadProps.loading,
-    uploadProps.onUpload,
-  ]);
+  useAutoUpload(uploadProps);
 
   const handleRemove = useCallback(
     (index: number) => {
@@ -92,10 +58,11 @@ export const GalleryUploader = ({
     [onChange, urls],
   );
 
-  const handleDragStart = (event: DragEvent<HTMLDivElement>, index: number) => {
+  /** Stores the dragged image position for native drop handling. */
+  function handleDragStart(event: DragEvent<HTMLDivElement>, index: number) {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', String(index));
-  };
+  }
 
   const handleDrop = useCallback(
     (event: DragEvent<HTMLDivElement>, toIndex: number) => {
@@ -136,17 +103,18 @@ export const GalleryUploader = ({
           <div className="flex flex-wrap gap-4">
             {urls.map((url, index) => (
               <div
-                key={`${url}-${index}`}
+                key={url}
                 draggable
                 onDragStart={(event) => handleDragStart(event, index)}
                 onDrop={(event) => handleDrop(event, index)}
                 onDragOver={(event) => event.preventDefault()}
                 className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted cursor-move group"
               >
-                <img
-                  src={readImage(url)}
-                  alt={`Gallery ${index + 1}`}
-                  className="w-full h-full object-cover"
+                <div
+                  role="img"
+                  aria-label={`Gallery ${index + 1}`}
+                  className="w-full h-full bg-cover bg-center"
+                  style={{ backgroundImage: `url(${readImage(url)})` }}
                 />
                 <div className="absolute top-1 left-1 flex items-center gap-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
                   <IconGripVertical size={12} />
@@ -164,16 +132,19 @@ export const GalleryUploader = ({
                 </Button>
               </div>
             ))}
-            {pendingFiles.map((file, index) => (
+            {pendingFiles.map((file) => (
               <div
-                key={`${file.name}-${file.lastModified}-${index}`}
+                key={[file.name, file.size, file.type, file.lastModified].join(
+                  ':',
+                )}
                 className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted"
               >
                 {file.preview && (
-                  <img
-                    src={file.preview}
-                    alt={file.name}
-                    className="w-full h-full object-cover opacity-70"
+                  <div
+                    role="img"
+                    aria-label={file.name}
+                    className="w-full h-full bg-cover bg-center opacity-70"
+                    style={{ backgroundImage: `url(${file.preview})` }}
                   />
                 )}
                 <div className="absolute inset-0 flex items-center justify-center bg-white/70 px-2 text-center text-xs text-muted-foreground">
@@ -212,7 +183,7 @@ export const GalleryUploader = ({
             Maximum {maxImages} images allowed
           </p>
         )}
-        {!!uploadProps.errors.length && (
+        {Boolean(uploadProps.errors.length) && (
           <p className="text-xs text-destructive mt-1">
             {uploadProps.errors[0]?.message || 'Upload failed'}
           </p>

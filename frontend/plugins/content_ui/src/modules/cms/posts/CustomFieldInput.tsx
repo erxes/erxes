@@ -11,10 +11,10 @@ import {
   Editor,
 } from 'erxes-ui';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
-import { useEffect, useMemo, useRef } from 'react';
 import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
 import { SpreadsheetInput } from './SpreadsheetInput';
 import { GalleryUploader } from './GalleryUploader';
+import { useAutoUpload } from './hooks/useAutoUpload';
 
 export interface FieldDefinition {
   _id: string;
@@ -32,45 +32,6 @@ interface CustomFieldInputProps {
   value: CustomFieldValue;
   onChange: (value: string | boolean | string[]) => void;
 }
-
-const useAutoUpload = (uploadProps: ReturnType<typeof useErxesUpload>) => {
-  const uploadedBatchRef = useRef<string | null>(null);
-
-  const fileBatchKey = useMemo(() => {
-    if (!uploadProps.files.length) {
-      return '';
-    }
-
-    return uploadProps.files
-      .map((file) =>
-        [
-          file.name ?? '',
-          file.size ?? '',
-          file.type ?? '',
-          file.lastModified ?? '',
-        ].join(':'),
-      )
-      .join('|');
-  }, [uploadProps.files]);
-
-  useEffect(() => {
-    if (!uploadProps.files.length) {
-      uploadedBatchRef.current = null;
-      return;
-    }
-
-    if (
-      !fileBatchKey ||
-      uploadedBatchRef.current === fileBatchKey ||
-      uploadProps.loading
-    ) {
-      return;
-    }
-
-    uploadedBatchRef.current = fileBatchKey;
-    void uploadProps.onUpload();
-  }, [fileBatchKey, uploadProps]);
-};
 
 function FileFieldInput({
   value,
@@ -145,7 +106,7 @@ function FileFieldInput({
         </Button>
         <p className="text-xs text-muted-foreground mt-1">Max 20MB</p>
       </div>
-      {!!uploadProps.errors.length && (
+      {Boolean(uploadProps.errors.length) && (
         <p className="text-xs text-destructive">
           {uploadProps.errors[0]?.message || 'Upload failed'}
         </p>
@@ -307,8 +268,8 @@ export const CustomFieldInput = ({
               Array.isArray(value)
                 ? value
                 : typeof value === 'string' && value
-                  ? [value]
-                  : []
+                ? [value]
+                : []
             }
             onChange={(urls) => onChange(urls)}
           />
