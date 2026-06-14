@@ -1,5 +1,8 @@
 import { Model } from 'mongoose';
-import { ITdbConfig, ITdbConfigDocument } from '~/modules/corporateGateway/tdb/@types/tdb';
+import {
+  ITdbConfig,
+  ITdbConfigDocument,
+} from '~/modules/corporateGateway/tdb/@types/tdb';
 import { IModels } from '~/connectionResolvers';
 import { tdbConfigSchema } from '../definitions/tdbConfigs';
 

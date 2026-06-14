@@ -13,7 +13,9 @@ export class BaseApi {
   }
 
   protected getBasicAuthHeaders(): HeadersInit {
-    const auth = Buffer.from(`${this.config.username}:${this.config.password}`).toString('base64');
+    const auth = Buffer.from(
+      `${this.config.username}:${this.config.password}`,
+    ).toString('base64');
     return {
       'Content-Type': 'application/json',
       Authorization: `Basic ${auth}`,
@@ -39,7 +41,9 @@ export class BaseApi {
       url = `${url}?${searchParams.toString()}`;
     }
 
-    const headers = useBasicAuth ? this.getBasicAuthHeaders() : { 'Content-Type': 'application/json' };
+    const headers = useBasicAuth
+      ? this.getBasicAuthHeaders()
+      : { 'Content-Type': 'application/json' };
 
     const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
       method,
@@ -58,7 +62,8 @@ export class BaseApi {
         let errorMessage = errorText;
         try {
           const errorJson = JSON.parse(errorText);
-          errorMessage = errorJson.errorDescription || errorJson.errorCode || errorText;
+          errorMessage =
+            errorJson.errorDescription || errorJson.errorCode || errorText;
         } catch {
           // Keep original error text
         }
