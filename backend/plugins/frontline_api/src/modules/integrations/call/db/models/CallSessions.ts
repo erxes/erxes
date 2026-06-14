@@ -24,6 +24,7 @@ export interface ICallSessionModel extends Model<ICallSessionDocument> {
       durationSec?: number;
       recordUrl?: string;
       cdrAcctId?: string;
+      disposition?: string;
     },
   ): Promise<ICallSessionDocument | null>;
   attachOperator(
@@ -159,12 +160,19 @@ export const loadCallSessionClass = (models: IModels) => {
         durationSec?: number;
         recordUrl?: string;
         cdrAcctId?: string;
+        disposition?: string;
       },
     ) {
       const session = await models.CallSessions.findOne({ uniqueid });
       if (!session) return null;
 
-      session.status = session.answeredAt ? 'ended' : 'missed';
+      const wasAnswered =
+        !!session.answeredAt ||
+        session.status === 'ended' ||
+        session.status === 'active' ||
+        ((payload.disposition || '').toUpperCase() === 'ANSWERED' &&
+          (payload.durationSec || 0) > 0);
+      session.status = wasAnswered ? 'ended' : 'missed';
       session.endedAt = payload.endedAt || new Date();
       if (payload.hangupCause) session.hangupCause = payload.hangupCause;
       if (payload.durationSec !== undefined)

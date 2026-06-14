@@ -4,6 +4,7 @@ import { redlock } from '@/integrations/call/redlock';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { debugCall } from '@/integrations/call/debuggers';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 const SESSION_LOCK_TTL_MS = 15_000;
 
@@ -17,6 +18,7 @@ export type CallEventType =
 export interface ICallEventPayload {
   type: CallEventType;
   uniqueid: string;
+  linkedid?: string;
   inboxIntegrationId?: string;
   srcTrunkName?: string;
   dstTrunkName?: string;
@@ -78,10 +80,6 @@ const publishSession = async (
       inboxIntegrationId: integration?.inboxId,
     },
   };
-  await graphqlPubsub.publish(
-    `callSessionUpdated:${integration?.inboxId || 'global'}`,
-    payload,
-  );
   if (session.uniqueid) {
     await graphqlPubsub.publish(
       `callSessionUpdated:uniqueid:${session.uniqueid}`,
@@ -138,6 +136,25 @@ const ensureConversation = async (
   session.conversationId = apiResponse.data._id;
   session.customerId = customerId;
   await session.save();
+
+  try {
+    const conversationMessage = {
+      _id: session.conversationId,
+      conversationId: session.conversationId,
+      content: session.callType || 'incoming',
+      createdAt: new Date(),
+    };
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${session.conversationId}`,
+      { conversationMessageInserted: conversationMessage },
+    );
+    await pConversationClientMessageInserted(subdomain, conversationMessage);
+  } catch (e) {
+    debugCall(
+      `ensureConversation publish failed for ${session.uniqueid}: ${e.message}`,
+    );
+  }
+
   return session.conversationId;
 };
 
@@ -145,6 +162,7 @@ export const handleCallEvent = async (
   models: IModels,
   subdomain: string,
   ev: ICallEventPayload,
+  verifiedIntegration?: any,
 ) => {
   if (!ev?.uniqueid) {
     throw new Error('uniqueid required');
@@ -153,7 +171,11 @@ export const handleCallEvent = async (
     throw new Error('event type required');
   }
 
-  const integration = await findIntegrationForEvent(models, ev);
+  // Prefer the integration resolved from the verified webhook signature; only
+  // fall back to trunk/inboxId matching from the (unauthenticated) body for
+  // unsigned legacy traffic during the grace window.
+  const integration =
+    verifiedIntegration || (await findIntegrationForEvent(models, ev));
   if (!integration) {
     debugCall(
       `Call event ignored: no matching integration for ${ev.srcTrunkName}/${ev.dstTrunkName}`,
@@ -172,11 +194,14 @@ export const handleCallEvent = async (
   }
 
   try {
-    let session = await models.CallSessions.findOne({ uniqueid: ev.uniqueid });
+    let session: any = await models.CallSessions.findOne({
+      uniqueid: ev.uniqueid,
+    });
 
     if (!session) {
       const direction: 'incoming' | 'outgoing' =
-        ev.callType || (integration.dstTrunk ? 'incoming' : 'incoming');
+        ev.callType ||
+        (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
 
       const customerPhone =
         direction === 'incoming'
@@ -185,6 +210,7 @@ export const handleCallEvent = async (
 
       session = await models.CallSessions.upsertSession({
         uniqueid: ev.uniqueid,
+        linkedid: ev.linkedid,
         inboxIntegrationId: integration.inboxId,
         callType: direction,
         customerPhone,
@@ -281,11 +307,80 @@ export const handleCallEvent = async (
     return { status: 'ok', uniqueid: ev.uniqueid, sessionStatus: session?.status };
   } finally {
     try {
-      await lock?.unlock();
+      await lock?.release();
     } catch (e) {
       console.error('handleCallEvent: lock release failed', e);
     }
   }
+};
+
+// ---------------------------------------------------------------------------
+// call-helper (ucmListener.ts) compatibility adapter
+// ---------------------------------------------------------------------------
+// The call-helper UCM WebSocket listener POSTs a payload with a different shape
+// (`type: incoming_call|outgoing_call`, `caller`/`trunk`, ...) than the native
+// ICallEventPayload consumed by handleCallEvent. This adapter translates it so
+// the live (CTI) path creates a CallSession + conversation per ring.
+
+export interface IUcmCallPayload {
+  type: 'incoming_call' | 'outgoing_call';
+  caller: string;
+  callerName?: string;
+  extension?: string;
+  did?: string;
+  trunk?: string;
+  queue?: string;
+  channel?: string;
+  uniqueid: string;
+  linkedid?: string;
+  at?: string;
+}
+
+const ucmPayloadToCallEvent = (p: IUcmCallPayload): ICallEventPayload => {
+  const isIncoming = p.type === 'incoming_call';
+
+  return {
+    // ucmListener emits a single notification at ring time per call.
+    type: 'ringing',
+    uniqueid: p.uniqueid,
+    // linkedid ties the call's legs together; the CDR's uniqueid often equals
+    // this (not the live event's per-leg uniqueid), so it's the convergence key.
+    linkedid: p.linkedid,
+    callType: isIncoming ? 'incoming' : 'outgoing',
+    // For incoming the customer is the external caller; for outgoing the
+    // customer is the dialed party (`caller` is pickDialed() in ucmListener).
+    callerIdNum: isIncoming ? p.caller : p.extension,
+    calleeIdNum: isIncoming ? p.did : p.caller,
+    // srcTrunk = inbound trunk, dstTrunk = outbound trunk (integration schema).
+    srcTrunkName: isIncoming ? p.trunk : undefined,
+    dstTrunkName: isIncoming ? undefined : p.trunk,
+    queueName: p.queue || undefined,
+    extension: p.extension || undefined,
+    channel: p.channel || undefined,
+    startedAt: p.at || undefined,
+    raw: p as Record<string, any>,
+  };
+};
+
+export const handleReceiveCall = async (
+  models: IModels,
+  subdomain: string,
+  payload: IUcmCallPayload,
+  verifiedIntegration?: any,
+) => {
+  if (!payload?.uniqueid) {
+    throw new Error('uniqueid required');
+  }
+  if (payload.type !== 'incoming_call' && payload.type !== 'outgoing_call') {
+    throw new Error(`unsupported receiveCall payload type: ${payload?.type}`);
+  }
+
+  return handleCallEvent(
+    models,
+    subdomain,
+    ucmPayloadToCallEvent(payload),
+    verifiedIntegration,
+  );
 };
 
 // suppress unused import lint when sendTRPCMessage is reserved for later

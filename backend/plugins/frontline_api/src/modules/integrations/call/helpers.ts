@@ -6,6 +6,7 @@ import {
   updateIntegrationQueueNames,
   updateIntegrationQueues,
 } from '@/integrations/call/utils';
+import { generateWebhookSecret } from '@/integrations/call/webhookAuth';
 
 export const createIntegration = async (subdomain: string, data: any) => {
   const ENDPOINT_URL = getEnv({ name: 'CALL_ENDPOINT_URL' });
@@ -31,6 +32,10 @@ export const createIntegration = async (subdomain: string, data: any) => {
     // if no existing integration found, use updateData to create
     if (!integrationData) {
       integrationData = updateData;
+    }
+
+    if (!integrationData.token) {
+      integrationData.token = generateWebhookSecret();
     }
 
     // Create new integration
@@ -66,10 +71,12 @@ export const createIntegration = async (subdomain: string, data: any) => {
         domain,
         erxesApiId: integration._id,
         subdomain,
+        token: integration.token,
       };
 
       if (integration.srcTrunk) requestBody.srcTrunk = integration.srcTrunk;
       if (integration.dstTrunk) requestBody.dstTrunk = integration.dstTrunk;
+      if (integration.queues?.length) requestBody.queues = integration.queues;
       await fetch(`${ENDPOINT_URL}/register-endpoint`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
@@ -120,6 +127,15 @@ export const updateIntegration = async ({
       return { status: 'error', errorMessage: 'Integration not found.' };
     }
 
+    let token = integration.token;
+    if (!token) {
+      token = generateWebhookSecret();
+      await models.CallIntegrations.updateOne(
+        { inboxId: integrationId },
+        { $set: { token } },
+      );
+    }
+
     // Update queues
     const updatedQueues = await updateIntegrationQueues(
       subdomain,
@@ -139,6 +155,7 @@ export const updateIntegration = async ({
           domain,
           erxesApiId: integration._id,
           subdomain,
+          token,
         } as any;
 
         if (details.srcTrunk) {
@@ -146,6 +163,9 @@ export const updateIntegration = async ({
         }
         if (details.dstTrunk) {
           requestBody.dstTrunk = details.dstTrunk;
+        }
+        if (updatedQueues?.length) {
+          requestBody.queues = updatedQueues;
         }
 
         await fetch(`${ENDPOINT_URL}/update-endpoint`, {

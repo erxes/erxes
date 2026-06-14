@@ -52,14 +52,14 @@ export const loadCallIntegrationClass = (models: IModels) => {
       return integration;
     }
     public static async getIntegrationQueuesByUser(userId: string) {
-      const integration = await models.CallIntegrations.findOne({
+      const integrations = await models.CallIntegrations.find({
         'operators.userId': userId,
-      });
+      }).lean();
 
-      if (!integration) {
+      if (!integrations.length) {
         throw new Error('Integration not found');
       }
-      return integration.queues || [];
+      return integrations.flatMap((integration) => integration.queues || []);
     }
   }
 

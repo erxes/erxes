@@ -15,14 +15,21 @@ import { redlock } from '@/integrations/call/redlock';
 
 const CDR_LOCK_TTL_MS = 20_000;
 
-export const receiveCdr = async (models: IModels, subdomain, params) => {
+export const receiveCdr = async (
+  models: IModels,
+  subdomain,
+  params,
+  verifiedIntegration?: any,
+) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-  const integration = await models.CallIntegrations.findOne({
-    $or: [
-      { srcTrunk: params.src_trunk_name },
-      { dstTrunk: params.dst_trunk_name },
-    ],
-  });
+  const integration =
+    verifiedIntegration ||
+    (await models.CallIntegrations.findOne({
+      $or: [
+        { srcTrunk: params.src_trunk_name },
+        { dstTrunk: params.dst_trunk_name },
+      ],
+    }));
   if (!integration) return;
 
   const inboxId = integration.inboxId;
@@ -41,7 +48,7 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
       return await processCdrLocked(models, subdomain, params, integration);
     } finally {
       try {
-        await lock?.unlock();
+        await lock?.release();
       } catch (e) {
         console.error('receiveCdr: lock release failed', e);
       }
@@ -72,8 +79,9 @@ const processCdrLocked = async (
   let operatorPhone = '';
   const operatorId = extractOperatorId(params);
 
+  let matchedOperator: any = null;
   if (operatorId) {
-    const matchedOperator = integration.operators.find(
+    matchedOperator = integration.operators.find(
       ({ gsUsername }) => gsUsername === operatorId,
     );
     if (matchedOperator) {
@@ -98,7 +106,7 @@ const processCdrLocked = async (
   let existingSession: any = null;
   if (params.uniqueid) {
     existingSession = await models.CallSessions.findOne({
-      uniqueid: params.uniqueid,
+      $or: [{ uniqueid: params.uniqueid }, { linkedid: params.uniqueid }],
     });
     if (existingSession?.conversationId) {
       conversationId = existingSession.conversationId;
@@ -146,7 +154,6 @@ const processCdrLocked = async (
   }
 
   if (conversationId) {
-    // resolved via CallSession above
   } else if (existingCdr || followmeCdr) {
     conversationId = existingCdr?.conversationId || followmeCdr?.conversationId;
     const payload = {
@@ -165,7 +172,6 @@ const processCdrLocked = async (
     const localTimeString = `${datePart}T${timePart}+08:00`;
     const localStart = new Date(localTimeString);
     const startDate = new Date(localStart.getTime());
-    // Tighter window when relying on phone+time fuzzy match (no uniqueid)
     const rangeSeconds = extension ? 60 : 30;
     const startTime = new Date(startDate.getTime() - rangeSeconds * 1000);
     const endTime = new Date(startDate.getTime() + rangeSeconds * 1000);
@@ -256,7 +262,78 @@ const processCdrLocked = async (
   await pConversationClientMessageInserted(subdomain, doc);
 
   if (params.uniqueid) {
+    const sessionUniqueid = existingSession?.uniqueid || params.uniqueid;
     try {
+      if (!existingSession) {
+        const direction =
+          params.userfield === 'Outbound' ? 'outgoing' : 'incoming';
+        let startedAt: Date | undefined;
+        if (params.start) {
+          const [sd, st] = params.start.split(' ');
+          startedAt = new Date(`${sd}T${st}+08:00`);
+        }
+
+        await models.CallSessions.upsertSession({
+          uniqueid: sessionUniqueid,
+          ...(params.linkedid ? { linkedid: params.linkedid } : {}),
+          inboxIntegrationId: inboxId,
+          conversationId,
+          customerId: customer?.erxesApiId,
+          customerPhone: primaryPhone,
+          callType: direction,
+          operatorPhone: operatorPhone || '',
+          ...(startedAt ? { startedAt } : {}),
+          source: 'cdr',
+        });
+
+        const candidateExtensions = [
+          extension,
+          matchedOperator?.gsUsername,
+          params.dstchannel_ext,
+          params.channel_ext,
+          params.dstanswer,
+          params.new_src,
+          params.userfield === 'Outbound' ? params.src : params.dst,
+        ].filter(Boolean);
+
+        let opForExt: any = null;
+        let operatorExtension: string | undefined;
+        for (const candidate of candidateExtensions) {
+          const op = integration.operators.find(
+            (o: any) => o.gsUsername === candidate,
+          );
+          if (op) {
+            opForExt = op;
+            operatorExtension = candidate;
+            break;
+          }
+        }
+        if (!operatorExtension) {
+          operatorExtension = extension || matchedOperator?.gsUsername;
+        }
+
+        if (operatorExtension) {
+          const operatorUserId = opForExt?.userId || matchedOperator?.userId;
+          const answered =
+            (params.disposition || '').toUpperCase() === 'ANSWERED' &&
+            Number(params.billsec) > 0;
+
+          if (answered) {
+            await models.CallSessions.markAnswered(
+              sessionUniqueid,
+              operatorExtension,
+              operatorUserId,
+            );
+          } else {
+            await models.CallSessions.attachOperator(sessionUniqueid, {
+              extensionNumber: operatorExtension,
+              userId: operatorUserId,
+              state: 'noanswer',
+            });
+          }
+        }
+      }
+
       const endedAt = params.end
         ? (() => {
             const [d, t] = params.end.split(' ');
@@ -264,16 +341,17 @@ const processCdrLocked = async (
           })()
         : new Date();
 
-      await models.CallSessions.markEnded(params.uniqueid, {
+      await models.CallSessions.markEnded(sessionUniqueid, {
         endedAt,
         durationSec: Number(params.billsec || params.duration) || undefined,
         hangupCause: params.disposition,
+        disposition: params.disposition,
         recordUrl: cdr.recordUrl,
         cdrAcctId: cdr.acctId,
       });
 
       const updatedSession = await models.CallSessions.findOne({
-        uniqueid: params.uniqueid,
+        uniqueid: sessionUniqueid,
       });
       if (updatedSession) {
         const sessionPayload = {
@@ -284,17 +362,13 @@ const processCdrLocked = async (
           },
         };
         await graphqlPubsub.publish(
-          `callSessionUpdated:uniqueid:${params.uniqueid}`,
-          sessionPayload,
-        );
-        await graphqlPubsub.publish(
-          `callSessionUpdated:${inboxId}`,
+          `callSessionUpdated:uniqueid:${sessionUniqueid}`,
           sessionPayload,
         );
       }
     } catch (e) {
       debugCall(
-        `CallSession finalize failed for ${params.uniqueid}: ${e.message}`,
+        `CallSession finalize failed for ${sessionUniqueid}: ${e.message}`,
       );
     }
   }

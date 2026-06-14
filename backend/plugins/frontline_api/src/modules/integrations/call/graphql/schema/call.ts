@@ -4,7 +4,6 @@ const integrationCommonFields = `
     phone: String
     wsServer: String
     operators: JSON
-    token: String
     queues: [String]
     srcTrunk: String
     dstTrunk: String
@@ -273,27 +272,10 @@ export const types = `
 
 export const subscriptions = `
   sessionTerminateRequested(userId: String): JSON
-  waitingCallReceived(extension: String): String
-  talkingCallReceived(extension: String): String
-  agentCallReceived(extension: String): String
   queueRealtimeUpdate(extension: String): String
 
   callStatistic(extension: String): CallStatistic
   `;
-
-const commonHistoryFields = `
-  operatorPhone: String
-  customerPhone: String
-  callDuration: Int
-  callStartTime: Date
-  callEndTime: Date
-  callType: String
-  callStatus: String
-  timeStamp: Float
-  inboxIntegrationId: String
-  transferredCallStatus: String
-  endedBy: String
-`;
 
 const mutationFilterParams = `
   callStatus: String
@@ -323,7 +305,6 @@ export const queries = `
   callExtensionList(integrationId: String!): JSON
   callQueueList(integrationId: String!): JSON
   callQueueInitialList(queue: String!): String
-  callQueueMemberList(integrationId: String!, queue: String!): JSON
   callTodayStatistics(queue: String!): CallKeyStatistics
   callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!, direction: String): Float
   callCalculateFirstCallResolution(queue: String!, startDate: String!, endDate: String!, direction: String): Float
@@ -344,9 +325,6 @@ export const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
   callAddCustomer(inboxIntegrationId: String, primaryPhone: String, queueName: String): CallConversationDetail
   callUpdateActiveSession: JSON
-  callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
-  callHistoryEdit(_id: String,${commonHistoryFields}): String
-  callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String
   callTransfer(extensionNumber: String!, integrationId: String!, direction: String): String
