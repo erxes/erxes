@@ -4,8 +4,17 @@ This directory contains erxes-specific Markdown rules for AI-assisted work in
 this repository. These files should reinforce the monorepo architecture, plugin
 boundaries, and local implementation patterns.
 
+> **You do not read all of these every task.** `.agents/ROUTER.md` (the single
+> entry point, run via `/erxes`) loads them in tiers:
+> **always** → `non-negotiable.md` + `architecture.md` + `code-style.md`; **then
+> by scope** → the frontend/backend/migration/test/etc. rule only when your
+> change touches it.
+> See ROUTER STEP 0 and STEP 6 for the exact tier table.
+
 ## Rule Files
 
+- `non-negotiable.md` - **ALWAYS-ON.** Zero-tolerance MUST/NEVER rules (no
+  default exports, no `any`, no half-CRUD, plugin isolation, named GraphQL ops).
 - `architecture.md` - erxes monorepo structure, stack, and ownership boundaries.
 - `operation-plugin-reference.md` - operation plugin patterns to use as the
   preferred reference when local plugin patterns are missing or weaker.

@@ -41,8 +41,7 @@ export const GeneralSettingsPage = () => {
 
   // Read-only "Advanced memory feature" status — derived from the MASTRA_MEMORY
   // env var on the server. Displayed only; not editable from the UI.
-  const advancedMemory: boolean =
-    !!settingsData?.mastraSettings?.advancedMemory;
+  const advancedMemory = Boolean(settingsData?.mastraSettings?.advancedMemory);
   const memStatus = settingsData?.mastraSettings?.advancedMemoryStatus;
 
   // Read-only "Company knowledge" status — derived from ERXES_AGENT_KNOWLEDGE.
@@ -147,8 +146,8 @@ export const GeneralSettingsPage = () => {
               {!attachmentStorage?.configured
                 ? 'No storage'
                 : form.attachmentsEnabled
-                  ? 'On'
-                  : 'Off'}
+                ? 'On'
+                : 'Off'}
             </Badge>
           </div>
 
@@ -222,16 +221,16 @@ export const GeneralSettingsPage = () => {
                   memStatus.qdrantReachable === true
                     ? 'bg-green-500'
                     : memStatus.qdrantReachable === false
-                      ? 'bg-red-500'
-                      : 'bg-muted-foreground/40'
+                    ? 'bg-red-500'
+                    : 'bg-muted-foreground/40'
                 }`}
               />
               <span>
                 {memStatus.qdrantReachable === true
                   ? 'reachable'
                   : memStatus.qdrantReachable === false
-                    ? 'unreachable'
-                    : 'unknown'}
+                  ? 'unreachable'
+                  : 'unknown'}
               </span>
             </div>
             <div>
@@ -276,16 +275,16 @@ export const GeneralSettingsPage = () => {
                   knowledgeStatus.qdrantReachable === true
                     ? 'bg-green-500'
                     : knowledgeStatus.qdrantReachable === false
-                      ? 'bg-red-500'
-                      : 'bg-muted-foreground/40'
+                    ? 'bg-red-500'
+                    : 'bg-muted-foreground/40'
                 }`}
               />
               <span>
                 {knowledgeStatus.qdrantReachable === true
                   ? 'reachable'
                   : knowledgeStatus.qdrantReachable === false
-                    ? 'unreachable'
-                    : 'unknown'}
+                  ? 'unreachable'
+                  : 'unknown'}
               </span>
             </div>
             <div>
@@ -301,7 +300,9 @@ export const GeneralSettingsPage = () => {
             <div>
               Last sweep:{' '}
               {knowledgeStatus.lastSweepAt
-                ? `${new Date(knowledgeStatus.lastSweepAt).toLocaleString()} — ${
+                ? `${new Date(
+                    knowledgeStatus.lastSweepAt,
+                  ).toLocaleString()} — ${
                     knowledgeStatus.pointCount ?? 0
                   } points`
                 : 'not yet run'}

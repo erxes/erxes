@@ -75,12 +75,12 @@ export function PipelineFormBar() {
     }
   }, [initialStages, methods]);
 
-  const onOpen = () => {
+  const onOpen = useCallback(() => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       PipelineHotKeyScope.PipelineAddSheet,
     );
-  };
+  }, [setHotkeyScopeAndMemorizePreviousScope]);
 
   const onClose = useCallback(() => {
     setHotkeyScope(PipelineHotKeyScope.PipelineSettingsPage);
@@ -106,13 +106,12 @@ export function PipelineFormBar() {
         ? 'Pipeline updated successfully'
         : 'Pipeline added successfully';
 
-      const { paymentTypes, erxesAppToken, paymentIds, ...rest } = data;
+      const { paymentTypes, paymentIds, ...rest } = data;
 
       const variables = {
         ...(pipelineId && { _id: pipelineId }),
         ...rest,
         paymentTypes: paymentTypes || [],
-        erxesAppToken: erxesAppToken || '',
         paymentIds: paymentIds || [],
       };
 
@@ -128,16 +127,14 @@ export function PipelineFormBar() {
         });
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [addPipeline, pipelineEdit, pipelineId, toast, onClose],
+    [addPipeline, confirm, pipelineEdit, pipelineId, toast, onClose],
   );
 
   useEffect(() => {
     if (pipelineId) {
       onOpen();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search, pipelineId]);
+  }, [location.search, onOpen, pipelineId]);
 
   useScopedHotkeys(
     `c`,
@@ -173,7 +170,6 @@ export function PipelineFormBar() {
         excludeCategoryIds: pipelineDetail?.excludeCategoryIds || [],
         excludeProductIds: pipelineDetail?.excludeProductIds || [],
         excludeCheckUserIds: pipelineDetail?.excludeCheckUserIds || [],
-        erxesAppToken: pipelineDetail?.erxesAppToken || '',
         paymentIds: pipelineDetail?.paymentIds || [],
         paymentTypes: (pipelineDetail?.paymentTypes || []).map((pt: any) => ({
           ...pt,
@@ -203,7 +199,6 @@ export function PipelineFormBar() {
         excludeCategoryIds: [],
         excludeProductIds: [],
         excludeCheckUserIds: [],
-        erxesAppToken: '',
         paymentIds: [],
         paymentTypes: [],
       });
