@@ -12,9 +12,7 @@ export const FrontlineSubGroups = () => {
   const isInbox = pathname.startsWith('/frontline/inbox');
   const isTickets = pathname.startsWith('/frontline/tickets');
   const isReport = pathname.startsWith('/frontline/reports');
-  const isKnowledgeBase = pathname.startsWith(
-    '/frontline/knowledgebase',
-  );
+  const isKnowledgeBase = pathname.startsWith('/frontline/knowledgebase');
   const isForms = pathname.startsWith('/frontline/forms');
   if (isTickets) {
     return <TicketNavigations />;

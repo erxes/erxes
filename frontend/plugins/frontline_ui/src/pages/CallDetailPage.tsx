@@ -218,95 +218,94 @@ export const CallDetailAgents = ({
   );
 };
 
-export const agentColumns: ColumnDef<ICallQueueAgent>[] =
-  [
-    {
-      accessorKey: 'status',
-      header: () => <RecordTable.InlineHead label="Status" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell>
-          <Badge
-            variant={
-              cell.getValue() === 'Idle'
-                ? 'success'
-                : ['Ringing', 'InUse'].includes(cell.getValue() as string)
-                  ? 'warning'
-                  : cell.getValue() === 'Paused'
-                    ? 'destructive'
-                    : 'secondary'
-            }
-          >
-            {cell.getValue() as string}
-          </Badge>
-        </RecordTableInlineCell>
-      ),
-      size: 100,
-    },
-    {
-      accessorKey: 'member_extension',
-      header: () => <RecordTable.InlineHead label="Extention" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-mono">
-          <Badge variant="secondary">{cell.getValue() as string}</Badge>
-        </RecordTableInlineCell>
-      ),
-      size: 100,
-    },
+export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
+  {
+    accessorKey: 'status',
+    header: () => <RecordTable.InlineHead label="Status" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Badge
+          variant={
+            cell.getValue() === 'Idle'
+              ? 'success'
+              : ['Ringing', 'InUse'].includes(cell.getValue() as string)
+                ? 'warning'
+                : cell.getValue() === 'Paused'
+                  ? 'destructive'
+                  : 'secondary'
+          }
+        >
+          {cell.getValue() as string}
+        </Badge>
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'member_extension',
+    header: () => <RecordTable.InlineHead label="Extention" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-mono">
+        <Badge variant="secondary">{cell.getValue() as string}</Badge>
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
 
-    {
-      accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label="Name" />,
-      cell: ({ cell }) => {
-        const { first_name, last_name } = cell.row.original;
-        return (
-          <RecordTableInlineCell className="font-medium">
-            {first_name} {last_name}
-          </RecordTableInlineCell>
-        );
-      },
-      size: 200,
-    },
-    {
-      accessorKey: 'answer',
-      header: () => <RecordTable.InlineHead label="Answered" />,
-      cell: ({ cell }) => (
+  {
+    accessorKey: 'name',
+    header: () => <RecordTable.InlineHead label="Name" />,
+    cell: ({ cell }) => {
+      const { first_name, last_name } = cell.row.original;
+      return (
         <RecordTableInlineCell className="font-medium">
-          {cell.getValue() as number}
+          {first_name} {last_name}
         </RecordTableInlineCell>
-      ),
-      size: 100,
+      );
     },
-    {
-      accessorKey: 'abandon',
-      header: () => <RecordTable.InlineHead label="Abandoned" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-medium">
-          {cell.getValue() as number}
-        </RecordTableInlineCell>
-      ),
-      size: 100,
-    },
-    {
-      accessorKey: 'talktime',
-      header: () => <RecordTable.InlineHead label="Talk Time" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-medium">
-          {formatSeconds(cell.getValue() as number)}
-        </RecordTableInlineCell>
-      ),
-      size: 100,
-    },
-    {
-      accessorKey: 'pausetime',
-      header: () => <RecordTable.InlineHead label="Pause Time" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-medium">
-          {safeFormatDate(cell?.getValue())}
-        </RecordTableInlineCell>
-      ),
-      size: 200,
-    },
-  ];
+    size: 200,
+  },
+  {
+    accessorKey: 'answer',
+    header: () => <RecordTable.InlineHead label="Answered" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-medium">
+        {cell.getValue() as number}
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'abandon',
+    header: () => <RecordTable.InlineHead label="Abandoned" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-medium">
+        {cell.getValue() as number}
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'talktime',
+    header: () => <RecordTable.InlineHead label="Talk Time" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-medium">
+        {formatSeconds(cell.getValue() as number)}
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'pausetime',
+    header: () => <RecordTable.InlineHead label="Pause Time" />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-medium">
+        {safeFormatDate(cell?.getValue())}
+      </RecordTableInlineCell>
+    ),
+    size: 200,
+  },
+];
 
 export const CallDetailCard = ({
   description,

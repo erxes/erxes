@@ -63,12 +63,9 @@ export const loadCallSessionClass = (models: IModels) => {
           $set: Object.fromEntries(
             Object.entries(rest).filter(
               ([k]) =>
-                ![
-                  'startedAt',
-                  'status',
-                  'source',
-                  'ringingOperators',
-                ].includes(k),
+                !['startedAt', 'status', 'source', 'ringingOperators'].includes(
+                  k,
+                ),
             ),
           ),
         },

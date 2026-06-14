@@ -327,7 +327,6 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
-
 }
 
 export interface IContext extends IMainContext {
