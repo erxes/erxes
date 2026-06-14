@@ -21,6 +21,7 @@ export const types = `
     language: String
     languages: [String]
     postUrlField: String
+    postUrlPrefix: String
     createdAt: Date
     updatedAt: Date
 
@@ -49,6 +50,7 @@ export const inputs = `
     language: String
     languages: [String]
     postUrlField: String
+    postUrlPrefix: String
   }
 `;
 

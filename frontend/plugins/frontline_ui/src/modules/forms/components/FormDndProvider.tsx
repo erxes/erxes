@@ -186,7 +186,8 @@ export function FormDndProvider({
       placeholder: '',
       required: false,
       stepId,
-      options: [],
+      options: type.defaultOptions ?? [],
+      allowSearch: type.defaultAllowSearch,
     };
     const fieldsObject = Object.entries(value || {}).map(([key, value]) => {
       if (key === stepId) {

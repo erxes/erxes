@@ -8,7 +8,7 @@ import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import { z } from 'zod';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
-const configFormSchema = z.object({
+export const syncDealReturnConfigFormSchema = z.object({
   title: z.string(),
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
@@ -24,7 +24,7 @@ const configFormSchema = z.object({
     .nullable(),
 });
 
-type ConfigFormValues = z.infer<typeof configFormSchema>;
+type ConfigFormValues = z.infer<typeof syncDealReturnConfigFormSchema>;
 
 export const SyncDealReturnConfigForm = ({
   form,

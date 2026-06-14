@@ -17,16 +17,20 @@ export const SelectField = ({ erxesField, field }: Props) => {
       </Form.Label>
       <Select value={field.value} onValueChange={field.onChange}>
         <Form.Control>
-          <Select.Trigger>
+          <Select.Trigger className="text-foreground">
             <Select.Value
               placeholder={erxesField.text}
-              className="text-primary-foreground"
+              className="text-foreground"
             />
           </Select.Trigger>
         </Form.Control>
         <Select.Content>
           {erxesField.options.map((option) => (
-            <Select.Item key={option} value={option}>
+            <Select.Item
+              key={option}
+              value={option}
+              className="text-foreground"
+            >
               {option}
             </Select.Item>
           ))}

@@ -28,12 +28,19 @@ import {
   types as RuleTypes,
 } from './rule';
 
+import {
+  mutations as PackageMutations,
+  queries as PackageQueries,
+  types as PackageTypes,
+} from './package';
+
 export const types = `
   ${CategoryTypes}
   ${ProductTypes}
   ${ConfigTypes}
   ${UomTypes}
   ${RuleTypes}
+  ${PackageTypes}
 `;
 
 export const queries = `
@@ -42,6 +49,7 @@ export const queries = `
   ${ConfigQueries}
   ${UomQueries}
   ${RuleQueries}
+  ${PackageQueries}
 `;
 
 export const mutations = `
@@ -50,4 +58,5 @@ export const mutations = `
   ${ConfigMutations}
   ${UomMutations}
   ${RuleMutations}
+  ${PackageMutations}
 `;

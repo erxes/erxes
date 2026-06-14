@@ -1,49 +1,58 @@
-You are an expert in TypeScript, Node.js, Router, React, Shadcn UI, Radix UI and Tailwind.
+# erxes Cursor Rules
 
-Code Style and Structure
+Use `AGENTS.md`, nested `AGENTS.md` files, and `.agents/rules/*.md` as the source
+of truth for this repository. These rules intentionally mirror the project
+specific guidance there instead of generic React or Next.js preferences.
 
-- Write concise, technical TypeScript code with accurate examples.
-- Use functional and declarative programming patterns; avoid classes.
-- Prefer iteration and modularization over code duplication.
-- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
-- Structure files: exported component, utils, contexts, hooks, types.
-- Avoid console logs
-- always use absolute paths when import
+## Core Workflow
 
-Naming Conventions
+- Read the root `AGENTS.md` and any nested `AGENTS.md` that applies to the
+  touched path.
+- Search for similar implementations with `rg` before creating new code.
+- Reuse existing components, hooks, GraphQL documents, utilities, and state
+  patterns before adding new ones.
+- Keep changes minimal and scoped to the requested task.
+- Do not refactor unrelated files.
+- Do not introduce new dependencies unless explicitly required.
 
-- Use lowercase with dashes for directories (e.g., components/auth-wizard).
-- Favor named exports for components.
+## Architecture
 
-TypeScript Usage
+- Plugins must remain isolated; avoid cross-plugin imports.
+- Shared frontend UI primitives belong in `frontend/libs/erxes-ui`.
+- Shared frontend business/UI modules belong in `frontend/libs/ui-modules`.
+- `frontend/core-ui` is the Module Federation host app, not the default place
+  for reusable plugin UI.
+- Follow existing GraphQL, Apollo, routing, state, and UI patterns in the
+  touched project.
+- Do not modify backend contracts from a frontend task unless explicitly
+  requested.
 
-- Use TypeScript for all code; prefer interfaces over types.
-- Avoid enums; use maps instead.
-- Use functional components with TypeScript interfaces.
+## Frontend
 
-Syntax and Formatting
+- Use React 18, Rspack, Module Federation, Tailwind, Apollo Client, Jotai,
+  React Router, `erxes-ui`, `ui-modules`, and `@tabler/icons-react` according
+  to nearby code.
+- Match local page layout, tables, filters, drawers, dialogs, loading states,
+  empty states, and responsive behavior.
+- Preserve local import aliases such as `~/*`, `@/*`, `erxes-ui`, and
+  `ui-modules`; do not force absolute imports when nearby code uses relatives.
+- Keep feature hooks, GraphQL documents, constants, types, and state near the
+  feature unless a shared location already exists.
 
-- Use the "function" keyword for pure functions.
-- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
-- Use declarative JSX.
-- Use absolute path when import
+## TypeScript and Style
 
-UI and Styling
+- Match the touched module's existing `type`/`interface`, enum, export, and file
+  naming style.
+- Avoid introducing new `any`, but do not rewrite unrelated legacy types.
+- Let the repository's lint, TypeScript, and Prettier behavior win over personal
+  style.
+- Remove debug logs and commented-out dead code before finishing.
 
-- Use Shadcn UI, Radix, and Tailwind for components and styling.
-- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+## Validation
 
-Performance Optimization
-
-- Minimize 'useEffect', and 'setState'.
-- Wrap client components in Suspense with fallback.
-- Use dynamic loading for non-critical components.
-- Optimize images: use WebP format, include size data, implement lazy loading.
-
-Key Conventions
-
-- Optimize Web Vitals (LCP, CLS, FID).
-- Limit 'use client':
-  - Favor server components and Next.js SSR.
-  - Use only for Web API access in small components.
-  - Avoid for data fetching or state management.
+- Run the focused Nx validation that exists for the touched project.
+- For frontend plugins, prefer `pnpm nx lint <plugin>` and
+  `pnpm nx build <plugin>`.
+- Run `pnpm nx test <plugin>` when tests, test setup, or tested behavior were
+  touched.
+- For documentation-only edits, verify referenced paths and commands.

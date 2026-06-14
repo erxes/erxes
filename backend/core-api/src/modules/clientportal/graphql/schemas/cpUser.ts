@@ -204,6 +204,7 @@ const cpUsersEditParams = `
   companyName: String,
   companyRegistrationNumber: String,
   erxesCustomerId: String,
+  erxesCompanyId: String,
 `;
 
 export const mutations = `
@@ -219,7 +220,7 @@ export const mutations = `
   clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): JSON
   clientPortalLogout: String
   clientPortalUserForgotPassword(identifier: String!): String
-  clientPortalUserResetPassword(token: String, identifier: String, code: String, newPassword: String!): String
+  clientPortalUserResetPassword(token: String, identifier: String, code: String, newPassword: String!): JSON
   clientPortalUserRequestOTP(identifier: String!): String
   clientPortalUserLoginWithOTP(identifier: String!, otp: String!): JSON
   clientPortalUserRegisterWithSocial(provider: SocialAuthProvider!, token: String!): CPUser
@@ -234,6 +235,7 @@ export const mutations = `
   clientPortalUserRequestChangePhone(newPhone: String!): String
   clientPortalUserConfirmChangePhone(code: String!): CPUser
   clientPortalUserDelete: CPUserRemoveResponse
+  clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): CPUser
 `;
 
 export const queries = `

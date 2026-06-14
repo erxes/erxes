@@ -5,10 +5,9 @@ import {
 } from '../../../../types';
 import {
   IAutomationAction,
-  splitType,
-  TAutomationProducers,
+  IAutomationExecutionDocument,
+  replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 import {
   applyBackoff,
   attachAuth,
@@ -184,11 +183,11 @@ const createOutgoingWebhookError = ({
 
 export async function executeOutgoingWebhook({
   subdomain,
-  targetType,
-  target,
+  execution,
   action,
 }: {
   subdomain: string;
+  execution: IAutomationExecutionDocument;
   targetType: string;
   target: Record<string, unknown>;
   action: IAutomationAction<TOutgoinWebhookActionConfig>;
@@ -209,7 +208,6 @@ export async function executeOutgoingWebhook({
     throw new Error('Outgoing webhook url is required');
   }
 
-  const [pluginName, moduleName] = splitType(targetType);
   const timeoutMs = options.timeout ?? 10000;
   const ignoreSSL = options.ignoreSSL ?? false;
   const followRedirect = options.followRedirect ?? false;
@@ -220,78 +218,41 @@ export async function executeOutgoingWebhook({
     backoff: options.retry?.backoff ?? 'none',
   };
 
-  const replacedHeaders = await sendCoreModuleProducer({
-    moduleName: 'automations',
+  const replacedHeaders = await replaceOutputPlaceholders({
     subdomain,
-    pluginName,
-    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-    input: {
-      moduleName,
-      target: { ...target, type: targetType },
-      config: toHeadersObject(headers),
-    },
-    defaultValue: {},
+    execution,
+    values: toHeadersObject(headers),
   });
 
-  const replacedUrl =
-    (
-      await sendCoreModuleProducer({
-        moduleName: 'automations',
-        subdomain,
-        pluginName,
-        producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-        input: {
-          moduleName,
-          target: { ...target, type: targetType },
-          config: { url },
-        },
-        defaultValue: { url },
-      })
-    )?.url || url;
+  const replacedUrlValues = await replaceOutputPlaceholders({
+    subdomain,
+    execution,
+    values: { url },
+  });
+  const replacedUrl = String(replacedUrlValues.url || url);
 
   const replacedBody =
     bodyMode === 'text'
       ? ((
-          await sendCoreModuleProducer({
-            moduleName: 'automations',
+          await replaceOutputPlaceholders({
             subdomain,
-            pluginName,
-            producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-            input: {
-              moduleName,
-              target: { ...target, type: targetType },
-              config: { bodyText: bodyValue },
-            },
-            defaultValue: { bodyText: bodyValue },
+            execution,
+            values: { bodyText: bodyValue },
           })
         )?.bodyText ?? '')
-      : await sendCoreModuleProducer({
-          moduleName: 'automations',
+      : await replaceOutputPlaceholders({
           subdomain,
-          pluginName,
-          producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-          input: {
-            moduleName,
-            target: { ...target, type: targetType },
-            config: bodyValue ? JSON.parse(bodyValue) : {},
-          },
-          defaultValue: {},
+          execution,
+          values: bodyValue ? JSON.parse(bodyValue) : {},
         });
 
-  const replacedQueryParamsObject = await sendCoreModuleProducer({
-    moduleName: 'automations',
+  const replacedQueryParamsObject = await replaceOutputPlaceholders({
     subdomain,
-    pluginName,
-    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-    input: {
-      moduleName,
-      target: { ...target, type: targetType },
-      config: queryParams.reduce((acc, cur) => {
-        acc[cur.name] = cur.value;
-        return acc;
-      }, {}),
-    },
-    defaultValue: {},
+    execution,
+    values: queryParams.reduce((acc, cur) => {
+      acc[cur.name] = cur.value;
+      return acc;
+    }, {}),
   });
 
   const queryParamsList: { name: string; value: string }[] = Object.entries(

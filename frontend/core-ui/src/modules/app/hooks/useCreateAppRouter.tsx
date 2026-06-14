@@ -20,6 +20,7 @@ import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
 import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
+import { RouteErrorBoundary } from '@/error-handler/components/RouteErrorBoundary';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { OrganizationProvider } from '@/organization/providers/OrganizationProvider';
 import { useAtomValue } from 'jotai';
@@ -57,7 +58,11 @@ export const useCreateAppRouter = () => {
   const isOS = useVersion();
   return createBrowserRouter(
     createRoutesFromElements(
-      <Route element={<Providers />} loader={async () => null}>
+      <Route
+        element={<Providers />}
+        loader={async () => null}
+        errorElement={<RouteErrorBoundary />}
+      >
         <Route path={AppPath.MainOnboarding} element={<MainOnboardingPage />} />
         <Route path={AppPath.CreateOwner} element={<CreateOwnerPage />} />
         <Route element={<OrganizationProvider />}>

@@ -77,6 +77,10 @@ export const CheckSyncedDealsFilterPopover = () => {
                   <IconCalendar />
                   Date range
                 </Filter.Item>
+                <Filter.Item value="stageChangedDateRange">
+                  <IconCalendar />
+                  Stage changed date range
+                </Filter.Item>
                 <SelectDateType.FilterItem />
               </Command.List>
             </Command>
@@ -100,6 +104,9 @@ export const CheckSyncedDealsFilterPopover = () => {
           <Filter.View filterKey="dateRange">
             <Filter.DateView filterKey="dateRange" />
           </Filter.View>
+          <Filter.View filterKey="stageChangedDateRange">
+            <Filter.DateView filterKey="stageChangedDateRange" />
+          </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -109,11 +116,11 @@ export const CheckSyncedDealsFilterPopover = () => {
         <Filter.View filterKey="number" inDialog>
           <Filter.DialogStringView filterKey="number" />
         </Filter.View>
-        <Filter.View filterKey="stageChangedDateRange" inDialog>
-          <Filter.DialogStringView filterKey="stageChangedDateRange" />
-        </Filter.View>
         <Filter.View filterKey="dateRange" inDialog>
           <Filter.DialogDateView filterKey="dateRange" />
+        </Filter.View>
+        <Filter.View filterKey="stageChangedDateRange" inDialog>
+          <Filter.DialogDateView filterKey="stageChangedDateRange" />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -157,6 +164,13 @@ export const CheckSyncedDealsFilter = () => {
             Date range
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="stageChangedDateRange">
+          <Filter.BarName>
+            <IconCalendar />
+            Stage changed date range
+          </Filter.BarName>
+          <Filter.Date filterKey="stageChangedDateRange" />
         </Filter.BarItem>
 
         <SelectSalesBoard.FilterBar />

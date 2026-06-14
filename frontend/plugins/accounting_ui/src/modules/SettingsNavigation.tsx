@@ -10,8 +10,8 @@ export const SettingsNavigation = () => {
           <SettingsNavigationMenuLinkItem
             name="Accounting"
             icon={IconListDetails}
-            path=""
-            pathPrefix="accounting"
+            path="/"
+            pathPrefix="accounting/"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

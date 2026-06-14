@@ -20,7 +20,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { parseTime } from '@internationalized/date';
 import { EnumResponseRate } from '@/integrations/erxes-messenger/types/ResponseRate';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   erxesMessengerSetupHoursAtom,
   erxesMessengerSetupStepAtom,
@@ -31,9 +31,10 @@ import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
 type EMHoursAvailabilityFormValues = z.infer<typeof EMHOURS_SCHEMA>;
 
 export const EMHoursAvailability = () => {
+  const atomValue = useAtomValue(erxesMessengerSetupHoursAtom);
   const form = useForm<EMHoursAvailabilityFormValues>({
     resolver: zodResolver(EMHOURS_SCHEMA),
-    defaultValues: {
+    defaultValues: atomValue ?? {
       availabilityMethod: 'manual',
       isOnline: false,
       timezone: detectTimeZone(),

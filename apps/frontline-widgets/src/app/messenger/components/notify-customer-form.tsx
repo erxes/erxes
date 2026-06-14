@@ -6,7 +6,7 @@ import {
   PhoneInput,
   Spinner,
   toast,
-  Tabs
+  Tabs,
 } from 'erxes-ui';
 import { useCreateCustomerForm } from '../ticket/hooks/useCreateCustomerForm';
 import { TCreateCustomerForm } from '../ticket/types';
@@ -80,12 +80,9 @@ export const NotifyCustomerForm = () => {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-3 flex-1 overflow-y-auto styled-scroll p-3"
+        className="flex flex-col gap-3 flex-1 overflow-y-auto styled-scroll text-foreground"
       >
-        <InfoCard
-          title="Enter your email or phone number"
-          description="Please enter your email or phone number to continue"
-        >
+        <InfoCard title="Enter your email or phone number">
           <InfoCard.Content>
             <Form.Field
               control={control}
@@ -97,11 +94,17 @@ export const NotifyCustomerForm = () => {
                     onValueChange={field.onChange}
                     className="w-full"
                   >
-                    <Tabs.List className="w-full">
-                      <Tabs.Trigger value="email" className="flex-1">
+                    <Tabs.List className="w-full text-accent-foreground">
+                      <Tabs.Trigger
+                        value="email"
+                        className="flex-1 dark:data-[state=active]:text-primary-foreground"
+                      >
                         Email
                       </Tabs.Trigger>
-                      <Tabs.Trigger value="phone" className="flex-1">
+                      <Tabs.Trigger
+                        value="phone"
+                        className="flex-1 dark:data-[state=active]:text-primary-foreground"
+                      >
                         Phone
                       </Tabs.Trigger>
                     </Tabs.List>
@@ -140,7 +143,9 @@ export const NotifyCustomerForm = () => {
                     name="email"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Email</Form.Label>
+                        <Form.Label className="text-foreground">
+                          Email
+                        </Form.Label>
                         <Form.Control>
                           <Input type="email" placeholder="Email" {...field} />
                         </Form.Control>
@@ -164,7 +169,9 @@ export const NotifyCustomerForm = () => {
                     name="phone"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Phone</Form.Label>
+                        <Form.Label className="text-foreground">
+                          Phone
+                        </Form.Label>
                         <Form.Control>
                           <PhoneInput
                             defaultCountry="MN"
@@ -181,7 +188,7 @@ export const NotifyCustomerForm = () => {
             </AnimatePresence>
             <Button
               type="submit"
-              className="w-full self-end mt-auto"
+              className="w-full self-end mt-auto dark:bg-accent"
               disabled={loading}
             >
               {loading ? <Spinner size="sm" /> : 'Save'}
@@ -192,5 +199,3 @@ export const NotifyCustomerForm = () => {
     </Form>
   );
 };
-
-

@@ -138,9 +138,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
           await sendErkhetPost(
             models,
-            syncLog,
             'get-response-return-order',
             postData,
+            syncLog,
           );
 
           return;
@@ -158,9 +158,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
           const response = await sendErkhetPost(
             models,
-            syncLog,
             'get-response-inv-movement-info',
             postData,
+            syncLog,
           );
           if (response.message || response.error) {
             const txt = JSON.stringify({
@@ -204,9 +204,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
           const response = await sendErkhetPost(
             models,
-            syncLog,
             'get-response-send-order-info',
             postData,
+            syncLog,
           );
           if (response && (response.message || response.error)) {
             const txt = JSON.stringify({
@@ -271,9 +271,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
           const cresponse = await sendErkhetPost(
             models,
-            syncLog,
             'get-response-send-order-info',
             postData,
+            syncLog,
           );
           if (cresponse && (cresponse.message || cresponse.error)) {
             const txt = JSON.stringify({
@@ -336,9 +336,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
           const response = await sendErkhetPost(
             models,
-            syncLog,
             'get-response-inv-income-info',
             postData,
+            syncLog,
           );
           if (response.message || response.error) {
             const txt = JSON.stringify({

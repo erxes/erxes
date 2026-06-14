@@ -1,12 +1,21 @@
+export type CheckSyncedDealStatus =
+  | 'skipped'
+  | 'checked'
+  | 'synced'
+  | 'pending'
+  | 'error'
+  | 'resynced';
+
 export interface ICheckSyncedDeals {
   _id: string;
   name: string;
-  amount: any; // JSON field
+  amount: unknown;
   number: string;
   createdAt: string;
   stageChangedDate: string;
   unSynced?: string;
   isSynced?: boolean;
+  syncStatus?: CheckSyncedDealStatus;
   syncedDate?: string;
   syncedBillNumber?: string;
   syncedCustomer?: string;

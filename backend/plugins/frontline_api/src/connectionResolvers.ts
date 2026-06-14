@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
-import { createGenerateModels } from 'erxes-api-shared/utils';
+import {
+  createGenerateModels,
+  ScopedEventHandlers,
+} from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
@@ -327,7 +330,6 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
-
 }
 
 export interface IContext extends IMainContext {
@@ -340,8 +342,11 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+
+  const frontlineEventHandlers = eventHandlers('frontline');
 
   //response templates
   models.ResponseTemplates = db.model<
@@ -361,7 +366,7 @@ export const loadClasses = (
 
   models.Ticket = db.model<ITicketDocument, ITicketModel>(
     'frontline_tickets',
-    loadTicketClass(models),
+    loadTicketClass(models, frontlineEventHandlers('tickets', 'tickets')),
   );
   models.Activity = db.model<IActivityDocument, IActivityModel>(
     'frontline_ticket_activities',

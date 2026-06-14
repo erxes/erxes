@@ -4,6 +4,7 @@ import DelayComponents from '@/automations/components/builder/nodes/actions/dela
 import FindObjectComponents from '@/automations/components/builder/nodes/actions/findObject/components/FindObject';
 import ManagePropertiesComponents from '@/automations/components/builder/nodes/actions/manageProperties/components/ManageProperties';
 import SendEmailComponents from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmail';
+import TransformComponents from '@/automations/components/builder/nodes/actions/transform/components/Transform';
 import WaitEventComponents from '@/automations/components/builder/nodes/actions/waitEvent/components/WaitEvent';
 import WebhooksComponents from '@/automations/components/builder/nodes/actions/webhooks/Webhooks';
 import {
@@ -21,6 +22,7 @@ const coreActions: AutomationComponentMap<AutomationNodeType.Action> = {
   ...DelayComponents,
   ...BranchComponents,
   ...ManagePropertiesComponents,
+  ...TransformComponents,
   ...SendEmailComponents,
   ...WaitEventComponents,
   ...AiAgentComponents,

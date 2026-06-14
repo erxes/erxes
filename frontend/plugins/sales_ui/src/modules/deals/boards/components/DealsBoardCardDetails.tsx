@@ -70,5 +70,3 @@ export const DealCardDetails = ({
     </div>
   );
 };
-
-export default DealCardDetails;

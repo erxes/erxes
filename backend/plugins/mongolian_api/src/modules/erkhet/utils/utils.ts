@@ -1,6 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
-import { generateModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
+import { ISyncLogDocument } from '../@types';
 
 const getErkhetUrl = () => {
   const url = process.env.ERKHET_URL;
@@ -41,9 +42,18 @@ const parseErkhetResponse = async (response) => {
   }
 };
 
+const getErkhetResponseMessage = (responseData) => {
+  if (!responseData || typeof responseData !== 'object') {
+    return '';
+  }
+
+  return responseData?.message || responseData?.data?.message || '';
+};
+
 const getErkhetErrorMessage = (response, responseData) =>
-  responseData?.message ||
+  getErkhetResponseMessage(responseData) ||
   responseData?.error ||
+  responseData?.data?.error ||
   responseData?.statusText ||
   response.statusText ||
   `Erkhet request failed with status ${response.status}`;
@@ -91,7 +101,12 @@ const extractDjangoError = (responseStr = '') => {
   };
 };
 
-export const sendErkhetPost = async (models, syncLog, action, payload) => {
+export const sendErkhetPost = async (
+  models: IModels,
+  action: string,
+  payload: any,
+  syncLog?: ISyncLogDocument,
+) => {
   const body = {
     action,
     isEbarimt: false,
@@ -102,16 +117,18 @@ export const sendErkhetPost = async (models, syncLog, action, payload) => {
   const sendData = { action, payload: body };
   const requestUrl = getErkhetMessageUrl();
 
-  await models.SyncLogs.updateOne(
-    { _id: syncLog._id },
-    {
-      $set: {
-        sendData,
-        sendStr: JSON.stringify(sendData),
-        requestUrl,
+  if (syncLog) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData,
+          sendStr: JSON.stringify(sendData),
+          requestUrl,
+        },
       },
-    },
-  );
+    );
+  }
 
   const response = await fetch(requestUrl, {
     method: 'POST',
@@ -125,47 +142,28 @@ export const sendErkhetPost = async (models, syncLog, action, payload) => {
       ? responseData
       : JSON.stringify(responseData);
 
-  if (!response.ok || responseData?.error) {
-    console.error('[syncerkhet:sendPost:error]', {
-      action,
-      requestUrl,
-      status: response.status,
-      statusText: response.statusText,
-      djangoError:
-        typeof responseData === 'string'
-          ? extractDjangoError(responseStr)
-          : undefined,
-      requestBody: body,
-      payloadData: payload,
-      response:
-        responseStr.length > 5000
-          ? `${responseStr.slice(0, 5000)}...`
-          : responseStr,
-    });
-  } else {
-    console.log('[syncerkhet:sendPost:success]', {
-      action,
-      requestUrl,
-      status: response.status,
-      response: responseStr,
-    });
-  }
+  const hasErkhetError =
+    !response.ok ||
+    responseData?.error ||
+    responseData?.data?.error ||
+    getErkhetResponseMessage(responseData);
 
-  const error =
-    !response.ok || responseData?.error
-      ? getErkhetErrorMessage(response, responseData)
-      : undefined;
+  const error = hasErkhetError
+    ? getErkhetErrorMessage(response, responseData)
+    : undefined;
 
-  await models.SyncLogs.updateOne(
-    { _id: syncLog._id },
-    {
-      $set: {
-        responseData,
-        responseStr,
-        ...(error ? { error } : {}),
+  if (syncLog) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          responseData,
+          responseStr,
+          ...(error ? { error } : {}),
+        },
       },
-    },
-  );
+    );
+  }
 
   if (error) {
     return {
@@ -209,7 +207,13 @@ export const sendErkhetGet = async (
 };
 
 // Send data to Erkhet plugin
-export const toErkhet = async (models, syncLog, config, sendData, action) => {
+export const toErkhet = async (
+  models: IModels,
+  config: any,
+  sendData: any,
+  action: string,
+  syncLog?: ISyncLogDocument,
+) => {
   const postData = {
     token: config.apiToken,
     apiKey: config.apiKey,
@@ -217,7 +221,7 @@ export const toErkhet = async (models, syncLog, config, sendData, action) => {
     orderInfos: JSON.stringify(sendData),
   };
 
-  return sendErkhetPost(models, syncLog, action, postData);
+  return sendErkhetPost(models, action, postData, syncLog);
 };
 
 export const getPureDate = (date: Date) => {
@@ -359,17 +363,14 @@ export const getRemConfig = async (
   }
 
   if (posId) {
-    const posConfig = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'sales',
-      method: 'query',
-      module: 'pos',
-      action: 'configs.findOne',
-      input: { _id: posId },
-      defaultValue: {},
-    });
+    const models = await generateModels(subdomain);
+    const posErkhetConfig =
+      (await models.Configs.getConfigValue(
+        'posOrderErkhetConfig',
+        posId,
+        {},
+      )) || {};
 
-    const posErkhetConfig = await posConfig?.erkhetConfig;
     return {
       account: posErkhetConfig?.account,
       location: posErkhetConfig?.location,

@@ -3,13 +3,15 @@ import { GET_ANOTHER_RULES_OF_PRODUCTS_ON_CITY_TAX } from '../graphql/queries/an
 
 export const useGetAnotherRulesOfProductsOnCityTax = (
   options?: QueryHookOptions,
+  kind: 'vat' | 'ctax' = 'vat',
 ) => {
   const { data, loading, error } = useQuery(
     GET_ANOTHER_RULES_OF_PRODUCTS_ON_CITY_TAX,
     {
       ...options,
       variables: {
-        kind: 'vat',
+        ...options?.variables,
+        kind,
       },
     },
   );

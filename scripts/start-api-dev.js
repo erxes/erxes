@@ -53,7 +53,7 @@ if (ENABLED_SERVICES) {
 const totalProjects = `${plugins} ${services}`;
 
 const command = `npx nx run-many -t serve -p core-api ${totalProjects} gateway --verbose --output-style=stream --parallel=${Math.min(
-  8,
+  10,
   projectsCount,
 )}`;
 console.log(`Running: ${command}`);

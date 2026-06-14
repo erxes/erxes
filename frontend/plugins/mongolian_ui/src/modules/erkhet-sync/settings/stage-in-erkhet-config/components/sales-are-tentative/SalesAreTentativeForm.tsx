@@ -21,13 +21,21 @@ const defaultValues = {
   responseField: '',
   hasVat: false,
   hasCitytax: false,
-  reverseCtaxRules: '',
-  reverseVatRules: '',
+  reverseCtaxRules: [],
+  reverseVatRules: [],
   defaultPay: 'debtAmount',
   нэхэмжлэх: '',
   хаанБанкданс: '',
   голомтБанкданс: '',
   barter: '',
+};
+
+const normalizeRuleIds = (value?: string | string[]) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
 };
 
 const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
@@ -42,8 +50,8 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
       responseField: config?.responseField || '',
       hasVat: config?.hasVat || false,
       hasCitytax: config?.hasCitytax || false,
-      reverseCtaxRules: config?.reverseCtaxRules || '',
-      reverseVatRules: config?.reverseVatRules || '',
+      reverseCtaxRules: normalizeRuleIds(config?.reverseCtaxRules),
+      reverseVatRules: normalizeRuleIds(config?.reverseVatRules),
       defaultPay: config?.defaultPay || '',
       нэхэмжлэх: config?.нэхэмжлэх || '',
       хаанБанкданс: config?.хаанБанкданс || '',
@@ -54,6 +62,8 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
 
   const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
+  const hasVat = form.watch('hasVat');
+  const hasCitytax = form.watch('hasCitytax');
 
   return (
     <div className="">
@@ -159,22 +169,25 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                     </Form.Item>
                   )}
                 />
-                <Form.Field
-                  control={form.control}
-                  name="reverseVatRules"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Another rules of products on vat</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          placeholder="Another rules of products on vat"
+                {hasVat && (
+                  <Form.Field
+                    control={form.control}
+                    name="reverseVatRules"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>
+                          Another rules of products on vat
+                        </Form.Label>
+                        <SelectAnotherRulesOfProductsOnCityTax
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          kind="vat"
                         />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
                 <Form.Field
                   control={form.control}
                   name="hasCitytax"
@@ -192,22 +205,25 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                     </Form.Item>
                   )}
                 />
-                <Form.Field
-                  control={form.control}
-                  name="reverseCtaxRules"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        Another rules of products on city tax
-                      </Form.Label>
-                      <SelectAnotherRulesOfProductsOnCityTax
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                {!hasCitytax && (
+                  <Form.Field
+                    control={form.control}
+                    name="reverseCtaxRules"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>
+                          Another rules of products on city tax
+                        </Form.Label>
+                        <SelectAnotherRulesOfProductsOnCityTax
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          kind="ctax"
+                        />
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -262,6 +278,8 @@ const NewConfigForm = ({
 
   const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
+  const hasVat = form.watch('hasVat');
+  const hasCitytax = form.watch('hasCitytax');
 
   return (
     <div className="">
@@ -294,11 +312,11 @@ const NewConfigForm = ({
                   control={form.control}
                   selectedBoardId={selectedBoardId}
                   selectedPipelineId={selectedPipelineId}
-                  onBoardChange={(value: string) => {
+                  onBoardChange={() => {
                     form.setValue('pipelineId', '');
                     form.setValue('stageId', '');
                   }}
-                  onPipelineChange={(value: string) => {
+                  onPipelineChange={() => {
                     form.setValue('stageId', '');
                   }}
                 />
@@ -361,22 +379,25 @@ const NewConfigForm = ({
                     </Form.Item>
                   )}
                 />
-                <Form.Field
-                  control={form.control}
-                  name="reverseVatRules"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Another rules of products on vat</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          placeholder="Another rules of products on vat"
+                {hasVat && (
+                  <Form.Field
+                    control={form.control}
+                    name="reverseVatRules"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>
+                          Another rules of products on vat
+                        </Form.Label>
+                        <SelectAnotherRulesOfProductsOnCityTax
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          kind="vat"
                         />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
                 <Form.Field
                   control={form.control}
                   name="hasCitytax"
@@ -394,22 +415,25 @@ const NewConfigForm = ({
                     </Form.Item>
                   )}
                 />
-                <Form.Field
-                  control={form.control}
-                  name="reverseCtaxRules"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        Another rules of products on city tax
-                      </Form.Label>
-                      <SelectAnotherRulesOfProductsOnCityTax
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                {!hasCitytax && (
+                  <Form.Field
+                    control={form.control}
+                    name="reverseCtaxRules"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>
+                          Another rules of products on city tax
+                        </Form.Label>
+                        <SelectAnotherRulesOfProductsOnCityTax
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          kind="ctax"
+                        />
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -481,8 +505,12 @@ export const SalesAreTentativeForm = () => {
           userEmail: formData.userEmail,
           hasVat: formData.hasVat,
           hasCitytax: formData.hasCitytax,
-          reverseCtaxRules: formData.reverseCtaxRules,
-          reverseVatRules: formData.reverseVatRules,
+          reverseCtaxRules: formData.hasCitytax
+            ? []
+            : normalizeRuleIds(formData.reverseCtaxRules),
+          reverseVatRules: formData.hasVat
+            ? normalizeRuleIds(formData.reverseVatRules)
+            : [],
           defaultPay: formData.defaultPay,
           нэхэмжлэх: formData.нэхэмжлэх,
           хаанБанкданс: formData.хаанБанкданс,

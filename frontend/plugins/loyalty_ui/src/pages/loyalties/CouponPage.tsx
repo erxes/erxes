@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Button, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router';
 import { IconSettings } from '@tabler/icons-react';
-import { Export } from 'ui-modules';
+import { Can, Export } from 'ui-modules';
 import { useLoyaltyHeaderAction } from '~/modules/loyalties/components/LoyaltyHeaderActionContext';
 import { CouponRecordTable } from '~/modules/loyalties/coupons/components/CouponRecordTable';
 import { CouponAddModal } from '~/modules/loyalties/coupons/components/CouponAddModal';
@@ -16,7 +16,13 @@ const CouponHeaderActions = () => (
         Go to settings
       </Link>
     </Button>
-    <Export pluginName="loyalty" moduleName="coupon" collectionName="coupon" />
+    <Can action="couponExportManage">
+      <Export
+        pluginName="loyalty"
+        moduleName="coupon"
+        collectionName="coupon"
+      />
+    </Can>
     <CouponAddModal />
   </div>
 );

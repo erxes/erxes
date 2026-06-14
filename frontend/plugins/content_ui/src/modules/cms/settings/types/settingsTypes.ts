@@ -21,6 +21,7 @@ export type SettingsFormState = {
   googleTagManagerId: string;
   customHeadScripts: string;
   postUrlField: string;
+  postUrlPrefix: string;
   postsPerPage: string;
   defaultPostStatus: string;
   allowComments: boolean;
@@ -57,6 +58,7 @@ export type CmsSettingsData = {
   language?: string;
   languages?: string[];
   postUrlField?: string;
+  postUrlPrefix?: string;
   siteLogo?: CmsAttachment | null;
   favicon?: CmsAttachment | null;
 };

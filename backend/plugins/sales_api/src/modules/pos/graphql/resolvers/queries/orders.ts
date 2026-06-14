@@ -219,7 +219,7 @@ export const posOrderRecordsQuery = async (
     pluginName: 'core',
     module: 'departments',
     action: 'find',
-    input: { _id: { $in: departmentIds } },
+    input: { query: { _id: { $in: departmentIds } } },
   });
 
   const departmentById = {};
@@ -287,7 +287,7 @@ export const posOrderRecordsQuery = async (
       pluginName: 'core',
       module: 'customers',
       action: 'find',
-      input: { _id: { $in: customerIds } },
+      input: { query: { _id: { $in: customerIds } } },
       defaultValue: [],
     });
 
@@ -304,7 +304,7 @@ export const posOrderRecordsQuery = async (
       pluginName: 'core',
       module: 'companies',
       action: 'find',
-      input: { _id: { $in: companyIds } },
+      input: { query: { _id: { $in: companyIds } } },
       defaultValue: [],
     });
 
@@ -346,8 +346,8 @@ export const posOrderRecordsQuery = async (
       productCategoryById[perProduct.categoryId || ''];
     order.items.manufactured = order.items.manufacturedDate
       ? new Date(
-          Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n')),
-        )
+        Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n')),
+      )
       : '';
     order.user = userById[order.userId];
     order.posName = posByToken[order.posToken]?.name || '';

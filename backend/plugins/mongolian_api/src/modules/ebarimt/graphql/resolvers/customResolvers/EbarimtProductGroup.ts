@@ -12,25 +12,19 @@ export default {
     };
   },
 
-  async mainProduct(productGroup: IProductGroupDocument) {
+  mainProduct(productGroup: IProductGroupDocument) {
     if (!productGroup.mainProductId) {
-      return;
+      return null;
     }
 
-    return {
-      __typename: 'Product',
-      _id: productGroup.mainProductId,
-    };
+    return { __typename: 'Product', _id: productGroup.mainProductId };
   },
 
-  async subProduct(productGroup: IProductGroupDocument) {
+  subProduct(productGroup: IProductGroupDocument) {
     if (!productGroup.subProductId) {
-      return;
+      return null;
     }
 
-    return {
-      __typename: 'Product',
-      _id: productGroup.subProductId,
-    };
+    return { __typename: 'Product', _id: productGroup.subProductId };
   },
 };

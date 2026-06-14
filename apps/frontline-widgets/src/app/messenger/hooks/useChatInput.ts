@@ -7,6 +7,12 @@ import {
 } from '../states';
 import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
 import { useInsertMessage } from './useInsertMessage';
+import { IAttachment } from 'erxes-ui';
+
+type SubmitOptions = {
+  attachments?: IAttachment[];
+  onClear?: () => void;
+};
 
 export function useChatInput() {
   const [conversationId, setConversationId] = useAtom(conversationIdAtom);
@@ -20,36 +26,39 @@ export function useChatInput() {
   const { customerId } = connection.widgetsMessengerConnect;
   const __customerId = getLocalStorageItem('customerId');
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent, options?: SubmitOptions) => {
     e.preventDefault();
-    if (message.trim()) {
-      insertMessage({
-        variables: {
-          contentType: 'text',
-          message: message,
-          customerId: customerId || __customerId || undefined,
-        },
-        onCompleted: (data) => {
-          const _conversationId = data.widgetsInsertMessage.conversationId;
-          const _customerId = data.widgetsInsertMessage.customerId;
-          if (!conversationId) {
-            setConversationId(_conversationId);
-            setActiveTab('chat');
-          }
-          if (!customerId && !__customerId) {
-            setLocalStorageItem('customerId', _customerId);
-            setConnection((prev) => ({
-              ...prev,
-              widgetsMessengerConnect: {
-                ...prev.widgetsMessengerConnect,
-                customerId: _customerId,
-              },
-            }));
-          }
-          setMessage('');
-        },
-      });
-    }
+    const { attachments = [], onClear } = options || {};
+    if (!message.trim() && attachments.length === 0) return;
+
+    insertMessage({
+      variables: {
+        contentType: 'text',
+        message: message,
+        customerId: customerId || __customerId || undefined,
+        attachments: attachments.length > 0 ? attachments : undefined,
+      },
+      onCompleted: (data) => {
+        const _conversationId = data.widgetsInsertMessage.conversationId;
+        const _customerId = data.widgetsInsertMessage.customerId;
+        if (!conversationId) {
+          setConversationId(_conversationId);
+          setActiveTab('chat');
+        }
+        if (!customerId && !__customerId) {
+          setLocalStorageItem('customerId', _customerId);
+          setConnection((prev) => ({
+            ...prev,
+            widgetsMessengerConnect: {
+              ...prev.widgetsMessengerConnect,
+              customerId: _customerId,
+            },
+          }));
+        }
+        setMessage('');
+        onClear?.();
+      },
+    });
   };
 
   const clearMessage = () => {
@@ -58,6 +67,7 @@ export function useChatInput() {
 
   return {
     message,
+    setMessage,
     handleInputChange,
     handleSubmit,
     clearMessage,

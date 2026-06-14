@@ -1,0 +1,33 @@
+{
+  "name": "erxes-agent_api",
+  "version": "1.0.0",
+  "description": "Mastra AI agent management plugin for erxes",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "start": "node -r tsconfig-paths/register dist/src/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ai-sdk/anthropic": "^1.0.0",
+    "@ai-sdk/cohere": "^1.0.0",
+    "@ai-sdk/google": "^1.0.0",
+    "@ai-sdk/groq": "^1.0.0",
+    "@ai-sdk/mistral": "^1.0.0",
+    "@ai-sdk/openai": "^1.0.0",
+    "@ai-sdk/openai-compatible": "^0.2.0",
+    "@mastra/core": "^1.37.1",
+    "@mastra/mongodb": "^1.9.1",
+    "erxes-api-shared": "workspace:^",
+    "exceljs": "^4.4.0",
+    "fastembed": "^2.1.0",
+    "graphql-tag": "^2.12.6",
+    "mammoth": "^1.11.0",
+    "pdf-parse": "^1.1.1",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {}
+}

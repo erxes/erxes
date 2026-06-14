@@ -1,0 +1,65 @@
+# Contract: operation-plugin-reference
+
+skill:
+  name: operation-plugin-reference
+  version: "1.0.0"
+  type: reference
+  description: Apply operation plugin conventions from operation_ui and operation_api
+
+inputs:
+  - name: target_plugin
+    type: string
+    description: "Plugin to apply operation conventions to"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep -E '(^{target_plugin}_ui$|^{target_plugin}_api$)'"
+
+  - name: operation_domain
+    type: enum
+    values: [task, project, cycle, triage, team, template, activity]
+    description: "Which operation domain to reference"
+    required: true
+
+  - name: work_type
+    type: enum
+    values: [frontend, backend]
+    required: true
+
+rules_required:
+  - operation-plugin-reference
+  - architecture
+  - react-general-guidelines
+  - typescript-guidelines
+
+preconditions:
+  - description: "Operation plugin must exist"
+    check: "test -d frontend/plugins/operation_ui && test -d backend/plugins/operation_api"
+  - description: "Target plugin must exist"
+    check: "test -d frontend/plugins/{target_plugin}_ui || test -d backend/plugins/{target_plugin}_api"
+
+postconditions:
+  - description: "Build passes"
+    command: "pnpm nx build {nx_target}"
+    required: true
+
+nx_target_resolver:
+  frontend: "{target_plugin}_ui"
+  backend: "{target_plugin}_api"
+
+composes_with:
+  - create-page
+  - create-table
+  - create-backend-entity
+  - create-form-drawer
+
+references:
+  frontend: "frontend/plugins/operation_ui"
+  backend: "backend/plugins/operation_api"
+  domains:
+    task: "Task management patterns"
+    project: "Project management patterns"
+    cycle: "Cycle/sprint patterns"
+    triage: "Triage workflow patterns"
+    team: "Team management patterns"
+    template: "Template patterns"
+    activity: "Activity log patterns"

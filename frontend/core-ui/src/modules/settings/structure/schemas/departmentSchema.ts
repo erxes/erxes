@@ -7,4 +7,5 @@ export const DEPARTMENT_SCHEMA = z.object({
   code: z.string().min(1, { message: 'Code is required' }),
   parentId: z.string().nullable().optional(),
   userIds: z.string().array().nullable().optional(),
+  status: z.string().nullable().optional(),
 });

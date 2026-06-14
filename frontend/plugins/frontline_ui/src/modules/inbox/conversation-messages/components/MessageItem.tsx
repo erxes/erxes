@@ -138,7 +138,7 @@ const Attachment = ({
   length?: number;
 }) => {
   const { userId, customerId } = useConversationMessageContext();
-  const isImage = attachment.type.startsWith('image/');
+  const isImage = attachment.type.startsWith('image');
   if (!isImage) {
     return (
       <div

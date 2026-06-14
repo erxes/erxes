@@ -28,6 +28,7 @@ import {
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDebounce } from 'use-debounce';
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 
@@ -56,11 +57,21 @@ export const MessageInput = ({
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
     setOnlyInternal(isLead);
-    if (isLead) setIsInternalNote(true);
-  }, [integration?.kind, setOnlyInternal, setIsInternalNote]);
+    setIsInternalNote(isLead);
+  }, [integration?.kind, conversationId, setOnlyInternal, setIsInternalNote]);
 
   const { channels: availableChannels } = useGetChannels();
-  const { responses } = useGetResponses({});
+  const [searchValue, setSearchValue] = useState('');
+  const [debouncedSearchValue] = useDebounce(searchValue, 300);
+
+  const { responses } = useGetResponses({
+    skip: !debouncedSearchValue,
+    variables: {
+      filter: {
+        searchValue: debouncedSearchValue || undefined,
+      },
+    },
+  });
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<any[]>([]);
@@ -215,6 +226,21 @@ export const MessageInput = ({
     setSelectedIndex(-1);
   }, [suggestions]);
 
+  useEffect(() => {
+    if (!debouncedSearchValue) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    if (preparedResponses?.length > 0) {
+      setSuggestions(preparedResponses.slice(0, 5));
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [preparedResponses, debouncedSearchValue]);
+
   const handleChange = useCallback(async () => {
     const blocks = await editor?.document;
     blocks?.pop();
@@ -224,21 +250,15 @@ export const MessageInput = ({
     const plain = html?.replace(/<[^>]+>/g, '')?.trim() || '';
 
     if (plain.length >= 1) {
-      const searchTerm = plain.toLowerCase();
-      const found = preparedResponses.filter((t) => {
-        const titleMatch = t.name?.toLowerCase().includes(searchTerm);
-        const contentMatch = t.preview?.toLowerCase().includes(searchTerm);
-        return titleMatch || contentMatch;
-      });
-
-      setSuggestions(found.slice(0, 5));
-      setShowSuggestions(found.length > 0);
+      setSearchValue(plain);
     } else {
+      setSearchValue('');
+      setSuggestions([]);
       setShowSuggestions(false);
     }
 
     setMentionedUserIds(getMentionedUserIds(blocks));
-  }, [editor, preparedResponses]);
+  }, [editor]);
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;

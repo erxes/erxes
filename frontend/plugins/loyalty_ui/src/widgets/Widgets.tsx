@@ -1,5 +1,5 @@
 import { IRelationWidgetProps } from 'ui-modules';
-import { ScoreSummaryWidget } from '../modules/loyalties/score/components/ScoreSummaryWidget';
+import { ScoreSummaryWidget } from '../modules/loyalties/scores/components/ScoreSummaryWidget';
 
 const CONTENT_TYPE_TO_OWNER_TYPE: Record<string, string> = {
   'core:customer': 'customer',

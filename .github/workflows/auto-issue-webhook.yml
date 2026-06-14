@@ -1,0 +1,48 @@
+name: Auto Issue Webhook
+
+on:
+  issues:
+    types: [labeled, opened]
+
+jobs:
+  send-webhook:
+    name: Send issue to auto-fix listener
+    permissions: {}
+    if: |
+      github.event.issue.pull_request == null &&
+      (
+        contains(github.event.issue.labels.*.name, 'bug') ||
+        contains(github.event.issue.labels.*.name, 'sentry')
+      )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send webhook to auto-issue-fix listener
+        env:
+          WEBHOOK_URL: ${{ secrets.AUTO_ISSUE_WEBHOOK_URL }}
+          WEBHOOK_SECRET: ${{ secrets.AUTO_ISSUE_WEBHOOK_SECRET }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "ERROR: AUTO_ISSUE_WEBHOOK_URL secret is not configured"
+            exit 1
+          fi
+
+          if [ -z "$WEBHOOK_SECRET" ]; then
+            echo "ERROR: AUTO_ISSUE_WEBHOOK_SECRET secret is not configured"
+            exit 1
+          fi
+
+          PAYLOAD=$(cat "$GITHUB_EVENT_PATH")
+
+          SIGNATURE=$(printf '%s' "$PAYLOAD" | \
+            openssl dgst -sha256 -mac HMAC -macopt key:"$WEBHOOK_SECRET" | \
+            sed 's/^.* //')
+
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Event: issues" \
+            -H "X-Hub-Signature-256: sha256=${SIGNATURE}" \
+            -d "$PAYLOAD" \
+            "$WEBHOOK_URL" \
+            --fail-with-body \
+            --max-time 30

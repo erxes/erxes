@@ -4,6 +4,7 @@ import {
   IconCube,
   IconFilter,
   IconListCheck,
+  IconPackage,
   IconRulerMeasure,
   IconSettings,
   IconStack2,
@@ -24,4 +25,5 @@ export const PRODUCT_NAVIGATION_ICONS: Record<
   [ProductsPath.BundleCondition]: IconFilter,
   [ProductsPath.BundleRule]: IconListCheck,
   [ProductsPath.ProductRule]: IconCertificate,
+  [ProductsPath.Packages]: IconPackage,
 };

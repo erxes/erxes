@@ -19,6 +19,18 @@ const accountImportTypes = [
     label: 'Account',
     contentType: 'accounting:account.account',
   },
+  {
+    label: 'Account Category',
+    contentType: 'accounting:account.accountCategories',
+  },
+  {
+    label: 'Accounts',
+    contentType: 'accounting:account.accounts',
+  },
+  {
+    label: 'Transaction',
+    contentType: 'accounting:account.transactions',
+  },
 ];
 
 startPlugin({

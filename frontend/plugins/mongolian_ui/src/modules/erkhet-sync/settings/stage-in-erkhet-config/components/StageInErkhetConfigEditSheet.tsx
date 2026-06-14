@@ -38,11 +38,15 @@ export const StageInErkhetConfigEditSheet = ({
       hasVat: config.hasVat ?? false,
       hasCitytax: config.hasCitytax ?? false,
       reverseCtaxRules: Array.isArray(config.reverseCtaxRules)
-        ? config.reverseCtaxRules[0] ?? ''
-        : config.reverseCtaxRules ?? '',
+        ? config.reverseCtaxRules
+        : config.reverseCtaxRules
+        ? [config.reverseCtaxRules]
+        : [],
       reverseVatRules: Array.isArray(config.reverseVatRules)
-        ? config.reverseVatRules[0] ?? ''
-        : config.reverseVatRules ?? '',
+        ? config.reverseVatRules
+        : config.reverseVatRules
+        ? [config.reverseVatRules]
+        : [],
       defaultPay: config.defaultPay ?? '',
     },
   });
@@ -54,8 +58,26 @@ export const StageInErkhetConfigEditSheet = ({
 
   const { paymentTypes } = useGetSalesPipelinePaymentTypes(selectedPipelineId);
 
+  const normalizeRuleIds = (value?: string | string[]) => {
+    if (!value) {
+      return [];
+    }
+
+    return Array.isArray(value)
+      ? value.filter(Boolean)
+      : [value].filter(Boolean);
+  };
+
   const handleSubmit = async (data: TErkhetConfig) => {
-    await onSubmit(config._id, data);
+    await onSubmit(config._id, {
+      ...data,
+      reverseVatRules: data.hasVat
+        ? normalizeRuleIds(data.reverseVatRules)
+        : [],
+      reverseCtaxRules: data.hasCitytax
+        ? []
+        : normalizeRuleIds(data.reverseCtaxRules),
+    });
     onOpenChange(false);
   };
 
@@ -219,6 +241,7 @@ export const StageInErkhetConfigEditSheet = ({
                               <SelectAnotherRulesOfProductsOnCityTax
                                 value={field.value}
                                 onValueChange={field.onChange}
+                                kind="vat"
                               />
                               <Form.Message />
                             </Form.Item>
@@ -244,7 +267,7 @@ export const StageInErkhetConfigEditSheet = ({
                           </Form.Item>
                         )}
                       />
-                      {hasCitytax && (
+                      {!hasCitytax && (
                         <Form.Field
                           control={form.control}
                           name="reverseCtaxRules"
@@ -256,6 +279,7 @@ export const StageInErkhetConfigEditSheet = ({
                               <SelectAnotherRulesOfProductsOnCityTax
                                 value={field.value}
                                 onValueChange={field.onChange}
+                                kind="ctax"
                               />
                               <Form.Message />
                             </Form.Item>

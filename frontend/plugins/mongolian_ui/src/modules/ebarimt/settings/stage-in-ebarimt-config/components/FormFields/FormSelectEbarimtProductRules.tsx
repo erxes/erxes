@@ -30,7 +30,13 @@ export const FormSelectEbarimtProductRules = <T extends FieldValues>({
           <Form.Label>{label}</Form.Label>
           <Form.Control>
             <SelectEbarimtProductRules
-              value={field.value || ''}
+              value={
+                Array.isArray(field.value)
+                  ? field.value
+                  : field.value
+                  ? [field.value]
+                  : []
+              }
               kind={kind}
               variant={variant}
               scope={scope}

@@ -187,12 +187,22 @@ const CompaniesList = ({
                     <Button
                       variant="ghost"
                       className={cn(
-                        'min-h-9 h-auto justify-start font-normal',
+                        'min-h-9 h-auto w-full justify-start font-normal ',
                         isSelected && 'bg-primary/10',
                       )}
                       onClick={() => handleCompanySelect(company)}
                     >
-                      {getCompanyTitle(company)}
+                      <div className="flex flex-1 gap-2 items-center">
+                        {company?.code && (
+                          <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
+                            {company.code}
+                          </span>
+                        )}
+                        <span className="truncate">
+                          {getCompanyTitle(company)}
+                        </span>
+                      </div>
+
                       {isSelected ? (
                         <IconCheck className="ml-auto" />
                       ) : (

@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS: SettingsFormState = {
   googleTagManagerId: '',
   customHeadScripts: '',
   postUrlField: '_id',
+  postUrlPrefix: '/posts',
   postsPerPage: '10',
   defaultPostStatus: 'draft',
   allowComments: false,

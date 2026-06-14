@@ -138,9 +138,9 @@ export const thirdOrderToErkhet = async (
       status: 'success',
       data: await sendErkhetPost(
         models,
-        syncLog,
         'get-response-send-order-info',
         postData,
+        syncLog,
       ),
     };
   } catch (e) {

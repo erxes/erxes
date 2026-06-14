@@ -50,6 +50,12 @@ const ProductsProductRulePage = lazy(() =>
   })),
 );
 
+const ProductsPackagePage = lazy(() =>
+  import('~/pages/products/ProductsPackagePage').then((module) => ({
+    default: module.ProductsPackagePage,
+  })),
+);
+
 export const ProductsSettingRoutes = () => {
   return (
     <Suspense fallback={<></>}>
@@ -68,6 +74,7 @@ export const ProductsSettingRoutes = () => {
         />
         <Route path="bundle-rule" element={<ProductsBundleRulePage />} />
         <Route path="product-rule" element={<ProductsProductRulePage />} />
+        <Route path="packages" element={<ProductsPackagePage />} />
       </Routes>
       <ProductsPageEffect />
     </Suspense>

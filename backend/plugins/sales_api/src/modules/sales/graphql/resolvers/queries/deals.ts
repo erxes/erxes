@@ -600,29 +600,29 @@ export const generateFilter = async (
 
   if (createdStartDate || createdEndDate) {
     filter.createdAt = {
-      $gte: new Date(createdStartDate),
-      $lte: new Date(createdEndDate),
+      ...(createdStartDate && { $gte: new Date(createdStartDate) }),
+      ...(createdEndDate && { $lte: new Date(createdEndDate) }),
     };
   }
 
   if (stateChangedStartDate || stateChangedEndDate) {
     filter.stageChangedDate = {
-      $gte: new Date(stateChangedStartDate),
-      $lte: new Date(stateChangedEndDate),
+      ...(stateChangedStartDate && { $gte: new Date(stateChangedStartDate) }),
+      ...(stateChangedEndDate && { $lte: new Date(stateChangedEndDate) }),
     };
   }
 
   if (startDateStartDate || startDateEndDate) {
     filter.startDate = {
-      $gte: new Date(startDateStartDate),
-      $lte: new Date(startDateEndDate),
+      ...(startDateStartDate && { $gte: new Date(startDateStartDate) }),
+      ...(startDateEndDate && { $lte: new Date(startDateEndDate) }),
     };
   }
 
   if (closeDateStartDate || closeDateEndDate) {
     filter.closeDate = {
-      $gte: new Date(closeDateStartDate),
-      $lte: new Date(closeDateEndDate),
+      ...(closeDateStartDate && { $gte: new Date(closeDateStartDate) }),
+      ...(closeDateEndDate && { $lte: new Date(closeDateEndDate) }),
     };
   }
 
@@ -681,27 +681,31 @@ const fetchDeals = async (
   user: IContext['user'],
   forClientPortal = false,
 ) => {
-  const filter = await generateFilter(models, subdomain, userId, args, forClientPortal);
+  const filter = await generateFilter(
+    models,
+    subdomain,
+    userId,
+    args,
+    forClientPortal,
+  );
 
   const getExtraFields = async (item: any) => ({
     amount: await dealResolvers.amount(item),
     unUsedAmount: await dealResolvers.unusedAmount(item),
   });
 
-  const { list: deals, pageInfo, totalCount } = await getItemList(
-    models,
-    subdomain,
-    filter,
-    args,
-    user,
-    getExtraFields,
-  );
+  const {
+    list: deals,
+    pageInfo,
+    totalCount,
+  } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
 
   await enrichDealsWithProducts(subdomain, deals);
 
   return { list: deals, pageInfo, totalCount };
 };
 
+// #region Queries
 export const dealQueries: Record<string, Resolver> = {
   /**
    * Deals list

@@ -1,0 +1,64 @@
+# Contract: create-query
+
+skill:
+  name: create-query
+  version: "1.0.0"
+  type: feature
+  description: Add or reuse erxes frontend GraphQL operations and Apollo hooks
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Frontend plugin name"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_ui$'"
+
+  - name: operation_type
+    type: enum
+    values: [query, mutation, subscription, fragment]
+    required: true
+
+  - name: operation_name
+    type: string
+    description: "Unique operation name with plugin prefix (e.g., 'cmsPageList')"
+    required: true
+    pattern: "^[a-z][a-zA-Z0-9]+$"
+
+  - name: module_name
+    type: string
+    description: "Module where operation belongs"
+    required: true
+
+rules_required:
+  - react-general-guidelines
+  - typescript-guidelines
+
+preconditions:
+  - description: "Plugin must exist"
+    check: "test -d frontend/plugins/{plugin_name}_ui"
+  - description: "Operation name must be unique"
+    check: "! grep -r '{operation_name}' frontend/plugins/{plugin_name}_ui/src/"
+
+postconditions:
+  - description: "Lint passes"
+    command: "pnpm nx lint {plugin_name}_ui"
+    required: true
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_ui"
+    required: true
+
+composes_with:
+  - create-page
+  - create-table
+  - create-form-drawer
+  - create-modal
+
+conventions:
+  - "Search existing queries, mutations, fragments, hooks before creating new"
+  - "Name with plugin or module prefix plus purpose"
+  - "Keep GraphQL documents near feature module"
+  - "Reuse fragments when available"
+  - "Use same Apollo hook style as nearby code"
+  - "Mutations must update lists/details/counters without refresh"
+  - "Do not change backend contracts from frontend work"

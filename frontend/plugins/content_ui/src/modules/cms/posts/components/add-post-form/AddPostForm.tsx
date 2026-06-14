@@ -57,6 +57,8 @@ export const AddPostForm = ({
     customTypes,
     availableLanguages,
     defaultLanguage,
+    postUrlField,
+    cmsConfig,
     fieldGroups,
   } = usePostData(websiteId, selectedType, currentEditingPost?._id);
 
@@ -91,6 +93,27 @@ export const AddPostForm = ({
     (lang: string) => handleLanguageChangeRef.current(lang),
     [],
   );
+  const isSwitchingLanguageRef = useRef(false);
+
+  const finishLanguageSwitch = useCallback(() => {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => {
+        isSwitchingLanguageRef.current = false;
+      });
+      return;
+    }
+
+    isSwitchingLanguageRef.current = false;
+  }, []);
+
+  const handlePostEditorChange = useCallback(
+    (content: string) => {
+      if (isSwitchingLanguageRef.current) return;
+
+      handleEditorChange(content);
+    },
+    [handleEditorChange],
+  );
 
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
@@ -113,19 +136,26 @@ export const AddPostForm = ({
   ]);
 
   // Helper: apply translation (or clear) translatable fields and save default data
-  const applyTranslationToForm = (lang: string) => {
-    setDefaultLangData({
-      title: fullPost?.title || '',
-      content: fullPost?.content || '',
-      excerpt: fullPost?.excerpt || fullPost?.description || '',
-      customFieldsData: fullPost?.customFieldsData || [],
-    });
-    const translation = translations[lang];
-    form.setValue('title', translation?.title || '');
-    form.setValue('content', translation?.content || '');
-    form.setValue('description', translation?.excerpt || '');
-    form.setValue('customFieldsData', translation?.customFieldsData || []);
-  };
+  const applyTranslationToForm = useCallback(
+    (lang: string) => {
+      setDefaultLangData((current) => {
+        if (current) return current;
+
+        return {
+          title: fullPost?.title || '',
+          content: fullPost?.content || '',
+          excerpt: fullPost?.excerpt || fullPost?.description || '',
+          customFieldsData: fullPost?.customFieldsData || [],
+        };
+      });
+      const translation = translations[lang];
+      form.setValue('title', translation?.title || '');
+      form.setValue('content', translation?.content || '');
+      form.setValue('description', translation?.excerpt || '');
+      form.setValue('customFieldsData', translation?.customFieldsData || []);
+    },
+    [form, fullPost, translations, setDefaultLangData],
+  );
 
   useEffect(() => {
     if (!selectedLanguage && defaultLanguage) {
@@ -134,16 +164,29 @@ export const AddPostForm = ({
       // (which remounts on key change including selectedLanguage) reads
       // the correct values when it re-initialises.
       if (initialLang !== defaultLanguage) {
+        isSwitchingLanguageRef.current = true;
         applyTranslationToForm(initialLang);
+        finishLanguageSwitch();
       }
       setSelectedLanguage(initialLang);
     }
-  }, [defaultLanguage, selectedLanguage, setSelectedLanguage, cmsLanguage]);
+  }, [
+    applyTranslationToForm,
+    cmsLanguage,
+    defaultLanguage,
+    finishLanguageSwitch,
+    selectedLanguage,
+    setSelectedLanguage,
+  ]);
 
   // When fullPost changes (loads twice: editingPost then fullPostData.cmsPost),
   // the hook's effect resets the form with default-lang data.  Re-apply the
   // translation override for the current non-default language.
-  const appliedForPostRef = useRef<Record<string, unknown> | null>(null);
+  const appliedForPostRef = useRef<{
+    post: unknown;
+    language: string;
+    translations: unknown;
+  } | null>(null);
   useEffect(() => {
     if (
       !selectedLanguage ||
@@ -153,16 +196,33 @@ export const AddPostForm = ({
       return;
     }
     if (currentEditingPost && !fullPost) return;
-    if (appliedForPostRef.current === (fullPost ?? null)) return;
+    const post = fullPost ?? null;
+    const applied = appliedForPostRef.current;
 
+    if (
+      applied?.post === post &&
+      applied.language === selectedLanguage &&
+      applied.translations === translations
+    ) {
+      return;
+    }
+
+    isSwitchingLanguageRef.current = true;
     applyTranslationToForm(selectedLanguage);
-    appliedForPostRef.current = fullPost ?? null;
+    finishLanguageSwitch();
+    appliedForPostRef.current = {
+      post,
+      language: selectedLanguage,
+      translations,
+    };
   }, [
-    selectedLanguage,
+    applyTranslationToForm,
     defaultLanguage,
-    translations,
-    fullPost,
+    finishLanguageSwitch,
     currentEditingPost,
+    fullPost,
+    selectedLanguage,
+    translations,
   ]);
 
   useEffect(() => {
@@ -183,11 +243,12 @@ export const AddPostForm = ({
       form.setValue('customFieldsData', []);
     }
     previousTypeRef.current = selectedType;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedType, currentEditingPost]);
+  }, [selectedType, currentEditingPost, form, previousTypeRef]);
 
   const handleLanguageChange = (lang: string) => {
     if (lang === selectedLanguage) return;
+
+    isSwitchingLanguageRef.current = true;
 
     if (selectedLanguage === defaultLanguage) {
       setDefaultLangData({
@@ -229,6 +290,7 @@ export const AddPostForm = ({
 
     setSelectedLanguage(lang);
     setCmsLanguage(lang);
+    finishLanguageSwitch();
   };
 
   // Keep ref in sync so the stable callback always delegates to latest logic
@@ -246,7 +308,7 @@ export const AddPostForm = ({
               selectedType={selectedType}
               fieldGroups={fieldGroups}
               fullPost={fullPost}
-              handleEditorChange={handleEditorChange}
+              handleEditorChange={handlePostEditorChange}
               getCustomFieldValue={getCustomFieldValue}
               updateCustomFieldValue={updateCustomFieldValue}
             />
@@ -260,6 +322,9 @@ export const AddPostForm = ({
               defaultLanguage={defaultLanguage}
               selectedLanguage={selectedLanguage}
               languageOptions={languageOptions}
+              postUrlField={postUrlField}
+              fullPost={fullPost}
+              cmsConfig={cmsConfig}
               handleLanguageChange={handleLanguageChange}
             />
           </div>

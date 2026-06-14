@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
-import { JOURNALS, TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
+import { JOURNALS, TR_FOLLOW_TYPES } from '../@types/constants';
 import { ICtaxRow } from '../@types/ctaxRow';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
 import { IVatRow } from '../@types/vatRow';
@@ -15,14 +15,11 @@ class TaxTrs {
 
   private vatAccountId?: string;
   private ctaxAccountId?: string;
-  private taxPercent = 0;
   private vatRow?: IVatRow;
   private ctaxRow?: ICtaxRow;
 
   private vatTrDoc?: ITransaction;
   private ctaxTrDoc?: ITransaction;
-  private sumDt = 0;
-  private sumCt = 0;
 
   constructor(
     models: IModels,
@@ -39,7 +36,6 @@ class TaxTrs {
   }
 
   private initTaxValues = async () => {
-    let taxPercent = 0;
     const hasVat = await this.models.Configs.getConfigValue('HasVat');
     const hasCtax = await this.models.Configs.getConfigValue('HasCtax');
     if (hasVat && this.doc.hasVat) {
@@ -67,12 +63,12 @@ class TaxTrs {
       this.vatRow = await this.models.VatRows.getVatRow({
         _id: this.doc.vatRowId,
       });
-      taxPercent += this.vatRow.percent || 0;
     }
 
     if (hasCtax && this.doc.hasCtax) {
-      this.ctaxAccountId =
-        await this.models.Configs.getConfigValue('CtaxPayableAccount');
+      this.ctaxAccountId = await this.models.Configs.getConfigValue(
+        'CtaxPayableAccount',
+      );
 
       if (!this.ctaxAccountId) {
         throw new Error('must init ctax account id');
@@ -81,20 +77,7 @@ class TaxTrs {
       this.ctaxRow = await this.models.CtaxRows.getCtaxRow({
         _id: this.doc.ctaxRowId,
       });
-      taxPercent += this.ctaxRow.percent;
     }
-
-    this.taxPercent = taxPercent;
-
-    this.sumDt =
-      this.side === TR_SIDES.DEBIT
-        ? this.doc.details.reduce((sum, cur) => sum + cur.amount, 0)
-        : 0;
-
-    this.sumCt =
-      this.side === TR_SIDES.CREDIT
-        ? this.doc.details.reduce((sum, cur) => sum + cur.amount, 0)
-        : 0;
   };
 
   private checkVatValidation = async () => {
@@ -111,12 +94,12 @@ class TaxTrs {
       throw new Error('must choose vat row');
     }
 
-    const sumValue = this.sumDt + this.sumCt;
     const vatPercent = this.vatRow?.percent || 0;
 
-    const vatValue = this.isWithTax
-      ? (sumValue / (100 + this.taxPercent)) * vatPercent
-      : (sumValue / 100) * vatPercent;
+    const vatValue = this.calcTaxValue('vat', vatPercent);
+    if (Math.abs(vatValue) < 0.005) {
+      return;
+    }
 
     this.vatTrDoc = {
       ptrId: this.doc.ptrId,
@@ -156,12 +139,12 @@ class TaxTrs {
       throw new Error('must choose ctax row');
     }
 
-    const sumValue = this.sumDt + this.sumCt;
     const ctaxPercent = this.ctaxRow?.percent || 0;
 
-    const ctaxValue = this.isWithTax
-      ? (sumValue / (100 + this.taxPercent)) * ctaxPercent
-      : (sumValue / 100) * ctaxPercent;
+    const ctaxValue = this.calcTaxValue('ctax', ctaxPercent);
+    if (Math.abs(ctaxValue) < 0.005) {
+      return;
+    }
 
     if (this.side === 'ct') {
       this.ctaxTrDoc = {
@@ -186,6 +169,31 @@ class TaxTrs {
       };
       return this.ctaxTrDoc;
     }
+  };
+
+  private readonly calcTaxValue = (kind: 'vat' | 'ctax', taxPercent: number) => {
+    const vatPercent = this.vatRow?.percent || 0;
+    const ctaxPercent = this.ctaxRow?.percent || 0;
+
+    return this.doc.details.reduce((sum, detail) => {
+      if (kind === 'vat' && detail.excludeVat) {
+        return sum;
+      }
+
+      if (kind === 'ctax' && detail.excludeCtax) {
+        return sum;
+      }
+
+      if (!this.isWithTax) {
+        return sum + (detail.amount / 100) * taxPercent;
+      }
+
+      const detailTaxPercent =
+        (detail.excludeVat ? 0 : vatPercent) +
+        (detail.excludeCtax ? 0 : ctaxPercent);
+
+      return sum + (detail.amount / (100 + detailTaxPercent)) * taxPercent;
+    }, 0);
   };
 
   public checkTaxValidation = async () => {

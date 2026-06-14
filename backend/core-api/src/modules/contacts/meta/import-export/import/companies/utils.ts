@@ -1,4 +1,5 @@
 import { IModels } from '~/connectionResolvers';
+import { extractPropertiesData } from '~/meta/import-export/utils';
 
 const generateCompanyTagIds = async (models: IModels, tags: string = '') => {
   const tagNames = tags
@@ -28,15 +29,19 @@ const generateCompanyTagIds = async (models: IModels, tags: string = '') => {
   return tagIds;
 };
 
-export async function prepareCompanyDoc(models: IModels, row: any): Promise<any> {
+export async function prepareCompanyDoc(
+  models: IModels,
+  row: any,
+): Promise<any> {
   const doc: any = { ...row };
+  await extractPropertiesData(models, doc);
 
   doc.createdAt = new Date();
   doc.updatedAt = new Date();
 
   if (!doc.primaryName && doc.name) {
     doc.primaryName = doc.name;
-    delete doc.name; 
+    delete doc.name;
   }
 
   // normalize emails/phones like customer
@@ -49,10 +54,16 @@ export async function prepareCompanyDoc(models: IModels, row: any): Promise<any>
 
   // If CSV provides "Emails"/"Phones" as string, normalize
   if (typeof doc.emails === 'string') {
-    doc.emails = doc.emails.split(/[;,]/).map((x) => x.trim()).filter(Boolean);
+    doc.emails = doc.emails
+      .split(/[;,]/)
+      .map((x) => x.trim())
+      .filter(Boolean);
   }
   if (typeof doc.phones === 'string') {
-    doc.phones = doc.phones.split(/[;,]/).map((x) => x.trim()).filter(Boolean);
+    doc.phones = doc.phones
+      .split(/[;,]/)
+      .map((x) => x.trim())
+      .filter(Boolean);
   }
 
   // tags -> tagIds (company type)

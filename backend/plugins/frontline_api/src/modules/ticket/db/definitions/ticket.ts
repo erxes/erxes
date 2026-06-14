@@ -5,34 +5,35 @@ import { attachmentSchema } from 'erxes-api-shared/core-modules';
 export const ticketSchema = new Schema(
   {
     _id: mongooseStringRandomId,
-    name: { type: String },
-    channelId: { type: String },
-    stageId: { type: String },
+    name: { type: String, label: 'Name' },
+    channelId: { type: String, label: 'Channel' },
+    stageId: { type: String, label: 'Stage' },
     pipelineId: {
       type: String,
-      label: 'pipelineId',
+      label: 'Pipeline',
     },
     statusId: {
       type: String,
-      label: 'statusId',
+      label: 'Status',
     },
     state: {
       type: String,
-      label: 'state',
+      label: 'State',
     },
     description: { type: String, label: 'Description' },
     type: {
       type: String,
       enum: ['bug', 'ticket', 'feature', 'question', 'incident'],
       default: 'ticket',
+      label: 'Type',
     },
     priority: { type: Number, label: 'Priority', default: 0 },
     assigneeId: { type: String, label: 'Assignee' },
     createdBy: { type: String, label: 'Created By' },
     attachments: { type: [attachmentSchema], label: 'Attachments' },
-    labelIds: { type: [String], label: 'Label IDs' },
-    tagIds: { type: [String], label: 'Tag IDs' },
-    userId: { type: String, label: 'userId' },
+    labelIds: { type: [String], label: 'Labels' },
+    tagIds: { type: [String], label: 'Tags' },
+    userId: { type: String, label: 'Created by' },
     statusChangedDate: {
       type: Date,
       label: 'Complated Date',
@@ -48,7 +49,7 @@ export const ticketSchema = new Schema(
       optional: true,
       label: 'Properties data',
     },
-    companyIds: { type: [String], label: 'Company IDs' },
+    companyIds: { type: [String], label: 'Companies' },
     customerFieldData: {
       type: Schema.Types.Mixed,
       optional: true,

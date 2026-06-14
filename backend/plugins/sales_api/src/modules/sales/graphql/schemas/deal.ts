@@ -80,7 +80,7 @@ export const types = `
   type Deal @key(fields: "_id") {
     _id: String!
 
-    name: String!
+    name: String
     order: Float
     createdAt: Date
     hasNotified: Boolean
@@ -237,4 +237,8 @@ export const mutations = `
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
 
   cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
+  cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
+  cpDealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
+  cpDealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
+  cpDealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
 `;

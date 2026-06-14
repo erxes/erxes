@@ -38,7 +38,7 @@ const Attachment = ({
 }) => {
   const { userId, customerId, botData } = useFbMessengerMessageContext();
   const isOutgoing = !!userId || !!botData?.length;
-  const isImage = attachment.type.startsWith('image/');
+  const isImage = attachment.type.startsWith('image');
 
   if (!isImage) {
     return (

@@ -1,0 +1,81 @@
+name: Sentry Release
+
+on:
+  push:
+    tags:
+      - '[0-9]*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 3.0.4)'
+        required: true
+      environment:
+        description: 'Environment (production, staging)'
+        required: true
+        default: 'production'
+
+jobs:
+  sentry-release:
+    name: Create Sentry Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Create Sentry release
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://sentry.erxes.io
+          SENTRY_ORG: sentry
+          SENTRY_PROJECT: erxes-api
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          RELEASE="erxes-${VERSION}"
+          
+          # Install Sentry CLI
+          curl -sL https://sentry.io/get-cli/ | bash
+          
+          # Create release
+          sentry-cli releases new "${RELEASE}"
+          
+          # Set commits for this release
+          sentry-cli releases set-commits "${RELEASE}" --auto
+          
+          # Upload source maps for frontend
+          sentry-cli releases files "${RELEASE}" upload-sourcemaps \
+            frontend/core-ui/dist \
+            frontend/plugins/*/dist \
+            --url-prefix '~/'
+          
+          # Finalize release
+          sentry-cli releases finalize "${RELEASE}"
+          
+          # Deploy to environment
+          sentry-cli releases deploys "${RELEASE}" new \
+            --env "${{ github.event.inputs.environment || 'production' }}"
+
+      - name: Notify Slack on success
+        if: success()
+        run: |
+          echo "✅ Sentry release created successfully"
+
+      - name: Notify Slack on failure
+        if: failure()
+        run: |
+          echo "❌ Sentry release creation failed"

@@ -1,3 +1,5 @@
+import './sentry-instrument';
+import * as Sentry from '@sentry/node';
 import * as dotenv from 'dotenv';
 
 import express from 'express';
@@ -37,8 +39,7 @@ import {
   startSubscriptionServer,
   stopSubscriptionServer,
 } from './subscription';
-import * as fs from 'fs';
-import * as path from 'path';
+import { isValidLocaleParams, resolveLocale } from '~/util/locales';
 
 dotenv.config();
 
@@ -80,6 +81,11 @@ createBullBoard({
 });
 
 serverAdapter.setBasePath('/bullmq-board');
+
+Sentry.getGlobalScope().setTags({
+  plugin: 'gateway',
+  service: 'gateway',
+});
 
 const app = express();
 applyTrustProxy(app);
@@ -151,24 +157,26 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-app.get('/locales/:lng/:file', async (req, res) => {
-  const localesRoot = path.join(__dirname, './locales');
-  try {
-    const requestedPath = path.resolve(
-      localesRoot,
-      req.params.lng,
-      req.params.file,
-    );
-    const realPath = fs.realpathSync(requestedPath);
-    if (!realPath.startsWith(localesRoot + path.sep)) {
-      return res.status(403).send('Forbidden');
-    }
-    const lngJson = fs.readFileSync(realPath);
-    res.json(JSON.parse(lngJson.toString()));
-  } catch {
-    res.status(500).send('Error fetching locale');
-  }
+app.get('/debug-sentry', () => {
+  throw new Error('Sentry test error (gateway): ' + new Date().toISOString());
 });
+
+app.get('/locales/:lng/:file', async (req, res) => {
+  const { lng, file } = req.params;
+
+  if (!isValidLocaleParams(lng, file)) {
+    return res.status(400).send('Invalid locale');
+  }
+
+  const locale = await resolveLocale(lng, file);
+
+  if (locale === null) {
+    return res.status(404).send('Locale not found');
+  }
+
+  return res.json(locale);
+});
+
 app.use('/pl:serviceName', async (req, res) => {
   try {
     const serviceName: string = req.params.serviceName.replace(':', '');
@@ -230,6 +238,8 @@ async function start() {
     applyGraphqlLimiters(app);
     applyProxiesCoreless(app);
     applyProxyToCore(app, global.currentTargets);
+
+    Sentry.setupExpressErrorHandler(app);
 
     // Start the HTTP server
     httpServer = http.createServer(app);

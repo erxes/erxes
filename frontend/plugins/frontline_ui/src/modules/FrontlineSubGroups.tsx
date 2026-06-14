@@ -1,5 +1,6 @@
 import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
 import { ChooseBrand } from '@/inbox/brand/components/ChooseBrand';
+import { CreateBrand } from '@/inbox/brand/components/CreateBrand';
 import { ChooseIntegrationTypeContent } from '@/integrations/components/ChooseIntegrationType';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 import { NavigationMenuGroup } from 'erxes-ui';
@@ -12,15 +13,10 @@ export const FrontlineSubGroups = () => {
   const isInbox = pathname.startsWith('/frontline/inbox');
   const isTickets = pathname.startsWith('/frontline/tickets');
   const isReport = pathname.startsWith('/frontline/reports');
-  const isKnowledgeBase = pathname.startsWith(
-    '/frontline/knowledgebase',
-  );
+  const isKnowledgeBase = pathname.startsWith('/frontline/knowledgebase');
   const isForms = pathname.startsWith('/frontline/forms');
   if (isTickets) {
     return <TicketNavigations />;
-  }
-  if (isReport) {
-    return <ReportNavigations />;
   }
   if (isKnowledgeBase) {
     return <KnowledgeBaseSubGroup />;
@@ -47,7 +43,7 @@ export const FrontlineSubGroups = () => {
       <NavigationMenuGroup name="Integration types">
         <ChooseIntegrationTypeContent />
       </NavigationMenuGroup>
-      <NavigationMenuGroup name="Brands">
+      <NavigationMenuGroup name="Brands" actions={<CreateBrand />}>
         <ChooseBrand />
       </NavigationMenuGroup>
     </>

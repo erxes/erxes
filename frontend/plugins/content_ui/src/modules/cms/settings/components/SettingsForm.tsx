@@ -32,26 +32,23 @@ import {
 } from './SettingsField';
 import { SettingsSection } from './SettingsSection';
 import { Uploader } from './Uploader';
+import { buildPostPublicUrl } from '../../shared/utils';
 
 const POST_URL_FIELD_OPTIONS = [
-  { value: '_id', label: 'Post ID', example: 'fSY5zj2QmcnXUNSnF9sYo' },
-  { value: 'count', label: 'Post Count', example: '1' },
-  { value: 'slug', label: 'Post Slug', example: 'my-first-post' },
+  { value: '_id', label: 'Post ID' },
+  { value: 'count', label: 'Post Count' },
+  { value: 'slug', label: 'Post Slug' },
 ];
+
+const PREVIEW_POST = {
+  _id: 'fSY5zj2QmcnXUNSnF9sYo',
+  count: 1,
+  slug: 'my-first-post',
+};
 
 const DELETE_CONFIRMATION_PHRASE = 'delete my project';
 const DELETE_NAME_CONFIRMATION_INPUT_ID = 'delete-name-confirmation';
 const DELETE_PHRASE_CONFIRMATION_INPUT_ID = 'delete-phrase-confirmation';
-
-function trimTrailingSlashes(value: string): string {
-  let endIndex = value.length;
-
-  while (endIndex > 0 && value[endIndex - 1] === '/') {
-    endIndex -= 1;
-  }
-
-  return value.slice(0, endIndex);
-}
 
 interface ISettingsFormProps {
   cms?: CmsSettingsData;
@@ -83,19 +80,16 @@ export const SettingsForm = ({
     POST_URL_FIELD_OPTIONS.find(
       (option) => option.value === settings.postUrlField,
     ) || POST_URL_FIELD_OPTIONS[0];
-  const rawPublicUrl = settings.publicUrl.trim() || settings.domain.trim();
-  let normalizedPublicUrl = '';
-
-  if (rawPublicUrl) {
-    normalizedPublicUrl = rawPublicUrl.startsWith('http')
-      ? rawPublicUrl
-      : `https://${rawPublicUrl}`;
-  }
-  const previewUrl = normalizedPublicUrl
-    ? `${trimTrailingSlashes(normalizedPublicUrl)}/${
-        selectedPostUrlField.example
-      }`
-    : `/${selectedPostUrlField.example}`;
+  const previewUrl = buildPostPublicUrl(
+    {
+      domain: settings.domain,
+      publicUrl: settings.publicUrl,
+      postUrlField: selectedPostUrlField.value,
+      postUrlPrefix: settings.postUrlPrefix,
+    },
+    PREVIEW_POST,
+    { allowRelative: true },
+  );
   const canDeleteCMS =
     Boolean(cms?._id) &&
     deleteNameConfirmation.trim() === cmsName &&
@@ -425,6 +419,22 @@ export const SettingsForm = ({
       </SettingsSection>
 
       <SettingsSection id="content" title="Content">
+        <Field
+          id="postUrlPrefix"
+          label="Post URL Path"
+          hint="Path before the post identifier. Examples: /blog/, /news/post/. Defaults to /posts/."
+        >
+          <Input
+            id="postUrlPrefix"
+            value={settings.postUrlPrefix}
+            placeholder="/posts"
+            onChange={(event) =>
+              updateSetting('postUrlPrefix', event.target.value)
+            }
+            variant="secondary"
+          />
+        </Field>
+
         <Field
           id="postUrlField"
           label="Post URL Field"

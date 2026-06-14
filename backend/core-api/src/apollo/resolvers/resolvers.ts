@@ -1,4 +1,5 @@
 import automationsResolvers from '@/automations/graphql/resolvers/customResolver';
+import permissionResolvers from '@/permissions/graphql/resolvers/customResolvers';
 import broadcastResolvers from '@/broadcast/graphql/resolvers/customResolvers';
 import clientPortalResolvers from '@/clientportal/graphql/resolvers/customResolvers';
 import contactResolvers from '@/contacts/graphql/resolvers/customResolvers';
@@ -32,4 +33,5 @@ export const customResolvers = {
   ...propertiesResolvers,
   ...broadcastResolvers,
   ...templateResolvers,
+  ...permissionResolvers,
 };

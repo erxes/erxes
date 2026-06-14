@@ -329,6 +329,7 @@ export const checkPricing = async (params: {
 
     // Process each item
     for (const item of orderItems) {
+      console.log(item.productId)
       if (!allowedProductIds.includes(item.productId)) {
         continue;
       }

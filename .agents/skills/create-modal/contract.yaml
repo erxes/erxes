@@ -1,0 +1,58 @@
+# Contract: create-modal
+
+skill:
+  name: create-modal
+  version: "1.0.0"
+  type: feature
+  description: Add erxes modal or dialog UI by reusing existing components
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Frontend plugin name"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_ui$'"
+
+  - name: modal_name
+    type: string
+    description: "PascalCase modal component name"
+    required: true
+    pattern: "^[A-Z][a-zA-Z0-9]+$"
+
+  - name: trigger_type
+    type: enum
+    values: [button, row-action, menu-item, auto]
+    description: "How the modal is triggered"
+    required: true
+
+rules_required:
+  - react-general-guidelines
+  - code-style
+
+preconditions:
+  - description: "Plugin must exist"
+    check: "test -d frontend/plugins/{plugin_name}_ui"
+  - description: "Similar modal must be found"
+    check: "find frontend/plugins/{plugin_name}_ui/src -name '*.tsx' | xargs grep -l 'Dialog\|Modal' | head -3"
+
+postconditions:
+  - description: "Lint passes"
+    command: "pnpm nx lint {plugin_name}_ui"
+    required: true
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_ui"
+    required: true
+
+composes_with:
+  - create-form-drawer
+  - create-page
+
+conventions:
+  - "Reuse existing Dialog/Modal components from erxes-ui"
+  - "Match spacing/layout patterns"
+  - "Match button behavior"
+  - "Reuse validation patterns"
+  - "Preserve accessibility patterns"
+  - "Do not create new modal systems"
+  - "Named exports only"

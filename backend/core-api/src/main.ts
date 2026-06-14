@@ -1,7 +1,10 @@
+import './sentry-instrument';
+import * as Sentry from '@sentry/node';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
+import { initRecordReferences } from 'erxes-api-shared/core-modules';
 import {
   applyTrustProxy,
   closeMongooose,
@@ -21,10 +24,16 @@ import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
 import initImportExport from './meta/import-export';
+import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
 
 const PLUGIN_NAME = 'core';
+
+Sentry.getGlobalScope().setTags({
+  plugin: PLUGIN_NAME,
+  service: PLUGIN_NAME,
+});
 
 dotenv.config();
 
@@ -116,11 +125,17 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
+app.get('/debug-sentry', () => {
+  throw new Error('Sentry test error (core-api): ' + new Date().toISOString());
+});
+
 // Wrap the Express server
 const httpServer = http.createServer(app);
 
 httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
+
+  Sentry.setupExpressErrorHandler(app);
 
   await joinErxesGateway({
     name: PLUGIN_NAME,
@@ -129,6 +144,7 @@ httpServer.listen(port, async () => {
     meta,
   });
   await initAutomation(app);
+  await initRecordReferences(app, PLUGIN_NAME, references);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
   await initBroadcast(app);

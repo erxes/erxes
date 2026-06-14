@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "3.0.26",
+  "version": "3.0.34",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
@@ -49,6 +49,7 @@
     "@module-federation/sdk": "^0.8.9",
     "@react-pdf/renderer": "3.1.14",
     "@sendgrid/mail": "^8.1.5",
+    "@sentry/react": "^10.55.0",
     "@sniptt/guards": "^0.2.0",
     "@tabler/icons-react": "^3.34.0",
     "@tanstack/react-table": "^8.20.5",
@@ -58,7 +59,7 @@
     "@trpc/server": "^11.0.0",
     "@uiw/react-codemirror": "^4.25.3",
     "@workos-inc/node": "^7.65.0",
-    "@xyflow/react": "^12.5.6",
+    "@xyflow/react": "^12.8.3",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.6.0",
     "bcryptjs": "^3.0.2",
@@ -256,6 +257,9 @@
     "typescript-eslint": "^8.0.0",
     "webpack-cli": "^5.1.4"
   },
+  "@mastra/core>zod": "^3.25.0",
+  "@mastra/memory>zod": "^3.25.0",
+  "@mastra/libsql>zod": "^3.25.0",
   "packageManager": "pnpm@9.12.3",
   "pnpm": {
     "overrides": {

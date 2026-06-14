@@ -41,13 +41,13 @@ const TicketsFilterPopover = () => {
   const view = useAtomValue(ticketViewAtom);
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
 
-  useEffect(() => {
-    if (queries) {
-      setFetchedTickets([]);
-    }
+  const { searchValue, assignee, priority, statusId, pipelineId, state } =
+    queries || {};
 
+  useEffect(() => {
+    setFetchedTickets([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queries]);
+  }, [searchValue, assignee, priority, statusId, pipelineId, state]);
   return (
     <>
       <Filter.Popover scope={TicketHotKeyScope.TicketPage}>

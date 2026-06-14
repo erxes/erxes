@@ -51,4 +51,5 @@ export * from './upload';
 export * from './choicebox-group';
 export * from './stepper';
 export * from './color-picker';
+export * from './copy-text';
 export * from './erxes-logo-icon';

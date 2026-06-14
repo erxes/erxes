@@ -1,5 +1,7 @@
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { AutomationNodeType } from '@/automations/types';
+import { cn } from 'erxes-ui';
 import { memo } from 'react';
 import { IAutomationsActionFolkConfig } from 'ui-modules';
 
@@ -23,12 +25,18 @@ type ActionSourceHandlerFolksProps = {
   nodeId: string;
   config: any;
   folks: IAutomationsActionFolkConfig[];
+  flowDirection?: TAutomationFlowDirection;
 };
 
 export const FolksActionSourceHandler = memo(
-  ({ nodeId, config = {}, folks }: ActionSourceHandlerFolksProps) => {
+  ({
+    nodeId,
+    config = {},
+    folks,
+    flowDirection = 'horizontal',
+  }: ActionSourceHandlerFolksProps) => {
+    const isVertical = flowDirection === 'vertical';
     const total = folks.length;
-    const step = total > 1 ? 30 / (total - 1) : 0; // distribute 50%..80%
 
     return (
       <>
@@ -37,7 +45,9 @@ export const FolksActionSourceHandler = memo(
             AUTOMATION_FOLK_VARIABLES[type] ||
             AUTOMATION_FOLK_VARIABLES.default;
 
-          const topPercent = 50 + index * step; // 1 => 50%; 2 => 50,80; n => 50..80
+          // Distribute handles evenly: (i+1)/(n+1)*100 gives balanced margins on both sides
+          // e.g. 1 folk → 50%; 2 folks → 33%, 67%; 3 folks → 25%, 50%, 75%
+          const positionPercent = ((index + 1) / (total + 1)) * 100;
           const displayLabel =
             label && label.length > 5 ? label.slice(0, 5) : label;
 
@@ -51,11 +61,23 @@ export const FolksActionSourceHandler = memo(
               handlerId={handleId}
               className={className}
               addButtonClassName={addButtonClassName}
-              style={{ top: `${topPercent}%` }}
+              style={
+                isVertical
+                  ? { left: `${positionPercent}%` }
+                  : { top: `${positionPercent}%` }
+              }
               showAddButton={!config[key]}
               nodeType={AutomationNodeType.Action}
+              flowDirection={flowDirection}
             >
-              <div className="ml-4 text-xs text-muted-foreground fixed -top-2">
+              <div
+                className={cn(
+                  'text-xs text-muted-foreground absolute whitespace-nowrap',
+                  isVertical
+                    ? 'top-full mt-11 left-1/2 -translate-x-1/2'
+                    : 'left-full ml-14 top-1/2 -translate-y-1/2',
+                )}
+              >
                 {displayLabel}
               </div>
             </NodeOutputHandler>
@@ -65,3 +87,5 @@ export const FolksActionSourceHandler = memo(
     );
   },
 );
+
+FolksActionSourceHandler.displayName = 'FolksActionSourceHandler';

@@ -4,6 +4,7 @@ import {
   IBrowserInfo,
   Resolver,
 } from 'erxes-api-shared/core-types';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import {
   getEnv,
   graphqlPubsub,
@@ -195,7 +196,7 @@ export const getMessengerData = async (
     ...messengerData,
     getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
-    knowledgeBaseTopicId: topicId,
+    knowledgeBaseTopicId: topicId ?? messengerData?.knowledgeBaseTopicId,
     websiteApps,
     formCodes,
   };
@@ -572,7 +573,8 @@ export const widgetMutations: Record<string, Resolver> = {
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
     const messengerData = integration.messengerData || {};
-    const { botEndpointUrl, botShowInitialMessage, botCheck } = messengerData;
+    const { botEndpointUrl, botShowInitialMessage, botCheck, automationId } =
+      messengerData;
     let botId;
     if (botCheck === true) {
       botId = integration?._id;
@@ -599,9 +601,10 @@ export const widgetMutations: Record<string, Resolver> = {
         customerId,
         integrationId,
         visitorId,
-        operatorStatus: HAS_BOTENDPOINT_URL
-          ? CONVERSATION_OPERATOR_STATUS.BOT
-          : CONVERSATION_OPERATOR_STATUS.OPERATOR,
+        operatorStatus:
+          HAS_BOTENDPOINT_URL || !!botId
+            ? CONVERSATION_OPERATOR_STATUS.BOT
+            : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: CONVERSATION_STATUSES.OPEN,
         content: conversationContent,
         ...(skillId ? { skillId } : {}),
@@ -649,6 +652,35 @@ export const widgetMutations: Record<string, Resolver> = {
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg,
     });
+
+    if (botId && !HAS_BOTENDPOINT_URL) {
+      graphqlPubsub.publish(
+        `conversationBotTypingStatus:${msg.conversationId}`,
+        {
+          conversationBotTypingStatus: {
+            conversationId: msg.conversationId,
+            typing: true,
+          },
+        },
+      );
+
+      sendAutomationTrigger(
+        subdomain,
+        {
+          type: 'frontline:inbox.messages',
+          targets: [
+            { ...msg.toObject(), automationId: automationId || undefined },
+          ],
+        },
+        {
+          jobOptions: {
+            priority: 1,
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        },
+      );
+    }
 
     if (
       HAS_BOTENDPOINT_URL &&

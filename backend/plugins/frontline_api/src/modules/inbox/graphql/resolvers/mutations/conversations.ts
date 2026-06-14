@@ -10,7 +10,11 @@ import {
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { graphqlPubsub, sendTRPCMessage, markResolvers } from 'erxes-api-shared/utils';
+import {
+  graphqlPubsub,
+  sendTRPCMessage,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
@@ -189,31 +193,102 @@ export const sendNotifications = async (
     }
 
     if (mobile) {
-      try {
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'core',
-          action: 'sendMobileNotification',
-          input: {
-            title: doc.title,
-            body: strip(doc.content),
-            receivers: conversationNotifReceivers(
-              conversation,
-              user._id,
-              false,
-            ),
-            customerId: conversation.customerId,
-            conversationId: conversation._id,
-            data: {
-              type: 'messenger',
-              id: conversation._id,
+      if (conversation.customerId) {
+        try {
+          const cpUser = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'cpUsers',
+            action: 'get',
+            input: { erxesCustomerId: conversation.customerId },
+            defaultValue: null,
+          });
+
+          if (cpUser?._id && cpUser.clientPortalId) {
+            await sendTRPCMessage({
+              subdomain,
+              pluginName: 'core',
+              method: 'mutation',
+              module: 'cpNotifications',
+              action: 'create',
+              input: {
+                cpUserIds: [cpUser._id],
+                clientPortalId: cpUser.clientPortalId,
+                eventType: 'conversationMessage',
+                data: {
+                  title: 'New chat message',
+                  message: strip(doc.content) || 'You have a new message',
+                  type: 'info',
+                  contentType: 'conversation',
+                  contentTypeId: conversation._id,
+                  priority: 'high',
+                  action: 'openConversation',
+                  kind: 'user',
+                  metadata: {
+                    conversationId: conversation._id,
+                    id: conversation._id,
+                    type: 'messenger',
+                  },
+                },
+              },
+            });
+          }
+        } catch (e) {
+          debugError(
+            `Failed to send client portal mobile notification: ${e.message}`,
+          );
+        }
+      }
+
+      // Navigation-critical payload: the new mobile app deep-links into the
+      // existing conversation thread using `data.conversationId`. The legacy
+      // `type`/`id` keys are kept for backward compatibility with older app
+      // versions and other consumers. FCM requires every `data` value to be a
+      // string, so optional ids are stringified and only added when present.
+      if (!conversation._id) {
+        debugError(
+          'Skipping mobile chat notification: conversation id is unavailable',
+        );
+      } else {
+        const data: Record<string, string> = {
+          type: 'messenger',
+          id: String(conversation._id),
+          conversationId: String(conversation._id),
+          notificationType: 'chat_message',
+        };
+
+        if (conversation.integrationId) {
+          data.integrationId = String(conversation.integrationId);
+        }
+
+        if (conversation.customerId) {
+          data.customerId = String(conversation.customerId);
+        }
+
+        try {
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'core',
+            action: 'sendMobileNotification',
+            input: {
+              title: doc.title,
+              body: strip(doc.content),
+              receivers: conversationNotifReceivers(
+                conversation,
+                user._id,
+                false,
+              ),
+              customerId: conversation.customerId,
+              conversationId: conversation._id,
+              data,
             },
-          },
-        });
-      } catch (e) {
-        debugError(`Failed to send mobile notification: ${e.message}`);
+          });
+        } catch (e) {
+          debugError(`Failed to send mobile notification: ${e.message}`);
+        }
       }
     }
   }
@@ -307,6 +382,20 @@ export const conversationMutations = {
           userIds,
           action: 'created',
         });
+      }
+
+      if (internal) {
+        const message = await models.ConversationMessages.addMessage(
+          doc,
+          userId,
+        );
+        const dbMessage = await models.ConversationMessages.getMessage(
+          message._id,
+        );
+
+        publishMessage(models, dbMessage);
+
+        return dbMessage;
       }
 
       const serviceName = integration.kind.split('-')[0];
@@ -578,5 +667,3 @@ markResolvers(conversationMutations, {
     skipPermission: true,
   },
 });
-
-

@@ -256,6 +256,7 @@ export const types = `
   `;
 
 export const queries = `
+    _sentryGraphqlTest: String
     ${CustomerQueries}
     ${CompanyQueries}
     ${AuthQueries}

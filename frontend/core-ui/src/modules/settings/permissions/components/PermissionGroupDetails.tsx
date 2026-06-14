@@ -1,10 +1,11 @@
-import { IconLock, IconShield } from '@tabler/icons-react';
+import { IconLock, IconShield, IconUsers } from '@tabler/icons-react';
 import { Button, Collapsible, Dialog, Separator, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
 import {
   IDefaultPermissionGroup,
   IPermissionGroup,
+  IPermissionGroupMember,
   IPermissionModule,
   IPermissionGroupPermission,
 } from '@/settings/permissions/types';
@@ -44,8 +45,11 @@ export const PermissionGroupDetails = ({
   trigger,
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<'permissions' | 'members'>('permissions');
   const { permissionModulesByPlugin, loading: modulesLoading } =
     useGetPermissionModules();
+
+  const members: IPermissionGroupMember[] = group.members ?? [];
 
   const getModuleInfo = (
     moduleName: string,
@@ -114,8 +118,77 @@ export const PermissionGroupDetails = ({
 
         <Separator />
 
+        <div className="flex gap-1 px-6 pt-3">
+          <Button
+            variant={tab === 'permissions' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setTab('permissions')}
+          >
+            Permissions
+          </Button>
+          <Button
+            variant={tab === 'members' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setTab('members')}
+          >
+            <IconUsers size={14} className="mr-1" />
+            Members
+            {members.length > 0 && (
+              <span className="ml-1.5 text-xs bg-muted text-muted-foreground rounded px-1.5 py-0.5">
+                {members.length}
+              </span>
+            )}
+          </Button>
+        </div>
+
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 styled-scroll">
-          {modulesLoading ? (
+          {tab === 'members' ? (
+            members.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <p className="text-muted-foreground font-medium">No members</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">
+                  No team members are assigned to this group
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {members.map((member: IPermissionGroupMember) => {
+                  const name =
+                    [member.details?.firstName, member.details?.lastName]
+                      .filter(Boolean)
+                      .join(' ') || member.email;
+                  return (
+                    <div
+                      key={member._id}
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-background"
+                    >
+                      {member.details?.avatar ? (
+                        <img
+                          src={member.details.avatar}
+                          alt={name}
+                          className="w-8 h-8 rounded-full object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <span className="text-xs font-medium text-muted-foreground">
+                            {name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{name}</p>
+                        {name !== member.email && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            {member.email}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          ) : modulesLoading ? (
             <div className="flex justify-center py-16">
               <Spinner />
             </div>

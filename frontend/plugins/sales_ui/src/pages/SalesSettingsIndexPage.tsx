@@ -42,7 +42,6 @@ const DealsSettings = () => {
   );
 };
 
-
 const Settings = () => {
   return (
     <Suspense fallback={<div />}>
@@ -50,7 +49,7 @@ const Settings = () => {
         <Route path="/deals" element={<DealsSettings />} />
         <Route path="/pos" element={<PosSettingsPage />} />
         <Route path="/pos/:id" element={<PosEditPage />} />
-        <Route path="/" element={<Navigate to="/deals" replace />} />
+        <Route path="/" element={<Navigate to="deals" replace />} />
       </Routes>
     </Suspense>
   );

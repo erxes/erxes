@@ -40,6 +40,9 @@ export const transactionDetailSchema = new Schema({
 
   assignUserId: { type: String, optional: true, esType: 'keyword' }, // AssignUserId
 
+  excludeVat: { type: Boolean, optional: true, label: 'Exclude Vat' },
+  excludeCtax: { type: Boolean, optional: true, label: 'Exclude Ctax' },
+
   productId: { type: String, optional: true, label: 'Product' },
   count: { type: Number, optional: true, label: 'Count' },
   unitPrice: { type: Number, optional: true, label: 'unitPrice' },

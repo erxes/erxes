@@ -36,11 +36,11 @@ export const productCategoryTrpcRouter = t.router({
     }),
 
     withChilds: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { _ids } = input;
+      const { ids } = input;
       const { models } = ctx;
 
       const productCategories =
-        await models.ProductCategories.getChildCategories(_ids);
+        await models.ProductCategories.getChildCategories(ids);
 
       return productCategories;
     }),
@@ -77,19 +77,6 @@ export const productCategoryTrpcRouter = t.router({
       const { models } = ctx;
 
       return models.ProductCategories.countDocuments(query);
-    }),
-    categories: t.router({
-      withChilds: t.procedure
-        .input(z.object({ ids: z.array(z.string()) }))
-        .query(async ({ ctx, input }) => {
-          const { models } = ctx;
-          const { ids } = input;
-
-          // Reuse the existing method from ProductCategories model
-          const productCategories =
-            await models.ProductCategories.getChildCategories(ids);
-          return productCategories;
-        }),
     }),
   }),
 });

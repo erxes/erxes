@@ -1,0 +1,84 @@
+# Contract: pr-review-loop
+
+skill:
+  name: pr-review-loop
+  version: "1.0.0"
+  type: workflow
+  description: Post-commit PR review automation. After every commit to a PR, poll for AI reviewer comments, address them, wait for CI checks, and loop until zero open comments and all checks green.
+
+inputs:
+  - name: pr_number
+    type: integer
+    description: "GitHub PR number to audit"
+    required: true
+
+  - name: branch_name
+    type: string
+    description: "Git branch name for the PR"
+    required: true
+
+  - name: round_cap
+    type: integer
+    description: "Maximum review-fix rounds before giving up"
+    required: false
+    default: 5
+
+rules_required:
+  - github-actions-security
+  - code-style
+  - non-negotiable
+
+preconditions:
+  - description: "PR must exist"
+    check: "gh pr view {pr_number} --repo erxes/erxes >/dev/null 2>&1"
+  - description: "gh CLI must be authenticated"
+    check: "gh auth status >/dev/null 2>&1"
+  - description: "Worktree must be on the PR branch"
+    check: "git rev-parse --abbrev-ref HEAD | grep -q '{branch_name}'"
+
+postconditions:
+  - description: "Zero unanswered bot threads"
+    command: ".agents/scripts/pr-review-check.sh --threads {pr_number}"
+    required: true
+  - description: "Zero failing relevant checks"
+    command: ".agents/scripts/pr-review-check.sh --checks {pr_number}"
+    required: true
+  - description: "Zero walkthrough findings"
+    command: ".agents/scripts/pr-review-check.sh --walkthrough {pr_number}"
+    required: true
+  - description: "Final comprehensive check — all clean"
+    command: ".agents/scripts/pr-review-check.sh --final {pr_number}"
+    required: true
+    on_failure: "notify_user_blocker"
+    max_notification_words: 20
+
+composes_with:
+  - plugin-workflow
+
+workflow:
+  phases:
+    - wait
+    - triage
+    - fix
+    - verify
+    - loop
+
+stop_conditions:
+  - description: "All reviews settled and CI green"
+    condition: "unanswered_threads == 0 && failing_checks == 0 && walkthrough_findings == 0"
+  - description: "Round cap reached"
+    condition: "round >= round_cap"
+    action: "write_blocker_report"
+
+examples:
+  - input:
+      pr_number: 7807
+      branch_name: "fix/response-template-search"
+      round_cap: 5
+    context:
+      rules:
+        - github-actions-security
+        - code-style
+      skills:
+        - plugin-workflow
+        - fix-sonar

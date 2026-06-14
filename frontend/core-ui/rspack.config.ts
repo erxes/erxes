@@ -37,6 +37,13 @@ export default composePlugins(
         'process.env.REACT_APP_HIDE_CORE_MODULES': JSON.stringify(
           process.env.REACT_APP_HIDE_CORE_MODULES,
         ),
+
+        'process.env.REACT_APP_SENTRY_DSN': JSON.stringify(
+          process.env.REACT_APP_SENTRY_DSN,
+        ),
+        'process.env.REACT_APP_SENTRY_ENVIRONMENT': JSON.stringify(
+          process.env.REACT_APP_SENTRY_ENVIRONMENT,
+        ),
       }),
     );
 

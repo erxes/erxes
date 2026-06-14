@@ -1,12 +1,13 @@
 import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { checkUserIds, graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { IDeal } from '~/modules/sales/@types';
+import { IDeal, IProductData } from '~/modules/sales/@types';
 import {
   checkMovePermission,
   createRelations,
   getNewOrder,
+  getTotalAmounts,
   sendNotifications,
 } from '~/modules/sales/utils';
 import {
@@ -319,4 +320,80 @@ export const changeDeal = async (
   });
 
   return updatedItem;
+};
+
+export const createProductsData = async ({
+  models,
+  processId,
+  dealId,
+  docs,
+}: {
+  models: IModels;
+  processId: string;
+  dealId: string;
+  docs: IProductData[];
+}) => {
+  const deal = await models.Deals.getDeal(dealId);
+  const stage = await models.Stages.getStage(deal.stageId);
+
+  const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
+
+  const { assignedUserIds } = checkAssignedUserFromPData(
+    deal.assignedUserIds,
+    [
+      ...(deal.productsData || [])
+        .filter((pdata) => pdata.assignUserId)
+        .map((pdata) => pdata.assignUserId || ''),
+      ...docs
+        .filter((pdata) => pdata.assignUserId)
+        .map((pdata) => pdata.assignUserId || ''),
+    ],
+    deal.productsData,
+  );
+
+  for (const doc of docs) {
+    if (doc._id) {
+      const checkDup = (deal.productsData || []).find((pd) => pd._id === doc._id);
+      if (checkDup) {
+        throw new Error('Deals productData duplicated');
+      }
+    }
+  }
+
+  // undefined or null then true
+  const tickUsed = !(stage.defaultTick === false);
+  const addDocs = (docs || []).map((doc) => ({ ...doc, tickUsed } as IProductData));
+  const productsData: IProductData[] = (deal.productsData || []).concat(addDocs);
+
+  const updatedItem =
+    (await models.Deals.findOneAndUpdate(
+      { _id: dealId },
+      {
+        $set: {
+          productsData,
+          assignedUserIds,
+          ...(await getTotalAmounts(productsData)),
+        },
+      },
+      { new: true },
+    )) || ({} as any);
+
+  const dataIds = (updatedItem.productsData || [])
+    .filter((pd) => !oldDataIds.includes(pd._id))
+    .map((pd) => pd._id);
+
+  graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
+    salesProductsDataChanged: {
+      _id: dealId,
+      processId,
+      action: 'create',
+      data: {
+        dataIds,
+        docs,
+        productsData,
+      },
+    },
+  });
+
+  return { dataIds, productsData };
 };
