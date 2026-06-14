@@ -16,7 +16,7 @@ deterministic location lookup in STEP 2 and the confirmation gate in STEP 5.
 
 ## The whole flow in one picture
 
-```
+```text
 "I want ..."
   STEP 1  Classify the action ........... create | fix | change | new-plugin
   STEP 2  Resolve WHERE (grep the map) ... plugin + module + frontend/backend
@@ -30,13 +30,14 @@ deterministic location lookup in STEP 2 and the confirmation gate in STEP 5.
 
 ---
 
-## STEP 0 — Load the two always-on rules (takes 1 minute)
+## STEP 0 — Load the always-on rules (takes 1 minute)
 
-Read these two files **in full**. They are short and they are non-negotiable for
-every task:
+Read these three files **in full**. They are short and they are non-negotiable
+for every task:
 
 ```bash
 cat .agents/rules/non-negotiable.md
+cat .agents/rules/architecture.md
 cat .agents/rules/code-style.md
 ```
 
@@ -92,6 +93,12 @@ grep -in "loyalty\|points\|customer" .agents/maps/feature-map.yaml
      block, and ask its `ask:` question in STEP 4. The answer's `entry:` is your
      location. **This is still an intent question, not a plugin question** — you
      are asking what they want to happen, and the map turns that into a plugin.
+
+   - **The match is a `ui_patterns` anchor (its id starts with `_`)** → it gives
+     you a reference file + skill but NOT a `plugin`/`scope`. The location is
+     still unknown: ask which existing feature or screen this attaches to (an
+     outcome question), grep that noun, and resolve a real entry **before** you
+     fill the STEP 5 scope block.
 
 4. Note the `scope` value:
    - `frontend` → you will only touch `frontend/plugins/<x>_ui` or `core-ui`.
@@ -178,7 +185,7 @@ without answers.**
 
 This is the only gate. Build NOTHING before the user confirms. Print exactly:
 
-```
+```text
 Here's what I'm about to build:
 
   Action:    <create | fix | change | new-plugin>
@@ -206,20 +213,20 @@ Build this? (yes / tell me what to change)
 
 ## STEP 6 — Load ONLY the rules this scope needs (tiered)
 
-Do not read all 14 rule files. Read STEP 0's two, plus the rows below that match
-your scope. This keeps your context focused.
+Do not read all 14 rule files. Read STEP 0's three, plus the rows below that
+match your scope. This keeps your context focused.
 
 | If your scope/touch includes… | also read |
 |---|---|
 | any TypeScript at all | `.agents/rules/typescript-guidelines.md` |
 | frontend (UI, React) | `react-general-guidelines.md`, `react-state-management.md`, `file-structure.md` |
 | user-visible text/labels | `translations.md` |
-| backend (API, resolvers, models) | `architecture.md`, `file-structure.md` |
+| backend (API, resolvers, models) | `file-structure.md` (architecture.md is already always-on from STEP 0) |
 | a DB migration / data backfill | `server-migrations.md` |
 | running builds/tests/nx | `nx-rules.md` |
 | writing or touching tests | `testing-guidelines.md` |
 | `.github/workflows/*` | `github-actions-security.md` |
-| a brand-new plugin | read the `create-plugin` skill + `architecture.md` |
+| a brand-new plugin | read the `create-plugin` skill |
 | editing files under `.agents/` | `feedback-incorporation.md` |
 
 Then load the **skill** for what you're building (read its `SKILL.md` and

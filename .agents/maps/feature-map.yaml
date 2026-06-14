@@ -58,7 +58,7 @@ disambiguation:
     options:
       - { label: "Public lead/popup form", entry: frontline-forms }
       - { label: "Core form/field definitions", entry: forms }
-      - { label: "An internal admin form", entry: _ui_form_pattern }
+      - { label: "An internal admin form", entry: forms }
 
   template:
     nouns: [template, templates]
@@ -567,6 +567,9 @@ shared:
 # ─────────────────────────────────────────────────────────────────────────────
 # UI PATTERN ANCHORS — generic 'how do I build X in the UI' references.
 # Used when the WHAT is clear but there is no domain noun (e.g. "I need a form").
+# REFERENCE-ONLY: each carries a `reference` file + `skill` but NO plugin/scope.
+# These are never a final STEP 2 location — ROUTER resolves the plugin/scope
+# separately (see ROUTER.md STEP 2, the `_`-prefixed-anchor rule) before STEP 5.
 # ─────────────────────────────────────────────────────────────────────────────
 ui_patterns:
   _ui_form_pattern:

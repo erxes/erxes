@@ -6,8 +6,9 @@ boundaries, and local implementation patterns.
 
 > **You do not read all of these every task.** `.agents/ROUTER.md` (the single
 > entry point, run via `/erxes`) loads them in tiers:
-> **always** → `non-negotiable.md` + `code-style.md`; **then by scope** → the
-> frontend/backend/migration/test/etc. rule only when your change touches it.
+> **always** → `non-negotiable.md` + `architecture.md` + `code-style.md`; **then
+> by scope** → the frontend/backend/migration/test/etc. rule only when your
+> change touches it.
 > See ROUTER STEP 0 and STEP 6 for the exact tier table.
 
 ## Rule Files
