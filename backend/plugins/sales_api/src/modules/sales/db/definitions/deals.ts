@@ -59,6 +59,11 @@ const relationSchema = new Schema(
   { _id: false },
 );
 
+const mobileAmountSchema = new Schema({
+  _id: { type: String },
+  amount: { type: Number },
+});
+
 export const dealSchema = schemaWrapper(
   new Schema(
     {
@@ -157,6 +162,12 @@ export const dealSchema = schemaWrapper(
       totalAmount: { type: Number, label: 'Total Amount', index: true },
       unUsedTotalAmount: { type: Number, label: 'UnUsed TotalAmount' },
       bothTotalAmount: { type: Number, label: 'Both Total Amount' },
+      mobileAmount: { type: Number, label: 'Mobile amount' },
+      mobileAmounts: {
+        type: [mobileAmountSchema],
+        optional: true,
+        label: 'Mobile amounts',
+      },
       paymentsData: { type: Object, optional: true, label: 'Payments' },
       extraData: { type: Object, optional: true },
     },

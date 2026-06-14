@@ -109,7 +109,6 @@ export interface IPos {
     icon: string;
     config?: string;
   }>;
-  erxesAppToken?: string;
   adminIds?: string[];
   cashierIds?: string[];
   permissionConfig?: {
