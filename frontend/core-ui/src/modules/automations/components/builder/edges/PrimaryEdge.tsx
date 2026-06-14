@@ -5,6 +5,8 @@ import {
   EdgeLabelRenderer,
   EdgeProps,
   getBezierPath,
+  getSmoothStepPath,
+  getStraightPath,
 } from '@xyflow/react';
 import { Button } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -20,16 +22,26 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
     sourcePosition,
     targetPosition,
     selected,
+    data,
   } = edge;
   const { onDisconnect } = useNodeConnect();
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const edgeType = data?.edgeType || 'default';
+  const pathArgs = {
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
-  });
+  };
+  const [edgePath, labelX, labelY] =
+    edgeType === 'straight'
+      ? getStraightPath(pathArgs)
+      : edgeType === 'step'
+        ? getSmoothStepPath({ ...pathArgs, borderRadius: 0 })
+        : edgeType === 'smoothstep'
+          ? getSmoothStepPath(pathArgs)
+          : getBezierPath(pathArgs);
 
   return (
     <>
@@ -67,7 +79,7 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
                   size="icon"
                   onClick={() => onDisconnect(edge)}
                 >
-                  <IconScissors className="w-4 h-4 text-red-500" />
+                  <IconScissors className="w-4 h-4 text-destructive" />
                 </Button>
               </motion.div>
             )}

@@ -31,7 +31,7 @@ export const useGetSalesDeals = (params: IParams) => {
     GET_SALES_DEALS,
     {
       variables: params,
-      skip: !params.pipelineId && !params.stageId,
+      skip: !params.pipelineId && !params.stageId && !params.search,
       errorPolicy: 'all',
     },
   );

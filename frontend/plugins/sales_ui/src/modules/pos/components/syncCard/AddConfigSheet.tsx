@@ -45,7 +45,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
   const [open, setOpen] = useState<boolean>(false);
 
   const { fields: mapFields, loading: fieldsLoading } = useFieldsCombined({
-    contentType: 'sales:deal',
+    contentType: 'sales:sales.deal',
   });
 
   const form = useForm<CardConfig>({

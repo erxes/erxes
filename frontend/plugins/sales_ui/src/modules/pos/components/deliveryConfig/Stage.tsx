@@ -12,7 +12,7 @@ interface StageProps {
 
 export const Stage: React.FC<StageProps> = ({ control }) => {
   const { fields, loading: fieldsLoading } = useFieldsCombined({
-    contentType: 'sales:deal',
+    contentType: 'sales:sales.deal',
   });
 
   const boardId = useWatch({ control, name: 'boardId' });

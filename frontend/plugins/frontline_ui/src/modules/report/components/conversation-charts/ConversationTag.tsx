@@ -45,6 +45,7 @@ import {
   getReportMemberFilterAtom,
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { AreaGradient } from '../chart/AreaGradient';
 import {
   useChartPagination,
   ChartPagination,
@@ -67,16 +68,10 @@ export const ConversationTag = ({
 }: ConversationTagProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [dateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
   const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
@@ -391,6 +386,10 @@ export const TagLineChart = memo(function TagLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="fl-tag-primary" color="var(--primary)" />
+          <AreaGradient id="fl-tag-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="tag" tickLine={false} axisLine={false} />
         <YAxis
@@ -417,20 +416,24 @@ export const TagLineChart = memo(function TagLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
+          fill="url(#fl-tag-primary)"
           fillOpacity={0.3}
           strokeWidth={2}
           strokeLinecap="round"
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <Area
           yAxisId="percentage"
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
+          fill="url(#fl-tag-success)"
           fillOpacity={0.3}
           strokeWidth={2}
           strokeLinecap="round"
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />

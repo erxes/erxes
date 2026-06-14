@@ -4,6 +4,7 @@ import {
   AUTOMATIONS_AI_AGENT_ADD,
   AUTOMATIONS_AI_AGENT_DETAIL,
   AUTOMATIONS_AI_AGENT_EDIT,
+  AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { toast } from 'erxes-ui';
 import { useParams } from 'react-router';
@@ -61,6 +62,7 @@ export function useAiAgentDetail() {
 
       const res = await mutation({
         variables: id ? { ...input, id } : input,
+        refetchQueries: [AUTOMATIONS_AI_AGENT_TOTAL_COUNTS],
         onError: ({ message }) => {
           toast({
             title: 'Something went wrong',

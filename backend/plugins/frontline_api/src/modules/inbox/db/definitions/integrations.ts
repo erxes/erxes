@@ -286,7 +286,10 @@ const colorDefinitionSchema = new Schema(
 const uiOptionsSchema = new Schema(
   {
     logo: { type: String },
+    launcherLogo: { type: String },
     primary: { type: colorDefinitionSchema },
+    backgroundColor: { type: String },
+    heroStyleVariant: { type: String },
     navigationVariant: { type: String },
   },
   { _id: false },

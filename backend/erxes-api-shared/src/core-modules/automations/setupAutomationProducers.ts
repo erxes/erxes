@@ -4,6 +4,7 @@ import { Express } from 'express';
 import { nanoid } from 'nanoid';
 import { initializePluginConfig } from '../../utils';
 import { createTRPCContext } from '../../utils/trpc';
+import { IAutomationExecution } from './definitions';
 import {
   AutomationConfigs,
   IAutomationContext,
@@ -18,13 +19,12 @@ import {
   ReceiveActionsInput,
   TAutomationProducersInput,
   ResolveOutputPathsInput,
-  ReplacePlaceholdersInput,
   SetPropertiesInput,
 } from './zodTypes';
 import {
   buildRuntimeOutputsIndex,
   normalizeAutomationConstantsForTransport,
-  resolveOutputValues,
+  replaceOutputPlaceholders,
 } from './outputResolvers';
 
 export const startAutomations = async (
@@ -50,9 +50,7 @@ export const startAutomations = async (
     checkCustomTrigger,
     checkTargetMatch,
     findObject,
-    replacePlaceHolders,
     resolveOutputPaths,
-    getAdditionalAttributes,
     generateAiContext,
   } = config || {};
 
@@ -72,18 +70,6 @@ export const startAutomations = async (
       .mutation(async ({ ctx, input }) => setProperties(input, ctx));
   }
 
-  if (getAdditionalAttributes) {
-    automationProcedures[TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES] =
-      t.procedure
-        .input(AutomationBaseInput)
-        .mutation(async ({ ctx, input }) =>
-          getAdditionalAttributes(
-            { subdomain: input.subdomain, data: input.data },
-            ctx,
-          ),
-        );
-  }
-
   if (generateAiContext) {
     automationProcedures[TAutomationProducers.GENERATE_AI_CONTEXT] = t.procedure
       .input(GenerateAiContextInput)
@@ -93,13 +79,6 @@ export const startAutomations = async (
           ctx,
         ),
       );
-  }
-
-  if (replacePlaceHolders) {
-    automationProcedures[TAutomationProducers.REPLACE_PLACEHOLDERS] =
-      t.procedure
-        .input(ReplacePlaceholdersInput)
-        .mutation(async ({ ctx, input }) => replacePlaceHolders(input, ctx));
   }
 
   const runtimeResolveOutputPaths =
@@ -118,12 +97,28 @@ export const startAutomations = async (
             return {};
           }
 
-          return resolveOutputValues({
-            definition,
+          const values = Object.fromEntries(
+            (data.paths || []).map((path) => [path, `{{ trigger.${path} }}`]),
+          );
+          const execution: IAutomationExecution = {
+            automationId: '',
+            triggerId: '',
+            triggerType: data.nodeType,
+            triggerConfig: {},
+            targetId: '',
+            target: data.source || {},
+            status: '',
+            description: '',
+            actions: [],
+          };
+
+          return replaceOutputPlaceholders({
             subdomain,
-            source: data.source || {},
-            paths: data.paths || [],
+            execution,
+            values,
             defaultValue: data.defaultValue,
+            runtimeOutputs,
+            keepUnresolvedPlaceholders: false,
           });
         }
       : undefined);

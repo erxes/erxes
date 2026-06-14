@@ -27,7 +27,7 @@ export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
   const { subdomain, data } = job?.data ?? {};
   const models = await generateModels(subdomain);
 
-  debugInfo(`Received data from:${JSON.stringify({ subdomain, data })}`);
+  console.info(`Received data from:${JSON.stringify({ subdomain, data })}`);
 
   const { type, targets, repeatOptions, recordType } = data;
   try {

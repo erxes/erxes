@@ -203,7 +203,7 @@ export const generateSalesFields = async (
   }> = [];
 
   switch (collectionType) {
-    case 'deal':
+    case 'deals':
       schema = models.Deals.schema;
       break;
   }

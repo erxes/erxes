@@ -369,7 +369,7 @@
           let i = o == null ? void 0 : o.querySelector('.erxes-launcher');
           if (!i)
             return console.error('Messenger: launcher element is not defined');
-          let { primary: s, logo: g } = m,
+          let { primary: s, launcherLogo: g } = m,
             c = g,
             u = s == null ? void 0 : s.DEFAULT,
             P = s == null ? void 0 : s.foreground;

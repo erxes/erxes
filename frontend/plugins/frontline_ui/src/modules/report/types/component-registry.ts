@@ -111,8 +111,8 @@ export const TICKET_DEFAULT_CARD_CONFIGS: Omit<
   ReportCardConfig,
   'component'
 >[] = [
-  { id: 'ticket-status-summary', title: 'Ticket Status Summary', colSpan: 12 },
-  { id: 'ticket-date', title: 'Ticket Date', colSpan: 12 },
+  { id: 'ticket-status-summary', title: 'Ticket Status Summary', colSpan: 6 },
+  { id: 'ticket-date', title: 'Ticket Date', colSpan: 6 },
   { id: 'ticket-source', title: 'Ticket Source', colSpan: 6 },
   { id: 'ticket-tags', title: 'Ticket Tags', colSpan: 6 },
   { id: 'ticket-list', title: 'Ticket List', colSpan: 12 },

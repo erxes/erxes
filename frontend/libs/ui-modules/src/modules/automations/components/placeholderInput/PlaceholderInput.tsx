@@ -49,6 +49,7 @@ const PlaceholderInputRoot = forwardRef<
       disabled,
       ref,
       selectionType,
+      variant,
       value,
       onChange,
     });

@@ -8,6 +8,7 @@ import {
   CMS_TRANSLATIONS,
   CMS_EDIT_TRANSLATION,
 } from '../../../../graphql/queries';
+import { createSlug } from '../../../../utils/createSlug';
 
 interface PostFormData {
   title: string;
@@ -85,12 +86,6 @@ export const usePostForm = (editingPost?: { _id: string }) => {
   const handleEditorChange = (value: string) => {
     form.setValue('content', value, { shouldDirty: true, shouldTouch: true });
   };
-
-  const generateSlug = (text: string) =>
-    text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
 
   const { data: fullPostData } = useQuery(CMS_POST, {
     variables: { id: editingPost?._id },
@@ -184,7 +179,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     } else {
       const title = form.getValues('title');
       if (title && !form.getValues('slug')) {
-        form.setValue('slug', generateSlug(title));
+        form.setValue('slug', createSlug(title));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -227,7 +222,6 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     setDefaultLangData,
     previousTypeRef,
     handleEditorChange,
-    generateSlug,
     fullPost,
     saveTranslation,
     updateCustomFieldValue,

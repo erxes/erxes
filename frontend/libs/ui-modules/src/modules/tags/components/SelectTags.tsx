@@ -328,7 +328,7 @@ export const SelectTagsItem = ({
   tag: ITag & { hasChildren: boolean };
 }) => {
   const { onSelect, selectedTags } = useSelectTagsContext();
-  const isSelected = selectedTags.some((t) => t._id === tag._id);
+  const isSelected = (selectedTags || []).some((t) => t._id === tag._id);
 
   return (
     <Command.Item onSelect={() => onSelect(tag)}>

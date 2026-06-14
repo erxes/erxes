@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
-import { getChildCategories, getChildTags } from '../../../utils/product';
+import { getChildCategories, getChildTags } from '~/utils/utils';
 
 const PricingPlan = {
   createdBy(pricingPlan: IPricingPlanDocument) {

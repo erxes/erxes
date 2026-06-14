@@ -10,6 +10,7 @@ import {
   FIND_OBJECT_ACTION_OUTPUT,
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
   SEND_EMAIL_ACTION_OUTPUT,
+  TRANSFORM_ACTION_OUTPUT,
 } from './actionOutputs';
 import { CORE_FIND_OBJECT_TARGETS_CONST } from './findObjectTargets';
 import {
@@ -20,7 +21,14 @@ import {
   WEBHOOK_TRIGGER_OUTPUT,
 } from './triggerOutputs';
 
-export const coreAutomationConstants: AutomationConstants = {
+const CORE_ACTION_GROUPS = {
+  LOGIC_AND_DECISIONS: 'Logic & Decisions',
+  DATA_OPERATIONS: 'Data Operations',
+  COMMUNICATION_AND_INTEGRATIONS: 'Communication & Integrations',
+  TIMING_AND_DELAYS: 'Timing & Delays',
+};
+
+export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
   findObjectTargets: CORE_FIND_OBJECT_TARGETS_CONST,
   triggers: [
     {
@@ -43,6 +51,14 @@ export const coreAutomationConstants: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off team members',
       output: TEAM_MEMBER_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Team member',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.USER,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.CUSTOMER,
@@ -53,6 +69,14 @@ export const coreAutomationConstants: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off Customers',
       output: CUSTOMER_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Customer',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.CUSTOMER,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.LEAD,
@@ -63,6 +87,14 @@ export const coreAutomationConstants: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off Leads',
       output: LEAD_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Lead',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.LEAD,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.COMPANY,
@@ -73,6 +105,14 @@ export const coreAutomationConstants: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off company',
       output: COMPANY_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Company',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.COMPANY,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
   ],
   actions: [
@@ -82,6 +122,7 @@ export const coreAutomationConstants: AutomationConstants = {
       icon: 'IconSitemap',
       label: 'Branches',
       description: 'Create simple or if/then branches',
+      group: CORE_ACTION_GROUPS.LOGIC_AND_DECISIONS,
       folks: [
         { key: 'yes', label: 'Yes', type: TAutomationActionFolks.SUCCESS },
         { key: 'no', label: 'No', type: TAutomationActionFolks.ERROR },
@@ -93,6 +134,8 @@ export const coreAutomationConstants: AutomationConstants = {
       label: 'Split',
       description:
         'Create conditional branches to route workflows based on criteria',
+      group: CORE_ACTION_GROUPS.LOGIC_AND_DECISIONS,
+      allowTargetFromActions: true,
     },
     // Data Operations
     {
@@ -100,6 +143,7 @@ export const coreAutomationConstants: AutomationConstants = {
       icon: 'IconSearch',
       label: 'Find object',
       description: 'Find object',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
       folks: [
         {
           key: 'isExists',
@@ -116,10 +160,22 @@ export const coreAutomationConstants: AutomationConstants = {
       output: FIND_OBJECT_ACTION_OUTPUT,
     },
     {
+      type: AUTOMATION_CORE_ACTIONS.TRANSFORM,
+      icon: 'IconArrowMerge',
+      label: 'Transform',
+      description:
+        'Create structured data from trigger or previous action output.',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
+      allowTargetFromActions: true,
+      output: TRANSFORM_ACTION_OUTPUT,
+      isTargetSource: true,
+    },
+    {
       type: AUTOMATION_CORE_ACTIONS.SET_PROPERTY,
       icon: 'IconFlask',
       label: 'Manage properties',
       description: 'Update record properties.',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
       allowTargetFromActions: true,
     },
     // Communication & Integrations
@@ -128,6 +184,7 @@ export const coreAutomationConstants: AutomationConstants = {
       icon: 'IconMailFast',
       label: 'Send Email',
       description: 'Send Email',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       emailRecipientsConst: AUTOMATION_EMAIL_RECIPIENTS_TYPES,
       allowTargetFromActions: true,
       output: SEND_EMAIL_ACTION_OUTPUT,
@@ -137,6 +194,7 @@ export const coreAutomationConstants: AutomationConstants = {
       icon: 'IconWebhook',
       label: 'Outgoing webhook',
       description: 'Outgoing webhook',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       allowTargetFromActions: true,
       output: OUTGOING_WEBHOOK_ACTION_OUTPUT,
     },
@@ -146,6 +204,7 @@ export const coreAutomationConstants: AutomationConstants = {
       label: 'AI Agent',
       description:
         'Use a configured AI agent to generate text, route topics, or classify structured data.',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       output: AI_AGENT_ACTION_OUTPUT,
     },
     // Timing & Delays
@@ -156,6 +215,7 @@ export const coreAutomationConstants: AutomationConstants = {
       icon: 'IconHourglass',
       label: 'Delay',
       description: 'Delay the next action.',
+      group: CORE_ACTION_GROUPS.TIMING_AND_DELAYS,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
@@ -164,6 +224,7 @@ export const coreAutomationConstants: AutomationConstants = {
       icon: 'IconClockPlay',
       label: 'Wait event',
       description: 'Delay until event is triggered',
+      group: CORE_ACTION_GROUPS.TIMING_AND_DELAYS,
     },
   ],
 };

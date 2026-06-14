@@ -314,7 +314,7 @@ export function buildDateGroupPipeline(field: string, frequency?: string) {
         count: { $sum: 1 },
       },
     },
-    { $sort: { _id: 1 } },
+    { $sort: { _id: -1 } },
   ];
 }
 

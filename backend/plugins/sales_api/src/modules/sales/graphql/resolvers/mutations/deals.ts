@@ -78,9 +78,9 @@ export const dealMutations: Record<string, Resolver> = {
       destinationStageId: string;
       sourceStageId: string;
     },
-    { user, models, subdomain }: IContext,
+    { cpUser, models, subdomain }: IContext,
   ) {
-    return changeDeal(subdomain, models, user._id, { ...doc });
+    return changeDeal(subdomain, models, cpUser?._id, { ...doc });
   },
 
   /**
@@ -174,7 +174,12 @@ export const dealMutations: Record<string, Resolver> = {
 
     delete doc.sourceConversationIds;
 
-    for (const param of ['productsData', 'paymentsData']) {
+    for (const param of [
+      'productsData',
+      'paymentsData',
+      'mobileAmount',
+      'mobileAmounts',
+    ]) {
       doc[param] = item[param];
     }
 

@@ -26,6 +26,41 @@ import { fixScoreNumber } from '~/modules/score/services/scoreLedger';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
 import { collections } from '../constants';
 
+export const getChildCategories = async (subdomain: string, categoryIds) => {
+  const childs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'productCategories',
+    action: 'withChilds',
+    input: {
+      ids: categoryIds,
+    },
+    defaultValue: [],
+  });
+
+  const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
+
+  return Array.from(new Set(catIds));
+};
+
+export const getChildTags = async (subdomain: string, tagIds) => {
+  const childs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'tags',
+    action: 'findWithChild',
+    input: {
+      query: { _id: { $in: tagIds } },
+      field: { _id: 1 }
+    },
+    defaultValue: [],
+  });
+
+  const allTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
+
+  return Array.from(new Set(allTagIds));
+};
+
 interface IProductD {
   productId: string;
   quantity: number;
@@ -52,25 +87,6 @@ async function coreQuery<T>(
     defaultValue,
   });
 }
-
-async function fetchChildItems(
-  subdomain: string,
-  type: 'categories' | 'tags',
-  ids: string[],
-): Promise<string[]> {
-  const action = 'withChilds';
-  const module = type;
-  const input =
-    type === 'categories' ? { ids } : { query: { _id: { $in: ids } } };
-  const items = await coreQuery(subdomain, module, action, input, []);
-  return Array.from(new Set((items || []).map((ch: any) => ch._id)));
-}
-
-export const getChildCategories = (subdomain: string, categoryIds: string[]) =>
-  fetchChildItems(subdomain, 'categories', categoryIds);
-
-export const getChildTags = (subdomain: string, tagIds: string[]) =>
-  fetchChildItems(subdomain, 'tags', tagIds);
 
 // Unified helper for fetching include/exclude for categories or tags
 async function fetchIncludeExclude(
@@ -733,7 +749,7 @@ async function triggerLoyaltyReward(
     method: 'mutation',
     module: 'automations',
     action: 'trigger',
-    input: { type: 'loyalties:reward', targets },
+    input: { type: 'loyalty:reward', targets },
     defaultValue: [],
   });
 }

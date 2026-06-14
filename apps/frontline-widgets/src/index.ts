@@ -321,7 +321,7 @@ const handleMessageEvent = async (event: MessageEvent) => {
       return console.error('Messenger: launcher element is not defined');
     }
 
-    const { primary, logo: uiOptionsLogo } = uiOptions;
+    const { primary, launcherLogo: uiOptionsLogo } = uiOptions;
 
     const logo = uiOptionsLogo;
     const color = primary?.DEFAULT;

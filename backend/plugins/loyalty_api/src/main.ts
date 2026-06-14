@@ -11,6 +11,7 @@ import { generateModels } from '~/connectionResolvers';
 import { appRouter } from '~/trpc/init-trpc';
 import { initMQWorkers } from '~/worker';
 import { couponExportHandlers } from '~/modules/coupon/meta/import-export/export/exportHandlers';
+import { automationMeta } from './meta/automations';
 import { permissions } from '~/meta/permissions';
 
 startPlugin({
@@ -40,6 +41,7 @@ startPlugin({
   onServerInit: async () => {
     await initMQWorkers(redis);
   },
+  meta: { automations: automationMeta, permissions },
   importExport: {
     export: {
       getExportHeaders: createCoreModuleProducerHandler({
@@ -57,8 +59,5 @@ startPlugin({
         generateModels,
       }),
     },
-  },
-  meta: {
-    permissions,
   },
 });

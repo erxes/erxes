@@ -45,6 +45,7 @@ import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { AreaGradient } from '../chart/AreaGradient';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
 import {
   useChartPagination,
@@ -68,16 +69,10 @@ export const ConversationSource = ({
 }: ConversationSourceProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [dateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
   const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
@@ -369,6 +364,10 @@ export const SourceLineChart = memo(function SourceLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="fl-source-primary" color="var(--primary)" />
+          <AreaGradient id="fl-source-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="source" tickLine={false} axisLine={false} />
         <YAxis
@@ -395,7 +394,7 @@ export const SourceLineChart = memo(function SourceLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
+          fill="url(#fl-source-primary)"
           fillOpacity={0.3}
           strokeWidth={2}
           strokeLinecap="round"
@@ -405,7 +404,7 @@ export const SourceLineChart = memo(function SourceLineChart({
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
+          fill="url(#fl-source-success)"
           fillOpacity={0.3}
           strokeWidth={2}
           strokeLinecap="round"

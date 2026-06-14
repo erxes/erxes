@@ -26,8 +26,6 @@ export const ChannelSettingsBreadcrumb = () => {
     isMatchingLocation(FrontlinePaths.PipelineDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
     isMatchingLocation(FrontlinePaths.TicketsStatuses) ||
-    isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
-    isMatchingLocation(FrontlinePaths.ResponseDetail) ||
     isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
     isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`);
 
@@ -36,14 +34,12 @@ export const ChannelSettingsBreadcrumb = () => {
     isMatchingLocation(FrontlinePaths.PipelineDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
     isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
-    isMatchingLocation(FrontlinePaths.ResponseDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsStatuses);
 
   const isSpecificPipelineDetailRoute =
     isMatchingLocation(FrontlinePaths.PipelineDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
     isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
-    isMatchingLocation(FrontlinePaths.ResponseDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsStatuses);
 
   const isFormsRoute =
@@ -52,7 +48,11 @@ export const ChannelSettingsBreadcrumb = () => {
     isMatchingLocation(FrontlinePaths.FormSubmissions) ||
     isMatchingLocation(FrontlinePaths.FormDetail);
 
-  const isChannelsRoot = !isChannelDetailOrSubRoute && !isFormsRoute;
+  const isResponseTemplates =
+    isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
+    isMatchingLocation(FrontlinePaths.ResponseDetail);
+  const isChannelsRoot =
+    !isChannelDetailOrSubRoute && !isFormsRoute && !isResponseTemplates;
 
   return (
     <>
@@ -80,6 +80,24 @@ export const ChannelSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <MembersBreadcrumb />
+        </>
+      )}
+      {isResponseTemplates && (
+        <>
+          <Separator.Inline />
+          <ChannelDetailBreadcrumb channelId={channelId} />
+          <Separator.Inline />
+          <Link to={`/settings/frontline/channels/${channelId}/response`}>
+            <Button variant="ghost" className="font-semibold">
+              Response templates
+            </Button>
+          </Link>
+        </>
+      )}
+      {isMatchingLocation(FrontlinePaths.ResponseDetail) && (
+        <>
+          <Separator.Inline />
+          <ResponseDetailBreadcrumb />
         </>
       )}
 
@@ -119,13 +137,6 @@ export const ChannelSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <TicketStatusesBreadcrumb />
-        </>
-      )}
-
-      {isMatchingLocation(FrontlinePaths.ResponseDetail) && (
-        <>
-          <Separator.Inline />
-          <ResponseDetailBreadcrumb />
         </>
       )}
 

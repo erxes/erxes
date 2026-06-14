@@ -16,7 +16,13 @@ import { cn } from 'erxes-ui/lib';
 import { MONTHS, QUARTERS } from '../constants/dateTypes';
 import { useFilterQueryState } from '../../hooks/useFilterQueryState';
 
-export const FilterDialogDateView = ({ filterKey, label }: { filterKey: string; label?: string }) => {
+export const FilterDialogDateView = ({
+  filterKey,
+  label,
+}: {
+  filterKey: string;
+  label?: string;
+}) => {
   const { sessionKey } = useFilterContext();
   const [tabs, setTabs] = useState('day');
   const [value, setValue] = useFilterQueryState<string>(filterKey, sessionKey);
@@ -34,9 +40,13 @@ export const FilterDialogDateView = ({ filterKey, label }: { filterKey: string; 
 
   const handleCalendarChange = (value: DateRange | undefined) => {
     setCurrentDateRange(value);
-    setCurrentValue(
-      value?.from?.toISOString() + ',' + value?.to?.toISOString(),
-    );
+
+    if (!value?.from) {
+      setCurrentValue(null);
+      return;
+    }
+    const to = value.to ?? value.from;
+    setCurrentValue(`${value.from.toISOString()},${to.toISOString()}`);
   };
 
   const handleRadioGroupChange = (value: string) => {

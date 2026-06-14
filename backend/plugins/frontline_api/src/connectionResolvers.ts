@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
-import { createGenerateModels } from 'erxes-api-shared/utils';
+import {
+  createGenerateModels,
+  ScopedEventHandlers,
+} from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
@@ -96,6 +99,11 @@ import {
   ICallQueueStatisticsModel,
   loadCallQueueClass,
 } from '@/integrations/call/db/models/QueueStatistics';
+import {
+  ICallSessionModel,
+  loadCallSessionClass,
+} from '@/integrations/call/db/models/CallSessions';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 import { ICallOperatorDocuments } from '@/integrations/call/@types/operators';
 import { ICallConfigDocument } from '@/integrations/call/@types/config';
@@ -291,6 +299,7 @@ export interface IModels {
   CallOperators: ICallOperatorModel;
   CallCdrs: ICallCdrModel;
   CallQueueStatistics: ICallQueueStatisticsModel;
+  CallSessions: ICallSessionModel;
 
   FacebookBots: IFacebookBotModel;
   //imap
@@ -321,7 +330,6 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
-
 }
 
 export interface IContext extends IMainContext {
@@ -334,8 +342,11 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+
+  const frontlineEventHandlers = eventHandlers('frontline');
 
   //response templates
   models.ResponseTemplates = db.model<
@@ -355,7 +366,7 @@ export const loadClasses = (
 
   models.Ticket = db.model<ITicketDocument, ITicketModel>(
     'frontline_tickets',
-    loadTicketClass(models),
+    loadTicketClass(models, frontlineEventHandlers('tickets', 'tickets')),
   );
   models.Activity = db.model<IActivityDocument, IActivityModel>(
     'frontline_ticket_activities',
@@ -527,6 +538,11 @@ export const loadClasses = (
     ICallQueueStatisticsDocuments,
     ICallQueueStatisticsModel
   >('calls_queue_statistics', loadCallQueueClass());
+
+  models.CallSessions = db.model<ICallSessionDocument, ICallSessionModel>(
+    'calls_sessions',
+    loadCallSessionClass(models),
+  );
 
   models.FacebookBots = db.model<IFacebookBotDocument, IFacebookBotModel>(
     'facebook_messengers_bots',

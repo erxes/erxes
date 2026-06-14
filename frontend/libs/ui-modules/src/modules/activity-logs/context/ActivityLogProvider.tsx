@@ -14,6 +14,7 @@ interface ActivityLogContextType {
   hasPreviousPage?: boolean;
   totalCount?: number;
   limit?: number;
+  showExactDate?: boolean;
 }
 
 interface ActivityLogProviderProps {
@@ -29,6 +30,7 @@ interface ActivityLogProviderProps {
   hasPreviousPage?: boolean;
   totalCount?: number;
   limit?: number;
+  showExactDate?: boolean;
 }
 
 const ActivityLogContext = createContext<ActivityLogContextType | null>(null);
@@ -46,6 +48,7 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   hasPreviousPage,
   totalCount,
   limit,
+  showExactDate,
 }) => {
   return (
     <ActivityLogContext.Provider
@@ -61,6 +64,7 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
         hasPreviousPage,
         totalCount,
         limit,
+        showExactDate,
       }}
     >
       {children}
