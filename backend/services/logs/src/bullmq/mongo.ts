@@ -394,6 +394,9 @@ export const handleMongoChangeEvent = async (
     collectionName: payload?.collectionName || '',
     docId,
     fullDocument: payload?.fullDocument,
+    // Forward the pre-deletion snapshot for single `delete` ops too — without this
+    // only deleteMany captured prevDocument, so single deletes were unrevertable.
+    prevDocument: (payload as { prevDocument?: unknown })?.prevDocument,
     updateDescription: payload?.updateDescription,
     processId,
     userId,
