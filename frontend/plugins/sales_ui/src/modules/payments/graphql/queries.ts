@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const PAYMENT_LIST = gql`
+export const GET_PAYMENTS = gql`
   query Payments($status: String, $kind: String) {
     payments(status: $status, kind: $kind) {
       _id

@@ -52,24 +52,6 @@ const callReceived = `
   }
 `;
 
-const callWaitingReceived = `
-  subscription waitingCallReceived($extension: String) {
-    waitingCallReceived(extension: $extension)
-  }
-`;
-
-const callTalkingReceived = `
-  subscription talkingCallReceived($extension: String) {
-    talkingCallReceived(extension: $extension)
-  }
-`;
-
-const callAgentReceived = `
-  subscription agentCallReceived($extension: String) {
-    agentCallReceived(extension: $extension)
-  }
-`;
-
 const queueRealtimeUpdate = `
   subscription queueRealtimeUpdate($extension: String) {
     queueRealtimeUpdate(extension: $extension)
@@ -194,9 +176,6 @@ export default {
   conversationExternalIntegrationMessageInserted,
   customerConnectionChanged,
   callReceived,
-  callTalkingReceived,
-  callWaitingReceived,
-  callAgentReceived,
   queueRealtimeUpdate,
   ticketPipelineChanged,
   ticketPipelineListChanged,

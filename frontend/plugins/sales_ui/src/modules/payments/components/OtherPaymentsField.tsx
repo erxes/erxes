@@ -1,101 +1,30 @@
 'use client';
 
 import { Button, Form, Input, Select } from 'erxes-ui';
-import { Control, useFieldArray } from 'react-hook-form';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import PaymentIcon, { paymentIconOptions } from './PaymentIcon';
+import { nanoid } from 'nanoid';
+import {
+  Control,
+  FieldArrayPath,
+  FieldValues,
+  Path,
+  useFieldArray,
+} from 'react-hook-form';
+import PaymentIcon, {
+  paymentIconOptions,
+} from 'ui-modules/modules/payments/components/PaymentIcon';
+import { useLoyaltyScoreCampaign } from 'ui-modules/modules/payments/hooks/useLoyaltyScoreCampaign';
 
-import { PAYMENT_LIST } from '../graphql/queries/PaymentsQuery';
-import { useQuery } from '@apollo/client';
-import { useLoyaltyScoreCampaign } from '../hooks/useLoyaltyScoreCampaign';
-
-export interface PaymentType {
-  _id: string;
-  name: string;
-  kind: string;
-  status: string;
-  config: any;
-  createdAt: string;
-}
-
-export const Payments = ({ control }: { control: Control<any> }) => {
-  const { data: paymentsData, loading } = useQuery(PAYMENT_LIST);
-  const payments: PaymentType[] = paymentsData?.payments ?? [];
-
-  const isEmpty = !loading && payments.length === 0;
-
-  return (
-    <Form.Field
-      control={control}
-      name="paymentIds"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>PAYMENTS</Form.Label>
-          <Form.Description>
-            Select payments that you want to use
-          </Form.Description>
-          <div className="flex gap-4 justify-between items-end">
-            <Form.Control className="flex-1">
-              <Select
-                value={
-                  Array.isArray(field.value)
-                    ? field.value[0] || ''
-                    : field.value || ''
-                }
-                onValueChange={(value) => field.onChange(value ? [value] : [])}
-                disabled={loading}
-              >
-                <Select.Trigger className="placeholder:text-accent-foreground/70">
-                  <Select.Value
-                    placeholder={loading ? 'Loading...' : 'Select payments'}
-                  />
-                </Select.Trigger>
-                <Select.Content>
-                  {isEmpty ? (
-                    <Select.Item value="__empty__" disabled>
-                      the payment list is empty
-                    </Select.Item>
-                  ) : (
-                    payments.map((payment: PaymentType) => (
-                      <Select.Item key={payment._id} value={payment._id}>
-                        {payment.name}
-                      </Select.Item>
-                    ))
-                  )}
-                </Select.Content>
-              </Select>
-            </Form.Control>
-          </div>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
+type OtherPaymentsFieldProps<TFieldValues extends FieldValues> = {
+  control: Control<TFieldValues>;
 };
 
-export const Token = ({ control }: { control: Control<any> }) => {
-  return (
-    <Form.Field
-      control={control}
-      name="erxesAppToken"
-      render={({ field }) => (
-        <Form.Item className="py-3 border-y">
-          <Form.Label>Erxes app token</Form.Label>
-          <Form.Description>What is erxes app token ?</Form.Description>
-          <Form.Control>
-            <Input className="w-full h-8 rounded-md" {...field} />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
-export const OtherPayments = ({ control }: { control: Control<any> }) => {
+export const OtherPaymentsField = <TFieldValues extends FieldValues>({
+  control,
+}: OtherPaymentsFieldProps<TFieldValues>) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'paymentTypes',
+    name: 'paymentTypes' as FieldArrayPath<TFieldValues>,
   });
 
   const { scoreDetail } = useLoyaltyScoreCampaign({
@@ -103,8 +32,18 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
   });
 
   const handleAddPayment = () => {
-    append({ type: '', title: '', icon: '', config: '', scoreCampaignId: '' });
+    append({
+      _id: nanoid(),
+      type: '',
+      title: '',
+      icon: '',
+      config: '',
+      scoreCampaignId: '',
+    });
   };
+
+  const fieldPath = (index: number, key: string) =>
+    `paymentTypes.${index}.${key}` as Path<TFieldValues>;
 
   return (
     <div className="py-3">
@@ -131,7 +70,7 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
           <div className="flex-1">
             <Form.Field
               control={control}
-              name={`paymentTypes.${index}.type`}
+              name={fieldPath(index, 'type')}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
@@ -151,7 +90,7 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
           <div className="flex-1">
             <Form.Field
               control={control}
-              name={`paymentTypes.${index}.title`}
+              name={fieldPath(index, 'title')}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
@@ -171,7 +110,7 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
           <div className="flex-1">
             <Form.Field
               control={control}
-              name={`paymentTypes.${index}.icon`}
+              name={fieldPath(index, 'icon')}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
@@ -217,7 +156,7 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
           <div className="flex-1">
             <Form.Field
               control={control}
-              name={`paymentTypes.${index}.config`}
+              name={fieldPath(index, 'config')}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
@@ -237,7 +176,7 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
           <div className="flex-1">
             <Form.Field
               control={control}
-              name={`paymentTypes.${index}.scoreCampaignId`}
+              name={fieldPath(index, 'scoreCampaignId')}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">

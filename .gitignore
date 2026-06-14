@@ -52,16 +52,26 @@ Thumbs.db
 .agents/*
 !.agents/
 !.agents/README.md
+!.agents/ROUTER.md
+!.agents/manifest.yaml
 !.agents/rules/
 !.agents/rules/*.md
 !.agents/skills/
 !.agents/skills/*.md
+!.agents/skills/*/
+!.agents/skills/*/*
+!.agents/maps/
+!.agents/maps/*.yaml
+!.agents/references/
+!.agents/references/*.yaml
 !.agents/scripts/
 !.agents/scripts/*.sh
 !.agents/state/
 !.agents/state/.gitkeep
+# Runtime-only session/scope state stays local:
 .agents/state/*.json
 .agents/state/*.yaml
+.agents/session.yaml
 .claude
 
 storybook-static

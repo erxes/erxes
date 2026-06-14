@@ -4,7 +4,6 @@ const integrationCommonFields = `
     phone: String
     wsServer: String
     operators: JSON
-    token: String
     queues: [String]
     srcTrunk: String
     dstTrunk: String
@@ -79,6 +78,42 @@ export const types = `
     recordUrl: String
     inboxIntegrationId: String
     acctId: String
+    uniqueid: String
+  }
+
+  type CallSessionOperator {
+    userId: String
+    extensionNumber: String
+    state: String
+    ringedAt: Date
+    answeredAt: Date
+  }
+
+  type CallSession {
+    _id: String
+    uniqueid: String!
+    inboxIntegrationId: String
+    conversationId: String
+    customerId: String
+    customerPhone: String
+    operatorPhone: String
+    callType: String
+    status: String
+    queueName: String
+    ringingOperators: [CallSessionOperator]
+    answeredBy: String
+    answeredExtension: String
+    startedAt: Date
+    answeredAt: Date
+    endedAt: Date
+    durationSec: Int
+    hangupCause: String
+    source: String
+    cdrAcctId: String
+    recordUrl: String
+    diversion: String
+    createdAt: Date
+    updatedAt: Date
   }
 
   type CallStatistic {
@@ -269,27 +304,10 @@ export const types = `
 
 export const subscriptions = `
   sessionTerminateRequested(userId: String): JSON
-  waitingCallReceived(extension: String): String
-  talkingCallReceived(extension: String): String
-  agentCallReceived(extension: String): String
   queueRealtimeUpdate(extension: String): String
 
   callStatistic(extension: String): CallStatistic
   `;
-
-const commonHistoryFields = `
-  operatorPhone: String
-  customerPhone: String
-  callDuration: Int
-  callStartTime: Date
-  callEndTime: Date
-  callType: String
-  callStatus: String
-  timeStamp: Float
-  inboxIntegrationId: String
-  transferredCallStatus: String
-  endedBy: String
-`;
 
 const mutationFilterParams = `
   callStatus: String
@@ -306,6 +324,8 @@ const filterParams = `
 `;
 
 export const queries = `
+  callSessionDetail(uniqueid: String, conversationId: String): CallSession
+  callActiveSessions(inboxIntegrationId: String!, extension: String): [CallSession]
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
   callUserIntegrations: [CallsIntegrationDetailResponse]
   callsCustomerDetail(customerPhone: String): Customer
@@ -317,7 +337,6 @@ export const queries = `
   callExtensionList(integrationId: String!): JSON
   callQueueList(integrationId: String!): JSON
   callQueueInitialList(queue: String!): String
-  callQueueMemberList(integrationId: String!, queue: String!): JSON
   callTodayStatistics(queue: String!): CallKeyStatistics
   callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!, direction: String): Float
   callCalculateFirstCallResolution(queue: String!, startDate: String!, endDate: String!, direction: String): Float
@@ -343,9 +362,6 @@ export const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
   callAddCustomer(inboxIntegrationId: String, primaryPhone: String, queueName: String): CallConversationDetail
   callUpdateActiveSession: JSON
-  callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
-  callHistoryEdit(_id: String,${commonHistoryFields}): String
-  callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String
   callTransfer(extensionNumber: String!, integrationId: String!, direction: String): String
