@@ -26,6 +26,11 @@ import {
   IGolomtBankConfigModel,
   loadGolomtBankConfigClass,
 } from '~/modules/corporateGateway/golomtbank/db/models/golomtBankConfigs';
+import { ITdbConfigDocument } from '~/modules/corporateGateway/tdb/@types/tdb';
+import {
+  ITdbConfigModel,
+  loadTdbConfigClass,
+} from '~/modules/corporateGateway/tdb/db/models/TdbConfigs';
 
 export interface IModels {
   PaymentMethods: IPaymentModel;
@@ -33,6 +38,7 @@ export interface IModels {
   Transactions: ITransactionModel;
   KhanbankConfigs: IKhanbankConfigModel;
   GolomtBankConfigs: IGolomtBankConfigModel;
+  TdbConfigs: ITdbConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -66,6 +72,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IGolomtBankConfigDocument,
     IGolomtBankConfigModel
   >('golomtbank_configs', loadGolomtBankConfigClass(models));
+  models.TdbConfigs = db.model<ITdbConfigDocument, ITdbConfigModel>(
+    'tdb_configs',
+    loadTdbConfigClass(models),
+  );
 
   return models;
 };
