@@ -65,19 +65,15 @@ export const loadCallIntegrationClass = (models: IModels) => {
 
       return integration;
     }
+    public static async getIntegrationQueuesByUser(userId: string) {
+      const integrations = await models.CallIntegrations.find({
+        'operators.userId': userId,
+      }).lean();
 
-    public static async getIntegrationQueuesByUser(
-      userId: string,
-      isAdmin?: boolean,
-    ) {
-      const query = isAdmin ? {} : { 'operators.userId': userId };
-
-      const integration = await models.CallIntegrations.findOne(query);
-
-      if (!integration) {
+      if (!integrations.length) {
         throw new Error('Integration not found');
       }
-      return integration.queues || [];
+      return integrations.flatMap((integration) => integration.queues || []);
     }
   }
 

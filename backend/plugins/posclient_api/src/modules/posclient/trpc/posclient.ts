@@ -8,7 +8,6 @@ import {
   importProducts,
   importSlots,
   preImportProducts,
-  preRemovePos,
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
@@ -36,16 +35,16 @@ export const posclientTrpcRouter = t.router({
     removeConfig: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { posId, posToken } = input;
+        const { posToken } = input;
         const { models } = ctx;
+        const posConfig = await models.Configs.getConfig({ token: posToken });
 
-        await preRemovePos(models, posId, posToken);
-        await models.Configs.removeConfig(posId);
+        await models.Configs.removeConfig(posConfig._id);
         return 'success';
       }),
     covers: t.router({
       remove: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { models } = ctx;
 
         const { cover } = input;
         await models.Covers.updateOne(
@@ -121,7 +120,7 @@ export const posclientTrpcRouter = t.router({
     syncOrderFromPos: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { models } = ctx;
 
         const { order } = input;
 
@@ -164,7 +163,7 @@ export const posclientTrpcRouter = t.router({
     syncOrderFromPosRemove: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { models } = ctx;
 
         const { order } = input;
 

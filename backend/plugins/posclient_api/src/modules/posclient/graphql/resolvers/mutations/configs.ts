@@ -8,6 +8,7 @@ import {
 // import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 // import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '@/posclient/@types/orderItems';
+import { IPosUserDocument } from '@/posclient/@types/posUsers';
 import fetch from 'node-fetch';
 import { IEbarimtDocument } from '@/posclient/db/definitions/putResponses';
 
@@ -25,6 +26,135 @@ import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
 import { syncRemainders } from '~/modules/posclient/utils/products';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 import { Resolver } from 'erxes-api-shared/core-types';
+
+type PosSyncConfigResponse = {
+  error?: string;
+  pos?: Record<string, unknown>;
+  adminUsers?: IPosUserDocument[];
+  cashiers?: IPosUserDocument[];
+  productGroups?: unknown[];
+  slots?: unknown[];
+};
+
+const POS_CONFIG_NOT_FOUND_ERRORS = new Set([
+  'not found pos',
+  'not found pos by token',
+]);
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
+const isPosConfigNotFoundError = (message?: string) =>
+  POS_CONFIG_NOT_FOUND_ERRORS.has((message || '').trim().toLowerCase());
+
+const handlePosSyncConfigError = async ({
+  models,
+  config,
+  error,
+}: {
+  models: IContext['models'];
+  config: IContext['config'];
+  error?: string;
+}): Promise<boolean> => {
+  if (!error) {
+    return false;
+  }
+
+  if (isPosConfigNotFoundError(error)) {
+    await models.Configs.removeConfig(config._id);
+    return true;
+  }
+
+  throw new Error(`Can not sync POS config from sales: ${error}`);
+};
+
+const syncPosConfig = async ({
+  models,
+  subdomain,
+  config,
+  type,
+}: {
+  models: IContext['models'];
+  subdomain: string;
+  config: IContext['config'];
+  type: string;
+}) => {
+  const address = await getServerAddress(subdomain);
+
+  const { token } = config;
+  let responseData: PosSyncConfigResponse;
+
+  try {
+    const response = await fetch(`${address}/pos-sync-config`, {
+      headers: {
+        'POS-TOKEN': config.token || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, type }),
+      timeout: 300000,
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    responseData = await response.json();
+  } catch (e: unknown) {
+    throw new Error(
+      `Can not fetch POS config from sales: ${getErrorMessage(e)}`,
+    );
+  }
+
+  const {
+    pos = {},
+    adminUsers = [],
+    cashiers = [],
+    productGroups = [],
+    slots = [],
+  } = responseData;
+
+  switch (type) {
+    case 'config':
+      if (
+        await handlePosSyncConfigError({
+          models,
+          config,
+          error: responseData.error,
+        })
+      ) {
+        break;
+      }
+
+      if (pos.status === 'deleted') {
+        await models.Configs.removeConfig(config._id);
+        break;
+      }
+
+      await models.Configs.updateConfig(config._id, {
+        ...(await extractConfig(subdomain, pos)),
+        token: config.token,
+      });
+      await importUsers(models, cashiers, config.token);
+      await importUsers(models, adminUsers, config.token, true);
+      break;
+    case 'products':
+      await preImportProducts(models, token, productGroups);
+      await importProducts(subdomain, models, token, productGroups);
+      break;
+    case 'slots':
+      await importSlots(models, token, slots);
+      break;
+    case 'productsConfigs':
+      await models.ProductsConfigs.createOrUpdateConfig({
+        code: 'similarityGroup',
+        value: responseData,
+      });
+      break;
+  }
+
+  return 'success';
+};
 
 const configMutations: Record<string, Resolver> = {
   posConfigsFetch: async (
@@ -79,116 +209,12 @@ const configMutations: Record<string, Resolver> = {
     return config;
   },
 
-  async syncConfig(
-    _root,
-    { type },
-    { models, subdomain, config, posUser }: IContext,
-  ) {
-    assertPosUser(posUser);
-
-    const address = await getServerAddress(subdomain);
-
-    const { token } = config;
-    const response = await fetch(`${address}/pos-sync-config`, {
-      headers: {
-        'POS-TOKEN': config.token || '',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token, type }),
-      timeout: 300000,
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-    const responseData = await response.json();
-
-    const {
-      pos = {},
-      adminUsers = [],
-      cashiers = [],
-      productGroups = [],
-      slots = [],
-    } = responseData;
-
-    switch (type) {
-      case 'config':
-        await models.Configs.updateConfig(config._id, {
-          ...(await extractConfig(subdomain, pos)),
-          token: config.token,
-        });
-        await importUsers(models, cashiers, config.token);
-        await importUsers(models, adminUsers, config.token, true);
-        break;
-      case 'products':
-        await preImportProducts(models, token, productGroups);
-        await importProducts(subdomain, models, token, productGroups);
-        break;
-      case 'slots':
-        await importSlots(models, token, slots);
-        break;
-      case 'productsConfigs':
-        await models.ProductsConfigs.createOrUpdateConfig({
-          code: 'similarityGroup',
-          value: responseData,
-        });
-        break;
-    }
-    return 'success';
+  async syncConfig(_root, { type }, { models, subdomain, config }: IContext) {
+    return syncPosConfig({ models, subdomain, config, type });
   },
 
   async cpSyncConfig(_root, { type }, { models, subdomain, config }: IContext) {
-    const address = await getServerAddress(subdomain);
-
-    const { token } = config;
-    const response = await fetch(`${address}/pos-sync-config`, {
-      headers: {
-        'POS-TOKEN': config.token || '',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token, type }),
-      timeout: 300000,
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-    const responseData = await response.json();
-
-    const {
-      pos = {},
-      adminUsers = [],
-      cashiers = [],
-      productGroups = [],
-      slots = [],
-    } = responseData;
-
-    switch (type) {
-      case 'config':
-        await models.Configs.updateConfig(config._id, {
-          ...(await extractConfig(subdomain, pos)),
-          token: config.token,
-        });
-        await importUsers(models, cashiers, config.token);
-        await importUsers(models, adminUsers, config.token, true);
-        break;
-      case 'products':
-        await preImportProducts(models, token, productGroups);
-        await importProducts(subdomain, models, token, productGroups);
-        break;
-      case 'slots':
-        await importSlots(models, token, slots);
-        break;
-      case 'productsConfigs':
-        await models.ProductsConfigs.createOrUpdateConfig({
-          code: 'similarityGroup',
-          value: responseData,
-        });
-        break;
-    }
-    return 'success';
+    return syncPosConfig({ models, subdomain, config, type });
   },
 
   async syncOrders(

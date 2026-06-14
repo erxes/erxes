@@ -16,7 +16,12 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-import { SelectMember, TagsFilter, SelectBrand } from 'ui-modules';
+import {
+  SelectMember,
+  TagsFilter,
+  SelectBrand,
+  PropertiesFilter,
+} from 'ui-modules';
 import { CustomerTotalCount } from './CustomerTotalCount';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
@@ -76,6 +81,8 @@ const CustomersFilterPopover = () => {
                   <IconCalendar />
                   {t('filter.birthday')}
                 </Filter.Item>
+                <Command.Separator className="my-1" />
+                <PropertiesFilter />
               </Command.List>
             </Command>
           </Filter.View>
@@ -94,6 +101,7 @@ const CustomersFilterPopover = () => {
           <Filter.View filterKey="birthday">
             <Filter.DateView filterKey="birthday" />
           </Filter.View>
+          <PropertiesFilter.View contentType="core:customer" />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -165,6 +173,7 @@ export const CustomersFilter = () => {
         </Filter.BarItem>
         <SelectMember.FilterBar />
         <SelectBrand.FilterBar />
+        <PropertiesFilter.Bar contentType="core:customer" />
         <CustomersFilterPopover />
         <CustomerTotalCount />
       </Filter.Bar>
