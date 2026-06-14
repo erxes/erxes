@@ -224,7 +224,7 @@ export async function buildRunDeps(
       // Audit trail: mutations only, best-effort.
       if (isMutation) {
         const failed =
-          !!result &&
+          Boolean(result) &&
           typeof result === 'object' &&
           (result as { success?: unknown }).success === false;
         writeAgentAction(models, {

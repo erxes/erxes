@@ -219,7 +219,7 @@ export function buildErxesMetaTools(params: {
       // logged. Best-effort — never blocks or fails the operation.
       if (isMutation) {
         const failed =
-          !!result &&
+          Boolean(result) &&
           typeof result === 'object' &&
           (result as { success?: unknown }).success === false;
         recordAction?.({

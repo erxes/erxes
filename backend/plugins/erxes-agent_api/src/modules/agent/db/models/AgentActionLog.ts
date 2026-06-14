@@ -24,13 +24,18 @@ export interface IMastraAgentActionLogModel
   ): Promise<IMastraAgentActionLogDocument[]>;
 }
 
+/** Bind the MastraAgentActionLog statics onto the schema (mongoose loadClass). */
 export const loadAgentActionLogClass = (_models: IModels) => {
+  /** Static helpers for the agent action audit trail. */
+  // skipcq: JS-0327 — the mongoose loadClass pattern requires a class of statics
   class MastraAgentActionLog {
-    public static async record(doc: IMastraAgentActionLog) {
+    /** Append one action entry to the audit trail. */
+    public static record(doc: IMastraAgentActionLog) {
       return _models.MastraAgentActionLog.create(doc);
     }
 
-    public static async getActions({
+    /** Recorded actions, newest first, optionally filtered and paginated. */
+    public static getActions({
       agentId,
       source,
       status,

@@ -26,14 +26,14 @@ export function writeAgentAction(
   models: IModels,
   entry: AgentActionEntry,
 ): void {
-  // Defensive on every axis: a missing model (e.g. a partial test harness), a
-  // synchronous throw, or a rejected write must never surface to the caller.
-  try {
-    const pending = models?.MastraAgentActionLog?.record?.(entry);
-    if (pending && typeof pending.catch === 'function') {
-      pending.catch((err) => console.error('writeAgentAction failed', err));
-    }
-  } catch (err) {
-    console.error('writeAgentAction failed', err);
-  }
+  // Guard a missing model (e.g. a partial test harness) before touching it, so
+  // the conditional never operates on a promise.
+  const model = models?.MastraAgentActionLog;
+  if (!model?.record) return;
+
+  // Fire-and-forget by design: an audit write must never slow down or break the
+  // action it records, so the write is not awaited and a rejection is swallowed.
+  void model.record(entry).catch((err) =>
+    console.error('writeAgentAction failed', err),
+  );
 }
