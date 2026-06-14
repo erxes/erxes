@@ -208,7 +208,8 @@ export const loadCallHistoryClass = (models: IModels) => {
         createdAt: session.createdAt,
         createdBy: '',
         modifiedBy: '',
-        extensionNumber: session.answeredExtension || operator?.gsUsername || '',
+        extensionNumber:
+          session.answeredExtension || operator?.gsUsername || '',
         conversationId: session.conversationId || '',
         recordUrl: session.recordUrl || '',
         inboxIntegrationId: session.inboxIntegrationId,

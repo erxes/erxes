@@ -49,4 +49,3 @@ export interface ICallHistoryFilterOptions {
   callType?: 'incoming' | 'outgoing';
   duration?: number;
 }
-

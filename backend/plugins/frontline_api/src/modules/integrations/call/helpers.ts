@@ -205,10 +205,10 @@ export const updateIntegration = async ({
       errorMessage: error?.keyPattern?.wsServer
         ? 'Duplicate queue detected. Queues must be unique across integrations.'
         : error?.keyPattern?.srcTrunk
-        ? 'Duplicate srcTrunk detected.'
-        : error?.keyPattern?.dstTrunk
-        ? 'Duplicate dstTrunk detected.'
-        : `Error creating integration: ${error?.message}`,
+          ? 'Duplicate srcTrunk detected.'
+          : error?.keyPattern?.dstTrunk
+            ? 'Duplicate dstTrunk detected.'
+            : `Error creating integration: ${error?.message}`,
     };
   }
 };
