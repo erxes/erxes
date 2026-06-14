@@ -268,8 +268,8 @@ export const CustomFieldInput = ({
               Array.isArray(value)
                 ? value
                 : typeof value === 'string' && value
-                ? [value]
-                : []
+                  ? [value]
+                  : []
             }
             onChange={(urls) => onChange(urls)}
           />
