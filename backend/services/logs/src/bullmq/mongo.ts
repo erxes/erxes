@@ -11,6 +11,7 @@ export const LOG_ACTIONS = {
   DELETE: 'delete',
   UPDATE_MANY: 'updateMany',
   BULK_WRITE: 'bulkWrite',
+  DELETE_MANY: 'deleteMany',
 } as const;
 
 type LogAction = (typeof LOG_ACTIONS)[keyof typeof LOG_ACTIONS];
@@ -34,6 +35,16 @@ type BulkEventPayload = {
   docIds: string[];
   collectionName: string;
   updateDescription?: Record<string, unknown>;
+  processId?: string;
+  userId?: string;
+  contentType?: string;
+};
+
+type DeleteManyEventPayload = {
+  collectionName: string;
+  docIds: string[];
+  // Aligned by index with docIds; each is the doc as it was before deletion.
+  prevDocuments?: unknown[];
   processId?: string;
   userId?: string;
   contentType?: string;
@@ -164,6 +175,9 @@ const handleDelete = async (
 
   const logPayload = {
     collectionName: payload.collectionName,
+    // The pre-deletion snapshot (when the caller supplied it) — what a revert
+    // re-inserts. Absent for callers not yet passing prevDocument.
+    prevDocument: payload.prevDocument,
   };
 
   return await createLogDocument(
@@ -175,6 +189,42 @@ const handleDelete = async (
     payload.userId,
     payload.contentType,
   );
+};
+
+const handleDeleteMany = async (
+  Logs: Model<ILogDocument>,
+  payload: DeleteManyEventPayload,
+) => {
+  const { collectionName, docIds, prevDocuments, processId, userId } = payload;
+
+  // One log per deleted doc, each carrying its own snapshot (paired by index
+  // with docIds) so a revert can re-insert every removed document.
+  const entries = docIds.map((docId, index) => ({
+    action: LOG_ACTIONS.DELETE_MANY,
+    docId: String(docId),
+    payload: withCollectionType(
+      { collectionName, prevDocument: prevDocuments?.[index] },
+      payload.contentType,
+      collectionName,
+    ),
+    source: 'mongo',
+    status: LOG_STATUSES.SUCCESS,
+    processId,
+    userId,
+    createdAt: new Date(),
+    contentType: payload.contentType,
+  }));
+
+  if (entries.length > BATCH_SIZE) {
+    const results: ILogDocument[] = [];
+    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+      const inserted = await Logs.insertMany(entries.slice(i, i + BATCH_SIZE));
+      results.push(...inserted);
+    }
+    return results;
+  }
+
+  return await Logs.insertMany(entries);
 };
 
 const handleUpdateMany = async (
@@ -273,6 +323,7 @@ const actionMap: Record<string, Function> = {
   [LOG_ACTIONS.DELETE]: handleDelete,
   [LOG_ACTIONS.UPDATE_MANY]: handleUpdateMany,
   [LOG_ACTIONS.BULK_WRITE]: handleBulkWrite,
+  [LOG_ACTIONS.DELETE_MANY]: handleDeleteMany,
 };
 
 export const handleMongoChangeEvent = async (
@@ -284,6 +335,20 @@ export const handleMongoChangeEvent = async (
   }
 
   const logAction = action as LogAction;
+
+  // deleteMany carries a per-doc snapshot list (prevDocuments) rather than a
+  // shared updateDescription, so it has its own handler/shape.
+  if (logAction === LOG_ACTIONS.DELETE_MANY && docIds && Array.isArray(docIds)) {
+    return await handleDeleteMany(Logs, {
+      collectionName: payload?.collectionName || '',
+      docIds,
+      prevDocuments: (payload as { prevDocuments?: unknown[] })?.prevDocuments,
+      processId,
+      userId,
+      contentType,
+    });
+  }
+
   const isBulkOperation =
     logAction === LOG_ACTIONS.UPDATE_MANY ||
     logAction === LOG_ACTIONS.BULK_WRITE;
