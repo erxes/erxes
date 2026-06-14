@@ -8,6 +8,10 @@ import {
 import { TriggerEnvelope } from './envelope';
 import { WorkflowDefinition } from './dsl';
 import { isOperationAllowed, ToolPolicy } from '../tools/scope';
+import {
+  isDestructiveOperation,
+  resolveDestructiveOpsPolicy,
+} from '../tools/destructiveGuard';
 import { getOperationRegistry } from '../tools/operationRegistry';
 import type { IModels } from '~/connectionResolvers';
 import type { IMastraAgentDocument } from '@/agent/@types/agent';
@@ -181,6 +185,17 @@ export async function buildRunDeps(
       if (!isOperationAllowed(meta, definition.policy as ToolPolicy)) {
         throw new Error(
           `operation "${operation}" is outside this workflow's policy`,
+        );
+      }
+      // Defense-in-depth: validation already rejects destructive ops without
+      // consent, but re-check at execution time (a definition could be run
+      // without re-validation) so a remove/delete/merge never slips through.
+      if (
+        isDestructiveOperation(meta) &&
+        resolveDestructiveOpsPolicy(definition) !== 'allow'
+      ) {
+        throw new Error(
+          `operation "${operation}" deletes or merges data and is blocked for this workflow (set destructiveOps: "allow" to permit)`,
         );
       }
       const { executeErxesOperation } = await import('../tools/erxesTools');
