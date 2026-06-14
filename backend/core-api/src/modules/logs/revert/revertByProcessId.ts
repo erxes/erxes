@@ -127,7 +127,7 @@ export const revertByProcessId = async (
     resolutions?: RevertDocResolution[];
   },
 ): Promise<RevertProcessResult> => {
-  const { models, subdomain, user, checkPermission } = context;
+  const { models, subdomain, user } = context;
   const { processId } = args;
   const dryRun = args.dryRun ?? false;
   // force: apply the recorded prev value even over an intervening change
@@ -160,52 +160,27 @@ export const revertByProcessId = async (
     throw new Error(`No log entries found for process ${processId}`);
   }
 
-  // 2. Resolve each entry's contentType config and gate per-entity.
+  // 2. Build the content-type config (used for model resolution + display) and
+  // authorize with a zero-config rule: ACTOR-OR-ADMIN. A revert is allowed only
+  // for an admin/owner, or for the user who themselves made EVERY change in the
+  // process. The actor is recorded on each journal entry, so an entity needs no
+  // per-entity permission setup to be revertible.
   const configMap = await buildContentTypeConfigMap();
 
-  const distinctContentTypes = Array.from(
-    new Set(entries.map((e) => e.contentType).filter((c): c is string => !!c)),
-  );
+  if (!user?.isOwner) {
+    const actorIds = entries
+      .filter((e) => DATA_CHANGE_ACTIONS.has(e.action))
+      .map((e) => e.userId)
+      .filter((id): id is string => !!id);
 
-  const unauthorized: string[] = [];
-  const requiredActions = new Set<string>();
+    const allMadeByMe =
+      actorIds.length > 0 && actorIds.every((id) => id === user?._id);
 
-  for (const contentType of distinctContentTypes) {
-    const config = configMap.get(contentType);
-
-    // Owners bypass everything (matches checkPermission's isOwner short-circuit).
-    if (user?.isOwner) {
-      continue;
-    }
-
-    if (!config?.permission) {
-      // Fail closed: an entity with no declared gate is revertible by owners only.
-      unauthorized.push(contentType);
-      continue;
-    }
-
-    requiredActions.add(config.permission);
-  }
-
-  // Enforce each distinct gating action (throws FORBIDDEN on deny). Collect the
-  // ones the caller lacks so the whole-revert refusal can list every entity.
-  for (const action of requiredActions) {
-    try {
-      await checkPermission(action);
-    } catch {
-      const blockedContentTypes = distinctContentTypes.filter(
-        (ct) => configMap.get(ct)?.permission === action,
+    if (!allMadeByMe) {
+      throw new Error(
+        'Not authorized: only an admin, or the user who made these changes, can revert them.',
       );
-      unauthorized.push(...blockedContentTypes);
     }
-  }
-
-  if (unauthorized.length) {
-    const unique = Array.from(new Set(unauthorized)).sort();
-    throw new Error(
-      `Not authorized to revert these entities: ${unique.join(', ')}. ` +
-        `A revert requires the gating permission for every entity in the process.`,
-    );
   }
 
   // 3. Idempotency: was this process already reverted successfully?
@@ -261,12 +236,21 @@ export const revertByProcessId = async (
       ? configMap.get(contentType)
       : undefined;
 
-    if (!contentType || !config?.mongooseName) {
+    // Zero-config model resolution: prefer a configured mongooseName, else the
+    // model name the auto-capture recorded on the entry, else the collection name
+    // (which is the registered model name for core collections). This is what lets
+    // ANY captured entity be reverted without a meta/logs entry.
+    const mongooseName =
+      config?.mongooseName ||
+      (entry.payload as { mongooseName?: string } | undefined)?.mongooseName ||
+      (entry.payload as { collectionName?: string } | undefined)?.collectionName;
+
+    if (!mongooseName) {
       unrevertable.push({
         contentType,
         docId: entry.docId,
         action: entry.action,
-        reason: 'No mongoose model configured for this contentType',
+        reason: 'Could not resolve a model for this entry',
       });
       continue;
     }
@@ -283,16 +267,18 @@ export const revertByProcessId = async (
       continue;
     }
 
-    const mongooseName = config.mongooseName;
-    const pluginName = contentType.split(':')[0];
-    const simKey = resolutionKey(contentType, inverse.docId);
+    // A stable, always-defined contentType for the write/simulation layer
+    // (auto-derived from the model when an entry carried none).
+    const ct: string = contentType || `auto:${mongooseName}.${mongooseName}`;
+    const pluginName = ct.split(':')[0];
+    const simKey = resolutionKey(ct, inverse.docId);
 
     if (inverse.kind === 'insert') {
       // A hard delete lacking a snapshot would have skipped in computeInverse;
       // reaching here means we have the document to re-insert.
       cleanOps.push({
         kind: 'insert',
-        contentType,
+        contentType: ct,
         docId: inverse.docId,
         mongooseName,
         document: inverse.document,
@@ -313,7 +299,7 @@ export const revertByProcessId = async (
 
       cleanOps.push({
         kind: 'delete',
-        contentType,
+        contentType: ct,
         docId: inverse.docId,
         mongooseName,
         expectDocument,
@@ -331,12 +317,12 @@ export const revertByProcessId = async (
     // entities are applied via TRPC without a local field-level preview (the
     // in-plugin applyWrite still guards inserts/deletes). Reachable only once a
     // plugin declares meta.logs contentTypes — none do today.
-    if (pluginName !== 'core') {
+    if (pluginName !== 'core' && pluginName !== 'auto') {
       cleanOps.push(
         mergeResolutionIntoUpdate(
           {
             kind: 'update',
-            contentType,
+            contentType: ct,
             docId: inverse.docId,
             mongooseName,
             set: inverse.set,
@@ -389,7 +375,7 @@ export const revertByProcessId = async (
       // checked against the same unreverted state. (force, admin-only, blind-restores.)
       if (unresolved.length) {
         conflicts.push({
-          contentType,
+          contentType: ct,
           docId: inverse.docId,
           mongooseName,
           fields: fieldConflicts,
@@ -401,7 +387,7 @@ export const revertByProcessId = async (
     const updateOp = mergeResolutionIntoUpdate(
       {
         kind: 'update',
-        contentType,
+        contentType: ct,
         docId: inverse.docId,
         mongooseName,
         set: inverse.set,

@@ -30,7 +30,11 @@ export const applyInverse = async (args: {
 
   const pluginName = pluginNameOf(input.contentType);
 
-  if (pluginName === 'core') {
+  // `core` = first-party entities; `auto` = entities captured generically by the
+  // shared schemaWrapper hooks (which run in THIS process on THIS connection).
+  // Both apply in-process via applyWrite. Only a genuinely remote plugin entity
+  // is dispatched over TRPC.
+  if (pluginName === 'core' || pluginName === 'auto') {
     return await applyWrite({
       connection,
       subdomain,
