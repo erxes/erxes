@@ -1,5 +1,5 @@
 import { IconLock, IconShield, IconUsers } from '@tabler/icons-react';
-import { Button, Collapsible, Dialog, Separator, Spinner } from 'erxes-ui';
+import { Button, Collapsible, Dialog, readImage, Separator, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
 import {
@@ -164,7 +164,7 @@ export const PermissionGroupDetails = ({
                     >
                       {member.details?.avatar ? (
                         <img
-                          src={member.details.avatar}
+                          src={readImage(member.details.avatar)}
                           alt={name}
                           className="w-8 h-8 rounded-full object-cover shrink-0"
                         />
