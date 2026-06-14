@@ -80,10 +80,6 @@ const publishSession = async (
       inboxIntegrationId: integration?.inboxId,
     },
   };
-  await graphqlPubsub.publish(
-    `callSessionUpdated:${integration?.inboxId || 'global'}`,
-    payload,
-  );
   if (session.uniqueid) {
     await graphqlPubsub.publish(
       `callSessionUpdated:uniqueid:${session.uniqueid}`,
@@ -166,6 +162,7 @@ export const handleCallEvent = async (
   models: IModels,
   subdomain: string,
   ev: ICallEventPayload,
+  verifiedIntegration?: any,
 ) => {
   if (!ev?.uniqueid) {
     throw new Error('uniqueid required');
@@ -174,7 +171,11 @@ export const handleCallEvent = async (
     throw new Error('event type required');
   }
 
-  const integration = await findIntegrationForEvent(models, ev);
+  // Prefer the integration resolved from the verified webhook signature; only
+  // fall back to trunk/inboxId matching from the (unauthenticated) body for
+  // unsigned legacy traffic during the grace window.
+  const integration =
+    verifiedIntegration || (await findIntegrationForEvent(models, ev));
   if (!integration) {
     debugCall(
       `Call event ignored: no matching integration for ${ev.srcTrunkName}/${ev.dstTrunkName}`,
@@ -365,6 +366,7 @@ export const handleReceiveCall = async (
   models: IModels,
   subdomain: string,
   payload: IUcmCallPayload,
+  verifiedIntegration?: any,
 ) => {
   if (!payload?.uniqueid) {
     throw new Error('uniqueid required');
@@ -373,7 +375,12 @@ export const handleReceiveCall = async (
     throw new Error(`unsupported receiveCall payload type: ${payload?.type}`);
   }
 
-  return handleCallEvent(models, subdomain, ucmPayloadToCallEvent(payload));
+  return handleCallEvent(
+    models,
+    subdomain,
+    ucmPayloadToCallEvent(payload),
+    verifiedIntegration,
+  );
 };
 
 // suppress unused import lint when sendTRPCMessage is reserved for later

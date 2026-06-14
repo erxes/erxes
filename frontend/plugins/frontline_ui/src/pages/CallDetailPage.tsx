@@ -23,9 +23,9 @@ import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import {
-  CallQueueMemberList,
-  useCallQueueMemberList,
-} from '@/integrations/call/hooks/useCallQueueMemberList';
+  ICallQueueAgent,
+  ICallQueueRealtimeSnapshot,
+} from '@/integrations/call/types/callTypes';
 import { useState } from 'react';
 import {
   formatSeconds,
@@ -36,7 +36,11 @@ import { useSubscription } from '@apollo/client';
 import { useCallDurationFromDate } from '@/integrations/call/hooks/useCallDuration';
 import { useCallQueueInitialList } from '@/integrations/call/hooks/useCallQueueInitialList';
 
-export const CallDetailPage = () => {
+export const CallDetailPage = ({
+  backPath = '/frontline/calls/dashboard',
+}: {
+  backPath?: string;
+}) => {
   const { id } = useParams();
   const [updatedAt, setUpdatedAt] = useState<Date | undefined>(undefined);
   const { callUserIntegrations, loading: loadingUserIntegrations } =
@@ -46,13 +50,6 @@ export const CallDetailPage = () => {
     callUserIntegrations?.find((integration) =>
       integration.queues?.includes(id || ''),
     ) || {};
-
-  const { callQueueMemberList, loading: loadingQueueMemberList } =
-    useCallQueueMemberList({
-      integrationId: inboxId || '',
-      queue: id || '',
-      setUpdatedAt,
-    });
 
   const { callQueueInitialList, loading: loadingQueueInitialCallList } =
     useCallQueueInitialList({
@@ -66,41 +63,24 @@ export const CallDetailPage = () => {
       extension: id,
     },
     skip: !id,
-    onData: ({ data }) => {
-      const { queueRealtimeUpdate } = data?.data || {};
+    onData: () => {
       setUpdatedAt(new Date());
-      JSON.parse(queueRealtimeUpdate);
     },
   });
 
-  const callRealtimeUpdate = JSON.parse(data?.queueRealtimeUpdate || '{}');
+  const callRealtimeUpdate: Partial<ICallQueueRealtimeSnapshot> = JSON.parse(
+    data?.queueRealtimeUpdate || '{}',
+  );
 
-  const membersList = callQueueMemberList?.member?.map((member) => {
-    const memberRealTimeUpdate =
-      callRealtimeUpdate.agents?.find(
-        (agent: any) => agent.member_extension === member.member_extension,
-      ) || {};
-    return {
-      ...member,
-      status: memberRealTimeUpdate.status || member.status,
-      answer: memberRealTimeUpdate.answer || member.answer,
-      abandon: memberRealTimeUpdate.abandon || member.abandon,
-      talktime: memberRealTimeUpdate.talktime || member.talktime,
-      pausetime: memberRealTimeUpdate.pausetime || member.pausetime,
-      queue_action: memberRealTimeUpdate.queue_action,
-    };
-  });
+  const membersList =
+    callRealtimeUpdate.agents || callQueueInitialList?.agents || [];
 
   const waitingCallList =
     callRealtimeUpdate.waiting || callQueueInitialList?.waiting || [];
   const talkingCallList =
     callRealtimeUpdate.talking || callQueueInitialList?.talking || [];
 
-  if (
-    loadingUserIntegrations ||
-    loadingQueueMemberList ||
-    loadingQueueInitialCallList
-  ) {
+  if (loadingUserIntegrations || loadingQueueInitialCallList) {
     return <Spinner size="md" />;
   }
 
@@ -143,7 +123,7 @@ export const CallDetailPage = () => {
       <div className="flex flex-col flex-auto overflow-hidden p-5 gap-5">
         <div>
           <Button variant="ghost" asChild className="px-2 gap-1">
-            <Link to="/frontline/calls/dashboard">
+            <Link to={backPath}>
               <IconChevronLeft />
               Go back to queues
             </Link>
@@ -201,7 +181,7 @@ export const CallDetailPage = () => {
 export const CallDetailAgents = ({
   membersList,
 }: {
-  membersList: CallQueueMemberList['member'];
+  membersList: ICallQueueAgent[];
 }) => {
   const [search, setSearch] = useState('');
 
@@ -238,7 +218,7 @@ export const CallDetailAgents = ({
   );
 };
 
-export const agentColumns: ColumnDef<CallQueueMemberList['member'][number]>[] =
+export const agentColumns: ColumnDef<ICallQueueAgent>[] =
   [
     {
       accessorKey: 'status',

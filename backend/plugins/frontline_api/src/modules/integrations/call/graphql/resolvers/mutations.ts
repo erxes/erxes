@@ -1,4 +1,8 @@
-import { findIntegration, sendToGrandStream } from '../../utils';
+import {
+  findIntegration,
+  sanitizeOperators,
+  sendToGrandStream,
+} from '../../utils';
 
 import { IContext } from '~/connectionResolvers';
 import { saveRecordUrl, getOrCreateCustomer } from '../../store';
@@ -7,13 +11,45 @@ export interface ISession {
   sessionCode: string;
 }
 
+const CONFIG_SETTABLE_FIELDS = [
+  'phone',
+  'wsServer',
+  'srcTrunk',
+  'dstTrunk',
+  'queues',
+  'queueNames',
+];
+
 const callsMutations = {
-  async callsIntegrationUpdate(_root, { configs }, { models }: IContext) {
-    const { inboxId, ...data } = configs;
+  async callsIntegrationUpdate(_root, { configs }, { models, user }: IContext) {
+    if (!user?.isOwner) {
+      throw new Error('Permission required');
+    }
+
+    const { inboxId, operators, ...rest } = configs;
+
+    if (!inboxId) {
+      throw new Error('inboxId is required');
+    }
+
+    const $set: Record<string, any> = {};
+    for (const key of CONFIG_SETTABLE_FIELDS) {
+      if (rest[key] !== undefined) {
+        $set[key] = rest[key];
+      }
+    }
+
+    if (operators !== undefined) {
+      const current = await models.CallIntegrations.findOne({
+        inboxId,
+      }).lean();
+      $set.operators = sanitizeOperators(operators, current?.operators);
+    }
 
     const integration = await models.CallIntegrations.findOneAndUpdate(
       { inboxId },
-      { $set: { ...data } },
+      { $set },
+      { new: true },
     );
     return integration;
   },

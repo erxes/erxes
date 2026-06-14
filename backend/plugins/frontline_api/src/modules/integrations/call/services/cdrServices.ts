@@ -15,14 +15,21 @@ import { redlock } from '@/integrations/call/redlock';
 
 const CDR_LOCK_TTL_MS = 20_000;
 
-export const receiveCdr = async (models: IModels, subdomain, params) => {
+export const receiveCdr = async (
+  models: IModels,
+  subdomain,
+  params,
+  verifiedIntegration?: any,
+) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-  const integration = await models.CallIntegrations.findOne({
-    $or: [
-      { srcTrunk: params.src_trunk_name },
-      { dstTrunk: params.dst_trunk_name },
-    ],
-  });
+  const integration =
+    verifiedIntegration ||
+    (await models.CallIntegrations.findOne({
+      $or: [
+        { srcTrunk: params.src_trunk_name },
+        { dstTrunk: params.dst_trunk_name },
+      ],
+    }));
   if (!integration) return;
 
   const inboxId = integration.inboxId;
@@ -356,10 +363,6 @@ const processCdrLocked = async (
         };
         await graphqlPubsub.publish(
           `callSessionUpdated:uniqueid:${sessionUniqueid}`,
-          sessionPayload,
-        );
-        await graphqlPubsub.publish(
-          `callSessionUpdated:${inboxId}`,
           sessionPayload,
         );
       }

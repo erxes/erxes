@@ -4,7 +4,6 @@ const integrationCommonFields = `
     phone: String
     wsServer: String
     operators: JSON
-    token: String
     queues: [String]
     srcTrunk: String
     dstTrunk: String
@@ -273,9 +272,6 @@ export const types = `
 
 export const subscriptions = `
   sessionTerminateRequested(userId: String): JSON
-  waitingCallReceived(extension: String): String
-  talkingCallReceived(extension: String): String
-  agentCallReceived(extension: String): String
   queueRealtimeUpdate(extension: String): String
 
   callStatistic(extension: String): CallStatistic
@@ -309,7 +305,6 @@ export const queries = `
   callExtensionList(integrationId: String!): JSON
   callQueueList(integrationId: String!): JSON
   callQueueInitialList(queue: String!): String
-  callQueueMemberList(integrationId: String!, queue: String!): JSON
   callTodayStatistics(queue: String!): CallKeyStatistics
   callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!, direction: String): Float
   callCalculateFirstCallResolution(queue: String!, startDate: String!, endDate: String!, direction: String): Float

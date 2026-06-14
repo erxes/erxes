@@ -145,6 +145,9 @@ export async function startPlugin(
   app.use(
     express.json({
       limit: '15mb',
+      verify: (req: any, _res, buf: Buffer) => {
+        req.rawBody = buf;
+      },
     }),
   );
   app.use(cookieParser());
@@ -236,11 +239,13 @@ export async function startPlugin(
   }
 
   app.use((req: any, _res, next) => {
-    req.rawBody = '';
+    if (req.rawBody === undefined) {
+      req.rawBody = '';
 
-    req.on('data', (chunk: any) => {
-      req.rawBody += chunk.toString();
-    });
+      req.on('data', (chunk: any) => {
+        req.rawBody += chunk.toString();
+      });
+    }
 
     next();
   });
