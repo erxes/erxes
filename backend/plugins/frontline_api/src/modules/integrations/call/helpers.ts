@@ -143,8 +143,16 @@ export const updateIntegration = async ({
       details,
     );
 
-    // Update queue names this function role is detect which incoming call queue
-    await updateIntegrationQueueNames(subdomain, integrationId, updatedQueues);
+    // Update queue names this function role is detect which incoming call queue.
+    try {
+      await updateIntegrationQueueNames(
+        subdomain,
+        integrationId,
+        updatedQueues,
+      );
+    } catch (e) {
+      console.error('Failed to update queue names:', e.message);
+    }
 
     // Notify external endpoint if necessary
     const ENDPOINT_URL = getEnv({ name: 'CALL_ENDPOINT_URL' });
