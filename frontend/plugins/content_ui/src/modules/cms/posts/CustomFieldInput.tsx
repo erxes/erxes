@@ -109,7 +109,10 @@ function FileFieldInput({
               key={url}
               className="flex items-center gap-2 border rounded p-2 bg-muted"
             >
-              <IconPaperclip size={16} className="text-muted-foreground shrink-0" />
+              <IconPaperclip
+                size={16}
+                className="text-muted-foreground shrink-0"
+              />
               <span className="text-sm flex-1 truncate">{url}</span>
               <Button
                 variant="ghost"
@@ -140,9 +143,7 @@ function FileFieldInput({
           <IconUpload size={16} className="mr-2" />
           {uploadProps.loading ? 'Uploading...' : buttonLabel}
         </Button>
-        <p className="text-xs text-muted-foreground mt-1">
-          Max 20MB
-        </p>
+        <p className="text-xs text-muted-foreground mt-1">Max 20MB</p>
       </div>
       {!!uploadProps.errors.length && (
         <p className="text-xs text-destructive">
@@ -315,10 +316,7 @@ export const CustomFieldInput = ({
 
       case 'file':
         return (
-          <FileFieldInput
-            value={value}
-            onChange={(urls) => onChange(urls)}
-          />
+          <FileFieldInput value={value} onChange={(urls) => onChange(urls)} />
         );
 
       case 'richText':

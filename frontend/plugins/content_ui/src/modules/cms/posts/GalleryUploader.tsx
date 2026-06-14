@@ -25,9 +25,7 @@ export const GalleryUploader = ({
     maxFiles: maxImages,
     maxFileSize: 20 * 1024 * 1024,
     onFilesAdded: (addedFiles) => {
-      const addedUrls = addedFiles
-        .map((file) => file.url)
-        .filter(Boolean);
+      const addedUrls = addedFiles.map((file) => file.url).filter(Boolean);
       const next = [...urlsRef.current, ...addedUrls].slice(0, maxImages);
       onChange(next);
     },
@@ -79,10 +77,7 @@ export const GalleryUploader = ({
     [onChange, urls],
   );
 
-  const handleDragStart = (
-    event: DragEvent<HTMLDivElement>,
-    index: number,
-  ) => {
+  const handleDragStart = (event: DragEvent<HTMLDivElement>, index: number) => {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', String(index));
   };
