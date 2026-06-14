@@ -7,6 +7,11 @@ import {
 } from './erxesTools';
 import { OperationMeta, OperationRegistry } from './operationRegistry';
 import { ToolPolicy, isOperationAllowed } from './scope';
+import {
+  DestructiveOpsPolicy,
+  isDestructiveOperation,
+  destructiveBlockedResult,
+} from './destructiveGuard';
 
 // LLMs sometimes pass the args object as a JSON string. Parse it back so the
 // execute tool always receives a real object.
@@ -76,8 +81,9 @@ export function buildErxesMetaTools(params: {
   registry: OperationRegistry;
   settings: ErxesToolSettings;
   policy: ToolPolicy;
+  destructiveOps: DestructiveOpsPolicy;
 }) {
-  const { registry, settings, policy } = params;
+  const { registry, settings, policy, destructiveOps } = params;
 
   /** Operations visible to this agent after policy filtering. */
   const allowedList = (): OperationMeta[] =>
@@ -178,6 +184,12 @@ export function buildErxesMetaTools(params: {
           success: false,
           error: `Operation "${operation}" is not permitted for this agent.`,
         };
+      }
+      // Safety gate: irreversible deletes/merges are refused unless the agent is
+      // explicitly configured with destructiveOps: 'allow'. Enforced here, beside
+      // the policy check, so the boundary holds even if the model guesses a name.
+      if (destructiveOps !== 'allow' && isDestructiveOperation(op)) {
+        return destructiveBlockedResult(operation);
       }
 
       return await executeErxesOperation(

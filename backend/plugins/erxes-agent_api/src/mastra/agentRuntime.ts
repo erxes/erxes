@@ -14,6 +14,7 @@ import {
   scopeSummary,
   capabilityInventory,
 } from './tools/scope';
+import { resolveDestructiveOpsPolicy } from './tools/destructiveGuard';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -23,7 +24,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, ToolsInput>();
 
 // Increment this whenever routing.ts, the meta-tools, or provider logic changes.
-const ROUTING_VERSION = 24;
+const ROUTING_VERSION = 25;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -43,6 +44,11 @@ export async function getOrCreateAgent(
   // The agent's reach: 'all' (every erxes operation + builtin) by default, or a
   // restricted allowlist. The two meta-tools enforce this at execution time.
   const policy = resolveToolPolicy(agentConfig);
+
+  // Consent for irreversible deletes/merges. Defaults to 'block' (incl. legacy
+  // agents with no field persisted) so the AI cannot remove data by mistake;
+  // the execute meta-tool refuses destructive ops unless this is 'allow'.
+  const destructiveOps = resolveDestructiveOpsPolicy(agentConfig);
 
   // The live, cached schema registry powers search + execute. No per-operation
   // tool docs are bound any more — capabilities are derived from the gateway.
@@ -80,7 +86,10 @@ export async function getOrCreateAgent(
   // one operation (an all-builtins-only restricted agent skips them).
   const hasErxes = hasAnyOperation(registry.list, policy);
   if (hasErxes) {
-    Object.assign(tools, buildErxesMetaTools({ registry, settings, policy }));
+    Object.assign(
+      tools,
+      buildErxesMetaTools({ registry, settings, policy, destructiveOps }),
+    );
   }
 
   // Standalone builtin tools, filtered by policy.
