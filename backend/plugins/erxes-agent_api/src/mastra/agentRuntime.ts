@@ -15,6 +15,7 @@ import {
   capabilityInventory,
 } from './tools/scope';
 import { resolveDestructiveOpsPolicy } from './tools/destructiveGuard';
+import { writeAgentAction, AgentActionInput } from './auditLog';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -84,11 +85,26 @@ export async function getOrCreateAgent(
 
   // erxes search/execute meta-tools — bound only when the policy grants at least
   // one operation (an all-builtins-only restricted agent skips them).
+  // Per-agent audit sink: every mutation the agent runs (or is blocked from)
+  // is recorded against this agent. Fire-and-forget inside writeAgentAction.
+  const recordAction = (entry: AgentActionInput) =>
+    writeAgentAction(models, {
+      ...entry,
+      source: 'chat',
+      agentId: agentConfig.agentId,
+    });
+
   const hasErxes = hasAnyOperation(registry.list, policy);
   if (hasErxes) {
     Object.assign(
       tools,
-      buildErxesMetaTools({ registry, settings, policy, destructiveOps }),
+      buildErxesMetaTools({
+        registry,
+        settings,
+        policy,
+        destructiveOps,
+        recordAction,
+      }),
     );
   }
 

@@ -12,6 +12,7 @@ import {
   isDestructiveOperation,
   resolveDestructiveOpsPolicy,
 } from '../tools/destructiveGuard';
+import { writeAgentAction } from '../auditLog';
 import { getOperationRegistry } from '../tools/operationRegistry';
 import type { IModels } from '~/connectionResolvers';
 import type { IMastraAgentDocument } from '@/agent/@types/agent';
@@ -168,6 +169,7 @@ function judgmentInstruction(outputSpec: Record<string, string>): string {
 export async function buildRunDeps(
   models: IModels,
   definition: WorkflowDefinition,
+  workflowId?: string,
 ): Promise<{ deps: CompiledDeps; usage: { llmCalls: number } }> {
   const settings = await models.MastraSettings.getSettings();
   const registry = await getOperationRegistry(settings);
@@ -187,6 +189,7 @@ export async function buildRunDeps(
           `operation "${operation}" is outside this workflow's policy`,
         );
       }
+      const isMutation = meta.operationType === 'mutation';
       // Defense-in-depth: validation already rejects destructive ops without
       // consent, but re-check at execution time (a definition could be run
       // without re-validation) so a remove/delete/merge never slips through.
@@ -194,18 +197,51 @@ export async function buildRunDeps(
         isDestructiveOperation(meta) &&
         resolveDestructiveOpsPolicy(definition) !== 'allow'
       ) {
+        if (isMutation)
+          writeAgentAction(models, {
+            source: 'workflow',
+            workflowId,
+            operation,
+            operationType: meta.operationType,
+            destructive: true,
+            args: args || {},
+            status: 'blocked',
+            error: 'blocked by destructive-ops guard',
+          });
         throw new Error(
           `operation "${operation}" deletes or merges data and is blocked for this workflow (set destructiveOps: "allow" to permit)`,
         );
       }
       const { executeErxesOperation } = await import('../tools/erxesTools');
-      return executeErxesOperation(
+      const result = await executeErxesOperation(
         meta,
         args || {},
         settings,
         registry.inputTypesMap,
         registry.objectFieldsMap,
       );
+
+      // Audit trail: mutations only, best-effort.
+      if (isMutation) {
+        const failed =
+          !!result &&
+          typeof result === 'object' &&
+          (result as { success?: unknown }).success === false;
+        writeAgentAction(models, {
+          source: 'workflow',
+          workflowId,
+          operation,
+          operationType: meta.operationType,
+          destructive: isDestructiveOperation(meta),
+          args: args || {},
+          status: failed ? 'failed' : 'success',
+          error: failed
+            ? String((result as { error?: unknown }).error ?? '')
+            : undefined,
+        });
+      }
+
+      return result;
     },
 
     runJudgment: async ({ agentBindingId, prompt, outputSpec }) => {
@@ -273,7 +309,7 @@ export async function runWorkflow(args: {
   const tenant = workflowTenant(subdomain);
   const key = `wf_${workflow._id}_v${workflow.version}`;
 
-  const { deps, usage } = await buildRunDeps(models, definition);
+  const { deps, usage } = await buildRunDeps(models, definition, workflow._id);
   // NOT awaited — the Workflow object is a thenable (see compiler.ts).
   const compiled = compileDefinition(key, definition, deps);
 
