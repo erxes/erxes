@@ -257,13 +257,14 @@
     "typescript-eslint": "^8.0.0",
     "webpack-cli": "^5.1.4"
   },
-  "@mastra/core>zod": "^3.25.0",
-  "@mastra/memory>zod": "^3.25.0",
-  "@mastra/libsql>zod": "^3.25.0",
   "packageManager": "pnpm@9.12.3",
   "pnpm": {
     "overrides": {
-      "@types/ws": "^8.18.1"
+      "@types/ws": "^8.18.1",
+      "ioredis": "^5.6.1",
+      "@mastra/core>zod": "^3.25.0",
+      "@mastra/memory>zod": "^3.25.0",
+      "@mastra/libsql>zod": "^3.25.0"
     }
   }
 }
