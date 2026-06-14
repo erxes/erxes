@@ -26,7 +26,8 @@ const DeleteLogSchema = z.object({
 const DeleteManyLogSchema = z.object({
   action: z.literal('deleteMany'),
   docIds: z.array(z.string()),
-  // Prior documents, aligned by index with docIds. Optional; enables revert.
+  // Prior documents (any order; matched to docIds by _id). Optional; enables
+  // revert by re-inserting each deleted doc with its original _id.
   prevDocuments: z.array(z.any()).optional(),
 });
 

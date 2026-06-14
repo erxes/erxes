@@ -43,7 +43,7 @@ type BulkEventPayload = {
 type DeleteManyEventPayload = {
   collectionName: string;
   docIds: string[];
-  // Aligned by index with docIds; each is the doc as it was before deletion.
+  // Docs as they were before deletion; matched to docIds by _id (any order).
   prevDocuments?: unknown[];
   processId?: string;
   userId?: string;
@@ -197,13 +197,22 @@ const handleDeleteMany = async (
 ) => {
   const { collectionName, docIds, prevDocuments, processId, userId } = payload;
 
-  // One log per deleted doc, each carrying its own snapshot (paired by index
-  // with docIds) so a revert can re-insert every removed document.
-  const entries = docIds.map((docId, index) => ({
+  // Match each snapshot to its doc by _id, so callers can pass a find() result
+  // in any order — no index alignment with docIds required.
+  const snapshotById = new Map<string, unknown>(
+    (prevDocuments || []).map((doc) => [
+      String((doc as { _id?: unknown } | null)?._id),
+      doc,
+    ]),
+  );
+
+  // One log per deleted doc, each carrying its own snapshot, so a revert can
+  // re-insert every removed document.
+  const entries = docIds.map((docId) => ({
     action: LOG_ACTIONS.DELETE_MANY,
     docId: String(docId),
     payload: withCollectionType(
-      { collectionName, prevDocument: prevDocuments?.[index] },
+      { collectionName, prevDocument: snapshotById.get(String(docId)) },
       payload.contentType,
       collectionName,
     ),
