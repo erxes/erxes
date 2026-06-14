@@ -25,7 +25,7 @@ type UploadedFile = {
 };
 
 /** Stores the dragged image position for native drop handling. */
-function handleDragStart(event: DragEvent<HTMLDivElement>, index: number) {
+function handleDragStart(event: DragEvent<HTMLButtonElement>, index: number) {
   event.dataTransfer.effectAllowed = 'move';
   event.dataTransfer.setData('text/plain', String(index));
 }
@@ -97,7 +97,7 @@ export const GalleryUploader = ({
   );
 
   const handleDrop = useCallback(
-    (event: DragEvent<HTMLDivElement>, toIndex: number) => {
+    (event: DragEvent<HTMLButtonElement>, toIndex: number) => {
       event.preventDefault();
 
       const fromIndex = Number(event.dataTransfer.getData('text/plain'));
@@ -112,7 +112,7 @@ export const GalleryUploader = ({
   );
 
   const handleImageKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>, index: number) => {
+    (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
         return;
       }
@@ -135,26 +135,30 @@ export const GalleryUploader = ({
             {urls.map((url, index) => (
               <div
                 key={url}
-                draggable
-                role="button"
-                tabIndex={0}
-                aria-label={`Move gallery image ${index + 1}`}
-                onDragStart={(event) => handleDragStart(event, index)}
-                onDrop={(event) => handleDrop(event, index)}
-                onDragOver={(event) => event.preventDefault()}
-                onKeyDown={(event) => handleImageKeyDown(event, index)}
                 className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted cursor-move group"
               >
-                <div
-                  role="img"
-                  aria-label={`Gallery ${index + 1}`}
-                  className="w-full h-full bg-cover bg-center"
-                  style={{ backgroundImage: `url(${readImage(url)})` }}
-                />
-                <div className="absolute top-1 left-1 flex items-center gap-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                  <IconGripVertical size={12} />
-                  {index + 1}
-                </div>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  draggable
+                  aria-label={`Move gallery image ${index + 1}`}
+                  onDragStart={(event) => handleDragStart(event, index)}
+                  onDrop={(event) => handleDrop(event, index)}
+                  onDragOver={(event) => event.preventDefault()}
+                  onKeyDown={(event) => handleImageKeyDown(event, index)}
+                  className="h-full w-full rounded-none p-0 hover:bg-transparent cursor-move"
+                >
+                  <span
+                    role="img"
+                    aria-label={`Gallery ${index + 1}`}
+                    className="block w-full h-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${readImage(url)})` }}
+                  />
+                  <span className="absolute top-1 left-1 flex items-center gap-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                    <IconGripVertical size={12} />
+                    {index + 1}
+                  </span>
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
