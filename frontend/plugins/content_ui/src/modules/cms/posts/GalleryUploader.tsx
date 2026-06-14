@@ -1,7 +1,14 @@
 import { Button, useErxesUpload } from 'erxes-ui';
 import { IconGripVertical, IconUpload, IconX } from '@tabler/icons-react';
 import { readImage } from 'erxes-ui/utils/core';
-import { DragEvent, useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  DragEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useAutoUpload } from './hooks/useAutoUpload';
 
 interface GalleryUploaderProps {
@@ -16,6 +23,12 @@ const MAX_GALLERY_IMAGE_SIZE = 20 * 1024 * 1024;
 type UploadedFile = {
   url: string;
 };
+
+/** Stores the dragged image position for native drop handling. */
+function handleDragStart(event: DragEvent<HTMLDivElement>, index: number) {
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', String(index));
+}
 
 export const GalleryUploader = ({
   value = [],
@@ -58,23 +71,14 @@ export const GalleryUploader = ({
     [onChange, urls],
   );
 
-  /** Stores the dragged image position for native drop handling. */
-  function handleDragStart(event: DragEvent<HTMLDivElement>, index: number) {
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/plain', String(index));
-  }
-
-  const handleDrop = useCallback(
-    (event: DragEvent<HTMLDivElement>, toIndex: number) => {
-      event.preventDefault();
-
-      const fromIndex = Number(event.dataTransfer.getData('text/plain'));
-
+  const moveImage = useCallback(
+    (fromIndex: number, toIndex: number) => {
       if (
-        Number.isNaN(fromIndex) ||
         fromIndex === toIndex ||
         fromIndex < 0 ||
-        fromIndex >= urls.length
+        toIndex < 0 ||
+        fromIndex >= urls.length ||
+        toIndex >= urls.length
       ) {
         return;
       }
@@ -92,6 +96,33 @@ export const GalleryUploader = ({
     [onChange, urls],
   );
 
+  const handleDrop = useCallback(
+    (event: DragEvent<HTMLDivElement>, toIndex: number) => {
+      event.preventDefault();
+
+      const fromIndex = Number(event.dataTransfer.getData('text/plain'));
+
+      if (Number.isNaN(fromIndex)) {
+        return;
+      }
+
+      moveImage(fromIndex, toIndex);
+    },
+    [moveImage],
+  );
+
+  const handleImageKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>, index: number) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+        return;
+      }
+
+      event.preventDefault();
+      moveImage(index, index + (event.key === 'ArrowLeft' ? -1 : 1));
+    },
+    [moveImage],
+  );
+
   const pendingFiles = uploadProps.files.filter(
     (file) => !uploadProps.successes.includes(file.name),
   );
@@ -105,9 +136,13 @@ export const GalleryUploader = ({
               <div
                 key={url}
                 draggable
+                role="button"
+                tabIndex={0}
+                aria-label={`Move gallery image ${index + 1}`}
                 onDragStart={(event) => handleDragStart(event, index)}
                 onDrop={(event) => handleDrop(event, index)}
                 onDragOver={(event) => event.preventDefault()}
+                onKeyDown={(event) => handleImageKeyDown(event, index)}
                 className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted cursor-move group"
               >
                 <div

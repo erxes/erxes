@@ -130,11 +130,11 @@ export const CustomFieldInput = ({
     label: option,
     value: option,
   }));
-  const imageUrls = Array.isArray(value)
-    ? value
-    : typeof value === 'string' && value
-      ? [value]
-      : [];
+  const imageUrls = Array.isArray(value) ? value : [];
+
+  if (!Array.isArray(value) && typeof value === 'string' && value) {
+    imageUrls.push(value);
+  }
 
   const fieldInputs = {
     text: (
@@ -191,13 +191,13 @@ export const CustomFieldInput = ({
     ),
     checkbox: (
       <Switch
-        checked={!!value}
+        checked={Boolean(value)}
         onCheckedChange={(checked) => onChange(checked)}
       />
     ),
     boolean: (
       <Switch
-        checked={!!value}
+        checked={Boolean(value)}
         onCheckedChange={(checked) => onChange(checked)}
       />
     ),

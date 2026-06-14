@@ -10,16 +10,14 @@ function getFileBatchKey(files: UploadProps['files']) {
     return '';
   }
 
-  return files
-    .map((file) =>
-      [
-        file.name ?? '',
-        file.size ?? '',
-        file.type ?? '',
-        file.lastModified ?? '',
-      ].join(':'),
-    )
-    .join('|');
+  return JSON.stringify(
+    files.map((file) => ({
+      name: file.name ?? '',
+      size: file.size ?? 0,
+      type: file.type ?? '',
+      lastModified: file.lastModified ?? 0,
+    })),
+  );
 }
 
 /**
