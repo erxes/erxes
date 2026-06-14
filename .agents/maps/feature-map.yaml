@@ -1,0 +1,586 @@
+# .agents/maps/feature-map.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+# FEATURE MAP — the intent→location lookup table.
+#
+# PURPOSE: turn a user's plain words ("I want customers to see their points")
+# into an exact location (plugin + module + frontend/backend + a real file to
+# copy). This is the accuracy backbone. ROUTER.md greps this file in STEP 2.
+#
+# HOW THE ROUTER USES THIS FILE (do not skip):
+#   grep -in "<noun from user>" .agents/maps/feature-map.yaml
+#   Every entry has a `keywords:` line packed with synonyms so ONE grep hits it.
+#   - 1 entry matched  -> that is the location. Proceed.
+#   - 0 entries matched -> ask ONE intent question (see disambiguation: unknown).
+#   - 2+ entries matched -> ask the outcome-framed question in `disambiguation:`.
+#
+# SCOPE VALUES: frontend | backend | both | core
+#   core = lives in backend/core-api + frontend/core-ui (shared across ALL
+#   plugins). Touching core affects every plugin — confirm before editing.
+#
+# `reference:` is a REAL file that already exists. The model must OPEN it and
+# copy its pattern instead of inventing structure. operation_* is the canonical
+# gold-standard plugin (see manifest.yaml) — prefer its references when unsure.
+#
+# Keep this file in sync with disk. To regenerate the inventory:
+#   for d in frontend/plugins/*_ui backend/plugins/*_api; do
+#     echo "[$d]"; ls "$d/src/modules" 2>/dev/null; done
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "1.0.0"
+last_synced_to_disk: "2026-06-14"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DISAMBIGUATION — nouns that legitimately map to >1 place.
+# When ROUTER's grep returns more than one candidate, it asks the matching
+# outcome-framed question here. NEVER ask "which plugin" — ask what they want.
+# ─────────────────────────────────────────────────────────────────────────────
+disambiguation:
+  customer:
+    nouns: [customer, client, contact, lead, company]
+    ask: "When you say 'customer', do you mean the central contact record (the person/company directory used everywhere), an insurance policyholder, or the person on the other end of a Frontline conversation?"
+    options:
+      - { label: "Central contact directory", entry: contacts }
+      - { label: "Insurance customer/policyholder", entry: insurance }
+      - { label: "Frontline conversation customer", entry: inbox }
+
+  report:
+    nouns: [report, reporting, dashboard, analytics, metrics]
+    ask: "Which area's numbers do you want to report on — support/Frontline volume, sales performance, accounting, or operations/projects?"
+    options:
+      - { label: "Frontline / support", entry: frontline-reports }
+      - { label: "Sales / deals", entry: deals }
+      - { label: "Accounting", entry: accounting-reports }
+      - { label: "Operations / projects", entry: project }
+
+  form:
+    nouns: [form, fields, popup form, lead form, survey]
+    ask: "Is this a public lead-capture/popup form shown to website visitors, or an internal data form inside the admin UI?"
+    options:
+      - { label: "Public lead/popup form", entry: frontline-forms }
+      - { label: "Core form/field definitions", entry: forms }
+      - { label: "An internal admin form", entry: forms }
+
+  template:
+    nouns: [template, templates]
+    ask: "A canned reply template for support agents, a project/task template, or a content/document template?"
+    options:
+      - { label: "Support canned response", entry: response-template }
+      - { label: "Project / task template", entry: template-operation }
+      - { label: "Document / content template", entry: documents }
+
+  tags:
+    nouns: [tag, tags, label, labels]
+    ask: "Do you want the global tagging system (tags reused across all modules), or tags specific to CMS posts?"
+    options:
+      - { label: "Global tags (core)", entry: tags }
+      - { label: "CMS post tags", entry: cms }
+
+  pricing:
+    nouns: [pricing, price rule, discount, promotion, price plan]
+    ask: "Is this a discount/promotion rule (loyalty pricing) or a product's base price (products)?"
+    options:
+      - { label: "Discount / promotion rule", entry: pricing-loyalty }
+      - { label: "Product base price", entry: products }
+
+  unknown:
+    # Used when grep returns 0 matches. Do NOT guess a plugin.
+    ask: "I couldn't map that to an existing area yet. In one sentence: what should a user be able to DO when this is done, and who is the user (an admin, a sales rep, a support agent, or an end customer)?"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CORE — backend/core-api + frontend/core-ui. Shared by every plugin.
+# Editing core affects ALL plugins. Confirm scope before changing core.
+# ─────────────────────────────────────────────────────────────────────────────
+core:
+  - id: contacts
+    keywords: customer, customers, client, clients, contact, contacts, lead, leads, company, companies, people, person, directory, audience
+    scope: core
+    backend: backend/core-api/src/modules/contacts
+    frontend: frontend/core-ui/src/modules/contacts
+    note: "The canonical customer/company record. Other plugins REFERENCE contacts; they do not redefine them."
+
+  - id: products
+    keywords: product, products, service, services, item, items, sku, catalog, price, base price
+    scope: core
+    backend: backend/core-api/src/modules/products
+    frontend: frontend/core-ui/src/modules/products
+
+  - id: segments
+    keywords: segment, segments, audience filter, dynamic list, smart list, cohort
+    scope: core
+    backend: backend/core-api/src/modules/segments
+    frontend: frontend/core-ui/src/modules/segments
+
+  - id: tags
+    keywords: tag, tags, label, labels, categorize, categorization
+    scope: core
+    backend: backend/core-api/src/modules/tags
+    frontend: frontend/core-ui/src/modules/properties   # tags surface under properties/settings
+
+  - id: properties
+    keywords: custom field, custom fields, property, properties, attribute, attributes, extra field
+    scope: core
+    backend: backend/core-api/src/modules/properties
+    frontend: frontend/core-ui/src/modules/properties
+    note: "Custom fields are central. To add a field to deals/contacts/etc., extend properties — do NOT add ad-hoc schema fields in the plugin."
+
+  - id: forms
+    keywords: form definition, field definition, form builder fields
+    scope: core
+    backend: backend/core-api/src/modules/forms
+    frontend: frontend/core-ui/src/modules/properties
+
+  - id: documents
+    keywords: document, documents, printable, pdf template, document template
+    scope: core
+    backend: backend/core-api/src/modules/documents
+    frontend: frontend/core-ui/src/modules/documents
+
+  - id: automations
+    keywords: automation, automations, workflow, trigger, triggers, action, actions, when this then that, rule engine
+    scope: core
+    backend: backend/core-api/src/modules/automations
+    frontend: frontend/core-ui/src/modules/automations
+    note: "Plugins REGISTER triggers/actions via their own meta/automations.ts. The engine lives in core."
+
+  - id: import-export
+    keywords: import, importing, export, exporting, csv, spreadsheet, bulk upload, data migration ui
+    scope: core
+    backend: backend/core-api/src/modules/import-export
+    frontend: frontend/core-ui/src/modules/import-export
+
+  - id: notifications
+    keywords: notification, notifications, alert, bell, in-app notify
+    scope: core
+    backend: backend/core-api/src/modules/notifications
+    frontend: frontend/core-ui/src/modules/notification
+
+  - id: permissions
+    keywords: permission, permissions, role, roles, access control, rbac, who can
+    scope: core
+    backend: backend/core-api/src/modules/permissions
+    frontend: frontend/core-ui/src/modules/settings
+
+  - id: organization
+    keywords: organization, org settings, workspace, team members, users, user management, invite, login, auth, authentication, profile
+    scope: core
+    backend: backend/core-api/src/modules/organization
+    frontend: frontend/core-ui/src/modules/organization
+
+  - id: broadcast
+    keywords: broadcast, campaign, email campaign, sms campaign, mass email, engage, newsletter
+    scope: core
+    backend: backend/core-api/src/modules/broadcast
+    frontend: frontend/core-ui/src/modules/broadcast
+
+  - id: clientportal
+    keywords: client portal, customer portal, self-service portal, member portal
+    scope: core
+    backend: backend/core-api/src/modules/clientportal
+    frontend: frontend/core-ui/src/modules/client-portal
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PLUGINS — backend/plugins/<x>_api + frontend/plugins/<x>_ui
+# ─────────────────────────────────────────────────────────────────────────────
+plugins:
+
+  # ── SALES ──────────────────────────────────────────────────────────────────
+  - id: deals
+    keywords: deal, deals, opportunity, opportunities, sales, crm, won, lost, revenue forecast, sales report
+    plugin: sales
+    scope: both
+    frontend: frontend/plugins/sales_ui/src/modules/deals
+    backend: backend/plugins/sales_api/src/modules/sales
+    reference_table: frontend/plugins/sales_ui/src/modules/deals/pipelines/components/PipelineRecordTable.tsx
+    related: [pipelines, pos]
+
+  - id: pipelines
+    keywords: pipeline, pipelines, board, kanban, drag and drop, stage, stages, column, columns, deal board, sales stage
+    plugin: sales
+    scope: both
+    frontend: frontend/plugins/sales_ui/src/modules/deals/pipelines
+    backend: backend/plugins/sales_api/src/modules/sales
+    reference_table: frontend/plugins/sales_ui/src/modules/deals/pipelines/components/PipelineRecordTable.tsx
+    related: [deals]
+
+  - id: pos
+    keywords: pos, point of sale, cashier, checkout, ecommerce, e-commerce, online store, storefront, cart, order
+    plugin: sales
+    scope: both
+    frontend: frontend/plugins/sales_ui/src/modules/pos
+    backend: backend/plugins/sales_api/src/modules/pos   # also: ecommerce, and posclient_api
+    related: [posclient]
+
+  # ── FRONTLINE (customer service) ─────────────────────────────────────────────
+  - id: inbox
+    keywords: inbox, conversation, conversations, chat, chats, message, messages, live chat, agent inbox, reply, assign conversation
+    plugin: frontline
+    scope: both
+    frontend: frontend/plugins/frontline_ui/src/modules/inbox
+    backend: backend/plugins/frontline_api/src/modules/inbox
+    related: [channels, integrations, ticket]
+
+  - id: ticket
+    keywords: ticket, tickets, support ticket, helpdesk, issue, sla, ticket status, ticket field, severity, priority
+    plugin: frontline
+    scope: both
+    frontend: frontend/plugins/frontline_ui/src/modules/ticket
+    backend: backend/plugins/frontline_api/src/modules/ticket
+    related: [inbox]
+
+  - id: channels
+    keywords: channel, channels, team channel, route conversations, channel members
+    plugin: frontline
+    scope: both
+    frontend: frontend/plugins/frontline_ui/src/modules/channels
+    backend: backend/plugins/frontline_api/src/modules/channel
+    related: [inbox, integrations]
+
+  - id: integrations
+    keywords: integration, integrations, facebook, messenger, instagram, whatsapp, telegram, email integration, imap, sms, twilio, web messenger, widget, callpro, line, viber
+    plugin: frontline
+    scope: both
+    frontend: frontend/plugins/frontline_ui/src/modules/integrations
+    backend: backend/plugins/frontline_api/src/modules/integrations
+    note: "Adding a NEW provider (LINE/Telegram/Discord) touches integrations registration on both sides — treat as a larger change."
+    related: [inbox, channels]
+
+  - id: frontline-knowledgebase
+    keywords: knowledge base, knowledgebase, kb, help center, help article, faq
+    plugin: frontline
+    scope: both
+    frontend: frontend/plugins/frontline_ui/src/modules/knowledgebase
+    backend: backend/plugins/frontline_api/src/modules/knowledgebase
+
+  - id: frontline-forms
+    keywords: lead form, popup form, web form, public form, embedded form, survey form, form widget
+    plugin: frontline
+    scope: both
+    frontend: frontend/plugins/frontline_ui/src/modules/forms
+    backend: backend/plugins/frontline_api/src/modules/form
+
+  - id: response-template
+    keywords: canned response, canned reply, response template, saved reply, quick reply, snippet
+    plugin: frontline
+    scope: both
+    frontend: frontend/plugins/frontline_ui/src/modules/responseTemplate
+    backend: backend/plugins/frontline_api/src/modules/response
+
+  - id: frontline-reports
+    keywords: support report, frontline report, conversation report, agent performance, response time report
+    plugin: frontline
+    scope: both
+    frontend: frontend/plugins/frontline_ui/src/modules/report
+    backend: backend/plugins/frontline_api/src/modules/reports
+
+  # ── OPERATION (project management — CANONICAL reference plugin) ───────────────
+  - id: task
+    keywords: task, tasks, to-do, todo, checklist item, assignee, sub-task, task board
+    plugin: operation
+    scope: both
+    frontend: frontend/plugins/operation_ui/src/modules/task
+    backend: backend/plugins/operation_api/src/modules/task
+    reference_table: frontend/plugins/operation_ui/src/modules/task/components/TasksRecordTable.tsx
+    reference_board: frontend/plugins/operation_ui/src/modules/task/components/TasksBoard.tsx
+    reference_detail: frontend/plugins/operation_ui/src/modules/task/components/TaskDetailSheet.tsx
+    note: "operation is the gold-standard plugin. Copy these files' patterns for ANY new table/board/detail anywhere."
+
+  - id: project
+    keywords: project, projects, project view, project list, portfolio
+    plugin: operation
+    scope: both
+    frontend: frontend/plugins/operation_ui/src/modules/project
+    backend: backend/plugins/operation_api/src/modules/project
+
+  - id: cycle
+    keywords: cycle, cycles, sprint, sprints, iteration
+    plugin: operation
+    scope: both
+    frontend: frontend/plugins/operation_ui/src/modules/cycle
+    backend: backend/plugins/operation_api/src/modules/cycle
+
+  - id: team-operation
+    keywords: team, teams, squad, team members operation, working group
+    plugin: operation
+    scope: both
+    frontend: frontend/plugins/operation_ui/src/modules/team
+    backend: backend/plugins/operation_api/src/modules/team
+    reference_entity_def: backend/plugins/operation_api/src/modules/team/db/definitions/team.ts
+    reference_entity_model: backend/plugins/operation_api/src/modules/team/db/models/Team.ts
+    note: "Gold-standard backend entity. Copy this definition+model pair for ANY new Mongoose entity."
+
+  - id: milestone
+    keywords: milestone, milestones, goal, deliverable date
+    plugin: operation
+    scope: both
+    frontend: frontend/plugins/operation_ui/src/modules/operation
+    backend: backend/plugins/operation_api/src/modules/milestone
+
+  - id: template-operation
+    keywords: project template, task template, operation template
+    plugin: operation
+    scope: both
+    frontend: frontend/plugins/operation_ui/src/modules/template
+    backend: backend/plugins/operation_api/src/modules/template
+
+  - id: status
+    keywords: status, statuses, workflow status, custom status, state machine, stage status
+    plugin: operation
+    scope: both
+    frontend: frontend/plugins/operation_ui/src/modules/operation
+    backend: backend/plugins/operation_api/src/modules/status
+
+  - id: triage
+    keywords: triage, triage inbox, incoming queue, unassigned queue
+    plugin: operation
+    scope: both
+    frontend: frontend/plugins/operation_ui/src/modules/triage
+    backend: backend/plugins/operation_api/src/modules/task
+
+  # ── LOYALTY ──────────────────────────────────────────────────────────────────
+  - id: loyalty
+    keywords: loyalty, points, reward, rewards, score, loyalty score, member points, earn points, redeem
+    plugin: loyalty
+    scope: both
+    frontend: frontend/plugins/loyalty_ui/src/modules/loyalties
+    backend: backend/plugins/loyalty_api/src/modules/score
+    related: [coupon, voucher, lottery, spin, pricing-loyalty]
+
+  - id: coupon
+    keywords: coupon, coupons, promo code, discount code, redeem code
+    plugin: loyalty
+    scope: both
+    frontend: frontend/plugins/loyalty_ui/src/modules/loyalties
+    backend: backend/plugins/loyalty_api/src/modules/coupon
+
+  - id: voucher
+    keywords: voucher, vouchers, gift card, store credit
+    plugin: loyalty
+    scope: both
+    frontend: frontend/plugins/loyalty_ui/src/modules/loyalties
+    backend: backend/plugins/loyalty_api/src/modules/voucher
+
+  - id: lottery
+    keywords: lottery, lotteries, raffle, prize draw, lucky draw
+    plugin: loyalty
+    scope: both
+    frontend: frontend/plugins/loyalty_ui/src/modules/loyalties
+    backend: backend/plugins/loyalty_api/src/modules/lottery
+
+  - id: spin
+    keywords: spin, spin wheel, wheel of fortune, spin to win
+    plugin: loyalty
+    scope: both
+    frontend: frontend/plugins/loyalty_ui/src/modules/loyalties
+    backend: backend/plugins/loyalty_api/src/modules/spin
+
+  - id: donate
+    keywords: donate, donation, donations, fundraise, give
+    plugin: loyalty
+    scope: both
+    frontend: frontend/plugins/loyalty_ui/src/modules/loyalties
+    backend: backend/plugins/loyalty_api/src/modules/donate
+
+  - id: pricing-loyalty
+    keywords: pricing rule, price rule, discount rule, promotion, markup, markdown, dynamic price, price plan
+    plugin: loyalty
+    scope: both
+    frontend: frontend/plugins/loyalty_ui/src/modules/pricing
+    backend: backend/plugins/loyalty_api/src/modules/pricing
+    reference_table: frontend/plugins/loyalty_ui/src/modules/pricing/components/PricingRecordTable.tsx
+    reference_create: frontend/plugins/loyalty_ui/src/modules/pricing/create-pricing/PricingCreateSheet.tsx
+
+  # ── CONTENT (CMS / web builder) ──────────────────────────────────────────────
+  - id: cms
+    keywords: cms, post, posts, article, articles, page, pages, blog, category, categories, menu, menus, content management
+    plugin: content
+    scope: both
+    frontend: frontend/plugins/content_ui/src/modules/cms
+    backend: backend/plugins/content_api/src/modules/cms
+    reference_table: frontend/plugins/content_ui/src/modules/cms/menus/components/MenusRecordTable.tsx
+
+  - id: web-builder
+    keywords: web builder, website builder, landing page, site, web page builder, drag drop page
+    plugin: content
+    scope: both
+    frontend: frontend/plugins/content_ui/src/modules/web-builder
+    backend: backend/plugins/content_api/src/modules/webbuilder
+
+  - id: content-knowledgebase
+    keywords: content knowledge base, public docs, documentation site
+    plugin: content
+    scope: frontend
+    frontend: frontend/plugins/content_ui/src/modules/knowledgebase
+
+  # ── ACCOUNTING ───────────────────────────────────────────────────────────────
+  - id: accounting-transactions
+    keywords: transaction, transactions, journal entry, ledger, debit, credit, bookkeeping, account, accounts, chart of accounts
+    plugin: accounting
+    scope: both
+    frontend: frontend/plugins/accounting_ui/src/modules/transactions
+    backend: backend/plugins/accounting_api/src/modules/accounting
+    reference_table: frontend/plugins/accounting_ui/src/modules/transactions/components/TrRecordTable.tsx
+
+  - id: accounting-inventories
+    keywords: inventory, inventories, stock, stock count, safe remainder, warehouse stock, on hand
+    plugin: accounting
+    scope: both
+    frontend: frontend/plugins/accounting_ui/src/modules/inventories
+    backend: backend/plugins/accounting_api/src/modules/inventories
+
+  - id: accounting-adjustments
+    keywords: adjustment, adjustments, stock adjustment, balance adjustment
+    plugin: accounting
+    scope: both
+    frontend: frontend/plugins/accounting_ui/src/modules/adjustments
+    backend: backend/plugins/accounting_api/src/modules/accounting
+
+  - id: accounting-reports
+    keywords: accounting report, journal report, balance sheet, financial report, trial balance
+    plugin: accounting
+    scope: both
+    frontend: frontend/plugins/accounting_ui/src/modules/journal-reports
+    backend: backend/plugins/accounting_api/src/modules/accounting
+
+  # ── INSURANCE ────────────────────────────────────────────────────────────────
+  - id: insurance
+    keywords: insurance, policy, policies, policyholder, claim, claims, premium, coverage, vendor, insurance customer
+    plugin: insurance
+    scope: both
+    frontend: frontend/plugins/insurance_ui/src/modules/insurance
+    backend: backend/plugins/insurance_api/src/modules/insurance
+    reference_table: frontend/plugins/insurance_ui/src/modules/insurance/components/customers/CustomersRecordTable.tsx
+
+  # ── TOURISM ──────────────────────────────────────────────────────────────────
+  - id: tourism-pms
+    keywords: pms, property management, hotel, room, rooms, booking, reservation, check-in, check-out, guest
+    plugin: tourism
+    scope: both
+    frontend: frontend/plugins/tourism_ui/src/modules/pms
+    backend: backend/plugins/tourism_api/src/modules/pms
+
+  - id: tourism-tms
+    keywords: tms, tour, tours, itinerary, itineraries, travel, trip, tour package
+    plugin: tourism
+    scope: both
+    frontend: frontend/plugins/tourism_ui/src/modules/tms
+    backend: backend/plugins/tourism_api/src/modules/bms
+    reference_table: frontend/plugins/tourism_ui/src/modules/tms/branch-detail/dashboard/itinerary/_components/ItineraryRecordTable.tsx
+
+  - id: tourism-ota
+    keywords: ota, channel manager, booking.com, expedia, online travel agency
+    plugin: tourism
+    scope: backend
+    backend: backend/plugins/tourism_api/src/modules/ota
+
+  # ── PAYMENT ──────────────────────────────────────────────────────────────────
+  - id: payment
+    keywords: payment, payments, invoice, invoices, pay, gateway, qpay, stripe, paypal, golomt, socialpay, storepay, transaction payment, checkout payment
+    plugin: payment
+    scope: both
+    frontend: frontend/plugins/payment_ui/src/modules/payment
+    backend: backend/plugins/payment_api/src/modules/payment
+    reference_table: frontend/plugins/payment_ui/src/modules/payment/components/InvoiceRecordTable.tsx
+
+  # ── MONGOLIAN (Mongolia-specific integrations) ───────────────────────────────
+  - id: ebarimt
+    keywords: ebarimt, e-barimt, vat receipt, tax receipt, fiscal receipt, lottery receipt
+    plugin: mongolian
+    scope: both
+    frontend: frontend/plugins/mongolian_ui/src/modules/ebarimt
+    backend: backend/plugins/mongolian_api/src/modules/ebarimt
+
+  - id: erkhet
+    keywords: erkhet, erkhet sync, accounting sync, erp sync mongolian
+    plugin: mongolian
+    scope: both
+    frontend: frontend/plugins/mongolian_ui/src/modules/erkhet-sync
+    backend: backend/plugins/mongolian_api/src/modules/erkhet
+
+  - id: exchange-rates
+    keywords: exchange rate, exchange rates, currency, fx, forex, conversion rate
+    plugin: mongolian
+    scope: both
+    frontend: frontend/plugins/mongolian_ui/src/modules/exchangeRates
+    backend: backend/plugins/mongolian_api/src/modules/exchangeRates
+
+  - id: msdynamic
+    keywords: ms dynamics, msdynamic, microsoft dynamics, dynamics 365, navision
+    plugin: mongolian
+    scope: both
+    frontend: frontend/plugins/mongolian_ui/src/modules/msdynamic
+    backend: backend/plugins/mongolian_api/src/modules/msdynamic
+
+  - id: product-places
+    keywords: product place, product places, store location, branch stock, location stock
+    plugin: mongolian
+    scope: both
+    frontend: frontend/plugins/mongolian_ui/src/modules/productplaces
+    backend: backend/plugins/mongolian_api/src/modules/productPlaces
+
+  # ── ERXES-AGENT (AI agent — formerly "mastra") ───────────────────────────────
+  - id: ai-agent
+    keywords: ai agent, agent, assistant, chatbot, llm, mastra, copilot, ai assistant
+    plugin: erxes-agent
+    scope: both
+    frontend: frontend/plugins/erxes-agent_ui/src/modules/assistants
+    backend: backend/plugins/erxes-agent_api/src/modules/agent
+    related: [ai-provider, ai-tool, ai-workflow]
+
+  - id: ai-provider
+    keywords: llm provider, model provider, openai key, anthropic key, kimi, api key provider
+    plugin: erxes-agent
+    scope: both
+    frontend: frontend/plugins/erxes-agent_ui/src/modules/assistants
+    backend: backend/plugins/erxes-agent_api/src/modules/provider
+
+  - id: ai-tool
+    keywords: agent tool, ai tool, function calling, tool definition
+    plugin: erxes-agent
+    scope: both
+    frontend: frontend/plugins/erxes-agent_ui/src/modules/assistants
+    backend: backend/plugins/erxes-agent_api/src/modules/tool
+
+  - id: ai-workflow
+    keywords: agent workflow, ai workflow, scheduled agent, agent run, agent memory
+    plugin: erxes-agent
+    scope: backend
+    backend: backend/plugins/erxes-agent_api/src/modules/workflow
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHARED LIBS — reusable code. Build here ONLY when a thing is used by 2+ plugins.
+# ─────────────────────────────────────────────────────────────────────────────
+shared:
+  - id: erxes-ui
+    keywords: ui primitive, design system, button, input, dialog, sheet, base component, shared component, erxes-ui
+    path: frontend/libs/erxes-ui
+    note: "Low-level UI primitives. Add here only if used across plugins. Never fork these into a plugin."
+
+  - id: ui-modules
+    keywords: shared ui module, reusable widget, cross-plugin component, ui-modules
+    path: frontend/libs/ui-modules
+
+  - id: erxes-api-shared
+    keywords: shared backend, backend util, common type, service discovery, redis util, shared resolver, erxes-api-shared
+    path: backend/erxes-api-shared
+    note: "Shared backend. After editing, rebuild: pnpm nx build erxes-api-shared."
+
+# ─────────────────────────────────────────────────────────────────────────────
+# UI PATTERN ANCHORS — generic 'how do I build X in the UI' references.
+# Used when the WHAT is clear but there is no domain noun (e.g. "I need a form").
+# REFERENCE-ONLY: each carries a `reference` file + `skill` but NO plugin/scope.
+# These are never a final STEP 2 location — ROUTER resolves the plugin/scope
+# separately (see ROUTER.md STEP 2, the `_`-prefixed-anchor rule) before STEP 5.
+# ─────────────────────────────────────────────────────────────────────────────
+ui_patterns:
+  _ui_form_pattern:
+    keywords: internal form, admin form, edit form, create form, settings form
+    reference: frontend/plugins/loyalty_ui/src/modules/pricing/create-pricing/PricingCreateSheet.tsx
+    skill: create-form-drawer
+  _ui_table_pattern:
+    keywords: list page, table, record table, grid, data table
+    reference: frontend/plugins/operation_ui/src/modules/task/components/TasksRecordTable.tsx
+    skill: create-table
+  _ui_detail_pattern:
+    keywords: detail page, detail sheet, side panel, drawer detail
+    reference: frontend/plugins/operation_ui/src/modules/task/components/TaskDetailSheet.tsx
+    skill: create-page
