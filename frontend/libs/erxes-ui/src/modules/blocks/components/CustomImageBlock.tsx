@@ -113,7 +113,15 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
             )}
             style={imgLoaded ? undefined : { display: 'none' }}
             contentEditable={false}
+            role="button"
+            tabIndex={0}
             onDoubleClick={() => setPreviewOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setPreviewOpen(true);
+              }
+            }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
