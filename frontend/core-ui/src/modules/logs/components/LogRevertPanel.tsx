@@ -39,7 +39,7 @@ const entityLabel = (contentType?: string) => {
  * field-level merge choice when a record changed in the interim.
  */
 export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
-  const { processId, source } = detail;
+  const { processId, source, action } = detail;
   const { preview, apply, loading } = useRevertProcess();
   const { toast } = useToast();
 
@@ -49,8 +49,16 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
   >({});
   const [done, setDone] = useState(false);
 
-  // Only Mongo data changes carry a revertable processId — render nothing else.
-  if (source !== 'mongo' || !processId) {
+  // Revertable from the Mongo data-change log OR the GraphQL mutation log of the
+  // same request (both share the processId). Skip non-mutation/no-process logs,
+  // and the revert mutation itself (reverting a revert would be a confusing redo).
+  const isRevertMutation = detail.payload?.mutationName === 'logsRevertProcess';
+  const revertable =
+    !!processId &&
+    !isRevertMutation &&
+    (source === 'mongo' || (source === 'graphql' && action === 'mutation'));
+
+  if (!revertable) {
     return null;
   }
 
