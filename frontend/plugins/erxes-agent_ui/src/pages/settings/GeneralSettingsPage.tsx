@@ -11,6 +11,224 @@ import { Button, Label, Input, Badge } from 'erxes-ui';
 import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_SETTINGS_SAVE } from '~/graphql/mutations';
 
+interface AgentOption {
+  _id: string;
+  agentId: string;
+  name: string;
+  isEnabled: boolean;
+}
+
+interface MemoryStatusView {
+  embedder?: string;
+  embedderModel?: string;
+  qdrantUrl?: string;
+  qdrantReachable?: boolean | null;
+  collection?: string;
+}
+
+interface KnowledgeStatusView extends MemoryStatusView {
+  enabled?: boolean;
+  enabledTypes?: string[];
+  lastSweepAt?: string | null;
+  pointCount?: number | null;
+  types?: Record<
+    string,
+    { count: number; points: number; error?: string }
+  > | null;
+  lastError?: string | null;
+}
+
+interface AttachmentStorageView {
+  configured?: boolean;
+  serviceType?: string;
+}
+
+/** Green/red/grey dot plus a reachable/unreachable/unknown label for a Qdrant URL. */
+const ReachabilityDot = ({ reachable }: { reachable?: boolean | null }) => (
+  <span className="inline-flex items-center gap-1.5">
+    <span
+      className={`inline-block size-2 rounded-full ${
+        reachable === true
+          ? 'bg-green-500'
+          : reachable === false
+            ? 'bg-red-500'
+            : 'bg-muted-foreground/40'
+      }`}
+    />
+    <span>
+      {reachable === true
+        ? 'reachable'
+        : reachable === false
+          ? 'unreachable'
+          : 'unknown'}
+    </span>
+  </span>
+);
+
+/** Read-only "Advanced memory" status card — controlled by the ERXES_AGENT_MEMORY env var. */
+const AdvancedMemoryCard = ({
+  enabled,
+  status,
+}: {
+  enabled: boolean;
+  status?: MemoryStatusView;
+}) => (
+  <div className="rounded-lg border p-4 space-y-3">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <IconBrain className="size-4 text-muted-foreground" />
+        <span className="font-medium">Advanced memory feature</span>
+        <IconLock className="size-3.5 text-muted-foreground" />
+      </div>
+      <Badge variant={enabled ? 'success' : 'secondary'}>
+        {enabled ? 'On' : 'Off'}
+      </Badge>
+    </div>
+
+    {enabled && status && (
+      <div className="text-xs text-muted-foreground space-y-1 pl-6">
+        <div>
+          Embedder: <span className="font-mono">{status.embedderModel}</span> (
+          {status.embedder})
+        </div>
+        <div className="flex items-center gap-1.5">
+          Qdrant: <span className="font-mono">{status.qdrantUrl}</span>
+          <ReachabilityDot reachable={status.qdrantReachable} />
+        </div>
+        <div>
+          Collection: <span className="font-mono">{status.collection}</span>
+        </div>
+      </div>
+    )}
+
+    <p className="text-xs text-muted-foreground">
+      Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable.
+      Set <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to turn
+      it on.
+    </p>
+  </div>
+);
+
+/** Read-only "Company knowledge" status card — controlled by the ERXES_AGENT_KNOWLEDGE env var. */
+const CompanyKnowledgeCard = ({ status }: { status?: KnowledgeStatusView }) => (
+  <div className="rounded-lg border p-4 space-y-3">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <IconBook className="size-4 text-muted-foreground" />
+        <span className="font-medium">Company knowledge</span>
+        <IconLock className="size-3.5 text-muted-foreground" />
+      </div>
+      <Badge variant={status?.enabled ? 'success' : 'secondary'}>
+        {status?.enabled ? 'On' : 'Off'}
+      </Badge>
+    </div>
+
+    {status && status.enabled && (
+      <div className="text-xs text-muted-foreground space-y-1 pl-6">
+        <div>
+          Embedder: <span className="font-mono">{status.embedderModel}</span> (
+          {status.embedder})
+        </div>
+        <div className="flex items-center gap-1.5">
+          Qdrant: <span className="font-mono">{status.qdrantUrl}</span>
+          <ReachabilityDot reachable={status.qdrantReachable} />
+        </div>
+        <div>
+          Collection: <span className="font-mono">{status.collection}</span>
+        </div>
+        <div>
+          Content types:{' '}
+          <span className="font-mono">
+            {(status.enabledTypes || []).join(', ') || '—'}
+          </span>
+        </div>
+        <div>
+          Last sweep:{' '}
+          {status.lastSweepAt
+            ? `${new Date(status.lastSweepAt).toLocaleString()} — ${
+                status.pointCount ?? 0
+              } points`
+            : 'not yet run'}
+        </div>
+        {status.types && (
+          <div className="font-mono">
+            {Object.entries(status.types)
+              .map(([type, s]) => `${type}: ${s.count}${s.error ? ' ⚠' : ''}`)
+              .join(' · ')}
+          </div>
+        )}
+        {status.lastError && (
+          <div className="text-red-500">Last error: {status.lastError}</div>
+        )}
+      </div>
+    )}
+
+    <p className="text-xs text-muted-foreground">
+      Lets agents answer from company data via the{' '}
+      <code>Company Knowledge</code> tool. Controlled by{' '}
+      <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content types by{' '}
+      <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only).
+    </p>
+  </div>
+);
+
+/** "Chat file attachments" toggle card — rides on the instance's existing upload storage. */
+const AttachmentSettingsCard = ({
+  enabled,
+  storage,
+  onToggle,
+}: {
+  enabled: boolean;
+  storage?: AttachmentStorageView;
+  onToggle: (value: boolean) => void;
+}) => (
+  <div className="rounded-lg border p-4 space-y-3">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <IconPaperclip className="size-4 text-muted-foreground" />
+        <span className="font-medium">Chat file attachments</span>
+      </div>
+      <Badge
+        variant={
+          storage?.configured
+            ? enabled
+              ? 'success'
+              : 'secondary'
+            : 'destructive'
+        }
+      >
+        {!storage?.configured ? 'No storage' : enabled ? 'On' : 'Off'}
+      </Badge>
+    </div>
+
+    <div className="text-xs text-muted-foreground space-y-1 pl-6">
+      <div>
+        Detected storage:{' '}
+        <span className="font-mono">{storage?.serviceType || 'unknown'}</span>{' '}
+        {storage?.configured ? '(configured)' : '(not configured)'}
+      </div>
+    </div>
+
+    <label className="flex items-center gap-2 pl-6 text-sm cursor-pointer">
+      <input
+        type="checkbox"
+        checked={enabled}
+        disabled={!storage?.configured}
+        onChange={(e) => onToggle(e.target.checked)}
+      />
+      Allow file attachments in agent chat (images, PDF, Excel, Word, …)
+    </label>
+
+    <p className="text-xs text-muted-foreground">
+      Files are stored in this instance&apos;s existing upload storage
+      (configured in <strong>Settings → File upload</strong>: AWS S3, Cloudflare
+      R2, Azure, GCS or local disk). When no storage is configured,
+      conversations stay text-only.
+    </p>
+  </div>
+);
+
+/** Mastra plugin "General Settings" page — connection config plus read-only feature status. */
 export const GeneralSettingsPage = () => {
   const { data: settingsData } = useQuery(MASTRA_SETTINGS);
   const { data: agentsData } = useQuery(MASTRA_AGENTS);
@@ -27,33 +245,31 @@ export const GeneralSettingsPage = () => {
 
   useEffect(() => {
     if (settingsData?.mastraSettings) {
-      const s = settingsData.mastraSettings;
+      const settings = settingsData.mastraSettings;
       setForm({
-        erxesApiUrl: s.erxesApiUrl || 'http://localhost:4000',
-        erxesApiToken: s.erxesApiToken || '',
-        defaultAgentId: s.defaultAgentId || '',
-        attachmentsEnabled: s.attachmentsEnabled !== false,
+        erxesApiUrl: settings.erxesApiUrl || 'http://localhost:4000',
+        erxesApiToken: settings.erxesApiToken || '',
+        defaultAgentId: settings.defaultAgentId || '',
+        attachmentsEnabled: settings.attachmentsEnabled !== false,
       });
     }
   }, [settingsData]);
 
   const agents = agentsData?.mastraAgents || [];
 
-  // Read-only "Advanced memory feature" status — derived from the
-  // ERXES_AGENT_MEMORY env var on the server. Displayed only; not editable
-  // from the UI.
+  // Read-only feature statuses — derived from server env vars, display only.
   const advancedMemory = Boolean(settingsData?.mastraSettings?.advancedMemory);
   const memStatus = settingsData?.mastraSettings?.advancedMemoryStatus;
-
-  // Read-only "Company knowledge" status — derived from ERXES_AGENT_KNOWLEDGE.
   const knowledgeStatus = settingsData?.mastraSettings?.knowledgeStatus;
 
   // Detected upload storage (configured in core Settings → File upload).
   const attachmentStorage = settingsData?.mastraSettings?.attachmentStorage;
 
+  /** Update a single form field by key. */
   const set = (k: string, v: string | boolean) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  /** Persist the settings form, then briefly flash a "Saved" confirmation. */
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     await save({ variables: { doc: form } });
@@ -84,8 +300,8 @@ export const GeneralSettingsPage = () => {
           >
             <option value="">None</option>
             {agents
-              .filter((a: any) => a.isEnabled)
-              .map((a: any) => (
+              .filter((a: AgentOption) => a.isEnabled)
+              .map((a: AgentOption) => (
                 <option key={a._id} value={a.agentId}>
                   {a.name} ({a.agentId})
                 </option>
@@ -128,59 +344,11 @@ export const GeneralSettingsPage = () => {
           </p>
         </div>
 
-        {/* Chat file attachments — rides on the instance's existing upload storage */}
-        <div className="rounded-lg border p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <IconPaperclip className="size-4 text-muted-foreground" />
-              <span className="font-medium">Chat file attachments</span>
-            </div>
-            <Badge
-              variant={
-                attachmentStorage?.configured
-                  ? form.attachmentsEnabled
-                    ? 'success'
-                    : 'secondary'
-                  : 'destructive'
-              }
-            >
-              {!attachmentStorage?.configured
-                ? 'No storage'
-                : form.attachmentsEnabled
-                  ? 'On'
-                  : 'Off'}
-            </Badge>
-          </div>
-
-          <div className="text-xs text-muted-foreground space-y-1 pl-6">
-            <div>
-              Detected storage:{' '}
-              <span className="font-mono">
-                {attachmentStorage?.serviceType || 'unknown'}
-              </span>{' '}
-              {attachmentStorage?.configured
-                ? '(configured)'
-                : '(not configured)'}
-            </div>
-          </div>
-
-          <label className="flex items-center gap-2 pl-6 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.attachmentsEnabled}
-              disabled={!attachmentStorage?.configured}
-              onChange={(e) => set('attachmentsEnabled', e.target.checked)}
-            />
-            Allow file attachments in agent chat (images, PDF, Excel, Word, …)
-          </label>
-
-          <p className="text-xs text-muted-foreground">
-            Files are stored in this instance's existing upload storage
-            (configured in <strong>Settings → File upload</strong>: AWS S3,
-            Cloudflare R2, Azure, GCS or local disk). When no storage is
-            configured, conversations stay text-only.
-          </p>
-        </div>
+        <AttachmentSettingsCard
+          enabled={form.attachmentsEnabled}
+          storage={attachmentStorage}
+          onToggle={(value) => set('attachmentsEnabled', value)}
+        />
 
         <Button type="submit" disabled={loading}>
           {saved ? (
@@ -195,146 +363,9 @@ export const GeneralSettingsPage = () => {
         </Button>
       </form>
 
-      {/* Advanced memory feature — read-only, controlled by ERXES_AGENT_MEMORY env */}
-      <div className="rounded-lg border p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <IconBrain className="size-4 text-muted-foreground" />
-            <span className="font-medium">Advanced memory feature</span>
-            <IconLock className="size-3.5 text-muted-foreground" />
-          </div>
-          <Badge variant={advancedMemory ? 'success' : 'secondary'}>
-            {advancedMemory ? 'On' : 'Off'}
-          </Badge>
-        </div>
+      <AdvancedMemoryCard enabled={advancedMemory} status={memStatus} />
 
-        {advancedMemory && memStatus && (
-          <div className="text-xs text-muted-foreground space-y-1 pl-6">
-            <div>
-              Embedder:{' '}
-              <span className="font-mono">{memStatus.embedderModel}</span> (
-              {memStatus.embedder})
-            </div>
-            <div className="flex items-center gap-1.5">
-              Qdrant: <span className="font-mono">{memStatus.qdrantUrl}</span>
-              <span
-                className={`inline-block size-2 rounded-full ${
-                  memStatus.qdrantReachable === true
-                    ? 'bg-green-500'
-                    : memStatus.qdrantReachable === false
-                      ? 'bg-red-500'
-                      : 'bg-muted-foreground/40'
-                }`}
-              />
-              <span>
-                {memStatus.qdrantReachable === true
-                  ? 'reachable'
-                  : memStatus.qdrantReachable === false
-                    ? 'unreachable'
-                    : 'unknown'}
-              </span>
-            </div>
-            <div>
-              Collection:{' '}
-              <span className="font-mono">{memStatus.collection}</span>
-            </div>
-          </div>
-        )}
-
-        <p className="text-xs text-muted-foreground">
-          Controlled by the <code>ERXES_AGENT_MEMORY</code> environment
-          variable. Set <code>ERXES_AGENT_MEMORY=enable</code> and restart the
-          plugin to turn it on.
-        </p>
-      </div>
-
-      {/* Company knowledge — read-only, controlled by ERXES_AGENT_KNOWLEDGE env */}
-      <div className="rounded-lg border p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <IconBook className="size-4 text-muted-foreground" />
-            <span className="font-medium">Company knowledge</span>
-            <IconLock className="size-3.5 text-muted-foreground" />
-          </div>
-          <Badge variant={knowledgeStatus?.enabled ? 'success' : 'secondary'}>
-            {knowledgeStatus?.enabled ? 'On' : 'Off'}
-          </Badge>
-        </div>
-
-        {knowledgeStatus?.enabled && (
-          <div className="text-xs text-muted-foreground space-y-1 pl-6">
-            <div>
-              Embedder:{' '}
-              <span className="font-mono">{knowledgeStatus.embedderModel}</span>{' '}
-              ({knowledgeStatus.embedder})
-            </div>
-            <div className="flex items-center gap-1.5">
-              Qdrant:{' '}
-              <span className="font-mono">{knowledgeStatus.qdrantUrl}</span>
-              <span
-                className={`inline-block size-2 rounded-full ${
-                  knowledgeStatus.qdrantReachable === true
-                    ? 'bg-green-500'
-                    : knowledgeStatus.qdrantReachable === false
-                      ? 'bg-red-500'
-                      : 'bg-muted-foreground/40'
-                }`}
-              />
-              <span>
-                {knowledgeStatus.qdrantReachable === true
-                  ? 'reachable'
-                  : knowledgeStatus.qdrantReachable === false
-                    ? 'unreachable'
-                    : 'unknown'}
-              </span>
-            </div>
-            <div>
-              Collection:{' '}
-              <span className="font-mono">{knowledgeStatus.collection}</span>
-            </div>
-            <div>
-              Content types:{' '}
-              <span className="font-mono">
-                {(knowledgeStatus.enabledTypes || []).join(', ') || '—'}
-              </span>
-            </div>
-            <div>
-              Last sweep:{' '}
-              {knowledgeStatus.lastSweepAt
-                ? `${new Date(
-                    knowledgeStatus.lastSweepAt,
-                  ).toLocaleString()} — ${
-                    knowledgeStatus.pointCount ?? 0
-                  } points`
-                : 'not yet run'}
-            </div>
-            {knowledgeStatus.types && (
-              <div className="font-mono">
-                {Object.entries(
-                  knowledgeStatus.types as Record<
-                    string,
-                    { count: number; points: number; error?: string }
-                  >,
-                )
-                  .map(([t, s]) => `${t}: ${s.count}${s.error ? ' ⚠' : ''}`)
-                  .join(' · ')}
-              </div>
-            )}
-            {knowledgeStatus.lastError && (
-              <div className="text-red-500">
-                Last error: {knowledgeStatus.lastError}
-              </div>
-            )}
-          </div>
-        )}
-
-        <p className="text-xs text-muted-foreground">
-          Lets agents answer from company data via the{' '}
-          <code>Company Knowledge</code> tool. Controlled by{' '}
-          <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content types by{' '}
-          <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only).
-        </p>
-      </div>
+      <CompanyKnowledgeCard status={knowledgeStatus} />
 
       {/* Bot webhook info box */}
       <div className="rounded-lg border bg-muted/50 p-4 text-sm space-y-2">
