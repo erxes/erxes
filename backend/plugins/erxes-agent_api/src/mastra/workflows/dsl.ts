@@ -3,6 +3,7 @@ import { collectRefs, checkRef, findMalformedRefs } from './refs';
 import { parseExpr, exprRefs } from './expr';
 import type { OperationRegistry } from '../tools/operationRegistry';
 import { isOperationAllowed, ToolPolicy } from '../tools/scope';
+import { isDestructiveOperation } from '../tools/destructiveGuard';
 
 /**
  * The workflow definition DSL — the declarative JSON document the master agent
@@ -160,6 +161,10 @@ export const MAX_STEPS = 30;
 export const workflowDefinitionSchema = z.object({
   trigger: workflowTriggerSchema,
   policy: workflowPolicySchema,
+  // Consent for irreversible deletes/merges, mirroring the chat agent's
+  // destructiveOps. Defaults to 'block': a workflow with a remove/delete/merge
+  // step must explicitly opt in with 'allow' or validation rejects it.
+  destructiveOps: z.enum(['allow', 'block']).default('block'),
   bindings: z.record(bindingSchema).default({}),
   limits: workflowLimitsSchema.default({ maxLlmCalls: 10 }),
   steps: z.array(stepSchema).min(1).max(MAX_STEPS),
@@ -281,6 +286,14 @@ export function validateDefinition(
           errors.push({
             path: at,
             message: `operation "${opName}" is outside this workflow's policy`,
+          });
+        } else if (
+          isDestructiveOperation(meta) &&
+          def.destructiveOps !== 'allow'
+        ) {
+          errors.push({
+            path: at,
+            message: `operation "${opName}" deletes or merges data; set "destructiveOps": "allow" on the workflow to permit it`,
           });
         }
       } else if (def.policy.mode === 'custom') {
