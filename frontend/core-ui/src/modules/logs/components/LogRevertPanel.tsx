@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Button, useToast } from 'erxes-ui';
+import { Badge, Button, cn, useToast } from 'erxes-ui';
 import {
   IconHistory,
   IconAlertTriangle,
@@ -31,6 +31,53 @@ const entityLabel = (contentType?: string) => {
   const seg = contentType.split(':')[1] || contentType;
   return seg.split('.').pop() || contentType;
 };
+
+/** One selectable value card in the conflict chooser. */
+const OptionCard = ({
+  selected,
+  onClick,
+  label,
+  value,
+  tone,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  label: string;
+  value: string;
+  tone: 'current' | 'previous';
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-pressed={selected}
+    className={cn(
+      'flex flex-col items-start gap-1 rounded-lg border px-3 py-2 text-left transition-colors min-w-0',
+      selected
+        ? 'border-primary bg-primary/5 ring-1 ring-primary'
+        : 'border-border bg-background hover:bg-accent',
+    )}
+  >
+    <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+      {selected ? (
+        <IconCircleCheck size={13} className="text-primary" />
+      ) : (
+        <span
+          className={cn(
+            'inline-block size-3 rounded-full border',
+            tone === 'previous' ? 'border-primary/40' : 'border-border',
+          )}
+        />
+      )}
+      {label}
+    </span>
+    <span
+      className="w-full truncate font-mono text-sm text-foreground"
+      title={value}
+    >
+      {value}
+    </span>
+  </button>
+);
 
 /**
  * "Revert this action" surface for a Mongo data-change log. Self-contained:
@@ -124,6 +171,19 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
   const setChoice = (k: string, field: string, mode: 'restore' | 'keep') =>
     setChoices((prev) => ({ ...prev, [k]: { ...prev[k], [field]: mode } }));
 
+  const setAll = (mode: 'restore' | 'keep') => {
+    if (!result) return;
+    const next: Record<string, Record<string, 'restore' | 'keep'>> = {};
+    for (const c of result.conflicts) {
+      next[keyOf(c)] = {};
+      for (const f of c.fields) next[keyOf(c)][f.field] = mode;
+    }
+    setChoices(next);
+  };
+
+  const conflictFieldCount =
+    result?.conflicts.reduce((n, c) => n + c.fields.length, 0) || 0;
+
   return (
     <section className="rounded-3xl border bg-background">
       <div className="flex items-start gap-3 border-b px-6 py-5">
@@ -197,48 +257,63 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
             )}
 
             {result.conflicts.length > 0 && !done && (
-              <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4">
-                <p className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-destructive">
-                  <IconAlertTriangle size={15} /> Conflicts — choose what to keep
-                </p>
-                <div className="flex flex-col gap-4">
+              <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-destructive">
+                    <IconAlertTriangle size={15} />
+                    {conflictFieldCount} field
+                    {conflictFieldCount === 1 ? '' : 's'} changed since — choose
+                    what to keep
+                  </p>
+                  <div className="flex gap-1.5">
+                    <Button variant="outline" onClick={() => setAll('restore')}>
+                      Restore all
+                    </Button>
+                    <Button variant="outline" onClick={() => setAll('keep')}>
+                      Keep all
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3">
                   {result.conflicts.map((c) => (
-                    <div key={keyOf(c)}>
+                    <div
+                      key={keyOf(c)}
+                      className="rounded-lg border bg-background p-3"
+                    >
                       <p className="mb-2 text-xs font-medium text-foreground">
                         {entityLabel(c.contentType)}{' '}
                         <span className="font-mono text-muted-foreground">
                           {c.docId}
                         </span>
                       </p>
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-3">
                         {c.fields.map((f) => {
                           const mode = choices[keyOf(c)]?.[f.field] || 'restore';
                           return (
-                            <div
-                              key={f.field}
-                              className="flex flex-wrap items-center gap-2"
-                            >
-                              <span className="min-w-24 text-xs font-medium text-foreground">
+                            <div key={f.field}>
+                              <p className="mb-1.5 text-xs font-semibold text-foreground">
                                 {f.field}
-                              </span>
-                              <Button
-                                variant={mode === 'keep' ? 'default' : 'outline'}
-                                onClick={() =>
-                                  setChoice(keyOf(c), f.field, 'keep')
-                                }
-                              >
-                                Keep: {valueText(f.currentValue)}
-                              </Button>
-                              <Button
-                                variant={
-                                  mode === 'restore' ? 'default' : 'outline'
-                                }
-                                onClick={() =>
-                                  setChoice(keyOf(c), f.field, 'restore')
-                                }
-                              >
-                                Restore: {valueText(f.revertValue)}
-                              </Button>
+                              </p>
+                              <div className="grid grid-cols-2 gap-2">
+                                <OptionCard
+                                  tone="current"
+                                  selected={mode === 'keep'}
+                                  onClick={() =>
+                                    setChoice(keyOf(c), f.field, 'keep')
+                                  }
+                                  label="Keep current"
+                                  value={valueText(f.currentValue)}
+                                />
+                                <OptionCard
+                                  tone="previous"
+                                  selected={mode === 'restore'}
+                                  onClick={() =>
+                                    setChoice(keyOf(c), f.field, 'restore')
+                                  }
+                                  label="Restore previous"
+                                  value={valueText(f.revertValue)}
+                                />
+                              </div>
                             </div>
                           );
                         })}
