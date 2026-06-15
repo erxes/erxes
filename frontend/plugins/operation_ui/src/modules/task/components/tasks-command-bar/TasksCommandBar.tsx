@@ -11,7 +11,7 @@ import {
 import { Row } from '@tanstack/table-core';
 import { ITask } from '@/task/types';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
-import { currentUserState, Export, Import } from 'ui-modules';
+import { currentUserState, Export } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
@@ -69,13 +69,6 @@ export const TasksCommandBar = () => {
         <CommandBar.Value>
           {selectedRows.length} selected
         </CommandBar.Value>
-        <Separator.Inline />
-        <Import
-          pluginName="operation"
-          moduleName="task"
-          collectionName="task"
-          title="Import Tasks"
-        />
         <Separator.Inline />
         <Export
           pluginName="operation"

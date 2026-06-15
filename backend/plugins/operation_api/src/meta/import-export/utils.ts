@@ -208,15 +208,6 @@ export const getTaskCustomPropertyHeaders = (
   subdomain: string,
 ): Promise<ImportHeaderDefinition[]> => getCustomPropertyHeaders(subdomain, TASK_CONTENT_TYPE);
 
-/**
- * Retrieves the custom property header definitions for projects from the core fields service.
- *
- * @param subdomain The active subdomain/tenant identifier.
- * @returns A promise resolving to an array of import/export header definitions.
- */
-export const getProjectCustomPropertyHeaders = (
-  subdomain: string,
-): Promise<ImportHeaderDefinition[]> => getCustomPropertyHeaders(subdomain, PROJECT_CONTENT_TYPE);
 
 /**
  * Resolves the final list of export header definitions by combining system fields and custom property fields.
