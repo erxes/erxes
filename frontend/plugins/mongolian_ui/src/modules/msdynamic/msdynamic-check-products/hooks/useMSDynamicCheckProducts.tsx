@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
-import { useAtom, useAtomValue } from 'jotai';
-import { useMemo } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
@@ -35,6 +35,8 @@ export const useMSDynamicCheckProducts = () => {
   const [selectedFilter, setSelectedFilter] = useAtom(selectedFilterAtom);
   const checking = useAtomValue(checkingAtom);
   const syncing = useAtomValue(syncingAtom);
+  const setProducts = useSetAtom(productsAtom);
+  const setProductsData = useSetAtom(productsDataAtom);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -43,6 +45,11 @@ export const useMSDynamicCheckProducts = () => {
     [location.search],
   );
   const brandId = queryParams.brandId || 'noBrand';
+
+  useEffect(() => {
+    setProducts([]);
+    setProductsData(null);
+  }, [brandId, setProducts, setProductsData]);
 
   const { data: brandsData, loading: brandsLoading } =
     useQuery<BrandsQueryData>(BRANDS_QUERY);

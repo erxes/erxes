@@ -32,7 +32,7 @@ export const MSDynamicCheckProductsRecordTable = () => {
       >
         {syncableProducts.length > 0 && (
           <div className="p-2">
-            <Button onClick={syncProducts} disabled={syncing}>
+            <Button onClick={syncProducts} disabled={syncing || checking}>
               Sync Products
             </Button>
           </div>

@@ -119,7 +119,9 @@ export const MSDynamicConfigFormFields = ({
                   <SelectBrand.FormItem
                     mode="single"
                     value={field.value}
-                    onValueChange={(brand) => field.onChange(brand)}
+                    onValueChange={(brand) =>
+                      field.onChange(getSingleSelectValue(brand))
+                    }
                   />
                 </Form.Control>
                 <Form.Message />

@@ -53,9 +53,9 @@ export const useMSDynamicConfigs = () => {
         {} as Record<string, IMnConfig>,
       );
 
-      const removes: Promise<any>[] = [];
-      const creates: Promise<any>[] = [];
-      const updates: Promise<any>[] = [];
+      const removes: Array<Promise<unknown>> = [];
+      const creates: Array<Promise<unknown>> = [];
+      const updates: Array<Promise<unknown>> = [];
 
       for (const [subId, doc] of Object.entries(currentById)) {
         if (!nextEntries[subId]) {
@@ -80,8 +80,17 @@ export const useMSDynamicConfigs = () => {
         }
       }
 
-      await Promise.all([...removes, ...creates, ...updates]);
+      const results = await Promise.allSettled([
+        ...removes,
+        ...creates,
+        ...updates,
+      ]);
       await refetch();
+
+      const failed = results.filter((r) => r.status === 'rejected');
+      if (failed.length) {
+        throw new Error(`Failed to save ${failed.length} config mutation(s)`);
+      }
     } finally {
       setSaveLoading(false);
     }

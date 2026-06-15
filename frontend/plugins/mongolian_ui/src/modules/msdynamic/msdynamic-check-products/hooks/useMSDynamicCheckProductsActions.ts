@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useSetAtom, useAtomValue } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
 
 import { mutations } from '@/msdynamic/graphql';
@@ -47,9 +47,6 @@ type UseMSDynamicCheckProductsActionsProps = {
   syncableProducts: MSDynamicCheckProduct[];
 };
 
-const getProductKey = (product: MSDynamicCheckProductSource) =>
-  product.Common_Item_No || product.No || product.code || '';
-
 const getErrorMessage = (_error: unknown, fallback: string) => fallback;
 
 const normalizeProduct = (
@@ -88,43 +85,12 @@ const normalizeProductsResponse = (response: MSDynamicCheckProductsResponse) =>
     ),
   );
 
-const markSyncedProducts = (
-  products: MSDynamicCheckProduct[],
-  selectedProducts: MSDynamicCheckProduct[],
-  status: MSDynamicCheckProductStatus,
-) => {
-  const syncedProductKeys = new Set(selectedProducts.map(getProductKey));
-
-  return products.map((product) => {
-    if (
-      product.status !== status ||
-      !syncedProductKeys.has(getProductKey(product))
-    ) {
-      return product;
-    }
-
-    return { ...product, syncStatus: true, isSynced: true };
-  });
-};
-
-const groupProductsData = (
-  products: MSDynamicCheckProduct[],
-  previousData: MSDynamicCheckProductsResponse | null,
-): MSDynamicCheckProductsResponse => ({
-  matched: previousData?.matched,
-  create: { items: products.filter((product) => product.status === 'create') },
-  update: { items: products.filter((product) => product.status === 'update') },
-  delete: { items: products.filter((product) => product.status === 'delete') },
-});
-
 export const useMSDynamicCheckProductsActions = ({
   brandId,
   hasDynamicConfig,
   selectedFilter,
   syncableProducts,
 }: UseMSDynamicCheckProductsActionsProps) => {
-  const productsValue = useAtomValue(productsAtom);
-  const productsData = useAtomValue(productsDataAtom);
   const setProducts = useSetAtom(productsAtom);
   const setProductsData = useSetAtom(productsDataAtom);
   const setChecking = useSetAtom(checkingAtom);
@@ -213,13 +179,15 @@ export const useMSDynamicCheckProductsActions = ({
         },
       });
 
-      const nextProducts = markSyncedProducts(
-        productsValue || [],
-        syncableProducts,
-        selectedFilter,
-      );
+      const refreshed = await checkMsdProducts({
+        variables: { brandId },
+      });
+      const refreshedData = refreshed.data?.toCheckMsdProducts;
+      const nextProducts = refreshedData
+        ? normalizeProductsResponse(refreshedData)
+        : [];
       setProducts(nextProducts);
-      setProductsData(groupProductsData(nextProducts, productsData));
+      setProductsData(refreshedData || null);
 
       toast({
         title: 'Success',
