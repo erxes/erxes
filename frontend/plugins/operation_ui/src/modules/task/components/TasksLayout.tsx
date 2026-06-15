@@ -7,7 +7,7 @@ import { Can, Export, Import } from 'ui-modules';
 /** Renders the import button for the tasks list. */
 export const TasksImportButton = () => {
   return (
-    <Can action="importsManage">
+    <Can action="taskImportManage">
       <Import
         pluginName="operation"
         moduleName="task"
@@ -67,7 +67,7 @@ export const TasksExportButton = () => {
   };
 
   return (
-    <Can action="exportsManage">
+    <Can action="taskExportManage">
       <Export
         pluginName="operation"
         moduleName="task"

@@ -36,7 +36,7 @@ const ProjectsExportButton = () => {
   };
 
   return (
-    <Can action="exportsManage">
+    <Can action="projectExportManage">
       <Export
         pluginName="operation"
         moduleName="project"
