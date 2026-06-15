@@ -21,7 +21,11 @@ const COMBINED_CMS_DATA = gql`
         parentId
       }
     }
-    cmsTags(clientPortalId: $clientPortalId, language: $language) {
+    cmsTags(
+      clientPortalId: $clientPortalId
+      limit: $limit
+      language: $language
+    ) {
       tags {
         _id
         name
