@@ -15,9 +15,9 @@
     "erxes-api-shared": "workspace:^",
     "graphql-tag": "^2.12.6",
     "html-to-text": "^8.2.1",
-    "simple-git": "^3.26.0",
+    "simple-git": "^3.36.0",
     "slugify": "^1.6.6",
-    "tmp": "^0.2.3"
+    "tmp": "^0.2.7"
   },
   "devDependencies": {}
 }
