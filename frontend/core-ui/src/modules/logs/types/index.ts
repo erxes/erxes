@@ -26,6 +26,8 @@ export interface ILogDoc {
   };
   createdAt: string;
   status?: ILogStatusType;
+  processId?: string;
+  contentType?: string;
 }
 export type LogsMainListQueryResponse = {
   logsMainList: {

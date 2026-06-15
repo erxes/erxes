@@ -82,6 +82,8 @@ export const LOG_DETAIL = gql`
       action
       status
       userId
+      processId
+      contentType
       user {
         _id
         email

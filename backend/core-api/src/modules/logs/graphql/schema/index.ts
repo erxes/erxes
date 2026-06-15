@@ -8,6 +8,8 @@ export const types = `
       status:String,
       userId:String,
       cursor:String,
+      processId:String,
+      contentType:String,
 
       user:User
       prevObject:JSON
