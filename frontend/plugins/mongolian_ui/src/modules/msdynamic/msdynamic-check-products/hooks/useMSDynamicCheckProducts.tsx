@@ -74,6 +74,7 @@ export const useMSDynamicCheckProducts = () => {
     syncableProducts,
   });
 
+  /** Navigate to selected brand */
   const setBrand = (nextBrandId: string) => {
     const params = new URLSearchParams(location.search);
     params.set('brandId', nextBrandId);

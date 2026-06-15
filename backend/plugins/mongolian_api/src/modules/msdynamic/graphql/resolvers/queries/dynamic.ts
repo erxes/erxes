@@ -109,12 +109,10 @@ export const msdynamicQueries = {
       productCodes,
       brandId,
       posToken,
-      branchId,
     }: {
       productCodes: string[];
       brandId: string;
       posToken?: string;
-      branchId?: string;
     },
     { subdomain, checkPermission }: IContext,
   ) {
