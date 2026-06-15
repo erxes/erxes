@@ -206,15 +206,17 @@ export async function buildRunDeps(
       const judge = getJudgeAgent(agentConfig, providers);
       // Lazy import — providers.ts pulls AI-SDK chunks Jest cannot load.
       const { isLegacyProvider } = await import('../providers');
-      const legacy = isLegacyProvider(agentConfig.provider, providers);
+      const { makeRunner } = await import('../agentRunner');
+      const runner = makeRunner(
+        judge,
+        isLegacyProvider(agentConfig.provider, providers),
+      );
 
       const convo = [
         { role: 'system', content: judgmentInstruction(outputSpec) },
         { role: 'user', content: prompt },
       ];
-      const res = legacy
-        ? await judge.generateLegacy(convo)
-        : await judge.generate(convo);
+      const res = await runner.generate(convo);
       return extractJsonObject(String(res?.text ?? ''));
     },
   };

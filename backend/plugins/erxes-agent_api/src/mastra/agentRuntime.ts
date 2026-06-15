@@ -3,7 +3,8 @@ import type { ToolsInput } from '@mastra/core/agent';
 import type { IModels } from '~/connectionResolvers';
 import type { IMastraAgentDocument } from '@/agent/@types/agent';
 import { BUILTIN_TOOLS } from './tools/builtins';
-import { buildModel } from './providers';
+import { buildModel, isLegacyProvider } from './providers';
+import { AgentRunner, makeRunner } from './agentRunner';
 import { buildSystemPrompt, ToolInfo } from './instructions/routing';
 import { getOperationRegistry } from './tools/operationRegistry';
 import { buildErxesMetaTools } from './tools/metaTools';
@@ -26,7 +27,9 @@ const toolsCache = new Map<string, ToolsInput>();
 const ROUTING_VERSION = 24;
 
 export interface AgentWithTools {
-  agent: Agent;
+  // The provider-agnostic runner: callers drive generate()/stream() without
+  // knowing whether this agent is native or OpenAI-compatible.
+  runner: AgentRunner;
   tools: ToolsInput;
 }
 
@@ -39,6 +42,9 @@ export async function getOrCreateAgent(
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),
   ]);
+
+  // Resolved once here; the runner carries it so no call site re-decides.
+  const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
   // The agent's reach: 'all' (every erxes operation + builtin) by default, or a
   // restricted allowlist. The two meta-tools enforce this at execution time.
@@ -58,7 +64,7 @@ export async function getOrCreateAgent(
   const cached = agentCache.get(cacheKey);
   if (cached) {
     return {
-      agent: cached,
+      runner: makeRunner(cached, isLegacy),
       tools: toolsCache.get(cacheKey) ?? {},
     };
   }
@@ -163,7 +169,7 @@ export async function getOrCreateAgent(
 
   agentCache.set(cacheKey, agent);
   toolsCache.set(cacheKey, tools);
-  return { agent, tools };
+  return { runner: makeRunner(agent, isLegacy), tools };
 }
 
 /** Drop every cached agent built from the given stored config id. */

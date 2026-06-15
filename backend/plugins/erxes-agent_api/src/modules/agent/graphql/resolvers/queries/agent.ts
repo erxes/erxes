@@ -46,13 +46,12 @@ export const agentQueries = {
       threadId,
     });
 
-    const { agent, tools, convo, authCtx, isLegacy } = prepared;
+    const { runner, tools, convo, authCtx } = prepared;
     const reply = await runAgentTurn({
-      agent,
+      runner,
       tools,
       convo,
       message,
-      isLegacy,
       authCtx,
     });
 

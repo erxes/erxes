@@ -13,7 +13,8 @@
 
 import { IModels } from '~/connectionResolvers';
 import { trimEdgeChars } from '~/mastra/text';
-import type { ProviderDocLike } from '~/mastra/providers';
+import { isLegacyProvider, type ProviderDocLike } from '~/mastra/providers';
+import { AgentRunner, makeRunner } from '~/mastra/agentRunner';
 
 export const TITLER_INSTRUCTIONS = `You name chat conversations.
 Given a transcript, output a short title (3-6 words) that captures what the conversation is about.
@@ -77,33 +78,28 @@ export function sanitizeTitle(raw: string | null | undefined): string | null {
 
 // ── Orchestration ─────────────────────────────────────────────────────────────
 
-// The minimal surface used from a Mastra Agent — typed locally so the lazy
-// import keeps this module free of a static @mastra/core type dependency.
-interface TitlerAgent {
-  generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
-  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
-}
+// Tool-less titler runners, cached per provider+model. The runner binds the
+// provider kind, so this module never branches on legacy/native itself.
+const _titlers = new Map<string, AgentRunner>();
 
-// Tool-less titler agents, cached per provider+model.
-const _titlers = new Map<string, TitlerAgent>();
-
-/** Lazily build (and cache per provider+model) the titler agent. */
+/** Lazily build (and cache per provider+model) the titler runner. */
 async function titlerFor(
   provider: string,
   model: string,
   providers: ProviderDocLike[],
-): Promise<TitlerAgent> {
+): Promise<AgentRunner> {
   const key = `${provider}:${model}`;
   let cached = _titlers.get(key);
   if (!cached) {
     const { Agent } = await import('@mastra/core/agent');
     const { buildModel } = await import('~/mastra/providers');
-    cached = new Agent({
+    const agent = new Agent({
       id: 'mastra-thread-titler',
       name: 'Thread Titler',
       instructions: TITLER_INSTRUCTIONS,
       model: buildModel(provider, model, providers),
-    }) as unknown as TitlerAgent;
+    });
+    cached = makeRunner(agent, isLegacyProvider(provider, providers));
     _titlers.set(key, cached);
   }
   return cached;
@@ -120,10 +116,8 @@ export async function maybeGenerateThreadTitle(params: {
   model: string;
   providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
-  isLegacy: boolean;
 }): Promise<string | null> {
-  const { models, threadId, provider, model, providers, authCtx, isLegacy } =
-    params;
+  const { models, threadId, provider, model, providers, authCtx } = params;
   // Reject non-string ids so a crafted object can never become a Mongo
   // query operator (NoSQL injection).
   if (typeof threadId !== 'string' || !threadId) return null;
@@ -150,9 +144,7 @@ export async function maybeGenerateThreadTitle(params: {
       },
     ];
     const result = await runWithAuth(authCtx, () =>
-      isLegacy
-        ? titler.generateLegacy(msgs)
-        : titler.generate(msgs, { maxSteps: 1 }),
+      titler.generate(msgs, { maxSteps: 1 }),
     );
 
     const title = sanitizeTitle(result?.text);

@@ -8,7 +8,6 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
-import { isLegacyProvider } from './mastra/providers';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import {
@@ -24,11 +23,8 @@ import { readLearnedDigest } from './mastra/learning/digest';
 import {
   prepareChatTurn,
   persistTurn,
-  executeTextToolCall,
-  extractTextToolCall,
-  synthesizeFromToolResults,
+  finalizeStreamedReply,
   toUserFacingError,
-  TurnAgent,
 } from '@/agent/turn';
 import {
   IMastraChatAttachment,
@@ -197,6 +193,10 @@ function sanitizeAttachments(raw: unknown): IMastraChatAttachment[] | null {
   return out;
 }
 
+// skipcq: JS-R1005 — SSE orchestration: request validation, header setup,
+// stream consumption, the shared reply-finalization fallback, persistence and
+// the title race necessarily live in one handler. Decomposing it into a
+// streaming turn adapter is tracked separately (the event-sink turn).
 router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   const user = extractUserFromHeader(req.headers);
   if (!user?._id) {
@@ -334,7 +334,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       threadId,
       attachments,
     });
-    const { agent, tools, convo, authCtx, isLegacy } = prepared;
+    const { runner, tools, convo, authCtx } = prepared;
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
@@ -347,7 +347,6 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           model: prepared.agentConfig.model,
           providers: prepared.providers,
           authCtx,
-          isLegacy,
           snapshot,
         }),
     });
@@ -356,9 +355,9 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
 
     try {
       await runWithAuth(authCtx, async () => {
-        const stream = await (isLegacy
-          ? agent.streamLegacy(convo, { abortSignal: controller.signal })
-          : agent.stream(convo, { abortSignal: controller.signal }));
+        const stream = await runner.stream(convo, {
+          abortSignal: controller.signal,
+        });
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);
@@ -393,67 +392,48 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     let reply: string | null = acc.text || null;
 
     if (!interrupted) {
-      const trimmed = acc.text.trimStart();
-
-      // Text-emitted tool call (models without native tool_calls): execute it
-      // and replace the raw JSON the client already saw with the real answer.
-      const extracted = trimmed ? extractTextToolCall(trimmed) : null;
-      if (extracted) {
-        const handled = await executeTextToolCall({
-          agent,
-          tools,
-          convo,
-          message,
-          isLegacy,
-          authCtx,
-          depth: 0,
-          extracted,
-          rawText: trimmed,
-          onToolEvent: (toolEvent) => {
-            const ev: StreamEvent =
-              toolEvent.phase === 'call'
-                ? {
-                    type: 'tool_call',
-                    toolName: toolEvent.toolName,
-                    args: toolEvent.args,
-                  }
-                : {
-                    type: 'tool_result',
-                    toolName: toolEvent.toolName,
-                    result: toolEvent.result,
-                    isError: toolEvent.isError,
-                  };
-            recordToolCall(ev);
-            send(ev);
-          },
-        });
-        if (handled !== undefined && handled !== null) {
-          reply = handled;
-          send({ type: 'text_replace', text: handled });
-        }
-      } else if (!acc.text) {
-        // No text streamed — synthesize from tool results, or report the error.
-        const toolResults = acc.toolCalls
+      // The fallback decision (execute a text-emitted tool call, or synthesize
+      // when only tool calls streamed) lives in the turn pipeline so streaming
+      // and the blocking path share it.
+      const outcome = await finalizeStreamedReply({
+        runner,
+        tools,
+        convo,
+        message,
+        authCtx,
+        streamedText: acc.text,
+        streamError,
+        toolResults: acc.toolCalls
           .filter((tc) => tc.result !== undefined)
           .map((tc) => ({
             toolCallId: tc.toolCallId,
             toolName: tc.toolName,
             result: tc.result,
-          }));
+          })),
+        onToolEvent: (toolEvent) => {
+          const ev: StreamEvent =
+            toolEvent.phase === 'call'
+              ? {
+                  type: 'tool_call',
+                  toolName: toolEvent.toolName,
+                  args: toolEvent.args,
+                }
+              : {
+                  type: 'tool_result',
+                  toolName: toolEvent.toolName,
+                  result: toolEvent.result,
+                  isError: toolEvent.isError,
+                };
+          recordToolCall(ev);
+          send(ev);
+        },
+      });
 
-        if (toolResults.length) {
-          reply = await synthesizeFromToolResults({
-            agent,
-            message,
-            isLegacy,
-            authCtx,
-            toolResults,
-          });
-          send({ type: 'text', text: reply });
-        } else if (streamError) {
-          throw new Error(streamError);
-        }
-      }
+      reply = outcome.reply;
+      if (outcome.replaceText !== undefined)
+        send({ type: 'text_replace', text: outcome.replaceText });
+      if (outcome.appendText !== undefined)
+        send({ type: 'text', text: outcome.appendText });
     }
 
     const { titlePromise, assistantMessageId } = await persistTurn({
@@ -530,7 +510,7 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
     }
 
     const providers = await models.MastraProvider.find({ isEnabled: true });
-    const { agent } = await getOrCreateAgent(agentConfig, models);
+    const { runner } = await getOrCreateAgent(agentConfig, models);
 
     // Conversation memory is Mongo-backed, keyed by the frontline conversationId.
     const userText = text || '';
@@ -574,14 +554,7 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
 
     // Bot requests use the static app token from settings (no user session available)
     const authCtx = { token: settings?.erxesApiToken, subdomain };
-    const isLegacy = isLegacyProvider(agentConfig.provider, providers);
-    // The published Agent generics type tool results as wire chunks; this
-    // text-only webhook path reads only `.text`, hence the structural cast
-    // (same idiom as prepareChatTurn in @/agent/turn).
-    const turnAgent = agent as unknown as TurnAgent;
-    const result = await runWithAuth(authCtx, () =>
-      isLegacy ? turnAgent.generateLegacy(convo) : turnAgent.generate(convo),
-    );
+    const result = await runWithAuth(authCtx, () => runner.generate(convo));
 
     const reply = result.text || '';
 
@@ -629,7 +602,8 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
       await indexMessages(memCtx, toIndex);
 
       if (reply) {
-        void refreshWorkingMemory({
+        // Fire-and-forget (best-effort, self-catching) — same as persistTurn.
+        refreshWorkingMemory({
           models,
           ctx: memCtx,
           exchange: { user: userText, assistant: reply },
@@ -637,7 +611,6 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
           model: agentConfig.model,
           providers,
           authCtx,
-          isLegacy,
         });
       }
     }

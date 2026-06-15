@@ -17,6 +17,9 @@ import type { IModels } from '~/connectionResolvers';
 import type { ProviderDocLike } from '~/mastra/providers';
 import type { MemoryContext } from './semanticRecall';
 import type { ConvoMessage } from './convo';
+// agentRunner is dependency-light (types + a thin dispatcher, no @mastra/core),
+// so it stays a static import; the heavy provider builder loads lazily below.
+import { AgentRunner, makeRunner } from '~/mastra/agentRunner';
 
 export const WM_EXTRACTOR_INSTRUCTIONS = `You maintain a concise, durable profile of a single user for an AI assistant.
 Given the current profile and the latest exchange, output the COMPLETE updated profile in markdown.
@@ -103,34 +106,28 @@ export async function readWorkingMemory(
   }
 }
 
-// The minimal surface used from a Mastra Agent — typed locally so the lazy
-// import keeps this module free of a static @mastra/core type dependency.
-interface ExtractorAgent {
-  generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
-  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
-}
-
-// Tool-less extractor agents, cached per provider+model. Built lazily so the
+// Tool-less extractor runners, cached per provider+model. Built lazily so the
 // Mastra Agent / provider deps are only loaded when a refresh actually runs.
-const _extractors = new Map<string, ExtractorAgent>();
+const _extractors = new Map<string, AgentRunner>();
 
-/** Lazily build (and cache per provider+model) the profile extractor agent. */
+/** Lazily build (and cache per provider+model) the profile extractor runner. */
 async function extractorFor(
   provider: string,
   model: string,
   providers: ProviderDocLike[],
-): Promise<ExtractorAgent> {
+): Promise<AgentRunner> {
   const key = `${provider}:${model}`;
   let cached = _extractors.get(key);
   if (!cached) {
     const { Agent } = await import('@mastra/core/agent');
-    const { buildModel } = await import('~/mastra/providers');
-    cached = new Agent({
+    const { buildModel, isLegacyProvider } = await import('~/mastra/providers');
+    const agent = new Agent({
       id: 'mastra-wm-extractor',
       name: 'Working Memory Extractor',
       instructions: WM_EXTRACTOR_INSTRUCTIONS,
       model: buildModel(provider, model, providers),
-    }) as unknown as ExtractorAgent;
+    });
+    cached = makeRunner(agent, isLegacyProvider(provider, providers));
     _extractors.set(key, cached);
   }
   return cached;
@@ -148,18 +145,9 @@ export async function refreshWorkingMemory(params: {
   model: string;
   providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
-  isLegacy: boolean;
 }): Promise<void> {
-  const {
-    models,
-    ctx,
-    exchange,
-    provider,
-    model,
-    providers,
-    authCtx,
-    isLegacy,
-  } = params;
+  const { models, ctx, exchange, provider, model, providers, authCtx } =
+    params;
   try {
     const existing = await models.MastraWorkingMemory.getContent(
       ctx.resourceId,
@@ -171,9 +159,7 @@ export async function refreshWorkingMemory(params: {
       { role: 'user', content: buildRefreshUserContent(existing, exchange) },
     ];
     const result = await runWithAuth(authCtx, () =>
-      isLegacy
-        ? extractor.generateLegacy(msgs)
-        : extractor.generate(msgs, { maxSteps: 1 }),
+      extractor.generate(msgs, { maxSteps: 1 }),
     );
     const updated = mergeWorkingMemory(existing, result?.text);
     if (updated.trim() && updated !== existing) {

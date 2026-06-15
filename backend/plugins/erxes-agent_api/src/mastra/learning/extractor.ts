@@ -12,6 +12,7 @@
 
 import { MastraLearningType } from '@/learning/@types/learning';
 import type { ProviderDocLike } from '~/mastra/providers';
+import { AgentRunner, makeRunner } from '~/mastra/agentRunner';
 
 export interface CandidateLearning {
   type: MastraLearningType;
@@ -135,16 +136,9 @@ export function parseCandidates(raw: string): CandidateLearning[] {
 
 // ── Stateless agent plumbing (lazy, cached per provider+model) ───────────────
 
-// The minimal surface this module needs from a Mastra Agent. Keeping it local
-// avoids a static @mastra/core type dependency in a lazily-loaded path.
-interface StatelessAgent {
-  generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
-  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
-}
+const _agents = new Map<string, AgentRunner>();
 
-const _agents = new Map<string, StatelessAgent>();
-
-/** Lazily build (and cache per provider+model) a tool-less one-shot agent. */
+/** Lazily build (and cache per provider+model) a tool-less one-shot runner. */
 async function statelessAgent(
   id: string,
   name: string,
@@ -152,18 +146,19 @@ async function statelessAgent(
   provider: string,
   model: string,
   providers: ProviderDocLike[],
-): Promise<StatelessAgent> {
+): Promise<AgentRunner> {
   const key = `${id}:${provider}:${model}`;
   let cached = _agents.get(key);
   if (!cached) {
     const { Agent } = await import('@mastra/core/agent');
-    const { buildModel } = await import('~/mastra/providers');
-    cached = new Agent({
+    const { buildModel, isLegacyProvider } = await import('~/mastra/providers');
+    const agent = new Agent({
       id,
       name,
       instructions,
       model: buildModel(provider, model, providers),
-    }) as unknown as StatelessAgent;
+    });
+    cached = makeRunner(agent, isLegacyProvider(provider, providers));
     _agents.set(key, cached);
   }
   return cached;
@@ -174,21 +169,18 @@ export interface ExtractionRuntime {
   model: string;
   providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
-  isLegacy: boolean;
 }
 
 /** One single-turn generate under the request's auth context; returns text. */
 async function runStateless(
-  agent: StatelessAgent,
+  runner: AgentRunner,
   userContent: string,
   rt: ExtractionRuntime,
 ): Promise<string> {
   const { runWithAuth } = await import('~/mastra/requestContext');
   const msgs = [{ role: 'user', content: userContent }];
   const result = await runWithAuth(rt.authCtx, () =>
-    rt.isLegacy
-      ? agent.generateLegacy(msgs)
-      : agent.generate(msgs, { maxSteps: 1 }),
+    runner.generate(msgs, { maxSteps: 1 }),
   );
   return result?.text ?? '';
 }
