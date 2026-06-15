@@ -243,6 +243,7 @@ export const pricingPlanQueries = {
       branchId: string;
       pipelineId: string;
       customerId?: string;
+      companyId?: string;
       agentId?: string;
       products: Array<{
         itemId: string;
@@ -262,6 +263,7 @@ export const pricingPlanQueries = {
       products,
       pipelineId,
       customerId,
+      companyId,
       agentId,
     } = params;
 
@@ -275,6 +277,7 @@ export const pricingPlanQueries = {
       pipelineId,
       orderItems: products || [],
       customerId,
+      companyId,
       agentId,
     });
   },

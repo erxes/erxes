@@ -67,12 +67,20 @@ export const types = `
     tags: [String],
     tagsExcluded: [String],
 
+    customerType: String,
+
     customerIds: [String],
-    customerIdsExcluded: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
     customerSegmentIds: [String],
 
-    agentIds: [String],
-    agentIdsExcluded: [String],
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    agentUserIds: [String],
+    agentUserPositions: [String],
     agentSegmentIds: [String],
 
     isStartDateEnabled: Boolean,
@@ -177,12 +185,20 @@ export const types = `
     tags: [String],
     tagsExcluded: [String],
 
+    customerType: String,
+
     customerIds: [String],
-    customerIdsExcluded: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
     customerSegmentIds: [String],
 
-    agentIds: [String],
-    agentIdsExcluded: [String],
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    agentUserIds: [String],
+    agentUserPositions: [String],
     agentSegmentIds: [String],
 
     isStartDateEnabled: Boolean,
@@ -233,12 +249,20 @@ export const types = `
     tags: [String],
     tagsExcluded: [String],
 
+    customerType: String,
+
     customerIds: [String],
-    customerIdsExcluded: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
     customerSegmentIds: [String],
 
-    agentIds: [String],
-    agentIdsExcluded: [String],
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    agentUserIds: [String],
+    agentUserPositions: [String],
     agentSegmentIds: [String],
 
     isStartDateEnabled: Boolean,
@@ -305,6 +329,7 @@ const checkDiscountParams = `
   branchId: String
   pipelineId: String
   customerId: String
+  companyId: String
   agentId: String
   products: [PricingCheckProduct]
 `;

@@ -95,10 +95,13 @@ export const checkPricing = async (
   );
 
   // Who-context for customer/agent pricing conditions: the deal's related
-  // customer and its assigned salesperson.
-  const [customerId] = deal._id
-    ? (await getCustomerIds(subdomain, deal._id)) || []
-    : [];
+  // customer + company and its assigned salesperson.
+  const [[customerId], [companyId]] = deal._id
+    ? await Promise.all([
+        getCustomerIds(subdomain, deal._id).then((ids) => ids || []),
+        getCompanyIds(subdomain, deal._id).then((ids) => ids || []),
+      ])
+    : [[], []];
   const agentId = deal.assignedUserIds?.[0];
 
   const pricing = await sendTRPCMessage({
@@ -113,6 +116,7 @@ export const checkPricing = async (
       branchId: deal.branchIds?.[0] || '',
       pipelineId: stage.pipelineId,
       customerId,
+      companyId,
       agentId,
       products: activeProductsData.map((item) => ({
         itemId: item._id,

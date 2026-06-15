@@ -16,17 +16,14 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useEffect, type ReactNode } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Control } from 'react-hook-form';
 import {
   SelectCompany,
   SelectCategory,
-  SelectCustomer,
-  SelectMember,
   SelectProduct,
   SelectSegment,
   SelectTags,
 } from 'ui-modules';
-import { type Control, type ControllerRenderProps } from 'react-hook-form';
 
 interface GeneralInfoProps {
   pricingId?: string;
@@ -51,11 +48,6 @@ interface GeneralFormValues {
   productTagIds: string[];
   excludeTagIds: string[];
   bundleProductIds: string[];
-  customerIds: string[];
-  customerIdsExcluded: string[];
-  customerSegmentId: string | null;
-  agentIds: string[];
-  agentIdsExcluded: string[];
 }
 
 const GENERAL_FORM_ID = 'pricing-general-form';
@@ -106,131 +98,6 @@ const GeneralDateField = ({
   />
 );
 
-/** Coerce a single-or-multi selector value into a string[] for the form. */
-const toArray = (value: string[] | string | null): string[] =>
-  Array.isArray(value) ? value : value ? [value] : [];
-
-/**
- * Labeled form field for a customer/agent condition. Keeps the
- * Form.Field/Item/Label/Control wrapper in one place so each selector below
- * stays a one-liner (avoids duplicated blocks).
- */
-function ConditionField<Name extends keyof GeneralFormValues>({
-  control,
-  name,
-  label,
-  className,
-  children,
-}: {
-  control: Control<GeneralFormValues>;
-  name: Name;
-  label: string;
-  className?: string;
-  children: (
-    field: ControllerRenderProps<GeneralFormValues, Name>,
-  ) => ReactNode;
-}) {
-  return (
-    <Form.Field
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <Form.Item className={className}>
-          <Form.Label>{label}</Form.Label>
-          <Form.Control>{children(field)}</Form.Control>
-        </Form.Item>
-      )}
-    />
-  );
-}
-
-/**
- * Customer & agent targeting conditions, extracted from GeneralInfo to keep the
- * form's JSX nesting shallow.
- */
-const CustomerAgentConditions = ({
-  control,
-}: {
-  control: Control<GeneralFormValues>;
-}) => (
-  <div className="col-span-2 space-y-4">
-    <div className="flex items-center">
-      <div className="flex-1 border-t" />
-      <Form.Label className="mx-2">
-        Customer &amp; agent conditions (optional)
-      </Form.Label>
-      <div className="flex-1 border-t" />
-    </div>
-
-    <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-      <ConditionField control={control} name="customerIds" label="CUSTOMERS">
-        {(field) => (
-          <SelectCustomer
-            mode="multiple"
-            value={field.value}
-            onValueChange={(value) => field.onChange(toArray(value))}
-          />
-        )}
-      </ConditionField>
-
-      <ConditionField
-        control={control}
-        name="customerIdsExcluded"
-        label="EXCLUDE CUSTOMERS"
-      >
-        {(field) => (
-          <SelectCustomer
-            mode="multiple"
-            value={field.value}
-            onValueChange={(value) => field.onChange(toArray(value))}
-          />
-        )}
-      </ConditionField>
-
-      <ConditionField
-        control={control}
-        name="agentIds"
-        label="AGENTS (SALESPEOPLE)"
-      >
-        {(field) => (
-          <SelectMember
-            mode="multiple"
-            value={field.value}
-            onValueChange={(value) => field.onChange(toArray(value))}
-          />
-        )}
-      </ConditionField>
-
-      <ConditionField
-        control={control}
-        name="agentIdsExcluded"
-        label="EXCLUDE AGENTS"
-      >
-        {(field) => (
-          <SelectMember
-            mode="multiple"
-            value={field.value}
-            onValueChange={(value) => field.onChange(toArray(value))}
-          />
-        )}
-      </ConditionField>
-
-      <ConditionField
-        control={control}
-        name="customerSegmentId"
-        label="CUSTOMER SEGMENT"
-        className="lg:col-span-2"
-      >
-        {(field) => (
-          <SelectSegment
-            selected={field.value || undefined}
-            onSelect={(id) => field.onChange(id)}
-          />
-        )}
-      </ConditionField>
-    </div>
-  </div>
-);
 
 export const GeneralInfo = ({
   pricingId,
@@ -255,11 +122,6 @@ export const GeneralInfo = ({
       productTagIds: [],
       excludeTagIds: [],
       bundleProductIds: [],
-      customerIds: [],
-      customerIdsExcluded: [],
-      customerSegmentId: null,
-      agentIds: [],
-      agentIdsExcluded: [],
     },
   });
 
@@ -312,11 +174,6 @@ export const GeneralInfo = ({
       productTagIds: pricingDetail.tags || [],
       excludeTagIds: pricingDetail.tagsExcluded || [],
       bundleProductIds: pricingDetail.productsBundle?.[0] || [],
-      customerIds: pricingDetail.customerIds || [],
-      customerIdsExcluded: pricingDetail.customerIdsExcluded || [],
-      customerSegmentId: pricingDetail.customerSegmentIds?.[0] || null,
-      agentIds: pricingDetail.agentIds || [],
-      agentIdsExcluded: pricingDetail.agentIdsExcluded || [],
     });
   }, [pricingDetail, form]);
 
@@ -345,16 +202,6 @@ export const GeneralInfo = ({
       applyType: appliesToApplyTypeMap[values.appliesTo] || values.applyType,
       isPriority: values.isPriority,
     };
-
-    // Customer & agent conditions are independent of `appliesTo`; always write
-    // them (empty arrays clear a previous constraint).
-    baseDoc.customerIds = values.customerIds;
-    baseDoc.customerIdsExcluded = values.customerIdsExcluded;
-    baseDoc.customerSegmentIds = values.customerSegmentId
-      ? [values.customerSegmentId]
-      : [];
-    baseDoc.agentIds = values.agentIds;
-    baseDoc.agentIdsExcluded = values.agentIdsExcluded;
 
     if (values.startDate) {
       baseDoc.isStartDateEnabled = true;
@@ -784,8 +631,6 @@ export const GeneralInfo = ({
                   </div>
                 )}
               </div>
-
-              <CustomerAgentConditions control={form.control} />
             </InfoCard.Content>
           </InfoCard>
         </form>

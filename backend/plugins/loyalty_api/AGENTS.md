@@ -34,51 +34,79 @@ A plan applies only when **all enabled dimensions pass**:
 
 ### Data model (additive, on `IPricingPlan` + the Mongoose schema)
 
+The **customer (buyer)** dimension is typed: `customerType` selects which entity
+kind the buyer is, and only the active kind's fields are evaluated/persisted.
+The **agent (salesperson)** is always a team-member/user, so it has no type.
+
 ```
+customerType         'customer' | 'company'   // unset ⇒ 'customer'
+
+# customer kind
 customerIds          string[]   // include: match any
-customerIdsExcluded  string[]   // disqualify if matched
+customerTags         string[]   // include: shares any tag
+customerExcludeTags  string[]   // disqualify if the buyer carries any
 customerSegmentIds   string[]   // member of any (core segment over customers)
-agentIds             string[]
-agentIdsExcluded     string[]
+
+# company kind
+companyIds           string[]
+companyTags          string[]
+companyExcludeTags   string[]
+companySegmentIds    string[]
+
+# agent (user)
+agentUserIds         string[]
+agentUserPositions   string[]   // holds any of these positionIds
 agentSegmentIds      string[]   // member of any (segment over team-members / core:user)
 ```
 
-**Empty arrays = no constraint.** Every pre-existing plan keeps behaving exactly
+**Empty fields = no constraint.** Every pre-existing plan keeps behaving exactly
 as before — this is fully backwards-compatible. There are intentionally **no
 `is…Enabled` flags** (we follow the existing `segments`/`vendors`/`tags`
 convention, not the rule-engine convention).
 
+> The buyer is only ever a customer or a company — both have real relation
+> sources on a deal (`getCustomerIds` / `getCompanyIds`). A buyer-as-user kind
+> was deliberately **not** added: nothing produces a "buyer is team-member U"
+> signal, so it would be inert. Add it together with that source if needed.
+
 ### Eligibility semantics (`utils/eligibility.ts`)
 
-`planMatchesContext(subdomain, plan, { customerId, agentId }, cache?)` → `boolean`.
+`planMatchesContext(subdomain, plan, { customerId, companyId, agentId }, cache?)`
+→ `boolean`. The customer dimension resolves its kind from `customerType`
+(`company` → `companyId` + `company*` fields; else `customerId` + `customer*`).
 Per dimension (`matchesDimension`):
 
-1. no include/exclude/segment values → **unconstrained, passes**;
-2. constrained but the caller supplied no id → **fails closed**;
-3. an excluded id **always disqualifies**;
-4. only an exclude list set → "everyone except", passes if not excluded;
-5. otherwise pass if the id is in the include list **OR** a member of any segment.
+1. no id/tag/excludeTag/segment/position values → **unconstrained, passes**;
+2. constrained but the caller supplied no entity id → **fails closed**;
+3. an excluded tag (entity carries it) **always disqualifies**;
+4. only exclusion set → "everyone except", passes otherwise;
+5. otherwise pass if the id is in the include list **OR** shares any tag **OR**
+   holds any position **OR** is a member of any segment.
 
 Customer and agent are combined with **AND**; the customer check short-circuits
 the agent check on failure.
 
-Segment membership uses the core `segment.isInSegment(segmentId, idToCheck)`
-tRPC procedure and **fails closed** if the segment service is unreachable. Pass
-a single `Map` (`SegmentMembershipCache`) across all plans in one `checkPricing`
-call so repeated `(segmentId, entityId)` lookups fan out only one tRPC call.
-Segment evaluation depends on Elasticsearch — the same dependency the existing
-product-segment path (`utils/product.ts`) already relies on.
+Membership lookups, all **fail closed** if the core service is unreachable:
+- segments → `segment.isInSegment(segmentId, idToCheck)` tRPC (Elasticsearch —
+  the same dependency the product-segment path already relies on);
+- tags / positions → `{customers,companies,users}.findOne` tRPC, reading
+  `tagIds` / `positionIds` off the entity doc.
+
+Pass a single `Map` (`EligibilityCache`) across all plans in one `checkPricing`
+call. It memoizes both segment checks (`seg:${segmentId}:${entityId}`) and
+entity-fact fetches (`doc:${kind}:${entityId}` → `{tagIds, positionIds}`), so N
+plans referencing the same segment/entity fan out at most one tRPC call each.
 
 ### Wiring the gate into `checkPricing` (the remaining step)
 
-`checkPricing` must accept optional `customerId` / `agentId`, then inside the
-plan loop, before processing items:
+`checkPricing` accepts optional `customerId` / `companyId` / `agentId`, then
+inside the plan loop, before processing items:
 
 ```ts
-const cache = new Map<string, boolean>(); // once per checkPricing call
+const cache = new Map<string, unknown>(); // once per checkPricing call
 // ...
 for (const plan of plans) {
-  if (!(await planMatchesContext(subdomain, plan, { customerId, agentId }, cache))) {
+  if (!(await planMatchesContext(subdomain, plan, { customerId, companyId, agentId }, cache))) {
     continue;
   }
   // ... existing getAllowedProducts + rule calc (unchanged)
@@ -86,14 +114,15 @@ for (const plan of plans) {
 ```
 
 The contract (tRPC `checkPricingInput`, GraphQL `checkDiscountParams`, and the
-`PricingPlanAddInput`/`EditInput` for the new fields) must also carry
-`customerId`/`agentId`, and callers must pass them:
+`PricingPlanAddInput`/`EditInput` for the new fields) also carries
+`customerId`/`companyId`/`agentId`, and callers pass them:
 
-- **sales_api** `…/mutations/loyaltyUtils.ts` — `customerId` (already fetched via
-  `getCustomerIds`), `agentId = deal.assignedUserIds?.[0]`.
+- **sales_api** `…/mutations/loyaltyUtils.ts` — `customerId` + `companyId`
+  (deal relations via `getCustomerIds` / `getCompanyIds`),
+  `agentId = deal.assignedUserIds?.[0]`.
 - **posclient_api** `…/utils/pricing.ts` — `customerId = doc.customerId` only
-  (the POS order input has no cashier/agent field, so agent-targeted plans do
-  not apply at point of sale).
+  (the POS order input has no company or cashier/agent field, so company- and
+  agent-targeted plans do not apply at point of sale — by design, not a gap).
 - **mongolian_api** `…/handlers/handlePricing.ts` — from the deal.
 
 ### Implementation status
@@ -104,8 +133,8 @@ The contract (tRPC `checkPricingInput`, GraphQL `checkDiscountParams`, and the
 | `utils/eligibility.ts` + unit tests | ✅ landed, green |
 | `checkPricing` gate wiring | ✅ landed |
 | tRPC `checkPricingInput` + GraphQL inputs / `PricingPlan` type / `checkDiscountParams` + resolver | ✅ landed |
-| Caller threading | ✅ sales_api (customer + agent); ✅ posclient_api (customer only — POS order input has no cashier/agent field); ⏳ mongolian_api follow-up (its call uses `pluginName:'pricing'` and the deal exposes no direct customer) |
-| Frontend form (`loyalty_ui`) | ⏳ pending — see `frontend/plugins/loyalty_ui/AGENTS.md` |
+| Caller threading | ✅ sales_api (customer + company + agent); ✅ posclient_api (customer only — POS order input has no company/cashier/agent field); ⏳ mongolian_api follow-up (its call uses `pluginName:'pricing'` and the deal exposes no direct customer) |
+| Frontend form (`loyalty_ui`) | ✅ Options tab — typed buyer (customer/company) + agent conditions |
 
 > Cleanup done while wiring: removed stray `console.log` debug lines from
 > `utils/index.ts`, `graphql/resolvers/queries/pricingPlan.ts`, and the sales

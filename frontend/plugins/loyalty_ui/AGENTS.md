@@ -24,50 +24,45 @@ matching **product**-targeting inputs. `handleSubmit` maps form values to the
 
 Adds two **who**-dimensions to a pricing plan alongside the existing product
 targeting (see `backend/plugins/loyalty_api/AGENTS.md` for the engine + data
-model). The form gains a **Customer** and an **Agent** condition section,
-**independent of** the `appliesTo` product switch (a plan can target a customer
-*and* a product at once).
+model). The **Options** tab gains a typed **buyer** condition (customer *or*
+company, via a `customerType` toggle) plus an **agent** (salesperson) condition,
+**independent of** the `appliesTo` product switch.
 
-### New form values → doc fields
+Both forms render one shared component,
+`edit-pricing/components/options/CustomerAgentConditions.tsx`, which also owns the
+`CUSTOMER_AGENT_DEFAULTS`, `customerAgentFromDetail`, and `customerAgentToDoc`
+helpers (load / save mapping). Host forms (`OptionsInfo`, `PricingCreateSheet`)
+extend `CustomerAgentFormValues` and delegate the section + the save slice.
 
-| Form value | Component (from `ui-modules`) | Plan field |
-| ---------- | ----------------------------- | ---------- |
+### Form values → doc fields
+
+| Form value | Component (`ui-modules`) | Plan field |
+| ---------- | ------------------------ | ---------- |
+| `customerType` | `ToggleGroup` (customer/company) | `customerType` |
 | `customerIds` | `SelectCustomer` (multiple) | `customerIds` |
-| `customerIdsExcluded` | `SelectCustomer` (multiple) | `customerIdsExcluded` |
-| `customerSegmentId` | `SelectSegment` (single → stored as `[id]`) | `customerSegmentIds` |
-| `agentIds` | `SelectMember` (multiple) | `agentIds` |
-| `agentIdsExcluded` | `SelectMember` (multiple) | `agentIdsExcluded` |
-| _(not exposed — backend-only)_ | — | `agentSegmentIds` |
+| `customerTags` / `customerExcludeTags` | `SelectTags` (`tagType="core:customer"`) | `customerTags` / `customerExcludeTags` |
+| `customerSegmentId` | `SelectSegment` (single → `[id]`) | `customerSegmentIds` |
+| `companyIds` | `SelectCompany` (multiple) | `companyIds` |
+| `companyTags` / `companyExcludeTags` | `SelectTags` (`tagType="core:company"`) | `companyTags` / `companyExcludeTags` |
+| `companySegmentId` | `SelectSegment` (single → `[id]`) | `companySegmentIds` |
+| `agentUserIds` | `SelectMember` (multiple) | `agentUserIds` |
+| `agentUserPositions` | `SelectPositions` (multiple) | `agentUserPositions` |
+| `agentSegmentId` | `SelectSegment` (single → `[id]`) | `agentSegmentIds` |
 
-Reuse the existing selectors — do **not** introduce a new picker. `SelectSegment`
-is single-select with **no `contentType` prop** (it lists all segments, exactly
-like the existing product-`segments` usage), so `customerSegmentId` is stored as a
-one-element array `[id]`, mirroring how the product segment is persisted. There is
-no scoped team-member segment picker, so `agentSegmentIds` is left backend-only
-(adding a `contentType` to the shared `SelectSegment` would be out of scope). Empty
-selections send empty arrays (= no constraint), preserving current behavior. The
-who-conditions are written unconditionally (independent of the `appliesTo` switch).
-
-### Required edits
-
-1. Extend `GeneralFormValues` with the six fields above (+ defaults in `useForm`).
-2. Extend the `form.reset` mapping to hydrate them from `pricingDetail`.
-3. Extend `handleSubmit` to write them onto the edit doc (unconditionally — they
-   are not gated by `appliesTo`).
-4. Mirror in the create-pricing form.
-5. Add the fields to the plan TS type + GraphQL fragments/queries/mutations in
-   `src/modules/pricing/{types,graphql}` so they round-trip. Keep operation names
-   prefixed (`pricingPlan…`) and unique. Do **not** change backend GraphQL
-   contracts from the frontend — the loyalty_api side owns those.
+Reuse the existing selectors — no new pickers. `SelectSegment` is single-select
+(stored as a one-element array, mirroring the product segment), and `SelectTags`
+needs the entity's `tagType`. **Only the active `customerType`'s fields are
+persisted** (`customerAgentToDoc` clears the inactive kind), so a plan never
+carries contradictory stale targeting. Empty fields = no constraint.
 
 ### Implementation status
 
-✅ **Done.** Both forms (`create-pricing/PricingCreateSheet.tsx` +
-`edit-pricing/.../general/GeneralInfo.tsx`) carry the Customer & Agent section;
-`types.ts`, `graphql/queries.ts` (`PricingPlanDetail`), and
-`hooks/useCreatePricing.ts` round-trip the six fields. Verified with
-`pnpm nx lint loyalty_ui` (0 errors) and `pnpm nx build loyalty_ui` (success).
-The loyalty_api contract + engine landed earlier (see backend AGENTS.md).
+✅ **Done.** The shared `CustomerAgentConditions` renders in the **Options** tab
+(`OptionsInfo.tsx`) and the create sheet (`PricingCreateSheet.tsx`); `types.ts`,
+`graphql/queries.ts` (`PricingPlanDetail`), and `hooks/useCreatePricing.ts`
+round-trip the typed fields. The legacy flat block was removed from `GeneralInfo`.
+Verified with `npx tsc --noEmit` (0 errors). The loyalty_api contract + engine
+landed earlier (see backend AGENTS.md).
 
 ## Validation
 

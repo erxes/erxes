@@ -48,11 +48,17 @@ const plan = (
     applyType: 'product',
     products: ['p1'],
     isPriority: false,
+    customerType: 'customer',
     customerIds: [],
-    customerIdsExcluded: [],
+    customerTags: [],
+    customerExcludeTags: [],
     customerSegmentIds: [],
-    agentIds: [],
-    agentIdsExcluded: [],
+    companyIds: [],
+    companyTags: [],
+    companyExcludeTags: [],
+    companySegmentIds: [],
+    agentUserIds: [],
+    agentUserPositions: [],
     agentSegmentIds: [],
     ...overrides,
     // Boundary cast: a full Mongoose document is impractical to build in a unit test.
@@ -68,7 +74,7 @@ const makeModels = (plans: IPricingPlanDocument[]): IModels =>
 
 const run = (
   plans: IPricingPlanDocument[],
-  context: { customerId?: string; agentId?: string } = {},
+  context: { customerId?: string; companyId?: string; agentId?: string } = {},
 ) =>
   checkPricing({
     models: makeModels(plans),
@@ -108,7 +114,7 @@ describe('checkPricing — skips ineligible plans', () => {
   });
 
   it('skips a plan whose agent is not targeted', async () => {
-    const result = await run([plan({ agentIds: ['u1'] })], { agentId: 'u2' });
+    const result = await run([plan({ agentUserIds: ['u1'] })], { agentId: 'u2' });
     expect(result?.i1?.value).toBe(0);
   });
 
@@ -118,5 +124,21 @@ describe('checkPricing — skips ineligible plans', () => {
       customerId: 'c1',
     });
     expect(result?.i1?.value).toBe(0);
+  });
+
+  it('skips a company-typed plan when no companyId is supplied', async () => {
+    const result = await run(
+      [plan({ customerType: 'company', companyIds: ['co1'] })],
+      { customerId: 'co1' },
+    );
+    expect(result?.i1?.value).toBe(0);
+  });
+
+  it('applies a company-typed plan whose companyId matches', async () => {
+    const result = await run(
+      [plan({ customerType: 'company', companyIds: ['co1'] })],
+      { companyId: 'co1' },
+    );
+    expect(result?.i1?.value).toBe(DISCOUNT);
   });
 });

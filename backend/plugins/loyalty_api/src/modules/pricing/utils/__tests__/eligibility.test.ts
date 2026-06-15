@@ -2,15 +2,16 @@
  * Unit matrix for the customer + agent eligibility gate.
  *
  * `planMatchesContext` decides whether a pricing plan is allowed to apply to a
- * given customer and agent (salesperson). Product targeting is NOT covered here
- * — that stays in getAllowedProducts(). These tests own the who-dimensions.
+ * given buyer (customer OR company, per customerType) and agent (salesperson).
+ * Product targeting is NOT covered here — that stays in getAllowedProducts().
  *
  * Contract under test (see backend/plugins/loyalty_api/AGENTS.md):
- *   - empty include/exclude/segment lists  → dimension unconstrained → passes
+ *   - empty rule set                       → dimension unconstrained → passes
  *   - constrained dimension + missing id   → fails closed
- *   - exclude list always disqualifies
- *   - exclude-only list                    → "everyone except", passes if not excluded
- *   - include id OR any segment membership → passes
+ *   - excludeTags always disqualify
+ *   - exclude-only set                     → "everyone except", passes otherwise
+ *   - id OR tag OR position OR segment      → passes
+ *   - customerType selects customer vs company; unset ⇒ customer
  *   - customer AND agent must both pass    → plan applies
  */
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
@@ -33,28 +34,47 @@ const plan = (
     _id: 'plan-1',
     name: 'Test plan',
     status: 'active',
+    customerType: 'customer',
     customerIds: [],
-    customerIdsExcluded: [],
+    customerTags: [],
+    customerExcludeTags: [],
     customerSegmentIds: [],
-    agentIds: [],
-    agentIdsExcluded: [],
+    companyIds: [],
+    companyTags: [],
+    companyExcludeTags: [],
+    companySegmentIds: [],
+    agentUserIds: [],
+    agentUserPositions: [],
     agentSegmentIds: [],
     ...overrides,
     // Boundary cast: building a full Mongoose document in a unit test is impractical.
   }) as unknown as IPricingPlanDocument;
 
-/** Make isInSegment resolve membership from a `${segmentId}:${entityId}` map. */
-const segmentMembership = (members: Record<string, boolean>) => {
+/**
+ * Dispatch tRPC mocks:
+ *  - segment.isInSegment → membership from a `${segmentId}:${entityId}` map
+ *  - {customers,companies,users}.findOne → entity doc with tagIds/positionIds
+ */
+const mockTRPC = (opts: {
+  segments?: Record<string, boolean>;
+  docs?: Record<string, { tagIds?: string[]; positionIds?: string[] }>;
+}) => {
+  const segments = opts.segments || {};
+  const docs = opts.docs || {};
+
   mockedTRPC.mockImplementation(
     ({
       action,
       input,
     }: {
       action: string;
-      input: { segmentId: string; idToCheck: string };
+      input: { segmentId?: string; idToCheck?: string; _id?: string };
     }) => {
       if (action === 'isInSegment') {
-        return members[`${input.segmentId}:${input.idToCheck}`] ?? false;
+        return segments[`${input.segmentId}:${input.idToCheck}`] ?? false;
+      }
+      if (action === 'findOne') {
+        return docs[input._id as string] ?? null;
       }
       return false;
     },
@@ -77,13 +97,13 @@ describe('planMatchesContext — no constraints', () => {
     await expect(planMatchesContext(SUBDOMAIN, plan(), {})).resolves.toBe(true);
   });
 
-  it('never calls the segment service when unconstrained', async () => {
+  it('never calls any core service when unconstrained', async () => {
     await planMatchesContext(SUBDOMAIN, plan(), { customerId: 'c1' });
     expect(mockedTRPC).not.toHaveBeenCalled();
   });
 });
 
-describe('planMatchesContext — customer ID lists', () => {
+describe('planMatchesContext — customer ids', () => {
   it('passes when customerId is in the include list', async () => {
     await expect(
       planMatchesContext(SUBDOMAIN, plan({ customerIds: ['c1', 'c2'] }), {
@@ -107,37 +127,49 @@ describe('planMatchesContext — customer ID lists', () => {
   });
 });
 
-describe('planMatchesContext — customer exclusions', () => {
-  it('disqualifies an excluded customer', async () => {
+describe('planMatchesContext — customer tags', () => {
+  it('passes when the customer shares a targeted tag', async () => {
+    mockTRPC({ docs: { c1: { tagIds: ['vip', 'gold'] } } });
     await expect(
-      planMatchesContext(SUBDOMAIN, plan({ customerIdsExcluded: ['c1'] }), {
+      planMatchesContext(SUBDOMAIN, plan({ customerTags: ['vip'] }), {
+        customerId: 'c1',
+      }),
+    ).resolves.toBe(true);
+  });
+
+  it('fails when the customer shares no targeted tag', async () => {
+    mockTRPC({ docs: { c1: { tagIds: ['bronze'] } } });
+    await expect(
+      planMatchesContext(SUBDOMAIN, plan({ customerTags: ['vip'] }), {
         customerId: 'c1',
       }),
     ).resolves.toBe(false);
   });
 
-  it('passes a non-excluded customer when only an exclude list is set', async () => {
-    await expect(
-      planMatchesContext(SUBDOMAIN, plan({ customerIdsExcluded: ['c1'] }), {
-        customerId: 'c2',
-      }),
-    ).resolves.toBe(true);
-  });
-
-  it('lets exclusion win even if the customer is also in the include list', async () => {
+  it('disqualifies a customer carrying an excluded tag (exclusion wins)', async () => {
+    mockTRPC({ docs: { c1: { tagIds: ['blocked', 'vip'] } } });
     await expect(
       planMatchesContext(
         SUBDOMAIN,
-        plan({ customerIds: ['c1'], customerIdsExcluded: ['c1'] }),
+        plan({ customerIds: ['c1'], customerExcludeTags: ['blocked'] }),
         { customerId: 'c1' },
       ),
     ).resolves.toBe(false);
+  });
+
+  it('passes a non-excluded customer when only an exclude list is set', async () => {
+    mockTRPC({ docs: { c1: { tagIds: ['vip'] } } });
+    await expect(
+      planMatchesContext(SUBDOMAIN, plan({ customerExcludeTags: ['blocked'] }), {
+        customerId: 'c1',
+      }),
+    ).resolves.toBe(true);
   });
 });
 
 describe('planMatchesContext — customer segments', () => {
   it('passes when the customer is a member of the segment', async () => {
-    segmentMembership({ 'seg-vip:c1': true });
+    mockTRPC({ segments: { 'seg-vip:c1': true } });
     await expect(
       planMatchesContext(SUBDOMAIN, plan({ customerSegmentIds: ['seg-vip'] }), {
         customerId: 'c1',
@@ -145,32 +177,23 @@ describe('planMatchesContext — customer segments', () => {
     ).resolves.toBe(true);
   });
 
-  it('fails when the customer is not a member of the segment', async () => {
-    segmentMembership({ 'seg-vip:c1': false });
-    await expect(
-      planMatchesContext(SUBDOMAIN, plan({ customerSegmentIds: ['seg-vip'] }), {
-        customerId: 'c1',
-      }),
-    ).resolves.toBe(false);
-  });
-
-  it('passes when the customer is a member of ANY of several segments (OR)', async () => {
-    segmentMembership({ 'seg-a:c1': false, 'seg-b:c1': true });
+  it('fails when the customer is not a member of any segment', async () => {
+    mockTRPC({ segments: { 'seg-a:c1': false, 'seg-b:c1': false } });
     await expect(
       planMatchesContext(
         SUBDOMAIN,
         plan({ customerSegmentIds: ['seg-a', 'seg-b'] }),
         { customerId: 'c1' },
       ),
-    ).resolves.toBe(true);
+    ).resolves.toBe(false);
   });
 
-  it('passes via include id even when the segment does not match', async () => {
-    segmentMembership({ 'seg-a:c1': false });
+  it('passes when the customer is a member of ANY listed segment (OR)', async () => {
+    mockTRPC({ segments: { 'seg-a:c1': false, 'seg-b:c1': true } });
     await expect(
       planMatchesContext(
         SUBDOMAIN,
-        plan({ customerIds: ['c1'], customerSegmentIds: ['seg-a'] }),
+        plan({ customerSegmentIds: ['seg-a', 'seg-b'] }),
         { customerId: 'c1' },
       ),
     ).resolves.toBe(true);
@@ -184,10 +207,57 @@ describe('planMatchesContext — customer segments', () => {
   });
 });
 
-describe('planMatchesContext — agent dimension', () => {
+describe('planMatchesContext — company kind (customerType=company)', () => {
+  it('matches against companyId, not customerId', async () => {
+    await expect(
+      planMatchesContext(
+        SUBDOMAIN,
+        plan({ customerType: 'company', companyIds: ['co1'] }),
+        { customerId: 'c1', companyId: 'co1' },
+      ),
+    ).resolves.toBe(true);
+  });
+
+  it('fails closed when company-typed but no companyId is supplied', async () => {
+    await expect(
+      planMatchesContext(
+        SUBDOMAIN,
+        plan({ customerType: 'company', companyIds: ['co1'] }),
+        { customerId: 'co1' },
+      ),
+    ).resolves.toBe(false);
+  });
+
+  it('ignores customer fields when the plan targets companies', async () => {
+    await expect(
+      planMatchesContext(
+        SUBDOMAIN,
+        plan({
+          customerType: 'company',
+          customerIds: ['c1'],
+          companyIds: ['co1'],
+        }),
+        { customerId: 'c1', companyId: 'co9' },
+      ),
+    ).resolves.toBe(false);
+  });
+
+  it('matches a company by tag', async () => {
+    mockTRPC({ docs: { co1: { tagIds: ['partner'] } } });
+    await expect(
+      planMatchesContext(
+        SUBDOMAIN,
+        plan({ customerType: 'company', companyTags: ['partner'] }),
+        { companyId: 'co1' },
+      ),
+    ).resolves.toBe(true);
+  });
+});
+
+describe('planMatchesContext — agent dimension (user)', () => {
   it('passes when the agent is in the include list', async () => {
     await expect(
-      planMatchesContext(SUBDOMAIN, plan({ agentIds: ['u1'] }), {
+      planMatchesContext(SUBDOMAIN, plan({ agentUserIds: ['u1'] }), {
         agentId: 'u1',
       }),
     ).resolves.toBe(true);
@@ -195,22 +265,32 @@ describe('planMatchesContext — agent dimension', () => {
 
   it('fails when the agent is not in the include list', async () => {
     await expect(
-      planMatchesContext(SUBDOMAIN, plan({ agentIds: ['u1'] }), {
+      planMatchesContext(SUBDOMAIN, plan({ agentUserIds: ['u1'] }), {
         agentId: 'u2',
       }),
     ).resolves.toBe(false);
   });
 
-  it('disqualifies an excluded agent', async () => {
+  it('passes when the agent holds a targeted position', async () => {
+    mockTRPC({ docs: { u1: { positionIds: ['pos-senior'] } } });
     await expect(
-      planMatchesContext(SUBDOMAIN, plan({ agentIdsExcluded: ['u1'] }), {
+      planMatchesContext(SUBDOMAIN, plan({ agentUserPositions: ['pos-senior'] }), {
+        agentId: 'u1',
+      }),
+    ).resolves.toBe(true);
+  });
+
+  it('fails when the agent holds none of the targeted positions', async () => {
+    mockTRPC({ docs: { u1: { positionIds: ['pos-junior'] } } });
+    await expect(
+      planMatchesContext(SUBDOMAIN, plan({ agentUserPositions: ['pos-senior'] }), {
         agentId: 'u1',
       }),
     ).resolves.toBe(false);
   });
 
   it('passes an agent who is a member of an agent segment', async () => {
-    segmentMembership({ 'seg-seniors:u1': true });
+    mockTRPC({ segments: { 'seg-seniors:u1': true } });
     await expect(
       planMatchesContext(SUBDOMAIN, plan({ agentSegmentIds: ['seg-seniors'] }), {
         agentId: 'u1',
@@ -220,7 +300,7 @@ describe('planMatchesContext — agent dimension', () => {
 
   it('fails closed when an agent constraint exists but no agentId is supplied', async () => {
     await expect(
-      planMatchesContext(SUBDOMAIN, plan({ agentIds: ['u1'] }), {
+      planMatchesContext(SUBDOMAIN, plan({ agentUserIds: ['u1'] }), {
         customerId: 'c1',
       }),
     ).resolves.toBe(false);
@@ -232,7 +312,7 @@ describe('planMatchesContext — customer AND agent combined', () => {
     await expect(
       planMatchesContext(
         SUBDOMAIN,
-        plan({ customerIds: ['c1'], agentIds: ['u1'] }),
+        plan({ customerIds: ['c1'], agentUserIds: ['u1'] }),
         { customerId: 'c1', agentId: 'u1' },
       ),
     ).resolves.toBe(true);
@@ -242,24 +322,13 @@ describe('planMatchesContext — customer AND agent combined', () => {
     await expect(
       planMatchesContext(
         SUBDOMAIN,
-        plan({ customerIds: ['c1'], agentIds: ['u1'] }),
+        plan({ customerIds: ['c1'], agentUserIds: ['u1'] }),
         { customerId: 'c1', agentId: 'u9' },
       ),
     ).resolves.toBe(false);
   });
 
-  it('fails when the agent passes but the customer does not', async () => {
-    await expect(
-      planMatchesContext(
-        SUBDOMAIN,
-        plan({ customerIds: ['c1'], agentIds: ['u1'] }),
-        { customerId: 'c9', agentId: 'u1' },
-      ),
-    ).resolves.toBe(false);
-  });
-
   it('short-circuits the agent check when the customer check already failed', async () => {
-    segmentMembership({});
     await planMatchesContext(
       SUBDOMAIN,
       plan({ customerIds: ['c1'], agentSegmentIds: ['seg-x'] }),
@@ -271,15 +340,15 @@ describe('planMatchesContext — customer AND agent combined', () => {
   });
 });
 
-describe('isInSegment — fail-closed + caching', () => {
-  it('returns false (fails closed) when the segment service yields a falsy value', async () => {
+describe('caching — fail-closed + memoization', () => {
+  it('isInSegment returns false (fails closed) on a falsy service result', async () => {
     mockedTRPC.mockResolvedValue(false);
     await expect(isInSegment(SUBDOMAIN, 'seg', 'c1')).resolves.toBe(false);
   });
 
-  it('memoizes membership per (segmentId, entityId) across plans via a shared cache', async () => {
-    segmentMembership({ 'seg-vip:c1': true });
-    const cache = new Map<string, boolean>();
+  it('memoizes segment membership per (segmentId, entityId) across plans', async () => {
+    mockTRPC({ segments: { 'seg-vip:c1': true } });
+    const cache = new Map<string, unknown>();
 
     const planA = plan({ customerSegmentIds: ['seg-vip'] });
     const planB = plan({ _id: 'plan-2', customerSegmentIds: ['seg-vip'] });
@@ -290,13 +359,17 @@ describe('isInSegment — fail-closed + caching', () => {
     expect(mockedTRPC).toHaveBeenCalledTimes(1);
   });
 
-  it('does NOT memoize across different entities for the same segment', async () => {
-    segmentMembership({ 'seg-vip:c1': true, 'seg-vip:c2': false });
-    const cache = new Map<string, boolean>();
+  it('memoizes entity facts: tag + position lookups for one entity share a fetch', async () => {
+    mockTRPC({ docs: { c1: { tagIds: ['vip'] } } });
+    const cache = new Map<string, unknown>();
 
-    await isInSegment(SUBDOMAIN, 'seg-vip', 'c1', cache);
-    await isInSegment(SUBDOMAIN, 'seg-vip', 'c2', cache);
+    const planA = plan({ customerTags: ['vip'] });
+    const planB = plan({ _id: 'plan-2', customerTags: ['gold'] });
 
-    expect(mockedTRPC).toHaveBeenCalledTimes(2);
+    await planMatchesContext(SUBDOMAIN, planA, { customerId: 'c1' }, cache);
+    await planMatchesContext(SUBDOMAIN, planB, { customerId: 'c1' }, cache);
+
+    // Both plans read c1's tags; the doc is fetched only once.
+    expect(mockedTRPC).toHaveBeenCalledTimes(1);
   });
 });

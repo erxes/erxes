@@ -90,6 +90,7 @@ const checkPricingInput = z.object({
   products: z.array(pricingProductSchema),
   pipelineId: z.string().optional(),
   customerId: z.string().optional(),
+  companyId: z.string().optional(),
   agentId: z.string().optional(),
 });
 
@@ -273,6 +274,7 @@ export const appRouter = t.router({
           products,
           pipelineId,
           customerId,
+          companyId,
           agentId,
         } = input;
 
@@ -295,6 +297,7 @@ export const appRouter = t.router({
           pipelineId: pipelineId || '',
           orderItems,
           customerId,
+          companyId,
           agentId,
         });
       }),

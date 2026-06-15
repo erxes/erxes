@@ -13,6 +13,13 @@ import {
   type RepeatRuleConfig,
   type RepeatRuleType,
 } from '@/pricing/edit-pricing/components/repeat/RepeatRuleSheet';
+import {
+  CustomerAgentConditions,
+  CUSTOMER_AGENT_DEFAULTS,
+  customerAgentFromDetail,
+  customerAgentToDoc,
+  type CustomerAgentFormValues,
+} from '@/pricing/edit-pricing/components/options/CustomerAgentConditions';
 
 interface OptionsInfoProps {
   pricingId?: string;
@@ -20,15 +27,21 @@ interface OptionsInfoProps {
   onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
-interface OptionsFormValues {
+interface OptionsFormValues extends CustomerAgentFormValues {
   departmentIds: string[];
   branchIds: string[];
   boardId: string;
   pipelineId: string;
 }
 
-interface OptionsSnapshot extends OptionsFormValues {
+interface OptionsSnapshot {
+  departmentIds: string[];
+  branchIds: string[];
+  boardId: string;
+  pipelineId: string;
   repeatRules: RepeatRuleConfig[];
+  // Active-kind doc slice; comparing this captures buyer-type switches too.
+  customerAgent: Partial<IPricingPlanDetail>;
 }
 
 const OPTIONS_FORM_ID = 'pricing-options-form';
@@ -169,6 +182,7 @@ const getOptionsSnapshot = ({
   boardId: values.boardId || '',
   pipelineId: values.pipelineId || '',
   repeatRules: normalizeRepeatRules(repeatRules),
+  customerAgent: customerAgentToDoc(values),
 });
 
 export const OptionsInfo = ({
@@ -191,6 +205,7 @@ export const OptionsInfo = ({
       branchIds: [],
       boardId: '',
       pipelineId: '',
+      ...CUSTOMER_AGENT_DEFAULTS,
     },
   });
 
@@ -213,26 +228,20 @@ export const OptionsInfo = ({
     const departmentIds = pricingDetail.departmentIds || [];
     const branchIds = pricingDetail.branchIds || [];
     const rules = getRepeatRules(pricingDetail);
+    const customerAgent = customerAgentFromDetail(pricingDetail);
 
-    reset({
+    const values: OptionsFormValues = {
       departmentIds,
       branchIds,
       boardId: pricingDetail.boardId || '',
       pipelineId: pricingDetail.pipelineId || '',
-    });
+      ...customerAgent,
+    };
+
+    reset(values);
 
     setRepeatRules(rules);
-    setInitialSnapshot(
-      getOptionsSnapshot({
-        values: {
-          departmentIds,
-          branchIds,
-          boardId: pricingDetail.boardId || '',
-          pipelineId: pricingDetail.pipelineId || '',
-        },
-        repeatRules: rules,
-      }),
-    );
+    setInitialSnapshot(getOptionsSnapshot({ values, repeatRules: rules }));
   }, [pricingDetail, reset]);
 
   useEffect(() => {
@@ -319,6 +328,8 @@ export const OptionsInfo = ({
     const boardId = values.boardId || null;
     const pipelineId = values.pipelineId || null;
     const nextRepeatRules = mappedRepeatRules;
+    // Only the active buyer-kind is persisted; the inactive kind is cleared.
+    const customerAgentDoc = customerAgentToDoc(values);
 
     try {
       await editPricing({
@@ -330,24 +341,31 @@ export const OptionsInfo = ({
         stageId: null,
         isRepeatEnabled: nextRepeatRules.length > 0,
         repeatRules: nextRepeatRules,
+        ...customerAgentDoc,
       });
 
-      reset({
+      const savedValues: OptionsFormValues = {
         departmentIds,
         branchIds,
         boardId: boardId || '',
         pipelineId: pipelineId || '',
-      });
+        customerType: values.customerType,
+        customerIds: values.customerIds,
+        customerTags: values.customerTags,
+        customerExcludeTags: values.customerExcludeTags,
+        customerSegmentId: values.customerSegmentId,
+        companyIds: values.companyIds,
+        companyTags: values.companyTags,
+        companyExcludeTags: values.companyExcludeTags,
+        companySegmentId: values.companySegmentId,
+        agentUserIds: values.agentUserIds,
+        agentUserPositions: values.agentUserPositions,
+        agentSegmentId: values.agentSegmentId,
+      };
+
+      reset(savedValues);
       setInitialSnapshot(
-        getOptionsSnapshot({
-          values: {
-            departmentIds,
-            branchIds,
-            boardId: boardId || '',
-            pipelineId: pipelineId || '',
-          },
-          repeatRules,
-        }),
+        getOptionsSnapshot({ values: savedValues, repeatRules }),
       );
 
       toast({
@@ -563,6 +581,8 @@ export const OptionsInfo = ({
                   )}
                 </div>
               </section>
+
+              <CustomerAgentConditions control={control} />
             </form>
           </Form>
         </InfoCard.Content>

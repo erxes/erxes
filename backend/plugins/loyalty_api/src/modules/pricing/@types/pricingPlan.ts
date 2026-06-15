@@ -27,13 +27,26 @@ export interface IPricingPlan {
   tagsExcluded?: string[];
 
   // Customer & agent targeting (dynamic conditions).
-  // Empty arrays = no constraint, so existing plans are unaffected.
+  // Empty fields = no constraint, so existing plans are unaffected.
+  //
+  // Customer dimension is typed: customerType picks which entity kind is the
+  // buyer. Unset is treated as 'customer'. Only the active kind's fields are
+  // evaluated (and persisted by the UI).
+  customerType?: 'customer' | 'company';
+
   customerIds?: string[];
-  customerIdsExcluded?: string[];
+  customerTags?: string[];
+  customerExcludeTags?: string[];
   customerSegmentIds?: string[];
 
-  agentIds?: string[];
-  agentIdsExcluded?: string[];
+  companyIds?: string[];
+  companyTags?: string[];
+  companyExcludeTags?: string[];
+  companySegmentIds?: string[];
+
+  // Agent (salesperson) is always a team-member/user.
+  agentUserIds?: string[];
+  agentUserPositions?: string[];
   agentSegmentIds?: string[];
 
   isStartDateEnabled?: boolean;
