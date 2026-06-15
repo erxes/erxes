@@ -78,26 +78,25 @@ export const BeforeResolverAvailability = ({
     : undefined;
 
   if (loading) {
+    if (loadingFallback) {
+      return loadingFallback;
+    }
     return (
-      <>
-        {loadingFallback || (
-          <Spinner
-            size="sm"
-            containerClassName="inline-flex h-auto w-auto flex-none"
-          />
-        )}
-      </>
+      <Spinner
+        size="sm"
+        containerClassName="inline-flex h-auto w-auto flex-none"
+      />
     );
   }
 
   if (!blocked) {
-    return <>{children}</>;
+    return children;
   }
 
   const fallback = blockedFallback || children;
 
   if (!tooltip || !blockedReason) {
-    return <>{fallback}</>;
+    return fallback;
   }
 
   return (

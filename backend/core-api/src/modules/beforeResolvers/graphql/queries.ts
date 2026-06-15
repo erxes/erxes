@@ -12,7 +12,7 @@ export const beforeResolverQueries = {
     { resolver, args }: TBeforeResolverAvailableArgs,
     { subdomain, user, req, requestInfo }: IContext,
   ) {
-    return checkBeforeResolvers(resolver, args || {}, {
+    return await checkBeforeResolvers(resolver, args || {}, {
       subdomain,
       user,
       headers: requestInfo?.headers || req?.headers,
