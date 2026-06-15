@@ -19,18 +19,22 @@ const coreExportTypes = [
   {
     label: 'Customer',
     contentType: 'core:contact.customer',
+    permissions: ['customersExportManage'],
   },
   {
     label: 'Company',
     contentType: 'core:contact.company',
+    permissions: ['companiesExportManage'],
   },
   {
     label: 'Product',
     contentType: 'core:product.product',
+    permissions: ['productsExportManage'],
   },
   {
     label: 'Team member',
     contentType: 'core:user.user',
+    permissions: ['teamMembersExportManage'],
   },
 ];
 export const exportConfiguration = {

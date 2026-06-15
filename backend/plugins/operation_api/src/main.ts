@@ -89,10 +89,12 @@ startPlugin({
         {
           label: 'Task',
           contentType: 'operation:task.task',
+          permissions: ['taskExportManage'],
         },
         {
           label: 'Project',
           contentType: 'operation:project.project',
+          permissions: ['projectExportManage'],
         },
       ],
       getExportData: createCoreModuleProducerHandler({
