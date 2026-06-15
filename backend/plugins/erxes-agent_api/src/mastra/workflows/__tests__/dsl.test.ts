@@ -58,7 +58,7 @@ const mkRegistry = (ops: Array<Partial<OperationMeta>>): OperationRegistry => {
         description: '',
         graphqlArgs: [],
         returnType: null,
-      } as OperationMeta),
+      }) as OperationMeta,
   );
   return {
     operations: new Map(list.map((o) => [o.operation, o])),

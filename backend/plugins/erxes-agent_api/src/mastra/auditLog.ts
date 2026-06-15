@@ -47,7 +47,7 @@ export function writeAgentAction(
   // Fire-and-forget by design: an audit write must never slow down or break the
   // action it records. Not awaited; the catch swallows a rejected write (and
   // marks the promise handled so it is not a floating promise).
-  model.record(entry).catch((err) =>
-    console.error('writeAgentAction failed', err),
-  );
+  model
+    .record(entry)
+    .catch((err) => console.error('writeAgentAction failed', err));
 }

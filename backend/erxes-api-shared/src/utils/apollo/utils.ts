@@ -39,7 +39,9 @@ export const generateApolloContext =
     // router propagates this header to every subgraph. Falls back to a fresh id.
     const incomingProcessId = req.headers['x-erxes-process-id'];
     const processInfo = generateRequestProcess(
-      Array.isArray(incomingProcessId) ? incomingProcessId[0] : incomingProcessId,
+      Array.isArray(incomingProcessId)
+        ? incomingProcessId[0]
+        : incomingProcessId,
     );
 
     const __ = (doc: any) => ({ ...processInfo, ...doc });

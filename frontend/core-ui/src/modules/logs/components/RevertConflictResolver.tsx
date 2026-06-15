@@ -156,8 +156,8 @@ export const RevertConflictResolver = ({
     modes.length && modes.every((m) => m === 'restore')
       ? 'restore'
       : modes.length && modes.every((m) => m === 'keep')
-      ? 'keep'
-      : '';
+        ? 'keep'
+        : '';
   const multi = conflicts.length > 1;
 
   return (

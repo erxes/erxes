@@ -14,11 +14,8 @@ export interface IMastraAgentActionLogListParams {
   perPage?: number;
 }
 
-export interface IMastraAgentActionLogModel
-  extends Model<IMastraAgentActionLogDocument> {
-  record(
-    doc: IMastraAgentActionLog,
-  ): Promise<IMastraAgentActionLogDocument>;
+export interface IMastraAgentActionLogModel extends Model<IMastraAgentActionLogDocument> {
+  record(doc: IMastraAgentActionLog): Promise<IMastraAgentActionLogDocument>;
   getActions(
     params: IMastraAgentActionLogListParams,
   ): Promise<IMastraAgentActionLogDocument[]>;

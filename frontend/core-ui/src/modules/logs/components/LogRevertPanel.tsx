@@ -303,8 +303,8 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
                     {loading
                       ? 'Working…'
                       : result.conflicts.length
-                      ? 'Undo with these choices'
-                      : 'Yes, undo this'}
+                        ? 'Undo with these choices'
+                        : 'Yes, undo this'}
                   </Button>
                   <Button
                     variant="ghost"

@@ -24,10 +24,11 @@ recoverable — but it's auth-agnostic (agent and human run under the same user)
 3. **Invert** — `revert/computeInverse.ts` (pure): create→delete, delete→re-insert
    (keep `_id`), update→restore prior field values.
 4. **Revert** — `logsRevertProcess(processId, dryRun, force, skipConflicts,
-   resolutions)` → `revert/revertByProcessId.ts` reverse-replays the process's
+resolutions)` → `revert/revertByProcessId.ts` reverse-replays the process's
    entries (dedup → authorize → plan → conflicts → dry-run/apply → marker).
 
 ### Flag
+
 Capture is gated behind **`REVERT_AUTO_JOURNAL=enable`** — a complete no-op when
 off (zero risk to the ~124 wrapped schemas). Must be set on EVERY writing service;
 off by default (changes before enabling are unrecoverable). Bulk capture capped at
@@ -35,6 +36,7 @@ off by default (changes before enabling are unrecoverable). Bulk capture capped 
 failure can never block/throw out of a write.
 
 ### Zero-config + authz
+
 No `meta/logs` entry needed: model resolved from
 `config.mongooseName || payload.mongooseName || payload.collectionName`; authz is
 **actor-or-admin** (owner, or the user who made every change). A `meta/logs` entry
@@ -45,6 +47,7 @@ is still honored when present.
 ## File map (all packages)
 
 **Capture (shared):** `backend/erxes-api-shared/src/utils/mongo/`
+
 - `revertCapture.ts` — the auto-capture: `installRevertCaptureHooks(schema)`
   (pre/post hooks for delete*/update*/save), `journalDeletes`/`journalUpdates`,
   `registerRevertContentTypeResolver`. Gated by `REVERT_AUTO_JOURNAL`.
@@ -53,11 +56,13 @@ is still honored when present.
   it and **restart** consumers (it's loaded as built dist, not via tsx-watch).
 
 **Journal consumer:** `backend/services/logs/src/bullmq/mongo.ts`
+
 - `handleDelete`/`handleDeleteMany`/`handleUpdate` + dispatcher. Stores
   `prevDocument(s)` / `updateDescription` + `mongooseName` + `dbName`. (Fixed: the
   single-`delete` path used to drop `prevDocument`.)
 
 **Engine:** `backend/core-api/src/modules/logs/revert/`
+
 - `revertByProcessId.ts` — orchestrator (load newest-first, dedup, actor-or-admin
   authz, multi-connection guard, plan, conflicts, dry-run/apply, marker).
 - `computeInverse.ts` (pure inverse) · `conflict.ts` (field conflicts; volatile
@@ -73,6 +78,7 @@ is still honored when present.
   config) · `erxes-api-shared/.../elasticsearch/saveEs.ts`.
 
 **UI:** `frontend/core-ui/src/modules/logs/`
+
 - `components/LogRevertPanel.tsx` — the Undo surface in the log-detail sheet (shown
   for Mongo data-change logs AND the GraphQL mutation log of the same request;
   excludes the `logsRevertProcess` log). Plain-language for non-technical users
@@ -96,6 +102,7 @@ is still honored when present.
 ---
 
 ## Safety guards
+
 - **Multi-connection**: revert refuses an entry whose model resolves to a
   different database than the recorded `dbName` (→ `unrevertable`), never silently
   writes to the wrong DB.
@@ -108,6 +115,7 @@ is still honored when present.
 ---
 
 ## Run & test locally
+
 - Stack: Docker Mongo + Redis (+ ES). Services: core-api (`:3300`), logs-service
   (`cd backend/services/logs && pnpm dev` — NOT in the default `nx serve` set, but
   it's what writes `{subdomain}_logs`), gateway (`:4000`) + apollo-router
@@ -125,6 +133,7 @@ is still honored when present.
 ---
 
 ## Known gaps (NOT production-done)
+
 - Cascade completeness untested (delete may restore the parent but not related
   docs unless they pass through hooked ops).
 - Standalone Mongo = no transactions → multi-doc revert can partially apply
@@ -134,12 +143,13 @@ is still honored when present.
 - Old `MongoLogDetailContent` panel may still show "No document snapshot" even
   when one was captured (cosmetic).
 - UI doesn't auto-refetch lists after revert; System Logs is admin-only.
-- Org/separate-connection entities are *guarded* (refused), not yet revertable
+- Org/separate-connection entities are _guarded_ (refused), not yet revertable
   (needs connection-aware applyWrite).
 - No automated tests; perf of the extra read-per-write is unmeasured; not human-
   reviewed/CI'd; not in a PR.
 
 ## Commit trail (branch feat/erxes-agent-process-correlation)
+
 `d61d4bbde9` engine (Phase 3b) · `bd6242ec8e` pitfall fixes · `5b2d545975`
 dynamic delete capture · `6ea1c9db10` zero-config · `e4200f70bb` edit capture ·
 `c0ab1d5560` Undo UI · `58673e8495` .save + multi-conn guard · `656dea0cbe`

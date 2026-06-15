@@ -147,8 +147,8 @@ export const GeneralSettingsPage = () => {
               {!attachmentStorage?.configured
                 ? 'No storage'
                 : form.attachmentsEnabled
-                ? 'On'
-                : 'Off'}
+                  ? 'On'
+                  : 'Off'}
             </Badge>
           </div>
 
@@ -222,16 +222,16 @@ export const GeneralSettingsPage = () => {
                   memStatus.qdrantReachable === true
                     ? 'bg-green-500'
                     : memStatus.qdrantReachable === false
-                    ? 'bg-red-500'
-                    : 'bg-muted-foreground/40'
+                      ? 'bg-red-500'
+                      : 'bg-muted-foreground/40'
                 }`}
               />
               <span>
                 {memStatus.qdrantReachable === true
                   ? 'reachable'
                   : memStatus.qdrantReachable === false
-                  ? 'unreachable'
-                  : 'unknown'}
+                    ? 'unreachable'
+                    : 'unknown'}
               </span>
             </div>
             <div>
@@ -242,9 +242,9 @@ export const GeneralSettingsPage = () => {
         )}
 
         <p className="text-xs text-muted-foreground">
-          Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable.
-          Set <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to
-          turn it on.
+          Controlled by the <code>ERXES_AGENT_MEMORY</code> environment
+          variable. Set <code>ERXES_AGENT_MEMORY=enable</code> and restart the
+          plugin to turn it on.
         </p>
       </div>
 
@@ -276,16 +276,16 @@ export const GeneralSettingsPage = () => {
                   knowledgeStatus.qdrantReachable === true
                     ? 'bg-green-500'
                     : knowledgeStatus.qdrantReachable === false
-                    ? 'bg-red-500'
-                    : 'bg-muted-foreground/40'
+                      ? 'bg-red-500'
+                      : 'bg-muted-foreground/40'
                 }`}
               />
               <span>
                 {knowledgeStatus.qdrantReachable === true
                   ? 'reachable'
                   : knowledgeStatus.qdrantReachable === false
-                  ? 'unreachable'
-                  : 'unknown'}
+                    ? 'unreachable'
+                    : 'unknown'}
               </span>
             </div>
             <div>

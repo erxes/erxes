@@ -14,10 +14,7 @@ jest.mock('../erxesTools', () => ({
 }));
 
 import { buildErxesMetaTools } from '../metaTools';
-import type {
-  OperationRegistry,
-  OperationMeta,
-} from '../operationRegistry';
+import type { OperationRegistry, OperationMeta } from '../operationRegistry';
 import type { AgentActionInput } from '../auditLog';
 
 const mkRegistry = (ops: Array<Partial<OperationMeta>>): OperationRegistry => {
@@ -42,7 +39,9 @@ const mkRegistry = (ops: Array<Partial<OperationMeta>>): OperationRegistry => {
 };
 
 interface ToolLike {
-  execute: (input: unknown) => Promise<{ blocked?: boolean } & Record<string, unknown>>;
+  execute: (
+    input: unknown,
+  ) => Promise<{ blocked?: boolean } & Record<string, unknown>>;
 }
 
 const build = (
@@ -109,7 +108,10 @@ describe('execute_erxes_operation guard + audit', () => {
   });
 
   it('records a failed mutation when the executor returns success:false', async () => {
-    mockExecute.mockResolvedValueOnce({ success: false, error: 'boom' } as never);
+    mockExecute.mockResolvedValueOnce({
+      success: false,
+      error: 'boom',
+    } as never);
     const calls: AgentActionInput[] = [];
     const tool = build(
       [{ operation: 'dealsEdit', operationType: 'mutation' }],

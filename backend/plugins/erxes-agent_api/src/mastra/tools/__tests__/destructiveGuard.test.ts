@@ -56,7 +56,9 @@ describe('resolveDestructiveOpsPolicy', () => {
     );
     expect(resolveDestructiveOpsPolicy({})).toBe('block');
     expect(resolveDestructiveOpsPolicy(null)).toBe('block');
-    expect(resolveDestructiveOpsPolicy({ destructiveOps: 'yes' })).toBe('block');
+    expect(resolveDestructiveOpsPolicy({ destructiveOps: 'yes' })).toBe(
+      'block',
+    );
   });
 });
 

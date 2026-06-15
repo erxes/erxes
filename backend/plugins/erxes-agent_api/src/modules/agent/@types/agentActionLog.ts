@@ -23,8 +23,7 @@ export interface IMastraAgentActionLog {
 }
 
 export interface IMastraAgentActionLogDocument
-  extends IMastraAgentActionLog,
-    Document {
+  extends IMastraAgentActionLog, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
