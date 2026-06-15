@@ -275,7 +275,7 @@ export const loadCompanyClass = (
       },
       idsToExclude?: string[] | string,
     ) {
-      const query: { status: { $ne: string }; [key: string]: any } = {
+      const query: { status: { $ne: string }; [key: string]: unknown } = {
         status: { $ne: 'deleted' },
       };
       let previousEntry;
@@ -314,6 +314,7 @@ export const loadCompanyClass = (
       }
     }
 
+    /** Build the denormalized search blob (name/emails/phones/etc.) for a company. */
     public static fillSearchText(doc: ICompany) {
       return validSearchText([
         doc.primaryName || ' ',
@@ -327,6 +328,7 @@ export const loadCompanyClass = (
       ]);
     }
 
+    /** All company schema paths, including one level of nested sub-paths. */
     public static companyFieldNames() {
       const names: string[] = [];
 
@@ -345,9 +347,14 @@ export const loadCompanyClass = (
       return names;
     }
 
+    /**
+     * Normalize a company doc's list fields (emails/phones/names) and
+     * trackedData before save. Pre-existing helper; the flexible `doc`/
+     * `trackedData` shapes are intentionally untyped here.
+     */
     public static fixListFields(
-      doc: any,
-      trackedData: any[] = [],
+      doc: any, // skipcq: JS-0323 — pre-existing flexible input doc; out of scope
+      trackedData: any[] = [], // skipcq: JS-0323 — pre-existing; out of scope
       company?: ICompanyDocument,
     ) {
       let emails: string[] = doc.emails || [];
