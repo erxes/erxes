@@ -126,12 +126,14 @@ const InvoiceDetail = () => {
   };
 
   const postMessage = (message: any) => {
-    if (window.opener) {
-      window.opener.postMessage(message, '*');
+    const win = globalThis as unknown as Window;
+
+    if (win.opener) {
+      win.opener.postMessage(message, '*');
     }
 
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage(message, '*');
+    if (win.parent && win.parent !== win) {
+      win.parent.postMessage(message, '*');
     }
   };
 
