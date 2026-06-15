@@ -142,6 +142,13 @@ const InvoiceDetail = () => {
   if (invoiceDetail && invoiceDetail.amount < 100000) {
     payments = payments.filter((p: any) => p.kind !== 'storepay');
   }
+  if (invoiceDetail.status === 'paid') {
+    return (
+      <div className="py-12 flex items-center justify-center">
+        Payment has been successfully processed. Thank you!
+      </div>
+    );
+  }
 
   const updatedProps = {
     invoiceDetail,
