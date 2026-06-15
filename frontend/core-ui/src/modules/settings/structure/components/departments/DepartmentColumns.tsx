@@ -1,7 +1,6 @@
 import { IconHash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  Badge,
   Input,
   RecordTable,
   RecordTableInlineCell,
@@ -14,6 +13,7 @@ import { SelectMember } from 'ui-modules';
 import { useDepartmentInlineEdit } from '../../hooks/useDepartmentActions';
 import { useState } from 'react';
 import { DepartmentsMoreColumn } from './DepartmentsMoreColumn';
+import { DepartmentMembersSheet } from './DepartmentMembersSheet';
 
 export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
   DepartmentsMoreColumn,
@@ -135,9 +135,11 @@ export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
     accessorKey: 'userCount',
     header: () => <RecordTable.InlineHead label="team member count" />,
     cell: ({ cell }) => {
+      const { _id } = cell.row.original;
+      const count = Number(cell.getValue() ?? 0);
       return (
         <RecordTableInlineCell className="justify-center">
-          <Badge variant={'secondary'}>{cell.getValue() as number}</Badge>
+          <DepartmentMembersSheet departmentId={_id} count={count} />
         </RecordTableInlineCell>
       );
     },
