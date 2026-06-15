@@ -52,7 +52,8 @@ export const beforeResolvers: BeforeResolversConfig = {
       return {
         status: 'blocked',
         code: 'PRODUCT_USED_IN_SALES_DEALS',
-        message: 'Cannot update or remove product because it is used in sales deals.',
+        message:
+          'Cannot update or remove product because it is used in sales deals.',
         details: {
           productIds: usedProductIds,
         },
