@@ -5,10 +5,9 @@ import { PRODUCT_SIMILARITY_REMOVE } from '../graphql/mutations';
 export const useRemoveSimilarity = () => {
   const { toast } = useToast();
 
-  const [removeMutation, { loading }] = useMutation(
-    PRODUCT_SIMILARITY_REMOVE,
-    { refetchQueries: ['ProductSimilarities'] },
-  );
+  const [removeMutation, { loading }] = useMutation(PRODUCT_SIMILARITY_REMOVE, {
+    refetchQueries: ['ProductSimilarities'],
+  });
 
   const remove = async (_id: string) => {
     try {

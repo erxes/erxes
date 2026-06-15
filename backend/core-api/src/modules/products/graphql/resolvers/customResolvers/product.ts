@@ -66,7 +66,9 @@ export default {
       });
 
       branchIds = pipeline?.branchIds?.length ? pipeline?.branchIds : ['_'];
-      departmentIds = pipeline?.departmentIds?.length ? pipeline?.departmentIds : ['_'];
+      departmentIds = pipeline?.departmentIds?.length
+        ? pipeline?.departmentIds
+        : ['_'];
     }
 
     const result = { remainder: 0, cost: 0, soonIn: 0, soonOut: 0 };
@@ -119,17 +121,23 @@ export default {
     }).lean();
   },
 
-  uom: async (product: IProductDocument, _args: undefined, { models }: IContext) => {
+  uom: async (
+    product: IProductDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
     if (!product.uom) {
       return null;
     }
 
-    const uom = await models.Uoms.findOne({ $or: [{ _id: product.uom }, { name: product.uom }, { code: product.uom }] }).lean();
+    const uom = await models.Uoms.findOne({
+      $or: [{ _id: product.uom }, { name: product.uom }, { code: product.uom }],
+    }).lean();
 
     if (!uom) {
       return null;
     }
 
     return uom?.name || uom?.code || '';
-  }
+  },
 };

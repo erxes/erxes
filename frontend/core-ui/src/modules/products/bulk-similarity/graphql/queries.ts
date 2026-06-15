@@ -21,7 +21,11 @@ export const SIMILARITY_FIELDS = gql`
 
 export const PRODUCT_SIMILARITIES = gql`
   query ProductSimilarities($page: Int, $perPage: Int, $searchValue: String) {
-    productBulkSimilarities(page: $page, perPage: $perPage, searchValue: $searchValue) {
+    productBulkSimilarities(
+      page: $page
+      perPage: $perPage
+      searchValue: $searchValue
+    ) {
       ...SimilarityFields
     }
   }

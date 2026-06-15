@@ -149,7 +149,6 @@ export const productsTrpcRouter = t.router({
       }),
     }),
 
-
     setInventories: t.procedure
       .input(
         z.object({

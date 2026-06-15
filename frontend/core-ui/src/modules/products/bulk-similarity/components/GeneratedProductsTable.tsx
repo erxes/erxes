@@ -144,7 +144,8 @@ export const GeneratedProductsTable = ({
   }
 
   const allIncluded = includedCount === rows.length;
-  const headerState: boolean | 'indeterminate' = includedCount === 0 ? false : allIncluded ? true : 'indeterminate';
+  const headerState: boolean | 'indeterminate' =
+    includedCount === 0 ? false : allIncluded ? true : 'indeterminate';
 
   return (
     <div className="overflow-auto max-h-[28rem] rounded-lg border">
@@ -205,9 +206,7 @@ export const GeneratedProductsTable = ({
                     render={({ field }) => (
                       <Checkbox
                         checked={!field.value}
-                        onCheckedChange={(checked) =>
-                          field.onChange(!checked)
-                        }
+                        onCheckedChange={(checked) => field.onChange(!checked)}
                         aria-label="Include product"
                       />
                     )}
@@ -265,8 +264,7 @@ export const GeneratedProductsTable = ({
                         placeholder="0"
                         disabled={isExcluded}
                         edited={
-                          field.value != null &&
-                          field.value !== unitPrice
+                          field.value != null && field.value !== unitPrice
                         }
                         onCommit={(next) =>
                           field.onChange(next === '' ? undefined : Number(next))
@@ -311,7 +309,9 @@ export const GeneratedProductsTable = ({
                             </Button>
                           </Tooltip.Trigger>
                           <Tooltip.Content>
-                            {field.value ? 'Star product' : 'Set as star product'}
+                            {field.value
+                              ? 'Star product'
+                              : 'Set as star product'}
                           </Tooltip.Content>
                         </Tooltip>
                       </Tooltip.Provider>

@@ -28,8 +28,7 @@ const getProductPropertyValue = (product: any, fieldId: string) =>
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
 
-const isPropertyField = (field: string) =>
-  field.includes('propertiesData.');
+const isPropertyField = (field: string) => field.includes('propertiesData.');
 
 const propertyExistsFilter = (fieldIds: string[]) => ({
   $or: [
@@ -572,9 +571,8 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);

@@ -13,8 +13,7 @@ import { productSimilaritySchema } from '@/products/db/definitions/similarities'
 import { IModels } from '~/connectionResolvers';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 
-export interface IProductSimilarityModel
-  extends Model<IProductSimilarityDocument> {
+export interface IProductSimilarityModel extends Model<IProductSimilarityDocument> {
   getSimilarity(_id: string): Promise<IProductSimilarityDocument>;
   addSimilarity(
     doc: IProductSimilarityBulkInput,

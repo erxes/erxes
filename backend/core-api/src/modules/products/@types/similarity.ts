@@ -38,8 +38,7 @@ export interface IProductSimilarity {
 }
 
 export interface IProductSimilarityDocument
-  extends IProductSimilarity,
-    Document {
+  extends IProductSimilarity, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
