@@ -24,7 +24,7 @@ const ChecklistItem = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const [items, setItems] = useState<IChecklistItem[]>(item.items);
+  const [items, setItems] = useState<IChecklistItem[]>(item.items ?? []);
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [hideChecked, setHideChecked] = useState(false);
@@ -36,6 +36,12 @@ const ChecklistItem = ({
   const { confirm } = useConfirm();
 
   const checkedCount = items.filter((i) => i.isChecked).length;
+
+  useEffect(() => {
+    if (!Array.isArray(item.items)) return;
+
+    setItems(item.items);
+  }, [item]);
 
   useEffect(() => {
     if (error) {
