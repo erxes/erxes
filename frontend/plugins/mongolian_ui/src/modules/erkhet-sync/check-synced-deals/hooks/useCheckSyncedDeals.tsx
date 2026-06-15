@@ -93,6 +93,7 @@ export const useCheckSyncedDealsVariables = (
       stageChangedDateRange,
       dateType,
       dateRange,
+      createdDateRange,
     },
   ] = useMultiQueryState<{
     user: string;
@@ -104,6 +105,7 @@ export const useCheckSyncedDealsVariables = (
     stageChangedDateRange: string;
     dateType: string;
     dateRange: string;
+    createdDateRange: string;
   }>([
     'user',
     'boardId',
@@ -114,6 +116,7 @@ export const useCheckSyncedDealsVariables = (
     'stageChangedDateRange',
     'dateType',
     'dateRange',
+    'createdDateRange',
   ]);
   const { sessionKey } = useCheckSyncedDealsLeadSessionKey();
 
@@ -132,6 +135,8 @@ export const useCheckSyncedDealsVariables = (
     search: dealSearch || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
+    createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
+    createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
     dateType: dateType || undefined,
     type: 'checkSyncedDeals',
 
