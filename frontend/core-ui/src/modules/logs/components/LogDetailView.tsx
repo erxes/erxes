@@ -175,9 +175,7 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
 
           <Component {...detail} />
 
-          <section className="rounded-3xl border bg-background p-6">
-            <LogRevertPanel detail={detail} />
-          </section>
+          <LogRevertPanel detail={detail} />
         </div>
       </div>
     </Suspense>

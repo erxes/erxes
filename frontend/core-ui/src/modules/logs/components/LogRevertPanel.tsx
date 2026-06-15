@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Button, useToast } from 'erxes-ui';
+import { Badge, Button, useToast } from 'erxes-ui';
 import {
   IconHistory,
   IconAlertTriangle,
-  IconCheck,
+  IconCircleCheck,
+  IconArrowBackUp,
 } from '@tabler/icons-react';
 import { ILogDoc } from '../types';
-import { LogDetailSection } from './LogDetailPrimitives';
 import {
   useRevertProcess,
   IRevertResult,
@@ -26,10 +26,17 @@ const valueText = (v: unknown): string => {
   }
 };
 
+const entityLabel = (contentType?: string) => {
+  if (!contentType) return 'record';
+  const seg = contentType.split(':')[1] || contentType;
+  return seg.split('.').pop() || contentType;
+};
+
 /**
- * "Revert this action" surface for a Mongo data-change log. Previews the
- * point-in-time revert of the whole processId (dry run), then applies it —
- * offering a field-level merge choice when a record changed in the interim.
+ * "Revert this action" surface for a Mongo data-change log. Self-contained:
+ * renders nothing (no wrapper) for non-revertable logs. Previews the
+ * point-in-time revert of the whole processId, then applies it — offering a
+ * field-level merge choice when a record changed in the interim.
  */
 export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
   const { processId, source } = detail;
@@ -37,13 +44,12 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
   const { toast } = useToast();
 
   const [result, setResult] = useState<IRevertResult | null>(null);
-  // docKey -> field -> chosen mode
   const [choices, setChoices] = useState<
     Record<string, Record<string, 'restore' | 'keep'>>
   >({});
   const [done, setDone] = useState(false);
 
-  // Only Mongo data changes carry a revertable processId.
+  // Only Mongo data changes carry a revertable processId — render nothing else.
   if (source !== 'mongo' || !processId) {
     return null;
   }
@@ -111,119 +117,161 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
     setChoices((prev) => ({ ...prev, [k]: { ...prev[k], [field]: mode } }));
 
   return (
-    <LogDetailSection
-      title="Revert"
-      description="Undo every change made in this action (point-in-time)."
-      icon={IconHistory}
-    >
-      {!result && (
-        <Button onClick={onPreview} disabled={loading} variant="secondary">
-          {loading ? 'Checking…' : 'Revert this action'}
-        </Button>
-      )}
+    <section className="rounded-3xl border bg-background">
+      <div className="flex items-start gap-3 border-b px-6 py-5">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+          <IconHistory size={18} />
+        </div>
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-foreground">Revert</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Undo every change made in this action, point-in-time.
+          </p>
+        </div>
+      </div>
 
-      {result && (
-        <div className="flex flex-col gap-3">
-          {result.alreadyReverted && (
-            <p className="text-sm text-muted-foreground">
-              This action was already reverted.
-            </p>
-          )}
+      <div className="px-6 py-5">
+        {!result && (
+          <Button onClick={onPreview} disabled={loading} variant="secondary">
+            <IconArrowBackUp />
+            {loading ? 'Checking…' : 'Revert this action'}
+          </Button>
+        )}
 
-          {result.reverted.length > 0 && (
-            <div className="text-sm">
-              <span className="font-semibold">
-                {done ? 'Restored' : 'Will restore'}:
-              </span>
-              <ul className="mt-1 list-disc pl-5">
-                {result.reverted.map((it, i) => (
-                  <li key={i} className="font-mono text-xs">
-                    {it.kind} · {it.contentType} · {it.docId}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+        {result && (
+          <div className="flex flex-col gap-4">
+            {result.alreadyReverted && (
+              <p className="text-sm text-muted-foreground">
+                This action was already reverted.
+              </p>
+            )}
 
-          {result.unrevertable.length > 0 && (
-            <div className="text-sm text-amber-600">
-              <span className="font-semibold">Cannot revert:</span>
-              <ul className="mt-1 list-disc pl-5">
-                {result.unrevertable.map((it, i) => (
-                  <li key={i} className="text-xs">
-                    {it.action} — {it.reason}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {result.conflicts.length > 0 && !done && (
-            <div className="rounded-lg border p-3">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-destructive">
-                <IconAlertTriangle size={16} /> Conflicts — choose what to keep
-              </div>
-              {result.conflicts.map((c) => (
-                <div key={keyOf(c)} className="mb-3">
-                  <p className="font-mono text-xs text-muted-foreground">
-                    {c.contentType} · {c.docId}
-                  </p>
-                  {c.fields.map((f) => {
-                    const mode = choices[keyOf(c)]?.[f.field] || 'restore';
-                    return (
-                      <div
-                        key={f.field}
-                        className="mt-1 flex flex-wrap items-center gap-2 text-xs"
-                      >
-                        <span className="font-semibold">{f.field}</span>
-                        <Button
-                          variant={mode === 'keep' ? 'default' : 'outline'}
-                          onClick={() => setChoice(keyOf(c), f.field, 'keep')}
-                        >
-                          Keep current: {valueText(f.currentValue)}
-                        </Button>
-                        <Button
-                          variant={mode === 'restore' ? 'default' : 'outline'}
-                          onClick={() => setChoice(keyOf(c), f.field, 'restore')}
-                        >
-                          Restore: {valueText(f.revertValue)}
-                        </Button>
-                      </div>
-                    );
-                  })}
+            {result.reverted.length > 0 && (
+              <div>
+                <p className="mb-2 text-sm font-medium text-foreground">
+                  {done ? 'Restored' : 'Will restore'}
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  {result.reverted.map((it, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-sm"
+                    >
+                      <Badge variant="secondary">{it.kind}</Badge>
+                      <span className="font-medium text-foreground">
+                        {entityLabel(it.contentType)}
+                      </span>
+                      <span className="truncate font-mono text-xs text-muted-foreground">
+                        {it.docId}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-
-          {!done &&
-            !result.alreadyReverted &&
-            (result.reverted.length > 0 || result.conflicts.length > 0) && (
-              <div className="flex gap-2">
-                <Button onClick={onApply} disabled={loading}>
-                  {loading
-                    ? 'Applying…'
-                    : result.conflicts.length
-                      ? 'Apply & revert'
-                      : 'Confirm revert'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => setResult(null)}
-                  disabled={loading}
-                >
-                  Cancel
-                </Button>
               </div>
             )}
 
-          {done && (
-            <div className="flex items-center gap-2 text-sm text-emerald-600">
-              <IconCheck size={16} /> Reverted successfully.
-            </div>
-          )}
-        </div>
-      )}
-    </LogDetailSection>
+            {result.unrevertable.length > 0 && (
+              <div>
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                  <IconAlertTriangle size={15} /> Cannot revert
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  {result.unrevertable.map((it, i) => (
+                    <p
+                      key={i}
+                      className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground"
+                    >
+                      {it.reason}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {result.conflicts.length > 0 && !done && (
+              <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4">
+                <p className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-destructive">
+                  <IconAlertTriangle size={15} /> Conflicts — choose what to keep
+                </p>
+                <div className="flex flex-col gap-4">
+                  {result.conflicts.map((c) => (
+                    <div key={keyOf(c)}>
+                      <p className="mb-2 text-xs font-medium text-foreground">
+                        {entityLabel(c.contentType)}{' '}
+                        <span className="font-mono text-muted-foreground">
+                          {c.docId}
+                        </span>
+                      </p>
+                      <div className="flex flex-col gap-2">
+                        {c.fields.map((f) => {
+                          const mode = choices[keyOf(c)]?.[f.field] || 'restore';
+                          return (
+                            <div
+                              key={f.field}
+                              className="flex flex-wrap items-center gap-2"
+                            >
+                              <span className="min-w-24 text-xs font-medium text-foreground">
+                                {f.field}
+                              </span>
+                              <Button
+                                variant={mode === 'keep' ? 'default' : 'outline'}
+                                onClick={() =>
+                                  setChoice(keyOf(c), f.field, 'keep')
+                                }
+                              >
+                                Keep: {valueText(f.currentValue)}
+                              </Button>
+                              <Button
+                                variant={
+                                  mode === 'restore' ? 'default' : 'outline'
+                                }
+                                onClick={() =>
+                                  setChoice(keyOf(c), f.field, 'restore')
+                                }
+                              >
+                                Restore: {valueText(f.revertValue)}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {done && (
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Badge variant="success">
+                  <IconCircleCheck size={14} /> Reverted successfully
+                </Badge>
+              </div>
+            )}
+
+            {!done &&
+              !result.alreadyReverted &&
+              (result.reverted.length > 0 || result.conflicts.length > 0) && (
+                <div className="flex gap-2">
+                  <Button onClick={onApply} disabled={loading}>
+                    {loading
+                      ? 'Applying…'
+                      : result.conflicts.length
+                        ? 'Apply & revert'
+                        : 'Confirm revert'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setResult(null)}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+          </div>
+        )}
+      </div>
+    </section>
   );
 };
