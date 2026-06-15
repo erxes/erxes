@@ -8,7 +8,11 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
-import { isLegacyProvider } from './mastra/providers';
+import {
+  isLegacyProvider,
+  isReasoningEffort,
+  buildReasoningProviderOptions,
+} from './mastra/providers';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import {
@@ -216,6 +220,14 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     return res.status(400).json({ error: 'threadId must be a string' });
   }
 
+  // Optional per-conversation reasoning override from the chat composer.
+  const reasoningEffort = req.body?.reasoningEffort;
+  if (reasoningEffort !== undefined && !isReasoningEffort(reasoningEffort)) {
+    return res
+      .status(400)
+      .json({ error: 'reasoningEffort must be off | low | medium | high' });
+  }
+
   const attachments = sanitizeAttachments(req.body?.attachments);
   if (attachments === null) {
     return res.status(400).json({ error: 'Invalid attachments payload' });
@@ -356,9 +368,23 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
 
     try {
       await runWithAuth(authCtx, async () => {
+        // Per-conversation reasoning override → provider-specific options.
+        // Only the modern (native) providers expose a portable knob, so the
+        // legacy OpenAI-compatible path keeps its configured default.
+        const reasoningOptions = isLegacy
+          ? undefined
+          : buildReasoningProviderOptions(
+              prepared.agentConfig.provider,
+              reasoningEffort,
+            );
         const stream = await (isLegacy
           ? agent.streamLegacy(convo, { abortSignal: controller.signal })
-          : agent.stream(convo, { abortSignal: controller.signal }));
+          : agent.stream(convo, {
+              abortSignal: controller.signal,
+              ...(reasoningOptions
+                ? { providerOptions: reasoningOptions }
+                : {}),
+            }));
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);

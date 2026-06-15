@@ -98,11 +98,49 @@ const EMPTY_THREAD: ThreadChatState = {
   messagesLoading: false,
 };
 
+// How hard the model should think before answering. Unset = let the agent's
+// configured default stand (current behaviour). The chat view exposes this
+// behind a low-key composer control for power users; the backend maps it to
+// the right per-provider reasoning option at stream time.
+export type ReasoningEffort = 'off' | 'low' | 'medium' | 'high';
+
+export const REASONING_EFFORT_OPTIONS: {
+  value: ReasoningEffort;
+  label: string;
+  hint: string;
+}[] = [
+  { value: 'off', label: 'Off', hint: 'Answer directly, no reasoning' },
+  { value: 'low', label: 'Low', hint: 'Brief reasoning, fastest' },
+  { value: 'medium', label: 'Medium', hint: 'Balanced reasoning' },
+  { value: 'high', label: 'High', hint: 'Deep reasoning, slowest' },
+];
+
+const REASONING_EFFORT_VALUES = REASONING_EFFORT_OPTIONS.map((o) => o.value);
+
+function reasoningEffortStorageKey(agentKey: string) {
+  return `erxes-agent:reasoningEffort:${agentKey}`;
+}
+
+// Best-effort read of the persisted choice — localStorage may be unavailable
+// (private mode / SSR) and may hold stale values from an older enum.
+function loadReasoningEffort(agentKey: string): ReasoningEffort | undefined {
+  try {
+    const raw = localStorage.getItem(reasoningEffortStorageKey(agentKey));
+    return raw && REASONING_EFFORT_VALUES.includes(raw as ReasoningEffort)
+      ? (raw as ReasoningEffort)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export interface AgentChatState {
   sessions: SessionMeta[];
   sessionsLoaded: boolean;
   activeThreadId?: string;
   isDraft: boolean; // active session is new and not yet persisted
+  // Power-user reasoning override for this agent's chat view. Unset = default.
+  reasoningEffort?: ReasoningEffort;
 }
 
 const EMPTY_AGENT: AgentChatState = {
@@ -110,6 +148,7 @@ const EMPTY_AGENT: AgentChatState = {
   sessionsLoaded: false,
   activeThreadId: undefined,
   isDraft: false,
+  reasoningEffort: undefined,
 };
 
 // What ChatPage renders: agent-level session state + the active thread's view.
@@ -173,10 +212,22 @@ class ChatStore {
   private ensureAgent(agentKey: string): AgentChatState {
     let state = this.agents.get(agentKey);
     if (!state) {
-      state = { ...EMPTY_AGENT };
+      state = { ...EMPTY_AGENT, reasoningEffort: loadReasoningEffort(agentKey) };
       this.agents.set(agentKey, state);
     }
     return state;
+  }
+
+  // Persist the power-user reasoning choice for this agent's chat view.
+  setReasoningEffort(agentKey: string, effort: ReasoningEffort | undefined) {
+    try {
+      const key = reasoningEffortStorageKey(agentKey);
+      if (effort) localStorage.setItem(key, effort);
+      else localStorage.removeItem(key);
+    } catch {
+      // localStorage unavailable — the in-memory patch below still applies.
+    }
+    this.patchAgent(agentKey, { reasoningEffort: effort });
   }
 
   private patchAgent(agentKey: string, partial: Partial<AgentChatState>) {
@@ -223,6 +274,8 @@ class ChatStore {
       : EMPTY_THREAD;
     return {
       ...agent,
+      // Surface the persisted choice even before the agent state is created.
+      reasoningEffort: agent.reasoningEffort ?? loadReasoningEffort(agentKey),
       messages: thread.messages,
       loading: thread.loading,
       messagesLoading: thread.messagesLoading,
@@ -528,6 +581,7 @@ class ChatStore {
       agent = this.ensureAgent(agentKey);
     }
     const threadId = agent.activeThreadId!;
+    const reasoningEffort = agent.reasoningEffort;
 
     // Optimistically show the user message — in this thread only.
     this.appendMessage(agentKey, threadId, {
@@ -548,6 +602,7 @@ class ChatStore {
         message,
         abort,
         attachments,
+        reasoningEffort,
       );
       // Stream transport unavailable (older gateway/plugin) — degrade to the
       // blocking GraphQL query.
@@ -606,6 +661,7 @@ class ChatStore {
     message: string,
     abort: AbortController,
     attachments?: ChatAttachment[],
+    reasoningEffort?: ReasoningEffort,
   ): Promise<boolean> {
     let response: Response;
     try {
@@ -620,6 +676,7 @@ class ChatStore {
             message,
             threadId,
             attachments: attachments?.length ? attachments : undefined,
+            reasoningEffort: reasoningEffort || undefined,
           }),
           signal: abort.signal,
         },

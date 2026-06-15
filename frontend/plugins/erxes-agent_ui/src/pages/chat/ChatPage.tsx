@@ -24,13 +24,16 @@ import {
   IconFileUpload,
   IconThumbUp,
   IconThumbDown,
+  IconBrain,
 } from '@tabler/icons-react';
 import {
   Badge,
   Breadcrumb,
   Button,
   ChatVizMessage,
+  Command,
   Empty,
+  Popover,
   REACT_APP_API_URL,
   Separator,
   Skeleton,
@@ -48,6 +51,8 @@ import {
   ChatAttachment,
   Message,
   ToolCallInfo,
+  ReasoningEffort,
+  REASONING_EFFORT_OPTIONS,
 } from './chatStore';
 import './chat.css';
 
@@ -620,6 +625,114 @@ const WaitingIndicator = () => (
     </div>
   </div>
 );
+
+// ─── Reasoning effort control ────────────────────────────────────────────────
+//
+// A deliberately low-key composer control: a single ghost "brain" icon that
+// opens a small level picker. Hidden in plain sight — most users never touch
+// it, power users can dial reasoning up or down per conversation. The choice
+// persists per agent (localStorage) and is unset by default, leaving the
+// agent's configured behaviour untouched.
+
+const REASONING_PICKER_ITEMS: {
+  value?: ReasoningEffort;
+  label: string;
+  hint: string;
+}[] = [
+  { value: undefined, label: 'Auto', hint: "Use the agent's default" },
+  ...REASONING_EFFORT_OPTIONS,
+];
+
+const ReasoningEffortControl = ({
+  value,
+  onChange,
+  disabled,
+}: {
+  value?: ReasoningEffort;
+  onChange: (effort?: ReasoningEffort) => void;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
+  const active = !!value;
+  const activeLabel = REASONING_EFFORT_OPTIONS.find(
+    (o) => o.value === value,
+  )?.label;
+
+  const select = (effort?: ReasoningEffort) => {
+    onChange(effort);
+    setOpen(false);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Tooltip.Provider>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <Popover.Trigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                disabled={disabled}
+                className={`size-9 shrink-0 transition-colors hover:text-foreground ${
+                  active ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                <IconBrain className="size-4" />
+              </Button>
+            </Popover.Trigger>
+          </Tooltip.Trigger>
+          <Tooltip.Content>
+            {active ? `Thinking: ${activeLabel}` : 'Thinking level'}
+          </Tooltip.Content>
+        </Tooltip>
+      </Tooltip.Provider>
+      <Popover.Content
+        align="start"
+        sideOffset={8}
+        className="w-60 overflow-hidden p-0"
+      >
+        <div className="px-3 pb-1.5 pt-2.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+          Thinking level
+        </div>
+        <Command shouldFilter={false}>
+          <Command.List className="px-1 pb-1">
+            {REASONING_PICKER_ITEMS.map((opt) => {
+              const selected = (opt.value ?? undefined) === (value ?? undefined);
+              return (
+                <Command.Item
+                  key={opt.value ?? 'auto'}
+                  value={opt.value ?? 'auto'}
+                  className="h-auto cursor-pointer items-start gap-2 rounded-lg px-2.5 py-2"
+                  onSelect={() => select(opt.value)}
+                >
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span
+                      className={`text-sm leading-none ${
+                        selected
+                          ? 'font-medium text-foreground'
+                          : 'text-foreground/90'
+                      }`}
+                    >
+                      {opt.label}
+                    </span>
+                    <span className="text-[11px] leading-snug text-muted-foreground">
+                      {opt.hint}
+                    </span>
+                  </div>
+                  <IconCheck
+                    className={`mt-0.5 shrink-0 text-muted-foreground transition-opacity ${
+                      selected ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                </Command.Item>
+              );
+            })}
+          </Command.List>
+        </Command>
+      </Popover.Content>
+    </Popover>
+  );
+};
 
 // ─── Thinking section ────────────────────────────────────────────────────────
 //
@@ -1695,6 +1808,14 @@ export const ChatPage = () => {
                           </Tooltip.Provider>
                         </>
                       )}
+                      <ReasoningEffortControl
+                        value={state?.reasoningEffort}
+                        disabled={chatLoading}
+                        onChange={(effort) => {
+                          if (agentId)
+                            chatStore.setReasoningEffort(agentId, effort);
+                        }}
+                      />
                       <Textarea
                         ref={textareaRef}
                         value={input}

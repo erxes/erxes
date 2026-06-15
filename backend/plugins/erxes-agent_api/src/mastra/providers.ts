@@ -174,6 +174,71 @@ export const PROVIDER_PRESETS: Array<{
   },
 ];
 
+// ---------------------------------------------------------------------------
+// Reasoning effort → per-provider stream options.
+//
+// The chat view lets power users dial how hard the model "thinks" per
+// conversation. Each provider exposes this differently, so we translate a
+// single enum into the option each SDK understands. Unset effort (or a
+// provider we don't have a mapping for) yields no options — the agent's
+// configured default stands, exactly as before this feature existed.
+// ---------------------------------------------------------------------------
+export type ReasoningEffort = 'off' | 'low' | 'medium' | 'high';
+
+const REASONING_EFFORTS: ReasoningEffort[] = ['off', 'low', 'medium', 'high'];
+
+export function isReasoningEffort(v: unknown): v is ReasoningEffort {
+  return typeof v === 'string' && REASONING_EFFORTS.includes(v as ReasoningEffort);
+}
+
+// Anthropic / Google take an explicit thinking-token budget. 'off' disables
+// reasoning where the provider supports it.
+const THINKING_BUDGET: Record<Exclude<ReasoningEffort, 'off'>, number> = {
+  low: 2048,
+  medium: 8192,
+  high: 16384,
+};
+
+/**
+ * Translate a reasoning-effort choice into the `providerOptions` block for the
+ * agent's provider. Returns `undefined` when there's nothing to apply (unset
+ * effort, or a provider without a known reasoning knob) so callers can spread
+ * it without touching the default behaviour.
+ */
+export function buildReasoningProviderOptions(
+  providerName: string,
+  effort?: ReasoningEffort,
+): Record<string, Record<string, unknown>> | undefined {
+  if (!effort) return undefined;
+
+  switch (providerName) {
+    case 'openai':
+      // gpt-5 / o-series accept 'minimal' | 'low' | 'medium' | 'high'.
+      return {
+        openai: { reasoningEffort: effort === 'off' ? 'minimal' : effort },
+      };
+    case 'anthropic':
+      return {
+        anthropic:
+          effort === 'off'
+            ? { thinking: { type: 'disabled' } }
+            : { thinking: { type: 'enabled', budgetTokens: THINKING_BUDGET[effort] } },
+      };
+    case 'google':
+      return {
+        google: {
+          thinkingConfig: {
+            thinkingBudget: effort === 'off' ? 0 : THINKING_BUDGET[effort],
+          },
+        },
+      };
+    default:
+      // groq / mistral / cohere / OpenAI-compatible providers (Kimi, NVIDIA):
+      // no portable reasoning knob — leave the model's default in place.
+      return undefined;
+  }
+}
+
 // Providers whose SDK accepts a plain "<provider>/<modelId>" string rather than
 // a model object.  These are the native Mastra/Vercel AI SDK providers.
 export const NATIVE_ERXES_AGENT_PROVIDERS = new Set([
