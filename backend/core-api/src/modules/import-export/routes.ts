@@ -32,10 +32,7 @@ const parseEntityType = (entityType: string) => {
 
 const csvEscape = (value: string) => {
   const str = String(value ?? '');
-  if (/[",\n\r]/.test(str)) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
+  return `"${str.replace(/"/g, '""')}"`;
 };
 
 router.get('/import-export/download-template', async (req, res) => {
