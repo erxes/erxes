@@ -53,6 +53,7 @@ export const AUTOMATION_CORE_ACTIONS = {
   SET_PROPERTY: 'setProperty',
   SEND_EMAIL: 'sendEmail',
   OUTGOING_WEBHOOK: 'outgoingWebhook',
+  MESSAGE_PRO: 'messagePro',
   WAIT_EVENT: 'waitEvent',
   AI_AGENT: 'aiAgent',
 };

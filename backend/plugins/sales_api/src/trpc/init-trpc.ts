@@ -1,5 +1,6 @@
 import { posTrpcRouter } from '@/pos/trpc/pos';
 import { dealTrpcRouter } from '@/sales/trpc/deal';
+import { documentTrpcRouter } from '@/sales/trpc/document';
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -36,6 +37,7 @@ const createFieldListProcedure = (
 export const appRouter = t.mergeRouters(
   dealTrpcRouter,
   posTrpcRouter,
+  documentTrpcRouter,
   t.router({
     fields: t.router({
       // Use the factory with sales-specific generator
