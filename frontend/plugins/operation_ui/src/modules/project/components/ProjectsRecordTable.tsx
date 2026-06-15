@@ -1,6 +1,9 @@
 import { projectsColumns } from '@/project/components/ProjectsColumn';
 import { RecordTable, PageSubHeader } from 'erxes-ui';
-import { useProjects, useProjectsVariables } from '@/project/hooks/useGetProjects';
+import {
+  useProjects,
+  useProjectsVariables,
+} from '@/project/hooks/useGetProjects';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { ProjectsFilter } from '@/project/components/ProjectsFilter';
 import { useParams } from 'react-router-dom';
@@ -36,7 +39,7 @@ const ProjectsExportButton = () => {
   };
 
   return (
-    <Can action="exportsManage">
+    <Can action="projectExportManage">
       <Export
         pluginName="operation"
         moduleName="project"
