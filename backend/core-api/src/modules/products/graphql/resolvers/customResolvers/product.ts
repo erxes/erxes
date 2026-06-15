@@ -1,5 +1,6 @@
-import { IProductDocument } from 'erxes-api-shared/core-types';
+import { IProductDocument, IUom } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { PRODUCT_SIMILARITY_STATUSES } from '@/products/constants';
 import { IContext } from '~/connectionResolvers';
 import { IProductParams } from '~/modules/products/@types';
 
@@ -65,7 +66,9 @@ export default {
       });
 
       branchIds = pipeline?.branchIds?.length ? pipeline?.branchIds : ['_'];
-      departmentIds = pipeline?.departmentIds?.length ? pipeline?.departmentIds : ['_'];
+      departmentIds = pipeline?.departmentIds?.length
+        ? pipeline?.departmentIds
+        : ['_'];
     }
 
     const result = { remainder: 0, cost: 0, soonIn: 0, soonOut: 0 };
@@ -101,5 +104,40 @@ export default {
     if (args.branchId && args.departmentId) {
       return product.discounts?.[args.branchId]?.[args.departmentId];
     }
+  },
+
+  similarity: async (
+    product: IProductDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    if (!product.similarityId) {
+      return null;
+    }
+
+    return models.ProductSimilarities.findOne({
+      _id: product.similarityId,
+      status: { $ne: PRODUCT_SIMILARITY_STATUSES.DELETED },
+    }).lean();
+  },
+
+  uom: async (
+    product: IProductDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    if (!product.uom) {
+      return null;
+    }
+
+    const uom = await models.Uoms.findOne({
+      $or: [{ _id: product.uom }, { name: product.uom }, { code: product.uom }],
+    }).lean();
+
+    if (!uom) {
+      return null;
+    }
+
+    return uom?.name || uom?.code || '';
   },
 };

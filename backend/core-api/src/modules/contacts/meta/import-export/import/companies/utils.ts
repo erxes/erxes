@@ -44,6 +44,11 @@ export async function prepareCompanyDoc(
     delete doc.name;
   }
 
+  // Trim code so trailing/leading spaces don't break exact code lookups
+  if (typeof doc.code === 'string') {
+    doc.code = doc.code.trim();
+  }
+
   // normalize emails/phones like customer
   if (doc.primaryEmail && !doc.emails) {
     doc.emails = [doc.primaryEmail];

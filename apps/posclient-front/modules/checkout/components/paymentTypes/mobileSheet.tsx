@@ -27,9 +27,7 @@ const MobileSheet = () => {
   const [generateInvoiceUrl, { data }] = useMutation(
     mutations.generateInvoiceUrl,
     {
-      context: {
-        headers: { "erxes-app-token": config?.erxesAppToken },
-      },
+      context: {},
       client: clientMain,
       onError(error) {
         onError(error.message)

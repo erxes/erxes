@@ -88,6 +88,8 @@ import {
   types as SegmentTypes,
 } from '~/modules/segments/graphql/schemas';
 
+import { queries as BeforeResolverQueries } from '@/beforeResolvers/graphql/schema';
+
 import { queries as FormQueries } from '~/modules/forms/graphql/schema';
 
 import {
@@ -279,6 +281,7 @@ export const queries = `
     ${PermissionQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
+    ${BeforeResolverQueries}
     ${LogsQueries}
     ${NotificationsQueries}
     ${InternalNoteQueries}  

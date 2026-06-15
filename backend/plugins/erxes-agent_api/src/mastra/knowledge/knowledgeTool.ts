@@ -20,6 +20,7 @@ import { getCurrentAuth } from '~/mastra/requestContext';
 import { generateModels } from '~/connectionResolvers';
 import {
   isKnowledgeEnabled,
+  isKnowledgeStale,
   knowledgeCollectionName,
   knowledgeTenant,
   resolveEmbedderConfig,
@@ -33,6 +34,7 @@ import {
   ALL_KNOWLEDGE_TYPE_NAMES,
 } from './contentTypes';
 import { buildAuthHeaders, makeGqlExec } from './gatewayClient';
+import { enqueueKnowledgeSweep } from './worker';
 
 const SNIPPET_MAX = 700;
 
@@ -64,6 +66,25 @@ export const companyKnowledgeTool = createTool({
       const subdomain = knowledgeTenant(auth?.subdomain);
       if (!subdomain) {
         return { results: [], error: 'No tenant context for this request.' };
+      }
+
+      // Agent = Person: keep the corpus fresh without an unattended cron. When
+      // the index is empty or stale, enqueue a refresh AS the asking user (so
+      // erxes indexes only what they may read) — fire-and-forget, so this query
+      // stays fast and simply runs against whatever is already indexed.
+      try {
+        const models = await generateModels(subdomain);
+        const settings = await models.MastraSettings.getSettings();
+        if (
+          isKnowledgeStale(settings.knowledgeSyncStatus?.lastSweepAt, Date.now())
+        ) {
+          enqueueKnowledgeSweep({
+            subdomain,
+            auth: { userHeader: auth?.userHeader, token: auth?.token },
+          }).catch(() => undefined);
+        }
+      } catch {
+        // a freshness check must never break retrieval
       }
 
       const tuning = resolveKnowledgeTuning();

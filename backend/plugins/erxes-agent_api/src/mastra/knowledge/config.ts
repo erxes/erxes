@@ -38,7 +38,10 @@ export interface KnowledgeStatus {
   collection: string | null;
 }
 
-const DEFAULT_SYNC_CRON = '0 * * * *'; // hourly, on the hour
+// How long an index stays "fresh" before the next knowledge-tool use triggers
+// a background refresh under the asking user's auth. Replaces the old cron:
+// there is no unattended sweep (Agent = Person), so freshness is usage-driven.
+const DEFAULT_REFRESH_MINUTES = 60;
 
 /** Read one env var as trimmed text (absent → empty string). */
 function val(env: Env, key: string): string {
@@ -91,9 +94,28 @@ export function resolveKnowledgeTuning(
   };
 }
 
-/** Cron pattern for the reconciliation sweep (BullMQ job scheduler). */
-export function knowledgeSyncCron(env: Env = process.env): string {
-  return val(env, 'ERXES_AGENT_KNOWLEDGE_SYNC_CRON') || DEFAULT_SYNC_CRON;
+/**
+ * Staleness window (minutes) for the usage-driven refresh. When the knowledge
+ * tool runs and the last sweep is older than this — or the corpus is empty — a
+ * background sweep is enqueued under the asking user's auth.
+ */
+export function knowledgeRefreshMinutes(env: Env = process.env): number {
+  return parsePositiveInt(
+    val(env, 'ERXES_AGENT_KNOWLEDGE_REFRESH_MINUTES'),
+    DEFAULT_REFRESH_MINUTES,
+  );
+}
+
+/** True when a sweep recorded `lastSweepAt` is missing or older than the window. */
+export function isKnowledgeStale(
+  lastSweepAt: Date | string | null | undefined,
+  now: number,
+  env: Env = process.env,
+): boolean {
+  if (!lastSweepAt) return true;
+  const last = new Date(lastSweepAt).getTime();
+  if (!Number.isFinite(last)) return true;
+  return now - last >= knowledgeRefreshMinutes(env) * 60_000;
 }
 
 /**

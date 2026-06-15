@@ -105,6 +105,12 @@ export const productSchema = schemaWrapper(
     }),
     sameMasks: field({ type: [String] }),
     sameDefault: field({ type: [String] }),
+    similarityId: field({
+      type: String,
+      optional: true,
+      label: 'Similarity group',
+      index: true,
+    }),
     pdfAttachment: field({
       type: Object,
       optional: true,

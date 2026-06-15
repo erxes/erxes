@@ -9,7 +9,10 @@ import {
 } from '@tabler/icons-react';
 import { Button, Label, Input, Badge } from 'erxes-ui';
 import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
-import { MASTRA_SETTINGS_SAVE } from '~/graphql/mutations';
+import {
+  MASTRA_SETTINGS_SAVE,
+  MASTRA_KNOWLEDGE_SYNC,
+} from '~/graphql/mutations';
 
 interface AgentOption {
   _id: string;
@@ -38,12 +41,7 @@ interface KnowledgeStatusView extends MemoryStatusView {
   lastError?: string | null;
 }
 
-interface AttachmentStorageView {
-  configured?: boolean;
-  serviceType?: string;
-}
-
-/** Green/red/grey dot plus a reachable/unreachable/unknown label for a Qdrant URL. */
+/** Green/red/grey dot + reachable/unreachable/unknown label for a Qdrant URL. */
 const ReachabilityDot = ({ reachable }: { reachable?: boolean | null }) => (
   <span className="inline-flex items-center gap-1.5">
     <span
@@ -51,21 +49,21 @@ const ReachabilityDot = ({ reachable }: { reachable?: boolean | null }) => (
         reachable === true
           ? 'bg-green-500'
           : reachable === false
-            ? 'bg-red-500'
-            : 'bg-muted-foreground/40'
+          ? 'bg-red-500'
+          : 'bg-muted-foreground/40'
       }`}
     />
     <span>
       {reachable === true
         ? 'reachable'
         : reachable === false
-          ? 'unreachable'
-          : 'unknown'}
+        ? 'unreachable'
+        : 'unknown'}
     </span>
   </span>
 );
 
-/** Read-only "Advanced memory" status card — controlled by the ERXES_AGENT_MEMORY env var. */
+/** Read-only "Advanced memory" status — controlled by ERXES_AGENT_MEMORY env. */
 const AdvancedMemoryCard = ({
   enabled,
   status,
@@ -102,133 +100,120 @@ const AdvancedMemoryCard = ({
     )}
 
     <p className="text-xs text-muted-foreground">
-      Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable.
-      Set <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to turn
-      it on.
+      Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable. Set{' '}
+      <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to turn it
+      on.
     </p>
   </div>
 );
 
-/** Read-only "Company knowledge" status card — controlled by the ERXES_AGENT_KNOWLEDGE env var. */
-const CompanyKnowledgeCard = ({ status }: { status?: KnowledgeStatusView }) => (
-  <div className="rounded-lg border p-4 space-y-3">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <IconBook className="size-4 text-muted-foreground" />
-        <span className="font-medium">Company knowledge</span>
-        <IconLock className="size-3.5 text-muted-foreground" />
-      </div>
-      <Badge variant={status?.enabled ? 'success' : 'secondary'}>
-        {status?.enabled ? 'On' : 'Off'}
-      </Badge>
-    </div>
+/**
+ * Read-only "Company knowledge" status + a "Sync now" action. Extracted from
+ * GeneralSettingsPage to keep that component small. Indexing runs AS the
+ * clicking user (Agent = Person); erxes enforces their permissions.
+ */
+const CompanyKnowledgeCard = ({ status }: { status?: KnowledgeStatusView }) => {
+  const [syncKnowledge, { loading: syncing }] = useMutation(
+    MASTRA_KNOWLEDGE_SYNC,
+    { refetchQueries: [{ query: MASTRA_SETTINGS }] },
+  );
+  const [syncMsg, setSyncMsg] = useState<string | null>(null);
 
-    {status && status.enabled && (
-      <div className="text-xs text-muted-foreground space-y-1 pl-6">
-        <div>
-          Embedder: <span className="font-mono">{status.embedderModel}</span> (
-          {status.embedder})
+  const handleKnowledgeSync = async () => {
+    setSyncMsg(null);
+    try {
+      await syncKnowledge();
+      setSyncMsg(
+        'Indexing started as you — reload in a moment to see updated status.',
+      );
+    } catch (err) {
+      setSyncMsg(
+        err instanceof Error ? err.message : 'Failed to start indexing.',
+      );
+    }
+  };
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <IconBook className="size-4 text-muted-foreground" />
+          <span className="font-medium">Company knowledge</span>
+          <IconLock className="size-3.5 text-muted-foreground" />
         </div>
-        <div className="flex items-center gap-1.5">
-          Qdrant: <span className="font-mono">{status.qdrantUrl}</span>
-          <ReachabilityDot reachable={status.qdrantReachable} />
-        </div>
-        <div>
-          Collection: <span className="font-mono">{status.collection}</span>
-        </div>
-        <div>
-          Content types:{' '}
-          <span className="font-mono">
-            {(status.enabledTypes || []).join(', ') || '—'}
-          </span>
-        </div>
-        <div>
-          Last sweep:{' '}
-          {status.lastSweepAt
-            ? `${new Date(status.lastSweepAt).toLocaleString()} — ${
-                status.pointCount ?? 0
-              } points`
-            : 'not yet run'}
-        </div>
-        {status.types && (
-          <div className="font-mono">
-            {Object.entries(status.types)
-              .map(([type, s]) => `${type}: ${s.count}${s.error ? ' ⚠' : ''}`)
-              .join(' · ')}
+        <Badge variant={status?.enabled ? 'success' : 'secondary'}>
+          {status?.enabled ? 'On' : 'Off'}
+        </Badge>
+      </div>
+
+      {status?.enabled && (
+        <div className="text-xs text-muted-foreground space-y-1 pl-6">
+          <div>
+            Embedder: <span className="font-mono">{status.embedderModel}</span>{' '}
+            ({status.embedder})
           </div>
-        )}
-        {status.lastError && (
-          <div className="text-red-500">Last error: {status.lastError}</div>
-        )}
-      </div>
-    )}
+          <div className="flex items-center gap-1.5">
+            Qdrant: <span className="font-mono">{status.qdrantUrl}</span>
+            <ReachabilityDot reachable={status.qdrantReachable} />
+          </div>
+          <div>
+            Collection: <span className="font-mono">{status.collection}</span>
+          </div>
+          <div>
+            Content types:{' '}
+            <span className="font-mono">
+              {(status.enabledTypes || []).join(', ') || '—'}
+            </span>
+          </div>
+          <div>
+            Last sweep:{' '}
+            {status.lastSweepAt
+              ? `${new Date(status.lastSweepAt).toLocaleString()} — ${
+                  status.pointCount ?? 0
+                } points`
+              : 'not yet run'}
+          </div>
+          {status.types && (
+            <div className="font-mono">
+              {Object.entries(status.types)
+                .map(([t, s]) => `${t}: ${s.count}${s.error ? ' ⚠' : ''}`)
+                .join(' · ')}
+            </div>
+          )}
+          {status.lastError && (
+            <div className="text-red-500">Last error: {status.lastError}</div>
+          )}
+        </div>
+      )}
 
-    <p className="text-xs text-muted-foreground">
-      Lets agents answer from company data via the{' '}
-      <code>Company Knowledge</code> tool. Controlled by{' '}
-      <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content types by{' '}
-      <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only).
-    </p>
-  </div>
-);
+      <p className="text-xs text-muted-foreground">
+        Lets agents answer from company data via the{' '}
+        <code>Company Knowledge</code> tool. Controlled by{' '}
+        <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content types by{' '}
+        <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only). The
+        index is built <strong>as the requesting user</strong> — erxes enforces
+        your permissions — and refreshes from usage; there is no unattended
+        sweep.
+      </p>
 
-/** "Chat file attachments" toggle card — rides on the instance's existing upload storage. */
-const AttachmentSettingsCard = ({
-  enabled,
-  storage,
-  onToggle,
-}: {
-  enabled: boolean;
-  storage?: AttachmentStorageView;
-  onToggle: (value: boolean) => void;
-}) => (
-  <div className="rounded-lg border p-4 space-y-3">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <IconPaperclip className="size-4 text-muted-foreground" />
-        <span className="font-medium">Chat file attachments</span>
-      </div>
-      <Badge
-        variant={
-          storage?.configured
-            ? enabled
-              ? 'success'
-              : 'secondary'
-            : 'destructive'
-        }
-      >
-        {!storage?.configured ? 'No storage' : enabled ? 'On' : 'Off'}
-      </Badge>
+      {status?.enabled && (
+        <div className="space-y-2 pl-6">
+          <Button
+            type="button"
+            disabled={syncing}
+            onClick={handleKnowledgeSync}
+          >
+            {syncing ? 'Starting…' : 'Sync now'}
+          </Button>
+          {syncMsg && (
+            <p className="text-xs text-muted-foreground">{syncMsg}</p>
+          )}
+        </div>
+      )}
     </div>
+  );
+};
 
-    <div className="text-xs text-muted-foreground space-y-1 pl-6">
-      <div>
-        Detected storage:{' '}
-        <span className="font-mono">{storage?.serviceType || 'unknown'}</span>{' '}
-        {storage?.configured ? '(configured)' : '(not configured)'}
-      </div>
-    </div>
-
-    <label className="flex items-center gap-2 pl-6 text-sm cursor-pointer">
-      <input
-        type="checkbox"
-        checked={enabled}
-        disabled={!storage?.configured}
-        onChange={(e) => onToggle(e.target.checked)}
-      />
-      Allow file attachments in agent chat (images, PDF, Excel, Word, …)
-    </label>
-
-    <p className="text-xs text-muted-foreground">
-      Files are stored in this instance&apos;s existing upload storage
-      (configured in <strong>Settings → File upload</strong>: AWS S3, Cloudflare
-      R2, Azure, GCS or local disk). When no storage is configured,
-      conversations stay text-only.
-    </p>
-  </div>
-);
-
-/** Mastra plugin "General Settings" page — connection config plus read-only feature status. */
 export const GeneralSettingsPage = () => {
   const { data: settingsData } = useQuery(MASTRA_SETTINGS);
   const { data: agentsData } = useQuery(MASTRA_AGENTS);
@@ -245,12 +230,12 @@ export const GeneralSettingsPage = () => {
 
   useEffect(() => {
     if (settingsData?.mastraSettings) {
-      const settings = settingsData.mastraSettings;
+      const s = settingsData.mastraSettings;
       setForm({
-        erxesApiUrl: settings.erxesApiUrl || 'http://localhost:4000',
-        erxesApiToken: settings.erxesApiToken || '',
-        defaultAgentId: settings.defaultAgentId || '',
-        attachmentsEnabled: settings.attachmentsEnabled !== false,
+        erxesApiUrl: s.erxesApiUrl || 'http://localhost:4000',
+        erxesApiToken: s.erxesApiToken || '',
+        defaultAgentId: s.defaultAgentId || '',
+        attachmentsEnabled: s.attachmentsEnabled !== false,
       });
     }
   }, [settingsData]);
@@ -265,11 +250,9 @@ export const GeneralSettingsPage = () => {
   // Detected upload storage (configured in core Settings → File upload).
   const attachmentStorage = settingsData?.mastraSettings?.attachmentStorage;
 
-  /** Update a single form field by key. */
   const set = (k: string, v: string | boolean) =>
     setForm((f) => ({ ...f, [k]: v }));
 
-  /** Persist the settings form, then briefly flash a "Saved" confirmation. */
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     await save({ variables: { doc: form } });
@@ -344,11 +327,59 @@ export const GeneralSettingsPage = () => {
           </p>
         </div>
 
-        <AttachmentSettingsCard
-          enabled={form.attachmentsEnabled}
-          storage={attachmentStorage}
-          onToggle={(value) => set('attachmentsEnabled', value)}
-        />
+        {/* Chat file attachments — rides on the instance's existing upload storage */}
+        <div className="rounded-lg border p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <IconPaperclip className="size-4 text-muted-foreground" />
+              <span className="font-medium">Chat file attachments</span>
+            </div>
+            <Badge
+              variant={
+                attachmentStorage?.configured
+                  ? form.attachmentsEnabled
+                    ? 'success'
+                    : 'secondary'
+                  : 'destructive'
+              }
+            >
+              {!attachmentStorage?.configured
+                ? 'No storage'
+                : form.attachmentsEnabled
+                ? 'On'
+                : 'Off'}
+            </Badge>
+          </div>
+
+          <div className="text-xs text-muted-foreground space-y-1 pl-6">
+            <div>
+              Detected storage:{' '}
+              <span className="font-mono">
+                {attachmentStorage?.serviceType || 'unknown'}
+              </span>{' '}
+              {attachmentStorage?.configured
+                ? '(configured)'
+                : '(not configured)'}
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 pl-6 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.attachmentsEnabled}
+              disabled={!attachmentStorage?.configured}
+              onChange={(e) => set('attachmentsEnabled', e.target.checked)}
+            />
+            Allow file attachments in agent chat (images, PDF, Excel, Word, …)
+          </label>
+
+          <p className="text-xs text-muted-foreground">
+            Files are stored in this instance's existing upload storage
+            (configured in <strong>Settings → File upload</strong>: AWS S3,
+            Cloudflare R2, Azure, GCS or local disk). When no storage is
+            configured, conversations stay text-only.
+          </p>
+        </div>
 
         <Button type="submit" disabled={loading}>
           {saved ? (
