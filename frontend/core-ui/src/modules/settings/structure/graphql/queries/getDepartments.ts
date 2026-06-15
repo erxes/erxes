@@ -67,12 +67,13 @@ const GET_DEPARTMENT_MEMBERS = gql`
   query DepartmentMembers($id: String!) {
     departmentDetail(_id: $id) {
       _id
+      title
       users {
         _id
         email
+        isOnboarded
         details {
-          firstName
-          lastName
+          fullName
           avatar
         }
       }

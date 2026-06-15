@@ -1,49 +1,25 @@
 import { useQuery } from '@apollo/client';
-import { Spinner } from 'erxes-ui';
+import { Spinner, Table } from 'erxes-ui';
 import { Sheet } from 'erxes-ui/components/sheet';
 import { GET_DEPARTMENT_MEMBERS } from '../../graphql';
 import { useState } from 'react';
+import { IUser, MembersInline } from 'ui-modules';
 
-interface IMember {
-  _id: string;
-  email: string;
-  details?: {
-    firstName?: string;
-    lastName?: string;
-    avatar?: string;
-  };
-}
-
-const MemberRow = ({ member }: { member: IMember }) => {
-  const name =
-    [member.details?.firstName, member.details?.lastName]
-      .filter(Boolean)
-      .join(' ') || member.email;
-
+const MemberRow = ({ member }: { member: IUser }) => {
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-background">
-      {member.details?.avatar ? (
-        <img
-          src={member.details.avatar}
-          alt={name}
-          className="w-8 h-8 rounded-full object-cover shrink-0"
-        />
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-          <span className="text-xs font-medium text-muted-foreground">
-            {name.charAt(0).toUpperCase()}
+    <Table.Row className="shadow-xs group">
+      <Table.Cell className="font-medium border-none pl-2 w-auto">
+        <MembersInline.Provider members={[member]} memberIds={[member._id]}>
+          <span className="w-full flex gap-2 items-center">
+            <span className="[1lh] flex items-center">
+              <MembersInline.Avatar />
+            </span>
+            <MembersInline.Title />
           </span>
-        </div>
-      )}
-      <div className="min-w-0">
-        <p className="text-sm font-medium truncate">{name}</p>
-        {name !== member.email && (
-          <p className="text-xs text-muted-foreground truncate">
-            {member.email}
-          </p>
-        )}
-      </div>
-    </div>
+        </MembersInline.Provider>
+      </Table.Cell>
+      <Table.Cell className="border-none w-8" />
+    </Table.Row>
   );
 };
 
@@ -61,39 +37,51 @@ export const DepartmentMembersSheet = ({
     skip: !open,
   });
 
-  const members: IMember[] = data?.departmentDetail?.users || [];
+  const members: IUser[] = data?.departmentDetail?.users || [];
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
-        <button className="w-full h-full text-sm font-medium hover:underline">
+        <button className="w-full h-full font-medium text-sm hover:underline">
           {count}
         </button>
       </Sheet.Trigger>
-      <Sheet.View className="w-80 flex flex-col">
+      <Sheet.View className="flex flex-col w-80">
         <Sheet.Header>
-          <Sheet.Title>Members ({count})</Sheet.Title>
+          <Sheet.Title>{data?.departmentDetail?.title || 'Department'}</Sheet.Title>
         </Sheet.Header>
-        <Sheet.Content className="flex-1 overflow-y-auto styled-scroll px-4 py-4 space-y-2">
+        <Sheet.Content className="flex-1 px-4 py-4 overflow-y-auto styled-scroll">
           {loading ? (
             <div className="flex justify-center py-8">
               <Spinner />
             </div>
           ) : error ? (
-            <p className="text-sm text-destructive px-2 py-4">
+            <p className="px-2 py-4 text-destructive text-sm">
               Failed to load members
             </p>
           ) : members.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <p className="text-muted-foreground font-medium">No members</p>
-              <p className="text-sm text-muted-foreground/70 mt-1">
+            <div className="flex flex-col justify-center items-center py-16 text-center">
+              <p className="font-medium text-muted-foreground">No members</p>
+              <p className="mt-1 text-muted-foreground/70 text-sm">
                 No team members in this department
               </p>
             </div>
           ) : (
-            members.map((member) => (
-              <MemberRow key={member._id} member={member} />
-            ))
+            <div className="bg-sidebar pr-2 pb-2 pl-1 border border-sidebar border-t-4 border-l-4 rounded-lg">
+              <Table>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head className="pl-2 w-auto">Member</Table.Head>
+                    <Table.Head className="w-8" />
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {members.map((member) => (
+                    <MemberRow key={member._id} member={member} />
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
           )}
         </Sheet.Content>
       </Sheet.View>
