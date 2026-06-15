@@ -236,7 +236,9 @@ const ItemBadges = ({ items }: { items: MergeArrayItem[] }) => {
         <Badge
           key={item._id}
           variant="secondary"
-          style={item.colorCode ? { backgroundColor: item.colorCode } : undefined}
+          style={
+            item.colorCode ? { backgroundColor: item.colorCode } : undefined
+          }
           className={item.colorCode ? 'text-white' : undefined}
         >
           {item.label}
@@ -264,9 +266,7 @@ const PaymentsReview = ({
   }
 
   const amount = (p?: { amount?: number; currency?: string }) =>
-    p?.amount
-      ? `${p.amount.toLocaleString()} ${p.currency || ''}`.trim()
-      : '—';
+    p?.amount ? `${p.amount.toLocaleString()} ${p.currency || ''}`.trim() : '—';
 
   return (
     <div className="flex flex-col gap-1">
@@ -292,8 +292,8 @@ const PaymentsReview = ({
         </div>
       ))}
       <p className="mt-1 text-xs text-muted-foreground">
-        The merged deal keeps this deal&apos;s payments. The merged-in deal&apos;s
-        payments are shown for reference only.
+        The merged deal keeps this deal&apos;s payments. The merged-in
+        deal&apos;s payments are shown for reference only.
       </p>
     </div>
   );

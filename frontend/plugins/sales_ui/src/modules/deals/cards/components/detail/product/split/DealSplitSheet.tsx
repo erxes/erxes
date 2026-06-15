@@ -331,7 +331,10 @@ const ProductBucket = ({
           >
             <span className="truncate">
               {productNames.get(id) || pd.product?.name || 'Product'}
-              <span className="text-muted-foreground"> × {pd.quantity || 0}</span>
+              <span className="text-muted-foreground">
+                {' '}
+                × {pd.quantity || 0}
+              </span>
             </span>
             <span className="font-medium tabular-nums">
               {formatAmount(pd.amount)}

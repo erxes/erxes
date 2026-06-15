@@ -29,7 +29,10 @@ interface ScalarFieldDef {
 }
 
 export const stripHtml = (value?: string): string =>
-  (value || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  (value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 export const formatMergeDate = (value: any): string => {
   if (!value) return '';
