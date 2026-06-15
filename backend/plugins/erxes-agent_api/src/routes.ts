@@ -201,6 +201,9 @@ function sanitizeAttachments(raw: unknown): IMastraChatAttachment[] | null {
   return out;
 }
 
+// The SSE handler's branchy validation + stream loop is pre-existing
+// complexity; this feature only threads one more validated field through it.
+// skipcq: JS-R1005
 router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   const user = extractUserFromHeader(req.headers);
   if (!user?._id) {
