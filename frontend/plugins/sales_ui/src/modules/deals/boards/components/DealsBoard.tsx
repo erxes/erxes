@@ -17,10 +17,8 @@ import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
-import { useMergeMode } from '@/deals/cards/components/detail/product/hooks/useMergeMode';
 import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
-import { Button, useQueryState } from 'erxes-ui';
-import { IconArrowMerge, IconX } from '@tabler/icons-react';
+import { useQueryState } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useStagesOrder } from '@/deals/stage/hooks/useStages';
 
@@ -31,12 +29,6 @@ export const DealsBoard = () => {
   const [, setAllDealsMap] = useAllDealsMap();
   const { columns, columnsLoading } = useDealsBoardData();
   const [pipelineId] = useQueryState<string>('pipelineId');
-  const {
-    isMergeMode,
-    mergeName,
-    cancelMerge,
-    loading: merging,
-  } = useMergeMode();
   const { changeDeals } = useDealsChange();
   const { updateStagesOrder } = useStagesOrder();
   const [searchParams] = useSearchParams();
@@ -233,22 +225,6 @@ export const DealsBoard = () => {
 
   return (
     <>
-      {isMergeMode && (
-        <div className="flex items-center justify-between gap-3 px-4 py-2 bg-primary/10 border-b border-primary/20 text-sm">
-          <div className="flex items-center gap-2">
-            <IconArrowMerge className="size-4 text-primary" />
-            <span>
-              {merging
-                ? 'Merging…'
-                : `Click a deal to merge it into “${mergeName || 'this deal'}”.`}
-            </span>
-          </div>
-          <Button variant="ghost" size="sm" onClick={cancelMerge}>
-            <IconX className="size-4" />
-            Cancel
-          </Button>
-        </div>
-      )}
       <GenericBoard<IDeal, BoardDealColumn>
         initialState={boardState}
         onStateChange={handleStateChange}

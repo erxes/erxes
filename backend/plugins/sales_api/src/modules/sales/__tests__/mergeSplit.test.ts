@@ -133,6 +133,24 @@ describe('validateSplitInput', () => {
       'Split amount cannot be negative',
     );
   });
+
+  it('throws when every product line is split out', () => {
+    expect(() =>
+      validateSplitInput([{ productIds: ['l1', 'l2'] }], source),
+    ).toThrow('At least one product must remain');
+  });
+
+  it('throws when the only product line is split out', () => {
+    expect(() =>
+      validateSplitInput([{ productIds: ['l1'] }], [pd({ _id: 'l1' })]),
+    ).toThrow('At least one product must remain');
+  });
+
+  it('allows amount-only splits regardless of product count', () => {
+    expect(() =>
+      validateSplitInput([{ amount: 50 }], [pd({ _id: 'l1' })]),
+    ).not.toThrow();
+  });
 });
 
 describe('selectSplitProductsData', () => {

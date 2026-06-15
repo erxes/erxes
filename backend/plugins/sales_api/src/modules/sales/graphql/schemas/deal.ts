@@ -258,7 +258,7 @@ export const mutations = `
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
 
-  dealsMerge(sourceDealIds: [ID!]!, targetDealId: ID!, name: String): Deal
+  dealsMerge(sourceDealIds: [ID!]!, targetDealId: ID!, name: String, fields: JSON): Deal
   dealsSplit(dealId: ID!, splits: [DealSplitInput!]!): [Deal]
 
   cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal

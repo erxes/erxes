@@ -43,6 +43,7 @@ export interface IDealModel extends Model<IDealDocument> {
     sourceDealIds: string[],
     targetDealId: string,
     name?: string,
+    fields?: Partial<IDeal>,
   ): Promise<IDealDocument>;
   splitDeal(
     dealId: string,
@@ -169,6 +170,7 @@ export const loadDealClass = (
       sourceDealIds: string[],
       targetDealId: string,
       name?: string,
+      fields?: Partial<IDeal>,
     ) {
       const sources = validateMergeInput(sourceDealIds, targetDealId);
 
@@ -229,6 +231,32 @@ export const loadDealClass = (
         mergedDealIds: unionIds(prevTargetObj.mergedDealIds, sources),
         mergedAt: new Date(),
       };
+
+      // The deal-level merge above is deterministic (union / target-wins). When
+      // the user resolved field conflicts on the merge screen, `fields` carries
+      // their explicit choices — apply them on top so the picked values win.
+      // Only an allowlist is honoured; everything else (productsData, totals,
+      // relations, mergedDealIds…) stays computed by the merge.
+      if (fields) {
+        const overridableFields: (keyof IDeal)[] = [
+          'assignedUserIds',
+          'watchedUserIds',
+          'labelIds',
+          'tagIds',
+          'branchIds',
+          'departmentIds',
+          'priority',
+          'description',
+          'closeDate',
+          'startDate',
+        ];
+
+        for (const key of overridableFields) {
+          if (fields[key] !== undefined) {
+            (update as any)[key] = fields[key];
+          }
+        }
+      }
 
       await models.Deals.updateOne({ _id: targetDealId }, { $set: update });
       const updatedTarget = await models.Deals.getDeal(targetDealId);

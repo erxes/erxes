@@ -131,6 +131,8 @@ export const validateSplitInput = (
     (sourceProductsData || []).map((pd) => pd._id).filter(Boolean) as string[],
   );
 
+  const allocated = new Set<string>();
+
   for (const split of splits) {
     for (const productId of split.productIds || []) {
       if (!validIds.has(productId)) {
@@ -138,11 +140,22 @@ export const validateSplitInput = (
           `Product line "${productId}" does not belong to the source deal`,
         );
       }
+      allocated.add(productId);
     }
 
     if (split.amount != null && split.amount < 0) {
       throw new Error('Split amount cannot be negative');
     }
+  }
+
+  // A split must leave something behind: you can't move every product line out
+  // of the source deal (that would empty it), and a deal with a single product
+  // line can't be split at all. Amount-only splits (no product lines) are
+  // exempt — they don't move any lines.
+  if (allocated.size > 0 && allocated.size >= validIds.size) {
+    throw new Error(
+      'At least one product must remain on the original deal — you cannot split out every product.',
+    );
   }
 };
 

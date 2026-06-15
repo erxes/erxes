@@ -1,7 +1,7 @@
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 
 import { ProductsDelete } from './ProductDelete';
-import { ProductsSplit } from './ProductSplit';
+import { DealSplitSheet } from '../split/DealSplitSheet';
 
 export const ProductCommandBar = ({
   refetch,
@@ -23,7 +23,7 @@ export const ProductCommandBar = ({
           {selectedProductIds.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <ProductsSplit
+        <DealSplitSheet
           productIds={selectedProductIds}
           refetch={refetch}
           dealId={dealId}

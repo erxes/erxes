@@ -148,7 +148,13 @@ export const dealMutations: Record<string, Resolver> = {
       sourceDealIds,
       targetDealId,
       name,
-    }: { sourceDealIds: string[]; targetDealId: string; name?: string },
+      fields,
+    }: {
+      sourceDealIds: string[];
+      targetDealId: string;
+      name?: string;
+      fields?: Partial<IDeal>;
+    },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
@@ -157,6 +163,7 @@ export const dealMutations: Record<string, Resolver> = {
       sourceDealIds,
       targetDealId,
       name,
+      fields,
     );
 
     await subscriptionWrapper(models, {

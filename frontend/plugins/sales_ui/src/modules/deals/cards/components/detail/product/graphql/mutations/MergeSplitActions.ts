@@ -5,11 +5,13 @@ export const MERGE_DEALS = gql`
     $sourceDealIds: [ID!]!
     $targetDealId: ID!
     $name: String
+    $fields: JSON
   ) {
     dealsMerge(
       sourceDealIds: $sourceDealIds
       targetDealId: $targetDealId
       name: $name
+      fields: $fields
     ) {
       _id
       name
