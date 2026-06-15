@@ -2,7 +2,7 @@ import type { ToolsInput } from '@mastra/core/agent';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
-import { isLegacyProvider } from '~/mastra/providers';
+import { AgentRunner, ToolResultLike } from '~/mastra/agentRunner';
 import { runWithAuth } from '~/mastra/requestContext';
 import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
 import {
@@ -38,16 +38,9 @@ import {
 // 12 covers most conversations; reduces DB load + LLM token overhead per turn.
 export const HISTORY_LIMIT = 12;
 
-// A tool result as gathered from an agent run — modern and legacy result
-// shapes expose different subsets of these fields, so all stay optional and
-// the payload itself stays unknown.
-export interface ToolResultLike {
-  toolName?: string;
-  name?: string;
-  toolCallId?: string;
-  id?: string;
-  result?: unknown;
-}
+// Re-exported from the runner module so existing importers (routes, schedules,
+// tests) keep their `@/agent/turn` import path.
+export type { AgentTurnResult, ToolResultLike } from '~/mastra/agentRunner';
 
 // The auth context a turn propagates to tools and follow-up LLM calls.
 export interface TurnAuthCtx {
@@ -61,32 +54,6 @@ export interface TurnAuthCtx {
 export interface TurnMessage {
   role: string;
   content: string | unknown[];
-}
-
-// The slice of a Mastra generate() result the turn pipeline reads.
-export interface AgentTurnResult {
-  text?: string;
-  toolResults?: ToolResultLike[];
-  steps?: { toolResults?: ToolResultLike[] }[];
-}
-
-// The minimal Mastra agent surface the chat pipeline drives. Declared as
-// loose methods so the concrete @mastra/core Agent — whose generics this
-// pipeline never relies on — satisfies it structurally.
-export interface TurnAgent {
-  generate(messages: unknown, options?: unknown): Promise<AgentTurnResult>;
-  generateLegacy(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<AgentTurnResult>;
-  stream(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<{ fullStream: unknown }>;
-  streamLegacy(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<{ fullStream: unknown }>;
 }
 
 // A search_erxes_operations result is navigational (it lists candidate ops),
@@ -281,12 +248,11 @@ export interface PreparedTurn {
   agentConfig: IMastraAgentDocument;
   settings: IMastraSettingsDocument | null;
   providers: IMastraProviderDocument[];
-  agent: TurnAgent;
+  runner: AgentRunner;
   tools: ToolsInput;
   sessionId: string;
   convo: TurnMessage[];
   authCtx: TurnAuthCtx;
-  isLegacy: boolean;
   advanced: boolean;
   memCtx: MemoryContext;
   attachments?: IMastraChatAttachment[];
@@ -324,7 +290,7 @@ export async function prepareChatTurn(params: {
 
   const settings = await models.MastraSettings.findOne({});
   const providers = await models.MastraProvider.find({ isEnabled: true });
-  const { agent, tools } = await getOrCreateAgent(agentConfig, models);
+  const { runner, tools } = await getOrCreateAgent(agentConfig, models);
 
   // Stable session id — the persisted thread this turn belongs to.
   // typeof guard keeps crafted non-string payloads out of Mongo queries
@@ -401,21 +367,16 @@ export async function prepareChatTurn(params: {
     ? Buffer.from(JSON.stringify(user)).toString('base64')
     : undefined;
   const authCtx = { userHeader, token: settings?.erxesApiToken, subdomain };
-  const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
   return {
     agentConfig,
     settings,
     providers,
-    // The published Agent generics type tool results as wire chunks; the
-    // runtime objects this pipeline reads are the duck-typed legacy/modern
-    // shapes in ToolResultLike, hence the structural cast (cf. titler.ts).
-    agent: agent as unknown as TurnAgent,
+    runner,
     tools,
     sessionId,
     convo,
     authCtx,
-    isLegacy,
     advanced,
     memCtx,
     attachments,
@@ -453,7 +414,6 @@ export async function persistTurn(params: {
     agentConfig,
     providers,
     authCtx,
-    isLegacy,
     attachments,
   } = prepared;
 
@@ -491,7 +451,6 @@ export async function persistTurn(params: {
         model: agentConfig.model,
         providers,
         authCtx,
-        isLegacy,
       })
     : Promise.resolve<string | null>(null);
 
@@ -526,7 +485,6 @@ export async function persistTurn(params: {
         model: agentConfig.model,
         providers,
         authCtx,
-        isLegacy,
       });
     }
   }
@@ -543,20 +501,17 @@ export async function persistTurn(params: {
 // reply text (or null). Holds the tool-call extraction / synthesis / fallback
 // logic; throws a user-facing message on hard failures.
 export async function runAgentTurn(params: {
-  agent: TurnAgent;
+  runner: AgentRunner;
   tools: ToolsInput;
   convo: TurnMessage[];
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
   depth?: number;
 }): Promise<string | null> {
-  const { agent, tools, convo, message, isLegacy, authCtx, depth = 0 } = params;
+  const { runner, tools, convo, message, authCtx, depth = 0 } = params;
 
   try {
-    const result = await runWithAuth(authCtx, () =>
-      isLegacy ? agent.generateLegacy(convo) : agent.generate(convo),
-    );
+    const result = await runWithAuth(authCtx, () => runner.generate(convo));
 
     if (result.text) {
       const trimmed = result.text.trimStart();
@@ -567,11 +522,10 @@ export async function runAgentTurn(params: {
       const extracted = extractTextToolCall(trimmed);
       if (extracted) {
         const handled = await executeTextToolCall({
-          agent,
+          runner,
           tools,
           convo,
           message,
-          isLegacy,
           authCtx,
           depth,
           extracted,
@@ -604,9 +558,8 @@ export async function runAgentTurn(params: {
     logToolResults(uniqueResults);
 
     return await synthesizeFromToolResults({
-      agent,
+      runner,
       message,
-      isLegacy,
       authCtx,
       toolResults: uniqueResults,
     });
@@ -674,13 +627,12 @@ export function logToolResults(uniqueResults: ToolResultLike[]) {
 // Turn a set of tool results into a one-or-two sentence human answer. Skips
 // synthesis when nothing real came back (synthesis would fabricate success).
 export async function synthesizeFromToolResults(params: {
-  agent: TurnAgent;
+  runner: AgentRunner;
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
   toolResults: ToolResultLike[];
 }): Promise<string> {
-  const { agent, message, isLegacy, authCtx, toolResults } = params;
+  const { runner, message, authCtx, toolResults } = params;
 
   // search_erxes_operations is navigational; only execute (action) results
   // decide whether the turn produced something real to report.
@@ -715,9 +667,7 @@ export async function synthesizeFromToolResults(params: {
 
   try {
     const synthesis = await runWithAuth(authCtx, () =>
-      isLegacy
-        ? agent.generateLegacy(synthesisMessages)
-        : agent.generate(synthesisMessages, { maxSteps: 1 }),
+      runner.generate(synthesisMessages, { maxSteps: 1 }),
     );
     return synthesis.text || fallback || 'Done.';
   } catch {
@@ -736,11 +686,10 @@ interface ExecutableToolLike {
 // null (caller's fallback applies), or undefined when the tool wasn't found /
 // failed and the original model text should be returned as-is.
 export async function executeTextToolCall(params: {
-  agent: TurnAgent;
+  runner: AgentRunner;
   tools: ToolsInput;
   convo: TurnMessage[];
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
   depth: number;
   extracted: TextToolCall;
@@ -754,11 +703,10 @@ export async function executeTextToolCall(params: {
   }) => void;
 }): Promise<string | null | undefined> {
   const {
-    agent,
+    runner,
     tools,
     convo,
     message,
-    isLegacy,
     authCtx,
     depth,
     extracted,
@@ -833,11 +781,10 @@ export async function executeTextToolCall(params: {
         },
       ];
       return await runAgentTurn({
-        agent,
+        runner,
         tools,
         convo: followup,
         message,
-        isLegacy,
         authCtx,
         depth: depth + 1,
       });
@@ -861,9 +808,7 @@ export async function executeTextToolCall(params: {
     ];
     try {
       const synthesis = await runWithAuth(authCtx, () =>
-        isLegacy
-          ? agent.generateLegacy(synthesisMessages)
-          : agent.generate(synthesisMessages, { maxSteps: 1 }),
+        runner.generate(synthesisMessages, { maxSteps: 1 }),
       );
       return synthesis.text || fallback || 'Done.';
     } catch {
@@ -873,4 +818,89 @@ export async function executeTextToolCall(params: {
     // Tool execution failed — let the caller return the original text
     return undefined;
   }
+}
+
+// ─── Streamed-reply finalization (SSE) ───────────────────────────────────────
+
+// What the SSE route emits after finalization. `replaceText` swaps the raw JSON
+// the client already streamed for the executed answer; `appendText` is the
+// synthesized summary when the model streamed only tool calls.
+export interface StreamedReplyOutcome {
+  reply: string | null;
+  replaceText?: string;
+  appendText?: string;
+}
+
+// After the stream drains, a turn still needs the same fallback decision the
+// blocking path makes: a tool call emitted as text must be executed, and a turn
+// that produced only tool calls (no answer text) needs a synthesized summary.
+// This used to live inline in the SSE route; keeping it here means streaming and
+// blocking (runAgentTurn) share one description of how a turn finishes.
+export async function finalizeStreamedReply(params: {
+  runner: AgentRunner;
+  tools: ToolsInput;
+  convo: TurnMessage[];
+  message: string;
+  authCtx: TurnAuthCtx;
+  streamedText: string;
+  toolResults: ToolResultLike[];
+  streamError: string | null;
+  onToolEvent?: (event: {
+    phase: 'call' | 'result';
+    toolName: string;
+    args?: Record<string, unknown>;
+    result?: unknown;
+    isError?: boolean;
+  }) => void;
+}): Promise<StreamedReplyOutcome> {
+  const {
+    runner,
+    tools,
+    convo,
+    message,
+    authCtx,
+    streamedText,
+    toolResults,
+    streamError,
+    onToolEvent,
+  } = params;
+
+  const trimmed = streamedText.trimStart();
+
+  // Text-emitted tool call (models without native tool_calls): execute it, then
+  // replace the raw JSON the client already saw with the real answer.
+  const extracted = trimmed ? extractTextToolCall(trimmed) : null;
+  if (extracted) {
+    const handled = await executeTextToolCall({
+      runner,
+      tools,
+      convo,
+      message,
+      authCtx,
+      depth: 0,
+      extracted,
+      rawText: trimmed,
+      onToolEvent,
+    });
+    if (handled !== undefined && handled !== null) {
+      return { reply: handled, replaceText: handled };
+    }
+    return { reply: streamedText || null };
+  }
+
+  // No answer text streamed — synthesize from tool results, or surface the error.
+  if (!streamedText) {
+    if (toolResults.length) {
+      const reply = await synthesizeFromToolResults({
+        runner,
+        message,
+        authCtx,
+        toolResults,
+      });
+      return { reply, appendText: reply };
+    }
+    if (streamError) throw new Error(streamError);
+  }
+
+  return { reply: streamedText || null };
 }

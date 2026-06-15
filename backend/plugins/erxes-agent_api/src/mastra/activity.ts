@@ -18,9 +18,9 @@
 // failure never affects the turn itself.
 // ---------------------------------------------------------------------------
 
-import type { Agent } from '@mastra/core/agent';
 import { trimEdgeChars } from '~/mastra/text';
-import type { ProviderDocLike } from '~/mastra/providers';
+import { isLegacyProvider, type ProviderDocLike } from '~/mastra/providers';
+import { AgentRunner, makeRunner } from '~/mastra/agentRunner';
 
 /** Auth context accepted by runWithAuth (the module itself loads lazily). */
 type AuthCtx = Parameters<
@@ -115,26 +115,27 @@ export function sanitizeActivity(
 
 // ── One-shot summarizer ──────────────────────────────────────────────────────
 
-// Tool-less summarizer agents, cached per provider+model.
-const _summarizers = new Map<string, Agent>();
+// Tool-less summarizer runners, cached per provider+model.
+const _summarizers = new Map<string, AgentRunner>();
 
-/** Get (or lazily create and cache) the summarizer agent for a model. */
+/** Get (or lazily create and cache) the summarizer runner for a model. */
 async function summarizerFor(
   provider: string,
   model: string,
   providers: ProviderDocLike[],
-): Promise<Agent> {
+): Promise<AgentRunner> {
   const key = `${provider}:${model}`;
   let summarizer = _summarizers.get(key);
   if (!summarizer) {
     const { Agent: AgentCtor } = await import('@mastra/core/agent');
     const { buildModel } = await import('~/mastra/providers');
-    summarizer = new AgentCtor({
+    const agent = new AgentCtor({
       id: 'mastra-activity-summarizer',
       name: 'Activity Summarizer',
       instructions: ACTIVITY_INSTRUCTIONS,
       model: buildModel(provider, model, providers),
     });
+    summarizer = makeRunner(agent, isLegacyProvider(provider, providers));
     _summarizers.set(key, summarizer);
   }
   return summarizer;
@@ -150,10 +151,9 @@ export async function summarizeActivity(params: {
   model: string;
   providers: ProviderDocLike[];
   authCtx: AuthCtx;
-  isLegacy: boolean;
   snapshot: ActivitySnapshot;
 }): Promise<string | null> {
-  const { provider, model, providers, authCtx, isLegacy, snapshot } = params;
+  const { provider, model, providers, authCtx, snapshot } = params;
   try {
     const context = buildActivityContext(snapshot);
     if (!context) return null;
@@ -161,12 +161,8 @@ export async function summarizeActivity(params: {
     const { runWithAuth } = await import('~/mastra/requestContext');
     const summarizer = await summarizerFor(provider, model, providers);
     const prompt = `${context}\n\nOutput the status line.`;
-    const result = await runWithAuth(
-      authCtx,
-      (): Promise<{ text?: string }> =>
-        isLegacy
-          ? summarizer.generateLegacy(prompt)
-          : summarizer.generate(prompt, { maxSteps: 1 }),
+    const result = await runWithAuth(authCtx, () =>
+      summarizer.generate(prompt, { maxSteps: 1 }),
     );
 
     return sanitizeActivity(result?.text);

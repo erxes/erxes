@@ -10,14 +10,8 @@
 
 import type { IModels } from '~/connectionResolvers';
 import type { IMastraScheduleDocument } from '@/schedule/@types/schedule';
-import {
-  HISTORY_LIMIT,
-  runAgentTurn,
-  TurnAgent,
-  TurnMessage,
-} from '@/agent/turn';
+import { HISTORY_LIMIT, runAgentTurn, TurnMessage } from '@/agent/turn';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
-import { isLegacyProvider } from '~/mastra/providers';
 import { runWithAuth } from '~/mastra/requestContext';
 
 /** The dedicated output thread of one schedule — derived, never stored. */
@@ -76,8 +70,7 @@ export async function runSchedule(args: {
     }
 
     const settings = await models.MastraSettings.findOne({});
-    const providers = await models.MastraProvider.find({ isEnabled: true });
-    const { agent, tools } = await getOrCreateAgent(agentConfig, models);
+    const { runner, tools } = await getOrCreateAgent(agentConfig, models);
 
     const threadId = scheduleThreadId(schedule._id);
     await models.MastraThread.ensureThread(
@@ -99,17 +92,13 @@ export async function runSchedule(args: {
     ];
 
     const authCtx = { token: settings?.erxesApiToken, subdomain };
-    const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
     const reply = await runWithAuth(authCtx, () =>
       runAgentTurn({
-        // Same narrowing as chat turns (turn.ts): Mastra's generate() output
-        // is wider than the slice TurnAgent consumes.
-        agent: agent as unknown as TurnAgent, // NOSONAR typescript:S4325 — removing it fails tsc
+        runner,
         tools,
         convo,
         message: schedule.prompt,
-        isLegacy,
         authCtx,
       }),
     );
