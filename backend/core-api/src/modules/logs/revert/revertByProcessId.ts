@@ -223,6 +223,11 @@ export const revertByProcessId = async (
   // models are registered on this connection.
   const simulated = new Map<string, Record<string, unknown> | null>();
 
+  // Collapse exact-duplicate entries (e.g. an entity that BOTH manually logs and
+  // is auto-captured produces two identical entries for one change). Keyed by the
+  // change content, so genuinely-distinct chained updates to one doc are kept.
+  const seenEntries = new Set<string>();
+
   for (const entry of entries) {
     // Skip non-data audit/meta entries (e.g. the per-mutation `mutation` wrapper
     // log) — they change no document, so they are neither revertable nor a real
@@ -230,6 +235,19 @@ export const revertByProcessId = async (
     if (!DATA_CHANGE_ACTIONS.has(entry.action)) {
       continue;
     }
+
+    const dedupKey = `${entry.contentType}::${entry.docId}::${entry.action}::${
+      entry.action === 'update'
+        ? JSON.stringify(
+            (entry.payload as { updateDescription?: unknown } | undefined)
+              ?.updateDescription || {},
+          )
+        : 'x'
+    }`;
+    if (seenEntries.has(dedupKey)) {
+      continue;
+    }
+    seenEntries.add(dedupKey);
 
     const contentType = entry.contentType;
     const config: ResolvedContentTypeConfig | undefined = contentType
