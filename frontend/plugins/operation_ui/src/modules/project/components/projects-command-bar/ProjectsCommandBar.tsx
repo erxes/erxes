@@ -8,7 +8,7 @@ import {
   RecordTable,
   Separator,
 } from 'erxes-ui';
-import { Export } from 'ui-modules';
+import { Can, Export } from 'ui-modules';
 import { useState } from 'react';
 import {
   ProjectsChangeLeadContent,
@@ -40,13 +40,15 @@ export const ProjectsCommandBar = () => {
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Separator.Inline />
-        <Export
-          pluginName="operation"
-          moduleName="project"
-          collectionName="project"
-          buttonVariant="secondary"
-          ids={projectIds}
-        />
+        <Can action="exportsManage">
+          <Export
+            pluginName="operation"
+            moduleName="project"
+            collectionName="project"
+            buttonVariant="secondary"
+            ids={projectIds}
+          />
+        </Can>
         <Separator.Inline />
         <Popover
           open={open}
