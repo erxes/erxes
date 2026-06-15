@@ -161,6 +161,7 @@ startPlugin({
           {
             label: 'POS Items',
             contentType: 'sales:pos.posItems',
+            permissions: ['posItemsExportManage'],
           },
         ],
       },
@@ -173,6 +174,7 @@ startPlugin({
         {
           label: 'POS Items',
           contentType: 'sales:pos.posItems',
+          permissions: ['posItemsExportManage'],
         },
       ],
       getExportHeaders: createCoreModuleProducerHandler({
