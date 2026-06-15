@@ -72,5 +72,6 @@ const KIND_INFO: Record<
   update: { label: 'Change back', variant: 'secondary' },
 };
 
+/** Resolve the plain-language label + badge variant for an op kind. */
 export const kindInfo = (k: string) =>
   KIND_INFO[k] || { label: k, variant: 'secondary' as const };

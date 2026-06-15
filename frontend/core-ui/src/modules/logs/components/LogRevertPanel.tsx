@@ -27,6 +27,9 @@ import {
  * one-click undo, previewing what will change and asking which version to keep
  * when a record was edited in the meantime.
  */
+// skipcq: JS-R1005 — a single self-contained surface with several mutually
+// exclusive display states (checking / already-undone / entry / preview /
+// conflict / done); the branching is presentational, not tangled logic.
 export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
   const { processId, source, action } = detail;
   const { preview, apply, loading } = useRevertProcess();
@@ -54,24 +57,25 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
   const prefetched = useRef<IRevertResult | null>(null);
 
   useEffect(() => {
-    if (!revertable) {
-      setChecking(false);
-      return;
-    }
     let cancelled = false;
-    setChecking(true);
-    (async () => {
-      try {
-        const res = await preview(processId);
-        if (cancelled) return;
-        prefetched.current = res;
-        if (res.alreadyReverted) setAlreadyUndone(true);
-      } catch {
-        // Couldn't pre-check — fall back to the manual button.
-      } finally {
-        if (!cancelled) setChecking(false);
-      }
-    })();
+    if (revertable) {
+      setChecking(true);
+      (async () => {
+        try {
+          const res = await preview(processId);
+          if (!cancelled) {
+            prefetched.current = res;
+            if (res.alreadyReverted) setAlreadyUndone(true);
+          }
+        } catch {
+          // Couldn't pre-check — fall back to the manual button.
+        } finally {
+          if (!cancelled) setChecking(false);
+        }
+      })();
+    } else {
+      setChecking(false);
+    }
     return () => {
       cancelled = true;
     };

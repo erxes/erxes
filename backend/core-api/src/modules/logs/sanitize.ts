@@ -32,13 +32,11 @@ const DERIVED_BLOB_KEY_PATTERNS = [/^searchText$/i];
 // blob, a note, a username field) is masked regardless of its key name, so the
 // masking can't be defeated by PII hiding in an unexpected field.
 //
-// The domain is written as disjoint dot-separated labels (`[A-Za-z0-9-]+`
-// joined by a literal `\.`) rather than one `[A-Za-z0-9.-]+` class. Because the
-// label class never contains the `.` separator, no two quantifiers can match the
-// same character, so the pattern runs in linear time and cannot be driven into
-// super-linear backtracking (ReDoS) by hostile input.
-const EMBEDDED_EMAIL_REGEX =
-  /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/g;
+// ReDoS-safe by construction: the local and domain parts are two SINGLE, bounded
+// character-class quantifiers separated by the mandatory literal `@`. There is no
+// nested or overlapping quantifier and an upper bound on each run, so the matcher
+// is linear and cannot be driven into super-linear backtracking by hostile input.
+const EMBEDDED_EMAIL_REGEX = /[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,255}/g;
 
 /** True when the key names a secret (password, token, api key, …). */
 const isSecretKey = (key: string) =>
