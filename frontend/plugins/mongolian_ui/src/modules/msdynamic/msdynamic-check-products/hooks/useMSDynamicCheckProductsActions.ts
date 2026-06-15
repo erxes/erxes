@@ -47,8 +47,10 @@ type UseMSDynamicCheckProductsActionsProps = {
   syncableProducts: MSDynamicCheckProduct[];
 };
 
+/** Return fallback error message */
 const getErrorMessage = (_error: unknown, fallback: string) => fallback;
 
+/** Normalize source product to display format with status */
 const normalizeProduct = (
   product: MSDynamicCheckProductSource,
   status: MSDynamicCheckProductStatus,
@@ -78,6 +80,7 @@ const normalizeProduct = (
   };
 };
 
+/** Flatten grouped response into product list */
 const normalizeProductsResponse = (response: MSDynamicCheckProductsResponse) =>
   productStatuses.flatMap((status) =>
     (response[status]?.items || []).map((product) =>
@@ -85,6 +88,7 @@ const normalizeProductsResponse = (response: MSDynamicCheckProductsResponse) =>
     ),
   );
 
+/** Check products actions hook for check and sync mutations */
 export const useMSDynamicCheckProductsActions = ({
   brandId,
   hasDynamicConfig,
@@ -106,6 +110,7 @@ export const useMSDynamicCheckProductsActions = ({
     SyncMsdProductsVariables
   >(SYNC_MSD_PRODUCTS);
 
+  /** Check products from MS Dynamic and update atoms */
   const checkProducts = async () => {
     if (!hasDynamicConfig) {
       toast({
@@ -148,6 +153,7 @@ export const useMSDynamicCheckProductsActions = ({
     }
   };
 
+  /** Sync selected products then refresh from server */
   const syncProducts = async () => {
     if (!hasDynamicConfig) {
       toast({

@@ -12,6 +12,7 @@ type ConfigsQueryVariables = {
   code: string;
 };
 
+/** MS Dynamic configs hook for crud and save */
 export const useMSDynamicConfigs = () => {
   const [saveLoading, setSaveLoading] = useState(false);
 

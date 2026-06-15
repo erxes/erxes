@@ -8,10 +8,12 @@ import {
 
 const FILTERS: MSDynamicCheckProductStatus[] = ['create', 'update', 'delete'];
 
+/** Product filter buttons and count by status */
 export const MSDynamicCheckProductsFilter = () => {
   const { selectedFilter, setSelectedFilter, productsData } =
     useMSDynamicCheckProducts();
 
+  /** Get count of products by status */
   const getCount = (status: MSDynamicCheckProductStatus) =>
     productsData?.[status]?.items?.length || 0;
 

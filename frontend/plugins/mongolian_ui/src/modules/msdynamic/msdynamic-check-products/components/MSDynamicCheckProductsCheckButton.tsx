@@ -2,6 +2,7 @@ import { Button } from 'erxes-ui';
 
 import { useMSDynamicCheckProducts } from '../hooks/useMSDynamicCheckProducts';
 
+/** Check button trigger with matched count display */
 export const MSDynamicCheckProductsCheckButton = () => {
   const { checkProducts, checking, productsData } = useMSDynamicCheckProducts();
 

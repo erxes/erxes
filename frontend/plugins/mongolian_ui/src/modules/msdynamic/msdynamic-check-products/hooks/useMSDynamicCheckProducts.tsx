@@ -29,6 +29,7 @@ type BrandsQueryData = {
   brands?: { list: MSDynamicBrand[] };
 };
 
+/** Check products hook managing brand, filter and product state */
 export const useMSDynamicCheckProducts = () => {
   const products = useAtomValue(productsAtom);
   const productsData = useAtomValue(productsDataAtom);

@@ -5,6 +5,7 @@ import { MS_DYNAMIC_SESSION_KEYS } from '@/msdynamic/constants/msDynamicSessionK
 import { useMSDynamicCheckProducts } from '../hooks/useMSDynamicCheckProducts';
 import { msDynamicCheckProductColumns } from './MSDynamicCheckProductsColumns';
 
+/** Products record table with sync and cursor pagination */
 export const MSDynamicCheckProductsRecordTable = () => {
   const {
     filteredProducts,

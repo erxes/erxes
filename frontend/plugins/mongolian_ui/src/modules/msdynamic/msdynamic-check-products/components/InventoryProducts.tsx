@@ -6,6 +6,7 @@ import { MSDynamicCheckProductsCheckButton } from './MSDynamicCheckProductsCheck
 import { MSDynamicCheckProductsFilter } from './MSDynamicCheckProductsFilter';
 import { MSDynamicCheckProductsRecordTable } from './MSDynamicCheckProductsRecordTable';
 
+/** Check products main layout with brand select and table */
 export const MSDynamicCheckProducts = () => {
   const { selectedBrandId, setBrand } = useMSDynamicCheckProducts();
 
