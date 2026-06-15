@@ -38,9 +38,7 @@ import {
   TasksMoveToTeamCommandBarItem,
   TasksMoveToTeamTrigger,
 } from '../task-actions/MoveToTeam';
-import {
-  MakeACopyTrigger,
-} from '../task-actions/MakeACopy';
+import { MakeACopyTrigger } from '../task-actions/MakeACopy';
 import {
   CopyTaskTrigger,
   CopyTaskCommandBarItem,
@@ -66,9 +64,7 @@ export const TasksCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {selectedRows.length} selected
-        </CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Can action="taskExportManage">
           <Separator.Inline />
           <Export
@@ -157,10 +153,7 @@ export const TasksCommandBar = () => {
                       setCurrentContent={setCurrentContent}
                     />
                     {isSingleTaskSelected && singleTask && (
-                      <MakeACopyTrigger
-                        task={singleTask}
-                        setOpen={setOpen}
-                      />
+                      <MakeACopyTrigger task={singleTask} setOpen={setOpen} />
                     )}
                     <CopyTaskTrigger setCurrentContent={setCurrentContent} />
                   </Command.Group>
