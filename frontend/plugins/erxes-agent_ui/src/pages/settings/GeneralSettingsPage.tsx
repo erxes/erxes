@@ -39,8 +39,9 @@ export const GeneralSettingsPage = () => {
 
   const agents = agentsData?.mastraAgents || [];
 
-  // Read-only "Advanced memory feature" status — derived from the MASTRA_MEMORY
-  // env var on the server. Displayed only; not editable from the UI.
+  // Read-only "Advanced memory feature" status — derived from the
+  // ERXES_AGENT_MEMORY env var on the server. Displayed only; not editable
+  // from the UI.
   const advancedMemory = Boolean(settingsData?.mastraSettings?.advancedMemory);
   const memStatus = settingsData?.mastraSettings?.advancedMemoryStatus;
 
@@ -194,7 +195,7 @@ export const GeneralSettingsPage = () => {
         </Button>
       </form>
 
-      {/* Advanced memory feature — read-only, controlled by MASTRA_MEMORY env */}
+      {/* Advanced memory feature — read-only, controlled by ERXES_AGENT_MEMORY env */}
       <div className="rounded-lg border p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -241,9 +242,9 @@ export const GeneralSettingsPage = () => {
         )}
 
         <p className="text-xs text-muted-foreground">
-          Controlled by the <code>MASTRA_MEMORY</code> environment variable. Set{' '}
-          <code>MASTRA_MEMORY=enable</code> and restart the plugin to turn it
-          on.
+          Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable.
+          Set <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to
+          turn it on.
         </p>
       </div>
 
