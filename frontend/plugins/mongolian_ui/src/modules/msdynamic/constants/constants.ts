@@ -8,6 +8,7 @@ export const menuDynamic = [
 ];
 
 export const KEY_LABELS: Record<string, string> = {
+  brandId: 'Brand',
   itemApi: 'item api',
   itemCategoryApi: 'item category api',
   priceApi: 'price api',
