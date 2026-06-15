@@ -48,7 +48,9 @@ export const DepartmentMembersSheet = ({
       </Sheet.Trigger>
       <Sheet.View className="flex flex-col w-80">
         <Sheet.Header>
-          <Sheet.Title>{data?.departmentDetail?.title || 'Department'}</Sheet.Title>
+          <Sheet.Title>
+            {data?.departmentDetail?.title || 'Department'}
+          </Sheet.Title>
         </Sheet.Header>
         <Sheet.Content className="flex-1 px-4 py-4 overflow-y-auto styled-scroll">
           {loading ? (
