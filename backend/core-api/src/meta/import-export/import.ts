@@ -19,22 +19,27 @@ const coreImportTypes = [
   {
     label: 'Customer',
     contentType: 'core:contact.customer',
+    permissions: ['customersImportManage'],
   },
   {
     label: 'Lead',
     contentType: 'core:contact.lead',
+    permissions: ['customersImportManage'],
   },
   {
     label: 'Company',
     contentType: 'core:contact.company',
+    permissions: ['companiesImportManage'],
   },
   {
     label: 'Product',
     contentType: 'core:product.product',
+    permissions: ['productsImportManage'],
   },
   {
     label: 'Team member',
     contentType: 'core:user.user',
+    permissions: ['teamMembersImportManage'],
   },
 ];
 
