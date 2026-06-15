@@ -15,7 +15,7 @@ const queries: Record<string, Resolver> = {
     }
 
     if (currency) {
-      query.acceptedCurrencies = { $in: [currency] }; 
+      query.acceptedCurrencies = { $in: [currency] };
     }
 
     return models.PaymentMethods.find(query);
@@ -32,9 +32,9 @@ const queries: Record<string, Resolver> = {
     if (kind) {
       query.kind = kind;
     }
-    
+
     if (currency) {
-      query.acceptedCurrencies = { $in: [currency] }; 
+      query.acceptedCurrencies = { $in: [currency] };
     }
 
     return models.PaymentMethods.find(query);

@@ -8,7 +8,7 @@ import {
   INVOICE,
   INVOICE_SUBSCRIPTION,
   PAYMENTS_QRY,
-  TRANSACTION_SUBSCRIPTION
+  TRANSACTION_SUBSCRIPTION,
 } from '../lib/graphql';
 import React from 'react';
 
@@ -47,7 +47,7 @@ const InvoiceDetail = () => {
     if (invoiceSubscription.data?.invoiceUpdated) {
       const res = invoiceSubscription.data.invoiceUpdated;
 
-      if (res.status === 'paid' && !hasPostedRef.current) { 
+      if (res.status === 'paid' && !hasPostedRef.current) {
         hasPostedRef.current = true;
 
         const message = {
@@ -89,8 +89,8 @@ const InvoiceDetail = () => {
           paymentId,
           details,
           amount: invoiceDetail.amount,
-        }
-      }
+        },
+      },
     }).then(() => {
       invoiceDetailQuery.refetch();
     });
@@ -106,7 +106,7 @@ const InvoiceDetail = () => {
         invoiceDetailQuery.refetch();
         if (status !== 'paid') {
           window.alert('Not paid yet!, Please try again later.');
-        } else if (!hasPostedRef.current) { 
+        } else if (!hasPostedRef.current) {
           hasPostedRef.current = true;
 
           window.alert('Payment has been successfully processed. Thank you!');
@@ -130,7 +130,7 @@ const InvoiceDetail = () => {
       window.opener.postMessage(message, '*');
     }
 
-    if (window.parent && window.parent !== window) { 
+    if (window.parent && window.parent !== window) {
       window.parent.postMessage(message, '*');
     }
   };
@@ -142,7 +142,6 @@ const InvoiceDetail = () => {
   if (invoiceDetail && invoiceDetail.amount < 100000) {
     payments = payments.filter((p: any) => p.kind !== 'storepay');
   }
-
 
   const updatedProps = {
     invoiceDetail,
