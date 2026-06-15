@@ -120,8 +120,8 @@ export const useAccountingCheckSyncedDealsVariables = (
     endDate: parseDateRangeFromString(dateRange)?.to,
     createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
     createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
-    stageChangedStartDate:
-      parseDateRangeFromString(stageChangedDateRange)?.from,
+    stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
+      ?.from,
     stageChangedEndDate: parseDateRangeFromString(stageChangedDateRange)?.to,
     dateType: dateType || undefined,
     ruleId: ruleId || undefined,
