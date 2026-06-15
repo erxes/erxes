@@ -99,6 +99,15 @@ export const MASTRA_SETTINGS_SAVE = gql`
   }
 `;
 
+export const MASTRA_KNOWLEDGE_SYNC = gql`
+  mutation MastraKnowledgeSync {
+    mastraKnowledgeSync {
+      ok
+      queued
+    }
+  }
+`;
+
 export const MASTRA_MESSAGE_FEEDBACK = gql`
   mutation MastraMessageFeedback(
     $messageId: String!

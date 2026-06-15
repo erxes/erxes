@@ -6,8 +6,9 @@
 // run under erxes's own permission layer — the authoritative post-filter.
 //
 // Auth: a `user` header (the asking user) when present — erxes resolves the
-// request as that user — otherwise the API token from agent settings (used by
-// the background sweep and the customer bot bridge).
+// request as that user — otherwise a Bearer token. The reconciliation sweep
+// now runs AS the requesting user too (Agent = Person), so the app token is a
+// last-resort fallback (e.g. the customer bot bridge, which has no team user).
 // ---------------------------------------------------------------------------
 
 import { asBearer } from '../tools/erxesTools';
