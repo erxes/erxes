@@ -69,8 +69,8 @@ export const TasksCommandBar = () => {
         <CommandBar.Value>
           {selectedRows.length} selected
         </CommandBar.Value>
-        <Separator.Inline />
         <Can action="exportsManage">
+          <Separator.Inline />
           <Export
             pluginName="operation"
             moduleName="task"

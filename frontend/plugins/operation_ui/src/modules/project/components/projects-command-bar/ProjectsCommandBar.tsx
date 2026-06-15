@@ -39,8 +39,8 @@ export const ProjectsCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
-        <Separator.Inline />
         <Can action="exportsManage">
+          <Separator.Inline />
           <Export
             pluginName="operation"
             moduleName="project"
