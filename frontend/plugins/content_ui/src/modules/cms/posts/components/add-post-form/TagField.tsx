@@ -37,8 +37,10 @@ interface TagSelectOption extends MultiSelectOption {
 
 const TAG_SEARCH_LIMIT = 100;
 
+/** Normalizes typed tag search text before sending it to the CMS tag query. */
 const normalizeSearchText = (value: string) => value.toLowerCase().trim();
 
+/** Merges tag option lists while preserving a single option per tag ID. */
 const mergeTagOptions = (
   currentOptions: TagSelectOption[],
   incomingOptions: TagSelectOption[],
@@ -53,11 +55,13 @@ const mergeTagOptions = (
   return Array.from(optionsMap.values());
 };
 
+/** Reads selected tag IDs from the form field value. */
 const getSelectedTagIds = (value: unknown) =>
   Array.isArray(value)
     ? value.filter((tagId): tagId is string => typeof tagId === 'string')
     : [];
 
+/** Converts CMS tag query results into MultipleSelector options. */
 const mapTagOptions = (tags: CmsTagSearchResult[]): TagSelectOption[] =>
   tags
     .filter((tag) => tag._id && tag.name)

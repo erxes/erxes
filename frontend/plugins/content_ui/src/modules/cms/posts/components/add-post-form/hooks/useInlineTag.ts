@@ -8,6 +8,7 @@ interface InlineTagOption {
   existing?: boolean;
 }
 
+/** Normalizes tag labels for duplicate checks before inline tag creation. */
 const normalizeTagLabel = (label: string) => label.toLowerCase().trim();
 
 export const useInlineTag = (websiteId: string) => {
