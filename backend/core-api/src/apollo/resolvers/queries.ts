@@ -37,9 +37,7 @@ import { templateQueries } from '@/template/graphql/queries';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
-    throw new Error(
-      'GraphQL Sentry test (core): ' + new Date().toISOString(),
-    );
+    throw new Error('GraphQL Sentry test (core): ' + new Date().toISOString());
   },
 };
 
