@@ -9,12 +9,20 @@ import {
 } from '@tabler/icons-react';
 import { Button, Label, Input, Badge } from 'erxes-ui';
 import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
-import { MASTRA_SETTINGS_SAVE } from '~/graphql/mutations';
+import {
+  MASTRA_SETTINGS_SAVE,
+  MASTRA_KNOWLEDGE_SYNC,
+} from '~/graphql/mutations';
 
 export const GeneralSettingsPage = () => {
   const { data: settingsData } = useQuery(MASTRA_SETTINGS);
   const { data: agentsData } = useQuery(MASTRA_AGENTS);
   const [save, { loading }] = useMutation(MASTRA_SETTINGS_SAVE);
+  const [syncKnowledge, { loading: syncing }] = useMutation(
+    MASTRA_KNOWLEDGE_SYNC,
+    { refetchQueries: [{ query: MASTRA_SETTINGS }] },
+  );
+  const [syncMsg, setSyncMsg] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     erxesApiUrl: 'http://localhost:4000',
@@ -39,8 +47,9 @@ export const GeneralSettingsPage = () => {
 
   const agents = agentsData?.mastraAgents || [];
 
-  // Read-only "Advanced memory feature" status — derived from the MASTRA_MEMORY
-  // env var on the server. Displayed only; not editable from the UI.
+  // Read-only "Advanced memory feature" status — derived from the
+  // ERXES_AGENT_MEMORY env var on the server. Displayed only; not editable
+  // from the UI.
   const advancedMemory = Boolean(settingsData?.mastraSettings?.advancedMemory);
   const memStatus = settingsData?.mastraSettings?.advancedMemoryStatus;
 
@@ -58,6 +67,21 @@ export const GeneralSettingsPage = () => {
     await save({ variables: { doc: form } });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  // Re-index company knowledge now, AS the logged-in user (Agent = Person).
+  // The sweep runs in the background; the status block below reflects it once
+  // it finishes (reload the page to refresh).
+  const handleKnowledgeSync = async () => {
+    setSyncMsg(null);
+    try {
+      await syncKnowledge();
+      setSyncMsg(
+        'Indexing started as you — reload in a moment to see updated status.',
+      );
+    } catch (err: any) {
+      setSyncMsg(err?.message || 'Failed to start indexing.');
+    }
   };
 
   return (
@@ -194,7 +218,7 @@ export const GeneralSettingsPage = () => {
         </Button>
       </form>
 
-      {/* Advanced memory feature — read-only, controlled by MASTRA_MEMORY env */}
+      {/* Advanced memory feature — read-only, controlled by ERXES_AGENT_MEMORY env */}
       <div className="rounded-lg border p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -241,9 +265,9 @@ export const GeneralSettingsPage = () => {
         )}
 
         <p className="text-xs text-muted-foreground">
-          Controlled by the <code>MASTRA_MEMORY</code> environment variable. Set{' '}
-          <code>MASTRA_MEMORY=enable</code> and restart the plugin to turn it
-          on.
+          Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable.
+          Set <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to
+          turn it on.
         </p>
       </div>
 
@@ -331,8 +355,22 @@ export const GeneralSettingsPage = () => {
           Lets agents answer from company data via the{' '}
           <code>Company Knowledge</code> tool. Controlled by{' '}
           <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content types by{' '}
-          <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only).
+          <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only). The
+          index is built <strong>as the requesting user</strong> — erxes enforces
+          your permissions — and refreshes from usage; there is no unattended
+          sweep.
         </p>
+
+        {knowledgeStatus?.enabled && (
+          <div className="space-y-2 pl-6">
+            <Button type="button" disabled={syncing} onClick={handleKnowledgeSync}>
+              {syncing ? 'Starting…' : 'Sync now'}
+            </Button>
+            {syncMsg && (
+              <p className="text-xs text-muted-foreground">{syncMsg}</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Bot webhook info box */}

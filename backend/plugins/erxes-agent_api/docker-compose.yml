@@ -1,6 +1,7 @@
 # Qdrant — vector store for the Mastra "Advanced memory feature".
 #
-# Only needed when MASTRA_MEMORY=enable. Self-contained to this plugin.
+# Only needed when ERXES_AGENT_MEMORY=enable (or ERXES_AGENT_KNOWLEDGE=enable).
+# Self-contained to this plugin.
 #
 #   docker compose -f backend/plugins/erxes-agent_api/docker-compose.yml up -d
 #   docker compose -f backend/plugins/erxes-agent_api/docker-compose.yml down
@@ -15,9 +16,9 @@ services:
       - "6334:6334" # gRPC API
     volumes:
       - mastra_qdrant_storage:/qdrant/storage
-    # Uncomment to require an API key (also set MASTRA_QDRANT_API_KEY in .env):
+    # Uncomment to require an API key (also set ERXES_AGENT_QDRANT_API_KEY in .env):
     # environment:
-    #   QDRANT__SERVICE__API_KEY: ${MASTRA_QDRANT_API_KEY}
+    #   QDRANT__SERVICE__API_KEY: ${ERXES_AGENT_QDRANT_API_KEY}
     restart: unless-stopped
 
 volumes:
