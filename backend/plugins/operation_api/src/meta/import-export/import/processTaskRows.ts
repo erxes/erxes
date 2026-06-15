@@ -33,7 +33,7 @@ function nameOrIdFilter(val: string): Record<string, unknown> {
  * Escapes regex metacharacters in a string.
  */
 function escapeRegExp(val: string): string {
-  return val.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\\$&`);
+  return val.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 /**
