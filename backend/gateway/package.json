@@ -26,7 +26,7 @@
     "graphql-ws": "^5.16.0",
     "http-proxy-middleware": "^3.0.3",
     "jsonwebtoken": "^9.0.2",
-    "ws": "^8.18.2",
+    "ws": "^8.21.0",
     "yaml": "^2.7.0"
   },
   "devDependencies": {}
