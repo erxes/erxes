@@ -1,9 +1,9 @@
-import {
-  AutomationConfigs,
-  TAutomationProducers,
-} from 'erxes-api-shared/src/core-modules/automations/types';
+import type { AutomationConfigs } from 'erxes-api-shared/core-modules';
 import { LOYALTIES_AUTOMATIONS_CONSTANTS } from './constants';
-import { createCoreModuleProducerHandler } from 'erxes-api-shared/core-modules';
+import {
+  createCoreModuleProducerHandler,
+  TAutomationProducers,
+} from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
 import { scoreAutomationProducers } from './score/producers';
 import { spinAutomationProducers } from './spin/producers';
@@ -14,8 +14,8 @@ const modules = {
   voucher: voucherAutomationProducers,
   spin: spinAutomationProducers,
 };
-//
-export const automationMeta = {
+
+export const automationMeta: AutomationConfigs = {
   constants: LOYALTIES_AUTOMATIONS_CONSTANTS,
 
   receiveActions: createCoreModuleProducerHandler({
@@ -33,4 +33,4 @@ export const automationMeta = {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
-} as AutomationConfigs;
+};

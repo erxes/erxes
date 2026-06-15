@@ -15,16 +15,33 @@ import {
 } from '@/integrations/call/statistics';
 import {
   mapCdrToCallHistory,
+  mapSessionToCallHistory,
   sendToGrandStream,
 } from '@/integrations/call/utils';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { XMLParser } from 'fast-xml-parser';
 import { IContext } from '~/connectionResolvers';
 import redis from '../../redlock';
 
 const callQueries = {
-  async callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
-    return models.CallIntegrations.findOne({ inboxId: integrationId });
+  async callsIntegrationDetail(
+    _root,
+    { integrationId },
+    { models, user }: IContext,
+  ) {
+    if (!user?._id) {
+      throw new Error('Login required');
+    }
+
+    const integration = await models.CallIntegrations.findOne({
+      inboxId: integrationId,
+    }).lean();
+
+    if (!integration) {
+      return null;
+    }
+
+    const { token, ...safe } = integration as any;
+    return safe;
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
@@ -134,165 +151,49 @@ const callQueries = {
     return 'request failed';
   },
   async callQueueList(_root, { integrationId }, { models, user }: IContext) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
+    await models.CallIntegrations.getIntegration(user._id, integrationId);
 
-    const formattedDate = `${year}-${month}-${day}`;
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
-    const integration = await models.CallIntegrations.getIntegration(
-      user._id,
-      integrationId,
-      isAdmin,
-    );
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-    const queueData = (await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        data: {
-          request: {
-            action: 'queueapi',
-            startTime: formattedDate,
-            endTime: formattedDate,
-          },
-        },
-        integrationId: integrationId,
-        retryCount: 3,
-        isConvertToJson: false,
-        isAddExtention: false,
-      },
-      user,
-    )) as any;
-
-    if (!queueData.ok) {
-      throw new Error(`HTTP error! Status: ${queueData.status}`);
-    }
-
-    const xmlData = await queueData.text();
-    try {
-      const parsedData = JSON.parse(xmlData);
-
-      if (parsedData.status === -6) {
-        console.log('Status -6 detected. Clearing redis callCookie.');
-        await redis.del('callCookie');
-        const statistics = await models.CallQueueStatistics.find({
-          integrationId,
-        });
-        if (statistics) {
-          return statistics;
-        }
-        return [];
-      }
-    } catch (error) {
-      console.error(error.message);
-    }
-
-    try {
-      const parser = new XMLParser();
-      const jsonObject = parser.parse(xmlData);
-
-      const rootStatistics = jsonObject.root_statistics || {};
-      const queues = (rootStatistics.queue as any) || [];
-
-      if (queues && queues.length > 0) {
-        const normalizedQueues = queues?.map((q) => ({
-          queueChairman: q.queuechairman,
-          queue: q.queue,
-          totalCalls: q.total_calls,
-          answeredCalls: q.answered_calls,
-          answeredRate: q.answered_rate,
-          abandonedCalls: q.abandoned_calls,
-          avgWait: q.avg_wait,
-          avgTalk: q.avg_talk,
-          vqTotalCalls: q.vq_total_calls,
-          slaRate: q.sla_rate,
-          vqSlaRate: q.vq_sla_rate,
-          transferOutCalls: q.transfer_out_calls,
-          transferOutRate: q.transfer_out_rate,
-          abandonedRate: q.abandoned_rate,
-          integrationId,
-        }));
-
-        if (integration.queues && normalizedQueues.length > 0) {
-          const filteredQueues = normalizedQueues.filter((q) =>
-            integration.queues.includes(q.queue.toString()),
-          );
-
-          for (const queue of filteredQueues) {
-            await models.CallQueueStatistics.findOneAndUpdate(
-              { integrationId, queue: queue.queue },
-              { $set: queue },
-              { upsert: true, new: true },
-            );
-          }
-
-          return filteredQueues;
-        }
-        const stats = await models.CallQueueStatistics.find({ integrationId });
-        if (stats) {
-          return stats;
-        }
-        return [];
-      }
-    } catch (error) {
-      const stats = await models.CallQueueStatistics.find({ integrationId });
-      if (stats) {
-        return stats;
-      }
-      return [];
-    }
+    return models.CallQueueStatistics.find(
+      { integrationId },
+      { _id: 0, __v: 0 },
+    ).lean<any[]>();
   },
 
-  async callQueueInitialList(_root, { queue }) {
+  async callQueueInitialList(
+    _root,
+    { queue },
+    { models, user, subdomain }: IContext,
+  ) {
+    if (!user?._id) {
+      throw new Error('Login required');
+    }
+
     try {
-      const redisKey = `callRealtimeHistory:${queue}:aggregate`;
+      let owns = false;
+      try {
+        const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
+          user._id,
+        );
+        owns = queues.map(String).includes(String(queue));
+      } catch (e) {
+        owns = false;
+      }
+
+      if (!owns) {
+        console.warn(
+          `[call] callQueueInitialList: user ${user._id} is not an operator on queue ${queue}`,
+        );
+        if (process.env.CALL_SUBSCRIPTION_REQUIRE_AUTH === 'true') {
+          return '{}';
+        }
+      }
+
+      const redisKey = `callRealtimeHistory:${subdomain}:${queue}:aggregate`;
       return (await redis.get(redisKey)) || `{}`;
     } catch (error) {
       console.error(`Failed to fetch queue data for ${queue}:`, error);
       return '{}';
     }
-  },
-
-  async callQueueMemberList(
-    _root,
-    { integrationId, queue },
-    { models, user }: IContext,
-  ) {
-    const queueData = (await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: {
-          request: {
-            action: 'getCallQueuesMemberMessage',
-            extension: queue,
-          },
-        },
-        integrationId: integrationId,
-        retryCount: 3,
-        isConvertToJson: true,
-        isAddExtention: false,
-      },
-      user,
-    )) as any;
-
-    if (queueData?.response) {
-      const { CallQueueMembersMessage } = queueData.response;
-
-      if (CallQueueMembersMessage) {
-        return CallQueueMembersMessage;
-      }
-      return [];
-    }
-    return 'request failed';
   },
 
   async callTodayStatistics(
@@ -614,6 +515,11 @@ const callQueries = {
         result = await models.CallHistory.findOne({ conversationId });
         if (result) {
           return result;
+        }
+
+        const session = await models.CallSessions.findOne({ conversationId });
+        if (session) {
+          return mapSessionToCallHistory(session);
         }
       }
 

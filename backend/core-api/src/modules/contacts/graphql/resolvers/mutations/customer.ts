@@ -4,6 +4,7 @@ import {
   Resolver,
 } from 'erxes-api-shared/core-types';
 import { getEnv } from 'erxes-api-shared/utils';
+import { syncCustomerContactToCPUsers } from '@/clientportal/services/user/contactService';
 import { IContext } from '~/connectionResolvers';
 import { COC_LIFECYCLE_STATE_TYPES } from '~/modules/contacts/constants';
 
@@ -41,6 +42,8 @@ export const customerMutations: Record<string, Resolver<any, any, IContext>> = {
     await checkPermission('contactsUpdate');
 
     const updated = await models.Customers.updateCustomer(_id, doc);
+
+    await syncCustomerContactToCPUsers(models, _id, doc);
 
     return updated;
   },

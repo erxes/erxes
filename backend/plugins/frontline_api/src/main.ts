@@ -1,5 +1,4 @@
 import initCallApp from '@/integrations/call/initApp';
-// import { initWebsocketService } from '@/integrations/call/webSocket';
 import onServerInitImap from '@/integrations/imap/initApp';
 import { startPlugin } from 'erxes-api-shared/utils';
 import {
@@ -26,10 +25,19 @@ import {
 } from './meta/import-export/export/exportHandlers';
 import segments from './meta/segments';
 
-const ticketImportExportTypes = [
+const ticketImportTypes = [
   {
     label: 'Ticket',
     contentType: 'frontline:ticket.ticket',
+    permissions: ['ticketsImportManage'],
+  },
+];
+
+const ticketExportTypes = [
+  {
+    label: 'Ticket',
+    contentType: 'frontline:ticket.ticket',
+    permissions: ['ticketsExportManage'],
   },
 ];
 
@@ -37,6 +45,7 @@ const formSubmissionExportTypes = [
   {
     label: 'Form Response',
     contentType: 'frontline:formSubmission.formSubmission',
+    permissions: ['formSubmissionsExportManage'],
   },
 ];
 
@@ -61,10 +70,6 @@ startPlugin({
   onServerInit: async (app) => {
     await initCallApp(app);
     await onServerInitImap(app);
-    // const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
-    // if (CALL_WS_SERVER) {
-    //   await initWebsocketService();
-    // }
   },
 
   apolloServerContext: async (subdomain, context) => {
@@ -87,7 +92,7 @@ startPlugin({
 
   importExport: {
     import: {
-      types: ticketImportExportTypes,
+      types: ticketImportTypes,
       insertImportRows: createCoreModuleProducerHandler({
         moduleName: 'importExport',
         modules: { ticket: ticketImportHandlers },
@@ -104,7 +109,7 @@ startPlugin({
       }),
     },
     export: {
-      types: [...ticketImportExportTypes, ...formSubmissionExportTypes],
+      types: [...ticketExportTypes, ...formSubmissionExportTypes],
       getExportData: createCoreModuleProducerHandler({
         moduleName: 'importExport',
         modules: {

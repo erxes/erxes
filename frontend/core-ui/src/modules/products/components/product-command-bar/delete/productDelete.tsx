@@ -1,4 +1,4 @@
-import { Button, useConfirm, useToast } from 'erxes-ui';
+import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useRemoveProducts } from '@/products/product-detail/hooks/useRemoveProduct';
@@ -47,6 +47,7 @@ export const ProductsDelete = ({
 }) => {
   const { confirm } = useConfirm();
   const { removeProducts, loading } = useRemoveProducts();
+  const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
   const { t } = useTranslation('product');
 
@@ -69,6 +70,7 @@ export const ProductsDelete = ({
 
       await removeProducts(productIds, {
         onCompleted: () => {
+          table.setRowSelection({});
           toast({
             title: 'Products deleted successfully',
             variant: 'success',
@@ -85,7 +87,15 @@ export const ProductsDelete = ({
     } catch {
       // User cancelled the confirmation
     }
-  }, [disabled, confirm, confirmOptions, productIds, removeProducts, toast]);
+  }, [
+    disabled,
+    confirm,
+    confirmOptions,
+    productIds,
+    removeProducts,
+    toast,
+    table,
+  ]);
 
   if (children) {
     const blockedFallback = children({

@@ -1,12 +1,7 @@
-import {
-  OtherPayments,
-  Payments,
-  SelectCategory,
-  SelectProduct,
-  Token,
-} from 'ui-modules';
+import { SelectCategory, SelectProduct } from 'ui-modules';
 
 import { Form } from 'erxes-ui';
+import { OtherPaymentsField, PaymentIdsField } from '@/payments';
 import { UseFormReturn } from 'react-hook-form';
 
 interface ProductConfigFormValues {
@@ -17,7 +12,7 @@ interface ProductConfigFormValues {
   initialCategoryIds?: string[];
   excludeCategoryIds?: string[];
   excludeProductIds?: string[];
-  erxesAppToken?: string;
+  paymentIds?: string[];
 }
 
 interface ProductConfigProps {
@@ -108,9 +103,8 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
           </h3>
         </div>
         <div className="space-y-6">
-          <Payments control={form.control} />
-          <Token control={form.control} />
-          <OtherPayments control={form.control} />
+          <PaymentIdsField control={form.control} />
+          <OtherPaymentsField control={form.control} />
         </div>
       </div>
     </div>

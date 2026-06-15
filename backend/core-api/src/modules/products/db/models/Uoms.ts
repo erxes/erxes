@@ -1,15 +1,18 @@
-import { IUom, IUomDocument } from 'erxes-api-shared/core-types';
-import { Model } from 'mongoose';
+import { IProduct, IUom, IUomDocument } from 'erxes-api-shared/core-types';
+import { FilterQuery, Model } from 'mongoose';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { PRODUCT_STATUSES } from '../../constants';
 import { uomSchema } from '../definitions/uoms';
+
+type ICheckUomInput = Pick<IProduct, 'uom' | 'subUoms'>;
+
 export interface IUomModel extends Model<IUomDocument> {
-  getUom(selector: any): Promise<IUomDocument>;
+  getUom(selector: FilterQuery<IUomDocument>): Promise<IUomDocument>;
   createUom(doc: IUom): Promise<IUomDocument>;
   updateUom(_id: string, doc: IUom): Promise<IUomDocument>;
   removeUoms(_ids: string[]): Promise<{ n: number; ok: number }>;
-  checkUOM(doc: { uom?: string; subUoms?: any[] });
+  checkUOM(doc: ICheckUomInput): Promise<string>;
 }
 
 export const loadUomClass = (
@@ -21,7 +24,7 @@ export const loadUomClass = (
     /**
      * Get Uom
      */
-    public static async getUom(selector: any) {
+    public static async getUom(selector: FilterQuery<IUomDocument>) {
       const uom = await models.Uoms.findOne(selector);
 
       if (!uom) {
@@ -123,36 +126,74 @@ export const loadUomClass = (
 
     /**
      * Check uoms
+     *
+     * A UOM can be referenced by different values depending on the caller:
+     * imports use the code, the product form sends the name and configs send
+     * the _id. Match on all of them so an existing UOM is never recreated as a
+     * duplicate, and only insert UOMs that are genuinely new.
      */
-    static async checkUOM(doc) {
+    static async checkUOM(doc: ICheckUomInput): Promise<string> {
       if (!doc.uom) {
         throw new Error('uom is required');
       }
+      const mainUom = doc.uom;
 
-      const uoms = (doc.subUoms || []).map((u) => u.uom);
-      uoms.unshift(doc.uom);
-      const oldUoms = await models.Uoms.find({ code: { $in: uoms } }).lean();
-      const oldUomCodes = (oldUoms || []).map((u) => u.code);
-      const creatUoms: any[] = [];
+      const uoms = (doc.subUoms || [])
+        .map((subUom) => subUom.uom)
+        .filter(Boolean);
+      uoms.unshift(mainUom);
 
+      const existingUoms = await models.Uoms.find({
+        $or: [
+          { code: { $in: uoms } },
+          { name: { $in: uoms } },
+          { _id: { $in: uoms } },
+        ],
+      }).lean();
+
+      // Map every known representation (code/name/_id) of an existing UOM to
+      // its canonical code, so the stored value is always the code.
+      const valueToCode = new Map<string, string>();
+      for (const uom of existingUoms || []) {
+        if (uom.code) valueToCode.set(uom.code, uom.code);
+        if (uom.name) valueToCode.set(uom.name, uom.code);
+        valueToCode.set(String(uom._id), uom.code);
+      }
+
+      const creatUoms: Array<{ code: string; name: string }> = [];
       for (const uom of uoms) {
-        if (!oldUomCodes.includes(uom)) {
+        if (!valueToCode.has(uom)) {
           creatUoms.push({ code: uom, name: uom });
+          valueToCode.set(uom, uom);
         }
       }
 
-      const inserted = await models.Uoms.insertMany(creatUoms);
-      if (inserted.length > 0) {
-        sendDbEventLog({
-          action: 'bulkWrite',
-          docIds: inserted.map((r) => r._id),
-          updateDescription: {
-            newUoms: creatUoms,
-          },
-        });
+      if (creatUoms.length > 0) {
+        const inserted = await models.Uoms.insertMany(creatUoms);
+        if (inserted.length > 0) {
+          sendDbEventLog({
+            action: 'bulkWrite',
+            docIds: inserted.map((r) => r._id),
+            updateDescription: {
+              newUoms: creatUoms,
+            },
+          });
+        }
       }
 
-      return doc.uom;
+      // Normalize subUoms to the canonical code as well, so they are never
+      // stored as an _id (or name).
+      if (Array.isArray(doc.subUoms)) {
+        doc.subUoms = doc.subUoms.map((subUom) => ({
+          ...subUom,
+          uom: subUom.uom
+            ? (valueToCode.get(subUom.uom) ?? subUom.uom)
+            : subUom.uom,
+        }));
+      }
+
+      // Always return the canonical code representation of the main uom.
+      return valueToCode.get(mainUom) ?? mainUom;
     }
 
     /**
