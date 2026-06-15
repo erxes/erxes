@@ -8,7 +8,11 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
-import { isLegacyProvider } from './mastra/providers';
+import {
+  isLegacyProvider,
+  isReasoningEffort,
+  buildReasoningProviderOptions,
+} from './mastra/providers';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import {
@@ -197,6 +201,9 @@ function sanitizeAttachments(raw: unknown): IMastraChatAttachment[] | null {
   return out;
 }
 
+// The SSE handler's branchy validation + stream loop is pre-existing
+// complexity; this feature only threads one more validated field through it.
+// skipcq: JS-R1005
 router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   const user = extractUserFromHeader(req.headers);
   if (!user?._id) {
@@ -214,6 +221,14 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   }
   if (threadId !== undefined && typeof threadId !== 'string') {
     return res.status(400).json({ error: 'threadId must be a string' });
+  }
+
+  // Optional per-conversation reasoning override from the chat composer.
+  const reasoningEffort = req.body?.reasoningEffort;
+  if (reasoningEffort !== undefined && !isReasoningEffort(reasoningEffort)) {
+    return res
+      .status(400)
+      .json({ error: 'reasoningEffort must be off | low | medium | high' });
   }
 
   const attachments = sanitizeAttachments(req.body?.attachments);
@@ -356,9 +371,23 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
 
     try {
       await runWithAuth(authCtx, async () => {
+        // Per-conversation reasoning override → provider-specific options.
+        // Only the modern (native) providers expose a portable knob, so the
+        // legacy OpenAI-compatible path keeps its configured default.
+        const reasoningOptions = isLegacy
+          ? undefined
+          : buildReasoningProviderOptions(
+              prepared.agentConfig.provider,
+              reasoningEffort,
+            );
         const stream = await (isLegacy
           ? agent.streamLegacy(convo, { abortSignal: controller.signal })
-          : agent.stream(convo, { abortSignal: controller.signal }));
+          : agent.stream(convo, {
+              abortSignal: controller.signal,
+              ...(reasoningOptions
+                ? { providerOptions: reasoningOptions }
+                : {}),
+            }));
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);
