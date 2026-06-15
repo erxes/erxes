@@ -14,6 +14,7 @@ export const useBlockEditor = (args?: {
 
   const resolveRef = useRef<(url: string) => void>();
   const rejectRef = useRef<(err: Error) => void>();
+  const queueRef = useRef<Promise<void>>(Promise.resolve());
 
   const uploadProps = useErxesUpload({
     maxFiles: 1,
@@ -38,15 +39,23 @@ export const useBlockEditor = (args?: {
 
   const defaultUploadFile = useCallback(
     (file: File): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        resolveRef.current = resolve;
-        rejectRef.current = reject;
-        const fileWithPreview = Object.assign(file, {
-          preview: URL.createObjectURL(file),
-          errors: [],
-        }) as FileWithPreview;
-        uploadProps.setFiles([fileWithPreview]);
-      });
+      const runUpload = () =>
+        new Promise<string>((resolve, reject) => {
+          resolveRef.current = resolve;
+          rejectRef.current = reject;
+          const fileWithPreview = Object.assign(file, {
+            preview: URL.createObjectURL(file),
+            errors: [],
+          }) as FileWithPreview;
+          uploadProps.setFiles([fileWithPreview]);
+        });
+
+      const promise = queueRef.current.then(runUpload);
+      queueRef.current = promise.then(
+        () => { uploadProps.setFiles([]); },
+        () => { uploadProps.setFiles([]); },
+      );
+      return promise;
     },
     [uploadProps.setFiles],
   );
