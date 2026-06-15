@@ -18,6 +18,7 @@ import {
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
 import { permissions } from '~/meta/permissions';
 import { salesReferences } from './meta/references';
+import { beforeResolvers } from '~/meta/beforeResolvers';
 
 startPlugin({
   name: 'sales',
@@ -130,6 +131,7 @@ startPlugin({
       },
     },
     afterProcess,
+    beforeResolvers,
     importExport: {
       export: {
         configured: true,
