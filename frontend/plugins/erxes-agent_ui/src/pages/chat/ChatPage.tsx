@@ -626,14 +626,6 @@ const WaitingIndicator = () => (
   </div>
 );
 
-// ─── Reasoning effort control ────────────────────────────────────────────────
-//
-// A deliberately low-key composer control: a single ghost "brain" icon that
-// opens a small level picker. Hidden in plain sight — most users never touch
-// it, power users can dial reasoning up or down per conversation. The choice
-// persists per agent (localStorage) and is unset by default, leaving the
-// agent's configured behaviour untouched.
-
 const REASONING_PICKER_ITEMS: {
   value?: ReasoningEffort;
   label: string;
@@ -643,6 +635,13 @@ const REASONING_PICKER_ITEMS: {
   ...REASONING_EFFORT_OPTIONS,
 ];
 
+/**
+ * A deliberately low-key composer control: a ghost "brain" icon that opens a
+ * small level picker. Hidden in plain sight — most users never touch it, power
+ * users can dial reasoning up or down per conversation. The choice persists per
+ * agent (localStorage) and is unset by default, leaving the agent's configured
+ * behaviour untouched.
+ */
 const ReasoningEffortControl = ({
   value,
   onChange,
@@ -653,34 +652,39 @@ const ReasoningEffortControl = ({
   disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
-  const active = !!value;
+  const active = Boolean(value);
   const activeLabel = REASONING_EFFORT_OPTIONS.find(
     (o) => o.value === value,
   )?.label;
 
+  /** Apply a level and close the popover. */
   const select = (effort?: ReasoningEffort) => {
     onChange(effort);
     setOpen(false);
   };
 
+  // Extracted so the trigger's own element chain doesn't deepen the tree below.
+  const trigger = (
+    <Popover.Trigger asChild>
+      <Button
+        size="icon"
+        variant="ghost"
+        aria-label="Thinking level"
+        disabled={disabled}
+        className={`size-9 shrink-0 transition-colors hover:text-foreground ${
+          active ? 'text-foreground' : 'text-muted-foreground'
+        }`}
+      >
+        <IconBrain className="size-4" />
+      </Button>
+    </Popover.Trigger>
+  );
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Tooltip.Provider>
         <Tooltip>
-          <Tooltip.Trigger asChild>
-            <Popover.Trigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                disabled={disabled}
-                className={`size-9 shrink-0 transition-colors hover:text-foreground ${
-                  active ? 'text-foreground' : 'text-muted-foreground'
-                }`}
-              >
-                <IconBrain className="size-4" />
-              </Button>
-            </Popover.Trigger>
-          </Tooltip.Trigger>
+          <Tooltip.Trigger asChild>{trigger}</Tooltip.Trigger>
           <Tooltip.Content>
             {active ? `Thinking: ${activeLabel}` : 'Thinking level'}
           </Tooltip.Content>
@@ -697,7 +701,8 @@ const ReasoningEffortControl = ({
         <Command shouldFilter={false}>
           <Command.List className="px-1 pb-1">
             {REASONING_PICKER_ITEMS.map((opt) => {
-              const selected = (opt.value ?? undefined) === (value ?? undefined);
+              const selected =
+                (opt.value ?? undefined) === (value ?? undefined);
               return (
                 <Command.Item
                   key={opt.value ?? 'auto'}

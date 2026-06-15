@@ -117,6 +117,7 @@ export const REASONING_EFFORT_OPTIONS: {
 
 const REASONING_EFFORT_VALUES = REASONING_EFFORT_OPTIONS.map((o) => o.value);
 
+/** localStorage key holding the persisted reasoning choice for one agent. */
 function reasoningEffortStorageKey(agentKey: string) {
   return `erxes-agent:reasoningEffort:${agentKey}`;
 }
@@ -212,7 +213,10 @@ class ChatStore {
   private ensureAgent(agentKey: string): AgentChatState {
     let state = this.agents.get(agentKey);
     if (!state) {
-      state = { ...EMPTY_AGENT, reasoningEffort: loadReasoningEffort(agentKey) };
+      state = {
+        ...EMPTY_AGENT,
+        reasoningEffort: loadReasoningEffort(agentKey),
+      };
       this.agents.set(agentKey, state);
     }
     return state;

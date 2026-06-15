@@ -187,8 +187,11 @@ export type ReasoningEffort = 'off' | 'low' | 'medium' | 'high';
 
 const REASONING_EFFORTS: ReasoningEffort[] = ['off', 'low', 'medium', 'high'];
 
+/** Type guard for the reasoning-effort enum — validates untrusted request input. */
 export function isReasoningEffort(v: unknown): v is ReasoningEffort {
-  return typeof v === 'string' && REASONING_EFFORTS.includes(v as ReasoningEffort);
+  return (
+    typeof v === 'string' && REASONING_EFFORTS.includes(v as ReasoningEffort)
+  );
 }
 
 // Anthropic / Google take an explicit thinking-token budget. 'off' disables
@@ -222,7 +225,12 @@ export function buildReasoningProviderOptions(
         anthropic:
           effort === 'off'
             ? { thinking: { type: 'disabled' } }
-            : { thinking: { type: 'enabled', budgetTokens: THINKING_BUDGET[effort] } },
+            : {
+                thinking: {
+                  type: 'enabled',
+                  budgetTokens: THINKING_BUDGET[effort],
+                },
+              },
       };
     case 'google':
       return {

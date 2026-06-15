@@ -1,7 +1,4 @@
-import {
-  buildReasoningProviderOptions,
-  isReasoningEffort,
-} from '../providers';
+import { buildReasoningProviderOptions, isReasoningEffort } from '../providers';
 
 describe('isReasoningEffort', () => {
   it('accepts the four levels', () => {
@@ -19,7 +16,7 @@ describe('isReasoningEffort', () => {
 
 describe('buildReasoningProviderOptions', () => {
   it('returns undefined when effort is unset (default behaviour)', () => {
-    expect(buildReasoningProviderOptions('openai', undefined)).toBeUndefined();
+    expect(buildReasoningProviderOptions('openai')).toBeUndefined();
     expect(buildReasoningProviderOptions('anthropic')).toBeUndefined();
   });
 
