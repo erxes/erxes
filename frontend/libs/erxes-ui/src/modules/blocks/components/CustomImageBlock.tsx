@@ -106,18 +106,14 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
       )}
       {!isResolving && src && (
         <>
-          <button
-            type="button"
+          <div
             className={cn(
               'bn-visual-media mx-auto cursor-pointer p-0 border-0 bg-transparent',
               getImageStyleClasses(imageStyle),
             )}
             style={imgLoaded ? undefined : { display: 'none' }}
             contentEditable={false}
-            onClick={(e) => {
-              e.stopPropagation();
-              setPreviewOpen(true);
-            }}
+            onDoubleClick={() => setPreviewOpen(true)}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -128,7 +124,7 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
               onLoad={() => setImgLoaded(true)}
               onError={() => setImgLoaded(true)}
             />
-          </button>
+          </div>
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <Dialog.Content className="bg-transparent shadow-none p-0 border-0 max-w-fit">
               <Dialog.Title className="sr-only">
