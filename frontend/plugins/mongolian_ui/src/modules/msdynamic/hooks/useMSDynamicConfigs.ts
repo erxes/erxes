@@ -59,9 +59,7 @@ export const useMSDynamicConfigs = () => {
 
       for (const [subId, doc] of Object.entries(currentById)) {
         if (!nextEntries[subId]) {
-          removes.push(
-            removeConfig({ variables: { id: doc._id } }),
-          );
+          removes.push(removeConfig({ variables: { id: doc._id } }));
         }
       }
 

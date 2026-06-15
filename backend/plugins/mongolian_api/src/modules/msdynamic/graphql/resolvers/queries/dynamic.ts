@@ -83,11 +83,7 @@ const generateFilter = (params: any) => {
  * ============================
  */
 export const msdynamicQueries = {
-  async syncMsdHistories(
-    _root,
-    params,
-    { models, checkPermission }: IContext,
-  ) {
+  async syncMsdHistories(_root, params, { models, checkPermission }: IContext) {
     await checkPermission('showMsd');
 
     return cursorPaginate({
