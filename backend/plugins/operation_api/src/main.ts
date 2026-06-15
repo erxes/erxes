@@ -67,6 +67,7 @@ startPlugin({
         {
           label: 'Task',
           contentType: 'operation:task.task',
+          permissions: ['taskImportManage'],
         },
       ],
       insertImportRows: createCoreModuleProducerHandler({
