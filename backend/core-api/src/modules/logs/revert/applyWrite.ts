@@ -24,6 +24,7 @@ import { ApplyWriteInput, ApplyWriteResult } from './types';
 
 type RawDoc = Record<string, unknown>;
 
+/** Resolve the entity model for a mongooseName on the given connection. */
 const resolveModel = (
   connection: Connection,
   mongooseName: string,
@@ -42,6 +43,7 @@ export const createSnapshotMatchesLive = (
   if (!createdDoc || !liveDoc) {
     return false;
   }
+  /** Drop volatile bookkeeping fields (updatedAt, __v) before comparison. */
   const strip = (d: RawDoc) => {
     const { updatedAt: _u, __v: _v, ...rest } = d;
     return rest;
@@ -49,6 +51,11 @@ export const createSnapshotMatchesLive = (
   return isEqual(strip(createdDoc), strip(liveDoc));
 };
 
+/**
+ * Apply one computed inverse op (insert/delete/update) as a raw model write with
+ * its conflict guards, then mirror the change into Elasticsearch. Returns a
+ * structured {ok} | {conflict} result instead of throwing on a benign conflict.
+ */
 export const applyWrite = async (args: {
   connection: Connection;
   subdomain: string;
@@ -58,7 +65,9 @@ export const applyWrite = async (args: {
   const model = resolveModel(connection, input.mongooseName);
 
   if (input.kind === 'insert') {
-    const existing = (await model.findById(input.docId).lean()) as RawDoc | null;
+    const existing = (await model
+      .findById(input.docId)
+      .lean()) as RawDoc | null;
     if (existing) {
       // Idempotency: if the live doc already equals what we'd restore, a prior
       // revert (or a re-call carrying merge resolutions) already did this — treat
@@ -69,7 +78,8 @@ export const applyWrite = async (args: {
       return {
         ok: false,
         conflict: true,
-        reason: 'A document with this _id already exists (re-created in the interim)',
+        reason:
+          'A document with this _id already exists (re-created in the interim)',
         liveState: existing,
       };
     }

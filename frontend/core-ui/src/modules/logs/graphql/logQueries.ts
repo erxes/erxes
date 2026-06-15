@@ -54,6 +54,7 @@ query LogsMainList(
       createdAt
       source
       action
+      name
       status
       userId
       cursor

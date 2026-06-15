@@ -25,6 +25,7 @@ const isUsingElk = (): boolean => {
   return ELK_SYNCER !== 'false';
 };
 
+/** Resolve the prefixed ES index for a contentType, or null when not indexed. */
 const resolveEsIndex = async (contentType: string): Promise<string | null> => {
   const esIndex = await getEsIndexByContentType(contentType);
   if (!esIndex) {

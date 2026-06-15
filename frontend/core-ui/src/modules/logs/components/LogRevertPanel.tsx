@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Badge, Button, cn, useToast } from 'erxes-ui';
+import { useEffect, useRef, useState } from 'react';
+import { Badge, Button, Spinner, useToast } from 'erxes-ui';
 import {
   IconHistory,
   IconAlertTriangle,
@@ -12,78 +12,20 @@ import {
   IRevertResult,
   IDocResolution,
 } from '@/logs/hooks/useRevertProcess';
-
-const keyOf = (c: { contentType: string; docId: string }) =>
-  `${c.contentType}::${c.docId}`;
-
-const valueText = (v: unknown): string => {
-  if (v === undefined || v === null) return '—';
-  if (typeof v === 'string') return v;
-  try {
-    return JSON.stringify(v);
-  } catch {
-    return String(v);
-  }
-};
-
-const entityLabel = (contentType?: string) => {
-  if (!contentType) return 'record';
-  const seg = contentType.split(':')[1] || contentType;
-  return seg.split('.').pop() || contentType;
-};
-
-/** One selectable value card in the conflict chooser. */
-const OptionCard = ({
-  selected,
-  onClick,
-  label,
-  value,
-  tone,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  label: string;
-  value: string;
-  tone: 'current' | 'previous';
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    aria-pressed={selected}
-    className={cn(
-      'flex flex-col items-start gap-1 rounded-lg border px-3 py-2 text-left transition-colors min-w-0',
-      selected
-        ? 'border-primary bg-primary/5 ring-1 ring-primary'
-        : 'border-border bg-background hover:bg-accent',
-    )}
-  >
-    <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-      {selected ? (
-        <IconCircleCheck size={13} className="text-primary" />
-      ) : (
-        <span
-          className={cn(
-            'inline-block size-3 rounded-full border',
-            tone === 'previous' ? 'border-primary/40' : 'border-border',
-          )}
-        />
-      )}
-      {label}
-    </span>
-    <span
-      className="w-full truncate font-mono text-sm text-foreground"
-      title={value}
-    >
-      {value}
-    </span>
-  </button>
-);
+import { RevertConflictResolver } from './RevertConflictResolver';
+import {
+  conflictKey,
+  entityNoun,
+  kindInfo,
+  shortId,
+} from '@/logs/utils/revertFormat';
 
 /**
- * "Revert this action" surface for a Mongo data-change log. Self-contained:
- * renders nothing (no wrapper) for non-revertable logs. Previews the
- * point-in-time revert of the whole processId, then applies it — offering a
- * field-level merge choice when a record changed in the interim.
+ * "Undo this change" surface for a data-change log. Self-contained: renders
+ * nothing for non-revertable logs. On open it quietly checks whether the change
+ * was already undone (so it can say so straight away); otherwise it offers a
+ * one-click undo, previewing what will change and asking which version to keep
+ * when a record was edited in the meantime.
  */
 export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
   const { processId, source, action } = detail;
@@ -98,68 +40,113 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
 
   // Revertable from the Mongo data-change log OR the GraphQL mutation log of the
   // same request (both share the processId). Skip non-mutation/no-process logs,
-  // and the revert mutation itself (reverting a revert would be a confusing redo).
+  // and the undo itself (undoing an undo would be a confusing redo).
   const isRevertMutation = detail.payload?.mutationName === 'logsRevertProcess';
   const revertable =
-    !!processId &&
+    Boolean(processId) &&
     !isRevertMutation &&
     (source === 'mongo' || (source === 'graphql' && action === 'mutation'));
+
+  // Quietly check on open whether this was already undone, so we can show that
+  // immediately instead of making the user click "Undo" only to find out.
+  const [checking, setChecking] = useState(revertable);
+  const [alreadyUndone, setAlreadyUndone] = useState(false);
+  const prefetched = useRef<IRevertResult | null>(null);
+
+  useEffect(() => {
+    if (!revertable) {
+      setChecking(false);
+      return;
+    }
+    let cancelled = false;
+    setChecking(true);
+    (async () => {
+      try {
+        const res = await preview(processId);
+        if (cancelled) return;
+        prefetched.current = res;
+        if (res.alreadyReverted) setAlreadyUndone(true);
+      } catch {
+        // Couldn't pre-check — fall back to the manual button.
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [processId, revertable]);
 
   if (!revertable) {
     return null;
   }
 
+  /** Toast a friendly, non-technical failure message. */
   const showError = (e: unknown) =>
     toast({
-      title: 'Revert failed',
-      description: (e as Error)?.message || 'Unknown error',
+      title: "Couldn't undo",
+      description: (e as Error)?.message || 'Something went wrong.',
       variant: 'destructive',
     });
 
+  /** Seed every conflicted field's choice to "restore previous" by default. */
+  const buildChoices = (r: IRevertResult) => {
+    const next: Record<string, Record<string, 'restore' | 'keep'>> = {};
+    for (const c of r.conflicts) {
+      next[conflictKey(c)] = {};
+      for (const f of c.fields) next[conflictKey(c)][f.field] = 'restore';
+    }
+    setChoices(next);
+  };
+
+  /** Dry-run the undo (reusing the silent pre-check) and show the preview. */
   const onPreview = async () => {
     try {
-      const r = await preview(processId);
-      setResult(r);
-      const next: Record<string, Record<string, 'restore' | 'keep'>> = {};
-      for (const c of r.conflicts) {
-        next[keyOf(c)] = {};
-        for (const f of c.fields) next[keyOf(c)][f.field] = 'restore';
-      }
-      setChoices(next);
+      // Reuse the silent pre-check if we already have it.
+      const res = prefetched.current ?? (await preview(processId));
+      prefetched.current = null;
+      setResult(res);
+      buildChoices(res);
     } catch (e) {
       showError(e);
     }
   };
 
+  /** Turn the user's per-field choices into the mutation's resolution payload. */
   const buildResolutions = (r: IRevertResult): IDocResolution[] =>
     r.conflicts.map((c) => ({
       contentType: c.contentType,
       docId: c.docId,
       fields: c.fields.map((f) => ({
         field: f.field,
-        mode: choices[keyOf(c)]?.[f.field] || 'restore',
+        mode: choices[conflictKey(c)]?.[f.field] || 'restore',
       })),
     }));
 
+  /** Apply the undo (with merge choices when there are conflicts). */
   const onApply = async () => {
     if (!result) return;
     try {
-      const r = await apply(
+      const res = await apply(
         processId,
         result.conflicts.length ? buildResolutions(result) : undefined,
       );
-      setResult(r);
-      if (r.conflicts.length) {
+      setResult(res);
+      if (res.conflicts.length) {
         toast({
-          title: 'Some changes still conflict',
-          description: 'Resolve the remaining fields and apply again.',
+          title: 'One more choice needed',
+          description:
+            'Pick a version for the highlighted items, then undo again.',
           variant: 'destructive',
         });
       } else {
         setDone(true);
         toast({
-          title: 'Reverted',
-          description: `${r.reverted.length} change(s) undone.`,
+          title: 'Done',
+          description: `${res.reverted.length} thing${
+            res.reverted.length === 1 ? '' : 's'
+          } put back.`,
           variant: 'success',
         });
       }
@@ -168,21 +155,20 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
     }
   };
 
+  /** Update one field's keep/restore choice for one conflicted record. */
   const setChoice = (k: string, field: string, mode: 'restore' | 'keep') =>
     setChoices((prev) => ({ ...prev, [k]: { ...prev[k], [field]: mode } }));
 
+  /** Apply one keep/restore choice to every conflicted field at once. */
   const setAll = (mode: 'restore' | 'keep') => {
     if (!result) return;
     const next: Record<string, Record<string, 'restore' | 'keep'>> = {};
     for (const c of result.conflicts) {
-      next[keyOf(c)] = {};
-      for (const f of c.fields) next[keyOf(c)][f.field] = mode;
+      next[conflictKey(c)] = {};
+      for (const f of c.fields) next[conflictKey(c)][f.field] = mode;
     }
     setChoices(next);
   };
-
-  const conflictFieldCount =
-    result?.conflicts.reduce((n, c) => n + c.fields.length, 0) || 0;
 
   return (
     <section className="rounded-3xl border bg-background">
@@ -191,49 +177,80 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
           <IconHistory size={18} />
         </div>
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-foreground">Revert</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            Undo this change
+          </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Undo every change made in this action, point-in-time.
+            Put everything back the way it was right before this happened.
           </p>
         </div>
       </div>
 
       <div className="px-6 py-5">
-        {!result && (
+        {/* Quiet pre-check on open */}
+        {checking && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner size="sm" />
+            Checking if this can be undone…
+          </div>
+        )}
+
+        {/* Already undone — say so straight away, no buttons needed */}
+        {!checking && alreadyUndone && !done && (
+          <div className="flex items-start gap-3 rounded-xl bg-muted/40 px-4 py-3">
+            <IconCircleCheck
+              size={20}
+              className="mt-0.5 shrink-0 text-success"
+            />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Already undone
+              </p>
+              <p className="text-sm text-muted-foreground">
+                This change was reverted earlier — there’s nothing left to undo.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Entry button */}
+        {!checking && !alreadyUndone && !result && (
           <Button onClick={onPreview} disabled={loading} variant="secondary">
             <IconArrowBackUp />
-            {loading ? 'Checking…' : 'Revert this action'}
+            {loading ? 'Working…' : 'Undo this change'}
           </Button>
         )}
 
-        {result && (
+        {!checking && !alreadyUndone && result && (
           <div className="flex flex-col gap-4">
-            {result.alreadyReverted && (
-              <p className="text-sm text-muted-foreground">
-                This action was already reverted.
-              </p>
-            )}
-
             {result.reverted.length > 0 && (
               <div>
                 <p className="mb-2 text-sm font-medium text-foreground">
-                  {done ? 'Restored' : 'Will restore'}
+                  {done ? 'Here’s what was put back:' : 'This will put back:'}
                 </p>
                 <div className="flex flex-col gap-1.5">
-                  {result.reverted.map((it, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-sm"
-                    >
-                      <Badge variant="secondary">{it.kind}</Badge>
-                      <span className="font-medium text-foreground">
-                        {entityLabel(it.contentType)}
-                      </span>
-                      <span className="truncate font-mono text-xs text-muted-foreground">
-                        {it.docId}
-                      </span>
-                    </div>
-                  ))}
+                  {result.reverted.map((it) => {
+                    const info = kindInfo(it.kind);
+                    return (
+                      <div
+                        key={`${it.contentType}::${it.docId}::${it.kind}`}
+                        className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-sm"
+                      >
+                        <Badge variant={info.variant}>{info.label}</Badge>
+                        <span className="font-medium text-foreground">
+                          {entityNoun(it.contentType)}
+                        </span>
+                        {it.docId && (
+                          <span
+                            className="truncate font-mono text-xs text-muted-foreground"
+                            title={it.docId}
+                          >
+                            {shortId(it.docId)}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -241,12 +258,14 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
             {result.unrevertable.length > 0 && (
               <div>
                 <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                  <IconAlertTriangle size={15} /> Cannot revert
+                  <IconAlertTriangle size={15} /> These can’t be undone
                 </p>
                 <div className="flex flex-col gap-1.5">
-                  {result.unrevertable.map((it, i) => (
+                  {result.unrevertable.map((it) => (
                     <p
-                      key={i}
+                      key={`${it.contentType ?? ''}::${it.docId ?? ''}::${
+                        it.action
+                      }`}
                       className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground"
                     >
                       {it.reason}
@@ -257,91 +276,31 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
             )}
 
             {result.conflicts.length > 0 && !done && (
-              <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <p className="flex items-center gap-1.5 text-sm font-semibold text-destructive">
-                    <IconAlertTriangle size={15} />
-                    {conflictFieldCount} field
-                    {conflictFieldCount === 1 ? '' : 's'} changed since — choose
-                    what to keep
-                  </p>
-                  <div className="flex gap-1.5">
-                    <Button variant="outline" onClick={() => setAll('restore')}>
-                      Restore all
-                    </Button>
-                    <Button variant="outline" onClick={() => setAll('keep')}>
-                      Keep all
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-3">
-                  {result.conflicts.map((c) => (
-                    <div
-                      key={keyOf(c)}
-                      className="rounded-lg border bg-background p-3"
-                    >
-                      <p className="mb-2 text-xs font-medium text-foreground">
-                        {entityLabel(c.contentType)}{' '}
-                        <span className="font-mono text-muted-foreground">
-                          {c.docId}
-                        </span>
-                      </p>
-                      <div className="flex flex-col gap-3">
-                        {c.fields.map((f) => {
-                          const mode = choices[keyOf(c)]?.[f.field] || 'restore';
-                          return (
-                            <div key={f.field}>
-                              <p className="mb-1.5 text-xs font-semibold text-foreground">
-                                {f.field}
-                              </p>
-                              <div className="grid grid-cols-2 gap-2">
-                                <OptionCard
-                                  tone="current"
-                                  selected={mode === 'keep'}
-                                  onClick={() =>
-                                    setChoice(keyOf(c), f.field, 'keep')
-                                  }
-                                  label="Keep current"
-                                  value={valueText(f.currentValue)}
-                                />
-                                <OptionCard
-                                  tone="previous"
-                                  selected={mode === 'restore'}
-                                  onClick={() =>
-                                    setChoice(keyOf(c), f.field, 'restore')
-                                  }
-                                  label="Restore previous"
-                                  value={valueText(f.revertValue)}
-                                />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <RevertConflictResolver
+                conflicts={result.conflicts}
+                choices={choices}
+                onChoice={setChoice}
+                onSetAll={setAll}
+              />
             )}
 
             {done && (
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <Badge variant="success">
-                  <IconCircleCheck size={14} /> Reverted successfully
+                  <IconCircleCheck size={14} /> Done — change undone
                 </Badge>
               </div>
             )}
 
             {!done &&
-              !result.alreadyReverted &&
               (result.reverted.length > 0 || result.conflicts.length > 0) && (
                 <div className="flex gap-2">
                   <Button onClick={onApply} disabled={loading}>
                     {loading
-                      ? 'Applying…'
+                      ? 'Working…'
                       : result.conflicts.length
-                        ? 'Apply & revert'
-                        : 'Confirm revert'}
+                      ? 'Undo with these choices'
+                      : 'Yes, undo this'}
                   </Button>
                   <Button
                     variant="ghost"
@@ -351,6 +310,15 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
                     Cancel
                   </Button>
                 </div>
+              )}
+
+            {/* Nothing to undo (e.g. everything was guarded) */}
+            {!done &&
+              result.reverted.length === 0 &&
+              result.conflicts.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  There’s nothing to put back for this action.
+                </p>
               )}
           </div>
         )}

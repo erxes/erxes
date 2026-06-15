@@ -55,6 +55,7 @@ export type InverseOp =
     }
   | { kind: 'skip'; reason: string };
 
+/** True for a non-null, non-array, non-Date plain object. */
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   v !== null &&
   typeof v === 'object' &&
@@ -147,7 +148,13 @@ export function computeInverse(entry: RevertableLogEntry): InverseOp {
 
     // removed: the field existed before with this value — set it back.
     if (diff.removed) {
-      flattenLeaves(diff.removed, (leaf) => leaf, (v) => !isPlainObject(v), '', set);
+      flattenLeaves(
+        diff.removed,
+        (leaf) => leaf,
+        (v) => !isPlainObject(v),
+        '',
+        set,
+      );
     }
 
     // added: the field did not exist before — unset it.

@@ -30,6 +30,51 @@ const AUTO_JOURNAL_ENABLED = process.env.REVERT_AUTO_JOURNAL === 'enable';
 // the ids but skip the snapshot (still audited; the overflow is not auto-revertable).
 const MAX_SNAPSHOT = Number(process.env.REVERT_AUTO_JOURNAL_MAX || 1000);
 
+// Stash keys carried from a `pre` hook to its `post` hook on the same instance.
+const SNAP = Symbol('revertCaptureSnapshot');
+const SNAP_SAVE = Symbol('revertCaptureSaveSnapshot');
+const WAS_NEW = Symbol('revertCaptureWasNew');
+
+/** A lean, awaitable Mongoose array query — only the bits these hooks chain. */
+type LeanArrayQuery = PromiseLike<Array<Record<string, unknown>>> & {
+  limit: (n: number) => LeanArrayQuery;
+  lean: () => LeanArrayQuery;
+};
+
+/** A lean, awaitable single-document Mongoose query. */
+type LeanDocQuery = PromiseLike<Record<string, unknown> | null> & {
+  lean: () => LeanDocQuery;
+};
+
+/** The subset of a Mongoose model the capture hooks read/use. */
+type CaptureModel = {
+  modelName?: string;
+  collection?: { name?: string };
+  db?: { name?: string };
+  find: (filter: unknown) => LeanArrayQuery;
+  findById: (id: unknown) => LeanDocQuery;
+};
+
+/** `this` inside the query-level delete/update middleware. */
+type QueryHookThis = {
+  model: CaptureModel;
+  getFilter?: () => Record<string, unknown>;
+  [stash: symbol]: Array<Record<string, unknown>> | undefined;
+};
+
+/** `this` inside the document-level `save` middleware. */
+type SaveHookThis = {
+  isNew: boolean;
+  _id: unknown;
+  toObject?: () => Record<string, unknown>;
+  [SNAP_SAVE]?: Record<string, unknown> | null;
+  [WAS_NEW]?: boolean;
+};
+
+/** The (library-resolved) document type `getDiffObjects` expects. */
+type DiffDoc = Parameters<typeof getDiffObjects>[1];
+
+/** Coerce a Mongoose id (ObjectId, string, …) to its string form. */
 const toIdString = (v: unknown): string => {
   if (v == null) return '';
   if (typeof v === 'string') return v;
@@ -47,12 +92,14 @@ let contentTypeResolver:
   | ((collectionName: string) => string | undefined)
   | undefined;
 
+/** Register the host service's collection-name → contentType resolver. */
 export const registerRevertContentTypeResolver = (
   fn: (collectionName: string) => string | undefined,
 ): void => {
   contentTypeResolver = fn;
 };
 
+/** Enqueue a `put_log` journal entry; best-effort, never throws into the write. */
 const emitPutLog = (payload: Record<string, unknown>): void => {
   try {
     sendWorkerQueue('logs', 'put_log')
@@ -67,48 +114,61 @@ const emitPutLog = (payload: Record<string, unknown>): void => {
 
 type DeleteKind = 'delete' | 'deleteMany';
 
+/**
+ * Resolve the runtime context + model identity shared by every journal entry:
+ * the collection/mongoose/db names, the (possibly auto-derived) contentType, and
+ * the common `base` payload markers the revert engine keys off.
+ */
+const buildJournalBase = (model: CaptureModel) => {
+  let ctx;
+  try {
+    ctx = getEventHandlerRuntimeContext();
+  } catch {
+    ctx = undefined;
+  }
+
+  const collectionName: string =
+    model?.collection?.name || model?.modelName || '';
+  const mongooseName: string = model?.modelName || '';
+  let dbName = '';
+  try {
+    dbName = model?.db?.name || '';
+  } catch {
+    dbName = '';
+  }
+
+  const contentType =
+    contentTypeResolver?.(collectionName) ||
+    `auto:${collectionName}.${collectionName}`;
+
+  const base = {
+    subdomain: ctx?.subdomain || '',
+    source: 'mongo',
+    status: 'success',
+    contentType,
+    processId: ctx?.processId || '',
+    userId: ctx?.userId || '',
+    // Markers for the (dynamic) revert path: resolve the model generically even
+    // when no meta/logs contentType is configured for this collection.
+    autoJournal: true,
+    mongooseName,
+    dbName,
+  };
+
+  return { collectionName, mongooseName, dbName, base };
+};
+
+/** Journal a delete/deleteMany as revertable entries carrying the prior snapshot. */
 const journalDeletes = (
-  model: any,
+  model: CaptureModel,
   docs: Array<Record<string, unknown>>,
   kind: DeleteKind,
 ): void => {
   try {
     if (!docs || !docs.length) return;
 
-    let ctx;
-    try {
-      ctx = getEventHandlerRuntimeContext();
-    } catch {
-      ctx = undefined;
-    }
-
-    const collectionName: string =
-      model?.collection?.name || model?.modelName || '';
-    const mongooseName: string = model?.modelName || '';
-    let dbName = '';
-    try {
-      dbName = model?.db?.name || '';
-    } catch {
-      dbName = '';
-    }
-
-    const contentType =
-      (contentTypeResolver && contentTypeResolver(collectionName)) ||
-      `auto:${collectionName}.${collectionName}`;
-
-    const base = {
-      subdomain: ctx?.subdomain || '',
-      source: 'mongo',
-      status: 'success',
-      contentType,
-      processId: ctx?.processId || '',
-      userId: ctx?.userId || '',
-      // Markers for the (dynamic) revert path: resolve the model generically even
-      // when no meta/logs contentType is configured for this collection.
-      autoJournal: true,
-      mongooseName,
-      dbName,
-    };
+    const { collectionName, mongooseName, dbName, base } =
+      buildJournalBase(model);
 
     if (kind === 'deleteMany') {
       emitPutLog({
@@ -137,14 +197,12 @@ const journalDeletes = (
   }
 };
 
-// Stash key for the pre-image snapshot carried from the `pre` to the `post` hook
-// on the same Query instance.
-const SNAP = Symbol('revertCaptureSnapshot');
-
+/** Build a `pre` delete hook that snapshots the matching docs before the write. */
 const makePreHook = (kind: DeleteKind) => {
-  return async function (this: any) {
+  return async function (this: QueryHookThis) {
     try {
-      const filter = typeof this.getFilter === 'function' ? this.getFilter() : {};
+      const filter =
+        typeof this.getFilter === 'function' ? this.getFilter() : {};
       const query = this.model.find(filter).lean();
       if (kind === 'delete') {
         query.limit(1);
@@ -158,11 +216,12 @@ const makePreHook = (kind: DeleteKind) => {
   };
 };
 
+/** Build a `post` delete hook that journals the snapshot once the write succeeds. */
 const makePostHook = (kind: DeleteKind) => {
-  return function (this: any) {
+  return function (this: QueryHookThis) {
     try {
       const docs = this[SNAP];
-      if (docs && docs.length) {
+      if (docs?.length) {
         journalDeletes(this.model, docs, kind);
       }
     } catch {
@@ -171,12 +230,13 @@ const makePostHook = (kind: DeleteKind) => {
   };
 };
 
+/** True when an update diff actually adds, removes, or changes any field. */
 const hasChanges = (ud: {
   added?: Record<string, unknown>;
   removed?: Record<string, unknown>;
   updated?: Record<string, unknown>;
 }): boolean =>
-  !!ud &&
+  Boolean(ud) &&
   (Object.keys(ud.added || {}).length > 0 ||
     Object.keys(ud.removed || {}).length > 0 ||
     Object.keys(ud.updated || {}).length > 0);
@@ -188,52 +248,25 @@ const hasChanges = (ud: {
  * aggregate. No-op for documents whose content did not actually change.
  */
 const journalUpdates = (
-  model: any,
+  model: CaptureModel,
   beforeDocs: Array<Record<string, unknown>>,
   afterById: Map<string, Record<string, unknown>>,
 ): void => {
   try {
     if (!beforeDocs || !beforeDocs.length) return;
 
-    let ctx;
-    try {
-      ctx = getEventHandlerRuntimeContext();
-    } catch {
-      ctx = undefined;
-    }
-
-    const collectionName: string =
-      model?.collection?.name || model?.modelName || '';
-    const mongooseName: string = model?.modelName || '';
-    let dbName = '';
-    try {
-      dbName = model?.db?.name || '';
-    } catch {
-      dbName = '';
-    }
-
-    const contentType =
-      (contentTypeResolver && contentTypeResolver(collectionName)) ||
-      `auto:${collectionName}.${collectionName}`;
-
-    const base = {
-      subdomain: ctx?.subdomain || '',
-      source: 'mongo',
-      status: 'success',
-      contentType,
-      processId: ctx?.processId || '',
-      userId: ctx?.userId || '',
-      autoJournal: true,
-      mongooseName,
-      dbName,
-    };
+    const { collectionName, mongooseName, dbName, base } =
+      buildJournalBase(model);
 
     for (const before of beforeDocs) {
       const id = toIdString(before._id);
       const after = afterById.get(id);
       if (!after) continue;
 
-      const updateDescription = getDiffObjects(before as any, after as any);
+      const updateDescription = getDiffObjects(
+        before as unknown as DiffDoc,
+        after as unknown as DiffDoc,
+      );
       if (!hasChanges(updateDescription)) continue;
 
       emitPutLog({
@@ -248,8 +281,9 @@ const journalUpdates = (
   }
 };
 
+/** Build a `pre` update hook that snapshots the to-be-updated docs. */
 const makeUpdatePreHook = () => {
-  return async function (this: any) {
+  return async function (this: QueryHookThis) {
     try {
       const filter =
         typeof this.getFilter === 'function' ? this.getFilter() : {};
@@ -260,12 +294,13 @@ const makeUpdatePreHook = () => {
   };
 };
 
+/** Build a `post` update hook that diffs before→after and journals per-doc edits. */
 const makeUpdatePostHook = () => {
-  return async function (this: any) {
+  return async function (this: QueryHookThis) {
     try {
       const before = this[SNAP];
-      if (!before || !before.length) return;
-      const ids = before.map((d: Record<string, unknown>) => d._id);
+      if (!before?.length) return;
+      const ids = before.map((d) => d._id);
       const after = (await this.model
         .find({ _id: { $in: ids } })
         .lean()) as Array<Record<string, unknown>>;
@@ -281,29 +316,33 @@ const makeUpdatePostHook = () => {
 
 // Document middleware for `doc.save()` edits (a common erxes update path that
 // query middleware does NOT see). Creates (isNew) are skipped on purpose.
-const SNAP_SAVE = Symbol('revertCaptureSaveSnapshot');
-const WAS_NEW = Symbol('revertCaptureWasNew');
 
-const savePreHook = async function (this: any) {
+/** `pre('save')`: remember whether this was a create, and snapshot the prior doc. */
+const savePreHook = async function (this: SaveHookThis) {
   try {
-    this[WAS_NEW] = !!this.isNew;
+    this[WAS_NEW] = Boolean(this.isNew);
     this[SNAP_SAVE] = undefined;
     if (this.isNew) return;
-    this[SNAP_SAVE] = await this.constructor.findById(this._id).lean();
+    this[SNAP_SAVE] = await (this.constructor as unknown as CaptureModel)
+      .findById(this._id)
+      .lean();
   } catch {
     this[SNAP_SAVE] = undefined;
   }
 };
 
-const savePostHook = function (this: any) {
+/** `post('save')`: for an edit (not a create), journal the before→after diff. */
+const savePostHook = function (this: SaveHookThis) {
   try {
     if (this[WAS_NEW]) return;
     const before = this[SNAP_SAVE];
     if (!before) return;
     const after =
-      typeof this.toObject === 'function' ? this.toObject() : this;
+      typeof this.toObject === 'function'
+        ? this.toObject()
+        : (this as unknown as Record<string, unknown>);
     journalUpdates(
-      this.constructor,
+      this.constructor as unknown as CaptureModel,
       [before],
       new Map([[toIdString(before._id), after]]),
     );

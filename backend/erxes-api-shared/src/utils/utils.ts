@@ -459,6 +459,11 @@ export const checkServiceRunning = async (
 // trust boundary: a client can only group the changes of its OWN request.
 const PROCESS_ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
 
+/**
+ * Derive the request's processId: reuse a well-formed incoming correlation id
+ * (so a request's changes share one revertable/traceable id), else mint a fresh
+ * one. A correlation hint only — never a trust boundary.
+ */
 export const generateRequestProcess = (incomingProcessId?: string) => {
   const processId =
     typeof incomingProcessId === 'string' &&

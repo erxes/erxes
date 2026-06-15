@@ -31,11 +31,20 @@ const DERIVED_BLOB_KEY_PATTERNS = [/^searchText$/i];
 // Value-level fallback: an email embedded ANYWHERE in a string (e.g. a search
 // blob, a note, a username field) is masked regardless of its key name, so the
 // masking can't be defeated by PII hiding in an unexpected field.
-const EMBEDDED_EMAIL_REGEX = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+//
+// The domain is written as disjoint dot-separated labels (`[A-Za-z0-9-]+`
+// joined by a literal `\.`) rather than one `[A-Za-z0-9.-]+` class. Because the
+// label class never contains the `.` separator, no two quantifiers can match the
+// same character, so the pattern runs in linear time and cannot be driven into
+// super-linear backtracking (ReDoS) by hostile input.
+const EMBEDDED_EMAIL_REGEX =
+  /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/g;
 
+/** True when the key names a secret (password, token, api key, …). */
 const isSecretKey = (key: string) =>
   SECRET_KEY_PATTERNS.some((pattern) => pattern.test(key));
 
+/** True when the key holds an identifier (`_id`, `*Id`, `createdBy`, …). */
 const isIdLikeKey = (key: string) =>
   key === '__v' ||
   /^_id$/i.test(key) ||
@@ -44,21 +53,27 @@ const isIdLikeKey = (key: string) =>
   /[_-]id(s)?$/i.test(key) ||
   /^(createdBy|updatedBy)$/i.test(key);
 
+/** True when the key holds an email address. */
 const isEmailKey = (key: string) =>
   EMAIL_KEY_PATTERNS.some((pattern) => pattern.test(key));
 
+/** True when the key holds an IP address. */
 const isIpKey = (key: string) =>
   IP_KEY_PATTERNS.some((pattern) => pattern.test(key));
 
+/** True when the key holds a phone/mobile number. */
 const isPhoneKey = (key: string) =>
   PHONE_KEY_PATTERNS.some((pattern) => pattern.test(key));
 
+/** True when the key holds a personal name component. */
 const isNameKey = (key: string) =>
   NAME_KEY_PATTERNS.some((pattern) => pattern.test(key));
 
+/** True when the key is a derived/denormalized search blob (e.g. `searchText`). */
 const isDerivedBlobKey = (key: string) =>
   DERIVED_BLOB_KEY_PATTERNS.some((pattern) => pattern.test(key));
 
+/** Mask an identifier, keeping only the first/last 4 chars for long values. */
 const maskIdentifier = (value: string) => {
   if (!value) {
     return '••••••';
@@ -71,6 +86,7 @@ const maskIdentifier = (value: string) => {
   return `${value.slice(0, 4)}••••••••${value.slice(-4)}`;
 };
 
+/** Mask an email, keeping up to 2 leading local chars and the full domain. */
 const maskEmail = (value: string) => {
   const [local = '', domain = ''] = value.split('@');
 
@@ -82,6 +98,7 @@ const maskEmail = (value: string) => {
   return `${visibleLocal}••••@${domain}`;
 };
 
+/** Mask an IPv4/IPv6 address, keeping only the leading octet(s)/group. */
 const maskIpAddress = (value: string) => {
   if (value.includes('.')) {
     const [first = '*', second = '*'] = value.split('.');
@@ -96,6 +113,7 @@ const maskIpAddress = (value: string) => {
   return '••••••';
 };
 
+/** Mask a phone number, revealing only the last 2 digits. */
 const maskPhone = (value: string) => {
   if (value.length <= 4) {
     return '••••';
@@ -104,6 +122,7 @@ const maskPhone = (value: string) => {
   return `${'•'.repeat(Math.max(4, value.length - 2))}${value.slice(-2)}`;
 };
 
+/** Mask a personal name, revealing only the first character. */
 const maskName = (value: string) => {
   if (value.length <= 1) {
     return '•';
@@ -112,6 +131,7 @@ const maskName = (value: string) => {
   return `${value.slice(0, 1)}${'•'.repeat(Math.max(3, value.length - 1))}`;
 };
 
+/** Replace every email embedded anywhere in a string with its masked form. */
 const redactEmbeddedEmails = (value: string) =>
   value.replace(EMBEDDED_EMAIL_REGEX, (match) => maskEmail(match));
 
@@ -119,6 +139,12 @@ export type SanitizeLogOptions = {
   exposeEmail?: boolean;
 };
 
+/**
+ * Recursively sanitize a log value. Arrays/objects are walked; leaf strings are
+ * masked per their key (secret/id/email/ip/phone/name/derived-blob) with an
+ * email-anywhere fallback. `options.exposeEmail` opts a caller out of email
+ * masking. Non-string leaves and Dates are returned untouched.
+ */
 export const sanitizeLogValue = (
   value: unknown,
   key?: string,

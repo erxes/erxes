@@ -19,6 +19,11 @@ const pluginNameOf = (contentType: string): string => {
   return contentType.split(':')[0] || 'core';
 };
 
+/**
+ * Route a computed inverse op to its applier: core/`auto:` entities apply
+ * in-process via applyWrite; remote-plugin entities dispatch over TRPC. Both
+ * carry the REQUEST processId so the revert's writes log under it.
+ */
 export const applyInverse = async (args: {
   connection: Connection;
   subdomain: string;

@@ -10,6 +10,7 @@ export const types = `
       cursor:String,
       processId:String,
       contentType:String,
+      name:String,
 
       user:User
       prevObject:JSON

@@ -65,16 +65,30 @@ is still honored when present.
   `applyInverse.ts` (core/`auto:` in-process vs remote TRPC) ·
   `contentTypeConfig.ts` · `trpc.ts` · `types.ts`.
 - `../sanitize.ts` (mask PII in previews) · `../graphql/{schema,resolvers}` —
-  `logsRevertProcess` mutation + `Log` type exposes `processId`/`contentType` ·
-  `../../../meta/logs.ts` (optional per-entity config) ·
-  `erxes-api-shared/.../elasticsearch/saveEs.ts`.
+  `logsRevertProcess` mutation + `Log` type exposes `processId`/`contentType` and a
+  `name` field resolver (`resolvers/customResolvers/log.ts`: the exact operation —
+  graphql `payload.mutationName`, else `contentType`/`collectionName` — read off the
+  stored doc so the list never ships the full payload; surfaced as the **Operation**
+  column in the System Logs table) · `../../../meta/logs.ts` (optional per-entity
+  config) · `erxes-api-shared/.../elasticsearch/saveEs.ts`.
 
 **UI:** `frontend/core-ui/src/modules/logs/`
 - `components/LogRevertPanel.tsx` — the Undo surface in the log-detail sheet (shown
   for Mongo data-change logs AND the GraphQL mutation log of the same request;
-  excludes the `logsRevertProcess` log). Dry-run preview → confirm, or a
-  side-by-side field-level merge chooser (Keep current / Restore previous, with
-  Restore-all/Keep-all) on conflict.
+  excludes the `logsRevertProcess` log). Plain-language for non-technical users
+  (no "revert/field/processId" jargon; field names humanized, values formatted,
+  IDs shown only as a quiet reference). On open it **silently dry-runs** to detect
+  an already-undone action and shows an "Already undone" notice instead of the
+  button. Otherwise: one-click "Undo this change" → dry-run preview → confirm, or
+  the `RevertConflictResolver` when a record was edited in the meantime.
+- `components/RevertConflictResolver.tsx` — the merge UI (erxes-ui `ToggleGroup`).
+  Calm amber "warning" tone (not destructive red). Per changed field: a segmented
+  Restore-previous / Keep-current toggle + a `Previous → Current` comparison where
+  the **chosen outcome lights up** (primary), so the resulting value is visible
+  before applying. One bulk "Apply to everything" toggle; records grouped with an
+  entity Badge + short id when more than one conflicts.
+- `utils/revertFormat.ts` — pure plain-language formatters shared by both
+  (`formatValue`, `entityNoun`, `humanizeField`, `shortId`, `kindInfo`, `conflictKey`).
 - `hooks/useRevertProcess.tsx` (`preview`/`apply`) · `graphql/revertMutations.ts`
   (`LOGS_REVERT_PROCESS`) · `components/LogDetailView.tsx` (renders the panel) ·
   `components/LogDetailPrimitives.tsx` (JSON viewer made dark-theme-readable).

@@ -1,8 +1,4 @@
-import {
-  set as lodashSet,
-  unset as lodashUnset,
-  cloneDeep,
-} from 'lodash';
+import { set as lodashSet, unset as lodashUnset, cloneDeep } from 'lodash';
 import { IContext } from '~/connectionResolvers';
 import { applyInverse } from './applyInverse';
 import { computeInverse, RevertableLogEntry } from './computeInverse';
@@ -42,9 +38,11 @@ interface LeanLogEntry extends RevertableLogEntry {
   userId?: string;
 }
 
+/** Stable map key for a doc resolution: `contentType::docId`. */
 const resolutionKey = (contentType: string, docId: string) =>
   `${contentType}::${docId}`;
 
+/** Mask PII in a conflict's revert/current field values before it reaches the client. */
 const sanitizeConflict = (conflict: DocConflict): DocConflict => ({
   ...conflict,
   fields: conflict.fields.map((field) => ({
@@ -71,10 +69,13 @@ const mergeResolutionIntoUpdate = (
 
   const set: Record<string, unknown> = { ...op.set };
   let unset = [...op.unset];
+  // Fields the caller chose to KEEP (live value) are dropped from the revert's
+  // computed `set` by rebuilding it below, rather than a dynamic-key `delete`.
+  const keepFields = new Set<string>();
 
   for (const field of resolution.fields) {
     if (field.mode === 'keep') {
-      delete set[field.field];
+      keepFields.add(field.field);
       unset = unset.filter((p) => p !== field.field);
     } else if (field.mode === 'custom') {
       set[field.field] = field.value;
@@ -83,7 +84,13 @@ const mergeResolutionIntoUpdate = (
     // 'restore' -> leave as computed.
   }
 
-  return { ...op, set, unset };
+  const mergedSet = keepFields.size
+    ? Object.fromEntries(
+        Object.entries(set).filter(([key]) => !keepFields.has(key)),
+      )
+    : set;
+
+  return { ...op, set: mergedSet, unset };
 };
 
 /**
@@ -117,6 +124,10 @@ const advanceSimulated = (
  * the CURRENT request's processId, never the target — so the revert is itself
  * auditable and never self-cancels.
  */
+// skipcq: JS-R1005 — sequential orchestrator; its complexity is the enumerated,
+// individually-documented set of revert-entry cases. Splitting it would scatter
+// tightly-coupled planning state (simulated map, dedup set, op accumulators)
+// across helpers without reducing the real branching.
 export const revertByProcessId = async (
   context: IContext,
   args: {
@@ -132,7 +143,7 @@ export const revertByProcessId = async (
   const dryRun = args.dryRun ?? false;
   // force: apply the recorded prev value even over an intervening change
   // (blind restore). Admin/owner only — non-owners get the merge-first flow.
-  const force = (args.force ?? false) && !!user?.isOwner;
+  const force = (args.force ?? false) && Boolean(user?.isOwner);
   // skipConflicts: the caller acknowledges conflicts and wants the clean
   // entries reverted while conflicted docs are reported (partial-apply). In the
   // merge-first model this is already the default; the flag is recorded for
@@ -171,7 +182,7 @@ export const revertByProcessId = async (
     const actorIds = entries
       .filter((e) => DATA_CHANGE_ACTIONS.has(e.action))
       .map((e) => e.userId)
-      .filter((id): id is string => !!id);
+      .filter((id): id is string => Boolean(id));
 
     const allMadeByMe =
       actorIds.length > 0 && actorIds.every((id) => id === user?._id);
@@ -261,7 +272,8 @@ export const revertByProcessId = async (
     const mongooseName =
       config?.mongooseName ||
       (entry.payload as { mongooseName?: string } | undefined)?.mongooseName ||
-      (entry.payload as { collectionName?: string } | undefined)?.collectionName;
+      (entry.payload as { collectionName?: string } | undefined)
+        ?.collectionName;
 
     if (!mongooseName) {
       unrevertable.push({
@@ -456,7 +468,7 @@ export const revertByProcessId = async (
       })),
       conflicts: conflicts.map(sanitizeConflict),
       unrevertable,
-      alreadyReverted: !!existingMarker,
+      alreadyReverted: Boolean(existingMarker),
     };
   }
 
@@ -529,6 +541,6 @@ export const revertByProcessId = async (
     reverted: applied,
     conflicts: applyConflicts.map(sanitizeConflict),
     unrevertable,
-    alreadyReverted: !!existingMarker,
+    alreadyReverted: Boolean(existingMarker),
   };
 };

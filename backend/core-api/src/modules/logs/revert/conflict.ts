@@ -34,16 +34,19 @@ const VOLATILE_FIELD_ROOTS = new Set<string>([
   'searchText',
 ]);
 
+/** True when a path's root segment is a volatile/bookkeeping field. */
 const isVolatilePath = (path: string): boolean =>
   VOLATILE_FIELD_ROOTS.has(path) ||
   VOLATILE_FIELD_ROOTS.has(path.split('.')[0]);
 
+/** True for a non-null, non-array, non-Date plain object. */
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   v !== null &&
   typeof v === 'object' &&
   !Array.isArray(v) &&
   !(v instanceof Date);
 
+/** True when a node is a `{ prev, current }` diff leaf (exactly those two keys). */
 const isDiffLeaf = (v: unknown): v is { prev: unknown; current: unknown } =>
   isPlainObject(v) &&
   Object.prototype.hasOwnProperty.call(v, 'prev') &&
@@ -57,11 +60,7 @@ interface FlatLeaf {
 }
 
 /** Flatten an updated/removed/added accumulator into dot-path leaves. */
-function flattenUpdated(
-  node: unknown,
-  prefix: string,
-  out: FlatLeaf[],
-): void {
+function flattenUpdated(node: unknown, prefix: string, out: FlatLeaf[]): void {
   if (isDiffLeaf(node)) {
     out.push({ path: prefix, prev: node.prev, current: node.current });
     return;
@@ -74,6 +73,7 @@ function flattenUpdated(
   }
 }
 
+/** Flatten an added/removed accumulator into dot-path leaf values. */
 function flattenLeafValues(
   node: unknown,
   prefix: string,
@@ -118,7 +118,9 @@ export function detectUpdateConflicts(
     if (isVolatilePath(leaf.path)) {
       continue;
     }
-    const liveValue = liveDoc ? lodashGet(liveDoc, leaf.path, FIELD_ABSENT) : FIELD_ABSENT;
+    const liveValue = liveDoc
+      ? lodashGet(liveDoc, leaf.path, FIELD_ABSENT)
+      : FIELD_ABSENT;
     if (liveValue === FIELD_ABSENT || !isEqual(liveValue, leaf.current)) {
       conflicts.push({
         field: leaf.path,

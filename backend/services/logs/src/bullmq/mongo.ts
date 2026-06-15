@@ -201,6 +201,7 @@ const handleDelete = async (
   );
 };
 
+/** Journal a deleteMany as one revertable delete log per doc, snapshot included. */
 const handleDeleteMany = async (
   Logs: Model<ILogDocument>,
   payload: DeleteManyEventPayload,
@@ -362,7 +363,11 @@ export const handleMongoChangeEvent = async (
 
   // deleteMany carries a per-doc snapshot list (prevDocuments) rather than a
   // shared updateDescription, so it has its own handler/shape.
-  if (logAction === LOG_ACTIONS.DELETE_MANY && docIds && Array.isArray(docIds)) {
+  if (
+    logAction === LOG_ACTIONS.DELETE_MANY &&
+    docIds &&
+    Array.isArray(docIds)
+  ) {
     return await handleDeleteMany(Logs, {
       collectionName: payload?.collectionName || '',
       docIds,

@@ -3,8 +3,8 @@ import { LOGS_REVERT_PROCESS } from '@/logs/graphql/revertMutations';
 
 export interface IRevertField {
   field: string;
-  revertValue?: any;
-  currentValue?: any;
+  revertValue?: unknown;
+  currentValue?: unknown;
 }
 
 export interface IRevertConflict {
@@ -39,7 +39,7 @@ export interface IRevertResult {
 export interface IFieldResolution {
   field: string;
   mode: 'restore' | 'keep' | 'custom';
-  value?: any;
+  value?: unknown;
 }
 
 export interface IDocResolution {
@@ -48,9 +48,11 @@ export interface IDocResolution {
   fields: IFieldResolution[];
 }
 
+/** Hook exposing `preview`/`apply` for the point-in-time revert mutation. */
 export const useRevertProcess = () => {
   const [run, { loading }] = useMutation(LOGS_REVERT_PROCESS);
 
+  /** Run the revert mutation and return its typed result. */
   const call = async (variables: {
     processId: string;
     dryRun?: boolean;
