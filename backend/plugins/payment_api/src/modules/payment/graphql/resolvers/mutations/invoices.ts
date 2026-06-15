@@ -161,12 +161,21 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:5173';
 
-    const invoice = await models.Invoices.createInvoice({
-      ...input,
-    });
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
+
+    const validPayments = await models.PaymentMethods.find({
+      _id: { $in: input.paymentIds },
+    });
+
+    if (validPayments.length !== input.paymentIds.length) {
+      throw new Error('Some paymentIds are invalid');
+    }
+
+    const invoice = await models.Invoices.createInvoice({
+      ...input,
+    });
 
     return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
   },
