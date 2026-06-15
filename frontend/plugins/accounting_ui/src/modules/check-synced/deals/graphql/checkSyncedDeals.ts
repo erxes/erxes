@@ -8,6 +8,10 @@ export const ACCOUNTING_CHECK_SYNCED_DEALS_QUERY = gql`
     $stageId: String
     $startDate: String
     $endDate: String
+    $stageChangedStartDate: Date
+    $stageChangedEndDate: Date
+    $createdStartDate: Date
+    $createdEndDate: Date
     $search: String
     $number: String
     $noSkipArchive: Boolean
@@ -18,6 +22,10 @@ export const ACCOUNTING_CHECK_SYNCED_DEALS_QUERY = gql`
       stageId: $stageId
       startDate: $startDate
       endDate: $endDate
+      stageChangedStartDate: $stageChangedStartDate
+      stageChangedEndDate: $stageChangedEndDate
+      createdStartDate: $createdStartDate
+      createdEndDate: $createdEndDate
       search: $search
       number: $number
       noSkipArchive: $noSkipArchive
