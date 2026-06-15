@@ -39,7 +39,7 @@ export function enqueueKnowledgeSweep(data: SweepJobData) {
 type RedisConnection = Parameters<typeof createMQWorkerWithListeners>[3];
 
 /** Boot hook: register the sweep worker. No scheduler — see file header. */
-export async function initKnowledgeSync(redis: RedisConnection): Promise<void> {
+export function initKnowledgeSync(redis: RedisConnection): void {
   createMQWorkerWithListeners(
     SERVICE,
     SWEEP_QUEUE,

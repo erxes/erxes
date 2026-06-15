@@ -78,7 +78,7 @@ export const companyKnowledgeTool = createTool({
         if (
           isKnowledgeStale(settings.knowledgeSyncStatus?.lastSweepAt, Date.now())
         ) {
-          void enqueueKnowledgeSweep({
+          enqueueKnowledgeSweep({
             subdomain,
             auth: { userHeader: auth?.userHeader, token: auth?.token },
           }).catch(() => undefined);
