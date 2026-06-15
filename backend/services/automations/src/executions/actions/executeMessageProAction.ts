@@ -109,7 +109,12 @@ export const executeMessageProAction = async (
   let sent = false;
 
   if (content && customerPhone) {
-    await sendSms(subdomain, 'messagePro', customerPhone, stripHtmlToText(content));
+    await sendSms(
+      subdomain,
+      'messagePro',
+      customerPhone,
+      stripHtmlToText(content),
+    );
     sent = true;
   }
 

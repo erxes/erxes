@@ -1,11 +1,5 @@
 import { IconChevronDown, IconVariable } from '@tabler/icons-react';
-import {
-  Button,
-  Combobox,
-  Command,
-  IBlockEditor,
-  Popover,
-} from 'erxes-ui';
+import { Button, Combobox, Command, IBlockEditor, Popover } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 
 interface Attribute {
