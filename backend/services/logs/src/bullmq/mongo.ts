@@ -28,6 +28,10 @@ type EventPayload = {
   processId?: string;
   userId?: string;
   contentType?: string;
+  // Recorded by the dynamic auto-capture so revert can resolve the model and
+  // refuse to apply against the wrong database connection.
+  mongooseName?: string;
+  dbName?: string;
 };
 
 type BulkEventPayload = {
@@ -48,6 +52,8 @@ type DeleteManyEventPayload = {
   processId?: string;
   userId?: string;
   contentType?: string;
+  mongooseName?: string;
+  dbName?: string;
 };
 
 const getCollectionType = (contentType?: string, collectionName?: string) => {
@@ -152,6 +158,8 @@ const handleUpdate = async (
   const logPayload = {
     collectionName: payload.collectionName,
     updateDescription: payload.updateDescription || {},
+    mongooseName: payload.mongooseName,
+    dbName: payload.dbName,
   };
 
   return await createLogDocument(
@@ -178,6 +186,8 @@ const handleDelete = async (
     // The pre-deletion snapshot (when the caller supplied it) — what a revert
     // re-inserts. Absent for callers not yet passing prevDocument.
     prevDocument: payload.prevDocument,
+    mongooseName: payload.mongooseName,
+    dbName: payload.dbName,
   };
 
   return await createLogDocument(
@@ -212,7 +222,12 @@ const handleDeleteMany = async (
     action: LOG_ACTIONS.DELETE_MANY,
     docId: String(docId),
     payload: withCollectionType(
-      { collectionName, prevDocument: snapshotById.get(String(docId)) },
+      {
+        collectionName,
+        prevDocument: snapshotById.get(String(docId)),
+        mongooseName: payload.mongooseName,
+        dbName: payload.dbName,
+      },
       payload.contentType,
       collectionName,
     ),
@@ -355,6 +370,8 @@ export const handleMongoChangeEvent = async (
       processId,
       userId,
       contentType,
+      mongooseName: payload?.mongooseName,
+      dbName: payload?.dbName,
     });
   }
 
@@ -401,6 +418,8 @@ export const handleMongoChangeEvent = async (
     processId,
     userId,
     contentType,
+    mongooseName: (payload as { mongooseName?: string })?.mongooseName,
+    dbName: (payload as { dbName?: string })?.dbName,
   };
 
   const handler = actionMap[logAction];

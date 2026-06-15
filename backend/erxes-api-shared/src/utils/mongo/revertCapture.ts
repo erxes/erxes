@@ -233,7 +233,7 @@ const journalUpdates = (
       const after = afterById.get(id);
       if (!after) continue;
 
-      const updateDescription = getDiffObjects(before, after);
+      const updateDescription = getDiffObjects(before as any, after as any);
       if (!hasChanges(updateDescription)) continue;
 
       emitPutLog({
@@ -277,6 +277,39 @@ const makeUpdatePostHook = () => {
       /* never disturb the write path */
     }
   };
+};
+
+// Document middleware for `doc.save()` edits (a common erxes update path that
+// query middleware does NOT see). Creates (isNew) are skipped on purpose.
+const SNAP_SAVE = Symbol('revertCaptureSaveSnapshot');
+const WAS_NEW = Symbol('revertCaptureWasNew');
+
+const savePreHook = async function (this: any) {
+  try {
+    this[WAS_NEW] = !!this.isNew;
+    this[SNAP_SAVE] = undefined;
+    if (this.isNew) return;
+    this[SNAP_SAVE] = await this.constructor.findById(this._id).lean();
+  } catch {
+    this[SNAP_SAVE] = undefined;
+  }
+};
+
+const savePostHook = function (this: any) {
+  try {
+    if (this[WAS_NEW]) return;
+    const before = this[SNAP_SAVE];
+    if (!before) return;
+    const after =
+      typeof this.toObject === 'function' ? this.toObject() : this;
+    journalUpdates(
+      this.constructor,
+      [before],
+      new Map([[toIdString(before._id), after]]),
+    );
+  } catch {
+    /* never disturb the write path */
+  }
 };
 
 /**
@@ -324,4 +357,8 @@ export const installRevertCaptureHooks = (schema: Schema): void => {
 
   schema.pre('findOneAndUpdate', makeUpdatePreHook());
   schema.post('findOneAndUpdate', makeUpdatePostHook());
+
+  // Document-level edit via doc.save().
+  schema.pre('save', savePreHook);
+  schema.post('save', savePostHook);
 };

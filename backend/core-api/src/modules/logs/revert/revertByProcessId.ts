@@ -255,6 +255,30 @@ export const revertByProcessId = async (
       continue;
     }
 
+    // Multi-connection safety: the auto-capture records which database the write
+    // actually hit. If the model we can resolve here lives on a DIFFERENT database
+    // (e.g. an org-scoped entity captured from another connection), refuse rather
+    // than silently writing the revert into the wrong database.
+    const recordedDbName = (entry.payload as { dbName?: string } | undefined)
+      ?.dbName;
+    if (recordedDbName) {
+      let localDbName: string | undefined;
+      try {
+        localDbName = mainConnection.model(mongooseName)?.db?.name;
+      } catch {
+        localDbName = undefined;
+      }
+      if (localDbName && localDbName !== recordedDbName) {
+        unrevertable.push({
+          contentType,
+          docId: entry.docId,
+          action: entry.action,
+          reason: `Entity lives on a different database (${recordedDbName}); cannot revert it from here.`,
+        });
+        continue;
+      }
+    }
+
     const inverse = computeInverse(entry);
 
     if (inverse.kind === 'skip') {
