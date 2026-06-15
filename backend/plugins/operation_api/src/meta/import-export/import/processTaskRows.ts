@@ -557,10 +557,12 @@ async function resolveTaskTags(
     action: 'find',
     input: {
       query: {
-        type: TASK_CONTENT_TYPE,
+        type: { $in: [null, '', TASK_CONTENT_TYPE] },
         $or: [
           { _id: { $in: tagValues } },
-          { name: { $in: tagValues } },
+          ...tagValues.map((val) => ({
+            name: { $regex: `^${escapeRegExp(val)}$`, $options: 'i' },
+          })),
         ],
       },
     },
