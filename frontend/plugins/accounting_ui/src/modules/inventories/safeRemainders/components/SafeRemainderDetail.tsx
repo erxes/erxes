@@ -166,7 +166,7 @@ export const SafeRemainderDetail = () => {
         <SafeRemainderDetailFilter />
       </div>
       <Tabs
-        className="col-span-2"
+        className="col-span-2 flex flex-1 flex-col min-h-0"
         value={activeTab}
         onValueChange={setActiveTab}
       >
@@ -188,7 +188,10 @@ export const SafeRemainderDetail = () => {
           </Tabs.List>
         </div>
 
-        <Tabs.Content value={CENSUS_TABS.CENSUS.value} className="mt-6">
+        <Tabs.Content
+          value={CENSUS_TABS.CENSUS.value}
+          className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+        >
           <RecordTableHotkeyProvider
             columnLength={3}
             rowLength={safeRemainderItems?.length || 0}
@@ -226,7 +229,7 @@ export const SafeRemainderDetail = () => {
         <Tabs.Content
           key={CENSUS_TABS.INCOME.value}
           value={CENSUS_TABS.INCOME.value}
-          className="mt-6"
+          className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
         >
           <RecordTableHotkeyProvider
             columnLength={4}
@@ -266,7 +269,7 @@ export const SafeRemainderDetail = () => {
         <Tabs.Content
           key={CENSUS_TABS.OUT.value}
           value={CENSUS_TABS.OUT.value}
-          className="mt-6"
+          className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
         >
           <RecordTableHotkeyProvider
             columnLength={3}
@@ -306,7 +309,7 @@ export const SafeRemainderDetail = () => {
         <Tabs.Content
           key={CENSUS_TABS.SALE.value}
           value={CENSUS_TABS.SALE.value}
-          className="mt-6"
+          className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
         >
           <RecordTableHotkeyProvider
             columnLength={3}

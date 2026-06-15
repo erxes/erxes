@@ -190,9 +190,7 @@ export const ProvidersPage = () => {
 
   const handleAddPreset = (preset: any) => {
     setEditing(preset.provider);
-    const existing = providers.find(
-      (p) => p.provider === preset.provider,
-    );
+    const existing = providers.find((p) => p.provider === preset.provider);
     setForm({
       provider: preset.provider,
       apiKey: existing?.apiKey || '',
@@ -264,8 +262,7 @@ export const ProvidersPage = () => {
       ? 'Custom Provider'
       : presets.find((c: any) => c.provider === editing)?.label || editing;
 
-  const isEdit =
-    editing && providers.some((p) => p.provider === providerKey);
+  const isEdit = editing && providers.some((p) => p.provider === providerKey);
 
   return (
     <div className="p-6 max-w-3xl space-y-8">

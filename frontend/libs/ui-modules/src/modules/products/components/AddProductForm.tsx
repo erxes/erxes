@@ -41,7 +41,6 @@ import {
   PRODUCT_FORM_SCHEMA,
 } from '../constants/addProductFormSchema';
 import { useAddProduct } from '../hooks/useProductsAdd';
-import { useUom } from '../hooks/useUom';
 import { IProductFormValues } from '../types';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
@@ -69,13 +68,6 @@ export function AddProductForm({
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
 }) {
   const { productsAdd, loading } = useAddProduct();
-  const { uoms } = useUom();
-
-  const uomIdToCode = useMemo(() => {
-    const map = new Map<string, string>();
-    uoms.forEach((uom) => map.set(uom._id, uom.code));
-    return map;
-  }, [uoms]);
 
   const form = useForm<IProductFormValues>({
     resolver: zodResolver(PRODUCT_FORM_SCHEMA),
@@ -128,19 +120,14 @@ export function AddProductForm({
       }
 
       if (key === 'uom') {
-        const uomCode = uomIdToCode.get(value as string);
-        cleanData[key] = uomCode || value;
+        cleanData[key] = value;
         return;
       }
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
           const { _id, ...rest } = subUom;
-          const mappedUom = uomIdToCode.get(rest.uom);
-          return {
-            ...rest,
-            uom: mappedUom || rest.uom,
-          };
+          return { ...rest };
         });
         return;
       }
@@ -148,7 +135,7 @@ export function AddProductForm({
       cleanData[key] = value;
     });
 
-    productsAdd({
+    await productsAdd({
       variables: cleanData,
       ...options,
       onError: (e) => {

@@ -1,5 +1,11 @@
 # erxes Agent Skills
 
+> **Start here:** the single entry point is **`.agents/ROUTER.md`** (run it via
+> the `/erxes "I want ..."` command). ROUTER classifies the request, resolves the
+> target plugin/module from `.agents/maps/feature-map.yaml`, confirms scope, then
+> loads the right skill below. You rarely pick a skill by hand — ROUTER picks it.
+> The `SEMANTIC_INDEX.md` in this folder maps symptoms/edge-cases to skills.
+
 Use these skills as short task workflows for common erxes changes. Rules in
 `AGENTS.md`, nested `AGENTS.md`, and `.agents/rules/*.md` remain the source of
 truth for architecture and project conventions.
@@ -17,6 +23,17 @@ Skills use one folder per skill:
 the shortest workflow that helps an agent complete the task.
 
 ## Available Skills
+
+Meta / orchestration (ROUTER calls these for you):
+
+- `assemble-context/SKILL.md` - load the applicable rule layers for a path.
+- `create-plugin/SKILL.md` - scaffold a whole new plugin (then fix the scaffold).
+- `pr-review-loop/SKILL.md` - after a PR, drive AI-reviewer comments to zero.
+- `detect-scope/SKILL.md`, `intake/SKILL.md` - the older two-step scope flow,
+  now superseded by `ROUTER.md` STEP 2 + STEP 5. Kept for reference/back-compat;
+  prefer ROUTER for new work.
+
+Feature / task skills:
 
 - `plugin-workflow/SKILL.md` - baseline workflow for plugin changes.
 - `operation-plugin-reference/SKILL.md` - apply operation plugin patterns from
