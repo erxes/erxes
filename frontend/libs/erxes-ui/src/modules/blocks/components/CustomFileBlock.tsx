@@ -26,9 +26,11 @@ type FileWrapperRenderProps = Omit<
   'buttonText' | 'buttonIcon' | 'children'
 >;
 
+/** Casts file render props to file block wrapper props. */
 const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps =>
   props;
 
+/** Renders the file preview with a downloadable link. */
 const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
   const url = readImage(block.props.url, undefined, true);
 
