@@ -5,16 +5,17 @@ import mongoose from 'mongoose';
 import { IMastraAgentDocument } from '@/agent/@types/agent';
 import { IMastraProviderDocument } from '@/provider/@types/provider';
 import { IMastraSettingsDocument } from '@/settings/@types/settings';
-import {
-  IMastraThreadDocument,
-  IMastraMessageDocument,
-} from '@/session/@types/session';
 import { IMastraWorkingMemoryDocument } from '@/memory/@types/workingMemory';
 import {
   IMastraWorkflowDocument,
   IMastraWorkflowRunDocument,
 } from '@/workflow/@types/workflow';
 import { loadAgentClass, IMastraAgentModel } from '@/agent/db/models/Agent';
+import {
+  loadAgentActionLogClass,
+  IMastraAgentActionLogModel,
+} from '@/agent/db/models/AgentActionLog';
+import { IMastraAgentActionLogDocument } from '@/agent/@types/agentActionLog';
 import {
   loadProviderClass,
   IMastraProviderModel,
@@ -23,14 +24,6 @@ import {
   loadSettingsClass,
   IMastraSettingsModel,
 } from '@/settings/db/models/Settings';
-import {
-  loadThreadClass,
-  IMastraThreadModel,
-} from '@/session/db/models/Thread';
-import {
-  loadMessageClass,
-  IMastraMessageModel,
-} from '@/session/db/models/Message';
 import {
   loadWorkingMemoryClass,
   IMastraWorkingMemoryModel,
@@ -55,18 +48,23 @@ import {
   IMastraLearningDocument,
   IMastraFeedbackDocument,
 } from '@/learning/@types/learning';
+import {
+  loadScheduleClass,
+  IMastraScheduleModel,
+} from '@/schedule/db/models/Schedule';
+import { IMastraScheduleDocument } from '@/schedule/@types/schedule';
 
 export interface IModels {
   MastraAgent: IMastraAgentModel;
+  MastraAgentActionLog: IMastraAgentActionLogModel;
   MastraProvider: IMastraProviderModel;
   MastraSettings: IMastraSettingsModel;
-  MastraThread: IMastraThreadModel;
-  MastraMessage: IMastraMessageModel;
   MastraWorkingMemory: IMastraWorkingMemoryModel;
   MastraWorkflow: IMastraWorkflowModel;
   MastraWorkflowRun: IMastraWorkflowRunModel;
   MastraLearning: IMastraLearningModel;
   MastraFeedback: IMastraFeedbackModel;
+  MastraSchedule: IMastraScheduleModel;
 }
 
 export interface IContext extends IMainContext {
@@ -84,6 +82,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadAgentClass(models),
   );
 
+  models.MastraAgentActionLog = db.model<
+    IMastraAgentActionLogDocument,
+    IMastraAgentActionLogModel
+  >('mastra_agent_action_logs', loadAgentActionLogClass(models));
+
   models.MastraProvider = db.model<
     IMastraProviderDocument,
     IMastraProviderModel
@@ -93,16 +96,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IMastraSettingsDocument,
     IMastraSettingsModel
   >('mastra_settings', loadSettingsClass(models));
-
-  models.MastraThread = db.model<IMastraThreadDocument, IMastraThreadModel>(
-    'mastra_threads',
-    loadThreadClass(models),
-  );
-
-  models.MastraMessage = db.model<IMastraMessageDocument, IMastraMessageModel>(
-    'mastra_messages',
-    loadMessageClass(models),
-  );
 
   models.MastraWorkingMemory = db.model<
     IMastraWorkingMemoryDocument,
@@ -128,6 +121,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IMastraFeedbackDocument,
     IMastraFeedbackModel
   >('mastra_feedbacks', loadFeedbackClass(models));
+
+  models.MastraSchedule = db.model<
+    IMastraScheduleDocument,
+    IMastraScheduleModel
+  >('mastra_schedules', loadScheduleClass(models));
 
   return models;
 };

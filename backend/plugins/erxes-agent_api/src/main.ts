@@ -49,7 +49,7 @@ startPlugin({
         import('~/mastra/knowledge/worker'),
         import('erxes-api-shared/utils'),
       ]);
-      await initKnowledgeSync(redis);
+      initKnowledgeSync(redis);
     }
 
     // Agent learning (opt-in via ERXES_AGENT_LEARNING=enable): distillation +
@@ -70,6 +70,16 @@ startPlugin({
         import('erxes-api-shared/utils'),
       ]);
       await initWorkflowSchedules(redis);
+    }
+
+    // Agent schedules: reconcile BullMQ job schedulers with enabled
+    // MastraSchedule documents (boot kick + every 5 minutes).
+    {
+      const [{ initAgentSchedules }, { redis }] = await Promise.all([
+        import('~/mastra/schedules/scheduler'),
+        import('erxes-api-shared/utils'),
+      ]);
+      await initAgentSchedules(redis);
     }
   },
 });

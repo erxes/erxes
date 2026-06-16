@@ -1,5 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, ScrollArea, Select, Sheet, Switch, toast } from 'erxes-ui';
+import {
+  Button,
+  Combobox,
+  Command,
+  Input,
+  Popover,
+  ScrollArea,
+  Select,
+  Sheet,
+  Switch,
+  toast,
+} from 'erxes-ui';
 import { Form } from 'erxes-ui/components/form';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -127,6 +138,8 @@ const createPaymentSchema = (selectedKind: string) => {
 
 const PaymentForm = ({ payment, onCancel }: Props) => {
   const [selectedKind, setSelectedKind] = useState(payment?.kind || '');
+  const [kindOpen, setKindOpen] = useState(false);
+  const [kindSearch, setKindSearch] = useState('');
   const [paymentState, setPayment] = useState<
     IPayment | IPaymentDocument | null
   >(payment);
@@ -218,7 +231,12 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     };
 
     const config: any = {};
-    const topLevelKeys = new Set(['kind', 'name', 'status', 'sendEmailOnPayment']);
+    const topLevelKeys = new Set([
+      'kind',
+      'name',
+      'status',
+      'sendEmailOnPayment',
+    ]);
     Object.entries(data).forEach(([key, value]) => {
       if (!topLevelKeys.has(key)) {
         config[key] = value;
@@ -301,58 +319,72 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
               <Form.Field
                 name="kind"
                 control={form.control}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Payment Method *</Form.Label>
-                    <Form.Control>
-                      <Select
-                        disabled={payment}
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
+                render={({ field }) => {
+                  const selectedMethod =
+                    PAYMENT_KINDS[field.value as keyof typeof PAYMENT_KINDS];
+                  const filteredKinds = Object.entries(PAYMENT_KINDS).filter(
+                    ([, method]) =>
+                      method.name
+                        .toLowerCase()
+                        .includes(kindSearch.trim().toLowerCase()),
+                  );
+
+                  return (
+                    <Form.Item>
+                      <Form.Label>Payment Method *</Form.Label>
+                      <Popover
+                        open={kindOpen}
+                        onOpenChange={(open) => {
+                          setKindOpen(open);
+                          if (!open) setKindSearch('');
                         }}
                       >
-                        <Form.Control>
-                          <Select.Trigger>
-                            <Select.Value
-                              placeholder={
-                                <span className="font-medium text-muted-foreground text-sm text-center truncate">
-                                  {'Select payment method'}
-                                </span>
-                              }
-                            >
-                              <span className="font-medium text-foreground text-sm">
-                                {
-                                  Object.entries(PAYMENT_KINDS).find(
-                                    ([key, method]) => key === field.value,
-                                  )?.[1].name
-                                }
-                              </span>
-                            </Select.Value>
-                          </Select.Trigger>
-                        </Form.Control>
-                        <Select.Content
-                          className="[&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 p-0 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 border [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto"
-                          align="start"
+                        <Combobox.Trigger
+                          disabled={!!payment}
+                          className="w-full"
                         >
-                          <Select.Group>
-                            {Object.entries(PAYMENT_KINDS).map(
-                              ([key, method]) => (
-                                <Select.Item
+                          <Combobox.Value
+                            value={selectedMethod?.name}
+                            placeholder="Select payment method"
+                          />
+                        </Combobox.Trigger>
+                        <Combobox.Content>
+                          <Command shouldFilter={false}>
+                            <Command.Input
+                              placeholder="Search payment method"
+                              value={kindSearch}
+                              onValueChange={setKindSearch}
+                            />
+                            <Command.Separator />
+                            <Command.List>
+                              <Combobox.Empty />
+                              {filteredKinds.map(([key, method]) => (
+                                <Command.Item
                                   key={key}
-                                  className="h-7 text-xs"
                                   value={key}
+                                  className="cursor-pointer text-xs"
+                                  onSelect={() => {
+                                    field.onChange(key);
+                                    setKindOpen(false);
+                                    setKindSearch('');
+                                  }}
                                 >
                                   {method.name}
-                                </Select.Item>
-                              ),
-                            )}
-                          </Select.Group>
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                  </Form.Item>
-                )}
+                                  {field.value === key && (
+                                    <Combobox.Check
+                                      checked
+                                      className="ml-auto"
+                                    />
+                                  )}
+                                </Command.Item>
+                              ))}
+                            </Command.List>
+                          </Command>
+                        </Combobox.Content>
+                      </Popover>
+                    </Form.Item>
+                  );
+                }}
               />
 
               {/* Display Name */}
@@ -430,9 +462,12 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   <Form.Item>
                     <div className="flex items-center justify-between gap-3">
                       <div className="space-y-0.5">
-                        <Form.Label>Send email after successful payment</Form.Label>
+                        <Form.Label>
+                          Send email after successful payment
+                        </Form.Label>
                         <p className="text-xs text-muted-foreground">
-                          Automatically send a QR ticket to the customer's email when payment is completed.
+                          Automatically send a QR ticket to the customer's email
+                          when payment is completed.
                         </p>
                       </div>
                       <Form.Control>

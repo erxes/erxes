@@ -63,28 +63,43 @@ const chunkIds = (ids: string[], size: number) => {
 export const useAccountingCheckSyncedDealsVariables = (
   variables?: QueryHookOptions<AccountingDealsQueryResult>['variables'],
 ) => {
-  const [{ user, ruleId, stageId, dealSearch, number, dateType, dateRange }] =
-    useMultiQueryState<{
-      user: string;
-      ruleId: string;
-      boardId: string;
-      pipelineId: string;
-      stageId: string;
-      dealSearch: string;
-      number: string;
-      dateType: string;
-      dateRange: string;
-    }>([
-      'user',
-      'ruleId',
-      'boardId',
-      'pipelineId',
-      'stageId',
-      'dealSearch',
-      'number',
-      'dateType',
-      'dateRange',
-    ]);
+  const [
+    {
+      user,
+      ruleId,
+      stageId,
+      dealSearch,
+      number,
+      dateType,
+      dateRange,
+      createdDateRange,
+      stageChangedDateRange,
+    },
+  ] = useMultiQueryState<{
+    user: string;
+    ruleId: string;
+    boardId: string;
+    pipelineId: string;
+    stageId: string;
+    dealSearch: string;
+    number: string;
+    dateType: string;
+    dateRange: string;
+    createdDateRange: string;
+    stageChangedDateRange: string;
+  }>([
+    'user',
+    'ruleId',
+    'boardId',
+    'pipelineId',
+    'stageId',
+    'dealSearch',
+    'number',
+    'dateType',
+    'dateRange',
+    'createdDateRange',
+    'stageChangedDateRange',
+  ]);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
@@ -103,6 +118,11 @@ export const useAccountingCheckSyncedDealsVariables = (
     number: String(number ?? '') || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
+    createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
+    createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
+    stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
+      ?.from,
+    stageChangedEndDate: parseDateRangeFromString(stageChangedDateRange)?.to,
     dateType: dateType || undefined,
     ruleId: ruleId || undefined,
     ...variables,

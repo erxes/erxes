@@ -1,11 +1,7 @@
+import { handleTrigger } from '@/executions/handleTrigger';
 import type { Job } from 'bullmq';
+import { debugError } from '../debugger';
 import { IJobData } from './initMQWorkers';
-import { generateModels } from '../connectionResolver';
-import { debugError, debugInfo } from '../debugger';
-import { checkIsWaitingAction } from '../executions/checkIsWaitingActionTarget';
-import { executeWaitingAction } from '../executions/executeWaitingAction';
-import { receiveTrigger } from '../executions/receiveTrigger';
-import { repeatActionExecution } from '../executions/repeatActionExecution';
 
 // Type for trigger job data
 interface ITriggerData {
@@ -26,9 +22,7 @@ type ITriggerJobData = IJobData<ITriggerData>;
 
 export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
   const { subdomain, data } = job?.data ?? {};
-  const models = await generateModels(subdomain);
 
-  console.info(`Received data from:${JSON.stringify({ subdomain, data })}`);
 
   const { type, targets, repeatOptions, recordType, eventUpdateDescription } =
     data;
@@ -57,6 +51,5 @@ export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
     });
   } catch (error: any) {
     debugError(`Error processing job ${job.id}: ${error.message}`);
-    // Error is logged but not thrown to prevent job retries
   }
 };

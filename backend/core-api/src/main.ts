@@ -12,7 +12,9 @@ import {
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
+  registerRevertContentTypeResolver,
 } from 'erxes-api-shared/utils';
+import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as http from 'http';
@@ -36,6 +38,20 @@ Sentry.getGlobalScope().setTags({
 });
 
 dotenv.config();
+
+// Seed the dynamic revert-capture content-type resolver from core's meta/logs, so
+// auto-journaled deletes (captured generically in the shared schemaWrapper) carry
+// the same `plugin:module.collection` contentType the revert engine already maps
+// to a permission + model. No per-collection wiring needed beyond this one map.
+const collectionToContentType = new Map<string, string>(
+  coreLogsConfig.contentTypes.map((c) => [
+    c.collectionName,
+    `${PLUGIN_NAME}:${c.moduleName}.${c.collectionName}`,
+  ]),
+);
+registerRevertContentTypeResolver((collectionName) =>
+  collectionToContentType.get(collectionName),
+);
 
 const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
   process.env;

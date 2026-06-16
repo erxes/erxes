@@ -1,4 +1,4 @@
-import { IUser } from "ui-modules/index";
+import { IUser } from 'ui-modules/index';
 
 export interface IPipeline {
   _id: string;
@@ -37,7 +37,6 @@ export interface IPipeline {
 
   paymentIds?: string[];
   paymentTypes?: any[];
-  erxesAppToken?: string;
 }
 
 export interface ISelectPipelinesContext {
