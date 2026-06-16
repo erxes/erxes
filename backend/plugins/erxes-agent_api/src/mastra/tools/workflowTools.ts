@@ -109,6 +109,7 @@ A workflow is a JSON document:
 {
   "trigger": { "type": "manual" | "automation" | "schedule" | "webhook", "config": {} },
   "policy": { "mode": "all" | "custom", "allowed": ["dealsAdd", "plugin:sales", "module:customers"] },
+  "destructiveOps": "block" | "allow",
   "bindings": { "<name>": { "kind": "agent", "id": "<agent _id>" } },
   "limits": { "maxLlmCalls": 10 },
   "steps": [ ... ]
@@ -154,8 +155,12 @@ TRIGGERS:
 RULES:
 1. Always set the narrowest policy that covers every operation step.
 2. Bind agents through "bindings" — never inline agent ids in steps.
-3. Destructive operations (*Remove, *Delete, *Merge, payment creation): warn the
-   user explicitly before saving, and get their confirmation.
+3. Destructive operations (*Remove, *Delete, *Merge): a step using one is
+   REJECTED by validation unless the workflow sets "destructiveOps": "allow"
+   (default "block"). Only set "allow" when the user has explicitly asked to
+   delete or merge records — warn them and get confirmation before saving, and
+   prefer editing or archiving over removing. Payment creation also warrants an
+   explicit warning even though it is not gated here.
 4. Build flow: validate with workflowValidate and fix every error. Then:
    - If the user ALREADY asked you to create/save the workflow (or already
      confirmed a plan), call workflowSave NOW, in this SAME turn. Do not

@@ -2,7 +2,6 @@ import type { ToolsInput } from '@mastra/core/agent';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
-import { isLegacyProvider } from '~/mastra/providers';
 import { runWithAuth } from '~/mastra/requestContext';
 import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
 import {
@@ -75,15 +74,7 @@ export interface AgentTurnResult {
 // pipeline never relies on — satisfies it structurally.
 export interface TurnAgent {
   generate(messages: unknown, options?: unknown): Promise<AgentTurnResult>;
-  generateLegacy(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<AgentTurnResult>;
   stream(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<{ fullStream: unknown }>;
-  streamLegacy(
     messages: unknown,
     options?: unknown,
   ): Promise<{ fullStream: unknown }>;
@@ -192,89 +183,6 @@ export function buildFallbackFromResults(
   return null;
 }
 
-// ─── Text-based tool call extraction ─────────────────────────────────────────
-//
-// Some models (e.g. meta/llama-3.1-8b-instruct via NVIDIA NIM) do not support
-// the structured tool_calls response field.  Instead they output their function
-// call intent as plain JSON text.  We detect those patterns here and execute
-// the tool directly, so the agent works even with these models.
-
-export interface TextToolCall {
-  name: string;
-  args: Record<string, unknown>;
-}
-
-/** Detect a tool call a model emitted as plain text; null when none matches. */
-export function extractTextToolCall(text: string): TextToolCall | null {
-  const trimmed = text.trim();
-
-  // Pattern 1 — OpenAI-style JSON array: [{"id":"...","type":"function","function":{"name":"...","arguments":"{...}"}}]
-  try {
-    const arr = JSON.parse(trimmed);
-    if (
-      Array.isArray(arr) &&
-      arr[0]?.type === 'function' &&
-      arr[0]?.function?.name
-    ) {
-      const fn = arr[0].function;
-      const args =
-        typeof fn.arguments === 'string'
-          ? JSON.parse(fn.arguments)
-          : fn.arguments ?? {};
-      return { name: fn.name, args };
-    }
-  } catch {
-    /* not OpenAI-array JSON — try the next pattern */
-  }
-
-  // Pattern 2 — Simple object: {"name":"toolName","parameters":{...}} or {"name":"...","arguments":{...}}
-  try {
-    const obj = JSON.parse(trimmed);
-    if (obj && typeof obj === 'object' && typeof obj.name === 'string') {
-      const rawArgs = obj.arguments ?? obj.parameters ?? obj.args ?? {};
-      const args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs;
-      return { name: obj.name, args };
-    }
-  } catch {
-    /* not a simple tool-call object — try the next pattern */
-  }
-
-  // Pattern 3 — <tool_call>...</tool_call> tags. Index scan instead of a
-  // lazy [\s\S]*? regex, which backtracks super-linearly on bad input.
-  const lowerT = trimmed.toLowerCase();
-  const openTag = lowerT.indexOf('<tool_call>');
-  const closeTag =
-    openTag === -1 ? -1 : lowerT.indexOf('</tool_call>', openTag + 11);
-  if (openTag !== -1 && closeTag !== -1) {
-    try {
-      const obj = JSON.parse(trimmed.slice(openTag + 11, closeTag).trim());
-      if (obj?.name) {
-        const args =
-          typeof obj.arguments === 'string'
-            ? JSON.parse(obj.arguments)
-            : obj.arguments ?? obj.parameters ?? {};
-        return { name: obj.name, args };
-      }
-    } catch {
-      /* malformed <tool_call> payload — try the next pattern */
-    }
-  }
-
-  // Pattern 4 — "The function call that best answers the user's question is: toolName({...})"
-  const nimMatch = trimmed.match(
-    /function call[^\n]*?:\s*(\w+)\((\{[\s\S]*\})\)/i,
-  );
-  if (nimMatch) {
-    try {
-      return { name: nimMatch[1], args: JSON.parse(nimMatch[2]) };
-    } catch {
-      /* unparsable call arguments — treat as no tool call */
-    }
-  }
-
-  return null;
-}
-
 // ─── Turn setup ───────────────────────────────────────────────────────────────
 
 export interface PreparedTurn {
@@ -286,7 +194,6 @@ export interface PreparedTurn {
   sessionId: string;
   convo: TurnMessage[];
   authCtx: TurnAuthCtx;
-  isLegacy: boolean;
   advanced: boolean;
   memCtx: MemoryContext;
   attachments?: IMastraChatAttachment[];
@@ -401,21 +308,19 @@ export async function prepareChatTurn(params: {
     ? Buffer.from(JSON.stringify(user)).toString('base64')
     : undefined;
   const authCtx = { userHeader, token: settings?.erxesApiToken, subdomain };
-  const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
   return {
     agentConfig,
     settings,
     providers,
     // The published Agent generics type tool results as wire chunks; the
-    // runtime objects this pipeline reads are the duck-typed legacy/modern
-    // shapes in ToolResultLike, hence the structural cast (cf. titler.ts).
+    // runtime objects this pipeline reads are the duck-typed shapes in
+    // ToolResultLike, hence the structural cast (cf. titler.ts).
     agent: agent as unknown as TurnAgent,
     tools,
     sessionId,
     convo,
     authCtx,
-    isLegacy,
     advanced,
     memCtx,
     attachments,
@@ -453,7 +358,6 @@ export async function persistTurn(params: {
     agentConfig,
     providers,
     authCtx,
-    isLegacy,
     attachments,
   } = prepared;
 
@@ -491,7 +395,6 @@ export async function persistTurn(params: {
         model: agentConfig.model,
         providers,
         authCtx,
-        isLegacy,
       })
     : Promise.resolve<string | null>(null);
 
@@ -526,7 +429,6 @@ export async function persistTurn(params: {
         model: agentConfig.model,
         providers,
         authCtx,
-        isLegacy,
       });
     }
   }
@@ -540,57 +442,21 @@ export async function persistTurn(params: {
 // ─── Turn execution (blocking) ───────────────────────────────────────────────
 
 // Runs a single agent turn over the full conversation array and returns the
-// reply text (or null). Holds the tool-call extraction / synthesis / fallback
-// logic; throws a user-facing message on hard failures.
+// reply text (or null). With native multi-step generate() the model produces
+// the final answer itself; only a turn that ends with tool calls but no text
+// gets synthesized. Throws a user-facing message on hard failures.
 export async function runAgentTurn(params: {
   agent: TurnAgent;
-  tools: ToolsInput;
   convo: TurnMessage[];
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
-  depth?: number;
 }): Promise<string | null> {
-  const { agent, tools, convo, message, isLegacy, authCtx, depth = 0 } = params;
+  const { agent, convo, message, authCtx } = params;
 
   try {
-    const result = await runWithAuth(authCtx, () =>
-      isLegacy ? agent.generateLegacy(convo) : agent.generate(convo),
-    );
+    const result = await runWithAuth(authCtx, () => agent.generate(convo));
 
-    if (result.text) {
-      const trimmed = result.text.trimStart();
-
-      // ── Text-based tool call fallback ──────────────────────────────────
-      // Models that don't support the tool_calls API field output their
-      // function call intent as plain text.  Detect, extract, and execute.
-      const extracted = extractTextToolCall(trimmed);
-      if (extracted) {
-        const handled = await executeTextToolCall({
-          agent,
-          tools,
-          convo,
-          message,
-          isLegacy,
-          authCtx,
-          depth,
-          extracted,
-          rawText: trimmed,
-        });
-        if (handled !== undefined) return handled;
-      }
-
-      // Detect legacy "The function call that best answers..." format (no args extractable)
-      if (trimmed.startsWith('The function call that best answers')) {
-        throw new Error(
-          'This model outputs tool calls as plain text and the call could not be parsed. ' +
-            'For reliable tool use, switch to: GPT-4o, Claude Sonnet, Gemini 2.0 Flash, ' +
-            'Kimi K2 (kimi-k2-0711-preview), Llama 3.3 70B (Groq or NVIDIA NIM), or Mistral Large.',
-        );
-      }
-
-      return result.text;
-    }
+    if (result.text) return result.text;
 
     // Collect tool results from all steps, deduplicated.
     const uniqueResults = dedupeToolResults([
@@ -606,7 +472,6 @@ export async function runAgentTurn(params: {
     return await synthesizeFromToolResults({
       agent,
       message,
-      isLegacy,
       authCtx,
       toolResults: uniqueResults,
     });
@@ -615,20 +480,56 @@ export async function runAgentTurn(params: {
   }
 }
 
-// Normalize provider failures into messages safe to show a non-technical user.
+// Map a raw failure to a plain-language, non-technical message (the prompt
+// rules forbid jargon/ids/HTTP codes in replies — the error path must honour
+// that too). First matching rule wins; unmatched errors are logged server-side
+// and fall through to a generic message so no raw provider text reaches a user.
+const ERROR_RULES: { test: RegExp; message: string }[] = [
+  {
+    test: /too many requests|rate.?limit|\b429\b/i,
+    message:
+      'The AI provider is temporarily rate-limited. Please wait a moment and try again.',
+  },
+  {
+    test: /unauthorized|forbidden|permission|access denied|invalid api key|\b401\b|\b403\b/i,
+    message:
+      "I couldn't complete that — it needs a permission or credential that isn't available. Please check with an admin.",
+  },
+  {
+    test: /timed? ?out|etimedout|econnrefused|econnreset|socket hang up|network|fetch failed|enotfound/i,
+    message:
+      'The service took too long to respond or was unreachable. Please try again in a moment.',
+  },
+  {
+    test: /bad gateway|service unavailable|internal server error|\b50[0234]\b/i,
+    message:
+      'The service is temporarily unavailable. Please try again shortly.',
+  },
+  {
+    test: /validation|is required|invalid input|must be a|failed to parse/i,
+    message:
+      'Some required information was missing or invalid. Please rephrase or add the missing details.',
+  },
+];
+
+/** Map a raw failure to a plain-language Error safe to show a user (jargon-,
+ *  id- and HTTP-code-free); unmatched errors are logged (redacted) and replaced
+ *  with a generic message so no raw provider text leaks. */
 export function toUserFacingError(err: unknown): Error {
   const msg: string =
     (err as { message?: string } | null | undefined)?.message ?? String(err);
-  if (
-    msg.toLowerCase().includes('too many requests') ||
-    msg.includes('429') ||
-    msg.toLowerCase().includes('rate limit')
-  ) {
-    return new Error(
-      'The AI provider is temporarily rate-limited. Please wait a moment and try again.',
-    );
-  }
-  return new Error(`Agent execution failed: ${msg}`);
+  const rule = ERROR_RULES.find((r) => r.test.test(msg));
+  if (rule) return new Error(rule.message);
+  // Unmatched: log for operators (never shown to the user), but redact long
+  // tokens first — provider errors can echo API keys, bearer tokens, connection
+  // strings or hashes that log aggregators shouldn't capture.
+  const safe = msg
+    .replace(/\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._-]{16,}/gi, '$1[redacted]')
+    .replace(/[A-Za-z0-9_-]{32,}/g, '[redacted]');
+  console.error('[toUserFacingError] unmatched error:', safe);
+  return new Error(
+    'Something went wrong while processing your request. Please try again — if it keeps happening, contact support.',
+  );
 }
 
 /** Drop duplicate tool results gathered across steps, keyed by tool-call id. */
@@ -676,11 +577,10 @@ export function logToolResults(uniqueResults: ToolResultLike[]) {
 export async function synthesizeFromToolResults(params: {
   agent: TurnAgent;
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
   toolResults: ToolResultLike[];
 }): Promise<string> {
-  const { agent, message, isLegacy, authCtx, toolResults } = params;
+  const { agent, message, authCtx, toolResults } = params;
 
   // search_erxes_operations is navigational; only execute (action) results
   // decide whether the turn produced something real to report.
@@ -715,9 +615,7 @@ export async function synthesizeFromToolResults(params: {
 
   try {
     const synthesis = await runWithAuth(authCtx, () =>
-      isLegacy
-        ? agent.generateLegacy(synthesisMessages)
-        : agent.generate(synthesisMessages, { maxSteps: 1 }),
+      agent.generate(synthesisMessages, { maxSteps: 1 }),
     );
     return synthesis.text || fallback || 'Done.';
   } catch {
@@ -725,152 +623,3 @@ export async function synthesizeFromToolResults(params: {
   }
 }
 
-// The duck-typed surface of a bound tool the text-call fallback drives: an
-// optional id for lookup and the raw execute the agent would have invoked.
-interface ExecutableToolLike {
-  id?: string;
-  execute?: (args: Record<string, unknown>) => Promise<unknown>;
-}
-
-// Execute a tool call the model emitted as plain text. Returns the reply text,
-// null (caller's fallback applies), or undefined when the tool wasn't found /
-// failed and the original model text should be returned as-is.
-export async function executeTextToolCall(params: {
-  agent: TurnAgent;
-  tools: ToolsInput;
-  convo: TurnMessage[];
-  message: string;
-  isLegacy: boolean;
-  authCtx: TurnAuthCtx;
-  depth: number;
-  extracted: TextToolCall;
-  rawText: string;
-  onToolEvent?: (event: {
-    phase: 'call' | 'result';
-    toolName: string;
-    args?: Record<string, unknown>;
-    result?: unknown;
-    isError?: boolean;
-  }) => void;
-}): Promise<string | null | undefined> {
-  const {
-    agent,
-    tools,
-    convo,
-    message,
-    isLegacy,
-    authCtx,
-    depth,
-    extracted,
-    rawText,
-    onToolEvent,
-  } = params;
-
-  // Find the tool by name or by toolId
-  const toolMap = tools as unknown as Record<
-    string,
-    ExecutableToolLike | undefined
-  >;
-  const tool =
-    toolMap[extracted.name] ||
-    Object.entries(toolMap).find(
-      ([, candidate]) => candidate?.id === extracted.name,
-    )?.[1];
-
-  if (!tool?.execute) return undefined;
-  // Bound so the auth-context closure below keeps the tool as `this`.
-  const executeTool = tool.execute.bind(tool);
-
-  try {
-    onToolEvent?.({
-      phase: 'call',
-      toolName: extracted.name,
-      args: extracted.args,
-    });
-    const toolResult = await runWithAuth(authCtx, () =>
-      executeTool(extracted.args),
-    );
-    onToolEvent?.({
-      phase: 'result',
-      toolName: extracted.name,
-      args: extracted.args,
-      result: toolResult,
-      isError: !isRealToolData(toolResult),
-    });
-    const syntheticResults = [
-      {
-        toolName: extracted.name,
-        result: toolResult,
-        toolCallId: `text-${Date.now()}`,
-      },
-    ];
-
-    console.log(
-      '[text-tool-call]',
-      extracted.name,
-      JSON.stringify(extracted.args),
-      '→',
-      (JSON.stringify(toolResult) || '').slice(0, 300),
-    );
-
-    // search_erxes_operations is navigational. The model emitted it as
-    // text (no native multi-step), so feed the results back and let it
-    // continue to execute_erxes_operation. Bounded to avoid loops.
-    if (
-      extracted.name.toLowerCase().includes('search_erxes_operations') &&
-      depth < 2
-    ) {
-      const followup = [
-        ...convo,
-        { role: 'assistant', content: rawText },
-        {
-          role: 'user',
-          content:
-            `Available operations (from search_erxes_operations):\n${JSON.stringify(
-              toolResult,
-            )}\n\n` +
-            `Now call execute_erxes_operation with the exact "operation" name and an "args" object to fulfil: "${message}".`,
-        },
-      ];
-      return await runAgentTurn({
-        agent,
-        tools,
-        convo: followup,
-        message,
-        isLegacy,
-        authCtx,
-        depth: depth + 1,
-      });
-    }
-
-    const fallback = buildFallbackFromResults(syntheticResults);
-    if (!isRealToolData(toolResult))
-      return fallback || 'Something went wrong. Please try again.';
-
-    // Synthesise a human-readable summary.
-    const toolContext = `[${extracted.name}]:\n${JSON.stringify(
-      toolResult,
-      null,
-      2,
-    )}`;
-    const synthesisMessages: TurnMessage[] = [
-      {
-        role: 'user',
-        content: `Report the following tool results accurately to the user in one or two sentences. Do not call any tools.\n\nUser request: ${message}\n\n${toolContext}`,
-      },
-    ];
-    try {
-      const synthesis = await runWithAuth(authCtx, () =>
-        isLegacy
-          ? agent.generateLegacy(synthesisMessages)
-          : agent.generate(synthesisMessages, { maxSteps: 1 }),
-      );
-      return synthesis.text || fallback || 'Done.';
-    } catch {
-      return fallback || 'Done.';
-    }
-  } catch {
-    // Tool execution failed — let the caller return the original text
-    return undefined;
-  }
-}

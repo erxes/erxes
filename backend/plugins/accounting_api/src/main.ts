@@ -18,18 +18,22 @@ const accountImportTypes = [
   {
     label: 'Account',
     contentType: 'accounting:account.account',
+    permissions: ['accountsImportManage'],
   },
   {
     label: 'Account Category',
     contentType: 'accounting:account.accountCategories',
+    permissions: ['accountCategoriesImportManage'],
   },
   {
     label: 'Accounts',
     contentType: 'accounting:account.accounts',
+    permissions: ['accountsImportManage'],
   },
   {
     label: 'Transaction',
     contentType: 'accounting:account.transactions',
+    permissions: ['transactionsImportManage'],
   },
   {
     label: 'VAT rows',

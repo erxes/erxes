@@ -82,4 +82,51 @@ export const msdynamicCheckMutations = {
         .length,
     };
   },
+
+  async toCheckMsdSynced(
+    _root: unknown,
+    { ids = [] }: { ids?: string[] },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+
+    const syncLogs = await models.SyncLogsMSD.find({
+      contentType: 'pos:order',
+      contentId: { $in: ids },
+      error: { $exists: false },
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const syncMap: Record<
+      string,
+      {
+        isSynced: boolean;
+        syncedDate?: string;
+        syncedBillNumber?: string;
+        syncedCustomer?: string;
+      }
+    > = {};
+    for (const log of syncLogs) {
+      const existing = syncMap[log.contentId];
+      if (!existing && log.responseData?.No) {
+        syncMap[log.contentId] = {
+          isSynced: true,
+          syncedDate: log.responseData.Order_Date,
+          syncedBillNumber: log.responseData.No,
+          syncedCustomer: log.responseData.Sell_to_Customer_No,
+        };
+      }
+    }
+
+    return ids.map((_id) => ({
+      _id,
+      isSynced: Boolean(syncMap[_id]),
+      syncedDate: syncMap[_id]?.syncedDate || null,
+      syncedBillNumber: syncMap[_id]?.syncedBillNumber || null,
+      syncedCustomer: syncMap[_id]?.syncedCustomer || null,
+    }));
+  },
 };

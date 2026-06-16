@@ -31,7 +31,7 @@ export const ProductDetailFooter: React.FC<ProductDetailFooterProps> = ({
     if (onSave) onSave();
   };
 
-  if (activeTab === 'properties') {
+  if (activeTab === 'properties' || activeTab === 'similarity') {
     return null;
   }
 

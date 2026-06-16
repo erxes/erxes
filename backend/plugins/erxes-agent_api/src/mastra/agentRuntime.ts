@@ -14,6 +14,8 @@ import {
   scopeSummary,
   capabilityInventory,
 } from './tools/scope';
+import { resolveDestructiveOpsPolicy } from './tools/destructiveGuard';
+import { writeAgentAction, AgentActionInput } from './auditLog';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -23,7 +25,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, ToolsInput>();
 
 // Increment this whenever routing.ts, the meta-tools, or provider logic changes.
-const ROUTING_VERSION = 24;
+const ROUTING_VERSION = 25;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -43,6 +45,11 @@ export async function getOrCreateAgent(
   // The agent's reach: 'all' (every erxes operation + builtin) by default, or a
   // restricted allowlist. The two meta-tools enforce this at execution time.
   const policy = resolveToolPolicy(agentConfig);
+
+  // Consent for irreversible deletes/merges. Defaults to 'block' (incl. legacy
+  // agents with no field persisted) so the AI cannot remove data by mistake;
+  // the execute meta-tool refuses destructive ops unless this is 'allow'.
+  const destructiveOps = resolveDestructiveOpsPolicy(agentConfig);
 
   // The live, cached schema registry powers search + execute. No per-operation
   // tool docs are bound any more — capabilities are derived from the gateway.
@@ -78,9 +85,27 @@ export async function getOrCreateAgent(
 
   // erxes search/execute meta-tools — bound only when the policy grants at least
   // one operation (an all-builtins-only restricted agent skips them).
+  // Per-agent audit sink: every mutation the agent runs (or is blocked from)
+  // is recorded against this agent. Fire-and-forget inside writeAgentAction.
+  const recordAction = (entry: AgentActionInput) =>
+    writeAgentAction(models, {
+      ...entry,
+      source: 'chat',
+      agentId: agentConfig.agentId,
+    });
+
   const hasErxes = hasAnyOperation(registry.list, policy);
   if (hasErxes) {
-    Object.assign(tools, buildErxesMetaTools({ registry, settings, policy }));
+    Object.assign(
+      tools,
+      buildErxesMetaTools({
+        registry,
+        settings,
+        policy,
+        destructiveOps,
+        recordAction,
+      }),
+    );
   }
 
   // Standalone builtin tools, filtered by policy.
@@ -141,25 +166,14 @@ export async function getOrCreateAgent(
     instructions: systemPrompt,
     model,
     tools: toolNames.length ? tools : undefined,
-    // The modern loop (generate/stream) reads defaultOptions; the legacy
-    // OpenAI-compatible loop (generateLegacy/streamLegacy) reads its own two
-    // keys and otherwise falls back to Mastra's internal default — all three
-    // must be set or legacy turns get silently truncated mid-task.
+    // generate()/stream() read defaultOptions. Temperature is only set when the
+    // agent configures it — otherwise the provider default applies (sending an
+    // explicit 0 is what reasoning models like Kimi reject).
     defaultOptions: {
       maxSteps,
       ...(hasTemperature ? { modelSettings: { temperature } } : {}),
     },
-    defaultGenerateOptionsLegacy: {
-      maxSteps,
-      ...(hasTemperature ? { temperature } : {}),
-    },
-    defaultStreamOptionsLegacy: {
-      maxSteps,
-      ...(hasTemperature ? { temperature } : {}),
-    },
-    // The two legacy keys are read at runtime but missing from Mastra's
-    // published AgentConfig type, hence the cast.
-  } as unknown as ConstructorParameters<typeof Agent>[0]) as unknown as Agent;
+  });
 
   agentCache.set(cacheKey, agent);
   toolsCache.set(cacheKey, tools);

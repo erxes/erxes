@@ -1,11 +1,14 @@
 import { projectsColumns } from '@/project/components/ProjectsColumn';
 import { RecordTable, PageSubHeader } from 'erxes-ui';
-import { useProjects, useProjectsVariables } from '@/project/hooks/useGetProjects';
+import {
+  useProjects,
+  useProjectsVariables,
+} from '@/project/hooks/useGetProjects';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { ProjectsFilter } from '@/project/components/ProjectsFilter';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { currentUserState, Export } from 'ui-modules';
+import { Can, currentUserState, Export } from 'ui-modules';
 import { PROJECTS_CURSOR_SESSION_KEY } from '@/project/constants/ProjectSessionKey';
 import { ProjectsCommandBar } from './projects-command-bar/ProjectsCommandBar';
 
@@ -36,13 +39,15 @@ const ProjectsExportButton = () => {
   };
 
   return (
-    <Export
-      pluginName="operation"
-      moduleName="project"
-      collectionName="project"
-      getFilters={getFilters}
-      buttonVariant="outline"
-    />
+    <Can action="projectExportManage">
+      <Export
+        pluginName="operation"
+        moduleName="project"
+        collectionName="project"
+        getFilters={getFilters}
+        buttonVariant="outline"
+      />
+    </Can>
   );
 };
 

@@ -62,6 +62,7 @@ const getBearerToken = (req: Request) => {
   return match?.[1] || '';
 };
 
+// skipcq: JS-R1005 — legacy middleware complexity
 export default async function userMiddleware(
   req: Request & { user?: any; cpUser?: any; clientPortal?: any },
   res: Response,
@@ -134,7 +135,18 @@ export default async function userMiddleware(
   }
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();
-  const subdomain = getSubdomain(req);
+  let subdomain: string;
+
+  try {
+    subdomain = getSubdomain(req);
+  } catch (e: unknown) {
+    debugAuth(req, 'missing-hostname', {
+      error: e instanceof Error ? e.message : 'unknown',
+      durationMs: Date.now() - startedAt,
+    });
+
+    return res.status(400).json({ error: 'Hostname is required' });
+  }
 
   let models: IModels;
   try {
