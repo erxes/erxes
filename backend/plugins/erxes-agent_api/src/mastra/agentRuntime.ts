@@ -44,7 +44,9 @@ export async function getOrCreateAgent(
   // Mastra Memory (semantic recall + working memory) is opt-in and tenant-bound
   // — only attached when advanced memory is enabled AND we know the tenant.
   const useMemory =
-    isAdvancedMemoryEnabled() && agentConfig.memoryEnabled !== false && !!subdomain;
+    isAdvancedMemoryEnabled() &&
+    agentConfig.memoryEnabled !== false &&
+    !!subdomain;
   const [providers, settings] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),
@@ -179,9 +181,7 @@ export async function getOrCreateAgent(
     instructions: systemPrompt,
     model,
     tools: toolNames.length ? tools : undefined,
-    ...(memory
-      ? { memory, inputProcessors: [new ToolCallFilter()] }
-      : {}),
+    ...(memory ? { memory, inputProcessors: [new ToolCallFilter()] } : {}),
     // generate()/stream() read defaultOptions. Temperature is only set when the
     // agent configures it — otherwise the provider default applies (sending an
     // explicit 0 is what reasoning models like Kimi reject).
