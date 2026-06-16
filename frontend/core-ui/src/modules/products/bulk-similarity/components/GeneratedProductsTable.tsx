@@ -3,12 +3,15 @@ import {
   IconAlertTriangle,
   IconStar,
   IconStarFilled,
+  IconSwitchHorizontal,
 } from '@tabler/icons-react';
 import { useEffect, useRef } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
 import { useBulkRows } from '../hooks/useBulkRows';
 import { useVariantFields } from '../hooks/useVariantFields';
+import { generateCodeSuffix } from '../utils';
+import { ChoosableProduct, ProductChooserSheet } from './ProductChooserSheet';
 
 const EditableCell = ({
   value,
@@ -70,7 +73,7 @@ const EditableCell = ({
         }
       }}
       className={cn(
-        'block px-2 w-full h-8 leading-8 cursor-text outline-none truncate',
+        'block px-2 outline-none w-full h-8 truncate leading-8 cursor-text',
         align === 'right' && 'text-right',
         'empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground',
         edited && 'text-warning',
@@ -88,10 +91,68 @@ interface GeneratedProductsTableProps {
   unitPrice?: number;
 }
 
-const statusBadge = (isExcluded: boolean, productId?: string) => {
-  if (isExcluded) return <Badge variant="secondary">skipped</Badge>;
-  if (productId) return <Badge variant="success">existing</Badge>;
-  return <Badge variant="info">new</Badge>;
+const RowSwapCell = ({
+  index,
+  isExcluded,
+  productId,
+  code,
+  combination,
+  baseCode,
+  fieldIds,
+  labelOf,
+  excludeIds,
+}: {
+  index: number;
+  isExcluded: boolean;
+  productId?: string;
+  code: string;
+  combination: Record<string, string>;
+  baseCode: string;
+  fieldIds: string[];
+  labelOf: (fieldId: string, value: string) => string;
+  excludeIds: string[];
+}) => {
+  const { setValue, trigger } = useFormContext<BulkSimilarityFormValues>();
+
+  const handleChoose = (product: ChoosableProduct) => {
+    setValue(`rows.${index}.productId`, product._id);
+    setValue(`rows.${index}.code`, product.code);
+    setValue(`rows.${index}.codeEdited`, true);
+    if (product.unitPrice != null) {
+      setValue(`rows.${index}.unitPrice`, product.unitPrice);
+    }
+    trigger('rows');
+  };
+
+  const handleClear = () => {
+    const suffix = generateCodeSuffix(fieldIds, combination, labelOf);
+    setValue(`rows.${index}.productId`, undefined);
+    setValue(`rows.${index}.code`, `${baseCode}${suffix}`);
+    setValue(`rows.${index}.codeEdited`, false);
+    trigger('rows');
+  };
+
+  return (
+    <div className="flex justify-center items-center">
+      <ProductChooserSheet
+        excludeIds={excludeIds}
+        value={productId}
+        valueCode={code}
+        onChoose={handleChoose}
+        onClear={handleClear}
+      >
+        <Button
+          type="button"
+          variant={productId ? 'secondary' : 'ghost'}
+          size="icon"
+          className="bg-transparent size-7"
+          disabled={isExcluded}
+        >
+          <IconSwitchHorizontal size={14} />
+        </Button>
+      </ProductChooserSheet>
+    </div>
+  );
 };
 
 const EmptyPanel = ({
@@ -103,7 +164,7 @@ const EmptyPanel = ({
 }) => (
   <div
     className={cn(
-      'flex gap-2 justify-center items-center px-4 py-8 text-sm rounded-lg border border-dashed',
+      'flex justify-center items-center gap-2 px-4 py-8 border border-dashed rounded-lg text-sm',
       variant === 'muted' && 'text-muted-foreground',
       variant === 'destructive' && 'border-destructive/50 text-destructive',
     )}
@@ -126,6 +187,7 @@ export const GeneratedProductsTable = ({
     handleSetAllExcluded,
   } = useBulkRows();
   const watchedRows = useWatch({ control, name: 'rows' }) || [];
+  const baseCode = useWatch({ control, name: 'code' }) || '';
 
   if (!rows.length) {
     return (
@@ -147,10 +209,14 @@ export const GeneratedProductsTable = ({
   const headerState: boolean | 'indeterminate' =
     includedCount === 0 ? false : allIncluded ? true : 'indeterminate';
 
+  const usedProductIds = watchedRows
+    .map((r) => r.productId)
+    .filter((id): id is string => !!id);
+
   return (
-    <div className="overflow-auto max-h-[28rem] rounded-lg border">
+    <div className="border rounded-lg max-h-[28rem] overflow-auto">
       <Table>
-        <Table.Header className="sticky top-0 z-10 bg-sidebar">
+        <Table.Header className="top-0 z-10 sticky bg-sidebar">
           <Table.Row>
             <Table.Head className="px-3 w-10">
               <Tooltip.Provider>
@@ -179,7 +245,7 @@ export const GeneratedProductsTable = ({
                 {fieldName(fieldId)}
               </Table.Head>
             ))}
-            <Table.Head className="px-3 w-24">Status</Table.Head>
+            <Table.Head className="px-3 w-20 text-center">Swap</Table.Head>
             <Table.Head className="px-3 w-16 text-center">Star</Table.Head>
           </Table.Row>
         </Table.Header>
@@ -213,7 +279,7 @@ export const GeneratedProductsTable = ({
                   />
                 </Table.Cell>
                 <Table.Cell className="px-1">
-                  <div className="flex gap-1 items-center">
+                  <div className="flex items-center gap-1">
                     <Controller
                       control={control}
                       name={`rows.${index}.code`}
@@ -258,8 +324,8 @@ export const GeneratedProductsTable = ({
                           field.value != null
                             ? String(field.value)
                             : unitPrice != null
-                              ? String(unitPrice)
-                              : ''
+                            ? String(unitPrice)
+                            : ''
                         }
                         placeholder="0"
                         disabled={isExcluded}
@@ -281,40 +347,36 @@ export const GeneratedProductsTable = ({
                   </Table.Cell>
                 ))}
                 <Table.Cell className="px-3">
-                  {statusBadge(isExcluded, row.productId)}
+                  <RowSwapCell
+                    index={index}
+                    isExcluded={isExcluded}
+                    productId={row.productId}
+                    code={code}
+                    combination={combination}
+                    baseCode={baseCode}
+                    fieldIds={fieldIds}
+                    labelOf={labelOf}
+                    excludeIds={usedProductIds}
+                  />
                 </Table.Cell>
                 <Table.Cell className="px-3 text-center">
                   <Controller
                     control={control}
                     name={`rows.${index}.isStar`}
                     render={({ field }) => (
-                      <Tooltip.Provider>
-                        <Tooltip>
-                          <Tooltip.Trigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7"
-                              onClick={() => handleSetRowStar(row.key)}
-                              disabled={isExcluded}
-                            >
-                              {field.value ? (
-                                <IconStarFilled
-                                  size={14}
-                                  className="text-warning"
-                                />
-                              ) : (
-                                <IconStar size={14} />
-                              )}
-                            </Button>
-                          </Tooltip.Trigger>
-                          <Tooltip.Content>
-                            {field.value
-                              ? 'Star product'
-                              : 'Set as star product'}
-                          </Tooltip.Content>
-                        </Tooltip>
-                      </Tooltip.Provider>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-7"
+                        onClick={() => handleSetRowStar(row.key)}
+                        disabled={isExcluded}
+                      >
+                        {field.value ? (
+                          <IconStarFilled size={14} className="text-warning" />
+                        ) : (
+                          <IconStar size={14} />
+                        )}
+                      </Button>
                     )}
                   />
                 </Table.Cell>
