@@ -34,6 +34,7 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { type LegendPayload } from 'recharts';
 import { getFilters } from '@/report/utils/dateFilters';
+import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
 import {
   getReportChartTypeAtom,
@@ -330,6 +331,10 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="tk-tags-primary" color="var(--primary)" />
+          <AreaGradient id="tk-tags-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="tag" tickLine={false} axisLine={false} />
         <YAxis
@@ -354,9 +359,10 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.3}
+          fill="url(#tk-tags-primary)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Area
@@ -364,9 +370,10 @@ export const TicketTagLineChart = memo(function TicketTagLineChart({
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
-          fillOpacity={0.3}
+          fill="url(#tk-tags-success)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />

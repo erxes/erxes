@@ -140,7 +140,6 @@ const formQueries: Record<string, Resolver> = {
     const qry = {
       ...(await generateFilterQuery(args, models, user)),
     };
-
     const count = async (query) => {
       return models.Forms.find(query).countDocuments();
     };

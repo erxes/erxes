@@ -38,6 +38,10 @@ export const erxesMessengerSetSetupAtom = atom(
             DEFAULT_COLORS.FOREGROUND,
         },
         logo: payload?.uiOptions?.logo,
+        launcherLogo: payload?.uiOptions?.launcherLogo,
+        backgroundColor:
+          payload?.uiOptions?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
+        heroStyleVariant: payload?.uiOptions?.heroStyleVariant,
         navigationVariant: payload?.uiOptions?.navigationVariant,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);

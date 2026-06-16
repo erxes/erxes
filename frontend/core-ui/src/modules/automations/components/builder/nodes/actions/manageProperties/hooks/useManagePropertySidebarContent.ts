@@ -18,6 +18,10 @@ export const useManagePropertySidebarContent = (
     control,
     name: 'module',
   });
+  const setPropertyTarget = useWatch<TManagePropertiesForm>({
+    control,
+    name: 'setPropertyTarget',
+  });
 
   const { selectedActionType } = useActionTarget({
     actionId: currentAction.id,
@@ -31,22 +35,57 @@ export const useManagePropertySidebarContent = (
     actionFolks,
   );
 
-  const propertyType = module || selectedActionType || trigger?.type || '';
-  const { propertyTypes } = useGetFieldsProperties(propertyType);
+  const sourceType = selectedActionType || trigger?.type || '';
+  const selectedPropertyType = module || sourceType;
+  const { propertyTypes, loading } = useGetFieldsProperties(
+    selectedPropertyType,
+    {
+      source: 'automations',
+      sourceType,
+    },
+  );
+  const defaultPropertyType = propertyTypes[0]?.value || sourceType;
+  const propertyType = module || defaultPropertyType;
+  const selectedPropertyTarget = useMemo(
+    () =>
+      propertyTypes.find((p) => p.value === propertyType) ||
+      propertyTypes.find((p) => propertyType.startsWith(p.value)),
+    [propertyTypes, propertyType],
+  );
   const isPropertyTypeValid = useMemo(
-    () => !!propertyTypes.find((p) => p.value === propertyType),
+    () =>
+      !!propertyTypes.find(
+        (p) => propertyType === p.value || propertyType.startsWith(p.value),
+      ),
     [propertyTypes, propertyType],
   );
 
   useEffect(() => {
-    if (!module) {
-      setValue('module', propertyType);
+    if (!module && defaultPropertyType) {
+      setValue('module', defaultPropertyType);
     }
-  }, [module, setValue]);
+  }, [defaultPropertyType, module, setValue]);
+
+  useEffect(() => {
+    if (!selectedPropertyTarget) {
+      return;
+    }
+
+    if (
+      setPropertyTarget?.type === selectedPropertyTarget.type &&
+      setPropertyTarget?.source === selectedPropertyTarget.source
+    ) {
+      return;
+    }
+
+    setValue('setPropertyTarget', selectedPropertyTarget);
+  }, [selectedPropertyTarget, setPropertyTarget, setValue]);
 
   return {
     propertyType,
+    sourceType,
     propertyTypes,
+    loading,
     module,
     isPropertyTypeValid,
   };

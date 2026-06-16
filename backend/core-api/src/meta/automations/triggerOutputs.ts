@@ -1,9 +1,8 @@
 import { TAutomationRuntimeOutputDefinition } from 'erxes-api-shared/core-modules';
-import { resolveUserLabelByIdField } from './outputHelpers';
 
 export const WEBHOOK_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [
-    { key: 'targetId', label: 'Target ID', exposure: 'reference' },
+    { key: 'targetId', label: 'Target ID' },
     { key: 'endpoint', label: 'Endpoint' },
     { key: 'method', label: 'Method' },
     { key: 'body', label: 'Body' },
@@ -42,25 +41,22 @@ export const TEAM_MEMBER_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
     { key: 'details.workStartedDate', label: 'Work Started Date' },
     { key: 'links', label: 'Links' },
     { key: 'createdAt', label: 'Created At' },
-    { key: '_id', label: 'Record ID', exposure: 'reference' },
-    { key: 'groupIds', label: 'Groups', exposure: 'reference' },
-    { key: 'brandIds', label: 'Brands', exposure: 'reference' },
+    { key: '_id', label: 'Record ID' },
+    { key: 'groupIds', label: 'Groups' },
+    { key: 'brandIds', label: 'Brands' },
     { key: 'branchIds', label: 'Branches', exposure: 'reference' },
     { key: 'departmentIds', label: 'Departments', exposure: 'reference' },
-    { key: 'positionIds', label: 'Positions', exposure: 'reference' },
+    { key: 'positionIds', label: 'Positions' },
     {
       key: 'permissionGroupIds',
       label: 'Permission Groups',
-      exposure: 'reference',
     },
   ],
-  propertySources: [
-    {
-      key: 'properties',
-      label: 'Team Member Properties',
-      propertyType: 'core:user',
-    },
-  ],
+  propertySource: {
+    key: 'properties',
+    label: 'Team Member Properties',
+    propertyType: 'core:user',
+  },
 };
 
 export const CUSTOMER_BASE_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition =
@@ -95,47 +91,37 @@ export const CUSTOMER_BASE_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition =
       { key: 'hostname', label: 'Host Name' },
       { key: 'createdAt', label: 'Created At' },
       { key: 'updatedAt', label: 'Updated At' },
-      { key: '_id', label: 'Record ID', exposure: 'reference' },
+      { key: '_id', label: 'Record ID' },
       { key: 'ownerId', label: 'Owner ID', exposure: 'reference' },
-      { key: 'owner', label: 'Owner' },
       { key: 'tagIds', label: 'Tags', exposure: 'reference' },
       {
         key: 'integrationId',
         label: 'Integration',
-        exposure: 'reference',
       },
       {
         key: 'relatedIntegrationIds',
         label: 'Related Integrations',
-        exposure: 'reference',
       },
-      { key: 'mergedIds', label: 'Merged IDs', exposure: 'reference' },
+      { key: 'mergedIds', label: 'Merged IDs' },
     ],
-    resolvers: {
-      owner: resolveUserLabelByIdField('ownerId'),
-    },
   };
 
 export const CUSTOMER_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
   ...CUSTOMER_BASE_TRIGGER_OUTPUT,
-  propertySources: [
-    {
-      key: 'properties',
-      label: 'Customer Properties',
-      propertyType: 'core:customer',
-    },
-  ],
+  propertySource: {
+    key: 'properties',
+    label: 'Customer Properties',
+    propertyType: 'core:customer',
+  },
 };
 
 export const LEAD_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
   ...CUSTOMER_BASE_TRIGGER_OUTPUT,
-  propertySources: [
-    {
-      key: 'properties',
-      label: 'Lead Properties',
-      propertyType: 'core:customer',
-    },
-  ],
+  propertySource: {
+    key: 'properties',
+    label: 'Lead Properties',
+    propertyType: 'core:customer',
+  },
 };
 
 export const COMPANY_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
@@ -164,25 +150,18 @@ export const COMPANY_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
     { key: 'score', label: 'Score' },
     { key: 'createdAt', label: 'Created At' },
     { key: 'updatedAt', label: 'Updated At' },
-    { key: '_id', label: 'Record ID', exposure: 'reference' },
+    { key: '_id', label: 'Record ID' },
     { key: 'ownerId', label: 'Owner ID', exposure: 'reference' },
-    { key: 'owner', label: 'Owner' },
     {
       key: 'parentCompanyId',
       label: 'Parent Company',
-      exposure: 'reference',
     },
     { key: 'tagIds', label: 'Tags', exposure: 'reference' },
-    { key: 'mergedIds', label: 'Merged IDs', exposure: 'reference' },
+    { key: 'mergedIds', label: 'Merged IDs' },
   ],
-  propertySources: [
-    {
-      key: 'properties',
-      label: 'Company Properties',
-      propertyType: 'core:company',
-    },
-  ],
-  resolvers: {
-    owner: resolveUserLabelByIdField('ownerId'),
+  propertySource: {
+    key: 'properties',
+    label: 'Company Properties',
+    propertyType: 'core:company',
   },
 };

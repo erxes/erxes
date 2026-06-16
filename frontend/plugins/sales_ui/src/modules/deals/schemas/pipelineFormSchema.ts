@@ -18,7 +18,6 @@ export const PIPELINE_CREATE_SCHEMA = z.object({
   initialCategoryIds: z.array(z.string()).optional(),
   excludeCategoryIds: z.array(z.string()).optional(),
   excludeProductIds: z.array(z.string()).optional(),
-  erxesAppToken: z.string().optional(),
   paymentIds: z.array(z.string()).optional(),
   paymentTypes: z
     .array(

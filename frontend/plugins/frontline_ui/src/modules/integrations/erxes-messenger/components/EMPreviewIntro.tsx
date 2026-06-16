@@ -7,6 +7,7 @@ import {
   erxesMessengerSetupSettingsAtom,
   erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import { cva } from 'class-variance-authority';
 import {
   Avatar,
   Badge,
@@ -32,7 +33,7 @@ import { EMPreviewChatInput } from './EMPreviewChatInput';
 import { Weekday } from '../types/Weekday';
 import { ScheduleDay } from '../constants/emHoursSchema';
 import { format, parse } from 'date-fns';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
   IconArrowRight,
@@ -59,6 +60,22 @@ import { GET_KNOWLEDGE_BASE_TOPIC_DETAILS } from '@/knowledgebase/graphql/querie
 import { IKnowledgeBaseTopic } from '@/knowledgebase/types';
 import { EMPreviewWebsiteApp } from './EMPreviewWebsiteApp';
 import { EMPreviewMessages } from './EMPreviewMessages';
+
+const heroBackgroundVariants = cva('', {
+  variants: {
+    variant: {
+      glossy:
+        'bg-[radial-gradient(120%_80%_at_88%_-10%,color-mix(in_oklch,var(--color-primary-foreground)_18%,transparent)_0%,transparent_55%),radial-gradient(80%_60%_at_10%_110%,color-mix(in_oklch,var(--color-primary)_22%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_75%,black)_70%,color-mix(in_oklch,var(--color-hero)_60%,black)_100%)]',
+      aurora:
+        'bg-[radial-gradient(60%_50%_at_80%_20%,color-mix(in_oklch,var(--color-primary)_55%,transparent)_0%,transparent_60%),radial-gradient(60%_60%_at_15%_110%,color-mix(in_oklch,var(--color-destructive)_45%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+      mesh: 'bg-[radial-gradient(50%_40%_at_30%_30%,color-mix(in_oklch,var(--color-primary)_35%,transparent)_0%,transparent_60%),radial-gradient(40%_30%_at_80%_60%,color-mix(in_oklch,var(--color-info)_25%,transparent)_0%,transparent_60%),radial-gradient(40%_40%_at_70%_10%,color-mix(in_oklch,var(--color-warning)_18%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+      flat: 'bg-[linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+    },
+  },
+  defaultVariants: {
+    variant: 'glossy',
+  },
+});
 
 const MAX_COUNT = 2;
 
@@ -237,17 +254,27 @@ export const EMPreviewIntro = () => {
 
   const hasLinks = greeting?.links?.some(Boolean);
 
+  const heroStyle = appearance?.backgroundColor
+    ? ({ '--color-hero': appearance.backgroundColor } as React.CSSProperties)
+    : undefined;
+
   return (
     <div className="flex-1 overflow-y-auto min-h-0 bg-muted hide-scroll">
       {/* Hero header — matches HeaderHero "default" tab */}
-      <div className="min-h-40 bg-transparent px-5 pt-[18px] pb-12 relative flex-auto bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_55%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_100%)]">
+      <div
+        className={cn(
+          heroBackgroundVariants({ variant: appearance?.heroStyleVariant }),
+          'min-h-40 px-5 pt-[18px] pb-12 relative flex-auto',
+        )}
+        style={heroStyle}
+      >
         <div className="flex items-center justify-between">
           <div className="bg-background size-8 rounded flex items-center justify-center p-1">
             {appearance?.logo ? (
               <img
                 alt="logo"
                 src={readImage(appearance.logo)}
-                className="object-center object-scale-down invert dark:invert-0"
+                className="object-center object-scale-down"
               />
             ) : (
               <ErxesLogoIcon className="size-5" />
@@ -257,21 +284,22 @@ export const EMPreviewIntro = () => {
             <ActiveUsers />
           </MembersInline.Provider>
         </div>
-        <div className="mt-11">
-          <h1 className="text-primary-foreground/60 text-[28px] leading-none font-light">
+        <div className="mt-11 flex flex-col gap-0.5">
+          <h1 className="text-primary-foreground text-[30px] leading-none">
             {greeting?.title ?? 'Hello there.'}
           </h1>
-          <h2 className="text-primary-foreground text-[30px] leading-none">
+          <h2 className="text-primary-foreground/60 text-2xl leading-none font-light">
             {greeting?.message ?? 'How can we help?'}
           </h2>
           {intro?.welcome && (
-            <Badge className="mt-3" variant="success">
-              <div
-                className="size-1.5 bg-success rounded-full"
-                aria-label="badge-dot"
-              />
-              {intro?.welcome}
-            </Badge>
+            <div className="mt-3 rounded-2xl py-1.75 ps-2.5 pe-3 flex-none w-auto bg-success/16 flex items-center gap-1.5 border border-success/30">
+              <div className="rounded-full bg-success size-1.5 flex-none" />
+              <span className="flex-1 overflow-x-hidden">
+                <span className="flex tracking-tight text-xs font-medium leading-snug text-primary-foreground text-justify">
+                  {intro?.welcome ?? 'Got any problems'}
+                </span>
+              </span>
+            </div>
           )}
         </div>
       </div>
@@ -759,6 +787,10 @@ export const EMPreviewTickets = () => {
 
 export const EMPreviewFaq = () => {
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
+  const appearance = useAtomValue(erxesMessengerSetupAppearanceAtom);
+  const heroStyle = appearance?.backgroundColor
+    ? ({ '--color-hero': appearance.backgroundColor } as React.CSSProperties)
+    : undefined;
   const { data, loading } = useQuery<{
     knowledgeBaseTopicDetail: IKnowledgeBaseTopic;
   }>(GET_KNOWLEDGE_BASE_TOPIC_DETAILS, {
@@ -781,7 +813,13 @@ export const EMPreviewFaq = () => {
   ) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex-none pb-5.5 px-5 pt-4.5 relative bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_55%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_100%)]">
+        <div
+          className={cn(
+            heroBackgroundVariants({ variant: appearance?.heroStyleVariant }),
+            'flex-none pb-5.5 px-5 pt-4.5 relative',
+          )}
+          style={heroStyle}
+        >
           <span className="text-primary-foreground/60 text-xs font-light">
             Browse
           </span>
@@ -807,7 +845,13 @@ export const EMPreviewFaq = () => {
   }
   return (
     <div className="flex-1 overflow-y-auto hide-scroll min-h-0 bg-muted">
-      <div className="min-h-40 pb-28 flex-auto px-5 pt-4.5 bg-transparent relative bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_55%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_100%)]">
+      <div
+        className={cn(
+          heroBackgroundVariants({ variant: appearance?.heroStyleVariant }),
+          'min-h-40 pb-28 flex-auto px-5 pt-4.5 relative',
+        )}
+        style={heroStyle}
+      >
         <h1 className="text-primary-foreground text-2xl">Help center</h1>
         <span className="text-primary-foreground/60 text-xs font-light">
           Browse {title}

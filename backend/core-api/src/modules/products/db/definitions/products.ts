@@ -97,6 +97,13 @@ export const productSchema = schemaWrapper(
 
       inventories: { type: Object, optional: true },
       discounts: { type: Object, optional: true },
+
+      similarityId: {
+        type: String,
+        optional: true,
+        label: 'Similarity',
+        index: true,
+      },
     },
     {
       timestamps: true,
@@ -105,3 +112,5 @@ export const productSchema = schemaWrapper(
 );
 
 productSchema.index({ _id: 1, createdAt: 1 });
+productSchema.index({ similarityId: 1 });
+productSchema.index({ similarityId: 1, code: 1 });

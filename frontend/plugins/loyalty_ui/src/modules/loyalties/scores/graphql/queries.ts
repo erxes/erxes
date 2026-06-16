@@ -58,8 +58,6 @@ export const SCORE_LOGS_QUERY = gql`
         serviceName
         createdBy
         createdAt
-        amount
-        quantity
       }
       pageInfo {
         hasNextPage

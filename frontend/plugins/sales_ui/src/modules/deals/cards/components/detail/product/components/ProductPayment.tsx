@@ -1,11 +1,13 @@
 import {
   type ChangeEvent,
   type KeyboardEvent,
+  type MouseEvent,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from 'react';
+import { gql, useMutation } from '@apollo/client';
 import {
   IconAward,
   IconCircleCheck,
@@ -20,6 +22,7 @@ import {
   Dialog,
   Input,
   Popover,
+  Sheet,
   useConfirm,
   useToast,
 } from 'erxes-ui';
@@ -51,6 +54,12 @@ type PayInfo = {
   hasPopup: boolean;
   validQr: boolean;
 };
+
+const GENERATE_INVOICE_URL = gql`
+  mutation SalesDealGenerateInvoiceUrl($input: InvoiceInput!) {
+    generateInvoiceUrl(input: $input)
+  }
+`;
 
 const parsePaymentConfig = (config: IPaymentType['config']) => {
   if (!config) {
@@ -101,8 +110,7 @@ const OwnerScoreCampaignScore = ({
     if (checkOwnerScore && onScoreFetched) {
       onScoreFetched(checkOwnerScore);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkOwnerScore]);
+  }, [checkOwnerScore, onScoreFetched]);
 
   if (!paymentType?.scoreCampaignId || customers.length === 0) return null;
 
@@ -189,16 +197,15 @@ const ProductsPayment = ({
   deal,
   paymentsData: initialPaymentsData,
   onChangePaymentsData,
-  refetch,
 }: {
   deal: IDeal;
   paymentsData?: IPaymentsData;
   onChangePaymentsData?: (data: IPaymentsData) => void;
-  refetch: () => void;
 }) => {
   const [paymentsData, setPaymentsData] = useState<IPaymentsData>(
     initialPaymentsData || deal.paymentsData || {},
   );
+  const [mobileAmount, setMobileAmount] = useState<number>(0);
   const [payInfoByType, setPayInfoByType] = useState<Record<string, PayInfo>>(
     {},
   );
@@ -207,9 +214,18 @@ const ProductsPayment = ({
     paymentType: any;
     password: string;
   }>({ open: false, paymentType: null, password: '' });
+  const [invoiceSheetOpen, setInvoiceSheetOpen] = useState(false);
+  const [invoiceUrl, setInvoiceUrl] = useState('');
 
   const { editDeals } = useDealsEdit();
+  const [generateInvoiceUrl, { loading: generatingInvoice }] =
+    useMutation(GENERATE_INVOICE_URL);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setMobileAmount(0);
+    setInvoiceUrl('');
+  }, [deal.mobileAmount]);
 
   const total = useMemo(() => {
     const amounts: { [currency: string]: number } = {};
@@ -222,15 +238,26 @@ const ProductsPayment = ({
     return amounts;
   }, [deal.productsData]);
 
+  const defaultCurrency = Object.keys(total)[0] || 'MNT';
+  const paidMobileAmount = Number(deal.mobileAmount || 0);
+  const hasMobilePayments = !!deal.pipeline?.paymentIds?.length;
+
   const paidAmounts = useMemo(() => {
     const paid: { [currency: string]: number } = {};
-    Object.values(paymentsData).forEach((payment: any) => {
+    Object.entries(paymentsData).forEach(([type, payment]: [string, any]) => {
+      if (type === 'mobile') {
+        return;
+      }
+
       if (payment.amount && payment.currency) {
         paid[payment.currency] = (paid[payment.currency] || 0) + payment.amount;
       }
     });
+    if (paidMobileAmount) {
+      paid[defaultCurrency] = (paid[defaultCurrency] || 0) + paidMobileAmount;
+    }
     return paid;
-  }, [paymentsData]);
+  }, [defaultCurrency, paidMobileAmount, paymentsData]);
 
   const changeAmounts = useMemo(() => {
     const change: { [currency: string]: number } = {};
@@ -243,8 +270,10 @@ const ProductsPayment = ({
     });
     return change;
   }, [total, paidAmounts]);
-
-  const defaultCurrency = Object.keys(total)[0] || 'MNT';
+  const mobileRemainingAmount = Math.max(
+    (total[defaultCurrency] || 0) - (paidAmounts[defaultCurrency] || 0),
+    0,
+  );
 
   const getInitialPaymentAmount = useCallback(
     (type: string) => {
@@ -303,12 +332,103 @@ const ProductsPayment = ({
     [fillRemaining, paymentsData],
   );
 
+  const updateMobileAmount = useCallback((amount: number) => {
+    setMobileAmount(amount);
+  }, []);
+
+  const fillMobileRemaining = useCallback(() => {
+    if (mobileRemainingAmount > 0) {
+      updateMobileAmount(mobileRemainingAmount);
+    }
+  }, [mobileRemainingAmount, updateMobileAmount]);
+
+  const fillMobileRemainingIfEmpty = useCallback(() => {
+    if (mobileAmount) {
+      return;
+    }
+
+    fillMobileRemaining();
+  }, [fillMobileRemaining, mobileAmount]);
+
+  const handleCreateMobileInvoice = useCallback(
+    async (event?: MouseEvent<HTMLButtonElement>) => {
+      event?.preventDefault();
+
+      const paymentIds = deal.pipeline?.paymentIds || [];
+      if (!paymentIds.length) {
+        toast({
+          variant: 'destructive',
+          title: 'Payment methods missing',
+          description:
+            'Please select online payments in pipeline settings first.',
+        });
+        return;
+      }
+
+      const amount = mobileAmount || mobileRemainingAmount;
+      if (!amount) {
+        toast({
+          variant: 'destructive',
+          title: 'Amount missing',
+          description: 'Please enter a mobile amount before creating payment.',
+        });
+        return;
+      }
+
+      setInvoiceUrl('');
+      setInvoiceSheetOpen(true);
+
+      try {
+        const { data } = await generateInvoiceUrl({
+          variables: {
+            input: {
+              amount,
+              currency: defaultCurrency,
+              description: deal.name,
+              contentType: 'sales:deal',
+              contentTypeId: deal._id,
+              paymentIds,
+            },
+          },
+        });
+
+        const url = data?.generateInvoiceUrl;
+        if (url) {
+          setInvoiceUrl(url);
+          return;
+        }
+
+        toast({
+          variant: 'destructive',
+          title: 'Payment URL missing',
+          description: 'Invoice was created but no payment URL was returned.',
+        });
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Failed to create payment',
+          description:
+            error instanceof Error ? error.message : 'Please try again later.',
+        });
+      }
+    },
+    [
+      deal._id,
+      deal.name,
+      deal.pipeline?.paymentIds,
+      defaultCurrency,
+      generateInvoiceUrl,
+      mobileAmount,
+      mobileRemainingAmount,
+      toast,
+    ],
+  );
+
   const handleScoreFetched = useCallback(
     (score: number, paymentType: any) => {
       const typeName = paymentType.type;
       const paymentConfig = parsePaymentConfig(paymentType.config);
-      const requiresQr =
-        paymentConfig?.require?.toLowerCase() === 'qrcode';
+      const requiresQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
       const initialAmount = getInitialPaymentAmount(typeName);
       const availableAmount = score + initialAmount;
 
@@ -422,7 +542,7 @@ const ProductsPayment = ({
   };
 
   const renderTotals = (amounts: { [currency: string]: number }) => {
-    const entries = Object.entries(amounts).filter(([_, val]) => val !== 0);
+    const entries = Object.entries(amounts).filter(([, val]) => val !== 0);
     if (entries.length === 0) {
       return <span>0 {defaultCurrency}</span>;
     }
@@ -460,8 +580,8 @@ const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-green-500'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                ? 'text-red-500'
-                : ''
+                  ? 'text-red-500'
+                  : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
@@ -510,12 +630,119 @@ const ProductsPayment = ({
             </div>
           </div>
         </div>
-        {deal.pipeline?.paymentTypes?.map(
-          (paymentType: IPaymentType, index: number) => {
+        {hasMobilePayments && (
+          <div className="flex items-center gap-2 py-2 w-full justify-center">
+            <div className="flex w-full justify-between items-center">
+              <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
+                MOBILE
+              </p>
+              <div className="flex flex-1 items-center">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={formatNumber(mobileAmount || '')}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    updateMobileAmount(parseNumber(e.target.value))
+                  }
+                  onClick={fillMobileRemainingIfEmpty}
+                  className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
+                  placeholder="Type amount"
+                />
+              </div>
+              <div className="flex flex-1 items-center justify-end">
+                <Sheet
+                  open={invoiceSheetOpen}
+                  onOpenChange={setInvoiceSheetOpen}
+                >
+                  <Sheet.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCreateMobileInvoice}
+                      disabled={generatingInvoice}
+                    >
+                      QPay
+                    </Button>
+                  </Sheet.Trigger>
+                  <Sheet.View className="p-0 sm:max-w-xl">
+                    <Sheet.Header className="border-b">
+                      <Sheet.Title>QPay payment</Sheet.Title>
+                      <Sheet.Close />
+                    </Sheet.Header>
+                    <Sheet.Content className="flex flex-col gap-3 p-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Amount</span>
+                        <span className="font-medium">
+                          {formatNumber(mobileAmount || mobileRemainingAmount)}{' '}
+                          {defaultCurrency}
+                        </span>
+                      </div>
+                      {generatingInvoice && (
+                        <div className="flex h-96 items-center justify-center rounded-md border text-sm text-muted-foreground">
+                          Generating payment...
+                        </div>
+                      )}
+                      {!generatingInvoice && invoiceUrl && (
+                        <>
+                          <Input
+                            readOnly
+                            value={invoiceUrl}
+                            className="font-mono text-xs"
+                          />
+                          <iframe
+                            title="QPay payment"
+                            src={invoiceUrl}
+                            className="h-[70vh] w-full rounded-md border"
+                          />
+                        </>
+                      )}
+                      {!generatingInvoice && !invoiceUrl && (
+                        <div className="flex h-96 items-center justify-center rounded-md border text-sm text-muted-foreground">
+                          Payment response will appear here.
+                        </div>
+                      )}
+                    </Sheet.Content>
+                  </Sheet.View>
+                </Sheet>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={fillMobileRemaining}
+                >
+                  <IconCircleCheck className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        {(deal.mobileAmounts || []).map((mobilePayment, index) => (
+          <div
+            key={mobilePayment._id || index}
+            className="flex items-center gap-2 py-2 w-full justify-center"
+          >
+            <div className="flex w-full justify-between items-center">
+              <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
+                MOBILE PAID
+              </p>
+              <div className="flex flex-1 items-center">
+                <Input
+                  readOnly
+                  value={formatNumber(mobilePayment.amount || 0)}
+                  className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
+                />
+              </div>
+              <div className="flex flex-1 items-center justify-end text-sm text-muted-foreground">
+                {mobilePayment._id}
+              </div>
+            </div>
+          </div>
+        ))}
+        {deal.pipeline?.paymentTypes
+          ?.filter((paymentType: IPaymentType) => paymentType.type !== 'mobile')
+          .map((paymentType: IPaymentType, index: number) => {
             const typeName = paymentType.type;
             const paymentConfig = parsePaymentConfig(paymentType.config);
-            const isQr =
-              paymentConfig?.require?.toLowerCase() === 'qrcode';
+            const isQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
             const hasInitialAmount = getInitialPaymentAmount(typeName) > 0;
             const payInfo = payInfoByType[typeName] || {
               hasPopup: false,
@@ -609,8 +836,7 @@ const ProductsPayment = ({
                 </div>
               </div>
             );
-          },
-        )}
+          })}
       </div>
 
       <div className="flex items-center justify-end pt-2">

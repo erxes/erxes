@@ -681,27 +681,31 @@ const fetchDeals = async (
   user: IContext['user'],
   forClientPortal = false,
 ) => {
-  const filter = await generateFilter(models, subdomain, userId, args, forClientPortal);
+  const filter = await generateFilter(
+    models,
+    subdomain,
+    userId,
+    args,
+    forClientPortal,
+  );
 
   const getExtraFields = async (item: any) => ({
     amount: await dealResolvers.amount(item),
     unUsedAmount: await dealResolvers.unusedAmount(item),
   });
 
-  const { list: deals, pageInfo, totalCount } = await getItemList(
-    models,
-    subdomain,
-    filter,
-    args,
-    user,
-    getExtraFields,
-  );
+  const {
+    list: deals,
+    pageInfo,
+    totalCount,
+  } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
 
   await enrichDealsWithProducts(subdomain, deals);
 
   return { list: deals, pageInfo, totalCount };
 };
 
+// #region Queries
 export const dealQueries: Record<string, Resolver> = {
   /**
    * Deals list

@@ -79,6 +79,11 @@ export const loadCompanyClass = (
      * Create a company
      */
     public static async createCompany(doc: ICompany, user: any) {
+      // Trim code so trailing/leading spaces don't break exact code lookups
+      if (typeof doc.code === 'string') {
+        doc.code = doc.code.trim();
+      }
+
       // Checking duplicated fields of company
       await this.checkDuplication(doc);
 
@@ -124,6 +129,11 @@ export const loadCompanyClass = (
      * Update company
      */
     public static async updateCompany(_id: string, doc: ICompany) {
+      // Trim code so trailing/leading spaces don't break exact code lookups
+      if (typeof doc.code === 'string') {
+        doc.code = doc.code.trim();
+      }
+
       // Checking duplicated fields of company
       await this.checkDuplication(doc, [_id]);
 
@@ -171,12 +181,18 @@ export const loadCompanyClass = (
      * Remove company
      */
     public static async removeCompanies(companyIds: string[]) {
+      // Snapshot before deletion so the removal is revertable (point-in-time).
+      const prevDocuments = await models.Companies.find({
+        _id: { $in: companyIds },
+      }).lean();
+
       const deletedCompanies = await models.Companies.deleteMany({
         _id: { $in: companyIds },
       });
       sendDbEventLog({
         action: 'deleteMany',
         docIds: companyIds,
+        prevDocuments,
       });
       return deletedCompanies;
     }
@@ -269,7 +285,7 @@ export const loadCompanyClass = (
       },
       idsToExclude?: string[] | string,
     ) {
-      const query: { status: { $ne: string }; [key: string]: any } = {
+      const query: { status: { $ne: string }; [key: string]: unknown } = {
         status: { $ne: 'deleted' },
       };
       let previousEntry;
@@ -308,6 +324,7 @@ export const loadCompanyClass = (
       }
     }
 
+    /** Build the denormalized search blob (name/emails/phones/etc.) for a company. */
     public static fillSearchText(doc: ICompany) {
       return validSearchText([
         doc.primaryName || ' ',
@@ -321,6 +338,7 @@ export const loadCompanyClass = (
       ]);
     }
 
+    /** All company schema paths, including one level of nested sub-paths. */
     public static companyFieldNames() {
       const names: string[] = [];
 
@@ -339,9 +357,14 @@ export const loadCompanyClass = (
       return names;
     }
 
+    /**
+     * Normalize a company doc's list fields (emails/phones/names) and
+     * trackedData before save. Pre-existing helper; the flexible `doc`/
+     * `trackedData` shapes are intentionally untyped here.
+     */
     public static fixListFields(
-      doc: any,
-      trackedData: any[] = [],
+      doc: any, // skipcq: JS-0323 — pre-existing flexible input doc; out of scope
+      trackedData: any[] = [], // skipcq: JS-0323 — pre-existing; out of scope
       company?: ICompanyDocument,
     ) {
       let emails: string[] = doc.emails || [];

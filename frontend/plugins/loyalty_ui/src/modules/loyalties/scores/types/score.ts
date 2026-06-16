@@ -23,6 +23,7 @@ export interface IScoreLog {
   ownerType: string;
   owner?: IScoreOwner;
   totalScore?: number;
+  preScore?: number;
   change?: number;
   action?: string;
   description?: string;
@@ -33,8 +34,6 @@ export interface IScoreLog {
   serviceName?: string;
   createdBy?: string;
   createdAt?: string;
-  amount?: number;
-  quantity?: number;
   // present on aggregated owner rows (one row per owner in the main list)
   logCount?: number;
 }

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { ProductDetail } from '../types/detailTypes';
 import {
@@ -40,7 +40,7 @@ function toVariantsRecord(v: unknown): Record<string, unknown> {
   return {};
 }
 
-function toUomId(uom: unknown): string {
+function toUomValue(uom: unknown): string {
   if (typeof uom === 'string') return uom;
   if (uom != null && typeof uom === 'object' && '_id' in uom) {
     const id = (uom as { _id?: string })._id;
@@ -60,7 +60,7 @@ export function getProductFormDefaultValues(
     categoryId: productDetail.categoryId || '',
     type: productDetail.type || '',
     status: productDetail.status || '',
-    uom: toUomId(productDetail.uom),
+    uom: toUomValue(productDetail.uom),
     shortName: productDetail.shortName || '',
     description: productDetail.description || '',
     barcodeDescription: productDetail.barcodeDescription || '',
@@ -73,7 +73,10 @@ export function getProductFormDefaultValues(
       productDetail.customFieldsData || productDetail.propertiesData || {},
     currency: productDetail.currency || '',
     variants: toVariantsRecord(productDetail.variants),
-    subUoms: productDetail.subUoms || [],
+    subUoms: (productDetail.subUoms || []).map((subUom) => ({
+      ...subUom,
+      uom: toUomValue(subUom?.uom),
+    })),
   };
 }
 
@@ -83,16 +86,26 @@ export const useProductFormData = (
   productId?: string,
 ) => {
   const [formVersion, setFormVersion] = useState(0);
+  // Remember which product the form was populated for, so a later re-fetch of
+  // the same product doesn't reset the form and wipe the user's edits.
+  const initializedProductIdRef = useRef<string | null>(null);
 
   useLayoutEffect(() => {
     form.reset(EMPTY_PRODUCT_FORM_VALUES);
+    initializedProductIdRef.current = null;
     setFormVersion((version) => version + 1);
   }, [form, productId]);
 
   useLayoutEffect(() => {
+    if (!productDetail) return;
+    if (productId && productDetail._id !== productId) return;
+    // Populate once per product.
+    if (initializedProductIdRef.current === productDetail._id) return;
+
     const defaults = getProductFormDefaultValues(productDetail);
-    if (defaults && (!productId || productDetail?._id === productId)) {
+    if (defaults) {
       form.reset(defaults);
+      initializedProductIdRef.current = productDetail._id ?? null;
       setFormVersion((version) => version + 1);
     }
   }, [productDetail, form, productId]);

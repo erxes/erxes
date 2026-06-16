@@ -9,5 +9,8 @@ export const EMAPPEARANCE_SCHEMA = z.object({
     .optional()
     .nullable(),
   logo: z.string().optional(),
+  launcherLogo: z.string().optional(),
+  backgroundColor: z.string().optional(),
+  heroStyleVariant: z.enum(['glossy', 'aurora', 'mesh', 'flat']).optional(),
   navigationVariant: z.enum(['pill', 'fluid']).optional(),
 });

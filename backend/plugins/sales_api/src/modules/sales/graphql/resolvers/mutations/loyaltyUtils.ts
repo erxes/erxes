@@ -93,7 +93,19 @@ export const checkPricing = async (
     (sum, pd) => sum + (pd.amount || 0),
     0,
   );
-
+  console.log({
+      prioritizeRule: 'exclude',
+      totalAmount,
+      departmentId: deal.departmentIds?.[0] || '',
+      branchId: deal.branchIds?.[0] || '',
+      pipelineId: stage.pipelineId,
+      products: activeProductsData.map((item) => ({
+        itemId: item._id,
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.unitPrice,
+      })),
+    }, 'kkkkkkkkk')
   const pricing = await sendTRPCMessage({
     subdomain,
     pluginName: 'loyalty',
@@ -114,6 +126,8 @@ export const checkPricing = async (
     },
     defaultValue: {},
   });
+
+  console.log(pricing, 'ddddddd')
 
   const bonusProductsToAdd: Record<string, { count: number }> = {};
 

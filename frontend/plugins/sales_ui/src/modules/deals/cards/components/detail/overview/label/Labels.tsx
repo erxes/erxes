@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { IPipelineLabel } from '@/deals/types/pipelines';
 
-const Labels = ({
+export const Labels = ({
   labels,
   type,
 }: {
@@ -78,5 +78,3 @@ const Labels = ({
     </motion.div>
   ));
 };
-
-export default Labels;

@@ -2,7 +2,7 @@ import { facebookConstants } from '@/integrations/facebook/meta/automation/const
 import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automation/workers';
 import { instagramConstants } from '@/integrations/instagram/meta/constants';
 import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
-import { inboxConstants } from '@/inbox/meta/automation/constants';
+import { inboxAutomationConstants } from '@/inbox/meta/automation/constants';
 import { inboxAutomationWorkers } from '@/inbox/meta/automation/workers';
 
 import {
@@ -11,24 +11,28 @@ import {
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
+import { ticketAutomationProducers } from '~/modules/ticket/meta/automations';
+import { ticketsAutomationContants } from '~/modules/ticket/meta/automations/ticketAutomationsConstants';
 
 const modules = {
   facebook: facebookAutomationWorkers,
   instagram: instagramAutomationWorkers,
   inbox: inboxAutomationWorkers,
+  tickets: ticketAutomationProducers,
 };
 
-export default {
+export const automations = {
   constants: {
     actions: [
       ...facebookConstants.actions,
       ...instagramConstants.actions,
-      ...inboxConstants.actions,
+      ...ticketsAutomationContants.actions,
     ],
     triggers: [
+      ...inboxAutomationConstants.triggers,
       ...facebookConstants.triggers,
       ...instagramConstants.triggers,
-      ...inboxConstants.triggers,
+      ...ticketsAutomationContants.triggers,
     ],
     bots: [...facebookConstants.bots, ...instagramConstants.bots],
   },
@@ -48,11 +52,11 @@ export default {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
-  getAdditionalAttributes: createCoreModuleProducerHandler({
+  checkTargetMatch: createCoreModuleProducerHandler({
     moduleName: 'automations',
     modules,
-    methodName: TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES,
-    extractModuleName: (input) => (input as any).moduleName,
+    methodName: TAutomationProducers.CHECK_TARGET_MATCH,
+    extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
   generateAiContext: createCoreModuleProducerHandler({

@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useCallback } from 'react';
+import { memo, useMemo, useState, useCallback, useEffect } from 'react';
 import { Button } from 'erxes-ui';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 
@@ -6,6 +6,10 @@ const DEFAULT_PAGE_SIZE = 10;
 
 export function useChartPagination<T>(data: T[], pageSize = DEFAULT_PAGE_SIZE) {
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [data]);
 
   const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
   const safePage = Math.min(page, totalPages);

@@ -43,7 +43,7 @@ export const EMGreeting = () => {
         atom={erxesMessengerSetupGreetingAtom}
       />
       <form
-        className="flex-auto flex flex-col"
+        className="flex-auto h-full flex flex-col"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <EMLayout
@@ -55,7 +55,7 @@ export const EMGreeting = () => {
             </>
           }
         >
-          <div className="space-y-6 p-4 pt-0">
+          <div className="space-y-6 p-4 pt-0 overflow-y-auto hide-scroll styled-scroll">
             <Form.Field
               name="title"
               render={({ field }) => (

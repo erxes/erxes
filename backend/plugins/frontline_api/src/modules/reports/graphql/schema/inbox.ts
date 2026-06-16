@@ -60,6 +60,18 @@ export const types = `
     messageCount: Int
   }
 
+  type ConversationExportItem {
+    _id: String
+    content: String
+    status: String
+    assignedUserName: String
+    customerName: String
+    integrationName: String
+    tagNames: [String]
+    createdAt: Date
+    closedAt: Date
+  }
+
   type ConversationMemberProgress {
     assigneeId: String!
     new: Int!
@@ -121,4 +133,5 @@ export const queries = `
   reportConversationResolved(filters: ConversationReportFilter): ReportMetric
   reportConversationTags(filters: ConversationReportFilter): [ReportTag]
   reportConversationSources(filters: ConversationReportFilter): [ReportSource]
+  reportConversationExport(filters: ConversationReportFilter): [ConversationExportItem]
 `;

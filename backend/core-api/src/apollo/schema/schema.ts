@@ -88,6 +88,8 @@ import {
   types as SegmentTypes,
 } from '~/modules/segments/graphql/schemas';
 
+import { queries as BeforeResolverQueries } from '@/beforeResolvers/graphql/schema';
+
 import { queries as FormQueries } from '~/modules/forms/graphql/schema';
 
 import {
@@ -126,6 +128,7 @@ import {
 } from '@/automations/graphql/schema';
 
 import {
+  mutations as LogsMutations,
   queries as LogsQueries,
   types as LogsTypes,
 } from '@/logs/graphql/schema';
@@ -278,6 +281,7 @@ export const queries = `
     ${PermissionQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
+    ${BeforeResolverQueries}
     ${LogsQueries}
     ${NotificationsQueries}
     ${InternalNoteQueries}  
@@ -328,6 +332,7 @@ export const mutations = `
     ${BroadcastMutations}
     ${bundleMutations}
     ${templateMutations}
+    ${LogsMutations}
   `;
 
 export default { types, queries, mutations };

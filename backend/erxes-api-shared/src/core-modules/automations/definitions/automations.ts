@@ -42,6 +42,8 @@ export interface IAutomationTrigger<TConfig = any> {
 export interface IAutomation {
   name: string;
   status: TAutomationStatus;
+  edgeType?: string;
+  flowDirection?: string;
   triggers: IAutomationTrigger[];
   actions: IAutomationAction[];
   createdAt: Date;
@@ -108,6 +110,8 @@ const workflowSchema = new Schema(
 export const automationSchema = new Schema({
   name: { type: String, required: true },
   status: { type: String, default: AUTOMATION_STATUSES.DRAFT },
+  edgeType: { type: String, optional: true },
+  flowDirection: { type: String, optional: true },
   triggers: { type: [triggerSchema] },
   actions: { type: [actionSchema] },
   workflows: { type: [workflowSchema] },

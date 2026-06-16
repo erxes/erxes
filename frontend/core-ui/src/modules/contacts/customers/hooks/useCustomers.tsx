@@ -22,24 +22,36 @@ export const useCustomersVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ICustomer>>['variables'],
 ) => {
   const { isLead } = useIsCustomerLeadSessionKey();
-  const [{ searchValue, tags, created, updated, lastSeen, brand, birthday }] =
-    useMultiQueryState<{
-      searchValue: string;
-      tags: string[];
-      created: string;
-      updated: string;
-      lastSeen: string;
-      brand: string;
-      birthday: string;
-    }>([
-      'searchValue',
-      'tags',
-      'created',
-      'updated',
-      'lastSeen',
-      'brand',
-      'birthday',
-    ]);
+  const [
+    {
+      searchValue,
+      tags,
+      created,
+      updated,
+      lastSeen,
+      brand,
+      birthday,
+      propertiesData,
+    },
+  ] = useMultiQueryState<{
+    searchValue: string;
+    tags: string[];
+    created: string;
+    updated: string;
+    lastSeen: string;
+    brand: string;
+    birthday: string;
+    propertiesData: string;
+  }>([
+    'searchValue',
+    'tags',
+    'created',
+    'updated',
+    'lastSeen',
+    'brand',
+    'birthday',
+    'propertiesData',
+  ]);
   const { sessionKey } = useIsCustomerLeadSessionKey();
 
   const { cursor } = useRecordTableCursor({
@@ -55,6 +67,7 @@ export const useCustomersVariables = (
     searchValue: searchValue || undefined,
     tagIds: tags || undefined,
     brandIds: brand ? [brand] : undefined,
+    propertiesData: propertiesData || undefined,
     dateFilters: JSON.stringify({
       createdAt: {
         gte: parseDateRangeFromString(created)?.from,

@@ -196,7 +196,7 @@ export const ConversationDetails = () => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex items-center gap-3 px-3 py-2.5 bg-primary shrink-0">
+      <div className="flex items-center gap-3 px-3 py-2.5 bg-(--color-hero) shrink-0">
         <Button
           variant="ghost"
           size="icon"
@@ -207,7 +207,7 @@ export const ConversationDetails = () => {
         </Button>
         <div className="relative shrink-0">
           {isLastMessageFromBot ? (
-            <div className="size-9 border-[0.5px] border-primary-foreground backdrop-blur-md rounded-lg bg-linear-120 from-primary to-primary-foreground/20 flex items-center justify-center">
+            <div className="size-9 border-[0.5px] border-primary backdrop-blur-md rounded-lg bg-linear-120 from-primary to-primary-foreground/20 flex items-center justify-center">
               <IconSparkles className="size-5 text-primary-foreground" />
             </div>
           ) : (
@@ -233,7 +233,7 @@ export const ConversationDetails = () => {
             {isLastMessageFromBot ? (
               <>
                 AI agent
-                <span className="inline-flex items-center rounded-sm px-1.5 text-xs font-medium h-5 bg-primary-foreground/20 text-primary-foreground border border-primary-foreground/30 shrink-0">
+                <span className="inline-flex items-center rounded-sm px-1.5 text-xs font-medium h-5 bg-primary/20 text-primary-foreground border border-primary/30 shrink-0">
                   AI
                 </span>
               </>

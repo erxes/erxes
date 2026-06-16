@@ -182,7 +182,10 @@ export const types = `
 
   input MessengerUiOptions {
     logo: String
+    launcherLogo: String
     primary: ColorDefinitionInput
+    backgroundColor: String
+    heroStyleVariant: String
     navigationVariant: String
   }
 

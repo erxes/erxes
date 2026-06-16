@@ -76,10 +76,7 @@ import {
   loadProductsConfigClass,
 } from '@/products/db/models/Configs';
 import { IProductModel, loadProductClass } from '@/products/db/models/Products';
-import {
-  IPackageModel,
-  loadPackageClass,
-} from '@/products/db/models/Packages';
+import { IPackageModel, loadPackageClass } from '@/products/db/models/Packages';
 import {
   IProductRuleModel,
   loadProductRuleClass,
@@ -245,7 +242,11 @@ import {
   ISegmentModel,
   loadSegmentClass,
 } from './modules/segments/db/models/Segments';
-
+import { IProductSimilarityDocument } from '@/products/@types/similarity';
+import {
+  IProductSimilarityModel,
+  loadProductSimilarityClass,
+} from '@/products/db/models/Similarities';
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 
 import {
@@ -282,6 +283,7 @@ export interface IModels {
   Packages: IPackageModel;
   ProductCategories: IProductCategoryModel;
   ProductsConfigs: IProductsConfigModel;
+  ProductSimilarities: IProductSimilarityModel;
   Uoms: IUomModel;
   Structures: IStructureModel;
   Departments: IDepartmentModel;
@@ -459,6 +461,18 @@ export const loadClasses = (
     ),
   );
 
+  models.ProductSimilarities = db.model<
+    IProductSimilarityDocument,
+    IProductSimilarityModel
+  >(
+    'product_similarities',
+    loadProductSimilarityClass(
+      models,
+      subdomain,
+      coreEventHandlers('products', 'product_similarities'),
+    ),
+  );
+
   models.Structures = db.model<IStructureDocument, IStructureModel>(
     'structures',
     loadStructureClass(models),
@@ -525,7 +539,7 @@ export const loadClasses = (
 
   models.Relations = db.model<IRelationDocument, IRelationModel>(
     'relations',
-    loadRelationClass(models),
+    loadRelationClass(models, coreEventHandlers('relations', 'relations')),
   );
 
   models.Favorites = db.model<IFavoritesDocument, IFavoritesModel>(

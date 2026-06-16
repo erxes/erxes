@@ -12,10 +12,9 @@ import {
 } from '@/score/constants';
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
 import {
-  buildSignedScoreExpression,
+  calculateScoreValueFromLogs,
+  applyScoreChange,
   fixScoreNumber,
-  getOwnerScoreValue,
-  prepareScoreLogChange,
   updateOwnerScoreCache,
 } from '@/score/services/scoreLedger';
 import { scoreStatistic } from '@/score/utils';
@@ -34,7 +33,7 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLogs(doc: IScoreLogParams): Promise<IScoreLogDocument>;
   getStatistic(doc: IScoreLogParams): Promise<IScoreLogDocument>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument | null>;
-  changeOwnersScore(doc): Promise<IScoreLogDocument>;
+  changeOwnersScore(doc): Promise<IScoreLogDocument[]>;
   repairOwnerScore(
     doc: IRepairOwnerScoreParams,
   ): Promise<IRepairOwnerScoreResult>;
@@ -79,7 +78,7 @@ const generateFilter = async (
 
   if (params.action) {
     const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
-      action: 'refund',
+      action: { $in: ['refund', 'return'] },
     });
 
     if (refundedTargetIds?.length) {
@@ -120,72 +119,6 @@ const generateFilter = async (
   return filter;
 };
 
-const getCampaignFieldScores = (owner: any, campaigns: any[]) => {
-  const usedCustomFieldIds: string[] = [];
-  let ownerScore = 0;
-
-  for (const campaign of campaigns) {
-    if (!campaign.fieldId || usedCustomFieldIds.includes(campaign.fieldId)) {
-      continue;
-    }
-
-    usedCustomFieldIds.push(campaign.fieldId);
-    ownerScore += getOwnerScoreValue(owner, campaign.fieldId);
-  }
-
-  return {
-    usedCustomFieldIds,
-    ownerScore: usedCustomFieldIds.length
-      ? ownerScore
-      : getOwnerScoreValue(owner),
-  };
-};
-
-const getManualScoreUpdate = ({
-  owner,
-  score,
-  newScore,
-  usedCustomFieldIds,
-}: {
-  owner: any;
-  score: number;
-  newScore: number;
-  usedCustomFieldIds: string[];
-}) => {
-  if (!usedCustomFieldIds.length) {
-    return { updatedScore: newScore };
-  }
-
-  const updatedCustomFieldsData = { ...owner?.propertiesData };
-
-  if (score > 0) {
-    const fieldId = usedCustomFieldIds[0];
-    updatedCustomFieldsData[fieldId] =
-      getOwnerScoreValue(owner, fieldId) + score;
-  } else {
-    let remaining = Math.abs(score);
-
-    for (const fieldId of usedCustomFieldIds) {
-      if (!remaining) {
-        break;
-      }
-
-      const currentValue = getOwnerScoreValue(owner, fieldId);
-      const deduct = Math.min(currentValue, remaining);
-      updatedCustomFieldsData[fieldId] = currentValue - deduct;
-      remaining -= deduct;
-    }
-
-    if (remaining && usedCustomFieldIds[0]) {
-      const fieldId = usedCustomFieldIds[0];
-      updatedCustomFieldsData[fieldId] =
-        getOwnerScoreValue(owner, fieldId) - remaining;
-    }
-  }
-
-  return { updatedCustomFieldsData };
-};
-
 type ScoreCampaignScoreTarget = {
   _id: string;
   fieldId?: string;
@@ -195,17 +128,11 @@ const getScoreLogBalance = async (
   models: IModels,
   filter: Record<string, unknown>,
 ) => {
-  const [result] = await models.ScoreLogs.aggregate<{ balance?: number }>([
-    { $match: filter },
-    {
-      $group: {
-        _id: null,
-        balance: { $sum: buildSignedScoreExpression() },
-      },
-    },
-  ]);
+  const logs = await models.ScoreLogs.find(filter)
+    .sort({ createdAt: 1, _id: 1 })
+    .lean();
 
-  return fixScoreNumber(Number(result?.balance) || 0);
+  return calculateScoreValueFromLogs(logs);
 };
 
 const addGroupedCampaignId = (
@@ -364,6 +291,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         changeScore,
         description,
         createdBy = '',
+        action,
+        campaignId,
+        targetId,
+        serviceName,
       } = doc;
 
       const { pluginName, moduleName } = SCORE_OWNER_TYPES[ownerType] || {};
@@ -388,40 +319,28 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error('Not found owners');
       }
 
-      try {
-        await sendTRPCMessage({
-          subdomain,
-          pluginName,
-          method: 'mutation',
-          module: moduleName,
-          action: `updateMany`,
-          input: {
-            selector: {
-              _id: { $in: owners.map((owner) => owner._id) },
+      const results = await Promise.all(
+        owners.map((owner) =>
+          applyScoreChange({
+            models,
+            subdomain,
+            doc: {
+              owner,
+              ownerType,
+              ownerId: owner._id,
+              campaignId,
+              targetId,
+              serviceName,
+              action: action as any,
+              changeScore: score,
+              description,
+              createdBy,
             },
-            modifier: {
-              $inc: { score },
-            },
-          },
-        });
-      } catch (error) {
-        throw new Error(error.message);
-      }
+          }),
+        ),
+      );
 
-      const commonDoc = {
-        ownerType,
-        changeScore: fixScoreNumber(score),
-        createdAt: new Date(),
-        description,
-        createdBy,
-      };
-
-      const newDatas = owners.map((owner) => ({
-        ownerId: owner._id,
-        ...commonDoc,
-      }));
-
-      return await models.ScoreLogs.insertMany(newDatas);
+      return results.map(({ log }) => log);
     }
 
     public static async changeScore(doc: IScoreLog) {
@@ -435,18 +354,11 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         targetId,
         serviceName,
         action,
-        amount,
-        quantity,
       } = doc;
 
-      let score = fixScoreNumber(Number(changeScore));
+      const score = fixScoreNumber(Number(changeScore));
       const scoreAction =
         action || (score < 0 ? SCORE_ACTION.SUBTRACT : SCORE_ACTION.ADD);
-      const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-      if (!owner) {
-        throw new Error(`Owner not found: ${ownerType}`);
-      }
 
       if (targetId && serviceName) {
         const target = await models.ScoreLogs.exists({
@@ -460,74 +372,34 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      const campaignFilter: any = {
-        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
-      };
-
       if (campaignId) {
-        campaignFilter._id = campaignId;
-      }
+        const campaign = await models.ScoreCampaigns.findOne({
+          _id: campaignId,
+          status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+        }).lean();
 
-      const campaigns = await models.ScoreCampaigns.find(campaignFilter).lean();
-
-      if (campaignId && !campaigns?.length) {
-        throw new Error('Campaign not found');
-      }
-
-      const { ownerScore, usedCustomFieldIds } = getCampaignFieldScores(
-        owner,
-        campaigns,
-      );
-
-      if (scoreAction === SCORE_ACTION.SET) {
-        score = fixScoreNumber(score - (Number(ownerScore) || 0));
-
-        if (score === 0) {
-          return null;
+        if (!campaign) {
+          throw new Error('Campaign not found');
         }
       }
 
-      const newScore = fixScoreNumber((Number(ownerScore) || 0) + score);
-
-      if (score < 0 && newScore < 0) {
-        throw new Error(`score are not enough`);
-      }
-
-      const response = await updateOwnerScoreCache({
+      const { log } = await applyScoreChange({
+        models,
         subdomain,
-        ownerId: owner._id,
-        ownerType,
-        ...getManualScoreUpdate({
-          owner,
-          score,
-          newScore,
-          usedCustomFieldIds,
-        }),
+        doc: {
+          ownerType,
+          ownerId,
+          campaignId,
+          targetId,
+          serviceName,
+          action: scoreAction as any,
+          changeScore: score,
+          description,
+          createdBy,
+        },
       });
 
-      if (!response || !Object.keys(response || {})?.length) {
-        throw new Error('Something went wrong for give score');
-      }
-
-      const preparedChange = prepareScoreLogChange({
-        action: scoreAction as any,
-        signedChangeScore: score,
-      });
-
-      return await models.ScoreLogs.create({
-        ownerId,
-        ownerType,
-        changeScore: preparedChange.changeScore,
-        createdAt: new Date(),
-        description,
-        createdBy,
-        campaignId,
-        action: preparedChange.action,
-        targetId,
-        serviceName,
-        amount,
-        quantity,
-      });
+      return log;
     }
 
     public static async repairOwnerScore({
@@ -588,9 +460,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           { campaignId: '' },
         ],
       };
-      const noCampaignLogCount = await models.ScoreLogs.countDocuments(
-        noCampaignFilter,
-      );
+      const noCampaignLogCount =
+        await models.ScoreLogs.countDocuments(noCampaignFilter);
       const shouldUpdateDefaultScore =
         defaultCampaignIds.length > 0 || noCampaignLogCount > 0;
       const updatedScore = shouldUpdateDefaultScore

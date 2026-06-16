@@ -46,6 +46,7 @@ export const CallIntegrationEdit = () => {
         _id: integrationId,
         name: data.name,
         channelId: id || '',
+        brandId: data.brandId,
         details: {
           phone: data.phone,
           wsServer: data.websocketServer,
@@ -92,6 +93,7 @@ export const CallIntegrationEdit = () => {
     ) {
       form.reset({
         name: integrationDetail.name || '',
+        brandId: integrationDetail.brandId || '',
         phone: callsIntegrationDetail?.phone || '',
         websocketServer: callsIntegrationDetail?.wsServer || '',
         srcTrunk: callsIntegrationDetail?.srcTrunk || '',

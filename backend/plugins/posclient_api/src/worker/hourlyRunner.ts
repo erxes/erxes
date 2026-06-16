@@ -16,12 +16,11 @@ export const mainScheduler = async () => {
     const orgs = await getSaasOrganizations();
 
     for (const org of orgs) {
-      sendWorkerQueue('posclient', 'synch-remainder').add('synch-remainder', {
+      sendWorkerQueue('posclient', 'sync-remainder').add('sync-remainder', {
         subdomain: org.subdomain,
         timezone: org.timezone,
       });
     }
-
   } else {
     const timezone = await sendTRPCMessage({
       subdomain: 'os',
@@ -36,7 +35,7 @@ export const mainScheduler = async () => {
       defaultValue: 'UTC',
     });
 
-    sendWorkerQueue('posclient', 'synch-remainder').add('synch-remainder', {
+    sendWorkerQueue('posclient', 'sync-remainder').add('sync-remainder', {
       subdomain: 'os',
       timezone,
     });

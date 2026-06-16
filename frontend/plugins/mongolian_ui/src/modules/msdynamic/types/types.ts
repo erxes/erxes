@@ -148,7 +148,7 @@ export type SyncHistoriesCountQueryResponse = {
 
 export type CheckSyncedMutationResponse = {
   toCheckMsdSynced: (mutation: {
-    variables: { ids: string[]; brandId: string };
+    variables: { ids: string[] };
   }) => Promise<any>;
 };
 
