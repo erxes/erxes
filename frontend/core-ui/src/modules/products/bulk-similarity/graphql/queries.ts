@@ -1,3 +1,8 @@
+import {
+  GQL_CURSOR_PARAMS,
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_PAGE_INFO,
+} from 'erxes-ui';
 import { gql } from '@apollo/client';
 
 export const SIMILARITY_FIELDS = gql`
@@ -45,4 +50,29 @@ export const PRODUCT_SIMILARITY = gql`
     }
   }
   ${SIMILARITY_FIELDS}
+`;
+
+export const SIMILARITY_SEARCH_PRODUCTS = gql`
+  query SimilaritySearchProducts(
+    $searchValue: String
+    $categoryIds: [String]
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    productsMain(
+      searchValue: $searchValue
+      categoryIds: $categoryIds
+      ${GQL_CURSOR_PARAMS}
+    ) {
+      list {
+        _id
+        code
+        name
+        unitPrice
+        currency
+        similarityId
+      }
+      totalCount
+      ${GQL_PAGE_INFO}
+    }
+  }
 `;

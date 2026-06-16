@@ -49,6 +49,20 @@ export const PRODUCT_DETAIL_QUERY = gql`
       subUoms
       propertiesData
       similarityId
+      similarity {
+        _id
+        status
+        propertiesData
+        starProductId
+        products {
+          _id
+          code
+          name
+          unitPrice
+          status
+          propertiesData
+        }
+      }
     }
   }
 `;

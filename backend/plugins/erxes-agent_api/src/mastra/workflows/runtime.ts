@@ -8,6 +8,11 @@ import {
 import { TriggerEnvelope } from './envelope';
 import { WorkflowDefinition } from './dsl';
 import { isOperationAllowed, ToolPolicy } from '../tools/scope';
+import {
+  isDestructiveOperation,
+  resolveDestructiveOpsPolicy,
+} from '../tools/destructiveGuard';
+import { writeAgentAction, makeAgentProcessId } from '../auditLog';
 import { getOperationRegistry } from '../tools/operationRegistry';
 import type { IModels } from '~/connectionResolvers';
 import type { IMastraAgentDocument } from '@/agent/@types/agent';
@@ -105,9 +110,6 @@ interface JudgeAgent {
   generate(
     messages: Array<{ role: string; content: string }>,
   ): Promise<{ text?: unknown }>;
-  generateLegacy(
-    messages: Array<{ role: string; content: string }>,
-  ): Promise<{ text?: unknown }>;
 }
 
 /** Builds (and caches per agent version) the bare, tool-less judgment agent. */
@@ -164,6 +166,7 @@ function judgmentInstruction(outputSpec: Record<string, string>): string {
 export async function buildRunDeps(
   models: IModels,
   definition: WorkflowDefinition,
+  workflowId?: string,
 ): Promise<{ deps: CompiledDeps; usage: { llmCalls: number } }> {
   const settings = await models.MastraSettings.getSettings();
   const registry = await getOperationRegistry(settings);
@@ -183,14 +186,65 @@ export async function buildRunDeps(
           `operation "${operation}" is outside this workflow's policy`,
         );
       }
+      const isMutation = meta.operationType === 'mutation';
+      // Defense-in-depth: validation already rejects destructive ops without
+      // consent, but re-check at execution time (a definition could be run
+      // without re-validation) so a remove/delete/merge never slips through.
+      if (
+        isDestructiveOperation(meta) &&
+        resolveDestructiveOpsPolicy(definition) !== 'allow'
+      ) {
+        if (isMutation)
+          writeAgentAction(models, {
+            source: 'workflow',
+            workflowId,
+            operation,
+            operationType: meta.operationType,
+            destructive: true,
+            args: args || {},
+            status: 'blocked',
+            error: 'blocked by destructive-ops guard',
+          });
+        throw new Error(
+          `operation "${operation}" deletes or merges data and is blocked for this workflow (set destructiveOps: "allow" to permit)`,
+        );
+      }
+      // Stamp a correlation id on mutations so every DB change is traceable/
+      // revertable as a unit; reads need none.
+      const processId = isMutation ? makeAgentProcessId() : undefined;
+
       const { executeErxesOperation } = await import('../tools/erxesTools');
-      return executeErxesOperation(
+      const result = await executeErxesOperation(
         meta,
         args || {},
         settings,
         registry.inputTypesMap,
         registry.objectFieldsMap,
+        processId,
       );
+
+      // Audit trail: mutations only, best-effort.
+      if (isMutation) {
+        const failed =
+          Boolean(result) &&
+          typeof result === 'object' &&
+          (result as { success?: unknown }).success === false;
+        writeAgentAction(models, {
+          source: 'workflow',
+          workflowId,
+          operation,
+          operationType: meta.operationType,
+          destructive: isDestructiveOperation(meta),
+          args: args || {},
+          status: failed ? 'failed' : 'success',
+          error: failed
+            ? String((result as { error?: unknown }).error ?? '')
+            : undefined,
+          processId,
+        });
+      }
+
+      return result;
     },
 
     runJudgment: async ({ agentBindingId, prompt, outputSpec }) => {
@@ -204,17 +258,12 @@ export async function buildRunDeps(
       const agentConfig = await models.MastraAgent.getAgent(agentBindingId);
       const providers = await models.MastraProvider.find({ isEnabled: true });
       const judge = getJudgeAgent(agentConfig, providers);
-      // Lazy import — providers.ts pulls AI-SDK chunks Jest cannot load.
-      const { isLegacyProvider } = await import('../providers');
-      const legacy = isLegacyProvider(agentConfig.provider, providers);
 
       const convo = [
         { role: 'system', content: judgmentInstruction(outputSpec) },
         { role: 'user', content: prompt },
       ];
-      const res = legacy
-        ? await judge.generateLegacy(convo)
-        : await judge.generate(convo);
+      const res = await judge.generate(convo);
       return extractJsonObject(String(res?.text ?? ''));
     },
   };
@@ -258,7 +307,7 @@ export async function runWorkflow(args: {
   const tenant = workflowTenant(subdomain);
   const key = `wf_${workflow._id}_v${workflow.version}`;
 
-  const { deps, usage } = await buildRunDeps(models, definition);
+  const { deps, usage } = await buildRunDeps(models, definition, workflow._id);
   // NOT awaited — the Workflow object is a thenable (see compiler.ts).
   const compiled = compileDefinition(key, definition, deps);
 

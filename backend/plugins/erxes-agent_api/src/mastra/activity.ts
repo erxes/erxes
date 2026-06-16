@@ -150,10 +150,9 @@ export async function summarizeActivity(params: {
   model: string;
   providers: ProviderDocLike[];
   authCtx: AuthCtx;
-  isLegacy: boolean;
   snapshot: ActivitySnapshot;
 }): Promise<string | null> {
-  const { provider, model, providers, authCtx, isLegacy, snapshot } = params;
+  const { provider, model, providers, authCtx, snapshot } = params;
   try {
     const context = buildActivityContext(snapshot);
     if (!context) return null;
@@ -164,9 +163,7 @@ export async function summarizeActivity(params: {
     const result = await runWithAuth(
       authCtx,
       (): Promise<{ text?: string }> =>
-        isLegacy
-          ? summarizer.generateLegacy(prompt)
-          : summarizer.generate(prompt, { maxSteps: 1 }),
+        summarizer.generate(prompt, { maxSteps: 1 }),
     );
 
     return sanitizeActivity(result?.text);
@@ -200,6 +197,10 @@ export interface ActivityTracker {
 export function createActivityTracker(opts: {
   summarize: (snapshot: ActivitySnapshot) => Promise<string | null>;
   emit: (text: string) => void;
+  // Optional instant, LLM-free status line for a tool call (see
+  // activity-signals.toolStatusLine). When it returns a line, that line is
+  // emitted immediately and the LLM summarizer is skipped for that step.
+  toolSignal?: (toolName: string, args?: unknown) => string | null;
   userMessage?: string;
   minIntervalMs?: number;
   minNewThinkingChars?: number;
@@ -272,6 +273,17 @@ export function createActivityTracker(opts: {
       // The tool is now the current step; earlier reasoning led up to it.
       thinking = '';
       newThinkingChars = 0;
+      // A tool's name + args already describe the step — emit a precise line
+      // instantly with no LLM round-trip. Only fall back to the summarizer when
+      // the tool is unrecognized.
+      const signal = opts.toolSignal?.(toolName, args);
+      if (signal) {
+        if (signal !== lastEmitted) {
+          lastEmitted = signal;
+          opts.emit(signal);
+        }
+        return;
+      }
       dirty = true;
       schedule();
     },

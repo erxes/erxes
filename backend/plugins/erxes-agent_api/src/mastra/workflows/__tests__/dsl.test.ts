@@ -58,7 +58,7 @@ const mkRegistry = (ops: Array<Partial<OperationMeta>>): OperationRegistry => {
         description: '',
         graphqlArgs: [],
         returnType: null,
-      } as OperationMeta),
+      }) as OperationMeta,
   );
   return {
     operations: new Map(list.map((o) => [o.operation, o])),
@@ -264,5 +264,40 @@ describe('review fixes', () => {
         /not supported by the compiler yet/.test(e.message),
       ),
     ).toBe(true);
+  });
+});
+
+describe('workflow destructiveOps guard', () => {
+  // validDef()'s second step replaced with an irreversible delete.
+  const destructiveDef = (destructiveOps?: 'allow' | 'block') => {
+    const def = validDef();
+    def.steps[1] = {
+      id: 'create',
+      type: 'operation',
+      operation: 'dealsRemove',
+      args: { _ids: ['{{trigger.payload.id}}'] },
+    };
+    return destructiveOps ? { ...def, destructiveOps } : def;
+  };
+  const registry = mkRegistry([
+    { operation: 'dealsRemove', plugin: 'sales', module: 'deals' },
+  ]);
+
+  it('rejects a destructive operation when destructiveOps is unset (default block)', () => {
+    const result = validateDefinition(destructiveDef(), registry);
+    expect(result.ok).toBe(false);
+    expect(
+      result.errors.some((e) => /deletes or merges data/.test(e.message)),
+    ).toBe(true);
+  });
+
+  it("rejects a destructive operation when destructiveOps is 'block'", () => {
+    expect(validateDefinition(destructiveDef('block'), registry).ok).toBe(
+      false,
+    );
+  });
+
+  it("accepts a destructive operation when destructiveOps is 'allow'", () => {
+    expect(validateDefinition(destructiveDef('allow'), registry).ok).toBe(true);
   });
 });
