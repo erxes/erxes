@@ -282,7 +282,6 @@ export const extractConfig = async (subdomain, doc) => {
     deliveryConfig: doc.deliveryConfig,
     cardsConfig: doc.cardsConfig,
     posId: doc._id,
-    erxesAppToken: doc.erxesAppToken,
     isOnline: doc.isOnline,
     onServer: doc.onServer,
     branchId: doc.branchId,
