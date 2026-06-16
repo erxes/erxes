@@ -324,8 +324,8 @@ export const GeneratedProductsTable = ({
                           field.value != null
                             ? String(field.value)
                             : unitPrice != null
-                            ? String(unitPrice)
-                            : ''
+                              ? String(unitPrice)
+                              : ''
                         }
                         placeholder="0"
                         disabled={isExcluded}

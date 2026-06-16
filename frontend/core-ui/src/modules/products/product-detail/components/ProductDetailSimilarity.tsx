@@ -45,11 +45,7 @@ export const ProductDetailSimilarity = ({
     );
   }
 
-  const {
-    propertiesData = {},
-    starProductId,
-    products = [],
-  } = similarity;
+  const { propertiesData = {}, starProductId, products = [] } = similarity;
 
   const fieldIds = Object.keys(propertiesData);
 
@@ -103,7 +99,9 @@ export const ProductDetailSimilarity = ({
                       {fieldName(fieldId)}
                     </Table.Head>
                   ))}
-                  <Table.Head className="px-3 w-16 text-center">Star</Table.Head>
+                  <Table.Head className="px-3 w-16 text-center">
+                    Star
+                  </Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
@@ -152,9 +150,7 @@ const ProductRow = ({
       </Table.Cell>
     ))}
     <Table.Cell className="px-3 text-center">
-      {isStar && (
-        <IconStarFilled size={14} className="inline text-warning" />
-      )}
+      {isStar && <IconStarFilled size={14} className="inline text-warning" />}
     </Table.Cell>
   </Table.Row>
 );
