@@ -205,11 +205,6 @@ const SelectBrandContent = () => {
             Create "{search}"
           </Command.Item>
         )}
-        {brands
-          .filter((brand) => !brandIds.includes(brand._id))
-          .map((brand) => (
-            <SelectBrandCommandItem key={brand._id} brand={brand} />
-          ))}
         <Combobox.FetchMore
           fetchMore={handleFetchMore}
           totalCount={totalCount}
