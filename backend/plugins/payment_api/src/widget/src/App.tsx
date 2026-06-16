@@ -5,11 +5,11 @@ import InvoiceDetail from './pages/InvoiceDetail';
 function App() {
 
   return (
-    <Router basename="/pl:payment/widget">
-      <Routes>
-        <Route path="/invoice/:id" element={<InvoiceDetail />} />
-      </Routes>
-    </Router>
+    <Router>
+  <Routes>
+    <Route path="/pl:payment/widget/invoice/:id" element={<InvoiceDetail />} />
+  </Routes>
+</Router>
   );
 }
 
