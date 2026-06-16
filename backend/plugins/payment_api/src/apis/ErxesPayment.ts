@@ -111,6 +111,7 @@ class ErxesPayment {
     // clone transaction safely instead of mutating
     const invoicePayload = {
       ...transaction,
+      _id: transaction._id,
       amount: invoiceAmount,
     };
 
