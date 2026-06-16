@@ -28,8 +28,7 @@ const QDRANT_URL = () =>
 // Memory storage shares the app's Mongo connection (MONGO_URL). Mastra's
 // MongoDBStore provisions its collections in a dedicated database on that same
 // cluster (memoryDbName), so there is a single Mongo to operate.
-const MONGO_URL = () =>
-  process.env.MONGO_URL || 'mongodb://localhost:27017';
+const MONGO_URL = () => process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 /** The single shared Mastra-memory database name. */
 function memoryDbName(): string {
