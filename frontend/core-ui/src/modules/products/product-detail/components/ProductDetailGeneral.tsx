@@ -5,6 +5,8 @@ import {
   InfoCard,
   Input,
   Label,
+  NumberInput,
+  Select,
   useQueryState,
 } from 'erxes-ui';
 import {
@@ -16,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
+import { PRODUCT_DURATION_TYPES } from 'ui-modules/modules/products/constants/productTypes';
 
 export const ProductDetailGeneral = () => {
   const { t } = useTranslation('product', {
@@ -23,6 +26,7 @@ export const ProductDetailGeneral = () => {
   });
   const form = useFormContext<ProductFormValues>();
   const [productId] = useQueryState<string>(PRODUCT_QUERY_KEY);
+  const productType = form.watch('type');
 
   return (
     <InfoCard title={t('product-information')}>
@@ -98,6 +102,46 @@ export const ProductDetailGeneral = () => {
               </div>
             )}
           />
+          {productType === 'unique' && (
+            <>
+              <Form.Field
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <Label>{t('duration')}</Label>
+                    <NumberInput {...field} />
+                    <Form.Message />
+                  </div>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="durationType"
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <Label>{t('duration-type')}</Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder={t('select-duration-type')} />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {PRODUCT_DURATION_TYPES.map((durationType) => (
+                          <Select.Item
+                            key={durationType.value}
+                            value={durationType.value}
+                          >
+                            {durationType.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                    <Form.Message />
+                  </div>
+                )}
+              />
+            </>
+          )}
           <Form.Field
             control={form.control}
             name="uom"

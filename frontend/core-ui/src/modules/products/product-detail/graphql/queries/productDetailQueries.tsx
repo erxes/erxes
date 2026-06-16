@@ -14,6 +14,8 @@ export const PRODUCT_DETAIL_QUERY = gql`
       status
       description
       unitPrice
+      duration
+      durationType
       barcodes
       variants
       barcodeDescription
