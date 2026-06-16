@@ -1,6 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
-import { IconX } from '@tabler/icons-react';
-import { useEffect } from 'react';
+import { IconPhotoPlus, IconX } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { MediaPickerDialog, MediaSelection } from '../media/MediaPicker';
 
 interface VideoUploaderProps {
   value?: string | null;
@@ -8,10 +9,13 @@ interface VideoUploaderProps {
 }
 
 export const VideoUploader = ({ value, onChange }: VideoUploaderProps) => {
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['video/*'],
     maxFiles: 1,
     maxFileSize: 100 * 1024 * 1024,
+    uploadKind: 'media',
     onFilesAdded: (addedFiles) => {
       const url = addedFiles?.[0]?.url;
       if (url) {
@@ -24,7 +28,7 @@ export const VideoUploader = ({ value, onChange }: VideoUploaderProps) => {
     if (uploadProps.files.length > 0 && !uploadProps.loading) {
       uploadProps.onUpload();
     }
-  }, [uploadProps]);
+  }, [uploadProps.files.length]);
 
   const handleRemove = () => {
     onChange(null);
@@ -60,17 +64,34 @@ export const VideoUploader = ({ value, onChange }: VideoUploaderProps) => {
       {!value && (
         <div>
           <input {...uploadProps.getInputProps()} />
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={uploadProps.open}
-            disabled={uploadProps.loading}
-            type="button"
-          >
-            {uploadProps.loading ? 'Uploading...' : 'Upload Video'}
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={uploadProps.open}
+              disabled={uploadProps.loading}
+              type="button"
+            >
+              {uploadProps.loading ? 'Uploading...' : 'Upload Video'}
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => setMediaPickerOpen(true)}
+              type="button"
+            >
+              <IconPhotoPlus size={16} />
+              Media library
+            </Button>
+          </div>
         </div>
       )}
+      <MediaPickerDialog
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        fileType="video"
+        onSelect={(selection) => onChange((selection as MediaSelection).url)}
+      />
     </div>
   );
 };

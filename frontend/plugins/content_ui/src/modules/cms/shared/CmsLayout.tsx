@@ -10,6 +10,7 @@ import {
   IconMenu,
   IconAlignJustified,
   IconSettings,
+  IconPhoto,
 } from '@tabler/icons-react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { ReactNode, useEffect } from 'react';
@@ -101,6 +102,12 @@ export function CmsLayout({
       label: 'Menus',
       icon: <IconMenu className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
+    },
+    {
+      id: 'media',
+      label: 'Media',
+      icon: <IconPhoto className="w-4 h-4" />,
+      href: websiteId ? `/content/cms/${websiteId}/media` : '/content/cms',
     },
     {
       id: 'custom-fields',

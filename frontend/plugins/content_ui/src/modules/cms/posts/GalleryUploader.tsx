@@ -1,7 +1,8 @@
 import { Button, useErxesUpload } from 'erxes-ui';
-import { IconX } from '@tabler/icons-react';
+import { IconPhotoPlus, IconX } from '@tabler/icons-react';
 import { readImage } from 'erxes-ui/utils/core';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { MediaPickerDialog, MediaSelection } from '../media/MediaPicker';
 
 interface GalleryUploaderProps {
   value?: string[];
@@ -15,11 +16,13 @@ export const GalleryUploader = ({
   onChange,
 }: GalleryUploaderProps) => {
   const urls = value || [];
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
 
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['image/*'],
     maxFiles: MAX_GALLERY_IMAGES,
     maxFileSize: 20 * 1024 * 1024,
+    uploadKind: 'media',
     onFilesAdded: (addedFiles) => {
       const existing = urls || [];
       const addedUrls = (addedFiles || [])
@@ -77,16 +80,42 @@ export const GalleryUploader = ({
       )}
       <div>
         <input {...uploadProps.getInputProps()} />
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
-          type="button"
-        >
-          {uploadProps.loading ? 'Uploading...' : 'Add Images'}
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={uploadProps.open}
+            disabled={uploadProps.loading}
+            type="button"
+          >
+            {uploadProps.loading ? 'Uploading...' : 'Add Images'}
+          </Button>
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => setMediaPickerOpen(true)}
+            type="button"
+          >
+            <IconPhotoPlus size={16} />
+            Media library
+          </Button>
+        </div>
       </div>
+      <MediaPickerDialog
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        fileType="image"
+        multiple
+        onSelect={(selection) => {
+          const selected = selection as MediaSelection[];
+          const next = [...urls, ...selected.map((media) => media.url)].slice(
+            0,
+            MAX_GALLERY_IMAGES,
+          );
+
+          onChange(Array.from(new Set(next)));
+        }}
+      />
     </div>
   );
 };

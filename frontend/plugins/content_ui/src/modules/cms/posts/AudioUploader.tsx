@@ -1,6 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
-import { IconX, IconHeadphones } from '@tabler/icons-react';
-import { useEffect } from 'react';
+import { IconX, IconHeadphones, IconPhotoPlus } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { MediaPickerDialog, MediaSelection } from '../media/MediaPicker';
 
 interface AudioUploaderProps {
   value?: string | null;
@@ -8,10 +9,13 @@ interface AudioUploaderProps {
 }
 
 export const AudioUploader = ({ value, onChange }: AudioUploaderProps) => {
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['audio/*'],
     maxFiles: 1,
     maxFileSize: 50 * 1024 * 1024, // 50MB
+    uploadKind: 'media',
     onFilesAdded: (addedFiles) => {
       const url = addedFiles?.[0]?.url;
       if (url) {
@@ -61,17 +65,34 @@ export const AudioUploader = ({ value, onChange }: AudioUploaderProps) => {
       {!value && (
         <div>
           <input {...uploadProps.getInputProps()} />
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={uploadProps.open}
-            disabled={uploadProps.loading}
-            type="button"
-          >
-            {uploadProps.loading ? 'Uploading...' : 'Upload Audio'}
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={uploadProps.open}
+              disabled={uploadProps.loading}
+              type="button"
+            >
+              {uploadProps.loading ? 'Uploading...' : 'Upload Audio'}
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => setMediaPickerOpen(true)}
+              type="button"
+            >
+              <IconPhotoPlus size={16} />
+              Media library
+            </Button>
+          </div>
         </div>
       )}
+      <MediaPickerDialog
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        fileType="audio"
+        onSelect={(selection) => onChange((selection as MediaSelection).url)}
+      />
     </div>
   );
 };

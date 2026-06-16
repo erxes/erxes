@@ -6,8 +6,26 @@ export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
   uploadFile?: (file: File) => Promise<string>;
+  selectMedia?: (options?: {
+    fileType?: string;
+    multiple?: boolean;
+  }) => Promise<
+    | {
+        url: string;
+        name?: string;
+        fileType?: string;
+        mimeType?: string;
+      }
+    | {
+        url: string;
+        name?: string;
+        fileType?: string;
+        mimeType?: string;
+      }[]
+    | null
+  >;
 }) => {
-  const { placeholder, uploadFile, ...restArgs } = args || {};
+  const { placeholder, uploadFile, selectMedia, ...restArgs } = args || {};
 
   const editor = useCreateBlockNote({
     schema: BLOCK_SCHEMA,
@@ -18,6 +36,8 @@ export const useBlockEditor = (args?: {
     uploadFile,
     ...restArgs,
   });
+
+  (editor as any).selectMedia = selectMedia;
 
   return editor;
 };

@@ -13,6 +13,7 @@ export const Editor = ({
   className,
   isHTML = false,
   uploadFile,
+  selectMedia,
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
   const skipNextOnChangeRef = useRef(false);
@@ -28,6 +29,7 @@ export const Editor = ({
   const editor = useBlockEditor({
     initialContent: parsedInitialContent || undefined,
     uploadFile,
+    selectMedia,
   });
 
   useEffect(() => {
@@ -151,6 +153,7 @@ export const Editor = ({
       {...props}
       editor={editor}
       onChange={handleChange}
+      selectMedia={selectMedia}
     />
   );
 };

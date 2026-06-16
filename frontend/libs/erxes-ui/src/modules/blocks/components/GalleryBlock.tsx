@@ -7,7 +7,14 @@ import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from '@blocknote/react';
-import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
+import {
+  IconLayoutGrid,
+  IconLoader2,
+  IconPhoto,
+  IconPhotoPlus,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
 
@@ -55,6 +62,9 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   const columns = Math.max(2, Math.min(4, parseInt(block.props.columns) || 3));
   const readonly = !(editor as BlockNoteEditor).isEditable;
   const canUpload = !!(editor as BlockNoteEditor).uploadFile;
+  const selectMedia = (editor as any).selectMedia as
+    | ((options?: { fileType?: string; multiple?: boolean }) => Promise<any>)
+    | undefined;
 
   const updateBlock = (patch: Partial<typeof block.props>) => {
     (editor as BlockNoteEditor).updateBlock(block, { props: patch });
@@ -76,8 +86,37 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
     }
   };
 
+  const handleMediaSelect = async () => {
+    if (!selectMedia) return;
+
+    const selection = await selectMedia({
+      fileType: 'image',
+      multiple: true,
+    });
+    const selected = Array.isArray(selection)
+      ? selection
+      : selection
+      ? [selection]
+      : [];
+    const selectedImages = selected
+      .filter(
+        (media) =>
+          media?.url &&
+          (media.fileType === 'image' || media.mimeType?.startsWith('image/')),
+      )
+      .map((media) => ({ url: media.url, caption: media.name || undefined }));
+
+    if (selectedImages.length > 0) {
+      updateBlock({
+        images: JSON.stringify([...images, ...selectedImages]),
+      });
+    }
+  };
+
   const removeImage = (index: number) => {
-    updateBlock({ images: JSON.stringify(images.filter((_, i) => i !== index)) });
+    updateBlock({
+      images: JSON.stringify(images.filter((_, i) => i !== index)),
+    });
   };
 
   const setColumns = (n: number) => {
@@ -157,7 +196,13 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
               ) : (
                 <IconPlus size={15} />
               )}
-              <span>{uploading ? 'Uploading...' : images.length === 0 ? 'Add images to gallery' : 'Add more'}</span>
+              <span>
+                {uploading
+                  ? 'Uploading...'
+                  : images.length === 0
+                  ? 'Add images to gallery'
+                  : 'Add more'}
+              </span>
             </button>
           ) : (
             images.length === 0 && (
@@ -166,6 +211,20 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
                 <span>No upload handler configured</span>
               </div>
             )
+          )}
+
+          {selectMedia && (
+            <button
+              type="button"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleMediaSelect();
+              }}
+            >
+              <IconPhotoPlus size={15} />
+              <span>Use from media</span>
+            </button>
           )}
 
           {images.length > 0 && (
@@ -218,11 +277,20 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
       {images.map((img, i) =>
         img.caption ? (
           <figure key={i} style={{ margin: 0 }}>
-            <img src={img.url} alt={img.caption} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <img
+              src={img.url}
+              alt={img.caption}
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
             <figcaption>{img.caption}</figcaption>
           </figure>
         ) : (
-          <img key={i} src={img.url} alt="" style={{ width: '100%', height: 'auto', display: 'block' }} />
+          <img
+            key={i}
+            src={img.url}
+            alt=""
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
         ),
       )}
     </div>

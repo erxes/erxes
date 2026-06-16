@@ -24,6 +24,24 @@ import {
   uploadsFolderPath,
 } from './instance';
 
+type UploadOptions = {
+  keyPrefix?: string;
+};
+
+const withKeyPrefix = (fileName: string, keyPrefix?: string) => {
+  if (!keyPrefix) {
+    return fileName;
+  }
+
+  const normalizedPrefix = keyPrefix
+    .split('/')
+    .map((part) => sanitizeFilename(part))
+    .filter(Boolean)
+    .join('/');
+
+  return normalizedPrefix ? `${normalizedPrefix}/${fileName}` : fileName;
+};
+
 /*
  * Save file to Cloudflare
  */
@@ -32,6 +50,7 @@ const uploadToCFImages = async (
   file: any,
   models?: IModels,
   forcePrivate?: boolean,
+  options: UploadOptions = {},
 ) => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
 
@@ -68,7 +87,9 @@ const uploadToCFImages = async (
 
   const formData = new FormData();
   formData.append('file', fs.createReadStream(file.filepath));
-  formData.append('id', `${CLOUDFLARE_BUCKET_NAME}/${fileName}`);
+  const storageKey = withKeyPrefix(fileName, options.keyPrefix);
+
+  formData.append('id', `${CLOUDFLARE_BUCKET_NAME}/${storageKey}`);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -87,7 +108,7 @@ const uploadToCFImages = async (
   }
 
   if (!IS_PUBLIC || IS_PUBLIC === 'false' || VERSION === 'saas') {
-    return CLOUDFLARE_BUCKET_NAME + '/' + fileName;
+    return CLOUDFLARE_BUCKET_NAME + '/' + storageKey;
   }
 
   return data.result.variants[0];
@@ -143,6 +164,7 @@ const uploadFileAzure = async (
   },
   models: IModels,
   forcePrivate = false,
+  options: UploadOptions = {},
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
 
@@ -158,7 +180,10 @@ const uploadFileAzure = async (
   const containerClient = await createAzureBlobStorage(models);
 
   // generate unique name
-  const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
+  const fileName = withKeyPrefix(
+    `${randomAlphanumeric()}${sanitizedFilename}`,
+    options.keyPrefix,
+  );
 
   // Create a block blob for the file
   const blockBlobClient = containerClient.getBlockBlobClient(fileName);
@@ -187,6 +212,7 @@ const uploadFileAWS = async (
   },
   models?: IModels,
   forcePrivate = false,
+  options: UploadOptions = {},
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
 
@@ -205,7 +231,10 @@ const uploadFileAWS = async (
 
   // generate unique name
 
-  const fileName = `${AWS_PREFIX}${randomAlphanumeric()}${sanitizedFilename}`;
+  const fileName = `${AWS_PREFIX}${withKeyPrefix(
+    `${randomAlphanumeric()}${sanitizedFilename}`,
+    options.keyPrefix,
+  )}`;
 
   // read file
   const buffer = await fs.promises.readFile(file.filepath);
@@ -244,6 +273,7 @@ const uploadFileGCS = async (
   },
   models: IModels,
   forcePrivate = false,
+  options: UploadOptions = {},
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
 
@@ -263,7 +293,10 @@ const uploadFileGCS = async (
   const bucket = storage.bucket(BUCKET);
 
   // generate unique name
-  const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
+  const fileName = withKeyPrefix(
+    `${randomAlphanumeric()}${sanitizedFilename}`,
+    options.keyPrefix,
+  );
 
   bucket.file(fileName);
 
@@ -303,6 +336,7 @@ const uploadFileCloudflare = async (
   },
   models?: IModels,
   forcePrivate = false,
+  options: UploadOptions = {},
 ): Promise<string> => {
   const IS_PUBLIC = forcePrivate
     ? false
@@ -334,7 +368,7 @@ const uploadFileCloudflare = async (
       'image/vnd.microsoft.icon',
     ].includes(detectedType.mime)
   ) {
-    return uploadToCFImages(file, models, forcePrivate);
+    return uploadToCFImages(file, models, forcePrivate, options);
   }
 
   if (
@@ -346,7 +380,10 @@ const uploadFileCloudflare = async (
   }
 
   // generate unique name
-  const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;
+  const fileName = withKeyPrefix(
+    `${randomAlphanumeric()}${sanitizedFilename}`,
+    options.keyPrefix,
+  );
 
   // read file
   const buffer = await fs.promises.readFile(file.filepath);
@@ -420,6 +457,7 @@ export const uploadFile = async (
   models: IModels,
   fromEditor = false,
   forcePrivate = false,
+  options: UploadOptions = {},
 ): Promise<any> => {
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
   const VERSION = getEnv({ name: 'VERSION' });
@@ -428,15 +466,15 @@ export const uploadFile = async (
   let nameOrLink = '';
 
   if (UPLOAD_SERVICE_TYPE === 'AZURE') {
-    nameOrLink = await uploadFileAzure(file, models, forcePrivate);
+    nameOrLink = await uploadFileAzure(file, models, forcePrivate, options);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    nameOrLink = await uploadFileAWS(file, models, forcePrivate);
+    nameOrLink = await uploadFileAWS(file, models, forcePrivate, options);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    nameOrLink = await uploadFileGCS(file, models, forcePrivate);
+    nameOrLink = await uploadFileGCS(file, models, forcePrivate, options);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
@@ -444,6 +482,7 @@ export const uploadFile = async (
       file,
       models,
       forcePrivate || !!(VERSION === 'saas'),
+      options,
     );
   }
 

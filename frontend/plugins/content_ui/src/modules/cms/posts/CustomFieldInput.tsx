@@ -10,10 +10,20 @@ import {
   readImage,
   Editor,
 } from 'erxes-ui';
-import { REACT_APP_API_URL } from 'erxes-ui/utils';
-import { useEffect } from 'react';
-import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import {
+  IconPhotoPlus,
+  IconUpload,
+  IconX,
+  IconPaperclip,
+} from '@tabler/icons-react';
 import { SpreadsheetInput } from './SpreadsheetInput';
+import {
+  MediaPickerDialog,
+  MediaSelection,
+  uploadMediaFile,
+  useMediaPicker,
+} from '../media/MediaPicker';
 
 export interface FieldDefinition {
   _id: string;
@@ -44,11 +54,13 @@ function ImageFieldInput({
   buttonClassName?: string;
 }) {
   const url = typeof value === 'string' ? value : '';
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
 
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['image/*'],
     maxFiles: 1,
     maxFileSize: 20 * 1024 * 1024,
+    uploadKind: 'media',
     onFilesAdded: (added) => {
       if (added[0]?.url) onChange(added[0].url);
     },
@@ -80,20 +92,40 @@ function ImageFieldInput({
       )}
       <div>
         <input {...uploadProps.getInputProps()} />
-        <Button
-          variant="outline"
-          className={buttonClassName}
-          type="button"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
-        >
-          <IconUpload size={16} className="mr-2" />
-          {uploadProps.loading ? 'Uploading...' : url ? `Change ${buttonLabel.toLowerCase()}` : buttonLabel}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className={buttonClassName}
+            type="button"
+            onClick={uploadProps.open}
+            disabled={uploadProps.loading}
+          >
+            <IconUpload size={16} className="mr-2" />
+            {uploadProps.loading
+              ? 'Uploading...'
+              : url
+              ? `Change ${buttonLabel.toLowerCase()}`
+              : buttonLabel}
+          </Button>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => setMediaPickerOpen(true)}
+          >
+            <IconPhotoPlus size={16} className="mr-2" />
+            Media library
+          </Button>
+        </div>
         <p className="text-xs text-muted-foreground mt-1">
           Max 20MB · JPG, PNG, GIF, WebP, SVG
         </p>
       </div>
+      <MediaPickerDialog
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        fileType="image"
+        onSelect={(selection) => onChange((selection as MediaSelection).url)}
+      />
       {!!uploadProps.errors.length && (
         <p className="text-xs text-destructive">
           {uploadProps.errors[0]?.message || 'Upload failed'}
@@ -115,11 +147,13 @@ function FileFieldInput({
   buttonClassName?: string;
 }) {
   const urls = Array.isArray(value) ? value : [];
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
 
   const uploadProps = useErxesUpload({
     allowedMimeTypes: [],
     maxFiles: 1,
     maxFileSize: 20 * 1024 * 1024,
+    uploadKind: 'media',
     onFilesAdded: (added) => {
       const url = added[0]?.url;
       if (url) onChange([url]);
@@ -145,7 +179,10 @@ function FileFieldInput({
               key={url}
               className="flex items-center gap-2 border rounded p-2 bg-muted"
             >
-              <IconPaperclip size={16} className="text-muted-foreground shrink-0" />
+              <IconPaperclip
+                size={16}
+                className="text-muted-foreground shrink-0"
+              />
               <span className="text-sm flex-1 truncate">{url}</span>
               <Button
                 variant="ghost"
@@ -166,20 +203,33 @@ function FileFieldInput({
       )}
       <div>
         <input {...uploadProps.getInputProps()} />
-        <Button
-          variant="outline"
-          className={buttonClassName}
-          type="button"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
-        >
-          <IconUpload size={16} className="mr-2" />
-          {uploadProps.loading ? 'Uploading...' : buttonLabel}
-        </Button>
-        <p className="text-xs text-muted-foreground mt-1">
-          Max 20MB
-        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className={buttonClassName}
+            type="button"
+            onClick={uploadProps.open}
+            disabled={uploadProps.loading}
+          >
+            <IconUpload size={16} className="mr-2" />
+            {uploadProps.loading ? 'Uploading...' : buttonLabel}
+          </Button>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => setMediaPickerOpen(true)}
+          >
+            <IconPhotoPlus size={16} className="mr-2" />
+            Media library
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">Max 20MB</p>
       </div>
+      <MediaPickerDialog
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        onSelect={(selection) => onChange([(selection as MediaSelection).url])}
+      />
       {!!uploadProps.errors.length && (
         <p className="text-xs text-destructive">
           {uploadProps.errors[0]?.message || 'Upload failed'}
@@ -194,6 +244,9 @@ export const CustomFieldInput = ({
   value,
   onChange,
 }: CustomFieldInputProps) => {
+  const { selectMedia, picker } = useMediaPicker();
+  const stringValue = typeof value === 'string' ? value : '';
+
   const renderInput = () => {
     switch (field.type) {
       case 'text':
@@ -205,7 +258,7 @@ export const CustomFieldInput = ({
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
-            value={value || ''}
+            value={stringValue}
             onChange={(e) => onChange(e.target.value)}
             className="w-full"
           />
@@ -218,7 +271,7 @@ export const CustomFieldInput = ({
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
             rows={10}
-            value={value || ''}
+            value={stringValue}
             onChange={(e) => onChange(e.target.value)}
             className="w-full resize-none"
           />
@@ -231,7 +284,7 @@ export const CustomFieldInput = ({
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
-            value={value || ''}
+            value={stringValue}
             onChange={(e) => onChange(e.target.value)}
             className="w-full"
           />
@@ -240,7 +293,7 @@ export const CustomFieldInput = ({
       case 'date':
         return (
           <DatePicker
-            value={value ? new Date(value) : undefined}
+            value={stringValue ? new Date(stringValue) : undefined}
             onChange={(date) =>
               onChange(date ? (date as Date).toISOString() : '')
             }
@@ -260,7 +313,7 @@ export const CustomFieldInput = ({
       case 'select':
         if (!field.options?.length) return null;
         return (
-          <Select value={value || ''} onValueChange={onChange}>
+          <Select value={stringValue} onValueChange={onChange}>
             <Select.Trigger className="w-full">
               <Select.Value
                 placeholder={
@@ -337,39 +390,28 @@ export const CustomFieldInput = ({
 
       case 'image':
         return (
-          <ImageFieldInput
-            value={value}
-            onChange={(url) => onChange(url)}
-          />
+          <ImageFieldInput value={value} onChange={(url) => onChange(url)} />
         );
 
       case 'file':
         return (
-          <FileFieldInput
-            value={value}
-            onChange={(urls) => onChange(urls)}
-          />
+          <FileFieldInput value={value} onChange={(urls) => onChange(urls)} />
         );
 
       case 'richText':
         return (
-          <Editor
-            className="h-64 border"
-            key={field._id}
-            isHTML
-            initialContent={typeof value === 'string' ? value : ''}
-            onChange={(content) => onChange(content)}
-            uploadFile={async (file) => {
-              const formData = new FormData();
-              formData.append('file', file);
-              const response = await fetch(
-                `${REACT_APP_API_URL}/upload-file?kind=main`,
-                { method: 'post', body: formData, credentials: 'include' },
-              );
-              const key = await response.text();
-              return readImage(key);
-            }}
-          />
+          <div>
+            <Editor
+              className="h-64 border"
+              key={field._id}
+              isHTML
+              initialContent={stringValue}
+              onChange={(content) => onChange(content)}
+              uploadFile={async (file) => (await uploadMediaFile(file)).url}
+              selectMedia={selectMedia}
+            />
+            {picker}
+          </div>
         );
 
       default:
@@ -378,7 +420,7 @@ export const CustomFieldInput = ({
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
-            value={value || ''}
+            value={stringValue}
             onChange={(e) => onChange(e.target.value)}
             className="w-full"
           />

@@ -1,6 +1,7 @@
 import { Form, Input, Editor } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { formatInitialContent } from '~/modules/cms/posts/formHelpers';
+import { uploadMediaFile, useMediaPicker } from '../../media/MediaPicker';
 import { IPage, IPageFormData } from '../types/pageTypes';
 
 interface PageEditorColumnProps {
@@ -20,6 +21,7 @@ export const PageEditorColumn = ({
 }: PageEditorColumnProps) => {
   const isTranslationMode =
     Boolean(selectedLanguage) && selectedLanguage !== defaultLanguage;
+  const { selectMedia, picker } = useMediaPicker();
 
   return (
     <div className="col-span-2">
@@ -59,14 +61,23 @@ export const PageEditorColumn = ({
                   )}
                 </Form.Label>
                 <Form.Control>
-                  <Editor
-                    className="h-[calc(100vh-200px)] border text-justify"
-                    key={`page-editor-${selectedLanguage}-${page?._id || 'new'}`}
-                    initialContent={formatInitialContent(
-                      form.getValues('description') || '',
-                    )}
-                    onChange={handleEditorChange}
-                  />
+                  <div>
+                    <Editor
+                      className="h-[calc(100vh-200px)] border text-justify"
+                      key={`page-editor-${selectedLanguage}-${
+                        page?._id || 'new'
+                      }`}
+                      initialContent={formatInitialContent(
+                        form.getValues('description') || '',
+                      )}
+                      onChange={handleEditorChange}
+                      uploadFile={async (file) =>
+                        (await uploadMediaFile(file)).url
+                      }
+                      selectMedia={selectMedia}
+                    />
+                    {picker}
+                  </div>
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
