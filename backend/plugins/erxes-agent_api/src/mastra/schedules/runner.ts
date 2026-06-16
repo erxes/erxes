@@ -17,7 +17,6 @@ import {
   TurnMessage,
 } from '@/agent/turn';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
-import { isLegacyProvider } from '~/mastra/providers';
 import { runWithAuth } from '~/mastra/requestContext';
 
 /** The dedicated output thread of one schedule — derived, never stored. */
@@ -99,7 +98,6 @@ export async function runSchedule(args: {
     ];
 
     const authCtx = { token: settings?.erxesApiToken, subdomain };
-    const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
     const reply = await runWithAuth(authCtx, () =>
       runAgentTurn({
@@ -109,7 +107,6 @@ export async function runSchedule(args: {
         tools,
         convo,
         message: schedule.prompt,
-        isLegacy,
         authCtx,
       }),
     );

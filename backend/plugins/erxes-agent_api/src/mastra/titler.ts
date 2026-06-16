@@ -81,7 +81,6 @@ export function sanitizeTitle(raw: string | null | undefined): string | null {
 // import keeps this module free of a static @mastra/core type dependency.
 interface TitlerAgent {
   generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
-  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
 }
 
 // Tool-less titler agents, cached per provider+model.
@@ -120,10 +119,8 @@ export async function maybeGenerateThreadTitle(params: {
   model: string;
   providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
-  isLegacy: boolean;
 }): Promise<string | null> {
-  const { models, threadId, provider, model, providers, authCtx, isLegacy } =
-    params;
+  const { models, threadId, provider, model, providers, authCtx } = params;
   // Reject non-string ids so a crafted object can never become a Mongo
   // query operator (NoSQL injection).
   if (typeof threadId !== 'string' || !threadId) return null;
@@ -150,9 +147,7 @@ export async function maybeGenerateThreadTitle(params: {
       },
     ];
     const result = await runWithAuth(authCtx, () =>
-      isLegacy
-        ? titler.generateLegacy(msgs)
-        : titler.generate(msgs, { maxSteps: 1 }),
+      titler.generate(msgs, { maxSteps: 1 }),
     );
 
     const title = sanitizeTitle(result?.text);

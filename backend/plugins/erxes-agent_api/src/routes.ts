@@ -8,7 +8,6 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
-import { isLegacyProvider } from './mastra/providers';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import {
@@ -334,7 +333,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       threadId,
       attachments,
     });
-    const { agent, tools, convo, authCtx, isLegacy } = prepared;
+    const { agent, tools, convo, authCtx } = prepared;
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
@@ -347,7 +346,6 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           model: prepared.agentConfig.model,
           providers: prepared.providers,
           authCtx,
-          isLegacy,
           snapshot,
         }),
     });
@@ -356,9 +354,9 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
 
     try {
       await runWithAuth(authCtx, async () => {
-        const stream = await (isLegacy
-          ? agent.streamLegacy(convo, { abortSignal: controller.signal })
-          : agent.stream(convo, { abortSignal: controller.signal }));
+        const stream = await agent.stream(convo, {
+          abortSignal: controller.signal,
+        });
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);
@@ -404,7 +402,6 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           tools,
           convo,
           message,
-          isLegacy,
           authCtx,
           depth: 0,
           extracted,
@@ -445,7 +442,6 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           reply = await synthesizeFromToolResults({
             agent,
             message,
-            isLegacy,
             authCtx,
             toolResults,
           });
@@ -574,14 +570,11 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
 
     // Bot requests use the static app token from settings (no user session available)
     const authCtx = { token: settings?.erxesApiToken, subdomain };
-    const isLegacy = isLegacyProvider(agentConfig.provider, providers);
     // The published Agent generics type tool results as wire chunks; this
     // text-only webhook path reads only `.text`, hence the structural cast
     // (same idiom as prepareChatTurn in @/agent/turn).
     const turnAgent = agent as unknown as TurnAgent;
-    const result = await runWithAuth(authCtx, () =>
-      isLegacy ? turnAgent.generateLegacy(convo) : turnAgent.generate(convo),
-    );
+    const result = await runWithAuth(authCtx, () => turnAgent.generate(convo));
 
     const reply = result.text || '';
 
@@ -637,7 +630,6 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
           model: agentConfig.model,
           providers,
           authCtx,
-          isLegacy,
         });
       }
     }

@@ -166,25 +166,14 @@ export async function getOrCreateAgent(
     instructions: systemPrompt,
     model,
     tools: toolNames.length ? tools : undefined,
-    // The modern loop (generate/stream) reads defaultOptions; the legacy
-    // OpenAI-compatible loop (generateLegacy/streamLegacy) reads its own two
-    // keys and otherwise falls back to Mastra's internal default — all three
-    // must be set or legacy turns get silently truncated mid-task.
+    // generate()/stream() read defaultOptions. Temperature is only set when the
+    // agent configures it — otherwise the provider default applies (sending an
+    // explicit 0 is what reasoning models like Kimi reject).
     defaultOptions: {
       maxSteps,
       ...(hasTemperature ? { modelSettings: { temperature } } : {}),
     },
-    defaultGenerateOptionsLegacy: {
-      maxSteps,
-      ...(hasTemperature ? { temperature } : {}),
-    },
-    defaultStreamOptionsLegacy: {
-      maxSteps,
-      ...(hasTemperature ? { temperature } : {}),
-    },
-    // The two legacy keys are read at runtime but missing from Mastra's
-    // published AgentConfig type, hence the cast.
-  } as unknown as ConstructorParameters<typeof Agent>[0]) as unknown as Agent;
+  });
 
   agentCache.set(cacheKey, agent);
   toolsCache.set(cacheKey, tools);

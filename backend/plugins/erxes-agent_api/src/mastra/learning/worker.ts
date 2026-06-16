@@ -15,7 +15,6 @@ import {
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 import { generateModels, IModels } from '~/connectionResolvers';
-import { isLegacyProvider } from '~/mastra/providers';
 import {
   learningSweepCron,
   learningTenant,
@@ -67,7 +66,6 @@ async function resolveRuntime(
       model: agentConfig.model,
       providers,
       authCtx: { token: settings?.erxesApiToken, subdomain },
-      isLegacy: isLegacyProvider(agentConfig.provider, providers),
     },
   };
 }

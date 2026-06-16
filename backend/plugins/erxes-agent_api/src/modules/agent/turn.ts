@@ -2,7 +2,6 @@ import type { ToolsInput } from '@mastra/core/agent';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
-import { isLegacyProvider } from '~/mastra/providers';
 import { runWithAuth } from '~/mastra/requestContext';
 import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
 import {
@@ -75,15 +74,7 @@ export interface AgentTurnResult {
 // pipeline never relies on — satisfies it structurally.
 export interface TurnAgent {
   generate(messages: unknown, options?: unknown): Promise<AgentTurnResult>;
-  generateLegacy(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<AgentTurnResult>;
   stream(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<{ fullStream: unknown }>;
-  streamLegacy(
     messages: unknown,
     options?: unknown,
   ): Promise<{ fullStream: unknown }>;
@@ -286,7 +277,6 @@ export interface PreparedTurn {
   sessionId: string;
   convo: TurnMessage[];
   authCtx: TurnAuthCtx;
-  isLegacy: boolean;
   advanced: boolean;
   memCtx: MemoryContext;
   attachments?: IMastraChatAttachment[];
@@ -401,21 +391,19 @@ export async function prepareChatTurn(params: {
     ? Buffer.from(JSON.stringify(user)).toString('base64')
     : undefined;
   const authCtx = { userHeader, token: settings?.erxesApiToken, subdomain };
-  const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
   return {
     agentConfig,
     settings,
     providers,
     // The published Agent generics type tool results as wire chunks; the
-    // runtime objects this pipeline reads are the duck-typed legacy/modern
-    // shapes in ToolResultLike, hence the structural cast (cf. titler.ts).
+    // runtime objects this pipeline reads are the duck-typed shapes in
+    // ToolResultLike, hence the structural cast (cf. titler.ts).
     agent: agent as unknown as TurnAgent,
     tools,
     sessionId,
     convo,
     authCtx,
-    isLegacy,
     advanced,
     memCtx,
     attachments,
@@ -453,7 +441,6 @@ export async function persistTurn(params: {
     agentConfig,
     providers,
     authCtx,
-    isLegacy,
     attachments,
   } = prepared;
 
@@ -491,7 +478,6 @@ export async function persistTurn(params: {
         model: agentConfig.model,
         providers,
         authCtx,
-        isLegacy,
       })
     : Promise.resolve<string | null>(null);
 
@@ -526,7 +512,6 @@ export async function persistTurn(params: {
         model: agentConfig.model,
         providers,
         authCtx,
-        isLegacy,
       });
     }
   }
@@ -547,16 +532,13 @@ export async function runAgentTurn(params: {
   tools: ToolsInput;
   convo: TurnMessage[];
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
   depth?: number;
 }): Promise<string | null> {
-  const { agent, tools, convo, message, isLegacy, authCtx, depth = 0 } = params;
+  const { agent, tools, convo, message, authCtx, depth = 0 } = params;
 
   try {
-    const result = await runWithAuth(authCtx, () =>
-      isLegacy ? agent.generateLegacy(convo) : agent.generate(convo),
-    );
+    const result = await runWithAuth(authCtx, () => agent.generate(convo));
 
     if (result.text) {
       const trimmed = result.text.trimStart();
@@ -571,7 +553,6 @@ export async function runAgentTurn(params: {
           tools,
           convo,
           message,
-          isLegacy,
           authCtx,
           depth,
           extracted,
@@ -606,7 +587,6 @@ export async function runAgentTurn(params: {
     return await synthesizeFromToolResults({
       agent,
       message,
-      isLegacy,
       authCtx,
       toolResults: uniqueResults,
     });
@@ -676,11 +656,10 @@ export function logToolResults(uniqueResults: ToolResultLike[]) {
 export async function synthesizeFromToolResults(params: {
   agent: TurnAgent;
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
   toolResults: ToolResultLike[];
 }): Promise<string> {
-  const { agent, message, isLegacy, authCtx, toolResults } = params;
+  const { agent, message, authCtx, toolResults } = params;
 
   // search_erxes_operations is navigational; only execute (action) results
   // decide whether the turn produced something real to report.
@@ -715,9 +694,7 @@ export async function synthesizeFromToolResults(params: {
 
   try {
     const synthesis = await runWithAuth(authCtx, () =>
-      isLegacy
-        ? agent.generateLegacy(synthesisMessages)
-        : agent.generate(synthesisMessages, { maxSteps: 1 }),
+      agent.generate(synthesisMessages, { maxSteps: 1 }),
     );
     return synthesis.text || fallback || 'Done.';
   } catch {
@@ -740,7 +717,6 @@ export async function executeTextToolCall(params: {
   tools: ToolsInput;
   convo: TurnMessage[];
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
   depth: number;
   extracted: TextToolCall;
@@ -758,7 +734,6 @@ export async function executeTextToolCall(params: {
     tools,
     convo,
     message,
-    isLegacy,
     authCtx,
     depth,
     extracted,
@@ -837,7 +812,6 @@ export async function executeTextToolCall(params: {
         tools,
         convo: followup,
         message,
-        isLegacy,
         authCtx,
         depth: depth + 1,
       });
@@ -861,9 +835,7 @@ export async function executeTextToolCall(params: {
     ];
     try {
       const synthesis = await runWithAuth(authCtx, () =>
-        isLegacy
-          ? agent.generateLegacy(synthesisMessages)
-          : agent.generate(synthesisMessages, { maxSteps: 1 }),
+        agent.generate(synthesisMessages, { maxSteps: 1 }),
       );
       return synthesis.text || fallback || 'Done.';
     } catch {
