@@ -328,39 +328,6 @@ export const receiveProduct = async (models: IModels, data) => {
 
   await models.Configs.getConfig({ token });
 
-  if (action === 'delete') {
-    const productIds = stringArray(object.productIds);
-
-    if (isString(object._id)) {
-      productIds.push(object._id);
-    }
-
-    if (!productIds.length) {
-      return;
-    }
-
-    await models.Products.updateMany(
-      { _id: { $in: productIds }, tokens: { $in: [token] } },
-      { $pull: { tokens: token } },
-    );
-
-    const productsWithoutTokens = await models.Products.find(
-      {
-        _id: { $in: productIds },
-        $or: [{ tokens: { $exists: false } }, { tokens: { $size: 0 } }],
-      },
-      { _id: 1 },
-    ).lean();
-
-    const productIdsToRemove = productsWithoutTokens.map(({ _id }) => _id);
-
-    if (productIdsToRemove.length) {
-      return models.Products.removeProducts(productIdsToRemove);
-    }
-
-    return;
-  }
-
   const product = await models.Products.findOne({ _id: object._id });
   let tokens: string[] = [];
 
@@ -397,6 +364,37 @@ export const receiveProduct = async (models: IModels, data) => {
       },
       { upsert: true },
     );
+  }
+};
+
+export const receiveProductsRemove = async (models: IModels, data) => {
+  const { token, productIds } = data;
+
+  await models.Configs.getConfig({ token });
+
+  const productIdsToRemoveFromToken = stringArray(productIds);
+
+  if (!productIdsToRemoveFromToken.length) {
+    return;
+  }
+
+  await models.Products.updateMany(
+    { _id: { $in: productIdsToRemoveFromToken }, tokens: { $in: [token] } },
+    { $pull: { tokens: token } },
+  );
+
+  const productsWithoutTokens = await models.Products.find(
+    {
+      _id: { $in: productIdsToRemoveFromToken },
+      $or: [{ tokens: { $exists: false } }, { tokens: { $size: 0 } }],
+    },
+    { _id: 1 },
+  ).lean();
+
+  const productIdsToRemove = productsWithoutTokens.map(({ _id }) => _id);
+
+  if (productIdsToRemove.length) {
+    return models.Products.removeProducts(productIdsToRemove);
   }
 };
 

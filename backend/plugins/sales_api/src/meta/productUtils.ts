@@ -283,9 +283,8 @@ const sendProductsRemoveToPosClient = async ({
     action: 'crudData',
     method: 'mutation',
     input: {
-      type: 'product',
-      action: 'delete',
-      object: { productIds },
+      type: 'productsRemove',
+      productIds,
     },
     pos,
   });
