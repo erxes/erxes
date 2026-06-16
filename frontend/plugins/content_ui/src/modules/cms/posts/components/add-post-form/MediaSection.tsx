@@ -172,8 +172,8 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
               {uploadProps.loading
                 ? 'Uploading...'
                 : field.value
-                ? 'Change image'
-                : 'Upload featured image'}
+                  ? 'Change image'
+                  : 'Upload featured image'}
             </span>
           </Button>
           <Button

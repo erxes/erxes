@@ -118,8 +118,8 @@ const resizeBuffer = async (key: string, response: any, width?: number) => {
   const buffer = Buffer.isBuffer(response)
     ? response
     : response instanceof Uint8Array
-    ? Buffer.from(response)
-    : undefined;
+      ? Buffer.from(response)
+      : undefined;
 
   if (!buffer) {
     return response;

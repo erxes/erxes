@@ -592,21 +592,24 @@ const chunkStore = new Map<
 
 /** Evict abandoned upload sessions older than 30 minutes to prevent memory leaks. */
 const CHUNK_SESSION_TTL = 30 * 60 * 1000;
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, info] of chunkStore.entries()) {
-    if (now - info.createdAt > CHUNK_SESSION_TTL) {
-      chunkStore.delete(id);
-      uploadStore.delete(id);
-      const staleDir = path.join(tmpDir.name, info.uploadId);
-      try {
-        fs.rmSync(staleDir, { recursive: true, force: true });
-      } catch {
-        /* already cleaned up */
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [id, info] of chunkStore.entries()) {
+      if (now - info.createdAt > CHUNK_SESSION_TTL) {
+        chunkStore.delete(id);
+        uploadStore.delete(id);
+        const staleDir = path.join(tmpDir.name, info.uploadId);
+        try {
+          fs.rmSync(staleDir, { recursive: true, force: true });
+        } catch {
+          /* already cleaned up */
+        }
       }
     }
-  }
-}, 5 * 60 * 1000).unref();
+  },
+  5 * 60 * 1000,
+).unref();
 
 /** Initialize a chunked upload session, returning a server-generated uploadId. */
 router.post('/upload-chunked/init', uploadLimiter, (req, res) => {
@@ -778,10 +781,13 @@ router.post(
             progress: 100,
           });
 
-          setTimeout(() => {
-            uploadStore.delete(trustedId);
-            chunkStore.delete(trustedId);
-          }, 5 * 60 * 1000);
+          setTimeout(
+            () => {
+              uploadStore.delete(trustedId);
+              chunkStore.delete(trustedId);
+            },
+            5 * 60 * 1000,
+          );
 
           try {
             fs.unlinkSync(finalPath);

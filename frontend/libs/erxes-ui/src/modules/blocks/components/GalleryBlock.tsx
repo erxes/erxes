@@ -96,8 +96,8 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
     const selected = Array.isArray(selection)
       ? selection
       : selection
-      ? [selection]
-      : [];
+        ? [selection]
+        : [];
     const selectedImages = selected
       .filter(
         (media) =>
@@ -200,8 +200,8 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
                 {uploading
                   ? 'Uploading...'
                   : images.length === 0
-                  ? 'Add images to gallery'
-                  : 'Add more'}
+                    ? 'Add images to gallery'
+                    : 'Add more'}
               </span>
             </button>
           ) : (

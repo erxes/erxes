@@ -104,8 +104,8 @@ function ImageFieldInput({
             {uploadProps.loading
               ? 'Uploading...'
               : url
-              ? `Change ${buttonLabel.toLowerCase()}`
-              : buttonLabel}
+                ? `Change ${buttonLabel.toLowerCase()}`
+                : buttonLabel}
           </Button>
           <Button
             variant="secondary"
