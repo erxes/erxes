@@ -57,7 +57,10 @@ export const ProductRuleFilter = () => {
                 </Command.List>
               </Command>
             </Filter.View>
-            <SelectCategory.FilterView filterKey="categoryIds" mode="multiple" />
+            <SelectCategory.FilterView
+              filterKey="categoryIds"
+              mode="multiple"
+            />
             <SelectProduct.FilterView filterKey="productIds" mode="multiple" />
           </Combobox.Content>
         </Filter.Popover>
