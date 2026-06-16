@@ -6,11 +6,13 @@ import { IFacebookPageResponse } from '@/integrations/facebook/@types/integratio
 import { imapIntegrationDetails } from '@/integrations/imap/messageBroker';
 import { graphRequest as instagramGraphRequest } from '@/integrations/instagram/utils';
 import { instagramStatus } from '@/integrations/instagram/messageBroker';
+import { whatsappStatus } from '@/integrations/whatsapp/messageBroker';
 import { debugError } from '~/modules/inbox/utils';
 
 const getServiceName = (kind: string): string => {
   if (kind.includes('facebook')) return 'facebook';
   if (kind.includes('instagram')) return 'instagram';
+  if (kind.includes('whatsapp')) return 'whatsapp';
   return kind.split('-')[0];
 };
 
@@ -24,6 +26,8 @@ export const integrationStatus = async (
       return facebookStatus({ subdomain, data });
     case 'instagram':
       return instagramStatus({ subdomain, data });
+    case 'whatsapp':
+      return whatsappStatus({ subdomain, data });
     default:
       return null;
   }

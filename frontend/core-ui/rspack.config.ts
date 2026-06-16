@@ -57,9 +57,11 @@ export default composePlugins(
 
     config.devServer = {
       ...config.devServer,
+      allowedHosts: 'all',
       client: {
         ...config.devServer?.client,
         logging: 'error',
+        webSocketURL: 'auto://0.0.0.0:0/ws',
       },
       devMiddleware: {
         ...config.devServer?.devMiddleware,

@@ -9,6 +9,7 @@ import {
 } from '@/inbox/db/definitions/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
+import { handleWhatsappIntegration } from '@/integrations/whatsapp/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
@@ -43,6 +44,9 @@ export const dispatchConversationToService = async (
 
       case 'instagram':
         return await handleInstagramIntegration({ subdomain, data });
+
+      case 'whatsapp':
+        return await handleWhatsappIntegration({ subdomain, data });
 
       case 'calls':
         break;

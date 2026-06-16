@@ -7,4 +7,5 @@ export enum IntegrationType {
   MESSAGE_PRO = 'message-pro',
   INSTAGRAM_MESSENGER = 'instagram-messenger',
   INSTAGRAM_POST = 'instagram-post',
+  WHATSAPP_MESSENGER = 'whatsapp-messenger',
 }

@@ -31,6 +31,11 @@ import {
   instagramRepairIntegrations,
   instagramUpdateIntegrations,
 } from '@/integrations/instagram/messageBroker';
+import {
+  whatsappCreateIntegrations,
+  whatsappRemoveIntegrations,
+  whatsappUpdateIntegrations,
+} from '@/integrations/whatsapp/messageBroker';
 import { getUniqueValue, sendTRPCMessage,markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -75,6 +80,9 @@ export const sendCreateIntegration = async (
       case 'instagram':
         return await instagramCreateIntegrations({ subdomain, data });
 
+      case 'whatsapp':
+        return await whatsappCreateIntegrations({ subdomain, data });
+
       case 'mobinetSms':
         // TODO: Implement MobinetSms integration
         break;
@@ -102,6 +110,8 @@ export const sendUpdateIntegration = async (
         return await callUpdateIntegration({ subdomain, data });
       case 'instagram':
         return await instagramUpdateIntegrations({ subdomain, data });
+      case 'whatsapp':
+        return await whatsappUpdateIntegrations({ subdomain, data });
       case 'imap':
         return await imapUpdateIntegration({ subdomain, data });
 
@@ -131,6 +141,8 @@ export const sendRemoveIntegration = async (
         return await callRemoveIntergration({ subdomain, data });
       case 'instagram':
         return await instagramRemoveIntegrations({ subdomain, data });
+      case 'whatsapp':
+        return await whatsappRemoveIntegrations({ subdomain, data });
       case 'imap':
         return await imapRemoveIntegrations({ subdomain, data });
 
@@ -519,6 +531,9 @@ export const integrationMutations = {
     }
     if (kind === 'instagram-messenger' || kind === 'instagram-post') {
       kind = 'instagram';
+    }
+    if (kind === 'whatsapp-messenger') {
+      kind = 'whatsapp';
     }
     await models.Integrations.updateOne(
       { _id },

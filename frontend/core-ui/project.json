@@ -33,7 +33,8 @@
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "core-ui:build:development",
-        "port": 3001
+        "port": 3001,
+        "host": "0.0.0.0"
       },
       "configurations": {
         "development": {},
