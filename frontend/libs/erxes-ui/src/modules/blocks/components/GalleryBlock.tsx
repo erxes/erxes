@@ -241,12 +241,7 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
             <figcaption>{img.caption}</figcaption>
           </figure>
         ) : (
-          <img
-            key={i}
-            src={img.url}
-            alt=""
-            style={{ width: '100%', height: 'auto', display: 'block' }}
-          />
+          <img key={img.url} src={img.url} alt="" style={{ width: '100%', height: 'auto', display: 'block' }} />
         ),
       )}
     </div>

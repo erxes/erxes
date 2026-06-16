@@ -116,7 +116,6 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
             )}
             style={imgLoaded ? undefined : { display: 'none' }}
             contentEditable={false}
-            role="button"
             tabIndex={0}
             onDoubleClick={() => setPreviewOpen(true)}
             onKeyDown={(e) => {
@@ -247,9 +246,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
     styleEl.textContent = `[data-id="${blockId}"]{float:${dir};max-width:${maxWidth}px;width:100%;${margin};margin-bottom:.75em}`;
     document.head.appendChild(styleEl);
 
-    return () => {
-      void document.getElementById(styleId)?.remove();
-    };
+    return () => { document.getElementById(styleId)?.remove(); };
   }, [
     props.block.id,
     imageStyle,
