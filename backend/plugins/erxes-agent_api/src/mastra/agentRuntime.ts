@@ -16,6 +16,9 @@ import {
 } from './tools/scope';
 import { resolveDestructiveOpsPolicy } from './tools/destructiveGuard';
 import { writeAgentAction, AgentActionInput } from './auditLog';
+import { isAdvancedMemoryEnabled } from './memory/config';
+import { getMastraMemory } from './memory/mastraMemory';
+import { ToolCallFilter } from '@mastra/core/processors';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -36,7 +39,14 @@ export interface AgentWithTools {
 export async function getOrCreateAgent(
   agentConfig: IMastraAgentDocument,
   models: IModels,
+  subdomain?: string,
 ): Promise<AgentWithTools> {
+  // Mastra Memory (semantic recall + working memory) is opt-in and tenant-bound
+  // — only attached when advanced memory is enabled AND we know the tenant.
+  const useMemory =
+    isAdvancedMemoryEnabled() &&
+    agentConfig.memoryEnabled !== false &&
+    Boolean(subdomain);
   const [providers, settings] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),
@@ -60,7 +70,7 @@ export async function getOrCreateAgent(
   // agent (and its prompt) is rebuilt as soon as the registry refreshes.
   const inventory = capabilityInventory(registry.list, policy);
 
-  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}`;
+  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}:mem${useMemory ? subdomain : 'off'}`;
 
   const cached = agentCache.get(cacheKey);
   if (cached) {
@@ -160,12 +170,18 @@ export async function getOrCreateAgent(
   const temperature = agentConfig.temperature;
   const hasTemperature = typeof temperature === 'number';
 
+  // Per-tenant Mastra Memory (recall + working memory). ToolCallFilter strips
+  // tool-call frames from any replayed/recalled history so reasoning models
+  // (Kimi) don't reject the request. Both are opt-in via advanced memory.
+  const memory = useMemory ? await getMastraMemory(subdomain) : undefined;
+
   const agent = new Agent({
     id: agentConfig.agentId,
     name: agentConfig.name,
     instructions: systemPrompt,
     model,
     tools: toolNames.length ? tools : undefined,
+    ...(memory ? { memory, inputProcessors: [new ToolCallFilter()] } : {}),
     // generate()/stream() read defaultOptions. Temperature is only set when the
     // agent configures it — otherwise the provider default applies (sending an
     // explicit 0 is what reasoning models like Kimi reject).
@@ -173,7 +189,7 @@ export async function getOrCreateAgent(
       maxSteps,
       ...(hasTemperature ? { modelSettings: { temperature } } : {}),
     },
-  });
+  } as never);
 
   agentCache.set(cacheKey, agent);
   toolsCache.set(cacheKey, tools);
