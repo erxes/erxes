@@ -153,25 +153,25 @@ async function sendInvoiceBarcodeEmail(
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
   async generateInvoiceUrl(
-  _root,
-  { input }: { input: IInvoice },
-  { models, subdomain }: IContext,
-) {
-  const DOMAIN = getEnv({ name: 'DOMAIN' })
-    ? `${getEnv({ name: 'DOMAIN' })}`
-    : 'http://localhost:5173';
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
+    _root,
+    { input }: { input: IInvoice },
+    { models, subdomain }: IContext,
+  ) {
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}`
+      : 'http://localhost:5173';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
 
-  if (!input.paymentIds || input.paymentIds.length === 0) {
-    throw new Error('paymentIds is required');
-  }
+    if (!input.paymentIds || input.paymentIds.length === 0) {
+      throw new Error('paymentIds is required');
+    }
 
-  const invoice = await models.Invoices.createInvoice({
-    ...input,
-  });
+    const invoice = await models.Invoices.createInvoice({
+      ...input,
+    });
 
-  return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
-},
+    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+  },
 
   async invoiceCreate(
     _root,
