@@ -5,6 +5,7 @@ import { useEditProperty } from '../hooks/useEditProperty';
 import { IPropertyForm } from '../types/Properties';
 import { useSetAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
+import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 
 export const PropertyEdit = () => {
   const { groupId, id, type } = useParams<{
@@ -21,20 +22,26 @@ export const PropertyEdit = () => {
 
   const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
 
-  const handleSubmit = (data: IPropertyForm) => {
-    editProperty({
-      variables: {
-        id,
-        groupId,
-        contentType: type,
-        ...data,
-      },
-      onCompleted: () => {
-        navigate(`/settings/properties/${type}`);
-        setNeedsToRefresh(true);
-      },
-    });
-  };
+const handleSubmit = (data: IPropertyForm) => {
+  const finalType =
+    data.type === FIELD_TYPES_OBJECT.relation.value && data.relationType
+      ? `relation:${data.relationType}`
+      : data.type;
+
+  editProperty({
+    variables: {
+      id,
+      groupId,
+      contentType: type,
+      ...data,
+      type: finalType,
+    },
+    onCompleted: () => {
+      navigate(`/settings/properties/${type}`);
+      setNeedsToRefresh(true);
+    },
+  });
+};
 
   if (loading) return null;
 
