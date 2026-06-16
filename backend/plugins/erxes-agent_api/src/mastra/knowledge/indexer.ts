@@ -68,11 +68,28 @@ interface DesiredPoint {
 }
 
 /**
+ * Auth for a sweep. Agent = Person: the index is built AS the requesting user,
+ * so erxes enforces *their* permissions on every record read — never an
+ * unattended privileged service token. `userHeader` is base64(JSON) of the
+ * user (the gateway's trusted `user` header, same mechanism as the chat and
+ * workflow manual-trigger paths); `token` is a Bearer fallback.
+ */
+export interface SweepAuth {
+  userHeader?: string;
+  token?: string;
+}
+
+/**
  * One full reconciliation for one tenant. Returns a result instead of
  * throwing; the caller persists it to settings for the status UI.
+ *
+ * `auth` carries the requesting user's identity (see SweepAuth). The settings
+ * app token (`settings.erxesApiToken`) remains only as a last-resort fallback
+ * for deployments that still configure one.
  */
 export async function runKnowledgeSweep(
   subdomain: string,
+  auth?: SweepAuth,
 ): Promise<SweepResult> {
   const result: SweepResult = {
     ok: false,
@@ -87,7 +104,12 @@ export async function runKnowledgeSweep(
     const settings = await models.MastraSettings.getSettings();
     const gql = makeGqlExec(
       settings.erxesApiUrl || 'http://localhost:4000',
-      buildAuthHeaders({ apiToken: settings.erxesApiToken }),
+      // Index AS the requesting user (erxes enforces their permissions); fall
+      // back to the configured app token only when no user auth is present.
+      buildAuthHeaders({
+        userHeader: auth?.userHeader,
+        apiToken: auth?.token || settings.erxesApiToken,
+      }),
     );
 
     const emb = resolveEmbedderConfig();

@@ -128,6 +128,7 @@ import {
 } from '@/automations/graphql/schema';
 
 import {
+  mutations as LogsMutations,
   queries as LogsQueries,
   types as LogsTypes,
 } from '@/logs/graphql/schema';
@@ -333,6 +334,7 @@ export const mutations = `
     ${BroadcastMutations}
     ${bundleMutations}
     ${templateMutations}
+    ${LogsMutations}
   `;
 
 export default { types, queries, mutations };

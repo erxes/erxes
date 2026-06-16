@@ -680,7 +680,10 @@ const isValidObjectId = (value?: string): boolean =>
  * Auth headers for gateway calls: the calling user's request header when
  * present, otherwise the configured app token (bot/no-session calls).
  */
-function buildAuthHeaders(appToken: string): Record<string, string> {
+function buildAuthHeaders(
+  appToken: string,
+  processId?: string,
+): Record<string, string> {
   const reqAuth = getCurrentAuth();
   const authHeaders: Record<string, string> = {};
   if (reqAuth?.userHeader) {
@@ -692,6 +695,11 @@ function buildAuthHeaders(appToken: string): Record<string, string> {
     // The gateway resolves the tenant via getSubdomain(), which reads the
     // 'hostname' header before falling back to the request host.
     authHeaders['hostname'] = reqAuth.subdomain;
+  }
+  if (processId) {
+    // Correlation id honored by the subgraph's request context, so every DB
+    // change this mutation makes is stamped with it (traceable / revertable).
+    authHeaders['x-erxes-process-id'] = processId;
   }
   return authHeaders;
 }
@@ -792,6 +800,7 @@ export async function executeErxesOperation(
   settings: ErxesToolSettings | null,
   inputTypesMap?: Record<string, GqlArgDef[]>,
   objectFieldsMap?: Record<string, GqlFieldDef[]>,
+  processId?: string,
 ): Promise<unknown> {
   // Any internal failure (a malformed introspection shape, an undefined field
   // access, a network blip) must become a STRUCTURED result the model can act
@@ -815,7 +824,7 @@ export async function executeErxesOperation(
       : { ...(rawArgs || {}) };
 
     // Auth must be resolved first — needed for any pre-flight stage lookups.
-    const authHeaders = buildAuthHeaders(token);
+    const authHeaders = buildAuthHeaders(token, processId);
 
     if (erxesOperation === 'dealsAdd') {
       const preflight = await resolveDealsAddStageArg(

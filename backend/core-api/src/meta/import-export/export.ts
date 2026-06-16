@@ -18,12 +18,12 @@ const exportModules = {
 const coreExportTypes = [
   {
     label: 'Customer',
-    contentType: 'core:contact.customer',
+    contentType: 'core:contacts.customers',
     permissions: ['customersExportManage'],
   },
   {
     label: 'Company',
-    contentType: 'core:contact.company',
+    contentType: 'core:contacts.companies',
     permissions: ['companiesExportManage'],
   },
   {
@@ -33,7 +33,7 @@ const coreExportTypes = [
   },
   {
     label: 'Team member',
-    contentType: 'core:user.user',
+    contentType: 'core:organization.users',
     permissions: ['teamMembersExportManage'],
   },
 ];

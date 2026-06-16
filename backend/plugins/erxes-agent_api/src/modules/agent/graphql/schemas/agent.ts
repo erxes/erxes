@@ -9,6 +9,7 @@ export const types = `
     model: String
     toolPolicy: String
     allowedTools: [String]
+    destructiveOps: String
     memoryEnabled: Boolean
     maxSteps: Int
     temperature: Float
@@ -26,6 +27,7 @@ export const types = `
     model: String
     toolPolicy: String
     allowedTools: [String]
+    destructiveOps: String
     memoryEnabled: Boolean
     maxSteps: Int
     temperature: Float
