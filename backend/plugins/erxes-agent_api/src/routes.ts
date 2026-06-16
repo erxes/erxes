@@ -495,7 +495,7 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
       isAdvancedMemoryEnabled() &&
       agentConfig.memoryEnabled !== false &&
       Boolean(subdomain) &&
-      !!userText.trim();
+      Boolean(userText.trim());
     const memoryBinding = useMemory
       ? {
           thread: conversationId,

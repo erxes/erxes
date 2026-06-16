@@ -34,22 +34,24 @@ const PINNED = new Set<string>([
   'getSystemMessage',
 ]);
 
+/** Rewrite the resourceId carried by a memory-method argument — at the top
+ *  level, inside `.filter`, or per `.messages[]` — to the pinned resource. */
 function rewriteArg(arg: unknown, resource: string): unknown {
   if (!arg || typeof arg !== 'object') return arg;
-  const a = { ...(arg as Record<string, unknown>) };
-  if ('resourceId' in a) a.resourceId = resource;
-  const filter = a.filter as Record<string, unknown> | undefined;
+  const out = { ...(arg as Record<string, unknown>) };
+  if ('resourceId' in out) out.resourceId = resource;
+  const filter = out.filter as Record<string, unknown> | undefined;
   if (filter && typeof filter === 'object' && 'resourceId' in filter) {
-    a.filter = { ...filter, resourceId: resource };
+    out.filter = { ...filter, resourceId: resource };
   }
-  if (Array.isArray(a.messages)) {
-    a.messages = a.messages.map((m) =>
-      m && typeof m === 'object' && 'resourceId' in (m as object)
-        ? { ...(m as Record<string, unknown>), resourceId: resource }
-        : m,
+  if (Array.isArray(out.messages)) {
+    out.messages = out.messages.map((msg) =>
+      msg && typeof msg === 'object' && 'resourceId' in (msg as object)
+        ? { ...(msg as Record<string, unknown>), resourceId: resource }
+        : msg,
     );
   }
-  return a;
+  return out;
 }
 
 /** Wrap a Memory so all thread/message ops use `resource`. */
@@ -94,19 +96,19 @@ export async function detectDevResource(
       }
     ).listThreads({ perPage: 500 })) ?? { threads: [] };
     const counts = new Map<string, number>();
-    for (const t of res.threads ?? []) {
-      const r = t.resourceId;
-      if (!r || !r.includes(':')) continue; // agent-style resource → skip
-      const suffix = r.slice(r.indexOf(':') + 1);
+    for (const thread of res.threads ?? []) {
+      const resId = thread.resourceId;
+      if (!resId || !resId.includes(':')) continue; // agent-style resource → skip
+      const suffix = resId.slice(resId.indexOf(':') + 1);
       if (suffix.startsWith('bot:') || suffix.startsWith('schedule:')) continue;
-      counts.set(r, (counts.get(r) ?? 0) + 1);
+      counts.set(resId, (counts.get(resId) ?? 0) + 1);
     }
     let best: string | null = null;
     let max = 0;
-    for (const [r, n] of counts) {
-      if (n > max) {
-        max = n;
-        best = r;
+    for (const [resId, count] of counts) {
+      if (count > max) {
+        max = count;
+        best = resId;
       }
     }
     return best;

@@ -55,6 +55,8 @@ export interface ErxesMessage {
   createdAt: Date | null;
 }
 
+/** Translate a native thread (+ its derived message count) to the UI's
+ *  MastraThread shape, surfacing agentId from metadata. */
 function toErxesThread(t: NativeThread, messageCount: number): ErxesThread {
   const meta = (t.metadata ?? {}) as { agentId?: string };
   return {

@@ -71,9 +71,17 @@ export async function buildStudioAgents(): Promise<Record<string, Agent>> {
       );
       // Override the agent's memory with the resource-pinned facade so its
       // chat + history-tab reads/writes land in the dashboard's bucket.
-      if (pinned) {
-        (agent as unknown as { __setMemory(m: unknown): void }).__setMemory(
-          pinned,
+      // `__setMemory` is Mastra's internal memory setter — fine for this
+      // dev-only bridge (it never ships in the production build), but guarded:
+      // if a future Mastra renames/removes it, Studio still boots, just
+      // unpinned (its own resource scope) instead of crashing.
+      const setMemory = (agent as unknown as { __setMemory?: (m: unknown) => void })
+        .__setMemory;
+      if (pinned && typeof setMemory === 'function') {
+        setMemory.call(agent, pinned);
+      } else if (pinned) {
+        console.warn(
+          '[erxes-studio] agent.__setMemory unavailable — Studio history runs unpinned (its own scope)',
         );
       }
       agents[keyOf(cfg)] = agent;
