@@ -41,9 +41,11 @@ const GeneralSettings = lazy(() =>
 );
 
 const MessageProSettings = lazy(() =>
-  import('~/pages/settings/workspace/MessageProSettingsPage').then((module) => ({
-    default: module.MessageProSettingsPage,
-  })),
+  import('~/pages/settings/workspace/MessageProSettingsPage').then(
+    (module) => ({
+      default: module.MessageProSettingsPage,
+    }),
+  ),
 );
 
 const TagsPage = lazy(() =>
