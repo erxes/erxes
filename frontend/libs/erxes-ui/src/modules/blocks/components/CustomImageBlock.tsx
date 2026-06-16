@@ -246,7 +246,9 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
     styleEl.textContent = `[data-id="${blockId}"]{float:${dir};max-width:${maxWidth}px;width:100%;${margin};margin-bottom:.75em}`;
     document.head.appendChild(styleEl);
 
-    return () => { document.getElementById(styleId)?.remove(); };
+    return () => {
+      document.getElementById(styleId)?.remove();
+    };
   }, [
     props.block.id,
     imageStyle,
