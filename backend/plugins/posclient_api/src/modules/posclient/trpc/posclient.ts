@@ -82,6 +82,9 @@ export const posclientTrpcRouter = t.router({
           case 'productCategory':
             await receiveProductCategory(models, input);
             break;
+          case 'productsRemove':
+            await receiveProduct(models, input);
+            break;
           case 'user':
             await receiveUser(models, input);
             break;
