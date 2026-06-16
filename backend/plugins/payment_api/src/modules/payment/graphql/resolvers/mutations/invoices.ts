@@ -40,12 +40,12 @@ async function sendInvoiceBarcodeEmail(
     <table cellpadding="0" cellspacing="0" border="0"
       style="border-collapse:collapse;background:#fff;border:16px solid #fff">
       ${Array.from(
-      { length: size },
-      (_, r) => `
+        { length: size },
+        (_, r) => `
         <tr height="${cell}">
           ${Array.from(
-        { length: size },
-        (_, c) => `
+            { length: size },
+            (_, c) => `
             <td
               width="${cell}"
               height="${cell}"
@@ -60,10 +60,10 @@ async function sendInvoiceBarcodeEmail(
               "
             ></td>
           `,
-      ).join('')}
+          ).join('')}
         </tr>
       `,
-    ).join('')}
+      ).join('')}
     </table>
   `;
   } catch (err) {
@@ -319,9 +319,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       }
 
       if (invoice.contentType) {
-        const [moduleName, collectionType] = splitType(
-          invoice.contentType,
-        );
+        const [moduleName, collectionType] = splitType(invoice.contentType);
 
         // Fire worker message – do not await
         sendWorkerMessage({
@@ -344,7 +342,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
             backoff: { type: 'exponential', delay: 2000 },
           },
         })
-          .then(() => { })
+          .then(() => {})
           .catch((err) => {
             process.stderr.write(
               `[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`,
