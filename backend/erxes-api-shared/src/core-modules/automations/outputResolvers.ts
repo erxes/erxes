@@ -331,9 +331,7 @@ const resolveOutputPathsFromDefinition = async ({
       path,
     });
 
-    result[path] = sourceReference.found
-      ? sourceReference.value
-      : defaultValue;
+    result[path] = sourceReference.found ? sourceReference.value : defaultValue;
   }
 
   return result;

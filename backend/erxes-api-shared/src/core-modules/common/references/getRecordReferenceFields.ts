@@ -36,10 +36,7 @@ type TPropertyField = {
 };
 
 type TPropertyFieldsQuery = {
-  sort: (sort: {
-    order: 1;
-    code: 1;
-  }) => {
+  sort: (sort: { order: 1; code: 1 }) => {
     lean: () => Promise<TPropertyField[]>;
   };
 };

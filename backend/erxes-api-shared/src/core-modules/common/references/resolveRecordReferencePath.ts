@@ -409,13 +409,12 @@ const findRecordReferenceExtensionField = async ({
 
   for (const providerPluginName of providerPluginNames) {
     const plugin = await getPlugin(providerPluginName);
-    const extensions =
-      plugin.config?.meta?.references?.extensions as
-        | Array<{
-            type: string;
-            fields?: TRecordReferenceField[];
-          }>
-        | undefined;
+    const extensions = plugin.config?.meta?.references?.extensions as
+      | Array<{
+          type: string;
+          fields?: TRecordReferenceField[];
+        }>
+      | undefined;
 
     const extension = (extensions || []).find(({ type: extensionType }) =>
       isSameRecordReferenceType(extensionType, normalizedType),
