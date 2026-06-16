@@ -1,10 +1,12 @@
-import { Form, Upload, Button, Input } from 'erxes-ui';
+import { Form, Button, Input, useErxesUpload } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
-import { IconUpload, IconX } from '@tabler/icons-react';
+import { IconPhotoPlus, IconUpload, IconX } from '@tabler/icons-react';
 import { UseFormReturn, ControllerRenderProps } from 'react-hook-form';
 import { GalleryUploader } from '../../GalleryUploader';
 import { DocumentsUploader } from '../../DocumentsUploader';
 import { AttachmentsUploader } from '../../AttachmentsUploader';
+import { MediaPickerDialog, MediaSelection } from '../../../media/MediaPicker';
+import { useEffect, useState } from 'react';
 
 type MediaFormData = {
   thumbnail?: string | { url: string; name: string };
@@ -16,18 +18,6 @@ type MediaFormData = {
 
 interface MediaSectionProps {
   form: UseFormReturn<MediaFormData>;
-}
-
-interface FileInfo {
-  name: string;
-  size?: number;
-  type?: string;
-  [key: string]: unknown;
-}
-
-interface UploadValue {
-  url: string;
-  fileInfo: FileInfo;
 }
 
 interface ThumbnailUploaderProps {
@@ -129,16 +119,30 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
 );
 
 const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
-  const handleChange = (value: UploadValue) => {
-    if (value?.url) {
-      field.onChange({
-        url: value.url,
-        name: value.fileInfo?.name || '',
-      });
-    } else {
-      field.onChange(null);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+
+  const uploadProps = useErxesUpload({
+    allowedMimeTypes: ['image/*'],
+    maxFiles: 1,
+    maxFileSize: 20 * 1024 * 1024,
+    uploadKind: 'media',
+    onFilesAdded: (addedFiles) => {
+      const file = addedFiles?.[0];
+
+      if (file?.url) {
+        field.onChange({
+          url: file.url,
+          name: file.name || '',
+        });
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (uploadProps.files.length > 0 && !uploadProps.loading) {
+      uploadProps.onUpload();
     }
-  };
+  }, [uploadProps.files.length]);
 
   let thumbnailUrl: string | null = null;
 
@@ -153,25 +157,36 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
   return (
     <>
       <div className="flex items-center gap-3">
-        <Upload.Root
-          value={thumbnailUrl || ''}
-          onChange={(value) => handleChange(value as UploadValue)}
-        >
-          <Upload.Preview />
-          <div className="flex flex-col items-stretch gap-2 flex-1">
-            <Upload.Button
-              size="sm"
-              variant="secondary"
-              type="button"
-              className="flex items-center justify-center gap-2"
-            >
-              <IconUpload size={16} />
-              <span className="text-sm font-medium">
-                {field.value ? 'Change image' : 'Upload featured image'}
-              </span>
-            </Upload.Button>
-          </div>
-        </Upload.Root>
+        <input {...uploadProps.getInputProps()} />
+        <div className="grid flex-1 grid-cols-2 gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            type="button"
+            className="flex items-center justify-center gap-2"
+            onClick={uploadProps.open}
+            disabled={uploadProps.loading}
+          >
+            <IconUpload size={16} />
+            <span className="text-sm font-medium">
+              {uploadProps.loading
+                ? 'Uploading...'
+                : field.value
+                  ? 'Change image'
+                  : 'Upload featured image'}
+            </span>
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            type="button"
+            className="flex items-center justify-center gap-2"
+            onClick={() => setMediaPickerOpen(true)}
+          >
+            <IconPhotoPlus size={16} />
+            <span className="text-sm font-medium">Media library</span>
+          </Button>
+        </div>
       </div>
       {form.watch('thumbnail') && (
         <div className="mt-2 relative">
@@ -203,6 +218,19 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
           </div>
         </div>
       )}
+      <MediaPickerDialog
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        fileType="image"
+        onSelect={(selection) => {
+          const media = selection as MediaSelection;
+
+          field.onChange({
+            url: media.url,
+            name: media.name,
+          });
+        }}
+      />
     </>
   );
 };

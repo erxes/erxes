@@ -17,6 +17,7 @@ import {
   resizeImage,
   uploadFile,
 } from '~/utils/file';
+import { getFileUploadConfigs } from '~/modules/organization/settings/utils/configs';
 import { readFileRequest } from '~/utils/file/read';
 import crypto from 'crypto';
 import multer from 'multer';
@@ -86,6 +87,85 @@ const chunkLimiter = createLimiter(
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
+const getFieldString = (
+  fields: formidable.Fields,
+  name: string,
+): string | undefined => {
+  const value = fields[name];
+  const fieldValue = Array.isArray(value) ? value[0] : value;
+
+  return typeof fieldValue === 'string' && fieldValue.trim()
+    ? filterXSS(fieldValue.trim())
+    : undefined;
+};
+
+const getBodyString = (body: Record<string, any>, name: string) => {
+  const value = body?.[name];
+
+  return typeof value === 'string' && value.trim()
+    ? filterXSS(value.trim())
+    : undefined;
+};
+
+const getFileType = (mimeType: string) => {
+  if (mimeType.startsWith('image/')) {
+    return 'image';
+  }
+
+  if (mimeType.startsWith('video/')) {
+    return 'video';
+  }
+
+  if (mimeType.startsWith('audio/')) {
+    return 'audio';
+  }
+
+  if (
+    mimeType === 'application/pdf' ||
+    mimeType.startsWith('text/') ||
+    mimeType.includes('document') ||
+    mimeType.includes('spreadsheet') ||
+    mimeType.includes('presentation')
+  ) {
+    return 'document';
+  }
+
+  return 'other';
+};
+
+const getCreatedUserId = (req: Request) => {
+  const userIdHeader = req.headers.userid;
+
+  return Array.isArray(userIdHeader) ? userIdHeader[0] : userIdHeader;
+};
+
+const getProvider = (uploadConfigs: Record<string, any>) => {
+  const uploadServiceType = uploadConfigs.UPLOAD_SERVICE_TYPE;
+
+  if (
+    uploadServiceType === 'AWS' &&
+    uploadConfigs.AWS_COMPATIBLE_SERVICE_ENDPOINT?.includes('cloudflare')
+  ) {
+    return 'cloudflare-r2-s3';
+  }
+
+  if (
+    uploadServiceType === 'CLOUDFLARE' &&
+    (uploadConfigs.CLOUDFLARE_USE_CDN === 'true' ||
+      uploadConfigs.CLOUDFLARE_USE_CDN === true)
+  ) {
+    return 'cloudflare-cdn';
+  }
+
+  return String(uploadServiceType || '').toLowerCase();
+};
+
+const getPreviewUrl = (key: string) => {
+  if (/^https?:\/\//.test(key)) {
+    return key;
+  }
+};
+
 /** Query parameters accepted by the /read-file endpoint. */
 interface IReadFileQuery {
   key?: string;
@@ -142,7 +222,10 @@ router.get(
 
         const sanitizedFileName = sanitizeFilename(name || sanitizedKey);
 
-        res.setHeader('Content-Disposition', `inline; filename="${sanitizedFileName}"`);
+        res.setHeader(
+          'Content-Disposition',
+          `inline; filename="${sanitizedFileName}"`,
+        );
         res.setHeader('Content-Type', contentType);
 
         return res.send(response);
@@ -202,7 +285,7 @@ router.post(
       keepExtensions: true,
     });
 
-    form.parse(req, async (error, _fields, files) => {
+    form.parse(req, async (error, fields, files) => {
       if (error) {
         return res
           .status(400)
@@ -237,6 +320,51 @@ router.post(
       }
 
       try {
+        if (kindQuery === 'media') {
+          const uploadConfigs = await getFileUploadConfigs(models);
+          const mediaUploadId = crypto.randomUUID();
+          const keyPrefix = `media/${sanitizeFilename(
+            subdomain,
+          )}/${mediaUploadId}`;
+
+          const key = await uploadFile(
+            `${domain}/gateway`,
+            processedFile,
+            models,
+            false,
+            forcePrivate,
+            { keyPrefix },
+          );
+
+          const fileName = sanitizeFilename(
+            processedFile.originalFilename || file.originalFilename,
+          );
+          const previewUrl = getPreviewUrl(key);
+          const asset = await models.MediaAssets.createAsset({
+            name: fileName,
+            title: getFieldString(fields, 'title') || fileName,
+            alt: getFieldString(fields, 'alt'),
+            caption: getFieldString(fields, 'caption'),
+            description: getFieldString(fields, 'description'),
+            key,
+            url: /^https?:\/\//.test(key) ? key : undefined,
+            previewUrl,
+            storageType: uploadConfigs.UPLOAD_SERVICE_TYPE,
+            provider: getProvider(uploadConfigs),
+            mimeType: mimetype,
+            fileType: getFileType(mimetype),
+            size: processedFile.size || file.size || 0,
+            folderId: getFieldString(fields, 'folderId'),
+            tags: getFieldString(fields, 'tags')
+              ?.split(',')
+              .map((tag) => tag.trim())
+              .filter(Boolean),
+            createdUserId: getCreatedUserId(req),
+          });
+
+          return res.json(asset);
+        }
+
         const result = await uploadFile(
           `${domain}/gateway`,
           processedFile,
@@ -251,6 +379,152 @@ router.post(
         return res.status(500).send(filterXSS(message));
       }
     });
+  },
+);
+
+router.get(
+  '/media-assets',
+  readLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+      const limit = Number(req.query.limit || 50);
+      const skip = Number(req.query.skip || 0);
+      const searchValue = Array.isArray(req.query.searchValue)
+        ? req.query.searchValue[0]
+        : req.query.searchValue;
+      const fileType = Array.isArray(req.query.fileType)
+        ? req.query.fileType[0]
+        : req.query.fileType;
+
+      const assets = await models.MediaAssets.listAssets({
+        searchValue:
+          typeof searchValue === 'string' ? filterXSS(searchValue) : undefined,
+        fileType:
+          typeof fileType === 'string' ? filterXSS(fileType) : undefined,
+        limit: Number.isFinite(limit) && limit > 0 ? limit : 50,
+        skip: Number.isFinite(skip) && skip > 0 ? skip : 0,
+      });
+
+      return res.json(assets);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
+
+router.get(
+  '/media-assets/:id',
+  readLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+      const asset = await models.MediaAssets.getAsset(filterXSS(req.params.id));
+
+      return res.json(asset);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
+
+router.patch(
+  '/media-assets/:id',
+  uploadLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+      const name = getBodyString(req.body, 'name');
+      const doc: Record<string, string> = {};
+
+      if (name) {
+        doc.name = sanitizeFilename(name);
+      }
+
+      ['title', 'alt', 'caption', 'description'].forEach((field) => {
+        if (Object.prototype.hasOwnProperty.call(req.body || {}, field)) {
+          doc[field] = getBodyString(req.body, field) || '';
+        }
+      });
+
+      const asset = await models.MediaAssets.updateAsset(
+        filterXSS(req.params.id),
+        doc,
+      );
+
+      return res.json(asset);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
+
+router.post(
+  '/media-assets/:id/update',
+  uploadLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+      const name = getBodyString(req.body, 'name');
+      const doc: Record<string, string> = {};
+
+      if (name) {
+        doc.name = sanitizeFilename(name);
+      }
+
+      ['title', 'alt', 'caption', 'description'].forEach((field) => {
+        if (Object.prototype.hasOwnProperty.call(req.body || {}, field)) {
+          doc[field] = getBodyString(req.body, field) || '';
+        }
+      });
+
+      const asset = await models.MediaAssets.updateAsset(
+        filterXSS(req.params.id),
+        doc,
+      );
+
+      return res.json(asset);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
+
+router.delete(
+  '/media-assets/:id',
+  uploadLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
+      await models.MediaAssets.removeAsset(filterXSS(req.params.id));
+
+      return res.json({ status: 'ok' });
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
+
+router.post(
+  '/media-assets/:id/delete',
+  uploadLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
+      await models.MediaAssets.removeAsset(filterXSS(req.params.id));
+
+      return res.json({ status: 'ok' });
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 

@@ -1,7 +1,6 @@
 import { Form, Editor } from 'erxes-ui';
-import { REACT_APP_API_URL } from 'erxes-ui/utils';
-import { readImage } from 'erxes-ui/utils/core';
 import { UseFormReturn, FieldValues } from 'react-hook-form';
+import { uploadMediaFile, useMediaPicker } from '../media/MediaPicker';
 
 interface PostPreviewProps {
   form: UseFormReturn<FieldValues>;
@@ -18,6 +17,8 @@ export const PostPreview = ({
   fullPost,
   handleEditorChange,
 }: PostPreviewProps) => {
+  const { selectMedia, picker } = useMediaPicker();
+
   return (
     <div className="rounded-lg overflow-hidden bg-background">
       <Form {...form}>
@@ -35,27 +36,20 @@ export const PostPreview = ({
                 )}
               </Form.Label>
               <Form.Control>
-                <Editor
-                  className="h-[calc(100vh-200px)] border text-justify"
-                  key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
-                  isHTML
-                  initialContent={form.getValues('content') || ''}
-                  onChange={handleEditorChange}
-                  uploadFile={async (file) => {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    const response = await fetch(
-                      `${REACT_APP_API_URL}/upload-file?kind=main`,
-                      {
-                        method: 'post',
-                        body: formData,
-                        credentials: 'include',
-                      },
-                    );
-                    const key = await response.text();
-                    return readImage(key);
-                  }}
-                />
+                <div>
+                  <Editor
+                    className="h-[calc(100vh-200px)] border text-justify"
+                    key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
+                    isHTML
+                    initialContent={form.getValues('content') || ''}
+                    onChange={handleEditorChange}
+                    uploadFile={async (file) =>
+                      (await uploadMediaFile(file)).url
+                    }
+                    selectMedia={selectMedia}
+                  />
+                  {picker}
+                </div>
               </Form.Control>
               <Form.Message />
             </Form.Item>

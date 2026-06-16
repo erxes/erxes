@@ -269,6 +269,11 @@ import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
+import { IMediaAssetDocument } from '@/media/types';
+import {
+  IMediaAssetModel,
+  loadMediaAssetClass,
+} from '@/media/db/models/MediaAssets';
 
 export interface IModels {
   Brands: IBrandModel;
@@ -316,6 +321,7 @@ export interface IModels {
 
   AiAgents: Model<AiAgentDocument>;
   ActivityLogs: IActivityLogsModel;
+  MediaAssets: IMediaAssetModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
   BroadcastTraces: IBroadcastTraceModel;
@@ -590,6 +596,11 @@ export const loadClasses = (
   models.ActivityLogs = db.model<IActivityLogDocument, IActivityLogsModel>(
     'activity_logs',
     loadActivityLogsClass(models),
+  );
+
+  models.MediaAssets = db.model<IMediaAssetDocument, IMediaAssetModel>(
+    'media_assets',
+    loadMediaAssetClass(models),
   );
 
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(

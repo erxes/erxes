@@ -1,6 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
-import { IconX, IconFile } from '@tabler/icons-react';
-import { useEffect } from 'react';
+import { IconX, IconFile, IconPhotoPlus } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { MediaPickerDialog, MediaSelection } from '../media/MediaPicker';
 
 interface DocumentsUploaderProps {
   value?: string[];
@@ -12,6 +13,7 @@ export const DocumentsUploader = ({
   onChange,
 }: DocumentsUploaderProps) => {
   const urls = value || [];
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
 
   const uploadProps = useErxesUpload({
     allowedMimeTypes: [
@@ -23,6 +25,7 @@ export const DocumentsUploader = ({
     ],
     maxFiles: 10,
     maxFileSize: 20 * 1024 * 1024, // 20MB
+    uploadKind: 'media',
     onFilesAdded: (addedFiles) => {
       const existing = urls || [];
       const addedUrls = (addedFiles || [])
@@ -74,16 +77,42 @@ export const DocumentsUploader = ({
       )}
       <div>
         <input {...uploadProps.getInputProps()} />
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
-          type="button"
-        >
-          {uploadProps.loading ? 'Uploading...' : 'Upload Documents'}
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={uploadProps.open}
+            disabled={uploadProps.loading}
+            type="button"
+          >
+            {uploadProps.loading ? 'Uploading...' : 'Upload Documents'}
+          </Button>
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => setMediaPickerOpen(true)}
+            type="button"
+          >
+            <IconPhotoPlus size={16} />
+            Media library
+          </Button>
+        </div>
       </div>
+      <MediaPickerDialog
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        fileType="document"
+        multiple
+        onSelect={(selection) => {
+          const selected = selection as MediaSelection[];
+          const next = [...urls, ...selected.map((media) => media.url)].slice(
+            0,
+            10,
+          );
+
+          onChange(Array.from(new Set(next)));
+        }}
+      />
     </div>
   );
 };

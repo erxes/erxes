@@ -1,5 +1,6 @@
 import { getEnv, isImage } from 'erxes-api-shared/utils';
 import * as fs from 'fs';
+import { Jimp, JimpMime } from 'jimp';
 import fetch from 'node-fetch';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -91,6 +92,57 @@ const readFromCR2 = async (key: string, models?: IModels) => {
   });
 };
 
+const getResizeMime = (key: string) => {
+  const extension = key.split('.').pop()?.toLowerCase();
+
+  if (extension === 'jpg' || extension === 'jpeg') {
+    return JimpMime.jpeg;
+  }
+
+  if (extension === 'png') {
+    return JimpMime.png;
+  }
+};
+
+const resizeBuffer = async (key: string, response: any, width?: number) => {
+  if (!width || !isImage(key)) {
+    return response;
+  }
+
+  const mime = getResizeMime(key);
+
+  if (!mime) {
+    return response;
+  }
+
+  const buffer = Buffer.isBuffer(response)
+    ? response
+    : response instanceof Uint8Array
+      ? Buffer.from(response)
+      : undefined;
+
+  if (!buffer) {
+    return response;
+  }
+
+  try {
+    const image = await Jimp.read(buffer);
+
+    if (!image?.bitmap?.width || image.bitmap.width <= width) {
+      return response;
+    }
+
+    image.resize({ w: width });
+
+    return image.getBuffer(
+      mime as Parameters<typeof image.getBuffer>[0],
+      mime === JimpMime.jpeg ? ({ quality: 82 } as any) : undefined,
+    );
+  } catch {
+    return response;
+  }
+};
+
 /**
  * Converts a readable stream from Azure Blob Storage into a Buffer.
  *
@@ -134,14 +186,14 @@ export const readFileRequest = async ({
     // get a file buffer
     const [contents] = await file.download({});
 
-    return contents;
+    return resizeBuffer(key, contents, width);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
     const s3 = await createAWS(models);
 
-    return new Promise((resolve, reject) => {
+    const response = await new Promise((resolve, reject) => {
       s3.getObject(
         {
           Bucket: AWS_BUCKET,
@@ -168,6 +220,8 @@ export const readFileRequest = async ({
         },
       );
     });
+
+    return resizeBuffer(key, response, width);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
@@ -180,7 +234,9 @@ export const readFileRequest = async ({
       return readFromCFImages(key, width, models);
     }
 
-    return readFromCR2(key, models);
+    const response = await readFromCR2(key, models);
+
+    return resizeBuffer(key, response, width);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'AZURE') {
@@ -192,11 +248,13 @@ export const readFileRequest = async ({
       throw new Error('No readable stream found in response');
     }
 
-    return azureStreamToBuffer(response.readableStreamBody);
+    const buffer = await azureStreamToBuffer(response.readableStreamBody);
+
+    return resizeBuffer(key, buffer, width);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
-    return new Promise((resolve, reject) => {
+    const response = await new Promise((resolve, reject) => {
       fs.readFile(`${uploadsFolderPath}/${key}`, (error, response) => {
         if (error) {
           return reject(error);
@@ -205,5 +263,7 @@ export const readFileRequest = async ({
         return resolve(response);
       });
     });
+
+    return resizeBuffer(key, response, width);
   }
 };

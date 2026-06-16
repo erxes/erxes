@@ -10,7 +10,7 @@ import { BlockNoteView } from '@blocknote/shadcn';
 import { Button, Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
-import { IconPhoto } from '@tabler/icons-react';
+import { IconPhoto, IconPhotoPlus } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { BlockEditorProps } from '../types';
@@ -30,6 +30,7 @@ export const BlockEditor = ({
   disabled,
   variant = 'default',
   sideMenu = false,
+  selectMedia,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
@@ -75,6 +76,44 @@ export const BlockEditor = ({
           const currentBlock = editor.getTextCursorPosition().block;
           editor.insertBlocks(
             [{ type: 'gallery' as any }],
+            currentBlock,
+            'after',
+          );
+        },
+      } satisfies DefaultReactSuggestionItem);
+    }
+
+    if (selectMedia) {
+      items.push({
+        title: 'Media library',
+        subtext: 'Insert an existing media asset',
+        aliases: ['media', 'library', 'asset', 'image', 'file'],
+        badge: undefined,
+        group: editor.dictionary.slash_menu.image.group,
+        icon: <IconPhotoPlus size={18} />,
+        onItemClick: async () => {
+          const media = await selectMedia();
+          const selectedMedia = Array.isArray(media) ? media[0] : media;
+
+          if (!selectedMedia?.url) {
+            return;
+          }
+
+          const currentBlock = editor.getTextCursorPosition().block;
+          const isImage =
+            selectedMedia.fileType === 'image' ||
+            selectedMedia.mimeType?.startsWith('image/');
+
+          editor.insertBlocks(
+            [
+              {
+                type: isImage ? 'image' : 'file',
+                props: {
+                  url: selectedMedia.url,
+                  name: selectedMedia.name || '',
+                },
+              } as any,
+            ],
             currentBlock,
             'after',
           );

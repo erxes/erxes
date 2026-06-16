@@ -25,6 +25,7 @@ type UseErxesUploadOptions = {
    * Maximum number of files allowed per upload.
    */
   maxFiles?: number;
+  uploadKind?: 'main' | 'media';
   onFilesAdded?: (
     addedFiles: { name: string; url: string; type: string; size: number }[],
   ) => void;
@@ -37,6 +38,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
     allowedMimeTypes = [],
     maxFileSize = Number.POSITIVE_INFINITY,
     maxFiles = 1,
+    uploadKind = 'main',
     onFilesAdded,
   } = options;
 
@@ -109,8 +111,9 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
       filesToUpload.map(async (file) => {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('title', file.name);
         const response = await fetch(
-          `${REACT_APP_API_URL}/upload-file?kind=main`,
+          `${REACT_APP_API_URL}/upload-file?kind=${uploadKind}`,
           {
             method: 'post',
             body: formData,
@@ -123,6 +126,31 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
         if (!response.ok) {
           return { name: file.name, message: data };
         }
+
+        if (uploadKind === 'media') {
+          const asset = JSON.parse(data);
+
+          if (asset.url || /^https?:\/\//.test(asset.key)) {
+            return {
+              name: file.name,
+              message: undefined,
+              url: asset.url || asset.key,
+            };
+          }
+
+          const params = new URLSearchParams({
+            key: asset.key,
+            inline: 'true',
+            name: asset.name || file.name,
+          });
+
+          return {
+            name: file.name,
+            message: undefined,
+            url: `${REACT_APP_API_URL}/read-file?${params.toString()}`,
+          };
+        }
+
         return { name: file.name, message: undefined, url: data };
       }),
     );
@@ -152,7 +180,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
       );
       setSuccesses([]);
     }, 1000);
-  }, [files, errors, successes, onFilesAdded]);
+  }, [files, errors, successes, onFilesAdded, uploadKind]);
 
   useEffect(() => {
     if (files.length === 0) {

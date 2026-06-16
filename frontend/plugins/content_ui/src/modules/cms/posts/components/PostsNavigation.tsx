@@ -3,6 +3,7 @@ import {
   IconCube,
   IconRulerMeasure,
   IconSettings,
+  IconPhoto,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
@@ -67,6 +68,13 @@ export const PostsNavigation = () => {
         path: `${basePath}/custom-types`,
         label: 'Custom Post Types',
         icon: IconRulerMeasure,
+      };
+    }
+    if (pathname.includes('/media')) {
+      return {
+        path: `${basePath}/media`,
+        label: 'Media',
+        icon: IconPhoto,
       };
     }
     if (pathname.includes('/cmssettings')) {

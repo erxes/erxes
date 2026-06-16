@@ -74,6 +74,12 @@ const Menus = lazy(() =>
   })),
 );
 
+const Media = lazy(() =>
+  import('~/modules/cms/media/Media').then((module) => ({
+    default: module.Media,
+  })),
+);
+
 const Settings = lazy(() =>
   import('~/modules/cms/settings/Settings').then((module) => ({
     default: module.Settings,
@@ -115,6 +121,7 @@ const CmsMain = () => {
           <Route path="pages" element={<Pages />} />
           <Route path="pages/detail" element={<PagesDetailWrapper />} />
           <Route path="pages/detail/:pageId" element={<PagesDetailWrapper />} />
+          <Route path="media" element={<Media />} />
           <Route path="menus" element={<Menus />} />
           <Route path="custom-types" element={<CustomTypes />} />
           <Route path="custom-fields" element={<CustomFields />} />
