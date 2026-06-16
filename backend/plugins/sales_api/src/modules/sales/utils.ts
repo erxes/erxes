@@ -1203,7 +1203,7 @@ export const itemsAdd = async (
       pluginName: 'core',
       module: 'fields',
       action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
+      input: { data: extendedDoc.propertiesData },
       defaultValue: {},
     });
   }

@@ -1,4 +1,5 @@
 import { sendCoreModuleProducer } from '../../../utils/trpc/sendCoreModuleProducer';
+import { getPlugin, getPlugins } from '../../../utils/service-discovery';
 import {
   TRecordReferenceField,
   TRecordReferencesConfig,
@@ -10,10 +11,34 @@ import {
   getLocalRecordReferenceType,
   getRecordReferencePluginName,
   isBlankReferenceValue,
+  isSameRecordReferenceType,
   normalizeRecordReferenceType,
   readRecordReferencePath,
   uniq,
 } from './utils';
+
+type TRecordReferenceTarget = unknown;
+
+type TResolveRecordReferencePathProps = {
+  config: TRecordReferencesConfig;
+  defaultValue?: unknown;
+  models: unknown;
+  path: string;
+  pluginName: string;
+  subdomain: string;
+  target: TRecordReferenceTarget;
+  type: string;
+};
+
+const getRecordReferenceTargetId = (target: TRecordReferenceTarget) => {
+  if (!target || typeof target !== 'object' || !('_id' in target)) {
+    return '';
+  }
+
+  const id = target._id;
+
+  return id ? String(id) : '';
+};
 
 export const resolveRecordReferencePath = async ({
   config,
@@ -24,16 +49,7 @@ export const resolveRecordReferencePath = async ({
   subdomain,
   target,
   type,
-}: {
-  config: TRecordReferencesConfig;
-  defaultValue?: any;
-  models: any;
-  path: string;
-  pluginName: string;
-  subdomain: string;
-  target: any;
-  type: string;
-}): Promise<any> => {
+}: TResolveRecordReferencePathProps): Promise<unknown> => {
   if (!target || !path) {
     return defaultValue;
   }
@@ -47,9 +63,114 @@ export const resolveRecordReferencePath = async ({
   const field = findRecordReferenceField(referenceType?.fields || [], head);
 
   if (!field) {
+    const extensionField = findLocalRecordReferenceExtensionField({
+      config,
+      head,
+      pluginName,
+      type,
+    });
+
+    if (extensionField) {
+      return resolveRecordReferenceFieldValue({
+        config,
+        defaultValue,
+        field: extensionField,
+        models,
+        path,
+        pluginName,
+        restPath,
+        subdomain,
+        target,
+        type: normalizeRecordReferenceType(pluginName, type),
+      });
+    }
+
+    const extension = await resolveExternalRecordReferenceExtensionPath({
+      defaultValue,
+      path,
+      pluginName,
+      subdomain,
+      target,
+      type,
+    });
+
+    if (extension.found) {
+      return extension.value;
+    }
+
     return readRecordReferencePath(target, path) ?? defaultValue;
   }
 
+  return resolveRecordReferenceFieldValue({
+    config,
+    defaultValue,
+    field,
+    models,
+    path,
+    pluginName,
+    restPath,
+    subdomain,
+    target,
+    type,
+  });
+};
+
+export const resolveRecordReferenceExtensionPath = async ({
+  config,
+  defaultValue,
+  models,
+  path,
+  pluginName,
+  subdomain,
+  target,
+  type,
+}: TResolveRecordReferencePathProps): Promise<unknown> => {
+  if (!target || !path) {
+    return defaultValue;
+  }
+
+  const [head, ...restParts] = path.split('.');
+  const restPath = restParts.join('.');
+  const field = findLocalRecordReferenceExtensionField({
+    config,
+    head,
+    pluginName,
+    type,
+  });
+
+  if (!field) {
+    return readRecordReferencePath(target, path) ?? defaultValue;
+  }
+
+  return resolveRecordReferenceFieldValue({
+    config,
+    defaultValue,
+    field,
+    models,
+    path,
+    pluginName,
+    restPath,
+    subdomain,
+    target,
+    type: normalizeRecordReferenceType(pluginName, type),
+  });
+};
+
+const resolveRecordReferenceFieldValue = async ({
+  config,
+  defaultValue,
+  field,
+  models,
+  path,
+  pluginName,
+  restPath,
+  subdomain,
+  target,
+  type,
+}: TResolveRecordReferencePathProps & {
+  field: TRecordReferenceField;
+  restPath: string;
+}): Promise<unknown> => {
   if (field.resolver) {
     const resolver = config.resolvers?.[field.resolver];
 
@@ -71,7 +192,17 @@ export const resolveRecordReferencePath = async ({
     }
 
     if (!field.reference?.type) {
-      return defaultValue;
+      return resolveNestedRecordReferencePath({
+        config,
+        defaultValue,
+        fields: field.fields || [],
+        models,
+        path: restPath,
+        pluginName,
+        subdomain,
+        target: value,
+        type,
+      });
     }
 
     return resolveRemoteRecordReferencePath({
@@ -84,9 +215,23 @@ export const resolveRecordReferencePath = async ({
   }
 
   if (!field.reference) {
-    return (
-      readRecordReferencePath(target, field.path || field.key) ?? defaultValue
-    );
+    const value = readRecordReferencePath(target, field.path || field.key);
+
+    if (!restPath) {
+      return value ?? defaultValue;
+    }
+
+    return resolveNestedRecordReferencePath({
+      config,
+      defaultValue,
+      fields: field.fields || [],
+      models,
+      path: restPath,
+      pluginName,
+      subdomain,
+      target: value,
+      type,
+    });
   }
 
   if (field.reference.kind === 'field') {
@@ -117,7 +262,7 @@ export const resolveRecordReferencePath = async ({
         field.reference.type,
       ),
       relType: field.reference.relType,
-      sourceId: target._id,
+      sourceId: getRecordReferenceTargetId(target),
       sourceType: type,
       subdomain,
     });
@@ -136,6 +281,56 @@ export const resolveRecordReferencePath = async ({
   }
 
   return defaultValue;
+};
+
+const resolveNestedRecordReferencePath = async ({
+  config,
+  defaultValue,
+  fields,
+  models,
+  path,
+  pluginName,
+  subdomain,
+  target,
+  type,
+}: {
+  config: TRecordReferencesConfig;
+  defaultValue?: unknown;
+  fields: TRecordReferenceField[];
+  models: unknown;
+  path: string;
+  pluginName: string;
+  subdomain: string;
+  target: unknown;
+  type: string;
+}): Promise<unknown> => {
+  if (!target || !path) {
+    return target ?? defaultValue;
+  }
+
+  if (!fields.length) {
+    return readRecordReferencePath(target, path) ?? defaultValue;
+  }
+
+  const [head, ...restParts] = path.split('.');
+  const nestedField = findRecordReferenceField(fields, head);
+
+  if (!nestedField) {
+    return readRecordReferencePath(target, path) ?? defaultValue;
+  }
+
+  return resolveRecordReferenceFieldValue({
+    config,
+    defaultValue,
+    field: nestedField,
+    models,
+    path,
+    pluginName,
+    restPath: restParts.join('.'),
+    subdomain,
+    target,
+    type,
+  });
 };
 
 const findRecordReferenceField = (
@@ -179,4 +374,100 @@ const resolveRemoteRecordReferencePath = async ({
     },
     defaultValue,
   });
+};
+
+const findLocalRecordReferenceExtensionField = ({
+  config,
+  head,
+  pluginName,
+  type,
+}: {
+  config: TRecordReferencesConfig;
+  head: string;
+  pluginName: string;
+  type: string;
+}) => {
+  const normalizedType = normalizeRecordReferenceType(pluginName, type);
+  const extension = (config.extensions || []).find(({ type: extensionType }) =>
+    isSameRecordReferenceType(extensionType, normalizedType),
+  );
+
+  return findRecordReferenceField(extension?.fields || [], head);
+};
+
+const findRecordReferenceExtensionField = async ({
+  head,
+  pluginName,
+  type,
+}: {
+  head: string;
+  pluginName: string;
+  type: string;
+}) => {
+  const normalizedType = normalizeRecordReferenceType(pluginName, type);
+  const providerPluginNames = await getPlugins();
+
+  for (const providerPluginName of providerPluginNames) {
+    const plugin = await getPlugin(providerPluginName);
+    const extensions = plugin.config?.meta?.references?.extensions as
+      | Array<{
+          type: string;
+          fields?: TRecordReferenceField[];
+        }>
+      | undefined;
+
+    const extension = (extensions || []).find(({ type: extensionType }) =>
+      isSameRecordReferenceType(extensionType, normalizedType),
+    );
+    const field = findRecordReferenceField(extension?.fields || [], head);
+
+    if (field) {
+      return { pluginName: providerPluginName, type: normalizedType };
+    }
+  }
+
+  return null;
+};
+
+const resolveExternalRecordReferenceExtensionPath = async ({
+  defaultValue,
+  path,
+  pluginName,
+  subdomain,
+  target,
+  type,
+}: {
+  defaultValue?: unknown;
+  path: string;
+  pluginName: string;
+  subdomain: string;
+  target: TRecordReferenceTarget;
+  type: string;
+}) => {
+  const [head] = path.split('.');
+  const extension = await findRecordReferenceExtensionField({
+    head,
+    pluginName,
+    type,
+  });
+
+  if (!extension) {
+    return { found: false };
+  }
+
+  const result = await sendCoreModuleProducer({
+    subdomain,
+    moduleName: 'references',
+    pluginName: extension.pluginName,
+    producerName: TRecordReferenceProducers.RESOLVE,
+    input: {
+      type: extension.type,
+      target,
+      path,
+      defaultValue,
+    },
+    defaultValue,
+  }).catch(() => defaultValue);
+
+  return { found: true, value: result ?? defaultValue };
 };

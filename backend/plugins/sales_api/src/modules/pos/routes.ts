@@ -188,6 +188,8 @@ export const getProductsData = async (
     for (const productId of Object.keys(productsById)) {
       const product = productsById[productId];
 
+      product.similarityId = product.similarityId || null;
+
       const discount = pricing[productId] || {};
 
       if (Object.keys(discount).length) {

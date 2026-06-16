@@ -125,6 +125,15 @@ const findReferenceVariable = (
       (variable.key === head || variable.field === head),
   );
 
+const findSourceTypeReferenceVariable = (
+  definition: TAutomationRuntimeOutputDefinition,
+  head: string,
+) =>
+  (definition.variables || []).find(
+    (variable) =>
+      variable.sourceType && (variable.key === head || variable.field === head),
+  );
+
 const getOutputSourceType = ({
   propertySource,
 }: TAutomationRuntimeOutputDefinition) => propertySource?.propertyType || '';
@@ -149,6 +158,21 @@ const resolveReferenceOutputValue = async ({
 }) => {
   const [head, ...restParts] = path.split('.');
   const restPath = restParts.join('.');
+
+  const sourceTypeVariable = findSourceTypeReferenceVariable(definition, head);
+
+  if (sourceTypeVariable?.sourceType) {
+    return {
+      found: true,
+      value: await resolveRecordReferenceValue({
+        subdomain,
+        type: sourceTypeVariable.sourceType,
+        target: source,
+        path,
+        defaultValue,
+      }),
+    };
+  }
 
   if (!restPath) {
     return { found: false };
@@ -182,6 +206,37 @@ const resolveReferenceOutputValue = async ({
 
   if (!sourceType) {
     return { found: true, value: defaultValue };
+  }
+
+  return {
+    found: true,
+    value: await resolveRecordReferenceValue({
+      subdomain,
+      type: sourceType,
+      target: source,
+      path,
+      defaultValue,
+    }),
+  };
+};
+
+const resolveSourceReferenceOutputValue = async ({
+  definition,
+  defaultValue,
+  source,
+  subdomain,
+  path,
+}: {
+  definition: TAutomationRuntimeOutputDefinition;
+  defaultValue?: unknown;
+  source: TAutomationOutputSource;
+  subdomain: string;
+  path: string;
+}) => {
+  const sourceType = getOutputSourceType(definition);
+
+  if (!sourceType) {
+    return { found: false };
   }
 
   return {
@@ -262,7 +317,21 @@ const resolveOutputPathsFromDefinition = async ({
     }
 
     const direct = getValueByPath(source, path);
-    result[path] = direct.found ? direct.value : defaultValue;
+
+    if (direct.found) {
+      result[path] = direct.value;
+      continue;
+    }
+
+    const sourceReference = await resolveSourceReferenceOutputValue({
+      definition,
+      defaultValue,
+      source,
+      subdomain,
+      path,
+    });
+
+    result[path] = sourceReference.found ? sourceReference.value : defaultValue;
   }
 
   return result;

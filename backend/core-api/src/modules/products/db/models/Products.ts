@@ -21,6 +21,10 @@ export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
+  updateProductFromBulk(
+    _id: string,
+    doc: IProduct,
+  ): Promise<IProductDocument | null>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
     productIds: string[],
@@ -123,10 +127,22 @@ export const loadProductClass = (
       return product;
     }
 
-    /**
-     * Update Product
-     */
     public static async updateProduct(_id: string, doc: IProduct) {
+      const existing = await models.Products.findOne(
+        { _id },
+        { similarityId: 1 },
+      );
+
+      if (existing?.similarityId) {
+        const { code, propertiesData, ...rest } = doc;
+
+        return this.updateProductFromBulk(_id, rest as IProduct);
+      }
+
+      return this.updateProductFromBulk(_id, doc);
+    }
+
+    public static async updateProductFromBulk(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
 
       const category = await models.ProductCategories.getProductCategory({
@@ -180,9 +196,6 @@ export const loadProductClass = (
       return updatedProduct;
     }
 
-    /**
-     * Remove products
-     */
     public static async removeProducts(_ids: string[]) {
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
@@ -237,9 +250,6 @@ export const loadProductClass = (
       return response;
     }
 
-    /**
-     * Merge products
-     */
     public static async mergeProducts(
       productIds: string[],
       productFields: IProduct,
@@ -272,17 +282,13 @@ export const loadProductClass = (
 
         const productBarcodes = productObj.barcodes || [];
 
-        // merge custom fields data
-        // property note: prepare mergeProperties method
         propertiesData = {
           ...propertiesData,
           ...(productObj.propertiesData || {}),
         };
 
-        // Merging products tagIds
         tagIds = tagIds.concat(productTags);
 
-        // Merging products barcodes
         barcodes = barcodes.concat(productBarcodes);
 
         const oldProduct = await models.Products.findById(productId);
@@ -303,13 +309,10 @@ export const loadProductClass = (
         }
       }
 
-      // Removing Duplicates
       tagIds = Array.from(new Set(tagIds));
 
-      // Removing Duplicates
       barcodes = Array.from(new Set(barcodes));
 
-      // Creating product with properties
       const product = await models.Products.createProduct({
         ...productFields,
         propertiesData,
@@ -325,14 +328,10 @@ export const loadProductClass = (
         categoryId,
         vendorId,
       });
-      // Note: createProduct already logs the create event
 
       return product;
     }
 
-    /**
-     * Duplicate product
-     */
     public static async duplicateProduct(productId: string) {
       const product = await models.Products.findOne({ _id: productId }).lean();
 
@@ -351,9 +350,6 @@ export const loadProductClass = (
       return newProduct;
     }
 
-    /**
-     * Check product duplication
-     */
     static async checkCodeDuplication(code: string) {
       const product = await models.Products.findOne({
         code,
@@ -365,9 +361,6 @@ export const loadProductClass = (
       }
     }
 
-    /**
-     * Generate product code
-     */
     public static async generateCode(maxAttempts = 10) {
       let attempts = 0;
 
@@ -390,9 +383,6 @@ export const loadProductClass = (
       );
     }
 
-    /**
-     * Check product barcode
-     */
     static fixBarcodes(barcodes?, variants?) {
       if (barcodes?.length) {
         barcodes = barcodes

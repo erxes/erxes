@@ -331,3 +331,30 @@ export const getSimilaritiesProductsCount = async (models, filter, params) => {
 
   return groupedData?.[0]?.count ?? 0;
 };
+
+export const getSimilarityProductsByGroup = async (
+  models: IModels,
+  productId: string,
+) => {
+  const product = await models.Products.findOne({ _id: productId }).lean();
+
+  if (!product?.similarityId) {
+    return null;
+  }
+
+  const similarity = await models.ProductSimilarities.findOne({
+    _id: product.similarityId,
+    status: { $ne: 'deleted' },
+  }).lean();
+
+  if (!similarity?.productIds?.length) {
+    return null;
+  }
+
+  return models.Products.find({
+    _id: { $in: similarity.productIds },
+    status: { $ne: 'deleted' },
+  })
+    .sort({ code: 1 })
+    .lean();
+};

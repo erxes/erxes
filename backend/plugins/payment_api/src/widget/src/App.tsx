@@ -5,7 +5,7 @@ import InvoiceDetail from './pages/InvoiceDetail';
 function App() {
 
   return (
-    <Router basename="/pl:payment/widget">
+    <Router basename="/gateway/pl:payment/widget">
       <Routes>
         <Route path="/invoice/:id" element={<InvoiceDetail />} />
       </Routes>

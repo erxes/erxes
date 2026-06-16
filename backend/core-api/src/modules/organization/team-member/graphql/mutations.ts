@@ -12,7 +12,7 @@ import {
   getPlugins,
   getSaasOrganizationDetail,
 } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
@@ -23,7 +23,7 @@ export interface IUsersEdit extends IUser {
 }
 
 const validatePermissionGroupIds = async (
-  models: IContext['models'],
+  models: IModels,
   permissionGroupIds: string[],
 ) => {
   const validPermissionGroupIds = new Set<string>();

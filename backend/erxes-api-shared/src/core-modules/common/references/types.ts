@@ -13,11 +13,17 @@ export type TRecordReferenceField = {
   path?: string;
   resolver?: string;
   reference?: TRecordReferencePointer;
+  fields?: TRecordReferenceField[];
 };
 
 export type TRecordReferenceType = {
   type: string;
   label: string;
+  fields: TRecordReferenceField[];
+};
+
+export type TRecordReferenceExtension = {
+  type: string;
   fields: TRecordReferenceField[];
 };
 
@@ -48,6 +54,7 @@ export type TRecordReferenceFetcher<TModels = any, TTarget = any> = (
 
 export type TRecordReferencesConfig<TModels = any, TTarget = any> = {
   types: TRecordReferenceType[];
+  extensions?: TRecordReferenceExtension[];
   resolvers?: Record<string, TRecordReferenceResolver<TModels, TTarget>>;
   fetchers: Record<string, TRecordReferenceFetcher<TModels, TTarget>>;
   generateModels: (subdomain: string) => Promise<TModels>;

@@ -155,15 +155,18 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
   async generateInvoiceUrl(
     _root,
     { input }: { input: IInvoice },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    const domain = getEnv({ name: 'DOMAIN' })
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:5173';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
 
-    const invoice = await models.Invoices.createInvoice({
-      ...input,
-    });
+    if (!input.paymentIds || input.paymentIds.length === 0) {
+      throw new Error('paymentIds is required');
+    }
+
+    const invoice = await models.Invoices.createInvoice({ ...input });
 
     return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
   },
@@ -191,6 +194,10 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:5173';
     const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+    if (!input.paymentIds || input.paymentIds.length === 0) {
+      throw new Error('paymentIds is required');
+    }
 
     const invoice = await models.Invoices.createInvoice({ ...input });
 
@@ -431,6 +438,30 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       domain,
     });
   },
+
+  async cpInvoiceUpdate(
+    _root,
+    {
+      _id,
+      contentType,
+      contentTypeId,
+    }: { _id: string; contentType: string; contentTypeId: string },
+    { models }: IContext,
+  ) {
+    const invoice = await models.Invoices.getInvoice({ _id });
+
+    if (invoice.contentType && invoice.contentTypeId) {
+      throw new Error('Content type and ID already set for this invoice');
+    }
+
+    return models.Invoices.updateOne(
+      { _id },
+      {
+        contentType: contentType || invoice.contentType,
+        contentTypeId: contentTypeId || invoice.contentTypeId,
+      },
+    );
+  },
 };
 
 export default mutations;
@@ -462,5 +493,9 @@ mutations.cpInvoicesCheck.wrapperConfig = {
 };
 
 mutations.cpGenerateInvoiceUrl.wrapperConfig = {
+  forClientPortal: true,
+};
+
+mutations.cpInvoiceUpdate.wrapperConfig = {
   forClientPortal: true,
 };

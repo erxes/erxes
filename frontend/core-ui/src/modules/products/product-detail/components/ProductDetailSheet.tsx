@@ -22,6 +22,7 @@ import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ProductDetailSidebar } from '@/products/product-detail/components/ProductDetailSidebar';
 import { ProductDetailFooter } from '@/products/product-detail/components/ProductDetailFooter';
 import { ProductDetailFields } from '@/products/product-detail/components/ProductDetailFields';
+import { ProductDetailSimilarity } from '@/products/product-detail/components/ProductDetailSimilarity';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import {
   EMPTY_PRODUCT_FORM_VALUES,
@@ -29,7 +30,6 @@ import {
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
-import { useUom } from '@/products/hooks/useUom';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
@@ -41,7 +41,6 @@ export const ProductDetailSheet = () => {
     useProductDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { productsEdit, loading: editLoading } = useProductsEdit();
-  const { uoms } = useUom({});
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema),
@@ -85,15 +84,12 @@ export const ProductDetailSheet = () => {
     const subUoms = Array.isArray(data.subUoms)
       ? data.subUoms.map((item) => ({
           ...item,
+          uom: item?.uom,
           ratio: normalizeSubUomRatio(item?.ratio),
         }))
       : data.subUoms;
 
-    const uomName = data.uom
-      ? uoms.find((u) => u._id === data.uom)?.name || data.uom
-      : data.uom;
-
-    return { ...data, attachment, attachmentMore, subUoms, uom: uomName };
+    return { ...data, attachment, attachmentMore, subUoms };
   };
 
   const handleSave = (data: ProductFormValues) => {
@@ -152,7 +148,7 @@ export const ProductDetailSheet = () => {
         <FocusSheet.Header title={productDetail?.name || t('product-detail')} />
         <FocusSheet.Content className="flex overflow-hidden flex-row flex-1 min-w-0 min-h-0">
           <FocusSheet.SideBar>
-            <ProductDetailSidebar />
+            <ProductDetailSidebar productDetail={productDetail} />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
             <Form {...form}>
@@ -190,6 +186,18 @@ export const ProductDetailSheet = () => {
                         id={productDetail?._id || ''}
                       />
                     </Tabs.Content>
+                    {!!productDetail?.similarity && (
+                      <Tabs.Content
+                        value="similarity"
+                        className="p-4 data-[state=active]:min-h-0"
+                      >
+                        <ProductDetailSimilarity
+                          key={`similarity-${productDetail?._id || productId || 'empty'}`}
+                          similarity={productDetail?.similarity}
+                          productId={productDetail?._id}
+                        />
+                      </Tabs.Content>
+                    )}
                     <Tabs.Content
                       value="activity"
                       className="data-[state=active]:min-h-0"

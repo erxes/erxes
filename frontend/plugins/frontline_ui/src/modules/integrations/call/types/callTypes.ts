@@ -6,13 +6,40 @@ export interface ICallConfig {
   phone: string;
   wsServer: string;
   operators: { userId: string; gsUsername: string; gsPassword: string }[];
-  token: string;
   queues: string[];
   srcTrunk: string;
   dstTrunk: string;
 }
 export interface ICallConfigDoc extends ICallConfig {
   isAvailable: boolean;
+}
+
+export interface ICallQueueAgent {
+  member_extension: string;
+  status?: string;
+  first_name?: string;
+  last_name?: string;
+  membership?: string;
+  answer?: number;
+  abandon?: number;
+  logintime?: string;
+  talktime?: number;
+  pausetime?: string;
+  pause_reason?: string;
+  queue_action?: string;
+}
+
+export interface ICallQueueRealtimeSnapshot {
+  extension: string;
+  waiting: { callerid: string; callerchannel?: string; state?: string }[];
+  talking: {
+    callerid: string;
+    calleeid?: string;
+    bridged?: boolean;
+    bridge_time?: string;
+  }[];
+  agents: ICallQueueAgent[];
+  stats: Record<string, unknown>;
 }
 
 export interface ICallConversationNote {

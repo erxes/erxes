@@ -7,7 +7,7 @@ import { UOM_QUERY } from '../graphql/queries/productsQueries';
 import { IconPlus } from '@tabler/icons-react';
 
 function normalizeUomCode(name: string): string {
-  const normalized = name.trim().toUpperCase();
+  const normalized = name.trim().toLowerCase();
   const replaced = (normalized as any).replaceAll?.(/\s+/g, '_');
   return replaced ?? normalized.replace(/\s+/g, '_');
 }
@@ -51,7 +51,7 @@ export const SelectUOMWithName = ({
       });
 
       if (data?.uomsAdd) {
-        onValueChange(data.uomsAdd._id);
+        onValueChange(data.uomsAdd.code);
         setNewUomName('');
         setIsCreating(false);
         toast({
@@ -70,7 +70,7 @@ export const SelectUOMWithName = ({
   };
 
   const Controller = inForm ? Form.Control : React.Fragment;
-  const selectedUom = uoms.find((uom) => uom._id === value);
+  const selectedUom = uoms.find((uom) => uom.code === value);
 
   const displayValue =
     selectedUom?.name || (value && !loading ? value : 'Choose UOM');
@@ -139,8 +139,8 @@ export const SelectUOMWithName = ({
               uoms.map((uom) => (
                 <Select.Item
                   key={uom._id}
-                  value={uom._id}
-                  disabled={disabledUoms.includes(uom._id)}
+                  value={uom.code}
+                  disabled={disabledUoms.includes(uom.code)}
                 >
                   {uom.name}
                 </Select.Item>

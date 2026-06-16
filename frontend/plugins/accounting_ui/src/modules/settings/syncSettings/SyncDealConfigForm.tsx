@@ -374,6 +374,10 @@ export const SyncDealConfigForm = ({
             type: 'cash',
             title: 'cash',
           },
+          {
+            type: 'mobile',
+            title: 'mobile',
+          },
           ...paymentTypes,
         ].map((ptype) => (
           <Form.Field
