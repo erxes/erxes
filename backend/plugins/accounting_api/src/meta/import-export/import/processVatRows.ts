@@ -48,7 +48,8 @@ export const prepareVatRowDoc = (row: ImportRow): IVatRow => {
     number,
     kind: getKind(row),
     formula: getString(row, 'formula'),
-    formulaText: getString(row, 'formula_text') || getString(row, 'formulaText'),
+    formulaText:
+      getString(row, 'formula_text') || getString(row, 'formulaText'),
     tabCount: getNumber(row, 'tab_count') || getNumber(row, 'tabCount'),
     isBold: getBoolean(row, 'is_b') || getBoolean(row, 'isBold'),
     status: getString(row, 'status') || VAT_ROW_STATUS.ACTIVE,
@@ -60,7 +61,10 @@ export const processVatRows = async (
   _subdomain: string,
   models: IModels,
   rows: ImportRow[],
-): Promise<{ successRows: ImportResultRow[]; errorRows: ImportResultRow[] }> => {
+): Promise<{
+  successRows: ImportResultRow[];
+  errorRows: ImportResultRow[];
+}> => {
   const successRows: ImportResultRow[] = [];
   const errorRows: ImportResultRow[] = [];
   const numbers = rows.map((row) => getString(row, 'number')).filter(Boolean);
@@ -99,8 +103,7 @@ export const processVatRows = async (
     } catch (error) {
       errorRows.push({
         ...row,
-        error:
-          error instanceof Error ? error.message : 'Failed to prepare row',
+        error: error instanceof Error ? error.message : 'Failed to prepare row',
       });
     }
   }
