@@ -11,6 +11,7 @@ export const DocumentPreview = ({ document }: any) => {
       try {
         blocks = JSON.parse(document.content);
       } catch (_error) {
+        console.error('Failed to parse document content:', _error);
         blocks = await editor.tryParseHTMLToBlocks(document.content);
       }
 
