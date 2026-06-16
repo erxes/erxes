@@ -2,9 +2,9 @@
 // Agent Learning — distillation orchestrator.
 //
 // One thread in, zero-or-more shared lessons out:
-//   extract (LLM) → scrub (regex) → privacy gate (LLM, fail-closed)
-//   → dedupe against the existing corpus (merge evidence) → store candidate
-//   → auto-promote when the k-anonymity + confidence floors are met.
+//   extract + PII-redact (LLM: distiller agent with a PIIDetector output
+//   processor) → dedupe against the existing corpus (merge evidence) → store
+//   candidate → auto-promote when the k-anonymity + confidence floors are met.
 //
 // The contributor is recorded only as HMAC(thread owner id) — identity never
 // reaches the shared tier.
@@ -13,12 +13,9 @@
 import { IModels } from '~/connectionResolvers';
 import { IMastraLearningDocument } from '@/learning/@types/learning';
 import { hashSource, resolveLearningTuning } from './config';
-import { scrubPII, wasRedacted } from './sanitize';
 import {
   buildTranscript,
   extractCandidates,
-  gateCandidates,
-  CandidateLearning,
   ExtractionRuntime,
   TranscriptMessage,
 } from './extractor';
@@ -94,36 +91,17 @@ export async function distillThread(params: {
   const transcript = buildTranscript(messages);
   if (!transcript.trim()) return result;
 
-  // 1. Extract candidates (LLM). Statements are scrubbed immediately so no
-  //    raw identifier survives past this point, even in logs.
-  const rawCandidates = await extractCandidates(transcript, runtime, outcome);
-  const candidates: CandidateLearning[] = rawCandidates.map((c) => {
-    const statement = scrubPII(c.statement);
-    return {
-      ...c,
-      statement,
-      // A statement that needed redaction was about an identity — distrust it.
-      confidence: wasRedacted(statement)
-        ? Math.min(c.confidence, 0.3)
-        : c.confidence,
-    };
-  });
+  // 1. Extract candidates. The distiller agent runs a Mastra PIIDetector output
+  //    processor, so every statement is already PII-redacted on the way out —
+  //    no raw identifier survives past this point, even in logs.
+  const candidates = await extractCandidates(transcript, runtime, outcome);
   result.extracted = candidates.length;
   if (!candidates.length) return result;
-
-  // 2. Privacy gate (LLM, fail-closed): only SAFE candidates continue.
-  const verdicts = await gateCandidates(
-    candidates.map((c) => c.statement),
-    runtime,
-  );
-  const safe = candidates.filter((_, i) => verdicts[i]);
-  result.gated = candidates.length - safe.length;
-  if (!safe.length) return result;
 
   const sourceHash = hashSource(ownerResourceId);
   const tuning = resolveLearningTuning();
 
-  for (const candidate of safe) {
+  for (const candidate of candidates) {
     try {
       // 3. Dedupe against candidates AND approved lessons — a re-derived
       //    lesson merges (evidence++, contributor recorded) instead of

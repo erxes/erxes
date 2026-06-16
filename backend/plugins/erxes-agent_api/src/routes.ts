@@ -8,6 +8,7 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
+import { toolStatusLine } from './mastra/activity-signals';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import {
@@ -331,13 +332,15 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       threadId,
       attachments,
     });
-    const { agent, convo, authCtx } = prepared;
+    const { agent, convo, authCtx, memoryBinding } = prepared;
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
     activity = createActivityTracker({
       userMessage: message,
       emit: (text) => send({ type: 'activity', text }),
+      // Tool steps narrate instantly (no LLM); reasoning bursts use the model.
+      toolSignal: toolStatusLine,
       summarize: (snapshot) =>
         summarizeActivity({
           provider: prepared.agentConfig.provider,
@@ -354,6 +357,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       await runWithAuth(authCtx, async () => {
         const stream = await agent.stream(convo, {
           abortSignal: controller.signal,
+          ...(memoryBinding ? { memory: memoryBinding } : {}),
         });
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
