@@ -1,13 +1,18 @@
 // ---------------------------------------------------------------------------
-// Mastra Memory — semantic recall + working memory backed by the tenant's Mongo
+// Mastra Memory — semantic recall + working memory backed by one shared Mongo
 // DB (records) and Qdrant (vectors), with a local fastembed embedder.
 //
 // Replaces the custom recall/working-memory implementation for the chat path.
-// One Memory instance per tenant, cached. Storage lands in the tenant's own
-// Mongo database (same per-tenant isolation the workflow runtime uses); vectors
-// go to Qdrant, scoped by a tenant-prefixed resourceId. ToolCallFilter is NOT
-// configured here — in @mastra/memory 1.20.3 it lives on the Agent's
-// inputProcessors (Memory({ processors }) was removed); agentRuntime attaches it.
+// A SINGLE Memory instance is shared across tenants. Mastra uses a fixed set of
+// memory collections (threads/messages/resources/observational), so one shared
+// database keeps the footprint at ~4 collections total instead of multiplying
+// the full MongoDBStore system schema per tenant (which trips the Atlas
+// shared-tier 500-collection cap). Tenant isolation is enforced by the
+// tenant-prefixed resourceId (see scopedResource) — semantic recall and
+// resource-scoped working memory both filter by that resource, so tenant A
+// never reads tenant B. ToolCallFilter is NOT configured here — in
+// @mastra/memory 1.20.3 it lives on the Agent's inputProcessors
+// (Memory({ processors }) was removed); agentRuntime attaches it.
 // ---------------------------------------------------------------------------
 import { Memory } from '@mastra/memory';
 import { MongoDBStore } from '@mastra/mongodb';
@@ -17,14 +22,24 @@ import { resolveRecallTuning } from './config';
 
 const QDRANT_URL = () =>
   process.env.ERXES_AGENT_QDRANT_URL || 'http://localhost:6333';
-const MONGO_URL = () => process.env.MONGO_URL || 'mongodb://localhost:27017';
 
-/** Tenant → its dedicated Mastra-memory database name. */
-function memoryDbName(tenant: string): string {
-  const prefix = (
+// Memory storage lives on its OWN Mongo, separate from the app cluster. Mastra's
+// MongoDBStore provisions a fixed system schema (~30 collections) and the shared
+// erxes Atlas cluster has a hard cluster-wide collection cap (500 on shared
+// tiers) that the app DB already nearly fills — so point memory at a dedicated
+// instance via ERXES_AGENT_MEMORY_MONGO_URL. Falls back to MONGO_URL only when
+// that is unset (e.g. a self-hosted single-cluster deploy with headroom).
+const MONGO_URL = () =>
+  process.env.ERXES_AGENT_MEMORY_MONGO_URL ||
+  process.env.MONGO_URL ||
+  'mongodb://localhost:27017';
+
+/** The single shared Mastra-memory database name. */
+function memoryDbName(): string {
+  const name = (
     process.env.ERXES_AGENT_MEMORY_DB_PREFIX || 'erxes_mastra_memory'
   ).trim();
-  return `${prefix}_${tenant}`.replace(/[^a-zA-Z0-9_]/g, '_');
+  return name.replace(/[^a-zA-Z0-9_]/g, '_');
 }
 
 // fastembed → a MastraEmbeddingModel (AI SDK v2 embedding model). Verified in
@@ -46,58 +61,68 @@ async function getEmbeddingModel(): Promise<unknown> {
   return _embeddingModel;
 }
 
-const _byTenant = new Map<string, Memory>();
+let _shared: Memory | null = null;
+let _building: Promise<Memory> | null = null;
 
 /**
- * The tenant's Mastra Memory (cached). `subdomain` is the tenant key; falls back
- * to 'os' so background/non-request callers still get a stable instance.
+ * The shared Mastra Memory (cached). `subdomain` is accepted for call-site
+ * symmetry but does not select the instance — isolation is by resourceId
+ * (see scopedResource), so a single instance serves every tenant.
  */
-export async function getMastraMemory(subdomain?: string): Promise<Memory> {
-  const tenant = (subdomain || 'os').trim() || 'os';
-  const hit = _byTenant.get(tenant);
-  if (hit) return hit;
+export async function getMastraMemory(_subdomain?: string): Promise<Memory> {
+  if (_shared) return _shared;
+  if (_building) return _building;
 
-  const embedder = await getEmbeddingModel();
-  const tuning = resolveRecallTuning();
+  _building = (async () => {
+    const embedder = await getEmbeddingModel();
+    const tuning = resolveRecallTuning();
 
-  const storage = new MongoDBStore({
-    id: `erxes-agent-memory-${tenant}`,
-    url: MONGO_URL(),
-    dbName: memoryDbName(tenant),
-  } as never);
+    const storage = new MongoDBStore({
+      id: 'erxes-agent-memory',
+      url: MONGO_URL(),
+      dbName: memoryDbName(),
+    } as never);
 
-  const vector = new QdrantVector({
-    id: `erxes-agent-memory-${tenant}`,
-    url: QDRANT_URL(),
-    // Client/server minor-version skew otherwise logs a noisy warning per call.
-    checkCompatibility: false,
-  } as never);
+    const vector = new QdrantVector({
+      id: 'erxes-agent-memory',
+      url: QDRANT_URL(),
+      // Client/server minor-version skew otherwise logs a noisy warning per call.
+      checkCompatibility: false,
+    } as never);
 
-  const memory = new Memory({
-    storage,
-    vector,
-    embedder: embedder as never,
-    options: {
-      // Mastra owns recent-history replay + semantic recall + working memory for
-      // this turn. (The erxes MastraMessage store stays the UI source of truth;
-      // the chat pipeline stops manually replaying history when memory is active.)
-      lastMessages: 12,
-      semanticRecall: {
-        topK: tuning.topK,
-        messageRange: 2,
-        scope: tuning.scope,
+    const memory = new Memory({
+      storage,
+      vector,
+      embedder: embedder as never,
+      options: {
+        // Mastra owns recent-history replay + semantic recall + working memory
+        // for this turn. (The erxes MastraMessage store stays the UI source of
+        // truth; the chat pipeline stops manually replaying history when memory
+        // is active.)
+        lastMessages: 12,
+        semanticRecall: {
+          topK: tuning.topK,
+          messageRange: 2,
+          scope: tuning.scope,
+        },
+        // Resource-scoped working memory: a per-user record (Markdown template)
+        // that persists across the user's threads. It is stored as a field on
+        // the resource document in the fixed `mastra_resources` collection
+        // (updateResource) — one row per user, NOT a collection per user — so it
+        // adds no collections and is safe on the shared DB.
+        workingMemory: { enabled: true, scope: 'resource' },
       },
-      // Working memory is off for now: in @mastra/memory 1.20.3 it runs as an
-      // output-processor *workflow* that creates extra storage collections,
-      // which trips the Atlas shared-tier 500-collection cap ("already using 501
-      // collections of 500"). Semantic recall alone provides cross-session
-      // memory; revisit working memory once the collection footprint is sorted.
-      workingMemory: { enabled: false },
-    },
-  } as never);
+    } as never);
 
-  _byTenant.set(tenant, memory);
-  return memory;
+    _shared = memory;
+    return memory;
+  })();
+
+  try {
+    return await _building;
+  } finally {
+    _building = null;
+  }
 }
 
 /** Tenant-scoped resource id so a shared Qdrant collection stays isolated. */
@@ -105,7 +130,8 @@ export function scopedResource(subdomain: string, resourceId: string): string {
   return `${(subdomain || 'os').trim() || 'os'}:${resourceId}`;
 }
 
-/** Drop cached instances (tests / config changes). */
+/** Drop the cached instance (tests / config changes). */
 export function resetMastraMemoryCache(): void {
-  _byTenant.clear();
+  _shared = null;
+  _building = null;
 }
