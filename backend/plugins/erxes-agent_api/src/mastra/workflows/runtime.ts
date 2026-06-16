@@ -110,9 +110,6 @@ interface JudgeAgent {
   generate(
     messages: Array<{ role: string; content: string }>,
   ): Promise<{ text?: unknown }>;
-  generateLegacy(
-    messages: Array<{ role: string; content: string }>,
-  ): Promise<{ text?: unknown }>;
 }
 
 /** Builds (and caches per agent version) the bare, tool-less judgment agent. */
@@ -261,17 +258,12 @@ export async function buildRunDeps(
       const agentConfig = await models.MastraAgent.getAgent(agentBindingId);
       const providers = await models.MastraProvider.find({ isEnabled: true });
       const judge = getJudgeAgent(agentConfig, providers);
-      // Lazy import — providers.ts pulls AI-SDK chunks Jest cannot load.
-      const { isLegacyProvider } = await import('../providers');
-      const legacy = isLegacyProvider(agentConfig.provider, providers);
 
       const convo = [
         { role: 'system', content: judgmentInstruction(outputSpec) },
         { role: 'user', content: prompt },
       ];
-      const res = legacy
-        ? await judge.generateLegacy(convo)
-        : await judge.generate(convo);
+      const res = await judge.generate(convo);
       return extractJsonObject(String(res?.text ?? ''));
     },
   };

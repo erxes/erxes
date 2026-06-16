@@ -8,7 +8,6 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
-import { isLegacyProvider } from './mastra/providers';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import {
@@ -24,8 +23,6 @@ import { readLearnedDigest } from './mastra/learning/digest';
 import {
   prepareChatTurn,
   persistTurn,
-  executeTextToolCall,
-  extractTextToolCall,
   synthesizeFromToolResults,
   toUserFacingError,
   TurnAgent,
@@ -334,7 +331,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       threadId,
       attachments,
     });
-    const { agent, tools, convo, authCtx, isLegacy } = prepared;
+    const { agent, convo, authCtx } = prepared;
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
@@ -347,7 +344,6 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           model: prepared.agentConfig.model,
           providers: prepared.providers,
           authCtx,
-          isLegacy,
           snapshot,
         }),
     });
@@ -356,9 +352,9 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
 
     try {
       await runWithAuth(authCtx, async () => {
-        const stream = await (isLegacy
-          ? agent.streamLegacy(convo, { abortSignal: controller.signal })
-          : agent.stream(convo, { abortSignal: controller.signal }));
+        const stream = await agent.stream(convo, {
+          abortSignal: controller.signal,
+        });
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);
@@ -392,67 +388,28 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     const interrupted = controller.signal.aborted;
     let reply: string | null = acc.text || null;
 
-    if (!interrupted) {
-      const trimmed = acc.text.trimStart();
+    if (!interrupted && !acc.text) {
+      // No answer text streamed — synthesize from tool results, or report the
+      // error. (Native generate() produces the final text itself, so this only
+      // fires when the model ended a turn on tool calls without prose.)
+      const toolResults = acc.toolCalls
+        .filter((tc) => tc.result !== undefined)
+        .map((tc) => ({
+          toolCallId: tc.toolCallId,
+          toolName: tc.toolName,
+          result: tc.result,
+        }));
 
-      // Text-emitted tool call (models without native tool_calls): execute it
-      // and replace the raw JSON the client already saw with the real answer.
-      const extracted = trimmed ? extractTextToolCall(trimmed) : null;
-      if (extracted) {
-        const handled = await executeTextToolCall({
+      if (toolResults.length) {
+        reply = await synthesizeFromToolResults({
           agent,
-          tools,
-          convo,
           message,
-          isLegacy,
           authCtx,
-          depth: 0,
-          extracted,
-          rawText: trimmed,
-          onToolEvent: (toolEvent) => {
-            const ev: StreamEvent =
-              toolEvent.phase === 'call'
-                ? {
-                    type: 'tool_call',
-                    toolName: toolEvent.toolName,
-                    args: toolEvent.args,
-                  }
-                : {
-                    type: 'tool_result',
-                    toolName: toolEvent.toolName,
-                    result: toolEvent.result,
-                    isError: toolEvent.isError,
-                  };
-            recordToolCall(ev);
-            send(ev);
-          },
+          toolResults,
         });
-        if (handled !== undefined && handled !== null) {
-          reply = handled;
-          send({ type: 'text_replace', text: handled });
-        }
-      } else if (!acc.text) {
-        // No text streamed — synthesize from tool results, or report the error.
-        const toolResults = acc.toolCalls
-          .filter((tc) => tc.result !== undefined)
-          .map((tc) => ({
-            toolCallId: tc.toolCallId,
-            toolName: tc.toolName,
-            result: tc.result,
-          }));
-
-        if (toolResults.length) {
-          reply = await synthesizeFromToolResults({
-            agent,
-            message,
-            isLegacy,
-            authCtx,
-            toolResults,
-          });
-          send({ type: 'text', text: reply });
-        } else if (streamError) {
-          throw new Error(streamError);
-        }
+        send({ type: 'text', text: reply });
+      } else if (streamError) {
+        throw new Error(streamError);
       }
     }
 
@@ -574,14 +531,11 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
 
     // Bot requests use the static app token from settings (no user session available)
     const authCtx = { token: settings?.erxesApiToken, subdomain };
-    const isLegacy = isLegacyProvider(agentConfig.provider, providers);
     // The published Agent generics type tool results as wire chunks; this
     // text-only webhook path reads only `.text`, hence the structural cast
     // (same idiom as prepareChatTurn in @/agent/turn).
     const turnAgent = agent as unknown as TurnAgent;
-    const result = await runWithAuth(authCtx, () =>
-      isLegacy ? turnAgent.generateLegacy(convo) : turnAgent.generate(convo),
-    );
+    const result = await runWithAuth(authCtx, () => turnAgent.generate(convo));
 
     const reply = result.text || '';
 
@@ -637,7 +591,6 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
           model: agentConfig.model,
           providers,
           authCtx,
-          isLegacy,
         });
       }
     }
