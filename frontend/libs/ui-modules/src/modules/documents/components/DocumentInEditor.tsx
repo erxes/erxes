@@ -26,18 +26,18 @@ interface DocumentMenuWrapperProps extends DocumentInEditorProps {
 }
 
 interface DocumentMenuProps extends SlashMenuProps {
-  items: DefaultReactSuggestionItem[];
-  documents?: any[];
-  loading?: boolean;
-  handleFetchMore?: () => void;
+  readonly items: DefaultReactSuggestionItem[];
+  readonly documents?: any[];
+  readonly loading?: boolean;
+  readonly handleFetchMore?: () => void;
 }
 
 interface DocumentMenuItemProps {
-  onClick: () => void;
-  isSelected: boolean;
-  index: number;
-  text: string;
-  document?: any;
+  readonly onClick: () => void;
+  readonly isSelected: boolean;
+  readonly index: number;
+  readonly text: string;
+  readonly document?: any;
 }
 
 function getDocumentMenuItems(
@@ -55,6 +55,7 @@ function getDocumentMenuItems(
       try {
         blocks = JSON.parse(document.content);
       } catch (_error) {
+        console.log(_error);
         blocks = await editor.tryParseHTMLToBlocks(document.content);
       }
 
