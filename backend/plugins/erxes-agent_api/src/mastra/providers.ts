@@ -88,6 +88,17 @@ export const PROVIDER_PRESETS: Array<{
     modelsEndpoint: 'https://api.cohere.com/v1/models',
   },
   {
+    // OpenCode Zen "Go" gateway — OpenAI-compatible. Hosts deepseek/qwen/glm/
+    // minimax coding models that (unlike kimi-for-coding) accept temperature 0,
+    // so Mastra's model-backed processors (PIIDetector, …) work against it.
+    provider: 'opencode-go',
+    label: 'OpenCode Go',
+    envKey: 'OPENCODE_API_KEY',
+    baseUrl: 'https://opencode.ai/zen/go/v1',
+    modelsEndpoint: 'https://opencode.ai/zen/go/v1/models',
+    isOpenAICompatible: true,
+  },
+  {
     provider: 'kimi',
     label: 'Kimi (Moonshot)',
     envKey: 'MOONSHOT_API_KEY',
