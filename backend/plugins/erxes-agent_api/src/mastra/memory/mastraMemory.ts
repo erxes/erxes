@@ -3,7 +3,8 @@
 // DB (records) and Qdrant (vectors), with a local fastembed embedder.
 //
 // Replaces the custom recall/working-memory implementation for the chat path.
-// A SINGLE Memory instance is shared across tenants. Mastra uses a fixed set of
+// A SINGLE Memory instance is shared across tenants, on the app's own Mongo
+// connection (MONGO_URL) in a dedicated database. Mastra uses a fixed set of
 // memory collections (threads/messages/resources/observational), so one shared
 // database keeps the footprint at ~4 collections total instead of multiplying
 // the full MongoDBStore system schema per tenant (which trips the Atlas
@@ -24,16 +25,11 @@ import { resolveRecallTuning } from './config';
 const QDRANT_URL = () =>
   process.env.ERXES_AGENT_QDRANT_URL || 'http://localhost:6333';
 
-// Memory storage lives on its OWN Mongo, separate from the app cluster. Mastra's
-// MongoDBStore provisions a fixed system schema (~30 collections) and the shared
-// erxes Atlas cluster has a hard cluster-wide collection cap (500 on shared
-// tiers) that the app DB already nearly fills — so point memory at a dedicated
-// instance via ERXES_AGENT_MEMORY_MONGO_URL. Falls back to MONGO_URL only when
-// that is unset (e.g. a self-hosted single-cluster deploy with headroom).
+// Memory storage shares the app's Mongo connection (MONGO_URL). Mastra's
+// MongoDBStore provisions its collections in a dedicated database on that same
+// cluster (memoryDbName), so there is a single Mongo to operate.
 const MONGO_URL = () =>
-  process.env.ERXES_AGENT_MEMORY_MONGO_URL ||
-  process.env.MONGO_URL ||
-  'mongodb://localhost:27017';
+  process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 /** The single shared Mastra-memory database name. */
 function memoryDbName(): string {
