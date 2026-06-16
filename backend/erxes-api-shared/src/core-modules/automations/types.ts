@@ -20,6 +20,7 @@ export type TAutomationOutputVariable = {
   label: string;
   exposure?: 'placeholder' | 'reference';
   field?: string;
+  referenceFields?: TAutomationOutputVariable[];
   referenceType?: string;
   sourceType?: string;
   type?: string;

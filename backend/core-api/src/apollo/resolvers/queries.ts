@@ -34,6 +34,7 @@ import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries'
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
 import { templateQueries } from '@/template/graphql/queries';
+import { referenceQueries } from '~/meta/references/graphql/queries';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
@@ -49,6 +50,7 @@ markResolvers(sentryTestQueries, {
 
 export const queries = {
   ...sentryTestQueries,
+  ...referenceQueries,
   ...contactQueries,
   ...authQueries,
   ...oauthClientAppQueries,
