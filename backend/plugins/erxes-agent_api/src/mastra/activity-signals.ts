@@ -32,7 +32,10 @@ const phrase = (verb: string, subject?: string) =>
  * unknown (let the LLM summarizer narrate it). Mirrors ACTIVITY_INSTRUCTIONS:
  * 3-8 words, concrete subject, no punctuation/emoji.
  */
-export function toolStatusLine(toolName: string, args?: unknown): string | null {
+export function toolStatusLine(
+  toolName: string,
+  args?: unknown,
+): string | null {
   switch (toolName) {
     case 'search_erxes_operations': {
       const q = pick(args, ['query']);
