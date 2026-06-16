@@ -20,6 +20,7 @@ import { QdrantVector } from '@mastra/qdrant';
 import { getEmbedder } from './embedder';
 import { resolveRecallTuning } from './config';
 
+/** Qdrant endpoint for memory vectors (env override, local default). */
 const QDRANT_URL = () =>
   process.env.ERXES_AGENT_QDRANT_URL || 'http://localhost:6333';
 
@@ -42,9 +43,9 @@ function memoryDbName(): string {
   return name.replace(/[^a-zA-Z0-9_]/g, '_');
 }
 
-// fastembed → a MastraEmbeddingModel (AI SDK v2 embedding model). Verified in
-// scripts/spike-memory.ts. The embedder + its wrapper are both cached.
+// fastembed → a MastraEmbeddingModel (AI SDK v2 embedding model).
 let _embeddingModel: unknown | null = null;
+/** Build (once, cached) the fastembed-backed embedding model Memory uses. */
 async function getEmbeddingModel(): Promise<unknown> {
   if (_embeddingModel) return _embeddingModel;
   const fe = await getEmbedder();

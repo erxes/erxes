@@ -46,7 +46,7 @@ export async function getOrCreateAgent(
   const useMemory =
     isAdvancedMemoryEnabled() &&
     agentConfig.memoryEnabled !== false &&
-    !!subdomain;
+    Boolean(subdomain);
   const [providers, settings] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),

@@ -289,7 +289,7 @@ export async function prepareChatTurn(params: {
   // (attached to the agent in getOrCreateAgent) handles semantic recall +
   // working memory automatically via the per-turn binding below — so the custom
   // recall/working-memory injection is skipped to avoid doing it twice.
-  const useMemory = advanced && !!subdomain;
+  const useMemory = advanced && Boolean(subdomain);
   const memoryBinding = useMemory
     ? {
         thread: sessionId,
