@@ -331,7 +331,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       threadId,
       attachments,
     });
-    const { agent, convo, authCtx } = prepared;
+    const { agent, convo, authCtx, memoryBinding } = prepared;
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
@@ -354,6 +354,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       await runWithAuth(authCtx, async () => {
         const stream = await agent.stream(convo, {
           abortSignal: controller.signal,
+          ...(memoryBinding ? { memory: memoryBinding } : {}),
         });
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {

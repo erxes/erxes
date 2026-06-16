@@ -16,7 +16,11 @@ async function main() {
   const agentId = arg('--agent', 'test') as string;
   const message = (arg('-m') || arg('--message') || 'hi') as string;
   const models = await generateModels(sub);
-  const user = { _id: 'cli-tester', isOwner: true, username: 'cli' } as any;
+  const user = {
+    _id: (arg('--user') as string) || 'cli-tester',
+    isOwner: true,
+    username: 'cli',
+  } as any;
 
   const t0 = Date.now();
   console.log(`\n▶ ${agentId}  "${message}"\n`);
@@ -26,8 +30,11 @@ async function main() {
     user,
     agentId,
     message,
-    threadId: `verify-${Date.now()}`,
+    threadId: (arg('--thread') as string) || `verify-${Date.now()}`,
   });
+  console.log(
+    `useMemory=${prepared.useMemory} binding=${JSON.stringify(prepared.memoryBinding ?? null)}`,
+  );
   console.log(
     `agent=${prepared.agentConfig.provider}/${prepared.agentConfig.model} tools=${Object.keys(prepared.tools).length}`,
   );
@@ -37,6 +44,7 @@ async function main() {
       convo: prepared.convo,
       message,
       authCtx: prepared.authCtx,
+      memory: prepared.memoryBinding,
     }),
   );
   console.log(`\n▌ ${reply}\n— ${Date.now() - t0}ms`);
