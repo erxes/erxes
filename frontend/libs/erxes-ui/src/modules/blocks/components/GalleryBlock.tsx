@@ -10,6 +10,7 @@ import {
 import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
+import { readImage } from '../../../utils/core';
 
 export interface GalleryImage {
   url: string;
@@ -99,7 +100,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
               className="relative group aspect-square overflow-hidden rounded-md bg-muted"
             >
               <img
-                src={img.url}
+                src={readImage(img.url)}
                 alt={img.caption ?? ''}
                 className="w-full h-full object-cover"
                 draggable={false}
