@@ -142,9 +142,9 @@ export async function getOrCreateAgent(
     });
   }
 
-  // Conversation memory is persisted in MongoDB (MastraThread / MastraMessage)
-  // and replayed into each request as message history — see mastraAgentChat.
-  // The agent itself is therefore stateless (no Mastra/LibSQL memory store).
+  // Conversation persistence + recent-history replay + recall are owned by the
+  // attached Mastra Memory (the chat store IS the native memory store; see
+  // memory below + session/nativeStore.ts). No custom message store.
   const toolNames = Object.keys(tools);
   const systemPrompt = buildSystemPrompt(agentConfig.instructions || '', {
     hasErxesTools: hasErxes,

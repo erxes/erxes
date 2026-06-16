@@ -5,10 +5,6 @@ import mongoose from 'mongoose';
 import { IMastraAgentDocument } from '@/agent/@types/agent';
 import { IMastraProviderDocument } from '@/provider/@types/provider';
 import { IMastraSettingsDocument } from '@/settings/@types/settings';
-import {
-  IMastraThreadDocument,
-  IMastraMessageDocument,
-} from '@/session/@types/session';
 import { IMastraWorkingMemoryDocument } from '@/memory/@types/workingMemory';
 import {
   IMastraWorkflowDocument,
@@ -28,14 +24,6 @@ import {
   loadSettingsClass,
   IMastraSettingsModel,
 } from '@/settings/db/models/Settings';
-import {
-  loadThreadClass,
-  IMastraThreadModel,
-} from '@/session/db/models/Thread';
-import {
-  loadMessageClass,
-  IMastraMessageModel,
-} from '@/session/db/models/Message';
 import {
   loadWorkingMemoryClass,
   IMastraWorkingMemoryModel,
@@ -71,8 +59,6 @@ export interface IModels {
   MastraAgentActionLog: IMastraAgentActionLogModel;
   MastraProvider: IMastraProviderModel;
   MastraSettings: IMastraSettingsModel;
-  MastraThread: IMastraThreadModel;
-  MastraMessage: IMastraMessageModel;
   MastraWorkingMemory: IMastraWorkingMemoryModel;
   MastraWorkflow: IMastraWorkflowModel;
   MastraWorkflowRun: IMastraWorkflowRunModel;
@@ -110,16 +96,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IMastraSettingsDocument,
     IMastraSettingsModel
   >('mastra_settings', loadSettingsClass(models));
-
-  models.MastraThread = db.model<IMastraThreadDocument, IMastraThreadModel>(
-    'mastra_threads',
-    loadThreadClass(models),
-  );
-
-  models.MastraMessage = db.model<IMastraMessageDocument, IMastraMessageModel>(
-    'mastra_messages',
-    loadMessageClass(models),
-  );
 
   models.MastraWorkingMemory = db.model<
     IMastraWorkingMemoryDocument,

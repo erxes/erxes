@@ -15,7 +15,9 @@
  */
 import type { Agent } from '@mastra/core/agent';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
+import { getMastraMemory } from '~/mastra/memory/mastraMemory';
 import { studioModels, STUDIO_SUBDOMAIN } from './tenant';
+import { pinResource, detectDevResource } from './pinnedMemory';
 
 /** Stable, route-safe key for the Studio agents map. */
 function keyOf(cfg: { agentId?: string; _id: string }): string {
@@ -38,6 +40,28 @@ export async function buildStudioAgents(): Promise<Record<string, Agent>> {
     return agents;
   }
 
+  // Pin Studio's agent memory to the dashboard's resource bucket so Studio and
+  // the erxes dashboard share ONE conversation history (same native store, same
+  // resourceId) instead of living on separate scopes.
+  let pinned: Awaited<ReturnType<typeof getMastraMemory>> | null = null;
+  try {
+    const devResource = await detectDevResource(STUDIO_SUBDOMAIN);
+    if (devResource) {
+      pinned = pinResource(await getMastraMemory(STUDIO_SUBDOMAIN), devResource);
+      console.log(
+        `[erxes-studio] memory pinned to dashboard resource: ${devResource}`,
+      );
+    } else {
+      console.log(
+        '[erxes-studio] no dashboard resource found yet — Studio uses its own scope until the dashboard has chats',
+      );
+    }
+  } catch (err) {
+    console.error(
+      `[erxes-studio] resource pin skipped: ${(err as Error).message}`,
+    );
+  }
+
   for (const cfg of configs) {
     try {
       const { agent } = await getOrCreateAgent(
@@ -45,6 +69,13 @@ export async function buildStudioAgents(): Promise<Record<string, Agent>> {
         models,
         STUDIO_SUBDOMAIN,
       );
+      // Override the agent's memory with the resource-pinned facade so its
+      // chat + history-tab reads/writes land in the dashboard's bucket.
+      if (pinned) {
+        (agent as unknown as { __setMemory(m: unknown): void }).__setMemory(
+          pinned,
+        );
+      }
       agents[keyOf(cfg)] = agent;
       console.log(`[erxes-studio] registered: ${cfg.name} (${keyOf(cfg)})`);
     } catch (err) {
