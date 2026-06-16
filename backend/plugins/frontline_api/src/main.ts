@@ -25,10 +25,19 @@ import {
 } from './meta/import-export/export/exportHandlers';
 import segments from './meta/segments';
 
-const ticketImportExportTypes = [
+const ticketImportTypes = [
   {
     label: 'Ticket',
     contentType: 'frontline:ticket.ticket',
+    permissions: ['ticketsImportManage'],
+  },
+];
+
+const ticketExportTypes = [
+  {
+    label: 'Ticket',
+    contentType: 'frontline:ticket.ticket',
+    permissions: ['ticketsExportManage'],
   },
 ];
 
@@ -36,6 +45,7 @@ const formSubmissionExportTypes = [
   {
     label: 'Form Response',
     contentType: 'frontline:formSubmission.formSubmission',
+    permissions: ['formSubmissionsExportManage'],
   },
 ];
 
@@ -82,7 +92,7 @@ startPlugin({
 
   importExport: {
     import: {
-      types: ticketImportExportTypes,
+      types: ticketImportTypes,
       insertImportRows: createCoreModuleProducerHandler({
         moduleName: 'importExport',
         modules: { ticket: ticketImportHandlers },
@@ -99,7 +109,7 @@ startPlugin({
       }),
     },
     export: {
-      types: [...ticketImportExportTypes, ...formSubmissionExportTypes],
+      types: [...ticketExportTypes, ...formSubmissionExportTypes],
       getExportData: createCoreModuleProducerHandler({
         moduleName: 'importExport',
         modules: {

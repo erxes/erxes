@@ -2,8 +2,10 @@
 
 > Status: **v2 IMPLEMENTED** (full company data, type-gated) · Plugin: `erxes-agent_api` · Started 2026-06-10
 >
-> **v2 ships:** `ERXES_AGENT_KNOWLEDGE=enable` → BullMQ reconciliation sweep (cron + boot)
-> embeds the content types listed in `ERXES_AGENT_KNOWLEDGE_TYPES` into a dedicated Qdrant
+> **v2 ships:** `ERXES_AGENT_KNOWLEDGE=enable` → a BullMQ reconciliation sweep — triggered by
+> usage (a knowledge-tool call when the index is stale) or the Settings "Sync now" action, and run
+> AS the requesting user (Agent = Person) — embeds the content types listed in
+> `ERXES_AGENT_KNOWLEDGE_TYPES` into a dedicated Qdrant
 > collection (`mastra_knowledge_*`), and a `companyKnowledge` builtin agent tool retrieves
 > them with a tenant-scoped pre-filter + an authoritative live post-filter through the
 > gateway. Supported types (registry in `src/mastra/knowledge/contentTypes.ts`):
@@ -89,7 +91,7 @@ filters → can enforce the `subdomain` filter server-side as defense-in-depth.
 | ----- | --------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **A** | Embedding cost / model strategy   | ✅ Resolved            | **Local-first**: fastembed (`bge-small-en-v1.5`) by default for corpus AND queries; OpenAI embedder remains an explicit operator opt-in (`ERXES_AGENT_EMBEDDER=openai`). Data residency was the real decision, not cost.                                                                                                                                                    |
 | **B** | Permission granularity to enforce | ✅ Resolved            | **Module-level pre-filter + record-level live post-filter.** Coarse payload fields (`subdomain`, `contentType`) gate the Qdrant search; the authoritative check re-fetches every candidate live through the gateway (as the asking user when a session exists) and drops anything not `publish`/public. Stale payloads are never trusted; no `aclVersion` machinery needed. |
-| **C** | How real-time                     | ✅ Resolved            | **Periodic full reconciliation** (BullMQ cron, default hourly, `ERXES_AGENT_KNOWLEDGE_SYNC_CRON`) + one sweep at boot. No change streams — this repo has none, and the sweep self-heals missed deletes. Revocation is still instant via the live post-filter.                                                                                                               |
+| **C** | How real-time                     | ✅ Resolved            | **Usage-driven reconciliation, AS the requesting user** (Agent = Person): a knowledge-tool call refreshes the corpus when it is older than `ERXES_AGENT_KNOWLEDGE_REFRESH_MINUTES` (default 60), and a Settings "Sync now" action forces it. No unattended cron and no standalone service token — an unattended job has no person, hence no auth. No change streams (this repo has none); the sweep self-heals missed deletes, and revocation stays instant via the live post-filter. |
 | **D** | Corpus scope                      | ✅ Resolved (v2)       | **Type-gated registry**: kb-article (default), customer, company, product, deal, task, conversation. Default stays KB-only; each additional type is an explicit `ERXES_AGENT_KNOWLEDGE_TYPES` opt-in with the PII/data-residency tradeoff documented at the env key.                                                                                                        |
 | **E** | Reuse Elasticsearch sync          | ✅ Resolved            | **No.** This monorepo has read-only ES query helpers but no Mongo→ES write pipeline to piggyback. Own BullMQ pipeline instead.                                                                                                                                                                                                                                              |
 | **F** | Qdrant security hardening         | ✅ Resolved (v1 scope) | API key support already wired (`ERXES_AGENT_QDRANT_API_KEY`); compose file binds locally, no public exposure. Per-retrieval audit log + JWT-RBAC deferred to the multi-content-type phase.                                                                                                                                                                                  |
@@ -114,8 +116,27 @@ revocation) — out of scope for v1, documented so nobody mistakes it for a post
 
 Qdrant points/filters use `knowledgeTenant()`: the org subdomain in saas mode, and the fixed
 `'os'` tag in non-saas (single tenant; request-derived hostname labels like `localhost` vary and
-background jobs have no request, so both the sweep and the retrieval tool pin the same canonical
-tag).
+sweep jobs carry the triggering user's auth but no request hostname, so both the sweep and the
+retrieval tool pin the same canonical tag).
+
+### Indexing auth — Agent = Person
+
+The reconciliation sweep runs **as the user who triggered it**, never under an unattended service
+token: the sweep job carries `{ userHeader }` (base64 of the user — the gateway's trusted `user`
+header, the same mechanism the chat path and the workflow manual-trigger use), and
+`runKnowledgeSweep` hands it to the gateway client. erxes therefore enforces *that user's*
+permissions on every record the sweep reads — the index can only ever contain rows some real user
+was allowed to fetch, and the query-time post-filter still re-checks per asking user on top.
+
+Two triggers, no cron:
+
+1. **Lazy** — when the `companyKnowledge` tool runs and `knowledgeSyncStatus.lastSweepAt` is older
+   than `ERXES_AGENT_KNOWLEDGE_REFRESH_MINUTES` (or missing), it enqueues a refresh carrying the
+   asking user's auth, fire-and-forget, and answers from whatever is already indexed.
+2. **Explicit** — the `mastraKnowledgeSync` mutation (Settings → "Sync now") forces a refresh under
+   the clicking user.
+
+`settings.erxesApiToken` survives only as a Bearer fallback for the user-less customer bot bridge.
 
 ### Decision A — Embedding cost / model strategy
 

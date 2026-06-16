@@ -82,4 +82,5 @@ export const mutations = `
   toSyncMsdProducts(brandId: String, action: String, products: [JSON]): JSON
   toSyncMsdCustomers(brandId: String, action: String, customers: [JSON]): JSON
   toSendMsdOrders(orderIds: [String]): MsdCheckResponse
+  toCheckMsdSynced(ids: [String]): [MsdCheckResponse]
 `;
