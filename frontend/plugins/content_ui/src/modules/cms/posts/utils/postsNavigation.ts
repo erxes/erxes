@@ -8,6 +8,9 @@ interface BuildPostsListPathParams {
 const POSTS_LIST_PATH_PATTERN = /^\/content\/cms\/[^/]+\/posts$/;
 const URL_ORIGIN = 'https://erxes.local';
 
+/**
+ * Returns only CMS posts list paths that are safe to use for detail redirects.
+ */
 const getSafePostsListPath = (
   path: string,
   currentPostId?: string,
@@ -31,6 +34,9 @@ const getSafePostsListPath = (
   }
 };
 
+/**
+ * Builds a return path from the current list location before opening a post.
+ */
 export const buildCurrentPostsReturnPath = (
   pathname: string,
   search: string,
@@ -39,6 +45,9 @@ export const buildCurrentPostsReturnPath = (
   return getSafePostsListPath(`${pathname}${search}`, currentPostId);
 };
 
+/**
+ * Reads a validated posts list return path from router state.
+ */
 export const getPostsReturnPath = (state: unknown, currentPostId?: string) => {
   if (!state || typeof state !== 'object' || !('returnTo' in state)) {
     return undefined;
@@ -53,6 +62,9 @@ export const getPostsReturnPath = (state: unknown, currentPostId?: string) => {
   return getSafePostsListPath(returnTo, currentPostId);
 };
 
+/**
+ * Builds the fallback posts list path when no router return path exists.
+ */
 export const buildPostsListPath = ({
   websiteId,
   search,
