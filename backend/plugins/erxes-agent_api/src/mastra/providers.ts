@@ -135,7 +135,6 @@ export const PROVIDER_PRESETS: Array<{
   },
 ];
 
-
 // What buildModel hands to Agent: a Mastra model config. A bare string ref
 // ("openai/gpt-4o") when the registry resolves the key from env, or a config
 // object — `{ id, apiKey }` for native providers with a DB-stored key, or
