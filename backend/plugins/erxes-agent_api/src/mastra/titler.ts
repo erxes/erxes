@@ -16,16 +16,15 @@ import { trimEdgeChars } from '~/mastra/text';
 import type { ProviderDocLike } from '~/mastra/providers';
 
 export const TITLER_INSTRUCTIONS = `You name chat conversations.
-Given a transcript, output a short title (3-6 words) that captures what the conversation is about.
+Given the conversation, output a short title (3-6 words) that captures what it is about.
 Rules:
 - Write the title in the same language the user writes in.
 - Describe the topic or task, not the greeting (never "Hello" or "Greeting").
 - No quotes, no trailing punctuation, no emoji, no markdown.
 - Output ONLY the title text, nothing else.`;
 
-// How many trailing messages to summarize, and how much of each.
+// How many trailing messages to feed the titler.
 const TRANSCRIPT_MESSAGES = 12;
-const TRANSCRIPT_CHARS_PER_MESSAGE = 280;
 const TITLE_MAX_CHARS = 60;
 // Regenerate after this many new messages so the title tracks the topic.
 const REFRESH_EVERY = 6;
@@ -43,23 +42,6 @@ export function shouldGenerateTitle(thread: {
   if (thread.titleSource !== 'generated') return true; // derived/missing → first pass
   const at = thread.titleMessageCount ?? 0;
   return (thread.messageCount ?? 0) >= at + REFRESH_EVERY;
-}
-
-/** Render the trailing exchange as a compact transcript for the titler. */
-export function buildTranscript(
-  messages: { role: string; content: string }[],
-): string {
-  return messages
-    .slice(-TRANSCRIPT_MESSAGES)
-    .map((m) => {
-      const text = (m.content || '').replace(/\s+/g, ' ').trim();
-      const clipped =
-        text.length > TRANSCRIPT_CHARS_PER_MESSAGE
-          ? `${text.slice(0, TRANSCRIPT_CHARS_PER_MESSAGE)}…`
-          : text;
-      return `${m.role === 'user' ? 'User' : 'Assistant'}: ${clipped}`;
-    })
-    .join('\n');
 }
 
 /** Normalize raw model output into a usable title, or null when unusable. */
@@ -80,7 +62,12 @@ export function sanitizeTitle(raw: string | null | undefined): string | null {
 // The minimal surface used from a Mastra Agent — typed locally so the lazy
 // import keeps this module free of a static @mastra/core type dependency.
 interface TitlerAgent {
-  generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
+  // Mastra's built-in title generator: formats the messages + applies our
+  // instructions internally, returns the title text (or undefined).
+  generateTitleFromUserMessage(args: {
+    messages: { role: string; content: string }[];
+    instructions?: string;
+  }): Promise<string | undefined>;
 }
 
 // Tool-less titler agents, cached per provider+model.
@@ -120,7 +107,7 @@ export async function maybeGenerateThreadTitle(params: {
   providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
 }): Promise<string | null> {
-  const { models, threadId, provider, model, providers, authCtx } = params;
+  const { models, threadId, provider, model, providers } = params;
   // Reject non-string ids so a crafted object can never become a Mongo
   // query operator (NoSQL injection).
   if (typeof threadId !== 'string' || !threadId) return null;
@@ -134,23 +121,15 @@ export async function maybeGenerateThreadTitle(params: {
     );
     if (!history.length) return null;
 
-    const transcript = buildTranscript(
-      history.map((m) => ({ role: m.role, content: m.content })),
-    );
-
-    const { runWithAuth } = await import('~/mastra/requestContext');
+    // Mastra's built-in titler formats the messages + applies our instructions.
+    // No auth context needed — titling makes a plain LLM call (no erxes tools).
     const titler = await titlerFor(provider, model, providers);
-    const msgs = [
-      {
-        role: 'user',
-        content: `Transcript:\n${transcript}\n\nOutput the title.`,
-      },
-    ];
-    const result = await runWithAuth(authCtx, () =>
-      titler.generate(msgs, { maxSteps: 1 }),
-    );
+    const raw = await titler.generateTitleFromUserMessage({
+      messages: history.map((m) => ({ role: m.role, content: m.content })),
+      instructions: TITLER_INSTRUCTIONS,
+    });
 
-    const title = sanitizeTitle(result?.text);
+    const title = sanitizeTitle(raw);
     if (!title) return null;
 
     const applied = await models.MastraThread.setGeneratedTitle(
