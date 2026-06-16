@@ -4,6 +4,7 @@ import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
 import { runWithAuth } from '~/mastra/requestContext';
 import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
+import { scopedResource } from '~/mastra/memory/mastraMemory';
 import {
   recallBlock,
   indexMessages,
@@ -185,6 +186,13 @@ export function buildFallbackFromResults(
 
 // ─── Turn setup ───────────────────────────────────────────────────────────────
 
+// Per-turn Mastra Memory binding — which thread + (tenant-scoped) resource this
+// turn reads/writes. Passed to generate()/stream() so Mastra recalls + persists.
+export interface MemoryBinding {
+  thread: string;
+  resource: string;
+}
+
 export interface PreparedTurn {
   agentConfig: IMastraAgentDocument;
   settings: IMastraSettingsDocument | null;
@@ -195,6 +203,10 @@ export interface PreparedTurn {
   convo: TurnMessage[];
   authCtx: TurnAuthCtx;
   advanced: boolean;
+  // True when Mastra Memory is active for this turn (advanced + known tenant).
+  useMemory: boolean;
+  // Set when useMemory — the thread/resource Mastra Memory binds to.
+  memoryBinding?: MemoryBinding;
   memCtx: MemoryContext;
   attachments?: IMastraChatAttachment[];
   // Learnings injected into this turn's context — stamped onto the assistant
@@ -231,7 +243,11 @@ export async function prepareChatTurn(params: {
 
   const settings = await models.MastraSettings.findOne({});
   const providers = await models.MastraProvider.find({ isEnabled: true });
-  const { agent, tools } = await getOrCreateAgent(agentConfig, models);
+  const { agent, tools } = await getOrCreateAgent(
+    agentConfig,
+    models,
+    subdomain,
+  );
 
   // Stable session id — the persisted thread this turn belongs to.
   // typeof guard keeps crafted non-string payloads out of Mongo queries
@@ -269,13 +285,23 @@ export async function prepareChatTurn(params: {
     agentId,
   };
 
-  // Semantic recall (cross-session long-term memory) + working memory (the
-  // persistent user profile) + the tenant's learned digest (shared "Agent
-  // knowledge" — PII-free, independent of the per-user memory switch). All
-  // injected as plain system context blocks. Best-effort: each returns null
-  // on any error, never blocking the turn.
+  // When advanced memory is enabled AND we know the tenant, Mastra Memory
+  // (attached to the agent in getOrCreateAgent) handles semantic recall +
+  // working memory automatically via the per-turn binding below — so the custom
+  // recall/working-memory injection is skipped to avoid doing it twice.
+  const useMemory = advanced && Boolean(subdomain);
+  const memoryBinding = useMemory
+    ? {
+        thread: sessionId,
+        resource: scopedResource(subdomain, memCtx.resourceId),
+      }
+    : undefined;
+
+  // Custom recall path (only when advanced but Mastra Memory is NOT active, e.g.
+  // no tenant) + the tenant's learned digest (shared "Agent knowledge", always).
+  // Best-effort: each returns null on error, never blocking the turn.
   const [[recall, wmBlock], digest] = await Promise.all([
-    advanced
+    advanced && !useMemory
       ? Promise.all([
           recallBlock(message, memCtx),
           readWorkingMemory(models, memCtx),
@@ -284,8 +310,13 @@ export async function prepareChatTurn(params: {
     readLearnedDigest(models, agentId),
   ]);
 
+  // When Mastra Memory is active it owns recent-history replay + recall +
+  // working memory (and persists the turn) — so we hand generate() ONLY the new
+  // user message (+ the learned digest, which is separate from Mastra Memory).
+  // Passing the full replayed history here would stop Mastra from persisting the
+  // turn to its store. Otherwise (no Mastra Memory) replay history manually.
   const convo: TurnMessage[] = augmentConvo({
-    recentHistory,
+    recentHistory: useMemory ? [] : recentHistory,
     userMessage: message,
     recallBlock: recall,
     workingMemoryBlock: wmBlock,
@@ -322,6 +353,8 @@ export async function prepareChatTurn(params: {
     convo,
     authCtx,
     advanced,
+    useMemory,
+    memoryBinding,
     memCtx,
     attachments,
     learningIds: digest?.ids ?? [],
@@ -354,6 +387,7 @@ export async function persistTurn(params: {
   const {
     sessionId,
     advanced,
+    useMemory,
     memCtx,
     agentConfig,
     providers,
@@ -398,8 +432,11 @@ export async function persistTurn(params: {
       })
     : Promise.resolve<string | null>(null);
 
-  // Index the new exchange into Qdrant for future recall (best-effort).
-  if (advanced) {
+  // Custom Qdrant indexing + working-memory refresh — only when advanced memory
+  // is on but Mastra Memory is NOT active (e.g. no tenant). When Mastra Memory
+  // is active it persists the exchange + updates working memory itself via the
+  // generate()/stream() binding, so this is skipped.
+  if (advanced && !useMemory) {
     const toIndex = [
       {
         id: String(userMsg._id),
@@ -450,11 +487,20 @@ export async function runAgentTurn(params: {
   convo: TurnMessage[];
   message: string;
   authCtx: TurnAuthCtx;
+  memory?: MemoryBinding;
 }): Promise<string | null> {
-  const { agent, convo, message, authCtx } = params;
+  const { agent, convo, message, authCtx, memory } = params;
+  const genOpts = memory ? { memory } : undefined;
+  // With a memory binding, hand generate() the new user message as a STRING —
+  // Mastra Memory only persists (and recalls against) string input; passing the
+  // convo array silently skips the save. (Recent history + recall come from
+  // Mastra Memory itself; the learned digest is already woven into `message`.)
+  const input = memory ? message : convo;
 
   try {
-    const result = await runWithAuth(authCtx, () => agent.generate(convo));
+    const result = await runWithAuth(authCtx, () =>
+      agent.generate(input, genOpts),
+    );
 
     if (result.text) return result.text;
 
@@ -524,7 +570,10 @@ export function toUserFacingError(err: unknown): Error {
   // tokens first — provider errors can echo API keys, bearer tokens, connection
   // strings or hashes that log aggregators shouldn't capture.
   const safe = msg
-    .replace(/\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._-]{16,}/gi, '$1[redacted]')
+    .replace(
+      /\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._-]{16,}/gi,
+      '$1[redacted]',
+    )
     .replace(/[A-Za-z0-9_-]{32,}/g, '[redacted]');
   console.error('[toUserFacingError] unmatched error:', safe);
   return new Error(
@@ -560,10 +609,10 @@ export function logToolResults(uniqueResults: ToolResultLike[]) {
             data == null
               ? 'null'
               : Array.isArray(data)
-              ? `array(${data.length})`
-              : typeof data === 'object'
-              ? Object.keys(data).slice(0, 6)
-              : typeof data,
+                ? `array(${data.length})`
+                : typeof data === 'object'
+                  ? Object.keys(data).slice(0, 6)
+                  : typeof data,
           success: record ? record.success : undefined,
           error: record ? record.error || record.message : undefined,
         };
@@ -622,4 +671,3 @@ export async function synthesizeFromToolResults(params: {
     return fallback || 'Done.';
   }
 }
-

@@ -8,5 +8,5 @@
     },
     "types": ["node"]
   },
-  "exclude": ["node_modules", "dist", "scripts/**", "**/*spec.ts", "**/*.test.ts", "**/__tests__/**"]
+  "exclude": ["node_modules", "dist", "scripts/**", "**/*spec.ts", "**/*.test.ts", "**/__tests__/**", "src/studio/**", "src/mastra/index.ts"]
 }
