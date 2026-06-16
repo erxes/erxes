@@ -205,6 +205,7 @@ import {
   queries as templateQueries,
   mutations as templateMutations,
 } from '@/template/graphql/schemas';
+import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
 
 export const types = `
     enum CacheControlScope {
@@ -260,6 +261,7 @@ export const types = `
 
 export const queries = `
     _sentryGraphqlTest: String
+    ${ReferenceQueries}
     ${CustomerQueries}
     ${CompanyQueries}
     ${AuthQueries}

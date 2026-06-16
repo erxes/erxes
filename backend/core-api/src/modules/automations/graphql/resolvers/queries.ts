@@ -21,6 +21,7 @@ import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 import {
   generateAutomationHistoriesFilter,
   generateAutomationsFilter,
+  addReferenceExtensionsToAutomationOutput,
   getAutomationReferenceFields,
   getAutomationConstants,
   getAutomationSetPropertyTargets,
@@ -181,13 +182,13 @@ export const automationQueries = {
 
     const matchedTrigger = triggersConst.find(({ type }) => type === nodeType);
 
-    if (matchedTrigger?.output) {
-      return matchedTrigger.output;
-    }
-
     const matchedAction = actionsConst.find(({ type }) => type === nodeType);
+    const output = matchedTrigger?.output || matchedAction?.output || null;
 
-    return matchedAction?.output || null;
+    return await addReferenceExtensionsToAutomationOutput({
+      nodeType,
+      output,
+    });
   },
 
   async automationReferenceFields(
