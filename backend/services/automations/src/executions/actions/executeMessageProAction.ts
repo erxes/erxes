@@ -46,7 +46,6 @@ export const executeMessageProAction = async (
     return { documentId, content: '', phone: '', sent: false };
   }
 
-
   const customerIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -91,51 +90,46 @@ export const executeMessageProAction = async (
     customerPhone = customer?.primaryPhone || '';
   }
 
-const document = await sendTRPCMessage({
-  subdomain,
-  pluginName: 'core',
-  method: 'query',
-  module: 'documents',
-  action: 'print',
-  input: {
-    _id: documentId,
-    replacerIds: [itemId],
-    config: {},
-  },
-  defaultValue: '',
-});
-
-let sent = false;
-let cleanedText = '';
-
-if (document) {
-  const htmlContent = Array.isArray(document)
-    ? document.join('')
-    : String(document);
-
-  cleanedText = htmlContent
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-if (cleanedText && customerPhone) {
-  await sendSms(
+  const document = await sendTRPCMessage({
     subdomain,
-    'messagePro',
-    customerPhone,
-    cleanedText,
-  );
+    pluginName: 'core',
+    method: 'query',
+    module: 'documents',
+    action: 'print',
+    input: {
+      _id: documentId,
+      replacerIds: [itemId],
+      config: {},
+    },
+    defaultValue: '',
+  });
 
-  sent = true;
-}
+  let sent = false;
+  let cleanedText = '';
 
-return {
-  documentId,
-  content: cleanedText,
-  phone: customerPhone,
-  sent,
-};
+  if (document) {
+    const htmlContent = Array.isArray(document)
+      ? document.join('')
+      : String(document);
+
+    cleanedText = htmlContent
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&amp;/g, '&')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  if (cleanedText && customerPhone) {
+    await sendSms(subdomain, 'messagePro', customerPhone, cleanedText);
+
+    sent = true;
+  }
+
+  return {
+    documentId,
+    content: cleanedText,
+    phone: customerPhone,
+    sent,
+  };
 };

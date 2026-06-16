@@ -44,7 +44,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       const { _id, config } = doc;
 
       const document = await models.Documents.getDocument({ _id });
-      console.log(document, 'document')
+      console.log(document, 'document');
       const { content, contentType } = document;
 
       const [pluginName, moduleName] = contentType.split(':');
