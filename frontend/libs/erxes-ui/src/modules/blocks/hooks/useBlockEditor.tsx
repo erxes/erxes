@@ -52,8 +52,12 @@ export const useBlockEditor = (args?: {
 
       const promise = queueRef.current.then(runUpload);
       queueRef.current = promise.then(
-        () => { uploadProps.setFiles([]); },
-        () => { uploadProps.setFiles([]); },
+        () => {
+          uploadProps.setFiles([]);
+        },
+        () => {
+          uploadProps.setFiles([]);
+        },
       );
       return promise;
     },

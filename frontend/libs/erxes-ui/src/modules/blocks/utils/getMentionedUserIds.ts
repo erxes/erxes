@@ -5,9 +5,7 @@ export const getMentionedUserIds = (content: BlockLike[]) => {
   if (!content) return [];
   const mentionedUserIds: string[] = [];
   const flatContent = content
-    .map((block) =>
-      Array.isArray(block.content) ? [...block.content] : [],
-    )
+    .map((block) => (Array.isArray(block.content) ? [...block.content] : []))
     .flat();
   flatContent.forEach((item) => {
     if (item.type === 'mention') {
