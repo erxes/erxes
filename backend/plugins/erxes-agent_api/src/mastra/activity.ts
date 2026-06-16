@@ -150,10 +150,9 @@ export async function summarizeActivity(params: {
   model: string;
   providers: ProviderDocLike[];
   authCtx: AuthCtx;
-  isLegacy: boolean;
   snapshot: ActivitySnapshot;
 }): Promise<string | null> {
-  const { provider, model, providers, authCtx, isLegacy, snapshot } = params;
+  const { provider, model, providers, authCtx, snapshot } = params;
   try {
     const context = buildActivityContext(snapshot);
     if (!context) return null;
@@ -164,9 +163,7 @@ export async function summarizeActivity(params: {
     const result = await runWithAuth(
       authCtx,
       (): Promise<{ text?: string }> =>
-        isLegacy
-          ? summarizer.generateLegacy(prompt)
-          : summarizer.generate(prompt, { maxSteps: 1 }),
+        summarizer.generate(prompt, { maxSteps: 1 }),
     );
 
     return sanitizeActivity(result?.text);

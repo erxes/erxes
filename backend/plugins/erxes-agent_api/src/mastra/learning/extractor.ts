@@ -139,7 +139,6 @@ export function parseCandidates(raw: string): CandidateLearning[] {
 // avoids a static @mastra/core type dependency in a lazily-loaded path.
 interface StatelessAgent {
   generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
-  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
 }
 
 const _agents = new Map<string, StatelessAgent>();
@@ -174,7 +173,6 @@ export interface ExtractionRuntime {
   model: string;
   providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
-  isLegacy: boolean;
 }
 
 /** One single-turn generate under the request's auth context; returns text. */
@@ -186,9 +184,7 @@ async function runStateless(
   const { runWithAuth } = await import('~/mastra/requestContext');
   const msgs = [{ role: 'user', content: userContent }];
   const result = await runWithAuth(rt.authCtx, () =>
-    rt.isLegacy
-      ? agent.generateLegacy(msgs)
-      : agent.generate(msgs, { maxSteps: 1 }),
+    agent.generate(msgs, { maxSteps: 1 }),
   );
   return result?.text ?? '';
 }
