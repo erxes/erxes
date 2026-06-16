@@ -8,6 +8,7 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
+import { toolStatusLine } from './mastra/activity-signals';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import {
@@ -338,6 +339,8 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     activity = createActivityTracker({
       userMessage: message,
       emit: (text) => send({ type: 'activity', text }),
+      // Tool steps narrate instantly (no LLM); reasoning bursts use the model.
+      toolSignal: toolStatusLine,
       summarize: (snapshot) =>
         summarizeActivity({
           provider: prepared.agentConfig.provider,
