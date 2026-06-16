@@ -14,9 +14,6 @@ on:
       - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-payment.yml'
 
-env:
-  NX_DAEMON: false
-
 jobs:
   payment_api-ci:
     runs-on: ubuntu-latest
@@ -45,6 +42,12 @@ jobs:
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
 
+      - name: Build React widget
+        working-directory: backend/plugins/payment_api/src/widget
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
       - name: Build payment_api
         run: pnpm nx build payment_api
 
@@ -71,4 +74,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             erxes/erxes-next-payment_api:latest
-            erxes/erxes-next-payment_api:${{ env.DATE }}-${{ env.SHORT_SHA }}
+            erxes/erxes-next-payment_api:${{ github.sha }}
