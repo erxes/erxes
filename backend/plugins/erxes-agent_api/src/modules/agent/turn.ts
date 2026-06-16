@@ -480,20 +480,53 @@ export async function runAgentTurn(params: {
   }
 }
 
-// Normalize provider failures into messages safe to show a non-technical user.
+// Map a raw failure to a plain-language, non-technical message (the prompt
+// rules forbid jargon/ids/HTTP codes in replies — the error path must honour
+// that too). First matching rule wins; unmatched errors are logged server-side
+// and fall through to a generic message so no raw provider text reaches a user.
+const ERROR_RULES: { test: RegExp; message: string }[] = [
+  {
+    test: /too many requests|rate.?limit|\b429\b/i,
+    message:
+      'The AI provider is temporarily rate-limited. Please wait a moment and try again.',
+  },
+  {
+    test: /unauthorized|forbidden|permission|access denied|invalid api key|\b401\b|\b403\b/i,
+    message:
+      "I couldn't complete that — it needs a permission or credential that isn't available. Please check with an admin.",
+  },
+  {
+    test: /timed? ?out|etimedout|econnrefused|econnreset|socket hang up|network|fetch failed|enotfound/i,
+    message:
+      'The service took too long to respond or was unreachable. Please try again in a moment.',
+  },
+  {
+    test: /bad gateway|service unavailable|internal server error|\b50[0234]\b/i,
+    message:
+      'The service is temporarily unavailable. Please try again shortly.',
+  },
+  {
+    test: /validation|is required|invalid input|must be a|failed to parse/i,
+    message:
+      'Some required information was missing or invalid. Please rephrase or add the missing details.',
+  },
+];
+
 export function toUserFacingError(err: unknown): Error {
   const msg: string =
     (err as { message?: string } | null | undefined)?.message ?? String(err);
-  if (
-    msg.toLowerCase().includes('too many requests') ||
-    msg.includes('429') ||
-    msg.toLowerCase().includes('rate limit')
-  ) {
-    return new Error(
-      'The AI provider is temporarily rate-limited. Please wait a moment and try again.',
-    );
-  }
-  return new Error(`Agent execution failed: ${msg}`);
+  const rule = ERROR_RULES.find((r) => r.test.test(msg));
+  if (rule) return new Error(rule.message);
+  // Unmatched: log for operators (never shown to the user), but redact long
+  // tokens first — provider errors can echo API keys, bearer tokens, connection
+  // strings or hashes that log aggregators shouldn't capture.
+  const safe = msg
+    .replace(/\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._\-]{16,}/gi, '$1[redacted]')
+    .replace(/[A-Za-z0-9_\-]{32,}/g, '[redacted]');
+  console.error('[toUserFacingError] unmatched error:', safe);
+  return new Error(
+    'Something went wrong while processing your request. Please try again — if it keeps happening, contact support.',
+  );
 }
 
 /** Drop duplicate tool results gathered across steps, keyed by tool-call id. */
