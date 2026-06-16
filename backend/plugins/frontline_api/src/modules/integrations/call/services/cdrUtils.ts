@@ -150,7 +150,7 @@ export const determineExtension = (params) => {
     return channel_ext || new_src || src;
   }
 
-  if (userfield === 'Inbound' && lastapp === 'Queue') {
+  if (userfield === 'Inbound' && (lastapp === 'Queue' || lastapp === 'Dial')) {
     return dstanswer || dstchannel_ext || dst;
   }
 };
@@ -158,7 +158,7 @@ export const determineExtension = (params) => {
 export const extractOperatorId = (params) => {
   const { userfield, dst, src, lastapp, action_type } = params;
 
-  if (lastapp !== 'Queue') {
+  if (lastapp !== 'Queue' && lastapp !== 'Dial') {
     return null;
   }
 
@@ -170,75 +170,63 @@ export const extractOperatorId = (params) => {
   return userfield === 'Inbound' ? dst : src;
 };
 
+export const isHumanAnsweredLeg = (leg: any): boolean => {
+  const lastapp = leg?.lastapp;
+  return (
+    (leg?.disposition || '').toLowerCase() === 'answered' &&
+    Number(leg?.billsec) > 0 &&
+    (lastapp === 'Queue' || lastapp === 'Dial')
+  );
+};
+
 export const getConversationContent = async (models: IModels, cdrParams) => {
-  const { disposition, userfield, action_type } = cdrParams;
+  const { userfield } = cdrParams;
   const direction = userfield === 'Outbound' ? 'Outbound' : 'Inbound';
 
   if (!cdrParams.uniqueid) {
     return 'uniqueId not found';
   }
 
-  const relatedCdrs = await models.CallCdrs.find({
+  const storedCdrs = await models.CallCdrs.find({
     uniqueid: cdrParams.uniqueid,
   });
-  if (relatedCdrs) {
-    const answered = relatedCdrs.some(
-      (cdr) =>
-        cdr.disposition?.toLowerCase() === 'answered' &&
-        cdr.lastapp !== 'ForkCDR' &&
-        !cdr.actionType?.includes('VM') &&
-        !cdr.actionType?.includes('IVR') &&
-        cdr.billsec > 0,
-    );
+  const legs: any[] = [...storedCdrs, cdrParams];
 
-    if (answered) return `ANSWERED · ${direction}`;
-  }
+  const actionTypeOf = (leg: any) => leg.actionType ?? leg.action_type ?? '';
+
+  if (legs.some(isHumanAnsweredLeg)) return `ANSWERED · ${direction}`;
 
   if (userfield === 'Outbound') return `OUTBOUND`;
 
-  if (
-    action_type?.includes('IVR') &&
-    disposition?.toLowerCase() === 'answered' &&
-    userfield?.toLowerCase() === 'inbound'
-  ) {
-    return `IVR · ${direction}`;
-  }
+  const ivrAnswered = legs.some(
+    (leg) =>
+      actionTypeOf(leg).includes('IVR') &&
+      (leg.disposition || '').toLowerCase() === 'answered',
+  );
+  if (ivrAnswered && direction === 'Inbound') return `IVR · ${direction}`;
 
-  if (action_type?.includes('FOLLOWME')) {
+  if (legs.some((leg) => actionTypeOf(leg).includes('FOLLOWME'))) {
     return `FOLLOWME · ${direction}`;
   }
 
-  switch (disposition) {
-    case 'ANSWERED':
-      return `${disposition} · ${direction}`;
-    case 'NO ANSWER':
-      return `${disposition} · ${direction}`;
-    case 'BUSY':
-      return `${disposition} · ${direction}`;
-    case 'FAILED':
-      return `${disposition} · ${direction}`;
-    default:
-      return `MISSED · ${direction}`;
-  }
+  const dispositions = legs.map((leg) => (leg.disposition || '').toUpperCase());
+  if (dispositions.includes('BUSY')) return `BUSY · ${direction}`;
+  if (dispositions.includes('FAILED')) return `FAILED · ${direction}`;
+  if (dispositions.includes('NO ANSWER')) return `NO ANSWER · ${direction}`;
+  return `MISSED · ${direction}`;
 };
 
 export function selectRelevantCdr(histories: any[]): any | null {
   if (!Array.isArray(histories) || histories.length === 0) return null;
 
-  const answered = histories.find(
-    (h) =>
-      h.disposition === 'ANSWERED' &&
-      h.billsec > 0 &&
-      h.lastapp === 'Queue' &&
-      h.actionType !== 'VM',
-  );
+  const answered = histories.find(isHumanAnsweredLeg);
 
   const ivr = histories.find(
     (h) =>
       h.disposition === 'ANSWERED' &&
       h.billsec > 0 &&
       h.lastapp !== 'ForkCDR' &&
-      h.actionType.includes('IVR'),
+      h.actionType?.includes('IVR'),
   );
 
   const noAnswer = histories.find(

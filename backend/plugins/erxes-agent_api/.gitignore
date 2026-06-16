@@ -7,3 +7,6 @@ mastra-memory.db
 # FastEmbed model cache (downloaded at runtime; can be 100MB+)
 local_cache/
 .fastembed_cache/
+
+# Mastra Studio bridge build output (`mastra dev` / `mastra build`)
+.mastra/

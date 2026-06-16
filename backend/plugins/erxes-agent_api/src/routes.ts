@@ -8,23 +8,19 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
+import { toolStatusLine } from './mastra/activity-signals';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
-import {
-  recallBlock,
-  indexMessages,
-  readWorkingMemory,
-  refreshWorkingMemory,
-  deriveBotResourceId,
-  augmentConvo,
-  MemoryContext,
-} from './mastra/memory';
+import { scopedResource } from './mastra/memory/mastraMemory';
+import { augmentConvo } from './mastra/memory';
 import { readLearnedDigest } from './mastra/learning/digest';
 import {
   prepareChatTurn,
   persistTurn,
   synthesizeFromToolResults,
   toUserFacingError,
+  runAgentTurn,
+  patchNativeTurn,
   TurnAgent,
 } from '@/agent/turn';
 import {
@@ -331,13 +327,15 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       threadId,
       attachments,
     });
-    const { agent, convo, authCtx } = prepared;
+    const { agent, convo, authCtx, memoryBinding } = prepared;
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
     activity = createActivityTracker({
       userMessage: message,
       emit: (text) => send({ type: 'activity', text }),
+      // Tool steps narrate instantly (no LLM); reasoning bursts use the model.
+      toolSignal: toolStatusLine,
       summarize: (snapshot) =>
         summarizeActivity({
           provider: prepared.agentConfig.provider,
@@ -354,6 +352,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       await runWithAuth(authCtx, async () => {
         const stream = await agent.stream(convo, {
           abortSignal: controller.signal,
+          ...(memoryBinding ? { memory: memoryBinding } : {}),
         });
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
@@ -486,113 +485,61 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
       });
     }
 
-    const providers = await models.MastraProvider.find({ isEnabled: true });
-    const { agent } = await getOrCreateAgent(agentConfig, models);
+    const { agent } = await getOrCreateAgent(agentConfig, models, subdomain);
 
-    // Conversation memory is Mongo-backed, keyed by the frontline conversationId.
+    // The frontline conversation is a Mastra-native thread owned by a synthetic
+    // "bot:*" resource (kept out of in-app users' chat lists). Memory replays
+    // history + runs recall/working-memory and persists this turn itself.
     const userText = text || '';
-    const useHistory = agentConfig.memoryEnabled !== false;
-    const advanced =
-      isAdvancedMemoryEnabled() && useHistory && !!userText.trim();
-    const history = useHistory
-      ? await models.MastraMessage.getRecent(conversationId, 20)
-      : [];
-    const recentHistory = history.map((msg) => ({
-      role: msg.role,
-      content: msg.content,
-    }));
+    const useMemory =
+      isAdvancedMemoryEnabled() &&
+      agentConfig.memoryEnabled !== false &&
+      Boolean(subdomain) &&
+      Boolean(userText.trim());
+    const memoryBinding = useMemory
+      ? {
+          thread: conversationId,
+          resource: scopedResource(
+            subdomain,
+            `bot:${customerId || conversationId}`,
+          ),
+        }
+      : undefined;
 
-    const memCtx: MemoryContext = {
-      subdomain,
-      resourceId: deriveBotResourceId({ customerId, conversationId }),
-      threadId: conversationId,
-      agentId: agentConfig.agentId,
-    };
-
-    // Advanced memory: semantic recall + working memory (best-effort), plus
-    // the tenant's learned digest (shared, PII-free agent knowledge).
-    const [[recall, wmBlock], digest] = await Promise.all([
-      advanced
-        ? Promise.all([
-            recallBlock(userText, memCtx),
-            readWorkingMemory(models, memCtx),
-          ])
-        : Promise.resolve([null, null] as [string | null, string | null]),
-      readLearnedDigest(models, agentConfig.agentId),
-    ]);
-
+    // Shared learned digest (PII-free agent knowledge), separate from memory.
+    const digest = await readLearnedDigest(models, agentConfig.agentId);
     const convo = augmentConvo({
-      recentHistory,
+      recentHistory: [],
       userMessage: userText,
-      recallBlock: recall,
-      workingMemoryBlock: wmBlock,
+      recallBlock: null,
+      workingMemoryBlock: null,
       learnedDigestBlock: digest?.block,
     });
 
-    // Bot requests use the static app token from settings (no user session available)
+    // Bot requests use the static app token from settings (no user session).
     const authCtx = { token: settings?.erxesApiToken, subdomain };
-    // The published Agent generics type tool results as wire chunks; this
-    // text-only webhook path reads only `.text`, hence the structural cast
-    // (same idiom as prepareChatTurn in @/agent/turn).
-    const turnAgent = agent as unknown as TurnAgent;
-    const result = await runWithAuth(authCtx, () => turnAgent.generate(convo));
-
-    const reply = result.text || '';
-
-    // Persist the exchange so the bot remembers across webhook calls. The
-    // synthetic "bot:*" owner keeps these threads out of every in-app user's
-    // session list and ownership checks.
-    await models.MastraThread.ensureThread(
-      conversationId,
-      agentConfig.agentId,
-      `bot:${customerId || conversationId}`,
-      userText,
-    );
-    const userMsg = await models.MastraMessage.addMessage(
-      conversationId,
-      'user',
-      userText,
-    );
-    const asstMsg = reply
-      ? await models.MastraMessage.addMessage(
-          conversationId,
-          'assistant',
-          reply,
-        )
-      : null;
-    await models.MastraThread.touchThread(conversationId);
-
-    // Advanced memory: index the exchange + refresh the profile (best-effort).
-    if (advanced) {
-      const toIndex = [
-        {
-          id: String(userMsg._id),
-          role: 'user',
-          text: userText,
-          createdAt: userMsg.createdAt?.toISOString?.(),
-        },
-      ];
-      if (asstMsg && reply) {
-        toIndex.push({
-          id: String(asstMsg._id),
-          role: 'assistant',
-          text: reply,
-          createdAt: asstMsg.createdAt?.toISOString?.(),
-        });
-      }
-      await indexMessages(memCtx, toIndex);
-
-      if (reply) {
-        void refreshWorkingMemory({
-          models,
-          ctx: memCtx,
-          exchange: { user: userText, assistant: reply },
-          provider: agentConfig.provider,
-          model: agentConfig.model,
-          providers,
+    const reply =
+      (await runWithAuth(authCtx, () =>
+        runAgentTurn({
+          // Structural cast (same idiom as prepareChatTurn): the published
+          // Agent generics are wider than the slice runAgentTurn consumes.
+          agent: agent as unknown as TurnAgent,
+          convo,
+          message: userText,
           authCtx,
-        });
-      }
+          memory: memoryBinding,
+        }),
+      )) ?? '';
+
+    // Native persistence happened in runAgentTurn; stamp agentId + tenant so the
+    // bot thread is attributable + sweepable by the learning pass.
+    if (memoryBinding) {
+      await patchNativeTurn({
+        subdomain,
+        binding: memoryBinding,
+        agentId: agentConfig.agentId,
+        reply,
+      }).catch(() => null);
     }
 
     return res.json({ responses: [{ type: 'text', text: reply }] });

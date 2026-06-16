@@ -1,6 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { computeLearningStatus } from '~/mastra/learning/config';
 import { MastraLearningStatus } from '@/learning/@types/learning';
+import { assertOwnedThread } from '@/session/nativeStore';
 
 /** Throws unless a logged-in user is on the context; returns their _id. */
 function requireUserId(user: { _id?: string } | null | undefined): string {
@@ -71,10 +72,10 @@ export const learningQueries = {
   mastraMessageFeedbacks: async (
     _: unknown,
     { threadId }: { threadId: string },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const userId = requireUserId(user);
-    await models.MastraThread.getOwnedThread(threadId, userId);
+    await assertOwnedThread(subdomain, userId, threadId);
     const docs = await models.MastraFeedback.find({ threadId, userId });
     const byMessage: Record<string, { rating: number; comment?: string }> = {};
     for (const d of docs) {
