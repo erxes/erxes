@@ -81,8 +81,12 @@ const accountImportMap = {
       { label: 'НӨАТ орхих', key: 'excludeVat' },
       { label: 'НХАТ орхих', key: 'excludeCtax' },
     ],
-    processRows: (subdomain: string, models: IModels, rows: any[], userId: string) =>
-      processTransactionRows(subdomain, models, rows, userId),
+    processRows: (
+      subdomain: string,
+      models: IModels,
+      rows: any[],
+      userId: string,
+    ) => processTransactionRows(subdomain, models, rows, userId),
     batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) => {
       return !rowData?.date;
     },
@@ -103,8 +107,7 @@ const accountImportMap = {
       subdomain: string,
       models: IModels,
       rows: Record<string, unknown>[],
-    ) =>
-      processVatRows(subdomain, models, rows),
+    ) => processVatRows(subdomain, models, rows),
     batchSkipRow: (
       _subdomain: string,
       _models: IModels,
@@ -143,8 +146,7 @@ export const accountImportHandlers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = accountImportMap[collectionName];
-    if (!handler?.batchSkipRow)
-      return false;
+    if (!handler?.batchSkipRow) return false;
     return handler.batchSkipRow(subdomain, models, rowData);
   },
 };

@@ -68,15 +68,15 @@ const getProductSyncAction = (mutationName: string) =>
   mutationName === 'productsAdd'
     ? 'create'
     : createOrUpdateProductMutations.includes(mutationName)
-    ? 'update'
-    : 'delete';
+      ? 'update'
+      : 'delete';
 
 const getProductCategorySyncAction = (mutationName: string) =>
   mutationName === 'productCategoriesAdd'
     ? 'create'
     : createOrUpdateProductCategoryMutations.includes(mutationName)
-    ? 'update'
-    : 'delete';
+      ? 'update'
+      : 'delete';
 
 const getProductGroupPos = async (models: IModels) =>
   models.Pos.find({
