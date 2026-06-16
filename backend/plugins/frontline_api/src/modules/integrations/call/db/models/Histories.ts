@@ -148,29 +148,30 @@ export const loadCallHistoryClass = (models: IModels) => {
       const ext = operator?.gsUsername ? String(operator.gsUsername) : '';
       const integrationId = filterOptions.integrationId;
 
-      const scope: any[] = [];
-      if (integrationId) {
-        scope.push({ inboxIntegrationId: integrationId });
-      }
-      if (ext) {
-        const extVals: (string | number)[] = /^\d+$/.test(ext)
-          ? [ext, Number(ext)]
-          : [ext];
-        scope.push(
-          { src: { $in: extVals } },
-          { dst: { $in: extVals } },
-          { dstanswer: { $in: extVals } },
-          { dstchannelExt: { $in: extVals } },
-          { channelExt: { $in: extVals } },
-          { newSrc: { $in: extVals } },
-        );
+      const extVals: (string | number)[] = /^\d+$/.test(ext)
+        ? [ext, Number(ext)]
+        : [ext];
+
+      const involvement: any[] = ext
+        ? [
+            { dstchannelExt: { $in: extVals } },
+            { dstanswer: { $in: extVals } },
+            { userfield: 'Outbound', src: { $in: extVals } },
+          ]
+        : [];
+
+      const match: any = involvement.length
+        ? { $or: involvement }
+        : { _id: null };
+      if (integrationId && involvement.length) {
+        match.inboxIntegrationId = integrationId;
       }
 
       const pipeline: any[] = [
-        { $match: scope.length ? { $or: scope } : { _id: null } },
+        { $match: match },
         {
           $addFields: {
-            _legAnswered: {
+            _answeredByMe: {
               $and: [
                 {
                   $eq: [
@@ -180,6 +181,17 @@ export const loadCallHistoryClass = (models: IModels) => {
                 },
                 { $gt: [{ $ifNull: ['$billsec', 0] }, 0] },
                 { $in: ['$lastapp', ['Queue', 'Dial']] },
+                {
+                  $or: [
+                    { $in: ['$dstanswer', extVals] },
+                    {
+                      $and: [
+                        { $eq: ['$userfield', 'Outbound'] },
+                        { $in: ['$src', extVals] },
+                      ],
+                    },
+                  ],
+                },
               ],
             },
             _customerPhone: {
@@ -189,7 +201,7 @@ export const loadCallHistoryClass = (models: IModels) => {
             },
           },
         },
-        { $sort: { uniqueid: 1, _legAnswered: -1, billsec: -1, start: 1 } },
+        { $sort: { uniqueid: 1, _answeredByMe: -1, billsec: -1, start: 1 } },
         {
           $group: {
             _id: '$uniqueid',
@@ -197,12 +209,8 @@ export const loadCallHistoryClass = (models: IModels) => {
             customerPhone: { $first: '$_customerPhone' },
             conversationId: { $first: '$conversationId' },
             recordUrl: { $max: { $ifNull: ['$recordUrl', ''] } },
-            dispositions: {
-              $addToSet: { $toUpper: { $ifNull: ['$disposition', ''] } },
-            },
             billsec: { $max: { $ifNull: ['$billsec', 0] } },
-            // 1 if any leg was actually answered by a human (see _legAnswered).
-            anyAnswered: { $max: { $cond: ['$_legAnswered', 1, 0] } },
+            anyAnswered: { $max: { $cond: ['$_answeredByMe', 1, 0] } },
             start: { $min: '$start' },
             end: { $max: '$end' },
             createdAt: { $min: '$createdAt' },
