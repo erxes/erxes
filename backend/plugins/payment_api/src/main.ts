@@ -1,4 +1,4 @@
-import { startPlugin } from 'erxes-api-shared/utils';
+import { getEnv, getSubdomain, startPlugin } from 'erxes-api-shared/utils';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -10,8 +10,15 @@ import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
 
-const getWidgetBaseUrl = () => {
-  const apiUrl = process.env.REACT_APP_API_URL?.replace(/\/$/, '') || '';
+const getWidgetApiUrl = (req: express.Request) => {
+  const subdomain =
+    getEnv({ name: 'VERSION' }) === 'saas' ? getSubdomain(req) : undefined;
+
+  return getEnv({ name: 'REACT_APP_API_URL', subdomain }).replace(/\/$/, '');
+};
+
+const getWidgetBaseUrl = (req: express.Request) => {
+  const apiUrl = getWidgetApiUrl(req);
 
   return `${apiUrl}/pl:payment/widget/`;
 };
@@ -66,17 +73,19 @@ startPlugin({
 
   onServerInit: async (app) => {
     app.get('/widget/config.js', (req, res) => {
+      const apiUrl = getWidgetApiUrl(req);
+
       res.type('application/javascript');
       res.send(`window.WIDGET_CONFIG = {
-        API_URL: "${process.env.REACT_APP_API_URL}"
+        API_URL: ${JSON.stringify(apiUrl)}
       };`);
     });
 
-    const sendWidgetIndex = (res: express.Response) => {
+    const sendWidgetIndex = (req: express.Request, res: express.Response) => {
       const html = fs
         .readFileSync(path.join(__dirname, '/public/widget/index.html'), 'utf8')
         .split('/__PAYMENT_WIDGET_BASE__/')
-        .join(getWidgetBaseUrl());
+        .join(getWidgetBaseUrl(req));
 
       res.type('html').send(html);
     };
@@ -86,8 +95,8 @@ startPlugin({
       '/widget',
       express.static(path.join(__dirname, '/public/widget'), { index: false }),
     );
-    app.get('/widget', (req, res) => sendWidgetIndex(res));
-    app.get('/widget/*', (req, res) => sendWidgetIndex(res));
+    app.get('/widget', (req, res) => sendWidgetIndex(req, res));
+    app.get('/widget/*', (req, res) => sendWidgetIndex(req, res));
 
     initPaymentsWorker();
   },
