@@ -13,6 +13,7 @@ interface ITriggerData {
   actionType: string;
   targets: unknown[]; // Replace with actual type if known
   recordType?: string;
+  eventUpdateDescription?: Record<string, any>;
   repeatOptions?: {
     executionId: string;
     actionId: string;
@@ -29,7 +30,8 @@ export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
 
   console.info(`Received data from:${JSON.stringify({ subdomain, data })}`);
 
-  const { type, targets, repeatOptions, recordType } = data;
+  const { type, targets, repeatOptions, recordType, eventUpdateDescription } =
+    data;
   try {
     if (repeatOptions) {
       repeatActionExecution(subdomain, models, repeatOptions);
@@ -45,7 +47,14 @@ export const triggerHandlerWorker = async (job: Job<ITriggerJobData>) => {
       }
     }
 
-    await receiveTrigger({ models, subdomain, type, targets, recordType });
+    await receiveTrigger({
+      models,
+      subdomain,
+      type,
+      targets,
+      recordType,
+      eventUpdateDescription,
+    });
   } catch (error: any) {
     debugError(`Error processing job ${job.id}: ${error.message}`);
     // Error is logged but not thrown to prevent job retries

@@ -2,7 +2,6 @@ import {
   IAutomationAction,
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
-  splitType,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { sendSms } from '../../utils/sms';
@@ -40,25 +39,25 @@ export const executeMessageProAction = async (
       ? resolvedConfig.documentId
       : '';
 
-  const { triggerType, target } = execution;
+  const { target } = execution;
   const itemId = target?._id;
 
   if (!documentId || !itemId) {
     return { documentId, content: '', phone: '', sent: false };
   }
 
-  // Derive the conformity main type from the trigger, e.g. "sales:deal.deal" -> "deal"
-  const [, mainModule, mainCollection] = splitType(triggerType || '');
-  const mainType = mainCollection || mainModule || '';
 
-  // Find the customers related to the target record
   const customerIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
-    module: 'conformity',
-    action: 'savedConformity',
-    input: { mainType, mainTypeId: itemId, relTypes: ['customer'] },
+    module: 'relation',
+    action: 'getRelationIds',
+    input: {
+      contentType: 'sales:deal',
+      contentId: itemId,
+      relatedContentType: 'core:customer',
+    },
     defaultValue: [],
   });
 
@@ -85,7 +84,6 @@ export const executeMessageProAction = async (
       defaultValue: [],
     });
 
-    // Prefer a customer identified by an 8-digit code, otherwise the first one
     const codedCustomer = (customers || []).find(
       (customer: any) => customer?.code && /^\d{8}$/.test(customer.code),
     );
@@ -93,25 +91,51 @@ export const executeMessageProAction = async (
     customerPhone = customer?.primaryPhone || '';
   }
 
-  // Render the selected document for the target record
-  const rendered = await sendTRPCMessage({
+const document = await sendTRPCMessage({
+  subdomain,
+  pluginName: 'core',
+  method: 'query',
+  module: 'documents',
+  action: 'print',
+  input: {
+    _id: documentId,
+    replacerIds: [itemId],
+    config: {},
+  },
+  defaultValue: '',
+});
+
+let sent = false;
+let cleanedText = '';
+
+if (document) {
+  const htmlContent = Array.isArray(document)
+    ? document.join('')
+    : String(document);
+
+  cleanedText = htmlContent
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+if (cleanedText && customerPhone) {
+  await sendSms(
     subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'documents',
-    action: 'print',
-    input: { _id: documentId, replacerIds: [itemId], config: {} },
-    defaultValue: '',
-  });
+    'messagePro',
+    customerPhone,
+    cleanedText,
+  );
 
-  const content = Array.isArray(rendered) ? rendered.join('') : rendered || '';
+  sent = true;
+}
 
-  let sent = false;
-
-  if (content && customerPhone) {
-    await sendSms(subdomain, 'messagePro', customerPhone, stripHtmlToText(content));
-    sent = true;
-  }
-
-  return { documentId, content, phone: customerPhone, sent };
+return {
+  documentId,
+  content: cleanedText,
+  phone: customerPhone,
+  sent,
+};
 };
