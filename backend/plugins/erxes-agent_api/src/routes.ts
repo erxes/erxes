@@ -23,8 +23,6 @@ import { readLearnedDigest } from './mastra/learning/digest';
 import {
   prepareChatTurn,
   persistTurn,
-  executeTextToolCall,
-  extractTextToolCall,
   synthesizeFromToolResults,
   toUserFacingError,
   TurnAgent,
@@ -333,7 +331,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       threadId,
       attachments,
     });
-    const { agent, tools, convo, authCtx } = prepared;
+    const { agent, convo, authCtx } = prepared;
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
@@ -390,65 +388,28 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     const interrupted = controller.signal.aborted;
     let reply: string | null = acc.text || null;
 
-    if (!interrupted) {
-      const trimmed = acc.text.trimStart();
+    if (!interrupted && !acc.text) {
+      // No answer text streamed — synthesize from tool results, or report the
+      // error. (Native generate() produces the final text itself, so this only
+      // fires when the model ended a turn on tool calls without prose.)
+      const toolResults = acc.toolCalls
+        .filter((tc) => tc.result !== undefined)
+        .map((tc) => ({
+          toolCallId: tc.toolCallId,
+          toolName: tc.toolName,
+          result: tc.result,
+        }));
 
-      // Text-emitted tool call (models without native tool_calls): execute it
-      // and replace the raw JSON the client already saw with the real answer.
-      const extracted = trimmed ? extractTextToolCall(trimmed) : null;
-      if (extracted) {
-        const handled = await executeTextToolCall({
+      if (toolResults.length) {
+        reply = await synthesizeFromToolResults({
           agent,
-          tools,
-          convo,
           message,
           authCtx,
-          depth: 0,
-          extracted,
-          rawText: trimmed,
-          onToolEvent: (toolEvent) => {
-            const ev: StreamEvent =
-              toolEvent.phase === 'call'
-                ? {
-                    type: 'tool_call',
-                    toolName: toolEvent.toolName,
-                    args: toolEvent.args,
-                  }
-                : {
-                    type: 'tool_result',
-                    toolName: toolEvent.toolName,
-                    result: toolEvent.result,
-                    isError: toolEvent.isError,
-                  };
-            recordToolCall(ev);
-            send(ev);
-          },
+          toolResults,
         });
-        if (handled !== undefined && handled !== null) {
-          reply = handled;
-          send({ type: 'text_replace', text: handled });
-        }
-      } else if (!acc.text) {
-        // No text streamed — synthesize from tool results, or report the error.
-        const toolResults = acc.toolCalls
-          .filter((tc) => tc.result !== undefined)
-          .map((tc) => ({
-            toolCallId: tc.toolCallId,
-            toolName: tc.toolName,
-            result: tc.result,
-          }));
-
-        if (toolResults.length) {
-          reply = await synthesizeFromToolResults({
-            agent,
-            message,
-            authCtx,
-            toolResults,
-          });
-          send({ type: 'text', text: reply });
-        } else if (streamError) {
-          throw new Error(streamError);
-        }
+        send({ type: 'text', text: reply });
+      } else if (streamError) {
+        throw new Error(streamError);
       }
     }
 
