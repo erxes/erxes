@@ -186,9 +186,10 @@ export const GalleryUploader = ({
                     style={{ backgroundImage: `url(${file.preview})` }}
                   />
                 )}
-                <div className="absolute inset-0 flex items-center justify-center bg-white/70 px-2 text-center text-xs text-muted-foreground">
-                  {uploadProps.loading ? 'Uploading...' : 'Ready'}
-                </div>
+                <div
+                  className="absolute inset-0 bg-white/70"
+                  aria-label={uploadProps.loading ? 'Uploading image' : 'Ready'}
+                />
               </div>
             ))}
           </div>
@@ -208,14 +209,8 @@ export const GalleryUploader = ({
           disabled={uploadProps.loading || urls.length >= maxImages}
           type="button"
         >
-          {uploadProps.loading ? (
-            'Uploading...'
-          ) : (
-            <>
-              <IconUpload size={16} className="mr-2" />
-              Add Images
-            </>
-          )}
+          <IconUpload size={16} className="mr-2" />
+          Add Images
         </Button>
         {urls.length >= maxImages && (
           <p className="text-xs text-muted-foreground mt-1">
