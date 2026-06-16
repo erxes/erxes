@@ -152,8 +152,7 @@ export const usePostsColumns = (
               value={
                 row.original.categories
                   ?.map((category) => category.name)
-                  .join(', ') ||
-                ''
+                  .join(', ') || ''
               }
             />
           </RecordTableInlineCell>
@@ -168,9 +167,7 @@ export const usePostsColumns = (
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip
-              value={
-                row.original.tags?.map((tag) => tag.name).join(', ') || ''
-              }
+              value={row.original.tags?.map((tag) => tag.name).join(', ') || ''}
             />
           </RecordTableInlineCell>
         );

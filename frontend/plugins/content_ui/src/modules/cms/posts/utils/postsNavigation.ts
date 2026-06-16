@@ -36,16 +36,10 @@ export const buildCurrentPostsReturnPath = (
   search: string,
   currentPostId?: string,
 ) => {
-  return getSafePostsListPath(
-    `${pathname}${search}`,
-    currentPostId,
-  );
+  return getSafePostsListPath(`${pathname}${search}`, currentPostId);
 };
 
-export const getPostsReturnPath = (
-  state: unknown,
-  currentPostId?: string,
-) => {
+export const getPostsReturnPath = (state: unknown, currentPostId?: string) => {
   if (!state || typeof state !== 'object' || !('returnTo' in state)) {
     return undefined;
   }
