@@ -1,5 +1,6 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import { renameOwnedThread, removeOwnedThread } from '@/session/nativeStore';
 
 /** Resolve the logged-in user's _id, rejecting unauthenticated calls. */
 function requireUserId(user: IUserDocument | null | undefined): string {
@@ -7,25 +8,21 @@ function requireUserId(user: IUserDocument | null | undefined): string {
   return user._id;
 }
 
-/** Mutations on a user's own chat threads (rename / delete). */
+/** Mutations on a user's own chat threads (rename / delete), Mastra-native. */
 export const sessionMutations = {
   mastraThreadRename: (
     _parent: undefined,
     { threadId, title }: { threadId: string; title: string },
-    { models, user }: IContext,
+    { user, subdomain }: IContext,
   ) => {
-    return models.MastraThread.renameThread(
-      threadId,
-      title,
-      requireUserId(user),
-    );
+    return renameOwnedThread(subdomain, requireUserId(user), threadId, title);
   },
 
   mastraThreadRemove: (
     _parent: undefined,
     { threadId }: { threadId: string },
-    { models, user }: IContext,
+    { user, subdomain }: IContext,
   ) => {
-    return models.MastraThread.removeThread(threadId, requireUserId(user));
+    return removeOwnedThread(subdomain, requireUserId(user), threadId);
   },
 };
