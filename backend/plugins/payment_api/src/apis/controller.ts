@@ -1,10 +1,4 @@
-import { splitType } from 'erxes-api-shared/core-modules';
-import {
-  getSubdomain,
-  graphqlPubsub,
-  isEnabled,
-  sendWorkerMessage,
-} from 'erxes-api-shared/utils';
+import { getSubdomain, graphqlPubsub } from 'erxes-api-shared/utils';
 
 import { golomtCallbackHandler } from '~/apis/golomt/api';
 import { minupayCallbackHandler } from '~/apis/minupay/api';
@@ -19,6 +13,7 @@ import { tdbCallbackHandler } from '~/apis/tdb/api';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS, PAYMENTS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
+import { runPaidInvoiceSideEffects } from '~/modules/payment/utils/paidInvoiceSideEffects';
 import redis from '~/utils/redis';
 
 export const callbackHandler = async (req, res) => {
@@ -94,8 +89,6 @@ export const callbackHandler = async (req, res) => {
         subdomain,
       );
 
-      delete transaction.response;
-
       graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
         transactionUpdated: {
           _id: transaction._id,
@@ -114,65 +107,18 @@ export const callbackHandler = async (req, res) => {
         });
       }
 
-      redis.updateInvoiceStatus(transaction._id, 'paid');
+      redis.updateInvoiceStatus(transaction.invoiceId, 'paid');
 
-      const [pluginName, moduleName, collectionType] = splitType(
-        invoice.contentType,
-      );
-
-      if (await isEnabled(pluginName)) {
-        try {
-          await sendWorkerMessage({
-            subdomain,
-            pluginName,
-            queueName: 'payments',
-            jobName: 'transactionCallback',
-            data: {
-              ...transaction,
-              moduleName,
-              collectionType,
-              apiResponse: 'success',
-            },
-            defaultValue: null,
-          });
-
-          if (result === 'paid') {
-            await sendWorkerMessage({
-              subdomain,
-              pluginName,
-              queueName: 'payments',
-              jobName: 'callback',
-              data: {
-                ...invoice,
-                status: 'paid',
-                moduleName,
-                collectionType,
-              },
-              defaultValue: null,
-            });
-          }
-
-          if (invoice.callback) {
-            try {
-              await fetch(invoice.callback, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  _id: invoice._id,
-                  amount: invoice.amount,
-                  status: 'paid',
-                }),
-              });
-            } catch (e) {
-              console.error('Error: ', e);
-            }
-          }
-        } catch (e) {
-          console.error('Error: ', e);
-        }
-      }
+      await runPaidInvoiceSideEffects({
+        models,
+        subdomain,
+        invoice,
+        invoiceWasPaid: invoice.status === PAYMENT_STATUS.PAID,
+        transaction,
+        includeTransactionCallback: true,
+        includeInvoicePaidSideEffects: result === PAYMENT_STATUS.PAID,
+        waitForWorker: true,
+      });
     }
   } catch (error) {
     return res.status(400).send(error);
