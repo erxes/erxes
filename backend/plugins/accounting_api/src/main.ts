@@ -35,6 +35,10 @@ const accountImportTypes = [
     contentType: 'accounting:account.transactions',
     permissions: ['transactionsImportManage'],
   },
+  {
+    label: 'VAT rows',
+    contentType: 'accounting:account.vatRows',
+  },
 ];
 
 startPlugin({
