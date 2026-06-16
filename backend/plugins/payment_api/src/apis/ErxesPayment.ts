@@ -74,7 +74,7 @@ class ErxesPayment {
       case 'toki':
         this.api = new TokiAPI(payment.config, this.domain);
         break;
-      case 'tdb':   
+      case 'tdb':
         this.api = new TDBAPI(payment.config, this.domain);
         break;
       default:
