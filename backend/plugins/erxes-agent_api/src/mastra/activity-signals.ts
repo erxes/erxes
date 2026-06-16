@@ -13,17 +13,21 @@ const MAX_CHARS = 80;
 /** First non-empty string value among the given arg keys. */
 function pick(args: unknown, keys: string[]): string | undefined {
   if (!args || typeof args !== 'object') return undefined;
-  const rec = args as Record<string, unknown>;
-  for (const k of keys) {
-    const v = rec[k];
-    if (typeof v === 'string' && v.trim()) return v.trim().replace(/\s+/g, ' ');
+  const record = args as Record<string, unknown>;
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim().replace(/\s+/g, ' ');
+    }
   }
   return undefined;
 }
 
-const clip = (s: string) =>
-  s.length > MAX_CHARS ? `${s.slice(0, MAX_CHARS).trimEnd()}…` : s;
+/** Truncate a status line to the display budget, with an ellipsis. */
+const clip = (text: string) =>
+  text.length > MAX_CHARS ? `${text.slice(0, MAX_CHARS).trimEnd()}…` : text;
 
+/** Compose a "<verb> <subject>" status line (subject optional), clipped. */
 const phrase = (verb: string, subject?: string) =>
   clip(subject ? `${verb} ${subject}` : verb);
 
@@ -38,20 +42,23 @@ export function toolStatusLine(
 ): string | null {
   switch (toolName) {
     case 'search_erxes_operations': {
-      const q = pick(args, ['query']);
-      return phrase('Searching operations', q ? `for ${q}` : undefined);
+      const query = pick(args, ['query']);
+      return phrase('Searching operations', query ? `for ${query}` : undefined);
     }
     case 'execute_erxes_operation': {
       const op = pick(args, ['operation', 'operationName']);
       return op ? phrase('Running', op) : 'Running an operation';
     }
     case 'company-knowledge': {
-      const q = pick(args, ['query']);
-      return phrase('Searching company data', q ? `for ${q}` : undefined);
+      const query = pick(args, ['query']);
+      return phrase(
+        'Searching company data',
+        query ? `for ${query}` : undefined,
+      );
     }
     case 'web-search': {
-      const q = pick(args, ['query', 'q', 'search']);
-      return phrase('Searching the web', q ? `for ${q}` : undefined);
+      const query = pick(args, ['query', 'q', 'search']);
+      return phrase('Searching the web', query ? `for ${query}` : undefined);
     }
     case 'fetch-url': {
       const url = pick(args, ['url', 'href']);

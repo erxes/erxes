@@ -153,7 +153,9 @@ async function statelessAgent(
   providers: ProviderDocLike[],
   outputProcessors?: unknown[],
 ): Promise<StatelessAgent> {
-  const key = `${id}:${provider}:${model}`;
+  // Include the processor count so an agent built with a different processor
+  // pipeline (e.g. with vs. without the PIIDetector) is never reused.
+  const key = `${id}:${provider}:${model}:p${outputProcessors?.length ?? 0}`;
   let cached = _agents.get(key);
   if (!cached) {
     const { Agent } = await import('@mastra/core/agent');
