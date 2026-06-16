@@ -75,7 +75,6 @@ export async function runSchedule(args: {
     }
 
     const settings = await models.MastraSettings.findOne({});
-    const providers = await models.MastraProvider.find({ isEnabled: true });
     const { agent } = await getOrCreateAgent(agentConfig, models);
 
     const threadId = scheduleThreadId(schedule._id);

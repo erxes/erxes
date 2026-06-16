@@ -512,6 +512,9 @@ const ERROR_RULES: { test: RegExp; message: string }[] = [
   },
 ];
 
+/** Map a raw failure to a plain-language Error safe to show a user (jargon-,
+ *  id- and HTTP-code-free); unmatched errors are logged (redacted) and replaced
+ *  with a generic message so no raw provider text leaks. */
 export function toUserFacingError(err: unknown): Error {
   const msg: string =
     (err as { message?: string } | null | undefined)?.message ?? String(err);
@@ -521,8 +524,8 @@ export function toUserFacingError(err: unknown): Error {
   // tokens first — provider errors can echo API keys, bearer tokens, connection
   // strings or hashes that log aggregators shouldn't capture.
   const safe = msg
-    .replace(/\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._\-]{16,}/gi, '$1[redacted]')
-    .replace(/[A-Za-z0-9_\-]{32,}/g, '[redacted]');
+    .replace(/\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._-]{16,}/gi, '$1[redacted]')
+    .replace(/[A-Za-z0-9_-]{32,}/g, '[redacted]');
   console.error('[toUserFacingError] unmatched error:', safe);
   return new Error(
     'Something went wrong while processing your request. Please try again — if it keeps happening, contact support.',

@@ -31,7 +31,11 @@ describe('toUserFacingError', () => {
   });
 
   it('redacts long tokens from the server log on unmatched errors', () => {
-    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const spy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {
+        /* swallow expected error log */
+      });
     try {
       toUserFacingError(
         new Error('boom key=sk-abcdefABCDEF0123456789zzzzzzzzzzzz happened'),
