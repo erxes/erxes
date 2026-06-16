@@ -27,8 +27,9 @@ const getSafePostsListPath = (
     }
 
     const search = url.searchParams.toString();
+    const query = search ? `?${search}` : '';
 
-    return `${url.pathname}${search ? `?${search}` : ''}`;
+    return `${url.pathname}${query}`;
   } catch {
     return undefined;
   }
