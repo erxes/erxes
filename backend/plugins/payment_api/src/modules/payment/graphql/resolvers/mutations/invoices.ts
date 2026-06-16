@@ -8,7 +8,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { IInvoice, IInvoiceDocument } from '~/modules/payment/@types/invoices';
+import { IInvoice } from '~/modules/payment/@types/invoices';
 import * as QRCode from 'qrcode';
 async function sendInvoiceBarcodeEmail(
   subdomain: string,
@@ -40,12 +40,12 @@ async function sendInvoiceBarcodeEmail(
     <table cellpadding="0" cellspacing="0" border="0"
       style="border-collapse:collapse;background:#fff;border:16px solid #fff">
       ${Array.from(
-        { length: size },
-        (_, r) => `
+      { length: size },
+      (_, r) => `
         <tr height="${cell}">
           ${Array.from(
-            { length: size },
-            (_, c) => `
+        { length: size },
+        (_, c) => `
             <td
               width="${cell}"
               height="${cell}"
@@ -60,10 +60,10 @@ async function sendInvoiceBarcodeEmail(
               "
             ></td>
           `,
-          ).join('')}
+      ).join('')}
         </tr>
       `,
-      ).join('')}
+    ).join('')}
     </table>
   `;
   } catch (err) {
@@ -319,7 +319,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       }
 
       if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
+        const [moduleName, collectionType] = splitType(
           invoice.contentType,
         );
 
@@ -344,7 +344,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
             backoff: { type: 'exponential', delay: 2000 },
           },
         })
-          .then(() => {})
+          .then(() => { })
           .catch((err) => {
             process.stderr.write(
               `[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`,
@@ -429,7 +429,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { models, subdomain }: IContext,
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}`
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:5173';
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
