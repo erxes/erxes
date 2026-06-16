@@ -243,7 +243,11 @@ export async function prepareChatTurn(params: {
 
   const settings = await models.MastraSettings.findOne({});
   const providers = await models.MastraProvider.find({ isEnabled: true });
-  const { agent, tools } = await getOrCreateAgent(agentConfig, models, subdomain);
+  const { agent, tools } = await getOrCreateAgent(
+    agentConfig,
+    models,
+    subdomain,
+  );
 
   // Stable session id — the persisted thread this turn belongs to.
   // typeof guard keeps crafted non-string payloads out of Mongo queries
@@ -287,7 +291,10 @@ export async function prepareChatTurn(params: {
   // recall/working-memory injection is skipped to avoid doing it twice.
   const useMemory = advanced && !!subdomain;
   const memoryBinding = useMemory
-    ? { thread: sessionId, resource: scopedResource(subdomain, memCtx.resourceId) }
+    ? {
+        thread: sessionId,
+        resource: scopedResource(subdomain, memCtx.resourceId),
+      }
     : undefined;
 
   // Custom recall path (only when advanced but Mastra Memory is NOT active, e.g.
@@ -563,7 +570,10 @@ export function toUserFacingError(err: unknown): Error {
   // tokens first — provider errors can echo API keys, bearer tokens, connection
   // strings or hashes that log aggregators shouldn't capture.
   const safe = msg
-    .replace(/\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._-]{16,}/gi, '$1[redacted]')
+    .replace(
+      /\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._-]{16,}/gi,
+      '$1[redacted]',
+    )
     .replace(/[A-Za-z0-9_-]{32,}/g, '[redacted]');
   console.error('[toUserFacingError] unmatched error:', safe);
   return new Error(
@@ -599,10 +609,10 @@ export function logToolResults(uniqueResults: ToolResultLike[]) {
             data == null
               ? 'null'
               : Array.isArray(data)
-              ? `array(${data.length})`
-              : typeof data === 'object'
-              ? Object.keys(data).slice(0, 6)
-              : typeof data,
+                ? `array(${data.length})`
+                : typeof data === 'object'
+                  ? Object.keys(data).slice(0, 6)
+                  : typeof data,
           success: record ? record.success : undefined,
           error: record ? record.error || record.message : undefined,
         };
@@ -661,4 +671,3 @@ export async function synthesizeFromToolResults(params: {
     return fallback || 'Done.';
   }
 }
-
