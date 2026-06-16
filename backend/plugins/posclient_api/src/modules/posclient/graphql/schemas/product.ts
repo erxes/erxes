@@ -48,6 +48,7 @@ export const types = `
     
     isCheckRem: Boolean
     hasSimilarity: Boolean
+    similarityId: String
     pdfAttachment: PdfAttachment
   }
 
@@ -58,6 +59,18 @@ export const types = `
   type PoscProductSimilarity {
     products: [PoscProduct],
     groups: [PoscProductSimilarityGroup],
+  }
+
+  type PoscProductBulkSimilarityField {
+    fieldId: String
+    title: String
+    values: [String]
+  }
+  type PoscProductBulkSimilarity {
+    _id: String
+    starProductId: String
+    products: [PoscProduct]
+    fields: [PoscProductBulkSimilarityField]
   }
 `;
 
@@ -77,6 +90,7 @@ const productsQueryParams = `
   segmentData: String,
   isKiosk: Boolean,
   groupedSimilarity: String,
+  similarity: Boolean,
   categoryMeta: String,
   image: String,
   minRemainder: Float
@@ -121,4 +135,5 @@ export const queries = `
   poscProductDetail(_id: String, branchId: String): PoscProduct
   getPriceInfo(productId: String!): String
   poscProductSimilarities(_id: String!, groupedSimilarity: String, branchId: String): PoscProductSimilarity
+  poscProductBulkSimilarity(_id: String!, branchId: String): PoscProductBulkSimilarity
 `;

@@ -44,6 +44,13 @@ startPlugin({
   meta: { automations: automationMeta, permissions },
   importExport: {
     export: {
+      types: [
+        {
+          label: 'Coupon',
+          contentType: 'loyalty:coupon.coupon',
+          permissions: ['couponExportManage'],
+        },
+      ],
       getExportHeaders: createCoreModuleProducerHandler({
         moduleName: 'importExport',
         modules: { coupon: couponExportHandlers },

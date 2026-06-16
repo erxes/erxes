@@ -31,7 +31,11 @@ import {
   instagramRepairIntegrations,
   instagramUpdateIntegrations,
 } from '@/integrations/instagram/messageBroker';
-import { getUniqueValue, sendTRPCMessage,markResolvers } from 'erxes-api-shared/utils';
+import {
+  getUniqueValue,
+  sendTRPCMessage,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 interface IntegrationParams {
@@ -402,7 +406,10 @@ export const integrationMutations = {
       }
     }
 
-    return models.Integrations.saveMessengerConfigs(_id, messengerDataWithoutApps as IMessengerData);
+    return models.Integrations.saveMessengerConfigs(
+      _id,
+      messengerDataWithoutApps as IMessengerData,
+    );
   },
 
   async integrationsSaveMessengerColorTheme(
@@ -534,7 +541,7 @@ export const integrationMutations = {
     const updated = await models.Integrations.getIntegration({ _id });
 
     const serviceName = integration.kind.split('-')[0];
-    await sendUpdateIntegration(subdomain, serviceName, {
+    const result = await sendUpdateIntegration(subdomain, serviceName, {
       kind,
       integrationId: integration._id,
       doc: {
@@ -545,6 +552,10 @@ export const integrationMutations = {
         data: details ? JSON.stringify(details) : '',
       },
     });
+
+    if (result?.status === 'error') {
+      throw new Error(result.errorMessage || 'Failed to update integration');
+    }
 
     return updated;
   },
@@ -594,7 +605,9 @@ export const integrationMutations = {
     { subdomain }: IContext,
   ) {
     const serviceName = kind.split('-')[0];
-    return sendRepairIntegration(subdomain, serviceName, { integrationId: _id });
+    return sendRepairIntegration(subdomain, serviceName, {
+      integrationId: _id,
+    });
   },
   async integrationsArchive(
     _root,

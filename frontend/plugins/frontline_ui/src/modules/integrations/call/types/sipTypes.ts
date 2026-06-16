@@ -82,50 +82,11 @@ export interface SipProviderProps {
   extraHeaders?: ExtraHeaders;
   iceServers?: IceServers;
   debug?: boolean;
-  createSession: () => void;
-
-  addHistory: (
-    callStatus: string,
-    timeStamp: number,
-    direction: string,
-    customerPhone: string,
-    callStartTime: Date,
-    queueName: string | null,
-  ) => void;
-  updateHistory: (
-    timeStamp: number,
-    callStartTime: Date,
-    callEndTime: Date,
-    callStatus: string,
-    direction: string,
-    customerPhone: string,
-    diversionHeader?: string,
-    endedBy?: string,
-    historyId?: string,
-  ) => void;
+  createSession?: () => void;
 }
 export interface SipContextValue {
   sip: {
-    createSession: () => void;
-
-    addHistory: (
-      callStatus: string,
-      timeStamp: number,
-      direction: string,
-      customerPhone: string,
-      callStartTime: Date,
-      queueName: string | null,
-    ) => void;
-    updateHistory: (
-      timeStamp: number,
-      callStartTime: Date,
-      callEndTime: Date,
-      callStatus: string,
-      direction: string,
-      customerPhone: string,
-      diversionHeader?: string,
-      endedBy?: string,
-    ) => void;
+    createSession?: () => void;
   };
   registerSip: () => void;
   unregisterSip: () => void;

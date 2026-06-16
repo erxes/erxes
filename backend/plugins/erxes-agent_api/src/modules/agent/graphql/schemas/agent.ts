@@ -9,8 +9,10 @@ export const types = `
     model: String
     toolPolicy: String
     allowedTools: [String]
+    destructiveOps: String
     memoryEnabled: Boolean
     maxSteps: Int
+    temperature: Float
     isEnabled: Boolean
     createdAt: Date
     updatedAt: Date
@@ -25,8 +27,10 @@ export const types = `
     model: String
     toolPolicy: String
     allowedTools: [String]
+    destructiveOps: String
     memoryEnabled: Boolean
     maxSteps: Int
+    temperature: Float
     isEnabled: Boolean
   }
 
