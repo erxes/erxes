@@ -266,7 +266,6 @@ export const dealTrpcRouter = t.router({
         return await generateProducts(subdomain, input);
       }),
 
-
     replaceContent: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
       const { replacerIds, content } = input || {};

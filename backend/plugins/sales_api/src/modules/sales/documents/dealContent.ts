@@ -4,7 +4,11 @@ import { generateProducts } from '~/modules/sales/utils';
 import { buildTableBlock, replaceBlocks } from './replaceBlocks';
 
 // Attributes that render as a table rather than a scalar value.
-const TABLE_ATTRIBUTES = ['productsInfo', 'productCategoryInfo', 'servicesInfo'];
+const TABLE_ATTRIBUTES = [
+  'productsInfo',
+  'productCategoryInfo',
+  'servicesInfo',
+];
 
 const getPath = (obj: any, path?: string) => {
   if (!obj || !path) return undefined;
@@ -401,7 +405,11 @@ export const replaceDealContent = async ({
   const replacedContents: string[] = [];
 
   for (const deal of deals) {
-    const { attrMap, tables } = await buildDealReplacer(models, subdomain, deal);
+    const { attrMap, tables } = await buildDealReplacer(
+      models,
+      subdomain,
+      deal,
+    );
 
     const replacement = (_replacer: any, path?: string) => {
       if (!path) return '-';

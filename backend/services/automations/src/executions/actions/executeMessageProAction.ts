@@ -45,7 +45,6 @@ export const executeMessageProAction = async (
     return { documentId, content: '', phone: '', sent: false };
   }
 
-
   const customerIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
