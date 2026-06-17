@@ -29,7 +29,11 @@ export type SettingsFormState = {
   defaultLanguage: string;
   siteLogo: CmsAttachment | null;
   favicon: CmsAttachment | null;
+  accessPolicy: CmsAccessPolicy;
+  assignedMemberIds: string[];
 };
+
+export type CmsAccessPolicy = 'open' | 'assigned';
 
 export type ClientPortalOption = {
   _id: string;
@@ -61,6 +65,8 @@ export type CmsSettingsData = {
   postUrlPrefix?: string;
   siteLogo?: CmsAttachment | null;
   favicon?: CmsAttachment | null;
+  accessPolicy?: CmsAccessPolicy;
+  assignedMemberIds?: string[];
 };
 
 export type UpdateSetting = <TKey extends keyof SettingsFormState>(
