@@ -1,7 +1,20 @@
-import { IconCode, IconHash, IconCircleCheck, IconCategory } from '@tabler/icons-react';
+import {
+  IconCode,
+  IconHash,
+  IconCircleCheck,
+  IconCategory,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, TextOverflowTooltip, RecordTableInlineCell } from 'erxes-ui';
-import { IPriceItem, PriceStatus, PRICE_STATUS_LABELS } from '../types/checkPrice';
+import {
+  RecordTable,
+  TextOverflowTooltip,
+  RecordTableInlineCell,
+} from 'erxes-ui';
+import {
+  IPriceItem,
+  PriceStatus,
+  PRICE_STATUS_LABELS,
+} from '../types/checkPrice';
 
 export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
   {
@@ -12,7 +25,9 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
       const value = cell.getValue() as PriceStatus;
       return (
         <RecordTableInlineCell>
-          <span className="text-xs font-medium">{PRICE_STATUS_LABELS[value]}</span>
+          <span className="text-xs font-medium">
+            {PRICE_STATUS_LABELS[value]}
+          </span>
         </RecordTableInlineCell>
       );
     },
@@ -23,8 +38,7 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
     header: () => <RecordTable.InlineHead label="Code" icon={IconCode} />,
     cell: ({ cell }) => {
       const row = cell.row.original;
-      const displayCode =
-        row.status === 'DELETE' ? row.code : row.Item_No;
+      const displayCode = row.status === 'DELETE' ? row.code : row.Item_No;
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={displayCode || ''} />
@@ -48,7 +62,9 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
   {
     id: 'endingDate',
     accessorKey: 'Ending_Date',
-    header: () => <RecordTable.InlineHead label="Ending Date" icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label="Ending Date" icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const row = cell.row.original;
       const value = row.status === 'DELETE' ? '' : row.Ending_Date;
@@ -62,7 +78,9 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
   {
     id: 'syncedStatus',
     accessorKey: 'isSynced',
-    header: () => <RecordTable.InlineHead label="Status" icon={IconCircleCheck} />,
+    header: () => (
+      <RecordTable.InlineHead label="Status" icon={IconCircleCheck} />
+    ),
     cell: ({ row }) => {
       const isSynced = row.original.isSynced;
       return (

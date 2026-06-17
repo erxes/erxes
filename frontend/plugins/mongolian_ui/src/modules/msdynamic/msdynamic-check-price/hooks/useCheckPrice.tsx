@@ -30,9 +30,7 @@ export const useCheckPrice = () => {
   const filteredItems = useMemo(
     () =>
       selectedFilter
-        ? (priceItems || []).filter(
-            (item) => item.status === selectedFilter,
-          )
+        ? (priceItems || []).filter((item) => item.status === selectedFilter)
         : priceItems,
     [priceItems, selectedFilter],
   );

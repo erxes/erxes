@@ -23,14 +23,10 @@ export const CheckPriceRecordTable = () => {
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={checkPrice}
-            />
+            <RecordTable.CursorBackwardSkeleton handleFetchMore={checkPrice} />
             {checking && <RecordTable.RowSkeleton rows={20} />}
             <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={checkPrice}
-            />
+            <RecordTable.CursorForwardSkeleton handleFetchMore={checkPrice} />
           </RecordTable.Body>
         </RecordTable>
         {!checking && filteredItems?.length === 0 && (
@@ -41,9 +37,7 @@ export const CheckPriceRecordTable = () => {
                   size={64}
                   className="text-muted-foreground mx-auto mb-4"
                 />
-                <h3 className="text-xl font-semibold mb-2">
-                  No prices yet
-                </h3>
+                <h3 className="text-xl font-semibold mb-2">No prices yet</h3>
                 <p className="text-muted-foreground max-w-md">
                   Select a brand and check prices to get started.
                 </p>

@@ -103,7 +103,13 @@ export const msdynamicCheckMutations = {
       throw new Error('MS Dynamic config not valid.');
     }
 
-    const { priceApi, username, password, pricePriority, brandId: cfgBrandId } = config;
+    const {
+      priceApi,
+      username,
+      password,
+      pricePriority,
+      brandId: cfgBrandId,
+    } = config;
 
     const productQry: any = { status: { $ne: 'deleted' } };
 
@@ -130,7 +136,10 @@ export const msdynamicCheckMutations = {
       productByCode[p.code] = p;
     }
 
-    const salesCodeFilter = (pricePriority || '').replace(/, /g, ',').split(',').filter(Boolean);
+    const salesCodeFilter = (pricePriority || '')
+      .replace(/, /g, ',')
+      .split(',')
+      .filter(Boolean);
     let filterSection = '';
     for (const sc of salesCodeFilter) {
       filterSection += `Sales_Code eq '${sc}' or `;
