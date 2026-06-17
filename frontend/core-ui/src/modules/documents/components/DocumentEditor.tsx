@@ -1,3 +1,4 @@
+import { DocumentAttributesDropdown } from '@/documents/components/DocumentAttributesDropdown';
 import { DocumentEditorSkeleton } from '@/documents/components/DocumentEditorSkeleton';
 import { useDocument } from '@/documents/hooks/useDocument';
 import { useDocumentAttributes } from '@/documents/hooks/useDocumentAttributes';
@@ -10,12 +11,14 @@ import { AttributeInEditor } from 'ui-modules';
 const EditorController = ({
   editor,
   onChange,
+  attributes,
+  loading,
 }: {
   editor: IBlockEditor;
   onChange: (value: string) => void;
+  attributes: any[];
+  loading: boolean;
 }) => {
-  const { attributes, loading } = useDocumentAttributes();
-
   useEffect(() => {
     const unsubscribe = editor.onChange((editor: IBlockEditor) => {
       onChange(JSON.stringify(editor.document));
@@ -25,20 +28,36 @@ const EditorController = ({
   }, [editor, onChange]);
 
   return (
-    <BlockEditor
-      editor={editor}
-      className={cn('flex-1 w-full overflow-y-auto')}
-    >
-      <AttributeInEditor
+    <>
+      {attributes.length > 0 && (
+        <div className="sticky top-0 z-10 flex items-center gap-1 px-9 py-2 border-b bg-background">
+          <DocumentAttributesDropdown
+            editor={editor}
+            attributes={attributes}
+            loading={loading}
+          />
+        </div>
+      )}
+      <BlockEditor
         editor={editor}
-        attributes={attributes}
-        loading={loading}
-      />
-    </BlockEditor>
+        className={cn('flex-1 w-full overflow-y-auto')}
+      >
+        <AttributeInEditor
+          editor={editor}
+          attributes={attributes}
+          loading={loading}
+        />
+      </BlockEditor>
+    </>
   );
 };
 
-const DocumentContentEditor = ({ editor, document }: any) => {
+const DocumentContentEditor = ({
+  editor,
+  document,
+  attributes,
+  attributesLoading,
+}: any) => {
   const { control } = useFormContext();
 
   useEffect(() => {
@@ -50,7 +69,11 @@ const DocumentContentEditor = ({ editor, document }: any) => {
       try {
         blocks = JSON.parse(document.content);
       } catch (_error) {
-        blocks = await editor.tryParseHTMLToBlocks(document.content);
+        try {
+          blocks = await editor.tryParseHTMLToBlocks(document.content);
+        } catch (_htmlError) {
+          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+        }
       }
 
       editor.replaceBlocks(editor.document, blocks);
@@ -65,7 +88,12 @@ const DocumentContentEditor = ({ editor, document }: any) => {
       control={control}
       rules={{ required: 'Content is required' }}
       render={({ field }) => (
-        <EditorController editor={editor} onChange={field.onChange} />
+        <EditorController
+          editor={editor}
+          onChange={field.onChange}
+          attributes={attributes}
+          loading={attributesLoading}
+        />
       )}
     />
   );
@@ -132,6 +160,7 @@ const DocumentTitleEditor = ({
 export const DocumentEditor = () => {
   const { document, loading } = useDocument();
   const editor = useBlockEditor({});
+  const { attributes, loading: attributesLoading } = useDocumentAttributes();
 
   const { control } = useFormContext();
 
@@ -168,7 +197,12 @@ export const DocumentEditor = () => {
             />
           )}
         />
-        <DocumentContentEditor editor={editor} document={document} />
+        <DocumentContentEditor
+          editor={editor}
+          document={document}
+          attributes={attributes}
+          attributesLoading={attributesLoading}
+        />
       </div>
     </div>
   );

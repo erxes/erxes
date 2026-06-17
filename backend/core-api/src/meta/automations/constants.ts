@@ -8,6 +8,7 @@ import {
 import {
   AI_AGENT_ACTION_OUTPUT,
   FIND_OBJECT_ACTION_OUTPUT,
+  MESSAGE_PRO_ACTION_OUTPUT,
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
   SEND_EMAIL_ACTION_OUTPUT,
   TRANSFORM_ACTION_OUTPUT,
@@ -197,6 +198,15 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       allowTargetFromActions: true,
       output: OUTGOING_WEBHOOK_ACTION_OUTPUT,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.MESSAGE_PRO,
+      icon: 'IconFileText',
+      label: 'Message Pro',
+      description: 'Render a selected document with the target record.',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      allowTargetFromActions: true,
+      output: MESSAGE_PRO_ACTION_OUTPUT,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
