@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
 import { mutations } from '../../graphql';
 import {
@@ -20,18 +20,31 @@ const GROUP_KEYS: { key: string; status: PriceStatus }[] = [
 const CHECK_MSD_PRICES = gql(mutations.toCheckPrices);
 const SYNC_MSD_PRICES = gql(mutations.toSyncPrices);
 
-export const useCheckPriceActions = () => {
+type CheckPricesData = { toCheckMsdPrices?: Record<string, { items: any[] }> };
+type CheckPricesVariables = { brandId: string };
+type SyncPricesData = { toSyncMsdPrices?: { status: string } };
+type SyncPricesVariables = { prices: IPriceItem[] };
+
+type Props = {
+  brandId: string;
+  syncableItems: IPriceItem[];
+};
+
+export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
   const setPriceItems = useSetAtom(priceItemsAtom);
   const setCheckResponseData = useSetAtom(checkResponseDataAtom);
   const setChecking = useSetAtom(checkingAtom);
   const setSyncing = useSetAtom(syncingAtom);
-  const priceItems = useAtomValue(priceItemsAtom);
   const { toast } = useToast();
 
-  const [checkMsdPrices] = useMutation(CHECK_MSD_PRICES);
-  const [syncMsdPrices] = useMutation(SYNC_MSD_PRICES);
+  const [checkMsdPrices] = useMutation<CheckPricesData, CheckPricesVariables>(
+    CHECK_MSD_PRICES,
+  );
+  const [syncMsdPrices] = useMutation<SyncPricesData, SyncPricesVariables>(
+    SYNC_MSD_PRICES,
+  );
 
-  const checkPrice = async (brandId: string) => {
+  const checkPrice = async () => {
     try {
       setChecking(true);
       const response = await checkMsdPrices({ variables: { brandId } });
@@ -69,27 +82,32 @@ export const useCheckPriceActions = () => {
     }
   };
 
-  const syncPrices = async (brandId: string) => {
-    if (!brandId) return;
+  const syncPrices = async () => {
+    if (!syncableItems.length) return;
     try {
       setSyncing(true);
-      const items = (priceItems || []).filter((i) => !i.isSynced);
 
-      if (items.length > 0) {
-        await syncMsdPrices({
-          variables: { prices: items },
-        });
+      await syncMsdPrices({ variables: { prices: syncableItems } });
 
-        setPriceItems(
-          (priceItems || []).map((i) =>
-            items.some((s) => s.Item_No === i.Item_No && s.code === i.code)
-              ? { ...i, isSynced: true }
-              : i,
-          ),
-        );
-      }
+      const refreshed = await checkMsdPrices({ variables: { brandId } });
+      const refreshedData = refreshed.data?.toCheckMsdPrices;
+      const nextItems = refreshedData
+        ? GROUP_KEYS.flatMap(({ key, status }) =>
+            (refreshedData[key]?.items || []).map((item: any) => ({
+              ...item,
+              status,
+              isSynced: false,
+            })),
+          )
+        : [];
 
-      toast({ title: 'Success', description: 'Prices synced successfully' });
+      setPriceItems(nextItems);
+      setCheckResponseData(refreshedData || null);
+
+      toast({
+        title: 'Success',
+        description: `${syncableItems.length} prices synced`,
+      });
     } catch (error: any) {
       toast({
         title: 'Error',

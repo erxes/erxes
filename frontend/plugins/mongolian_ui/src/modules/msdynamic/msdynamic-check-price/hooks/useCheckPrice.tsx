@@ -1,5 +1,5 @@
-import { useAtom, useAtomValue } from 'jotai';
-import { useMemo } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCheckPriceActions } from './useCheckPriceActions';
 import {
@@ -24,16 +24,8 @@ export const useCheckPrice = () => {
   const [selectedFilter, setSelectedFilter] = useAtom(selectedFilterAtom);
   const checking = useAtomValue(checkingAtom);
   const syncing = useAtomValue(syncingAtom);
-  const { checkPrice: checkPriceAction, syncPrices } = useCheckPriceActions();
-
-  const setBrand = (nextBrandId: string) => {
-    const params = new URLSearchParams(search);
-    params.set('brandId', nextBrandId);
-    navigate(`${pathname}?${params.toString()}`);
-  };
-
-  const checkPrice = () => checkPriceAction(brandId);
-  const handleSync = () => syncPrices(brandId);
+  const setPriceItems = useSetAtom(priceItemsAtom);
+  const setCheckResponseData = useSetAtom(checkResponseDataAtom);
 
   const filteredItems = useMemo(
     () =>
@@ -45,12 +37,37 @@ export const useCheckPrice = () => {
     [priceItems, selectedFilter],
   );
 
+  const syncableItems = useMemo(
+    () => filteredItems.filter((item) => !item.isSynced),
+    [filteredItems],
+  );
+
   const getCount = (status: PriceStatus): number =>
     priceItems?.filter((item) => item.status === status).length || 0;
+
+  const { checkPrice: checkPriceAction, syncPrices } = useCheckPriceActions({
+    brandId,
+    syncableItems,
+  });
+
+  useEffect(() => {
+    setPriceItems(null);
+    setCheckResponseData(null);
+  }, [brandId, setPriceItems, setCheckResponseData]);
+
+  const setBrand = (nextBrandId: string) => {
+    const params = new URLSearchParams(search);
+    params.set('brandId', nextBrandId);
+    navigate(`${pathname}?${params.toString()}`);
+  };
+
+  const checkPrice = () => checkPriceAction();
+  const handleSync = () => syncPrices();
 
   return {
     priceItems,
     filteredItems,
+    syncableItems,
     checkResponseData,
     checking,
     syncing,
