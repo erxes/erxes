@@ -1,3 +1,4 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { computeLearningStatus } from '~/mastra/learning/config';
 import { MastraLearningStatus } from '@/learning/@types/learning';
@@ -6,7 +7,7 @@ import { listKnowledge } from '~/mastra/datasets/knowledge';
 
 /** Throws unless a logged-in user is on the context; returns their _id. */
 function requireUserId(user: { _id?: string } | null | undefined): string {
-  if (!user?._id) throw new Error('Login required');
+  if (!user?._id) throw new ExpectedError('Login required');
   return user._id;
 }
 

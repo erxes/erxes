@@ -1,4 +1,5 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import { IMastraSchedule } from '@/schedule/@types/schedule';
 import { runSchedule } from '~/mastra/schedules/runner';
@@ -6,17 +7,18 @@ import { runSchedule } from '~/mastra/schedules/runner';
 /** Resolve the logged-in user's _id, rejecting unauthenticated calls. */
 const requireUserId = (user: IUserDocument | null | undefined): string => {
   const userId = user?._id;
-  if (!userId) throw new Error('Login required');
+  if (!userId) throw new ExpectedError('Login required');
   return userId;
 };
 
 /** The referenced agent must exist and be enabled before a schedule saves. */
 const assertAgentRunnable = async (models: IModels, agentId: unknown) => {
   if (typeof agentId !== 'string' || !agentId) {
-    throw new Error('agentId must be a non-empty string');
+    throw new ExpectedError('agentId must be a non-empty string');
   }
   const agent = await models.MastraAgent.findOne({ agentId, isEnabled: true });
-  if (!agent) throw new Error(`Agent "${agentId}" not found or disabled`);
+  if (!agent)
+    throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
 };
 
 /** Mutations for scheduled agent runs. */

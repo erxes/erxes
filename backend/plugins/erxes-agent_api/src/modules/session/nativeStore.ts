@@ -8,6 +8,7 @@
 // per-turn artifacts live in thread.metadata.agentId and the namespaced
 // message content.metadata.erxes blob (written by persistTurn's patch).
 // ---------------------------------------------------------------------------
+import { ExpectedError } from 'erxes-api-shared/utils';
 import {
   getMastraMemory,
   getMastraStore,
@@ -76,7 +77,9 @@ function toErxesMessage(m: NativeMessage): ErxesMessage {
   // learningIdsInContext) + attachments were stored verbatim under
   // content.metadata.erxes by persistTurn's patch; split attachments back out
   // to its own field for the UI.
-  const erxes = { ...((m.content?.metadata?.erxes ?? {}) as Record<string, unknown>) };
+  const erxes = {
+    ...((m.content?.metadata?.erxes ?? {}) as Record<string, unknown>),
+  };
   const attachments = erxes.attachments ?? null;
   delete erxes.attachments;
   return {
@@ -137,7 +140,7 @@ export async function getOwnedThreadMessages(
   // Ownership: getThreadById filters by resourceId, so another user's thread
   // (or a bot thread) reads back as null — reported as "not found", no leak.
   const thread = await memory.getThreadById({ threadId, resourceId } as never);
-  if (!thread) throw new Error('Thread not found');
+  if (!thread) throw new ExpectedError('Thread not found');
   const res = (await memory.recall({
     threadId,
     resourceId,
@@ -162,13 +165,16 @@ export async function renameOwnedThread(
     threadId,
     resourceId,
   } as never)) as NativeThread | null;
-  if (!thread) throw new Error('Thread not found');
+  if (!thread) throw new ExpectedError('Thread not found');
   const updated = (await memory.updateThread({
     id: threadId,
     title,
     metadata: { ...(thread.metadata ?? {}), titleSource: 'manual' },
   } as never)) as NativeThread;
-  return toErxesThread(updated, await countMessages(memory, threadId, resourceId));
+  return toErxesThread(
+    updated,
+    await countMessages(memory, threadId, resourceId),
+  );
 }
 
 /** Delete a thread the caller owns (and its messages + vectors). */
@@ -180,7 +186,7 @@ export async function removeOwnedThread(
   const memory = await getMastraMemory(subdomain);
   const resourceId = scopedResource(subdomain, userId);
   const thread = await memory.getThreadById({ threadId, resourceId } as never);
-  if (!thread) throw new Error('Thread not found');
+  if (!thread) throw new ExpectedError('Thread not found');
   await memory.deleteThread(threadId);
   return { ok: 1 };
 }
@@ -194,7 +200,7 @@ export async function assertOwnedThread(
   const memory = await getMastraMemory(subdomain);
   const resourceId = scopedResource(subdomain, userId);
   const thread = await memory.getThreadById({ threadId, resourceId } as never);
-  if (!thread) throw new Error('Thread not found');
+  if (!thread) throw new ExpectedError('Thread not found');
 }
 
 /** Current native title for a thread (for the SSE thread_title push). */
@@ -334,7 +340,7 @@ export async function findOwnedAssistantMessage(
   };
   const msg = messages?.[0];
   if (!msg || msg.role !== 'assistant' || !msg.threadId) {
-    throw new Error('Message not found');
+    throw new ExpectedError('Message not found');
   }
   // Ownership: the message's thread must belong to this user (resource scope).
   const memory = await getMastraMemory(subdomain);
@@ -343,7 +349,7 @@ export async function findOwnedAssistantMessage(
     threadId: msg.threadId,
     resourceId,
   } as never);
-  if (!thread) throw new Error('Message not found');
+  if (!thread) throw new ExpectedError('Message not found');
 
   const erxes = (msg.content?.metadata?.erxes ?? {}) as {
     learningIdsInContext?: string[];

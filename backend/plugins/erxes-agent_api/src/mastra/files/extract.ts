@@ -1,4 +1,5 @@
 import { extname } from 'path';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import {
   decodeHtmlEntities,
   stripAllTags,
@@ -206,18 +207,18 @@ export async function extractFileText(params: {
   }
 
   if (isImageType(name, mimeType)) {
-    throw new Error(
+    throw new ExpectedError(
       'This is an image — it is shown to the model directly with the message; there is no text to extract.',
     );
   }
 
   if (ext === 'doc') {
-    throw new Error(
+    throw new ExpectedError(
       'Legacy .doc files are not supported. Ask the user to re-save the document as .docx or .pdf.',
     );
   }
 
-  throw new Error(
+  throw new ExpectedError(
     `Unsupported file format "${
       ext || mimeType || 'unknown'
     }". Supported: pdf, docx, xlsx, csv, txt, md, json, html.`,

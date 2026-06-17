@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { workflowSchema } from '@/workflow/db/definitions/workflow';
 import {
@@ -27,7 +28,7 @@ const assertStructurallyValid = (definition: unknown) => {
   const check = validateDefinition(definition);
   if (!check.ok) {
     const first = check.errors[0];
-    throw new Error(
+    throw new ExpectedError(
       `Invalid workflow definition: ${first.path}: ${first.message}`,
     );
   }
@@ -37,7 +38,7 @@ export const loadWorkflowClass = (_models: IModels) => {
   class MastraWorkflow {
     public static async getWorkflow(_id: string) {
       const workflow = await _models.MastraWorkflow.findOne({ _id });
-      if (!workflow) throw new Error('Workflow not found');
+      if (!workflow) throw new ExpectedError('Workflow not found');
       return workflow;
     }
 
@@ -72,7 +73,7 @@ export const loadWorkflowClass = (_models: IModels) => {
         { $set: { ...doc }, ...(versionBump ? { $inc: { version: 1 } } : {}) },
         { new: true },
       );
-      if (!updated) throw new Error('Workflow not found');
+      if (!updated) throw new ExpectedError('Workflow not found');
       return updated;
     }
 
@@ -82,7 +83,7 @@ export const loadWorkflowClass = (_models: IModels) => {
         { $set: { isEnabled } },
         { new: true },
       );
-      if (!updated) throw new Error('Workflow not found');
+      if (!updated) throw new ExpectedError('Workflow not found');
       return updated;
     }
 

@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { workflowRunSchema } from '@/workflow/db/definitions/run';
 import {
@@ -29,13 +30,13 @@ export const loadWorkflowRunClass = (_models: IModels) => {
   class MastraWorkflowRun {
     public static async getRun(_id: string) {
       const run = await _models.MastraWorkflowRun.findOne({ _id });
-      if (!run) throw new Error('Workflow run not found');
+      if (!run) throw new ExpectedError('Workflow run not found');
       return run;
     }
 
     public static async getRunByRunId(runId: string) {
       const run = await _models.MastraWorkflowRun.findOne({ runId });
-      if (!run) throw new Error('Workflow run not found');
+      if (!run) throw new ExpectedError('Workflow run not found');
       return run;
     }
 
@@ -52,7 +53,7 @@ export const loadWorkflowRunClass = (_models: IModels) => {
         { $set: patch },
         { new: true },
       );
-      if (!updated) throw new Error('Workflow run not found');
+      if (!updated) throw new ExpectedError('Workflow run not found');
       return updated;
     }
 
