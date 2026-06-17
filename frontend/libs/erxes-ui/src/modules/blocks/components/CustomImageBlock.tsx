@@ -116,7 +116,6 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
             )}
             style={imgLoaded ? undefined : { display: 'none' }}
             contentEditable={false}
-            role="button"
             tabIndex={0}
             onDoubleClick={() => setPreviewOpen(true)}
             onKeyDown={(e) => {
