@@ -470,9 +470,8 @@ export const TicketCustomPropertyRadarChart = memo(
     );
     const maxCount = useMemo(
       () =>
-        Math.ceil(
-          Math.max(...properties.map((p) => p.count || 0), 0) / 10,
-        ) * 10 || 100,
+        Math.ceil(Math.max(...properties.map((p) => p.count || 0), 0) / 10) *
+          10 || 100,
       [properties],
     );
     const maxPct = useMemo(
@@ -573,7 +572,11 @@ export const TicketCustomPropertyTableChart = memo(
     ];
     return (
       <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
-        <RecordTable.Provider data={properties} columns={columns} className="m-3">
+        <RecordTable.Provider
+          data={properties}
+          columns={columns}
+          className="m-3"
+        >
           <RecordTable.Scroll>
             <RecordTable>
               <RecordTable.Header />
