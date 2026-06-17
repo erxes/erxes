@@ -14,4 +14,6 @@ export interface IWebsite {
   language?: string;
   postUrlField?: '_id' | 'count' | 'slug';
   postUrlPrefix?: string;
+  accessPolicy?: 'open' | 'assigned';
+  assignedMemberIds?: string[];
 }
