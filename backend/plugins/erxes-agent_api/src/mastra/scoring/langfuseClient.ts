@@ -35,7 +35,6 @@ function getClient(): Langfuse | null {
  * succeeds even if the central server is unreachable.
  */
 export async function pushUserScore(params: {
-  subdomain?: string;
   traceId: string | null | undefined;
   name: string;
   value: number;
@@ -51,7 +50,7 @@ export async function pushUserScore(params: {
       value: params.value,
       comment: params.comment,
       dataType: 'NUMERIC',
-    } as never);
+    });
     await lf.flushAsync();
   } catch (err) {
     // eslint-disable-next-line no-console

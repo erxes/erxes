@@ -134,7 +134,6 @@ export const learningMutations = {
     // failed save never emits a phantom score. Fire-and-forget + self-guarding:
     // no trace id or no Langfuse configured → no-op, feedback still succeeds.
     void pushUserScore({
-      subdomain,
       traceId: langfuseTraceId,
       name: 'user-feedback',
       value: args.rating,
