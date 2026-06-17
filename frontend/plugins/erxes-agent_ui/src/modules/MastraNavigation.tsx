@@ -1,4 +1,3 @@
-import { useEffect, useReducer } from 'react';
 import {
   IconRobot,
   IconMessageCircle,
@@ -7,14 +6,11 @@ import {
   IconCalendarTime,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
-import { chatStore } from '~/pages/chat/chatStore';
+import { useHasAnyActivity } from '~/modules/chat/hooks/useChatView';
 
 const ChatNavItem = () => {
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  useEffect(() => chatStore.subscribe(forceUpdate), []);
-
   // Show dot when any agent is thinking or has an unread AI reply
-  const hasAnyUnread = chatStore.hasAnyActivity();
+  const hasAnyUnread = useHasAnyActivity();
 
   return (
     <div className="relative">
@@ -50,7 +46,7 @@ export const MastraNavigation = () => {
         path="erxes-agent/schedules"
       />
       <NavigationMenuLinkItem
-        name="Agent knowledge"
+        name="Agent learnings"
         icon={IconBulb}
         path="erxes-agent/learnings"
       />

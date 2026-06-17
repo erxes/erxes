@@ -1,4 +1,5 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import { validateDefinition } from '~/mastra/workflows/dsl';
 import { buildManualEnvelope } from '~/mastra/workflows/envelope';
@@ -10,7 +11,7 @@ import { IMastraWorkflow } from '@/workflow/@types/workflow';
 /** Resolve the logged-in user's _id, rejecting unauthenticated calls. */
 const requireUserId = (user: IUserDocument | null | undefined): string => {
   const userId = user?._id;
-  if (!userId) throw new Error('Login required');
+  if (!userId) throw new ExpectedError('Login required');
   return userId;
 };
 
@@ -24,7 +25,7 @@ const validateWithRegistry = async (models: IModels, definition: unknown) => {
     const lines = result.errors
       .map((issue) => `${issue.path}: ${issue.message}`)
       .join('\n');
-    throw new Error(`Workflow definition is invalid:\n${lines}`);
+    throw new ExpectedError(`Workflow definition is invalid:\n${lines}`);
   }
 };
 

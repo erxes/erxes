@@ -17,6 +17,13 @@ export interface IMastraAgentRow {
   createdAt: string;
 }
 
+interface IMastraAgentsMainResponse {
+  mastraAgentsMain: {
+    list: IMastraAgentRow[];
+    totalCount: number;
+  } | null;
+}
+
 /**
  * DB-backed, scroll-paginated agent list for the Agents settings table.
  *
@@ -33,11 +40,12 @@ export const useMastraAgentList = (searchValue?: string) => {
     searchValue: searchValue || undefined,
   };
 
-  const { data, loading, fetchMore, refetch } = useQuery(MASTRA_AGENTS_MAIN, {
-    variables,
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only',
-  });
+  const { data, loading, fetchMore, refetch } =
+    useQuery<IMastraAgentsMainResponse>(MASTRA_AGENTS_MAIN, {
+      variables,
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+    });
 
   const agentsList = useMemo<IMastraAgentRow[]>(
     () => data?.mastraAgentsMain?.list || [],

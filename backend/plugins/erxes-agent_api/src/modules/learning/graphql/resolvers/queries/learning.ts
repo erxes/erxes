@@ -1,12 +1,12 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { computeLearningStatus } from '~/mastra/learning/config';
 import { MastraLearningStatus } from '@/learning/@types/learning';
 import { assertOwnedThread } from '@/session/nativeStore';
-import { listKnowledge } from '~/mastra/datasets/knowledge';
 
 /** Throws unless a logged-in user is on the context; returns their _id. */
 function requireUserId(user: { _id?: string } | null | undefined): string {
-  if (!user?._id) throw new Error('Login required');
+  if (!user?._id) throw new ExpectedError('Login required');
   return user._id;
 }
 
@@ -20,21 +20,6 @@ export const learningCustomResolvers = {
 };
 
 export const learningQueries = {
-  // Read the single-source "Agent Knowledge (erxes)" Mastra dataset (the same
-  // one Studio reads). Each item is a 👍-approved turn (question → approved
-  // answer). Written live by the thumbs feedback mutation — this is a pure read,
-  // no compute/sync. See docs/LANGFUSE-EVAL-HANDOFF.md §9.
-  mastraKnowledgeDataset: async (
-    _: unknown,
-    args: { limit?: number },
-    { user, subdomain, checkPermission }: IContext,
-  ) => {
-    await checkPermission('learningView');
-    requireUserId(user);
-    const limit = Math.min(Math.max(args.limit ?? 500, 1), 1000);
-    return listKnowledge(subdomain, limit);
-  },
-
   mastraLearnings: async (
     _: unknown,
     args: {

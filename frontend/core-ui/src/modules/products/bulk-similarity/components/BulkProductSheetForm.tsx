@@ -18,6 +18,7 @@ interface BulkProductSheetFormProps {
   similarity?: IProductSimilarity;
   saving: boolean;
   onSave: (doc: IBulkSaveInput) => Promise<unknown>;
+  callBack?: () => void;
 }
 
 interface BulkProductSheetFieldsProps {
@@ -45,7 +46,7 @@ const BulkProductSheetFields = ({
     <>
       <Sheet.Header className="flex-row items-center gap-3 space-y-0 p-5 border-b">
         <Sheet.Title>
-          {similarity ? 'Edit similarity' : 'New similarity'}
+          {similarity?._id ? 'Edit similarity' : 'New similarity'}
         </Sheet.Title>
         <Sheet.Close />
         <Sheet.Description className="sr-only">
@@ -63,7 +64,7 @@ const BulkProductSheetFields = ({
                 <VariantFieldPicker />
               </InfoCard.Content>
             </InfoCard>
-            <div className="absolute right-3 top-0.5">
+            <div className="top-0.5 right-3 absolute">
               <VariantFieldAddButton />
             </div>
           </div>
@@ -80,7 +81,7 @@ const BulkProductSheetFields = ({
       </Sheet.Content>
 
       <Sheet.Footer className="flex-col items-stretch sm:items-stretch gap-2 bg-muted p-2.5 h-auto shrink-0">
-        <div className="flex gap-1 justify-end">
+        <div className="flex justify-end gap-1">
           <Button
             type="button"
             variant="outline"
@@ -105,17 +106,19 @@ export const BulkProductSheetForm = ({
   similarity,
   saving,
   onSave,
+  callBack,
 }: BulkProductSheetFormProps) => {
   const { form, fields, buildSavePayload } = useBulkProductForm(similarity);
 
   const handleSave = async (values: BulkSimilarityFormValues) => {
     await onSave(buildSavePayload(values));
     onOpenChange(false);
+    callBack?.();
   };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal>
-      <Sheet.View className="p-0 sm:max-w-5xl">
+      <Sheet.View className="p-0 w-[70%] md:w-[70%] lg:w-3/4 sm:max-w-screen-2xl">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSave)}

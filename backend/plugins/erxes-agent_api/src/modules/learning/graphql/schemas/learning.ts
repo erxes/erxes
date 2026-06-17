@@ -48,7 +48,6 @@ export const queries = `
   mastraLearningStats: JSON
   mastraLearningStatus: MastraLearningStatus
   mastraMessageFeedbacks(threadId: String!): JSON
-  mastraKnowledgeDataset(limit: Int): JSON
 `;
 
 export const mutations = `

@@ -1,3 +1,4 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { prepareChatTurn, persistTurn, runAgentTurn } from '@/agent/turn';
 
@@ -39,7 +40,7 @@ export const agentQueries = {
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('agentsChat');
-    if (!user?._id) throw new Error('Login required');
+    if (!user?._id) throw new ExpectedError('Login required');
 
     const prepared = await prepareChatTurn({
       models,

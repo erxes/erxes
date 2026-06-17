@@ -1,10 +1,11 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { renameOwnedThread, removeOwnedThread } from '@/session/nativeStore';
 
 /** Resolve the logged-in user's _id, rejecting unauthenticated calls. */
 function requireUserId(user: IUserDocument | null | undefined): string {
-  if (!user?._id) throw new Error('Login required');
+  if (!user?._id) throw new ExpectedError('Login required');
   return user._id;
 }
 

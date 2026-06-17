@@ -1,10 +1,10 @@
 import {
   CurrencyCode,
   CurrencyField,
+  Editor,
   Form,
   InfoCard,
   Input,
-  Textarea,
 } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { SelectBrand } from 'ui-modules/modules/brands';
@@ -183,9 +183,11 @@ export const BulkBaseInfo = () => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Barcode description</Form.Label>
-                <Form.Control>
-                  <Input {...field} value={field.value || ''} />
-                </Form.Control>
+                <Editor
+                  initialContent={field.value || ''}
+                  onChange={field.onChange}
+                  className="h-auto"
+                />
                 <Form.Message />
               </Form.Item>
             )}
@@ -196,13 +198,11 @@ export const BulkBaseInfo = () => {
             render={({ field }) => (
               <Form.Item className="flex flex-col flex-auto">
                 <Form.Label>Description</Form.Label>
-                <Form.Control>
-                  <Textarea
-                    {...field}
-                    value={field.value || ''}
-                    className="flex-auto h-auto"
-                  />
-                </Form.Control>
+                <Editor
+                  initialContent={field.value || ''}
+                  onChange={field.onChange}
+                  className="flex-auto h-auto"
+                />
                 <Form.Message />
               </Form.Item>
             )}

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { collectRefs, checkRef, findMalformedRefs } from './refs';
 import { parseExpr, exprRefs } from './expr';
 import type { OperationRegistry } from '../tools/operationRegistry';
@@ -444,7 +445,7 @@ export function buildOutputZod(
         .map((value) => value.trim())
         .filter(Boolean);
       if (!values.length) {
-        throw new Error(
+        throw new ExpectedError(
           `output field '${key}': enum spec '${raw}' must include at least one value`,
         );
       }

@@ -1,5 +1,5 @@
 import { FilterQuery, Model } from 'mongoose';
-import { escapeRegExp } from 'erxes-api-shared/utils';
+import { escapeRegExp, ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { agentSchema } from '@/agent/db/definitions/agent';
 import { IMastraAgent, IMastraAgentDocument } from '@/agent/@types/agent';
@@ -38,7 +38,7 @@ export const loadAgentClass = (_models: IModels) => {
     /** Fetch one agent config by _id; throws when it does not exist. */
     public static async getAgent(_id: string) {
       const agent = await _models.MastraAgent.findOne({ _id });
-      if (!agent) throw new Error('Agent not found');
+      if (!agent) throw new ExpectedError('Agent not found');
       return agent;
     }
 
@@ -94,7 +94,7 @@ export const loadAgentClass = (_models: IModels) => {
         { $set: doc },
         { new: true },
       );
-      if (!updated) throw new Error('Agent not found');
+      if (!updated) throw new ExpectedError('Agent not found');
       invalidateAgentCache(_id);
       return updated;
     }

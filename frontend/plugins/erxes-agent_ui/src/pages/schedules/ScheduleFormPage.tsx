@@ -24,17 +24,15 @@ import {
   toast,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import {
-  MASTRA_AGENTS,
-  MASTRA_SCHEDULE,
-  MASTRA_SCHEDULES,
-} from '~/graphql/queries';
+import { MASTRA_SCHEDULE, MASTRA_SCHEDULES } from '~/graphql/queries';
 import {
   MASTRA_SCHEDULE_CREATE,
   MASTRA_SCHEDULE_UPDATE,
 } from '~/graphql/mutations';
 import { FormSection } from '~/components/FormLayout';
 import { ScheduleTimingFields } from './ScheduleTimingFields';
+import { useScheduleAgents } from './hooks/useScheduleAgents';
+import { IScheduleQueryResponse } from './types';
 
 const scheduleFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -64,12 +62,6 @@ const DEFAULT_VALUES: ScheduleFormValues = {
   isEnabled: false,
 };
 
-interface IAgentOption {
-  agentId: string;
-  name: string;
-  isEnabled: boolean;
-}
-
 /** Combobox over the enabled agents; the schedule runs against the pick. */
 const SelectAgent = ({
   value,
@@ -78,11 +70,8 @@ const SelectAgent = ({
   value: string;
   onValueChange: (agentId: string) => void;
 }) => {
-  const { data, loading } = useQuery(MASTRA_AGENTS);
+  const { agents, loading } = useScheduleAgents();
   const [open, setOpen] = useState(false);
-  const agents: IAgentOption[] = (data?.mastraAgents || []).filter(
-    (a: IAgentOption) => a.isEnabled,
-  );
   const selected = agents.find((a) => a.agentId === value);
 
   return (
@@ -133,10 +122,13 @@ export const ScheduleFormPage = () => {
     defaultValues: DEFAULT_VALUES,
   });
 
-  const { data: scheduleData } = useQuery(MASTRA_SCHEDULE, {
-    variables: { _id: id },
-    skip: !isEdit,
-  });
+  const { data: scheduleData } = useQuery<IScheduleQueryResponse>(
+    MASTRA_SCHEDULE,
+    {
+      variables: { _id: id },
+      skip: !isEdit,
+    },
+  );
 
   useEffect(() => {
     if (isEdit && scheduleData?.mastraSchedule) {

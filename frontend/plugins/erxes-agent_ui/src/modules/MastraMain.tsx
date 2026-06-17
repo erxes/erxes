@@ -14,7 +14,7 @@ const AgentFormPage = lazy(() =>
 );
 
 const ChatPage = lazy(() =>
-  import('~/pages/chat/ChatPage').then((m) => ({ default: m.ChatPage })),
+  import('~/modules/chat/ChatPage').then((m) => ({ default: m.ChatPage })),
 );
 
 const WorkflowsIndexPage = lazy(() =>
