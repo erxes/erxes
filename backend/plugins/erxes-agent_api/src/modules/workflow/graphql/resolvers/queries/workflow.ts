@@ -1,10 +1,11 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 /** Resolve the logged-in user's _id, rejecting unauthenticated calls. */
 const requireUserId = (user: IUserDocument | null | undefined): string => {
   const userId = user?._id;
-  if (!userId) throw new Error('Login required');
+  if (!userId) throw new ExpectedError('Login required');
   return userId;
 };
 

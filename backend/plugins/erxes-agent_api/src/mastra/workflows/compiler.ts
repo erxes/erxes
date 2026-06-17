@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import {
   WorkflowDefinition,
   WorkflowStep,
@@ -124,7 +125,7 @@ export function compileDefinition(
   const check = validateDefinition(definition);
   if (!check.ok) {
     const first = check.errors[0];
-    throw new Error(
+    throw new ExpectedError(
       `Cannot compile invalid definition: ${first.path}: ${first.message}`,
     );
   }
@@ -180,7 +181,7 @@ export function compileDefinition(
             // re-attempt it).
             const parsed = buildOutputZod(step.outputSchema).safeParse(raw);
             if (!parsed.success) {
-              throw new Error(
+              throw new ExpectedError(
                 `agent step "${
                   step.id
                 }" returned output not matching its schema: ${parsed.error.issues

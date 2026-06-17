@@ -50,8 +50,6 @@ export const generateCodeSuffix = (
     .filter(Boolean)
     .join('-');
 
-// regenerates rows for the current property selection, carrying over
-// user edits (code/unitPrice/isExcluded/isStar) for combinations that still exist
 export const buildRows = ({
   fieldIds,
   selection,
@@ -60,6 +58,7 @@ export const buildRows = ({
   starProductId,
   labelOf,
   previousRows = [],
+  baseCodeDirty = false,
 }: {
   fieldIds: string[];
   selection: Record<string, string[]>;
@@ -68,6 +67,7 @@ export const buildRows = ({
   starProductId?: string;
   labelOf: (fieldId: string, value: string) => string;
   previousRows?: BulkRowFormValue[];
+  baseCodeDirty?: boolean;
 }): BulkRowFormValue[] => {
   const combinations = generateCombinations(fieldIds, selection);
 
@@ -87,15 +87,15 @@ export const buildRows = ({
     const product = productByKey.get(key);
     const previous = previousByKey.get(key);
     const suffix = generateCodeSuffix(fieldIds, combination, labelOf);
-    const autoCode = product?.code ?? `${code}${suffix}`;
+    const derivedCode = `${code}${suffix}`;
+    const autoCode = baseCodeDirty ? derivedCode : (product?.code ?? derivedCode);
 
     if (previous) {
+      if (previous.codeEdited) return previous;
       return {
         ...previous,
         productId: product?._id ?? previous.productId,
-        // keep the user's hand-typed code; otherwise re-derive from the
-        // current base code + field suffix so base-code edits propagate
-        code: previous.codeEdited ? previous.code : autoCode,
+        code: autoCode,
       };
     }
 

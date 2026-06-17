@@ -1,3 +1,4 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   MastraLearningStatus,
@@ -18,7 +19,7 @@ import { recordKnowledgeFromFeedback } from '~/mastra/datasets/knowledge';
 
 /** Throws unless a logged-in user is on the context; returns their _id. */
 function requireUserId(user: { _id?: string } | null | undefined): string {
-  if (!user?._id) throw new Error('Login required');
+  if (!user?._id) throw new ExpectedError('Login required');
   return user._id;
 }
 
@@ -76,7 +77,7 @@ export const learningMutations = {
   ) => {
     const userId = requireUserId(user);
     const next = STATUSES.find((s) => s === status);
-    if (!next) throw new Error(`Invalid status "${status}"`);
+    if (!next) throw new ExpectedError(`Invalid status "${status}"`);
     const learning = await models.MastraLearning.setStatus(_id, next, userId);
     await setLearningVectorStatusSafe(learningTenant(subdomain), _id, next);
     return learning;
@@ -111,14 +112,17 @@ export const learningMutations = {
   ) => {
     const userId = requireUserId(user);
     if (args.rating !== 1 && args.rating !== -1) {
-      throw new Error('rating must be 1 or -1');
+      throw new ExpectedError('rating must be 1 or -1');
     }
 
     // Resolve the assistant message from the native store by its id: verifies
     // it is the caller's own assistant reply (resource-scope ownership) and
     // returns the learnings that were in that turn's context.
-    const { threadId, learningIdsInContext: learningIds, langfuseTraceId } =
-      await findOwnedAssistantMessage(subdomain, userId, args.messageId);
+    const {
+      threadId,
+      learningIdsInContext: learningIds,
+      langfuseTraceId,
+    } = await findOwnedAssistantMessage(subdomain, userId, args.messageId);
 
     const { previousRating } = await models.MastraFeedback.saveFeedback({
       threadId,

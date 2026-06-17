@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { scheduleSchema } from '@/schedule/db/definitions/schedule';
 import {
@@ -38,7 +39,7 @@ export const loadScheduleClass = (_models: IModels) => {
     /** Fetch one schedule; throws when it does not exist. */
     public static async getSchedule(_id: string) {
       const schedule = await _models.MastraSchedule.findOne({ _id });
-      if (!schedule) throw new Error('Schedule not found');
+      if (!schedule) throw new ExpectedError('Schedule not found');
       return schedule;
     }
 
@@ -71,7 +72,7 @@ export const loadScheduleClass = (_models: IModels) => {
         { $set: patch },
         { new: true, runValidators: true },
       );
-      if (!updated) throw new Error('Schedule not found');
+      if (!updated) throw new ExpectedError('Schedule not found');
       return updated;
     }
 
@@ -82,7 +83,7 @@ export const loadScheduleClass = (_models: IModels) => {
         { $set: { isEnabled } },
         { new: true },
       );
-      if (!updated) throw new Error('Schedule not found');
+      if (!updated) throw new ExpectedError('Schedule not found');
       return updated;
     }
 
