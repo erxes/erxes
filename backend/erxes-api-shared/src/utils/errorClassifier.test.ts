@@ -35,6 +35,7 @@ describe('errorClassifier', () => {
       ['Client portal user required'],
       ['You do not have permission to manage this identifier'],
       ['Access denied: You do not have access to this private pipeline'],
+      ['You do not have access to this CMS'],
       ['This operation is only allowed in saas version.'],
       ['Start date must be before end date'],
     ])('should classify auth/business noise "%s" as EXPECTED', (msg) => {
