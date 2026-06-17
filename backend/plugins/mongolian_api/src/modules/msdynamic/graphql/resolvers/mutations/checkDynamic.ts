@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { IContext, generateModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+<<<<<<< HEAD
 
 /**
  * Get DYNAMIC config from mnconfigs module
@@ -58,6 +59,9 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
 
 return pickDynamicConfig(normalizeDynamicConfigs(configsMap), brandId);
 };
+=======
+import { getDynamicConfig } from '../../../dynamicConfig';
+>>>>>>> f5ec525f26 (sonar)
 
 /**
  * ============================

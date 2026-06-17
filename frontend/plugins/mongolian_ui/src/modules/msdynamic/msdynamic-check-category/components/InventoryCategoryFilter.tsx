@@ -3,6 +3,12 @@ import { Button } from 'erxes-ui';
 import { useCheckCategory } from '../hooks/useCheckCategory';
 import { CategoryFilterType } from '../types/inventoryCategory';
 
+const categoryFilters: { label: string; value: CategoryFilterType }[] = [
+  { label: 'Create Categories', value: 'create' },
+  { label: 'Update Categories', value: 'update' },
+  { label: 'Delete Categories', value: 'delete' },
+];
+
 export const InventoryCategoryFilter = () => {
   const { selectedFilter, items, setSelectedFilter } = useCheckCategory();
 
@@ -16,26 +22,15 @@ export const InventoryCategoryFilter = () => {
 
   return (
     <div className="flex gap-2">
-      <Button
-        variant={selectedFilter === 'create' ? 'default' : 'outline'}
-        onClick={() => handleFilterClick('create')}
-      >
-        Create Categories ({getCount('create')})
-      </Button>
-
-      <Button
-        variant={selectedFilter === 'update' ? 'default' : 'outline'}
-        onClick={() => handleFilterClick('update')}
-      >
-        Update Categories ({getCount('update')})
-      </Button>
-
-      <Button
-        variant={selectedFilter === 'delete' ? 'default' : 'outline'}
-        onClick={() => handleFilterClick('delete')}
-      >
-        Delete Categories ({getCount('delete')})
-      </Button>
+      {categoryFilters.map((filter) => (
+        <Button
+          key={filter.value}
+          variant={selectedFilter === filter.value ? 'default' : 'outline'}
+          onClick={() => handleFilterClick(filter.value)}
+        >
+          {filter.label} ({getCount(filter.value)})
+        </Button>
+      ))}
     </div>
   );
 };
