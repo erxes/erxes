@@ -12,11 +12,11 @@ export interface IPriceItem {
 }
 
 export interface ICheckPriceResponse {
-  update?: { items: any[] };
-  match?: { items: any[] };
-  create?: { items: any[] };
-  delete?: { items: any[] };
-  error?: { items: any[] };
+  update?: { items: IPriceItem[] };
+  match?: { items: IPriceItem[] };
+  create?: { items: IPriceItem[] };
+  delete?: { items: IPriceItem[] };
+  error?: { items: IPriceItem[] };
 }
 
 export const PRICE_STATUS_LABELS: Record<PriceStatus, string> = {

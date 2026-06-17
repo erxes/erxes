@@ -37,18 +37,30 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
  * MS Dynamic Sync Mutations
  * ============================
  */
+interface ISyncPriceInput {
+  Item_No?: string;
+  code?: string;
+  Unit_Price?: number;
+  unitPrice?: number;
+}
+
 export const msdynamicSyncMutations = {
   async toSyncMsdPrices(
     _root,
-    { prices }: { prices: any[] },
+    { prices }: { prices: ISyncPriceInput[] },
     { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('msdSync');
 
+    const results = { succeeded: 0, failed: 0, skipped: 0 };
+
     for (const price of prices || []) {
       try {
         const code = price.Item_No || price.code;
-        if (!code) continue;
+        if (!code) {
+          results.skipped++;
+          continue;
+        }
 
         const product = await sendTRPCMessage({
           subdomain,
@@ -59,7 +71,16 @@ export const msdynamicSyncMutations = {
           defaultValue: null,
         });
 
-        if (!product) continue;
+        if (!product) {
+          results.skipped++;
+          continue;
+        }
+
+        const newPrice = price.Unit_Price ?? price.unitPrice;
+        if (newPrice == null) {
+          results.skipped++;
+          continue;
+        }
 
         await sendTRPCMessage({
           subdomain,
@@ -68,16 +89,19 @@ export const msdynamicSyncMutations = {
           action: 'updateProduct',
           input: {
             _id: product._id,
-            doc: { unitPrice: price.Unit_Price || price.unitPrice || 0 },
+            doc: { unitPrice: newPrice },
           },
           defaultValue: {},
         });
-      } catch (e: any) {
-        console.error('toSyncMsdPrices error:', e?.message);
+
+        results.succeeded++;
+      } catch (e) {
+        console.error('toSyncMsdPrices error:', e instanceof Error ? e.message : e);
+        results.failed++;
       }
     }
 
-    return { status: 'success' };
+    return { status: 'success', ...results };
   },
 
   async toSyncMsdProducts(

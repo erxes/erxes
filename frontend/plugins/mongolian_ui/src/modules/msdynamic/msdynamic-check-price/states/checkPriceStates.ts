@@ -4,7 +4,7 @@ import { IPriceItem, PriceStatus } from '../types/checkPrice';
 export const priceItemsAtom = atom<IPriceItem[] | null>(null);
 export const checkResponseDataAtom = atom<Record<
   string,
-  { items: any[] }
+  { items: IPriceItem[] }
 > | null>(null);
 export const selectedFilterAtom = atom<PriceStatus | null>('UPDATE');
 export const checkingAtom = atom(false);

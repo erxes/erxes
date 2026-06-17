@@ -111,7 +111,9 @@ export const msdynamicCheckMutations = {
       brandId: cfgBrandId,
     } = config;
 
-    const productQry: any = { status: { $ne: 'deleted' } };
+    const productQry: { status: { $ne: string }; scopeBrandIds?: { $in: string[] } } = {
+      status: { $ne: 'deleted' },
+    };
 
     if (cfgBrandId && cfgBrandId !== 'noBrand') {
       productQry.scopeBrandIds = { $in: [cfgBrandId] };
@@ -127,7 +129,10 @@ export const msdynamicCheckMutations = {
         defaultValue: [],
       }),
       config.exchangeRateApi
-        ? getExchangeRates(config).catch(() => ({}))
+        ? getExchangeRates(config).catch((err) => {
+            console.error('Failed to fetch exchange rates:', err);
+            return {};
+          })
         : Promise.resolve({}),
     ]);
 
@@ -155,6 +160,7 @@ export const msdynamicCheckMutations = {
             `${username}:${password}`,
           ).toString('base64')}`,
         },
+        timeout: 180000,
       },
     ).then((r) => r.json());
 

@@ -10,7 +10,9 @@ import {
 } from '../states/checkPriceStates';
 import { IPriceItem, PriceStatus } from '../types/checkPrice';
 
-const GROUP_KEYS: { key: string; status: PriceStatus }[] = [
+type GroupKey = 'update' | 'match' | 'create' | 'delete' | 'error';
+
+const GROUP_KEYS: { key: GroupKey; status: PriceStatus }[] = [
   { key: 'update', status: 'UPDATE' },
   { key: 'match', status: 'MATCH' },
   { key: 'create', status: 'CREATE' },
@@ -20,7 +22,9 @@ const GROUP_KEYS: { key: string; status: PriceStatus }[] = [
 const CHECK_MSD_PRICES = gql(mutations.toCheckPrices);
 const SYNC_MSD_PRICES = gql(mutations.toSyncPrices);
 
-type CheckPricesData = { toCheckMsdPrices?: Record<string, { items: any[] }> };
+type CheckPricesData = {
+  toCheckMsdPrices?: Partial<Record<GroupKey, { items: IPriceItem[] }>>;
+};
 type CheckPricesVariables = { brandId: string };
 type SyncPricesData = { toSyncMsdPrices?: { status: string } };
 type SyncPricesVariables = { prices: IPriceItem[] };
@@ -59,7 +63,7 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
       setCheckResponseData(data);
 
       const allItems: IPriceItem[] = GROUP_KEYS.flatMap(({ key, status }) =>
-        (data[key]?.items || []).map((item: any) => ({
+        (data[key]?.items || []).map((item: IPriceItem) => ({
           ...item,
           status,
           isSynced: false,
@@ -71,10 +75,12 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
         title: 'Success',
         description: `${allItems.length} price items found`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to check prices';
       toast({
         title: 'Error',
-        description: error?.message || 'Failed to check prices',
+        description: message,
         variant: 'destructive',
       });
     } finally {
@@ -93,7 +99,7 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
       const refreshedData = refreshed.data?.toCheckMsdPrices;
       const nextItems = refreshedData
         ? GROUP_KEYS.flatMap(({ key, status }) =>
-            (refreshedData[key]?.items || []).map((item: any) => ({
+            (refreshedData[key]?.items || []).map((item: IPriceItem) => ({
               ...item,
               status,
               isSynced: false,
@@ -108,10 +114,12 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
         title: 'Success',
         description: `${syncableItems.length} prices synced`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to sync prices';
       toast({
         title: 'Error',
-        description: error?.message || 'Failed to sync prices',
+        description: message,
         variant: 'destructive',
       });
     } finally {
