@@ -68,9 +68,7 @@ const FieldGrid = ({
       <div className="grid grid-cols-1 gap-x-6 gap-y-4 px-4 py-4 sm:grid-cols-2">
         {fields.map((field) => (
           <div key={field._id} className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">
-              {field.label}
-            </span>
+            <span className="text-xs text-muted-foreground">{field.label}</span>
             <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm wrap-break-word">
               {formatValue(field.value)}
             </div>
