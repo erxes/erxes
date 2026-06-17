@@ -22,7 +22,11 @@ export const CallTriggerContent = () => {
     );
   }
 
-  return open ? <IconX /> : <IconPhoneFilled className="text-primary" />;
+  return open ? (
+    <IconX className="text-white" />
+  ) : (
+    <IconPhoneFilled className="text-white" />
+  );
 };
 
 const CallDuration = () => {

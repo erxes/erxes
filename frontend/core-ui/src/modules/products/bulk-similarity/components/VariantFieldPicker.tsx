@@ -3,19 +3,32 @@ import { IconPlus, IconX } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { useFields } from 'ui-modules';
 import { useVariantFields } from '../hooks/useVariantFields';
+import { CreatePropertySheet } from './CreatePropertySheet';
 
 export const VariantFieldAddButton = () => {
   const { fieldIds, handleToggleFieldValue } = useVariantFields();
-  const { fields, loading } = useFields({ contentType: 'core:product' });
+  const { fields, loading, refetch } = useFields({
+    contentType: 'core:product',
+  });
   const optionFields = fields.filter((f) => (f.options || []).length > 0);
+  const [createOpen, setCreateOpen] = useState(false);
 
   return (
-    <AddFieldPopover
-      fields={optionFields}
-      activeFieldIds={fieldIds}
-      loading={loading}
-      onPick={(fieldId, value) => handleToggleFieldValue(fieldId, value)}
-    />
+    <>
+      <AddFieldPopover
+        fields={optionFields}
+        activeFieldIds={fieldIds}
+        loading={loading}
+        onPick={(fieldId, value) => handleToggleFieldValue(fieldId, value)}
+        onCreateNew={() => setCreateOpen(true)}
+      />
+      <CreatePropertySheet
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        refetchFields={refetch}
+        onCreated={(fieldId, value) => handleToggleFieldValue(fieldId, value)}
+      />
+    </>
   );
 };
 
@@ -95,11 +108,13 @@ const AddFieldPopover = ({
   activeFieldIds,
   loading,
   onPick,
+  onCreateNew,
 }: {
   fields: ReturnType<typeof useFields>['fields'];
   activeFieldIds: string[];
   loading: boolean;
   onPick: (fieldId: string, value: string) => void;
+  onCreateNew: () => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -122,7 +137,6 @@ const AddFieldPopover = ({
           variant="ghost"
           size="icon"
           className="size-6 text-accent-foreground"
-          disabled={!loading && !available.length}
         >
           <IconPlus className="size-4" />
         </Button>
@@ -139,7 +153,7 @@ const AddFieldPopover = ({
         )}
         {loading && <div className="text-sm">Loading…</div>}
         {!loading && filtered.length === 0 && (
-          <div className="text-sm text-muted-foreground">
+          <div className="px-2 py-1.5 text-sm text-muted-foreground">
             {available.length ? 'No matches' : 'No more fields'}
           </div>
         )}
@@ -150,7 +164,6 @@ const AddFieldPopover = ({
               key={field._id}
               className="px-2 py-1.5 text-sm text-left rounded hover:bg-accent"
               onClick={() => {
-                // adding the first option starts the axis; user picks the rest
                 const first = field.options?.[0];
                 if (first) {
                   onPick(field._id, first.value);
@@ -162,6 +175,19 @@ const AddFieldPopover = ({
               {field.name}
             </button>
           ))}
+        </div>
+        <div className="mt-1 pt-1 border-t">
+          <button
+            type="button"
+            className="flex items-center gap-1.5 px-2 py-1.5 w-full text-sm text-left rounded text-primary hover:bg-accent"
+            onClick={() => {
+              setOpen(false);
+              setSearch('');
+              onCreateNew();
+            }}
+          >
+            <IconPlus className="size-4" /> Create new property
+          </button>
         </div>
       </Popover.Content>
     </Popover>

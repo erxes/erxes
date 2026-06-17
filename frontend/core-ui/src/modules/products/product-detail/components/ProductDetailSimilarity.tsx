@@ -1,160 +1,126 @@
-import { Badge, Empty, InfoCard, Table, cn } from 'erxes-ui';
-import { IconLayoutGrid, IconStarFilled } from '@tabler/icons-react';
+import { useState } from 'react';
+import { Button, Empty, Form, InfoCard, Spinner } from 'erxes-ui';
+import { IconLayoutGrid, IconLoader2, IconPlus } from '@tabler/icons-react';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useFields } from 'ui-modules';
+import { ProductDetail } from '@/products/product-detail/types/detailTypes';
+import { ProductSimilarityCreateSheet } from '@/products/product-detail/components/ProductSimilarityCreateSheet';
+import { useProductSimilarity } from '@/products/bulk-similarity/hooks/useProductSimilarityDetail';
+import { useBulkProductForm } from '@/products/bulk-similarity/hooks/useBulkProductForm';
+import { useEditSimilarity } from '@/products/bulk-similarity/hooks/useEditSimilarity';
+import { BulkSimilarityFormValues } from '@/products/bulk-similarity/constants/bulkSimilaritySchema';
+import { GeneratedProductsTable } from '@/products/bulk-similarity/components/GeneratedProductsTable';
 import {
-  ProductSimilarity,
-  ProductSimilarityProduct,
-} from '@/products/product-detail/types/detailTypes';
+  VariantFieldAddButton,
+  VariantFieldPicker,
+} from '@/products/bulk-similarity/components/VariantFieldPicker';
 
 interface ProductDetailSimilarityProps {
-  similarity?: ProductSimilarity | null;
-  productId?: string;
+  product?: ProductDetail | null;
+  callBack?: () => void;
 }
 
+const ProductsWithUnitPrice = ({
+  fieldName,
+}: {
+  fieldName: (id: string) => string;
+}) => {
+  const { control } = useFormContext<BulkSimilarityFormValues>();
+  const unitPrice = useWatch({ control, name: 'unitPrice' });
+  return <GeneratedProductsTable fieldName={fieldName} unitPrice={unitPrice} />;
+};
+
 export const ProductDetailSimilarity = ({
-  similarity,
-  productId,
+  product,
+  callBack,
 }: ProductDetailSimilarityProps) => {
   const { fields } = useFields({ contentType: 'core:product' });
+  const [createOpen, setCreateOpen] = useState(false);
+
+  const similarity = product?.similarity;
+
+  const { similarity: fullSimilarity, loading } = useProductSimilarity(
+    similarity?._id,
+  );
+  const { form, buildSavePayload } = useBulkProductForm(fullSimilarity);
+  const { edit, loading: saving } = useEditSimilarity();
 
   const fieldName = (fieldId: string) =>
     fields.find((f) => f._id === fieldId)?.name || fieldId;
 
-  const labelOf = (fieldId: string, value?: string) =>
-    (value &&
-      fields
-        .find((f) => f._id === fieldId)
-        ?.options?.find((o) => o.value === value)?.label) ||
-    value ||
-    '';
-
   if (!similarity) {
     return (
-      <Empty className="my-8">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconLayoutGrid />
-          </Empty.Media>
-          <Empty.Title>Not part of a similarity group</Empty.Title>
-          <Empty.Description>
-            This product isn’t linked to a similarity group. Create one from
-            Product settings → Similarity to manage variants together.
-          </Empty.Description>
-        </Empty.Header>
-      </Empty>
+      <div className="flex-1 overflow-auto p-4">
+        <Empty className="my-8">
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconLayoutGrid />
+            </Empty.Media>
+            <Empty.Title>Not part of a similarity group</Empty.Title>
+            <Empty.Description>
+              This product isn't linked to a similarity group. Create one to
+              generate and manage variants together, prefilled from this
+              product.
+            </Empty.Description>
+          </Empty.Header>
+          <Empty.Content>
+            <Button onClick={() => setCreateOpen(true)}>
+              <IconPlus />
+              Create similarity group
+            </Button>
+          </Empty.Content>
+        </Empty>
+        <ProductSimilarityCreateSheet
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          product={product}
+          callBack={callBack}
+        />
+      </div>
     );
   }
 
-  const {
-    propertiesData = {},
-    starProductId,
-    products = [],
-  } = similarity;
+  if (loading || !fullSimilarity) {
+    return <Spinner />;
+  }
 
-  const fieldIds = Object.keys(propertiesData);
+  const handleSave = async (values: BulkSimilarityFormValues) => {
+    await edit(fullSimilarity._id, buildSavePayload(values));
+  };
 
   return (
-    <div className="flex flex-col gap-4">
-      <InfoCard title="Property fields">
-        <InfoCard.Content>
-          <div className="flex flex-col gap-3">
-            {fieldIds.length === 0 ? (
-              <div className="flex justify-center items-center px-4 py-6 text-sm rounded-lg border border-dashed text-muted-foreground">
-                No fields added.
-              </div>
-            ) : (
-              fieldIds.map((fieldId) => (
-                <div
-                  key={fieldId}
-                  className="flex gap-3 items-center p-2 rounded-lg bg-foreground/5"
-                >
-                  <div className="w-32 shrink-0">
-                    <div
-                      className="text-sm font-medium truncate"
-                      title={fieldName(fieldId)}
-                    >
-                      {fieldName(fieldId)}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap flex-auto gap-1">
-                    {(propertiesData[fieldId] || []).map((value) => (
-                      <Badge key={value} variant="default">
-                        {labelOf(fieldId, value)}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ))
-            )}
+    <Form {...form}>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex-1 overflow-auto p-4 flex flex-col gap-4">
+          <div className="relative">
+            <InfoCard title="Property fields">
+              <InfoCard.Content>
+                <VariantFieldPicker />
+              </InfoCard.Content>
+            </InfoCard>
+            <div className="absolute top-0.5 right-3">
+              <VariantFieldAddButton />
+            </div>
           </div>
-        </InfoCard.Content>
-      </InfoCard>
 
-      <InfoCard title={`Products (${products.length})`}>
-        <InfoCard.Content>
-          <div className="overflow-auto max-h-[28rem] rounded-lg border">
-            <Table>
-              <Table.Header className="sticky top-0 z-10 bg-sidebar">
-                <Table.Row>
-                  <Table.Head className="px-3 w-auto">Code</Table.Head>
-                  <Table.Head className="px-3 w-32">Unit price</Table.Head>
-                  {fieldIds.map((fieldId) => (
-                    <Table.Head key={fieldId} className="px-3 w-36">
-                      {fieldName(fieldId)}
-                    </Table.Head>
-                  ))}
-                  <Table.Head className="px-3 w-16 text-center">Star</Table.Head>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {products.map((product) => (
-                  <ProductRow
-                    key={product._id}
-                    product={product}
-                    fieldIds={fieldIds}
-                    labelOf={labelOf}
-                    isCurrent={product._id === productId}
-                    isStar={product._id === starProductId}
-                  />
-                ))}
-              </Table.Body>
-            </Table>
-          </div>
-        </InfoCard.Content>
-      </InfoCard>
-    </div>
+          <InfoCard title="Products">
+            <InfoCard.Content>
+              <ProductsWithUnitPrice fieldName={fieldName} />
+            </InfoCard.Content>
+          </InfoCard>
+        </div>
+
+        <div className="flex justify-end p-4 space-x-2 border-t bg-background">
+          <Button
+            type="button"
+            disabled={saving}
+            onClick={() => form.handleSubmit(handleSave)()}
+          >
+            {saving && <IconLoader2 size={16} className="animate-spin" />}
+            {saving ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      </div>
+    </Form>
   );
 };
-
-const ProductRow = ({
-  product,
-  fieldIds,
-  labelOf,
-  isCurrent,
-  isStar,
-}: {
-  product: ProductSimilarityProduct;
-  fieldIds: string[];
-  labelOf: (fieldId: string, value?: string) => string;
-  isCurrent: boolean;
-  isStar: boolean;
-}) => (
-  <Table.Row className={cn(isCurrent && '[&>td]:bg-muted')}>
-    <Table.Cell className="px-3 font-mono">{product.code}</Table.Cell>
-    <Table.Cell className="px-3 text-right">
-      {product.unitPrice ?? '-'}
-    </Table.Cell>
-    {fieldIds.map((fieldId) => (
-      <Table.Cell key={fieldId} className="px-3">
-        <Badge variant="secondary">
-          {labelOf(fieldId, product.propertiesData?.[fieldId]?.[0]) || '-'}
-        </Badge>
-      </Table.Cell>
-    ))}
-    <Table.Cell className="px-3 text-center">
-      {isStar && (
-        <IconStarFilled size={14} className="inline text-warning" />
-      )}
-    </Table.Cell>
-  </Table.Row>
-);
