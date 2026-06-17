@@ -1,7 +1,5 @@
 // Serialize a { name: value } header map into editable `Name: value` lines.
-export const serializeHeaders = (
-  h?: Record<string, string> | null,
-): string =>
+export const serializeHeaders = (h?: Record<string, string> | null): string =>
   h
     ? Object.entries(h)
         .map(([k, v]) => `${k}: ${v}`)

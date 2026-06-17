@@ -1,8 +1,4 @@
-import {
-  IErxesTool,
-  IToolItem,
-  IToolPluginGroup,
-} from './types';
+import { IErxesTool, IToolItem, IToolPluginGroup } from './types';
 
 export const toSlug = (name: string): string =>
   name

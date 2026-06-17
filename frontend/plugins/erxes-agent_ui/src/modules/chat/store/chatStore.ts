@@ -25,7 +25,11 @@ import {
 } from '~/modules/chat/types';
 import { generateThreadId, partsFromMeta } from '~/modules/chat/utils';
 import { readStreamEvents } from '~/modules/chat/lib/streamTransport';
-import { ApplyOps, applyStreamEvent, LiveState } from '~/modules/chat/lib/applyEvent';
+import {
+  ApplyOps,
+  applyStreamEvent,
+  LiveState,
+} from '~/modules/chat/lib/applyEvent';
 
 type Client = ApolloClient<object>;
 
@@ -160,7 +164,11 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
 
   // Local-only title update — used when the server pushes an auto-generated
   // title over the stream (the server already persisted it).
-  const setSessionTitle = (agentKey: string, threadId: string, title: string) => {
+  const setSessionTitle = (
+    agentKey: string,
+    threadId: string,
+    title: string,
+  ) => {
     const agent = ensureAgent(agentKey);
     if (!agent.sessions.some((s) => s.threadId === threadId)) return;
     patchAgent(agentKey, {
@@ -186,7 +194,9 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       const thread = getThread(agentKey, threadId);
       patchThread(agentKey, threadId, {
         messages: thread.messages.map((m) =>
-          m.id && byMessage[m.id] ? { ...m, rating: byMessage[m.id].rating } : m,
+          m.id && byMessage[m.id]
+            ? { ...m, rating: byMessage[m.id].rating }
+            : m,
         ),
       });
     } catch {
@@ -267,18 +277,21 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
   ): Promise<boolean> => {
     let response: Response;
     try {
-      response = await fetch(`${REACT_APP_API_URL}/pl:erxes-agent/chat/stream`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agentId: mastraAgentId,
-          message,
-          threadId,
-          attachments: attachments?.length ? attachments : undefined,
-        }),
-        signal: abort.signal,
-      });
+      response = await fetch(
+        `${REACT_APP_API_URL}/pl:erxes-agent/chat/stream`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agentId: mastraAgentId,
+            message,
+            threadId,
+            attachments: attachments?.length ? attachments : undefined,
+          }),
+          signal: abort.signal,
+        },
+      );
     } catch {
       if (abort.signal.aborted) return true; // user stopped before transport settled
       return false; // network-level failure — try the GraphQL fallback
@@ -298,13 +311,12 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     const liveState: LiveState = { sawDone: false, hasLive: false };
 
     const upsertLive = (mutate: (m: Message) => Message) => {
-      const base: Message =
-        live ?? {
-          role: 'assistant',
-          content: '',
-          timestamp: new Date(),
-          streaming: true,
-        };
+      const base: Message = live ?? {
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        streaming: true,
+      };
       const next = mutate({ ...base, parts: base.parts?.slice() });
       if (live) replaceLastMessage(agentKey, threadId, next);
       else appendMessage(agentKey, threadId, next);
@@ -320,7 +332,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           content,
           timestamp: new Date(),
         }),
-      setActivity: (text) => patchThread(agentKey, threadId, { activity: text }),
+      setActivity: (text) =>
+        patchThread(agentKey, threadId, { activity: text }),
       setSessionTitle: (tid, title) => setSessionTitle(agentKey, tid, title),
       fallbackThreadId: threadId,
     };
@@ -343,7 +356,9 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       }));
     }
     if (!liveState.sawDone && !live && !abort.signal.aborted) {
-      throw new Error('The connection to the agent was lost. Please try again.');
+      throw new Error(
+        'The connection to the agent was lost. Please try again.',
+      );
     }
 
     return true;
@@ -380,12 +395,14 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           variables: { agentId: mastraAgentId },
           fetchPolicy: 'network-only',
         });
-        const sessions: SessionMeta[] = (data?.mastraThreads ?? []).map((t) => ({
-          threadId: t.threadId,
-          title: t.title || 'New chat',
-          messageCount: t.messageCount ?? 0,
-          lastMessageAt: t.lastMessageAt,
-        }));
+        const sessions: SessionMeta[] = (data?.mastraThreads ?? []).map(
+          (t) => ({
+            threadId: t.threadId,
+            title: t.title || 'New chat',
+            messageCount: t.messageCount ?? 0,
+            lastMessageAt: t.lastMessageAt,
+          }),
+        );
 
         const before = ensureAgent(agentKey);
         patchAgent(agentKey, { sessions, sessionsLoaded: true });
@@ -542,7 +559,13 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           attachments,
         );
         if (!streamed) {
-          await sendViaQuery(client, agentKey, threadId, mastraAgentId, message);
+          await sendViaQuery(
+            client,
+            agentKey,
+            threadId,
+            mastraAgentId,
+            message,
+          );
         }
         finishTurn(client, agentKey, threadId, mastraAgentId);
       } catch (err) {
@@ -572,7 +595,7 @@ export const selectAgentView = (
 ): AgentChatView => {
   const agent = s.agents[agentKey] ?? EMPTY_AGENT;
   const thread = agent.activeThreadId
-    ? s.threads[threadKey(agentKey, agent.activeThreadId)] ?? EMPTY_THREAD
+    ? (s.threads[threadKey(agentKey, agent.activeThreadId)] ?? EMPTY_THREAD)
     : EMPTY_THREAD;
   return {
     ...agent,
@@ -596,7 +619,8 @@ export const selectThreadWorking = (
   s: ChatStoreState,
   agentKey: string,
   threadId: string,
-): boolean => (s.threads[threadKey(agentKey, threadId)] ?? EMPTY_THREAD).loading;
+): boolean =>
+  (s.threads[threadKey(agentKey, threadId)] ?? EMPTY_THREAD).loading;
 
 // One-line summary of what the agent is doing right now. Prefers the
 // server-pushed `activity` events; falls back to coarse phase labels until the
@@ -628,8 +652,10 @@ export const selectHasUnread = (s: ChatStoreState, agentKey: string): boolean =>
 // Imperative facade so call sites keep reading `chatStore.x(...)` while reactive
 // reads move to the hooks in ./hooks. Methods delegate to the live store.
 export const chatStore = {
-  getState: (agentKey: string) => selectAgentView(useChatStore.getState(), agentKey),
-  hasUnread: (agentKey: string) => selectHasUnread(useChatStore.getState(), agentKey),
+  getState: (agentKey: string) =>
+    selectAgentView(useChatStore.getState(), agentKey),
+  hasUnread: (agentKey: string) =>
+    selectHasUnread(useChatStore.getState(), agentKey),
   hasAnyActivity: () => useChatStore.getState().unreadAgents.length > 0,
   isAgentWorking: (agentKey: string) =>
     selectIsAgentWorking(useChatStore.getState(), agentKey),
@@ -652,7 +678,9 @@ export const chatStore = {
     messageId: string,
     rating: 1 | -1,
   ) =>
-    useChatStore.getState().rateMessage(client, agentKey, threadId, messageId, rating),
+    useChatStore
+      .getState()
+      .rateMessage(client, agentKey, threadId, messageId, rating),
   renameSession: (
     client: Client,
     agentKey: string,
@@ -665,7 +693,9 @@ export const chatStore = {
     mastraAgentId: string,
     threadId: string,
   ) =>
-    useChatStore.getState().deleteSession(client, agentKey, mastraAgentId, threadId),
+    useChatStore
+      .getState()
+      .deleteSession(client, agentKey, mastraAgentId, threadId),
   stop: (agentKey: string, threadId: string) =>
     useChatStore.getState().stop(agentKey, threadId),
   sendMessage: (

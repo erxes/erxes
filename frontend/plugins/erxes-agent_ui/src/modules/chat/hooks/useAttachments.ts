@@ -16,7 +16,10 @@ export const useAttachments = (enabled: boolean) => {
       // readable name before it becomes the stored file name.
       if (/^image\.\w+$/i.test(file.name || '') || !file.name) {
         const ext = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
-        const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
+        const stamp = new Date()
+          .toISOString()
+          .replace(/[:T]/g, '-')
+          .slice(0, 19);
         file = new File([file], `screenshot-${stamp}.${ext}`, {
           type: file.type,
         });
@@ -68,7 +71,9 @@ export const useAttachments = (enabled: boolean) => {
   };
 
   const clear = () => {
-    pendingAtts.forEach((a) => a.previewUrl && URL.revokeObjectURL(a.previewUrl));
+    pendingAtts.forEach(
+      (a) => a.previewUrl && URL.revokeObjectURL(a.previewUrl),
+    );
     setPendingAtts([]);
   };
 

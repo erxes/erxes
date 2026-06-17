@@ -5,10 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useProviders } from './hooks/useProviders';
 import { ProviderForm } from './components/ProviderForm';
-import {
-  IMastraProvider,
-  IMastraProviderPreset,
-} from './types';
+import { IMastraProvider, IMastraProviderPreset } from './types';
 import {
   PROVIDER_FORM_DEFAULTS,
   ProviderFormValues,
@@ -22,8 +19,14 @@ export const ProvidersPage = () => {
   // `adding` holds the provider key being added/edited, or '__custom__' for a custom entry
   const [adding, setAdding] = useState<string | null>(null);
 
-  const { providers, presets, catalogMap, saveProvider, removeProvider, saving } =
-    useProviders(() => setAdding(null));
+  const {
+    providers,
+    presets,
+    catalogMap,
+    saveProvider,
+    removeProvider,
+    saving,
+  } = useProviders(() => setAdding(null));
 
   const form = useForm<ProviderFormValues>({
     resolver: zodResolver(providerFormSchema),

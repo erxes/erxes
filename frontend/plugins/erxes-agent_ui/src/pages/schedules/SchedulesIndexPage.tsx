@@ -70,21 +70,25 @@ const ScheduleMoreCell = ({
   const [runNow, { loading: running }] = useMutation<IScheduleRunNowResponse>(
     MASTRA_SCHEDULE_RUN_NOW,
     {
-    onCompleted: (data) => {
-      const outcome = data?.mastraScheduleRunNow;
-      if (outcome?.lastStatus === 'failed') {
+      onCompleted: (data) => {
+        const outcome = data?.mastraScheduleRunNow;
+        if (outcome?.lastStatus === 'failed') {
+          toast({
+            title: 'Run failed',
+            description: outcome.lastError || schedule.name,
+            variant: 'destructive',
+          });
+        } else {
+          toast({ title: 'Run finished', description: schedule.name });
+        }
+        refetch();
+      },
+      onError: (e) =>
         toast({
-          title: 'Run failed',
-          description: outcome.lastError || schedule.name,
+          title: 'Error',
+          description: e.message,
           variant: 'destructive',
-        });
-      } else {
-        toast({ title: 'Run finished', description: schedule.name });
-      }
-      refetch();
-    },
-    onError: (e) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+        }),
     },
   );
 

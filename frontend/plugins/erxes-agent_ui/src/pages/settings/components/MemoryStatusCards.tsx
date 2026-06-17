@@ -1,8 +1,4 @@
-import {
-  IconBrain,
-  IconBook,
-  IconLock,
-} from '@tabler/icons-react';
+import { IconBrain, IconBook, IconLock } from '@tabler/icons-react';
 import { Badge, Button, cn } from 'erxes-ui';
 import { IKnowledgeStatusView, IMemoryStatusView } from '../types';
 import { useKnowledgeSync } from '../hooks/useKnowledgeSync';
@@ -67,9 +63,9 @@ export const AdvancedMemoryCard = ({
     )}
 
     <p className="text-xs text-muted-foreground">
-      Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable. Set{' '}
-      <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to turn it
-      on.
+      Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable.
+      Set <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to turn
+      it on.
     </p>
   </div>
 );
@@ -150,7 +146,11 @@ export const CompanyKnowledgeCard = ({
 
       {status?.enabled && (
         <div className="space-y-2 pl-6">
-          <Button type="button" disabled={syncing} onClick={handleKnowledgeSync}>
+          <Button
+            type="button"
+            disabled={syncing}
+            onClick={handleKnowledgeSync}
+          >
             {syncing ? 'Starting…' : 'Sync now'}
           </Button>
           {syncMsg && (

@@ -181,8 +181,8 @@ export const GeneralSettingsPage = () => {
                     disabled={!attachmentStorage?.configured}
                     onChange={(e) => field.onChange(e.target.checked)}
                   />
-                  Allow file attachments in agent chat (images, PDF, Excel, Word,
-                  …)
+                  Allow file attachments in agent chat (images, PDF, Excel,
+                  Word, …)
                 </label>
 
                 <p className="text-xs text-muted-foreground">

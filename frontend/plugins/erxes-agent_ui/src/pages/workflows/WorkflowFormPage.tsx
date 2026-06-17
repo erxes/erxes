@@ -82,15 +82,21 @@ export const WorkflowFormPage = () => {
     }
   }, [workflow, isEdit, form]);
 
-  const { validate, validating, createWorkflow, creating, updateWorkflow, updating } =
-    useWorkflowFormMutations({
-      onValidated: setValidation,
-      onCreated: (newId) =>
-        navigate(
-          newId ? `/erxes-agent/workflows/${newId}` : '/erxes-agent/workflows',
-        ),
-      onUpdated: () => navigate(`/erxes-agent/workflows/${id}`),
-    });
+  const {
+    validate,
+    validating,
+    createWorkflow,
+    creating,
+    updateWorkflow,
+    updating,
+  } = useWorkflowFormMutations({
+    onValidated: setValidation,
+    onCreated: (newId) =>
+      navigate(
+        newId ? `/erxes-agent/workflows/${newId}` : '/erxes-agent/workflows',
+      ),
+    onUpdated: () => navigate(`/erxes-agent/workflows/${id}`),
+  });
 
   const definitionText = form.watch('definitionText');
 
@@ -252,9 +258,7 @@ export const WorkflowFormPage = () => {
                   with{' '}
                   <code className="font-mono">{'{{trigger.payload.x}}'}</code>{' '}
                   and{' '}
-                  <code className="font-mono">
-                    {'{{steps.<id>.output.x}}'}
-                  </code>
+                  <code className="font-mono">{'{{steps.<id>.output.x}}'}</code>
                   . Validate before saving — invalid definitions are rejected.
                 </Alert.Description>
               </Alert>

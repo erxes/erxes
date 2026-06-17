@@ -1,9 +1,5 @@
 import { useShallow } from 'zustand/react/shallow';
-import {
-  AgentChatView,
-  EMPTY_AGENT,
-  EMPTY_THREAD,
-} from '~/modules/chat/types';
+import { AgentChatView, EMPTY_AGENT, EMPTY_THREAD } from '~/modules/chat/types';
 import {
   selectAgentActivity,
   selectAgentView,

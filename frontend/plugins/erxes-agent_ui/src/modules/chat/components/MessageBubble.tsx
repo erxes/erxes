@@ -45,7 +45,9 @@ export const MessageBubble = ({
             <p className="text-sm whitespace-pre-wrap leading-relaxed">
               {msg.content}
             </p>
-            <p className="text-[10px] mt-1 text-primary-foreground/60">{time}</p>
+            <p className="text-[10px] mt-1 text-primary-foreground/60">
+              {time}
+            </p>
           </div>
         ) : (
           <p className="text-[10px] text-muted-foreground pr-1">{time}</p>
@@ -122,7 +124,9 @@ export const MessageBubble = ({
                   </Tooltip>
                 </Tooltip.Provider>
               )}
-              {onRate && <FeedbackButtons rating={msg.rating} onRate={onRate} />}
+              {onRate && (
+                <FeedbackButtons rating={msg.rating} onRate={onRate} />
+              )}
               <CopyButton text={msg.content} />
             </div>
           </div>

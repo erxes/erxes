@@ -7,12 +7,7 @@ import {
   IconMessageCircle,
   IconPlus,
 } from '@tabler/icons-react';
-import {
-  Breadcrumb,
-  Button,
-  Empty,
-  Separator,
-} from 'erxes-ui';
+import { Breadcrumb, Button, Empty, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { ChatAttachment } from '~/modules/chat/types';
 import { chatStore } from '~/modules/chat/store/chatStore';
@@ -40,7 +35,7 @@ export const ChatPage = () => {
   // The route is keyed by the agent record _id, but inbound links (e.g.
   // Schedules → View output) may carry the agent slug — accept both.
   const selectedAgent = agentId
-    ? agents.find((a) => a._id === agentId || a.agentId === agentId) ?? null
+    ? (agents.find((a) => a._id === agentId || a.agentId === agentId) ?? null)
     : null;
 
   const view = useAgentChatView(agentId);
@@ -69,9 +64,12 @@ export const ChatPage = () => {
   useEffect(() => {
     if (selectedAgent && agentId && selectedAgent._id !== agentId) {
       const search = searchParams.toString();
-      navigate(`/erxes-agent/chat/${selectedAgent._id}${search ? `?${search}` : ''}`, {
-        replace: true,
-      });
+      navigate(
+        `/erxes-agent/chat/${selectedAgent._id}${search ? `?${search}` : ''}`,
+        {
+          replace: true,
+        },
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAgent?._id, agentId]);
@@ -140,7 +138,12 @@ export const ChatPage = () => {
     e.stopPropagation();
     if (!agentId || !selectedAgent) return;
     if (window.confirm('Delete this session and all its messages?')) {
-      chatStore.deleteSession(apolloClient, agentId, selectedAgent.agentId, threadId);
+      chatStore.deleteSession(
+        apolloClient,
+        agentId,
+        selectedAgent.agentId,
+        threadId,
+      );
     }
   };
 
@@ -156,7 +159,8 @@ export const ChatPage = () => {
   // Whole-chat-area drop target with a visible overlay. dragDepth guards
   // against the flicker from dragenter/dragleave firing on every child.
   const handleDragEnter = (e: React.DragEvent) => {
-    if (!attachmentsEnabled || !e.dataTransfer?.types?.includes('Files')) return;
+    if (!attachmentsEnabled || !e.dataTransfer?.types?.includes('Files'))
+      return;
     e.preventDefault();
     dragDepth.current += 1;
     setIsDragging(true);
@@ -172,14 +176,21 @@ export const ChatPage = () => {
     e.preventDefault();
     dragDepth.current = 0;
     setIsDragging(false);
-    if (e.dataTransfer?.files?.length) attachments.addFiles(e.dataTransfer.files);
+    if (e.dataTransfer?.files?.length)
+      attachments.addFiles(e.dataTransfer.files);
   };
 
   const sendMessage = (message: string, atts: ChatAttachment[]) => {
     if (!selectedAgent || !agentId) return;
     // Fire-and-forget: the store holds the Apollo client reference so the
     // request continues even if the user navigates away before it completes.
-    chatStore.sendMessage(apolloClient, agentId, selectedAgent.agentId, message, atts);
+    chatStore.sendMessage(
+      apolloClient,
+      agentId,
+      selectedAgent.agentId,
+      message,
+      atts,
+    );
   };
 
   const handleSend = () => {

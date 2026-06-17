@@ -141,7 +141,8 @@ export const applyStreamEvent = (
     case 'thread_title':
       // Arrives after `done` while the stream drains — the agent has
       // summarized the conversation into a title.
-      if (ev.title) ops.setSessionTitle(ev.threadId || ops.fallbackThreadId, ev.title);
+      if (ev.title)
+        ops.setSessionTitle(ev.threadId || ops.fallbackThreadId, ev.title);
       break;
     case 'error':
       live.sawDone = true;

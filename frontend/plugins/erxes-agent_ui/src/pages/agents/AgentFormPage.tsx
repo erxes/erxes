@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import {
-  IconRobot,
-  IconArrowLeft,
-  IconInfoCircle,
-} from '@tabler/icons-react';
+import { IconRobot, IconArrowLeft, IconInfoCircle } from '@tabler/icons-react';
 import {
   Alert,
   Breadcrumb,
@@ -286,7 +282,9 @@ export const AgentFormPage = () => {
                 render={({ field }) => (
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <Label className="font-medium">Restrict tool access</Label>
+                      <Label className="font-medium">
+                        Restrict tool access
+                      </Label>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {field.value === 'custom'
                           ? 'This agent can only use the operations selected below.'

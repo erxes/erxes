@@ -161,8 +161,7 @@ export const AgentToolPicker = ({
               const pluginSelected = allCovered
                 ? count
                 : modules.reduce(
-                    (n, m) =>
-                      n + m.items.filter((t) => opSelected(t)).length,
+                    (n, m) => n + m.items.filter((t) => opSelected(t)).length,
                     0,
                   );
               return (
