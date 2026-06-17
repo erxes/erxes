@@ -1,3 +1,4 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { RefScope, resolveValue } from './refs';
 
 /**
@@ -57,7 +58,7 @@ function tokenize(src: string): Token[] {
       const quote = rest[0];
       const end = rest.indexOf(quote, 1);
       if (end === -1)
-        throw new Error(`unterminated string in condition: ${src}`);
+        throw new ExpectedError(`unterminated string in condition: ${src}`);
       tokens.push({ kind: 'string', value: rest.slice(1, end) });
       rest = rest.slice(end + 1);
       continue;
@@ -98,12 +99,17 @@ function tokenize(src: string): Token[] {
       else if (word[0] === 'false') tokens.push({ kind: 'bool', value: false });
       else if (word[0] === 'null') tokens.push({ kind: 'null' });
       else if (word[0] === 'in') tokens.push({ kind: 'op', op: 'in' });
-      else throw new Error(`unknown word "${word[0]}" in condition: ${src}`);
+      else
+        throw new ExpectedError(
+          `unknown word "${word[0]}" in condition: ${src}`,
+        );
       rest = rest.slice(word[0].length);
       continue;
     }
 
-    throw new Error(`unexpected character "${rest[0]}" in condition: ${src}`);
+    throw new ExpectedError(
+      `unexpected character "${rest[0]}" in condition: ${src}`,
+    );
   }
 
   return tokens;
@@ -130,7 +136,7 @@ export function parseExpr(src: string): ExprNode {
   /** Literal, ref, or parenthesized sub-expression. */
   function primary(): ExprNode {
     const token = next();
-    if (!token) throw new Error(`condition ended unexpectedly: ${src}`);
+    if (!token) throw new ExpectedError(`condition ended unexpectedly: ${src}`);
     if (token.kind === 'ref') return { kind: 'ref', path: token.path };
     if (
       token.kind === 'string' ||
@@ -144,10 +150,10 @@ export function parseExpr(src: string): ExprNode {
       const inner = orExpr();
       const close = next();
       if (!close || close.kind !== 'rparen')
-        throw new Error(`missing ")" in condition: ${src}`);
+        throw new ExpectedError(`missing ")" in condition: ${src}`);
       return inner;
     }
-    throw new Error(`unexpected token in condition: ${src}`);
+    throw new ExpectedError(`unexpected token in condition: ${src}`);
   }
 
   /** Unary `!` chains. */
@@ -195,7 +201,7 @@ export function parseExpr(src: string): ExprNode {
 
   const ast = orExpr();
   if (pos < tokens.length)
-    throw new Error(`trailing tokens in condition: ${src}`);
+    throw new ExpectedError(`trailing tokens in condition: ${src}`);
   return ast;
 }
 

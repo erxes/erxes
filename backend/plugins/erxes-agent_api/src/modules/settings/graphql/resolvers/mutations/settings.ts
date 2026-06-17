@@ -1,3 +1,4 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IMastraSettings } from '@/settings/@types/settings';
 import { isKnowledgeEnabled, knowledgeTenant } from '~/mastra/knowledge/config';
@@ -26,10 +27,12 @@ export const settingsMutations = {
     { subdomain, user }: IContext,
   ) => {
     if (!user?._id) {
-      throw new Error('Login required');
+      throw new ExpectedError('Login required');
     }
     if (!isKnowledgeEnabled()) {
-      throw new Error('Company knowledge is not enabled on this deployment.');
+      throw new ExpectedError(
+        'Company knowledge is not enabled on this deployment.',
+      );
     }
     const userHeader = Buffer.from(JSON.stringify(user)).toString('base64');
     await enqueueKnowledgeSweep({
