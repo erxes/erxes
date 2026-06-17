@@ -175,8 +175,8 @@ const upsertSafeRemainderItem = async ({
     order,
     description: '',
     trInfo: {
-      unitCost: count < 0.01 ? cost : cost / count
-    }
+      unitCost: count < 0.01 ? cost : cost / count,
+    },
   };
 
   const existing = await SafeRemainderItems.findOne(selector);
@@ -225,7 +225,7 @@ const command = async () => {
     if (count < 0.005 && count > -0.005) {
       continue;
     }
-    
+
     const locationMap = branchCodeByLocCode[locCode];
 
     if (!locationMap) {

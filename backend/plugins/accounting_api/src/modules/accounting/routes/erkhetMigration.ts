@@ -390,9 +390,7 @@ const normalizeBatchDocs = async (
       departmentId: departmentCode
         ? maps.departmentsByCode[departmentCode] || doc.departmentId
         : doc.departmentId,
-      details: (doc.details || []).map((detail) =>
-        resolveDetail(detail, maps),
-      ),
+      details: (doc.details || []).map((detail) => resolveDetail(detail, maps)),
       contentType: doc.contentType || ERKHET_CONTENT_TYPE,
       contentId: doc.contentId || batch.externalPtrId,
       extraData: {
@@ -458,10 +456,7 @@ const saveBatch = async ({
   };
 };
 
-export const importErkhetTransactions = async (
-  req: Request,
-  res: Response,
-) => {
+export const importErkhetTransactions = async (req: Request, res: Response) => {
   try {
     assertMigrationToken(req);
 
