@@ -9,6 +9,7 @@ import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
+import { afterProcess } from './meta/afterProcess';
 
 const getWidgetApiUrl = (req: express.Request) => {
   const subdomain =
@@ -99,5 +100,8 @@ startPlugin({
     app.get('/widget/*', (req, res) => sendWidgetIndex(req, res));
 
     initPaymentsWorker();
+  },
+  meta: {
+    afterProcess,
   },
 });

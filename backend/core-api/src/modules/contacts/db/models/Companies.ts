@@ -36,6 +36,51 @@ export const loadCompanyClass = (
   models: IModels,
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
+  const updateCompanyMergeReferences = async (
+    oldCompanyIds: string[],
+    newCompanyId: string,
+  ) => {
+    await models.CPUser.updateMany(
+      { erxesCompanyId: { $in: oldCompanyIds } },
+      { $set: { erxesCompanyId: newCompanyId } },
+    );
+
+    await models.Products.updateMany(
+      { vendorId: { $in: oldCompanyIds } },
+      { $set: { vendorId: newCompanyId } },
+    );
+
+    await models.Relations.updateMany(
+      {
+        entities: {
+          $elemMatch: {
+            contentType: 'core:company',
+            contentId: { $in: oldCompanyIds },
+          },
+        },
+      },
+      {
+        $set: {
+          'entities.$[entity].contentId': newCompanyId,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'entity.contentType': 'core:company',
+            'entity.contentId': { $in: oldCompanyIds },
+          },
+        ],
+      },
+    );
+
+    await models.Conformities.changeConformity({
+      type: 'company',
+      newTypeId: newCompanyId,
+      oldTypeIds: oldCompanyIds,
+    });
+  };
+
   class Company {
     /**
      * Retrieve company
@@ -271,6 +316,8 @@ export const loadCompanyClass = (
         emails,
         phones,
       });
+
+      await updateCompanyMergeReferences(companyIds, company._id);
 
       return company;
     }

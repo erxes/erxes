@@ -7,6 +7,10 @@ import {
 } from '~/modules/erkhet/afterMutations';
 import { syncPosOrderToErkhet } from '~/modules/erkhet/afterMutPosOrder';
 import { afterMutationHandlers as productPlacesAfterMutation } from '~/modules/productPlaces/afterMutations';
+import {
+  handleCoreMergeMutation,
+  mergeMutationNames,
+} from './afterProcessHandlers/coreMerge';
 
 const ebarimtMutationNames = ['dealsChange', 'dealsEdit', 'dealsAdd'];
 const erkhetMutationNames = ['dealsChange', 'dealsEdit', 'dealsAdd'];
@@ -22,6 +26,7 @@ const allRules: IAfterProcessRule[] = [
         ...ebarimtMutationNames,
         ...erkhetMutationNames,
         ...productPlacesMutationNames,
+        ...mergeMutationNames,
       ]),
     ],
   },
@@ -52,6 +57,11 @@ export const afterProcess: AfterProcessConfigs = {
 
     const { itemId, destinationStageId, sourceStageId } = args || {};
     const models = await generateModels(ctx.subdomain);
+
+    if (mergeMutationNames.includes(mutationName)) {
+      await handleCoreMergeMutation(models, input?.data);
+      return;
+    }
 
     if (ebarimtMutationNames.includes(mutationName)) {
       const { stageId } = result || {};

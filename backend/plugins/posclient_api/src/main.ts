@@ -8,6 +8,7 @@ import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import posConfigMiddleware from './configMiddleware';
 import { generateModels } from './connectionResolvers';
+import { afterProcess } from './meta/afterProcess';
 import posUserMiddleware from './userMiddleware';
 import { initMQWorkers } from './worker';
 
@@ -87,5 +88,8 @@ startPlugin({
 
       return context;
     },
+  },
+  meta: {
+    afterProcess,
   },
 });

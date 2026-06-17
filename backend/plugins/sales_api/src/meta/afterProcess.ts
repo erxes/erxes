@@ -2,10 +2,18 @@ import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
 import { productMutationNames, syncPosProductGroups } from './productUtils';
+import {
+  handleCoreMergeMutation,
+  mergeMutationNames,
+} from './afterProcessHandlers/coreMerge';
 
 const relationMutationNames = ['manageRelations'];
 
-const mutationNames = [...relationMutationNames, ...productMutationNames];
+const mutationNames = [
+  ...relationMutationNames,
+  ...productMutationNames,
+  ...mergeMutationNames,
+];
 
 const allRules: IAfterProcessRule[] = [
   {
@@ -73,6 +81,11 @@ export const afterProcess: AfterProcessConfigs = {
     }
 
     const models = await generateModels(ctx.subdomain);
+
+    if ((mergeMutationNames as readonly string[]).includes(mutationName)) {
+      await handleCoreMergeMutation(models, input?.data);
+      return;
+    }
 
     if (relationMutationNames.includes(mutationName)) {
       await syncDealRelationSubscriptions(models, args, result);

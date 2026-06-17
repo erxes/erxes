@@ -38,6 +38,101 @@ export const loadProductClass = (
   subdomain: string,
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
+  type ProductArrayReference = {
+    model: keyof Pick<IModels, 'ProductRules' | 'ProductSimilarities'>;
+    path: string;
+  };
+
+  const replaceArrayReferences = async (
+    { model, path }: ProductArrayReference,
+    oldIds: string[],
+    newId: string,
+  ) => {
+    await models[model].updateMany(
+      { [path]: { $in: oldIds } },
+      { $addToSet: { [path]: newId } },
+    );
+
+    await models[model].updateMany(
+      { [path]: { $in: oldIds } },
+      { $pull: { [path]: { $in: oldIds } } },
+    );
+  };
+
+  const updateProductMergeReferences = async (
+    oldProductIds: string[],
+    newProductId: string,
+  ) => {
+    await models.Conformities.changeConformity({
+      type: 'product',
+      newTypeId: newProductId,
+      oldTypeIds: oldProductIds,
+    });
+
+    await models.Relations.updateMany(
+      {
+        entities: {
+          $elemMatch: {
+            contentType: 'core:product',
+            contentId: { $in: oldProductIds },
+          },
+        },
+      },
+      {
+        $set: {
+          'entities.$[entity].contentId': newProductId,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'entity.contentType': 'core:product',
+            'entity.contentId': { $in: oldProductIds },
+          },
+        ],
+      },
+    );
+
+    await replaceArrayReferences(
+      { model: 'ProductRules', path: 'productIds' },
+      oldProductIds,
+      newProductId,
+    );
+    await replaceArrayReferences(
+      { model: 'ProductRules', path: 'excludeProductIds' },
+      oldProductIds,
+      newProductId,
+    );
+    await replaceArrayReferences(
+      { model: 'ProductSimilarities', path: 'productIds' },
+      oldProductIds,
+      newProductId,
+    );
+
+    await models.ProductSimilarities.updateMany(
+      { starProductId: { $in: oldProductIds } },
+      { $set: { starProductId: newProductId } },
+    );
+
+    await models.BundleRule.updateMany(
+      { 'rules.productIds': { $in: oldProductIds } },
+      { $addToSet: { 'rules.$[rule].productIds': newProductId } },
+      { arrayFilters: [{ 'rule.productIds': { $in: oldProductIds } }] },
+    );
+
+    await models.BundleRule.updateMany(
+      { 'rules.productIds': { $in: oldProductIds } },
+      { $pull: { 'rules.$[rule].productIds': { $in: oldProductIds } } },
+      { arrayFilters: [{ 'rule.productIds': { $in: oldProductIds } }] },
+    );
+
+    await models.Packages.updateMany(
+      { 'products.productId': { $in: oldProductIds } },
+      { $set: { 'products.$[product].productId': newProductId } },
+      { arrayFilters: [{ 'product.productId': { $in: oldProductIds } }] },
+    );
+  };
+
   class Product {
     /**
      * Get Product
@@ -328,6 +423,8 @@ export const loadProductClass = (
         categoryId,
         vendorId,
       });
+
+      await updateProductMergeReferences(productIds, product._id);
 
       return product;
     }
