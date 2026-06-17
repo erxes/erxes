@@ -50,6 +50,7 @@ const getImageStyleClasses = (imageStyle: ImageStyle) => {
   }
 };
 
+/** Reads the image style from a DOM element's data attribute or class name. */
 const getImageStyleFromElement = (element: HTMLElement): ImageStyle => {
   const explicitStyle =
     element.getAttribute('data-image-style') ||
@@ -83,9 +84,11 @@ type FileBlockRenderProps = Omit<
   'buttonText' | 'buttonIcon' | 'children'
 >;
 
+/** Casts image render props to file block wrapper props. */
 const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
   props as unknown as FileBlockRenderProps;
 
+/** Renders the image preview with a double-click to open full-size dialog. */
 const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -106,17 +109,21 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
       )}
       {!isResolving && src && (
         <>
-          <button
-            type="button"
+          <div
             className={cn(
               'bn-visual-media mx-auto cursor-pointer p-0 border-0 bg-transparent',
               getImageStyleClasses(imageStyle),
             )}
             style={imgLoaded ? undefined : { display: 'none' }}
             contentEditable={false}
-            onClick={(e) => {
-              e.stopPropagation();
-              setPreviewOpen(true);
+            role="button"
+            tabIndex={0}
+            onDoubleClick={() => setPreviewOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setPreviewOpen(true);
+              }
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -128,7 +135,7 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
               onLoad={() => setImgLoaded(true)}
               onError={() => setImgLoaded(true)}
             />
-          </button>
+          </div>
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <Dialog.Content className="bg-transparent shadow-none p-0 border-0 max-w-fit">
               <Dialog.Title className="sr-only">
@@ -148,6 +155,7 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
   );
 };
 
+/** Returns inline styles for float-left/right image container positioning. */
 const getFloatContainerStyle = (
   imageStyle: ImageStyle,
   maxWidth: number,
@@ -173,6 +181,7 @@ const getFloatContainerStyle = (
   return { ...base, margin: '0 auto' };
 };
 
+/** Renders the image block as external HTML for export. */
 const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   const { url, caption, name, previewWidth } = block.props;
   const imageStyle = getImageStyle(
@@ -208,6 +217,7 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   );
 };
 
+/** Renders the image block content with upload loading state and float style injection. */
 const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
   const fileProps = toFileBlockProps(props);
@@ -237,7 +247,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
     styleEl.textContent = `[data-id="${blockId}"]{float:${dir};max-width:${maxWidth}px;width:100%;${margin};margin-bottom:.75em}`;
     document.head.appendChild(styleEl);
 
-    return () => document.getElementById(styleId)?.remove();
+    return () => { void document.getElementById(styleId)?.remove(); };
   }, [
     props.block.id,
     imageStyle,
