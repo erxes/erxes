@@ -20,7 +20,6 @@ const stripHtmlToText = (html: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-
 export const executeMessageProAction = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
@@ -114,7 +113,12 @@ export const executeMessageProAction = async (
     cleanedText = stripHtmlToText(htmlContent);
   }
   if (cleanedText && customerPhone) {
-    await sendSms(subdomain, 'messagePro', customerPhone, cleanedText.toString());
+    await sendSms(
+      subdomain,
+      'messagePro',
+      customerPhone,
+      cleanedText.toString(),
+    );
     sent = true;
   }
 
