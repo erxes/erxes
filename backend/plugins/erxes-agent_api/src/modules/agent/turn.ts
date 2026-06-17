@@ -4,16 +4,9 @@ import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
 import { runWithAuth } from '~/mastra/requestContext';
 import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
-import { scopedResource } from '~/mastra/memory/mastraMemory';
-import {
-  recallBlock,
-  indexMessages,
-  readWorkingMemory,
-  refreshWorkingMemory,
-  deriveResourceId,
-  augmentConvo,
-  MemoryContext,
-} from '~/mastra/memory';
+import { scopedResource, getMastraMemory } from '~/mastra/memory/mastraMemory';
+import { getThreadTitle } from '@/session/nativeStore';
+import { deriveResourceId, augmentConvo, MemoryContext } from '~/mastra/memory';
 import {
   IMastraChatAttachment,
   IMastraMessageMeta,
@@ -22,11 +15,7 @@ import { IMastraAgentDocument } from '@/agent/@types/agent';
 import { IMastraProviderDocument } from '@/provider/@types/provider';
 import { IMastraSettingsDocument } from '@/settings/@types/settings';
 import { readLearnedDigest } from '~/mastra/learning/digest';
-import { maybeGenerateThreadTitle } from '~/mastra/titler';
-import {
-  buildChatUserContent,
-  historyAttachmentNote,
-} from '~/mastra/files/chatContent';
+import { buildChatUserContent } from '~/mastra/files/chatContent';
 
 // Shared chat-turn pipeline used by both the blocking GraphQL resolver
 // (mastraAgentChat) and the streaming SSE route (/chat/stream). Holds the
@@ -255,28 +244,9 @@ export async function prepareChatTurn(params: {
   const sessionId =
     typeof threadId === 'string' && threadId ? threadId : `chat-${Date.now()}`;
 
-  // Ownership gate BEFORE any history is replayed: throws if the thread
-  // belongs to another user (prevents reading or continuing someone else's
-  // session by passing their threadId). Creates/claims the thread otherwise.
-  await models.MastraThread.ensureThread(sessionId, agentId, user._id, message);
-
   const useHistory = agentConfig.memoryEnabled !== false;
-  // Advanced memory rides on top of replay; a memory-disabled agent gets neither.
+  // Advanced memory rides on the agent's own memory toggle.
   const advanced = isAdvancedMemoryEnabled() && useHistory;
-
-  // Build the LLM context from persisted history (the system prompt already
-  // lives in the agent's instructions, so only user/assistant turns here).
-  const history = useHistory
-    ? await models.MastraMessage.getRecent(sessionId, HISTORY_LIMIT)
-    : [];
-  // Replayed messages keep a pointer to their attachments so files from
-  // earlier turns stay readable via the read-attachment tool.
-  const recentHistory = history.map((msg) => ({
-    role: msg.role,
-    content: msg.attachments?.length
-      ? `${msg.content}\n\n${historyAttachmentNote(msg.attachments)}`
-      : msg.content,
-  }));
 
   const memCtx: MemoryContext = {
     subdomain,
@@ -285,10 +255,11 @@ export async function prepareChatTurn(params: {
     agentId,
   };
 
-  // When advanced memory is enabled AND we know the tenant, Mastra Memory
-  // (attached to the agent in getOrCreateAgent) handles semantic recall +
-  // working memory automatically via the per-turn binding below — so the custom
-  // recall/working-memory injection is skipped to avoid doing it twice.
+  // Mastra Memory (attached to the agent in getOrCreateAgent) is the ONLY chat
+  // store: it persists the turn, replays recent history, and runs semantic
+  // recall + working memory via the per-turn binding below. Active when advanced
+  // memory is on AND we know the tenant. (No tenant → the turn is answered
+  // statelessly; there is no custom fallback store.)
   const useMemory = advanced && Boolean(subdomain);
   const memoryBinding = useMemory
     ? {
@@ -297,29 +268,32 @@ export async function prepareChatTurn(params: {
       }
     : undefined;
 
-  // Custom recall path (only when advanced but Mastra Memory is NOT active, e.g.
-  // no tenant) + the tenant's learned digest (shared "Agent knowledge", always).
-  // Best-effort: each returns null on error, never blocking the turn.
-  const [[recall, wmBlock], digest] = await Promise.all([
-    advanced && !useMemory
-      ? Promise.all([
-          recallBlock(message, memCtx),
-          readWorkingMemory(models, memCtx),
-        ])
-      : Promise.resolve([null, null] as [string | null, string | null]),
-    readLearnedDigest(models, agentId),
-  ]);
+  // Ownership gate: a CONTINUED thread must belong to this user. getThreadById
+  // without a resource returns the thread whatever its owner; if it exists under
+  // a different resource it is someone else's session — reported as "not found"
+  // (no existence leak). A fresh sessionId simply doesn't exist yet.
+  if (memoryBinding && typeof threadId === 'string' && threadId) {
+    const memory = await getMastraMemory(subdomain);
+    const existing = (await memory.getThreadById({
+      threadId: sessionId,
+    } as never)) as { resourceId?: string } | null;
+    if (existing && existing.resourceId !== memoryBinding.resource) {
+      throw new Error('Thread not found');
+    }
+  }
 
-  // When Mastra Memory is active it owns recent-history replay + recall +
-  // working memory (and persists the turn) — so we hand generate() ONLY the new
-  // user message (+ the learned digest, which is separate from Mastra Memory).
-  // Passing the full replayed history here would stop Mastra from persisting the
-  // turn to its store. Otherwise (no Mastra Memory) replay history manually.
+  // The tenant's learned digest (shared "Agent knowledge") is woven into the
+  // turn — separate from Mastra Memory. Best-effort: null on error.
+  const digest = await readLearnedDigest(models, agentId);
+
+  // Mastra Memory replays recent history + recall itself, so generate() gets
+  // ONLY the new user message (+ the learned digest). Passing replayed history
+  // here would stop Mastra from persisting the turn to its store.
   const convo: TurnMessage[] = augmentConvo({
-    recentHistory: useMemory ? [] : recentHistory,
+    recentHistory: [],
     userMessage: message,
-    recallBlock: recall,
-    workingMemoryBlock: wmBlock,
+    recallBlock: null,
+    workingMemoryBlock: null,
     learnedDigestBlock: digest?.block,
   });
 
@@ -383,17 +357,8 @@ export async function persistTurn(params: {
   // rated (thumbs feedback) without a reload.
   assistantMessageId: string | null;
 }> {
-  const { models, prepared, message, reply, meta } = params;
-  const {
-    sessionId,
-    advanced,
-    useMemory,
-    memCtx,
-    agentConfig,
-    providers,
-    authCtx,
-    attachments,
-  } = prepared;
+  const { prepared, reply, meta } = params;
+  const { useMemory, memCtx, agentConfig, attachments } = prepared;
 
   // Stamp which learnings were in context so a later thumbs rating can be
   // attributed to them (mastraMessageFeedback reads this back).
@@ -401,79 +366,161 @@ export async function persistTurn(params: {
     ? { ...(meta ?? {}), learningIdsInContext: prepared.learningIds }
     : meta;
 
-  const userMsg = await models.MastraMessage.addMessage(
-    sessionId,
-    'user',
-    message,
-    undefined,
-    attachments,
-  );
-  const asstMsg = reply
-    ? await models.MastraMessage.addMessage(
-        sessionId,
-        'assistant',
+  // Mastra Memory already persisted the [user, assistant] turn during
+  // generate()/stream() — there is no custom store. The title is owned by
+  // Mastra's native generateTitle (it sets thread.title once, while empty);
+  // read it back so the SSE route can push it to the client.
+  const titlePromise: Promise<string | null> =
+    reply && prepared.memoryBinding
+      ? getThreadTitle(
+          memCtx.subdomain,
+          prepared.memoryBinding.thread,
+          prepared.memoryBinding.resource,
+        ).catch(() => null)
+      : Promise.resolve<string | null>(null);
+
+  // Enrich the native records with the erxes-only turn artifacts and recover
+  // the NATIVE assistant message id — that is what the client rates (feedback
+  // resolves the native id). Best-effort: a patch failure never affects the
+  // reply.
+  let nativeAssistantId: string | null = null;
+  if (useMemory && prepared.memoryBinding) {
+    try {
+      nativeAssistantId = await patchNativeTurn({
+        subdomain: memCtx.subdomain,
+        binding: prepared.memoryBinding,
+        agentId: agentConfig.agentId,
         reply,
-        fullMeta,
-      )
-    : null;
-  await models.MastraThread.touchThread(sessionId);
-
-  // Rename the thread to an LLM summary of the conversation (replacing the
-  // first-message snippet). Runs concurrently with memory indexing; only
-  // meaningful once an assistant reply exists.
-  const titlePromise = reply
-    ? maybeGenerateThreadTitle({
-        models,
-        threadId: sessionId,
-        provider: agentConfig.provider,
-        model: agentConfig.model,
-        providers,
-        authCtx,
-      })
-    : Promise.resolve<string | null>(null);
-
-  // Custom Qdrant indexing + working-memory refresh — only when advanced memory
-  // is on but Mastra Memory is NOT active (e.g. no tenant). When Mastra Memory
-  // is active it persists the exchange + updates working memory itself via the
-  // generate()/stream() binding, so this is skipped.
-  if (advanced && !useMemory) {
-    const toIndex = [
-      {
-        id: String(userMsg._id),
-        role: 'user',
-        text: message,
-        createdAt: userMsg.createdAt?.toISOString?.(),
-      },
-    ];
-    if (asstMsg && reply) {
-      toIndex.push({
-        id: String(asstMsg._id),
-        role: 'assistant',
-        text: reply,
-        createdAt: asstMsg.createdAt?.toISOString?.(),
+        meta: fullMeta,
+        attachments,
       });
-    }
-    await indexMessages(memCtx, toIndex);
-
-    // Refresh the user's persistent profile from this exchange. Fire-and-forget
-    // (and best-effort) so it never adds latency to the reply.
-    if (reply) {
-      refreshWorkingMemory({
-        models,
-        ctx: memCtx,
-        exchange: { user: message, assistant: reply },
-        provider: agentConfig.provider,
-        model: agentConfig.model,
-        providers,
-        authCtx,
-      });
+    } catch (e) {
+      console.warn(
+        `[native-chat-store] turn patch skipped: ${(e as Error)?.message || e}`,
+      );
     }
   }
 
+  return { titlePromise, assistantMessageId: nativeAssistantId };
+}
+
+// ─── Native chat store mirror (Phase 2) ─────────────────────────────────────
+
+// The minimal native-message shape the metadata patch reads: the id to target
+// and the V2 `content` blob it merges erxes fields into. (Mastra's full
+// MastraDBMessage is wider; we only touch these.)
+interface NativeChatMessage {
+  id: string;
+  role: string;
+  content?: { metadata?: Record<string, unknown> } & Record<string, unknown>;
+}
+
+// Merge an erxes field blob into a native message's content under a namespaced
+// `metadata.erxes` key — namespaced so it never collides with Mastra's own
+// content.metadata keys — preserving the rest of the V2 content untouched.
+function mergeErxesMeta(
+  content: NativeChatMessage['content'],
+  erxes: Record<string, unknown>,
+): Record<string, unknown> {
+  const base = (content ?? {}) as Record<string, unknown>;
+  const metadata = (base.metadata ?? {}) as Record<string, unknown>;
+  const prevErxes = (metadata.erxes ?? {}) as Record<string, unknown>;
   return {
-    titlePromise,
-    assistantMessageId: asstMsg ? String(asstMsg._id) : null,
+    ...base,
+    metadata: { ...metadata, erxes: { ...prevErxes, ...erxes } },
   };
+}
+
+// Mirror erxes-only turn fields onto Mastra's natively-persisted turn so the
+// native store can later become the chat read source (docs/NATIVE-CHAT-STORE.md,
+// Phase 2). Mastra already persisted the [user, assistant] pair during
+// generate()/stream(); here we (1) merge the erxes turn meta (ordered parts,
+// thinking, tool calls, interrupted flag, learnings-in-context) and attachment
+// pointers into each message's content.metadata.erxes, and (2) stamp
+// thread.metadata.agentId so the native thread list can filter by agent (a
+// binding Mastra has no concept of). Best-effort; the caller swallows errors.
+export async function patchNativeTurn(params: {
+  subdomain: string;
+  binding: MemoryBinding;
+  agentId: string;
+  reply: string | null;
+  meta?: IMastraMessageMeta;
+  attachments?: IMastraChatAttachment[];
+}): Promise<string | null> {
+  const { subdomain, binding, agentId, reply, meta, attachments } = params;
+  const memory = await getMastraMemory(subdomain);
+
+  // Recent messages newest-first. No vectorSearchString → recall is a plain
+  // recency list (not semantic search, no embedding/LLM work), and an explicit
+  // perPage overrides the instance's lastMessages. The turn just persisted sits
+  // at the tail, so the newest assistant/user rows are this turn's.
+  const recalled = (await memory.recall({
+    threadId: binding.thread,
+    resourceId: binding.resource,
+    perPage: 4,
+    page: 0,
+    orderBy: { field: 'createdAt', direction: 'DESC' },
+  } as never)) as { messages?: NativeChatMessage[] };
+  const recent = recalled?.messages ?? [];
+
+  const patches: { id: string; content: Record<string, unknown> }[] = [];
+
+  const assistant = reply
+    ? recent.find((m) => m.role === 'assistant')
+    : undefined;
+  if (assistant && meta) {
+    const erxes: Record<string, unknown> = {
+      ...(meta.parts ? { parts: meta.parts } : {}),
+      ...(meta.thinking ? { thinking: meta.thinking } : {}),
+      ...(meta.toolCalls ? { toolCalls: meta.toolCalls } : {}),
+      ...(meta.interrupted ? { interrupted: true } : {}),
+      ...(meta.learningIdsInContext?.length
+        ? { learningIdsInContext: meta.learningIdsInContext }
+        : {}),
+    };
+    if (Object.keys(erxes).length) {
+      patches.push({ id: assistant.id, content: mergeErxesMeta(assistant.content, erxes) });
+    }
+  }
+
+  const userMsg = attachments?.length
+    ? recent.find((m) => m.role === 'user')
+    : undefined;
+  if (userMsg) {
+    patches.push({
+      id: userMsg.id,
+      content: mergeErxesMeta(userMsg.content, { attachments }),
+    });
+  }
+
+  if (patches.length) {
+    await memory.updateMessages({ messages: patches } as never);
+  }
+
+  // Stamp the erxes thread↔agent binding + tenant. agentId backs the thread-list
+  // filter; subdomain lets the learning sweep enumerate a tenant's threads
+  // (native listThreads filters by exact resourceId or metadata, and resourceId
+  // is per-user). updateThread requires a title, so preserve the current one
+  // (native generateTitle / a later rename own it).
+  const thread = (await memory.getThreadById({
+    threadId: binding.thread,
+    resourceId: binding.resource,
+  } as never)) as { title?: string; metadata?: Record<string, unknown> } | null;
+  const tMeta = (thread?.metadata ?? {}) as {
+    agentId?: string;
+    subdomain?: string;
+  };
+  if (thread && (tMeta.agentId !== agentId || tMeta.subdomain !== subdomain)) {
+    await memory.updateThread({
+      id: binding.thread,
+      title: thread.title ?? '',
+      metadata: { ...(thread.metadata ?? {}), agentId, subdomain },
+    } as never);
+  }
+
+  // The native assistant message id — the client rates this (feedback resolves
+  // it back via the native store).
+  return assistant?.id ?? null;
 }
 
 // ─── Turn execution (blocking) ───────────────────────────────────────────────

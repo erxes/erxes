@@ -20,6 +20,7 @@ import { MongoDBStore } from '@mastra/mongodb';
 import { QdrantVector } from '@mastra/qdrant';
 import { getEmbedder } from './embedder';
 import { resolveRecallTuning } from './config';
+import { TITLER_INSTRUCTIONS } from '~/mastra/titler';
 
 /** Qdrant endpoint for memory vectors (env override, local default). */
 const QDRANT_URL = () =>
@@ -58,6 +59,7 @@ async function getEmbeddingModel(): Promise<unknown> {
 }
 
 let _shared: Memory | null = null;
+let _store: MongoDBStore | null = null;
 let _building: Promise<Memory> | null = null;
 
 /**
@@ -78,6 +80,7 @@ export async function getMastraMemory(_subdomain?: string): Promise<Memory> {
       url: MONGO_URL(),
       dbName: memoryDbName(),
     } as never);
+    _store = storage;
 
     const vector = new QdrantVector({
       id: 'erxes-agent-memory',
@@ -92,9 +95,8 @@ export async function getMastraMemory(_subdomain?: string): Promise<Memory> {
       embedder: embedder as never,
       options: {
         // Mastra owns recent-history replay + semantic recall + working memory
-        // for this turn. (The erxes MastraMessage store stays the UI source of
-        // truth; the chat pipeline stops manually replaying history when memory
-        // is active.)
+        // for this turn — and the thread/message records ARE the chat store the
+        // UI reads (via session/nativeStore.ts). There is no separate store.
         lastMessages: 12,
         semanticRecall: {
           topK: tuning.topK,
@@ -107,6 +109,14 @@ export async function getMastraMemory(_subdomain?: string): Promise<Memory> {
         // (updateResource) — one row per user, NOT a collection per user — so it
         // adds no collections and is safe on the shared DB.
         workingMemory: { enabled: true, scope: 'resource' },
+        // Native thread titling. Mastra fills thread.title ONCE (only while it
+        // is empty; it never refreshes) using the agent's OWN model and erxes's
+        // multilingual TITLER instructions. `model` is intentionally omitted:
+        // the runtime's title path (genTitle → getLLM) falls back to the calling
+        // agent's model when none is given, so there is no per-tenant model to
+        // resolve on the shared instance. (The published type marks `model`
+        // required; the surrounding `as never` cast covers the omission.)
+        generateTitle: { instructions: TITLER_INSTRUCTIONS },
       },
     } as never);
 
@@ -121,6 +131,18 @@ export async function getMastraMemory(_subdomain?: string): Promise<Memory> {
   }
 }
 
+/**
+ * The shared Mastra memory STORE (MongoDBStore on erxes_mastra_memory). Built
+ * alongside the Memory instance; exposed so the chat read layer can reach
+ * storage-domain methods Memory doesn't surface (e.g. listMessagesById for
+ * message-id feedback lookup). Ensures the Memory is built first.
+ */
+export async function getMastraStore(subdomain?: string): Promise<MongoDBStore> {
+  await getMastraMemory(subdomain);
+  if (!_store) throw new Error('Mastra memory store not initialized');
+  return _store;
+}
+
 /** Tenant-scoped resource id so a shared Qdrant collection stays isolated. */
 export function scopedResource(subdomain: string, resourceId: string): string {
   return `${(subdomain || 'os').trim() || 'os'}:${resourceId}`;
@@ -129,5 +151,6 @@ export function scopedResource(subdomain: string, resourceId: string): string {
 /** Drop the cached instance (tests / config changes). */
 export function resetMastraMemoryCache(): void {
   _shared = null;
+  _store = null;
   _building = null;
 }
