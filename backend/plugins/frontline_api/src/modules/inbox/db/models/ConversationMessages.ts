@@ -133,7 +133,12 @@ export const loadClass = (models: IModels) => {
         modifier.firstRespondedDate = new Date();
       }
 
-      if (userId && !doc.internal && !doc.fromBot && !conversation.assignedUserId) {
+      if (
+        userId &&
+        !doc.internal &&
+        !doc.fromBot &&
+        !conversation.assignedUserId
+      ) {
         modifier.assignedUserId = userId;
       }
 
