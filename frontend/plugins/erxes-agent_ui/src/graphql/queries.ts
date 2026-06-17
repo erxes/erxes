@@ -384,12 +384,3 @@ export const MASTRA_WORKFLOW_RUNS = gql`
     }
   }
 `;
-
-// The single-source "Agent Knowledge (erxes)" Mastra dataset (the same one
-// Studio reads) — thumbs-UP turns as { input, groundTruth } items. Written live
-// by the feedback mutation; this is a pure read.
-export const MASTRA_KNOWLEDGE_DATASET = gql`
-  query MastraKnowledgeDataset($limit: Int) {
-    mastraKnowledgeDataset(limit: $limit)
-  }
-`;

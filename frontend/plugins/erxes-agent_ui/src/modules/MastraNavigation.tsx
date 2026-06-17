@@ -46,7 +46,7 @@ export const MastraNavigation = () => {
         path="erxes-agent/schedules"
       />
       <NavigationMenuLinkItem
-        name="Agent knowledge"
+        name="Agent learnings"
         icon={IconBulb}
         path="erxes-agent/learnings"
       />

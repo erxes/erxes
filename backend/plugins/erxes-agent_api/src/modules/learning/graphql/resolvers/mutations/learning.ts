@@ -15,7 +15,6 @@ import {
 } from '~/mastra/learning/store';
 import { findOwnedAssistantMessage } from '@/session/nativeStore';
 import { pushUserScore } from '~/mastra/scoring/langfuseClient';
-import { recordKnowledgeFromFeedback } from '~/mastra/datasets/knowledge';
 
 /** Throws unless a logged-in user is on the context; returns their _id. */
 function requireUserId(user: { _id?: string } | null | undefined): string {
@@ -143,24 +142,6 @@ export const learningMutations = {
       value: args.rating,
       comment: args.comment,
     });
-
-    // Keep the single-source "Agent Knowledge (erxes)" Mastra dataset in
-    // lock-step with this vote: 👍 adds the turn, anything else removes it. The
-    // dataset is the source of truth the Agent Knowledge UI and Studio read —
-    // no separate sync step. Non-fatal: a dataset hiccup must not fail the vote
-    // (the feedback row remains the recovery source).
-    try {
-      await recordKnowledgeFromFeedback({
-        subdomain,
-        userId,
-        threadId,
-        messageId: args.messageId,
-        rating: args.rating,
-        comment: args.comment,
-      });
-    } catch {
-      /* best-effort; the vote itself already succeeded */
-    }
 
     // Net reinforcement: undo the previous vote's delta when re-voting.
     if (learningIds.length) {
