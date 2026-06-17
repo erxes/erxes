@@ -14,6 +14,7 @@ import {
 } from '@/cms/utils/permissions';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -46,6 +47,8 @@ export const postMutations: Record<string, Resolver> = {
     const { models, user, subdomain } = context;
     const { input } = args;
     const { translations, language, ...postInput } = input;
+
+    await assertCmsAccessByClientPortal(context, postInput.clientPortalId);
 
     await requireCmsPermission(context, [
       CMS_POST_ACTIONS.createPublished,
@@ -196,6 +199,8 @@ export const postMutations: Record<string, Resolver> = {
       throw new Error('Post not found');
     }
 
+    await assertCmsAccessByClientPortal(context, existingPost.clientPortalId);
+
     await assertCmsDocumentAccess({
       context,
       actions:
@@ -280,6 +285,8 @@ export const postMutations: Record<string, Resolver> = {
       throw new Error('Post not found');
     }
 
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
+
     await assertCmsDocumentAccess({
       context,
       actions: CMS_POST_ACTIONS.remove,
@@ -308,6 +315,7 @@ export const postMutations: Record<string, Resolver> = {
     }
 
     for (const post of posts) {
+      await assertCmsAccessByClientPortal(context, post.clientPortalId);
       await assertCmsDocumentAccess({
         context,
         actions: CMS_POST_ACTIONS.remove,
@@ -330,6 +338,8 @@ export const postMutations: Record<string, Resolver> = {
     if (!post) {
       throw new Error('Post not found');
     }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
 
     await assertCmsDocumentAccess({
       context,
@@ -356,6 +366,8 @@ export const postMutations: Record<string, Resolver> = {
     if (!post) {
       throw new Error('Post not found');
     }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
 
     await assertCmsDocumentAccess({
       context,

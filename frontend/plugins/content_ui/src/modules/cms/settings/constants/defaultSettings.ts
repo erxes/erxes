@@ -23,4 +23,6 @@ export const DEFAULT_SETTINGS: SettingsFormState = {
   defaultLanguage: '',
   siteLogo: null,
   favicon: null,
+  accessPolicy: 'open',
+  assignedMemberIds: [],
 };

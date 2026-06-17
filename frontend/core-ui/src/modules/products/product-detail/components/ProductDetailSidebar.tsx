@@ -1,19 +1,10 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
-import { ProductDetail } from '../types/detailTypes';
 
-export const ProductDetailSidebar = ({
-  productDetail,
-}: {
-  productDetail?: ProductDetail | null;
-}) => {
+export const ProductDetailSidebar = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
 
-  const tabs = [
-    'overview',
-    'properties',
-    'activity',
-    ...(productDetail?.similarity ? ['similarity'] : []),
-  ];
+  const tabs = ['overview', 'properties', 'activity', 'similarity'];
+
   return (
     <Sidebar.Content>
       <Sidebar.Group>

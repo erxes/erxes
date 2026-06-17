@@ -15,9 +15,15 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { MemberFormContent } from '../frontline-card/MemberFormContent';
-import { SelectMember, SelectCustomer, SelectCompany } from 'ui-modules';
+import {
+  SelectMember,
+  SelectCustomer,
+  SelectCompany,
+  useFields,
+} from 'ui-modules';
 import {
   getReportDisplayValue,
   REPORT_FIXED_DATES,
@@ -79,19 +85,23 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
   const [companyFilter, setCompanyFilter] = useAtom(
     getReportCompanyFilterAtom(cardId),
   );
+  const [propertyFilter, setPropertyFilter] = useAtom(
+    getReportPropertyFilterAtom(cardId),
+  );
 
   const { channels } = useGetChannels();
 
   const hasFilters = Boolean(
     (channelFilter && channelFilter.length > 0) ||
-      (memberFilter && memberFilter.length > 0) ||
-      (dateValue && dateValue.length > 0) ||
-      (pipelineFilter && pipelineFilter.length > 0) ||
-      (ticketTagFilter && ticketTagFilter.length > 0) ||
-      stateFilter ||
-      (priorityFilter && priorityFilter.length > 0) ||
-      (customerFilter && customerFilter.length > 0) ||
-      (companyFilter && companyFilter.length > 0),
+    (memberFilter && memberFilter.length > 0) ||
+    (dateValue && dateValue.length > 0) ||
+    (pipelineFilter && pipelineFilter.length > 0) ||
+    (ticketTagFilter && ticketTagFilter.length > 0) ||
+    stateFilter ||
+    (priorityFilter && priorityFilter.length > 0) ||
+    (customerFilter && customerFilter.length > 0) ||
+    (companyFilter && companyFilter.length > 0) ||
+    (propertyFilter && propertyFilter.length > 0),
   );
 
   const handleClear = () => {
@@ -105,6 +115,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
     setFrequency('day');
     setCustomerFilter([]);
     setCompanyFilter([]);
+    setPropertyFilter([]);
   };
 
   return (
@@ -125,6 +136,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 <Filter.Item value="priority">Priority</Filter.Item>
                 <Filter.Item value="customer">Customer</Filter.Item>
                 <Filter.Item value="company">Company</Filter.Item>
+                <Filter.Item value="properties">Properties</Filter.Item>
                 <Filter.Item value="frequency">Frequency</Filter.Item>
                 <Filter.Item value="date">Date</Filter.Item>
                 {hasFilters && (
@@ -218,6 +230,15 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
               >
                 <SelectCompany.Content />
               </SelectCompany.Provider>
+            </Command>
+          </Filter.View>
+
+          <Filter.View filterKey="properties">
+            <Command shouldFilter={false}>
+              <PropertyFilterView
+                value={propertyFilter}
+                onValueChange={setPropertyFilter}
+              />
             </Command>
           </Filter.View>
 
@@ -438,6 +459,60 @@ const PriorityFilterView = ({
           </div>
         </Command.Item>
       ))}
+    </Command.List>
+  );
+};
+
+const PropertyFilterView = ({
+  value,
+  onValueChange,
+}: {
+  value: string[];
+  onValueChange: (value: string[]) => void;
+}) => {
+  const { fields, loading } = useFields({ contentType: 'frontline:ticket' });
+
+  const handleSelect = (id: string) => {
+    if (id === 'all') {
+      onValueChange([]);
+      return;
+    }
+    const isSelected = value.includes(id);
+    onValueChange(isSelected ? value.filter((v) => v !== id) : [...value, id]);
+  };
+
+  return (
+    <Command.List className="max-h-[500px] overflow-y-auto">
+      <BackButton />
+      {loading ? (
+        <Command.Empty>Loading...</Command.Empty>
+      ) : (
+        <>
+          <Command.Item value="all" onSelect={() => handleSelect('all')}>
+            <div className="flex items-center gap-2">
+              {(!value || value.length === 0) && (
+                <IconCheck className="size-4" />
+              )}
+              <span>All Properties</span>
+            </div>
+          </Command.Item>
+          {fields.length === 0 && (
+            <Command.Empty>No custom properties found.</Command.Empty>
+          )}
+          {fields.map((field) => (
+            <Command.Item
+              key={field._id}
+              value={field._id}
+              onSelect={() => handleSelect(field._id)}
+            >
+              <div className="flex items-center gap-2">
+                {value.includes(field._id) && <IconCheck className="size-4" />}
+                <span>{field.name}</span>
+              </div>
+            </Command.Item>
+          ))}
+        </>
+      )}
     </Command.List>
   );
 };

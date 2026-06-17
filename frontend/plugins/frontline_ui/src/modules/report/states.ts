@@ -260,3 +260,23 @@ export const getReportCompanyFilterAtom = (cardId: string) =>
       },
     ),
   );
+
+export const reportPropertyFilterState = atom<Record<string, string[]>>({});
+
+const propertyFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+
+export const getReportPropertyFilterAtom = (cardId: string) =>
+  getOrCreate(propertyFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportPropertyFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportPropertyFilterState, {
+          ...get(reportPropertyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
