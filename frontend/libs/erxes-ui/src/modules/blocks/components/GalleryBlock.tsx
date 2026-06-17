@@ -234,7 +234,7 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
         img.caption ? (
           <figure key={i} style={{ margin: 0 }}>
             <img
-              src={img.url}
+              src={readImage(img.url)}
               alt={img.caption}
               style={{ width: '100%', height: 'auto', display: 'block' }}
             />
@@ -243,7 +243,7 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
         ) : (
           <img
             key={i}
-            src={img.url}
+            src={readImage(img.url)}
             alt=""
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
