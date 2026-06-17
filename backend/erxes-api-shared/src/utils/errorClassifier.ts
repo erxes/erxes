@@ -1,6 +1,6 @@
 /**
  * Error Classification System
- * 
+ *
  * Intercepts thrown errors and classifies them as:
  * - EXPECTED: Business logic errors (not found, validation, auth) — skip Sentry, return HTTP 200
  * - SYSTEM: Infrastructure/bug errors (database, network, memory) — capture in Sentry, HTTP 500
@@ -48,7 +48,10 @@ export class ExpectedError extends Error {
 }
 
 /** Convenience factory mirroring {@link ExpectedError}. */
-export function createExpectedError(message: string, code?: string): ExpectedError {
+export function createExpectedError(
+  message: string,
+  code?: string,
+): ExpectedError {
   return new ExpectedError(message, code);
 }
 
@@ -56,10 +59,7 @@ export function createExpectedError(message: string, code?: string): ExpectedErr
  * True when an error explicitly declares itself expected — via the
  * {@link ExpectedError} class, an `isExpected === true` flag, or the marker name.
  */
-function isExplicitlyExpected(
-  error: unknown,
-  errorName?: string,
-): boolean {
+function isExplicitlyExpected(error: unknown, errorName?: string): boolean {
   if (errorName === EXPECTED_ERROR_NAME) return true;
   if (
     error &&
@@ -248,7 +248,10 @@ export function classifyError(error: unknown): IClassificationResult {
 
   // Check SYSTEM patterns first to prevent EXPECTED patterns from shadowing
   // system errors (e.g., "Cannot find module" should be SYSTEM, not EXPECTED)
-  if (matchesAny(message, SYSTEM_PATTERNS) || matchesAny(errorName, SYSTEM_PATTERNS)) {
+  if (
+    matchesAny(message, SYSTEM_PATTERNS) ||
+    matchesAny(errorName, SYSTEM_PATTERNS)
+  ) {
     return { category: 'SYSTEM', statusCode: 500, isExpected: false };
   }
 
@@ -311,13 +314,20 @@ function extractErrorName(error: unknown): string | undefined {
  * Check if this is a Mongoose/database validation error (SYSTEM)
  * vs a business validation error (EXPECTED)
  */
-function isMongooseValidationError(name: string | undefined, message: string): boolean {
+function isMongooseValidationError(
+  name: string | undefined,
+  message: string,
+): boolean {
   if (!name || !message) return false;
 
   // Mongoose ValidationError with database issues
   if (name === 'ValidationError') {
     // If it mentions BSON, ObjectId casting, or database paths, it's a system error
-    if (/BSONError|Cast to ObjectId|Cast to .* failed|path "|type string/i.test(message)) {
+    if (
+      /BSONError|Cast to ObjectId|Cast to .* failed|path "|type string/i.test(
+        message,
+      )
+    ) {
       return true;
     }
   }
@@ -345,24 +355,36 @@ function extractCode(error: unknown): string | undefined {
  */
 function classifyByCode(code: string): ErrorCategory | undefined {
   const expectedCodes = [
-    'ENOT_FOUND', 'NOT_FOUND', 'EEXIST', 'VALIDATION_ERROR',
-    'UNAUTHORIZED', 'FORBIDDEN', 'PERMISSION_DENIED', 'BAD_REQUEST',
-    'CONFLICT', 'DUPLICATE', 'REQUIRED', 'INVALID',
-  ];
-  
-  const providerCodes = [
-    'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET',
-    'EPIPE', 'EHOSTUNREACH', 'ECONNABORTED',
+    'ENOT_FOUND',
+    'NOT_FOUND',
+    'EEXIST',
+    'VALIDATION_ERROR',
+    'UNAUTHORIZED',
+    'FORBIDDEN',
+    'PERMISSION_DENIED',
+    'BAD_REQUEST',
+    'CONFLICT',
+    'DUPLICATE',
+    'REQUIRED',
+    'INVALID',
   ];
 
-  const systemCodes = [
-    'ENOMEM', 'EACCES', 'EPERM',
+  const providerCodes = [
+    'ECONNREFUSED',
+    'ENOTFOUND',
+    'ETIMEDOUT',
+    'ECONNRESET',
+    'EPIPE',
+    'EHOSTUNREACH',
+    'ECONNABORTED',
   ];
+
+  const systemCodes = ['ENOMEM', 'EACCES', 'EPERM'];
 
   if (expectedCodes.includes(code)) return 'EXPECTED';
   if (providerCodes.includes(code)) return 'PROVIDER';
   if (systemCodes.includes(code)) return 'SYSTEM';
-  
+
   return undefined;
 }
 
@@ -371,10 +393,14 @@ function classifyByCode(code: string): ErrorCategory | undefined {
  */
 function getStatusCode(category: ErrorCategory): number {
   switch (category) {
-    case 'EXPECTED': return 200;
-    case 'SYSTEM': return 500;
-    case 'PROVIDER': return 502;
-    case 'UNKNOWN': return 500;
+    case 'EXPECTED':
+      return 200;
+    case 'SYSTEM':
+      return 500;
+    case 'PROVIDER':
+      return 502;
+    case 'UNKNOWN':
+      return 500;
   }
 }
 
@@ -383,7 +409,7 @@ function getStatusCode(category: ErrorCategory): number {
  */
 function matchesAny(text: string | undefined, patterns: RegExp[]): boolean {
   if (!text) return false;
-  return patterns.some(pattern => pattern.test(text));
+  return patterns.some((pattern) => pattern.test(text));
 }
 
 /**
@@ -392,17 +418,17 @@ function matchesAny(text: string | undefined, patterns: RegExp[]): boolean {
  */
 function looksLikeBusinessError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
-  
+
   // Business errors usually have short messages
   if (error.message.length > 200) return false;
-  
+
   // Business errors usually lack stack traces or have shallow ones
   if (!error.stack) return true;
-  
+
   // If stack trace is very short, likely a constructed error
   const stackLines = error.stack.split('\n').length;
   if (stackLines <= 3) return true;
-  
+
   return false;
 }
 

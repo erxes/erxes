@@ -18,12 +18,15 @@ describe('errorClassifier', () => {
       ['Wrong password', 'EXPECTED', true, 200],
       ['Permission denied', 'EXPECTED', true, 200],
       ['Not authenticated', 'EXPECTED', true, 200],
-    ])('should classify "%s" as EXPECTED', (msg, category, isExpected, statusCode) => {
-      const result = classifyError(new Error(msg));
-      expect(result.category).toBe(category);
-      expect(result.isExpected).toBe(isExpected);
-      expect(result.statusCode).toBe(statusCode);
-    });
+    ])(
+      'should classify "%s" as EXPECTED',
+      (msg, category, isExpected, statusCode) => {
+        const result = classifyError(new Error(msg));
+        expect(result.category).toBe(category);
+        expect(result.isExpected).toBe(isExpected);
+        expect(result.statusCode).toBe(statusCode);
+      },
+    );
 
     // Regression: real prod Sentry noise that previously leaked through because
     // the messages don't contain "is required"/"are required"/etc.
@@ -56,12 +59,15 @@ describe('errorClassifier', () => {
     test.each([
       ['Request timeout', 'PROVIDER', false, 502],
       ['connect ECONNREFUSED 127.0.0.1:27017', 'PROVIDER', false, 502],
-    ])('should classify "%s" as PROVIDER', (msg, category, isExpected, statusCode) => {
-      const result = classifyError(new Error(msg));
-      expect(result.category).toBe(category);
-      expect(result.isExpected).toBe(isExpected);
-      expect(result.statusCode).toBe(statusCode);
-    });
+    ])(
+      'should classify "%s" as PROVIDER',
+      (msg, category, isExpected, statusCode) => {
+        const result = classifyError(new Error(msg));
+        expect(result.category).toBe(category);
+        expect(result.isExpected).toBe(isExpected);
+        expect(result.statusCode).toBe(statusCode);
+      },
+    );
 
     it('should classify unknown errors as UNKNOWN', () => {
       const result = classifyError(new Error('Something weird happened'));
@@ -86,7 +92,9 @@ describe('errorClassifier', () => {
   describe('ExpectedError (explicit marker)', () => {
     it('is always EXPECTED regardless of message wording', () => {
       // A message that matches NONE of the regex patterns must still be expected.
-      const result = classifyError(new ExpectedError('totally novel wording xyz'));
+      const result = classifyError(
+        new ExpectedError('totally novel wording xyz'),
+      );
       expect(result.category).toBe('EXPECTED');
       expect(result.isExpected).toBe(true);
       expect(result.statusCode).toBe(200);
@@ -95,7 +103,9 @@ describe('errorClassifier', () => {
     it('beats SYSTEM patterns when explicitly marked', () => {
       // Even a message containing a SYSTEM keyword stays EXPECTED when the
       // thrower has declared intent via ExpectedError.
-      const result = classifyError(new ExpectedError('TypeError-looking message'));
+      const result = classifyError(
+        new ExpectedError('TypeError-looking message'),
+      );
       expect(result.category).toBe('EXPECTED');
     });
 
@@ -152,14 +162,18 @@ describe('errorClassifier', () => {
     });
 
     it('should classify "Missing environment variable" as SYSTEM, not EXPECTED', () => {
-      const result = classifyError(new Error('Missing environment variable: API_KEY'));
+      const result = classifyError(
+        new Error('Missing environment variable: API_KEY'),
+      );
       expect(result.category).toBe('SYSTEM');
       expect(result.isExpected).toBe(false);
       expect(result.statusCode).toBe(500);
     });
 
     it('should classify Mongoose BSON errors as SYSTEM', () => {
-      const error = new Error('BSONTypeError: Cast to ObjectId failed for value "abc" at path "_id"');
+      const error = new Error(
+        'BSONTypeError: Cast to ObjectId failed for value "abc" at path "_id"',
+      );
       const result = classifyError(error);
       expect(result.category).toBe('SYSTEM');
       expect(result.isExpected).toBe(false);
@@ -179,8 +193,8 @@ describe('errorClassifier', () => {
     it('should return null for EXPECTED errors', () => {
       const event = {
         exception: {
-          values: [{ value: 'User not found' }]
-        }
+          values: [{ value: 'User not found' }],
+        },
       };
       expect(sentryExpectedErrorFilter(event as any)).toBeNull();
     });
@@ -188,8 +202,8 @@ describe('errorClassifier', () => {
     it('should return event for SYSTEM errors', () => {
       const event = {
         exception: {
-          values: [{ value: 'MongoNetworkError: connection failed' }]
-        }
+          values: [{ value: 'MongoNetworkError: connection failed' }],
+        },
       };
       expect(sentryExpectedErrorFilter(event as any)).toBe(event as any);
     });
@@ -197,8 +211,8 @@ describe('errorClassifier', () => {
     it('should return event for PROVIDER errors', () => {
       const event = {
         exception: {
-          values: [{ value: 'Request timeout' }]
-        }
+          values: [{ value: 'Request timeout' }],
+        },
       };
       expect(sentryExpectedErrorFilter(event as any)).toBe(event as any);
     });
