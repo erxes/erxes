@@ -111,7 +111,10 @@ export const msdynamicCheckMutations = {
       brandId: cfgBrandId,
     } = config;
 
-    const productQry: { status: { $ne: string }; scopeBrandIds?: { $in: string[] } } = {
+    const productQry: {
+      status: { $ne: string };
+      scopeBrandIds?: { $in: string[] };
+    } = {
       status: { $ne: 'deleted' },
     };
 

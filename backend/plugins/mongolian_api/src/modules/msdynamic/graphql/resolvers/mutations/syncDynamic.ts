@@ -96,7 +96,10 @@ export const msdynamicSyncMutations = {
 
         results.succeeded++;
       } catch (e) {
-        console.error('toSyncMsdPrices error:', e instanceof Error ? e.message : e);
+        console.error(
+          'toSyncMsdPrices error:',
+          e instanceof Error ? e.message : e,
+        );
         results.failed++;
       }
     }
