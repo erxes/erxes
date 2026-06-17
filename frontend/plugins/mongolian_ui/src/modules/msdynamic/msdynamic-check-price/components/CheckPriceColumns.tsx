@@ -52,7 +52,8 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
     cell: ({ cell }) => {
       const row = cell.row.original;
       const price = row.status === 'DELETE' ? row.unitPrice : row.Unit_Price;
-      const numericPrice = price === null || price === undefined ? null : Number(price);
+      const numericPrice =
+        price === null || price === undefined ? null : Number(price);
       const isValid = numericPrice !== null && !Number.isNaN(numericPrice);
       return (
         <RecordTableInlineCell>

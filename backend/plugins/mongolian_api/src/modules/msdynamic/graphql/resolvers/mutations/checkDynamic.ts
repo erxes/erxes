@@ -49,9 +49,9 @@ async function fetchMsdPriceItems(
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(
-          `${username}:${password}`,
-        ).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
       },
       timeout: 180000,
     },
