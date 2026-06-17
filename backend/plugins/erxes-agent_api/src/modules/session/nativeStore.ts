@@ -303,6 +303,9 @@ export async function markThreadDistilled(
 export interface OwnedAssistantMessage {
   threadId: string;
   learningIdsInContext: string[];
+  // Langfuse trace id stamped on this turn (Plan B) — for attaching a human
+  // thumbs score to the right trace. Undefined when evaluation was off.
+  langfuseTraceId?: string;
 }
 
 /**
@@ -344,9 +347,11 @@ export async function findOwnedAssistantMessage(
 
   const erxes = (msg.content?.metadata?.erxes ?? {}) as {
     learningIdsInContext?: string[];
+    langfuseTraceId?: string;
   };
   return {
     threadId: msg.threadId,
     learningIdsInContext: erxes.learningIdsInContext ?? [],
+    langfuseTraceId: erxes.langfuseTraceId,
   };
 }

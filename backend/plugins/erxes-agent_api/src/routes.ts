@@ -348,12 +348,25 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
 
     let streamError: string | null = null;
 
+    // Plan B: the Langfuse trace id for this turn — stamped onto the assistant
+    // message (via meta below) so a later thumbs rating can attach a human score
+    // to the right trace. Captured from the stream; undefined when eval is off.
+    let langfuseTraceId: string | undefined;
     try {
       await runWithAuth(authCtx, async () => {
         const stream = await agent.stream(convo, {
           abortSignal: controller.signal,
           ...(memoryBinding ? { memory: memoryBinding } : {}),
         });
+        const tid = (stream as { traceId?: unknown }).traceId;
+        langfuseTraceId =
+          typeof tid === 'string'
+            ? tid
+            : tid && typeof (tid as PromiseLike<unknown>).then === 'function'
+              ? ((await (tid as Promise<unknown>).catch(() => undefined)) as
+                  | string
+                  | undefined)
+              : undefined;
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);
@@ -423,6 +436,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
             toolCalls: acc.toolCalls.length ? acc.toolCalls : undefined,
             parts: acc.parts.length ? acc.parts : undefined,
             interrupted: interrupted || undefined,
+            langfuseTraceId,
           }
         : undefined,
     });
