@@ -38,6 +38,48 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
  * ============================
  */
 export const msdynamicSyncMutations = {
+  async toSyncMsdPrices(
+    _root,
+    { prices }: { prices: any[] },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdSync');
+
+    for (const price of prices || []) {
+      try {
+        const code = price.Item_No || price.code;
+        if (!code) continue;
+
+        const product = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'products',
+          action: 'findOne',
+          input: { query: { code } },
+          defaultValue: null,
+        });
+
+        if (!product) continue;
+
+        await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'products',
+          action: 'updateProduct',
+          input: {
+            _id: product._id,
+            doc: { unitPrice: price.Unit_Price || price.unitPrice || 0 },
+          },
+          defaultValue: {},
+        });
+      } catch (e: any) {
+        console.error('toSyncMsdPrices error:', e?.message);
+      }
+    }
+
+    return { status: 'success' };
+  },
+
   async toSyncMsdProducts(
     _root,
     {
