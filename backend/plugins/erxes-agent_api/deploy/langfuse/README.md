@@ -31,9 +31,15 @@ then start with the profile:
 docker compose --profile bundled-stores up -d
 ```
 
-Then either way:
-- Open `LANGFUSE_PUBLIC_URL`, create an account → organization → project.
-- Copy the project's **public** (`pk-lf-…`) and **secret** (`sk-lf-…`) keys.
+Then either way — first-boot login (sign-up is **disabled by default**):
+- **Default (admin seed):** set `LANGFUSE_INIT_ORG_ID` / `LANGFUSE_INIT_USER_EMAIL`
+  / `LANGFUSE_INIT_USER_PASSWORD` before first boot. Langfuse seeds that admin
+  once; open `LANGFUSE_PUBLIC_URL` and log in with it.
+- **Or self-register once:** set `LANGFUSE_DISABLE_SIGNUP=false` for the first
+  boot, open the UI, create your account → organization, then set it back to
+  `true` and redeploy.
+- Once logged in, create a **project** and copy its **public** (`pk-lf-…`) and
+  **secret** (`sk-lf-…`) keys.
 - Put the app behind your TLS/reverse proxy; set `LANGFUSE_PUBLIC_URL` to the
   public HTTPS URL. Only `langfuse-web` (`LANGFUSE_PORT`) is exposed; bundled
   store ports stay on the compose network (not published).
@@ -44,7 +50,7 @@ In each client's erxes `.env`:
 
 ```bash
 ERXES_AGENT_EVALUATION=enable
-ERXES_AGENT_EVALUATION_DSN=https://pk-lf-xxx:sk-lf-xxx@langfuse.your-domain.com
+ERXES_AGENT_EVALUATION_DSN=https://<public-key>:<secret-key>@langfuse.your-domain.com
 ```
 
 ## One project vs project-per-client

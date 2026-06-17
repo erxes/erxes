@@ -276,5 +276,3 @@ export const LearningsIndexPage = () => {
     </div>
   );
 };
-
-export default LearningsIndexPage;

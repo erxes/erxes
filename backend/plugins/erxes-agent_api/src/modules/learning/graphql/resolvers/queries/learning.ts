@@ -27,8 +27,12 @@ export const learningQueries = {
   mastraKnowledgeDataset: (
     _: unknown,
     args: { limit?: number },
-    { subdomain }: IContext,
-  ) => listKnowledge(subdomain, args.limit ?? 500),
+    { user, subdomain }: IContext,
+  ) => {
+    requireUserId(user);
+    const limit = Math.min(Math.max(args.limit ?? 500, 1), 1000);
+    return listKnowledge(subdomain, limit);
+  },
 
   mastraLearnings: async (
     _: unknown,

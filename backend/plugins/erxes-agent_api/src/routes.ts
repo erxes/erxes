@@ -359,14 +359,14 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
           ...(memoryBinding ? { memory: memoryBinding } : {}),
         });
         const tid = (stream as { traceId?: unknown }).traceId;
+        const resolvedTid =
+          tid && typeof (tid as PromiseLike<unknown>).then === 'function'
+            ? await (tid as Promise<unknown>).catch(() => undefined)
+            : tid;
+        // Only accept a string trace id — a non-string truthy value would slip
+        // past the falsy guard in pushUserScore and ship bad data to Langfuse.
         langfuseTraceId =
-          typeof tid === 'string'
-            ? tid
-            : tid && typeof (tid as PromiseLike<unknown>).then === 'function'
-              ? ((await (tid as Promise<unknown>).catch(() => undefined)) as
-                  | string
-                  | undefined)
-              : undefined;
+          typeof resolvedTid === 'string' ? resolvedTid : undefined;
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);

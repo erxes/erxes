@@ -11,23 +11,21 @@
 import { Langfuse } from 'langfuse';
 import { langfuseConfig } from './config';
 
-// subdomain → client (or null sentinel when Langfuse isn't configured).
-const clients = new Map<string, Langfuse | null>();
+// Langfuse is configured by ONE global DSN, so a single shared client serves
+// every tenant — no per-subdomain fan-out. (undefined = not yet resolved;
+// null = configured-absent sentinel.)
+let client: Langfuse | null | undefined;
 
-function clientFor(subdomain?: string): Langfuse | null {
-  const key = (subdomain || 'os').trim() || 'os';
-  if (clients.has(key)) return clients.get(key) ?? null;
+function getClient(): Langfuse | null {
+  if (client !== undefined) return client;
   const lf = langfuseConfig();
-  if (!lf) {
-    clients.set(key, null);
-    return null;
-  }
-  const client = new Langfuse({
-    publicKey: lf.publicKey,
-    secretKey: lf.secretKey,
-    baseUrl: lf.baseUrl,
-  });
-  clients.set(key, client);
+  client = lf
+    ? new Langfuse({
+        publicKey: lf.publicKey,
+        secretKey: lf.secretKey,
+        baseUrl: lf.baseUrl,
+      })
+    : null;
   return client;
 }
 
@@ -44,17 +42,17 @@ export async function pushUserScore(params: {
   comment?: string;
 }): Promise<void> {
   if (!params.traceId) return;
-  const client = clientFor(params.subdomain);
-  if (!client) return;
+  const lf = getClient();
+  if (!lf) return;
   try {
-    client.score({
+    lf.score({
       traceId: params.traceId,
       name: params.name,
       value: params.value,
       comment: params.comment,
       dataType: 'NUMERIC',
     } as never);
-    await client.flushAsync();
+    await lf.flushAsync();
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn(
@@ -63,7 +61,7 @@ export async function pushUserScore(params: {
   }
 }
 
-/** Drop cached clients (e.g. after an env change or in tests). */
+/** Drop the cached client (e.g. after an env change or in tests). */
 export function resetLangfuseClients(): void {
-  clients.clear();
+  client = undefined;
 }

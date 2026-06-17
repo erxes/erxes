@@ -152,14 +152,19 @@ export async function recordKnowledgeFromFeedback(args: {
     datasetId: dataset.id,
     pagination: { page: 1, perPage: false },
   });
-  const existing = items.find((it) => it.metadata?.messageId === args.messageId);
+  const matches = items.filter(
+    (it) => it.metadata?.messageId === args.messageId,
+  );
 
-  // Not a 👍 → ensure the turn is NOT in the knowledge dataset.
+  // Not a 👍 → ensure the turn is NOT in the knowledge dataset. Remove EVERY
+  // matching row, not just the first, so any duplicates can't survive a 👎.
   if (args.rating !== 1) {
-    if (existing) await datasets.deleteItem({ id: existing.id, datasetId: dataset.id });
+    for (const m of matches) {
+      await datasets.deleteItem({ id: m.id, datasetId: dataset.id });
+    }
     return;
   }
-  if (existing) return; // already approved & stored
+  if (matches.length) return; // already approved & stored
 
   // Pair the rated assistant message with the user message just before it.
   const msgs = await getOwnedThreadMessages(

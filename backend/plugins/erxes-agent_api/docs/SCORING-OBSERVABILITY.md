@@ -1,15 +1,17 @@
 # Agent scoring + central observability (Langfuse)
 
 Live-scores every (sampled) agent turn and ships **traces + scorer scores +
-thumbs feedback** to a self-hosted **Langfuse** — one project per tenant, so a
-single server monitors every erxes client. All built on Mastra's native
-observability exporter layer; no custom telemetry plumbing.
+thumbs feedback** to a self-hosted **Langfuse** — one shared server monitors
+every erxes client, either as a single shared project (filter by
+`serviceName=erxes-agent:<subdomain>`) or one project per client (see the deploy
+README). All built on Mastra's native observability exporter layer; no custom
+telemetry plumbing.
 
 Status: **OFF by default.** Zero overhead until `ERXES_AGENT_EVALUATION=enable`.
 
 ## How it works
 
-```
+```text
 agent turn ──▶ scorers run (sampled) ──▶ agent.__registerMastra(host)
                                               │
                                   host.observability (Observability)
@@ -68,7 +70,7 @@ After the central server is up and you've created a project (see the
 
 ```bash
 ERXES_AGENT_EVALUATION=enable
-ERXES_AGENT_EVALUATION_DSN=https://pk-lf-xxx:sk-lf-xxx@langfuse.your-domain.com
+ERXES_AGENT_EVALUATION_DSN=https://<public-key>:<secret-key>@langfuse.your-domain.com
 ```
 
 (`pk-lf-…` = project public key, `sk-lf-…` = secret key, host = the central

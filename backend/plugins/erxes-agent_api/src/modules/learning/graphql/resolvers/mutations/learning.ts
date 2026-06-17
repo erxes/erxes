@@ -120,17 +120,6 @@ export const learningMutations = {
     const { threadId, learningIdsInContext: learningIds, langfuseTraceId } =
       await findOwnedAssistantMessage(subdomain, userId, args.messageId);
 
-    // Plan B: mirror the human thumbs into Langfuse as a score on this turn's
-    // trace (the SDK, never the CLI). Fire-and-forget + self-guarding: no trace
-    // id or no Langfuse configured → no-op, feedback still succeeds.
-    void pushUserScore({
-      subdomain,
-      traceId: langfuseTraceId,
-      name: 'user-feedback',
-      value: args.rating,
-      comment: args.comment,
-    });
-
     const { previousRating } = await models.MastraFeedback.saveFeedback({
       threadId,
       messageId: args.messageId,
@@ -138,6 +127,18 @@ export const learningMutations = {
       rating: args.rating as 1 | -1,
       comment: args.comment,
       learningIdsInContext: learningIds,
+    });
+
+    // Plan B: mirror the human thumbs into Langfuse as a score on this turn's
+    // trace (the SDK, never the CLI). Only AFTER the feedback is persisted, so a
+    // failed save never emits a phantom score. Fire-and-forget + self-guarding:
+    // no trace id or no Langfuse configured → no-op, feedback still succeeds.
+    void pushUserScore({
+      subdomain,
+      traceId: langfuseTraceId,
+      name: 'user-feedback',
+      value: args.rating,
+      comment: args.comment,
     });
 
     // Keep the single-source "Agent Knowledge (erxes)" Mastra dataset in
