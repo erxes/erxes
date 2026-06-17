@@ -11,7 +11,10 @@ function App() {
   return (
     <Router basename={widgetBasePath}>
       <Routes>
-        <Route path="/invoice/:id" element={<InvoiceDetail />} />
+        <Route
+          path="/pl:payment/widget/invoice/:id"
+          element={<InvoiceDetail />}
+        />
       </Routes>
     </Router>
   );

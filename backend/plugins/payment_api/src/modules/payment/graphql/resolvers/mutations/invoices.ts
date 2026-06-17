@@ -8,7 +8,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { IInvoice, IInvoiceDocument } from '~/modules/payment/@types/invoices';
+import { IInvoice } from '~/modules/payment/@types/invoices';
 import * as QRCode from 'qrcode';
 async function sendInvoiceBarcodeEmail(
   subdomain: string,
@@ -319,9 +319,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       }
 
       if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
-        );
+        const [moduleName, collectionType] = splitType(invoice.contentType);
 
         // Fire worker message – do not await
         sendWorkerMessage({
