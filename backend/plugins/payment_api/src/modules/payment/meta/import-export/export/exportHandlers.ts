@@ -1,6 +1,6 @@
 import {
   TExportHandlers,
-  IImportExportContext,
+  GetExportData,
 } from 'erxes-api-shared/core-modules';
 import { getInvoiceExportHeaders } from './getInvoiceExportHeaders';
 import { getInvoiceExportData } from './getInvoiceExportData';
@@ -12,9 +12,21 @@ const invoiceExportMap = {
   },
 };
 
+/**
+ * The export worker may deliver the payload either flattened or wrapped in a
+ * `data` envelope, so resolve the collection name from both shapes.
+ */
+const resolveCollectionName = (payload: unknown): string | undefined => {
+  const raw = payload as {
+    collectionName?: string;
+    data?: { collectionName?: string };
+  };
+  return raw?.collectionName ?? raw?.data?.collectionName;
+};
+
 export const invoiceExportHandlers: TExportHandlers = {
-  getExportHeaders: async (data: any, ctx: IImportExportContext) => {
-    const collectionName = data?.collectionName ?? data?.data?.collectionName;
+  getExportHeaders: async (data, ctx) => {
+    const collectionName = resolveCollectionName(data);
     const handler =
       invoiceExportMap[collectionName as keyof typeof invoiceExportMap]
         ?.getExportHeaders;
@@ -22,13 +34,13 @@ export const invoiceExportHandlers: TExportHandlers = {
       throw new Error(`Export headers handler not found for ${collectionName}`);
     return handler(data, ctx);
   },
-  getExportData: async (args: any, ctx: IImportExportContext) => {
-    const collectionName = args?.collectionName ?? args?.data?.collectionName;
+  getExportData: async (args, ctx) => {
+    const collectionName = resolveCollectionName(args);
     const handler =
       invoiceExportMap[collectionName as keyof typeof invoiceExportMap]
         ?.getExportData;
     if (!handler)
       throw new Error(`Export handler not found for ${collectionName}`);
-    return handler(args, ctx);
+    return handler(args as unknown as GetExportData, ctx);
   },
 };

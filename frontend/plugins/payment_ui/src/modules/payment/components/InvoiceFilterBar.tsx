@@ -35,7 +35,7 @@ export const InvoiceFilterBar = () => {
       <PageSubHeader>
         <Filter.Bar>
           <Filter.Popover scope="invoices-page">
-            <Filter.Trigger isFiltered={!!status || !!kind} />
+            <Filter.Trigger isFiltered={!!searchValue || !!status || !!kind} />
             <Combobox.Content>
               <Filter.View>
                 <Command>

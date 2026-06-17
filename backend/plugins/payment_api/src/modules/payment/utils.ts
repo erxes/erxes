@@ -9,6 +9,9 @@ export interface IInvoiceFilterParams {
   contentTypeId?: string;
 }
 
+/** MongoDB filter query shape for invoices. */
+export type TInvoiceFilterQuery = Record<string, unknown>;
+
 /**
  * Builds the `_id`/`paymentIds` conditions that match invoices belonging to a
  * given payment kind, by resolving the kind through transactions and payment
@@ -18,13 +21,13 @@ export interface IInvoiceFilterParams {
 export const buildInvoiceKindQuery = async (
   kind: string,
   models: IModels,
-): Promise<Record<string, any>> => {
+): Promise<TInvoiceFilterQuery> => {
   const [txInvoiceIds, pmIds] = await Promise.all([
     models.Transactions.find({ paymentKind: kind }).distinct('invoiceId'),
     models.PaymentMethods.find({ kind }).distinct('_id'),
   ]);
 
-  const conditions: Record<string, any>[] = [];
+  const conditions: TInvoiceFilterQuery[] = [];
   if (txInvoiceIds.length > 0) conditions.push({ _id: { $in: txInvoiceIds } });
   if (pmIds.length > 0)
     conditions.push({ paymentIds: { $in: pmIds.map(String) } });
@@ -42,8 +45,8 @@ export const buildInvoiceKindQuery = async (
 export const generateInvoiceFilterQuery = async (
   params: IInvoiceFilterParams,
   models: IModels,
-): Promise<Record<string, any>> => {
-  const query: Record<string, any> = {};
+): Promise<TInvoiceFilterQuery> => {
+  const query: TInvoiceFilterQuery = {};
   const { searchValue, kind, status, contentType, contentTypeId } =
     params || {};
 

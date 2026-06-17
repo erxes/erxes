@@ -2,12 +2,27 @@ import { IInvoiceDocument } from '~/modules/payment/@types/invoices';
 
 export type TInvoiceExportRow = Record<string, string>;
 
+/**
+ * Neutralizes CSV formula injection: spreadsheet clients (Excel, Google Sheets)
+ * evaluate a cell as a formula when it starts with =, +, -, @, tab or CR. The
+ * shared CSV writer only handles RFC 4180 quoting, so we prefix risky strings
+ * with a single quote to force them to be treated as text.
+ */
+const FORMULA_PREFIX = /^[=+\-@\t\r]/;
+const sanitizeForCsv = (value: string): string =>
+  FORMULA_PREFIX.test(value) ? `'${value}` : value;
+
 const formatValue = (value: unknown): string => {
   if (value == null) return '';
   if (value instanceof Date) {
     return Number.isNaN(value.getTime()) ? '' : value.toISOString();
   }
-  return String(value);
+  // Numbers/booleans cannot carry a formula payload, so leave them intact
+  // (avoids corrupting legitimate negative amounts into text).
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  return sanitizeForCsv(String(value));
 };
 
 /**
