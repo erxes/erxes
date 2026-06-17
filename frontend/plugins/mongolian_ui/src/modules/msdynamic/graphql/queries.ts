@@ -161,8 +161,13 @@ const dynamicConfigs = `
 `;
 
 const configs = `
-  query configsGetValue($code: String!) {
-    configsGetValue(code: $code)
+  query mnConfigs($code: String!) {
+    mnConfigs(code: $code) {
+      _id
+      code
+      subId
+      value
+    }
   }
 `;
 
