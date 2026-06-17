@@ -1,5 +1,5 @@
 import { Popover as PopoverPrimitive, Portal } from 'radix-ui';
-import { Button } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import {
   DndContext,
   MouseSensor,
@@ -9,11 +9,12 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { useMemo, memo, useCallback, useEffect } from 'react';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { callWidgetPositionState } from '@/integrations/call/states/callWidgetStates';
 import { callWidgetOpenAtom } from '@/integrations/call/states/callWidgetOpenAtom';
+import { sipStateAtom } from '@/integrations/call/states/sipStates';
+import { SipStatusEnum } from '@/integrations/call/types/sipTypes';
 
-// Memoize draggable component
 export const CallWidgetDraggable = memo(
   ({
     children,
@@ -28,8 +29,11 @@ export const CallWidgetDraggable = memo(
       id: 'call-widget',
     });
     const [open, setOpen] = useAtom(callWidgetOpenAtom);
+    const sipState = useAtomValue(sipStateAtom);
 
-    // Memoize style object to prevent recreating on every render
+
+    const isOnline = sipState.sipStatus === SipStatusEnum.REGISTERED;
+
     const style = useMemo(
       () => ({
         transform: `translate(${position.x + (transform?.x ?? 0)}px, ${
@@ -45,7 +49,12 @@ export const CallWidgetDraggable = memo(
           <Button
             variant="secondary"
             size="icon"
-            className="fixed bottom-10 right-10 size-12 [&>svg]:size-6 rounded-full bg-background shadow-lg hover:bg-background"
+            className={cn(
+              'fixed bottom-10 right-10 size-12 [&>svg]:size-6 rounded-full shadow-lg',
+              isOnline
+                ? 'bg-success hover:bg-success/90'
+                : 'bg-destructive hover:bg-destructive/90',
+            )}
             onClick={() => setOpen(!open)}
             {...listeners}
             {...attributes}
