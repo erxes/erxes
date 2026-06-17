@@ -15,7 +15,7 @@ import {
   getPostLink,
   uploadMedia,
 } from '@/integrations/facebook/utils';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub, safeEq, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
@@ -32,7 +32,9 @@ export const getOrCreateCustomer = async (
 
   const { facebookPageTokensMap = {} } = integration;
 
-  let customer = await models.FacebookCustomers.findOne({ userId });
+  let customer = await models.FacebookCustomers.findOne({
+    userId: safeEq(userId),
+  });
   if (customer) {
     return customer;
   }
@@ -115,20 +117,20 @@ export const getOrCreateComment = async (
   customer: IFacebookCustomer,
 ) => {
   const mainConversation = await models.FacebookCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
+    comment_id: safeEq(commentParams.comment_id),
   });
   const parentConversation = await models.FacebookCommentConversation.findOne({
-    comment_id: commentParams.parent_id,
+    comment_id: safeEq(commentParams.parent_id),
   });
   const replyConversation =
     await models.FacebookCommentConversationReply.findOne({
-      comment_id: commentParams.comment_id,
+      comment_id: safeEq(commentParams.comment_id),
     });
   if (mainConversation || replyConversation) {
     return;
   }
   const post = await models.FacebookPostConversations.findOne({
-    postId: commentParams.post_id,
+    postId: safeEq(commentParams.post_id),
   });
   let attachment: any[] = [];
   if (commentParams.photo) {
@@ -165,11 +167,11 @@ export const getOrCreateComment = async (
   }
   let conversation;
   conversation = await models.FacebookCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
+    comment_id: safeEq(commentParams.comment_id),
   });
   if (conversation === null) {
     conversation = await models.FacebookCommentConversation.findOne({
-      comment_id: commentParams.parent_id,
+      comment_id: safeEq(commentParams.parent_id),
     });
   }
   try {
@@ -307,7 +309,7 @@ export const getOrCreatePostConversation = async (
 ) => {
   try {
     let postConversation = await models.FacebookPostConversations.findOne({
-      postId,
+      postId: safeEq(postId),
     });
 
     const facebookPost = await fetchFacebookPostDetails(pageId, models, params);
@@ -321,11 +323,11 @@ export const getOrCreatePostConversation = async (
 
       if (hasPostContentChanged) {
         await models.FacebookPostConversations.updateOne(
-          { postId },
+          { postId: safeEq(postId) },
           { $set: { content: facebookPost.content } },
         );
         const updatedPost = await models.FacebookPostConversations.findOne({
-          postId,
+          postId: safeEq(postId),
         });
         return updatedPost;
       } else {
@@ -354,7 +356,7 @@ export const getOrCreatePost = async (
   }
 
   let post = await models.FacebookPostConversations.findOne({
-    postId: postParams.post_id,
+    postId: safeEq(postParams.post_id),
   });
 
   if (post) {

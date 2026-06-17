@@ -6,7 +6,11 @@ import {
 import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
 import * as AWS from 'aws-sdk';
-import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  randomAlphanumeric,
+  safeEq,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { IModels } from '~/connectionResolvers';
 import { SUBSCRIBED_FIELDS } from './constants';
@@ -388,7 +392,7 @@ export const getFacebookUser = async (
   } catch (e) {
     if (e.message.includes('access token')) {
       await models.FacebookIntegrations.updateOne(
-        { facebookPageIds: pageId },
+        { facebookPageIds: safeEq(pageId) },
         { $set: { healthStatus: 'page-token', error: `${e.message}` } },
       );
     }
