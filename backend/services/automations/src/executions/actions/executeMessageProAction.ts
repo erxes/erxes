@@ -9,19 +9,18 @@ import { sendSms } from '../../utils/sms';
 const stripHtmlToText = (html: string) =>
   html
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(
-      /<\/?[a-z][\w-]*(?:\s+[a-z-]+(?:=(?:"[^"]*"|'[^']*'|[^>\s]+))?)*\s*\/?>/gi,
-      '',
-    )
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .replace(/&amp;/g, '&')
+    .replace(/\{\{\s*([^{}]*?)\s*\}\}/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
 
-/**
- * Message Pro: renders a selected document with the target record, resolves the
- * related customer's phone, strips the rendered HTML to plain text and sends it
- * as an SMS through the MessagePro gateway.
- */
+
 export const executeMessageProAction = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
@@ -91,51 +90,39 @@ export const executeMessageProAction = async (
     customerPhone = customer?.primaryPhone || '';
   }
 
-const document = await sendTRPCMessage({
-  subdomain,
-  pluginName: 'core',
-  method: 'query',
-  module: 'documents',
-  action: 'print',
-  input: {
-    _id: documentId,
-    replacerIds: [itemId],
-    config: {},
-  },
-  defaultValue: '',
-});
-
-let sent = false;
-let cleanedText = '';
-
-if (document) {
-  const htmlContent = Array.isArray(document)
-    ? document.join('')
-    : String(document);
-
-  cleanedText = htmlContent
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-if (cleanedText && customerPhone) {
-  await sendSms(
+  const document = await sendTRPCMessage({
     subdomain,
-    'messagePro',
-    customerPhone,
-    cleanedText,
-  );
+    pluginName: 'core',
+    method: 'query',
+    module: 'documents',
+    action: 'print',
+    input: {
+      _id: documentId,
+      replacerIds: [itemId],
+      config: {},
+    },
+    defaultValue: '',
+  });
 
-  sent = true;
-}
+  let sent = false;
+  let cleanedText = '';
 
-return {
-  documentId,
-  content: cleanedText,
-  phone: customerPhone,
-  sent,
-};
+  if (document) {
+    const htmlContent = Array.isArray(document)
+      ? document.join('')
+      : String(document);
+
+    cleanedText = stripHtmlToText(htmlContent);
+  }
+  if (cleanedText && customerPhone) {
+    await sendSms(subdomain, 'messagePro', customerPhone, cleanedText.toString());
+    sent = true;
+  }
+
+  return {
+    documentId,
+    content: cleanedText,
+    phone: customerPhone,
+    sent,
+  };
 };

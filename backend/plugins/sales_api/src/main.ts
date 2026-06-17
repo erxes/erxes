@@ -74,7 +74,6 @@ const handlePosOrderPaymentCallback = async (subdomain: string, data: any) => {
     defaultValue: null,
   });
 };
->>>>>>> efa09707e21a2b04fec47e7d1c3d822a49e06086
 
 startPlugin({
   name: 'sales',
