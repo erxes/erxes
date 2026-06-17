@@ -6,7 +6,6 @@ import {
   buildZodSchemaFromArgs,
   chooseResponseFields,
   graphqlTypeToString,
-  isNoopValue,
   withNeutralDefaults,
   type GqlArgDef,
   type GqlFieldDef,
