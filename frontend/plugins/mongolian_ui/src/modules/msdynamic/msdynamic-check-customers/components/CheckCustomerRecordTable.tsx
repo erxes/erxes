@@ -6,12 +6,8 @@ import { MS_DYNAMIC_SESSION_KEYS } from '../../constants/msDynamicSessionKey';
 import { CheckCustomerCommandBar } from './CheckCustomerCommandBar';
 
 export const CheckCustomerRecordTable = () => {
-  const {
-    paginatedItems,
-    pageInfo,
-    checking,
-    checkCustomers,
-  } = useCheckCustomer();
+  const { paginatedItems, pageInfo, checking, checkCustomers } =
+    useCheckCustomer();
 
   return (
     <RecordTable.Provider
@@ -30,10 +26,14 @@ export const CheckCustomerRecordTable = () => {
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton handleFetchMore={checkCustomers} />
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={checkCustomers}
+            />
             {checking && <RecordTable.RowSkeleton rows={40} />}
             <RecordTable.RowList />
-            <RecordTable.CursorBackwardSkeleton handleFetchMore={checkCustomers} />
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={checkCustomers}
+            />
           </RecordTable.Body>
         </RecordTable>
         {!checking && paginatedItems?.length === 0 && (
@@ -41,9 +41,16 @@ export const CheckCustomerRecordTable = () => {
             <div className="h-full w-full px-8 flex justify-center">
               <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
                 <div className="mb-6">
-                  <IconUserX size={64} className="text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No customers yet</h3>
-                  <p className="text-muted-foreground max-w-md">Get started by checking customers.</p>
+                  <IconUserX
+                    size={64}
+                    className="text-muted-foreground mx-auto mb-4"
+                  />
+                  <h3 className="text-xl font-semibold mb-2">
+                    No customers yet
+                  </h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Get started by checking customers.
+                  </p>
                 </div>
               </div>
             </div>
