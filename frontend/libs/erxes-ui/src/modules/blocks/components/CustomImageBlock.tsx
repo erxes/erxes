@@ -126,7 +126,6 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
               }
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               className="w-full h-auto block"
               src={src}
@@ -141,7 +140,6 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
               <Dialog.Title className="sr-only">
                 {block.props.caption || block.props.name || 'Image preview'}
               </Dialog.Title>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={src}
                 alt={block.props.caption || block.props.name || ''}
@@ -194,7 +192,6 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   const containerStyle = getFloatContainerStyle(imageStyle, maxWidth);
 
   const img = (
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={url}
       alt={caption || name || ''}
