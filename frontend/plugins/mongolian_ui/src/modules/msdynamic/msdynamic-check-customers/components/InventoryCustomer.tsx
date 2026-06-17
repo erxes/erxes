@@ -1,7 +1,6 @@
 import { CheckCustomerFilter } from './CheckCustomerFilter';
 import { CheckCustomerRecordTable } from './CheckCustomerRecordTable';
-import { PageSubHeader } from 'erxes-ui';
-import { Button } from 'erxes-ui';
+import { PageSubHeader, Button } from 'erxes-ui';
 import { useCheckCustomer } from '../hooks/useCheckCustomer';
 import { SelectBrand } from 'ui-modules';
 

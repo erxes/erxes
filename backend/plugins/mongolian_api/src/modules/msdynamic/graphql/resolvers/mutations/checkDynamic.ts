@@ -32,6 +32,52 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
 };
 
 /**
+ * Classify a single MSD customer into create / update / match bucket.
+ */
+const classifyCustomer = (
+  msd: any,
+  erxesByCode: Record<string, any>,
+  result: Record<string, { items: any[] }>,
+) => {
+  const existing = erxesByCode[msd.No];
+
+  if (!existing) {
+    result.create.items.push({
+      No: msd.No,
+      Name: msd.Name,
+      Phone_No: msd.Phone_No,
+      E_Mail: msd.E_Mail,
+      code: undefined,
+    });
+    return;
+  }
+
+  if (
+    existing.primaryPhone !== msd.Phone_No ||
+    existing.primaryEmail !== msd.E_Mail
+  ) {
+    result.update.items.push({
+      No: msd.No,
+      Name: msd.Name,
+      Phone_No: msd.Phone_No,
+      E_Mail: msd.E_Mail,
+      code: existing.code,
+      primaryPhone: existing.primaryPhone,
+      primaryEmail: existing.primaryEmail,
+    });
+    return;
+  }
+
+  result.match.items.push({
+    No: msd.No,
+    Name: msd.Name,
+    Phone_No: msd.Phone_No,
+    E_Mail: msd.E_Mail,
+    code: existing.code,
+  });
+};
+
+/**
  * ============================
  * MS Dynamic Check Mutations
  * ============================
@@ -199,38 +245,7 @@ export const msdynamicCheckMutations = {
 
     for (const msd of msdCustomers) {
       try {
-        const existing = erxesByCode[msd.No];
-
-        if (!existing) {
-          result.create.items.push({
-            No: msd.No,
-            Name: msd.Name,
-            Phone_No: msd.Phone_No,
-            E_Mail: msd.E_Mail,
-            code: undefined,
-          });
-        } else if (
-          existing.primaryPhone !== msd.Phone_No ||
-          existing.primaryEmail !== msd.E_Mail
-        ) {
-          result.update.items.push({
-            No: msd.No,
-            Name: msd.Name,
-            Phone_No: msd.Phone_No,
-            E_Mail: msd.E_Mail,
-            code: existing.code,
-            primaryPhone: existing.primaryPhone,
-            primaryEmail: existing.primaryEmail,
-          });
-        } else {
-          result.match.items.push({
-            No: msd.No,
-            Name: msd.Name,
-            Phone_No: msd.Phone_No,
-            E_Mail: msd.E_Mail,
-            code: existing.code,
-          });
-        }
+        classifyCustomer(msd, erxesByCode, result);
       } catch (e: any) {
         result.error.items.push({
           No: msd.No || '',
@@ -239,17 +254,17 @@ export const msdynamicCheckMutations = {
       }
     }
 
-    for (const code of Object.keys(erxesByCode)) {
-      if (!msdCodes.has(code)) {
+    result.delete.items = Object.keys(erxesByCode)
+      .filter((code) => !msdCodes.has(code))
+      .map((code) => {
         const erxes = erxesByCode[code];
-        result.delete.items.push({
+        return {
           _id: erxes._id,
           code,
           primaryPhone: erxes.primaryPhone,
           primaryEmail: erxes.primaryEmail,
-        });
-      }
-    }
+        };
+      });
 
     return result;
   },
