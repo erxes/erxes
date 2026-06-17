@@ -40,7 +40,6 @@ export const appRouter = t.mergeRouters(
   documentTrpcRouter,
   t.router({
     fields: t.router({
-      // Use the factory with sales-specific generator
       getFieldList: createFieldListProcedure(
         async (subdomain, models, input) => {
           if (input.moduleType === 'sales') {

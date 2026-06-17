@@ -2,7 +2,6 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { generateSalesFields } from '~/modules/sales/fieldUtils';
 
-// Document-level computed attributes for a sales deal (rendered at print time).
 const SALES_DOCUMENT_ATTRIBUTES = [
   { value: 'name', name: 'Name' },
   { value: 'createdAt', name: 'Created at' },
@@ -38,11 +37,6 @@ type TEditorAttribute = {
   groupDetail?: unknown;
 };
 
-/**
- * Returns the attributes available to insert into a sales document editor.
- * Combines the document-level computed attributes with the deal's schema
- * fields and custom fields (prefixed with `deal:`).
- */
 export const salesDocumentEditorAttributes = async (
   models: IModels,
   subdomain: string,
