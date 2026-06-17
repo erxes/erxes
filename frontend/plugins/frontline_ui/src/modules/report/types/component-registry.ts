@@ -98,6 +98,13 @@ export const ticketReportComponents: Record<
       default: module.TicketList,
     })),
   ),
+  'ticket-custom-properties': lazy(() =>
+    import('@/report/components/ticket-charts/TicketCustomProperties').then(
+      (module) => ({
+        default: module.TicketCustomProperties,
+      }),
+    ),
+  ),
   'ticket-status-summary': lazy(() =>
     import('@/report/components/ticket-charts/TicketStatusSummary').then(
       (module) => ({
@@ -115,6 +122,11 @@ export const TICKET_DEFAULT_CARD_CONFIGS: Omit<
   { id: 'ticket-date', title: 'Ticket Date', colSpan: 6 },
   { id: 'ticket-source', title: 'Ticket Source', colSpan: 6 },
   { id: 'ticket-tags', title: 'Ticket Tags', colSpan: 6 },
+  {
+    id: 'ticket-custom-properties',
+    title: 'Ticket Custom Properties',
+    colSpan: 6,
+  },
   { id: 'ticket-list', title: 'Ticket List', colSpan: 12 },
 ];
 
