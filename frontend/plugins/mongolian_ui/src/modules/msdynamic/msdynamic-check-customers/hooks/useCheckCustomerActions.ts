@@ -115,9 +115,7 @@ export const useCheckCustomerActions = (brandId: string) => {
       setItems((prev) =>
         prev.map((item) => {
           const key = item.No ?? item.code;
-          return key && syncedNos.has(key)
-            ? { ...item, isSynced: true }
-            : item;
+          return key && syncedNos.has(key) ? { ...item, isSynced: true } : item;
         }),
       );
 
