@@ -1,261 +1,52 @@
 import { useEffect, useState } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
+import { IconCheck, IconCopy, IconPaperclip } from '@tabler/icons-react';
+import { Badge, Button, CopyText, Form, Input, cn } from 'erxes-ui';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useGeneralSettings } from './hooks/useGeneralSettings';
 import {
-  IconCheck,
-  IconLock,
-  IconBrain,
-  IconBook,
-  IconPaperclip,
-} from '@tabler/icons-react';
-import { Button, Label, Input, Badge } from 'erxes-ui';
-import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
+  AdvancedMemoryCard,
+  CompanyKnowledgeCard,
+} from './components/MemoryStatusCards';
 import {
-  MASTRA_SETTINGS_SAVE,
-  MASTRA_KNOWLEDGE_SYNC,
-} from '~/graphql/mutations';
+  GENERAL_SETTINGS_DEFAULTS,
+  GeneralSettingsValues,
+  generalSettingsSchema,
+} from './validations';
 
-interface AgentOption {
-  _id: string;
-  agentId: string;
-  name: string;
-  isEnabled: boolean;
-}
-
-interface MemoryStatusView {
-  embedder?: string;
-  embedderModel?: string;
-  qdrantUrl?: string;
-  qdrantReachable?: boolean | null;
-  collection?: string;
-}
-
-interface KnowledgeStatusView extends MemoryStatusView {
-  enabled?: boolean;
-  enabledTypes?: string[];
-  lastSweepAt?: string | null;
-  pointCount?: number | null;
-  types?: Record<
-    string,
-    { count: number; points: number; error?: string }
-  > | null;
-  lastError?: string | null;
-}
-
-/** Green/red/grey dot + reachable/unreachable/unknown label for a Qdrant URL. */
-const ReachabilityDot = ({ reachable }: { reachable?: boolean | null }) => (
-  <span className="inline-flex items-center gap-1.5">
-    <span
-      className={`inline-block size-2 rounded-full ${
-        reachable === true
-          ? 'bg-green-500'
-          : reachable === false
-          ? 'bg-red-500'
-          : 'bg-muted-foreground/40'
-      }`}
-    />
-    <span>
-      {reachable === true
-        ? 'reachable'
-        : reachable === false
-        ? 'unreachable'
-        : 'unknown'}
-    </span>
-  </span>
-);
-
-/** Read-only "Advanced memory" status — controlled by ERXES_AGENT_MEMORY env. */
-const AdvancedMemoryCard = ({
-  enabled,
-  status,
-}: {
-  enabled: boolean;
-  status?: MemoryStatusView;
-}) => (
-  <div className="rounded-lg border p-4 space-y-3">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <IconBrain className="size-4 text-muted-foreground" />
-        <span className="font-medium">Advanced memory feature</span>
-        <IconLock className="size-3.5 text-muted-foreground" />
-      </div>
-      <Badge variant={enabled ? 'success' : 'secondary'}>
-        {enabled ? 'On' : 'Off'}
-      </Badge>
-    </div>
-
-    {enabled && status && (
-      <div className="text-xs text-muted-foreground space-y-1 pl-6">
-        <div>
-          Embedder: <span className="font-mono">{status.embedderModel}</span> (
-          {status.embedder})
-        </div>
-        <div className="flex items-center gap-1.5">
-          Qdrant: <span className="font-mono">{status.qdrantUrl}</span>
-          <ReachabilityDot reachable={status.qdrantReachable} />
-        </div>
-        <div>
-          Collection: <span className="font-mono">{status.collection}</span>
-        </div>
-      </div>
-    )}
-
-    <p className="text-xs text-muted-foreground">
-      Controlled by the <code>ERXES_AGENT_MEMORY</code> environment variable. Set{' '}
-      <code>ERXES_AGENT_MEMORY=enable</code> and restart the plugin to turn it
-      on.
-    </p>
-  </div>
-);
-
-/**
- * Read-only "Company knowledge" status + a "Sync now" action. Extracted from
- * GeneralSettingsPage to keep that component small. Indexing runs AS the
- * clicking user (Agent = Person); erxes enforces their permissions.
- */
-const CompanyKnowledgeCard = ({ status }: { status?: KnowledgeStatusView }) => {
-  const [syncKnowledge, { loading: syncing }] = useMutation(
-    MASTRA_KNOWLEDGE_SYNC,
-    { refetchQueries: [{ query: MASTRA_SETTINGS }] },
-  );
-  const [syncMsg, setSyncMsg] = useState<string | null>(null);
-
-  const handleKnowledgeSync = async () => {
-    setSyncMsg(null);
-    try {
-      await syncKnowledge();
-      setSyncMsg(
-        'Indexing started as you — reload in a moment to see updated status.',
-      );
-    } catch (err) {
-      setSyncMsg(
-        err instanceof Error ? err.message : 'Failed to start indexing.',
-      );
-    }
-  };
-
-  return (
-    <div className="rounded-lg border p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <IconBook className="size-4 text-muted-foreground" />
-          <span className="font-medium">Company knowledge</span>
-          <IconLock className="size-3.5 text-muted-foreground" />
-        </div>
-        <Badge variant={status?.enabled ? 'success' : 'secondary'}>
-          {status?.enabled ? 'On' : 'Off'}
-        </Badge>
-      </div>
-
-      {status?.enabled && (
-        <div className="text-xs text-muted-foreground space-y-1 pl-6">
-          <div>
-            Embedder: <span className="font-mono">{status.embedderModel}</span>{' '}
-            ({status.embedder})
-          </div>
-          <div className="flex items-center gap-1.5">
-            Qdrant: <span className="font-mono">{status.qdrantUrl}</span>
-            <ReachabilityDot reachable={status.qdrantReachable} />
-          </div>
-          <div>
-            Collection: <span className="font-mono">{status.collection}</span>
-          </div>
-          <div>
-            Content types:{' '}
-            <span className="font-mono">
-              {(status.enabledTypes || []).join(', ') || '—'}
-            </span>
-          </div>
-          <div>
-            Last sweep:{' '}
-            {status.lastSweepAt
-              ? `${new Date(status.lastSweepAt).toLocaleString()} — ${
-                  status.pointCount ?? 0
-                } points`
-              : 'not yet run'}
-          </div>
-          {status.types && (
-            <div className="font-mono">
-              {Object.entries(status.types)
-                .map(([t, s]) => `${t}: ${s.count}${s.error ? ' ⚠' : ''}`)
-                .join(' · ')}
-            </div>
-          )}
-          {status.lastError && (
-            <div className="text-red-500">Last error: {status.lastError}</div>
-          )}
-        </div>
-      )}
-
-      <p className="text-xs text-muted-foreground">
-        Lets agents answer from company data via the{' '}
-        <code>Company Knowledge</code> tool. Controlled by{' '}
-        <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content types by{' '}
-        <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only). The
-        index is built <strong>as the requesting user</strong> — erxes enforces
-        your permissions — and refreshes from usage; there is no unattended
-        sweep.
-      </p>
-
-      {status?.enabled && (
-        <div className="space-y-2 pl-6">
-          <Button
-            type="button"
-            disabled={syncing}
-            onClick={handleKnowledgeSync}
-          >
-            {syncing ? 'Starting…' : 'Sync now'}
-          </Button>
-          {syncMsg && (
-            <p className="text-xs text-muted-foreground">{syncMsg}</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
+const BOT_ENDPOINT_URL = 'http://localhost:3312/pl:erxes-agent/bot';
 
 export const GeneralSettingsPage = () => {
-  const { data: settingsData } = useQuery(MASTRA_SETTINGS);
-  const { data: agentsData } = useQuery(MASTRA_AGENTS);
-  const [save, { loading }] = useMutation(MASTRA_SETTINGS_SAVE);
+  const { settings, agents, save, saving } = useGeneralSettings();
 
-  const [form, setForm] = useState({
-    erxesApiUrl: 'http://localhost:4000',
-    erxesApiToken: '',
-    defaultAgentId: '',
-    attachmentsEnabled: true,
+  const form = useForm<GeneralSettingsValues>({
+    resolver: zodResolver(generalSettingsSchema),
+    defaultValues: GENERAL_SETTINGS_DEFAULTS,
   });
 
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (settingsData?.mastraSettings) {
-      const s = settingsData.mastraSettings;
-      setForm({
-        erxesApiUrl: s.erxesApiUrl || 'http://localhost:4000',
-        erxesApiToken: s.erxesApiToken || '',
-        defaultAgentId: s.defaultAgentId || '',
-        attachmentsEnabled: s.attachmentsEnabled !== false,
+    if (settings) {
+      form.reset({
+        erxesApiUrl: settings.erxesApiUrl || 'http://localhost:4000',
+        erxesApiToken: settings.erxesApiToken || '',
+        defaultAgentId: settings.defaultAgentId || '',
+        attachmentsEnabled: settings.attachmentsEnabled !== false,
       });
     }
-  }, [settingsData]);
-
-  const agents = agentsData?.mastraAgents || [];
+  }, [settings, form]);
 
   // Read-only feature statuses — derived from server env vars, display only.
-  const advancedMemory = Boolean(settingsData?.mastraSettings?.advancedMemory);
-  const memStatus = settingsData?.mastraSettings?.advancedMemoryStatus;
-  const knowledgeStatus = settingsData?.mastraSettings?.knowledgeStatus;
+  const advancedMemory = Boolean(settings?.advancedMemory);
+  const memStatus = settings?.advancedMemoryStatus;
+  const knowledgeStatus = settings?.knowledgeStatus;
 
   // Detected upload storage (configured in core Settings → File upload).
-  const attachmentStorage = settingsData?.mastraSettings?.attachmentStorage;
+  const attachmentStorage = settings?.attachmentStorage;
 
-  const set = (k: string, v: string | boolean) =>
-    setForm((f) => ({ ...f, [k]: v }));
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await save({ variables: { doc: form } });
+  const onSubmit = async (doc: GeneralSettingsValues) => {
+    await save({ variables: { doc } });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -269,136 +60,159 @@ export const GeneralSettingsPage = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-5">
-        {/* Default Agent */}
-        <div className="space-y-1.5">
-          <Label htmlFor="defaultAgentId">
-            Default Agent (for bot webhook)
-          </Label>
-          <select
-            id="defaultAgentId"
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-            value={form.defaultAgentId}
-            onChange={(e) => set('defaultAgentId', e.target.value)}
-          >
-            <option value="">None</option>
-            {agents
-              .filter((a: AgentOption) => a.isEnabled)
-              .map((a: AgentOption) => (
-                <option key={a._id} value={a.agentId}>
-                  {a.name} ({a.agentId})
-                </option>
-              ))}
-          </select>
-          <p className="text-xs text-muted-foreground">
-            This agent handles incoming messages from the erxes messenger bot
-            endpoint (<code>POST /pl:erxes-agent/bot/:conversationId</code>).
-            Set this URL as
-            <code> botEndpointUrl</code> in your frontline integration.
-          </p>
-        </div>
-
-        {/* erxes API URL */}
-        <div className="space-y-1.5">
-          <Label htmlFor="erxesApiUrl">erxes API URL</Label>
-          <Input
-            id="erxesApiUrl"
-            value={form.erxesApiUrl}
-            onChange={(e) => set('erxesApiUrl', e.target.value)}
-            placeholder="http://localhost:4000"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <Form.Field
+            control={form.control}
+            name="defaultAgentId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Default Agent (for bot webhook)</Form.Label>
+                <Form.Control>
+                  <select
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  >
+                    <option value="">None</option>
+                    {agents
+                      .filter((a) => a.isEnabled)
+                      .map((a) => (
+                        <option key={a._id} value={a.agentId}>
+                          {a.name} ({a.agentId})
+                        </option>
+                      ))}
+                  </select>
+                </Form.Control>
+                <Form.Description>
+                  This agent handles incoming messages from the erxes messenger
+                  bot endpoint (
+                  <code>POST /pl:erxes-agent/bot/:conversationId</code>). Set
+                  this URL as
+                  <code> botEndpointUrl</code> in your frontline integration.
+                </Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
           />
-          <p className="text-xs text-muted-foreground">
-            Used by erxes tools to call the GraphQL gateway
-          </p>
-        </div>
 
-        {/* erxes API Token */}
-        <div className="space-y-1.5">
-          <Label htmlFor="erxesApiToken">erxes API Token</Label>
-          <Input
-            id="erxesApiToken"
-            type="password"
-            value={form.erxesApiToken}
-            onChange={(e) => set('erxesApiToken', e.target.value)}
-            placeholder="Bearer token for erxes gateway calls"
+          <Form.Field
+            control={form.control}
+            name="erxesApiUrl"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>erxes API URL</Form.Label>
+                <Form.Control>
+                  <Input {...field} placeholder="http://localhost:4000" />
+                </Form.Control>
+                <Form.Description>
+                  Used by erxes tools to call the GraphQL gateway
+                </Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
           />
-          <p className="text-xs text-muted-foreground">
-            Also used for GraphQL schema introspection when loading erxes tools
-          </p>
-        </div>
 
-        {/* Chat file attachments — rides on the instance's existing upload storage */}
-        <div className="rounded-lg border p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <IconPaperclip className="size-4 text-muted-foreground" />
-              <span className="font-medium">Chat file attachments</span>
-            </div>
-            <Badge
-              variant={
-                attachmentStorage?.configured
-                  ? form.attachmentsEnabled
-                    ? 'success'
-                    : 'secondary'
-                  : 'destructive'
-              }
-            >
-              {!attachmentStorage?.configured
-                ? 'No storage'
-                : form.attachmentsEnabled
-                ? 'On'
-                : 'Off'}
-            </Badge>
-          </div>
+          <Form.Field
+            control={form.control}
+            name="erxesApiToken"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>erxes API Token</Form.Label>
+                <Form.Control>
+                  <Input
+                    {...field}
+                    type="password"
+                    placeholder="Bearer token for erxes gateway calls"
+                  />
+                </Form.Control>
+                <Form.Description>
+                  Also used for GraphQL schema introspection when loading erxes
+                  tools
+                </Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
 
-          <div className="text-xs text-muted-foreground space-y-1 pl-6">
-            <div>
-              Detected storage:{' '}
-              <span className="font-mono">
-                {attachmentStorage?.serviceType || 'unknown'}
-              </span>{' '}
-              {attachmentStorage?.configured
-                ? '(configured)'
-                : '(not configured)'}
-            </div>
-          </div>
+          <Form.Field
+            control={form.control}
+            name="attachmentsEnabled"
+            render={({ field }) => (
+              <div className="rounded-lg border p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <IconPaperclip className="size-4 text-muted-foreground" />
+                    <span className="font-medium">Chat file attachments</span>
+                  </div>
+                  <Badge
+                    variant={
+                      attachmentStorage?.configured
+                        ? field.value
+                          ? 'success'
+                          : 'secondary'
+                        : 'destructive'
+                    }
+                  >
+                    {!attachmentStorage?.configured
+                      ? 'No storage'
+                      : field.value
+                        ? 'On'
+                        : 'Off'}
+                  </Badge>
+                </div>
 
-          <label className="flex items-center gap-2 pl-6 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.attachmentsEnabled}
-              disabled={!attachmentStorage?.configured}
-              onChange={(e) => set('attachmentsEnabled', e.target.checked)}
-            />
-            Allow file attachments in agent chat (images, PDF, Excel, Word, …)
-          </label>
+                <div className="text-xs text-muted-foreground space-y-1 pl-6">
+                  <div>
+                    Detected storage:{' '}
+                    <span className="font-mono">
+                      {attachmentStorage?.serviceType || 'unknown'}
+                    </span>{' '}
+                    {attachmentStorage?.configured
+                      ? '(configured)'
+                      : '(not configured)'}
+                  </div>
+                </div>
 
-          <p className="text-xs text-muted-foreground">
-            Files are stored in this instance's existing upload storage
-            (configured in <strong>Settings → File upload</strong>: AWS S3,
-            Cloudflare R2, Azure, GCS or local disk). When no storage is
-            configured, conversations stay text-only.
-          </p>
-        </div>
+                <label className="flex items-center gap-2 pl-6 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    disabled={!attachmentStorage?.configured}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                  />
+                  Allow file attachments in agent chat (images, PDF, Excel, Word,
+                  …)
+                </label>
 
-        <Button type="submit" disabled={loading}>
-          {saved ? (
-            <>
-              <IconCheck size={16} /> Saved
-            </>
-          ) : loading ? (
-            'Saving...'
-          ) : (
-            'Save Settings'
-          )}
-        </Button>
-      </form>
+                <p className="text-xs text-muted-foreground">
+                  Files are stored in this instance's existing upload storage
+                  (configured in <strong>Settings → File upload</strong>: AWS
+                  S3, Cloudflare R2, Azure, GCS or local disk). When no storage
+                  is configured, conversations stay text-only.
+                </p>
+              </div>
+            )}
+          />
+
+          <Button type="submit" disabled={saving}>
+            {saved ? (
+              <>
+                <IconCheck size={16} /> Saved
+              </>
+            ) : saving ? (
+              'Saving...'
+            ) : (
+              'Save Settings'
+            )}
+          </Button>
+        </form>
+      </Form>
 
       <AdvancedMemoryCard enabled={advancedMemory} status={memStatus} />
 
       <CompanyKnowledgeCard status={knowledgeStatus} />
 
-      {/* Bot webhook info box */}
       <div className="rounded-lg border bg-muted/50 p-4 text-sm space-y-2">
         <p className="font-semibold">Bot Endpoint Setup</p>
         <p className="text-muted-foreground">
@@ -412,9 +226,15 @@ export const GeneralSettingsPage = () => {
             Edit an integration and set <strong>Bot Endpoint URL</strong> to:
           </li>
         </ol>
-        <code className="block bg-muted px-3 py-2 rounded text-xs">
-          http://localhost:3312/pl:erxes-agent/bot
-        </code>
+        <CopyText
+          value={BOT_ENDPOINT_URL}
+          className={cn(
+            'block w-full bg-muted px-3 py-2 rounded text-xs font-mono justify-between',
+          )}
+        >
+          <span>{BOT_ENDPOINT_URL}</span>
+          <IconCopy className="size-3.5 shrink-0 text-muted-foreground" />
+        </CopyText>
         <p className="text-xs text-muted-foreground">
           (Replace <code>3312</code> with your actual port. The gateway proxies
           <code> /pl:erxes-agent/*</code> to port 3312.)

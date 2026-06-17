@@ -24,26 +24,55 @@ export interface ProviderOption {
   label: string;
 }
 
+interface ICatalogEntry {
+  provider: string;
+  label: string;
+  isOpenAICompatible?: boolean;
+  isConfigured?: boolean;
+}
+
+interface IProviderRecord {
+  provider: string;
+  label?: string | null;
+  isEnabled?: boolean | null;
+}
+
+interface IProviderModel {
+  id: string;
+  name: string;
+}
+
+interface IProviderCatalogResponse {
+  mastraProviderCatalog: ICatalogEntry[];
+}
+
+interface IProvidersResponse {
+  mastraProviders: IProviderRecord[];
+}
+
+interface IProviderModelsResponse {
+  mastraProviderModels: IProviderModel[];
+}
+
 // Providers offered for selection: configured presets (DB doc or env key)
 // plus any custom DB providers outside the presets catalog.
 export const useProviderOptions = () => {
-  const { data: catalogData, loading: catalogLoading } = useQuery(
-    MASTRA_PROVIDER_CATALOG,
-  );
+  const { data: catalogData, loading: catalogLoading } =
+    useQuery<IProviderCatalogResponse>(MASTRA_PROVIDER_CATALOG);
   const { data: providersData, loading: providersLoading } =
-    useQuery(MASTRA_PROVIDERS);
+    useQuery<IProvidersResponse>(MASTRA_PROVIDERS);
 
   const catalogConfigured: ProviderOption[] = (
     catalogData?.mastraProviderCatalog || []
   )
-    .filter((p: any) => p.isConfigured)
-    .map((p: any) => ({ provider: p.provider, label: p.label }));
+    .filter((p) => p.isConfigured)
+    .map((p) => ({ provider: p.provider, label: p.label }));
   const catalogKeys = new Set(catalogConfigured.map((p) => p.provider));
   const customDbProviders: ProviderOption[] = (
     providersData?.mastraProviders || []
   )
-    .filter((p: any) => p.isEnabled && !catalogKeys.has(p.provider))
-    .map((p: any) => ({ provider: p.provider, label: p.label || p.provider }));
+    .filter((p) => p.isEnabled && !catalogKeys.has(p.provider))
+    .map((p) => ({ provider: p.provider, label: p.label || p.provider }));
 
   return {
     providers: [...catalogConfigured, ...customDbProviders],
@@ -116,13 +145,15 @@ export const SelectModel = ({
   // Live list from the provider's own model-listing API (via the backend).
   // cache-and-network: an earlier empty/failed fetch must not stick — every
   // mount re-asks the provider while still painting cached data instantly.
-  const { data, loading } = useQuery(MASTRA_PROVIDER_MODELS, {
-    variables: { provider },
-    skip: !provider,
-    fetchPolicy: 'cache-and-network',
-  });
-  const models: { id: string; name: string }[] =
-    data?.mastraProviderModels ?? [];
+  const { data, loading } = useQuery<IProviderModelsResponse>(
+    MASTRA_PROVIDER_MODELS,
+    {
+      variables: { provider },
+      skip: !provider,
+      fetchPolicy: 'cache-and-network',
+    },
+  );
+  const models: IProviderModel[] = data?.mastraProviderModels ?? [];
 
   const [open, setOpen] = useState(false);
   const [custom, setCustom] = useState(false);

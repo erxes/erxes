@@ -1,0 +1,123 @@
+import { IconRobot } from '@tabler/icons-react';
+import { Skeleton } from 'erxes-ui';
+import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
+import {
+  useAgentActivity,
+  useAgentUnread,
+  useAgentWorking,
+} from '~/modules/chat/hooks/useChatView';
+
+// One agent row — subscribes to its own working/unread/activity slices so a
+// streaming reply only re-renders that row, not the whole rail.
+const AgentRailItem = ({
+  agent,
+  isActive,
+  onSelect,
+}: {
+  agent: IChatAgent;
+  isActive: boolean;
+  onSelect: (agentId: string) => void;
+}) => {
+  const isWorking = useAgentWorking(agent._id);
+  const hasUnread = useAgentUnread(agent._id) && !isActive;
+  const activity = useAgentActivity(agent._id);
+  const showActivity = isWorking ? activity : undefined;
+
+  return (
+    <button
+      className={`w-full text-left rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
+        isActive ? 'bg-accent' : ''
+      } ${isWorking ? 'ea-working' : ''}`}
+      onClick={() => onSelect(agent._id)}
+    >
+      <div className="flex items-start gap-2">
+        <div className="relative shrink-0">
+          <div
+            className={`size-7 rounded-lg border flex items-center justify-center transition-colors ${
+              isActive || isWorking
+                ? 'bg-gradient-to-br from-primary/25 to-primary/5 border-primary/30'
+                : 'bg-muted border-border'
+            } ${isWorking ? 'ea-avatar-live' : ''}`}
+          >
+            <IconRobot
+              className={`size-4 transition-colors ${
+                isActive || isWorking ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            />
+          </div>
+          {hasUnread && (
+            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-destructive animate-pulse" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium truncate leading-tight">
+            {agent.name}
+          </p>
+          <p className="text-xs text-muted-foreground truncate font-mono mt-0.5">
+            {agent.model}
+          </p>
+        </div>
+      </div>
+      {/* Thought cloud — trails out of the avatar while the agent works,
+          echoing the live turn's current step. */}
+      {showActivity && (
+        <div className="ea-pop mt-1 flex items-start gap-1">
+          <div className="flex flex-col items-center gap-[3px] pl-2 pt-0.5 shrink-0">
+            <span className="ea-thought-dot size-1" />
+            <span className="ea-thought-dot size-1.5" />
+          </div>
+          <div className="ea-thought-bubble min-w-0 flex-1 rounded-lg rounded-tl-sm border border-primary/25 bg-background/85 px-2 py-1">
+            <p className="text-[10px] leading-snug break-words line-clamp-2">
+              <span className="ea-shimmer-text">{showActivity}</span>
+            </p>
+          </div>
+        </div>
+      )}
+    </button>
+  );
+};
+
+export const AgentRail = ({
+  agents,
+  loading,
+  activeAgentId,
+  onSelect,
+}: {
+  agents: IChatAgent[];
+  loading: boolean;
+  activeAgentId?: string;
+  onSelect: (agentId: string) => void;
+}) => (
+  <div className="w-56 border-r flex flex-col shrink-0">
+    <div className="px-3 py-2.5 border-b">
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        Agents
+      </p>
+    </div>
+    <div className="flex-1 overflow-auto">
+      {loading ? (
+        <div className="p-3 space-y-1.5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full rounded-md" />
+          ))}
+        </div>
+      ) : agents.length === 0 ? (
+        <div className="p-4 text-center">
+          <IconRobot className="size-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No enabled agents.</p>
+        </div>
+      ) : (
+        <div className="p-1.5 space-y-0.5">
+          {agents.map((agent) => (
+            <AgentRailItem
+              key={agent._id}
+              agent={agent}
+              isActive={activeAgentId === agent._id}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+);
