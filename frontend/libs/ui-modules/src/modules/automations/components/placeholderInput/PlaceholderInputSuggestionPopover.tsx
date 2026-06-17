@@ -165,7 +165,7 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
     return (
       <Command
         ref={internalRef}
-        className="z-50 w-80 overflow-hidden rounded-lg border bg-background shadow-lg"
+        className="z-50 w-80 max-h-80 overflow-hidden rounded-lg border bg-background shadow-lg"
         style={positionStyle}
       >
         <SuggestionPopoverHeader

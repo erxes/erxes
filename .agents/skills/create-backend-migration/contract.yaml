@@ -1,0 +1,52 @@
+# Contract: create-backend-migration
+
+skill:
+  name: create-backend-migration
+  version: "1.0.0"
+  type: feature
+  description: Create safe erxes backend MongoDB migrations or command scripts
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Backend plugin or service name"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_api$' || test -d backend/services/{plugin_name}"
+
+  - name: migration_name
+    type: string
+    description: "Descriptive migration name (e.g., 'add-deal-priority')"
+    required: true
+    pattern: "^[a-z][a-z0-9-]+$"
+
+  - name: migration_type
+    type: enum
+    values: [data-migration, schema-backfill, repair, cleanup, command]
+    required: true
+
+rules_required:
+  - server-migrations
+  - architecture
+
+preconditions:
+  - description: "Migration is actually needed for existing data"
+    check: "user_confirmed == true"
+  - description: "Similar migration pattern exists"
+    check: "find backend/plugins/{plugin_name}_api/src -name '*.ts' | xargs grep -l 'migration\|command' | head -3"
+
+postconditions:
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_api"
+    required: true
+
+conventions:
+  - "Make scripts idempotent"
+  - "Put scripts in src/migrations or src/commands"
+  - "Read MONGO_URL or service env values consistently"
+  - "Process large collections in batches"
+  - "Log progress without logging secrets"
+  - "Close DB connections or exit cleanly"
+  - "Prefer guarded $set, $unset, $addToSet over full replacement"
+  - "Avoid hardcoded tenant/brand/user/subdomain data"
+  - "Do not add temporary public GraphQL mutations for migrations"

@@ -45,6 +45,12 @@ import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { AreaGradient } from '../chart/AreaGradient';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface ConversationSourceProps {
   title: string;
@@ -63,16 +69,10 @@ export const ConversationSource = ({
 }: ConversationSourceProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [dateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
   const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
@@ -96,6 +96,44 @@ export const ConversationSource = ({
     },
   });
 
+  const allSources = useMemo(
+    () => conversationSources || [],
+    [conversationSources],
+  );
+  const {
+    pagedData: pagedSources,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allSources);
+
+  const sourceExportColumns = useMemo(
+    () => [
+      { key: 'name' as const, header: 'Source' },
+      { key: 'count' as const, header: 'Count' },
+      {
+        key: 'percentage' as const,
+        header: 'Percentage',
+        format: (v: number) => `${v}%`,
+      },
+    ],
+    [],
+  );
+
+  const filterEl = (
+    <>
+      <ReportFilter cardId={id} />
+      <SelectChartType onValueChange={setChartType} value={chartType} />
+      <ChartExportButton
+        data={allSources}
+        columns={sourceExportColumns}
+        filename="conversation-source"
+      />
+    </>
+  );
+
   if (loading) {
     return (
       <FrontlineCard
@@ -105,14 +143,7 @@ export const ConversationSource = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header
-          filter={
-            <>
-              <ReportFilter cardId={id} />
-              <SelectChartType onValueChange={setChartType} value={chartType} />
-            </>
-          }
-        />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Skeleton />
         </FrontlineCard.Content>
@@ -166,14 +197,7 @@ export const ConversationSource = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header
-        filter={
-          <>
-            <ReportFilter cardId={id} />
-            <SelectChartType onValueChange={setChartType} value={chartType} />
-          </>
-        }
-      />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -184,21 +208,28 @@ export const ConversationSource = ({
           )}
         >
           {chartType === ResponsesChartType.Bar && (
-            <SourceBarChart conversationSources={conversationSources || []} />
+            <SourceBarChart conversationSources={pagedSources} />
           )}
           {chartType === ResponsesChartType.Line && (
-            <SourceLineChart conversationSources={conversationSources} />
+            <SourceLineChart conversationSources={pagedSources} />
           )}
           {chartType === ResponsesChartType.Pie && (
-            <SourcePieChart conversationSources={conversationSources} />
+            <SourcePieChart conversationSources={pagedSources} />
           )}
           {chartType === ResponsesChartType.Radar && (
-            <SourceRadarChart conversationSources={conversationSources} />
+            <SourceRadarChart conversationSources={pagedSources} />
           )}
           {chartType === ResponsesChartType.Table && (
-            <SourceRecordTableChart conversationSources={conversationSources} />
+            <SourceRecordTableChart conversationSources={pagedSources} />
           )}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );
@@ -333,6 +364,10 @@ export const SourceLineChart = memo(function SourceLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="fl-source-primary" color="var(--primary)" />
+          <AreaGradient id="fl-source-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="source" tickLine={false} axisLine={false} />
         <YAxis
@@ -359,7 +394,7 @@ export const SourceLineChart = memo(function SourceLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
+          fill="url(#fl-source-primary)"
           fillOpacity={0.3}
           strokeWidth={2}
           strokeLinecap="round"
@@ -369,7 +404,7 @@ export const SourceLineChart = memo(function SourceLineChart({
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
+          fill="url(#fl-source-success)"
           fillOpacity={0.3}
           strokeWidth={2}
           strokeLinecap="round"

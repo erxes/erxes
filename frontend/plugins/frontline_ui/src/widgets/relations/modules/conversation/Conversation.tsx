@@ -33,7 +33,6 @@ export const ConversationRelationWidget = ({
     return (
       <div className="flex flex-col flex-1 overflow-y-auto h-full gap-2 w-full p-2">
         <ConversationReportContent
-          conversationId={contentId}
           customerId={customerId}
         />
         {conversations
@@ -51,7 +50,7 @@ export const ConversationRelationWidget = ({
   }
   return (
     <div className="flex flex-col flex-1 overflow-y-auto h-full gap-2 w-full p-2">
-      <ConversationReportContent conversationId={contentId} />
+      <ConversationReportContent customerId={customerId} />
       {ownEntities?.map((entity) => {
         return (
           <ConversationRelationDetails

@@ -8,6 +8,10 @@ import { Document } from 'mongoose';
 export const CMS_POST_URL_FIELDS = ['_id', 'count', 'slug'] as const;
 export type CMSPostUrlField = (typeof CMS_POST_URL_FIELDS)[number];
 export const CMS_DEFAULT_POST_URL_FIELD: CMSPostUrlField = '_id';
+export const CMS_DEFAULT_POST_URL_PREFIX = '/posts';
+export const CMS_ACCESS_POLICIES = ['open', 'assigned'] as const;
+export type CmsAccessPolicy = (typeof CMS_ACCESS_POLICIES)[number];
+export const CMS_DEFAULT_ACCESS_POLICY: CmsAccessPolicy = 'open';
 export const MENU_LINK_TYPES = [
   'URL',
   'PAGE',
@@ -40,6 +44,9 @@ export interface IContentCMS {
   language?: string;
   languages?: string[];
   postUrlField?: CMSPostUrlField;
+  postUrlPrefix?: string;
+  accessPolicy?: CmsAccessPolicy;
+  assignedMemberIds?: string[];
 }
 
 export interface IContentCMSDocument extends IContentCMS, Document {
@@ -69,6 +76,9 @@ export interface IContentCMSInput {
   language?: string;
   languages?: string[];
   postUrlField?: CMSPostUrlField;
+  postUrlPrefix?: string;
+  accessPolicy?: CmsAccessPolicy;
+  assignedMemberIds?: string[];
 }
 
 export interface ICMSMenu {
@@ -97,8 +107,7 @@ export interface IMenuLinkedContent {
 }
 
 export interface ICMSMenuDocument
-  extends Omit<Document, 'contentType'>,
-    ICMSMenu {
+  extends Omit<Document, 'contentType'>, ICMSMenu {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

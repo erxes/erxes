@@ -19,6 +19,13 @@ export const PRODUCT_CATEGORY_STATUSES = {
   ALL: ['active', 'disabled', 'archived'],
 };
 
+export const PRODUCT_SIMILARITY_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  DELETED: 'deleted',
+  ALL: ['active', 'archived', 'deleted'],
+};
+
 export const PRODUCT_CATEGORY_MASK_TYPES = {
   ANY: '',
   SOFT: 'soft',
@@ -43,3 +50,10 @@ export const PRODUCT_EXTEND_FIELDS = [
     type: 'string',
   },
 ];
+
+export const PACKAGE_STATUSES = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['draft', 'active', 'archived'],
+};

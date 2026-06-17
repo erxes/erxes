@@ -1,4 +1,5 @@
 import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
+import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 import { FormDetailsBreadcrumb } from '@/forms/components/FormDetailsBreadcrumb';
 import { FormsCreateButton } from '@/forms/components/form-page/forms-create';
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
@@ -25,8 +26,6 @@ export const ChannelSettingsBreadcrumb = () => {
     isMatchingLocation(FrontlinePaths.PipelineDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
     isMatchingLocation(FrontlinePaths.TicketsStatuses) ||
-    isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
-    isMatchingLocation(FrontlinePaths.ResponseDetail) ||
     isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
     isMatchingLocation(`/${FrontlinePaths.ChannelIntegrations}`);
 
@@ -35,20 +34,25 @@ export const ChannelSettingsBreadcrumb = () => {
     isMatchingLocation(FrontlinePaths.PipelineDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
     isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
-    isMatchingLocation(FrontlinePaths.ResponseDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsStatuses);
 
   const isSpecificPipelineDetailRoute =
     isMatchingLocation(FrontlinePaths.PipelineDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsConfigs) ||
     isMatchingLocation(FrontlinePaths.PipelinePermissions) ||
-    isMatchingLocation(FrontlinePaths.ResponseDetail) ||
     isMatchingLocation(FrontlinePaths.TicketsStatuses);
 
   const isFormsRoute =
     isMatchingLocation(FrontlinePaths.ChannelForms) ||
     isMatchingLocation(FrontlinePaths.FormsCreate) ||
+    isMatchingLocation(FrontlinePaths.FormSubmissions) ||
     isMatchingLocation(FrontlinePaths.FormDetail);
+
+  const isResponseTemplates =
+    isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
+    isMatchingLocation(FrontlinePaths.ResponseDetail);
+  const isChannelsRoot =
+    !isChannelDetailOrSubRoute && !isFormsRoute && !isResponseTemplates;
 
   return (
     <>
@@ -58,6 +62,12 @@ export const ChannelSettingsBreadcrumb = () => {
           Channels
         </Button>
       </Link>
+
+      {isChannelsRoot && (
+        <span className="ml-auto">
+          <CreateChannel />
+        </span>
+      )}
 
       {isChannelDetailOrSubRoute && (
         <>
@@ -70,6 +80,24 @@ export const ChannelSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <MembersBreadcrumb />
+        </>
+      )}
+      {isResponseTemplates && (
+        <>
+          <Separator.Inline />
+          <ChannelDetailBreadcrumb channelId={channelId} />
+          <Separator.Inline />
+          <Link to={`/settings/frontline/channels/${channelId}/response`}>
+            <Button variant="ghost" className="font-semibold">
+              Response templates
+            </Button>
+          </Link>
+        </>
+      )}
+      {isMatchingLocation(FrontlinePaths.ResponseDetail) && (
+        <>
+          <Separator.Inline />
+          <ResponseDetailBreadcrumb />
         </>
       )}
 
@@ -109,13 +137,6 @@ export const ChannelSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <TicketStatusesBreadcrumb />
-        </>
-      )}
-
-      {isMatchingLocation(FrontlinePaths.ResponseDetail) && (
-        <>
-          <Separator.Inline />
-          <ResponseDetailBreadcrumb />
         </>
       )}
 

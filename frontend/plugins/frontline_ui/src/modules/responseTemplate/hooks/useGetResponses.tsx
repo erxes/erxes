@@ -1,4 +1,4 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { NetworkStatus, QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_RESPONSES } from '@/responseTemplate/graphql/queries/getResponses';
 import {
   EnumCursorDirection,
@@ -8,21 +8,24 @@ import {
 } from 'erxes-ui';
 import { IResponseTemplate } from '../types';
 
-const RESPONSES_PER_PAGE = 24;
+export const RESPONSES_PER_PAGE = 24;
 
 export const useGetResponses = (options?: QueryHookOptions) => {
-  const { data, loading, fetchMore } = useQuery<
+  const baseFilter = {
+    limit: RESPONSES_PER_PAGE,
+    orderBy: { createdAt: -1 },
+    ...options?.variables?.filter,
+  };
+
+  const { data, fetchMore, networkStatus, refetch } = useQuery<
     ICursorListResponse<IResponseTemplate>
   >(GET_RESPONSES, {
-    variables: {
-      filter: {
-        limit: RESPONSES_PER_PAGE,
-        orderBy: { createdAt: -1 },
-        ...options?.variables?.filter,
-      },
-    },
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
     ...options,
+    variables: {
+      filter: baseFilter,
+    },
   });
 
   const {
@@ -30,6 +33,11 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     totalCount,
     pageInfo,
   } = data?.responseTemplates || {};
+
+  const isInitialLoad = networkStatus === NetworkStatus.loading;
+  const isRefetching =
+    networkStatus === NetworkStatus.setVariables ||
+    networkStatus === NetworkStatus.refetch;
 
   const handleFetchMore = ({
     direction,
@@ -40,8 +48,8 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     fetchMore({
       variables: {
         filter: {
+          ...baseFilter,
           cursor: pageInfo?.endCursor,
-          limit: RESPONSES_PER_PAGE,
           direction,
         },
       },
@@ -60,9 +68,12 @@ export const useGetResponses = (options?: QueryHookOptions) => {
 
   return {
     responses,
-    loading,
+    isInitialLoad,
+    isRefetching,
     handleFetchMore,
     totalCount,
     pageInfo,
+    refetch,
   };
 };
+

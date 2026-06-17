@@ -1,4 +1,3 @@
-import { SelectCategory } from '@/pricing/components/SelectCategory';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import { IPricingPlanDetail } from '@/pricing/types';
 import {
@@ -20,6 +19,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   SelectCompany,
+  SelectCategory,
   SelectProduct,
   SelectSegment,
   SelectTags,

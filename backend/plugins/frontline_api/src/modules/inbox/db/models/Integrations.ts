@@ -103,7 +103,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   integrationsSaveMessengerTicketData(
     _id: string,
-    configId: string,
+    configId?: string,
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
@@ -293,7 +293,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async integrationsSaveMessengerTicketData(
       _id: string,
-      configId: string,
+      configId?: string,
     ) {
       const integration = await models.Integrations.findOne({
         _id: _id,
@@ -301,6 +301,21 @@ export const loadClass = (models: IModels, subdomain: string) => {
       if (!integration) {
         throw new Error('Integration not found');
       }
+
+      if (!configId) {
+        const result = await models.Integrations.updateOne(
+          { _id },
+          { $unset: { ticketConfigId: 1 } },
+          { runValidators: true },
+        );
+
+        if (!result.acknowledged) {
+          throw new Error('Failed to update ticket data');
+        }
+
+        return models.Integrations.findOne({ _id });
+      }
+
       const config = await models.TicketConfig.findOne({ _id: configId });
       if (!config) {
         throw new Error('Config not found');
@@ -327,11 +342,29 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async saveMessengerAppearanceData(
       _id: string,
-      { logo, primary }: IUiOptions,
+      {
+        logo,
+        launcherLogo,
+        primary,
+        backgroundColor,
+        heroStyleVariant,
+        navigationVariant,
+      }: IUiOptions,
     ) {
       await models.Integrations.updateOne(
         { _id },
-        { $set: { uiOptions: { logo, primary } } },
+        {
+          $set: {
+            uiOptions: {
+              logo,
+              launcherLogo,
+              primary,
+              backgroundColor,
+              heroStyleVariant,
+              navigationVariant,
+            },
+          },
+        },
         { runValidators: true },
       );
 

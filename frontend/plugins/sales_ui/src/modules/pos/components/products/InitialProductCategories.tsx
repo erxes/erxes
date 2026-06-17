@@ -1,7 +1,7 @@
 import { Form, Label } from 'erxes-ui';
 import { type Control } from 'react-hook-form';
-import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { type ProductsFormData } from '@/pos/components/products/Products';
+import { SelectCategory } from 'ui-modules/modules';
 
 interface InitialProductCategoriesProps {
   control: Control<ProductsFormData>;

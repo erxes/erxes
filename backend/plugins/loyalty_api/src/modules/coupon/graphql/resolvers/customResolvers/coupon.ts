@@ -4,7 +4,7 @@ import { IContext } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
 const TARGET_ACTIONS = {
-  pos: { module: 'order', action: 'findOne', field: 'number' },
+  pos: { module: 'orders', action: 'findOne', field: 'number' },
   sales: { module: 'deal', action: 'findOne', field: 'name' },
 };
 

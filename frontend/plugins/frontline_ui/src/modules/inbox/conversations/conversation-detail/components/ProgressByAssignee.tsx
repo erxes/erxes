@@ -5,7 +5,7 @@ import { MembersInline } from 'ui-modules';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { ProgressDot } from '@/inbox/conversations/conversation-detail/components/Progress';
 
-export const ProgressByAssignee = ({ customerId }: { customerId: string }) => {
+export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
   const { conversationMemberProgress = [] } = useGetConversationMemberProgress({
     variables: { customerId },
     skip: !customerId,

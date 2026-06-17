@@ -10,6 +10,7 @@ export interface IImportExportContext<TModels = any> {
 export interface ImportHeaderDefinition {
   label: string;
   key: string;
+  aliases?: string[];
   isDefault?: boolean;
   type?: 'system' | 'customProperty';
 }

@@ -16,6 +16,11 @@ type TSegment = {
   conditionsConjunction?: 'and' | 'or';
 };
 
+type TCompiledSegmentCondition = TSegmentCondition & {
+  propertyName: string;
+  propertyOperator: string;
+};
+
 type TSegmentLoader = (segmentId: string) => Promise<TSegment | null>;
 
 const SUPPORTED_MONGO_OPERATORS = new Set([
@@ -29,6 +34,16 @@ const SUPPORTED_MONGO_OPERATORS = new Set([
   'ins',
   'igt',
   'ilt',
+  'dateigt',
+  'dateilt',
+  'dateis',
+  'dateins',
+  'drlt',
+  'drgt',
+  'woam',
+  'wobm',
+  'woad',
+  'wobd',
   'numbere',
   'numberdne',
   'numberigt',
@@ -43,6 +58,50 @@ const UNSUPPORTED_NESTED_PREFIXES = [
 
 const escapeRegExp = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const normalizeDateValue = (value?: string) => {
+  const date = new Date(String(value || ''));
+
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const normalizeNumberValue = (value?: string) => {
+  const numberValue = Number(value);
+
+  return Number.isNaN(numberValue) ? null : numberValue;
+};
+
+const getMinuteRange = (date: Date) => {
+  const start = new Date(date);
+  start.setSeconds(0, 0);
+
+  const end = new Date(start);
+  end.setSeconds(59, 999);
+
+  return { start, end };
+};
+
+const getDayRange = (date: Date) => {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+};
+
+const getOffsetDate = (amount: number, unit: 'minute' | 'day') => {
+  const date = new Date();
+
+  if (unit === 'minute') {
+    date.setMinutes(date.getMinutes() + amount);
+  } else {
+    date.setDate(date.getDate() + amount);
+  }
+
+  return date;
+};
 
 const getConditionKind = (condition: TSegmentCondition) => {
   if (condition.type) {
@@ -136,9 +195,9 @@ const collectSegmentContextTypesInternal = async ({
   return contentTypes;
 };
 
-const compileConditionToMongo = (condition: TSegmentCondition) => {
-  const field = condition.propertyName!;
-  const operator = condition.propertyOperator!;
+const compileConditionToMongo = (condition: TCompiledSegmentCondition) => {
+  const field = condition.propertyName;
+  const operator = condition.propertyOperator;
   const value = condition.propertyValue;
 
   switch (operator) {
@@ -175,6 +234,7 @@ const compileConditionToMongo = (condition: TSegmentCondition) => {
       return { [field]: false };
 
     case 'is':
+    case 'dateis':
       return {
         $and: [
           { [field]: { $exists: true } },
@@ -185,6 +245,7 @@ const compileConditionToMongo = (condition: TSegmentCondition) => {
       };
 
     case 'ins':
+    case 'dateins':
       return {
         $or: [
           { [field]: { $exists: false } },
@@ -198,9 +259,61 @@ const compileConditionToMongo = (condition: TSegmentCondition) => {
     case 'numberigt':
       return { [field]: { $gte: Number(value) } };
 
+    case 'dateigt': {
+      const date = normalizeDateValue(value);
+
+      return date ? { [field]: { $gte: date } } : null;
+    }
+
+    case 'drgt': {
+      const date = normalizeDateValue(value);
+
+      return date ? { [field]: { $gte: date } } : null;
+    }
+
     case 'ilt':
     case 'numberilt':
       return { [field]: { $lte: Number(value) } };
+
+    case 'dateilt': {
+      const date = normalizeDateValue(value);
+
+      return date ? { [field]: { $lte: date } } : null;
+    }
+
+    case 'drlt': {
+      const date = normalizeDateValue(value);
+
+      return date ? { [field]: { $lte: date } } : null;
+    }
+
+    case 'woam':
+    case 'wobm': {
+      const offset = normalizeNumberValue(value);
+
+      if (offset === null) {
+        return null;
+      }
+
+      const amount = operator === 'woam' ? -offset : offset;
+      const { start, end } = getMinuteRange(getOffsetDate(amount, 'minute'));
+
+      return { [field]: { $gte: start, $lte: end } };
+    }
+
+    case 'woad':
+    case 'wobd': {
+      const offset = normalizeNumberValue(value);
+
+      if (offset === null) {
+        return null;
+      }
+
+      const amount = operator === 'woad' ? -offset : offset;
+      const { start, end } = getDayRange(getOffsetDate(amount, 'day'));
+
+      return { [field]: { $gte: start, $lte: end } };
+    }
 
     default:
       return null;
@@ -256,7 +369,11 @@ const compileSegmentToMongoSelectorInternal = async ({
         return null;
       }
 
-      const clause = compileConditionToMongo(condition);
+      const clause = compileConditionToMongo({
+        ...condition,
+        propertyName: condition.propertyName,
+        propertyOperator: condition.propertyOperator,
+      });
 
       if (!clause) {
         return null;

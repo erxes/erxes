@@ -11,3 +11,23 @@ export const checkSyncedMutation = gql`
     }
   }
 `;
+
+export const syncDealsMutation = gql`
+  mutation ToSyncDeals(
+    $dealIds: [String]
+    $configStageId: String
+    $dateType: String
+  ) {
+    toSyncDeals(
+      dealIds: $dealIds
+      configStageId: $configStageId
+      dateType: $dateType
+    )
+  }
+`;
+
+export const syncOrdersMutation = gql`
+  mutation ToSyncOrders($orderIds: [String]) {
+    toSyncOrders(orderIds: $orderIds)
+  }
+`;

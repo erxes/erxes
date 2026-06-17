@@ -23,5 +23,5 @@ export const userToErkhet = async (
     },
   };
 
-  return await toErkhet(models, syncLog, mainConfig, sendData, 'user-change');
+  return await toErkhet(models, mainConfig, sendData, 'user-change', syncLog);
 };

@@ -1,0 +1,58 @@
+# Contract: module-federation-expose
+
+skill:
+  name: module-federation-expose
+  version: "1.0.0"
+  type: feature
+  description: Add or change erxes frontend Module Federation exposes
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Frontend plugin name"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_ui$'"
+
+  - name: expose_name
+    type: string
+    description: "Expose name (e.g., './config', './content')"
+    required: true
+    pattern: "^\\./[a-z-]+$"
+
+  - name: expose_type
+    type: enum
+    values: [config, route-module, widget, relation-widget, settings-page]
+    required: true
+
+rules_required:
+  - architecture
+  - react-general-guidelines
+  - code-style
+
+preconditions:
+  - description: "Plugin must exist"
+    check: "test -d frontend/plugins/{plugin_name}_ui"
+  - description: "module-federation.config.ts exists"
+    check: "test -f frontend/plugins/{plugin_name}_ui/module-federation.config.ts"
+
+postconditions:
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_ui"
+    required: true
+  - description: "Host references updated if expose changed"
+    check: "host_refs_updated_or_unchanged"
+
+composes_with:
+  - configure-plugin-navigation
+  - create-page
+
+conventions:
+  - "Check module-federation.config.ts before adding exposes"
+  - "Keep exposed entry points stable and small"
+  - "Put feature internals under src/modules, src/pages"
+  - "Update host references when expose changes"
+  - "Keep shared dependencies consistent"
+  - "Do not move or rename exposes without updating host references"
+  - "Do not put general feature UI in src/widgets"
+  - "Named exports only"

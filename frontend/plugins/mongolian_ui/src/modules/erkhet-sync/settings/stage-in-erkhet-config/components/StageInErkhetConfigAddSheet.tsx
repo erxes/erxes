@@ -20,8 +20,8 @@ const defaultValues: TErkhetConfig = {
   responseField: '',
   hasVat: false,
   hasCitytax: false,
-  reverseCtaxRules: '',
-  reverseVatRules: '',
+  reverseCtaxRules: [],
+  reverseVatRules: [],
   defaultPay: 'debtAmount',
 };
 
@@ -45,8 +45,26 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
 
   const { paymentTypes } = useGetSalesPipelinePaymentTypes(selectedPipelineId);
 
+  const normalizeRuleIds = (value?: string | string[]) => {
+    if (!value) {
+      return [];
+    }
+
+    return Array.isArray(value)
+      ? value.filter(Boolean)
+      : [value].filter(Boolean);
+  };
+
   const handleSubmit = async (data: TErkhetConfig) => {
-    await onSubmit(data);
+    await onSubmit({
+      ...data,
+      reverseVatRules: data.hasVat
+        ? normalizeRuleIds(data.reverseVatRules)
+        : [],
+      reverseCtaxRules: data.hasCitytax
+        ? []
+        : normalizeRuleIds(data.reverseCtaxRules),
+    });
     setOpen(false);
     form.reset();
   };
@@ -219,6 +237,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                               <SelectAnotherRulesOfProductsOnCityTax
                                 value={field.value}
                                 onValueChange={field.onChange}
+                                kind="vat"
                               />
                               <Form.Message />
                             </Form.Item>
@@ -244,7 +263,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                           </Form.Item>
                         )}
                       />
-                      {hasCitytax && (
+                      {!hasCitytax && (
                         <Form.Field
                           control={form.control}
                           name="reverseCtaxRules"
@@ -256,6 +275,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                               <SelectAnotherRulesOfProductsOnCityTax
                                 value={field.value}
                                 onValueChange={field.onChange}
+                                kind="ctax"
                               />
                               <Form.Message />
                             </Form.Item>

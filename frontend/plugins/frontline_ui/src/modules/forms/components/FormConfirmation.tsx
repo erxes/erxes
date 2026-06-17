@@ -20,6 +20,7 @@ import {
 } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { useFormMutate } from '../hooks/useFormMutate';
+import { useEffect } from 'react';
 
 export const FormConfirmation = () => {
   const form = useForm<z.infer<typeof FORM_CONFIRMATION_SCHEMA>>({
@@ -106,6 +107,14 @@ export const FormConfirmationImage = ({
       onValueChange(addedFiles[0]);
     },
   });
+
+  useEffect(() => {
+    const hasValidFiles =
+      props.files.length > 0 && props.files.every((f) => f.errors.length === 0);
+    if (hasValidFiles && !props.loading) {
+      props.onUpload();
+    }
+  }, [props.files]);
 
   return value ? (
     <div className="relative p-2 border border-dashed rounded-md aspect-video">

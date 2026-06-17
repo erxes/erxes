@@ -57,7 +57,7 @@ export const types = `
     targetDate: Date
     channelId: String
     userId: String
-    name: String
+    searchValue: String
     statusType: Int
     state: String
     ${GQL_CURSOR_PARAM_DEFS}
@@ -76,7 +76,7 @@ export const types = `
     targetDate: Date
     channelId: String
     userId: String
-    name: String
+    searchValue: String
     statusType: Int
     state: String
     ${GQL_OFFSET_PARAM_DEFS}

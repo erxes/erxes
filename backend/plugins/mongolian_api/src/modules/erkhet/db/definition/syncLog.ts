@@ -25,3 +25,4 @@ export const syncLogSchema = new Schema(
     timestamps: true,
   },
 );
+syncLogSchema.index({ createdAt: 1 });

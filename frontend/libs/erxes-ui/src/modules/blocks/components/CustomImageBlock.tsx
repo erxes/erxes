@@ -11,11 +11,11 @@ import {
   useUploadLoading,
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
-import { FC, useState } from 'react';
+import { CSSProperties, FC, useEffect, useState } from 'react';
 import { Spinner } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 
-const IMAGE_STYLES = ['normal', 'wide'] as const;
+const IMAGE_STYLES = ['normal', 'wide', 'float-left', 'float-right'] as const;
 
 export type ImageStyle = (typeof IMAGE_STYLES)[number];
 
@@ -26,28 +26,33 @@ export const IMAGE_STYLE_PRESETS: Record<
     maxWidth: number;
   }
 > = {
-  normal: {
-    previewWidth: 720,
-    maxWidth: 720,
-  },
-  wide: {
-    previewWidth: 1080,
-    maxWidth: 1080,
-  },
+  normal: { previewWidth: 720, maxWidth: 720 },
+  wide: { previewWidth: 1080, maxWidth: 1080 },
+  'float-left': { previewWidth: 300, maxWidth: 400 },
+  'float-right': { previewWidth: 300, maxWidth: 400 },
 };
 
 const getImageStyle = (value?: string): ImageStyle =>
-  value === 'wide' ? 'wide' : 'normal';
+  (IMAGE_STYLES as readonly string[]).includes(value ?? '')
+    ? (value as ImageStyle)
+    : 'normal';
 
-const getImageStyleClasses = (imageStyle: ImageStyle) =>
-  imageStyle === 'wide' ? 'w-full max-w-[1080px]' : 'w-full max-w-[720px]';
+const getImageStyleClasses = (imageStyle: ImageStyle) => {
+  switch (imageStyle) {
+    case 'wide':        return 'w-full max-w-[1080px]';
+    case 'float-left':  return 'max-w-[400px] w-full';
+    case 'float-right': return 'max-w-[400px] w-full';
+    default:            return 'w-full max-w-[720px]';
+  }
+};
+
 
 const getImageStyleFromElement = (element: HTMLElement): ImageStyle => {
   const explicitStyle =
     element.getAttribute('data-image-style') ||
     element
       .getAttribute('class')
-      ?.match(/erxes-editor-image--(normal|wide)/)?.[1];
+      ?.match(/erxes-editor-image--(normal|wide|float-left|float-right)/)?.[1];
 
   return getImageStyle(explicitStyle);
 };
@@ -115,6 +120,21 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
   );
 };
 
+const getFloatContainerStyle = (
+  imageStyle: ImageStyle,
+  maxWidth: number,
+): CSSProperties => {
+  const base: CSSProperties = {
+    width: '100%',
+    maxWidth: `${maxWidth}px`,
+  };
+  if (imageStyle === 'float-left')
+    return { ...base, float: 'left', marginRight: '1.25em', marginBottom: '0.5em' };
+  if (imageStyle === 'float-right')
+    return { ...base, float: 'right', marginLeft: '1.25em', marginBottom: '0.5em' };
+  return { ...base, margin: '0 auto' };
+};
+
 const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   const { url, caption, name, previewWidth } = block.props;
   const imageStyle = getImageStyle(
@@ -123,6 +143,9 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
 
   if (!url) return <p>Add image</p>;
 
+  const maxWidth = previewWidth || IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
+  const containerStyle = getFloatContainerStyle(imageStyle, maxWidth);
+
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -130,43 +153,51 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
       alt={caption || name || ''}
       className={`erxes-editor-image erxes-editor-image--${imageStyle}`}
       data-image-style={imageStyle}
-      style={{
-        width: '100%',
-        maxWidth: `${
-          previewWidth || IMAGE_STYLE_PRESETS[imageStyle].maxWidth
-        }px`,
-        height: 'auto',
-        display: 'block',
-        margin: '0 auto',
-      }}
+      style={{ width: '100%', height: 'auto', display: 'block' }}
       {...(previewWidth ? { width: previewWidth } : {})}
     />
   );
 
-  if (caption) {
-    return (
-      <figure
-        className={`erxes-editor-image erxes-editor-image--${imageStyle}`}
-        data-image-style={imageStyle}
-        style={{
-          width: '100%',
-          maxWidth: `${
-            previewWidth || IMAGE_STYLE_PRESETS[imageStyle].maxWidth
-          }px`,
-          margin: '0 auto',
-        }}
-      >
-        {img}
-        <figcaption>{caption}</figcaption>
-      </figure>
-    );
-  }
-  return img;
+  return (
+    <figure
+      className={`erxes-editor-image erxes-editor-image--${imageStyle}`}
+      data-image-style={imageStyle}
+      style={containerStyle}
+    >
+      {img}
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  );
 };
 
 const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
   const fileProps = toFileBlockProps(props);
+  const imageStyle = getImageStyle(
+    (props.block.props as { imageStyle?: string }).imageStyle,
+  );
+
+  useEffect(() => {
+    const blockId = props.block.id;
+    const styleId = `erxes-img-float-${blockId}`;
+
+    document.getElementById(styleId)?.remove();
+
+    if (imageStyle !== 'float-left' && imageStyle !== 'float-right') return;
+
+    const maxWidth =
+      (props.block.props as { previewWidth?: number }).previewWidth ||
+      IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
+    const dir = imageStyle === 'float-left' ? 'left' : 'right';
+    const margin = imageStyle === 'float-left' ? 'margin-right:1.25em' : 'margin-left:1.25em';
+
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = `[data-id="${blockId}"]{float:${dir};max-width:${maxWidth}px;width:100%;${margin};margin-bottom:.75em}`;
+    document.head.appendChild(styleEl);
+
+    return () => document.getElementById(styleId)?.remove();
+  }, [props.block.id, imageStyle, (props.block.props as { previewWidth?: number }).previewWidth]);
 
   if (loading) {
     return (

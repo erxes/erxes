@@ -1,0 +1,56 @@
+# Contract: fix-sonar
+
+skill:
+  name: fix-sonar
+  version: "1.0.0"
+  type: maintenance
+  description: Fix Sonar, lint, or TypeScript issues with minimal changes
+
+inputs:
+  - name: project_name
+    type: string
+    description: "Nx project name where issues exist"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{project_name}$'"
+
+  - name: issue_type
+    type: enum
+    values: [sonar, lint, typescript, all]
+    description: "Type of issues to fix"
+    required: true
+
+  - name: files
+    type: array
+    description: "Specific files to fix (optional - if empty, fix all issues)"
+    required: false
+    items:
+      type: string
+
+rules_required:
+  - code-style
+  - typescript-guidelines
+  - react-general-guidelines
+
+preconditions:
+  - description: "Project must exist"
+    check: "pnpm nx show projects | grep -q '^{project_name}$'"
+  - description: "Issues are reproducible"
+    check: "pnpm nx lint {project_name} || pnpm nx build {project_name}"
+
+postconditions:
+  - description: "Lint passes"
+    command: "pnpm nx lint {project_name}"
+    required: true
+  - description: "Build passes"
+    command: "pnpm nx build {project_name}"
+    required: true
+
+conventions:
+  - "Fix issues with minimal changes"
+  - "Preserve existing behavior"
+  - "Avoid unnecessary refactors"
+  - "Preserve naming consistency"
+  - "Never rewrite working architecture just for Sonar"
+  - "Prefer minimal safe fixes"
+  - "Named exports only"

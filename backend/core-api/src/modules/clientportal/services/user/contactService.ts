@@ -8,6 +8,98 @@ import { normalizeEmail } from '@/clientportal/utils';
 import { random } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
+// Mirrors the email regex on the cpUser schema so reverse sync never writes
+// an email the CP user model itself would reject.
+const CP_USER_EMAIL_REGEX =
+  /^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,10})+$/;
+
+export async function syncCPUserContactToCustomer(
+  models: IModels,
+  cpUser: Pick<
+    ICPUserDocument,
+    'email' | 'phone' | 'firstName' | 'lastName' | 'erxesCustomerId'
+  >,
+): Promise<void> {
+  if (!cpUser.erxesCustomerId) {
+    return;
+  }
+
+  const set: Record<string, string> = {};
+  const addToSet: Record<string, string> = {};
+
+  if (cpUser.email) {
+    set.primaryEmail = cpUser.email;
+    addToSet.emails = cpUser.email;
+  }
+
+  if (cpUser.phone) {
+    set.primaryPhone = cpUser.phone;
+    addToSet.phones = cpUser.phone;
+  }
+
+  if (cpUser.firstName) {
+    set.firstName = cpUser.firstName;
+  }
+
+  if (cpUser.lastName) {
+    set.lastName = cpUser.lastName;
+  }
+
+  if (Object.keys(set).length === 0) {
+    return;
+  }
+
+  // Direct updateOne (not updateCustomer) so the reverse sync isn't re-triggered
+  await models.Customers.updateOne(
+    { _id: cpUser.erxesCustomerId },
+    { $set: set, $addToSet: addToSet },
+  );
+}
+
+export async function syncCustomerContactToCPUsers(
+  models: IModels,
+  customerId: string,
+  doc: {
+    primaryEmail?: string;
+    primaryPhone?: string;
+    firstName?: string;
+    lastName?: string;
+  },
+): Promise<void> {
+  const set: Record<string, string> = {};
+
+  if (doc.primaryEmail !== undefined) {
+    const email = normalizeEmail(doc.primaryEmail);
+    if (email && CP_USER_EMAIL_REGEX.test(email)) {
+      set.email = email;
+    }
+  }
+
+  if (doc.primaryPhone !== undefined) {
+    const phone = (doc.primaryPhone || '').trim();
+    if (phone) {
+      set.phone = phone;
+    }
+  }
+
+  if (doc.firstName !== undefined && doc.firstName.trim()) {
+    set.firstName = doc.firstName.trim();
+  }
+
+  if (doc.lastName !== undefined && doc.lastName.trim()) {
+    set.lastName = doc.lastName.trim();
+  }
+
+  if (Object.keys(set).length === 0) {
+    return;
+  }
+
+  await models.CPUser.updateMany(
+    { erxesCustomerId: customerId },
+    { $set: set },
+  );
+}
+
 async function prepareUserPassword(
   password: string | undefined,
   models: IModels,
@@ -93,6 +185,17 @@ async function handleCustomerUser(
   }
 
   await linkCustomerToUser(models, user._id, customer._id);
+
+  // Customer may have been matched by only one identifier (e.g. phone); make
+  // sure its primary email/phone match the CP user values (CP user wins).
+  await syncCPUserContactToCustomer(models, {
+    email: user.email,
+    phone: user.phone,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    erxesCustomerId: customer._id,
+  });
+
   return user;
 }
 

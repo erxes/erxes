@@ -13,6 +13,7 @@ import {
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
 import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
+import { createSlug } from '@/cms/utils/createSlug';
 import { CmsTag, TagFormData } from '@/cms/tags/types/tagTypes';
 
 interface TagDrawerProps {
@@ -56,12 +57,6 @@ const tagToFormValues = (
     clientPortalId: tag.clientPortalId || clientPortalId,
   };
 };
-
-const generateSlug = (name: string) =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
 
 const hasTranslationValue = (data?: TranslationData): boolean =>
   Boolean(data?.title?.trim());
@@ -417,7 +412,7 @@ export function TagDrawer({
   };
 
   const handleNameChange = (name: string) => {
-    const slug = generateSlug(name);
+    const slug = createSlug(name);
     form.setValue('slug', slug);
   };
 
@@ -529,10 +524,10 @@ export function TagDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : hasPermissionError
-                  ? 'Permission Required'
-                  : isEditing
-                  ? 'Save Changes'
-                  : 'Create Tag'}
+                    ? 'Permission Required'
+                    : isEditing
+                      ? 'Save Changes'
+                      : 'Create Tag'}
               </Button>
             </div>
           </form>

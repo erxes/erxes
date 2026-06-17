@@ -27,10 +27,8 @@ import { useState } from 'react';
 import { SelectTypes } from './selects/SelectTypes';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectExcludeStatus } from './selects/SelectExcludeStatus';
-import { SelectCategories } from './selects/SelectCategories';
-import { SelectCustomers } from './selects/SelectCustomers';
-import { SelectCompanies } from './selects/SelectCompanies';
 import { SelectUsers } from './selects/SelectPosUsers';
+import { SelectCategory, SelectCompany, SelectCustomer } from 'ui-modules/modules';
 
 export const PosByItemsFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -78,7 +76,7 @@ export const PosByItemsFilterPopover = () => {
                   <IconHash />
                   Number
                 </Filter.Item>
-                <SelectCategories.FilterItem />
+                <SelectCategory.FilterItem />
                 <Filter.Item value="customer">
                   <IconCashRegister />
                   Customer
@@ -116,7 +114,7 @@ export const PosByItemsFilterPopover = () => {
             </Command>
           </Filter.View>
           <Filter.View filterKey="customer">
-            <SelectCustomers.Provider
+            <SelectCustomer.Provider
               mode="single"
               value={customer || ''}
               onValueChange={(value) => {
@@ -124,11 +122,11 @@ export const PosByItemsFilterPopover = () => {
                 resetFilterState();
               }}
             >
-              <SelectCustomers.Content />
-            </SelectCustomers.Provider>
+              <SelectCustomer.Content />
+            </SelectCustomer.Provider>
           </Filter.View>
           <Filter.View filterKey="company">
-            <SelectCompanies.Provider
+            <SelectCompany.Provider
               mode="single"
               value={company || ''}
               onValueChange={(value) => {
@@ -136,8 +134,8 @@ export const PosByItemsFilterPopover = () => {
                 resetFilterState();
               }}
             >
-              <SelectCompanies.Content />
-            </SelectCompanies.Provider>
+              <SelectCompany.Content />
+            </SelectCompany.Provider>
           </Filter.View>
           <Filter.View filterKey="user">
             <SelectUsers.Provider
@@ -151,7 +149,7 @@ export const PosByItemsFilterPopover = () => {
               <SelectUsers.Content />
             </SelectUsers.Provider>
           </Filter.View>
-          <SelectCategories.FilterView />
+          <SelectCategory.FilterView />
           <Filter.View filterKey="types">
             <SelectTypes.FilterView />
           </Filter.View>
@@ -174,7 +172,7 @@ export const PosByItemsFilterPopover = () => {
           <Filter.DialogStringView filterKey="number" />
         </Filter.View>
         <Filter.View filterKey="category" inDialog>
-          <SelectCategories.FilterView />
+          <SelectCategory.FilterView />
         </Filter.View>
         <Filter.View filterKey="createdDateRange" inDialog>
           <Filter.DialogDateView filterKey="createdDateRange" />
@@ -212,7 +210,7 @@ export const PosByItemsFilter = () => {
             <IconUser />
             Customer
           </Filter.BarName>
-          <SelectCustomers.Provider
+          <SelectCustomer.Provider
             mode="single"
             value={customer || ''}
             onValueChange={(value) => {
@@ -223,21 +221,21 @@ export const PosByItemsFilter = () => {
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey={'customer'}>
-                  <SelectCustomers.Value />
+                  <SelectCustomer.Value />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
-                <SelectCustomers.Content />
+                <SelectCustomer.Content />
               </Combobox.Content>
             </Popover>
-          </SelectCustomers.Provider>
+          </SelectCustomer.Provider>
         </Filter.BarItem>
         <Filter.BarItem queryKey={'company'}>
           <Filter.BarName>
             <IconBuilding />
             Company
           </Filter.BarName>
-          <SelectCompanies.Provider
+          <SelectCompany.Provider
             mode="single"
             value={company || ''}
             onValueChange={(value) => {
@@ -248,14 +246,14 @@ export const PosByItemsFilter = () => {
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey={'company'}>
-                  <SelectCompanies.Value />
+                  <SelectCompany.Value />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
-                <SelectCompanies.Content />
+                <SelectCompany.Content />
               </Combobox.Content>
             </Popover>
-          </SelectCompanies.Provider>
+          </SelectCompany.Provider>
         </Filter.BarItem>
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
@@ -296,7 +294,7 @@ export const PosByItemsFilter = () => {
           </Filter.BarName>
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>
-        <SelectCategories.FilterBar />
+        <SelectCategory.FilterBar />
         <SelectTypes.FilterBar />
         <SelectStatus.FilterBar />
         <SelectExcludeStatus.FilterBar />

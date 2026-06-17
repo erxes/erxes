@@ -1,4 +1,8 @@
-import { IOAuthClientApp } from '@/settings/oauth-clients/types';
+import {
+  IOAuthClientApp,
+  OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS,
+  OAuthClientAccessTokenLifetime,
+} from '@/settings/oauth-clients/types';
 import { ColumnDef } from '@tanstack/table-core';
 import { format } from 'date-fns';
 import { Badge, RecordTableInlineCell, useToast } from 'erxes-ui';
@@ -36,6 +40,14 @@ const ClientIdCell = ({ clientId }: { clientId: string }) => {
   );
 };
 
+const getAccessTokenLifetimeLabel = (
+  value?: OAuthClientAccessTokenLifetime,
+) => {
+  return OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS.find(
+    (option) => option.value === value,
+  )?.label;
+};
+
 export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
   {
     id: 'name',
@@ -58,6 +70,19 @@ export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="secondary">{cell.getValue() as string}</Badge>
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: 'accessTokenLifetime',
+    accessorKey: 'accessTokenLifetime',
+    header: 'Token lifetime',
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        {row.original.type === 'confidential'
+          ? getAccessTokenLifetimeLabel(row.original.accessTokenLifetime) ||
+            '1 year'
+          : '-'}
       </RecordTableInlineCell>
     ),
   },

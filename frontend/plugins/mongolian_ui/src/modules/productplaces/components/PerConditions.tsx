@@ -1,11 +1,11 @@
 import { Button, Input, Label, Select, } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { SelectProductCategories } from '~/modules/ebarimt/settings/product-rules-on-tax/components/selects/SelectProductCategories';
 import SelectDepartments from '../selects/SelectDepartments';
 import SelectBranches from '../selects/SelectBranches';
 import SelectProducts from '../selects/SelectProducts';
 import SelectProductTags from '../selects/SelectProductTags';
 import SelectSegments from '../selects/SelectSegments';
+import { SelectCategory } from 'ui-modules';
 
 type Props = {
   condition: any;
@@ -33,7 +33,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               Product Category
             </Label>
-            <SelectProductCategories
+            <SelectCategory
               value={condition.productCategoryIds ?? []}
               onValueChange={(ids) => onChangeConfig('productCategoryIds', ids)}
             />
@@ -43,7 +43,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               Exclude categories
             </Label>
-            <SelectProductCategories
+            <SelectCategory
               value={condition.excludeCategoryIds ?? []}
               onValueChange={(ids) => onChangeConfig('excludeCategoryIds', ids)}
             />

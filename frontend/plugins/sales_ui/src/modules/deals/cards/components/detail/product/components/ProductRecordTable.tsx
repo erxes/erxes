@@ -55,16 +55,18 @@ export const ProductsRecordTable = ({
       columns={columns}
       data={products || []}
       className="my-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'name', 'type', 'unitPrice']}
     >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.RowList />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
+      <div className="max-h-[400px] overflow-y-auto">
+        <RecordTable.Scroll>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.RowList />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Scroll>
+      </div>
       <ProductCommandBar refetch={refetch} dealId={dealId} />
     </RecordTable.Provider>
   );

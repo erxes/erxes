@@ -133,14 +133,9 @@ export const TicketsBoardCards = ({
   const [ticketCountByBoard, setTicketCountByBoard] = useAtom(
     ticketCountByBoardAtom,
   );
-  const boardCards = ticketCards
-    .filter((ticket) => ticket.column === column.id)
-    .sort((a, b) => {
-      if (a.sort && b.sort) {
-        return b.sort.toString().localeCompare(a.sort.toString());
-      }
-      return 0;
-    });
+  const boardCards = ticketCards.filter(
+    (ticket) => ticket.column === column.id,
+  );
   const { tickets, totalCount, loading, handleFetchMore } = useTickets({
     variables: {
       statusId: column.id,

@@ -71,4 +71,5 @@ export const BRANCH_CREATE_SCHEMA = z.object({
     .optional()
     .nullable(),
   radius: z.number().optional().nullable(),
+  status: z.string().optional().nullable(),
 });

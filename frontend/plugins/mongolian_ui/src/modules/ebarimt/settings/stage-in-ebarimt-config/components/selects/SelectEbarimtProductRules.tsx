@@ -5,13 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  cn,
-  Combobox,
-  Command,
-  PopoverScoped,
-  SelectTriggerVariant,
-} from 'erxes-ui';
+import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import { useEbarimtProductRules } from '../../hooks/useEbarimtProductRules';
 import {
   SelectContent,
@@ -25,8 +19,16 @@ interface IProductRule {
   [key: string]: any;
 }
 
+type SelectEbarimtProductRulesVariant =
+  | 'filter'
+  | 'table'
+  | 'card'
+  | 'detail'
+  | 'form'
+  | 'icon';
+
 interface SelectEbarimtProductRulesContextType {
-  value: string;
+  value: string[];
   onValueChange: (ruleId: string) => void;
   loading?: boolean;
   error?: any;
@@ -53,7 +55,7 @@ export const SelectEbarimtProductRulesProvider = ({
   kind,
   children,
 }: {
-  value: string;
+  value: string[];
   onValueChange: (ruleId: string) => void;
   children: React.ReactNode;
   kind: 'vat' | 'ctax';
@@ -70,7 +72,7 @@ export const SelectEbarimtProductRulesProvider = ({
 
   const contextValue = useMemo(
     () => ({
-      value: value || '',
+      value: value || [],
       onValueChange: handleValueChange,
       productRules,
       loading,
@@ -95,9 +97,11 @@ const SelectEbarimtProductRulesValue = ({
   className?: string;
 }) => {
   const { value, productRules } = useSelectEbarimtProductRulesContext();
-  const selectedRule = productRules?.find((rule) => rule._id === value);
+  const selectedRules = productRules?.filter((rule) =>
+    value.includes(rule._id),
+  );
 
-  if (!selectedRule) {
+  if (!selectedRules?.length) {
     return (
       <span className="text-accent-foreground/80">
         {placeholder || 'Select rule'}
@@ -108,7 +112,7 @@ const SelectEbarimtProductRulesValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm capitalize', className)}>
-        {selectedRule.title}
+        {selectedRules.map((rule) => rule.title).join(', ')}
       </p>
     </div>
   );
@@ -130,7 +134,7 @@ const SelectEbarimtProductRulesCommandItem = ({
       }}
     >
       <span className="font-medium capitalize">{title}</span>
-      <Combobox.Check checked={value === ruleId} />
+      <Combobox.Check checked={value.includes(ruleId)} />
     </Command.Item>
   );
 };
@@ -180,21 +184,24 @@ const SelectEbarimtProductRulesRoot = ({
   onValueChange,
   disabled,
 }: {
-  value: string;
+  value: string[];
   kind: 'vat' | 'ctax';
-  variant?: `${SelectTriggerVariant}`;
+  variant?: SelectEbarimtProductRulesVariant;
   scope?: string;
-  onValueChange?: (value: string) => void;
+  onValueChange?: (value: string[]) => void;
   disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
 
   const handleValueChange = useCallback(
-    (value: string) => {
-      onValueChange?.(value);
-      setOpen(false);
+    (ruleId: string) => {
+      const nextValue = value.includes(ruleId)
+        ? value.filter((selectedRuleId) => selectedRuleId !== ruleId)
+        : [...value, ruleId];
+
+      onValueChange?.(nextValue);
     },
-    [onValueChange],
+    [onValueChange, value],
   );
 
   return (

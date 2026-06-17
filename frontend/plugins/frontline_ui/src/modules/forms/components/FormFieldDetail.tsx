@@ -184,13 +184,11 @@ export const FormFieldDetail = ({
                 variant="outline"
                 className="min-h-20"
                 onChange={() => {
-                  editor
-                    .blocksToHTMLLossy(editor.document)
-                    .then((html) => {
-                      const safe = DOMPurify.sanitize(html);
-                      const stripped = safe.replace(/<[^>]*>/g, '').trim();
-                      handleValueChange('description', stripped ? safe : '');
-                    });
+                  editor.blocksToHTMLLossy(editor.document).then((html) => {
+                    const safe = DOMPurify.sanitize(html);
+                    const stripped = safe.replace(/<[^>]*>/g, '').trim();
+                    handleValueChange('description', stripped ? safe : '');
+                  });
                 }}
               />
             </div>
@@ -293,7 +291,8 @@ export const FormFieldDetail = ({
               </div>
             )}
 
-            {fieldData?.type === 'select' && (
+            {(fieldData?.type === 'select' ||
+              fieldData?.type === 'select:countries') && (
               <div className="space-y-2 col-span-2 flex gap-2 items-center">
                 <Label htmlFor="allowSearch" className="flex items-center m-0!">
                   Allow search
@@ -322,6 +321,7 @@ export const FormFieldDetail = ({
               </div>
             )}
             {(fieldData?.type === 'select' ||
+              fieldData?.type === 'select:countries' ||
               fieldData?.type === 'radio' ||
               fieldData?.type === 'check' ||
               fieldData?.type === 'core:customer:sex') && (

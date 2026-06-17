@@ -28,8 +28,7 @@ const getProductPropertyValue = (product: any, fieldId: string) =>
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
 
-const isPropertyField = (field: string) =>
-  field.includes('propertiesData.');
+const isPropertyField = (field: string) => field.includes('propertiesData.');
 
 const propertyExistsFilter = (fieldIds: string[]) => ({
   $or: [
@@ -65,6 +64,7 @@ export interface IProductParams extends ICommonParams {
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
+  similarity?: boolean;
   categoryMeta?: string;
   image?: string;
 
@@ -107,6 +107,7 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
+    similarity,
     minRemainder,
     maxRemainder,
     minPrice,
@@ -121,6 +122,26 @@ const generateFilter = async (
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] },
   };
+
+  // one card per bulk-similarity group: standalone products + each group's star
+  if (similarity) {
+    const similarityGroups = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.find',
+      input: { query: { status: { $ne: 'deleted' } } },
+      defaultValue: [],
+    });
+
+    const starProductIds = (similarityGroups || [])
+      .map((group) => group.starProductId)
+      .filter(Boolean);
+
+    $and.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
 
   if (type) {
     filter.type = type;
@@ -433,6 +454,99 @@ const productQueries = {
     return models.Products.find(filter).countDocuments();
   },
 
+  async poscProductBulkSimilarity(
+    _root,
+    { _id, branchId }: { _id: string; branchId?: string },
+    { models, subdomain, config }: IContext,
+  ) {
+    const product = await models.Products.getProduct({ _id });
+
+    if (!product.similarityId) {
+      return null;
+    }
+
+    const members = await models.Products.find({
+      similarityId: product.similarityId,
+      status: { $ne: PRODUCT_STATUSES.DELETED },
+      tokens: { $in: [config.token] },
+    })
+      .sort({ code: 1 })
+      .lean();
+
+    // group doc gives the canonical axis/value order and the star product;
+    // when core is unreachable everything below falls back to member data
+    const similarityGroup = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.findOne',
+      input: { _id: product.similarityId },
+      defaultValue: null,
+    });
+
+    const selection: Record<string, string[]> =
+      similarityGroup?.propertiesData || {};
+
+    let fieldIds = Object.keys(selection);
+    if (!fieldIds.length) {
+      fieldIds = [
+        ...new Set(
+          members.flatMap((member) => Object.keys(member.propertiesData || {})),
+        ),
+      ];
+    }
+
+    const fields = fieldIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'fields',
+          action: 'find',
+          input: {
+            query: { _id: { $in: fieldIds } },
+            projection: {},
+            sort: {},
+          },
+          defaultValue: [],
+        })
+      : [];
+
+    const fieldNameById = {};
+    for (const field of fields || []) {
+      fieldNameById[field._id] = field.name || field.text;
+    }
+
+    const valuesOf = (fieldId: string) => {
+      const present = new Set(
+        members
+          .map((member) => member.propertiesData?.[fieldId])
+          .filter((value) => value != null),
+      );
+
+      // keep the group's value order, but only offer existing variants
+      return selection[fieldId]?.length
+        ? selection[fieldId].filter((value) => present.has(value))
+        : [...present];
+    };
+
+    return {
+      _id: product.similarityId,
+      starProductId: similarityGroup?.starProductId,
+      products: await checkRemainders(
+        subdomain,
+        models,
+        config,
+        members.length ? members : [product],
+        branchId || '',
+      ),
+      fields: fieldIds.map((fieldId) => ({
+        fieldId,
+        title: fieldNameById[fieldId] || fieldId,
+        values: valuesOf(fieldId),
+      })),
+    };
+  },
+
   async poscProductSimilarities(
     _root,
     {
@@ -457,9 +571,8 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);

@@ -138,8 +138,8 @@ export function ProductPrimaryImageUpload({
                 <span>Uploading...</span>
               ) : (
                 <>
-                  <IconUpload size={22} />
-                  <span>Upload image</span>
+                  <IconUpload size={18} />
+                  <span className="text-[11px]">Upload image</span>
                 </>
               )}
             </div>
@@ -243,8 +243,8 @@ export function ProductSecondaryImagesUpload({
   );
 
   return (
-    <div className="flex flex-col gap-3 h-full min-h-24">
-      <div className="flex flex-1 flex-wrap gap-4 min-h-24">
+    <div className="flex flex-col gap-3 h-full min-h-24 min-w-0">
+      <div className="flex flex-1 flex-wrap content-start gap-4 min-h-24 min-w-0">
         {images.map((item, index) => (
           <div
             key={`${item.url}-${index}`}
@@ -258,7 +258,7 @@ export function ProductSecondaryImagesUpload({
               handleDrag(from, index);
             }}
             onDragOver={(event) => event.preventDefault()}
-            className="overflow-hidden relative w-24 rounded-md border shadow-sm cursor-move aspect-square bg-muted group"
+            className="overflow-hidden relative w-24 shrink-0 rounded-md border shadow-sm cursor-move aspect-square bg-muted group"
           >
             <img
               src={readImage(item.url)}
@@ -289,7 +289,7 @@ export function ProductSecondaryImagesUpload({
             type="button"
             onClick={uploadProps.open}
             disabled={uploadProps.loading}
-            className="flex flex-col justify-center items-center w-24 h-full min-h-24 rounded-md border border-dashed transition cursor-pointer text-muted-foreground bg-background hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex flex-col justify-center items-center w-24 h-24 shrink-0 aspect-square rounded-md border border-dashed transition cursor-pointer text-muted-foreground bg-background hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70"
           >
             {uploadProps.loading ? (
               <span className="text-xs">Uploading...</span>

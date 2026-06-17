@@ -32,6 +32,7 @@ export function usePositionEdit(
 ) {
   const [handleEdit, { loading, error }] = useMutation(EDIT_POSITION, {
     ...options,
+    refetchQueries: ['Positions'],
   });
 
   return {

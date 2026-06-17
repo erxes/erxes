@@ -12,6 +12,9 @@ export const CONTENT_CMS_LIST = gql`
       languages
       language
       postUrlField
+      postUrlPrefix
+      accessPolicy
+      assignedMemberIds
       description
       domain
       publicUrl
@@ -307,6 +310,8 @@ export const POSTS_ADD = gql`
   mutation PostsAdd($input: PostInput!) {
     cmsPostsAdd(input: $input) {
       _id
+      count
+      slug
       __typename
     }
   }
@@ -345,6 +350,7 @@ export const CMS_POSTS_EDIT = gql`
       }
       clientPortalId
       title
+      count
       slug
       content
       excerpt
@@ -434,6 +440,7 @@ export const CMS_POST = gql`
       type
       clientPortalId
       title
+      count
       slug
       content
       excerpt

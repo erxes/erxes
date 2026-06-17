@@ -61,6 +61,7 @@ const GET_BRANCH_DETAILS_BY_ID = gql`
       email
       phoneNumber
       radius
+      status
       links
       image {
         name

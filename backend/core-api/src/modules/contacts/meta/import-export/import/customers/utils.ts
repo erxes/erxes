@@ -1,4 +1,5 @@
 import { IModels } from '~/connectionResolvers';
+import { extractPropertiesData } from '~/meta/import-export/utils';
 
 const generateTagIds = async (models: IModels, tags: string = '') => {
   const tagNames = tags.split(',');
@@ -30,6 +31,8 @@ export async function prepareCustomerDoc(
   state: 'lead' | 'customer',
 ): Promise<any> {
   const doc: any = { ...row };
+  await extractPropertiesData(models, doc);
+
   doc.createdAt = new Date();
   doc.updatedAt = new Date();
   doc.state = state;

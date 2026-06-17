@@ -101,10 +101,12 @@ export const commonListFields = `
   stage {
     _id
     name
+    pipelineId
     defaultTick
     age
   }
   stageId
+  pipelineId
   order
   isComplete
   isWatched
@@ -170,6 +172,7 @@ export const GET_DEALS = gql`
           pipeline {
             _id
             name
+            boardId
           }
           boardId
         }
@@ -234,11 +237,14 @@ export const GET_DEAL_DETAIL = gql`
         categoryId
       }
       productsData
+      mobileAmount
+      mobileAmounts
       paymentsData
       relations
       pipeline {
         _id
         name
+        boardId
         paymentTypes
         paymentIds
       }

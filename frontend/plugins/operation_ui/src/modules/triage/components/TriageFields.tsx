@@ -11,16 +11,13 @@ import { DeclineTriage } from './triage-selects/DeclineTriage';
 import { SelectStatus } from '@/operation/components/SelectStatus';
 import { useConvertTriage } from '../hooks/useConvertTriage';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
+import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
   const { _id: triageId, priority, status, name: _name } = triage || {};
 
   const description = (triage as ITriage)?.description;
-  const parsedDescription = description ? JSON.parse(description) : undefined;
-  const initialDescriptionContent =
-    Array.isArray(parsedDescription) && parsedDescription.length > 0
-      ? parsedDescription
-      : undefined;
+  const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
@@ -66,7 +63,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     if (!debouncedDescriptionContent) return;
     if (
       JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(description ? JSON.parse(description) : undefined)
+      JSON.stringify(parseDescriptionBlocks(description))
     ) {
       return;
     }

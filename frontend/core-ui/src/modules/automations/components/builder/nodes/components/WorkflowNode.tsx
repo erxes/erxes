@@ -40,7 +40,7 @@ const WorkflowNode = ({
           'rounded-md shadow-md bg-background w-[280px] relative font-mono transition-all duration-200',
           {
             'ring-2 ring-warning': selected,
-            'ring-2 ring-red-300 ring-offset-2': data?.error,
+            'ring-2 ring-destructive ring-offset-2': data?.error,
           },
         )}
       >
@@ -91,14 +91,20 @@ const WorkflowNode = ({
           className="!bg-warning"
           addButtonClassName="hover:border-warning hover:text-warning "
           showAddButton={false}
+          flowDirection={data.flowDirection}
         />
       </div>
     </div>
   );
 };
 
-const WorkflowSelectedNodes = ({ automationId, config = {} }: any) => {
+const WorkflowSelectedNodes = ({
+  automationId,
+  config = {},
+  flowDirection,
+}: any) => {
   const { selectedActionIds = [] } = config || {};
+  const isVertical = flowDirection === 'vertical';
 
   return selectedActionIds.map((selectedActionId: string) => {
     return (
@@ -110,10 +116,11 @@ const WorkflowSelectedNodes = ({ automationId, config = {} }: any) => {
           id={`workflow-${automationId}-${selectedActionId}-left`}
           key={`workflow-${automationId}-${selectedActionId}-left`}
           type="target"
-          position={Position.Left}
-          className={
-            '!left-4 !size-4 !bg-background !border !border-2 !rounded-full !border-accent-foreground !z-4'
-          }
+          position={isVertical ? Position.Top : Position.Left}
+          className={cn(
+            '!size-4 !bg-background !border !border-2 !rounded-full !border-accent-foreground !z-4',
+            isVertical ? '!left-1/2 !top-0 -translate-x-1/2' : '!left-4',
+          )}
           isConnectable
           title="workflow-connect"
         />

@@ -9,8 +9,8 @@ export interface ErkhetConfig {
   responseField?: string;
   hasVat: boolean;
   hasCitytax: boolean;
-  reverseVatRules?: string | string[];
-  reverseCtaxRules?: string | string[];
+  reverseVatRules?: string[];
+  reverseCtaxRules?: string[];
   defaultPay?: string;
   [paymentType: string]: any;
 }

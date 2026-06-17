@@ -37,14 +37,13 @@ export const useLotteriesVariables = (
     }>(['status', 'lotteryCampaign', 'ownerType', 'voucherCampaignId']);
 
   const [ownerId] = useQueryState<string>('ownerId');
-  const [userId] = useQueryState<string>('userId');
 
   return {
     page: 1,
     perPage: LOTTERY_PER_PAGE,
     campaignId: lotteryCampaign || undefined,
     status: status || undefined,
-    ownerId: ownerId || userId || undefined,
+    ownerId: ownerId || undefined,
     ownerType: ownerType || undefined,
     voucherCampaignId: voucherCampaignId || undefined,
     ...options,

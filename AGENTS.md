@@ -1,6 +1,279 @@
-# AGENTS.md - AI Assistant Guide for erxes
+# erxes AI Operating Rules
 
-This document provides comprehensive information about the erxes codebase structure, development workflows, and key conventions for AI assistants working on this project.
+## ⟶ Start Here: one entry point
+
+**To build anything from a plain "I want ..." request, run `.agents/ROUTER.md`**
+(Claude Code: the `/erxes "I want ..."` command). ROUTER is the single linear
+procedure — it classifies the request, resolves the exact plugin/module from
+`.agents/maps/feature-map.yaml` (so you never guess or ask "which plugin"), asks
+only about the desired **outcome**, confirms scope, loads just the rules that
+scope needs, and builds by copying a real reference file.
+
+Everything below in this document is the **reference material** ROUTER draws on
+(rules, conventions, architecture). You do not need to execute the older
+"Protocol"/"Workflow" step lists yourself — ROUTER supersedes them. Read the
+specific rule sections when ROUTER's tier table (STEP 6) tells you to.
+
+## Extended Documentation
+
+For detailed information, see the `.agents/` directory:
+
+- `.agents/manifest.yaml` — Rule layers, skill registry, plugin registry, context assembly protocol
+- `.agents/rules/` — Modular engineering rules (non-negotiable, architecture, code-style, and more)
+- `.agents/skills/` — Skill contracts and the `SEMANTIC_INDEX.md` for intent-based skill lookup
+- `.agents/maps/feature-map.yaml` — Feature-to-plugin mapping for scope detection
+- `.agents/scripts/` — `assemble-context.sh`, `preflight-check.sh`, `validate-manifest.sh`, `validate-scaffold.sh`
+- `.agents/state/` — Runtime state written by skills (e.g., `last-detect-scope.json`)
+
+---
+
+## Agent Manifest Protocol (AMP) v1.0
+
+This repository uses the **Agent Manifest Protocol** to ensure all AI agents
+have complete, consistent context before making changes. The protocol is
+declared in `.agents/manifest.yaml` and enforced through contract-based skills.
+
+### Entry Point
+
+**The entry point is `.agents/ROUTER.md` (run via `/erxes`).** `manifest.yaml` is
+the registry/reference it uses — read it when you need the data below, not as a
+first step. This file declares:
+- Rule layers with precedence (constitution → global → category → plugin)
+- Skill registry with contracts
+- Plugin registry
+- Context assembly protocol
+- Validation requirements
+
+### Quick Start
+
+```bash
+# Assemble context for your working directory
+.agents/scripts/assemble-context.sh <path> [skill-name]
+
+# Example: Working on content plugin table feature
+.agents/scripts/assemble-context.sh frontend/plugins/content_ui/src/modules/cms create-table
+
+# Validate manifest integrity
+.agents/scripts/validate-manifest.sh
+```
+
+### Feature Mapping
+
+When user describes a feature, search `.agents/maps/feature-map.yaml` to find:
+- Which plugin owns this feature
+- Which module to implement in
+- Standard components and templates
+- Scope (frontend, backend, or both)
+
+Example: User says "Add tags to posts" → Map to `content/cms/tags`
+
+### Protocol
+
+1. **Read manifest.yaml** — Understand the system
+2. **Assemble context** — Load all applicable rule layers
+3. **Load skill contract** — If using a skill, load its contract.yaml
+4. **Run detect-scope** — Analyze request, identify plugin/module, load code context
+5. **Run pre-flight check** — Validate detect-scope output before proceeding (HARD GATE)
+6. **Run intake** — Confirm scope and build checklist (receives from detect-scope)
+7. **Execute with rules** — Follow loaded rules and skill workflow
+8. **Validate** — Run required validation before finishing
+
+## Purpose
+
+These rules are the root source of truth for AI agents working in this repo.
+Agents should preserve existing architecture, local patterns, and product
+behavior while keeping changes small.
+
+## General Rules
+
+- **ALWAYS read `.agents/manifest.yaml` first** before any other file.
+- Use the `assemble-context` skill to load all applicable rule layers
+  automatically.
+- Read relevant `.agents/rules/*.md` and
+  `.agents/skills/<skill-name>/contract.yaml` files for task-specific guidance.
+- Search for a similar implementation before creating new code.
+- Reuse existing components, hooks, GraphQL documents, utilities, and state
+  patterns before adding new ones.
+- Keep changes minimal and scoped to the requested task.
+- Do not refactor unrelated files.
+- Do not introduce new dependencies unless the task explicitly requires it.
+- Prefer repository consistency over personal preference.
+
+## Architecture Rules
+
+- Plugins must remain isolated; avoid cross-plugin imports.
+- Shared frontend UI primitives belong in `frontend/libs/erxes-ui`.
+- Shared frontend business/UI modules belong in `frontend/libs/ui-modules`.
+- `frontend/core-ui` is the Module Federation host app, not the default place
+  for reusable plugin UI.
+- Follow existing GraphQL, Apollo, routing, and state management patterns in
+  the touched project.
+- Name GraphQL queries and mutations with the plugin or module prefix plus the
+  operation purpose, such as `cmsPageList`; operation names must be unique.
+- Do not introduce new `schemaWrapper` usage in backend schema definitions.
+  Define schemas directly with `new Schema(...)` and explicit fields following
+  nearby backend patterns; leave existing `schemaWrapper` usage untouched unless
+  the task explicitly asks to migrate it.
+- Do not modify backend contracts from a frontend task unless explicitly
+  requested.
+
+## Workflow
+
+> **If you ran `/erxes` / `.agents/ROUTER.md`, you have already done this list** —
+> ROUTER STEP 0–6 *is* this workflow, automated and tiered. The steps below are
+> the manual/reference form (and the canonical detail for the "during" and
+> "after" phases). The `detect-scope → preflight → intake` steps are the legacy
+> scope mechanism; ROUTER STEP 2 + STEP 5 replace them. Don't run both.
+
+Before coding:
+
+1. **Read `.agents/ROUTER.md`** — This is the entry point (or run `/erxes`).
+2. **Consult Semantic Index** — Read `.agents/skills/SEMANTIC_INDEX.md` to find the correct skills for your intent or to troubleshoot symptoms (404s, loading errors).
+3. **Assemble context** — Run `.agents/scripts/assemble-context.sh <path> [skill]`
+   or follow the `assemble-context` skill to load all applicable rule layers.
+4. **Run detect-scope** — Use `.agents/skills/detect-scope` to analyze the user
+   request, identify the target plugin/module, load relevant code context, and
+   ask minimal informed questions. **ALWAYS run detect-scope before intake.**
+   detect-scope MUST write output to `.agents/state/last-detect-scope.json`.
+5. **Run pre-flight check** — Execute `.agents/scripts/preflight-check.sh`.
+   **This is a HARD GATE.** If detect-scope did not complete, this script FAILS
+   and intake CANNOT run. The script validates:
+   - detect-scope state file exists
+   - Required fields present (plugin, action, scope, user_confirmed, goal_condition)
+   - user_confirmed is true
+6. **Run intake** — Use `.agents/skills/intake` to build the component checklist
+   and confirm scope. Intake receives detected scope from detect-scope.
+   **NEVER start coding without confirmed scope.**
+7. **Read ALL relevant rules** — Load `.agents/rules/*.md` files declared in the
+   manifest for your working path. **MUST read `non-negotiable.md` IN FULL.**
+   **MUST read `architecture.md` IN FULL.**
+   **MUST read `code-style.md` IN FULL.**
+   You are responsible for EVERY rule in these files.
+8. **Load skill contract** (if applicable) — Read
+   `.agents/skills/<skill-name>/contract.yaml` before executing any skill.
+9. **Confirm scaffold awareness** — If using `create-plugin` skill, acknowledge
+   that scaffolded code REQUIRES fixing. The scaffold generates violations.
+10. Search for similar implementations with `rg`.
+11. Confirm local routing, GraphQL, state, and UI patterns.
+12. Reuse nearby code structure before inventing a new one.
+
+During coding:
+
+1. Keep changes small and readable.
+2. Preserve naming conventions and UX behavior unless the task changes them.
+3. Keep hooks, GraphQL documents, constants, types, and state near the feature
+   they support unless the repo already has a shared location.
+4. Remove debug code and avoid commented-out dead code.
+
+After coding:
+
+1. Run the focused project validation that exists in Nx.
+2. For frontend plugins, prefer `pnpm nx lint <plugin>`,
+   `pnpm nx build <plugin>`, and `pnpm nx test <plugin>` when tests or test
+   setup are touched.
+3. Fix TypeScript, lint, build, and Sonar issues introduced by the change.
+4. Review the diff for unrelated edits before finishing.
+5. **Run `.agents/scripts/validate-manifest.sh`** when modifying any `.agents/`
+   files to ensure system integrity.
+
+After creating a PR:
+
+6. **Run PR Review Loop** — Use `.agents/skills/pr-review-loop` to poll AI
+   reviewer comments (CodeRabbit, Sourcery, Claude Code Action, Kimi, SonarCloud),
+   address every actionable item, wait for CI checks, and loop until zero open
+   comments and all checks green. **Do not consider the task done until the PR
+   review loop passes.**
+7. **If you created a plugin, run `.agents/scripts/validate-scaffold.sh <plugin> [scope]`**
+   to ensure the scaffolded code was properly fixed.
+
+## PR Review Loop (Mandatory)
+
+The erxes repo uses AI reviewers (CodeRabbit, Sourcery, Claude Code Action, Kimi,
+SonarCloud) on every PR. You MUST NOT declare a task complete while:
+
+- PR comments from AI reviewers are unresolved
+- CI checks are failing
+- `github-advanced-security[bot]` has flagged regressions
+
+### After Every Commit to a PR
+
+1. **Wait for CI** — Poll `gh pr checks` until no check is `pending`
+2. **Buffer** — Sleep 180s for async AI reviewers to finish posting
+3. **Poll comment stability** — Wait for comment count to stabilize across 2 consecutive polls
+4. **Triage** — Classify every comment: fix vs reply vs skip
+5. **Apply fixes** — One consolidated commit per round with all code changes
+6. **Post replies** — For non-actionable items (style, docs, out-of-scope)
+7. **Loop** — Re-fetch review state. Repeat until ALL of:
+   - Zero unanswered bot threads (use author-engagement filter, not `isResolved`)
+   - Zero failing relevant checks
+   - Zero walkthrough findings (Kimi/SonarCloud top-level comments)
+   - Comment count stable
+   - Working tree clean
+
+### Stop Conditions
+
+- **Settled** — all reviews addressed + CI green → task done
+- **Round cap** — default 5 rounds. If not settled, write blocker report and stop
+- **Merge conflict** — write blocker report, do NOT auto-rebase
+
+Use the `pr-review-loop` skill for this workflow. It composes with `plugin-workflow`.
+
+## Red Lines (IMMEDIATE REJECTION)
+
+Performance matching any of these patterns will result in immediate task rejection and system reset:
+
+1. **Scaffold Abandonment**: Running a scaffolding script and leaving the generated placeholders as "complete".
+2. **Rule Bypassing**: Knowingly violating `non-negotiable.md` (e.g., using `default` exports) because it's "easier" or because a tool generated it.
+3. **Type Erasure**: Using `any` or skipping types to avoid compiler errors.
+4. **Half-Implemented CRUD**: Providing a list page without a create form, or a button without a handler.
+5. **Architectural Isolation**: Using relative imports (`./`) for module boundaries or importing across plugin lines.
+6. **Path Mismatch**: Registering a config path (in `config.tsx`) that doesn't match the actual file path or route, causing 404s.
+
+## Scaffolded Code Warning
+
+**Scaffolding scripts (`pnpm create-plugin`, `pnpm create-backend-plugin`) generate code that VIOLATES non-negotiable rules.**
+
+When using the `create-plugin` skill:
+1. The scaffold creates directory structure and boilerplate
+2. The scaffold does NOT produce production-ready code
+3. You MUST fix all generated code before declaring completion
+4. You MUST run `.agents/scripts/validate-scaffold.sh <plugin> [scope]` before finishing
+
+**Common scaffold violations:**
+- Default exports in application code (Rule #4)
+- `any` types (Rule #9)
+- Placeholder/empty content (Rule #3)
+- `schemaWrapper` usage in backend (Rule #6)
+- Relative imports instead of aliases (Code Style)
+
+**You are responsible for every line of code in the final plugin.**
+
+## Forbidden
+
+- Do not introduce a new UI system.
+- Do not replace existing patterns with personal preferences.
+- Do not rename public APIs casually.
+- Do not perform large refactors without an explicit request.
+- Do not move Module Federation exposes without updating host references.
+- Do not treat scaffolded code as finished implementation.
+
+## Priority Order
+
+When making decisions:
+
+1. Existing repository patterns
+2. Local plugin consistency
+3. Minimal changes
+4. Clear behavior and maintainability
+5. Reusability
+6. Performance
+7. Personal preference
+
+---
+
+## Codebase Reference Guide
+
+This section contains comprehensive information about the erxes codebase structure, development workflows, and key conventions.
 
 ## Table of Contents
 
@@ -20,15 +293,13 @@ This document provides comprehensive information about the erxes codebase struct
 **erxes** (pronounced 'erk-sis') is a secure, self-hosted, and scalable source-available Experience Operating System (XOS) that enables businesses to manage marketing, sales, operations, and support in one unified platform.
 
 ### Key Characteristics
-
 - **Architecture**: Nx-powered pnpm monorepo with microservices architecture
 - **License**: AGPLv3 (core) with Enterprise Edition plugins
-- **Package Manager**: pnpm (v9.12.3) - **REQUIRED**
+- **Package Manager**: pnpm >= 8 - **REQUIRED**
 - **Build System**: Nx (v20.0.8) with intelligent caching and task orchestration
-- **Version**: TypeScript 5.7.3, Node.js 18+
+- **Version**: TypeScript 5.7.3, Node.js 22 in CI
 
 ### Core Philosophy
-
 - 100% customizable through plugin architecture
 - Self-hosted for data privacy
 - Microservices with GraphQL Federation
@@ -62,7 +333,6 @@ This document provides comprehensive information about the erxes codebase struct
 ```
 
 **Technologies:**
-
 - **Runtime**: Node.js with TypeScript 5.7.3
 - **Framework**: Express.js
 - **GraphQL**: Apollo Server v4, Apollo Federation (@apollo/subgraph)
@@ -90,7 +360,6 @@ This document provides comprehensive information about the erxes codebase struct
 ```
 
 **Technologies:**
-
 - **Framework**: React 18.3.1
 - **Bundler**: Rspack v1.0.5 (Rust-based, faster than Webpack)
 - **Module Federation**: @module-federation/enhanced v0.6.6
@@ -107,7 +376,6 @@ This document provides comprehensive information about the erxes codebase struct
 ### Apps
 
 **Standalone Applications:**
-
 1. **client-portal-template**: Next.js 16 customer portal
 2. **posclient-front**: Next.js 14 POS with PWA support
 3. **frontline-widgets**: Customer-facing widgets (chat, forms)
@@ -188,7 +456,6 @@ erxes/
 ### Path Aliases (TypeScript)
 
 All backend services use consistent path aliases:
-
 ```typescript
 "paths": {
   "~/*": ["./src/*"],              // Service root
@@ -202,7 +469,7 @@ All backend services use consistent path aliases:
 ### Prerequisites
 
 - **pnpm** ≥ 8 (enforced in package.json)
-- **Node.js** 18.16.9+ (see `.nvmrc` if exists)
+- **Node.js** 22 recommended to match CI
 - **MongoDB** 27017
 - **Redis** (default port)
 - **Elasticsearch** 7 (optional, for search)
@@ -218,35 +485,31 @@ cd erxes
 pnpm install
 
 # Setup environment variables
-cp .env.example .env
+cp .env.sample .env
 # Edit .env with your configuration
 ```
 
 ### Running Development Environment
 
 **Option 1: Run Core Only**
-
 ```bash
 # Runs Gateway + Core API
 pnpm dev:core-api
 ```
 
 **Option 2: Run All APIs**
-
 ```bash
 # Starts all backend services defined in ENABLED_PLUGINS
 pnpm dev:apis
 ```
 
 **Option 3: Run All UIs**
-
 ```bash
 # Starts all frontend plugins
 pnpm dev:uis
 ```
 
 **Option 4: Run Specific Service (Nx)**
-
 ```bash
 # Backend service
 pnpm nx serve core-api
@@ -262,8 +525,8 @@ pnpm nx build sales_api
 pnpm nx test sales_api
 
 # Run affected commands (only changed projects)
-pnpm nx affected:build
-pnpm nx affected:test
+pnpm nx affected --target=build
+pnpm nx affected --target=test
 ```
 
 ### Important Environment Variables
@@ -296,7 +559,10 @@ Core API:      3300
 Core UI:       3001
 
 Plugin APIs:   3305+ (sales=3305, operation=3306, etc.)
-Plugin UIs:    3005+ (sales=3005, operation=3006, etc.)
+Plugin UIs:    3002-3011
+               insurance=3002, content=3003, frontline=3004, sales=3005
+               operation=3006, mongolian=3007, accounting=3008
+               loyalty=3009, payment=3010, tourism=3011
 
 BullMQ Board:  4000/bullmq-board
 ```
@@ -313,7 +579,6 @@ erxes uses a **plugin-based architecture** for both backend and frontend:
 ### Backend Plugin Structure
 
 **Standard Plugin Entry Point** (`src/main.ts`):
-
 ```typescript
 import { startPlugin } from 'erxes-api-shared/utils';
 import { appRouter } from './trpc/init-trpc';
@@ -333,7 +598,13 @@ startPlugin({
   }),
   expressRouter: router,
   hasSubscriptions: true,
-  subscriptionPluginPath: require('path').resolve(__dirname, 'apollo', process.env.NODE_ENV === 'production' ? 'subscription.js' : 'subscription.ts'),
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'apollo',
+    process.env.NODE_ENV === 'production'
+      ? 'subscription.js'
+      : 'subscription.ts',
+  ),
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain, context);
     context.models = models;
@@ -353,15 +624,12 @@ startPlugin({
   meta: {
     automations,
     segments,
-    notificationModules: [
-      /* ... */
-    ],
+    notificationModules: [/* ... */],
   },
 });
 ```
 
 **Key Files in Backend Plugin:**
-
 - `main.ts` - Entry point using `startPlugin()`
 - `connectionResolvers.ts` - Database models
 - `apollo/` - GraphQL schema, resolvers, subscriptions
@@ -375,7 +643,6 @@ startPlugin({
 ### Frontend Plugin Structure
 
 **Plugin Configuration** (`src/config.tsx`):
-
 ```typescript
 import { IconBriefcase } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
@@ -421,11 +688,20 @@ export const CONFIG: IUIConfig = {
 ```
 
 **Module Federation Configuration** (`module-federation.config.ts`):
-
 ```typescript
 import { ModuleFederationConfig } from '@nx/rspack/module-federation';
 
-const coreLibraries = new Set(['react', 'react-dom', 'react-router', 'react-router-dom', 'erxes-ui', '@apollo/client', 'jotai', 'ui-modules', 'react-i18next']);
+const coreLibraries = new Set([
+  'react',
+  'react-dom',
+  'react-router',
+  'react-router-dom',
+  'erxes-ui',
+  '@apollo/client',
+  'jotai',
+  'ui-modules',
+  'react-i18next',
+]);
 
 const config: ModuleFederationConfig = {
   name: 'sales_ui',
@@ -450,23 +726,19 @@ export default config;
 ### Creating a New Plugin
 
 **Using the Plugin Generator:**
-
 ```bash
 pnpm create-plugin
 ```
 
 This will prompt for:
-
 - **Plugin name**: e.g., "inventory"
 - **Module name**: e.g., "products"
 
 The script creates:
-
 - Backend: `backend/plugins/inventory_api/`
 - Frontend: `frontend/plugins/inventory_ui/`
 
 Both with complete boilerplate including:
-
 - GraphQL/tRPC setup
 - Module Federation configuration
 - Example components and routes
@@ -475,7 +747,6 @@ Both with complete boilerplate including:
 **Plugin Activation:**
 
 Add to `.env`:
-
 ```bash
 ENABLED_PLUGINS=operation,sales,frontline,inventory
 ```
@@ -483,7 +754,6 @@ ENABLED_PLUGINS=operation,sales,frontline,inventory
 ### Service Discovery (Backend)
 
 Plugins register with the gateway using Redis:
-
 ```typescript
 // From erxes-api-shared/utils
 await joinErxesGateway({
@@ -498,7 +768,6 @@ await joinErxesGateway({
 ```
 
 Gateway dynamically routes requests to plugins:
-
 - GraphQL: Federated via Apollo Router
 - REST: Proxy via `/pl:{serviceName}/*`
 - tRPC: Proxy via `/trpc/`
@@ -508,14 +777,12 @@ Gateway dynamically routes requests to plugins:
 ### TypeScript
 
 **Configuration:**
-
 - Strict null checks: enabled
 - No implicit any: disabled (legacy code compatibility)
 - Target: ES2017
 - Module: CommonJS (backend), ESNext (frontend)
 
 **Naming Conventions:**
-
 ```typescript
 // Interfaces & Types
 interface IUser { ... }
@@ -547,7 +814,6 @@ const MAX_RETRY_COUNT = 3;
 ```
 
 **Key Rules:**
-
 - Single quotes for strings
 - Trailing commas in arrays/objects
 - 2-space indentation (inferred)
@@ -556,7 +822,6 @@ const MAX_RETRY_COUNT = 3;
 ### React Patterns
 
 **Component Structure:**
-
 ```typescript
 // Prefer functional components with hooks
 export const UserList: React.FC<Props> = ({ users, onSelect }) => {
@@ -595,14 +860,12 @@ export const UserList: React.FC<Props> = ({ users, onSelect }) => {
 ```
 
 **State Management:**
-
 - **Local State**: `useState` for component-local state
 - **Global State**: Jotai atoms for app-wide state
 - **Server State**: Apollo Client for GraphQL data
 - **Form State**: React Hook Form with Zod validation
 
 **Lazy Loading (Module Federation):**
-
 ```typescript
 // Always lazy load federation modules
 const RemoteModule = lazy(() => import('remote/Module'));
@@ -616,7 +879,6 @@ const RemoteModule = lazy(() => import('remote/Module'));
 ### GraphQL Conventions
 
 **Schema Naming:**
-
 ```graphql
 # Types: PascalCase
 type User {
@@ -625,28 +887,27 @@ type User {
   details: UserDetails
 }
 
-# Queries: camelCase with descriptive names
+# Queries: {pluginName}{ResolverName}{FunctionName} in camelCase
 type Query {
-  users(page: Int, perPage: Int): [User]
-  userDetail(_id: String!): User
-  usersTotalCount: Int
+  salesUsers(page: Int, perPage: Int): [User]
+  salesUserDetail(_id: String!): User
+  salesUsersTotalCount: Int
 }
 
-# Mutations: camelCase verb + noun
+# Mutations: {pluginName}{ResolverName}{FunctionName} in camelCase
 type Mutation {
-  usersAdd(email: String!, details: UserDetailsInput): User
-  usersEdit(_id: String!, doc: UserDetailsInput): User
-  usersRemove(_id: String!): JSON
+  salesUsersAdd(email: String!, details: UserDetailsInput): User
+  salesUsersEdit(_id: String!, doc: UserDetailsInput): User
+  salesUsersRemove(_id: String!): JSON
 }
 
-# Subscriptions: noun + past tense verb
+# Subscriptions: {pluginName}{ResolverName}{FunctionName} in camelCase
 type Subscription {
-  userChanged(_id: String!): User
+  salesUserChanged(_id: String!): User
 }
 ```
 
 **Resolver Structure:**
-
 ```typescript
 const resolvers = {
   Query: {
@@ -675,7 +936,6 @@ const resolvers = {
 ### Backend Patterns
 
 **Service Layer Pattern:**
-
 ```typescript
 // modules/users/services.ts
 export const userService = {
@@ -695,7 +955,6 @@ export const userService = {
 ```
 
 **Model Layer (Mongoose):**
-
 ```typescript
 // connectionResolvers.ts
 export const generateModels = (subdomain: string) => {
@@ -726,7 +985,6 @@ export class UserModel {
 ```
 
 **Error Handling:**
-
 ```typescript
 // Always throw descriptive errors
 throw new Error('User with this email already exists');
@@ -743,14 +1001,11 @@ export class ValidationError extends Error {
 ### Multi-tenancy (Subdomains)
 
 Every request includes a `subdomain` for tenant isolation:
-
 ```typescript
 // Context includes subdomain
 const resolver = async (_, args, { subdomain, models, user }) => {
   // Models are scoped to subdomain automatically
-  const users = await models.Users.find({
-    /* tenant-specific */
-  });
+  const users = await models.Users.find({ /* tenant-specific */ });
 };
 
 // MongoDB collections are prefixed with subdomain
@@ -785,7 +1040,7 @@ pnpm nx test <project-name> --watch
 pnpm nx test <project-name> --coverage
 
 # Run affected tests (only changed projects)
-pnpm nx affected:test
+pnpm nx affected --target=test
 ```
 
 ### Test Configuration (Jest)
@@ -807,7 +1062,6 @@ export default {
 ### Example Tests
 
 **Backend Service Test:**
-
 ```typescript
 import { generateModels } from '../connectionResolvers';
 
@@ -834,7 +1088,6 @@ describe('User Service', () => {
 ```
 
 **Frontend Component Test:**
-
 ```typescript
 import { render, screen } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
@@ -873,13 +1126,11 @@ describe('UserList', () => {
 Located in `.github/workflows/` with 26+ workflow files:
 
 **Naming Convention:**
-
 - `ci-api-core.yml` - Core API CI
 - `ci-plugin-sales.yml` - Sales plugin CI
 - `ci-ui-sales.yml` - Sales UI CI
 
 **Workflow Pattern:**
-
 ```yaml
 name: CI plugin--sales-api
 
@@ -906,7 +1157,7 @@ jobs:
       - uses: actions/setup-node@v4
 
       - run: pnpm install
-      - run: pnpm nx build erxes-api-shared # Build shared lib first
+      - run: pnpm nx build erxes-api-shared  # Build shared lib first
       - run: pnpm nx build sales_api
 
       # Docker multi-platform build
@@ -920,7 +1171,6 @@ jobs:
 ```
 
 **Key Features:**
-
 - **Path-based triggers**: Only builds affected services
 - **Nx caching**: Leverages Nx build cache
 - **Multi-platform**: Builds for AMD64 and ARM64
@@ -930,7 +1180,6 @@ jobs:
 ### Docker Configuration
 
 **Each service has its own Dockerfile:**
-
 ```dockerfile
 # Example: backend/plugins/sales_api/Dockerfile
 FROM node:18-alpine
@@ -949,7 +1198,6 @@ CMD ["node", "dist/main.js"]
 ```
 
 **Docker Images:**
-
 - Registry: Docker Hub
 - Org: `erxes`
 - Naming: `erxes-next-{service-name}`
@@ -958,7 +1206,6 @@ CMD ["node", "dist/main.js"]
 ### Deployment
 
 Services are typically deployed as:
-
 1. **Docker Compose** (development/self-hosted)
 2. **Kubernetes** (production/scaled)
 3. **Cloud Platforms** (AWS, GCP, Azure)
@@ -990,13 +1237,11 @@ Services are typically deployed as:
 ### Modifying Shared Code
 
 **Backend Shared (`erxes-api-shared`):**
-
 1. Make changes in `backend/erxes-api-shared/src/`
 2. Build: `pnpm nx build erxes-api-shared`
 3. Rebuild dependent services (they reference dist/)
 
 **Frontend Shared (`erxes-ui`):**
-
 1. Make changes in `frontend/libs/erxes-ui/src/`
 2. No build needed (imported directly)
 3. Hot reload works across plugins
@@ -1004,7 +1249,6 @@ Services are typically deployed as:
 ### Database Migrations
 
 **Mongoose migrations pattern:**
-
 ```typescript
 // scripts/migration-{feature}.ts
 import { connect } from '../db/connection';
@@ -1013,7 +1257,10 @@ const migrate = async () => {
   const db = await connect();
 
   // Migration logic
-  await db.collection('users').updateMany({ role: { $exists: false } }, { $set: { role: 'user' } });
+  await db.collection('users').updateMany(
+    { role: { $exists: false } },
+    { $set: { role: 'user' } }
+  );
 
   console.log('Migration complete');
   process.exit(0);
@@ -1027,7 +1274,6 @@ Run via: `tsx scripts/migration-{feature}.ts`
 ### Debugging
 
 **Backend:**
-
 ```bash
 # Enable debug logs
 DEBUG=* pnpm nx serve sales_api
@@ -1037,7 +1283,6 @@ node --inspect dist/main.js
 ```
 
 **Frontend:**
-
 ```bash
 # React DevTools
 # Apollo DevTools (browser extension)
@@ -1048,7 +1293,6 @@ pnpm nx serve sales_ui
 ```
 
 **Common Issues:**
-
 - **Port conflicts**: Check if services are already running
 - **Module Federation errors**: Clear cache, restart dev servers
 - **GraphQL errors**: Check gateway logs, verify service registration
@@ -1063,7 +1307,7 @@ pnpm nx serve sales_ui
 const { subdomain, models } = context;
 
 // Models are automatically scoped
-const users = await models.Users.find({}); // Only tenant's users
+const users = await models.Users.find({});  // Only tenant's users
 
 // Manual subdomain in collection names
 const collectionName = `${subdomain}_users`;
@@ -1072,7 +1316,6 @@ const collectionName = `${subdomain}_users`;
 ### Service Communication
 
 **Via GraphQL Federation:**
-
 ```typescript
 // Reference other service types
 type Deal @key(fields: "_id") {
@@ -1082,13 +1325,14 @@ type Deal @key(fields: "_id") {
 ```
 
 **Via tRPC:**
-
 ```typescript
 // backend/plugins/sales_api/src/trpc/routers/deals.ts
 export const dealsRouter = t.router({
-  list: t.procedure.input(z.object({ customerId: z.string() })).query(async ({ input, ctx }) => {
-    return ctx.models.Deals.find({ customerId: input.customerId });
-  }),
+  list: t.procedure
+    .input(z.object({ customerId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      return ctx.models.Deals.find({ customerId: input.customerId });
+    }),
 });
 
 // From another service
@@ -1099,7 +1343,6 @@ const deals = await trpc.deals.list.query({ customerId: '123' });
 ### Redis Patterns
 
 **Caching:**
-
 ```typescript
 import { redis } from 'erxes-api-shared/utils';
 
@@ -1115,13 +1358,10 @@ await redis.del(`user:${id}`);
 ```
 
 **PubSub (Real-time):**
-
 ```typescript
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 
-const pubsub = new RedisPubSub({
-  /* redis config */
-});
+const pubsub = new RedisPubSub({ /* redis config */ });
 
 // Publish
 await pubsub.publish('USER_CHANGED', { userChanged: user });
@@ -1151,16 +1391,12 @@ await emailQueue.add('send', {
 });
 
 // Process jobs
-const worker = new Worker(
-  'emails',
-  async (job) => {
-    const { to, subject } = job.data;
-    await sendEmail(to, subject);
-  },
-  {
-    connection: { host: 'localhost', port: 6379 },
-  },
-);
+const worker = new Worker('emails', async (job) => {
+  const { to, subject } = job.data;
+  await sendEmail(to, subject);
+}, {
+  connection: { host: 'localhost', port: 6379 },
+});
 
 // View dashboard at http://localhost:4000/bullmq-board
 ```
@@ -1263,7 +1499,7 @@ export default {
     const deals = await models.Deals.find(data.filter);
 
     return {
-      data: deals.map((deal) => ({
+      data: deals.map(deal => ({
         Name: deal.name,
         Amount: deal.amount,
       })),
@@ -1275,7 +1511,6 @@ export default {
 ## Additional Resources
 
 ### Documentation
-
 - **Main Docs**: https://erxes.io/docs
 - **Local Setup**: https://erxes.io/docs/local-setup
 - **Contributing**: See CONTRIBUTING.md
@@ -1283,7 +1518,6 @@ export default {
 - **Changelog**: https://erxes.io/changelog
 
 ### Community
-
 - **Discord**: https://discord.com/invite/aaGzy3gQK5
 - **GitHub Issues**: https://github.com/erxes/erxes/issues
 - **Transifex (i18n)**: https://explore.transifex.com/erxes-inc/erxesxos/
@@ -1291,20 +1525,18 @@ export default {
 ### Code Exploration Tips
 
 **Finding Features:**
-
 ```bash
 # Find GraphQL type definition
-pnpm nx run-many -t grep -p 'type Deal'
+rg 'type Deal' backend frontend apps
 
 # Find component usage
-pnpm nx run-many -t grep -p 'UserList'
+rg 'UserList' frontend
 
 # Find API endpoint
-pnpm nx run-many -t grep -p '/api/deals'
+rg '/api/deals' backend frontend apps
 ```
 
 **Understanding Plugin Flow:**
-
 1. Start at `main.ts` - entry point
 2. Check `apollo/typeDefs.ts` - GraphQL schema
 3. Look at `apollo/resolvers/` - query/mutation logic
@@ -1312,7 +1544,6 @@ pnpm nx run-many -t grep -p '/api/deals'
 5. Review `models/` - data layer
 
 **Understanding Frontend Plugin:**
-
 1. Start at `config.tsx` - plugin configuration
 2. Check `module-federation.config.ts` - exposed modules
 3. Look at `modules/` - main components
@@ -1322,14 +1553,12 @@ pnpm nx run-many -t grep -p '/api/deals'
 ## Best Practices for AI Assistants
 
 ### Code Analysis
-
 - Always read existing code before making changes
 - Understand the plugin architecture before modifications
 - Check both GraphQL and tRPC endpoints when working with APIs
 - Review module-federation.config.ts for exposed modules
 
 ### Making Changes
-
 - **Backend**: Rebuild `erxes-api-shared` if shared code changed
 - **Frontend**: Check if changes affect module federation exports
 - Always maintain TypeScript types
@@ -1337,7 +1566,6 @@ pnpm nx run-many -t grep -p '/api/deals'
 - Test multi-tenancy (subdomain) implications
 
 ### Common Pitfalls
-
 - Don't bypass plugin system - use proper extension points
 - Don't break module federation shared dependencies
 - Don't modify core without considering plugin impacts
@@ -1345,7 +1573,6 @@ pnpm nx run-many -t grep -p '/api/deals'
 - Remember port allocation when adding new services
 
 ### Testing Your Changes
-
 1. Run Nx affected commands to see what's impacted
 2. Test in development mode first
 3. Verify GraphQL schema still federates correctly
@@ -1353,7 +1580,6 @@ pnpm nx run-many -t grep -p '/api/deals'
 5. Test with different subdomains if multi-tenant
 
 ### Git Workflow
-
 - Branch naming: `feat/`, `fix/`, `docs/`
 - Reference issues in commits
 - Keep commits focused and atomic
@@ -1362,8 +1588,8 @@ pnpm nx run-many -t grep -p '/api/deals'
 
 ---
 
-**Last Updated**: 2026-01-15
-**Version**: 1.0.0
+**Last Updated**: 2026-06-12
+**Version**: 1.1.0
 **Maintainer**: erxes Team
 
 For questions or clarifications, please open an issue or join our Discord community.

@@ -7,6 +7,7 @@ export interface IDepartment {
   parentId?: string;
   order?: string;
   userCount?: number;
+  status?: string;
 }
 
 export interface ISelectDepartmentsContext {

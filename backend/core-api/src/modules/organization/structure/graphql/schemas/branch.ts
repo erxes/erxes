@@ -51,6 +51,7 @@ const commonBranchParams = `
     userIds: [String]
     radius: Int
     workhours: JSON
+    status: String
     ${commonContactInfoParams}
 `;
 
@@ -64,4 +65,8 @@ export const queries = `
     branches(${commonParams},withoutUserFilter:Boolean): [Branch]
     branchesMain(${commonParams},withoutUserFilter:Boolean): BranchesListResponse
     branchDetail(_id: String!): Branch
+
+    cpBranches(${commonParams},withoutUserFilter:Boolean): [Branch]
+    cpBranchesMain(${commonParams},withoutUserFilter:Boolean): BranchesListResponse
+    cpBranchDetail(_id: String!): Branch
 `;

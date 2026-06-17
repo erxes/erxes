@@ -122,7 +122,7 @@ const ProductFooter = ({
   const currencies = Object.keys({ ...total, ...discount, ...tax });
 
   return (
-    <div className="sticky bottom-0 right-0 left-0 p-3 z-10 bg-white border-t space-y-2">
+    <div className="sticky bottom-0 right-0 left-0 p-3 z-10 bg-background border-t space-y-2">
       {showAdvancedView && currencies.length > 0 && (
         <div className="flex flex-wrap gap-4 pb-2 border-b">
           {currencies.map((currency) => (

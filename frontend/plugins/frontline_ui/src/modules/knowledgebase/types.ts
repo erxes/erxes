@@ -52,3 +52,48 @@ export type ArticleInput = Omit<
   ArticleFormData,
   'fileUrl' | 'fileSize' | 'fileDuration' | 'fileName' | 'fileType'
 >;
+
+export interface IKnowledgeBaseImage {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+  duration: number;
+}
+
+export interface IKnowledgeBaseFirstTopic {
+  _id: string;
+  title: string;
+  code: string;
+  color: string;
+  backgroundImage: string;
+}
+
+export interface IKnowledgeBaseTopicCategory {
+  _id: string;
+  title: string;
+  description: string;
+  numOfArticles: number;
+  countArticles: number;
+  parentCategoryId: string;
+  icon: string;
+  color: string;
+  backgroundImage: string;
+  code: string;
+  firstTopic?: IKnowledgeBaseFirstTopic;
+  articles: IKnowledgeBaseArticle[];
+}
+
+export interface IKnowledgeBaseTopic {
+  _id: string;
+  title: string;
+  description: string;
+  color: string;
+  code: string;
+  categories: IKnowledgeBaseTopicCategory[];
+  parentCategories: (IKnowledgeBaseTopicCategory & {
+    childrens?: {
+      _id: string;
+    }[];
+  })[];
+}

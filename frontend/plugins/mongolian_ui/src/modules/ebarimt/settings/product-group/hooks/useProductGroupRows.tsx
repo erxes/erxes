@@ -1,62 +1,104 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import {
+  EnumCursorDirection,
+  IRecordTableCursorPageInfo,
+  mergeCursorData,
+  useMultiQueryState,
+  useRecordTableCursor,
+  validateFetchMore,
+} from 'erxes-ui';
 import { GET_PRODUCT_GROUP } from '@/ebarimt/settings/product-group/graphql/queries/getProductGroup';
 import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
-import { PRODUCT_GROUP_ROW_DEFAULT_VARIABLES } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
+import {
+  PRODUCT_GROUP_CURSOR_SESSION_KEY,
+  PRODUCT_GROUP_ORDER_BY,
+  PRODUCT_GROUP_ROW_PER_PAGE,
+} from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
+import { productGroupTotalCountAtom } from '@/ebarimt/settings/product-group/states/productGroupRowStates';
+import { useSetAtom } from 'jotai';
+import { useEffect, useMemo } from 'react';
 
-import { useCallback, useMemo } from 'react';
+interface IProductGroupQueryResult {
+  ebarimtProductGroups: {
+    list: IProductGroup[];
+    totalCount: number;
+    pageInfo: IRecordTableCursorPageInfo;
+  };
+}
 
-export const useProductGroupRows = (options?: OperationVariables) => {
-  const { data, loading, fetchMore, error } = useQuery<{
-    ebarimtProductGroups: {
-      list: IProductGroup[];
-      totalCount: number;
-      pageInfo: any;
-    };
-  }>(GET_PRODUCT_GROUP, {
-    ...options,
-    variables: {
-      ...PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
-      ...options?.variables,
-    },
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'cache-first',
+export const useProductGroupRows = () => {
+  const setProductGroupTotalCount = useSetAtom(productGroupTotalCountAtom);
+  const { cursor } = useRecordTableCursor({
+    sessionKey: PRODUCT_GROUP_CURSOR_SESSION_KEY,
   });
 
-  const productGroupRows = useMemo(
-    () => data?.ebarimtProductGroups?.list || [],
-    [data?.ebarimtProductGroups?.list],
-  );
-  const productGroupRowsCount = data?.ebarimtProductGroups?.totalCount || 0;
+  const [{ searchValue, productId, status }] = useMultiQueryState<{
+    searchValue: string;
+    productId: string;
+    status: string;
+  }>(['searchValue', 'productId', 'status']);
 
-  const handleFetchMore = useCallback(() => {
-    if (!productGroupRows || loading) return;
+  const { data, loading, fetchMore, error } =
+    useQuery<IProductGroupQueryResult>(GET_PRODUCT_GROUP, {
+      variables: {
+        searchValue: searchValue || undefined,
+        productId: productId || undefined,
+        status: status || undefined,
+        limit: PRODUCT_GROUP_ROW_PER_PAGE,
+        orderBy: PRODUCT_GROUP_ORDER_BY,
+        cursor,
+      },
+    });
 
-    const pageInfo = data?.ebarimtProductGroups?.pageInfo;
-    if (!pageInfo?.hasNextPage) return;
+  const { list, totalCount = 0, pageInfo } = data?.ebarimtProductGroups || {};
+
+  const productGroupRows = useMemo(() => list ?? [], [list]);
+
+  useEffect(() => {
+    if (loading) {
+      setProductGroupTotalCount(null);
+      return;
+    }
+    setProductGroupTotalCount(totalCount);
+  }, [loading, totalCount, setProductGroupTotalCount]);
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (!validateFetchMore({ direction, pageInfo })) return;
 
     fetchMore({
       variables: {
-        cursor: pageInfo.endCursor,
-        cursorMode: 'AFTER',
+        cursor:
+          direction === EnumCursorDirection.FORWARD
+            ? pageInfo?.endCursor
+            : pageInfo?.startCursor,
+        limit: PRODUCT_GROUP_ROW_PER_PAGE,
+        direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.ebarimtProductGroups) return prev;
+        if (!fetchMoreResult) return prev;
         return {
+          ...prev,
           ebarimtProductGroups: {
-            ...prev.ebarimtProductGroups,
-            list: [
-              ...prev.ebarimtProductGroups.list,
-              ...fetchMoreResult.ebarimtProductGroups.list,
-            ],
+            ...mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.ebarimtProductGroups,
+              prevResult: prev.ebarimtProductGroups,
+            }),
+            totalCount: fetchMoreResult.ebarimtProductGroups.totalCount,
           },
         };
       },
     });
-  }, [productGroupRows, loading, fetchMore, data]);
+  };
 
   return {
     productGroupRows,
-    totalCount: productGroupRowsCount,
+    totalCount,
+    pageInfo,
     loading,
     error,
     handleFetchMore,

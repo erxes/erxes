@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
 import {
@@ -16,6 +17,8 @@ import {
   cn,
   formatAmount,
   Badge,
+  Popover,
+  Input,
 } from 'erxes-ui';
 import {
   IconCurrencyDollar,
@@ -31,6 +34,8 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { IProductData } from 'ui-modules';
 import { productMoreColumn } from './ProductMoreColumn';
+import { useUpdateProductRecord } from '../hooks/useProductRecord';
+import { useState } from 'react';
 
 const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
 
@@ -118,22 +123,70 @@ export const productColumns: ColumnDef<IProductData>[] = [
         table.options.data,
         productId,
       );
+      const [open, setOpen] = useState<boolean>(false);
+      const [_name, setName] = useState<string>(cell.getValue() as string);
+      const { updateRecord } = useUpdateProductRecord();
+      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
+        setName(el.currentTarget.value);
+      };
+      const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onSave();
+        }
+        if (e.key === 'Escape') {
+          setName(cell.getValue() as string);
+          setOpen(false);
+        }
+      };
 
+      const onSave = () => {
+        if (_name !== cell.getValue()) {
+          updateRecord(cell.row.original, {
+            product: { ...cell.row.original.product, name: _name },
+          });
+        }
+        setOpen(false);
+      };
       return (
-        <RecordTableInlineCell
-          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        <Popover
+          open={open}
+          onOpenChange={(open) => {
+            setOpen(open);
+            if (!open) {
+              onSave();
+            }
+          }}
         >
-          <div className="flex gap-1.5 items-center min-w-0">
-            {product?.code && (
-              <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
-                {product.code}
-              </span>
-            )}
-            <TextOverflowTooltip value={product?.name ?? ''} />
-          </div>
-        </RecordTableInlineCell>
+          <RecordTableInlineCell.Trigger
+            className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+          >
+            <div className="flex gap-1.5 items-center min-w-0">
+              {product?.code && (
+                <Badge
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpen(true);
+                  }}
+                >
+                  {product.code}
+                </Badge>
+              )}
+              <span>{product?.name}</span>
+            </div>
+          </RecordTableInlineCell.Trigger>
+          <RecordTableInlineCell.Content>
+            <Input
+              value={_name}
+              onChange={onChange}
+              onKeyDown={handleKeyDown}
+            />
+          </RecordTableInlineCell.Content>
+        </Popover>
       );
     },
+    size: 260,
   },
   {
     id: 'unitPrice',
@@ -163,6 +216,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 110,
   },
   {
     id: 'quantity',

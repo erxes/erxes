@@ -6,6 +6,7 @@ import {
   IconBug,
   IconMessage,
   IconBell,
+  IconWorldWww,
 } from '@tabler/icons-react';
 
 export enum WelcomeMessage {
@@ -21,19 +22,21 @@ export enum InitialMessage {
 }
 export const HEADER_ITEMS: IHeaderItem[] = [
   {
-    title: 'Chat',
+    title: 'Your conversations',
     Icon: IconMessage,
-    value: 'chat',
+    value: 'messages',
     disabled: false,
+    eyebrow: 'Messages',
   },
   {
     title: 'Issue a ticket',
     Icon: IconSend,
     value: 'ticket',
     disabled: true,
+    eyebrow: 'Tickets',
   },
   {
-    title: 'FAQ',
+    title: 'Help center',
     Icon: IconBubbleText,
     value: 'faq',
     disabled: true,
@@ -49,6 +52,12 @@ export const HEADER_ITEMS: IHeaderItem[] = [
     Icon: IconBug,
     value: 'bug',
     disabled: true,
+  },
+  {
+    title: 'Schedule a call',
+    Icon: IconWorldWww,
+    value: 'web-call',
+    disabled: false,
   },
 ];
 

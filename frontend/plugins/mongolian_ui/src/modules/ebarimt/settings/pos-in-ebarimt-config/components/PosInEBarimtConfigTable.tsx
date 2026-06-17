@@ -9,7 +9,13 @@ import {
   Combobox,
   Command,
 } from 'erxes-ui';
-import { IconClipboardList, IconCode, IconEdit, IconTag, IconTrash } from '@tabler/icons-react';
+import {
+  IconClipboardList,
+  IconCode,
+  IconEdit,
+  IconTag,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
@@ -18,6 +24,7 @@ import {
   IPosInEbarimtConfigRow,
 } from '@/ebarimt/settings/pos-in-ebarimt-config/states/posInEbarimtConfigStates';
 import { useRemovePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useRemovePosInEbarimtConfig';
+import { normalizeRuleIds } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
 import { AddPosInEBarimtConfig } from './AddPosInEBarimtConfig';
 import { PosInEBarimtConfigCommandbar } from './PosInEBarimtConfigCommandbar';
 
@@ -37,6 +44,8 @@ const usePosInEbarimtConfigRows = () => {
         _id: config._id,
         subId: config.subId,
         ...value,
+        reverseVatRules: normalizeRuleIds(value.reverseVatRules),
+        reverseCtaxRules: normalizeRuleIds(value.reverseCtaxRules),
       };
     },
   );

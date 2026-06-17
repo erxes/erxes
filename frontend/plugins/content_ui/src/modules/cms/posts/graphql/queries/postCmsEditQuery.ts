@@ -19,6 +19,7 @@ export const POST_CMS_EDIT = gql`
 
       clientPortalId
       title
+      count
       slug
       content
       excerpt

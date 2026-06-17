@@ -15,22 +15,39 @@ import {
 } from '@/integrations/call/statistics';
 import {
   mapCdrToCallHistory,
+  mapSessionToCallHistory,
   sendToGrandStream,
 } from '@/integrations/call/utils';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { XMLParser } from 'fast-xml-parser';
 import { IContext } from '~/connectionResolvers';
 import redis from '../../redlock';
 
 const callQueries = {
-  async callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
-    return models.CallIntegrations.findOne({ inboxId: integrationId });
+  async callsIntegrationDetail(
+    _root,
+    { integrationId },
+    { models, user }: IContext,
+  ) {
+    if (!user?._id) {
+      throw new Error('Login required');
+    }
+
+    const integration = await models.CallIntegrations.findOne({
+      inboxId: integrationId,
+    }).lean();
+
+    if (!integration) {
+      return null;
+    }
+
+    const { token, ...safe } = integration as any;
+    return safe;
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    const res = models.CallIntegrations.getIntegrations(user._id);
-
-    return res;
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    return models.CallIntegrations.getIntegrations(user._id, isAdmin);
   },
 
   async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
@@ -79,9 +96,12 @@ const callQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
+      isAdmin,
     );
     if (!integration) {
       throw new Error('Integration not found');
@@ -131,162 +151,49 @@ const callQueries = {
     return 'request failed';
   },
   async callQueueList(_root, { integrationId }, { models, user }: IContext) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
+    await models.CallIntegrations.getIntegration(user._id, integrationId);
 
-    const formattedDate = `${year}-${month}-${day}`;
-    const integration = await models.CallIntegrations.getIntegration(
-      user._id,
-      integrationId,
-    );
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-    const queueData = (await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        data: {
-          request: {
-            action: 'queueapi',
-            startTime: formattedDate,
-            endTime: formattedDate,
-          },
-        },
-        integrationId: integrationId,
-        retryCount: 3,
-        isConvertToJson: false,
-        isAddExtention: false,
-      },
-      user,
-    )) as any;
-
-    if (!queueData.ok) {
-      throw new Error(`HTTP error! Status: ${queueData.status}`);
-    }
-
-    const xmlData = await queueData.text();
-    try {
-      const parsedData = JSON.parse(xmlData);
-
-      if (parsedData.status === -6) {
-        console.log('Status -6 detected. Clearing redis callCookie.');
-        await redis.del('callCookie');
-        const statistics = await models.CallQueueStatistics.find({
-          integrationId,
-        });
-        if (statistics) {
-          return statistics;
-        }
-        return [];
-      }
-    } catch (error) {
-      console.error(error.message);
-    }
-
-    try {
-      const parser = new XMLParser();
-      const jsonObject = parser.parse(xmlData);
-
-      const rootStatistics = jsonObject.root_statistics || {};
-      const queues = (rootStatistics.queue as any) || [];
-
-      if (queues && queues.length > 0) {
-        const normalizedQueues = queues?.map((q) => ({
-          queueChairman: q.queuechairman,
-          queue: q.queue,
-          totalCalls: q.total_calls,
-          answeredCalls: q.answered_calls,
-          answeredRate: q.answered_rate,
-          abandonedCalls: q.abandoned_calls,
-          avgWait: q.avg_wait,
-          avgTalk: q.avg_talk,
-          vqTotalCalls: q.vq_total_calls,
-          slaRate: q.sla_rate,
-          vqSlaRate: q.vq_sla_rate,
-          transferOutCalls: q.transfer_out_calls,
-          transferOutRate: q.transfer_out_rate,
-          abandonedRate: q.abandoned_rate,
-          integrationId,
-        }));
-
-        if (integration.queues && normalizedQueues.length > 0) {
-          const filteredQueues = normalizedQueues.filter((q) =>
-            integration.queues.includes(q.queue.toString()),
-          );
-
-          for (const queue of filteredQueues) {
-            await models.CallQueueStatistics.findOneAndUpdate(
-              { integrationId, queue: queue.queue },
-              { $set: queue },
-              { upsert: true, new: true },
-            );
-          }
-
-          return filteredQueues;
-        }
-        const stats = await models.CallQueueStatistics.find({ integrationId });
-        if (stats) {
-          return stats;
-        }
-        return [];
-      }
-    } catch (error) {
-      const stats = await models.CallQueueStatistics.find({ integrationId });
-      if (stats) {
-        return stats;
-      }
-      return [];
-    }
+    return models.CallQueueStatistics.find(
+      { integrationId },
+      { _id: 0, __v: 0 },
+    ).lean<any[]>();
   },
 
-  async callQueueInitialList(_root, { queue }) {
+  async callQueueInitialList(
+    _root,
+    { queue },
+    { models, user, subdomain }: IContext,
+  ) {
+    if (!user?._id) {
+      throw new Error('Login required');
+    }
+
     try {
-      const redisKey = `callRealtimeHistory:${queue}:aggregate`;
+      let owns = false;
+      try {
+        const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
+          user._id,
+        );
+        owns = queues.map(String).includes(String(queue));
+      } catch (e) {
+        owns = false;
+      }
+
+      if (!owns) {
+        console.warn(
+          `[call] callQueueInitialList: user ${user._id} is not an operator on queue ${queue}`,
+        );
+        if (process.env.CALL_SUBSCRIPTION_REQUIRE_AUTH === 'true') {
+          return '{}';
+        }
+      }
+
+      const redisKey = `callRealtimeHistory:${subdomain}:${queue}:aggregate`;
       return (await redis.get(redisKey)) || `{}`;
     } catch (error) {
       console.error(`Failed to fetch queue data for ${queue}:`, error);
       return '{}';
     }
-  },
-
-  async callQueueMemberList(
-    _root,
-    { integrationId, queue },
-    { models, user }: IContext,
-  ) {
-    const queueData = (await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: {
-          request: {
-            action: 'getCallQueuesMemberMessage',
-            extension: queue,
-          },
-        },
-        integrationId: integrationId,
-        retryCount: 3,
-        isConvertToJson: true,
-        isAddExtention: false,
-      },
-      user,
-    )) as any;
-
-    if (queueData?.response) {
-      const { CallQueueMembersMessage } = queueData.response;
-
-      if (CallQueueMembersMessage) {
-        return CallQueueMembersMessage;
-      }
-      return [];
-    }
-    return 'request failed';
   },
 
   async callTodayStatistics(
@@ -609,6 +516,11 @@ const callQueries = {
         if (result) {
           return result;
         }
+
+        const session = await models.CallSessions.findOne({ conversationId });
+        if (session) {
+          return mapSessionToCallHistory(session);
+        }
       }
 
       return null;
@@ -628,8 +540,11 @@ const callQueries = {
     { startDate, endDate, queueId, direction },
     { models, user }: IContext,
   ) {
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
+      isAdmin,
     );
 
     const isContainsQueue = true;
@@ -821,8 +736,11 @@ const callQueries = {
     if (!queueId) {
       return [];
     }
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
+      isAdmin,
     );
 
     const isContainsQueue = queueId && queues.includes(queueId);
@@ -1263,6 +1181,758 @@ const callQueries = {
 
     return data;
   },
+  // ─── Carrier stage helper ──────────────────────────────────────────────────
+  // Derives Mongolian carrier from the first two digits of a phone number.
+  // carreStage is inlined in each pipeline that needs it.
+
+  async callKpiScorecard(
+    _args,
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+    },
+    { models }: IContext,
+  ) {
+    const T_SL = 20; // Service Level threshold in seconds
+
+    const baseMatch: any = {
+      start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    };
+    if (direction && direction !== 'all') {
+      baseMatch.userfield = direction;
+    }
+
+    const queueAddField = {
+      $addFields: {
+        _queue: {
+          $cond: [
+            {
+              $regexMatch: {
+                input: { $ifNull: ['$actionType', ''] },
+                regex: /QUEUE\[/,
+              },
+            },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    };
+
+    const queueMatchStage: any =
+      queueId && queueId !== 'all'
+        ? { $match: { _queue: queueId } }
+        : { $match: {} };
+
+    const dedupeByUniqueid = {
+      $group: {
+        _id: '$uniqueid',
+        userfield: { $first: '$userfield' },
+        dispositions: { $addToSet: '$disposition' },
+        billsec: { $max: '$billsec' },
+        waittime: { $max: { $ifNull: ['$waittime', 0] } },
+        actionType: { $first: '$actionType' },
+        src: { $first: '$src' },
+        start: { $first: '$start' },
+      },
+    };
+
+    const addIsAnswered = {
+      $addFields: {
+        isAnswered: {
+          $and: [
+            { $in: ['ANSWERED', '$dispositions'] },
+            { $gt: ['$billsec', 0] },
+          ],
+        },
+        isInbound: { $eq: ['$userfield', 'Inbound'] },
+        isAbandoned: {
+          $and: [
+            { $eq: ['$userfield', 'Inbound'] },
+            {
+              $or: [
+                { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
+                {
+                  $and: [
+                    { $in: ['ANSWERED', '$dispositions'] },
+                    { $eq: ['$billsec', 0] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+
+    const [result] = await models.CallCdrs.aggregate([
+      { $match: baseMatch },
+      queueAddField,
+      queueMatchStage,
+      dedupeByUniqueid,
+      addIsAnswered,
+      {
+        $facet: {
+          inbound: [
+            { $match: { isInbound: true } },
+            {
+              $group: {
+                _id: null,
+                offered: { $sum: 1 },
+                answered: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+                abandoned: { $sum: { $cond: ['$isAbandoned', 1, 0] } },
+                withinSL: {
+                  $sum: {
+                    $cond: [
+                      { $and: ['$isAnswered', { $lte: ['$waittime', T_SL] }] },
+                      1,
+                      0,
+                    ],
+                  },
+                },
+                sumWait: { $sum: { $cond: ['$isAnswered', '$waittime', 0] } },
+              },
+            },
+          ],
+          handled: [
+            { $match: { isAnswered: true } },
+            {
+              $group: {
+                _id: null,
+                answered: { $sum: 1 },
+                sumTalk: { $sum: '$billsec' },
+              },
+            },
+          ],
+          totals: [{ $count: 'n' }],
+        },
+      },
+      {
+        $project: {
+          inbound: { $first: '$inbound' },
+          handled: { $first: '$handled' },
+          callstotal: { $ifNull: [{ $first: '$totals.n' }, 0] },
+        },
+      },
+      {
+        $project: {
+          callstotal: 1,
+          serviceLevel: {
+            $let: {
+              vars: {
+                d: {
+                  $add: [
+                    { $ifNull: ['$inbound.answered', 0] },
+                    { $ifNull: ['$inbound.abandoned', 0] },
+                  ],
+                },
+              },
+              in: {
+                $cond: [
+                  { $gt: ['$$d', 0] },
+                  {
+                    $multiply: [
+                      {
+                        $divide: [{ $ifNull: ['$inbound.withinSL', 0] }, '$$d'],
+                      },
+                      100,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+          abandonment: {
+            $cond: [
+              { $gt: [{ $ifNull: ['$inbound.offered', 0] }, 0] },
+              {
+                $multiply: [
+                  {
+                    $divide: [
+                      { $ifNull: ['$inbound.abandoned', 0] },
+                      '$inbound.offered',
+                    ],
+                  },
+                  100,
+                ],
+              },
+              0,
+            ],
+          },
+          averageSpeed: {
+            $cond: [
+              { $gt: [{ $ifNull: ['$inbound.answered', 0] }, 0] },
+              {
+                $divide: [
+                  { $ifNull: ['$inbound.sumWait', 0] },
+                  '$inbound.answered',
+                ],
+              },
+              0,
+            ],
+          },
+          averageAnsweredTime: {
+            $cond: [
+              { $gt: [{ $ifNull: ['$handled.answered', 0] }, 0] },
+              {
+                $add: [
+                  {
+                    $divide: [
+                      { $ifNull: ['$handled.sumTalk', 0] },
+                      '$handled.answered',
+                    ],
+                  },
+                  38,
+                ],
+              },
+              0,
+            ],
+          },
+          firstCallResolution: { $literal: null },
+          occupancy: { $literal: null },
+        },
+      },
+    ]);
+
+    return (
+      result ?? {
+        callstotal: 0,
+        serviceLevel: 0,
+        abandonment: 0,
+        averageSpeed: 0,
+        averageAnsweredTime: 0,
+        firstCallResolution: 0,
+        occupancy: 0,
+      }
+    );
+  },
+
+  async callVolumeSeries(
+    _args,
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+    },
+    { models }: IContext,
+  ) {
+    const matchStage: any = {
+      start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    };
+    if (direction && direction !== 'all') {
+      matchStage.userfield = direction;
+    }
+
+    const queueAddField = {
+      $addFields: {
+        _queue: {
+          $cond: [
+            {
+              $regexMatch: {
+                input: { $ifNull: ['$actionType', ''] },
+                regex: /QUEUE\[/,
+              },
+            },
+            {
+              $arrayElemAt: [
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
+                0,
+              ],
+            },
+            null,
+          ],
+        },
+      },
+    };
+
+    const pipeline: any[] = [{ $match: matchStage }, queueAddField];
+
+    if (queueId && queueId !== 'all') {
+      pipeline.push({ $match: { _queue: queueId } });
+    }
+
+    pipeline.push(
+      // Dedupe CDR legs per call
+      {
+        $group: {
+          _id: '$uniqueid',
+          userfield: { $first: '$userfield' },
+          dispositions: { $addToSet: '$disposition' },
+          billsec: { $max: '$billsec' },
+          start: { $first: '$start' },
+        },
+      },
+      {
+        $addFields: {
+          day: {
+            $dateFromString: {
+              dateString: {
+                $dateToString: {
+                  date: '$start',
+                  format: '%Y-%m-%d',
+                  timezone: 'Asia/Ulaanbaatar',
+                },
+              },
+              format: '%Y-%m-%d',
+              timezone: 'Asia/Ulaanbaatar',
+            },
+          },
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$day',
+          incoming: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Inbound'] }, 1, 0] },
+          },
+          outgoing: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Outbound'] }, 1, 0] },
+          },
+          answered: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+          abandoned: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Inbound'] },
+                    { $not: ['$isAnswered'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          day: '$_id',
+          incoming: 1,
+          outgoing: 1,
+          answered: 1,
+          abandoned: 1,
+        },
+      },
+      { $sort: { day: 1 } },
+    );
+
+    return models.CallCdrs.aggregate(pipeline);
+  },
+
+  async callCarrierBreakdown(
+    _args,
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+    },
+    { models }: IContext,
+  ) {
+    const matchStage: any = {
+      start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    };
+    if (direction && direction !== 'all') {
+      matchStage.userfield = direction;
+    }
+
+    const pipeline: any[] = [{ $match: matchStage }];
+
+    if (queueId && queueId !== 'all') {
+      pipeline.push(
+        {
+          $addFields: {
+            _queue: {
+              $cond: [
+                {
+                  $regexMatch: {
+                    input: { $ifNull: ['$actionType', ''] },
+                    regex: /QUEUE\[/,
+                  },
+                },
+                {
+                  $arrayElemAt: [
+                    {
+                      $split: [
+                        {
+                          $arrayElemAt: [
+                            { $split: ['$actionType', 'QUEUE['] },
+                            1,
+                          ],
+                        },
+                        ']',
+                      ],
+                    },
+                    0,
+                  ],
+                },
+                null,
+              ],
+            },
+          },
+        },
+        { $match: { _queue: queueId } },
+      );
+    }
+
+    // Use src for inbound, dst for outbound to get the customer phone
+    const customerPhone = {
+      $cond: [{ $eq: ['$userfield', 'Inbound'] }, '$src', '$dst'],
+    };
+
+    pipeline.push(
+      {
+        $addFields: {
+          _customerPhone: customerPhone,
+        },
+      },
+      {
+        $addFields: {
+          carrier: {
+            $let: {
+              vars: {
+                p2: {
+                  $substrBytes: [{ $ifNull: ['$_customerPhone', ''] }, 0, 2],
+                },
+              },
+              in: {
+                $switch: {
+                  branches: [
+                    {
+                      case: { $in: ['$$p2', ['99', '95', '85']] },
+                      then: 'Mobicom',
+                    },
+                    { case: { $in: ['$$p2', ['89', '96']] }, then: 'Unitel' },
+                    {
+                      case: { $in: ['$$p2', ['91', '94', '90']] },
+                      then: 'Skytel',
+                    },
+                    { case: { $in: ['$$p2', ['98', '93']] }, then: 'G-Mobile' },
+                    { case: { $eq: ['$$p2', '97'] }, then: 'Ondo' },
+                  ],
+                  default: 'Other',
+                },
+              },
+            },
+          },
+        },
+      },
+      { $group: { _id: '$carrier', value: { $sum: 1 } } },
+      { $project: { _id: 0, name: '$_id', value: 1 } },
+      { $sort: { value: -1 } },
+    );
+
+    return models.CallCdrs.aggregate(pipeline);
+  },
+
+  async callHeatmap(
+    _args,
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+    },
+    { models }: IContext,
+  ) {
+    const matchStage: any = {
+      start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    };
+    if (direction && direction !== 'all') {
+      matchStage.userfield = direction;
+    }
+
+    const pipeline: any[] = [{ $match: matchStage }];
+
+    if (queueId && queueId !== 'all') {
+      pipeline.push(
+        {
+          $addFields: {
+            _queue: {
+              $cond: [
+                {
+                  $regexMatch: {
+                    input: { $ifNull: ['$actionType', ''] },
+                    regex: /QUEUE\[/,
+                  },
+                },
+                {
+                  $arrayElemAt: [
+                    {
+                      $split: [
+                        {
+                          $arrayElemAt: [
+                            { $split: ['$actionType', 'QUEUE['] },
+                            1,
+                          ],
+                        },
+                        ']',
+                      ],
+                    },
+                    0,
+                  ],
+                },
+                null,
+              ],
+            },
+          },
+        },
+        { $match: { _queue: queueId } },
+      );
+    }
+
+    pipeline.push(
+      {
+        $group: {
+          _id: '$uniqueid',
+          dispositions: { $addToSet: '$disposition' },
+          billsec: { $max: '$billsec' },
+          start: { $first: '$start' },
+        },
+      },
+      {
+        $addFields: {
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+            ],
+          },
+          dow: {
+            $isoDayOfWeek: { date: '$start', timezone: 'Asia/Ulaanbaatar' },
+          },
+          hour: { $hour: { date: '$start', timezone: 'Asia/Ulaanbaatar' } },
+        },
+      },
+      {
+        $group: {
+          _id: { dow: '$dow', hour: '$hour' },
+          total: { $sum: 1 },
+          answered: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          dow: '$_id.dow',
+          hour: '$_id.hour',
+          total: 1,
+          answered: 1,
+          answerRate: {
+            $cond: [
+              { $gt: ['$total', 0] },
+              { $multiply: [{ $divide: ['$answered', '$total'] }, 100] },
+              0,
+            ],
+          },
+        },
+      },
+    );
+
+    return models.CallCdrs.aggregate(pipeline);
+  },
+
+  async callTopNumbers(
+    _args,
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+      limit = 12,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+      limit?: number;
+    },
+    { models }: IContext,
+  ) {
+    const matchStage: any = {
+      start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    };
+    if (direction && direction !== 'all') {
+      matchStage.userfield = direction;
+    }
+
+    const pipeline: any[] = [{ $match: matchStage }];
+
+    if (queueId && queueId !== 'all') {
+      pipeline.push(
+        {
+          $addFields: {
+            _queue: {
+              $cond: [
+                {
+                  $regexMatch: {
+                    input: { $ifNull: ['$actionType', ''] },
+                    regex: /QUEUE\[/,
+                  },
+                },
+                {
+                  $arrayElemAt: [
+                    {
+                      $split: [
+                        {
+                          $arrayElemAt: [
+                            { $split: ['$actionType', 'QUEUE['] },
+                            1,
+                          ],
+                        },
+                        ']',
+                      ],
+                    },
+                    0,
+                  ],
+                },
+                null,
+              ],
+            },
+          },
+        },
+        { $match: { _queue: queueId } },
+      );
+    }
+
+    pipeline.push(
+      {
+        $addFields: {
+          _customerPhone: {
+            $cond: [{ $eq: ['$userfield', 'Inbound'] }, '$src', '$dst'],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$uniqueid',
+          customerPhone: { $first: '$_customerPhone' },
+          dispositions: { $addToSet: '$disposition' },
+          billsec: { $max: '$billsec' },
+        },
+      },
+      {
+        $addFields: {
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          carrier: {
+            $let: {
+              vars: {
+                p2: {
+                  $substrBytes: [{ $ifNull: ['$customerPhone', ''] }, 0, 2],
+                },
+              },
+              in: {
+                $switch: {
+                  branches: [
+                    {
+                      case: { $in: ['$$p2', ['99', '95', '85']] },
+                      then: 'Mobicom',
+                    },
+                    { case: { $in: ['$$p2', ['89', '96']] }, then: 'Unitel' },
+                    {
+                      case: { $in: ['$$p2', ['91', '94', '90']] },
+                      then: 'Skytel',
+                    },
+                    { case: { $in: ['$$p2', ['98', '93']] }, then: 'G-Mobile' },
+                    { case: { $eq: ['$$p2', '97'] }, then: 'Ondo' },
+                  ],
+                  default: 'Other',
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$customerPhone',
+          carrier: { $first: '$carrier' },
+          attempts: { $sum: 1 },
+          answered: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+          duration: { $sum: { $cond: ['$isAnswered', '$billsec', 0] } },
+        },
+      },
+      {
+        $addFields: { missed: { $subtract: ['$attempts', '$answered'] } },
+      },
+      { $sort: { attempts: -1 } },
+      { $limit: limit },
+      {
+        $project: {
+          _id: 0,
+          number: '$_id',
+          carrier: 1,
+          attempts: 1,
+          answered: 1,
+          missed: 1,
+          duration: 1,
+        },
+      },
+    );
+
+    return models.CallCdrs.aggregate(pipeline);
+  },
+
   async callGetOperatorStats(_, { startDate, endDate }, { models }: IContext) {
     return await models.CallCdrs.aggregate([
       {

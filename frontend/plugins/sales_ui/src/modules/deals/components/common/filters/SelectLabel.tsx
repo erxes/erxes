@@ -74,14 +74,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== label._id)
-      : [...multipleValue, label._id];
+        ? multipleValue.filter((p) => p !== label._id)
+        : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-      ? selectedLabels.filter((p) => p._id !== label._id)
-      : [...selectedLabels, label];
+        ? selectedLabels.filter((p) => p._id !== label._id)
+        : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -121,10 +121,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     skip: !pipelineId,
   });
 
-  const updateDealLabelsInCache = (
-    dealId: string,
-    nextLabelIds: string[],
-  ) => {
+  const updateDealLabelsInCache = (dealId: string, nextLabelIds: string[]) => {
     const cacheId = client.cache.identify({ __typename: 'Deal', _id: dealId });
 
     if (!cacheId) {
@@ -133,7 +130,9 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
 
     const nextLabels = nextLabelIds
       .map((id) => {
-        const found = pipelineLabels.find((item: IPipelineLabel) => item._id === id);
+        const found = pipelineLabels.find(
+          (item: IPipelineLabel) => item._id === id,
+        );
 
         return found
           ? {
@@ -329,14 +328,36 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
   );
 };
 
-export const SelectLabelsValue = () => {
+export const SelectLabelsValue = ({
+  showLabels = false,
+}: {
+  showLabels?: boolean;
+}) => {
+  const [pipelineId] = useQueryState('pipelineId');
+  const { pipelineLabels = [] } = usePipelineLabels({
+    variables: { pipelineId },
+    skip: !pipelineId,
+  });
   const { labelIds } = useSelectLabelsContext();
+  const selectedIds = new Set(labelIds ?? []);
 
   if ((labelIds || [])?.length !== 0) {
     return (
       <span className="text-muted-foreground flex items-center gap-1 -ml-1">
-        <IconLabel className="w-4 h-4 text-gray-400" /> Label +
-        {(labelIds || []).length}
+        {showLabels ? (
+          <>
+            <IconLabel className="w-4 h-4 text-gray-400" />
+            {pipelineLabels
+              .filter((label) => label._id && selectedIds.has(label._id))
+              .map((label) => label.name)
+              .join(', ')}
+          </>
+        ) : (
+          <>
+            <IconLabel className="w-4 h-4 text-gray-400" /> Label +
+            {(labelIds || []).length}
+          </>
+        )}
       </span>
     );
   }
@@ -521,6 +542,7 @@ export const SelectLabelsFilterBar = ({
   scope,
   targetId,
   initialValue,
+  showLabels,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
@@ -529,6 +551,7 @@ export const SelectLabelsFilterBar = ({
   scope?: string;
   targetId?: string;
   initialValue?: string[];
+  showLabels?: boolean;
 }) => {
   const isCardVariant = variant === 'card';
 
@@ -578,7 +601,7 @@ export const SelectLabelsFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectLabelsValue />
+          <SelectLabelsValue showLabels={showLabels} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant || 'filter'}>
           <SelectLabelsContent targetId={targetId} />

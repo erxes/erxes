@@ -1,5 +1,6 @@
 import { SUBSCRIPTION_INFO_STATUS } from '@/pos/db/definitions/constants';
 import {
+  cursorPaginate,
   escapeRegExp,
   getPureDate,
   getToday,
@@ -219,7 +220,7 @@ export const posOrderRecordsQuery = async (
     pluginName: 'core',
     module: 'departments',
     action: 'find',
-    input: { _id: { $in: departmentIds } },
+    input: { query: { _id: { $in: departmentIds } } },
   });
 
   const departmentById = {};
@@ -287,7 +288,7 @@ export const posOrderRecordsQuery = async (
       pluginName: 'core',
       module: 'customers',
       action: 'find',
-      input: { _id: { $in: customerIds } },
+      input: { query: { _id: { $in: customerIds } } },
       defaultValue: [],
     });
 
@@ -304,7 +305,7 @@ export const posOrderRecordsQuery = async (
       pluginName: 'core',
       module: 'companies',
       action: 'find',
-      input: { _id: { $in: companyIds } },
+      input: { query: { _id: { $in: companyIds } } },
       defaultValue: [],
     });
 
@@ -1064,6 +1065,28 @@ const queries = {
     ]);
 
     return result?.totalCount || 0;
+  },
+
+  posOrdersList: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+    const query = await generateFilterPosQuery(models, params, user._id);
+
+    const orderBy = params.orderBy || { number: -1 };
+
+    const { list, totalCount, pageInfo } = await cursorPaginate({
+      model: models.PosOrders,
+      params: {
+        orderBy,
+        ...params,
+      },
+      query,
+    });
+
+    return { list, totalCount, pageInfo };
   },
 };
 

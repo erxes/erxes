@@ -2,7 +2,7 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import { CouponFormValues } from '../../../constants/couponFormSchema';
-import { SelectCategory } from '~/modules/pricing/components/SelectCategory';
+import { SelectCategory } from 'ui-modules';
 
 interface CouponAddRestrictionCoreFieldProps {
   form: UseFormReturn<CouponFormValues>;

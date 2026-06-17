@@ -10,6 +10,7 @@ export const SplitConditionsNodeConfig = ({
 }: NodeContentComponentProps<TSplitConditionsConfigForm>) => {
   const OptionConnectHandle = useAutomationOptionalConnect({
     id: nodeData.id,
+    flowDirection: nodeData.flowDirection,
   });
   const { options = [] } = config || {};
 

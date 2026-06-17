@@ -3,37 +3,89 @@ const path = require('path');
 const { prompt } = require('enquirer');
 const { createBackendPlugin } = require('./create-backend-plugin');
 
-async function createPlugin() {
-  const answers = await prompt([
-    {
-      type: 'input',
-      name: 'pluginName',
-      message: 'What is the name of your plugin?',
-      required: true,
-      validate: (input) => {
-        if (!input) return 'Plugin name is required';
-        if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(input)) {
-          return 'Plugin name must start with a letter and contain only letters and numbers';
-        }
-        return true;
-      },
-    },
-    {
-      type: 'input',
-      name: 'moduleName',
-      message: 'What is the name of your module?',
-      required: true,
-      validate: (input) => {
-        if (!input) return 'Module name is required';
-        if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(input)) {
-          return 'Module name must start with a letter and contain only letters and numbers';
-        }
-        return true;
-      },
-    },
-  ]);
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const flags = {};
 
-  const { pluginName, moduleName } = answers;
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--help' || arg === '-h') {
+      console.log(`
+Usage: pnpm create-plugin [options]
+
+Options:
+  --plugin-name, -p    Plugin name (e.g., inventory, analytics)
+  --module-name, -m    Module name (e.g., items, reports)
+  --help, -h          Show this help message
+
+Examples:
+  pnpm create-plugin
+  pnpm create-plugin --plugin-name=inventory --module-name=items
+  pnpm create-plugin -p inventory -m items
+      `);
+      process.exit(0);
+    } else if (arg.startsWith('--plugin-name=')) {
+      flags.pluginName = arg.split('=')[1];
+    } else if (arg.startsWith('--module-name=')) {
+      flags.moduleName = arg.split('=')[1];
+    } else if ((arg === '--plugin-name' || arg === '-p') && args[i + 1]) {
+      flags.pluginName = args[++i];
+    } else if ((arg === '--module-name' || arg === '-m') && args[i + 1]) {
+      flags.moduleName = args[++i];
+    }
+  }
+
+  return flags;
+}
+
+function validateName(name, type) {
+  if (!name) return `${type} name is required`;
+  if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(name)) {
+    return `${type} name must start with a letter and contain only letters and numbers`;
+  }
+  return true;
+}
+
+async function createPlugin() {
+  const flags = parseArgs();
+  let pluginName, moduleName;
+
+  if (flags.pluginName && flags.moduleName) {
+    // Validate flags
+    const pluginValidation = validateName(flags.pluginName, 'Plugin');
+    if (pluginValidation !== true) {
+      console.error(`Error: ${pluginValidation}`);
+      process.exit(1);
+    }
+    const moduleValidation = validateName(flags.moduleName, 'Module');
+    if (moduleValidation !== true) {
+      console.error(`Error: ${moduleValidation}`);
+      process.exit(1);
+    }
+    pluginName = flags.pluginName;
+    moduleName = flags.moduleName;
+    console.log(`Using flags: plugin=${pluginName}, module=${moduleName}`);
+  } else {
+    // Interactive mode
+    const answers = await prompt([
+      {
+        type: 'input',
+        name: 'pluginName',
+        message: 'What is the name of your plugin?',
+        required: true,
+        validate: (input) => validateName(input, 'Plugin'),
+      },
+      {
+        type: 'input',
+        name: 'moduleName',
+        message: 'What is the name of your module?',
+        required: true,
+        validate: (input) => validateName(input, 'Module'),
+      },
+    ]);
+    pluginName = answers.pluginName;
+    moduleName = answers.moduleName;
+  }
 
   // Convert plugin name to kebab case
   const kebabCaseName = pluginName
@@ -214,7 +266,7 @@ const IndexPage = lazy(() =>
   })),
 );
 
-const ${PascalCaseName}Main = () => {
+export const ${PascalCaseName}Main = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -223,8 +275,6 @@ const ${PascalCaseName}Main = () => {
     </Suspense>
   );
 };
-
-export default ${PascalCaseName}Main;
 `;
 
   fs.writeFileSync(
@@ -294,15 +344,16 @@ export const ${PascalCaseName}SettingsNavigation = () => {
   );
 
   // Create Settings.tsx for the module
-  const settingsContent = `const ${PascalCaseName}Settings = () => {
+  const settingsContent = `export const ${PascalCaseName}Settings = () => {
   return (
-    <div>
-      <h1>${moduleName} Settings</h1>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold">${moduleName} Settings</h1>
+      <p className="mt-4 text-muted-foreground">
+        Configure your ${moduleName} settings here.
+      </p>
     </div>
   );
 };
-
-export default ${PascalCaseName}Settings;
 `;
 
   fs.writeFileSync(
@@ -357,8 +408,13 @@ export const IndexPage = () => {
         </PageHeader.End>
       </PageHeader>
       <div className="flex h-full overflow-hidden">
-        <div className="flex flex-col h-full overflow-hidden flex-auto">
-          <h1>${kebabCaseModuleName}</h1>
+        <div className="flex flex-col h-full overflow-hidden flex-auto p-6">
+          <div className="rounded-lg border bg-card p-8 text-card-foreground">
+            <h2 className="text-xl font-semibold mb-2">${moduleName}</h2>
+            <p className="text-muted-foreground">
+              This is the ${moduleName} module. Add your content here using RecordTable, Form, and other erxes-ui components.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -392,12 +448,12 @@ const coreLibraries = new Set([
   'react-i18next',
 ]);
 
-const config: ModuleFederationConfig = {
+export const config: ModuleFederationConfig = {
   name: '${kebabCaseName}_ui',
   exposes: {
     './config': './src/config.tsx',
-    './${kebabCaseName}': './src/modules/${kebabCaseModuleName}Main.tsx',
-    './${kebabCaseName}Settings': './src/modules/${kebabCaseModuleName}Settings.tsx',
+    './${kebabCaseName}': './src/modules/${PascalCaseName}Main.tsx',
+    './${kebabCaseName}Settings': './src/modules/${PascalCaseName}Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 
@@ -411,6 +467,7 @@ const config: ModuleFederationConfig = {
   },
 };
 
+// Default export required by Nx/Rspack tooling - do not remove
 export default config;
 `;
 
@@ -593,12 +650,13 @@ export default config;
 
   // Create jest.config.ts
   const jestConfig = `/* eslint-disable */
+// Default export required by Jest - do not remove
 export default {
   displayName: '${kebabCaseName}-ui',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
-    '^.+\\\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
+    '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/plugins/${kebabCaseName}_ui',
@@ -611,12 +669,13 @@ export default {
   const rspackConfig = `import { composePlugins, withNx, withReact } from '@nx/rspack';
 import { withModuleFederation } from '@nx/rspack/module-federation';
 
-import baseConfig from './module-federation.config';
+import { config as baseConfig } from './module-federation.config';
 
 const config = {
   ...baseConfig,
 };
 
+// Default export required by Nx/Rspack tooling - do not remove
 export default composePlugins(
   withNx(),
   withReact(),
@@ -690,14 +749,12 @@ root.render(
   contentId,
   contentType,
 }: {
-  module: any;
+  module: string;
   contentId: string;
   contentType: string;
 }) => {
-  return <div>${moduleName} Widget</div>;
+  return <div>${moduleName} Widget for {contentType} ({contentId})</div>;
 };
-
-export default Widgets;
 `;
 
   fs.writeFileSync(

@@ -1,6 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { CONTACT_STATUSES } from './constants';
+import { withPropertyConditions } from '@/properties/utils';
 
 export const generateFilter = async (
   subdomain: string,
@@ -14,6 +15,7 @@ export const generateFilter = async (
     tagWithRelated,
     type,
     dateFilters,
+    propertiesData,
     brandIds,
     integrationIds,
     integrationTypes,
@@ -23,7 +25,7 @@ export const generateFilter = async (
   } = params;
 
   const filter: any = {
-    status: { $ne: CONTACT_STATUSES.deleted }
+    status: { $ne: CONTACT_STATUSES.deleted },
   };
 
   if (type) {
@@ -130,6 +132,14 @@ export const generateFilter = async (
       }
     } catch (err) {
       throw new Error(`Invalid dateFilters JSON: ${err}`);
+    }
+  }
+
+  if (propertiesData) {
+    const propertyConditions = withPropertyConditions(propertiesData);
+
+    if (propertyConditions.length) {
+      filter['$and'] = [...(filter['$and'] || []), ...propertyConditions];
     }
   }
 

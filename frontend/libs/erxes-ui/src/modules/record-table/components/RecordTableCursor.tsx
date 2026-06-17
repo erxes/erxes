@@ -105,6 +105,7 @@ export const RecordTableBackwardSkeleton = ({
     <RecordTable.RowSkeleton
       rows={3}
       backward
+      root={scrollRef.current}
       handleInView={() => {
         setIsFetchBackward(true);
         handleFetchMore({ direction: EnumCursorDirection.BACKWARD });
@@ -122,7 +123,7 @@ export const RecordTableForwardSkeleton = ({
 }: {
   handleFetchMore: (params: { direction: EnumCursorDirection }) => void;
 }) => {
-  const { hasNextPage, loading } = useRecordTableCursorContext();
+  const { hasNextPage, loading, scrollRef } = useRecordTableCursorContext();
 
   if (!hasNextPage || loading) {
     return null;
@@ -132,5 +133,11 @@ export const RecordTableForwardSkeleton = ({
     handleFetchMore({ direction: EnumCursorDirection.FORWARD });
   };
 
-  return <RecordTable.RowSkeleton rows={1} handleInView={handleInView} />;
+  return (
+    <RecordTable.RowSkeleton
+      rows={1}
+      handleInView={handleInView}
+      root={scrollRef.current}
+    />
+  );
 };

@@ -47,31 +47,6 @@ const bridgesQueries = {
         },
         defaultValue: [],
       });
-      // const companies = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'companies.findActiveCompanies',
-      //   data: {
-      //     selector: {
-      //       $or: [
-      //         { _id: searchValue },
-      //         { code: searchValue },
-      //         { primaryName: { $regex: searchValue, $options: 'i' } },
-      //         { primaryEmail: { $regex: searchValue, $options: 'i' } },
-      //         { primaryPhone: { $regex: searchValue, $options: 'i' } },
-      //       ],
-      //     },
-      //     fields: {
-      //       _id: 1,
-      //       code: 1,
-      //       primaryPhone: 1,
-      //       primaryEmail: 1,
-      //       primaryName: 1,
-      //     },
-      //     skip,
-      //     limit,
-      //   },
-      //   isRPC: true,
-      // });
 
       if (companies) {
         return companies.map((company) => ({

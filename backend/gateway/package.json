@@ -20,6 +20,7 @@
     "@escape.tech/graphql-armor-max-aliases": "^2.6.0",
     "@escape.tech/graphql-armor-max-depth": "^2.4.0",
     "@graphql-tools/schema": "^10.0.23",
+    "@sentry/node": "^10.55.0",
     "erxes-api-shared": "workspace:^",
     "graphql-parse-resolve-info": "^4.14.1",
     "graphql-ws": "^5.16.0",

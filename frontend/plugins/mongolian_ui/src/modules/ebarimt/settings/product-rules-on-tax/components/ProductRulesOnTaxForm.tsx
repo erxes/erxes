@@ -1,17 +1,9 @@
-import { SelectExcludeProducts } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectExcludeProducts';
-import { SelectExcludeTags } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectExcludeTags';
-import { SelectProductCategories } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectProductCategories';
-import { SelectProducts } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectProducts';
-import { SelectTags } from '@/ebarimt/settings/product-rules-on-tax/components/selects/SelectTags';
-import {
-  TAX_CODE_OPTIONS,
-  TaxType,
-} from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxDefaultValues';
+import { TAX_TYPES } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxDefaultValues';
 import { TProductRulesOnTaxForm } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxSchema.ts';
 import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
-import { SelectCategory } from 'ui-modules';
+import { SelectCategory, SelectProduct, SelectTags } from 'ui-modules';
 
 export const ProductRulesOnTaxForm = ({
   form,
@@ -26,33 +18,14 @@ export const ProductRulesOnTaxForm = ({
   isSheet?: boolean;
   formId?: string;
 }) => {
-  const taxType = useWatch({ control: form.control, name: 'taxType' });
-  const kind = useWatch({ control: form.control, name: 'kind' });
+  const taxType = useWatch({ control: form.control, name: 'taxType' }) || '';
 
   useEffect(() => {
-    if (taxType) {
-      switch (taxType) {
-        case TaxType.CityTax:
-          form.setValue('kind', 'ctax');
-          form.setValue('taxCode', '');
-          form.setValue('percent', 0);
-          break;
-        case TaxType.Inner:
-          form.setValue('kind', 'vat');
-          form.setValue('taxCode', '');
-          form.setValue('percent', 0);
-          break;
-        case TaxType['0 percent']:
-          form.setValue('kind', 'vat');
-          form.setValue('percent', 0);
-          break;
-        case TaxType.Free:
-          form.setValue('kind', 'vat');
-          form.setValue('percent', 0);
-          break;
-        default:
-          break;
-      }
+    if (taxType === 'ctax') {
+      form.setValue('kind', 'ctax');
+    } else {
+      form.setValue('kind', 'vat');
+      form.setValue('taxPercent', Number(TAX_TYPES[taxType]?.percent) || 0);
     }
   }, [taxType, form]);
 
@@ -82,237 +55,213 @@ export const ProductRulesOnTaxForm = ({
     },
     [],
   );
+
   return (
     <Form {...form}>
-      <form
-        id={formId}
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="gap-5 grid grid-cols-2 py-3"
-      >
-        <Form.Field
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Title</Form.Label>
-              <Form.Control>
-                <Input
-                  placeholder="Enter title"
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="productCategoryIds"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>PRODUCT CATEGORIES</Form.Label>
-              <Form.Control>
-                <SelectCategory
-                  selected={field.value}
-                  onSelect={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="taxType"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Tax Type</Form.Label>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Form.Control>
-                  <Select.Trigger className="text-muted-foreground">
-                    <Select.Value placeholder="Select a tax type">
-                      {field.value ? (
-                        <span className="text-foreground">{field.value}</span>
-                      ) : (
-                        <span className="text-muted-foreground">
-                          Select a tax type
-                        </span>
-                      )}
-                    </Select.Value>
-                  </Select.Trigger>
-                </Form.Control>
-                <Select.Content>
-                  {Object.values(TaxType).map((kind) => (
-                    <Select.Item key={kind} value={kind} className="capitalize">
-                      {kind}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="excludeCategoryIds"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Exclude Categories</Form.Label>
-              <SelectProductCategories
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                disabled={loading}
-              />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="taxCode"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Tax Code</Form.Label>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-                disabled={false}
-              >
-                <Form.Control>
-                  <Select.Trigger className="text-muted-foreground">
-                    <Select.Value placeholder="Select a tax code">
-                      {field.value ? (
-                        <span className="text-foreground">{field.value}</span>
-                      ) : (
-                        <span className="text-muted-foreground">
-                          Select a tax code
-                        </span>
-                      )}
-                    </Select.Value>
-                  </Select.Trigger>
-                </Form.Control>
-                <Select.Content>
-                  {taxType && Object.keys(TAX_CODE_OPTIONS).includes(taxType)
-                    ? TAX_CODE_OPTIONS[
-                        taxType as keyof typeof TAX_CODE_OPTIONS
-                      ].map((code) => (
+      <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="gap-5 grid grid-cols-2 py-3">
+          <div>
+            <Form.Field
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control>
+                    <Input
+                      placeholder="Enter title"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="taxType"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Tax Type</Form.Label>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <Form.Control>
+                      <Select.Trigger className="text-muted-foreground">
+                        <Select.Value placeholder="Select a tax type" />
+                      </Select.Trigger>
+                    </Form.Control>
+                    <Select.Content>
+                      {Object.keys(TAX_TYPES).map((key) => (
                         <Select.Item
-                          key={code}
-                          value={code}
+                          key={key}
+                          value={key}
+                          className="capitalize"
+                        >
+                          {TAX_TYPES[key].label}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="taxCode"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Tax Code</Form.Label>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <Form.Control>
+                      <Select.Trigger className="text-muted-foreground">
+                        <Select.Value placeholder="Select a tax code" />
+                      </Select.Trigger>
+                    </Form.Control>
+                    <Select.Content>
+                      {TAX_TYPES[taxType]?.options.map((opt) => (
+                        <Select.Item
+                          key={opt.value}
+                          value={opt.value}
                           className="capitalize"
                         >
                           <div className="w-full min-w-0">
-                            <span className="truncate">{code}</span>
+                            <span className="truncate">{opt.label}</span>
                           </div>
                         </Select.Item>
-                      ))
-                    : null}
-                </Select.Content>
-              </Select>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="productIds"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Products</Form.Label>
-              <SelectProducts
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                disabled={loading}
-              />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="kind"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Kind</Form.Label>
-              <Form.Control>
-                <Input
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  disabled={true}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="excludeProductIds"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Exclude Products</Form.Label>
-              <SelectExcludeProducts
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                disabled={loading}
-              />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="percent"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Percent</Form.Label>
-              <Form.Control>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  value={field.value || 0}
-                  onChange={(e) => {
-                    handleNumberChange(e.target.value, field.onChange);
-                  }}
-                  placeholder="Enter percent"
-                  disabled={loading || kind === 'ctax'}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="tagIds"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Tags</Form.Label>
-              <SelectTags
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                disabled={loading}
-              />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="excludeTagIds"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Exclude Tags</Form.Label>
-              <SelectExcludeTags
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                disabled={loading}
-              />
-            </Form.Item>
-          )}
-        />
+                      ))}
+                    </Select.Content>
+                  </Select>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="kind"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Kind</Form.Label>
+                  <Form.Control>
+                    <Input
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      disabled={true}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="taxPercent"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Percent</Form.Label>
+                  <Form.Control>
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      value={field.value || 0}
+                      onChange={(e) => {
+                        handleNumberChange(e.target.value, field.onChange);
+                      }}
+                      placeholder="Enter percent"
+                      disabled={!!TAX_TYPES[taxType]?.percent}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          </div>
+
+          <div>
+            <Form.Field
+              control={form.control}
+              name="productCategoryIds"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>PRODUCT CATEGORIES</Form.Label>
+                  <Form.Control>
+                    <SelectCategory
+                      value={field.value}
+                      onSelect={field.onChange}
+                      mode="multiple"
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="excludeCategoryIds"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Exclude Categories</Form.Label>
+                  <SelectCategory
+                    value={field.value}
+                    onSelect={field.onChange}
+                    mode="multiple"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="productIds"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Products</Form.Label>
+                  <SelectProduct
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="multiple"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="excludeProductIds"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Exclude Products</Form.Label>
+                  <SelectProduct
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="multiple"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="tagIds"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Tags</Form.Label>
+                  <SelectTags
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="multiple"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="excludeTagIds"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Exclude Tags</Form.Label>
+                  <SelectTags
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="multiple"
+                  />
+                </Form.Item>
+              )}
+            />
+          </div>
+        </div>
+
         {!isSheet && (
           <Dialog.Footer className="col-span-2 mt-3 gap-2">
             <Dialog.Close asChild>

@@ -7,10 +7,10 @@ import {
 } from 'erxes-ui';
 import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
-import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 
 export const ChooseChannel = () => {
-  const { channels, loading } = useGetChannels();
+  const { channels, loading } = useGetMyChannels();
 
   if (loading)
     return (

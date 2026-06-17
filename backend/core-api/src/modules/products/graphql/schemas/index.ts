@@ -28,12 +28,26 @@ import {
   types as RuleTypes,
 } from './rule';
 
+import {
+  mutations as PackageMutations,
+  queries as PackageQueries,
+  types as PackageTypes,
+} from './package';
+
+import {
+  mutations as SimilarityMutations,
+  queries as SimilarityQueries,
+  types as SimilarityTypes,
+} from './similarity';
+
 export const types = `
   ${CategoryTypes}
   ${ProductTypes}
   ${ConfigTypes}
   ${UomTypes}
   ${RuleTypes}
+  ${PackageTypes}
+  ${SimilarityTypes}
 `;
 
 export const queries = `
@@ -42,6 +56,8 @@ export const queries = `
   ${ConfigQueries}
   ${UomQueries}
   ${RuleQueries}
+  ${PackageQueries}
+  ${SimilarityQueries}
 `;
 
 export const mutations = `
@@ -50,4 +66,6 @@ export const mutations = `
   ${ConfigMutations}
   ${UomMutations}
   ${RuleMutations}
+  ${PackageMutations}
+  ${SimilarityMutations}
 `;

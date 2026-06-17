@@ -2,7 +2,7 @@ import { UniqueIdentifier } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
 import { useMountStatus } from '../hooks/useMountStatus';
-import { Button, cn, DropdownMenu, toast } from 'erxes-ui';
+import { Button, cn, DropdownMenu } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import {
   IconCheck,
@@ -24,16 +24,11 @@ import {
   IconGenderBigender,
   IconAddressBook,
   IconChevronLeft,
+  IconWorld,
 } from '@tabler/icons-react';
-import {
-  FORM_FIELD_TYPES,
-  FormFieldType,
-  FormGroupKey,
-  GroupedFields,
-} from '../constants/formFieldTypes';
+import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
 import React, { useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
-import { useRemoveForm } from '../hooks/useRemoveForm';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
 
 export const FormDndField = ({
@@ -100,6 +95,8 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconCalendarEvent />;
     case 'select':
       return <IconChevronDown />;
+    case 'select:countries':
+      return <IconWorld />;
     case 'textarea':
       return <IconTextScan2 />;
     case 'radio':

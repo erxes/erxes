@@ -32,6 +32,7 @@ export const CheckSyncedDealsFilterPopover = () => {
     stageChangedDateRange: string;
     dateType: string;
     dateRange: string;
+    createdDateRange: string;
   }>([
     'user',
     'boardId',
@@ -42,6 +43,7 @@ export const CheckSyncedDealsFilterPopover = () => {
     'stageChangedDateRange',
     'dateType',
     'dateRange',
+    'createdDateRange',
   ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -75,7 +77,15 @@ export const CheckSyncedDealsFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Date range
+                  Close date range
+                </Filter.Item>
+                <Filter.Item value="createdDateRange">
+                  <IconCalendar />
+                  Created date range
+                </Filter.Item>
+                <Filter.Item value="stageChangedDateRange">
+                  <IconCalendar />
+                  Stage changed date range
                 </Filter.Item>
                 <SelectDateType.FilterItem />
               </Command.List>
@@ -100,6 +110,12 @@ export const CheckSyncedDealsFilterPopover = () => {
           <Filter.View filterKey="dateRange">
             <Filter.DateView filterKey="dateRange" />
           </Filter.View>
+          <Filter.View filterKey="createdDateRange">
+            <Filter.DateView filterKey="createdDateRange" />
+          </Filter.View>
+          <Filter.View filterKey="stageChangedDateRange">
+            <Filter.DateView filterKey="stageChangedDateRange" />
+          </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -109,11 +125,14 @@ export const CheckSyncedDealsFilterPopover = () => {
         <Filter.View filterKey="number" inDialog>
           <Filter.DialogStringView filterKey="number" />
         </Filter.View>
-        <Filter.View filterKey="stageChangedDateRange" inDialog>
-          <Filter.DialogStringView filterKey="stageChangedDateRange" />
-        </Filter.View>
         <Filter.View filterKey="dateRange" inDialog>
           <Filter.DialogDateView filterKey="dateRange" />
+        </Filter.View>
+        <Filter.View filterKey="createdDateRange" inDialog>
+          <Filter.DialogDateView filterKey="createdDateRange" />
+        </Filter.View>
+        <Filter.View filterKey="stageChangedDateRange" inDialog>
+          <Filter.DialogDateView filterKey="stageChangedDateRange" />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -154,9 +173,23 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            Date range
+            Close date range
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="createdDateRange">
+          <Filter.BarName>
+            <IconCalendar />
+            Created date range
+          </Filter.BarName>
+          <Filter.Date filterKey="createdDateRange" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="stageChangedDateRange">
+          <Filter.BarName>
+            <IconCalendar />
+            Stage changed date range
+          </Filter.BarName>
+          <Filter.Date filterKey="stageChangedDateRange" />
         </Filter.BarItem>
 
         <SelectSalesBoard.FilterBar />

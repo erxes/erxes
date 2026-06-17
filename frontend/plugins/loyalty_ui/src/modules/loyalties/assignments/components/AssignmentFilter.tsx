@@ -10,19 +10,22 @@ import {
   SelectAssignmentStatusFilterView,
   SelectAssignmentStatusFilterBar,
 } from './selects/SelectAssignmentStatus';
-import {
-  SelectCustomerFilterItem,
-  SelectCustomerFilterView,
-  SelectCustomerFilterBar,
-} from './selects/SelectCustomer';
 import { ASSIGNMENT_CURSOR_SESSION_KEY } from '../hooks/useAssignmentList';
+import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
+import { SelectOwnerType } from '../../vouchers/components/selects/SelectOwnerType';
 
 const AssignmentFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     assignmentCampaignId: string | null;
     assignmentStatus: string | null;
+    assignmentOwnerType: string | null;
     assignmentOwnerId: string | null;
-  }>(['assignmentCampaignId', 'assignmentStatus', 'assignmentOwnerId']);
+  }>([
+    'assignmentCampaignId',
+    'assignmentStatus',
+    'assignmentOwnerType',
+    'assignmentOwnerId',
+  ]);
 
   const hasFilters = Object.values(queries || {}).some((v) => v !== null);
 
@@ -41,13 +44,20 @@ const AssignmentFilterPopover = () => {
               <Command.List className="p-1">
                 <SelectAssignmentCampaignFilterItem />
                 <SelectAssignmentStatusFilterItem />
-                <SelectCustomerFilterItem />
+                <SelectOwnerType.FilterItem
+                  queryKey="assignmentOwnerType"
+                />
+                <SelectOwner.FilterItem queryKey="assignmentOwnerId" />
               </Command.List>
             </Command>
           </Filter.View>
           <SelectAssignmentCampaignFilterView />
           <SelectAssignmentStatusFilterView />
-          <SelectCustomerFilterView />
+          <SelectOwnerType.FilterView queryKey="assignmentOwnerType" />
+          <SelectOwner.FilterView
+            queryKey="assignmentOwnerId"
+            ownerTypeKey="assignmentOwnerType"
+          />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -57,8 +67,14 @@ const AssignmentFilterPopover = () => {
         <Filter.View filterKey="assignmentStatus" inDialog>
           <SelectAssignmentStatusFilterView />
         </Filter.View>
+        <Filter.View filterKey="assignmentOwnerType" inDialog>
+          <SelectOwnerType.FilterView queryKey="assignmentOwnerType" />
+        </Filter.View>
         <Filter.View filterKey="assignmentOwnerId" inDialog>
-          <SelectCustomerFilterView />
+          <SelectOwner.FilterView
+            queryKey="assignmentOwnerId"
+            ownerTypeKey="assignmentOwnerType"
+          />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -71,7 +87,11 @@ export const AssignmentFilter = () => {
       <Filter.Bar>
         <SelectAssignmentCampaignFilterBar />
         <SelectAssignmentStatusFilterBar />
-        <SelectCustomerFilterBar />
+        <SelectOwnerType.FilterBar queryKey="assignmentOwnerType" />
+        <SelectOwner.FilterBar
+          queryKey="assignmentOwnerId"
+          ownerTypeKey="assignmentOwnerType"
+        />
         <AssignmentFilterPopover />
         <AssignmentTotalCount />
       </Filter.Bar>

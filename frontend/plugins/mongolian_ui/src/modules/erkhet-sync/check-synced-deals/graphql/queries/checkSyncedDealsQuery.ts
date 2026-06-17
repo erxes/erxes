@@ -1,29 +1,32 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 export const checkSyncedDealsQuery = gql`
   query Deals(
-    $limit: Int
+    ${GQL_CURSOR_PARAM_DEFS}
     $userIds: [String]
-    $pipelineId: String
     $stageId: String
     $stageChangedStartDate: Date
     $stageChangedEndDate: Date
     $startDate: String
     $endDate: String
+    $createdStartDate: Date
+    $createdEndDate: Date
     $noSkipArchive: Boolean
     $productIds: [String]
     $search: String
     $number: String
   ) {
     deals(
-      limit: $limit
+      ${GQL_CURSOR_PARAMS}
       userIds: $userIds
-      pipelineId: $pipelineId
       stageId: $stageId
       stageChangedStartDate: $stageChangedStartDate
       stageChangedEndDate: $stageChangedEndDate
       startDate: $startDate
       endDate: $endDate
+      createdStartDate: $createdStartDate
+      createdEndDate: $createdEndDate
       noSkipArchive: $noSkipArchive
       productIds: $productIds
       search: $search

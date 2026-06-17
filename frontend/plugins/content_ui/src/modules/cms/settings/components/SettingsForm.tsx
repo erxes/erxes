@@ -3,10 +3,13 @@ import {
   IconChartBar,
   IconCheck,
   IconLink,
+  IconLock,
   IconPhoto,
   IconTrash,
+  IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
+import { SelectMember } from 'ui-modules';
 import {
   Badge,
   Button,
@@ -32,26 +35,23 @@ import {
 } from './SettingsField';
 import { SettingsSection } from './SettingsSection';
 import { Uploader } from './Uploader';
+import { buildPostPublicUrl } from '../../shared/utils';
 
 const POST_URL_FIELD_OPTIONS = [
-  { value: '_id', label: 'Post ID', example: 'fSY5zj2QmcnXUNSnF9sYo' },
-  { value: 'count', label: 'Post Count', example: '1' },
-  { value: 'slug', label: 'Post Slug', example: 'my-first-post' },
+  { value: '_id', label: 'Post ID' },
+  { value: 'count', label: 'Post Count' },
+  { value: 'slug', label: 'Post Slug' },
 ];
+
+const PREVIEW_POST = {
+  _id: 'fSY5zj2QmcnXUNSnF9sYo',
+  count: 1,
+  slug: 'my-first-post',
+};
 
 const DELETE_CONFIRMATION_PHRASE = 'delete my project';
 const DELETE_NAME_CONFIRMATION_INPUT_ID = 'delete-name-confirmation';
 const DELETE_PHRASE_CONFIRMATION_INPUT_ID = 'delete-phrase-confirmation';
-
-function trimTrailingSlashes(value: string): string {
-  let endIndex = value.length;
-
-  while (endIndex > 0 && value[endIndex - 1] === '/') {
-    endIndex -= 1;
-  }
-
-  return value.slice(0, endIndex);
-}
 
 interface ISettingsFormProps {
   cms?: CmsSettingsData;
@@ -83,19 +83,16 @@ export const SettingsForm = ({
     POST_URL_FIELD_OPTIONS.find(
       (option) => option.value === settings.postUrlField,
     ) || POST_URL_FIELD_OPTIONS[0];
-  const rawPublicUrl = settings.publicUrl.trim() || settings.domain.trim();
-  let normalizedPublicUrl = '';
-
-  if (rawPublicUrl) {
-    normalizedPublicUrl = rawPublicUrl.startsWith('http')
-      ? rawPublicUrl
-      : `https://${rawPublicUrl}`;
-  }
-  const previewUrl = normalizedPublicUrl
-    ? `${trimTrailingSlashes(normalizedPublicUrl)}/${
-        selectedPostUrlField.example
-      }`
-    : `/${selectedPostUrlField.example}`;
+  const previewUrl = buildPostPublicUrl(
+    {
+      domain: settings.domain,
+      publicUrl: settings.publicUrl,
+      postUrlField: selectedPostUrlField.value,
+      postUrlPrefix: settings.postUrlPrefix,
+    },
+    PREVIEW_POST,
+    { allowRelative: true },
+  );
   const canDeleteCMS =
     Boolean(cms?._id) &&
     deleteNameConfirmation.trim() === cmsName &&
@@ -426,6 +423,22 @@ export const SettingsForm = ({
 
       <SettingsSection id="content" title="Content">
         <Field
+          id="postUrlPrefix"
+          label="Post URL Path"
+          hint="Path before the post identifier. Examples: /blog/, /news/post/. Defaults to /posts/."
+        >
+          <Input
+            id="postUrlPrefix"
+            value={settings.postUrlPrefix}
+            placeholder="/posts"
+            onChange={(event) =>
+              updateSetting('postUrlPrefix', event.target.value)
+            }
+            variant="secondary"
+          />
+        </Field>
+
+        <Field
           id="postUrlField"
           label="Post URL Field"
           hint="Choose which post field the public website will use in post URLs."
@@ -519,6 +532,71 @@ export const SettingsForm = ({
             onChange={(value) => updateSetting('favicon', value)}
           />
         </Field>
+      </SettingsSection>
+
+      <SettingsSection
+        id="access"
+        title="Access Control"
+        badge={<Badge variant="secondary">Team</Badge>}
+      >
+        <Field
+          label="Who can manage this CMS"
+          hint="Owners always have full access. Choose whether everyone or only assigned team members can manage this CMS and its content."
+        >
+          <div className="grid gap-2 md:grid-cols-2">
+            <RobotsOption
+              checked={settings.accessPolicy === 'open'}
+              title="Open access"
+              description="Any team member with content access"
+              onClick={() => updateSetting('accessPolicy', 'open')}
+            />
+            <RobotsOption
+              checked={settings.accessPolicy === 'assigned'}
+              title="Assigned members only"
+              description="Only assigned team members (and owners)"
+              onClick={() => updateSetting('accessPolicy', 'assigned')}
+            />
+          </div>
+        </Field>
+
+        {settings.accessPolicy === 'assigned' ? (
+          <Field
+            label="Assigned Team Members"
+            hint="These team members get access to this CMS. Members who are not assigned will be blocked from opening or editing it."
+          >
+            <SelectMember
+              mode="multiple"
+              value={settings.assignedMemberIds}
+              onValueChange={(value) =>
+                updateSetting(
+                  'assignedMemberIds',
+                  Array.isArray(value) ? value : value ? [value] : [],
+                )
+              }
+              placeholder="Select team members"
+            />
+            <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              {settings.assignedMemberIds.length ? (
+                <>
+                  <IconUsers className="size-4 shrink-0" />
+                  <span>
+                    {settings.assignedMemberIds.length} member
+                    {settings.assignedMemberIds.length === 1 ? '' : 's'}{' '}
+                    assigned
+                  </span>
+                </>
+              ) : (
+                <>
+                  <IconLock className="size-4 shrink-0" />
+                  <span>
+                    No members assigned — only owners will be able to access
+                    this CMS.
+                  </span>
+                </>
+              )}
+            </div>
+          </Field>
+        ) : null}
       </SettingsSection>
 
       <SettingsSection

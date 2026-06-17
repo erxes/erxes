@@ -24,6 +24,9 @@ export const commonTrDetailFields = `
   productId
   count
   unitPrice
+
+  excludeVat
+  excludeCtax
 `;
 
 export const commonTransactionFields = `

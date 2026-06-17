@@ -21,6 +21,7 @@ export const types = `
   input ColorDefinitionInput {
     DEFAULT: String
     foreground: String
+    navigationVariant: String
   }
   input MessengerColorThemeInput {
     primary: ColorDefinitionInput
@@ -38,6 +39,20 @@ export const types = `
     secondPageDescription: String
     departments: [CloudflareCallDataDepartment]
     isReceiveWebCall: Boolean
+  }
+
+  type MessengerAppCredentials {
+    integrationId: String
+    description: String
+    buttonText: String
+    url: String
+  }
+
+  type MessengerApp {
+    _id: String
+    kind: String
+    showInInbox: Boolean
+    credentials: MessengerAppCredentials
   }
 
   type Integration @key(fields: "_id") {
@@ -62,6 +77,7 @@ export const types = `
 
     channel: Channel
 
+    websiteMessengerApps: [MessengerApp]
 
     healthStatus: JSON
     form : Form
@@ -118,6 +134,21 @@ export const types = `
     url: String
   }
 
+  input WebsiteAppCredentials {
+    integrationId: String
+    description: String
+    buttonText: String
+    url: String
+  }
+
+  input WebsiteApp {
+    _id: String
+    kind: String
+    showInInbox: Boolean
+    credentials: WebsiteAppCredentials
+    scopeBrandIds: [String]
+  }
+
   input IntegrationMessengerData {
     _id: String
     notifyCustomer: Boolean
@@ -126,6 +157,7 @@ export const types = `
     botShowInitialMessage: Boolean
     botCheck: Boolean
     botGreetMessage: String
+    automationId: String
     getStarted: Boolean
     persistentMenus: [BotPersistentMenuTypeMessenger]
     availabilityMethod: String
@@ -145,11 +177,16 @@ export const types = `
     forceLogoutWhenResolve: Boolean
     showVideoCallRequest: Boolean
     hideWhenOffline: Boolean
+    websiteApps: [WebsiteApp]
   }
 
   input MessengerUiOptions {
     logo: String
+    launcherLogo: String
     primary: ColorDefinitionInput
+    backgroundColor: String
+    heroStyleVariant: String
+    navigationVariant: String
   }
 
   input OperatorInput {
@@ -280,5 +317,5 @@ export const mutations = `
 
   integrationsSaveMessengerTicketData(
     _id: String!,
-    configId: String!): Integration
+    configId: String): Integration
 `;

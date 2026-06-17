@@ -15,6 +15,20 @@ import {
 
 import { ISyncHistory } from '../types/syncHistory';
 import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
+import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
+
+const stringify = (value: any) => {
+  if (!value) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return JSON.stringify(value);
+};
+
 export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   SyncErkhetHistoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ISyncHistory>,
@@ -77,23 +91,33 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     },
   },
   {
+    id: 'response',
+    accessorKey: 'responseStr',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label="Response" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <SyncHistoryClickableColumnCell
+          row={row}
+          value={stringify(
+            row.original.responseData || row.original.responseStr,
+          )}
+        />
+      );
+    },
+  },
+  {
     id: 'error',
     accessorKey: 'error',
     header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
     cell: ({ row }) => {
-      const { responseData, responseStr, error } = row.original;
-      const responseMessage =
-        typeof responseData === 'object'
-          ? responseData?.message ||
-            responseData?.error ||
-            responseData?.extra_info?.warnings
-          : '';
-      const value = error || responseMessage || responseStr || '';
-
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={String(value)} />
-        </RecordTableInlineCell>
+        <SyncHistoryClickableColumnCell
+          row={row}
+          value={row.original.error || ''}
+          isError
+        />
       );
     },
   },

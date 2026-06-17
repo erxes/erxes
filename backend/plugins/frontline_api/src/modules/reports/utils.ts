@@ -314,7 +314,7 @@ export function buildDateGroupPipeline(field: string, frequency?: string) {
         count: { $sum: 1 },
       },
     },
-    { $sort: { _id: 1 } },
+    { $sort: { _id: -1 } },
   ];
 }
 
@@ -379,6 +379,14 @@ export function buildTicketMatch(filters: IReportFilters) {
 
   if (filters.branchIds?.length) {
     match.branchId = { $in: filters.branchIds };
+  }
+
+  if (filters.propertyIds?.length) {
+    andConditions.push({
+      $or: filters.propertyIds.map((propertyId) => ({
+        [`propertiesData.${propertyId}`]: { $exists: true },
+      })),
+    });
   }
 
   if (filters.startDate) {

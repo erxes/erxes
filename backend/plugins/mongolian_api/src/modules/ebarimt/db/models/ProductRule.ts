@@ -37,14 +37,8 @@ const validateProductRule = (doc: IProductRule) => {
     }
   }
 
-  if (doc.kind === 'ctax') {
-    if (
-      doc.taxType ||
-      doc.taxCode ||
-      doc.taxPercent !== undefined
-    ) {
-      throw new Error('CTAX product rule must not contain VAT tax fields');
-    }
+  if (doc.kind === 'ctax' && doc.taxPercent === undefined) {
+    throw new Error('CTAX product rule must not contain VAT tax fields');
   }
 };
 

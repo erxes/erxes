@@ -24,7 +24,11 @@ export const CreateOAuthClient = () => {
   const submitHandler: SubmitHandler<TOAuthClientsForm> = React.useCallback(
     async (data) => {
       oauthClientAppsAdd({
-        variables: data,
+        variables: {
+          ...data,
+          accessTokenLifetime:
+            data.type === 'confidential' ? data.accessTokenLifetime : undefined,
+        },
         onCompleted: ({ oauthClientAppsAdd: oauthClientApp }) => {
           toast({
             variant: 'success',

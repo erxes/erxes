@@ -34,6 +34,7 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { type LegendPayload } from 'recharts';
 import { getFilters } from '@/report/utils/dateFilters';
+import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
 import {
   getReportChartTypeAtom,
@@ -46,6 +47,7 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import {
@@ -76,6 +78,7 @@ export const TicketSource = ({
   const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
   const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
+  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -94,6 +97,7 @@ export const TicketSource = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
+        propertyIds: propertyFilter.length ? propertyFilter : undefined,
       },
     },
   });
@@ -307,6 +311,10 @@ export const TicketSourceLineChart = memo(function TicketSourceLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="tk-src-primary" color="var(--primary)" />
+          <AreaGradient id="tk-src-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="source" tickLine={false} axisLine={false} />
         <YAxis
@@ -331,9 +339,10 @@ export const TicketSourceLineChart = memo(function TicketSourceLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.3}
+          fill="url(#tk-src-primary)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Area
@@ -341,9 +350,10 @@ export const TicketSourceLineChart = memo(function TicketSourceLineChart({
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
-          fillOpacity={0.3}
+          fill="url(#tk-src-success)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />

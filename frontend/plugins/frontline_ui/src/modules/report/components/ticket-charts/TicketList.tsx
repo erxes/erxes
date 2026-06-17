@@ -29,6 +29,7 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { ColumnDef, Cell } from '@tanstack/react-table';
@@ -36,7 +37,7 @@ import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import { useTicketExport } from '@/report/hooks/useTicketExport';
 import { generateTicketExcel, downloadExcel } from '@/report/utils/exportCsv';
 
-const PER_PAGE = 20;
+const PER_PAGE = 10;
 
 interface TicketListProps {
   title: string;
@@ -59,6 +60,7 @@ export const TicketList = ({
   const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
   const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
+  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
   const [page, setPage] = useState(1);
   const { fetchExport, loading: exportLoading } = useTicketExport();
@@ -79,9 +81,10 @@ export const TicketList = ({
     tagFilter,
     customerFilter,
     companyFilter,
+    propertyFilter,
   ]);
 
-  const { ticketList, loading, error } = useTicketList({
+  const { ticketList, isInitialLoad, isFetching, error } = useTicketList({
     variables: {
       filters: {
         ...filters,
@@ -95,6 +98,7 @@ export const TicketList = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
+        propertyIds: propertyFilter.length ? propertyFilter : undefined,
       },
     },
   });
@@ -116,6 +120,7 @@ export const TicketList = ({
           tagIds: tagFilter.length ? tagFilter : undefined,
           customerIds: customerFilter.length ? customerFilter : undefined,
           companyIds: companyFilter.length ? companyFilter : undefined,
+          propertyIds: propertyFilter.length ? propertyFilter : undefined,
         },
       },
     });
@@ -136,6 +141,7 @@ export const TicketList = ({
     tagFilter,
     customerFilter,
     companyFilter,
+    propertyFilter,
   ]);
 
   const filterEl = useMemo(
@@ -157,7 +163,7 @@ export const TicketList = ({
     [id, handleExport, exportLoading],
   );
 
-  if (loading) {
+  if (isInitialLoad) {
     return (
       <FrontlineCard
         id={id}
@@ -166,6 +172,7 @@ export const TicketList = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Skeleton />
         </FrontlineCard.Content>
@@ -221,7 +228,11 @@ export const TicketList = ({
     >
       <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
-        <TicketListTable tickets={ticketList.list} />
+        <div
+          className={isFetching ? 'opacity-50 pointer-events-none' : undefined}
+        >
+          <TicketListTable tickets={ticketList.list} />
+        </div>
         <Pagination
           page={page}
           totalPages={totalPages}

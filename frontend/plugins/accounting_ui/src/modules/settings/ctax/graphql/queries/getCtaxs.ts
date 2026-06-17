@@ -95,6 +95,7 @@ export const GET_CTAX_VALUE = gql`
       _id
       name
       number
+      percent
     }
   }
 `;

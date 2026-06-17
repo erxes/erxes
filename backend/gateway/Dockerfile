@@ -75,6 +75,7 @@ COPY --chown=root:root --chmod=0555 --from=build /app/backend/erxes-api-shared/u
 COPY --chown=root:root --chmod=0555 --from=build /app/backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
 COPY --chown=root:root --chmod=0555 --from=build /app/backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
 COPY --chown=root:root --chmod=0444 --from=build /app/backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
+
 COPY --chown=root:root --chmod=0555 --from=build /app/backend/gateway/dist ./backend/gateway/dist
 
 # Install pnpm
