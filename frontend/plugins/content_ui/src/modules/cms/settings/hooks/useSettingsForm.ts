@@ -140,6 +140,9 @@ export const useSettingsForm = () => {
         cms?.language || languages[0] || DEFAULT_SETTINGS.defaultLanguage,
       siteLogo: cms?.siteLogo || DEFAULT_SETTINGS.siteLogo,
       favicon: cms?.favicon || DEFAULT_SETTINGS.favicon,
+      accessPolicy:
+        cms?.accessPolicy === 'assigned' ? 'assigned' : 'open',
+      assignedMemberIds: cms?.assignedMemberIds || [],
     });
     setHydratedSettingsKey(hydrationKey);
   }, [
@@ -186,6 +189,9 @@ export const useSettingsForm = () => {
       postUrlPrefix: settings.postUrlPrefix,
       siteLogo: settings.siteLogo,
       favicon: settings.favicon,
+      accessPolicy: settings.accessPolicy,
+      assignedMemberIds:
+        settings.accessPolicy === 'assigned' ? settings.assignedMemberIds : [],
     };
 
     return includeContent

@@ -15,6 +15,7 @@ import {
   requireCmsPermission,
 } from '@/cms/utils/permissions';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
 const applyFieldConstraint = (query: any, field: string, value: any) => {
   if (query[field] === undefined || query[field] === value) {
@@ -282,6 +283,9 @@ class PostQueryResolver extends BaseQueryResolver {
    */
   async cmsPosts(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, clientPortalId } = args;
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
+
     const { models } = context;
 
     const readAccess = await getCmsReadAccess(context, clientPortalId, language);
@@ -335,6 +339,8 @@ class PostQueryResolver extends BaseQueryResolver {
   async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, clientPortalId } = args;
     const { models } = context;
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
 
     const readAccess = await getCmsReadAccess(context, clientPortalId, language);
 

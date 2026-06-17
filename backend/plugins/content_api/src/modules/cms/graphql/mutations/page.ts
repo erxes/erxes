@@ -5,6 +5,7 @@ import {
   assertOwnedDocument,
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -44,6 +45,8 @@ const mutations : Record<string, Resolver> = {
     const { user, models, subdomain } = context;
     const { input } = args;
     const { translations, language, ...pageInput } = input;
+
+    await assertCmsAccessByClientPortal(context, pageInput.clientPortalId);
 
     pageInput.createdUserId = user._id;
 
@@ -147,6 +150,11 @@ const mutations : Record<string, Resolver> = {
       throw new Error('Page not found');
     }
 
+    await assertCmsAccessByClientPortal(
+      context,
+      pageInput.clientPortalId || existingPage.clientPortalId,
+    );
+
     if (language && pageInput.clientPortalId) {
       const defaultLanguage = await getDefaultLanguage(
         models,
@@ -208,6 +216,14 @@ const mutations : Record<string, Resolver> = {
   ): Promise<any> {
     const { models } = context;
     const { _id } = args;
+
+    const existingPage = await models.Pages.findOne({ _id }).lean();
+
+    if (!existingPage) {
+      throw new Error('Page not found');
+    }
+
+    await assertCmsAccessByClientPortal(context, existingPage.clientPortalId);
 
     await models.Translations.deleteMany({ objectId: _id, type: 'page' });
 
