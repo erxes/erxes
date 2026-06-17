@@ -118,8 +118,11 @@ export const learningMutations = {
     // Resolve the assistant message from the native store by its id: verifies
     // it is the caller's own assistant reply (resource-scope ownership) and
     // returns the learnings that were in that turn's context.
-    const { threadId, learningIdsInContext: learningIds, langfuseTraceId } =
-      await findOwnedAssistantMessage(subdomain, userId, args.messageId);
+    const {
+      threadId,
+      learningIdsInContext: learningIds,
+      langfuseTraceId,
+    } = await findOwnedAssistantMessage(subdomain, userId, args.messageId);
 
     const { previousRating } = await models.MastraFeedback.saveFeedback({
       threadId,

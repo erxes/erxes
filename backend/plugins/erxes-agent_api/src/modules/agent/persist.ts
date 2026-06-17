@@ -154,7 +154,9 @@ export async function patchNativeTurn(params: {
         : {}),
       // Langfuse trace id for this turn — lets a later thumbs rating attach a
       // human score to the right trace (Plan B; read by findOwnedAssistantMessage).
-      ...(meta.langfuseTraceId ? { langfuseTraceId: meta.langfuseTraceId } : {}),
+      ...(meta.langfuseTraceId
+        ? { langfuseTraceId: meta.langfuseTraceId }
+        : {}),
     };
     if (Object.keys(erxes).length) {
       patches.push({
