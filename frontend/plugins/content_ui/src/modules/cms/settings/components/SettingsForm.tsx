@@ -581,7 +581,8 @@ export const SettingsForm = ({
                   <IconUsers className="size-4 shrink-0" />
                   <span>
                     {settings.assignedMemberIds.length} member
-                    {settings.assignedMemberIds.length === 1 ? '' : 's'} assigned
+                    {settings.assignedMemberIds.length === 1 ? '' : 's'}{' '}
+                    assigned
                   </span>
                 </>
               ) : (

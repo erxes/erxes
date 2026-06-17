@@ -50,7 +50,6 @@ export const contentCmsMutations: Record<string, Resolver> = {
   },
 };
 
-
 contentCmsMutations.cpContentCreateCMS.wrapperConfig = {
   forClientPortal: true,
 };

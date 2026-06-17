@@ -40,7 +40,7 @@ const savePageTranslations = async (
   );
 };
 
-const mutations : Record<string, Resolver> = {
+const mutations: Record<string, Resolver> = {
   async cmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {
     const { user, models, subdomain } = context;
     const { input } = args;
@@ -86,12 +86,20 @@ const mutations : Record<string, Resolver> = {
     return page;
   },
 
-  async cpCmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {
+  async cpCmsPagesAdd(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
     const { models, subdomain } = context;
     const clientPortalId = requireClientPortalId(context);
     const { input } = args;
-    const { translations, language, clientPortalId: _ignored, ...pageInput } =
-      input;
+    const {
+      translations,
+      language,
+      clientPortalId: _ignored,
+      ...pageInput
+    } = input;
 
     pageInput.clientPortalId = clientPortalId;
 
@@ -110,10 +118,7 @@ const mutations : Record<string, Resolver> = {
       Array.isArray(translations) &&
       translations.length > 0
     ) {
-      const defaultLanguage = await getDefaultLanguage(
-        models,
-        clientPortalId,
-      );
+      const defaultLanguage = await getDefaultLanguage(models, clientPortalId);
 
       const fallback =
         (defaultLanguage &&
@@ -233,6 +238,6 @@ const mutations : Record<string, Resolver> = {
 
 export default mutations;
 
-mutations.cpCmsPagesAdd.wrapperConfig={
-  forClientPortal:true,
-}
+mutations.cpCmsPagesAdd.wrapperConfig = {
+  forClientPortal: true,
+};

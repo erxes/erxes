@@ -107,8 +107,7 @@ export interface IMenuLinkedContent {
 }
 
 export interface ICMSMenuDocument
-  extends Omit<Document, 'contentType'>,
-    ICMSMenu {
+  extends Omit<Document, 'contentType'>, ICMSMenu {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
