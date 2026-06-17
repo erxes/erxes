@@ -14,6 +14,7 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 
@@ -38,6 +39,7 @@ export const TicketTotalCount = ({
   const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
   const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
+  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export const TicketTotalCount = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
+        propertyIds: propertyFilter.length ? propertyFilter : undefined,
       },
     },
   });

@@ -217,6 +217,65 @@ export const reportTicketQueries = {
     });
   },
 
+  async reportTicketCustomProperties(
+    _parent: undefined,
+    { filters = {} }: { filters?: IReportFilters },
+    { models, subdomain }: IContext,
+  ) {
+    const matchFilter = buildTicketMatch(filters);
+
+    const pipeline: any[] = [
+      { $match: matchFilter },
+      { $match: { $expr: { $eq: [{ $type: '$propertiesData' }, 'object'] } } },
+      { $addFields: { __properties: { $objectToArray: '$propertiesData' } } },
+      { $unwind: '$__properties' },
+      ...(filters.propertyIds?.length
+        ? [{ $match: { '__properties.k': { $in: filters.propertyIds } } }]
+        : []),
+      { $group: { _id: '$__properties.k', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: filters.limit ?? 100 },
+    ];
+
+    const propertyCounts: Array<{ _id: string; count: number }> =
+      await models.Ticket.aggregate(pipeline);
+
+    if (!propertyCounts.length) {
+      return [];
+    }
+
+    const fieldIds = propertyCounts.map((p) => p._id);
+
+    const fields: Array<{ _id: any; name?: string; text?: string }> =
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'fields',
+        action: 'find',
+        input: {
+          query: { _id: { $in: fieldIds } },
+        },
+        defaultValue: [],
+      });
+
+    const fieldMap = new Map(
+      fields.map((f) => [f._id.toString(), f.name || f.text]),
+    );
+
+    const resolvedCounts = propertyCounts.filter((p) =>
+      fieldMap.has(p._id?.toString()),
+    );
+    const total = resolvedCounts.reduce((s, p) => s + p.count, 0);
+
+    return resolvedCounts.map((p) => ({
+      _id: p._id,
+      name: fieldMap.get(p._id?.toString()),
+      count: p.count,
+      percentage: calculatePercentage(p.count, total),
+    }));
+  },
+
   async reportTicketStatusSummary(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
