@@ -13,6 +13,8 @@ export const CONTENT_CMS_LIST = gql`
       language
       postUrlField
       postUrlPrefix
+      accessPolicy
+      assignedMemberIds
       description
       domain
       publicUrl

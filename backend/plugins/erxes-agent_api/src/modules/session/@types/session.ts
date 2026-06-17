@@ -31,6 +31,9 @@ export interface IMastraMessageMeta {
   // Learnings injected into this turn's context (digest entries) — lets a
   // thumbs rating reinforce/penalize the lessons that shaped the reply.
   learningIdsInContext?: string[];
+  // Langfuse trace id for this turn — lets a later thumbs rating attach a human
+  // score to the right trace in Langfuse (Plan B / langfuseClient.pushUserScore).
+  langfuseTraceId?: string;
 }
 
 // A file attached to a user message. `url` is either a storage key (private
