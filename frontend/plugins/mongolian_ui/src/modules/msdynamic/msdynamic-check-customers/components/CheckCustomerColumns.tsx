@@ -46,7 +46,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     header: () => <RecordTable.InlineHead icon={IconHash} label="MSD Code" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },
@@ -56,7 +56,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     header: () => <RecordTable.InlineHead icon={IconUser} label="MSD Name" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },
@@ -66,7 +66,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     header: () => <RecordTable.InlineHead icon={IconPhone} label="MSD Phone" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },
@@ -76,7 +76,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     header: () => <RecordTable.InlineHead icon={IconMail} label="MSD Email" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },
@@ -86,7 +86,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     header: () => <RecordTable.InlineHead icon={IconHash} label="Erxes Code" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },
@@ -98,7 +98,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },
@@ -110,7 +110,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },
@@ -122,7 +122,7 @@ export const checkCustomerColumns: ColumnDef<ICustomerItem>[] = [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },

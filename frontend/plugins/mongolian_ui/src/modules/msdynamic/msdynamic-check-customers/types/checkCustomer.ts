@@ -18,7 +18,7 @@ export interface ICustomerItem {
 
 export interface ICheckCustomerResponse {
   update: { items: ICustomerItem[] };
-  match: { items: ICustomerItem[] };
+  create: { items: ICustomerItem[] };
   delete: { items: ICustomerItem[] };
 }
 

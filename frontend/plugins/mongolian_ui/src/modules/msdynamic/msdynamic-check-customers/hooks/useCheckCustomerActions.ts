@@ -66,10 +66,12 @@ export const useCheckCustomerActions = (brandId: string) => {
         title: 'Customers checked successfully',
         variant: 'success',
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const description =
+        e instanceof Error ? e.message : 'Unexpected error occurred';
       toast({
         title: 'Failed to check customers',
-        description: e.message,
+        description,
         variant: 'destructive',
       });
     } finally {
@@ -104,26 +106,34 @@ export const useCheckCustomerActions = (brandId: string) => {
         });
       }
 
-      const syncedNos = new Set(selectedCustomers.map((c) => c.No || c.code));
+      const syncedNos = new Set(
+        selectedCustomers
+          .map((c) => c.No ?? c.code)
+          .filter((key): key is string => Boolean(key)),
+      );
 
       setItems((prev) =>
-        prev.map((item) =>
-          syncedNos.has(item.No || item.code)
+        prev.map((item) => {
+          const key = item.No ?? item.code;
+          return key && syncedNos.has(key)
             ? { ...item, isSynced: true }
-            : item,
-        ),
+            : item;
+        }),
       );
 
       toast({
         title: 'Customers synced successfully',
         variant: 'success',
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const description =
+        e instanceof Error ? e.message : 'Unexpected error occurred';
       toast({
         title: 'Failed to sync customers',
-        description: e.message,
+        description,
         variant: 'destructive',
       });
+      throw e;
     } finally {
       setSyncing(false);
     }

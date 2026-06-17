@@ -68,13 +68,7 @@ const classifyCustomer = (
     return;
   }
 
-  result.match.items.push({
-    No: msd.No,
-    Name: msd.Name,
-    Phone_No: msd.Phone_No,
-    E_Mail: msd.E_Mail,
-    code: existing.code,
-  });
+  // Matched — no action needed, skip.
 };
 
 /**
@@ -231,7 +225,7 @@ export const msdynamicCheckMutations = {
           'base64',
         )}`,
       },
-      timeout: 180000,
+      signal: AbortSignal.timeout(180000),
     }).then((r) => r.json());
 
     const msdCustomers = response?.value || [];
@@ -244,14 +238,7 @@ export const msdynamicCheckMutations = {
     };
 
     for (const msd of msdCustomers) {
-      try {
-        classifyCustomer(msd, erxesByCode, result);
-      } catch (e: any) {
-        result.error.items.push({
-          No: msd.No || '',
-          message: e.message,
-        });
-      }
+      classifyCustomer(msd, erxesByCode, result);
     }
 
     result.delete.items = Object.keys(erxesByCode)

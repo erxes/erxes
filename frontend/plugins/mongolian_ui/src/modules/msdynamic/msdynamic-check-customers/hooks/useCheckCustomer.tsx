@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAtomValue, useAtom } from 'jotai';
 import { useQueryState } from 'erxes-ui';
 import { useCheckCustomerActions } from './useCheckCustomerActions';
@@ -33,6 +33,10 @@ export const useCheckCustomer = () => {
   // pagination state (client‑side)
   const PAGE_SIZE = 20;
   const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [filter, allItems, brandId]);
 
   const filteredItems = useMemo(() => {
     if (!filter) return allItems;
