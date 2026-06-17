@@ -1,5 +1,7 @@
 import {
+  IPermissionAction,
   IPermissionConfig,
+  IPermissionModule,
   IPermissionScope,
 } from 'erxes-api-shared/core-types';
 
@@ -13,347 +15,139 @@ import {
 // plugins). Reads that can leak secrets (provider credentials, the settings
 // document with `erxesApiToken`) are NOT `always` and must be granted.
 //
-// Standard scopes are declared on every module for consistency with the rest of
-// the platform, but agent config (agents, providers, settings, workflows,
-// schedules, learnings) is global rather than per-owner, so default groups use
-// the `all` scope. Per-user ownership for chat threads/feedback is enforced
-// inside the resolvers (resourceId scoping), independent of these scopes.
+// The config is assembled from small factories (`action`, `buildModule`,
+// `grant`) so the per-module/per-group boilerplate is declared once. Agent
+// config (agents, providers, settings, workflows, schedules, learnings) is
+// global rather than per-owner, so groups use the `all` scope; per-user
+// ownership for chat threads/feedback is enforced in the resolvers (resourceId
+// scoping), independent of these scopes.
 
-const STANDARD_SCOPES: IPermissionScope[] = [
+const PLUGIN = 'erxes-agent';
+type Scope = IPermissionScope['name'];
+
+const SCOPES: IPermissionScope[] = [
   { name: 'own', description: 'Records the user created' },
   { name: 'all', description: 'All records' },
 ];
 
+/** One action. `always` reads stay available to every logged-in user. */
+const action = (
+  name: string,
+  title: string,
+  description: string,
+  always = false,
+): IPermissionAction => ({ name, title, description, ...(always && { always }) });
+
+/** One module wrapped in the platform-standard scope boilerplate. */
+const buildModule = (
+  name: string,
+  description: string,
+  actions: IPermissionAction[],
+): IPermissionModule => ({
+  name,
+  description,
+  scopeField: null,
+  ownerFields: [],
+  scopes: SCOPES,
+  actions,
+});
+
+const modules: IPermissionModule[] = [
+  buildModule('agent', 'AI agent management & chat', [
+    action('agentsView', 'View agents', 'List and read AI agent configurations', true),
+    action('agentsCreate', 'Create agent', 'Create a new AI agent'),
+    action('agentsEdit', 'Edit agent', 'Update an existing AI agent'),
+    action('agentsRemove', 'Remove agent', 'Delete an AI agent'),
+    action(
+      'agentsChat',
+      'Chat with agents',
+      'Talk to an agent and manage your own chat threads & message feedback',
+    ),
+  ]),
+  buildModule('provider', 'AI provider credentials (LLM connections)', [
+    action(
+      'providersView',
+      'View providers',
+      'List configured providers, the provider catalog and live model lists',
+    ),
+    action('providersManage', 'Manage providers', 'Create or update provider credentials and API keys'),
+    action('providersRemove', 'Remove providers', 'Delete a provider configuration'),
+  ]),
+  buildModule('settings', 'Agent plugin settings & company knowledge', [
+    action('settingsView', 'View settings', 'Read plugin settings and derived feature status'),
+    action('settingsManage', 'Manage settings', 'Save plugin-wide agent settings'),
+    action('settingsKnowledgeSync', 'Sync company knowledge', 'Force a Company Knowledge reindex'),
+  ]),
+  buildModule('workflow', 'Agent workflow definitions & runs', [
+    action('workflowsView', 'View workflows', 'List workflows, read definitions and run history', true),
+    action('workflowsCreate', 'Create workflow', 'Create a new workflow definition'),
+    action('workflowsEdit', 'Edit workflow', 'Update a workflow definition or enable/disable it'),
+    action('workflowsRemove', 'Remove workflow', 'Delete a workflow'),
+    action('workflowsRun', 'Run workflow', 'Manually execute a workflow'),
+  ]),
+  buildModule('schedule', 'Scheduled agent runs', [
+    action('schedulesView', 'View schedules', 'List and read scheduled agent runs', true),
+    action('schedulesCreate', 'Create schedule', 'Create a new scheduled agent run'),
+    action('schedulesEdit', 'Edit schedule', 'Update a schedule or enable/disable it'),
+    action('schedulesRemove', 'Remove schedule', 'Delete a schedule'),
+    action('schedulesRun', 'Run schedule', 'Manually trigger a scheduled run now'),
+  ]),
+  buildModule('learning', 'Agent learning & knowledge curation', [
+    action('learningView', 'View learnings', 'List learnings, stats and status', true),
+    action('learningCreate', 'Create learning', 'Add a learning statement'),
+    action('learningEdit', 'Edit learning', 'Edit, re-status or pin a learning statement'),
+    action('learningRemove', 'Remove learning', 'Delete a learning statement'),
+  ]),
+];
+
+const byName: Record<string, IPermissionModule> = Object.fromEntries(
+  modules.map((m) => [m.name, m]),
+);
+
+/** A group's permission entry — always plugin-scoped; scope defaults to `all`. */
+const grant = (module: string, actions: string[], scope: Scope = 'all') => ({
+  plugin: PLUGIN,
+  module,
+  actions,
+  scope,
+});
+
+/** Every action of a module — used by the admin group. */
+const allOf = (module: string) =>
+  grant(module, byName[module].actions.map((a) => a.name));
+
 export const permissions: IPermissionConfig = {
-  plugin: 'erxes-agent',
-
-  modules: [
-    {
-      name: 'agent',
-      description: 'AI agent management & chat',
-      scopeField: null,
-      ownerFields: [],
-      scopes: STANDARD_SCOPES,
-      actions: [
-        {
-          title: 'View agents',
-          name: 'agentsView',
-          description: 'List and read AI agent configurations',
-          always: true,
-        },
-        {
-          title: 'Create agent',
-          name: 'agentsCreate',
-          description: 'Create a new AI agent',
-        },
-        {
-          title: 'Edit agent',
-          name: 'agentsEdit',
-          description: 'Update an existing AI agent',
-        },
-        {
-          title: 'Remove agent',
-          name: 'agentsRemove',
-          description: 'Delete an AI agent',
-        },
-        {
-          title: 'Chat with agents',
-          name: 'agentsChat',
-          description:
-            'Talk to an agent and manage your own chat threads & message feedback',
-        },
-      ],
-    },
-    {
-      name: 'provider',
-      description: 'AI provider credentials (LLM connections)',
-      scopeField: null,
-      ownerFields: [],
-      scopes: STANDARD_SCOPES,
-      actions: [
-        {
-          title: 'View providers',
-          name: 'providersView',
-          description:
-            'List configured providers, the provider catalog and live model lists',
-        },
-        {
-          title: 'Manage providers',
-          name: 'providersManage',
-          description: 'Create or update provider credentials and API keys',
-        },
-        {
-          title: 'Remove providers',
-          name: 'providersRemove',
-          description: 'Delete a provider configuration',
-        },
-      ],
-    },
-    {
-      name: 'settings',
-      description: 'Agent plugin settings & company knowledge',
-      scopeField: null,
-      ownerFields: [],
-      scopes: STANDARD_SCOPES,
-      actions: [
-        {
-          title: 'View settings',
-          name: 'settingsView',
-          description: 'Read plugin settings and derived feature status',
-        },
-        {
-          title: 'Manage settings',
-          name: 'settingsManage',
-          description: 'Save plugin-wide agent settings',
-        },
-        {
-          title: 'Sync company knowledge',
-          name: 'settingsKnowledgeSync',
-          description: 'Force a Company Knowledge reindex',
-        },
-      ],
-    },
-    {
-      name: 'workflow',
-      description: 'Agent workflow definitions & runs',
-      scopeField: null,
-      ownerFields: [],
-      scopes: STANDARD_SCOPES,
-      actions: [
-        {
-          title: 'View workflows',
-          name: 'workflowsView',
-          description: 'List workflows, read definitions and run history',
-          always: true,
-        },
-        {
-          title: 'Create workflow',
-          name: 'workflowsCreate',
-          description: 'Create a new workflow definition',
-        },
-        {
-          title: 'Edit workflow',
-          name: 'workflowsEdit',
-          description: 'Update a workflow definition or enable/disable it',
-        },
-        {
-          title: 'Remove workflow',
-          name: 'workflowsRemove',
-          description: 'Delete a workflow',
-        },
-        {
-          title: 'Run workflow',
-          name: 'workflowsRun',
-          description: 'Manually execute a workflow',
-        },
-      ],
-    },
-    {
-      name: 'schedule',
-      description: 'Scheduled agent runs',
-      scopeField: null,
-      ownerFields: [],
-      scopes: STANDARD_SCOPES,
-      actions: [
-        {
-          title: 'View schedules',
-          name: 'schedulesView',
-          description: 'List and read scheduled agent runs',
-          always: true,
-        },
-        {
-          title: 'Create schedule',
-          name: 'schedulesCreate',
-          description: 'Create a new scheduled agent run',
-        },
-        {
-          title: 'Edit schedule',
-          name: 'schedulesEdit',
-          description: 'Update a schedule or enable/disable it',
-        },
-        {
-          title: 'Remove schedule',
-          name: 'schedulesRemove',
-          description: 'Delete a schedule',
-        },
-        {
-          title: 'Run schedule',
-          name: 'schedulesRun',
-          description: 'Manually trigger a scheduled run now',
-        },
-      ],
-    },
-    {
-      name: 'learning',
-      description: 'Agent learning & knowledge curation',
-      scopeField: null,
-      ownerFields: [],
-      scopes: STANDARD_SCOPES,
-      actions: [
-        {
-          title: 'View learnings',
-          name: 'learningView',
-          description: 'List learnings, stats, status and the knowledge dataset',
-          always: true,
-        },
-        {
-          title: 'Create learning',
-          name: 'learningCreate',
-          description: 'Add a learning statement',
-        },
-        {
-          title: 'Edit learning',
-          name: 'learningEdit',
-          description: 'Edit, re-status or pin a learning statement',
-        },
-        {
-          title: 'Remove learning',
-          name: 'learningRemove',
-          description: 'Delete a learning statement',
-        },
-      ],
-    },
-  ],
-
+  plugin: PLUGIN,
+  modules,
   defaultGroups: [
     {
-      id: 'erxes-agent:admin',
+      id: `${PLUGIN}:admin`,
       name: 'Agent Admin',
       description: 'Full access to the AI agent plugin',
-      permissions: [
-        {
-          plugin: 'erxes-agent',
-          module: 'agent',
-          actions: [
-            'agentsView',
-            'agentsCreate',
-            'agentsEdit',
-            'agentsRemove',
-            'agentsChat',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'provider',
-          actions: ['providersView', 'providersManage', 'providersRemove'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'settings',
-          actions: ['settingsView', 'settingsManage', 'settingsKnowledgeSync'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'workflow',
-          actions: [
-            'workflowsView',
-            'workflowsCreate',
-            'workflowsEdit',
-            'workflowsRemove',
-            'workflowsRun',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'schedule',
-          actions: [
-            'schedulesView',
-            'schedulesCreate',
-            'schedulesEdit',
-            'schedulesRemove',
-            'schedulesRun',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'learning',
-          actions: [
-            'learningView',
-            'learningCreate',
-            'learningEdit',
-            'learningRemove',
-          ],
-          scope: 'all',
-        },
-      ],
+      permissions: modules.map((m) => allOf(m.name)),
     },
     {
-      id: 'erxes-agent:user',
+      id: `${PLUGIN}:user`,
       name: 'Agent User',
       description: 'Chat with agents and run existing workflows',
       permissions: [
-        {
-          plugin: 'erxes-agent',
-          module: 'agent',
-          actions: ['agentsView', 'agentsChat'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'workflow',
-          actions: ['workflowsView', 'workflowsRun'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'schedule',
-          actions: ['schedulesView'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'learning',
-          actions: ['learningView'],
-          scope: 'all',
-        },
+        grant('agent', ['agentsView', 'agentsChat']),
+        grant('workflow', ['workflowsView', 'workflowsRun']),
+        grant('schedule', ['schedulesView']),
+        grant('learning', ['learningView']),
       ],
     },
     {
-      id: 'erxes-agent:viewer',
+      id: `${PLUGIN}:viewer`,
       name: 'Agent Viewer',
       description: 'Read-only access, including provider and settings status',
       permissions: [
-        {
-          plugin: 'erxes-agent',
-          module: 'agent',
-          actions: ['agentsView'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'provider',
-          actions: ['providersView'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'settings',
-          actions: ['settingsView'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'workflow',
-          actions: ['workflowsView'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'schedule',
-          actions: ['schedulesView'],
-          scope: 'all',
-        },
-        {
-          plugin: 'erxes-agent',
-          module: 'learning',
-          actions: ['learningView'],
-          scope: 'all',
-        },
+        grant('agent', ['agentsView']),
+        grant('provider', ['providersView']),
+        grant('settings', ['settingsView']),
+        grant('workflow', ['workflowsView']),
+        grant('schedule', ['schedulesView']),
+        grant('learning', ['learningView']),
       ],
     },
   ],
