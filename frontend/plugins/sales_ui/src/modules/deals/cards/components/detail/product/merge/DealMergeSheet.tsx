@@ -108,7 +108,9 @@ export const DealMergeSheet = ({ deal }: { deal: IDeal }) => {
             <DealMergeSourcePicker
               targetDealId={deal._id}
               initialBoardId={deal.boardId || deal.pipeline?.boardId || ''}
-              initialPipelineId={deal.pipelineId || deal.stage?.pipelineId || ''}
+              initialPipelineId={
+                deal.pipelineId || deal.stage?.pipelineId || ''
+              }
               initialStageId={deal.stageId || ''}
               selectedSourceId={sourceId}
               onSelect={handleSelectSource}

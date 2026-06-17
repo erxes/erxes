@@ -80,8 +80,10 @@ export const DealMergeReview = ({
             {resultStatus}
           </Badge>
           {sourceArchived && (
-            <span>— resolve the status conflict below; the merged-in deal is
-              archived and will be marked as merged.</span>
+            <span>
+              — resolve the status conflict below; the merged-in deal is
+              archived and will be marked as merged.
+            </span>
           )}
         </div>
       </div>
