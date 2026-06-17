@@ -539,6 +539,21 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       }
       const threadId = agent.activeThreadId!;
 
+      // Surface the session in the sidebar the instant the first message is
+      // sent — don't wait for the turn to finish. The backend registers + tags
+      // the thread at turn start (so a refresh keeps it); this mirrors it into
+      // the list optimistically. The streamed thread_title event fills the real
+      // title, and loadSessions in finishTurn reconciles title/count/order.
+      if (!agent.sessions.some((s) => s.threadId === threadId)) {
+        patchAgent(agentKey, {
+          sessions: [
+            { threadId, title: 'New chat', messageCount: 0 },
+            ...agent.sessions,
+          ],
+          isDraft: false,
+        });
+      }
+
       appendMessage(agentKey, threadId, {
         role: 'user',
         content: message,

@@ -8,6 +8,7 @@ import { deriveResourceId, augmentConvo, MemoryContext } from '~/mastra/memory';
 import { readLearnedDigest } from '~/mastra/learning/digest';
 import { buildChatUserContent } from '~/mastra/files/chatContent';
 import { IMastraChatAttachment } from '@/session/@types/session';
+import { ensureThreadRegistered } from '@/session/nativeStore';
 import { PreparedTurn, TurnAgent, TurnMessage } from '@/agent/types';
 
 // Turn setup: everything a chat turn needs before the model runs — agent +
@@ -89,6 +90,28 @@ export async function prepareChatTurn(params: {
     if (existing && existing.resourceId !== memoryBinding.resource) {
       throw new ExpectedError('Thread not found');
     }
+  }
+
+  // Register the thread + its agent binding NOW, before the model streams, so
+  // the session is listable the moment the turn starts — not only after it
+  // finishes. This is what lets a refresh WHILE the agent is still running keep
+  // the session: the sidebar query (listOwnedThreads → metadata.agentId) finds
+  // it, and reopening it hydrates the persisted turn. patchNativeTurn re-stamps
+  // the same binding at turn-end. Best-effort: never block the turn on a store
+  // hiccup (the end-of-turn stamp is the backstop).
+  if (memoryBinding) {
+    await ensureThreadRegistered(
+      subdomain,
+      sessionId,
+      memoryBinding.resource,
+      agentId,
+    ).catch((e) =>
+      console.warn(
+        `[native-chat-store] thread pre-register skipped: ${
+          (e as Error)?.message || e
+        }`,
+      ),
+    );
   }
 
   // The tenant's learned digest (shared "Agent knowledge") is woven into the

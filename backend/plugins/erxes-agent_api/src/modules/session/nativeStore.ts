@@ -129,6 +129,61 @@ export async function listOwnedThreads(
   );
 }
 
+/**
+ * Register a chat thread in the native store and stamp its erxes↔agent binding
+ * (metadata.agentId + tenant) BEFORE the turn streams — so the session is
+ * immediately listable (listOwnedThreads filters on metadata.agentId) and
+ * survives a reload that happens WHILE the agent is still running.
+ *
+ * Without this the thread is created and tagged only at turn-end: Mastra does
+ * not persist a thread until the run finishes (no savePerStep), and the agentId
+ * tag is written by patchNativeTurn after the stream loop. So refreshing mid-run
+ * — which also aborts the SSE run — left no agentId-tagged thread for the
+ * sidebar query to find, and the in-flight session vanished.
+ *
+ * Idempotent: creates the thread when absent, back-fills the binding when an
+ * existing thread is missing/stale on it, and no-ops otherwise. The caller gates
+ * on a memory binding (advanced memory + known tenant) and treats it as
+ * best-effort — a store hiccup here must never block the turn.
+ */
+export async function ensureThreadRegistered(
+  subdomain: string,
+  threadId: string,
+  resourceId: string,
+  agentId: string,
+): Promise<void> {
+  const memory = await getMastraMemory(subdomain);
+  const existing = (await memory.getThreadById({
+    threadId,
+    resourceId,
+  } as never)) as NativeThread | null;
+
+  if (!existing) {
+    // Empty title keeps native generateTitle eligible (it only fills a blank
+    // title, once, at turn-end). The UI renders a blank title as "New chat".
+    await memory.createThread({
+      threadId,
+      resourceId,
+      title: '',
+      metadata: { agentId, subdomain },
+    } as never);
+    return;
+  }
+
+  const meta = (existing.metadata ?? {}) as {
+    agentId?: string;
+    subdomain?: string;
+  };
+  if (meta.agentId === agentId && meta.subdomain === subdomain) return;
+  // updateThread requires a title — preserve the current one (native
+  // generateTitle / a manual rename own it).
+  await memory.updateThread({
+    id: threadId,
+    title: existing.title ?? '',
+    metadata: { ...(existing.metadata ?? {}), agentId, subdomain },
+  } as never);
+}
+
 /** Ownership-checked transcript for one thread (chronological), UI shape. */
 export async function getOwnedThreadMessages(
   subdomain: string,
