@@ -154,7 +154,10 @@ export async function patchNativeTurn(params: {
         : {}),
     };
     if (Object.keys(erxes).length) {
-      patches.push({ id: assistant.id, content: mergeErxesMeta(assistant.content, erxes) });
+      patches.push({
+        id: assistant.id,
+        content: mergeErxesMeta(assistant.content, erxes),
+      });
     }
   }
 

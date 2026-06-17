@@ -77,7 +77,9 @@ function toErxesMessage(m: NativeMessage): ErxesMessage {
   // learningIdsInContext) + attachments were stored verbatim under
   // content.metadata.erxes by persistTurn's patch; split attachments back out
   // to its own field for the UI.
-  const erxes = { ...((m.content?.metadata?.erxes ?? {}) as Record<string, unknown>) };
+  const erxes = {
+    ...((m.content?.metadata?.erxes ?? {}) as Record<string, unknown>),
+  };
   const attachments = erxes.attachments ?? null;
   delete erxes.attachments;
   return {
@@ -169,7 +171,10 @@ export async function renameOwnedThread(
     title,
     metadata: { ...(thread.metadata ?? {}), titleSource: 'manual' },
   } as never)) as NativeThread;
-  return toErxesThread(updated, await countMessages(memory, threadId, resourceId));
+  return toErxesThread(
+    updated,
+    await countMessages(memory, threadId, resourceId),
+  );
 }
 
 /** Delete a thread the caller owns (and its messages + vectors). */

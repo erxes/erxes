@@ -17,7 +17,8 @@ const assertAgentRunnable = async (models: IModels, agentId: unknown) => {
     throw new ExpectedError('agentId must be a non-empty string');
   }
   const agent = await models.MastraAgent.findOne({ agentId, isEnabled: true });
-  if (!agent) throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
+  if (!agent)
+    throw new ExpectedError(`Agent "${agentId}" not found or disabled`);
 };
 
 /** Mutations for scheduled agent runs. */
