@@ -1,4 +1,10 @@
 import { startPlugin } from 'erxes-api-shared/utils';
+import {
+  createCoreModuleProducerHandler,
+  TImportExportProducers,
+  TGetExportDataInput,
+  TGetExportHeadersInput,
+} from 'erxes-api-shared/core-modules';
 import express from 'express';
 import path from 'path';
 import { typeDefs } from '~/apollo/typeDefs';
@@ -8,6 +14,8 @@ import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
+import { invoiceExportHandlers } from '~/modules/payment/meta/import-export/export/exportHandlers';
+import { permissions } from '~/meta/permissions';
 
 startPlugin({
   name: 'payment',
@@ -41,6 +49,36 @@ startPlugin({
       context.subdomain = subdomain;
 
       return context;
+    },
+  },
+
+  meta: {
+    permissions,
+  },
+
+  importExport: {
+    export: {
+      types: [
+        {
+          label: 'Invoice',
+          contentType: 'payment:payment.invoice',
+          permissions: ['invoicesExportManage'],
+        },
+      ],
+      getExportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { payment: invoiceExportHandlers },
+        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+      getExportData: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { payment: invoiceExportHandlers },
+        methodName: TImportExportProducers.GET_EXPORT_DATA,
+        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+        generateModels,
+      }),
     },
   },
 

@@ -2,73 +2,15 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
-
-export interface IParam {
-  searchValue?: string;
-  kind?: string;
-  status?: string;
-  contentType?: string;
-  contentTypeId?: string;
-}
-
-const buildKindQuery = async (kind: string, models: IContext['models']) => {
-  const [txInvoiceIds, pmIds] = await Promise.all([
-    models.Transactions.find({ paymentKind: kind }).distinct('invoiceId'),
-    models.PaymentMethods.find({ kind }).distinct('_id'),
-  ]);
-
-  const conditions: any[] = [];
-  if (txInvoiceIds.length > 0) conditions.push({ _id: { $in: txInvoiceIds } });
-  if (pmIds.length > 0) conditions.push({ paymentIds: { $in: pmIds.map(String) } });
-
-  if (conditions.length === 0) return { _id: { $in: [] } };
-  if (conditions.length === 1) return conditions[0];
-  return { $or: conditions };
-};
-
-const generateFilterQuery = async (params: IParam, models: IContext['models']) => {
-  const query: any = {};
-  const { searchValue, kind, status, contentType, contentTypeId } = params;
-
-  if (kind) {
-    Object.assign(query, await buildKindQuery(kind, models));
-  }
-
-  if (status) {
-    query.status = status;
-  }
-
-  if (searchValue) {
-    const regex = new RegExp(`.*${searchValue}.*`, 'i');
-    const searchCondition = { $or: [{ description: regex }, { invoiceNumber: regex }] };
-    if (query.$or) {
-      // kind filter already set $or — wrap both in $and to avoid key collision
-      const kindOr = query.$or;
-      delete query.$or;
-      query.$and = [{ $or: kindOr }, searchCondition];
-    } else {
-      Object.assign(query, searchCondition);
-    }
-  }
-
-  if (contentType) {
-    query.contentType = contentType;
-
-    if (contentType.includes('cards')) {
-      query.contentType = { $in: [contentType, contentType.slice(0, -1)] };
-    }
-  }
-
-  if (contentTypeId) {
-    query.contentTypeId = contentTypeId;
-  }
-
-  return query;
-};
+import {
+  IInvoiceFilterParams,
+  buildInvoiceKindQuery,
+  generateInvoiceFilterQuery,
+} from '~/modules/payment/utils';
 
 const queries: Record<string, Resolver> = {
   async invoices(_root, params: any, { models }: IContext) {
-    const query = await generateFilterQuery(params, models);
+    const query = await generateInvoiceFilterQuery(params, models);
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
@@ -80,7 +22,7 @@ const queries: Record<string, Resolver> = {
   },
 
   async cpInvoices(_root, params: any, { models }: IContext) {
-    const query = await generateFilterQuery(params, models);
+    const query = await generateInvoiceFilterQuery(params, models);
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
@@ -91,14 +33,18 @@ const queries: Record<string, Resolver> = {
     return { list, pageInfo, totalCount };
   },
 
-  async invoicesTotalCount(_root, params: IParam, { models }: IContext) {
+  async invoicesTotalCount(
+    _root,
+    params: IInvoiceFilterParams,
+    { models }: IContext,
+  ) {
     const counts = {
       total: 0,
       byKind: {},
       byStatus: { paid: 0, pending: 0, refunded: 0, failed: 0 },
     };
 
-    const qry = await generateFilterQuery(params, models);
+    const qry = await generateInvoiceFilterQuery(params, models);
 
     const count = async (query) => {
       return models.Invoices.find(query).countDocuments();
@@ -113,8 +59,8 @@ const queries: Record<string, Resolver> = {
       const kindFilter = params.kind === kind
         ? qry
         : Object.keys(qry).length > 0
-          ? { $and: [await buildKindQuery(kind, models), qry] }
-          : await buildKindQuery(kind, models);
+          ? { $and: [await buildInvoiceKindQuery(kind, models), qry] }
+          : await buildInvoiceKindQuery(kind, models);
 
       counts.byKind[kind] = await count(kindFilter);
     }
