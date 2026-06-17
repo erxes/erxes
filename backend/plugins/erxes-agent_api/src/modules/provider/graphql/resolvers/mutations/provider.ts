@@ -3,19 +3,21 @@ import { IMastraProvider } from '@/provider/@types/provider';
 
 /** Mutations for stored LLM provider credentials/configs. */
 export const providerMutations = {
-  mastraProviderSave: (
+  mastraProviderSave: async (
     _parent: undefined,
     { doc }: { doc: IMastraProvider },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('providersManage');
     return models.MastraProvider.saveProvider(doc);
   },
 
-  mastraProviderRemove: (
+  mastraProviderRemove: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('providersRemove');
     return models.MastraProvider.removeProvider(_id);
   },
 };

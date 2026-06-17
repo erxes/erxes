@@ -24,8 +24,9 @@ export const scheduleMutations = {
   mastraScheduleCreate: async (
     _parent: undefined,
     { doc }: { doc: IMastraSchedule },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('schedulesCreate');
     const userId = requireUserId(user);
     await assertAgentRunnable(models, doc.agentId);
     return models.MastraSchedule.createSchedule({
@@ -37,8 +38,9 @@ export const scheduleMutations = {
   mastraScheduleUpdate: async (
     _parent: undefined,
     { _id, doc }: { _id: string; doc: Partial<IMastraSchedule> },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('schedulesEdit');
     requireUserId(user);
     if (doc.agentId !== undefined) {
       await assertAgentRunnable(models, doc.agentId);
@@ -46,20 +48,22 @@ export const scheduleMutations = {
     return models.MastraSchedule.updateSchedule(_id, doc);
   },
 
-  mastraScheduleRemove: (
+  mastraScheduleRemove: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('schedulesRemove');
     requireUserId(user);
     return models.MastraSchedule.removeSchedule(_id);
   },
 
-  mastraScheduleSetEnabled: (
+  mastraScheduleSetEnabled: async (
     _parent: undefined,
     { _id, isEnabled }: { _id: string; isEnabled: boolean },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('schedulesEdit');
     requireUserId(user);
     return models.MastraSchedule.setEnabled(_id, isEnabled);
   },
@@ -69,8 +73,9 @@ export const scheduleMutations = {
   mastraScheduleRunNow: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('schedulesRun');
     requireUserId(user);
     const schedule = await models.MastraSchedule.getSchedule(_id);
     await runSchedule({ models, subdomain, schedule });

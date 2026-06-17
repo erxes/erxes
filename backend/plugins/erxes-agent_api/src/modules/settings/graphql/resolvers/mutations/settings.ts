@@ -5,11 +5,12 @@ import { enqueueKnowledgeSweep } from '~/mastra/knowledge/worker';
 
 /** Mutations for the plugin-wide Mastra settings document. */
 export const settingsMutations = {
-  mastraSettingsSave: (
+  mastraSettingsSave: async (
     _parent: undefined,
     { doc }: { doc: IMastraSettings },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('settingsManage');
     return models.MastraSettings.saveSettings(doc);
   },
 
@@ -23,8 +24,9 @@ export const settingsMutations = {
   mastraKnowledgeSync: async (
     _parent: undefined,
     _args: unknown,
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('settingsKnowledgeSync');
     if (!user?._id) {
       throw new Error('Login required');
     }

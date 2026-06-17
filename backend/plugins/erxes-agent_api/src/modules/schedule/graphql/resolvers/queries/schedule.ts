@@ -12,20 +12,22 @@ const requireUserId = (user: IUserDocument | null | undefined): string => {
 
 /** Queries over scheduled agent runs. */
 export const scheduleQueries = {
-  mastraSchedules: (
+  mastraSchedules: async (
     _parent: undefined,
     _args: undefined,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('schedulesView');
     requireUserId(user);
     return models.MastraSchedule.getSchedules();
   },
 
-  mastraSchedule: (
+  mastraSchedule: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('schedulesView');
     requireUserId(user);
     return models.MastraSchedule.getSchedule(_id);
   },

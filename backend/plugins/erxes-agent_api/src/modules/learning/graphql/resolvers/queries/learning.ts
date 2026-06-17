@@ -24,11 +24,12 @@ export const learningQueries = {
   // one Studio reads). Each item is a 👍-approved turn (question → approved
   // answer). Written live by the thumbs feedback mutation — this is a pure read,
   // no compute/sync. See docs/LANGFUSE-EVAL-HANDOFF.md §9.
-  mastraKnowledgeDataset: (
+  mastraKnowledgeDataset: async (
     _: unknown,
     args: { limit?: number },
-    { user, subdomain }: IContext,
+    { user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     const limit = Math.min(Math.max(args.limit ?? 500, 1), 1000);
     return listKnowledge(subdomain, limit);
@@ -44,8 +45,9 @@ export const learningQueries = {
       page?: number;
       perPage?: number;
     },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.listLearnings(
       {
@@ -62,8 +64,9 @@ export const learningQueries = {
   mastraLearning: async (
     _: unknown,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.findOne({ _id });
   },
@@ -71,13 +74,19 @@ export const learningQueries = {
   mastraLearningStats: async (
     _: unknown,
     __: unknown,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.getStats();
   },
 
-  mastraLearningStatus: async (_: unknown, __: unknown, { user }: IContext) => {
+  mastraLearningStatus: async (
+    _: unknown,
+    __: unknown,
+    { user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return computeLearningStatus();
   },
@@ -87,8 +96,9 @@ export const learningQueries = {
   mastraMessageFeedbacks: async (
     _: unknown,
     { threadId }: { threadId: string },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsChat');
     const userId = requireUserId(user);
     await assertOwnedThread(subdomain, userId, threadId);
     const docs = await models.MastraFeedback.find({ threadId, userId });

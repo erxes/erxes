@@ -33,8 +33,9 @@ export const workflowMutations = {
   mastraWorkflowCreate: async (
     _parent: undefined,
     { doc }: { doc: IMastraWorkflow },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsCreate');
     const userId = requireUserId(user);
     await validateWithRegistry(models, doc.definition);
     return models.MastraWorkflow.createWorkflow({
@@ -46,38 +47,43 @@ export const workflowMutations = {
   mastraWorkflowUpdate: async (
     _parent: undefined,
     { _id, doc }: { _id: string; doc: Partial<IMastraWorkflow> },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsEdit');
     requireUserId(user);
     if (doc.definition) await validateWithRegistry(models, doc.definition);
     return models.MastraWorkflow.updateWorkflow(_id, doc);
   },
 
-  mastraWorkflowRemove: (
+  mastraWorkflowRemove: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsRemove');
     requireUserId(user);
     return models.MastraWorkflow.removeWorkflow(_id);
   },
 
-  mastraWorkflowSetEnabled: (
+  mastraWorkflowSetEnabled: async (
     _parent: undefined,
     { _id, isEnabled }: { _id: string; isEnabled: boolean },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsEdit');
     requireUserId(user);
     return models.MastraWorkflow.setEnabled(_id, isEnabled);
   },
 
   // Dry validation for the master agent's draft loop — returns structured
-  // errors instead of throwing, so the model can iterate.
+  // errors instead of throwing, so the model can iterate. Read-only, so it is
+  // gated by the same view permission as reading workflows.
   mastraWorkflowValidate: async (
     _parent: undefined,
     { definition }: { definition: unknown },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsView');
     requireUserId(user);
     const settings = await models.MastraSettings.getSettings();
     const registry = await getOperationRegistry(settings);
@@ -90,8 +96,9 @@ export const workflowMutations = {
   mastraWorkflowRunStart: async (
     _parent: undefined,
     { _id, input }: { _id: string; input?: Record<string, unknown> },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsRun');
     const userId = requireUserId(user);
     const workflow = await models.MastraWorkflow.getWorkflow(_id);
     const envelope = buildManualEnvelope(input || {}, userId);

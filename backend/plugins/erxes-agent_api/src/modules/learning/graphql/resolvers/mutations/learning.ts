@@ -43,8 +43,9 @@ export const learningMutations = {
   mastraLearningAdd: async (
     _: unknown,
     { doc }: { doc: IMastraLearningInput },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningCreate');
     const userId = requireUserId(user);
     const learning = await models.MastraLearning.createLearning({
       ...doc,
@@ -60,8 +61,9 @@ export const learningMutations = {
   mastraLearningEdit: async (
     _: unknown,
     { _id, doc }: { _id: string; doc: IMastraLearningInput },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningEdit');
     requireUserId(user);
     const learning = await models.MastraLearning.updateLearning(_id, doc);
     // Statement may have changed — re-embed.
@@ -72,8 +74,9 @@ export const learningMutations = {
   mastraLearningSetStatus: async (
     _: unknown,
     { _id, status }: { _id: string; status: string },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningEdit');
     const userId = requireUserId(user);
     const next = STATUSES.find((s) => s === status);
     if (!next) throw new Error(`Invalid status "${status}"`);
@@ -85,8 +88,9 @@ export const learningMutations = {
   mastraLearningPin: async (
     _: unknown,
     { _id, pinned }: { _id: string; pinned: boolean },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningEdit');
     requireUserId(user);
     return models.MastraLearning.setPinned(_id, pinned);
   },
@@ -94,8 +98,9 @@ export const learningMutations = {
   mastraLearningRemove: async (
     _: unknown,
     { _id }: { _id: string },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningRemove');
     requireUserId(user);
     await models.MastraLearning.deleteOne({ _id });
     await deleteLearningVectorSafe(learningTenant(subdomain), _id);
@@ -107,8 +112,10 @@ export const learningMutations = {
   mastraMessageFeedback: async (
     _: unknown,
     args: { messageId: string; rating: number; comment?: string },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    // Rating a chat message is part of using the agent, not learning curation.
+    await checkPermission('agentsChat');
     const userId = requireUserId(user);
     if (args.rating !== 1 && args.rating !== -1) {
       throw new Error('rating must be 1 or -1');
