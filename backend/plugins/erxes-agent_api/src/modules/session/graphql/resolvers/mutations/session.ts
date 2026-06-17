@@ -11,19 +11,21 @@ function requireUserId(user: IUserDocument | null | undefined): string {
 
 /** Mutations on a user's own chat threads (rename / delete), Mastra-native. */
 export const sessionMutations = {
-  mastraThreadRename: (
+  mastraThreadRename: async (
     _parent: undefined,
     { threadId, title }: { threadId: string; title: string },
-    { user, subdomain }: IContext,
+    { user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsChat');
     return renameOwnedThread(subdomain, requireUserId(user), threadId, title);
   },
 
-  mastraThreadRemove: (
+  mastraThreadRemove: async (
     _parent: undefined,
     { threadId }: { threadId: string },
-    { user, subdomain }: IContext,
+    { user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsChat');
     return removeOwnedThread(subdomain, requireUserId(user), threadId);
   },
 };

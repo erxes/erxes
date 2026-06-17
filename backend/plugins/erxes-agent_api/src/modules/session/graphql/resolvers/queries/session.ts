@@ -17,19 +17,21 @@ function requireUserId(user: IUserDocument | null | undefined): string {
 
 /** Queries over a user's own chat threads and their transcripts (Mastra-native). */
 export const sessionQueries = {
-  mastraThreads: (
+  mastraThreads: async (
     _parent: undefined,
     { agentId }: { agentId: string },
-    { user, subdomain }: IContext,
+    { user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsChat');
     return listOwnedThreads(subdomain, requireUserId(user), agentId);
   },
 
-  mastraThreadMessages: (
+  mastraThreadMessages: async (
     _parent: undefined,
     { threadId }: { threadId: string },
-    { user, subdomain }: IContext,
+    { user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsChat');
     // Ownership is enforced inside (resourceId scope) — reading another user's
     // transcript reads back as "Thread not found".
     return getOwnedThreadMessages(subdomain, requireUserId(user), threadId);

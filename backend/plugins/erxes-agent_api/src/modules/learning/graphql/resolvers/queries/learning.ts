@@ -30,8 +30,9 @@ export const learningQueries = {
       page?: number;
       perPage?: number;
     },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.listLearnings(
       {
@@ -48,8 +49,9 @@ export const learningQueries = {
   mastraLearning: async (
     _: unknown,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.findOne({ _id });
   },
@@ -57,13 +59,19 @@ export const learningQueries = {
   mastraLearningStats: async (
     _: unknown,
     __: unknown,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.getStats();
   },
 
-  mastraLearningStatus: async (_: unknown, __: unknown, { user }: IContext) => {
+  mastraLearningStatus: async (
+    _: unknown,
+    __: unknown,
+    { user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return computeLearningStatus();
   },
@@ -73,8 +81,9 @@ export const learningQueries = {
   mastraMessageFeedbacks: async (
     _: unknown,
     { threadId }: { threadId: string },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsChat');
     const userId = requireUserId(user);
     await assertOwnedThread(subdomain, userId, threadId);
     const docs = await models.MastraFeedback.find({ threadId, userId });

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
+import { checkPermissionGroup } from 'erxes-api-shared/core-modules';
 import { generateModels } from './connectionResolvers';
 import { getOrCreateAgent } from './mastra/agentRuntime';
 import {
@@ -215,6 +216,16 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   }
 
   const subdomain = getSubdomain(req);
+
+  // Streaming chat is the HTTP twin of the mastraAgentChat resolver, so it is
+  // gated by the same `agentsChat` permission. checkPermissionGroup throws on
+  // denial (FORBIDDEN) — translate that into a 403 for the SSE client.
+  try {
+    await checkPermissionGroup(subdomain, user)('agentsChat');
+  } catch {
+    return res.status(403).json({ error: 'Permission required' });
+  }
+
   const models = await generateModels(subdomain);
 
   // Attachments require the instance's upload storage — reject early (the UI

@@ -3,27 +3,30 @@ import { IContext } from '~/connectionResolvers';
 import { prepareChatTurn, persistTurn, runAgentTurn } from '@/agent/turn';
 
 export const agentQueries = {
-  mastraAgents: (
+  mastraAgents: async (
     _parent: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsView');
     return models.MastraAgent.getAgents();
   },
 
-  mastraAgent: (
+  mastraAgent: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsView');
     return models.MastraAgent.getAgent(_id);
   },
 
-  mastraAgentsMain: (
+  mastraAgentsMain: async (
     _parent: undefined,
     params: { page?: number; perPage?: number; searchValue?: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsView');
     return models.MastraAgent.getAgentsList(params || {});
   },
 
@@ -34,8 +37,9 @@ export const agentQueries = {
       message,
       threadId,
     }: { agentId: string; message: string; threadId?: string },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsChat');
     if (!user?._id) throw new ExpectedError('Login required');
 
     const prepared = await prepareChatTurn({

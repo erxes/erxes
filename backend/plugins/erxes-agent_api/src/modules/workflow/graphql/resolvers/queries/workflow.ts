@@ -11,33 +11,36 @@ const requireUserId = (user: IUserDocument | null | undefined): string => {
 
 /** Queries over workflow definitions and their run history. */
 export const workflowQueries = {
-  mastraWorkflows: (
+  mastraWorkflows: async (
     _parent: undefined,
     _args: undefined,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsView');
     requireUserId(user);
     return models.MastraWorkflow.getWorkflows();
   },
 
-  mastraWorkflow: (
+  mastraWorkflow: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsView');
     requireUserId(user);
     return models.MastraWorkflow.getWorkflow(_id);
   },
 
-  mastraWorkflowRuns: (
+  mastraWorkflowRuns: async (
     _parent: undefined,
     {
       workflowId,
       page,
       perPage,
     }: { workflowId: string; page?: number; perPage?: number },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('workflowsView');
     requireUserId(user);
     return models.MastraWorkflowRun.getRuns({ workflowId, page, perPage });
   },

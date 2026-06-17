@@ -6,6 +6,7 @@ import { generateModels } from './connectionResolvers';
 import { router } from './routes';
 import { appRouter } from '~/trpc/init-trpc';
 import { automations } from '~/meta/automations';
+import { permissions } from '~/meta/permissions';
 
 startPlugin({
   name: 'erxes-agent',
@@ -14,6 +15,9 @@ startPlugin({
     // The generic "Run agent workflow" action — every trigger the central
     // automations service knows can start an agent workflow through it.
     automations,
+    // Permission map: every mutation/query and the /chat/stream route is gated
+    // by one of these actions. Surfaces in the core permissions admin UI.
+    permissions,
   },
   graphql: async () => ({
     typeDefs: await typeDefs(),
