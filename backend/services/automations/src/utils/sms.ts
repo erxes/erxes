@@ -29,10 +29,8 @@ export const sendSms = async (
       throw new Error('messaging config not set properly');
     }
 
-   try {
-    const response = await fetch(
-      'https://api-text.callpro.mn/v1/sms/send',
-      {
+    try {
+      const response = await fetch('https://api-text.callpro.mn/v1/sms/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,30 +41,29 @@ export const sendSms = async (
           to: phoneNumber,
           text: content,
         }),
+      });
+      const rawBody = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(rawBody);
+      } catch {
+        data = rawBody;
       }
-    );
-    const rawBody = await response.text();
-    let data: any;
-    try {
-      data = JSON.parse(rawBody);
-    } catch {
-      data = rawBody;
-    }
 
-    if (!response.ok) {
-      throw new Error(
-        `SMS request failed: ${response.status} ${response.statusText} - ${rawBody}`
-      );
-    }
+      if (!response.ok) {
+        throw new Error(
+          `SMS request failed: ${response.status} ${response.statusText} - ${rawBody}`,
+        );
+      }
 
-    if (data?.success === false) {
-      throw new Error(`SMS provider error: ${data?.message || rawBody}`);
+      if (data?.success === false) {
+        throw new Error(`SMS provider error: ${data?.message || rawBody}`);
+      }
+      return 'sent';
+    } catch (e) {
+      debugError((e as Error).message);
+      throw e;
     }
-    return 'sent';
-  } catch (e) {
-    debugError((e as Error).message);
-    throw e;
-  }
   }
 
   const isServiceEnabled = await isEnabled(type);
