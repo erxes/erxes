@@ -46,7 +46,9 @@ export const useBlockEditor = (args?: {
   const defaultUploadFile = useCallback(
     (file: File): Promise<string> => {
       return new Promise((resolve, reject) => {
-        pendingRef.current?.reject(new Error('Previous upload was interrupted'));
+        pendingRef.current?.reject(
+          new Error('Previous upload was interrupted'),
+        );
         pendingRef.current = { resolve, reject };
         const fileWithPreview = Object.assign(file, {
           preview: URL.createObjectURL(file),
