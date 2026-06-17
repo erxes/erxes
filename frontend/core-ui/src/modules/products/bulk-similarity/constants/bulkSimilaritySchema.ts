@@ -30,7 +30,7 @@ export const bulkSimilaritySchema = z
       message: 'Unit price must be greater than or equal to 0',
     }),
     currency: z.string().optional(),
-    uom: z.string().optional(),
+    uom: z.string().min(1, { message: 'UOM is required' }),
     vendorId: z.string().optional(),
     scopeBrandIds: z.array(z.string()).optional().catch([]),
     barcodeDescription: z.string().optional(),

@@ -6,6 +6,7 @@ import {
   IconSwitchHorizontal,
 } from '@tabler/icons-react';
 import { useEffect, useRef } from 'react';
+import { IMaskInput } from 'react-imask';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
 import { useBulkRows } from '../hooks/useBulkRows';
@@ -83,6 +84,52 @@ const EditableCell = ({
     >
       {value}
     </div>
+  );
+};
+
+const NumericEditableCell = ({
+  value,
+  fallback,
+  onCommit,
+  placeholder,
+  disabled,
+  edited,
+}: {
+  value?: number;
+  fallback?: number;
+  onCommit: (next: number | undefined) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  edited?: boolean;
+}) => {
+  const shown = value ?? fallback;
+  return (
+    <IMaskInput
+      mask={Number as any}
+      thousandsSeparator=","
+      radix="."
+      unmask
+      value={shown != null ? String(shown) : ''}
+      placeholder={placeholder}
+      disabled={disabled}
+      autoComplete="off"
+      onAccept={(val, _mask, e) => {
+        if (!e) return;
+        onCommit(val === '' ? undefined : Number(val));
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+      className={cn(
+        'block w-full h-8 px-2 text-right bg-transparent outline-none truncate leading-8 cursor-text',
+        'placeholder:text-muted-foreground',
+        edited && 'text-warning',
+        disabled && 'cursor-not-allowed opacity-70',
+      )}
+    />
   );
 };
 
@@ -280,22 +327,16 @@ export const GeneratedProductsTable = ({
                 </Table.Cell>
                 <Table.Cell className="px-1">
                   <div className="flex items-center gap-1">
-                    <Controller
-                      control={control}
-                      name={`rows.${index}.code`}
-                      render={({ field }) => (
-                        <EditableCell
-                          value={field.value}
-                          onCommit={(next) => {
-                            field.onChange(next);
-                            // mark as hand-edited so regeneration won't
-                            // overwrite it from the base code
-                            setValue(`rows.${index}.codeEdited`, true);
-                          }}
-                          placeholder="code"
-                          className="font-mono"
-                        />
-                      )}
+                    <EditableCell
+                      value={code}
+                      onCommit={(next) => {
+                        setValue(`rows.${index}.code`, next, {
+                          shouldValidate: true,
+                        });
+                        setValue(`rows.${index}.codeEdited`, true);
+                      }}
+                      placeholder="code"
+                      className="font-mono"
                     />
                     {isDup && (
                       <Tooltip.Provider>
@@ -317,24 +358,15 @@ export const GeneratedProductsTable = ({
                     control={control}
                     name={`rows.${index}.unitPrice`}
                     render={({ field }) => (
-                      <EditableCell
-                        numeric
-                        align="right"
-                        value={
-                          field.value != null
-                            ? String(field.value)
-                            : unitPrice != null
-                            ? String(unitPrice)
-                            : ''
-                        }
+                      <NumericEditableCell
+                        value={field.value}
+                        fallback={unitPrice}
                         placeholder="0"
                         disabled={isExcluded}
                         edited={
                           field.value != null && field.value !== unitPrice
                         }
-                        onCommit={(next) =>
-                          field.onChange(next === '' ? undefined : Number(next))
-                        }
+                        onCommit={field.onChange}
                       />
                     )}
                   />
