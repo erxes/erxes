@@ -3,7 +3,6 @@ import { IModels } from '~/connectionResolvers';
 import { generateProducts } from '~/modules/sales/utils';
 import { buildTableBlock, replaceBlocks } from './replaceBlocks';
 
-// Attributes that render as a table rather than a scalar value.
 const TABLE_ATTRIBUTES = [
   'productsInfo',
   'productCategoryInfo',
@@ -28,7 +27,6 @@ const formatDate = (value: any, withTime = false): string => {
 const formatNumber = (value: number): string =>
   (Math.round((value || 0) * 100) / 100).toLocaleString('en-US');
 
-// Render an amounts-by-currency map (e.g. { MNT: 1000 }) as "1,000 MNT".
 const formatAmounts = (map: Record<string, number>): string => {
   const entries = Object.entries(map).filter(([, amount]) => amount);
   if (!entries.length) return '0';
@@ -75,11 +73,7 @@ type DealReplacer = {
   deal: any;
 };
 
-/**
- * Resolves every supported document attribute for a single deal into either a
- * scalar string (attrMap) or a table matrix (tables). Financial figures that
- * depend on business-specific semantics (VAT split, payments) are best-effort.
- */
+
 export const buildDealReplacer = async (
   models: IModels,
   subdomain: string,
@@ -88,13 +82,11 @@ export const buildDealReplacer = async (
   const attrMap: Record<string, string> = {};
   const tables: Record<string, string[][]> = {};
 
-  // --- Stage ---
   const stage = deal.stageId
     ? await models.Stages.findOne({ _id: deal.stageId }).lean()
     : null;
   attrMap.stageName = stage?.name || '-';
 
-  // --- Brand (no native brand on a deal; best-effort via board name) ---
   let brandName = '-';
   if (stage?.pipelineId) {
     const pipeline = await models.Pipelines.findOne({
@@ -109,7 +101,6 @@ export const buildDealReplacer = async (
   }
   attrMap.brandName = brandName;
 
-  // --- Assigned users ---
   if (deal.assignedUserIds?.length) {
     const users = await sendTRPCMessage({
       subdomain,
@@ -125,7 +116,6 @@ export const buildDealReplacer = async (
     attrMap.assignedUsers = '-';
   }
 
-  // --- Labels ---
   if (deal.labelIds?.length) {
     const labels = await models.PipelineLabels.find({
       _id: { $in: deal.labelIds },
@@ -135,7 +125,6 @@ export const buildDealReplacer = async (
     attrMap.labels = '-';
   }
 
-  // --- Customers (via relation module) ---
   const customerIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -174,7 +163,6 @@ export const buildDealReplacer = async (
   }
   attrMap.customers = joinNames(customers, customerName);
 
-  // Prefer a customer identified by an 8-digit code, otherwise the first one.
   const primaryCustomer =
     (customers || []).find(
       (customer) => customer?.code && /^\d{8}$/.test(customer.code),
@@ -182,7 +170,6 @@ export const buildDealReplacer = async (
   attrMap['customers.primaryPhone'] = primaryCustomer?.primaryPhone || '-';
   attrMap['customers.primaryEmail'] = primaryCustomer?.primaryEmail || '-';
 
-  // --- Companies (via relation module) ---
   const companyIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -218,7 +205,6 @@ export const buildDealReplacer = async (
     attrMap.companies = '-';
   }
 
-  // --- Products / services / amounts ---
   const enriched = await generateProducts(subdomain, deal.productsData);
 
   const productRows: string[][] = [
@@ -330,7 +316,6 @@ export const buildDealReplacer = async (
   tables.servicesInfo = serviceRows;
   tables.productCategoryInfo = categoryRows;
 
-  // Totals (best-effort; deal.amount already includes tax in erxes).
   const totalWithoutVat: Record<string, number> = {};
   for (const [currency, amount] of Object.entries(totalAmount)) {
     totalWithoutVat[currency] = amount - (vatAmount[currency] || 0);
@@ -345,7 +330,6 @@ export const buildDealReplacer = async (
   attrMap.discount = formatAmounts(discountAmount);
   attrMap.discountType = '-';
 
-  // Payments (paymentsData is an untyped map of paymentKind -> amount/object).
   const paymentsData = (deal.paymentsData || {}) as Record<string, any>;
   let cash = 0;
   let nonCash = 0;
@@ -361,7 +345,6 @@ export const buildDealReplacer = async (
   attrMap.paymentCash = formatNumber(cash);
   attrMap.paymentNonCash = formatNumber(nonCash);
 
-  // --- Dates ---
   attrMap.now = formatDate(new Date(), true);
   attrMap.createdAt = formatDate(deal.createdAt);
   attrMap.closeDate = formatDate(deal.closeDate);
@@ -370,11 +353,6 @@ export const buildDealReplacer = async (
   return { attrMap, tables, deal };
 };
 
-/**
- * Renders the given document content (block JSON) for each replacer deal and
- * returns one substituted block-JSON string per deal, for core's
- * `prepareContent` to turn into HTML.
- */
 export const replaceDealContent = async ({
   models,
   subdomain,

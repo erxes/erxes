@@ -3,16 +3,7 @@ import { getEnv } from 'erxes-api-shared/utils';
 type Replacement = (replacer: any, path: string) => any;
 type Transform = (block: any, text: any) => any | undefined;
 
-/**
- * Walks a BlockNote document (stored as a JSON string of blocks) and replaces
- * every `attribute` block with its resolved value. Mirrors the core
- * `replaceContent` contract so the rendered blocks can be handed back to core's
- * `prepareContent`/`blocksToHtml`.
- *
- * - `replacement(replacer, path)` resolves a scalar attribute to a string.
- * - `transform(block, text)` may return a full replacement block (e.g. a table)
- *   for complex attributes; returning undefined falls back to a text block.
- */
+
 export const replaceBlocks = ({
   replacer,
   content,
@@ -114,7 +105,6 @@ export const replaceBlocks = ({
   return JSON.stringify(blocks);
 };
 
-/** Build a BlockNote `table` block matching core's blocksToHtml renderer. */
 export const buildTableBlock = (rows: string[][]) => ({
   id: Math.random().toString(36).slice(2),
   type: 'table',
