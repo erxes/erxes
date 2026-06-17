@@ -65,7 +65,6 @@ const classifyCustomer = (
       primaryPhone: existing.primaryPhone,
       primaryEmail: existing.primaryEmail,
     });
-    return;
   }
 
   // Matched — no action needed, skip.
@@ -218,12 +217,14 @@ export const msdynamicCheckMutations = {
       if (c.code) erxesByCode[c.code] = { ...c, _customerType: 'company' };
     }
 
+    const basicAuthToken = Buffer.from(`${username}:${password}`).toString(
+      'base64',
+    );
+
     const response = await fetch(`${customerApi}?$filter=Type eq 'Customer'`, {
       headers: {
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64',
-        )}`,
+        Authorization: `Basic ${basicAuthToken}`,
       },
       signal: AbortSignal.timeout(180000),
     }).then((r) => r.json());
