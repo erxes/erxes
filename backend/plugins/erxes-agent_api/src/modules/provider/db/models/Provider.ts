@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { providerSchema } from '@/provider/db/definitions/provider';
 import {
@@ -17,7 +18,7 @@ export const loadProviderClass = (_models: IModels) => {
   class MastraProvider {
     public static async getProvider(_id: string) {
       const p = await _models.MastraProvider.findOne({ _id });
-      if (!p) throw new Error('Provider not found');
+      if (!p) throw new ExpectedError('Provider not found');
       return p;
     }
 

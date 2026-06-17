@@ -10,6 +10,7 @@
 // ---------------------------------------------------------------------------
 
 import { createHash } from 'crypto';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import {
   collectionName,
   resolveEmbedderConfig,
@@ -46,7 +47,7 @@ export function buildRecallFilter(args: {
   threadId?: string;
 }): { must: Array<Record<string, unknown>> } {
   if (!args.subdomain) {
-    throw new Error(
+    throw new ExpectedError(
       '[mastra:memory] refusing to query Qdrant without a subdomain (tenant isolation).',
     );
   }

@@ -1,4 +1,5 @@
 import { FilterQuery, Model, UpdateQuery } from 'mongoose';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { learningSchema } from '@/learning/db/definitions/learning';
 import {
@@ -69,7 +70,7 @@ export const loadLearningClass = (_models: IModels) => {
         { $set: doc },
         { new: true },
       );
-      if (!updated) throw new Error('Learning not found');
+      if (!updated) throw new ExpectedError('Learning not found');
       return updated;
     }
 
@@ -104,7 +105,7 @@ export const loadLearningClass = (_models: IModels) => {
         { $set: set },
         { new: true },
       );
-      if (!updated) throw new Error('Learning not found');
+      if (!updated) throw new ExpectedError('Learning not found');
       return updated;
     }
 
@@ -115,7 +116,7 @@ export const loadLearningClass = (_models: IModels) => {
         { $set: { pinned } },
         { new: true },
       );
-      if (!updated) throw new Error('Learning not found');
+      if (!updated) throw new ExpectedError('Learning not found');
       return updated;
     }
 
