@@ -317,5 +317,5 @@ export const mutations = `
 
   integrationsSaveMessengerTicketData(
     _id: String!,
-    configId: String!): Integration
+    configId: String): Integration
 `;
