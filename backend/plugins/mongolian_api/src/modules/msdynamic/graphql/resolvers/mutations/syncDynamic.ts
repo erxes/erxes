@@ -37,17 +37,10 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
  * MS Dynamic Sync Mutations
  * ============================
  */
-interface ISyncPriceInput {
-  Item_No?: string;
-  code?: string;
-  Unit_Price?: number;
-  unitPrice?: number;
-}
-
 export const msdynamicSyncMutations = {
   async toSyncMsdPrices(
     _root,
-    { prices }: { prices: ISyncPriceInput[] },
+    { prices }: { prices: { Item_No?: string; code?: string; Unit_Price?: number; unitPrice?: number }[] },
     { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('msdSync');
