@@ -1,5 +1,5 @@
-import { debugError } from '@/debugger';
-import { handleTrigger } from '@/executions/handleTrigger';
+import { debugError } from '../../debugger';
+import { handleTrigger } from '../../executions/handleTrigger';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { t } from '../init-trpc';
