@@ -12,6 +12,7 @@ import { dealSchema } from '../definitions/deals';
 import {
   generateDealUpdateActivityLogs,
   generateDealCreatedActivityLog,
+  generateDealConvertedActivityLog,
   generateDealWatchActivityLog,
 } from '~/modules/sales/meta/activity-log';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
@@ -63,6 +64,15 @@ export const loadDealClass = (
       });
 
       createActivityLog(generateDealCreatedActivityLog(deal));
+
+      // Log conversion when the deal originates from a conversation/form submission
+      if (doc.sourceConversationIds?.length) {
+        doc.sourceConversationIds.forEach((conversationId) =>
+          createActivityLog(
+            generateDealConvertedActivityLog(deal, conversationId),
+          ),
+        );
+      }
 
       return deal;
     }

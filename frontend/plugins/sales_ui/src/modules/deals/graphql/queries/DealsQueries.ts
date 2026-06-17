@@ -240,6 +240,7 @@ export const GET_DEAL_DETAIL = gql`
       mobileAmount
       mobileAmounts
       paymentsData
+      sourceConversationIds
       relations
       pipeline {
         _id

@@ -28,6 +28,7 @@ export interface IItem {
   createdUser?: IUser;
   companies: ICompany[];
   customers: ICustomer[];
+  sourceConversationIds?: string[];
   attachments?: IAttachment[];
   labels: IPipelineLabel[];
   pipeline: IPipeline;

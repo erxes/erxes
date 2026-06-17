@@ -124,7 +124,11 @@ async function saveFormSubmissions(
       value,
       customerId,
       contentType: 'lead',
-      conversationId: conversationId || undefined,
+      // store the originating conversation id in the schema-backed field so
+      // submissions can be looked up by conversation (e.g. a converted deal's
+      // sourceConversationIds). `conversationId` is not part of the schema and
+      // was being dropped on insert.
+      contentTypeId: conversationId || undefined,
       groupId,
     };
   });

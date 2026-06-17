@@ -24,6 +24,15 @@ const DealCreatedRow = ({ activity }: { activity: TActivityLog }) => (
   </Sentence>
 );
 
+const DealConvertedRow = ({ activity }: { activity: TActivityLog }) => (
+  <Sentence>
+    <ActivityLogs.ActorName activity={activity} />
+    <span className="text-muted-foreground">
+      {activity.action?.description || 'converted conversation to deal'}
+    </span>
+  </Sentence>
+);
+
 const DealMovedRow = ({ activity }: { activity: TActivityLog }) => {
   const fromStage = activity.changes?.prev?.stageId as string | undefined;
   const toStage = activity.changes?.current?.stageId as string | undefined;
@@ -248,6 +257,10 @@ export const dealCustomActivities: ActivityLogCustomActivity[] = [
   {
     type: 'create',
     render: (activity) => <DealCreatedRow activity={activity} />,
+  },
+  {
+    type: 'convert',
+    render: (activity) => <DealConvertedRow activity={activity} />,
   },
   {
     type: 'move',

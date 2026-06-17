@@ -7,6 +7,7 @@ import {
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { dealCustomActivities } from './DealActivityRows';
+import { FormSubmissionActivity } from './overview/activity/formSubmission/FormSubmissionActivity';
 import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
@@ -95,6 +96,15 @@ export const SalesItemDetail = () => {
                             customActivities={dealCustomActivities}
                             variant="backward"
                           />
+                          {!!deal?._id && (
+                            <FormSubmissionActivity
+                              dealId={deal._id}
+                              customerId={deal?.customers?.[0]?._id}
+                              sourceConversationIds={
+                                deal?.sourceConversationIds
+                              }
+                            />
+                          )}
                         </div>
                       </ScrollArea>
 

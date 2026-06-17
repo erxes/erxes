@@ -134,6 +134,7 @@ export const types = `
     mobileAmount: Float
     mobileAmounts: JSON
     paymentsData: JSON
+    sourceConversationIds: [String]
     extraData: JSON
 
     cursor: String
