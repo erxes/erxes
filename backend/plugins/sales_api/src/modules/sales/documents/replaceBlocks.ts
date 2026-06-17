@@ -3,7 +3,6 @@ import { getEnv } from 'erxes-api-shared/utils';
 type Replacement = (replacer: any, path: string) => any;
 type Transform = (block: any, text: any) => any | undefined;
 
-
 export const replaceBlocks = ({
   replacer,
   content,

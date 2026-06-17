@@ -73,7 +73,6 @@ type DealReplacer = {
   deal: any;
 };
 
-
 export const buildDealReplacer = async (
   models: IModels,
   subdomain: string,
