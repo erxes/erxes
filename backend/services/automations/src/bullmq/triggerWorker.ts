@@ -1,4 +1,4 @@
-import { handleTrigger } from '@/executions/handleTrigger';
+import { handleTrigger } from '../executions/handleTrigger';
 import type { Job } from 'bullmq';
 import { debugError } from '../debugger';
 import { IJobData } from './initMQWorkers';

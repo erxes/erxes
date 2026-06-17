@@ -1,4 +1,4 @@
-import { generateModels } from '@/connectionResolver';
+import { generateModels } from '../connectionResolver';
 import { repeatActionExecution } from './repeatActionExecution';
 import { checkIsWaitingAction } from './checkIsWaitingActionTarget';
 import { executeWaitingAction } from './executeWaitingAction';
