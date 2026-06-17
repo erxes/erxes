@@ -2,18 +2,11 @@ import type { ToolsInput } from '@mastra/core/agent';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
-import { isLegacyProvider } from '~/mastra/providers';
 import { runWithAuth } from '~/mastra/requestContext';
 import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
-import {
-  recallBlock,
-  indexMessages,
-  readWorkingMemory,
-  refreshWorkingMemory,
-  deriveResourceId,
-  augmentConvo,
-  MemoryContext,
-} from '~/mastra/memory';
+import { scopedResource, getMastraMemory } from '~/mastra/memory/mastraMemory';
+import { getThreadTitle } from '@/session/nativeStore';
+import { deriveResourceId, augmentConvo, MemoryContext } from '~/mastra/memory';
 import {
   IMastraChatAttachment,
   IMastraMessageMeta,
@@ -22,11 +15,7 @@ import { IMastraAgentDocument } from '@/agent/@types/agent';
 import { IMastraProviderDocument } from '@/provider/@types/provider';
 import { IMastraSettingsDocument } from '@/settings/@types/settings';
 import { readLearnedDigest } from '~/mastra/learning/digest';
-import { maybeGenerateThreadTitle } from '~/mastra/titler';
-import {
-  buildChatUserContent,
-  historyAttachmentNote,
-} from '~/mastra/files/chatContent';
+import { buildChatUserContent } from '~/mastra/files/chatContent';
 
 // Shared chat-turn pipeline used by both the blocking GraphQL resolver
 // (mastraAgentChat) and the streaming SSE route (/chat/stream). Holds the
@@ -75,15 +64,7 @@ export interface AgentTurnResult {
 // pipeline never relies on — satisfies it structurally.
 export interface TurnAgent {
   generate(messages: unknown, options?: unknown): Promise<AgentTurnResult>;
-  generateLegacy(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<AgentTurnResult>;
   stream(
-    messages: unknown,
-    options?: unknown,
-  ): Promise<{ fullStream: unknown }>;
-  streamLegacy(
     messages: unknown,
     options?: unknown,
   ): Promise<{ fullStream: unknown }>;
@@ -192,90 +173,14 @@ export function buildFallbackFromResults(
   return null;
 }
 
-// ─── Text-based tool call extraction ─────────────────────────────────────────
-//
-// Some models (e.g. meta/llama-3.1-8b-instruct via NVIDIA NIM) do not support
-// the structured tool_calls response field.  Instead they output their function
-// call intent as plain JSON text.  We detect those patterns here and execute
-// the tool directly, so the agent works even with these models.
-
-export interface TextToolCall {
-  name: string;
-  args: Record<string, unknown>;
-}
-
-/** Detect a tool call a model emitted as plain text; null when none matches. */
-export function extractTextToolCall(text: string): TextToolCall | null {
-  const trimmed = text.trim();
-
-  // Pattern 1 — OpenAI-style JSON array: [{"id":"...","type":"function","function":{"name":"...","arguments":"{...}"}}]
-  try {
-    const arr = JSON.parse(trimmed);
-    if (
-      Array.isArray(arr) &&
-      arr[0]?.type === 'function' &&
-      arr[0]?.function?.name
-    ) {
-      const fn = arr[0].function;
-      const args =
-        typeof fn.arguments === 'string'
-          ? JSON.parse(fn.arguments)
-          : fn.arguments ?? {};
-      return { name: fn.name, args };
-    }
-  } catch {
-    /* not OpenAI-array JSON — try the next pattern */
-  }
-
-  // Pattern 2 — Simple object: {"name":"toolName","parameters":{...}} or {"name":"...","arguments":{...}}
-  try {
-    const obj = JSON.parse(trimmed);
-    if (obj && typeof obj === 'object' && typeof obj.name === 'string') {
-      const rawArgs = obj.arguments ?? obj.parameters ?? obj.args ?? {};
-      const args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs;
-      return { name: obj.name, args };
-    }
-  } catch {
-    /* not a simple tool-call object — try the next pattern */
-  }
-
-  // Pattern 3 — <tool_call>...</tool_call> tags. Index scan instead of a
-  // lazy [\s\S]*? regex, which backtracks super-linearly on bad input.
-  const lowerT = trimmed.toLowerCase();
-  const openTag = lowerT.indexOf('<tool_call>');
-  const closeTag =
-    openTag === -1 ? -1 : lowerT.indexOf('</tool_call>', openTag + 11);
-  if (openTag !== -1 && closeTag !== -1) {
-    try {
-      const obj = JSON.parse(trimmed.slice(openTag + 11, closeTag).trim());
-      if (obj?.name) {
-        const args =
-          typeof obj.arguments === 'string'
-            ? JSON.parse(obj.arguments)
-            : obj.arguments ?? obj.parameters ?? {};
-        return { name: obj.name, args };
-      }
-    } catch {
-      /* malformed <tool_call> payload — try the next pattern */
-    }
-  }
-
-  // Pattern 4 — "The function call that best answers the user's question is: toolName({...})"
-  const nimMatch = trimmed.match(
-    /function call[^\n]*?:\s*(\w+)\((\{[\s\S]*\})\)/i,
-  );
-  if (nimMatch) {
-    try {
-      return { name: nimMatch[1], args: JSON.parse(nimMatch[2]) };
-    } catch {
-      /* unparsable call arguments — treat as no tool call */
-    }
-  }
-
-  return null;
-}
-
 // ─── Turn setup ───────────────────────────────────────────────────────────────
+
+// Per-turn Mastra Memory binding — which thread + (tenant-scoped) resource this
+// turn reads/writes. Passed to generate()/stream() so Mastra recalls + persists.
+export interface MemoryBinding {
+  thread: string;
+  resource: string;
+}
 
 export interface PreparedTurn {
   agentConfig: IMastraAgentDocument;
@@ -286,8 +191,11 @@ export interface PreparedTurn {
   sessionId: string;
   convo: TurnMessage[];
   authCtx: TurnAuthCtx;
-  isLegacy: boolean;
   advanced: boolean;
+  // True when Mastra Memory is active for this turn (advanced + known tenant).
+  useMemory: boolean;
+  // Set when useMemory — the thread/resource Mastra Memory binds to.
+  memoryBinding?: MemoryBinding;
   memCtx: MemoryContext;
   attachments?: IMastraChatAttachment[];
   // Learnings injected into this turn's context — stamped onto the assistant
@@ -324,7 +232,11 @@ export async function prepareChatTurn(params: {
 
   const settings = await models.MastraSettings.findOne({});
   const providers = await models.MastraProvider.find({ isEnabled: true });
-  const { agent, tools } = await getOrCreateAgent(agentConfig, models);
+  const { agent, tools } = await getOrCreateAgent(
+    agentConfig,
+    models,
+    subdomain,
+  );
 
   // Stable session id — the persisted thread this turn belongs to.
   // typeof guard keeps crafted non-string payloads out of Mongo queries
@@ -332,28 +244,9 @@ export async function prepareChatTurn(params: {
   const sessionId =
     typeof threadId === 'string' && threadId ? threadId : `chat-${Date.now()}`;
 
-  // Ownership gate BEFORE any history is replayed: throws if the thread
-  // belongs to another user (prevents reading or continuing someone else's
-  // session by passing their threadId). Creates/claims the thread otherwise.
-  await models.MastraThread.ensureThread(sessionId, agentId, user._id, message);
-
   const useHistory = agentConfig.memoryEnabled !== false;
-  // Advanced memory rides on top of replay; a memory-disabled agent gets neither.
+  // Advanced memory rides on the agent's own memory toggle.
   const advanced = isAdvancedMemoryEnabled() && useHistory;
-
-  // Build the LLM context from persisted history (the system prompt already
-  // lives in the agent's instructions, so only user/assistant turns here).
-  const history = useHistory
-    ? await models.MastraMessage.getRecent(sessionId, HISTORY_LIMIT)
-    : [];
-  // Replayed messages keep a pointer to their attachments so files from
-  // earlier turns stay readable via the read-attachment tool.
-  const recentHistory = history.map((msg) => ({
-    role: msg.role,
-    content: msg.attachments?.length
-      ? `${msg.content}\n\n${historyAttachmentNote(msg.attachments)}`
-      : msg.content,
-  }));
 
   const memCtx: MemoryContext = {
     subdomain,
@@ -362,26 +255,45 @@ export async function prepareChatTurn(params: {
     agentId,
   };
 
-  // Semantic recall (cross-session long-term memory) + working memory (the
-  // persistent user profile) + the tenant's learned digest (shared "Agent
-  // knowledge" — PII-free, independent of the per-user memory switch). All
-  // injected as plain system context blocks. Best-effort: each returns null
-  // on any error, never blocking the turn.
-  const [[recall, wmBlock], digest] = await Promise.all([
-    advanced
-      ? Promise.all([
-          recallBlock(message, memCtx),
-          readWorkingMemory(models, memCtx),
-        ])
-      : Promise.resolve([null, null] as [string | null, string | null]),
-    readLearnedDigest(models, agentId),
-  ]);
+  // Mastra Memory (attached to the agent in getOrCreateAgent) is the ONLY chat
+  // store: it persists the turn, replays recent history, and runs semantic
+  // recall + working memory via the per-turn binding below. Active when advanced
+  // memory is on AND we know the tenant. (No tenant → the turn is answered
+  // statelessly; there is no custom fallback store.)
+  const useMemory = advanced && Boolean(subdomain);
+  const memoryBinding = useMemory
+    ? {
+        thread: sessionId,
+        resource: scopedResource(subdomain, memCtx.resourceId),
+      }
+    : undefined;
 
+  // Ownership gate: a CONTINUED thread must belong to this user. getThreadById
+  // without a resource returns the thread whatever its owner; if it exists under
+  // a different resource it is someone else's session — reported as "not found"
+  // (no existence leak). A fresh sessionId simply doesn't exist yet.
+  if (memoryBinding && typeof threadId === 'string' && threadId) {
+    const memory = await getMastraMemory(subdomain);
+    const existing = (await memory.getThreadById({
+      threadId: sessionId,
+    } as never)) as { resourceId?: string } | null;
+    if (existing && existing.resourceId !== memoryBinding.resource) {
+      throw new Error('Thread not found');
+    }
+  }
+
+  // The tenant's learned digest (shared "Agent knowledge") is woven into the
+  // turn — separate from Mastra Memory. Best-effort: null on error.
+  const digest = await readLearnedDigest(models, agentId);
+
+  // Mastra Memory replays recent history + recall itself, so generate() gets
+  // ONLY the new user message (+ the learned digest). Passing replayed history
+  // here would stop Mastra from persisting the turn to its store.
   const convo: TurnMessage[] = augmentConvo({
-    recentHistory,
+    recentHistory: [],
     userMessage: message,
-    recallBlock: recall,
-    workingMemoryBlock: wmBlock,
+    recallBlock: null,
+    workingMemoryBlock: null,
     learnedDigestBlock: digest?.block,
   });
 
@@ -401,22 +313,22 @@ export async function prepareChatTurn(params: {
     ? Buffer.from(JSON.stringify(user)).toString('base64')
     : undefined;
   const authCtx = { userHeader, token: settings?.erxesApiToken, subdomain };
-  const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
   return {
     agentConfig,
     settings,
     providers,
     // The published Agent generics type tool results as wire chunks; the
-    // runtime objects this pipeline reads are the duck-typed legacy/modern
-    // shapes in ToolResultLike, hence the structural cast (cf. titler.ts).
+    // runtime objects this pipeline reads are the duck-typed shapes in
+    // ToolResultLike, hence the structural cast (cf. titler.ts).
     agent: agent as unknown as TurnAgent,
     tools,
     sessionId,
     convo,
     authCtx,
-    isLegacy,
     advanced,
+    useMemory,
+    memoryBinding,
     memCtx,
     attachments,
     learningIds: digest?.ids ?? [],
@@ -445,17 +357,8 @@ export async function persistTurn(params: {
   // rated (thumbs feedback) without a reload.
   assistantMessageId: string | null;
 }> {
-  const { models, prepared, message, reply, meta } = params;
-  const {
-    sessionId,
-    advanced,
-    memCtx,
-    agentConfig,
-    providers,
-    authCtx,
-    isLegacy,
-    attachments,
-  } = prepared;
+  const { prepared, reply, meta } = params;
+  const { useMemory, memCtx, agentConfig, attachments } = prepared;
 
   // Stamp which learnings were in context so a later thumbs rating can be
   // attributed to them (mastraMessageFeedback reads this back).
@@ -463,134 +366,190 @@ export async function persistTurn(params: {
     ? { ...(meta ?? {}), learningIdsInContext: prepared.learningIds }
     : meta;
 
-  const userMsg = await models.MastraMessage.addMessage(
-    sessionId,
-    'user',
-    message,
-    undefined,
-    attachments,
-  );
-  const asstMsg = reply
-    ? await models.MastraMessage.addMessage(
-        sessionId,
-        'assistant',
+  // Mastra Memory already persisted the [user, assistant] turn during
+  // generate()/stream() — there is no custom store. The title is owned by
+  // Mastra's native generateTitle (it sets thread.title once, while empty);
+  // read it back so the SSE route can push it to the client.
+  const titlePromise: Promise<string | null> =
+    reply && prepared.memoryBinding
+      ? getThreadTitle(
+          memCtx.subdomain,
+          prepared.memoryBinding.thread,
+          prepared.memoryBinding.resource,
+        ).catch(() => null)
+      : Promise.resolve<string | null>(null);
+
+  // Enrich the native records with the erxes-only turn artifacts and recover
+  // the NATIVE assistant message id — that is what the client rates (feedback
+  // resolves the native id). Best-effort: a patch failure never affects the
+  // reply.
+  let nativeAssistantId: string | null = null;
+  if (useMemory && prepared.memoryBinding) {
+    try {
+      nativeAssistantId = await patchNativeTurn({
+        subdomain: memCtx.subdomain,
+        binding: prepared.memoryBinding,
+        agentId: agentConfig.agentId,
         reply,
-        fullMeta,
-      )
-    : null;
-  await models.MastraThread.touchThread(sessionId);
-
-  // Rename the thread to an LLM summary of the conversation (replacing the
-  // first-message snippet). Runs concurrently with memory indexing; only
-  // meaningful once an assistant reply exists.
-  const titlePromise = reply
-    ? maybeGenerateThreadTitle({
-        models,
-        threadId: sessionId,
-        provider: agentConfig.provider,
-        model: agentConfig.model,
-        providers,
-        authCtx,
-        isLegacy,
-      })
-    : Promise.resolve<string | null>(null);
-
-  // Index the new exchange into Qdrant for future recall (best-effort).
-  if (advanced) {
-    const toIndex = [
-      {
-        id: String(userMsg._id),
-        role: 'user',
-        text: message,
-        createdAt: userMsg.createdAt?.toISOString?.(),
-      },
-    ];
-    if (asstMsg && reply) {
-      toIndex.push({
-        id: String(asstMsg._id),
-        role: 'assistant',
-        text: reply,
-        createdAt: asstMsg.createdAt?.toISOString?.(),
+        meta: fullMeta,
+        attachments,
       });
-    }
-    await indexMessages(memCtx, toIndex);
-
-    // Refresh the user's persistent profile from this exchange. Fire-and-forget
-    // (and best-effort) so it never adds latency to the reply.
-    if (reply) {
-      refreshWorkingMemory({
-        models,
-        ctx: memCtx,
-        exchange: { user: message, assistant: reply },
-        provider: agentConfig.provider,
-        model: agentConfig.model,
-        providers,
-        authCtx,
-        isLegacy,
-      });
+    } catch (e) {
+      console.warn(
+        `[native-chat-store] turn patch skipped: ${(e as Error)?.message || e}`,
+      );
     }
   }
 
+  return { titlePromise, assistantMessageId: nativeAssistantId };
+}
+
+// ─── Native chat store mirror (Phase 2) ─────────────────────────────────────
+
+// The minimal native-message shape the metadata patch reads: the id to target
+// and the V2 `content` blob it merges erxes fields into. (Mastra's full
+// MastraDBMessage is wider; we only touch these.)
+interface NativeChatMessage {
+  id: string;
+  role: string;
+  content?: { metadata?: Record<string, unknown> } & Record<string, unknown>;
+}
+
+// Merge an erxes field blob into a native message's content under a namespaced
+// `metadata.erxes` key — namespaced so it never collides with Mastra's own
+// content.metadata keys — preserving the rest of the V2 content untouched.
+function mergeErxesMeta(
+  content: NativeChatMessage['content'],
+  erxes: Record<string, unknown>,
+): Record<string, unknown> {
+  const base = (content ?? {}) as Record<string, unknown>;
+  const metadata = (base.metadata ?? {}) as Record<string, unknown>;
+  const prevErxes = (metadata.erxes ?? {}) as Record<string, unknown>;
   return {
-    titlePromise,
-    assistantMessageId: asstMsg ? String(asstMsg._id) : null,
+    ...base,
+    metadata: { ...metadata, erxes: { ...prevErxes, ...erxes } },
   };
+}
+
+// Mirror erxes-only turn fields onto Mastra's natively-persisted turn so the
+// native store can later become the chat read source (docs/NATIVE-CHAT-STORE.md,
+// Phase 2). Mastra already persisted the [user, assistant] pair during
+// generate()/stream(); here we (1) merge the erxes turn meta (ordered parts,
+// thinking, tool calls, interrupted flag, learnings-in-context) and attachment
+// pointers into each message's content.metadata.erxes, and (2) stamp
+// thread.metadata.agentId so the native thread list can filter by agent (a
+// binding Mastra has no concept of). Best-effort; the caller swallows errors.
+export async function patchNativeTurn(params: {
+  subdomain: string;
+  binding: MemoryBinding;
+  agentId: string;
+  reply: string | null;
+  meta?: IMastraMessageMeta;
+  attachments?: IMastraChatAttachment[];
+}): Promise<string | null> {
+  const { subdomain, binding, agentId, reply, meta, attachments } = params;
+  const memory = await getMastraMemory(subdomain);
+
+  // Recent messages newest-first. No vectorSearchString → recall is a plain
+  // recency list (not semantic search, no embedding/LLM work), and an explicit
+  // perPage overrides the instance's lastMessages. The turn just persisted sits
+  // at the tail, so the newest assistant/user rows are this turn's.
+  const recalled = (await memory.recall({
+    threadId: binding.thread,
+    resourceId: binding.resource,
+    perPage: 4,
+    page: 0,
+    orderBy: { field: 'createdAt', direction: 'DESC' },
+  } as never)) as { messages?: NativeChatMessage[] };
+  const recent = recalled?.messages ?? [];
+
+  const patches: { id: string; content: Record<string, unknown> }[] = [];
+
+  const assistant = reply
+    ? recent.find((m) => m.role === 'assistant')
+    : undefined;
+  if (assistant && meta) {
+    const erxes: Record<string, unknown> = {
+      ...(meta.parts ? { parts: meta.parts } : {}),
+      ...(meta.thinking ? { thinking: meta.thinking } : {}),
+      ...(meta.toolCalls ? { toolCalls: meta.toolCalls } : {}),
+      ...(meta.interrupted ? { interrupted: true } : {}),
+      ...(meta.learningIdsInContext?.length
+        ? { learningIdsInContext: meta.learningIdsInContext }
+        : {}),
+    };
+    if (Object.keys(erxes).length) {
+      patches.push({ id: assistant.id, content: mergeErxesMeta(assistant.content, erxes) });
+    }
+  }
+
+  const userMsg = attachments?.length
+    ? recent.find((m) => m.role === 'user')
+    : undefined;
+  if (userMsg) {
+    patches.push({
+      id: userMsg.id,
+      content: mergeErxesMeta(userMsg.content, { attachments }),
+    });
+  }
+
+  if (patches.length) {
+    await memory.updateMessages({ messages: patches } as never);
+  }
+
+  // Stamp the erxes thread↔agent binding + tenant. agentId backs the thread-list
+  // filter; subdomain lets the learning sweep enumerate a tenant's threads
+  // (native listThreads filters by exact resourceId or metadata, and resourceId
+  // is per-user). updateThread requires a title, so preserve the current one
+  // (native generateTitle / a later rename own it).
+  const thread = (await memory.getThreadById({
+    threadId: binding.thread,
+    resourceId: binding.resource,
+  } as never)) as { title?: string; metadata?: Record<string, unknown> } | null;
+  const tMeta = (thread?.metadata ?? {}) as {
+    agentId?: string;
+    subdomain?: string;
+  };
+  if (thread && (tMeta.agentId !== agentId || tMeta.subdomain !== subdomain)) {
+    await memory.updateThread({
+      id: binding.thread,
+      title: thread.title ?? '',
+      metadata: { ...(thread.metadata ?? {}), agentId, subdomain },
+    } as never);
+  }
+
+  // The native assistant message id — the client rates this (feedback resolves
+  // it back via the native store).
+  return assistant?.id ?? null;
 }
 
 // ─── Turn execution (blocking) ───────────────────────────────────────────────
 
 // Runs a single agent turn over the full conversation array and returns the
-// reply text (or null). Holds the tool-call extraction / synthesis / fallback
-// logic; throws a user-facing message on hard failures.
+// reply text (or null). With native multi-step generate() the model produces
+// the final answer itself; only a turn that ends with tool calls but no text
+// gets synthesized. Throws a user-facing message on hard failures.
 export async function runAgentTurn(params: {
   agent: TurnAgent;
-  tools: ToolsInput;
   convo: TurnMessage[];
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
-  depth?: number;
+  memory?: MemoryBinding;
 }): Promise<string | null> {
-  const { agent, tools, convo, message, isLegacy, authCtx, depth = 0 } = params;
+  const { agent, convo, message, authCtx, memory } = params;
+  const genOpts = memory ? { memory } : undefined;
+  // With a memory binding, hand generate() the new user message as a STRING —
+  // Mastra Memory only persists (and recalls against) string input; passing the
+  // convo array silently skips the save. (Recent history + recall come from
+  // Mastra Memory itself; the learned digest is already woven into `message`.)
+  const input = memory ? message : convo;
 
   try {
     const result = await runWithAuth(authCtx, () =>
-      isLegacy ? agent.generateLegacy(convo) : agent.generate(convo),
+      agent.generate(input, genOpts),
     );
 
-    if (result.text) {
-      const trimmed = result.text.trimStart();
-
-      // ── Text-based tool call fallback ──────────────────────────────────
-      // Models that don't support the tool_calls API field output their
-      // function call intent as plain text.  Detect, extract, and execute.
-      const extracted = extractTextToolCall(trimmed);
-      if (extracted) {
-        const handled = await executeTextToolCall({
-          agent,
-          tools,
-          convo,
-          message,
-          isLegacy,
-          authCtx,
-          depth,
-          extracted,
-          rawText: trimmed,
-        });
-        if (handled !== undefined) return handled;
-      }
-
-      // Detect legacy "The function call that best answers..." format (no args extractable)
-      if (trimmed.startsWith('The function call that best answers')) {
-        throw new Error(
-          'This model outputs tool calls as plain text and the call could not be parsed. ' +
-            'For reliable tool use, switch to: GPT-4o, Claude Sonnet, Gemini 2.0 Flash, ' +
-            'Kimi K2 (kimi-k2-0711-preview), Llama 3.3 70B (Groq or NVIDIA NIM), or Mistral Large.',
-        );
-      }
-
-      return result.text;
-    }
+    if (result.text) return result.text;
 
     // Collect tool results from all steps, deduplicated.
     const uniqueResults = dedupeToolResults([
@@ -606,7 +565,6 @@ export async function runAgentTurn(params: {
     return await synthesizeFromToolResults({
       agent,
       message,
-      isLegacy,
       authCtx,
       toolResults: uniqueResults,
     });
@@ -615,20 +573,59 @@ export async function runAgentTurn(params: {
   }
 }
 
-// Normalize provider failures into messages safe to show a non-technical user.
+// Map a raw failure to a plain-language, non-technical message (the prompt
+// rules forbid jargon/ids/HTTP codes in replies — the error path must honour
+// that too). First matching rule wins; unmatched errors are logged server-side
+// and fall through to a generic message so no raw provider text reaches a user.
+const ERROR_RULES: { test: RegExp; message: string }[] = [
+  {
+    test: /too many requests|rate.?limit|\b429\b/i,
+    message:
+      'The AI provider is temporarily rate-limited. Please wait a moment and try again.',
+  },
+  {
+    test: /unauthorized|forbidden|permission|access denied|invalid api key|\b401\b|\b403\b/i,
+    message:
+      "I couldn't complete that — it needs a permission or credential that isn't available. Please check with an admin.",
+  },
+  {
+    test: /timed? ?out|etimedout|econnrefused|econnreset|socket hang up|network|fetch failed|enotfound/i,
+    message:
+      'The service took too long to respond or was unreachable. Please try again in a moment.',
+  },
+  {
+    test: /bad gateway|service unavailable|internal server error|\b50[0234]\b/i,
+    message:
+      'The service is temporarily unavailable. Please try again shortly.',
+  },
+  {
+    test: /validation|is required|invalid input|must be a|failed to parse/i,
+    message:
+      'Some required information was missing or invalid. Please rephrase or add the missing details.',
+  },
+];
+
+/** Map a raw failure to a plain-language Error safe to show a user (jargon-,
+ *  id- and HTTP-code-free); unmatched errors are logged (redacted) and replaced
+ *  with a generic message so no raw provider text leaks. */
 export function toUserFacingError(err: unknown): Error {
   const msg: string =
     (err as { message?: string } | null | undefined)?.message ?? String(err);
-  if (
-    msg.toLowerCase().includes('too many requests') ||
-    msg.includes('429') ||
-    msg.toLowerCase().includes('rate limit')
-  ) {
-    return new Error(
-      'The AI provider is temporarily rate-limited. Please wait a moment and try again.',
-    );
-  }
-  return new Error(`Agent execution failed: ${msg}`);
+  const rule = ERROR_RULES.find((r) => r.test.test(msg));
+  if (rule) return new Error(rule.message);
+  // Unmatched: log for operators (never shown to the user), but redact long
+  // tokens first — provider errors can echo API keys, bearer tokens, connection
+  // strings or hashes that log aggregators shouldn't capture.
+  const safe = msg
+    .replace(
+      /\b(bearer\s+|api[_-]?key=|token=|:)[A-Za-z0-9._-]{16,}/gi,
+      '$1[redacted]',
+    )
+    .replace(/[A-Za-z0-9_-]{32,}/g, '[redacted]');
+  console.error('[toUserFacingError] unmatched error:', safe);
+  return new Error(
+    'Something went wrong while processing your request. Please try again — if it keeps happening, contact support.',
+  );
 }
 
 /** Drop duplicate tool results gathered across steps, keyed by tool-call id. */
@@ -659,10 +656,10 @@ export function logToolResults(uniqueResults: ToolResultLike[]) {
             data == null
               ? 'null'
               : Array.isArray(data)
-              ? `array(${data.length})`
-              : typeof data === 'object'
-              ? Object.keys(data).slice(0, 6)
-              : typeof data,
+                ? `array(${data.length})`
+                : typeof data === 'object'
+                  ? Object.keys(data).slice(0, 6)
+                  : typeof data,
           success: record ? record.success : undefined,
           error: record ? record.error || record.message : undefined,
         };
@@ -676,11 +673,10 @@ export function logToolResults(uniqueResults: ToolResultLike[]) {
 export async function synthesizeFromToolResults(params: {
   agent: TurnAgent;
   message: string;
-  isLegacy: boolean;
   authCtx: TurnAuthCtx;
   toolResults: ToolResultLike[];
 }): Promise<string> {
-  const { agent, message, isLegacy, authCtx, toolResults } = params;
+  const { agent, message, authCtx, toolResults } = params;
 
   // search_erxes_operations is navigational; only execute (action) results
   // decide whether the turn produced something real to report.
@@ -715,162 +711,10 @@ export async function synthesizeFromToolResults(params: {
 
   try {
     const synthesis = await runWithAuth(authCtx, () =>
-      isLegacy
-        ? agent.generateLegacy(synthesisMessages)
-        : agent.generate(synthesisMessages, { maxSteps: 1 }),
+      agent.generate(synthesisMessages, { maxSteps: 1 }),
     );
     return synthesis.text || fallback || 'Done.';
   } catch {
     return fallback || 'Done.';
-  }
-}
-
-// The duck-typed surface of a bound tool the text-call fallback drives: an
-// optional id for lookup and the raw execute the agent would have invoked.
-interface ExecutableToolLike {
-  id?: string;
-  execute?: (args: Record<string, unknown>) => Promise<unknown>;
-}
-
-// Execute a tool call the model emitted as plain text. Returns the reply text,
-// null (caller's fallback applies), or undefined when the tool wasn't found /
-// failed and the original model text should be returned as-is.
-export async function executeTextToolCall(params: {
-  agent: TurnAgent;
-  tools: ToolsInput;
-  convo: TurnMessage[];
-  message: string;
-  isLegacy: boolean;
-  authCtx: TurnAuthCtx;
-  depth: number;
-  extracted: TextToolCall;
-  rawText: string;
-  onToolEvent?: (event: {
-    phase: 'call' | 'result';
-    toolName: string;
-    args?: Record<string, unknown>;
-    result?: unknown;
-    isError?: boolean;
-  }) => void;
-}): Promise<string | null | undefined> {
-  const {
-    agent,
-    tools,
-    convo,
-    message,
-    isLegacy,
-    authCtx,
-    depth,
-    extracted,
-    rawText,
-    onToolEvent,
-  } = params;
-
-  // Find the tool by name or by toolId
-  const toolMap = tools as unknown as Record<
-    string,
-    ExecutableToolLike | undefined
-  >;
-  const tool =
-    toolMap[extracted.name] ||
-    Object.entries(toolMap).find(
-      ([, candidate]) => candidate?.id === extracted.name,
-    )?.[1];
-
-  if (!tool?.execute) return undefined;
-  // Bound so the auth-context closure below keeps the tool as `this`.
-  const executeTool = tool.execute.bind(tool);
-
-  try {
-    onToolEvent?.({
-      phase: 'call',
-      toolName: extracted.name,
-      args: extracted.args,
-    });
-    const toolResult = await runWithAuth(authCtx, () =>
-      executeTool(extracted.args),
-    );
-    onToolEvent?.({
-      phase: 'result',
-      toolName: extracted.name,
-      args: extracted.args,
-      result: toolResult,
-      isError: !isRealToolData(toolResult),
-    });
-    const syntheticResults = [
-      {
-        toolName: extracted.name,
-        result: toolResult,
-        toolCallId: `text-${Date.now()}`,
-      },
-    ];
-
-    console.log(
-      '[text-tool-call]',
-      extracted.name,
-      JSON.stringify(extracted.args),
-      '→',
-      (JSON.stringify(toolResult) || '').slice(0, 300),
-    );
-
-    // search_erxes_operations is navigational. The model emitted it as
-    // text (no native multi-step), so feed the results back and let it
-    // continue to execute_erxes_operation. Bounded to avoid loops.
-    if (
-      extracted.name.toLowerCase().includes('search_erxes_operations') &&
-      depth < 2
-    ) {
-      const followup = [
-        ...convo,
-        { role: 'assistant', content: rawText },
-        {
-          role: 'user',
-          content:
-            `Available operations (from search_erxes_operations):\n${JSON.stringify(
-              toolResult,
-            )}\n\n` +
-            `Now call execute_erxes_operation with the exact "operation" name and an "args" object to fulfil: "${message}".`,
-        },
-      ];
-      return await runAgentTurn({
-        agent,
-        tools,
-        convo: followup,
-        message,
-        isLegacy,
-        authCtx,
-        depth: depth + 1,
-      });
-    }
-
-    const fallback = buildFallbackFromResults(syntheticResults);
-    if (!isRealToolData(toolResult))
-      return fallback || 'Something went wrong. Please try again.';
-
-    // Synthesise a human-readable summary.
-    const toolContext = `[${extracted.name}]:\n${JSON.stringify(
-      toolResult,
-      null,
-      2,
-    )}`;
-    const synthesisMessages: TurnMessage[] = [
-      {
-        role: 'user',
-        content: `Report the following tool results accurately to the user in one or two sentences. Do not call any tools.\n\nUser request: ${message}\n\n${toolContext}`,
-      },
-    ];
-    try {
-      const synthesis = await runWithAuth(authCtx, () =>
-        isLegacy
-          ? agent.generateLegacy(synthesisMessages)
-          : agent.generate(synthesisMessages, { maxSteps: 1 }),
-      );
-      return synthesis.text || fallback || 'Done.';
-    } catch {
-      return fallback || 'Done.';
-    }
-  } catch {
-    // Tool execution failed — let the caller return the original text
-    return undefined;
   }
 }

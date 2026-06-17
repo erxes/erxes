@@ -2,17 +2,19 @@ import { PageSubHeader } from 'erxes-ui';
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
 import { useTasksVariables } from '@/task/hooks/useGetTasks';
-import { Export, Import } from 'ui-modules';
+import { Can, Export, Import } from 'ui-modules';
 
 /** Renders the import button for the tasks list. */
 export const TasksImportButton = () => {
   return (
-    <Import
-      pluginName="operation"
-      moduleName="task"
-      collectionName="task"
-      title="Import Tasks"
-    />
+    <Can action="taskImportManage">
+      <Import
+        pluginName="operation"
+        moduleName="task"
+        collectionName="task"
+        title="Import Tasks"
+      />
+    </Can>
   );
 };
 
@@ -65,13 +67,15 @@ export const TasksExportButton = () => {
   };
 
   return (
-    <Export
-      pluginName="operation"
-      moduleName="task"
-      collectionName="task"
-      getFilters={getFilters}
-      buttonVariant="outline"
-    />
+    <Can action="taskExportManage">
+      <Export
+        pluginName="operation"
+        moduleName="task"
+        collectionName="task"
+        getFilters={getFilters}
+        buttonVariant="outline"
+      />
+    </Can>
   );
 };
 

@@ -82,6 +82,27 @@ export const loadProductSimilarityClass = (
       });
     }
 
+    const linkedIds = activeRows
+      .map((r) => r.productId)
+      .filter((id): id is string => !!id);
+
+    if (linkedIds.length) {
+      const linked = await models.Products.find({ _id: { $in: linkedIds } })
+        .select({ _id: 1, code: 1, similarityId: 1 })
+        .lean();
+
+      const owned = linked.filter(
+        (p) => p.similarityId && p.similarityId !== similarity._id,
+      );
+
+      if (owned.length) {
+        const codes = [...new Set(owned.map((p) => p.code))].join(', ');
+        throw new Error(
+          `Cannot save: these products already belong to another similarity group: ${codes}. Remove them from that group first.`,
+        );
+      }
+    }
+
     const newRowCodes = activeRows
       .filter((r) => !r.productId)
       .map((r) => r.code);

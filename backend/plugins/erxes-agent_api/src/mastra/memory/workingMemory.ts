@@ -107,7 +107,6 @@ export async function readWorkingMemory(
 // import keeps this module free of a static @mastra/core type dependency.
 interface ExtractorAgent {
   generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
-  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
 }
 
 // Tool-less extractor agents, cached per provider+model. Built lazily so the
@@ -148,18 +147,9 @@ export async function refreshWorkingMemory(params: {
   model: string;
   providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
-  isLegacy: boolean;
 }): Promise<void> {
-  const {
-    models,
-    ctx,
-    exchange,
-    provider,
-    model,
-    providers,
-    authCtx,
-    isLegacy,
-  } = params;
+  const { models, ctx, exchange, provider, model, providers, authCtx } =
+    params;
   try {
     const existing = await models.MastraWorkingMemory.getContent(
       ctx.resourceId,
@@ -171,9 +161,7 @@ export async function refreshWorkingMemory(params: {
       { role: 'user', content: buildRefreshUserContent(existing, exchange) },
     ];
     const result = await runWithAuth(authCtx, () =>
-      isLegacy
-        ? extractor.generateLegacy(msgs)
-        : extractor.generate(msgs, { maxSteps: 1 }),
+      extractor.generate(msgs, { maxSteps: 1 }),
     );
     const updated = mergeWorkingMemory(existing, result?.text);
     if (updated.trim() && updated !== existing) {

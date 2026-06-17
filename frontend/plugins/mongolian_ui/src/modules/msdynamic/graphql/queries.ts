@@ -70,6 +70,38 @@ const commonOrderParamDefs = `
   brandId: $brandId
 `;
 
+const cursorOrderParams = `
+  $limit: Int,
+  $cursor: String,
+  $direction: CURSOR_DIRECTION,
+  $orderBy: JSON,
+  $search: String,
+  $posToken: String,
+  $posId: String,
+  $userId: String,
+  $paidStartDate: Date,
+  $paidEndDate: Date,
+  $createdStartDate: Date,
+  $createdEndDate: Date,
+  $brandId: String,
+`;
+
+const cursorOrderParamDefs = `
+  limit: $limit,
+  cursor: $cursor,
+  direction: $direction,
+  orderBy: $orderBy,
+  search: $search,
+  posToken: $posToken,
+  posId: $posId,
+  userId: $userId,
+  createdStartDate: $createdStartDate,
+  createdEndDate: $createdEndDate,
+  paidStartDate: $paidStartDate,
+  paidEndDate: $paidEndDate,
+  brandId: $brandId
+`;
+
 const syncMsdHistories = `
   query syncMsdHistories(
     ${commonHistoryParams}
@@ -165,6 +197,31 @@ const checkSyncOrdersTotalCount = `
   }
 `;
 
+const posOrdersList = `
+  query MsdynamicPosOrdersList(
+    ${cursorOrderParams}
+  ) {
+    posOrdersList (
+      ${cursorOrderParamDefs}
+    ) {
+      list {
+        _id
+        number
+        createdAt
+        paidDate
+        totalAmount
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+`;
+
 const posOrderDetail = `
   query posOrderDetail($_id: String) {
     posOrderDetail(_id: $_id) {
@@ -238,6 +295,7 @@ export default {
   configs,
   checkSyncOrders,
   checkSyncOrdersTotalCount,
+  posOrdersList,
   posOrderDetail,
   msdCustomerRelations,
 };

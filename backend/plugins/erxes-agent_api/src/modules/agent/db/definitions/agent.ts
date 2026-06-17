@@ -20,6 +20,15 @@ export const agentSchema = new Schema(
       label: 'Tool Policy',
     },
     allowedTools: [{ type: String }],
+    // Consent for irreversible deletes/merges (remove/delete/merge mutations).
+    // Defaults to 'block' so the agent cannot destroy data by mistake; set to
+    // 'allow' to opt a specific agent into destructive operations.
+    destructiveOps: {
+      type: String,
+      enum: ['allow', 'block'],
+      default: 'block',
+      label: 'Destructive Operations',
+    },
     memoryEnabled: { type: Boolean, default: true },
     maxSteps: { type: Number, default: 10 },
     // Sampling temperature sent to the model. Unset → the provider/SDK default

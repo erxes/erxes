@@ -12,6 +12,7 @@
   "bundle-condition": "Багцын нөхцөл",
   "bundle-rule": "Багцын дүрэм",
   "product-rule": "Бүтээгдэхүүний дүрэм",
+  "unavailable": "Боломжгүй",
   "add": {
     "create-product": "Бүтээгдэхүүн үүсгэх",
     "add-uom": "Хэмжих нэгж нэмэх",

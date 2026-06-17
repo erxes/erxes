@@ -40,6 +40,7 @@ export const salesAutomationHandlers = {
           models,
           target: target as IDeal,
           config,
+          eventUpdateDescription,
         });
       }
 

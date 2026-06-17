@@ -38,7 +38,7 @@ export const appRouter = t.mergeRouters(
           if (moduleType === 'facebook') {
             return await generateFacebookFields(models, subdomain, input);
           }
-          if (moduleType === 'ticket') {
+          if (moduleType === 'tickets') {
             return await generateTicketFields({ subdomain, data: input });
           }
 

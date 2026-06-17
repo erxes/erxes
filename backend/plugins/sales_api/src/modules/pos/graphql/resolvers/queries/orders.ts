@@ -1,5 +1,6 @@
 import { SUBSCRIPTION_INFO_STATUS } from '@/pos/db/definitions/constants';
 import {
+  cursorPaginate,
   escapeRegExp,
   getPureDate,
   getToday,
@@ -346,8 +347,8 @@ export const posOrderRecordsQuery = async (
       productCategoryById[perProduct.categoryId || ''];
     order.items.manufactured = order.items.manufacturedDate
       ? new Date(
-        Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n')),
-      )
+          Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n')),
+        )
       : '';
     order.user = userById[order.userId];
     order.posName = posByToken[order.posToken]?.name || '';
@@ -1064,6 +1065,28 @@ const queries = {
     ]);
 
     return result?.totalCount || 0;
+  },
+
+  posOrdersList: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+    const query = await generateFilterPosQuery(models, params, user._id);
+
+    const orderBy = params.orderBy || { number: -1 };
+
+    const { list, totalCount, pageInfo } = await cursorPaginate({
+      model: models.PosOrders,
+      params: {
+        orderBy,
+        ...params,
+      },
+      query,
+    });
+
+    return { list, totalCount, pageInfo };
   },
 };
 

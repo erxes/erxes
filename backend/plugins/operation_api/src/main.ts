@@ -67,6 +67,7 @@ startPlugin({
         {
           label: 'Task',
           contentType: 'operation:task.task',
+          permissions: ['taskImportManage'],
         },
       ],
       insertImportRows: createCoreModuleProducerHandler({
@@ -89,10 +90,12 @@ startPlugin({
         {
           label: 'Task',
           contentType: 'operation:task.task',
+          permissions: ['taskExportManage'],
         },
         {
           label: 'Project',
           contentType: 'operation:project.project',
+          permissions: ['projectExportManage'],
         },
       ],
       getExportData: createCoreModuleProducerHandler({
