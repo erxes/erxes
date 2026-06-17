@@ -15,12 +15,10 @@ import {
 // plugins). Reads that can leak secrets (provider credentials, the settings
 // document with `erxesApiToken`) are NOT `always` and must be granted.
 //
-// The config is assembled from small factories (`action`, `buildModule`,
-// `grant`) so the per-module/per-group boilerplate is declared once. Agent
-// config (agents, providers, settings, workflows, schedules, learnings) is
-// global rather than per-owner, so groups use the `all` scope; per-user
-// ownership for chat threads/feedback is enforced in the resolvers (resourceId
-// scoping), independent of these scopes.
+// The config is data-driven (a `SPECS` table fed through `crud`/`buildModule`)
+// so the standard View/Create/Edit/Remove shape is declared exactly once;
+// agent config is global, so groups use the `all` scope while per-user
+// ownership for chat threads/feedback is enforced in the resolvers.
 
 const PLUGIN = 'erxes-agent';
 type Scope = IPermissionScope['name'];
@@ -38,6 +36,18 @@ const action = (
   always = false,
 ): IPermissionAction => ({ name, title, description, ...(always && { always }) });
 
+/** Standard create/read/update/delete actions — generated in one place. */
+const crud = (
+  prefix: string,
+  noun: string,
+  o: { view: string; viewAlways?: boolean; edit?: string },
+): IPermissionAction[] => [
+  action(`${prefix}View`, `View ${noun}s`, o.view, o.viewAlways),
+  action(`${prefix}Create`, `Create ${noun}`, `Create a new ${noun}`),
+  action(`${prefix}Edit`, `Edit ${noun}`, o.edit ?? `Update a ${noun}`),
+  action(`${prefix}Remove`, `Remove ${noun}`, `Delete a ${noun}`),
+];
+
 /** One module wrapped in the platform-standard scope boilerplate. */
 const buildModule = (
   name: string,
@@ -52,53 +62,121 @@ const buildModule = (
   actions,
 });
 
-const modules: IPermissionModule[] = [
-  buildModule('agent', 'AI agent management & chat', [
-    action('agentsView', 'View agents', 'List and read AI agent configurations', true),
-    action('agentsCreate', 'Create agent', 'Create a new AI agent'),
-    action('agentsEdit', 'Edit agent', 'Update an existing AI agent'),
-    action('agentsRemove', 'Remove agent', 'Delete an AI agent'),
-    action(
-      'agentsChat',
-      'Chat with agents',
-      'Talk to an agent and manage your own chat threads & message feedback',
-    ),
-  ]),
-  buildModule('provider', 'AI provider credentials (LLM connections)', [
-    action(
-      'providersView',
-      'View providers',
-      'List configured providers, the provider catalog and live model lists',
-    ),
-    action('providersManage', 'Manage providers', 'Create or update provider credentials and API keys'),
-    action('providersRemove', 'Remove providers', 'Delete a provider configuration'),
-  ]),
-  buildModule('settings', 'Agent plugin settings & company knowledge', [
-    action('settingsView', 'View settings', 'Read plugin settings and derived feature status'),
-    action('settingsManage', 'Manage settings', 'Save plugin-wide agent settings'),
-    action('settingsKnowledgeSync', 'Sync company knowledge', 'Force a Company Knowledge reindex'),
-  ]),
-  buildModule('workflow', 'Agent workflow definitions & runs', [
-    action('workflowsView', 'View workflows', 'List workflows, read definitions and run history', true),
-    action('workflowsCreate', 'Create workflow', 'Create a new workflow definition'),
-    action('workflowsEdit', 'Edit workflow', 'Update a workflow definition or enable/disable it'),
-    action('workflowsRemove', 'Remove workflow', 'Delete a workflow'),
-    action('workflowsRun', 'Run workflow', 'Manually execute a workflow'),
-  ]),
-  buildModule('schedule', 'Scheduled agent runs', [
-    action('schedulesView', 'View schedules', 'List and read scheduled agent runs', true),
-    action('schedulesCreate', 'Create schedule', 'Create a new scheduled agent run'),
-    action('schedulesEdit', 'Edit schedule', 'Update a schedule or enable/disable it'),
-    action('schedulesRemove', 'Remove schedule', 'Delete a schedule'),
-    action('schedulesRun', 'Run schedule', 'Manually trigger a scheduled run now'),
-  ]),
-  buildModule('learning', 'Agent learning & knowledge curation', [
-    action('learningView', 'View learnings', 'List learnings, stats and status', true),
-    action('learningCreate', 'Create learning', 'Add a learning statement'),
-    action('learningEdit', 'Edit learning', 'Edit, re-status or pin a learning statement'),
-    action('learningRemove', 'Remove learning', 'Delete a learning statement'),
-  ]),
+// A module is either CRUD (generated from prefix/noun, plus any `extra`
+// actions) or fully custom (`actions`) for the non-CRUD modules.
+type Spec = {
+  name: string;
+  description: string;
+  prefix?: string;
+  noun?: string;
+  view?: string;
+  viewAlways?: boolean;
+  edit?: string;
+  extra?: IPermissionAction[];
+  actions?: IPermissionAction[];
+};
+
+const SPECS: Spec[] = [
+  {
+    name: 'agent',
+    description: 'AI agent management & chat',
+    prefix: 'agents',
+    noun: 'agent',
+    view: 'List and read AI agent configurations',
+    viewAlways: true,
+    extra: [
+      action(
+        'agentsChat',
+        'Chat with agents',
+        'Talk to an agent and manage your own chat threads & message feedback',
+      ),
+    ],
+  },
+  {
+    name: 'provider',
+    description: 'AI provider credentials (LLM connections)',
+    actions: [
+      action(
+        'providersView',
+        'View providers',
+        'List configured providers, the provider catalog and live model lists',
+      ),
+      action(
+        'providersManage',
+        'Manage providers',
+        'Create or update provider credentials and API keys',
+      ),
+      action(
+        'providersRemove',
+        'Remove providers',
+        'Delete a provider configuration',
+      ),
+    ],
+  },
+  {
+    name: 'settings',
+    description: 'Agent plugin settings & company knowledge',
+    actions: [
+      action(
+        'settingsView',
+        'View settings',
+        'Read plugin settings and derived feature status',
+      ),
+      action('settingsManage', 'Manage settings', 'Save plugin-wide agent settings'),
+      action(
+        'settingsKnowledgeSync',
+        'Sync company knowledge',
+        'Force a Company Knowledge reindex',
+      ),
+    ],
+  },
+  {
+    name: 'workflow',
+    description: 'Agent workflow definitions & runs',
+    prefix: 'workflows',
+    noun: 'workflow',
+    view: 'List workflows, read definitions and run history',
+    viewAlways: true,
+    edit: 'Update a workflow definition or enable/disable it',
+    extra: [action('workflowsRun', 'Run workflow', 'Manually execute a workflow')],
+  },
+  {
+    name: 'schedule',
+    description: 'Scheduled agent runs',
+    prefix: 'schedules',
+    noun: 'schedule',
+    view: 'List and read scheduled agent runs',
+    viewAlways: true,
+    edit: 'Update a schedule or enable/disable it',
+    extra: [
+      action('schedulesRun', 'Run schedule', 'Manually trigger a scheduled run now'),
+    ],
+  },
+  {
+    name: 'learning',
+    description: 'Agent learning & knowledge curation',
+    prefix: 'learning',
+    noun: 'learning',
+    view: 'List learnings, stats and status',
+    viewAlways: true,
+    edit: 'Edit, re-status or pin a learning statement',
+  },
 ];
+
+const modules: IPermissionModule[] = SPECS.map((s) =>
+  buildModule(
+    s.name,
+    s.description,
+    s.actions ?? [
+      ...crud(s.prefix as string, s.noun as string, {
+        view: s.view as string,
+        viewAlways: s.viewAlways,
+        edit: s.edit,
+      }),
+      ...(s.extra ?? []),
+    ],
+  ),
+);
 
 const byName: Record<string, IPermissionModule> = Object.fromEntries(
   modules.map((m) => [m.name, m]),
@@ -114,7 +192,10 @@ const grant = (module: string, actions: string[], scope: Scope = 'all') => ({
 
 /** Every action of a module — used by the admin group. */
 const allOf = (module: string) =>
-  grant(module, byName[module].actions.map((a) => a.name));
+  grant(
+    module,
+    byName[module].actions.map((a) => a.name),
+  );
 
 export const permissions: IPermissionConfig = {
   plugin: PLUGIN,
