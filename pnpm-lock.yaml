@@ -26071,6 +26071,10 @@ snapshots:
       '@module-federation/runtime': 0.6.6
       '@module-federation/sdk': 0.6.6
 
+  '@mongodb-js/saslprep@1.2.2':
+    dependencies:
+      sparse-bitfield: 3.0.3
+
   '@mongodb-js/saslprep@1.4.11':
     dependencies:
       sparse-bitfield: 3.0.3
@@ -40156,7 +40160,7 @@ snapshots:
 
   mongodb@6.15.0(socks@2.8.7):
     dependencies:
-      '@mongodb-js/saslprep': 1.4.11
+      '@mongodb-js/saslprep': 1.2.2
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
     optionalDependencies:
@@ -40164,7 +40168,7 @@ snapshots:
 
   mongodb@6.18.0(socks@2.8.7):
     dependencies:
-      '@mongodb-js/saslprep': 1.4.11
+      '@mongodb-js/saslprep': 1.2.2
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
     optionalDependencies:
