@@ -1,5 +1,13 @@
 import { IconLock, IconShield, IconUsers } from '@tabler/icons-react';
-import { Avatar, Button, Collapsible, Dialog, readImage, Separator, Spinner } from 'erxes-ui';
+import {
+  Avatar,
+  Button,
+  Collapsible,
+  Dialog,
+  readImage,
+  Separator,
+  Spinner,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
 import {
@@ -163,8 +171,13 @@ export const PermissionGroupDetails = ({
                       className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-background"
                     >
                       <Avatar size="lg">
-                        <Avatar.Image src={readImage(member.details?.avatar || '')} alt={name} />
-                        <Avatar.Fallback>{name.charAt(0).toUpperCase()}</Avatar.Fallback>
+                        <Avatar.Image
+                          src={readImage(member.details?.avatar || '')}
+                          alt={name}
+                        />
+                        <Avatar.Fallback>
+                          {name.charAt(0).toUpperCase()}
+                        </Avatar.Fallback>
                       </Avatar>
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{name}</p>
