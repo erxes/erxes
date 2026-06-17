@@ -22,6 +22,11 @@ export const types = `
     lastError: String
   }
 
+  type MastraKnowledgeSyncResult {
+    ok: Boolean
+    queued: Boolean
+  }
+
   # Where chat attachments land: the instance's existing upload storage,
   # detected from core's file-upload configs. enabled = configured AND the
   # plugin-level toggle is on — when false the chat stays text-only.
@@ -63,4 +68,5 @@ export const queries = `
 
 export const mutations = `
   mastraSettingsSave(doc: MastraSettingsInput!): MastraSettings
+  mastraKnowledgeSync: MastraKnowledgeSyncResult
 `;

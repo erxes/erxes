@@ -1,6 +1,8 @@
 import { IContext } from '~/connectionResolvers';
 import { computeLearningStatus } from '~/mastra/learning/config';
 import { MastraLearningStatus } from '@/learning/@types/learning';
+import { assertOwnedThread } from '@/session/nativeStore';
+import { listKnowledge } from '~/mastra/datasets/knowledge';
 
 /** Throws unless a logged-in user is on the context; returns their _id. */
 function requireUserId(user: { _id?: string } | null | undefined): string {
@@ -18,6 +20,20 @@ export const learningCustomResolvers = {
 };
 
 export const learningQueries = {
+  // Read the single-source "Agent Knowledge (erxes)" Mastra dataset (the same
+  // one Studio reads). Each item is a 👍-approved turn (question → approved
+  // answer). Written live by the thumbs feedback mutation — this is a pure read,
+  // no compute/sync. See docs/LANGFUSE-EVAL-HANDOFF.md §9.
+  mastraKnowledgeDataset: (
+    _: unknown,
+    args: { limit?: number },
+    { user, subdomain }: IContext,
+  ) => {
+    requireUserId(user);
+    const limit = Math.min(Math.max(args.limit ?? 500, 1), 1000);
+    return listKnowledge(subdomain, limit);
+  },
+
   mastraLearnings: async (
     _: unknown,
     args: {
@@ -71,10 +87,10 @@ export const learningQueries = {
   mastraMessageFeedbacks: async (
     _: unknown,
     { threadId }: { threadId: string },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const userId = requireUserId(user);
-    await models.MastraThread.getOwnedThread(threadId, userId);
+    await assertOwnedThread(subdomain, userId, threadId);
     const docs = await models.MastraFeedback.find({ threadId, userId });
     const byMessage: Record<string, { rating: number; comment?: string }> = {};
     for (const d of docs) {

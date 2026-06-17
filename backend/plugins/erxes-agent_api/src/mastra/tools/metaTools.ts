@@ -7,6 +7,12 @@ import {
 } from './erxesTools';
 import { OperationMeta, OperationRegistry } from './operationRegistry';
 import { ToolPolicy, isOperationAllowed } from './scope';
+import {
+  DestructiveOpsPolicy,
+  isDestructiveOperation,
+  destructiveBlockedResult,
+} from './destructiveGuard';
+import { makeAgentProcessId, type AgentActionInput } from '../auditLog';
 
 // LLMs sometimes pass the args object as a JSON string. Parse it back so the
 // execute tool always receives a real object.
@@ -76,8 +82,10 @@ export function buildErxesMetaTools(params: {
   registry: OperationRegistry;
   settings: ErxesToolSettings;
   policy: ToolPolicy;
+  destructiveOps: DestructiveOpsPolicy;
+  recordAction?: (entry: AgentActionInput) => void;
 }) {
-  const { registry, settings, policy } = params;
+  const { registry, settings, policy, destructiveOps, recordAction } = params;
 
   /** Operations visible to this agent after policy filtering. */
   const allowedList = (): OperationMeta[] =>
@@ -180,13 +188,59 @@ export function buildErxesMetaTools(params: {
         };
       }
 
-      return await executeErxesOperation(
+      const callArgs = coerceArgs(args);
+      const isMutation = op.operationType === 'mutation';
+
+      // Safety gate: irreversible deletes/merges are refused unless the agent is
+      // explicitly configured with destructiveOps: 'allow'. Enforced here, beside
+      // the policy check, so the boundary holds even if the model guesses a name.
+      if (destructiveOps !== 'allow' && isDestructiveOperation(op)) {
+        if (isMutation)
+          recordAction?.({
+            operation,
+            operationType: op.operationType,
+            destructive: true,
+            args: callArgs,
+            status: 'blocked',
+            error: 'blocked by destructive-ops guard',
+          });
+        return destructiveBlockedResult(operation);
+      }
+
+      // Stamp a correlation id on mutations so every DB change this op makes is
+      // traceable/revertable as a unit; reads need none.
+      const processId = isMutation ? makeAgentProcessId() : undefined;
+
+      const result = await executeErxesOperation(
         op,
-        coerceArgs(args),
+        callArgs,
         settings,
         registry.inputTypesMap,
         registry.objectFieldsMap,
+        processId,
       );
+
+      // Audit trail: record mutations only (executed or failed); reads are not
+      // logged. Best-effort — never blocks or fails the operation.
+      if (isMutation) {
+        const failed =
+          Boolean(result) &&
+          typeof result === 'object' &&
+          (result as { success?: unknown }).success === false;
+        recordAction?.({
+          operation,
+          operationType: op.operationType,
+          destructive: isDestructiveOperation(op),
+          args: callArgs,
+          status: failed ? 'failed' : 'success',
+          error: failed
+            ? String((result as { error?: unknown }).error ?? '')
+            : undefined,
+          processId,
+        });
+      }
+
+      return result;
     },
   });
 

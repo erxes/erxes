@@ -1,5 +1,71 @@
 
 
+## [3.0.38](https://github.com/erxes/erxes/compare/3.0.37...3.0.38) (2026-06-16)
+
+
+### Bug Fixes
+
+* brand-duplicated ([#8050](https://github.com/erxes/erxes/issues/8050)) ([dc9cb6c](https://github.com/erxes/erxes/commit/dc9cb6cf1a15e05a634e25ed282d856118beef06))
+* call history ([722d984](https://github.com/erxes/erxes/commit/722d98413890bf1ee65b67c97ca23f66b9314cc6))
+* **posclient:** login with username ([5496153](https://github.com/erxes/erxes/commit/54961535c09a5e47934d3da770d630029271ef78))
+* some improvement ([#8030](https://github.com/erxes/erxes/issues/8030)) ([df087be](https://github.com/erxes/erxes/commit/df087beaa83cd5ca4bfa13000c3dec60aba9d129))
+
+
+### Features
+
+* enhance call history retrieval with optimized aggregation pipeline and additional indexes ([0ee4e7d](https://github.com/erxes/erxes/commit/0ee4e7dd02c4a26dc8c974534b58fd06be8ec12c))
+* enhance call session handling and CDR processing logic ([08b07c0](https://github.com/erxes/erxes/commit/08b07c054bc7f54d9fc7c93dd556ef9f76d81f33))
+* **erxes-agent:** Mastra Studio dev bridge ([#8059](https://github.com/erxes/erxes/issues/8059)) ([6af7875](https://github.com/erxes/erxes/commit/6af7875f910770a37aff2d3bf387b77e603bb6e9))
+* implement handleTrigger function and refactor trigger handling in triggerWorker and TRPC router ([70cf06b](https://github.com/erxes/erxes/commit/70cf06b11d85ae35010edd95f8bbdb823c60a99f))
+* make documents available without OS restriction ([246ef9f](https://github.com/erxes/erxes/commit/246ef9f19688c55e9401e7a8bf2966e6e425f1a0))
+
+## [3.0.37](https://github.com/erxes/erxes/compare/3.0.36...3.0.37) (2026-06-16)
+
+
+### Bug Fixes
+
+* add module-specific permissions to import/export types ([#8032](https://github.com/erxes/erxes/issues/8032)) ([39842fe](https://github.com/erxes/erxes/commit/39842fe87d70b88bfea041ad18aa5a1da0f9fe35))
+* correct import/export permission gates and content types ([#8038](https://github.com/erxes/erxes/issues/8038)) ([f1320d8](https://github.com/erxes/erxes/commit/f1320d8a05d1fbe942a0cf0f0f0aa12e6bb84527))
+* enable scroll in safe remainder detail tables ([a17096e](https://github.com/erxes/erxes/commit/a17096e3215b2c771aa5f12f36eb34320588984f))
+* **payment-widget:** resolve paymentsPublic empty result due to GraphQL variable mismatch  ([d96a875](https://github.com/erxes/erxes/commit/d96a875468753dff045c22e8ba852262be859b92))
+* **payment:** check public ([b94c7d4](https://github.com/erxes/erxes/commit/b94c7d4b1a3c6a65c5f4b5d99c4bc4c01cac3815))
+* **payment:** check public1 ([6dafa19](https://github.com/erxes/erxes/commit/6dafa197a7e7786ad950b07e4db1d26a55ff041d))
+* **payment:** check public2 ([2e1297d](https://github.com/erxes/erxes/commit/2e1297dbb75ecf715ab186fca38ec0f135ad6cc7))
+* **payment:** check public3 ([52c6744](https://github.com/erxes/erxes/commit/52c6744b08b68a69f2277034236826f5a3a643f0))
+* **payment:** check public4 ([b7875b4](https://github.com/erxes/erxes/commit/b7875b45449c81407dff5b3c5d03541dc0e3bff0))
+* **payment:** generate invoice url up ([e413c8b](https://github.com/erxes/erxes/commit/e413c8b1649f4453c7a4cb2a231b92f9b1414b57))
+* **payment:** widget with env and saas ([5d63766](https://github.com/erxes/erxes/commit/5d637666bbeb206b5147ca0ea682bf56f9531538))
+* posclient-front entrypoint ([12e1027](https://github.com/erxes/erxes/commit/12e10272c4781cec3a65efeb21407cac9841b388))
+* products filter by status ([#8034](https://github.com/erxes/erxes/issues/8034)) ([57bf82c](https://github.com/erxes/erxes/commit/57bf82c8ec48fca6421f1e082dcb1a049794275f))
+* release with posclient-front ([3e3c4d4](https://github.com/erxes/erxes/commit/3e3c4d4726637929289f939f40c62305ed763166))
+* remove duplicate brand list rendering in SelectBrandContent ([#8053](https://github.com/erxes/erxes/issues/8053)) ([eccf1c2](https://github.com/erxes/erxes/commit/eccf1c26ef08b17ef3f362bdaeda88ac3643f343))
+* subscription ([#8028](https://github.com/erxes/erxes/issues/8028)) ([d1fff7d](https://github.com/erxes/erxes/commit/d1fff7d576dcb5542034f6e4bbf20a7e11a8e3ba))
+* TypeError: Cannot read properties of undefined (reading 'replace') ([#8043](https://github.com/erxes/erxes/issues/8043)) ([#8044](https://github.com/erxes/erxes/issues/8044)) ([0458a7b](https://github.com/erxes/erxes/commit/0458a7bc5353a80aa6e5722a8f26caee4b257f5d))
+
+
+### Features
+
+* add bulk generation product by similarity ([#8024](https://github.com/erxes/erxes/issues/8024)) ([0026948](https://github.com/erxes/erxes/commit/0026948712993f0342d562b6aaa3059899fbf538))
+* add bulk tag add/remove to ProductCommandBar ([#7999](https://github.com/erxes/erxes/issues/7999)) ([f09c64a](https://github.com/erxes/erxes/commit/f09c64a4a589cbc16675481d3ece12a0359ed4b6))
+* add reference extension metadata and placeholder resolution ([#8046](https://github.com/erxes/erxes/issues/8046)) ([120d4da](https://github.com/erxes/erxes/commit/120d4da0eb9d2204c4de943afe521173dad68ecd))
+* **core:** add POS migration command ([3a9e7c4](https://github.com/erxes/erxes/commit/3a9e7c48d035dbac1ff2ce15e8ecdfa9c63b7f1b))
+* **erxes-agent:** index Company Knowledge as the requesting user ([#8040](https://github.com/erxes/erxes/issues/8040)) ([72acb7a](https://github.com/erxes/erxes/commit/72acb7a5f48db813706c3ddd8652684652047f10))
+* implement before resolver functionality and integrate into product deletion process ([#8039](https://github.com/erxes/erxes/issues/8039)) ([e96fa06](https://github.com/erxes/erxes/commit/e96fa06bdb88eda0c4541037dcf92fb04f761407))
+* **mongolian:** improved MSdynamic synced order check workflow ui ([#7989](https://github.com/erxes/erxes/issues/7989)) ([927fc49](https://github.com/erxes/erxes/commit/927fc49e25e0b141d85284d9de28fb93c10e5291))
+* point-in-time revert (undo) for any DB change — dynamic capture, engine & UI ([#8045](https://github.com/erxes/erxes/issues/8045)) ([09127c4](https://github.com/erxes/erxes/commit/09127c4772fbb9bf04d07ff19aac3df173789a1a))
+* show members in side sheet on userCount click ([#7959](https://github.com/erxes/erxes/issues/7959)) ([81b4aa5](https://github.com/erxes/erxes/commit/81b4aa5c691d3298546729cdcb2e640caf2c21a9))
+* similarity group swap existing products & detail tab ([fb2aedd](https://github.com/erxes/erxes/commit/fb2aedd80f1345781fd8614977613473d4d1871e))
+
+
+### Performance Improvements
+
+* improve payment plugin ci ([c60cacc](https://github.com/erxes/erxes/commit/c60cacc5c24c0aa726f1cdb623cc0f9b9a0d1197))
+
+
+### Reverts
+
+* Revert "feat: add file upload support and fix image persistence in BlockNote editor (#7946)" ([102cda1](https://github.com/erxes/erxes/commit/102cda13052dfce500f4d5b9b12f9d75be229443)), closes [#7946](https://github.com/erxes/erxes/issues/7946)
+
 ## [3.0.36](https://github.com/erxes/erxes/compare/3.0.35...3.0.36) (2026-06-14)
 
 ## [3.0.34](https://github.com/erxes/erxes/compare/3.0.33...3.0.34) (2026-06-12)

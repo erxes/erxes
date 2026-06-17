@@ -11,6 +11,7 @@ import {
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
+  receiveProductsRemove,
   receiveUser,
 } from '~/modules/posclient/utils/syncUtils';
 
@@ -78,6 +79,9 @@ export const posclientTrpcRouter = t.router({
         switch (type) {
           case 'product':
             await receiveProduct(models, input);
+            break;
+          case 'productsRemove':
+            await receiveProductsRemove(models, input);
             break;
           case 'productCategory':
             await receiveProductCategory(models, input);

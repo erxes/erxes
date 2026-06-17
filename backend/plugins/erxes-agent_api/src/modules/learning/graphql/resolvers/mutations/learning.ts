@@ -12,6 +12,9 @@ import {
   setLearningVectorStatusSafe,
   deleteLearningVectorSafe,
 } from '~/mastra/learning/store';
+import { findOwnedAssistantMessage } from '@/session/nativeStore';
+import { pushUserScore } from '~/mastra/scoring/langfuseClient';
+import { recordKnowledgeFromFeedback } from '~/mastra/datasets/knowledge';
 
 /** Throws unless a logged-in user is on the context; returns their _id. */
 function requireUserId(user: { _id?: string } | null | undefined): string {
@@ -104,30 +107,56 @@ export const learningMutations = {
   mastraMessageFeedback: async (
     _: unknown,
     args: { messageId: string; rating: number; comment?: string },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const userId = requireUserId(user);
     if (args.rating !== 1 && args.rating !== -1) {
       throw new Error('rating must be 1 or -1');
     }
 
-    const message = await models.MastraMessage.findOne({ _id: args.messageId });
-    if (!message || message.role !== 'assistant') {
-      throw new Error('Message not found');
-    }
-    // Ownership gate — you can only rate replies in your own threads.
-    await models.MastraThread.getOwnedThread(message.threadId, userId);
-
-    const learningIds: string[] = message.meta?.learningIdsInContext ?? [];
+    // Resolve the assistant message from the native store by its id: verifies
+    // it is the caller's own assistant reply (resource-scope ownership) and
+    // returns the learnings that were in that turn's context.
+    const { threadId, learningIdsInContext: learningIds, langfuseTraceId } =
+      await findOwnedAssistantMessage(subdomain, userId, args.messageId);
 
     const { previousRating } = await models.MastraFeedback.saveFeedback({
-      threadId: message.threadId,
+      threadId,
       messageId: args.messageId,
       userId,
       rating: args.rating as 1 | -1,
       comment: args.comment,
       learningIdsInContext: learningIds,
     });
+
+    // Plan B: mirror the human thumbs into Langfuse as a score on this turn's
+    // trace (the SDK, never the CLI). Only AFTER the feedback is persisted, so a
+    // failed save never emits a phantom score. Fire-and-forget + self-guarding:
+    // no trace id or no Langfuse configured → no-op, feedback still succeeds.
+    void pushUserScore({
+      traceId: langfuseTraceId,
+      name: 'user-feedback',
+      value: args.rating,
+      comment: args.comment,
+    });
+
+    // Keep the single-source "Agent Knowledge (erxes)" Mastra dataset in
+    // lock-step with this vote: 👍 adds the turn, anything else removes it. The
+    // dataset is the source of truth the Agent Knowledge UI and Studio read —
+    // no separate sync step. Non-fatal: a dataset hiccup must not fail the vote
+    // (the feedback row remains the recovery source).
+    try {
+      await recordKnowledgeFromFeedback({
+        subdomain,
+        userId,
+        threadId,
+        messageId: args.messageId,
+        rating: args.rating,
+        comment: args.comment,
+      });
+    } catch {
+      /* best-effort; the vote itself already succeeded */
+    }
 
     // Net reinforcement: undo the previous vote's delta when re-voting.
     if (learningIds.length) {

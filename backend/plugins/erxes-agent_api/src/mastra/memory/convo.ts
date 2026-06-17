@@ -21,8 +21,8 @@ export function augmentConvo(args: {
   userMessage: string;
   recallBlock?: string | null;
   workingMemoryBlock?: string | null;
-  // Tenant-shared "Agent knowledge" digest (PII-free by construction —
-  // see mastra/learning/sanitize.ts).
+  // Tenant-shared "Agent knowledge" digest (PII-free by construction — the
+  // distiller redacts via a Mastra PIIDetector output processor).
   learnedDigestBlock?: string | null;
 }): ConvoMessage[] {
   const convo: ConvoMessage[] = [];

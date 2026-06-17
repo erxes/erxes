@@ -11,7 +11,11 @@ export const DocumentPreview = ({ document }: any) => {
       try {
         blocks = JSON.parse(document.content);
       } catch (_error) {
-        blocks = await editor.tryParseHTMLToBlocks(document.content);
+        try {
+          blocks = await editor.tryParseHTMLToBlocks(document.content);
+        } catch (_htmlError) {
+          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+        }
       }
 
       editor.replaceBlocks(editor.document, blocks);

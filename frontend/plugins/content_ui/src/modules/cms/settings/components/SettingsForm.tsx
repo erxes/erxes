@@ -3,10 +3,13 @@ import {
   IconChartBar,
   IconCheck,
   IconLink,
+  IconLock,
   IconPhoto,
   IconTrash,
+  IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
+import { SelectMember } from 'ui-modules';
 import {
   Badge,
   Button,
@@ -529,6 +532,71 @@ export const SettingsForm = ({
             onChange={(value) => updateSetting('favicon', value)}
           />
         </Field>
+      </SettingsSection>
+
+      <SettingsSection
+        id="access"
+        title="Access Control"
+        badge={<Badge variant="secondary">Team</Badge>}
+      >
+        <Field
+          label="Who can manage this CMS"
+          hint="Owners always have full access. Choose whether everyone or only assigned team members can manage this CMS and its content."
+        >
+          <div className="grid gap-2 md:grid-cols-2">
+            <RobotsOption
+              checked={settings.accessPolicy === 'open'}
+              title="Open access"
+              description="Any team member with content access"
+              onClick={() => updateSetting('accessPolicy', 'open')}
+            />
+            <RobotsOption
+              checked={settings.accessPolicy === 'assigned'}
+              title="Assigned members only"
+              description="Only assigned team members (and owners)"
+              onClick={() => updateSetting('accessPolicy', 'assigned')}
+            />
+          </div>
+        </Field>
+
+        {settings.accessPolicy === 'assigned' ? (
+          <Field
+            label="Assigned Team Members"
+            hint="These team members get access to this CMS. Members who are not assigned will be blocked from opening or editing it."
+          >
+            <SelectMember
+              mode="multiple"
+              value={settings.assignedMemberIds}
+              onValueChange={(value) =>
+                updateSetting(
+                  'assignedMemberIds',
+                  Array.isArray(value) ? value : value ? [value] : [],
+                )
+              }
+              placeholder="Select team members"
+            />
+            <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              {settings.assignedMemberIds.length ? (
+                <>
+                  <IconUsers className="size-4 shrink-0" />
+                  <span>
+                    {settings.assignedMemberIds.length} member
+                    {settings.assignedMemberIds.length === 1 ? '' : 's'}{' '}
+                    assigned
+                  </span>
+                </>
+              ) : (
+                <>
+                  <IconLock className="size-4 shrink-0" />
+                  <span>
+                    No members assigned — only owners will be able to access
+                    this CMS.
+                  </span>
+                </>
+              )}
+            </div>
+          </Field>
+        ) : null}
       </SettingsSection>
 
       <SettingsSection

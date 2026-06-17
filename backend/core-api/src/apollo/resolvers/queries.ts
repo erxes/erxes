@@ -3,6 +3,7 @@ import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
+import { beforeResolverQueries } from '@/beforeResolvers/graphql/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
 import { commentQueries } from '@/clientportal/graphql/resolvers/queries/comment';
@@ -33,12 +34,11 @@ import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries'
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
 import { templateQueries } from '@/template/graphql/queries';
+import { referenceQueries } from '~/meta/references/graphql/queries';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
-    throw new Error(
-      'GraphQL Sentry test (core): ' + new Date().toISOString(),
-    );
+    throw new Error('GraphQL Sentry test (core): ' + new Date().toISOString());
   },
 };
 
@@ -50,6 +50,7 @@ markResolvers(sentryTestQueries, {
 
 export const queries = {
   ...sentryTestQueries,
+  ...referenceQueries,
   ...contactQueries,
   ...authQueries,
   ...oauthClientAppQueries,
@@ -67,6 +68,7 @@ export const queries = {
   ...permissionQueries,
   ...documentQueries,
   ...automationQueries,
+  ...beforeResolverQueries,
   ...logQueries,
   ...notificationQueries,
   ...internalNoteQueries,

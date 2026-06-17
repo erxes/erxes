@@ -46,14 +46,13 @@ export const agentQueries = {
       threadId,
     });
 
-    const { agent, tools, convo, authCtx, isLegacy } = prepared;
+    const { agent, convo, authCtx, memoryBinding } = prepared;
     const reply = await runAgentTurn({
       agent,
-      tools,
       convo,
       message,
-      isLegacy,
       authCtx,
+      memory: memoryBinding,
     });
 
     // Persist the completed exchange so the session survives reloads. Only the

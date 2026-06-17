@@ -7,6 +7,7 @@ import {
   MastraScheduleRunStatus,
 } from '@/schedule/@types/schedule';
 import { validateCron, validateTimezone } from '@/schedule/cron';
+import { getMastraMemory } from '~/mastra/memory/mastraMemory';
 
 export interface IMastraScheduleModel extends Model<IMastraScheduleDocument> {
   getSchedule(_id: string): Promise<IMastraScheduleDocument>;
@@ -85,16 +86,20 @@ export const loadScheduleClass = (_models: IModels) => {
       return updated;
     }
 
-    /** Delete a schedule along with its output thread and messages. */
+    /** Delete a schedule along with its native output thread. */
     public static async removeSchedule(_id: string) {
       // The schedule goes first: if the thread cleanup below fails, the
-      // leftovers are orphaned chat data, not a live schedule whose history
-      // already vanished. (No multi-document transaction — erxes must run on
-      // standalone Mongo, where transactions are unavailable.)
+      // leftover is an orphaned native thread, not a live schedule whose
+      // history already vanished.
       const result = await _models.MastraSchedule.deleteOne({ _id });
-      const threadId = `schedule-${_id}`;
-      await _models.MastraMessage.deleteMany({ threadId });
-      await _models.MastraThread.deleteOne({ threadId });
+      // The output thread lives in Mastra's native store; deleteThread removes
+      // it (messages + vectors) by id. Best-effort.
+      try {
+        const memory = await getMastraMemory();
+        await memory.deleteThread(`schedule-${_id}`);
+      } catch {
+        // orphaned native thread — harmless
+      }
       return result;
     }
 

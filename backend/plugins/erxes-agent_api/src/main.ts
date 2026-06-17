@@ -49,7 +49,7 @@ startPlugin({
         import('~/mastra/knowledge/worker'),
         import('erxes-api-shared/utils'),
       ]);
-      await initKnowledgeSync(redis);
+      initKnowledgeSync(redis);
     }
 
     // Agent learning (opt-in via ERXES_AGENT_LEARNING=enable): distillation +

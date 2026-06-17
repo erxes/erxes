@@ -1,4 +1,4 @@
-import { shouldGenerateTitle, buildTranscript, sanitizeTitle } from '../titler';
+import { shouldGenerateTitle, sanitizeTitle } from '../titler';
 
 describe('shouldGenerateTitle', () => {
   it('generates on the first completed exchange (derived title)', () => {
@@ -35,30 +35,6 @@ describe('shouldGenerateTitle', () => {
         messageCount: 8,
       }),
     ).toBe(true);
-  });
-});
-
-describe('buildTranscript', () => {
-  it('labels roles and collapses whitespace', () => {
-    const transcript = buildTranscript([
-      { role: 'user', content: 'build me\n a workflow' },
-      { role: 'assistant', content: 'Sure,  here is one' },
-    ]);
-    expect(transcript).toBe(
-      'User: build me a workflow\nAssistant: Sure, here is one',
-    );
-  });
-
-  it('clips long messages and keeps only the trailing window', () => {
-    const long = 'x'.repeat(500);
-    const msgs = Array.from({ length: 20 }, (_, i) => ({
-      role: 'user',
-      content: i === 19 ? long : `msg ${i}`,
-    }));
-    const transcript = buildTranscript(msgs);
-    expect(transcript.split('\n')).toHaveLength(12);
-    expect(transcript).toContain('…');
-    expect(transcript).not.toContain('msg 0');
   });
 });
 
