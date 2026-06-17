@@ -2,9 +2,10 @@ import { IDeal } from '@/deals/types/deals';
 
 /**
  * Which deal's value wins for a conflicting field on the merge screen.
- * Either the target ('This deal') or the merged-in source deal.
+ * Either the target ('This deal'), the merged-in source deal, or — for list
+ * fields (assignees/tags/departments) — 'both' to combine the two sets.
  */
-export type MergeSelection = 'target' | 'source';
+export type MergeSelection = 'target' | 'source' | 'both';
 
 export interface MergeArrayItem {
   _id: string;
@@ -22,7 +23,7 @@ interface ArrayFieldDef {
 }
 
 interface ScalarFieldDef {
-  key: 'priority' | 'closeDate' | 'description';
+  key: 'priority' | 'closeDate' | 'description' | 'status';
   label: string;
   valueOf: (deal?: IDeal) => any;
   render: (value: any) => string;
@@ -77,6 +78,15 @@ export const ARRAY_FIELDS: ArrayFieldDef[] = [
 
 export const SCALAR_FIELDS: ScalarFieldDef[] = [
   {
+    // When the two deals differ in status (e.g. merging an active deal with an
+    // archived one) this surfaces as a conflict: the survivor keeps the chosen
+    // status. Defaults to 'target', so by default the result stays active.
+    key: 'status',
+    label: 'Status',
+    valueOf: (d) => d?.status || 'active',
+    render: (v) => (v ? `${v[0].toUpperCase()}${v.slice(1)}` : '—'),
+  },
+  {
     key: 'priority',
     label: 'Priority',
     valueOf: (d) => d?.priority || '',
@@ -96,6 +106,19 @@ export const SCALAR_FIELDS: ScalarFieldDef[] = [
   },
 ];
 
+/** Union of two id arrays, preserving first-seen order. */
+export const unionIds = (a: string[] = [], b: string[] = []): string[] => {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const id of [...a, ...b]) {
+    if (id && !seen.has(id)) {
+      seen.add(id);
+      result.push(id);
+    }
+  }
+  return result;
+};
+
 /** Two id arrays hold the same set (order-insensitive). */
 export const idSetEqual = (a: string[] = [], b: string[] = []): boolean => {
   if (a.length !== b.length) return false;
@@ -109,7 +132,8 @@ export const defaultSelection = (): MergeSelection => 'target';
 /**
  * Translate the user's per-field choices into the `fields` override object the
  * dealsMerge mutation accepts.
- *   - array  → the chosen deal's ids (target by default)
+ *   - array 'both'   → union of both deals' ids
+ *   - array          → the chosen deal's ids (target by default)
  *   - scalar 'source' → the source deal's value
  *   - scalar 'target' → omitted (backend keeps the target's value)
  */
@@ -122,8 +146,12 @@ export const buildMergeFields = (
 
   for (const field of ARRAY_FIELDS) {
     const selection = selections[field.key] || defaultSelection();
-    fields[field.key] =
-      selection === 'source' ? field.idsOf(source) : field.idsOf(target);
+    if (selection === 'both') {
+      fields[field.key] = unionIds(field.idsOf(target), field.idsOf(source));
+    } else {
+      fields[field.key] =
+        selection === 'source' ? field.idsOf(source) : field.idsOf(target);
+    }
   }
 
   for (const field of SCALAR_FIELDS) {

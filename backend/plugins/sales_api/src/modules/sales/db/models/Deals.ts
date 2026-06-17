@@ -249,6 +249,9 @@ export const loadDealClass = (
           'description',
           'closeDate',
           'startDate',
+          // Lets the merge screen resolve a status conflict (e.g. active vs
+          // archived). Defaults to the target's status when not chosen.
+          'status',
         ];
 
         for (const key of overridableFields) {

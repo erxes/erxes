@@ -107,6 +107,9 @@ export const DealMergeSheet = ({ deal }: { deal: IDeal }) => {
           <div className="grid h-full grid-cols-[20rem_1fr] overflow-hidden">
             <DealMergeSourcePicker
               targetDealId={deal._id}
+              initialBoardId={deal.boardId || deal.pipeline?.boardId || ''}
+              initialPipelineId={deal.pipelineId || deal.stage?.pipelineId || ''}
+              initialStageId={deal.stageId || ''}
               selectedSourceId={sourceId}
               onSelect={handleSelectSource}
             />

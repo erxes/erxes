@@ -1,6 +1,7 @@
 import {
   Badge,
   Button,
+  Checkbox,
   Input,
   ScrollArea,
   Separator,
@@ -13,27 +14,40 @@ import { useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { IDealList } from '@/deals/types/deals';
+import {
+  GET_ARCHIVED_DEALS,
+  GET_DEALS,
+} from '@/deals/graphql/queries/DealsQueries';
+import { IDeal, IDealList } from '@/deals/types/deals';
 
 /**
  * Left pane of the merge sheet: pick the deal to merge into the current one.
- * Board → Pipeline → Stage narrow the list. The target deal is shown disabled
- * (you can't merge a deal into itself); merged/archived deals are hidden.
+ * Board → Pipeline → Stage narrow the list, pre-filled to the target deal's own
+ * location so its siblings show immediately. The target deal is shown disabled
+ * (you can't merge a deal into itself); merged deals are always hidden. Archived
+ * deals are loaded separately and only offered when the "Include archived"
+ * checkbox is shown (i.e. the picked stage actually has archived deals).
  */
 export const DealMergeSourcePicker = ({
   targetDealId,
+  initialBoardId = '',
+  initialPipelineId = '',
+  initialStageId = '',
   selectedSourceId,
   onSelect,
 }: {
   targetDealId: string;
+  initialBoardId?: string;
+  initialPipelineId?: string;
+  initialStageId?: string;
   selectedSourceId?: string;
   onSelect: (dealId: string) => void;
 }) => {
   const [search, setSearch] = useState('');
-  const [boardId, setBoardId] = useState('');
-  const [pipelineId, setPipelineId] = useState('');
-  const [stageId, setStageId] = useState('');
+  const [boardId, setBoardId] = useState(initialBoardId);
+  const [pipelineId, setPipelineId] = useState(initialPipelineId);
+  const [stageId, setStageId] = useState(initialStageId);
+  const [includeArchived, setIncludeArchived] = useState(false);
   const [debouncedSearch] = useDebounce(search, 400);
 
   // Search and the Board/Pipeline/Stage drill-down are two independent ways to
@@ -48,15 +62,16 @@ export const DealMergeSourcePicker = ({
     if (browsing && search) setSearch('');
   }, [browsing, search]);
 
-  // Mirrors the proven CommonDealSearch query: GET_DEALS via useQuery with
-  // noSkipArchive so the backend returns the deals regardless of their status;
-  // we filter merged/archived out on the client below.
+  // Active deals only. We deliberately DON'T pass noSkipArchive here: with it on
+  // the backend returns archived/merged deals too, and the limit (30) gets eaten
+  // by rows we then strip on the client — so a stage could look half-empty. The
+  // default backend filter already excludes archived/merged, so the limit is
+  // spent entirely on real, mergeable deals. Archived deals are fetched below.
   const { data, loading } = useQuery<{ deals: IDealList }>(GET_DEALS, {
     variables: {
       search: browsing ? undefined : debouncedSearch || undefined,
       pipelineId: pipelineId || undefined,
       stageId: stageId || undefined,
-      noSkipArchive: true,
       limit: 30,
       orderBy: { modifiedAt: -1 },
     },
@@ -65,11 +80,37 @@ export const DealMergeSourcePicker = ({
     fetchPolicy: 'cache-and-network',
   });
 
-  // Hide merged/archived deals, but keep the target deal in the list (shown
-  // disabled) so a stage with 2 deals doesn't look empty.
-  const visibleDeals = (data?.deals?.list || []).filter(
+  // Archived deals for the picked stage. archivedDeals is pipeline-scoped, so we
+  // narrow to the current stage on the client. Only queried once a stage is
+  // chosen — archived merge sources only make sense when browsing a stage.
+  const { data: archivedData } = useQuery<{ archivedDeals: IDealList }>(
+    GET_ARCHIVED_DEALS,
+    {
+      variables: {
+        pipelineId: pipelineId || '',
+        limit: 50,
+        orderBy: { modifiedAt: -1 },
+      },
+      skip: !stageId || !pipelineId,
+      errorPolicy: 'all',
+      fetchPolicy: 'cache-and-network',
+    },
+  );
+
+  // Active, mergeable deals (defend against any merged rows that slip through).
+  const activeDeals = (data?.deals?.list || []).filter(
     (deal) => deal.status !== 'merged' && deal.status !== 'archived',
   );
+  const archivedDeals: IDeal[] = (
+    archivedData?.archivedDeals?.list || []
+  ).filter((deal) => deal.stageId === stageId && deal._id !== targetDealId);
+  const hasArchived = Boolean(stageId) && archivedDeals.length > 0;
+
+  // Append archived deals only when the user opts in via the checkbox.
+  const visibleDeals =
+    includeArchived && hasArchived
+      ? [...activeDeals, ...archivedDeals]
+      : activeDeals;
   const selectableCount = visibleDeals.filter(
     (deal) => deal._id !== targetDealId,
   ).length;
@@ -78,61 +119,28 @@ export const DealMergeSourcePicker = ({
     setBoardId(Array.isArray(val) ? val[0] : val);
     setPipelineId('');
     setStageId('');
+    setIncludeArchived(false);
   };
   const handlePipelineChange = (val: string | string[]) => {
     setPipelineId(Array.isArray(val) ? val[0] : val);
     setStageId('');
+    setIncludeArchived(false);
   };
   const handleStageChange = (val: string | string[]) => {
     setStageId(Array.isArray(val) ? val[0] : val);
+    setIncludeArchived(false);
   };
   const clearAll = () => {
     setBoardId('');
     setPipelineId('');
     setStageId('');
     setSearch('');
+    setIncludeArchived(false);
   };
 
   return (
     <div className="flex flex-col overflow-hidden border-r h-full">
       <div className="flex flex-col gap-4 p-4">
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="merge-deal-search"
-            className="text-xs font-medium text-accent-foreground"
-          >
-            Search
-          </label>
-          <Input
-            id="merge-deal-search"
-            placeholder={
-              browsing
-                ? 'Clear the board/pipeline/stage to search'
-                : 'Search by name or number...'
-            }
-            value={search}
-            disabled={browsing}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-            or browse by location
-          </span>
-          {(boardId || pipelineId || stageId || search) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs"
-              onClick={clearAll}
-            >
-              <IconX className="size-3" />
-              Clear
-            </Button>
-          )}
-        </div>
-
         <div className="flex flex-col gap-1">
           <p className="text-xs font-medium text-accent-foreground">Board</p>
           <SelectBoard value={boardId} onValueChange={handleBoardChange} />
@@ -155,6 +163,15 @@ export const DealMergeSourcePicker = ({
             disabled={!pipelineId}
           />
         </div>
+        {hasArchived && (
+          <label className="flex cursor-pointer items-center gap-2 text-xs text-accent-foreground">
+            <Checkbox
+              checked={includeArchived}
+              onCheckedChange={(val) => setIncludeArchived(Boolean(val))}
+            />
+            Include archived deals ({archivedDeals.length})
+          </label>
+        )}
         <div className="text-xs text-accent-foreground">
           {browsing || debouncedSearch
             ? `${selectableCount} deal(s) to merge`
@@ -193,11 +210,14 @@ export const DealMergeSourcePicker = ({
               >
                 <div className="flex flex-col items-start">
                   <span>{deal.name}</span>
-                  {deal.number && (
-                    <span className="text-xs text-muted-foreground">
-                      {deal.number}
-                    </span>
-                  )}
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    {deal.number}
+                    {deal.status === 'archived' && (
+                      <Badge variant="warning" className="h-4 px-1 text-[10px]">
+                        Archived
+                      </Badge>
+                    )}
+                  </span>
                 </div>
                 {isTarget ? (
                   <Badge variant="secondary" className="ml-auto shrink-0">

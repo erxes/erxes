@@ -10,7 +10,11 @@ import {
   defaultSelection,
   idSetEqual,
 } from './mergeFields';
-import { mergeProductsData, sumProductsAmount } from './mergePreview';
+import {
+  mergeProductsData,
+  sumProductsAmount,
+  unionById,
+} from './mergePreview';
 
 const formatAmount = (value: number) => `${(value || 0).toLocaleString()}₮`;
 
@@ -48,6 +52,13 @@ export const DealMergeReview = ({
     source.productsData,
   );
 
+  // The survivor's status follows the "Status" conflict choice (defaults to this
+  // deal). Mirror that here so the outcome summary always matches the selection.
+  const statusSelection = selections['status'] || defaultSelection();
+  const resultStatus =
+    (statusSelection === 'source' ? source.status : target.status) || 'active';
+  const sourceArchived = source.status === 'archived';
+
   return (
     <div className="flex flex-col gap-6 p-5">
       <div className="flex flex-col gap-1">
@@ -60,6 +71,19 @@ export const DealMergeReview = ({
           onChange={(e) => onNameChange(e.target.value)}
           placeholder="Name for the merged deal"
         />
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+          <span>Merged deal status:</span>
+          <Badge
+            variant={resultStatus === 'archived' ? 'warning' : 'success'}
+            className="h-4 px-1.5 text-[10px] capitalize"
+          >
+            {resultStatus}
+          </Badge>
+          {sourceArchived && (
+            <span>— resolve the status conflict below; the merged-in deal is
+              archived and will be marked as merged.</span>
+          )}
+        </div>
       </div>
 
       <Section title="Field conflicts">
@@ -73,6 +97,14 @@ export const DealMergeReview = ({
                 onSelect={(s) => onSelectionChange(field.key, s)}
                 target={<ItemBadges items={field.itemsOf(target)} />}
                 source={<ItemBadges items={field.itemsOf(source)} />}
+                both={
+                  <ItemBadges
+                    items={unionById(
+                      field.itemsOf(target),
+                      field.itemsOf(source),
+                    )}
+                  />
+                }
               />
             ))}
             {scalarConflicts.map((field) => (
@@ -170,16 +202,19 @@ const ChoiceRow = ({
   onSelect,
   target,
   source,
+  both,
 }: {
   label: string;
   selection: MergeSelection;
   onSelect: (selection: MergeSelection) => void;
   target: React.ReactNode;
   source: React.ReactNode;
+  /** When provided, offers a third "Both" option that combines the two sets. */
+  both?: React.ReactNode;
 }) => (
   <div className="flex flex-col gap-1.5">
     <span className="text-sm font-medium">{label}</span>
-    <div className="grid grid-cols-2 gap-2">
+    <div className={cn('grid gap-2', both ? 'grid-cols-3' : 'grid-cols-2')}>
       <ChoiceCard
         active={selection === 'target'}
         onClick={() => onSelect('target')}
@@ -194,6 +229,15 @@ const ChoiceRow = ({
       >
         {source}
       </ChoiceCard>
+      {both && (
+        <ChoiceCard
+          active={selection === 'both'}
+          onClick={() => onSelect('both')}
+          caption="Both (combine)"
+        >
+          {both}
+        </ChoiceCard>
+      )}
     </div>
   </div>
 );
