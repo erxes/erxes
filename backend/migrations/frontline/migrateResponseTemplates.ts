@@ -5,22 +5,19 @@ dotenv.config();
 import { Collection, Db, MongoClient } from 'mongodb';
 import { randomBytes } from 'crypto';
 
-
-
 const { MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true' } =
   process.env;
 
 if (!MONGO_URL) throw new Error('Environment variable MONGO_URL not set.');
 
-const STATIC_CHANNEL_ID = process.env.STATIC_CHANNEL_ID || 'MoxYtdjVP6arTc3jrUFZH';
-
+const STATIC_CHANNEL_ID =
+  process.env.STATIC_CHANNEL_ID || 'MoxYtdjVP6arTc3jrUFZH';
 
 const client = new MongoClient(MONGO_URL);
 let db: Db;
 let TEMPLATES: Collection;
 
 const BATCH_SIZE = 1000;
-
 
 function genId(): string {
   return randomBytes(15).toString('base64url').slice(0, 20);
@@ -29,31 +26,32 @@ function genId(): string {
 /** Decode common HTML entities */
 function decodeEntities(html: string): string {
   return html
-    .replace(/&amp;/g,  '&')
-    .replace(/&lt;/g,   '<')
-    .replace(/&gt;/g,   '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")
     .replace(/&nbsp;/g, ' ')
-    .replace(/&#(\d+);/gi,      (_, n) => String.fromCharCode(+n))
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+    .replace(/&#(\d+);/gi, (_, n) => String.fromCharCode(+n))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) =>
+      String.fromCharCode(parseInt(h, 16)),
+    );
 }
 
 type TextStyle = {
-  bold?:          true;
-  italic?:        true;
-  underline?:     true;
+  bold?: true;
+  italic?: true;
+  underline?: true;
   strikethrough?: true;
 };
 
 type TextNode = { type: 'text'; text: string; styles: TextStyle };
 
 const DEFAULT_PROPS = {
-  textColor:       'default',
+  textColor: 'default',
   backgroundColor: 'default',
-  textAlignment:   'left',
+  textAlignment: 'left',
 };
-
 
 function parseInline(html: string): TextNode[] {
   const nodes: TextNode[] = [];
@@ -64,16 +62,18 @@ function parseInline(html: string): TextNode[] {
 
     if (token.startsWith('<')) {
       const isClose = token.startsWith('</');
-      const tag     = token.toLowerCase().replace(/[<>/\s='"a-z0-9-]/g, (c) =>
-        /[a-z]/.test(c) ? c : '',
-      ).slice(0, 10);
+      const tag = token
+        .toLowerCase()
+        .replace(/[<>/\s='"a-z0-9-]/g, (c) => (/[a-z]/.test(c) ? c : ''))
+        .slice(0, 10);
 
       if (!isClose) {
         const next = { ...stack[stack.length - 1] };
-        if (tag === 'strong' || tag === 'b')                       next.bold          = true;
-        else if (tag === 'em' || tag === 'i')                       next.italic        = true;
-        else if (tag === 'u')                                        next.underline     = true;
-        else if (tag === 's' || tag === 'del' || tag === 'strike')  next.strikethrough = true;
+        if (tag === 'strong' || tag === 'b') next.bold = true;
+        else if (tag === 'em' || tag === 'i') next.italic = true;
+        else if (tag === 'u') next.underline = true;
+        else if (tag === 's' || tag === 'del' || tag === 'strike')
+          next.strikethrough = true;
         stack.push(next);
       } else {
         if (stack.length > 1) stack.pop();
@@ -81,7 +81,11 @@ function parseInline(html: string): TextNode[] {
     } else {
       const text = decodeEntities(token);
       if (text) {
-        nodes.push({ type: 'text', text, styles: { ...stack[stack.length - 1] } });
+        nodes.push({
+          type: 'text',
+          text,
+          styles: { ...stack[stack.length - 1] },
+        });
       }
     }
   }
@@ -102,10 +106,12 @@ function parseInline(html: string): TextNode[] {
 function makeParagraph(inner: string): object {
   const content = parseInline(inner);
   return {
-    id:       genId(),
-    type:     'paragraph',
-    props:    DEFAULT_PROPS,
-    content:  content.length ? content : [{ type: 'text', text: '', styles: {} }],
+    id: genId(),
+    type: 'paragraph',
+    props: DEFAULT_PROPS,
+    content: content.length
+      ? content
+      : [{ type: 'text', text: '', styles: {} }],
     children: [],
   };
 }
@@ -121,13 +127,13 @@ function htmlToBlocks(html: string): string {
   while (remaining.trim()) {
     const hm = remaining.match(/^\s*<(h[1-6])[^>]*>([\s\S]*?)<\/\1>/i);
     if (hm) {
-      const level   = parseInt(hm[1][1], 10);
+      const level = parseInt(hm[1][1], 10);
       const content = parseInline(hm[2]);
       if (content.length) {
         blocks.push({
-          id:       genId(),
-          type:     'heading',
-          props:    { ...DEFAULT_PROPS, level },
+          id: genId(),
+          type: 'heading',
+          props: { ...DEFAULT_PROPS, level },
           content,
           children: [],
         });
@@ -142,10 +148,10 @@ function htmlToBlocks(html: string): string {
       let li: RegExpExecArray | null;
       while ((li = liRe.exec(ulm[1])) !== null) {
         blocks.push({
-          id:       genId(),
-          type:     'bulletListItem',
-          props:    DEFAULT_PROPS,
-          content:  parseInline(li[1]),
+          id: genId(),
+          type: 'bulletListItem',
+          props: DEFAULT_PROPS,
+          content: parseInline(li[1]),
           children: [],
         });
       }
@@ -159,10 +165,10 @@ function htmlToBlocks(html: string): string {
       let li: RegExpExecArray | null;
       while ((li = liRe.exec(olm[1])) !== null) {
         blocks.push({
-          id:       genId(),
-          type:     'numberedListItem',
-          props:    DEFAULT_PROPS,
-          content:  parseInline(li[1]),
+          id: genId(),
+          type: 'numberedListItem',
+          props: DEFAULT_PROPS,
+          content: parseInline(li[1]),
           children: [],
         });
       }
@@ -182,7 +188,11 @@ function htmlToBlocks(html: string): string {
       const content = parseInline(dm[1]);
       if (content.some((n) => n.text.trim())) {
         blocks.push({
-          id: genId(), type: 'paragraph', props: DEFAULT_PROPS, content, children: [],
+          id: genId(),
+          type: 'paragraph',
+          props: DEFAULT_PROPS,
+          content,
+          children: [],
         });
       }
       remaining = remaining.slice(dm[0].length);
@@ -190,20 +200,26 @@ function htmlToBlocks(html: string): string {
     }
 
     const brm = remaining.match(/^\s*<br\s*\/?>/i);
-    if (brm) { remaining = remaining.slice(brm[0].length); continue; }
+    if (brm) {
+      remaining = remaining.slice(brm[0].length);
+      continue;
+    }
 
     const tagm = remaining.match(/^\s*<[^>]*>/);
-    if (tagm) { remaining = remaining.slice(tagm[0].length); continue; }
+    if (tagm) {
+      remaining = remaining.slice(tagm[0].length);
+      continue;
+    }
 
     const txm = remaining.match(/^([^<]+)/);
     if (txm) {
       const text = decodeEntities(txm[1]).trim();
       if (text) {
         blocks.push({
-          id:       genId(),
-          type:     'paragraph',
-          props:    DEFAULT_PROPS,
-          content:  [{ type: 'text', text, styles: {} }],
+          id: genId(),
+          type: 'paragraph',
+          props: DEFAULT_PROPS,
+          content: [{ type: 'text', text, styles: {} }],
           children: [],
         });
       }
@@ -219,12 +235,13 @@ function htmlToBlocks(html: string): string {
   return JSON.stringify(blocks);
 }
 
-
 async function migrateResponseTemplates(): Promise<void> {
   console.log('\n🚀 Migrating response_templates → new Blocknote format');
   console.log(`   channelId : ${STATIC_CHANNEL_ID}`);
 
-  const total = await TEMPLATES.countDocuments({ channelId: { $exists: false } });
+  const total = await TEMPLATES.countDocuments({
+    channelId: { $exists: false },
+  });
   console.log(`📋 Pending  : ${total} document(s) without channelId`);
 
   if (total === 0) {
@@ -232,19 +249,19 @@ async function migrateResponseTemplates(): Promise<void> {
     return;
   }
 
-  const cursor = TEMPLATES
-    .find({ channelId: { $exists: false } })
-    .batchSize(BATCH_SIZE);
+  const cursor = TEMPLATES.find({ channelId: { $exists: false } }).batchSize(
+    BATCH_SIZE,
+  );
 
-  let bulk:          any[] = [];
-  let migratedCount        = 0;
-  let skippedCount         = 0;
+  let bulk: any[] = [];
+  let migratedCount = 0;
+  let skippedCount = 0;
 
   for await (const doc of cursor) {
     if (!doc) continue;
 
-    const isAlreadyJson = typeof doc.content === 'string' &&
-      doc.content.trim().startsWith('[{');
+    const isAlreadyJson =
+      typeof doc.content === 'string' && doc.content.trim().startsWith('[{');
 
     if (isAlreadyJson && doc.channelId) {
       skippedCount++;
@@ -260,14 +277,14 @@ async function migrateResponseTemplates(): Promise<void> {
         filter: { _id: doc._id },
         update: {
           $set: {
-            content:   newContent,
+            content: newContent,
             channelId: STATIC_CHANNEL_ID,
-            files:     doc.files     || [],
+            files: doc.files || [],
             createdAt: doc.createdAt || new Date(),
             updatedAt: new Date(),
           },
           $unset: {
-            brandId:       '',
+            brandId: '',
             scopeBrandIds: '',
           },
         },
@@ -287,8 +304,6 @@ async function migrateResponseTemplates(): Promise<void> {
 
   console.log(`✅ Migrated : ${migratedCount}  |  Skipped : ${skippedCount}`);
 }
-
-
 
 const command = async () => {
   await client.connect();

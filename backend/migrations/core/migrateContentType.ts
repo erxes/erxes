@@ -52,10 +52,14 @@ const command = async () => {
       const documents = collection.find({});
 
       for await (const document of documents) {
-        const contentType = switchContentType(document?.type || document?.contentType);
-        
+        const contentType = switchContentType(
+          document?.type || document?.contentType,
+        );
+
         if (!contentType) {
-          console.log(`Invalid contentType: ${document?.type || document?.contentType} for ${document._id}`);
+          console.log(
+            `Invalid contentType: ${document?.type || document?.contentType} for ${document._id}`,
+          );
           continue;
         }
 

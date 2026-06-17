@@ -50,10 +50,14 @@ const command = async () => {
     };
 
     const count = await collection.countDocuments(filter);
-    console.log(`Found ${count} document(s) to migrate in '${collection.collectionName}'.`);
+    console.log(
+      `Found ${count} document(s) to migrate in '${collection.collectionName}'.`,
+    );
 
     if (DRY_RUN) {
-      console.log('DRY RUN — no changes written. Re-run with APPLY=1 to apply.');
+      console.log(
+        'DRY RUN — no changes written. Re-run with APPLY=1 to apply.',
+      );
       await client.close();
       process.exit();
     }

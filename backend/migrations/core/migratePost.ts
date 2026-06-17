@@ -8,7 +8,6 @@ const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
   CORE_MONGO_URL,
 
-
   SOURCE_SUBDOMAIN = 'msmgroup',
   TARGET_SUBDOMAIN = 'msmgroupp',
 
@@ -255,4 +254,3 @@ main().catch((err) => {
   console.error('Migration failed:', err);
   process.exit(1);
 });
-

@@ -100,7 +100,10 @@ const command = async () => {
       } = form;
 
       // Build steps map from numberOfPages
-      const steps: Record<string, { name: string; description: string; order: number }> = {};
+      const steps: Record<
+        string,
+        { name: string; description: string; order: number }
+      > = {};
       if (numberOfPages) {
         for (let i = 1; i <= numberOfPages; i++) {
           steps[i === 1 ? 'initial' : `step-${i}`] = {
