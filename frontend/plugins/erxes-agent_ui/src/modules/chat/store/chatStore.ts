@@ -66,20 +66,24 @@ interface MastraAgentChatResponse {
 const threadKey = (agentKey: string, threadId: string) =>
   `${agentKey}:${threadId}`;
 
-const REASONING_EFFORT_VALUES = REASONING_EFFORT_OPTIONS.map((o) => o.value);
+const REASONING_EFFORT_VALUES: readonly string[] = REASONING_EFFORT_OPTIONS.map(
+  (o) => o.value,
+);
+
+const isReasoningEffort = (v: unknown): v is ReasoningEffort =>
+  typeof v === 'string' && REASONING_EFFORT_VALUES.includes(v);
 
 /** localStorage key holding the persisted reasoning choice for one agent. */
 const reasoningEffortStorageKey = (agentKey: string) =>
   `erxes-agent:reasoningEffort:${agentKey}`;
 
 // Best-effort read of the persisted choice — localStorage may be unavailable
-// (private mode / SSR) and may hold stale values from an older enum.
+// (private mode / SSR) and may hold stale values from an older enum. Read once
+// at agent-slice creation (setCurrentAgent), never inside a reactive selector.
 const loadReasoningEffort = (agentKey: string): ReasoningEffort | undefined => {
   try {
     const raw = localStorage.getItem(reasoningEffortStorageKey(agentKey));
-    return raw && REASONING_EFFORT_VALUES.includes(raw as ReasoningEffort)
-      ? (raw as ReasoningEffort)
-      : undefined;
+    return isReasoningEffort(raw) ? raw : undefined;
   } catch {
     return undefined;
   }
@@ -399,7 +403,17 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
 
     setCurrentAgent: (agentId) => {
       set({ currentViewedAgentId: agentId });
-      if (agentId) get().markRead(agentId);
+      if (agentId) {
+        get().markRead(agentId);
+        // Hydrate the persisted reasoning choice exactly once, when this
+        // agent's slice first comes into view. Reads localStorage a single
+        // time so the reactive selector never has to.
+        if (!get().agents[agentId]) {
+          patchAgent(agentId, {
+            reasoningEffort: loadReasoningEffort(agentId),
+          });
+        }
+      }
     },
 
     markRead: (agentKey) =>
@@ -577,8 +591,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         agent = ensureAgent(agentKey);
       }
       const threadId = agent.activeThreadId!;
-      const reasoningEffort =
-        agent.reasoningEffort ?? loadReasoningEffort(agentKey);
+      const reasoningEffort = agent.reasoningEffort;
 
       // Surface the session in the sidebar the instant the first message is
       // sent — don't wait for the turn to finish. The backend registers + tags
@@ -656,8 +669,6 @@ export const selectAgentView = (
     : EMPTY_THREAD;
   return {
     ...agent,
-    // Surface the persisted choice even before the agent state is created.
-    reasoningEffort: agent.reasoningEffort ?? loadReasoningEffort(agentKey),
     messages: thread.messages,
     loading: thread.loading,
     messagesLoading: thread.messagesLoading,

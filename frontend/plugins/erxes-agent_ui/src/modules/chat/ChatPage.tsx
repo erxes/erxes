@@ -399,9 +399,9 @@ export const ChatPage = () => {
                 uploadsInFlight={attachments.uploadsInFlight}
                 agentName={selectedAgent.name}
                 reasoningEffort={reasoningEffort}
-                onReasoningEffortChange={(effort) => {
-                  if (agentId) chatStore.setReasoningEffort(agentId, effort);
-                }}
+                onReasoningEffortChange={(effort) =>
+                  chatStore.setReasoningEffort(agentId!, effort)
+                }
                 textareaRef={textareaRef}
                 fileInputRef={fileInputRef}
               />

@@ -15,16 +15,17 @@ const AgentRailItem = ({
   agent,
   isActive,
   onSelect,
+  onEdit,
 }: {
   agent: IChatAgent;
   isActive: boolean;
   onSelect: (agentId: string) => void;
+  onEdit: (agent: IChatAgent) => void;
 }) => {
   const isWorking = useAgentWorking(agent._id);
   const hasUnread = useAgentUnread(agent._id) && !isActive;
   const activity = useAgentActivity(agent._id);
   const showActivity = isWorking ? activity : undefined;
-  const [editing, setEditing] = useState(false);
 
   return (
     <div
@@ -53,7 +54,7 @@ const AgentRailItem = ({
               className="absolute right-1 top-1 z-10 size-6 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
               onClick={(e) => {
                 e.stopPropagation();
-                setEditing(true);
+                onEdit(agent);
               }}
             >
               <IconSettings className="size-3.5" />
@@ -62,8 +63,6 @@ const AgentRailItem = ({
           <Tooltip.Content>Edit agent settings</Tooltip.Content>
         </Tooltip>
       </Tooltip.Provider>
-
-      <EditAgentDialog agent={agent} open={editing} onOpenChange={setEditing} />
 
       <div className="flex items-start gap-2">
         <div className="relative shrink-0">
@@ -122,7 +121,12 @@ export const AgentRail = ({
   loading: boolean;
   activeAgentId?: string;
   onSelect: (agentId: string) => void;
-}) => (
+}) => {
+  // A single editor for the whole rail — opened with the row's agent, mounted
+  // only while open so its form/mutation/subscriptions don't exist per row.
+  const [editingAgent, setEditingAgent] = useState<IChatAgent | null>(null);
+
+  return (
   <div className="w-56 border-r flex flex-col shrink-0">
     <div className="px-3 py-2.5 border-b">
       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -149,10 +153,22 @@ export const AgentRail = ({
               agent={agent}
               isActive={activeAgentId === agent._id}
               onSelect={onSelect}
+              onEdit={setEditingAgent}
             />
           ))}
         </div>
       )}
     </div>
+
+    {editingAgent && (
+      <EditAgentDialog
+        agent={editingAgent}
+        open
+        onOpenChange={(next) => {
+          if (!next) setEditingAgent(null);
+        }}
+      />
+    )}
   </div>
-);
+  );
+};
