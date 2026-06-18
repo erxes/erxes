@@ -7,7 +7,7 @@ import { Model } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
-import { PRODUCT_STATUSES } from '@/products/constants';
+import { PRODUCT_STATUSES, PRODUCT_TYPES } from '@/products/constants';
 import { productSchema } from '@/products/db/definitions/products';
 import {
   checkCodeMask,
@@ -16,6 +16,9 @@ import {
 } from '@/products/utils';
 import { IModels } from '~/connectionResolvers';
 import { generateProductUpdateActivityLogs } from '../../meta/activity-log';
+
+const normalizeProductType = (type?: string) =>
+  type?.trim() === '' ? PRODUCT_TYPES.PRODUCT : type;
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -63,6 +66,8 @@ export const loadProductClass = (
       await this.checkCodeDuplication(doc.code);
 
       doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
+
+      doc.type = normalizeProductType(doc.type);
 
       if (doc.categoryCode) {
         const category = await models.ProductCategories.getProductCategory({
@@ -144,6 +149,10 @@ export const loadProductClass = (
 
     public static async updateProductFromBulk(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
+
+      if (typeof doc.type === 'string') {
+        doc.type = normalizeProductType(doc.type);
+      }
 
       const category = await models.ProductCategories.getProductCategory({
         _id: doc.categoryId || product.categoryId,
@@ -269,7 +278,7 @@ export const loadProductClass = (
       let barcodes: string[] = [];
       const name: string = productFields.name || '';
       const shortName: string = productFields.shortName || '';
-      const type: string = productFields.type || '';
+      const type: string = normalizeProductType(productFields.type) || '';
       const description: string = productFields.description || '';
       const barcodeDescription: string = productFields.barcodeDescription || '';
       const categoryId: string = productFields.categoryId || '';
