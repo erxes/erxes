@@ -1,23 +1,38 @@
+import { memo } from 'react';
 import { IconAlertCircle, IconRefresh } from '@tabler/icons-react';
 import { Tooltip } from 'erxes-ui';
 import { Message } from '~/modules/chat/types';
 import { AgentAvatar } from '~/modules/chat/components/Avatars';
-import { ChatMarkdown } from '~/modules/chat/components/ChatMarkdown';
+import {
+  ChatMarkdown,
+  StreamingMarkdown,
+} from '~/modules/chat/components/ChatMarkdown';
 import { CopyButton } from '~/modules/chat/components/CopyButton';
 import { FeedbackButtons } from '~/modules/chat/components/FeedbackButtons';
 import { MessageAttachments } from '~/modules/chat/components/MessageAttachments';
 import { ThinkingSection } from '~/modules/chat/components/ThinkingSection';
 import { ToolCallRow } from '~/modules/chat/components/ToolCallRow';
 
-export const MessageBubble = ({
+// memo() so a streaming turn only re-renders the live bubble, not every prior
+// message. The store keeps stable object references for unchanged messages, so
+// shallow prop equality holds — provided callers pass stable callbacks and the
+// per-message gating (regenerate/rate) is derived here from primitive flags
+// rather than passed as freshly-built closures.
+export const MessageBubble = memo(function MessageBubble({
   msg,
+  isLast,
+  chatLoading,
+  ratingEnabled,
   onRegenerate,
   onRate,
 }: {
   msg: Message;
-  onRegenerate?: () => void;
-  onRate?: (rating: 1 | -1) => void;
-}) => {
+  isLast: boolean;
+  chatLoading: boolean;
+  ratingEnabled: boolean;
+  onRegenerate: () => void;
+  onRate: (messageId: string, rating: 1 | -1) => void;
+}) {
   if (msg.role === 'error') {
     return (
       <div className="flex justify-center ea-msg-in">
@@ -60,6 +75,14 @@ export const MessageBubble = ({
   // (possibly still streaming) answer text
   const streaming = !!msg.streaming;
   const parts = msg.parts ?? [];
+  // The footer below only renders when !streaming, so the streaming guard is
+  // implicit here. Regenerate is offered on the last reply once the turn is
+  // idle; rating needs a persisted id and the feature flag.
+  const canRegenerate = isLast && !chatLoading;
+  const handleRate =
+    ratingEnabled && msg.id
+      ? (rating: 1 | -1) => onRate(msg.id!, rating)
+      : undefined;
 
   return (
     <div className="flex justify-start items-start gap-2.5 group ea-msg-in">
@@ -85,7 +108,11 @@ export const MessageBubble = ({
           </div>
         )}
         {msg.content ? (
-          <ChatMarkdown content={msg.content} />
+          streaming ? (
+            <StreamingMarkdown content={msg.content} />
+          ) : (
+            <ChatMarkdown content={msg.content} />
+          )
         ) : streaming && !parts.length ? (
           <div className="flex items-center gap-1.5 py-1">
             <span className="ea-typing-dot" />
@@ -108,7 +135,7 @@ export const MessageBubble = ({
               )}
             </p>
             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              {onRegenerate && (
+              {canRegenerate && (
                 <Tooltip.Provider>
                   <Tooltip>
                     <Tooltip.Trigger asChild>
@@ -124,8 +151,8 @@ export const MessageBubble = ({
                   </Tooltip>
                 </Tooltip.Provider>
               )}
-              {onRate && (
-                <FeedbackButtons rating={msg.rating} onRate={onRate} />
+              {handleRate && (
+                <FeedbackButtons rating={msg.rating} onRate={handleRate} />
               )}
               <CopyButton text={msg.content} />
             </div>
@@ -134,4 +161,4 @@ export const MessageBubble = ({
       </div>
     </div>
   );
-};
+});
