@@ -45,14 +45,15 @@ export type IConfigsMap = {
   DYNAMIC: IMSDynamicConfigMap;
 };
 
-export type IConfig = {
+export type IMnConfig = {
   _id: string;
   code: string;
-  value: IMSDynamicConfigMap;
+  subId?: string;
+  value: IMSDynamicConfig;
 };
 
 export type ConfigsQueryResponse = {
-  configsGetValue: IConfig;
+  mnConfigs: IMnConfig[];
   loading: boolean;
   refetch: () => void;
 };
@@ -148,7 +149,7 @@ export type SyncHistoriesCountQueryResponse = {
 
 export type CheckSyncedMutationResponse = {
   toCheckMsdSynced: (mutation: {
-    variables: { ids: string[]; brandId: string };
+    variables: { ids: string[] };
   }) => Promise<any>;
 };
 

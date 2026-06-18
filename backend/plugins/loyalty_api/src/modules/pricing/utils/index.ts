@@ -86,10 +86,7 @@ export const getMainConditions = ({
 
   return {
     status: 'active',
-    $and: [
-      dateFilter,
-      lastFilter,
-    ]
+    $and: [dateFilter, lastFilter],
   };
 };
 
@@ -329,7 +326,6 @@ export const checkPricing = async (params: {
 
     // Process each item
     for (const item of orderItems) {
-      console.log(item.productId)
       if (!allowedProductIds.includes(item.productId)) {
         continue;
       }

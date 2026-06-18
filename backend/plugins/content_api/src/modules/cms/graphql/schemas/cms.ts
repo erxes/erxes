@@ -22,6 +22,8 @@ export const types = `
     languages: [String]
     postUrlField: String
     postUrlPrefix: String
+    accessPolicy: String
+    assignedMemberIds: [String]
     createdAt: Date
     updatedAt: Date
 
@@ -51,6 +53,8 @@ export const inputs = `
     languages: [String]
     postUrlField: String
     postUrlPrefix: String
+    accessPolicy: String
+    assignedMemberIds: [String]
   }
 `;
 

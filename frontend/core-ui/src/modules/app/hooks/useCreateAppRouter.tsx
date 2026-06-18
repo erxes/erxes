@@ -129,16 +129,14 @@ export const useCreateAppRouter = () => {
                 <Route path={AppPath.LogsCatchAll} element={<LogRoutes />} />
               )}
 
-              {isOS && (
-                <Route
-                  path={AppPath.DocumentsCatchAll}
-                  element={
-                    <PermissionRouteGuard module="documents">
-                      <DocumentsRoutes />
-                    </PermissionRouteGuard>
-                  }
-                />
-              )}
+              <Route
+                path={AppPath.DocumentsCatchAll}
+                element={
+                  <PermissionRouteGuard module="documents">
+                    <DocumentsRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
 
               <Route
                 path={AppPath.BroadcastsCatchAll}

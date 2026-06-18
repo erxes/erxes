@@ -48,8 +48,6 @@ const SipProvider = ({
   debug = false,
   children,
   createSession,
-  addHistory,
-  updateHistory,
 }: SipProviderProps & { children: React.ReactNode }) => {
   const [callInfo] = useAtom(callInfoAtom);
   const setCallNumber = useSetAtom(callNumberState);
@@ -477,20 +475,6 @@ const SipProvider = ({
           }
           customerPhone = extractPhoneNumberFromCounterpart(counterpart);
 
-          if (updateHistory && rtcSession) {
-            updateHistory(
-              timeStamp,
-              rtcSession.start_time,
-              rtcSession.end_time,
-              'cancelled',
-              direction,
-              customerPhone,
-              diversionHeader || '',
-              e.originator,
-              historyIdRef.current,
-            );
-          }
-
           setSipState((prev) => ({
             ...prev,
             callStatus: CallStatusEnum.IDLE,
@@ -517,20 +501,6 @@ const SipProvider = ({
             direction = parseCallDirection(sipState.callDirection);
           }
           customerPhone = extractPhoneNumberFromCounterpart(counterpart);
-
-          if (updateHistory && rtcSession) {
-            updateHistory(
-              timeStamp,
-              rtcSession.start_time,
-              rtcSession.end_time,
-              'connected',
-              callDirection,
-              customerPhone,
-              diversionHeader || '',
-              data.originator,
-              historyIdRef.current,
-            );
-          }
 
           setSipState((prev) => ({
             ...prev,
@@ -567,20 +537,6 @@ const SipProvider = ({
             return;
           }
 
-          if (updateHistory && rtcSession) {
-            updateHistory(
-              timeStamp,
-              rtcSession.start_time,
-              rtcSession.end_time,
-              'rejected',
-              '',
-              '',
-              undefined,
-              undefined,
-              historyIdRef.current,
-            );
-          }
-
           setSipState((prev) => ({
             ...prev,
             callStatus: CallStatusEnum.IDLE,
@@ -602,16 +558,6 @@ const SipProvider = ({
               direction = parseCallDirection(sipState.callDirection);
             }
             customerPhone = extractPhoneNumberFromCounterpart(counterpart);
-            if (addHistory) {
-              addHistory(
-                'active',
-                timeStamp,
-                callDirection,
-                customerPhone,
-                rtcSession.start_time,
-                sipState.groupName,
-              );
-            }
             if (originator === 'remote' && remoteAudioRef.current) {
               [remoteAudioRef.current.srcObject] =
                 rtcSession.connection.getRemoteStreams();
@@ -676,10 +622,8 @@ const SipProvider = ({
     setRtcSessionState,
     autoAnswer,
     stopRingbackTone,
-    updateHistory,
     playHangupTone,
     setCallNumber,
-    addHistory,
     answerCall,
   ]);
 
@@ -714,8 +658,6 @@ const SipProvider = ({
     () => ({
       sip: {
         createSession,
-        addHistory,
-        updateHistory,
       },
       registerSip,
       unregisterSip,
@@ -732,8 +674,6 @@ const SipProvider = ({
     }),
     [
       createSession,
-      addHistory,
-      updateHistory,
       registerSip,
       unregisterSip,
       answerCall,

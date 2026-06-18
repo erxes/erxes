@@ -90,6 +90,14 @@ export default {
     return generateAmounts(deal.productsData || []);
   },
 
+  async pipelineId(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return (await models.Stages.getStage(deal.stageId)).pipelineId;
+  },
+
   async pipeline(deal: IDealDocument, _args: undefined, { loaders }: IContext) {
     return await loaders.deal.pipelineByDealId.load(deal.stageId);
   },

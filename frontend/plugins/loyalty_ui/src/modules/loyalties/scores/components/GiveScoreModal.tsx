@@ -21,6 +21,16 @@ interface GiveScoreFormValues {
   serviceName: string;
 }
 
+const DEFAULT_FORM_VALUES: GiveScoreFormValues = {
+  ownerType: 'customer',
+  ownerId: '',
+  campaignId: '',
+  change: 0,
+  description: 'manual',
+  targetId: '',
+  serviceName: '',
+};
+
 interface GiveScoreModalProps {
   triggerLabel?: string;
   refetchQueries?: string[];
@@ -40,19 +50,26 @@ export const GiveScoreModal = ({
   });
 
   const form = useForm<GiveScoreFormValues>({
-    defaultValues: {
-      ownerType: 'customer',
-      ownerId: '',
-      campaignId: '',
-      change: 0,
-      description: 'manual',
-      targetId: '',
-      serviceName: '',
-    },
+    defaultValues: DEFAULT_FORM_VALUES,
   });
 
   const ownerType = form.watch('ownerType');
   const ownerId = form.watch('ownerId');
+
+  // Reset every transient bit of state so reopening the sheet always starts
+  // fresh. Without this, `targetType` stays 'sales' after closing, which makes
+  // the already-active "Sales pipeline" tab unresponsive until a page refresh.
+  const resetModalState = () => {
+    setTargetType(null);
+    setSelectedDealName('');
+    setDealSheetOpen(false);
+    form.reset(DEFAULT_FORM_VALUES);
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) resetModalState();
+  };
 
   const onSubmit = async (values: GiveScoreFormValues) => {
     if (!values.ownerId) return;
@@ -74,18 +91,7 @@ export const GiveScoreModal = ({
         description: 'Score given successfully',
         variant: 'default',
       });
-      setOpen(false);
-      setTargetType(null);
-      setSelectedDealName('');
-      form.reset({
-        ownerType: 'customer',
-        ownerId: '',
-        campaignId: '',
-        change: 0,
-        description: 'manual',
-        targetId: '',
-        serviceName: '',
-      });
+      handleOpenChange(false);
     } catch (e: unknown) {
       toast({
         title: 'Error',
@@ -96,7 +102,7 @@ export const GiveScoreModal = ({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen} modal>
+    <Sheet open={open} onOpenChange={handleOpenChange} modal>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -163,12 +169,15 @@ export const GiveScoreModal = ({
                       setSelectedDealName('');
                       form.setValue('targetId', '');
                       form.setValue('serviceName', next || '');
-                      if (next === 'sales') setDealSheetOpen(true);
                     }}
                   >
                     <Tabs.List className="bg-accent rounded-md w-full px-1 flex items-center gap-2 border-none no-underline!">
                       <Tabs.Trigger
                         value="sales"
+                        // Open the deal picker on every click — Radix Tabs does
+                        // not fire onValueChange when the active tab is clicked
+                        // again, so onClick is what lets users reopen it.
+                        onClick={() => setDealSheetOpen(true)}
                         className="flex-1 cursor-pointer w-[50%] font-normal gap-1.5 data-[state=active]:bg-background bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
                       >
                         <IconBriefcase size={15} />
@@ -269,7 +278,7 @@ export const GiveScoreModal = ({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setOpen(false)}
+                  onClick={() => handleOpenChange(false)}
                 >
                   Close
                 </Button>

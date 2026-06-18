@@ -11,7 +11,7 @@ import {
 import { Row } from '@tanstack/table-core';
 import { ITask } from '@/task/types';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
-import { currentUserState } from 'ui-modules';
+import { Can, currentUserState, Export } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
@@ -38,9 +38,7 @@ import {
   TasksMoveToTeamCommandBarItem,
   TasksMoveToTeamTrigger,
 } from '../task-actions/MoveToTeam';
-import {
-  MakeACopyTrigger,
-} from '../task-actions/MakeACopy';
+import { MakeACopyTrigger } from '../task-actions/MakeACopy';
 import {
   CopyTaskTrigger,
   CopyTaskCommandBarItem,
@@ -66,9 +64,17 @@ export const TasksCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {selectedRows.length} selected
-        </CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <Can action="taskExportManage">
+          <Separator.Inline />
+          <Export
+            pluginName="operation"
+            moduleName="task"
+            collectionName="task"
+            buttonVariant="secondary"
+            ids={taskIds}
+          />
+        </Can>
         <Separator.Inline />
         <Popover
           open={open}
@@ -147,10 +153,7 @@ export const TasksCommandBar = () => {
                       setCurrentContent={setCurrentContent}
                     />
                     {isSingleTaskSelected && singleTask && (
-                      <MakeACopyTrigger
-                        task={singleTask}
-                        setOpen={setOpen}
-                      />
+                      <MakeACopyTrigger task={singleTask} setOpen={setOpen} />
                     )}
                     <CopyTaskTrigger setCurrentContent={setCurrentContent} />
                   </Command.Group>

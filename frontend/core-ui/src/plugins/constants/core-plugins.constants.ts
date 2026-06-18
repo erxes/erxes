@@ -77,15 +77,15 @@ export const GET_CORE_MODULES = (
       icon: IconBroadcast,
       path: 'broadcasts',
     },
+    {
+      name: t('documents'),
+      icon: IconFile,
+      path: 'documents',
+    },
   ];
 
   if (version) {
     MODULES?.push(
-      {
-        name: t('documents'),
-        icon: IconFile,
-        path: 'documents',
-      },
       {
         name: t('templates'),
         icon: IconBrandDatabricks,

@@ -52,7 +52,7 @@ export function CallConversationDetail() {
     }
   };
 
-  if (loading || !callHistoryDetail || syncFileLoading) {
+  if (loading) {
     return null;
   }
 
@@ -65,72 +65,85 @@ export function CallConversationDetail() {
     acctId,
     inboxIntegrationId,
   } = callHistoryDetail || {};
+
+  const formatCallTime = (value?: Date | string | null) => {
+    if (!value) return '-';
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? '-' : date.toISOString().split('.')[0];
+  };
   return (
     <>
-      <div className="flex flex-col max-w-[648px] mx-auto p-6">
-        <div className="flex gap-5 items-end">
-          <CustomersInline.Provider
-            customerIds={[conversationDetail?.customerId || '']}
-          >
-            <CustomersInline.Avatar size="xl" />
-          </CustomersInline.Provider>
-          <div className="shadow-xs p-1 rounded-xl max-w-[500px] flex-auto bg-accent">
-            <div className="h-8 pb-1 flex items-center gap-2 px-4">
-              {callType === 'outgoing' && (
-                <IconPhoneOutgoing className="size-4 text-primary" />
-              )}
-              {callType === 'incoming' && (
-                <IconPhoneIncoming className="size-4 text-primary" />
-              )}
-              <div className="font-medium capitalize">{callType} call</div>
-            </div>
-
-            <div className="p-4 bg-background rounded-lg">
-              <div className="flex items-center gap-2 justify-between mb-4">
-                <div className="flex flex-col gap-1">
-                  <div className="text-sm text-accent-foreground">Duration</div>
-                  <div className="font-medium">
-                    {formatSeconds(callDuration)}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1 text-sm">
-                  <div className="text-sm text-accent-foreground">
-                    Start Time
-                  </div>
-                  <div className="font-medium">
-                    {new Date(callStartTime).toISOString().split('.')[0]}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="text-sm text-accent-foreground">End Time</div>
-                  <div className="font-medium">
-                    {new Date(callEndTime).toISOString().split('.')[0]}
-                  </div>
-                </div>
+      {callHistoryDetail && (
+        <div className="flex flex-col max-w-[648px] mx-auto p-6">
+          <div className="flex gap-5 items-end">
+            <CustomersInline.Provider
+              customerIds={[conversationDetail?.customerId || '']}
+            >
+              <CustomersInline.Avatar size="xl" />
+            </CustomersInline.Provider>
+            <div className="shadow-xs p-1 rounded-xl max-w-[500px] flex-auto bg-accent">
+              <div className="h-8 pb-1 flex items-center gap-2 px-4">
+                {callType === 'outgoing' && (
+                  <IconPhoneOutgoing className="size-4 text-primary" />
+                )}
+                {callType === 'incoming' && (
+                  <IconPhoneIncoming className="size-4 text-primary" />
+                )}
+                <div className="font-medium capitalize">{callType} call</div>
               </div>
-              {recordUrl && (
-                <audio controls className="w-full">
-                  <source src={readImage(recordUrl)} type="audio/wav" />
-                  Your browser does not support the audio element.
-                </audio>
-              )}
-              <div className="font-medium">
-                <Button
-                  id="cdrRecordUrl"
-                  size="sm"
-                  onClick={() => {
-                    syncRecord(acctId, inboxIntegrationId);
-                  }}
-                  className="flex top-2"
-                >
-                  <IconRefresh />
-                  {'sync record file'}
-                </Button>
+
+              <div className="p-4 bg-background rounded-lg">
+                <div className="flex items-center gap-2 justify-between mb-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="text-sm text-accent-foreground">
+                      Duration
+                    </div>
+                    <div className="font-medium">
+                      {formatSeconds(callDuration)}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 text-sm">
+                    <div className="text-sm text-accent-foreground">
+                      Start Time
+                    </div>
+                    <div className="font-medium">
+                      {formatCallTime(callStartTime)}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-sm text-accent-foreground">
+                      End Time
+                    </div>
+                    <div className="font-medium">
+                      {formatCallTime(callEndTime)}
+                    </div>
+                  </div>
+                </div>
+                {recordUrl && (
+                  <audio controls className="w-full">
+                    <source src={readImage(recordUrl)} type="audio/wav" />
+                    Your browser does not support the audio element.
+                  </audio>
+                )}
+                <div className="font-medium">
+                  <Button
+                    id="cdrRecordUrl"
+                    size="sm"
+                    disabled={syncFileLoading}
+                    onClick={() => {
+                      syncRecord(acctId, inboxIntegrationId);
+                    }}
+                    className="flex top-2"
+                  >
+                    <IconRefresh />
+                    {'sync record file'}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
       <CallConversationNotes />
     </>
   );

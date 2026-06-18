@@ -74,6 +74,13 @@ export default composePlugins(
 
     config.stats = 'errors-warnings';
 
+    if (process.env.NODE_ENV !== 'production') {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],
+      };
+    }
+
     return config;
   },
 );

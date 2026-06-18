@@ -41,7 +41,6 @@ import {
   PRODUCT_FORM_SCHEMA,
 } from '../constants/addProductFormSchema';
 import { useAddProduct } from '../hooks/useProductsAdd';
-import { useUom } from '../hooks/useUom';
 import { IProductFormValues } from '../types';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
@@ -69,13 +68,6 @@ export function AddProductForm({
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
 }) {
   const { productsAdd, loading } = useAddProduct();
-  const { uoms } = useUom();
-
-  const uomIdToName = useMemo(() => {
-    const map = new Map<string, string>();
-    uoms.forEach((uom) => map.set(uom._id, uom.name));
-    return map;
-  }, [uoms]);
 
   const form = useForm<IProductFormValues>({
     resolver: zodResolver(PRODUCT_FORM_SCHEMA),
@@ -114,10 +106,13 @@ export function AddProductForm({
       ) {
         const customFieldsObj = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
-          .reduce((acc, [fieldId, val]) => {
-            acc[fieldId] = val;
-            return acc;
-          }, {} as Record<string, unknown>);
+          .reduce(
+            (acc, [fieldId, val]) => {
+              acc[fieldId] = val;
+              return acc;
+            },
+            {} as Record<string, unknown>,
+          );
         if (Object.keys(customFieldsObj).length > 0) {
           cleanData['propertiesData'] = customFieldsObj;
         }
@@ -125,19 +120,14 @@ export function AddProductForm({
       }
 
       if (key === 'uom') {
-        const uomName = uomIdToName.get(value as string);
-        cleanData[key] = uomName || value;
+        cleanData[key] = value;
         return;
       }
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
           const { _id, ...rest } = subUom;
-          const mappedUom = uomIdToName.get(rest.uom);
-          return {
-            ...rest,
-            uom: mappedUom || rest.uom,
-          };
+          return { ...rest };
         });
         return;
       }
@@ -145,7 +135,7 @@ export function AddProductForm({
       cleanData[key] = value;
     });
 
-    productsAdd({
+    await productsAdd({
       variables: cleanData,
       ...options,
       onError: (e) => {
@@ -708,7 +698,7 @@ function AddProductFormFieldsDetail({
                       <SelectCategory
                         value={field.value}
                         onSelect={field.onChange}
-                        mode='single'
+                        mode="single"
                       />
                     </Form.Control>
                     <Form.Message />

@@ -15,6 +15,7 @@ import {
   requireCmsPermission,
 } from '@/cms/utils/permissions';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
 // Client portal post lists default to last-published-first by publishedDate so
 // editors can control ordering simply by adjusting a post's publish date. An
@@ -295,6 +296,9 @@ class PostQueryResolver extends BaseQueryResolver {
    */
   async cmsPosts(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, clientPortalId } = args;
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
+
     const { models } = context;
 
     const readAccess = await getCmsReadAccess(
@@ -356,6 +360,8 @@ class PostQueryResolver extends BaseQueryResolver {
   async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, clientPortalId } = args;
     const { models } = context;
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
 
     const readAccess = await getCmsReadAccess(
       context,
