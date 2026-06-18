@@ -296,8 +296,8 @@ export const AgentFormFields = ({
                       <IconInfoCircle className="size-4 text-muted-foreground" />
                     </Tooltip.Trigger>
                     <Tooltip.Content className="max-w-xs">
-                      Prevents infinite loops. Raise this if the agent frequently
-                      stops mid-task.
+                      Prevents infinite loops. Raise this if the agent
+                      frequently stops mid-task.
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>
@@ -345,10 +345,10 @@ export const AgentFormFields = ({
                       <IconInfoCircle className="size-4 text-muted-foreground" />
                     </Tooltip.Trigger>
                     <Tooltip.Content className="max-w-xs">
-                      Lower values give more deterministic answers, higher values
-                      more creative ones. If the provider rejects the configured
-                      value (e.g. &quot;only 1 is allowed&quot;), set it to the
-                      value the model requires.
+                      Lower values give more deterministic answers, higher
+                      values more creative ones. If the provider rejects the
+                      configured value (e.g. &quot;only 1 is allowed&quot;), set
+                      it to the value the model requires.
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>

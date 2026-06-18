@@ -127,48 +127,48 @@ export const AgentRail = ({
   const [editingAgent, setEditingAgent] = useState<IChatAgent | null>(null);
 
   return (
-  <div className="w-56 border-r flex flex-col shrink-0">
-    <div className="px-3 py-2.5 border-b">
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-        Agents
-      </p>
-    </div>
-    <div className="flex-1 overflow-auto">
-      {loading ? (
-        <div className="p-3 space-y-1.5">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full rounded-md" />
-          ))}
-        </div>
-      ) : agents.length === 0 ? (
-        <div className="p-4 text-center">
-          <IconRobot className="size-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No enabled agents.</p>
-        </div>
-      ) : (
-        <div className="p-1.5 space-y-0.5">
-          {agents.map((agent) => (
-            <AgentRailItem
-              key={agent._id}
-              agent={agent}
-              isActive={activeAgentId === agent._id}
-              onSelect={onSelect}
-              onEdit={setEditingAgent}
-            />
-          ))}
-        </div>
+    <div className="w-56 border-r flex flex-col shrink-0">
+      <div className="px-3 py-2.5 border-b">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          Agents
+        </p>
+      </div>
+      <div className="flex-1 overflow-auto">
+        {loading ? (
+          <div className="p-3 space-y-1.5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full rounded-md" />
+            ))}
+          </div>
+        ) : agents.length === 0 ? (
+          <div className="p-4 text-center">
+            <IconRobot className="size-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">No enabled agents.</p>
+          </div>
+        ) : (
+          <div className="p-1.5 space-y-0.5">
+            {agents.map((agent) => (
+              <AgentRailItem
+                key={agent._id}
+                agent={agent}
+                isActive={activeAgentId === agent._id}
+                onSelect={onSelect}
+                onEdit={setEditingAgent}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {editingAgent && (
+        <EditAgentDialog
+          agent={editingAgent}
+          open
+          onOpenChange={(next) => {
+            if (!next) setEditingAgent(null);
+          }}
+        />
       )}
     </div>
-
-    {editingAgent && (
-      <EditAgentDialog
-        agent={editingAgent}
-        open
-        onOpenChange={(next) => {
-          if (!next) setEditingAgent(null);
-        }}
-      />
-    )}
-  </div>
   );
 };

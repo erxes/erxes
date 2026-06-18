@@ -183,7 +183,10 @@ const REASONING_BUILDERS: Record<
       effort === 'off'
         ? { thinking: { type: 'disabled' } }
         : {
-            thinking: { type: 'enabled', budgetTokens: THINKING_BUDGET[effort] },
+            thinking: {
+              type: 'enabled',
+              budgetTokens: THINKING_BUDGET[effort],
+            },
           },
   }),
   google: (effort) => ({
