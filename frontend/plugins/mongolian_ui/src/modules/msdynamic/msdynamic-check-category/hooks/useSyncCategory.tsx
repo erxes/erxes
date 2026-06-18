@@ -33,7 +33,7 @@ export const useSyncCategory = () => {
     useMutation<SyncCategoryMutationResponse>(gql(mutations.toSyncCategories));
   const { toast } = useToast();
 
-  /* Unsynced category-uudiig MS Dynamic ruu sync hiigeed shine state butsaana */
+  /* Unsynced MS Dynamic-aas irsen category-uudiig erxes ruu sync hiigeed shine state butsaana */
   const syncCategories = async (
     items: InventoryCategoryItems,
     selectedFilter: CategoryFilterType,

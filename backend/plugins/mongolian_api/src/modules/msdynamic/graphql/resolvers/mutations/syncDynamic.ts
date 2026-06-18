@@ -19,7 +19,7 @@ export interface ISyncFailure {
  * ============================
  */
 export const msdynamicSyncMutations = {
-  /* Songogdson erxes product-uudig neg negiig ni MS Dynamic ruu sync hiine */
+  /* Songogdson MS Dynamic-aas irsen product-uudiig neg negiig ni erxes ruu sync hiine */
   async toSyncMsdProducts(
     _root: unknown,
     {
@@ -52,7 +52,7 @@ export const msdynamicSyncMutations = {
     return { status: 'success' };
   },
 
-  /* Songogdson product angilal-uudiig neg negiig ni MS Dynamic ruu sync hiine */
+  /* Songogdson MS Dynamic-aas irsen product angilal-uudiig neg negiig ni erxes ruu sync hiine */
   async toSyncMsdProductCategories(
     _root: unknown,
     {
@@ -102,7 +102,7 @@ export const msdynamicSyncMutations = {
     };
   },
 
-  /* Songogdson hereglegch-uudiig neg negiig ni MS Dynamic ruu sync hiine */
+  /* Songogdson MS Dynamic-aas irsen hereglegch-uudiig neg negiig ni erxes ruu sync hiine */
   async toSyncMsdCustomers(
     _root: unknown,
     {
