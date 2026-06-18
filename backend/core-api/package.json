@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && pnpm run copy-assets",
+    "copy-assets": "mkdir -p dist/src/commands && cp src/commands/*.csv dist/src/commands/",
     "start": "node -r tsconfig-paths/register dist/src/main.js"
   },
   "keywords": [],
