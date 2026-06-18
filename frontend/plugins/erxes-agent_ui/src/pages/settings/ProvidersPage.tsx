@@ -152,8 +152,8 @@ export const ProvidersPage = () => {
                         {p.apiKey
                           ? '••••••' + p.apiKey.slice(-4)
                           : p.envKey
-                          ? `env: ${p.envKey}`
-                          : 'No key'}
+                            ? `env: ${p.envKey}`
+                            : 'No key'}
                       </span>
                       {p.baseUrl && (
                         <span className="ml-2 text-xs">· {p.baseUrl}</span>
@@ -217,8 +217,8 @@ export const ProvidersPage = () => {
                     adding === preset.provider
                       ? 'border-primary bg-primary/5'
                       : envOnly
-                      ? 'border-green-500/40 hover:border-green-500/70'
-                      : 'border-border hover:border-primary/50',
+                        ? 'border-green-500/40 hover:border-green-500/70'
+                        : 'border-border hover:border-primary/50',
                   )}
                   role="button"
                   tabIndex={0}
