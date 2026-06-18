@@ -6,6 +6,17 @@ export const PRODUCT_TYPES = {
   ALL: ['product', 'service', 'unique', 'subscription'],
 };
 
+export const PRODUCT_DURATION_TYPES = {
+  MINUTE: 'minute',
+  HOUR: 'hour',
+  DAY: 'day',
+  WEEK: 'week',
+  MONTH: 'month',
+  QUARTER: 'quarter',
+  YEAR: 'year',
+  ALL: ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'],
+};
+
 export const PRODUCT_STATUSES = {
   ACTIVE: 'active',
   DELETED: 'deleted',
