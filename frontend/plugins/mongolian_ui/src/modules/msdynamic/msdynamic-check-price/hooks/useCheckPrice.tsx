@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCheckPriceActions } from './useCheckPriceActions';
 import {
@@ -9,7 +9,7 @@ import {
   checkingAtom,
   syncingAtom,
 } from '../states/checkPriceStates';
-import { PriceStatus } from '../types/checkPrice';
+import { IPriceItem, PriceStatus } from '../types/checkPrice';
 
 export const useCheckPrice = () => {
   const { pathname, search } = useLocation();
@@ -27,6 +27,11 @@ export const useCheckPrice = () => {
   const setPriceItems = useSetAtom(priceItemsAtom);
   const setCheckResponseData = useSetAtom(checkResponseDataAtom);
 
+  useEffect(() => {
+    setPriceItems(null);
+    setCheckResponseData(null);
+  }, [brandId, setPriceItems, setCheckResponseData]);
+
   const filteredItems = useMemo(
     () =>
       selectedFilter
@@ -36,7 +41,7 @@ export const useCheckPrice = () => {
   );
 
   const syncableItems = useMemo(
-    () => filteredItems.filter((item) => !item.isSynced),
+    () => (filteredItems || []).filter((item) => !item.isSynced),
     [filteredItems],
   );
 
@@ -48,11 +53,6 @@ export const useCheckPrice = () => {
     syncableItems,
   });
 
-  useEffect(() => {
-    setPriceItems(null);
-    setCheckResponseData(null);
-  }, [brandId, setPriceItems, setCheckResponseData]);
-
   const setBrand = (nextBrandId: string) => {
     const params = new URLSearchParams(search);
     params.set('brandId', nextBrandId);
@@ -60,7 +60,13 @@ export const useCheckPrice = () => {
   };
 
   const checkPrice = () => checkPriceAction();
-  const handleSync = () => syncPrices();
+  const handleSync = (selectedPrices?: IPriceItem[]) =>
+    syncPrices(selectedPrices);
+
+  const pageInfo = {
+    hasPreviousPage: false,
+    hasNextPage: false,
+  };
 
   return {
     priceItems,
@@ -69,6 +75,7 @@ export const useCheckPrice = () => {
     checkResponseData,
     checking,
     syncing,
+    pageInfo,
     selectedBrandId: brandId,
     selectedFilter,
     setSelectedFilter,

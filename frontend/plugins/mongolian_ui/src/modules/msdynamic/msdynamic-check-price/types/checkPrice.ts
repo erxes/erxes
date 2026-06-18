@@ -1,6 +1,7 @@
 export type PriceStatus = 'UPDATE' | 'MATCH' | 'CREATE' | 'DELETE' | 'ERROR';
 
 export interface IPriceItem {
+  _id?: string;
   Item_No?: string;
   Unit_Price?: number;
   Ending_Date?: string;

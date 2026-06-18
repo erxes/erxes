@@ -6,6 +6,7 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Badge,
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
@@ -17,6 +18,7 @@ import {
 } from '../types/checkPrice';
 
 export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
+  RecordTable.checkboxColumn as ColumnDef<IPriceItem>,
   {
     id: 'status',
     accessorKey: 'status',
@@ -48,6 +50,7 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
   },
   {
     id: 'unitPrice',
+    accessorKey: 'Unit_Price',
     header: () => <RecordTable.InlineHead label="Unit price" icon={IconHash} />,
     cell: ({ cell }) => {
       const row = cell.row.original;
@@ -89,9 +92,9 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
       return (
         <RecordTableInlineCell>
           {isSynced ? (
-            <span className="text-green-600 font-medium">Synced</span>
+            <Badge variant="success">Synced</Badge>
           ) : (
-            <span className="text-muted-foreground">Pending</span>
+            <Badge variant="warning">Pending</Badge>
           )}
         </RecordTableInlineCell>
       );

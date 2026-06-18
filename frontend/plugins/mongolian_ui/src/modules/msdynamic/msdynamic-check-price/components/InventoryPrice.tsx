@@ -5,15 +5,7 @@ import { CheckPriceFilter } from './CheckPriceFilter';
 import { CheckPriceRecordTable } from './CheckPriceRecordTable';
 
 export const InventoryPrice = () => {
-  const {
-    selectedBrandId,
-    setBrand,
-    checking,
-    syncing,
-    priceItems,
-    checkPrice,
-    handleSync,
-  } = useCheckPrice();
+  const { selectedBrandId, setBrand, checking, checkPrice } = useCheckPrice();
 
   return (
     <PageContainer>
@@ -29,11 +21,6 @@ export const InventoryPrice = () => {
           <Button onClick={checkPrice} disabled={checking || !selectedBrandId}>
             {checking ? 'Checking...' : 'Check'}
           </Button>
-          {priceItems && priceItems.length > 0 && (
-            <Button onClick={handleSync} disabled={syncing}>
-              {syncing ? 'Syncing...' : 'Sync'}
-            </Button>
-          )}
         </div>
       </PageSubHeader>
       <CheckPriceRecordTable />

@@ -1,14 +1,19 @@
 import { gql, useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
-import { mutations } from '../../graphql';
+
+import { mutations } from '@/msdynamic/graphql';
 import {
   checkingAtom,
   syncingAtom,
   priceItemsAtom,
   checkResponseDataAtom,
 } from '../states/checkPriceStates';
-import { IPriceItem, PriceStatus } from '../types/checkPrice';
+import {
+  IPriceItem,
+  ICheckPriceResponse,
+  PriceStatus,
+} from '../types/checkPrice';
 
 type GroupKey = 'update' | 'match' | 'create' | 'delete' | 'error';
 
@@ -23,7 +28,7 @@ const CHECK_MSD_PRICES = gql(mutations.toCheckPrices);
 const SYNC_MSD_PRICES = gql(mutations.toSyncPrices);
 
 type CheckPricesData = {
-  toCheckMsdPrices?: Partial<Record<GroupKey, { items: IPriceItem[] }>>;
+  toCheckMsdPrices?: ICheckPriceResponse;
 };
 type CheckPricesVariables = { brandId: string };
 type SyncPricesData = { toSyncMsdPrices?: { status: string } };
@@ -33,6 +38,24 @@ type Props = {
   brandId: string;
   syncableItems: IPriceItem[];
 };
+
+const normalizePriceItem = (
+  item: IPriceItem,
+  status: PriceStatus,
+): IPriceItem => ({
+  ...item,
+  status,
+  isSynced: item.syncStatus === true,
+});
+
+const normalizePricesResponse = (
+  response: ICheckPriceResponse,
+): IPriceItem[] =>
+  GROUP_KEYS.flatMap(({ key, status }) =>
+    (response[key]?.items || []).map((item) =>
+      normalizePriceItem(item, status),
+    ),
+  );
 
 export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
   const setPriceItems = useSetAtom(priceItemsAtom);
@@ -62,25 +85,17 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
 
       setCheckResponseData(data);
 
-      const allItems: IPriceItem[] = GROUP_KEYS.flatMap(({ key, status }) =>
-        (data[key]?.items || []).map((item: IPriceItem) => ({
-          ...item,
-          status,
-          isSynced: false,
-        })),
-      );
+      const allItems = normalizePricesResponse(data);
 
       setPriceItems(allItems);
       toast({
         title: 'Success',
         description: `${allItems.length} price items found`,
       });
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to check prices';
+    } catch {
       toast({
         title: 'Error',
-        description: message,
+        description: 'Failed to check MS Dynamic prices',
         variant: 'destructive',
       });
     } finally {
@@ -88,23 +103,18 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
     }
   };
 
-  const syncPrices = async () => {
-    if (!syncableItems.length) return;
+  const syncPrices = async (selectedPrices?: IPriceItem[]) => {
+    const itemsToSync = selectedPrices || syncableItems;
+    if (!itemsToSync.length) return;
     try {
       setSyncing(true);
 
-      await syncMsdPrices({ variables: { prices: syncableItems } });
+      await syncMsdPrices({ variables: { prices: itemsToSync } });
 
       const refreshed = await checkMsdPrices({ variables: { brandId } });
       const refreshedData = refreshed.data?.toCheckMsdPrices;
       const nextItems = refreshedData
-        ? GROUP_KEYS.flatMap(({ key, status }) =>
-            (refreshedData[key]?.items || []).map((item: IPriceItem) => ({
-              ...item,
-              status,
-              isSynced: false,
-            })),
-          )
+        ? normalizePricesResponse(refreshedData)
         : [];
 
       setPriceItems(nextItems);
@@ -112,14 +122,12 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
 
       toast({
         title: 'Success',
-        description: `${syncableItems.length} prices synced`,
+        description: `${itemsToSync.length} prices synced`,
       });
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to sync prices';
+    } catch {
       toast({
         title: 'Error',
-        description: message,
+        description: 'Failed to sync MS Dynamic prices',
         variant: 'destructive',
       });
     } finally {

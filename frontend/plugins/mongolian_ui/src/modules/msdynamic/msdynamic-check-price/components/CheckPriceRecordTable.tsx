@@ -2,21 +2,22 @@ import { IconCurrencyDollar } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { MS_DYNAMIC_SESSION_KEYS } from '../../constants/msDynamicSessionKey';
 import { checkPriceColumns } from './CheckPriceColumns';
+import { CheckPriceCommandBar } from './CheckPriceCommandBar';
 import { useCheckPrice } from '../hooks/useCheckPrice';
 
 export const CheckPriceRecordTable = () => {
-  const { filteredItems, checking, checkPrice } = useCheckPrice();
+  const { filteredItems, checking, checkPrice, pageInfo } = useCheckPrice();
 
   return (
     <RecordTable.Provider
       columns={checkPriceColumns}
       data={filteredItems || []}
-      className="m-3"
-      stickyColumns={['code', 'unitPrice']}
+      className="h-full w-full overflow-y-auto px-2"
+      stickyColumns={['checkbox']}
     >
       <RecordTable.CursorProvider
-        hasPreviousPage={false}
-        hasNextPage={false}
+        hasPreviousPage={pageInfo.hasPreviousPage}
+        hasNextPage={pageInfo.hasNextPage}
         dataLength={filteredItems?.length}
         sessionKey={MS_DYNAMIC_SESSION_KEYS.prices}
       >
@@ -46,6 +47,7 @@ export const CheckPriceRecordTable = () => {
           </div>
         )}
       </RecordTable.CursorProvider>
+      <CheckPriceCommandBar />
     </RecordTable.Provider>
   );
 };
