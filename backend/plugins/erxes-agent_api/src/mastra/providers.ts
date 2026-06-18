@@ -144,16 +144,20 @@ export const PROVIDER_PRESETS: Array<{
 // provider we don't have a mapping for) yields no options — the agent's
 // configured default stands, exactly as before this feature existed.
 // ---------------------------------------------------------------------------
-export type ReasoningEffort = 'off' | 'low' | 'medium' | 'high';
-
-const REASONING_EFFORTS: ReasoningEffort[] = ['off', 'low', 'medium', 'high'];
+export const REASONING_EFFORTS = ['off', 'low', 'medium', 'high'] as const;
+export type ReasoningEffort = (typeof REASONING_EFFORTS)[number];
 
 /** Type guard for the reasoning-effort enum — validates untrusted request input. */
 export function isReasoningEffort(v: unknown): v is ReasoningEffort {
   return (
-    typeof v === 'string' && REASONING_EFFORTS.includes(v as ReasoningEffort)
+    typeof v === 'string' &&
+    (REASONING_EFFORTS as readonly string[]).includes(v)
   );
 }
+
+// The `providerOptions` block Mastra forwards to the model SDK — keyed by
+// provider name, each value the option bag that provider understands.
+export type ReasoningProviderOptions = Record<string, Record<string, unknown>>;
 
 // Anthropic / Google take an explicit thinking-token budget. 'off' disables
 // reasoning where the provider supports it.
@@ -161,6 +165,34 @@ const THINKING_BUDGET: Record<Exclude<ReasoningEffort, 'off'>, number> = {
   low: 2048,
   medium: 8192,
   high: 16384,
+};
+
+// Per-provider translators: one entry per provider with a portable reasoning
+// knob. A provider absent from this table has none, so the model's configured
+// default stands (groq / mistral / cohere / OpenAI-compatible Kimi, NVIDIA…).
+const REASONING_BUILDERS: Record<
+  string,
+  (effort: ReasoningEffort) => ReasoningProviderOptions
+> = {
+  // gpt-5 / o-series accept 'minimal' | 'low' | 'medium' | 'high'.
+  openai: (effort) => ({
+    openai: { reasoningEffort: effort === 'off' ? 'minimal' : effort },
+  }),
+  anthropic: (effort) => ({
+    anthropic:
+      effort === 'off'
+        ? { thinking: { type: 'disabled' } }
+        : {
+            thinking: { type: 'enabled', budgetTokens: THINKING_BUDGET[effort] },
+          },
+  }),
+  google: (effort) => ({
+    google: {
+      thinkingConfig: {
+        thinkingBudget: effort === 'off' ? 0 : THINKING_BUDGET[effort],
+      },
+    },
+  }),
 };
 
 /**
@@ -172,40 +204,9 @@ const THINKING_BUDGET: Record<Exclude<ReasoningEffort, 'off'>, number> = {
 export function buildReasoningProviderOptions(
   providerName: string,
   effort?: ReasoningEffort,
-): Record<string, Record<string, unknown>> | undefined {
+): ReasoningProviderOptions | undefined {
   if (!effort) return undefined;
-
-  switch (providerName) {
-    case 'openai':
-      // gpt-5 / o-series accept 'minimal' | 'low' | 'medium' | 'high'.
-      return {
-        openai: { reasoningEffort: effort === 'off' ? 'minimal' : effort },
-      };
-    case 'anthropic':
-      return {
-        anthropic:
-          effort === 'off'
-            ? { thinking: { type: 'disabled' } }
-            : {
-                thinking: {
-                  type: 'enabled',
-                  budgetTokens: THINKING_BUDGET[effort],
-                },
-              },
-      };
-    case 'google':
-      return {
-        google: {
-          thinkingConfig: {
-            thinkingBudget: effort === 'off' ? 0 : THINKING_BUDGET[effort],
-          },
-        },
-      };
-    default:
-      // groq / mistral / cohere / OpenAI-compatible providers (Kimi, NVIDIA):
-      // no portable reasoning knob — leave the model's default in place.
-      return undefined;
-  }
+  return REASONING_BUILDERS[providerName]?.(effort);
 }
 
 // What buildModel hands to Agent: a Mastra model config. A bare string ref

@@ -35,21 +35,41 @@ describe('buildReasoningProviderOptions', () => {
     });
   });
 
-  it('maps Anthropic to a thinking budget, disabling on off', () => {
+  it('maps Anthropic to a thinking budget per level, disabling on off', () => {
+    expect(buildReasoningProviderOptions('anthropic', 'low')).toEqual({
+      anthropic: { thinking: { type: 'enabled', budgetTokens: 2048 } },
+    });
     expect(buildReasoningProviderOptions('anthropic', 'medium')).toEqual({
       anthropic: { thinking: { type: 'enabled', budgetTokens: 8192 } },
+    });
+    expect(buildReasoningProviderOptions('anthropic', 'high')).toEqual({
+      anthropic: { thinking: { type: 'enabled', budgetTokens: 16384 } },
     });
     expect(buildReasoningProviderOptions('anthropic', 'off')).toEqual({
       anthropic: { thinking: { type: 'disabled' } },
     });
   });
 
-  it('maps Google to a thinking budget, zero on off', () => {
+  it('maps Google to a thinking budget per level, zero on off', () => {
     expect(buildReasoningProviderOptions('google', 'low')).toEqual({
       google: { thinkingConfig: { thinkingBudget: 2048 } },
+    });
+    expect(buildReasoningProviderOptions('google', 'medium')).toEqual({
+      google: { thinkingConfig: { thinkingBudget: 8192 } },
+    });
+    expect(buildReasoningProviderOptions('google', 'high')).toEqual({
+      google: { thinkingConfig: { thinkingBudget: 16384 } },
     });
     expect(buildReasoningProviderOptions('google', 'off')).toEqual({
       google: { thinkingConfig: { thinkingBudget: 0 } },
     });
+  });
+
+  it('maps OpenAI minimal/low/medium/high without a budget', () => {
+    for (const level of ['low', 'medium', 'high'] as const) {
+      expect(buildReasoningProviderOptions('openai', level)).toEqual({
+        openai: { reasoningEffort: level },
+      });
+    }
   });
 });

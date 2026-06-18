@@ -13,6 +13,7 @@ import { toolStatusLine } from './mastra/activity-signals';
 import {
   isReasoningEffort,
   buildReasoningProviderOptions,
+  ReasoningEffort,
 } from './mastra/providers';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
@@ -195,37 +196,66 @@ function sanitizeAttachments(raw: unknown): IMastraChatAttachment[] | null {
   return out;
 }
 
-router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
-  const user = extractUserFromHeader(req.headers);
-  if (!user?._id) {
-    return res.status(401).json({ error: 'Login required' });
-  }
+// Validated POST /chat/stream payload. All shape-checking for the untrusted
+// request body lives here so the handler reads as straight-line logic.
+interface ChatStreamRequest {
+  agentId: string;
+  message: string;
+  threadId?: string;
+  reasoningEffort?: ReasoningEffort;
+  attachments: IMastraChatAttachment[];
+}
 
-  const { agentId, message, threadId } = req.body || {};
+type ParseResult =
+  | { ok: true; value: ChatStreamRequest }
+  | { ok: false; error: string };
+
+function parseChatStreamBody(raw: unknown): ParseResult {
+  const body = (raw ?? {}) as Record<string, unknown>;
+  const { agentId, message, threadId, reasoningEffort } = body;
+
   if (
     typeof agentId !== 'string' ||
     !agentId ||
     typeof message !== 'string' ||
     !message.trim()
   ) {
-    return res.status(400).json({ error: 'agentId and message are required' });
+    return { ok: false, error: 'agentId and message are required' };
   }
   if (threadId !== undefined && typeof threadId !== 'string') {
-    return res.status(400).json({ error: 'threadId must be a string' });
+    return { ok: false, error: 'threadId must be a string' };
   }
-
-  // Optional per-conversation reasoning override from the chat composer.
-  const reasoningEffort = req.body?.reasoningEffort;
   if (reasoningEffort !== undefined && !isReasoningEffort(reasoningEffort)) {
-    return res
-      .status(400)
-      .json({ error: 'reasoningEffort must be off | low | medium | high' });
+    return {
+      ok: false,
+      error: 'reasoningEffort must be off | low | medium | high',
+    };
   }
 
-  const attachments = sanitizeAttachments(req.body?.attachments);
+  const attachments = sanitizeAttachments(body.attachments);
   if (attachments === null) {
-    return res.status(400).json({ error: 'Invalid attachments payload' });
+    return { ok: false, error: 'Invalid attachments payload' };
   }
+
+  return {
+    ok: true,
+    value: { agentId, message, threadId, reasoningEffort, attachments },
+  };
+}
+
+router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
+  const user = extractUserFromHeader(req.headers);
+  if (!user?._id) {
+    return res.status(401).json({ error: 'Login required' });
+  }
+
+  const parsed = parseChatStreamBody(req.body);
+  if (!parsed.ok) {
+    return res.status(400).json({ error: parsed.error });
+  }
+  // reasoningEffort is the optional per-conversation override from the composer.
+  const { agentId, message, threadId, reasoningEffort, attachments } =
+    parsed.value;
 
   const subdomain = getSubdomain(req);
 
@@ -352,6 +382,14 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     });
     const { agent, convo, authCtx, memoryBinding } = prepared;
 
+    // Per-conversation reasoning override → provider-specific options, resolved
+    // once against the agent's provider. Providers without a portable reasoning
+    // knob yield undefined, so the model's configured default stands untouched.
+    const reasoningOptions = buildReasoningProviderOptions(
+      prepared.agentConfig.provider,
+      reasoningEffort,
+    );
+
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
     activity = createActivityTracker({
@@ -377,13 +415,6 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     let langfuseTraceId: string | undefined;
     try {
       await runWithAuth(authCtx, async () => {
-        // Per-conversation reasoning override → provider-specific options.
-        // Providers without a portable reasoning knob yield undefined, so the
-        // model's configured default stands untouched.
-        const reasoningOptions = buildReasoningProviderOptions(
-          prepared.agentConfig.provider,
-          reasoningEffort,
-        );
         const stream = await agent.stream(convo, {
           abortSignal: controller.signal,
           ...(memoryBinding ? { memory: memoryBinding } : {}),
