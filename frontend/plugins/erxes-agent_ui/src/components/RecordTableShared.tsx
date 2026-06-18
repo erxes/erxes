@@ -20,17 +20,22 @@ export const ToggleDeleteMenuItems = ({
   isEnabled,
   onToggle,
   onDelete,
+  toggleDisabled = false,
+  deleteDisabled = false,
 }: {
   isEnabled: boolean;
   onToggle: () => void;
   onDelete: () => void;
+  toggleDisabled?: boolean;
+  deleteDisabled?: boolean;
 }) => (
   <>
     <Command.Item asChild>
       <Button
         variant="ghost"
         size="sm"
-        className="justify-start w-full h-8"
+        aria-disabled={toggleDisabled}
+        className={`justify-start w-full h-8${toggleDisabled ? ' opacity-50' : ''}`}
         onClick={onToggle}
       >
         {isEnabled ? (
@@ -48,7 +53,8 @@ export const ToggleDeleteMenuItems = ({
       <Button
         variant="ghost"
         size="sm"
-        className="justify-start w-full h-8 text-destructive"
+        aria-disabled={deleteDisabled}
+        className={`justify-start w-full h-8 text-destructive${deleteDisabled ? ' opacity-50' : ''}`}
         onClick={onDelete}
       >
         <IconTrash className="size-4" /> Delete
