@@ -4,6 +4,7 @@ dotenv.config();
 
 import { createHash } from 'crypto';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 import { parse as csvParse } from 'csv-parse';
 import { AnyBulkWriteOperation, Db, MongoClient } from 'mongodb';
@@ -12,6 +13,7 @@ import { nanoid } from 'nanoid';
 const {
   CORE_MONGO_URL,
   BUYAN_CSV_PATH,
+  BUYAN_REPORT_DIR,
   BUYAN_BATCH_SIZE,
   DRY_RUN: DRY_RUN_ENV,
   TARGET_SUBDOMAIN: TARGET_SUBDOMAIN_ENV,
@@ -255,8 +257,9 @@ const command = async () => {
     unresolvedPropertyCodes: new Set(),
   };
 
+  const reportDir = BUYAN_REPORT_DIR || os.tmpdir();
   const reportPath = path.join(
-    __dirname,
+    reportDir,
     `migrateBuyanCustomers-errors-${Date.now()}.csv`,
   );
   const reportStream = fs.createWriteStream(reportPath, { encoding: 'utf8' });
