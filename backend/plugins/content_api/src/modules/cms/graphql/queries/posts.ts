@@ -297,7 +297,11 @@ class PostQueryResolver extends BaseQueryResolver {
     const { language, clientPortalId } = args;
     const { models } = context;
 
-    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+    const readAccess = await getCmsReadAccess(
+      context,
+      clientPortalId,
+      language,
+    );
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
@@ -321,7 +325,11 @@ class PostQueryResolver extends BaseQueryResolver {
     const { models } = context;
     const { _id, count, slug, identifier, language, clientPortalId } = args;
 
-    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+    const readAccess = await getCmsReadAccess(
+      context,
+      clientPortalId,
+      language,
+    );
 
     const query = await this.buildPostLookupQuery(
       { _id, count, slug, identifier, clientPortalId },
@@ -349,7 +357,11 @@ class PostQueryResolver extends BaseQueryResolver {
     const { language, clientPortalId } = args;
     const { models } = context;
 
-    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+    const readAccess = await getCmsReadAccess(
+      context,
+      clientPortalId,
+      language,
+    );
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
@@ -430,7 +442,11 @@ class PostQueryResolver extends BaseQueryResolver {
     const { models } = context;
     const { clientPortalId, days, limit, language, webId, type } = args;
 
-    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+    const readAccess = await getCmsReadAccess(
+      context,
+      clientPortalId,
+      language,
+    );
 
     return this.findMostViewedPosts(
       {
