@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { IField } from '../types/fieldsTypes';
 import { FieldBoolean } from './FieldBoolean';
 import { FieldDate } from './FieldDate';
 import { FieldFile } from './FieldFile';
@@ -17,7 +18,7 @@ export function PropertyFormField({
   idPrefix,
   onFieldChange,
 }: {
-  field: any;
+  field: IField;
   value: unknown;
   idPrefix: string;
   onFieldChange: (fieldId: string, value: unknown) => void;
@@ -31,7 +32,7 @@ export function PropertyFormField({
 
   const fieldProps = {
     field,
-    value: value ?? '',
+    value,
     handleChange,
     loading: false,
     id: `${idPrefix}_${field._id}`,
