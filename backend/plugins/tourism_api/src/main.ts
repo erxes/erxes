@@ -27,10 +27,11 @@ startPlugin({
       input: {
         query: { _id: 'status' },
       },
+      defaultValue: [],
     });
-    // console.log(fields, 'fields');
+
     if (fields.length === 0) {
-      return await sendTRPCMessage({
+      await sendTRPCMessage({
         subdomain,
         method: 'mutation',
         pluginName: 'core',

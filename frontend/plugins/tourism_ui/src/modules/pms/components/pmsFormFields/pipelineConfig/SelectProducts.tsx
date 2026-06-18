@@ -1,10 +1,19 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 import { Combobox, Command, Popover, cn } from 'erxes-ui';
-import { IProduct, ProductsInline, useProducts } from 'ui-modules';
+import { IProduct, ProductsInline } from 'ui-modules';
+import { useProducts } from 'ui-modules/modules/products/hooks/useProducts';
 import { useDebounce } from 'use-debounce';
 import { IProductCategory } from '@/pms/types/types';
 
 type CategoryValue = string | IProductCategory;
+
+const normalizeStringArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string');
+  }
+
+  return typeof value === 'string' && value ? [value] : [];
+};
 
 interface SelectProductsContextValue {
   productIds: string[];
@@ -41,11 +50,13 @@ interface SelectProductsProviderProps {
 }
 
 const getCategoryIds = (categories?: CategoryValue[]) => {
-  if (!categories) return undefined;
+  if (!Array.isArray(categories)) return undefined;
 
-  return categories.map((category) =>
-    typeof category === 'string' ? category : category._id,
-  );
+  return categories
+    .map((category) =>
+      typeof category === 'string' ? category : category?._id,
+    )
+    .filter((categoryId): categoryId is string => Boolean(categoryId));
 };
 
 const SelectProductsProvider = ({
@@ -57,11 +68,7 @@ const SelectProductsProvider = ({
   categories,
 }: SelectProductsProviderProps) => {
   const [products, setProducts] = useState<IProduct[]>([]);
-  const valueKey = Array.isArray(value) ? value.join('\u0000') : value || '';
-  const productIds = useMemo(
-    () => (valueKey ? valueKey.split('\u0000') : []),
-    [valueKey],
-  );
+  const productIds = useMemo(() => normalizeStringArray(value), [value]);
   const categoryIds = useMemo(() => getCategoryIds(categories), [categories]);
 
   const onSelect = React.useCallback(
@@ -74,7 +81,7 @@ const SelectProductsProvider = ({
         return;
       }
 
-      const arrayValue = Array.isArray(value) ? value : [];
+      const arrayValue = normalizeStringArray(value);
       const isProductSelected = arrayValue.includes(product._id);
       const newSelectedProductIds = isProductSelected
         ? arrayValue.filter((id) => id !== product._id)
@@ -155,7 +162,9 @@ const SelectProductsContent = () => {
         {!loading &&
           !shouldSkip &&
           productsData
-            ?.filter((product) => !productIds.includes(product._id))
+            ?.filter(
+              (product) => product?._id && !productIds.includes(product._id),
+            )
             .map((product) => (
               <SelectProductsCommandItem key={product._id} product={product} />
             ))}
@@ -174,6 +183,10 @@ const SelectProductsContent = () => {
 
 const SelectProductsCommandItem = ({ product }: { product: IProduct }) => {
   const { onSelect, productIds } = useSelectProductsContext();
+
+  if (!product?._id) {
+    return null;
+  }
 
   return (
     <Command.Item
