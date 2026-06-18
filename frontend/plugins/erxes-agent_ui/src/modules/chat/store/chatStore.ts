@@ -20,6 +20,8 @@ import {
   EMPTY_THREAD,
   Message,
   MessageMeta,
+  ReasoningEffort,
+  REASONING_EFFORT_OPTIONS,
   SessionMeta,
   ThreadChatState,
 } from '~/modules/chat/types';
@@ -64,6 +66,29 @@ interface MastraAgentChatResponse {
 const threadKey = (agentKey: string, threadId: string) =>
   `${agentKey}:${threadId}`;
 
+const REASONING_EFFORT_VALUES: readonly string[] = REASONING_EFFORT_OPTIONS.map(
+  (o) => o.value,
+);
+
+const isReasoningEffort = (v: unknown): v is ReasoningEffort =>
+  typeof v === 'string' && REASONING_EFFORT_VALUES.includes(v);
+
+/** localStorage key holding the persisted reasoning choice for one agent. */
+const reasoningEffortStorageKey = (agentKey: string) =>
+  `erxes-agent:reasoningEffort:${agentKey}`;
+
+// Best-effort read of the persisted choice — localStorage may be unavailable
+// (private mode / SSR) and may hold stale values from an older enum. Read once
+// at agent-slice creation (setCurrentAgent), never inside a reactive selector.
+const loadReasoningEffort = (agentKey: string): ReasoningEffort | undefined => {
+  try {
+    const raw = localStorage.getItem(reasoningEffortStorageKey(agentKey));
+    return isReasoningEffort(raw) ? raw : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 // DB-backed chat store. Sessions (threads) and their messages live in MongoDB
 // via the erxes-agent_api plugin; this store mirrors them in memory for the UI.
 // Replies stream over SSE through the gateway plugin proxy, falling back to the
@@ -76,6 +101,10 @@ interface ChatStoreState {
 
   setCurrentAgent: (agentId: string | undefined) => void;
   markRead: (agentKey: string) => void;
+  setReasoningEffort: (
+    agentKey: string,
+    effort: ReasoningEffort | undefined,
+  ) => void;
   newDraft: (agentKey: string) => void;
   loadSessions: (
     client: Client,
@@ -274,6 +303,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     message: string,
     abort: AbortController,
     attachments?: ChatAttachment[],
+    reasoningEffort?: ReasoningEffort,
   ): Promise<boolean> => {
     let response: Response;
     try {
@@ -288,6 +318,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
             message,
             threadId,
             attachments: attachments?.length ? attachments : undefined,
+            reasoningEffort: reasoningEffort || undefined,
           }),
           signal: abort.signal,
         },
@@ -372,7 +403,17 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
 
     setCurrentAgent: (agentId) => {
       set({ currentViewedAgentId: agentId });
-      if (agentId) get().markRead(agentId);
+      if (agentId) {
+        get().markRead(agentId);
+        // Hydrate the persisted reasoning choice exactly once, when this
+        // agent's slice first comes into view. Reads localStorage a single
+        // time so the reactive selector never has to.
+        if (!get().agents[agentId]) {
+          patchAgent(agentId, {
+            reasoningEffort: loadReasoningEffort(agentId),
+          });
+        }
+      }
     },
 
     markRead: (agentKey) =>
@@ -381,6 +422,18 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           ? { unreadAgents: s.unreadAgents.filter((a) => a !== agentKey) }
           : s,
       ),
+
+    // Persist the power-user reasoning choice for this agent's chat view.
+    setReasoningEffort: (agentKey, effort) => {
+      try {
+        const key = reasoningEffortStorageKey(agentKey);
+        if (effort) localStorage.setItem(key, effort);
+        else localStorage.removeItem(key);
+      } catch {
+        // localStorage unavailable — the in-memory patch below still applies.
+      }
+      patchAgent(agentKey, { reasoningEffort: effort });
+    },
 
     newDraft: (agentKey) => {
       const threadId = generateThreadId();
@@ -538,6 +591,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         agent = ensureAgent(agentKey);
       }
       const threadId = agent.activeThreadId!;
+      const reasoningEffort = agent.reasoningEffort;
 
       // Surface the session in the sidebar the instant the first message is
       // sent — don't wait for the turn to finish. The backend registers + tags
@@ -572,6 +626,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           message,
           abort,
           attachments,
+          reasoningEffort,
         );
         if (!streamed) {
           await sendViaQuery(
@@ -681,6 +736,8 @@ export const chatStore = {
   setCurrentAgent: (agentId: string | undefined) =>
     useChatStore.getState().setCurrentAgent(agentId),
   markRead: (agentKey: string) => useChatStore.getState().markRead(agentKey),
+  setReasoningEffort: (agentKey: string, effort: ReasoningEffort | undefined) =>
+    useChatStore.getState().setReasoningEffort(agentKey, effort),
   newDraft: (agentKey: string) => useChatStore.getState().newDraft(agentKey),
   loadSessions: (client: Client, agentKey: string, mastraAgentId: string) =>
     useChatStore.getState().loadSessions(client, agentKey, mastraAgentId),

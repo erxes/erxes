@@ -44,6 +44,7 @@ export const ChatPage = () => {
     sessionsLoaded,
     activeThreadId,
     isDraft,
+    reasoningEffort,
     messages,
     loading: chatLoading,
     messagesLoading,
@@ -397,6 +398,10 @@ export const ChatPage = () => {
                 onRemoveAttachment={attachments.removeAttachment}
                 uploadsInFlight={attachments.uploadsInFlight}
                 agentName={selectedAgent.name}
+                reasoningEffort={reasoningEffort}
+                onReasoningEffortChange={(effort) =>
+                  chatStore.setReasoningEffort(agentId!, effort)
+                }
                 textareaRef={textareaRef}
                 fileInputRef={fileInputRef}
               />
