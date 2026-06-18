@@ -49,7 +49,7 @@ async function fetchMsdPriceItems(
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+        Authorization: `Basic ${Buffer.from(username + ':' + password).toString(
           'base64',
         )}`,
       },
@@ -219,22 +219,23 @@ export const msdynamicCheckMutations = {
       productQry.scopeBrandIds = { $in: [cfgBrandId] };
     }
 
-    const [products, exchangeRates] = await Promise.all([
-      sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'products',
-        action: 'find',
-        input: { query: productQry },
-        defaultValue: [],
-      }),
-      config.exchangeRateApi
-        ? getExchangeRates(config).catch((err) => {
-            console.error('Failed to fetch exchange rates:', err);
-            return {} as Record<string, number>;
-          })
-        : Promise.resolve({} as Record<string, number>),
-    ]);
+    const products = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: { query: productQry },
+      defaultValue: [],
+    });
+
+    let exchangeRates: Record<string, number> = {};
+    if (config.exchangeRateApi) {
+      try {
+        exchangeRates = (await getExchangeRates(config)) ?? {};
+      } catch (err) {
+        console.error('Failed to fetch exchange rates:', err);
+      }
+    }
 
     const productByCode: Record<string, any> = {};
     for (const p of products) {
@@ -260,7 +261,7 @@ export const msdynamicCheckMutations = {
       itemsByCode,
       productByCode,
       pricePriority,
-      exchangeRates as Record<string, number>,
+      exchangeRates,
     );
 
     for (const p of products) {
