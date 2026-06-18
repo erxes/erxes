@@ -38,8 +38,10 @@ export const useSyncCategory = () => {
     selectedFilter: CategoryFilterType,
     brandId: string,
     categoryId?: string,
+    selectedItems?: InventoryCategoryItem[],
   ): Promise<InventoryCategoryItems | undefined> => {
     const categoriesToSync =
+      selectedItems ||
       items?.[selectedFilter]?.items?.filter(
         (item) => item.syncStatus === false,
       ) || [];
@@ -97,10 +99,7 @@ export const useSyncCategory = () => {
     } catch (err) {
       toast({
         title: 'Error',
-        description:
-          err instanceof Error
-            ? err.message
-            : 'Failed to sync MS Dynamic categories',
+        description: 'Failed to sync MS Dynamic categories',
         variant: 'destructive',
       });
       return undefined;

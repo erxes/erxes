@@ -12,7 +12,6 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 
-import { InventoryCategoryMoreColumn } from './InventoryCategoryMoreColumn';
 import {
   InventoryCategoryAction,
   InventoryCategoryItem,
@@ -49,7 +48,7 @@ const getStatusBadgeVariant = (action: InventoryCategoryAction) => {
 export const getInventoryCategoryColumns = (
   action: InventoryCategoryAction,
 ): ColumnDef<InventoryCategoryItem>[] => [
-  InventoryCategoryMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<InventoryCategoryItem>,
   {
     id: 'code',
     header: () => <RecordTable.InlineHead icon={IconHash} label="Code" />,

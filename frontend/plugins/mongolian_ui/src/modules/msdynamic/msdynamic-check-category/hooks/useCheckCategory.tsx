@@ -6,6 +6,7 @@ import { useToast } from 'erxes-ui';
 import { mutations } from '../../graphql';
 import {
   CategoryFilterType,
+  InventoryCategoryItem,
   InventoryCategoryItems,
 } from '../types/inventoryCategory';
 import { useSyncCategory } from './useSyncCategory';
@@ -97,10 +98,7 @@ export const useCheckCategory = () => {
     } catch (error) {
       toast({
         title: 'Error',
-        description:
-          error instanceof Error
-            ? error.message
-            : 'Failed to check MS Dynamic categories',
+        description: 'Failed to check MS Dynamic categories',
         variant: 'destructive',
       });
     } finally {
@@ -109,7 +107,9 @@ export const useCheckCategory = () => {
   };
 
   /* Songogdson tab-iin category-uudiig sync hiigeed table state shinechilne */
-  const toSyncCategory = async () => {
+  const toSyncCategory = async (
+    selectedItems?: InventoryCategoryItem[],
+  ) => {
     const brandId = queryParams.brandId || 'noBrand';
     const rawCategoryId = queryParams.categoryId as string | undefined;
     const categoryId =
@@ -120,6 +120,7 @@ export const useCheckCategory = () => {
       selectedFilter,
       brandId,
       categoryId,
+      selectedItems,
     );
 
     if (updatedItems) {
@@ -137,5 +138,9 @@ export const useCheckCategory = () => {
     setCategory,
     toCheckCategory,
     toSyncCategory,
+    pageInfo: {
+      hasPreviousPage: false,
+      hasNextPage: false,
+    },
   };
 };

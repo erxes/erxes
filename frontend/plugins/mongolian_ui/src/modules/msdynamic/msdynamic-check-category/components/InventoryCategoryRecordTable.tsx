@@ -1,8 +1,10 @@
-import { Button, RecordTable } from 'erxes-ui';
+import { IconCategory } from '@tabler/icons-react';
+import { RecordTable } from 'erxes-ui';
 
 import { useMSDynamicSessionKey } from '../../hooks/useMSDynamicSessionKey';
 import { useCheckCategory } from '../hooks/useCheckCategory';
 import { getInventoryCategoryColumns } from './InventoryCategoryColumns';
+import { InventoryCategoryCommandBar } from './InventoryCategoryCommandBar';
 import {
   CategoryFilterType,
   InventoryCategoryAction,
@@ -14,10 +16,11 @@ const categoryActions: Record<CategoryFilterType, InventoryCategoryAction> = {
   delete: 'DELETE',
 };
 
-/* Check result-iig RecordTable deer cursor session key-tei haruulna */
 export const InventoryCategoryRecordTable = () => {
-  const { items, loading, selectedFilter, toSyncCategory } = useCheckCategory();
+  const { items, loading, selectedFilter, toCheckCategory, pageInfo } =
+    useCheckCategory();
   const { sessionKey } = useMSDynamicSessionKey('categories');
+  const { hasPreviousPage, hasNextPage } = pageInfo;
   const action = categoryActions[selectedFilter];
   const data = items?.[selectedFilter]?.items || [];
   const hasAnyData = Object.values(items || {}).some(
@@ -28,42 +31,49 @@ export const InventoryCategoryRecordTable = () => {
     <RecordTable.Provider
       columns={getInventoryCategoryColumns(action)}
       data={data}
-      className="m-3"
-      stickyColumns={['more', 'code']}
+      className="h-full w-full overflow-y-auto px-2"
+      stickyColumns={['checkbox']}
     >
       <RecordTable.CursorProvider
-        hasPreviousPage={false}
-        hasNextPage={false}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
         dataLength={data.length}
         sessionKey={sessionKey}
       >
-        {data.length > 0 && (
-          <div className="flex justify-end mb-3">
-            <Button size="sm" disabled={loading} onClick={toSyncCategory}>
-              Sync
-            </Button>
-          </div>
-        )}
-
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            {loading && <RecordTable.RowSkeleton rows={10} />}
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={toCheckCategory}
+            />
+            {loading && <RecordTable.RowSkeleton rows={20} />}
             <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={toCheckCategory}
+            />
           </RecordTable.Body>
         </RecordTable>
 
         {!loading && !hasAnyData && (
-          <div className="m-3 text-center text-muted-foreground">
-            No data found
-          </div>
-        )}
-        {loading && !hasAnyData && (
-          <div className="m-3 text-center text-muted-foreground">
-            Checking...
+          <div className="absolute inset-0">
+            <div className="h-full w-full px-8 flex justify-center">
+              <div className="flex flex-col items-center justify-center h-full min-h-[360px] text-center">
+                <IconCategory
+                  size={64}
+                  className="text-muted-foreground mx-auto mb-4"
+                />
+                <h3 className="text-xl font-semibold mb-2">
+                  No categories in this group
+                </h3>
+                <p className="text-muted-foreground max-w-md">
+                  Run check or choose another category group.
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </RecordTable.CursorProvider>
+      <InventoryCategoryCommandBar />
     </RecordTable.Provider>
   );
 };

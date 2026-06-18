@@ -14,22 +14,23 @@ export const InventoryCategoryCheckButton = () => {
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
-      <Button onClick={handleCheck} disabled={loading}>
-        {loading ? 'Checking...' : 'Check'}
-      </Button>
+    <div className="flex items-center justify-end gap-2">
       <SelectCategory
-        className="w-52"
         value={queryParams.categoryId || ''}
         placeholder="Select category"
+        className="min-w-[200px]"
+        mode="single"
         onValueChange={(val) => setCategory(Array.isArray(val) ? val[0] : val)}
       />
       <SelectBrand
-        className="w-52"
         value={queryParams.brandId || ''}
         placeholder="Select brand"
+        mode="single"
         onValueChange={(val) => setBrand(Array.isArray(val) ? val[0] : val)}
       />
+      <Button onClick={handleCheck} disabled={loading}>
+        {loading ? 'Checking...' : 'Check'}
+      </Button>
     </div>
   );
 };

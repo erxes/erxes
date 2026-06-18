@@ -45,7 +45,7 @@ const toCheckCategories = `
 `;
 
 const toSyncCategories = `
-  mutation toSyncMsdProductCategories($brandId: String, $action: String, $categoryId: String, $categories: [JSON]) {
+  mutation toSyncMsdProductCategories($brandId: String, $action: String!, $categoryId: String, $categories: [JSON!]!) {
     toSyncMsdProductCategories(brandId: $brandId, action: $action, categoryId: $categoryId, categories: $categories)
   }
 `;
