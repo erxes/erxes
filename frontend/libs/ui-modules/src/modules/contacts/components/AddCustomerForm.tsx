@@ -187,9 +187,7 @@ export function AddCustomerForm({
 
             <ScrollArea className="flex-1 h-full">
               <div className="p-4">
-                {activeTab === 'general' && (
-                  <GeneralTab form={form} />
-                )}
+                {activeTab === 'general' && <GeneralTab form={form} />}
                 {activeTab === 'properties' && (
                   <CustomerPropertiesSection
                     customFieldsData={customFieldsData}
@@ -218,7 +216,11 @@ export function AddCustomerForm({
   );
 }
 
-function GeneralTab({ form }: { form: ReturnType<typeof useForm<FormValues>> }) {
+function GeneralTab({
+  form,
+}: {
+  form: ReturnType<typeof useForm<FormValues>>;
+}) {
   return (
     <InfoCard title="Customer Information">
       <InfoCard.Content>
