@@ -112,168 +112,174 @@ export const ProvidersPage = () => {
   );
 
   return (
-    <div className="p-6 max-w-3xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">Providers &amp; Models</h1>
-        <p className="text-muted-foreground mt-1">
-          Configure API keys for LLM providers. Keys are stored in the database
-          and injected at agent runtime.
-        </p>
-      </div>
-
-      {providers.length > 0 && (
-        <section>
-          <h2 className="text-lg font-semibold mb-3">Configured Providers</h2>
-          <div className="space-y-3">
-            {providers.map((p) => (
-              <div
-                key={p._id}
-                className="rounded-lg border bg-card p-4 flex items-center justify-between"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">
-                      {p.label || p.provider}
-                    </span>
-                    {p.isDefault && <Badge>Default</Badge>}
-                    {!p.isEnabled && (
-                      <Badge variant="secondary">Disabled</Badge>
-                    )}
-                    {p.isOpenAICompatible && (
-                      <Badge variant="secondary" className="text-xs">
-                        OpenAI-compatible
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
-                    <IconKey size={12} />
-                    <span className="font-mono">
-                      {p.apiKey
-                        ? '••••••' + p.apiKey.slice(-4)
-                        : p.envKey
-                          ? `env: ${p.envKey}`
-                          : 'No key'}
-                    </span>
-                    {p.baseUrl && (
-                      <span className="ml-2 text-xs">· {p.baseUrl}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(p)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemove(p)}
-                  >
-                    <IconTrash className="text-destructive" size={16} />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {adding && (
-        <section>
-          <ProviderForm
-            form={form}
-            title={editingLabel}
-            isEdit={isEdit}
-            isCustom={adding === CUSTOM_KEY}
-            saving={saving}
-            onSubmit={handleSave}
-            onCancel={() => setAdding(null)}
-          />
-        </section>
-      )}
-
-      <section>
-        <h2 className="text-lg font-semibold mb-3">
-          {providers.length > 0 ? 'Add Another Provider' : 'Select a Provider'}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {presets.map((preset) => {
-            const configured = providers.some(
-              (p) => p.provider === preset.provider,
-            );
-            const envOnly =
-              !configured && catalogMap.get(preset.provider) === true;
-            return (
-              <div
-                key={preset.provider}
-                className={cn(
-                  'rounded-lg border p-4 cursor-pointer transition-colors',
-                  adding === preset.provider
-                    ? 'border-primary bg-primary/5'
-                    : envOnly
-                      ? 'border-green-500/40 hover:border-green-500/70'
-                      : 'border-border hover:border-primary/50',
-                )}
-                role="button"
-                tabIndex={0}
-                onClick={() => handleAddPreset(preset)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleAddPreset(preset);
-                  }
-                }}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-sm">{preset.label}</span>
-                  {configured ? (
-                    <Badge variant="secondary" className="text-xs">
-                      <IconCheck size={10} className="mr-1" /> Configured
-                    </Badge>
-                  ) : envOnly ? (
-                    <Badge variant="success" className="text-xs">
-                      Via env
-                    </Badge>
-                  ) : null}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {preset.isOpenAICompatible ? 'OpenAI-compatible' : 'Native'} ·
-                  models listed live from the provider
-                </p>
-              </div>
-            );
-          })}
-
-          <div
-            className={cn(
-              'rounded-lg border border-dashed p-4 cursor-pointer transition-colors',
-              adding === CUSTOM_KEY
-                ? 'border-primary bg-primary/5'
-                : 'border-border hover:border-primary/50',
-            )}
-            role="button"
-            tabIndex={0}
-            onClick={handleAddCustom}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleAddCustom();
-              }
-            }}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <IconPlus size={14} />
-              <span className="font-semibold text-sm">Custom Provider</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Add any OpenAI-compatible or native provider not listed above.
-            </p>
-          </div>
+    <div className="h-full overflow-y-auto">
+      <div className="p-6 max-w-3xl space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold">Providers &amp; Models</h1>
+          <p className="text-muted-foreground mt-1">
+            Configure API keys for LLM providers. Keys are stored in the
+            database and injected at agent runtime.
+          </p>
         </div>
-      </section>
+
+        {providers.length > 0 && (
+          <section>
+            <h2 className="text-lg font-semibold mb-3">Configured Providers</h2>
+            <div className="space-y-3">
+              {providers.map((p) => (
+                <div
+                  key={p._id}
+                  className="rounded-lg border bg-card p-4 flex items-center justify-between"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">
+                        {p.label || p.provider}
+                      </span>
+                      {p.isDefault && <Badge>Default</Badge>}
+                      {!p.isEnabled && (
+                        <Badge variant="secondary">Disabled</Badge>
+                      )}
+                      {p.isOpenAICompatible && (
+                        <Badge variant="secondary" className="text-xs">
+                          OpenAI-compatible
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
+                      <IconKey size={12} />
+                      <span className="font-mono">
+                        {p.apiKey
+                          ? '••••••' + p.apiKey.slice(-4)
+                          : p.envKey
+                            ? `env: ${p.envKey}`
+                            : 'No key'}
+                      </span>
+                      {p.baseUrl && (
+                        <span className="ml-2 text-xs">· {p.baseUrl}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(p)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemove(p)}
+                    >
+                      <IconTrash className="text-destructive" size={16} />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {adding && (
+          <section>
+            <ProviderForm
+              form={form}
+              title={editingLabel}
+              isEdit={isEdit}
+              isCustom={adding === CUSTOM_KEY}
+              saving={saving}
+              onSubmit={handleSave}
+              onCancel={() => setAdding(null)}
+            />
+          </section>
+        )}
+
+        <section>
+          <h2 className="text-lg font-semibold mb-3">
+            {providers.length > 0
+              ? 'Add Another Provider'
+              : 'Select a Provider'}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {presets.map((preset) => {
+              const configured = providers.some(
+                (p) => p.provider === preset.provider,
+              );
+              const envOnly =
+                !configured && catalogMap.get(preset.provider) === true;
+              return (
+                <div
+                  key={preset.provider}
+                  className={cn(
+                    'rounded-lg border p-4 cursor-pointer transition-colors',
+                    adding === preset.provider
+                      ? 'border-primary bg-primary/5'
+                      : envOnly
+                        ? 'border-green-500/40 hover:border-green-500/70'
+                        : 'border-border hover:border-primary/50',
+                  )}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleAddPreset(preset)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleAddPreset(preset);
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-semibold text-sm">
+                      {preset.label}
+                    </span>
+                    {configured ? (
+                      <Badge variant="secondary" className="text-xs">
+                        <IconCheck size={10} className="mr-1" /> Configured
+                      </Badge>
+                    ) : envOnly ? (
+                      <Badge variant="success" className="text-xs">
+                        Via env
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {preset.isOpenAICompatible ? 'OpenAI-compatible' : 'Native'}{' '}
+                    · models listed live from the provider
+                  </p>
+                </div>
+              );
+            })}
+
+            <div
+              className={cn(
+                'rounded-lg border border-dashed p-4 cursor-pointer transition-colors',
+                adding === CUSTOM_KEY
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50',
+              )}
+              role="button"
+              tabIndex={0}
+              onClick={handleAddCustom}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleAddCustom();
+                }
+              }}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <IconPlus size={14} />
+                <span className="font-semibold text-sm">Custom Provider</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Add any OpenAI-compatible or native provider not listed above.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };
