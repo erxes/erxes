@@ -60,32 +60,17 @@ describe('resolveDestructiveOpsPolicy', () => {
 });
 
 describe('isApprovedOperation', () => {
-  it('matches the exact operation + args the user approved', () => {
+  it('matches the approved operation by name, regardless of args', () => {
     const approved = [{ operation: 'customersRemove', args: { id: '1' } }];
-    expect(isApprovedOperation('customersRemove', { id: '1' }, approved)).toBe(
-      true,
-    );
+    // Approved for the turn even though the agent changed the arg shape.
+    expect(isApprovedOperation('customersRemove', approved)).toBe(true);
   });
 
-  it('matches regardless of arg key order', () => {
-    const approved = [{ operation: 'dealsRemove', args: { a: 1, b: 2 } }];
-    expect(isApprovedOperation('dealsRemove', { b: 2, a: 1 }, approved)).toBe(
-      true,
-    );
-  });
-
-  it('does not match a different operation, different args, or empty list', () => {
+  it('does not match a different operation or an empty/absent list', () => {
     const approved = [{ operation: 'customersRemove', args: { id: '1' } }];
-    expect(isApprovedOperation('dealsRemove', { id: '1' }, approved)).toBe(
-      false,
-    );
-    expect(isApprovedOperation('customersRemove', { id: '2' }, approved)).toBe(
-      false,
-    );
-    expect(isApprovedOperation('customersRemove', { id: '1' }, [])).toBe(false);
-    expect(
-      isApprovedOperation('customersRemove', { id: '1' }, undefined),
-    ).toBe(false);
+    expect(isApprovedOperation('dealsRemove', approved)).toBe(false);
+    expect(isApprovedOperation('customersRemove', [])).toBe(false);
+    expect(isApprovedOperation('customersRemove', undefined)).toBe(false);
   });
 });
 

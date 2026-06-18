@@ -14,6 +14,17 @@ import {
  * to replay on approval, or null when nothing is pending. Derived from the last
  * message so it clears automatically once the next turn runs.
  */
+// The model often narrates its whole turn before the confirmation; keep only the
+// last couple of sentences so the bar stays short.
+const lastSentences = (text: string, max = 2): string => {
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (!t) return '';
+  return t
+    .split(/(?<=[.?!])\s+/)
+    .slice(-max)
+    .join(' ');
+};
+
 export const pendingApproval = (
   messages: Message[],
 ): { prompt: string; operations: ApprovedOp[] } | null => {
@@ -28,7 +39,7 @@ export const pendingApproval = (
   }
   if (!operations.length) return null;
   return {
-    prompt: last.content?.trim() || 'Confirm this action?',
+    prompt: lastSentences(last.content ?? '') || 'Confirm this action?',
     operations,
   };
 };

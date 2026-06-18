@@ -38,25 +38,20 @@ export function resolveDestructiveOpsPolicy(
   return value === 'allow' ? 'allow' : 'ask';
 }
 
-/** Stable serialization of an op's args so an approval matches the exact call. */
-function canonicalArgs(args: unknown): string {
-  if (!args || typeof args !== 'object') return '';
-  const obj = args as Record<string, unknown>;
-  const keys = Object.keys(obj).sort();
-  return JSON.stringify(keys.map((k) => [k, obj[k]]));
-}
-
-/** True when the user has approved this exact operation + args for the turn. */
+/**
+ * True when the user approved this operation for the turn. Matched on operation
+ * NAME only — the user approves the action ("delete these products"), so the
+ * agent may run it even if it adjusts the arguments between turns (e.g. it
+ * settles on the right id field). Matching exact args was too brittle: a single
+ * arg-shape change by the model re-triggered the prompt in a loop. Args are kept
+ * on ApprovedOp for display/audit.
+ */
 export function isApprovedOperation(
   operation: string,
-  args: unknown,
   approved: ApprovedOp[] | undefined,
 ): boolean {
   if (!approved?.length) return false;
-  const target = canonicalArgs(args);
-  return approved.some(
-    (a) => a.operation === operation && canonicalArgs(a.args) === target,
-  );
+  return approved.some((a) => a.operation === operation);
 }
 
 /**

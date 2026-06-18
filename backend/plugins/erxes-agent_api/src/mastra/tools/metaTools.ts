@@ -201,7 +201,7 @@ export function buildErxesMetaTools(params: {
       // holds even if the model guesses a name.
       if (destructiveOps !== 'allow' && isDestructiveOperation(op)) {
         const approvedOps = getCurrentAuth()?.approvedOps;
-        if (!isApprovedOperation(operation, callArgs, approvedOps)) {
+        if (!isApprovedOperation(operation, approvedOps)) {
           recordAction?.({
             operation,
             operationType: op.operationType,
