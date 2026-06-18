@@ -1,11 +1,13 @@
-import { IconRobot } from '@tabler/icons-react';
-import { Skeleton } from 'erxes-ui';
+import { useState } from 'react';
+import { IconRobot, IconSettings } from '@tabler/icons-react';
+import { Button, Skeleton, Tooltip } from 'erxes-ui';
 import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
 import {
   useAgentActivity,
   useAgentUnread,
   useAgentWorking,
 } from '~/modules/chat/hooks/useChatView';
+import { EditAgentDialog } from '~/modules/chat/components/EditAgentDialog';
 
 // One agent row — subscribes to its own working/unread/activity slices so a
 // streaming reply only re-renders that row, not the whole rail.
@@ -22,14 +24,51 @@ const AgentRailItem = ({
   const hasUnread = useAgentUnread(agent._id) && !isActive;
   const activity = useAgentActivity(agent._id);
   const showActivity = isWorking ? activity : undefined;
+  const [editing, setEditing] = useState(false);
 
   return (
-    <button
-      className={`w-full text-left rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
+    <div
+      role="button"
+      tabIndex={0}
+      className={`group relative w-full cursor-pointer rounded-md px-2.5 py-2 text-left transition-colors hover:bg-accent ${
         isActive ? 'bg-accent' : ''
       } ${isWorking ? 'ea-working' : ''}`}
       onClick={() => onSelect(agent._id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(agent._id);
+        }
+      }}
     >
+      {/* Quick-edit affordance — appears on hover/focus, opens the in-chat
+          settings modal without leaving the conversation. */}
+      <Tooltip.Provider>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label={`Edit ${agent.name} settings`}
+              className="absolute right-1 top-1 z-10 size-6 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditing(true);
+              }}
+            >
+              <IconSettings className="size-3.5" />
+            </Button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>Edit agent settings</Tooltip.Content>
+        </Tooltip>
+      </Tooltip.Provider>
+
+      <EditAgentDialog
+        agent={agent}
+        open={editing}
+        onOpenChange={setEditing}
+      />
+
       <div className="flex items-start gap-2">
         <div className="relative shrink-0">
           <div
@@ -73,7 +112,7 @@ const AgentRailItem = ({
           </div>
         </div>
       )}
-    </button>
+    </div>
   );
 };
 

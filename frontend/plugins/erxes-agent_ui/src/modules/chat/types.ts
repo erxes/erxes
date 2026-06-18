@@ -68,11 +68,30 @@ export interface ThreadChatState {
   activity?: string; // server-summarized "what is the agent doing right now"
 }
 
+// How hard the model should think before answering. Unset = let the agent's
+// configured default stand (current behaviour). The chat composer exposes this
+// behind a low-key brain control for power users; the backend maps it to the
+// right per-provider reasoning option at stream time.
+export type ReasoningEffort = 'off' | 'low' | 'medium' | 'high';
+
+export const REASONING_EFFORT_OPTIONS: {
+  value: ReasoningEffort;
+  label: string;
+  hint: string;
+}[] = [
+  { value: 'off', label: 'Off', hint: 'Answer directly, no reasoning' },
+  { value: 'low', label: 'Low', hint: 'Brief reasoning, fastest' },
+  { value: 'medium', label: 'Medium', hint: 'Balanced reasoning' },
+  { value: 'high', label: 'High', hint: 'Deep reasoning, slowest' },
+];
+
 export interface AgentChatState {
   sessions: SessionMeta[];
   sessionsLoaded: boolean;
   activeThreadId?: string;
   isDraft: boolean; // active session is new and not yet persisted
+  // Power-user reasoning override for this agent's chat view. Unset = default.
+  reasoningEffort?: ReasoningEffort;
 }
 
 // What the conversation view renders: agent-level session state + the active
@@ -134,4 +153,5 @@ export const EMPTY_AGENT: AgentChatState = {
   sessionsLoaded: false,
   activeThreadId: undefined,
   isDraft: false,
+  reasoningEffort: undefined,
 };
