@@ -107,9 +107,7 @@ export const useCheckCategory = () => {
   };
 
   /* Songogdson tab-iin category-uudiig sync hiigeed table state shinechilne */
-  const toSyncCategory = async (
-    selectedItems?: InventoryCategoryItem[],
-  ) => {
+  const toSyncCategory = async (selectedItems?: InventoryCategoryItem[]) => {
     const brandId = queryParams.brandId || 'noBrand';
     const rawCategoryId = queryParams.categoryId as string | undefined;
     const categoryId =

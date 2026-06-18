@@ -44,7 +44,8 @@ export const useSyncCategory = () => {
       selectedItems ||
       items?.[selectedFilter]?.items?.filter(
         (item) => item.syncStatus === false,
-      ) || [];
+      ) ||
+      [];
 
     if (categoriesToSync.length === 0) {
       toast({
