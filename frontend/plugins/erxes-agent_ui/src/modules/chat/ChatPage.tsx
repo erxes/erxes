@@ -40,7 +40,7 @@ export const ChatPage = () => {
   // The route is keyed by the agent record _id, but inbound links (e.g.
   // Schedules → View output) may carry the agent slug — accept both.
   const selectedAgent = agentId
-    ? agents.find((a) => a._id === agentId || a.agentId === agentId) ?? null
+    ? (agents.find((a) => a._id === agentId || a.agentId === agentId) ?? null)
     : null;
 
   const view = useAgentChatView(agentId);

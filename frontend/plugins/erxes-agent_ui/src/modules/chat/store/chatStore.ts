@@ -637,7 +637,7 @@ export const selectAgentView = (
 ): AgentChatView => {
   const agent = s.agents[agentKey] ?? EMPTY_AGENT;
   const thread = agent.activeThreadId
-    ? s.threads[threadKey(agentKey, agent.activeThreadId)] ?? EMPTY_THREAD
+    ? (s.threads[threadKey(agentKey, agent.activeThreadId)] ?? EMPTY_THREAD)
     : EMPTY_THREAD;
   return {
     ...agent,
