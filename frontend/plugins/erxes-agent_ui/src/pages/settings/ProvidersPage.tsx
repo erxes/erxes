@@ -108,8 +108,8 @@ export const ProvidersPage = () => {
     adding == null
       ? null
       : adding === CUSTOM_KEY
-      ? { kind: 'custom' as const, key: formProvider }
-      : { kind: 'preset' as const, key: adding };
+        ? { kind: 'custom' as const, key: formProvider }
+        : { kind: 'preset' as const, key: adding };
 
   const editingLabel =
     target?.kind === 'custom'

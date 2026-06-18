@@ -172,8 +172,8 @@ export const GeneralSettingsPage = () => {
                       {!attachmentStorage?.configured
                         ? 'No storage'
                         : field.value
-                        ? 'On'
-                        : 'Off'}
+                          ? 'On'
+                          : 'Off'}
                     </Badge>
                   </div>
 
