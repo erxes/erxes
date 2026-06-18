@@ -20,14 +20,12 @@ export const GeneralSettingsPage = () => {
   // The bot webhook is served by the gateway at /pl:erxes-agent/* on this
   // console's own origin — NOT the core GraphQL API URL, which can be a
   // separate host/port on a split deployment. Derive it from the current
-  // origin so it's correct wherever the console is served from.
+  // origin so it's correct wherever the console is served from. `origin` is
+  // scheme+host+port with no trailing slash, so no trimming is needed.
   // TODO: prefer a server-computed `settings.botEndpointUrl` once the backend
   // exposes one, so a reverse-proxied / custom gateway host is reflected
   // exactly rather than assumed to match the console origin.
-  const botBase =
-    typeof window !== 'undefined'
-      ? window.location.origin.replace(/\/+$/, '')
-      : '';
+  const botBase = typeof window !== 'undefined' ? window.location.origin : '';
   const botEndpointUrl = `${botBase}/pl:erxes-agent/bot`;
 
   const form = useForm<GeneralSettingsValues>({
@@ -174,8 +172,8 @@ export const GeneralSettingsPage = () => {
                       {!attachmentStorage?.configured
                         ? 'No storage'
                         : field.value
-                          ? 'On'
-                          : 'Off'}
+                        ? 'On'
+                        : 'Off'}
                     </Badge>
                   </div>
 
