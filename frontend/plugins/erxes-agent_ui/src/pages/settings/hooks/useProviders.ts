@@ -9,6 +9,7 @@ import {
   MASTRA_PROVIDER_SAVE,
   MASTRA_PROVIDER_REMOVE,
 } from '~/graphql/mutations';
+import { toastError } from '~/lib/mutationToast';
 import {
   IProviderCatalogResponse,
   IProviderPresetsResponse,
@@ -26,9 +27,6 @@ export const useProviders = (onSaved: () => void) => {
     MASTRA_PROVIDER_CATALOG,
   );
 
-  const onError = (e: Error) =>
-    toast({ title: 'Error', description: e.message, variant: 'destructive' });
-
   const [saveProvider, { loading: saving }] = useMutation(
     MASTRA_PROVIDER_SAVE,
     {
@@ -37,12 +35,12 @@ export const useProviders = (onSaved: () => void) => {
         onSaved();
         toast({ title: 'Provider saved' });
       },
-      onError,
+      onError: toastError(),
     },
   );
   const [removeProvider] = useMutation(MASTRA_PROVIDER_REMOVE, {
     onCompleted: () => refetch(),
-    onError,
+    onError: toastError(),
   });
 
   const providers = providersData?.mastraProviders ?? [];
