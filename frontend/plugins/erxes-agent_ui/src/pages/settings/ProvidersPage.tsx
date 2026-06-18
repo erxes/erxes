@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IconPlus, IconTrash, IconKey, IconCheck } from '@tabler/icons-react';
-import { Badge, Button, cn } from 'erxes-ui';
+import { Badge, Button, cn, useConfirm } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useProviders } from './hooks/useProviders';
@@ -18,6 +18,7 @@ const CUSTOM_KEY = '__custom__';
 export const ProvidersPage = () => {
   // `adding` holds the provider key being added/edited, or '__custom__' for a custom entry
   const [adding, setAdding] = useState<string | null>(null);
+  const { confirm } = useConfirm();
 
   const {
     providers,
@@ -94,21 +95,31 @@ export const ProvidersPage = () => {
     });
   };
 
-  const handleRemove = (p: IMastraProvider) => {
-    if (window.confirm(`Remove provider "${p.label || p.provider}"?`)) {
-      removeProvider({ variables: { _id: p._id } });
-    }
-  };
+  const handleRemove = (p: IMastraProvider) =>
+    confirm({
+      message: `Remove provider "${p.label || p.provider}"?`,
+      options: { okLabel: 'Remove', cancelLabel: 'Cancel' },
+    }).then(() => removeProvider({ variables: { _id: p._id } }));
 
   const formProvider = form.watch('provider');
-  const editingKey = adding === CUSTOM_KEY ? formProvider : adding;
+  // Single model of what's being edited: nothing, a custom entry (keyed by the
+  // typed provider field), or a preset (keyed by `adding`).
+  const target =
+    adding == null
+      ? null
+      : adding === CUSTOM_KEY
+        ? { kind: 'custom' as const, key: formProvider }
+        : { kind: 'preset' as const, key: adding };
+
   const editingLabel =
-    adding === CUSTOM_KEY
+    target?.kind === 'custom'
       ? 'Custom Provider'
-      : presets.find((c) => c.provider === adding)?.label || adding || '';
+      : presets.find((c) => c.provider === target?.key)?.label ||
+        target?.key ||
+        '';
 
   const isEdit = Boolean(
-    adding && providers.some((p) => p.provider === editingKey),
+    target && providers.some((p) => p.provider === target.key),
   );
 
   return (

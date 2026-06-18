@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { ClampedNumberInput } from '~/components/ClampedNumberInput';
 import { Field, FormSection } from '~/components/FormLayout';
 import {
   SelectModel,
@@ -250,6 +251,29 @@ export const AgentFormFields = ({
             )}
           />
         )}
+
+        <Form.Field
+          control={form.control}
+          name="destructiveOps"
+          render={({ field }) => (
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <Label className="font-medium">
+                  Auto-approve destructive operations
+                </Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {field.value === 'allow'
+                    ? 'Deletes and merges run immediately, without asking.'
+                    : 'Off: the agent asks you to approve each delete or merge before it runs.'}
+                </p>
+              </div>
+              <Switch
+                checked={field.value === 'allow'}
+                onCheckedChange={(v) => field.onChange(v ? 'allow' : 'ask')}
+              />
+            </div>
+          )}
+        />
       </FormSection>
 
       <FormSection title="Behavior">
@@ -280,14 +304,11 @@ export const AgentFormFields = ({
               hint="Max consecutive tool calls the agent can make (default: 10)"
             >
               <div className="flex items-center gap-2">
-                <Input
-                  type="number"
+                <ClampedNumberInput
+                  field={field}
                   min={1}
                   max={50}
-                  value={field.value}
-                  onChange={(e) =>
-                    field.onChange(parseInt(e.target.value, 10) || 10)
-                  }
+                  fallback={10}
                   className="w-24"
                 />
                 <Tooltip.Provider>

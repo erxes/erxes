@@ -50,6 +50,7 @@ export const EditAgentDialog = ({
       model: agent.model || '',
       toolPolicy: agent.toolPolicy === 'custom' ? 'custom' : 'all',
       allowedTools: agent.allowedTools || [],
+      destructiveOps: agent.destructiveOps === 'allow' ? 'allow' : 'ask',
       memoryEnabled: agent.memoryEnabled ?? true,
       maxSteps: agent.maxSteps ?? 10,
       temperature: agent.temperature ?? null,

@@ -9,18 +9,23 @@ import {
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Empty, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { ChatAttachment } from '~/modules/chat/types';
+import { ChatAttachment, ApprovedOp } from '~/modules/chat/types';
 import { chatStore } from '~/modules/chat/store/chatStore';
 import {
   useChatAgents,
   useAttachmentsEnabled,
 } from '~/modules/chat/hooks/useChatAgents';
 import { useAgentChatView } from '~/modules/chat/hooks/useChatView';
+import { useMastraThreads } from '~/modules/chat/hooks/useMastraThreads';
+import { useRenameMastraThread } from '~/modules/chat/hooks/useRenameMastraThread';
+import { useRemoveMastraThread } from '~/modules/chat/hooks/useRemoveMastraThread';
 import { useAttachments } from '~/modules/chat/hooks/useAttachments';
 import { AgentRail } from '~/modules/chat/components/AgentRail';
 import { SessionList } from '~/modules/chat/components/SessionList';
 import { MessageList } from '~/modules/chat/components/MessageList';
 import { Composer } from '~/modules/chat/components/Composer';
+import { ApprovalBar } from '~/modules/chat/components/ApprovalBar';
+import { pendingApproval } from '~/modules/chat/utils';
 import '~/modules/chat/chat.css';
 
 // Distance (px) from the bottom under which we keep following streamed output.
@@ -45,8 +50,6 @@ export const ChatPage = () => {
 
   const view = useAgentChatView(agentId);
   const {
-    sessions,
-    sessionsLoaded,
     activeThreadId,
     isDraft,
     reasoningEffort,
@@ -55,6 +58,14 @@ export const ChatPage = () => {
     messagesLoading,
     streamTick,
   } = view;
+
+  // The persisted session list lives in the Apollo cache, not the chat store.
+  const { threads, loading: threadsLoading } = useMastraThreads(
+    selectedAgent?.agentId,
+  );
+  const sessionsLoaded = !!selectedAgent && !threadsLoading;
+  const { renameThread } = useRenameMastraThread();
+  const { removeThread } = useRemoveMastraThread(selectedAgent?.agentId);
 
   const [input, setInput] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -100,12 +111,18 @@ export const ChatPage = () => {
     return () => chatStore.setCurrentAgent(undefined);
   }, [agentId]);
 
-  // Load the agent's persisted sessions once its record is available.
+  // Bootstrap / re-home the active session: once the cached list has loaded and
+  // nothing is selected (first open of this agent, or after deleting the active
+  // session), open the most recent session or a fresh draft.
   useEffect(() => {
-    if (!agentId || !selectedAgent) return;
-    chatStore.loadSessions(apolloClient, agentId, selectedAgent.agentId);
+    if (!agentId || !selectedAgent || !sessionsLoaded || activeThreadId) return;
+    if (threads.length > 0) {
+      chatStore.selectSession(apolloClient, agentId, threads[0].threadId);
+    } else {
+      chatStore.newDraft(agentId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId, selectedAgent?.agentId]);
+  }, [agentId, selectedAgent?.agentId, sessionsLoaded, activeThreadId, threads]);
 
   // Keep the view pinned to the bottom — also while a reply streams (the last
   // message grows without the list length changing). The store bumps streamTick
@@ -148,14 +165,15 @@ export const ChatPage = () => {
   ) => {
     e.stopPropagation();
     if (!agentId || !selectedAgent) return;
-    if (window.confirm('Delete this session and all its messages?')) {
-      chatStore.deleteSession(
-        apolloClient,
-        agentId,
-        selectedAgent.agentId,
-        threadId,
-      );
-    }
+    if (!window.confirm('Delete this session and all its messages?')) return;
+    // The cached list filter (hook) + local state teardown (store); the
+    // bootstrap effect re-selects the next session if this one was active.
+    removeThread(threadId);
+    chatStore.discardThread(agentId, threadId);
+  };
+
+  const handleRenameSession = (id: string, threadId: string, title: string) => {
+    renameThread(id, threadId, title);
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -191,7 +209,12 @@ export const ChatPage = () => {
       attachments.addFiles(e.dataTransfer.files);
   };
 
-  const sendMessage = (message: string, atts: ChatAttachment[]) => {
+  const sendMessage = (
+    message: string,
+    atts: ChatAttachment[],
+    approvedOperations?: ApprovedOp[],
+    hidden?: boolean,
+  ) => {
     if (!selectedAgent || !agentId) return;
     // Sending re-pins to the bottom so the user follows their own message.
     atBottomRef.current = true;
@@ -203,7 +226,24 @@ export const ChatPage = () => {
       selectedAgent.agentId,
       message,
       atts,
+      approvedOperations,
+      hidden,
     );
+  };
+
+  // A destructive op the agent is waiting on (derived from the last turn) — drives
+  // the approval bar above the composer. Both actions continue the turn without a
+  // visible user bubble (hidden send): Approve replays the gated op, Deny cancels.
+  const approval = pendingApproval(messages);
+
+  const handleApprove = () => {
+    if (chatLoading || !approval) return;
+    sendMessage('Approved.', [], approval.operations, true);
+  };
+
+  const handleDeny = () => {
+    if (chatLoading) return;
+    sendMessage('Cancelled — do not delete or merge anything.', [], undefined, true);
   };
 
   const handleSend = () => {
@@ -305,13 +345,14 @@ export const ChatPage = () => {
         {selectedAgent && agentId && (
           <SessionList
             agentId={agentId}
-            sessions={sessions}
+            sessions={threads}
             sessionsLoaded={sessionsLoaded}
             isDraft={isDraft}
             activeThreadId={activeThreadId}
             onSelect={handleSelectSession}
             onNew={handleNewThread}
             onDelete={handleDeleteSession}
+            onRename={handleRenameSession}
           />
         )}
 
@@ -398,6 +439,15 @@ export const ChatPage = () => {
                   <IconArrowDown className="size-3.5" />
                   Latest
                 </button>
+              )}
+
+              {approval && !chatLoading && (
+                <ApprovalBar
+                  prompt={approval.prompt}
+                  busy={chatLoading}
+                  onApprove={handleApprove}
+                  onDeny={handleDeny}
+                />
               )}
 
               <Composer

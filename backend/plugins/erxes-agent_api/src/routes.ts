@@ -15,7 +15,7 @@ import {
   buildReasoningProviderOptions,
   ReasoningEffort,
 } from './mastra/providers';
-import { runWithAuth } from './mastra/requestContext';
+import { runWithAuth, ApprovedOp } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import { scopedResource } from './mastra/memory/mastraMemory';
 import { augmentConvo } from './mastra/memory';
@@ -204,6 +204,26 @@ interface ChatStreamRequest {
   threadId?: string;
   reasoningEffort?: ReasoningEffort;
   attachments: IMastraChatAttachment[];
+  approvedOperations: ApprovedOp[];
+}
+
+// Shape-check the per-turn destructive-op approvals the client echoes back when
+// the user clicks Approve. Returns the sanitized list, or null when malformed.
+const MAX_APPROVED_OPS = 20;
+function sanitizeApprovedOperations(raw: unknown): ApprovedOp[] | null {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw) || raw.length > MAX_APPROVED_OPS) return null;
+  const out: ApprovedOp[] = [];
+  for (const item of raw) {
+    const candidate = item as Record<string, unknown> | null | undefined;
+    if (!candidate || typeof candidate.operation !== 'string') return null;
+    const args =
+      candidate.args && typeof candidate.args === 'object'
+        ? (candidate.args as Record<string, unknown>)
+        : undefined;
+    out.push({ operation: candidate.operation, args });
+  }
+  return out;
 }
 
 type ParseResult =
@@ -237,9 +257,21 @@ function parseChatStreamBody(raw: unknown): ParseResult {
     return { ok: false, error: 'Invalid attachments payload' };
   }
 
+  const approvedOperations = sanitizeApprovedOperations(body.approvedOperations);
+  if (approvedOperations === null) {
+    return { ok: false, error: 'Invalid approvedOperations payload' };
+  }
+
   return {
     ok: true,
-    value: { agentId, message, threadId, reasoningEffort, attachments },
+    value: {
+      agentId,
+      message,
+      threadId,
+      reasoningEffort,
+      attachments,
+      approvedOperations,
+    },
   };
 }
 
@@ -256,6 +288,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   // reasoningEffort is the optional per-conversation override from the composer.
   const { agentId, message, threadId, reasoningEffort, attachments } =
     parsed.value;
+  const { approvedOperations } = parsed.value;
 
   const subdomain = getSubdomain(req);
 
@@ -379,6 +412,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       message,
       threadId,
       attachments,
+      approvedOperations,
     });
     const { agent, convo, authCtx, memoryBinding } = prepared;
 
@@ -570,7 +604,6 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
     const useMemory =
       isAdvancedMemoryEnabled() &&
       agentConfig.memoryEnabled !== false &&
-      Boolean(subdomain) &&
       Boolean(userText.trim());
     const memoryBinding = useMemory
       ? {

@@ -38,10 +38,10 @@ startPlugin({
     },
   },
   onServerInit: async () => {
-    // Advanced memory (opt-in via ERXES_AGENT_MEMORY=enable): ping Qdrant and ensure
-    // the collection exists. Loaded lazily and only when enabled, so default
-    // deployments never even import the memory module at boot.
-    if ((process.env.ERXES_AGENT_MEMORY ?? '').trim() === 'enable') {
+    // Advanced memory is on by default (chat persistence rides on it); ping
+    // Qdrant and ensure the collection exists. Loaded lazily, and skipped only
+    // when explicitly disabled via ERXES_AGENT_MEMORY=disable.
+    if ((process.env.ERXES_AGENT_MEMORY ?? '').trim() !== 'disable') {
       const { initAdvancedMemory } = await import('~/mastra/memory');
       await initAdvancedMemory();
     }

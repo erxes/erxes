@@ -104,7 +104,7 @@ export const MessageList = ({
                 }
               />
             ))}
-            {chatLoading && lastMsg?.role === 'user' && <WaitingIndicator />}
+            {chatLoading && !lastMsg?.streaming && <WaitingIndicator />}
           </>
         )}
         <div ref={endRef} />

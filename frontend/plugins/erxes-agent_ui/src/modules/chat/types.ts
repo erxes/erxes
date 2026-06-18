@@ -10,6 +10,60 @@ export interface ToolCallInfo {
   isError?: boolean;
 }
 
+// A destructive operation the user approves from the chat (echoed back on the
+// next turn so the backend runs the otherwise-gated delete/merge).
+export interface ApprovedOp {
+  operation: string;
+  args?: Record<string, unknown>;
+}
+
+// A tool result that asks for the user's approval. Two producers, both narrowed
+// to this shape: the `request_approval` tool (model-authored `summary` + the
+// `operations` it intends) and the execute-guard backstop (a single op the model
+// tried directly, no summary).
+export interface ApprovalRequest {
+  requiresApproval: true;
+  summary?: string;
+  operations: ApprovedOp[];
+}
+
+/** Narrow an unknown tool result to an approval request (either producer). */
+export const asApprovalRequest = (result: unknown): ApprovalRequest | null => {
+  const r = result as
+    | {
+        requiresApproval?: unknown;
+        summary?: unknown;
+        operations?: unknown;
+        operation?: unknown;
+        args?: unknown;
+      }
+    | null
+    | undefined;
+  if (!r || r.requiresApproval !== true) return null;
+
+  // request_approval tool — model-authored summary + the ops to run.
+  if (typeof r.summary === 'string' && Array.isArray(r.operations)) {
+    const operations: ApprovedOp[] = r.operations
+      .filter(
+        (o): o is { operation: string; args?: Record<string, unknown> } =>
+          !!o && typeof (o as { operation?: unknown }).operation === 'string',
+      )
+      .map((o) => ({ operation: o.operation, args: o.args }));
+    return { requiresApproval: true, summary: r.summary, operations };
+  }
+
+  // execute-guard backstop — a single op the model attempted directly.
+  if (typeof r.operation === 'string') {
+    return {
+      requiresApproval: true,
+      operations: [
+        { operation: r.operation, args: r.args as Record<string, unknown> },
+      ],
+    };
+  }
+  return null;
+};
+
 // One chronological segment of an assistant turn. Thinking bursts and tool
 // calls render in the order they happened — a new reasoning burst appears as
 // its own section at the bottom, never appended into an earlier one.
@@ -57,11 +111,21 @@ export interface MessageMeta {
   interrupted?: boolean;
 }
 
-export interface SessionMeta {
+// One persisted chat session (thread) as returned by `mastraThreads` and held in
+// the Apollo cache. The session LIST lives in the cache (house convention), not
+// in the chat store — only per-thread streaming/message state stays in the store.
+export interface IMastraThread {
+  __typename?: 'MastraThread';
+  _id: string;
   threadId: string;
   title: string;
   messageCount: number;
-  lastMessageAt?: string;
+  lastMessageAt?: string | null;
+  createdAt?: string | null;
+}
+
+export interface IMastraThreadsResponse {
+  mastraThreads: IMastraThread[];
 }
 
 // Per-thread chat state. Keyed by `${agentKey}:${threadId}` so an in-flight
@@ -96,8 +160,6 @@ export const REASONING_EFFORT_OPTIONS: {
 ];
 
 export interface AgentChatState {
-  sessions: SessionMeta[];
-  sessionsLoaded: boolean;
   activeThreadId?: string;
   isDraft: boolean; // active session is new and not yet persisted
   // Power-user reasoning override for this agent's chat view. Unset = default.
@@ -160,8 +222,6 @@ export const EMPTY_THREAD: ThreadChatState = {
 };
 
 export const EMPTY_AGENT: AgentChatState = {
-  sessions: [],
-  sessionsLoaded: false,
   activeThreadId: undefined,
   isDraft: false,
   reasoningEffort: undefined,

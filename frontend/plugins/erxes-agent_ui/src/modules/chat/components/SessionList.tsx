@@ -1,6 +1,7 @@
-import type {
-  MouseEvent as ReactMouseEvent,
-  KeyboardEvent as ReactKeyboardEvent,
+import {
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
 import {
   IconLoader2,
@@ -9,7 +10,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { Button, Skeleton } from 'erxes-ui';
-import { SessionMeta } from '~/modules/chat/types';
+import { IMastraThread } from '~/modules/chat/types';
 import { useThreadWorking } from '~/modules/chat/hooks/useChatView';
 
 type DeleteHandler = (
@@ -17,12 +18,15 @@ type DeleteHandler = (
   threadId: string,
 ) => void;
 
+type RenameHandler = (id: string, threadId: string, title: string) => void;
+
 interface SessionItemProps {
-  session: SessionMeta;
+  session: IMastraThread;
   agentId: string;
   active: boolean;
   onSelect: (threadId: string) => void;
   onDelete: DeleteHandler;
+  onRename: RenameHandler;
 }
 
 const SessionItem = ({
@@ -31,8 +35,26 @@ const SessionItem = ({
   active,
   onSelect,
   onDelete,
+  onRename,
 }: SessionItemProps) => {
   const working = useThreadWorking(agentId, session.threadId);
+  const title = session.title || 'New chat';
+  const [editing, setEditing] = useState(false);
+  const [draftTitle, setDraftTitle] = useState(title);
+
+  const beginEdit = () => {
+    setDraftTitle(title);
+    setEditing(true);
+  };
+
+  const commit = () => {
+    setEditing(false);
+    const next = draftTitle.trim();
+    if (next && next !== title) {
+      onRename(session._id, session.threadId, next);
+    }
+  };
+
   return (
     <button
       onClick={() => onSelect(session.threadId)}
@@ -48,7 +70,37 @@ const SessionItem = ({
         ) : (
           <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
         )}
-        <p className="text-sm truncate flex-1">{session.title}</p>
+        {editing ? (
+          <input
+            autoFocus
+            value={draftTitle}
+            onChange={(e) => setDraftTitle(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                commit();
+              }
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                setEditing(false);
+              }
+            }}
+            className="text-sm flex-1 min-w-0 bg-transparent outline-none border-b border-primary"
+          />
+        ) : (
+          <p
+            className="text-sm truncate flex-1"
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              beginEdit();
+            }}
+          >
+            {title}
+          </p>
+        )}
         <span
           role="button"
           tabIndex={0}
@@ -73,13 +125,14 @@ const SessionItem = ({
 
 interface SessionListProps {
   agentId: string;
-  sessions: SessionMeta[];
+  sessions: IMastraThread[];
   sessionsLoaded: boolean;
   isDraft: boolean;
   activeThreadId?: string;
   onSelect: (threadId: string) => void;
   onNew: () => void;
   onDelete: DeleteHandler;
+  onRename: RenameHandler;
 }
 
 export const SessionList = ({
@@ -91,6 +144,7 @@ export const SessionList = ({
   onSelect,
   onNew,
   onDelete,
+  onRename,
 }: SessionListProps) => {
   return (
     <div className="w-60 border-r flex flex-col shrink-0">
@@ -142,6 +196,7 @@ export const SessionList = ({
                   active={s.threadId === activeThreadId}
                   onSelect={onSelect}
                   onDelete={onDelete}
+                  onRename={onRename}
                 />
               ))
             )}
