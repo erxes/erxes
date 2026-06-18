@@ -14,6 +14,7 @@ export const types = `
     maxSteps: Int
     temperature: Float
     isEnabled: Boolean
+    createdBy: String
     createdAt: Date
     updatedAt: Date
   }

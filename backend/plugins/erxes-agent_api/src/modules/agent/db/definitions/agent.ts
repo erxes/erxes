@@ -36,6 +36,7 @@ export const agentSchema = new Schema(
     // e.g. Kimi thinking models reject anything but 1.
     temperature: { type: Number, min: 0, max: 2, label: 'Temperature' },
     isEnabled: { type: Boolean, default: true },
+    createdBy: { type: String, label: 'Created By' },
   },
   { timestamps: true },
 );
