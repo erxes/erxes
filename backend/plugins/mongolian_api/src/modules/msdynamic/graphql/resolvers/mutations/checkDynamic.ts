@@ -1,25 +1,35 @@
 import fetch from 'node-fetch';
 import { IContext, generateModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { getDynamicConfig } from '../../../dynamicConfig';
 
-export interface IProductCode {
-  code?: string;
-}
+/**
+ * Get DYNAMIC config from mnconfigs module
+ */
+const getDynamicConfig = async (models: any, brandId?: string) => {
+  const configs = await models.Configs.getConfigs('DYNAMIC');
 
-export interface IDynamicProduct {
-  No?: string;
-}
+  if (!configs?.length) {
+    throw new Error('MS Dynamic config not found.');
+  }
 
-export interface IProductCategory {
-  _id?: string;
-  code?: string;
-}
+  const map = configs.reduce((acc: any, conf: any) => {
+    acc[conf.subId || 'noBrand'] = conf.value;
+    return acc;
+  }, {});
 
-export interface IDynamicCategory {
-  Code?: string;
-  Parent_Category?: string;
-}
+  const key = brandId || 'noBrand';
+  let config = map[key];
+
+  if (!config && map['noBrand'] && typeof map['noBrand'] === 'object') {
+    config = map['noBrand'][key];
+  }
+
+  if (!config) {
+    throw new Error('MS Dynamic config not found.');
+  }
+
+  return config;
+};
 
 /**
  * ============================
@@ -27,9 +37,8 @@ export interface IDynamicCategory {
  * ============================
  */
 export const msdynamicCheckMutations = {
-  /* MS Dynamic product-iig erxes product-tei shalgaj, niitlel dun butsaana */
   async toCheckMsdProducts(
-    _root: unknown,
+    _root,
     { brandId }: { brandId: string },
     { subdomain, checkPermission }: IContext,
   ) {
@@ -44,34 +53,38 @@ export const msdynamicCheckMutations = {
 
     const { itemApi, username, password } = config;
 
-    const products = (await sendTRPCMessage({
+    const products = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
       action: 'find',
       input: { query: { status: { $ne: 'deleted' } } },
       defaultValue: [],
-    })) as IProductCode[];
+    });
 
-    const productCodes = products.map((product) => product.code);
+    const productCodes = products.map((p: any) => p.code);
 
-    const auth = Buffer.from(`${username}:${password}`).toString('base64');
-    const response = (await fetch(
+    const response = await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
       {
         headers: {
           Accept: 'application/json',
-          Authorization: `Basic ${auth}`,
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`,
+          ).toString('base64')}`,
         },
       },
-    ).then((r) => r.json())) as { value?: IDynamicProduct[] };
+    ).then((r) => r.json());
 
-    const resultCodes = response?.value?.map((result) => result.No) || [];
+    const resultCodes = response?.value?.map((r: any) => r.No) || [];
 
     return {
-      create: resultCodes.filter((code) => !productCodes.includes(code)).length,
-      delete: productCodes.filter((code) => !resultCodes.includes(code)).length,
-      matched: resultCodes.filter((code) => productCodes.includes(code)).length,
+      create: resultCodes.filter((c: string) => !productCodes.includes(c))
+        .length,
+      delete: productCodes.filter((c: string) => !resultCodes.includes(c))
+        .length,
+      matched: resultCodes.filter((c: string) => productCodes.includes(c))
+        .length,
     };
   },
 
@@ -101,10 +114,8 @@ export const msdynamicCheckMutations = {
         syncedCustomer?: string;
       }
     > = {};
-
     for (const log of syncLogs) {
       const existing = syncMap[log.contentId];
-
       if (!existing && log.responseData?.No) {
         syncMap[log.contentId] = {
           isSynced: true,
@@ -122,103 +133,5 @@ export const msdynamicCheckMutations = {
       syncedBillNumber: syncMap[_id]?.syncedBillNumber || null,
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,
     }));
-  },
-
-  /* MS Dynamic angilal-iig erxes angilal-tai shalgaj, sync uildluudig buleglene */
-  async toCheckMsdProductCategories(
-    _root: unknown,
-    { brandId, categoryId }: { brandId: string; categoryId?: string },
-    { subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('msdCheck');
-
-    const models = await generateModels(subdomain);
-    const config = await getDynamicConfig(models, brandId);
-
-    if (!config.itemCategoryApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not valid.');
-    }
-
-    const { itemCategoryApi, username, password } = config;
-    const hasSelectedCategory = Boolean(
-      categoryId && categoryId !== 'noCategory',
-    );
-
-    const categoryQuery: {
-      status: { $ne: string };
-      parentId?: string;
-    } = {
-      status: { $ne: 'deleted' },
-    };
-
-    let parentCategoryCode: string | undefined;
-
-    if (hasSelectedCategory) {
-      categoryQuery.parentId = categoryId;
-
-      const parentCategory = (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'productCategories',
-        action: 'findOne',
-        input: { query: { _id: categoryId } },
-        defaultValue: null,
-      })) as IProductCategory | null;
-
-      parentCategoryCode = parentCategory?.code;
-    }
-
-    const productCategories = (await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'productCategories',
-      action: 'find',
-      input: { query: categoryQuery },
-      defaultValue: [],
-    })) as IProductCategory[];
-
-    const catAuth = Buffer.from(`${username}:${password}`).toString('base64');
-    const response = (await fetch(itemCategoryApi, {
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Basic ${catAuth}`,
-      },
-    }).then((r) => r.json())) as { value?: IDynamicCategory[] };
-
-    const dynamicCategories = Array.isArray(response?.value)
-      ? response.value.filter((category) =>
-          hasSelectedCategory
-            ? category.Parent_Category === parentCategoryCode
-            : true,
-        )
-      : [];
-
-    const productCategoryCodes = new Set(
-      productCategories.map((category) => category.code).filter(Boolean),
-    );
-    const dynamicCategoryCodes = new Set(
-      dynamicCategories.map((category) => category.Code).filter(Boolean),
-    );
-
-    return {
-      create: {
-        items: dynamicCategories.filter(
-          (category) =>
-            category.Code && !productCategoryCodes.has(category.Code),
-        ),
-      },
-      update: {
-        items: dynamicCategories.filter(
-          (category) =>
-            category.Code && productCategoryCodes.has(category.Code),
-        ),
-      },
-      delete: {
-        items: productCategories.filter(
-          (category) =>
-            category.code && !dynamicCategoryCodes.has(category.code),
-        ),
-      },
-    };
   },
 };
