@@ -1,14 +1,28 @@
-import { Button, useErxesUpload } from 'erxes-ui';
+import { Button, cn, useErxesUpload } from 'erxes-ui';
 import { IconGripVertical, IconUpload, IconX } from '@tabler/icons-react';
 import { readImage } from 'erxes-ui/utils/core';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  DragEvent,
-  KeyboardEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { createPortal } from 'react-dom';
 import { useAutoUpload } from './hooks/useAutoUpload';
 
 interface GalleryUploaderProps {
@@ -24,11 +38,79 @@ type UploadedFile = {
   url: string;
 };
 
-/** Stores the dragged image position for native drop handling. */
-function handleDragStart(event: DragEvent<HTMLButtonElement>, index: number) {
-  event.dataTransfer.effectAllowed = 'move';
-  event.dataTransfer.setData('text/plain', String(index));
-}
+const GalleryThumbnail = ({
+  url,
+  index,
+  dragging,
+}: {
+  url: string;
+  index: number;
+  dragging?: boolean;
+}) => (
+  <>
+    <span
+      role="img"
+      aria-label={`Gallery ${index + 1}`}
+      className="block w-full h-full bg-cover bg-center"
+      style={{ backgroundImage: `url(${readImage(url)})` }}
+    />
+    <span
+      className={cn(
+        'absolute top-1 left-1 flex items-center gap-0.5 rounded bg-black/60 pr-1.5 pl-1 py-0.5 text-[10px] font-medium text-white transition-opacity',
+        dragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+      )}
+    >
+      <IconGripVertical size={12} />
+      {index + 1}
+    </span>
+  </>
+);
+
+const SortableGalleryImage = ({
+  url,
+  index,
+  onRemove,
+}: {
+  url: string;
+  index: number;
+  onRemove: (index: number) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: url });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={cn(
+        'aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted group cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+        isDragging && 'opacity-30',
+      )}
+      aria-label={`Gallery image ${index + 1}. Press space to reorder.`}
+      {...attributes}
+      {...listeners}
+    >
+      <GalleryThumbnail url={url} index={index} />
+      <Button
+        variant="destructive"
+        size="icon"
+        className="absolute top-1 right-1 size-5 opacity-0 group-hover:opacity-100 transition-opacity"
+        type="button"
+        aria-label={`Remove gallery image ${index + 1}`}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => onRemove(index)}
+      >
+        <IconX size={12} />
+      </Button>
+    </div>
+  );
+};
 
 export const GalleryUploader = ({
   value = [],
@@ -40,6 +122,16 @@ export const GalleryUploader = ({
     [value],
   );
   const urlsRef = useRef(urls);
+  const [activeUrl, setActiveUrl] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const handleFilesAdded = useCallback(
     (addedFiles: UploadedFile[]) => {
@@ -71,128 +163,103 @@ export const GalleryUploader = ({
     [onChange, urls],
   );
 
-  const moveImage = useCallback(
-    (fromIndex: number, toIndex: number) => {
-      if (
-        fromIndex === toIndex ||
-        fromIndex < 0 ||
-        toIndex < 0 ||
-        fromIndex >= urls.length ||
-        toIndex >= urls.length
-      ) {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveUrl(String(event.active.id));
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveUrl(null);
+
+      const { active, over } = event;
+
+      if (!over || active.id === over.id) {
         return;
       }
 
-      const next = [...urls];
-      const [movedUrl] = next.splice(fromIndex, 1);
+      const oldIndex = urls.indexOf(String(active.id));
+      const newIndex = urls.indexOf(String(over.id));
 
-      if (!movedUrl) {
+      if (oldIndex === -1 || newIndex === -1) {
         return;
       }
 
-      next.splice(toIndex, 0, movedUrl);
-      onChange(next);
+      onChange(arrayMove(urls, oldIndex, newIndex));
     },
     [onChange, urls],
-  );
-
-  const handleDrop = useCallback(
-    (event: DragEvent<HTMLButtonElement>, toIndex: number) => {
-      event.preventDefault();
-
-      const fromIndex = Number(event.dataTransfer.getData('text/plain'));
-
-      if (Number.isNaN(fromIndex)) {
-        return;
-      }
-
-      moveImage(fromIndex, toIndex);
-    },
-    [moveImage],
-  );
-
-  const handleImageKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
-        return;
-      }
-
-      event.preventDefault();
-      moveImage(index, index + (event.key === 'ArrowLeft' ? -1 : 1));
-    },
-    [moveImage],
   );
 
   const pendingFiles = uploadProps.files.filter(
     (file) => !uploadProps.successes.includes(file.name),
   );
 
+  const activeIndex = activeUrl ? urls.indexOf(activeUrl) : -1;
+
   return (
     <div className="space-y-2">
       {(urls.length > 0 || pendingFiles.length > 0) && (
         <div className="relative">
-          <div className="flex flex-wrap gap-4">
-            {urls.map((url, index) => (
-              <div
-                key={url}
-                className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted cursor-move group"
-              >
-                <Button
-                  variant="ghost"
-                  type="button"
-                  draggable
-                  aria-label={`Move gallery image ${index + 1}`}
-                  onDragStart={(event) => handleDragStart(event, index)}
-                  onDrop={(event) => handleDrop(event, index)}
-                  onDragOver={(event) => event.preventDefault()}
-                  onKeyDown={(event) => handleImageKeyDown(event, index)}
-                  className="h-full w-full rounded-none p-0 hover:bg-transparent cursor-move"
-                >
-                  <span
-                    role="img"
-                    aria-label={`Gallery ${index + 1}`}
-                    className="block w-full h-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${readImage(url)})` }}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            modifiers={[restrictToParentElement]}
+            onDragStart={handleDragStart}
+            onDragCancel={() => setActiveUrl(null)}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={urls} strategy={rectSortingStrategy}>
+              <div className="flex flex-wrap gap-4">
+                {urls.map((url, index) => (
+                  <SortableGalleryImage
+                    key={url}
+                    url={url}
+                    index={index}
+                    onRemove={handleRemove}
                   />
-                  <span className="absolute top-1 left-1 flex items-center gap-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                    <IconGripVertical size={12} />
-                    {index + 1}
-                  </span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-0 right-0 opacity-0 group-hover:opacity-100"
-                  type="button"
-                  aria-label={`Remove gallery image ${index + 1}`}
-                  onClick={() => handleRemove(index)}
-                >
-                  <IconX size={12} />
-                </Button>
-              </div>
-            ))}
-            {pendingFiles.map((file) => (
-              <div
-                key={[file.name, file.size, file.type, file.lastModified].join(
-                  ':',
-                )}
-                className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted"
-              >
-                {file.preview && (
+                ))}
+                {pendingFiles.map((file) => (
                   <div
-                    role="img"
-                    aria-label={file.name}
-                    className="w-full h-full bg-cover bg-center opacity-70"
-                    style={{ backgroundImage: `url(${file.preview})` }}
-                  />
-                )}
-                <div
-                  className="absolute inset-0 bg-white/70"
-                  aria-label={uploadProps.loading ? 'Uploading image' : 'Ready'}
-                />
+                    key={[
+                      file.name,
+                      file.size,
+                      file.type,
+                      file.lastModified,
+                    ].join(':')}
+                    className="aspect-square w-24 rounded-md overflow-hidden shadow-xs relative border bg-muted"
+                  >
+                    {file.preview && (
+                      <div
+                        role="img"
+                        aria-label={file.name}
+                        className="w-full h-full bg-cover bg-center opacity-70"
+                        style={{ backgroundImage: `url(${file.preview})` }}
+                      />
+                    )}
+                    <div
+                      className="absolute inset-0 bg-white/70"
+                      aria-label={
+                        uploadProps.loading ? 'Uploading image' : 'Ready'
+                      }
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+            {createPortal(
+              <DragOverlay>
+                {activeUrl && activeIndex !== -1 ? (
+                  <div className="aspect-square w-24 rounded-md overflow-hidden relative border bg-muted shadow-lg ring-2 ring-primary cursor-grabbing group">
+                    <GalleryThumbnail
+                      url={activeUrl}
+                      index={activeIndex}
+                      dragging
+                    />
+                  </div>
+                ) : null}
+              </DragOverlay>,
+              document.body,
+            )}
+          </DndContext>
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
               <div className="text-sm text-gray-500">Uploading...</div>
