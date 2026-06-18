@@ -4,15 +4,15 @@ import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
 
 export const useVariantFields = () => {
   const { control } = useFormContext<BulkSimilarityFormValues>();
-  const { fields: fieldDefs } = useFields({ contentType: 'core:product' });
+  const { fields: fieldDefs } = useFields({
+    contentType: 'core:product',
+    limit: 100,
+  });
 
   const { append, update, remove } = useFieldArray({
     control,
     name: 'properties',
   });
-  // read from useWatch, not useFieldArray.fields: multiple useVariantFields()
-  // callers create separate field-array instances whose `.fields` snapshots don't
-  // share updates, but useWatch always reflects the live form state.
   const watchedProperties = useWatch({ control, name: 'properties' }) || [];
 
   const fieldIds = watchedProperties.map((p) => p.fieldId);
