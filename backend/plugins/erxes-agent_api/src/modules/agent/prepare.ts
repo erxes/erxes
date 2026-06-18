@@ -67,10 +67,12 @@ export async function prepareChatTurn(params: {
 
   // Mastra Memory (attached to the agent in getOrCreateAgent) is the ONLY chat
   // store: it persists the turn, replays recent history, and runs semantic
-  // recall + working memory via the per-turn binding below. Active when advanced
-  // memory is on AND we know the tenant. (No tenant → the turn is answered
-  // statelessly; there is no custom fallback store.)
-  const useMemory = advanced && Boolean(subdomain);
+  // recall + working memory via the per-turn binding below. Active whenever
+  // advanced memory is on. An unknown tenant does NOT skip persistence — it
+  // would silently drop the turn and lose the session; scopedResource defaults
+  // an empty subdomain to the "os" scope so the thread is still persisted and
+  // listable.
+  const useMemory = advanced;
   const memoryBinding = useMemory
     ? {
         thread: sessionId,

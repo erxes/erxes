@@ -490,7 +490,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           variables: { agentId: mastraAgentId },
           fetchPolicy: 'network-only',
         });
-        const sessions: SessionMeta[] = (data?.mastraThreads ?? []).map(
+        const serverSessions: SessionMeta[] = (data?.mastraThreads ?? []).map(
           (t) => ({
             threadId: t.threadId,
             title: t.title || 'New chat',
@@ -500,6 +500,21 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         );
 
         const before = ensureAgent(agentKey);
+        // A just-created chat the server list hasn't caught up to yet must not be
+        // dropped by this refetch — keep the active thread's local entry until the
+        // server returns it, or the new session vanishes from the sidebar.
+        const activeId = before.activeThreadId;
+        const sessions =
+          activeId && !serverSessions.some((s) => s.threadId === activeId)
+            ? [
+                before.sessions.find((s) => s.threadId === activeId) ?? {
+                  threadId: activeId,
+                  title: 'New chat',
+                  messageCount: 0,
+                },
+                ...serverSessions,
+              ]
+            : serverSessions;
         patchAgent(agentKey, { sessions, sessionsLoaded: true });
 
         if (!before.activeThreadId) {
