@@ -16,7 +16,9 @@ export const useAttachments = (enabled: boolean) => {
   // (navigate away mid-compose) — removeAttachment/clear only cover explicit
   // removals.
   const pendingRef = useRef<PendingAttachment[]>([]);
-  pendingRef.current = pendingAtts;
+  useEffect(() => {
+    pendingRef.current = pendingAtts;
+  });
   useEffect(
     () => () => {
       pendingRef.current.forEach(
