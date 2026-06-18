@@ -100,6 +100,7 @@ export const useConversations = (
           }
         }
         if (!subscriptionData.data || !prev) return prev;
+        if (!prev.conversations?.list) return prev;
         const newMessage =
           subscriptionData.data.conversationClientMessageInserted;
         const index = prev.conversations.list.findIndex(
