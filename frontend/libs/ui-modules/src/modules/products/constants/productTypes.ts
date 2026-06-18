@@ -14,3 +14,13 @@ export const PRODUCT_DURATION_TYPES = [
   { label: 'Quarter', value: 'quarter' },
   { label: 'Year', value: 'year' },
 ] as const;
+
+export const PRODUCT_DURATION_TYPE_VALUES = [
+  'minute',
+  'hour',
+  'day',
+  'week',
+  'month',
+  'quarter',
+  'year',
+] as const;

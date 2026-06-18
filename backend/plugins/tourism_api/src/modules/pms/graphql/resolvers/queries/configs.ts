@@ -181,7 +181,7 @@ const configQueries: Record<string, Resolver> = {
       },
     });
 
-    return deals?.data || [];
+    return deals || [];
   },
 
   async cpPmsRooms(
