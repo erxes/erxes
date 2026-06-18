@@ -10,8 +10,10 @@ import { ToolPolicy, isOperationAllowed } from './scope';
 import {
   DestructiveOpsPolicy,
   isDestructiveOperation,
-  destructiveBlockedResult,
+  isApprovedOperation,
+  destructiveApprovalRequiredResult,
 } from './destructiveGuard';
+import { getCurrentAuth } from '../requestContext';
 import { makeAgentProcessId, type AgentActionInput } from '../auditLog';
 
 // LLMs sometimes pass the args object as a JSON string. Parse it back so the
@@ -191,20 +193,25 @@ export function buildErxesMetaTools(params: {
       const callArgs = coerceArgs(args);
       const isMutation = op.operationType === 'mutation';
 
-      // Safety gate: irreversible deletes/merges are refused unless the agent is
-      // explicitly configured with destructiveOps: 'allow'. Enforced here, beside
-      // the policy check, so the boundary holds even if the model guesses a name.
+      // Safety gate: irreversible deletes/merges need the user's approval unless
+      // the agent is configured with destructiveOps: 'allow'. The user grants it
+      // per-turn (approvedOps on the request's auth context); until then the tool
+      // asks instead of running — it never silently destroys data, and never
+      // hard-refuses. Enforced here, beside the policy check, so the boundary
+      // holds even if the model guesses a name.
       if (destructiveOps !== 'allow' && isDestructiveOperation(op)) {
-        if (isMutation)
+        const approvedOps = getCurrentAuth()?.approvedOps;
+        if (!isApprovedOperation(operation, callArgs, approvedOps)) {
           recordAction?.({
             operation,
             operationType: op.operationType,
             destructive: true,
             args: callArgs,
             status: 'blocked',
-            error: 'blocked by destructive-ops guard',
+            error: 'awaiting user approval',
           });
-        return destructiveBlockedResult(operation);
+          return destructiveApprovalRequiredResult(operation, callArgs);
+        }
       }
 
       // Stamp a correlation id on mutations so every DB change this op makes is

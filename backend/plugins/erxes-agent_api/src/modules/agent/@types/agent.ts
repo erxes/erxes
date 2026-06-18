@@ -9,8 +9,9 @@ export interface IMastraAgent {
   model: string;
   toolPolicy?: 'all' | 'custom';
   allowedTools?: string[];
-  // Consent for irreversible deletes/merges. Defaults to 'block'.
-  destructiveOps?: 'allow' | 'block';
+  // Consent for irreversible deletes/merges. 'ask' (default) prompts the user;
+  // 'allow' runs without asking. ('block' is a tolerated legacy value → 'ask'.)
+  destructiveOps?: 'allow' | 'ask' | 'block';
   memoryEnabled?: boolean;
   maxSteps?: number;
   temperature?: number;

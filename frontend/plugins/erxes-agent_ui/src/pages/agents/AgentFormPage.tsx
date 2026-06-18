@@ -41,7 +41,7 @@ export const AgentFormPage = () => {
         model: agent.model || '',
         toolPolicy: agent.toolPolicy === 'custom' ? 'custom' : 'all',
         allowedTools: agent.allowedTools || [],
-        destructiveOps: agent.destructiveOps === 'allow' ? 'allow' : 'block',
+        destructiveOps: agent.destructiveOps === 'allow' ? 'allow' : 'ask',
         memoryEnabled: agent.memoryEnabled ?? true,
         maxSteps: agent.maxSteps ?? 10,
         temperature: agent.temperature ?? null,

@@ -16,6 +16,7 @@ import {
   AgentChatState,
   AgentChatView,
   ChatAttachment,
+  ApprovedOp,
   EMPTY_AGENT,
   EMPTY_THREAD,
   Message,
@@ -146,6 +147,10 @@ interface ChatStoreState {
     mastraAgentId: string,
     message: string,
     attachments?: ChatAttachment[],
+    approvedOperations?: ApprovedOp[],
+    // Don't render a user bubble for this send (used by approve/deny — the turn
+    // continues without a visible "Approved" message).
+    hidden?: boolean,
   ) => Promise<void>;
 }
 
@@ -337,6 +342,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     abort: AbortController,
     attachments?: ChatAttachment[],
     reasoningEffort?: ReasoningEffort,
+    approvedOperations?: ApprovedOp[],
   ): Promise<boolean> => {
     let response: Response;
     try {
@@ -352,6 +358,9 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
             threadId,
             attachments: attachments?.length ? attachments : undefined,
             reasoningEffort: reasoningEffort || undefined,
+            approvedOperations: approvedOperations?.length
+              ? approvedOperations
+              : undefined,
           }),
           signal: abort.signal,
         },
@@ -627,6 +636,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       mastraAgentId,
       message,
       attachments,
+      approvedOperations,
+      hidden,
     ) => {
       let agent = ensureAgent(agentKey);
       if (!agent.activeThreadId) {
@@ -659,12 +670,14 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         });
       }
 
-      appendMessage(agentKey, threadId, {
-        role: 'user',
-        content: message,
-        timestamp: new Date(),
-        attachments: attachments?.length ? attachments : undefined,
-      });
+      if (!hidden) {
+        appendMessage(agentKey, threadId, {
+          role: 'user',
+          content: message,
+          timestamp: new Date(),
+          attachments: attachments?.length ? attachments : undefined,
+        });
+      }
 
       const abort = new AbortController();
       patchThread(agentKey, threadId, { abort });
@@ -678,6 +691,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           abort,
           attachments,
           reasoningEffort,
+          approvedOperations,
         );
         if (!streamed) {
           await sendViaQuery(
@@ -828,8 +842,18 @@ export const chatStore = {
     mastraAgentId: string,
     message: string,
     attachments?: ChatAttachment[],
+    approvedOperations?: ApprovedOp[],
+    hidden?: boolean,
   ) =>
     useChatStore
       .getState()
-      .sendMessage(client, agentKey, mastraAgentId, message, attachments),
+      .sendMessage(
+        client,
+        agentKey,
+        mastraAgentId,
+        message,
+        attachments,
+        approvedOperations,
+        hidden,
+      ),
 };

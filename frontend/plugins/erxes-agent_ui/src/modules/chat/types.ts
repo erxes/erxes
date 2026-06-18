@@ -10,6 +10,31 @@ export interface ToolCallInfo {
   isError?: boolean;
 }
 
+// A destructive operation the user approves from the chat (echoed back on the
+// next turn so the backend runs the otherwise-gated delete/merge).
+export interface ApprovedOp {
+  operation: string;
+  args?: Record<string, unknown>;
+}
+
+// The shape a destructive tool result takes when the agent needs approval —
+// surfaced so the UI can show Approve / Deny and replay the exact op.
+export interface ApprovalRequest {
+  requiresApproval: true;
+  operation: string;
+  args?: Record<string, unknown>;
+}
+
+/** Narrow an unknown tool result to an approval request. */
+export const asApprovalRequest = (
+  result: unknown,
+): ApprovalRequest | null => {
+  const r = result as Partial<ApprovalRequest> | null | undefined;
+  return r && r.requiresApproval === true && typeof r.operation === 'string'
+    ? { requiresApproval: true, operation: r.operation, args: r.args }
+    : null;
+};
+
 // One chronological segment of an assistant turn. Thinking bursts and tool
 // calls render in the order they happened — a new reasoning burst appears as
 // its own section at the bottom, never appended into an earlier one.

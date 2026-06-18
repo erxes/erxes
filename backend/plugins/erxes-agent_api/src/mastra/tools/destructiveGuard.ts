@@ -1,12 +1,13 @@
 import { OperationMeta } from './operationRegistry';
+import { ApprovedOp } from '../requestContext';
 
 // Consent for irreversible mutations, stored per-agent (and per-workflow).
-//   'block' (default) → the agent may NOT run remove/delete/merge operations.
-//   'allow'           → destructive operations are permitted.
-// 'confirm' is intentionally NOT a value yet: a human-in-the-loop approval flow
-// does not exist on the chat/scheduled transports, so anything other than an
-// explicit 'allow' must fall through to 'block' and never silently destroy data.
-export type DestructiveOpsPolicy = 'block' | 'allow';
+//   'ask' (default) → remove/delete/merge run only after the user approves them
+//                     in chat (the agent never silently destroys data, and never
+//                     hard-refuses — it asks).
+//   'allow'         → destructive operations run without asking.
+// The legacy value 'block' resolves to 'ask' (we no longer hard-refuse).
+export type DestructiveOpsPolicy = 'ask' | 'allow';
 
 // erxes mutation names are suffix-based: customersRemove, dealsRemove,
 // segmentsDelete, customersMerge, companiesMerge. Match those verbs anywhere in
@@ -32,24 +33,53 @@ export function resolveDestructiveOpsPolicy(
 ): DestructiveOpsPolicy {
   const value = (config as { destructiveOps?: unknown } | null | undefined)
     ?.destructiveOps;
-  return value === 'allow' ? 'allow' : 'block';
+  // Only an explicit 'allow' skips the prompt; everything else (incl. the legacy
+  // 'block' and a missing field) means "ask the user".
+  return value === 'allow' ? 'allow' : 'ask';
+}
+
+/** Stable serialization of an op's args so an approval matches the exact call. */
+function canonicalArgs(args: unknown): string {
+  if (!args || typeof args !== 'object') return '';
+  const obj = args as Record<string, unknown>;
+  const keys = Object.keys(obj).sort();
+  return JSON.stringify(keys.map((k) => [k, obj[k]]));
+}
+
+/** True when the user has approved this exact operation + args for the turn. */
+export function isApprovedOperation(
+  operation: string,
+  args: unknown,
+  approved: ApprovedOp[] | undefined,
+): boolean {
+  if (!approved?.length) return false;
+  const target = canonicalArgs(args);
+  return approved.some(
+    (a) => a.operation === operation && canonicalArgs(a.args) === target,
+  );
 }
 
 /**
- * The structured refusal returned to the model when it attempts a destructive
- * operation without consent. Deliberately actionable: the model should explain
- * the limit to the user and offer a safe alternative, NOT silently retry.
+ * The structured result returned when the model attempts a destructive
+ * operation that the user has not yet approved. The agent must NOT retry — it
+ * surfaces the intent so the user gets an Approve / Deny prompt; the operation
+ * runs only on the follow-up turn carrying the approval.
  */
-export function destructiveBlockedResult(operation: string) {
+export function destructiveApprovalRequiredResult(
+  operation: string,
+  args: Record<string, unknown>,
+) {
   return {
     success: false,
-    blocked: true,
-    error: `Operation "${operation}" deletes or merges data and is blocked for this agent.`,
+    requiresApproval: true,
+    operation,
+    args,
+    error: `Operation "${operation}" deletes or merges data and needs the user's approval.`,
     instruction:
-      'Do NOT retry this operation. Tell the user plainly that this agent is not ' +
-      'allowed to delete or merge records, and that an administrator can enable ' +
-      'destructive operations in the agent settings if it is intended. Where it ' +
-      'helps, suggest a non-destructive alternative such as editing or archiving ' +
-      'instead of removing.',
+      'Do NOT retry this operation and take no other action this turn. Reply with ' +
+      'ONE short question asking the user to confirm, naming exactly what will be ' +
+      'affected (for example: "Delete these 7 products?"). Do NOT mention buttons, ' +
+      'approval, or that they will be prompted — just ask the question. The ' +
+      'operation runs automatically once they approve.',
   };
 }

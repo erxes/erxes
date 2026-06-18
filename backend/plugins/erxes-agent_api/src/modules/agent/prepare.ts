@@ -6,6 +6,7 @@ import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
 import { scopedResource, getMastraMemory } from '~/mastra/memory/mastraMemory';
 import { deriveResourceId, augmentConvo, MemoryContext } from '~/mastra/memory';
 import { readLearnedDigest } from '~/mastra/learning/digest';
+import { ApprovedOp } from '~/mastra/requestContext';
 import { buildChatUserContent } from '~/mastra/files/chatContent';
 import { IMastraChatAttachment } from '@/session/@types/session';
 import { ensureThreadRegistered } from '@/session/nativeStore';
@@ -23,9 +24,18 @@ export async function prepareChatTurn(params: {
   message: string;
   threadId?: string;
   attachments?: IMastraChatAttachment[];
+  approvedOperations?: ApprovedOp[];
 }): Promise<PreparedTurn> {
-  const { models, subdomain, user, agentId, message, threadId, attachments } =
-    params;
+  const {
+    models,
+    subdomain,
+    user,
+    agentId,
+    message,
+    threadId,
+    attachments,
+    approvedOperations,
+  } = params;
 
   // Same NoSQL-injection guard as sessionId below: agentId arrives from the
   // request body, so a crafted object must never reach a Mongo query.
@@ -144,7 +154,12 @@ export async function prepareChatTurn(params: {
   const userHeader = user
     ? Buffer.from(JSON.stringify(user)).toString('base64')
     : undefined;
-  const authCtx = { userHeader, token: settings?.erxesApiToken, subdomain };
+  const authCtx = {
+    userHeader,
+    token: settings?.erxesApiToken,
+    subdomain,
+    approvedOps: approvedOperations,
+  };
 
   return {
     agentConfig,

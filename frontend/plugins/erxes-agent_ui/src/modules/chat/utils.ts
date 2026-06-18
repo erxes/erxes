@@ -1,5 +1,37 @@
 import { REACT_APP_API_URL, formatBytes } from 'erxes-ui';
-import { ChatAttachment, MessageMeta, TurnPart } from '~/modules/chat/types';
+import {
+  ApprovedOp,
+  ChatAttachment,
+  Message,
+  MessageMeta,
+  TurnPart,
+  asApprovalRequest,
+} from '~/modules/chat/types';
+
+/**
+ * A settled assistant turn that ended on one or more destructive ops awaiting
+ * the user's go-ahead. Returns the model's confirmation question + the exact ops
+ * to replay on approval, or null when nothing is pending. Derived from the last
+ * message so it clears automatically once the next turn runs.
+ */
+export const pendingApproval = (
+  messages: Message[],
+): { prompt: string; operations: ApprovedOp[] } | null => {
+  const last = messages[messages.length - 1];
+  if (!last || last.role !== 'assistant' || last.streaming) return null;
+  const operations: ApprovedOp[] = [];
+  for (const part of last.parts ?? []) {
+    if (part.kind === 'tool') {
+      const req = asApprovalRequest(part.call.result);
+      if (req) operations.push({ operation: req.operation, args: req.args });
+    }
+  }
+  if (!operations.length) return null;
+  return {
+    prompt: last.content?.trim() || 'Confirm this action?',
+    operations,
+  };
+};
 
 /** Random base36 suffix from the Web Crypto API (Math.random is flagged as a
  * weak PRNG even for non-secret ids — getRandomValues works on any origin). */

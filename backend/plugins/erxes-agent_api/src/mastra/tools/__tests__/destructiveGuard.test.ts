@@ -1,7 +1,8 @@
 import {
   isDestructiveOperation,
   resolveDestructiveOpsPolicy,
-  destructiveBlockedResult,
+  isApprovedOperation,
+  destructiveApprovalRequiredResult,
 } from '../destructiveGuard';
 import type { OperationMeta } from '../operationRegistry';
 
@@ -50,24 +51,53 @@ describe('resolveDestructiveOpsPolicy', () => {
     );
   });
 
-  it("defaults to 'block' for missing, invalid, or legacy configs", () => {
-    expect(resolveDestructiveOpsPolicy({ destructiveOps: 'block' })).toBe(
-      'block',
-    );
-    expect(resolveDestructiveOpsPolicy({})).toBe('block');
-    expect(resolveDestructiveOpsPolicy(null)).toBe('block');
-    expect(resolveDestructiveOpsPolicy({ destructiveOps: 'yes' })).toBe(
-      'block',
-    );
+  it("defaults to 'ask' for missing, invalid, or legacy configs", () => {
+    expect(resolveDestructiveOpsPolicy({ destructiveOps: 'block' })).toBe('ask');
+    expect(resolveDestructiveOpsPolicy({})).toBe('ask');
+    expect(resolveDestructiveOpsPolicy(null)).toBe('ask');
+    expect(resolveDestructiveOpsPolicy({ destructiveOps: 'yes' })).toBe('ask');
   });
 });
 
-describe('destructiveBlockedResult', () => {
-  it('is a structured, non-retryable refusal naming the operation', () => {
-    const result = destructiveBlockedResult('customersRemove');
+describe('isApprovedOperation', () => {
+  it('matches the exact operation + args the user approved', () => {
+    const approved = [{ operation: 'customersRemove', args: { id: '1' } }];
+    expect(isApprovedOperation('customersRemove', { id: '1' }, approved)).toBe(
+      true,
+    );
+  });
+
+  it('matches regardless of arg key order', () => {
+    const approved = [{ operation: 'dealsRemove', args: { a: 1, b: 2 } }];
+    expect(isApprovedOperation('dealsRemove', { b: 2, a: 1 }, approved)).toBe(
+      true,
+    );
+  });
+
+  it('does not match a different operation, different args, or empty list', () => {
+    const approved = [{ operation: 'customersRemove', args: { id: '1' } }];
+    expect(isApprovedOperation('dealsRemove', { id: '1' }, approved)).toBe(
+      false,
+    );
+    expect(isApprovedOperation('customersRemove', { id: '2' }, approved)).toBe(
+      false,
+    );
+    expect(isApprovedOperation('customersRemove', { id: '1' }, [])).toBe(false);
+    expect(
+      isApprovedOperation('customersRemove', { id: '1' }, undefined),
+    ).toBe(false);
+  });
+});
+
+describe('destructiveApprovalRequiredResult', () => {
+  it('asks for approval, carries the op + args, and is non-retryable', () => {
+    const result = destructiveApprovalRequiredResult('customersRemove', {
+      id: '1',
+    });
     expect(result.success).toBe(false);
-    expect(result.blocked).toBe(true);
-    expect(result.error).toContain('customersRemove');
+    expect(result.requiresApproval).toBe(true);
+    expect(result.operation).toBe('customersRemove');
+    expect(result.args).toEqual({ id: '1' });
     expect(result.instruction).toMatch(/do not retry/i);
   });
 });
