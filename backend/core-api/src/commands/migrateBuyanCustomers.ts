@@ -1,4 +1,3 @@
-
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -65,7 +64,6 @@ interface ColumnPlan {
   propertyCode: string | null;
 }
 
-
 const convertPropertyValue = (
   meta: FieldMeta,
   rawValue: string,
@@ -89,7 +87,10 @@ const convertPropertyValue = (
     if (Number.isFinite(num)) {
       return { value: num };
     }
-    return { value: undefined, warning: `${meta.name}: non-numeric "${rawValue}"` };
+    return {
+      value: undefined,
+      warning: `${meta.name}: non-numeric "${rawValue}"`,
+    };
   }
 
   return { value: rawValue };
@@ -160,7 +161,6 @@ const command = async () => {
 
   await client.connect();
 
-
   let db: Db;
   if (TARGET_SUBDOMAIN) {
     const coreDb = client.db(extractDbName(CORE_URL));
@@ -186,18 +186,18 @@ const command = async () => {
 
   const customers = db.collection('customers');
 
-
   if (!DRY_RUN) {
     await customers.createIndex(
       { 'importMeta.fingerprint': 1 },
       {
         unique: true,
-        partialFilterExpression: { 'importMeta.fingerprint': { $exists: true } },
+        partialFilterExpression: {
+          'importMeta.fingerprint': { $exists: true },
+        },
         name: 'importMeta_fingerprint_unique',
       },
     );
   }
-
 
   const propertyFields = await db
     .collection('properties_fields')
@@ -278,16 +278,14 @@ const command = async () => {
   let lineNumber = 0;
   let batch: PreparedRow[] = [];
 
-  const parser = fs
-    .createReadStream(CSV_PATH)
-    .pipe(
-      csvParse({
-        bom: true,
-        relax_quotes: true,
-        skip_empty_lines: true,
-        trim: true,
-      }),
-    );
+  const parser = fs.createReadStream(CSV_PATH).pipe(
+    csvParse({
+      bom: true,
+      relax_quotes: true,
+      skip_empty_lines: true,
+      trim: true,
+    }),
+  );
 
   const flush = async () => {
     if (batch.length === 0) {
@@ -320,19 +318,18 @@ const command = async () => {
     }));
 
     try {
-
       const result = await customers.bulkWrite(operations, { ordered: false });
       summary.inserted += result.upsertedCount;
       summary.matchedExisting += result.matchedCount;
       summary.modified += result.modifiedCount;
     } catch (error: any) {
-
       const result = error?.result || error?.writeErrors ? error : null;
       const partial = error?.result;
 
       if (partial) {
         summary.inserted += partial.upsertedCount || partial.nUpserted || 0;
-        summary.matchedExisting += partial.matchedCount || partial.nMatched || 0;
+        summary.matchedExisting +=
+          partial.matchedCount || partial.nMatched || 0;
         summary.modified += partial.modifiedCount || partial.nModified || 0;
       }
 
@@ -342,12 +339,11 @@ const command = async () => {
           const failedIndex =
             typeof writeError.index === 'number' ? writeError.index : -1;
           const prepared = current[failedIndex];
-          const reason = writeError.errmsg || writeError.message || 'write error';
+          const reason =
+            writeError.errmsg || writeError.message || 'write error';
           summary.failed++;
           if (prepared) {
-            console.error(
-              `[FAILED] line ${prepared.lineNumber}: ${reason}`,
-            );
+            console.error(`[FAILED] line ${prepared.lineNumber}: ${reason}`);
             writeFailure(
               prepared.lineNumber,
               reason,
@@ -424,7 +420,10 @@ const command = async () => {
       } else if (plan.propertyCode) {
         const meta = fieldMetaByCode.get(plan.propertyCode);
         if (meta) {
-          const { value: converted, warning } = convertPropertyValue(meta, value);
+          const { value: converted, warning } = convertPropertyValue(
+            meta,
+            value,
+          );
           if (converted !== undefined && converted !== '') {
             propertiesData[meta.fieldId] = converted;
           } else if (warning) {
@@ -492,7 +491,9 @@ const command = async () => {
   console.log('\n========== UB-buyan.csv migration summary ==========');
   console.log(`Mode:                         ${DRY_RUN ? 'DRY RUN' : 'WRITE'}`);
   console.log(`Total CSV rows:               ${summary.totalRows}`);
-  console.log(`Duplicate rows in source:     ${summary.skippedDuplicateInSource} (collapsed)`);
+  console.log(
+    `Duplicate rows in source:     ${summary.skippedDuplicateInSource} (collapsed)`,
+  );
   console.log(`Empty rows skipped:           ${summary.skippedEmpty}`);
   console.log(`Unique rows prepared:         ${summary.prepared}`);
   console.log(`Newly inserted customers:     ${summary.inserted}`);
@@ -512,14 +513,18 @@ const command = async () => {
 
   // -- verification -----------------------------------------------------
   if (!DRY_RUN) {
-    const inDb = await customers.countDocuments({ 'importMeta.source': SOURCE });
+    const inDb = await customers.countDocuments({
+      'importMeta.source': SOURCE,
+    });
     console.log(`Customers in DB for source:   ${inDb}`);
     if (inDb !== summary.prepared) {
       console.warn(
         `[WARN] DB count (${inDb}) != prepared unique rows (${summary.prepared}). Investigate failed rows above.`,
       );
     } else {
-      console.log('Verification OK: every prepared row exists in the database.');
+      console.log(
+        'Verification OK: every prepared row exists in the database.',
+      );
     }
   }
   console.log('====================================================\n');
@@ -537,4 +542,3 @@ command().catch(async (error) => {
   }
   process.exit(1);
 });
-
