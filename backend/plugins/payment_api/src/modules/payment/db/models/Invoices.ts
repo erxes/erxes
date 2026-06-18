@@ -59,18 +59,39 @@ export const loadInvoiceClass = (models: IModels) => {
 
         try {
           const response = await api.createInvoice(transaction.toObject());
+
+          if (!response || response.error || !response?.order?.id) {
+            const errorMessage =
+              typeof response?.error === 'string'
+                ? response.error
+                : JSON.stringify(response?.error) ||
+                  'Invalid response from payment API';
+
+            throw new Error(errorMessage);
+          }
+
           transaction.response = response;
           transaction.details = {
             ...transaction.details,
-            tdbOrderId: response.order?.id,
+            tdbOrderId: response.order.id,
           };
+
           await transaction.save();
 
           return invoice;
-        } catch (e) {
-          await models.Invoices.deleteOne({ _id: invoice._id });
-          await models.Transactions.deleteOne({ _id: transaction._id });
-          throw new Error(`Error creating invoice: ${e.message}`);
+        } catch (e: any) {
+          const errorMessage =
+            e instanceof Error ? e.message : JSON.stringify(e);
+
+          transaction.status = 'failed';
+          transaction.error = errorMessage;
+
+          // preserve response if it exists
+          transaction.response = transaction.response || null;
+
+          await transaction.save();
+
+          throw new Error(`Error creating invoice: ${errorMessage}`);
         }
       }
 

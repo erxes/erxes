@@ -103,14 +103,35 @@ export const loadTransactionClass = (models: IModels) => {
       const api = new ErxesPayment(paymentMethod, subdomain);
 
       try {
-        const reponse = await api.createInvoice(transaction.toObject());
-        transaction.response = reponse;
+        const response = await api.createInvoice(transaction.toObject());
+
+        if (!response || response.error || !response?.order?.id) {
+          throw new Error(
+            typeof response?.error === 'string'
+              ? response.error
+              : JSON.stringify(response?.error) ||
+                'Invalid response from payment API',
+          );
+        }
+
+        transaction.response = response;
+        transaction.details = {
+          ...transaction.details,
+          tdbOrderId: response.order.id,
+        };
+
         await transaction.save();
 
         return transaction;
-      } catch (e) {
-        await models.Transactions.deleteOne({ _id: transaction._id });
-        throw new Error(`Error creating transaction: ${e.message}`);
+      } catch (e: any) {
+        const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+
+        transaction.status = 'failed';
+        transaction.error = errorMessage;
+
+        await transaction.save();
+
+        throw new Error(`Error creating transaction: ${errorMessage}`);
       }
     }
 

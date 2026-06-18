@@ -11,6 +11,7 @@ export interface ITransaction {
   details?: any;
   // response from selected payment method
   response: any;
+  error?: string;
 }
 export interface ITransactionDocument extends ITransaction, Document {
   _id: string;
