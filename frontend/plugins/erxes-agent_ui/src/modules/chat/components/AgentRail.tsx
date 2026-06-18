@@ -36,7 +36,12 @@ const AgentRailItem = ({
       } ${isWorking ? 'ea-working' : ''}`}
       onClick={() => onSelect(agent._id)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        // Only act on the row's own keys — ignore Enter/Space that bubbled up
+        // from the focused gear button (which has its own handler).
+        if (
+          (e.key === 'Enter' || e.key === ' ') &&
+          e.target === e.currentTarget
+        ) {
           e.preventDefault();
           onSelect(agent._id);
         }
