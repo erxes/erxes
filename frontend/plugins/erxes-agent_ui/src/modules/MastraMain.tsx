@@ -1,7 +1,6 @@
-import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router';
-import { Spinner } from 'erxes-ui';
-import { PluginErrorBoundary } from '~/components/PluginErrorBoundary';
+import { lazy } from 'react';
+import { Route } from 'react-router';
+import { PluginRoutesShell } from '~/components/PluginRoutesShell';
 
 const AgentsIndexPage = lazy(() =>
   import('~/pages/agents/AgentsIndexPage').then((m) => ({
@@ -57,27 +56,21 @@ const ScheduleFormPage = lazy(() =>
 
 const MastraMain = () => {
   return (
-    <PluginErrorBoundary>
-      <Suspense fallback={<Spinner />}>
-        <Routes>
-          <Route index element={<Navigate to="chat" replace />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/chat/:agentId" element={<ChatPage />} />
-          <Route path="/agents" element={<AgentsIndexPage />} />
-          <Route path="/agents/new" element={<AgentFormPage />} />
-          <Route path="/agents/edit/:id" element={<AgentFormPage />} />
-          <Route path="/workflows" element={<WorkflowsIndexPage />} />
-          <Route path="/workflows/new" element={<WorkflowFormPage />} />
-          <Route path="/workflows/edit/:id" element={<WorkflowFormPage />} />
-          <Route path="/workflows/:id" element={<WorkflowDetailPage />} />
-          <Route path="/learnings" element={<LearningsIndexPage />} />
-          <Route path="/schedules" element={<SchedulesIndexPage />} />
-          <Route path="/schedules/new" element={<ScheduleFormPage />} />
-          <Route path="/schedules/edit/:id" element={<ScheduleFormPage />} />
-          <Route path="*" element={<Navigate to="chat" replace />} />
-        </Routes>
-      </Suspense>
-    </PluginErrorBoundary>
+    <PluginRoutesShell defaultPath="chat">
+      <Route path="/chat" element={<ChatPage />} />
+      <Route path="/chat/:agentId" element={<ChatPage />} />
+      <Route path="/agents" element={<AgentsIndexPage />} />
+      <Route path="/agents/new" element={<AgentFormPage />} />
+      <Route path="/agents/edit/:id" element={<AgentFormPage />} />
+      <Route path="/workflows" element={<WorkflowsIndexPage />} />
+      <Route path="/workflows/new" element={<WorkflowFormPage />} />
+      <Route path="/workflows/edit/:id" element={<WorkflowFormPage />} />
+      <Route path="/workflows/:id" element={<WorkflowDetailPage />} />
+      <Route path="/learnings" element={<LearningsIndexPage />} />
+      <Route path="/schedules" element={<SchedulesIndexPage />} />
+      <Route path="/schedules/new" element={<ScheduleFormPage />} />
+      <Route path="/schedules/edit/:id" element={<ScheduleFormPage />} />
+    </PluginRoutesShell>
   );
 };
 
