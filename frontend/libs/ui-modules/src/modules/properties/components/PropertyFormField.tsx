@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { ComponentType, useCallback } from 'react';
 import { IField } from '../types/fieldsTypes';
 import { FieldBoolean } from './FieldBoolean';
 import { FieldDate } from './FieldDate';
@@ -11,6 +11,19 @@ import { FieldSelect } from './FieldSelect';
 import { FieldSelectMultiple } from './FieldSelectMultiple';
 import { FieldString } from './FieldString';
 import { FieldTextarea } from './FieldTextarea';
+
+const FIELD_COMPONENT_MAP: Record<string, ComponentType<any>> = {
+  text: FieldString,
+  phone: FieldPhone,
+  textarea: FieldTextarea,
+  number: FieldNumber,
+  boolean: FieldBoolean,
+  date: FieldDate,
+  select: FieldSelect,
+  multiSelect: FieldSelectMultiple,
+  relation: FieldRelation,
+  file: FieldFile,
+};
 
 export function PropertyFormField({
   field,
@@ -30,43 +43,21 @@ export function PropertyFormField({
     [field._id, onFieldChange],
   );
 
-  const fieldProps = {
-    field,
-    value,
-    handleChange,
-    loading: false,
-    id: `${idPrefix}_${field._id}`,
-    customFieldsData: {},
-  };
+  const FieldComponent = FIELD_COMPONENT_MAP[field.type];
+  if (!FieldComponent) return null;
+
+  const id = `${idPrefix}_${field._id}`;
 
   return (
-    <FieldLabel field={field} id={fieldProps.id}>
-      {(() => {
-        switch (field.type) {
-          case 'text':
-            return <FieldString {...fieldProps} />;
-          case 'phone':
-            return <FieldPhone {...fieldProps} />;
-          case 'textarea':
-            return <FieldTextarea {...fieldProps} />;
-          case 'number':
-            return <FieldNumber {...fieldProps} />;
-          case 'boolean':
-            return <FieldBoolean {...fieldProps} />;
-          case 'date':
-            return <FieldDate {...fieldProps} />;
-          case 'select':
-            return <FieldSelect {...fieldProps} />;
-          case 'multiSelect':
-            return <FieldSelectMultiple {...fieldProps} />;
-          case 'relation':
-            return <FieldRelation {...fieldProps} />;
-          case 'file':
-            return <FieldFile {...fieldProps} />;
-          default:
-            return null;
-        }
-      })()}
+    <FieldLabel field={field} id={id}>
+      <FieldComponent
+        field={field}
+        value={value}
+        handleChange={handleChange}
+        loading={false}
+        id={id}
+        customFieldsData={{}}
+      />
     </FieldLabel>
   );
 }
