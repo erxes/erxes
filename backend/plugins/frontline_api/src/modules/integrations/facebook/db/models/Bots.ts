@@ -22,7 +22,7 @@ export type TCreateBotInputDoc = {
   persistentMenus: TBotPersistentMenuInput[];
   greetText: string;
   tag: string;
-  isEnabledBackBtn: Boolean;
+  isEnabledBackBtn: boolean;
   backButtonText: string;
 };
 
@@ -559,7 +559,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         });
       }
 
-      if (Boolean(isEnabledBackBtn)) {
+      if (isEnabledBackBtn) {
         expectedMenus.push({
           type: 'postback',
           title: backButtonText || 'Back',
@@ -769,13 +769,12 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       const currentBot = await this.getBot(botId);
       const bot = {
         ...currentBot.toObject(),
-        ...(expectedState || {}),
+        ...expectedState,
       };
 
       const pageAccessToken = bot.token || '';
-      const { subscribedData, profileData } = await this.fetchBotProfileState(
-        pageAccessToken,
-      );
+      const { subscribedData, profileData } =
+        await this.fetchBotProfileState(pageAccessToken);
       const verification = this.buildVerificationResult({
         subscribedData,
         profileData,
@@ -1038,7 +1037,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
             botId: bot._id,
             pageAccessToken: bot.token,
             persistentMenus,
-            greetText: greetText !== bot.greetText ? greetText : undefined,
+            greetText: greetText === bot.greetText ? undefined : greetText,
             isEnabledBackBtn,
             backButtonText,
             expectedState: {
@@ -1133,7 +1132,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (Boolean(isEnabledBackBtn)) {
+      if (isEnabledBackBtn) {
         generatedPersistentMenus.push({
           type: 'postback',
           title: backButtonText || 'Back',
