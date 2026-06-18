@@ -48,9 +48,7 @@ const normalizePriceItem = (
   isSynced: item.syncStatus === true,
 });
 
-const normalizePricesResponse = (
-  response: ICheckPriceResponse,
-): IPriceItem[] =>
+const normalizePricesResponse = (response: ICheckPriceResponse): IPriceItem[] =>
   GROUP_KEYS.flatMap(({ key, status }) =>
     (response[key]?.items || []).map((item) =>
       normalizePriceItem(item, status),
