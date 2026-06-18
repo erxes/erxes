@@ -1,7 +1,7 @@
 import { IKhanbankConfig } from '@/corporateGateway/khanbank/@types/khanbank';
 import { IContext } from '~/connectionResolvers';
 import { getAuthHeaders } from '../../../khanbank/utils';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
+
 
 const mutations = {
   async khanbankConfigsAdd(_root, args: IKhanbankConfig, { models }: IContext) {
@@ -50,14 +50,5 @@ const mutations = {
     return models.KhanbankConfigs.removeConfig(_id);
   },
 };
-
-checkPermission(mutations, 'khanbankConfigsAdd', 'khanbankConfigsAdd', []);
-checkPermission(mutations, 'khanbankConfigsEdit', 'khanbankConfigsEdit', []);
-checkPermission(
-  mutations,
-  'khanbankConfigsRemove',
-  'khanbankConfigsRemove',
-  [],
-);
 
 export default mutations;

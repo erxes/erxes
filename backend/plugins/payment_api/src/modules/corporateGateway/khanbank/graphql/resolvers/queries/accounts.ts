@@ -1,6 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import Khanbank from '../../../khanbank/khanbank';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 
 const queries = {
   async khanbankAccounts(
@@ -101,36 +100,6 @@ const queries = {
     }
   },
 };
-requireLogin(queries, 'khanbankAccounts');
-requireLogin(queries, 'khanbankAccountDetail');
-requireLogin(queries, 'khanbankAccountHolder');
-requireLogin(queries, 'khanbankStatements');
-requireLogin(queries, 'khanbankStatementsAfterRecord');
 
-checkPermission(queries, 'khanbankAccounts', 'khanbankAccounts');
-checkPermission(
-  queries,
-  'khanbankAccountDetail',
-  'khanbankAccountDetail',
-  null,
-);
-checkPermission(
-  queries,
-  'khanbankAccountHolder',
-  'khanbankAccountDetail',
-  null,
-);
-checkPermission(
-  queries,
-  'khanbankStatements',
-  'khanbankTransactionsShow',
-  null,
-);
-checkPermission(
-  queries,
-  'khanbankStatementsAfterRecord',
-  'khanbankTransactionsShow',
-  null,
-);
 
 export default queries;

@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import Khanbank from '../../../khanbank/khanbank';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
+
 
 const mutations = {
   khanbankTransfer: async (
@@ -23,6 +23,5 @@ const mutations = {
     return khanbank.transfer.domestic(transfer);
   },
 };
-requireLogin(mutations, 'khanbankTransfer');
-checkPermission(mutations, 'khanbankTransfer', 'khanbankTransfer', []);
+
 export default mutations;
