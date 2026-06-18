@@ -171,7 +171,7 @@ const safeRemainderMutations = {
         incomeDetails.push({
           accountId: incomeRule?.accountId ?? '',
           amount: fixNum(incomeCount * (item.trInfo?.unitCost ?? 0), 6),
-          unitPrice: fixNum(item.trInfo.unitCost, 6),
+          unitPrice: fixNum(item.trInfo?.unitCost ?? 0, 6),
           productId,
           count: incomeCount,
         });
