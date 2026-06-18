@@ -102,14 +102,24 @@ export const ProvidersPage = () => {
     }).then(() => removeProvider({ variables: { _id: p._id } }));
 
   const formProvider = form.watch('provider');
-  const editingKey = adding === CUSTOM_KEY ? formProvider : adding;
+  // Single model of what's being edited: nothing, a custom entry (keyed by the
+  // typed provider field), or a preset (keyed by `adding`).
+  const target =
+    adding == null
+      ? null
+      : adding === CUSTOM_KEY
+      ? { kind: 'custom' as const, key: formProvider }
+      : { kind: 'preset' as const, key: adding };
+
   const editingLabel =
-    adding === CUSTOM_KEY
+    target?.kind === 'custom'
       ? 'Custom Provider'
-      : presets.find((c) => c.provider === adding)?.label || adding || '';
+      : presets.find((c) => c.provider === target?.key)?.label ||
+        target?.key ||
+        '';
 
   const isEdit = Boolean(
-    adding && providers.some((p) => p.provider === editingKey),
+    target && providers.some((p) => p.provider === target.key),
   );
 
   return (
