@@ -9,7 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Empty, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { ChatAttachment } from '~/modules/chat/types';
+import { ChatAttachment, ApprovedOp } from '~/modules/chat/types';
 import { chatStore } from '~/modules/chat/store/chatStore';
 import {
   useChatAgents,
@@ -24,6 +24,8 @@ import { AgentRail } from '~/modules/chat/components/AgentRail';
 import { SessionList } from '~/modules/chat/components/SessionList';
 import { MessageList } from '~/modules/chat/components/MessageList';
 import { Composer } from '~/modules/chat/components/Composer';
+import { ApprovalBar } from '~/modules/chat/components/ApprovalBar';
+import { pendingApproval } from '~/modules/chat/utils';
 import '~/modules/chat/chat.css';
 
 // Distance (px) from the bottom under which we keep following streamed output.
@@ -207,7 +209,12 @@ export const ChatPage = () => {
       attachments.addFiles(e.dataTransfer.files);
   };
 
-  const sendMessage = (message: string, atts: ChatAttachment[]) => {
+  const sendMessage = (
+    message: string,
+    atts: ChatAttachment[],
+    approvedOperations?: ApprovedOp[],
+    hidden?: boolean,
+  ) => {
     if (!selectedAgent || !agentId) return;
     // Sending re-pins to the bottom so the user follows their own message.
     atBottomRef.current = true;
@@ -219,7 +226,24 @@ export const ChatPage = () => {
       selectedAgent.agentId,
       message,
       atts,
+      approvedOperations,
+      hidden,
     );
+  };
+
+  // A destructive op the agent is waiting on (derived from the last turn) — drives
+  // the approval bar above the composer. Both actions continue the turn without a
+  // visible user bubble (hidden send): Approve replays the gated op, Deny cancels.
+  const approval = pendingApproval(messages);
+
+  const handleApprove = () => {
+    if (chatLoading || !approval) return;
+    sendMessage('Approved.', [], approval.operations, true);
+  };
+
+  const handleDeny = () => {
+    if (chatLoading) return;
+    sendMessage('Cancelled — do not delete or merge anything.', [], undefined, true);
   };
 
   const handleSend = () => {
@@ -415,6 +439,15 @@ export const ChatPage = () => {
                   <IconArrowDown className="size-3.5" />
                   Latest
                 </button>
+              )}
+
+              {approval && !chatLoading && (
+                <ApprovalBar
+                  prompt={approval.prompt}
+                  busy={chatLoading}
+                  onApprove={handleApprove}
+                  onDeny={handleDeny}
+                />
               )}
 
               <Composer

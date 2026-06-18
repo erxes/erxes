@@ -251,6 +251,29 @@ export const AgentFormFields = ({
             )}
           />
         )}
+
+        <Form.Field
+          control={form.control}
+          name="destructiveOps"
+          render={({ field }) => (
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <Label className="font-medium">
+                  Auto-approve destructive operations
+                </Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {field.value === 'allow'
+                    ? 'Deletes and merges run immediately, without asking.'
+                    : 'Off: the agent asks you to approve each delete or merge before it runs.'}
+                </p>
+              </div>
+              <Switch
+                checked={field.value === 'allow'}
+                onCheckedChange={(v) => field.onChange(v ? 'allow' : 'ask')}
+              />
+            </div>
+          )}
+        />
       </FormSection>
 
       <FormSection title="Behavior">

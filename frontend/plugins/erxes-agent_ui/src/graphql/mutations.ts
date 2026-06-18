@@ -28,6 +28,7 @@ export const MASTRA_AGENT_CREATE = gql`
       model
       toolPolicy
       allowedTools
+      destructiveOps
       memoryEnabled
       maxSteps
       temperature
@@ -50,6 +51,7 @@ export const MASTRA_AGENT_UPDATE = gql`
       model
       toolPolicy
       allowedTools
+      destructiveOps
       memoryEnabled
       maxSteps
       temperature

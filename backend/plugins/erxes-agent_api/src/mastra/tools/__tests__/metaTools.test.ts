@@ -14,6 +14,7 @@ jest.mock('../erxesTools', () => ({
 }));
 
 import { buildErxesMetaTools } from '../metaTools';
+import { runWithAuth } from '../../requestContext';
 import type { OperationRegistry, OperationMeta } from '../operationRegistry';
 import type { AgentActionInput } from '../auditLog';
 
@@ -41,12 +42,14 @@ const mkRegistry = (ops: Array<Partial<OperationMeta>>): OperationRegistry => {
 interface ToolLike {
   execute: (
     input: unknown,
-  ) => Promise<{ blocked?: boolean } & Record<string, unknown>>;
+  ) => Promise<
+    { blocked?: boolean; requiresApproval?: boolean } & Record<string, unknown>
+  >;
 }
 
 const build = (
   ops: Array<Partial<OperationMeta>>,
-  destructiveOps: 'allow' | 'block',
+  destructiveOps: 'allow' | 'ask',
   calls: AgentActionInput[],
 ) =>
   buildErxesMetaTools({
@@ -60,11 +63,11 @@ const build = (
 beforeEach(() => mockExecute.mockClear());
 
 describe('execute_erxes_operation guard + audit', () => {
-  it('blocks a destructive op, records it, and never executes it', async () => {
+  it('asks for approval on a destructive op, records it, and never executes it', async () => {
     const calls: AgentActionInput[] = [];
     const tool = build(
       [{ operation: 'customersRemove', operationType: 'mutation' }],
-      'block',
+      'ask',
       calls,
     );
 
@@ -73,7 +76,7 @@ describe('execute_erxes_operation guard + audit', () => {
       args: { _ids: ['c1'] },
     });
 
-    expect(res.blocked).toBe(true);
+    expect(res.requiresApproval).toBe(true);
     expect(mockExecute).not.toHaveBeenCalled();
     expect(calls).toHaveLength(1);
     expect(calls[0]).toMatchObject({
@@ -83,6 +86,28 @@ describe('execute_erxes_operation guard + audit', () => {
     });
     // Nothing executed → no correlation id.
     expect(calls[0].processId).toBeUndefined();
+  });
+
+  it('executes a destructive op the user approved for this turn', async () => {
+    const calls: AgentActionInput[] = [];
+    const tool = build(
+      [{ operation: 'customersRemove', operationType: 'mutation' }],
+      'ask',
+      calls,
+    );
+
+    const res = await runWithAuth(
+      { approvedOps: [{ operation: 'customersRemove', args: { _ids: ['c1'] } }] },
+      () => tool.execute({ operation: 'customersRemove', args: { _ids: ['c1'] } }),
+    );
+
+    expect(res.requiresApproval).toBeUndefined();
+    expect(mockExecute).toHaveBeenCalledTimes(1);
+    expect(calls[0]).toMatchObject({
+      operation: 'customersRemove',
+      destructive: true,
+      status: 'success',
+    });
   });
 
   it("records a successful mutation (with a correlation id) when destructiveOps is 'allow'", async () => {
@@ -115,7 +140,7 @@ describe('execute_erxes_operation guard + audit', () => {
     const calls: AgentActionInput[] = [];
     const tool = build(
       [{ operation: 'dealsEdit', operationType: 'mutation' }],
-      'block',
+      'ask',
       calls,
     );
 
@@ -128,7 +153,7 @@ describe('execute_erxes_operation guard + audit', () => {
     const calls: AgentActionInput[] = [];
     const tool = build(
       [{ operation: 'customers', operationType: 'query' }],
-      'block',
+      'ask',
       calls,
     );
 
