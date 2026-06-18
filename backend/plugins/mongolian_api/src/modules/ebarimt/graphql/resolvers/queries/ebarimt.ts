@@ -15,14 +15,6 @@ import {
   getPostData,
 } from '~/modules/ebarimt/utils';
 
-function getTRPCData<T>(response: any, defaultValue: T): T {
-  if (response?.status === 'success') {
-    return (response.data ?? defaultValue) as T;
-  }
-
-  return (response ?? defaultValue) as T;
-}
-
 const generateFilter = async (subdomain, params) => {
   const filter: any = {};
 
@@ -67,9 +59,7 @@ const generateFilter = async (subdomain, params) => {
         input: { number: { $regex: params.orderNumber, $options: 'mui' } },
         defaultValue: [],
       });
-      const ordersData = getTRPCData<any[]>(posOrders, []);
-
-      filter.contentId = { $in: ordersData.map((p) => p._id) };
+      filter.contentId = { $in: (posOrders || []).map((p) => p._id) };
     }
 
     if (params.contentType === 'deal') {
@@ -87,9 +77,7 @@ const generateFilter = async (subdomain, params) => {
             input: { pipelineId: params.pipelineId },
             defaultValue: [],
           });
-          const stagesData = getTRPCData<any[]>(stages, []);
-
-          dealsFilter.stageId = { $in: stagesData.map((s) => s._id) };
+          dealsFilter.stageId = { $in: (stages || []).map((s) => s._id) };
         }
       }
       if (params.dealName) {
@@ -106,9 +94,7 @@ const generateFilter = async (subdomain, params) => {
           input: { ...dealsFilter },
           defaultValue: [],
         });
-        const dealsData = getTRPCData<any[]>(deals, []);
-
-        filter.contentId = { $in: dealsData.map((d) => d._id) };
+        filter.contentId = { $in: (deals || []).map((d) => d._id) };
       }
     }
 
@@ -213,7 +199,12 @@ const genDuplicatedFilter = async (params) => {
 };
 
 export const putResponseQueries = {
-  putResponses: async (_root, params, { models, subdomain }: IContext) => {
+  putResponses: async (
+    _root,
+    params,
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('ebarimt:putResponses');
     const { orderBy } = params;
     if (!orderBy || !Object.keys(orderBy)) {
       params.orderBy = { createdAt: -2 };
@@ -230,8 +221,9 @@ export const putResponseQueries = {
   putResponsesCount: async (
     _root: undefined,
     params,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesCount');
     const filter = await generateFilter(subdomain, params);
 
     return models.PutResponses.find(filter).countDocuments();
@@ -250,8 +242,9 @@ export const putResponseQueries = {
       stageId?: string;
       isTemp: boolean;
     },
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponseDetail');
     const putHistory = await models.PutResponses.putHistory({
       contentType,
       contentId,
@@ -274,7 +267,7 @@ export const putResponseQueries = {
         input: { _id: contentId },
         defaultValue: {},
       });
-      const dealData = getTRPCData<any>(deal, {});
+      const dealData = deal || {};
 
       stageId = stageId || dealData.stageId;
 
@@ -300,12 +293,12 @@ export const putResponseQueries = {
         subdomain,
         pluginName: 'sales',
         method: 'query',
-        module: 'pipelines',
+        module: 'pipeline',
         action: 'findOne',
         input: { stageId: stageId || deal.stageId },
         defaultValue: {},
       });
-      const pipelineData = getTRPCData<any>(pipeline, {});
+      const pipelineData = pipeline || {};
 
       const ebarimtData: IDoc = await getPostData(
         subdomain,
@@ -352,8 +345,9 @@ export const putResponseQueries = {
   putResponsesAmount: async (
     _root: undefined,
     params,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesAmount');
     const filter = await generateFilter(subdomain, params);
     const res = await models.PutResponses.aggregate([
       { $match: filter },
@@ -371,8 +365,9 @@ export const putResponseQueries = {
   putResponsesByDate: async (
     _root: undefined,
     params,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesByDate');
     const { createdStartDate, createdEndDate, paidDate } = params;
 
     if (!((createdStartDate && createdEndDate) || paidDate === 'today')) {
@@ -429,7 +424,7 @@ export const putResponseQueries = {
       defaultValue: '',
     });
 
-    return getTRPCData<string>(response, '');
+    return response || '';
   },
 
   ebarimtGetCompany: async (
@@ -447,8 +442,9 @@ export const putResponseQueries = {
   putResponsesDuplicated: async (
     _root: undefined,
     params,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesDuplicated');
     const filter = await genDuplicatedFilter(params);
 
     const { perPage = 20, page = 1 } = params;
@@ -479,8 +475,9 @@ export const putResponseQueries = {
   putResponsesDuplicatedCount: async (
     _root: undefined,
     params,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesDuplicatedCount');
     const filter = await genDuplicatedFilter(params);
 
     const res = await models.PutResponses.aggregate([
@@ -510,8 +507,9 @@ export const putResponseQueries = {
   putResponsesDuplicatedDetail: async (
     _root: undefined,
     { contentId, taxType }: { contentId: string; taxType: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesDuplicatedDetail');
     return models.PutResponses.find({ contentId, taxType }).lean();
   },
 };

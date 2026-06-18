@@ -1,16 +1,17 @@
+import { schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 import {
-  STATUS_TYPES,
-  DISCOUNT_TYPES,
   APPLY_TYPES,
-  PRICE_ADJUST_TYPES
+  DISCOUNT_TYPES,
+  PRICE_ADJUST_TYPES,
+  STATUS_TYPES
 } from './constants';
+import { expiryRuleSchema } from './expiryRule';
 import { priceRuleSchema } from './priceRule';
 import { quantityRuleSchema } from './quantityRule';
-import { expiryRuleSchema } from './expiryRule';
 import { repeatRuleSchema } from './repeatRule';
 
-export const pricingPlanSchema = new Schema({
+export const pricingPlanSchema = schemaWrapper(new Schema({
   // Generals
   name: { type: String },
   status: { type: String, enum: STATUS_TYPES.ALL, default: STATUS_TYPES.ACTIVE },
@@ -64,4 +65,4 @@ export const pricingPlanSchema = new Schema({
   // Timestamps
 }, {
   timestamps: true // adds createdAt and updatedAt automatically
-});
+}));

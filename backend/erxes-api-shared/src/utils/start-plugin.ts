@@ -1,3 +1,4 @@
+import './sentry-instrument';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
@@ -21,8 +22,13 @@ import type {
   IPropertyMeta,
   LogsConfigs,
   SegmentConfigs,
+  TRecordReferencesConfig,
 } from '../core-modules';
-import { initSegmentProducers, startAutomations } from '../core-modules';
+import {
+  initRecordReferences,
+  initSegmentProducers,
+  startAutomations,
+} from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
@@ -31,6 +37,7 @@ import {
   generateApolloContext,
   startBeforeResolvers,
   wrapApolloResolvers,
+  expectedErrorPlugin,
 } from './apollo';
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
 import { extractUserFromHeader } from './headers';
@@ -43,6 +50,7 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { applyTrustProxy, getSubdomain } from './utils';
+import * as Sentry from '@sentry/node';
 
 dotenv.config();
 
@@ -65,6 +73,7 @@ type IMeta = {
   notifications?: any;
   tags?: any;
   properties?: IPropertyMeta;
+  references?: TRecordReferencesConfig;
   permissions?: IPermissionConfig;
   beforeResolvers?: BeforeResolversConfig;
 };
@@ -138,6 +147,11 @@ export async function startPlugin(
   } = configs || {};
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
 
+  Sentry.getGlobalScope().setTags({
+    plugin: name,
+    service: name,
+  });
+
   const app = express();
   applyTrustProxy(app);
   app.disable('x-powered-by');
@@ -145,6 +159,9 @@ export async function startPlugin(
   app.use(
     express.json({
       limit: '15mb',
+      verify: (req: any, _res, buf: Buffer) => {
+        req.rawBody = buf;
+      },
     }),
   );
   app.use(cookieParser());
@@ -152,6 +169,10 @@ export async function startPlugin(
   // for health check
   app.get('/health', async (_req, res) => {
     res.end('ok');
+  });
+
+  app.get('/debug-sentry', () => {
+    throw new Error('Sentry test error: ' + new Date().toISOString());
   });
 
   if (expressRouter) {
@@ -236,11 +257,13 @@ export async function startPlugin(
   }
 
   app.use((req: any, _res, next) => {
-    req.rawBody = '';
+    if (req.rawBody === undefined) {
+      req.rawBody = '';
 
-    req.on('data', (chunk: any) => {
-      req.rawBody += chunk.toString();
-    });
+      req.on('data', (chunk: any) => {
+        req.rawBody += chunk.toString();
+      });
+    }
 
     next();
   });
@@ -311,7 +334,10 @@ export async function startPlugin(
       ]),
 
       // for graceful shutdown
-      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+      plugins: [
+        ApolloServerPluginDrainHttpServer({ httpServer }),
+        expectedErrorPlugin,
+      ],
     });
   };
 
@@ -341,6 +367,7 @@ export async function startPlugin(
       notifications,
       payments,
       beforeResolvers,
+      references,
     } = meta || {};
 
     if (automations) {
@@ -349,6 +376,10 @@ export async function startPlugin(
 
     if (segments) {
       await initSegmentProducers(app, name, segments);
+    }
+
+    if (references) {
+      await initRecordReferences(app, name, references);
     }
 
     if (afterProcess) {
@@ -392,6 +423,8 @@ export async function startPlugin(
   //   applyInspectorEndpoints(name);
 
   //   debugInfo(`${name} server is running on port: ${PORT}`);
+
+  Sentry.setupExpressErrorHandler(app);
 
   return app;
 }

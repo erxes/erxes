@@ -57,9 +57,9 @@ export const generateDbEventPayload = (
   }
   if (input.action === 'delete') {
     return {
-      ...input,
       collectionName: collectionName,
       docId: input.docId,
+      prevDocument: input.prevDocument,
     };
   }
   if (input.action === 'updateMany') {
@@ -77,6 +77,7 @@ export const generateDbEventPayload = (
   if (input.action === 'deleteMany') {
     return {
       collectionName: collectionName,
+      prevDocuments: input.prevDocuments,
     };
   }
 };
@@ -84,14 +85,21 @@ export const generateDbEventPayload = (
 export const generateAutomationTriggerPayload = (
   input: LogEventInput,
   contentType: string,
+  eventUpdateDescription?: Record<string, any>,
 ):
-  | { type: string; targets: any[]; recordType: 'new' | 'existing' }
+  | {
+      type: string;
+      targets: any[];
+      recordType: 'new' | 'existing';
+      eventUpdateDescription?: Record<string, any>;
+    }
   | undefined => {
   if (input.action === 'create') {
     return {
       type: contentType,
       targets: [input.currentDocument],
       recordType: 'new',
+      eventUpdateDescription,
     };
   }
   if (input.action === 'update') {
@@ -99,6 +107,7 @@ export const generateAutomationTriggerPayload = (
       type: contentType,
       targets: [input.currentDocument],
       recordType: 'existing',
+      eventUpdateDescription,
     };
   }
 };

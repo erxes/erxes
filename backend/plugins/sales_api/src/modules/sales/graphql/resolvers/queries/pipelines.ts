@@ -46,9 +46,7 @@ export const pipelineQueries: Record<string, Resolver> = {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: {
-          _id: user._id,
-        },
+        input: { query: { _id: user._id } },
         defaultValue: {},
       });
 
@@ -93,7 +91,7 @@ export const pipelineQueries: Record<string, Resolver> = {
     const { boardId, isAll } = params;
 
     const query: any =
-      user.isOwner || isAll
+      user?.isOwner || isAll
         ? {}
         : {
             status: { $ne: 'archived' },
@@ -104,8 +102,8 @@ export const pipelineQueries: Record<string, Resolver> = {
                   { visibility: 'private' },
                   {
                     $or: [
-                      { memberIds: { $in: [user._id] } },
-                      { userId: user._id },
+                      { memberIds: { $in: [user?._id] } },
+                      { userId: user?._id },
                     ],
                   },
                 ],
@@ -113,7 +111,7 @@ export const pipelineQueries: Record<string, Resolver> = {
             ],
           };
 
-    if (!user.isOwner && !isAll) {
+    if (user?._id && !user.isOwner && !isAll) {
       const userDetail = await sendTRPCMessage({
         subdomain,
 
@@ -121,9 +119,7 @@ export const pipelineQueries: Record<string, Resolver> = {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: {
-          _id: user._id,
-        },
+        input: { query: { _id: user._id } },
         defaultValue: {},
       });
 

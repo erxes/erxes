@@ -9,12 +9,17 @@ import { FilterQuery, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductParams } from '@/products/@types/product';
-import { PRODUCT_STATUSES } from '@/products/constants';
+import {
+  PRODUCT_SIMILARITY_STATUSES,
+  PRODUCT_STATUSES,
+} from '@/products/constants';
 import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '@/products/utils';
+
+const inventoryKey = (id?: string) => id || '_';
 
 const generateFilter = async (
   models: IModels,
@@ -55,6 +60,18 @@ const generateFilter = async (
 
   filter.status = { $ne: PRODUCT_STATUSES.DELETED };
 
+  // one card per similarity group: standalone products + each group's star
+  if (params.similarity) {
+    const starProductIds = await models.ProductSimilarities.distinct(
+      'starProductId',
+      { status: { $ne: PRODUCT_SIMILARITY_STATUSES.DELETED } },
+    );
+
+    andFilters.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
+
   if (params.status) {
     filter.status = params.status;
   }
@@ -64,9 +81,8 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories = await models.ProductCategories.getChildCategories(
-      categoryIds,
-    );
+    const categories =
+      await models.ProductCategories.getChildCategories(categoryIds);
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -177,10 +193,13 @@ const generateFilter = async (
     }
   }
 
-  if (branchId && departmentId) {
+  if (branchId || departmentId) {
+    const branchKey = inventoryKey(branchId);
+    const departmentKey = inventoryKey(departmentId);
+
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
-        [`inventories.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchKey}.${departmentKey}.remainder`]: {
           $exists: true,
           $gte: minRemainder,
         },
@@ -188,7 +207,7 @@ const generateFilter = async (
     }
     if (maxRemainder || maxRemainder === 0) {
       andFilters.push({
-        [`inventories.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchKey}.${departmentKey}.remainder`]: {
           $exists: true,
           $lte: maxRemainder,
         },
@@ -197,7 +216,7 @@ const generateFilter = async (
 
     if (minDiscountValue || minDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.value`]: {
+        [`discounts.${branchKey}.${departmentKey}.value`]: {
           $exists: true,
           $gte: minDiscountValue,
         },
@@ -205,7 +224,7 @@ const generateFilter = async (
     }
     if (maxDiscountValue || maxDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.value`]: {
+        [`discounts.${branchKey}.${departmentKey}.value`]: {
           $exists: true,
           $lte: maxDiscountValue,
         },
@@ -214,7 +233,7 @@ const generateFilter = async (
 
     if (minDiscountPercent || minDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.percent`]: {
+        [`discounts.${branchKey}.${departmentKey}.percent`]: {
           $exists: true,
           $gte: minDiscountPercent,
         },
@@ -222,7 +241,7 @@ const generateFilter = async (
     }
     if (maxDiscountPercent || maxDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.percent`]: {
+        [`discounts.${branchKey}.${departmentKey}.percent`]: {
           $exists: true,
           $lte: maxDiscountPercent,
         },
@@ -579,9 +598,8 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         );
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(

@@ -14,6 +14,7 @@ export const AccountsInlineProvider = ({
   placeholder,
   updateAccounts,
   allowUnassigned,
+  permissionMode,
 }: {
   children?: React.ReactNode;
   accountIds?: string[];
@@ -21,6 +22,7 @@ export const AccountsInlineProvider = ({
   placeholder?: string;
   updateAccounts?: (accounts: IAccount[]) => void;
   allowUnassigned?: boolean;
+  permissionMode?: 'read' | 'write';
 }) => {
   const [accountsList, setAccountsList] = useState<IAccount[]>(accounts || []);
   const accountIdsKey = accountIds?.join(',') || '';
@@ -40,6 +42,7 @@ export const AccountsInlineProvider = ({
         : placeholder,
       updateAccounts: updateAccounts || setAccountsList,
       allowUnassigned,
+      permissionMode,
     }),
     [
       currentAccounts,
@@ -47,6 +50,7 @@ export const AccountsInlineProvider = ({
       placeholder,
       updateAccounts,
       allowUnassigned,
+      permissionMode,
     ],
   );
 
@@ -74,10 +78,12 @@ const AccountsInlineEffectComponent = ({
 }: {
   missingAccountIds: string[];
 }) => {
-  const { updateAccounts, accounts } = useAccountsInlineContext();
+  const { updateAccounts, accounts, permissionMode } =
+    useAccountsInlineContext();
   const { accounts: missingAccounts } = useAccountsInline({
     variables: {
       ids: missingAccountIds,
+      permissionMode,
     },
   });
 
@@ -139,6 +145,7 @@ export const AccountsInlineRoot = ({
   updateAccounts,
   className,
   allowUnassigned,
+  permissionMode,
 }: {
   accounts?: IAccount[];
   accountIds?: string[];
@@ -146,6 +153,7 @@ export const AccountsInlineRoot = ({
   updateAccounts?: (accounts: IAccount[]) => void;
   className?: string;
   allowUnassigned?: boolean;
+  permissionMode?: 'read' | 'write';
 }) => {
   return (
     <AccountsInlineProvider
@@ -154,6 +162,7 @@ export const AccountsInlineRoot = ({
       placeholder={placeholder}
       updateAccounts={updateAccounts}
       allowUnassigned={allowUnassigned}
+      permissionMode={permissionMode}
     >
       <AccountsInlineTitle className={className} />
     </AccountsInlineProvider>

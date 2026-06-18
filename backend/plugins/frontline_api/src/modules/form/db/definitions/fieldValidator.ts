@@ -6,9 +6,13 @@ export type ValidatorType = (typeof VALIDATOR_TYPES)[number];
 
 export const VALIDATOR_PRESET_KEYS = [
   'EMAIL',
-  'PHONE_INTL',
+  'PHONE',
   'POSTAL_CODE',
   'ALPHANUMERIC',
+  'MN_VEHICLE_REGISTRATION',
+  'NUMBER',
+  'DATE',
+  'DATE_TIME',
 ] as const;
 export type ValidatorPresetKey = (typeof VALIDATOR_PRESET_KEYS)[number];
 

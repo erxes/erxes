@@ -101,7 +101,10 @@ export const InvSaleForm = ({
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                  defaultFilter={{
+                    journals: [JournalEnum.INVENTORY],
+                    permissionMode: 'write',
+                  }}
                   onCallback={(account) => onChangeOutAccount(account)}
                 />
               </Form.Control>
@@ -122,6 +125,7 @@ export const InvSaleForm = ({
                   defaultFilter={{
                     journals: [JournalEnum.INV_FOLLOW],
                     kind: AccountKind.ACTIVE,
+                    permissionMode: 'write',
                   }}
                   onCallback={(account) => onChangeCostAccount(account)}
                 />

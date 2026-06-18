@@ -3,10 +3,12 @@ import { redis } from './redis';
 import { getSaasOrganizationDetail } from './saas';
 import { getEnv } from './utils';
 import { IOrganizationCharge } from '../core-types';
+import { sendWorkerQueue } from './mq-worker';
 
 dotenv.config();
 
 const { NODE_ENV, LOAD_BALANCER_ADDRESS, MONGO_URL } = process.env;
+const GATEWAY_ROUTER_UPDATE_LOCK_KEY = 'gateway:update-apollo-router:pending';
 
 interface PluginConfig {
   name: string;
@@ -87,6 +89,18 @@ export const getAvailablePlugins = async (
 
 type ServiceInfo = { address: string; config: any };
 const serviceInfoCache: { [name in string]: Readonly<ServiceInfo> } = {};
+const pluginAddressCache = {} as any;
+
+export const clearServiceDiscoveryCache = (name?: string) => {
+  if (name) {
+    delete serviceInfoCache[name];
+    delete pluginAddressCache[name];
+    return;
+  }
+
+  Object.keys(serviceInfoCache).forEach((key) => delete serviceInfoCache[key]);
+  Object.keys(pluginAddressCache).forEach((key) => delete pluginAddressCache[key]);
+};
 
 export const getPlugin = async (
   name: string,
@@ -143,6 +157,43 @@ export const joinErxesGateway = async ({
 
   await redis.set(`erxes-service-${name}`, address);
 
+  if (NODE_ENV === 'production') {
+    try {
+      const didAcquireUpdateLock = await redis.set(
+        GATEWAY_ROUTER_UPDATE_LOCK_KEY,
+        '1',
+        'EX',
+        30,
+        'NX',
+      );
+
+      if (!didAcquireUpdateLock) {
+        console.log(
+          `gateway update-apollo-router already queued, skipped ${name}`,
+        );
+        console.log(`erxes-service${name} joined with ${address}`);
+        return;
+      }
+
+      await sendWorkerQueue('gateway', 'update-apollo-router').add(
+        'service-discovery-updated',
+        { pluginName: name },
+        {
+          delay: 10_000,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
+          removeOnComplete: true,
+          removeOnFail: 100,
+        },
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   console.log(`erxes-service${name} joined with ${address}`);
 };
 
@@ -157,8 +208,6 @@ export const isEnabled = async (name: string) => {
 
   return enabledServices.includes(name);
 };
-
-const pluginAddressCache = {} as any;
 
 export const getPluginAddress = async (name: string) => {
   if (!pluginAddressCache[name]) {

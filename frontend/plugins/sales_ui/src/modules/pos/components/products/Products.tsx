@@ -32,6 +32,7 @@ export interface ProductsFormData {
   catProdMappings: CatProd[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder: boolean;
   banFractions: boolean;
   serviceCharge: string;
   serviceChargeApplicableProductId: string;
@@ -46,6 +47,7 @@ const DEFAULT_FORM_VALUES: ProductsFormData = {
   catProdMappings: [],
   isCheckRemainder: false,
   checkExcludeCategoryIds: [],
+  saveRemainder: false,
   banFractions: false,
   serviceCharge: '',
   serviceChargeApplicableProductId: '',
@@ -106,6 +108,7 @@ const Products: React.FC<ProductsProps> = ({
       catProdMappings: posDetail.catProdMappings || [],
       isCheckRemainder: posDetail.isCheckRemainder || false,
       checkExcludeCategoryIds: posDetail.checkExcludeCategoryIds || [],
+      saveRemainder: posDetail.saveRemainder || false,
       banFractions: posDetail.banFractions || false,
       serviceCharge:
         posDetail.serviceCharge === undefined ||
@@ -165,6 +168,7 @@ const Products: React.FC<ProductsProps> = ({
 
             isCheckRemainder: data.isCheckRemainder,
             checkExcludeCategoryIds: data.checkExcludeCategoryIds,
+            saveRemainder: data.saveRemainder,
             banFractions: data.banFractions,
 
 

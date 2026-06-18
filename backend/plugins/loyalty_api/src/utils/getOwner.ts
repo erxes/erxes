@@ -44,8 +44,8 @@ export const getLoyaltyOwner = async (
           },
         },
       });
-    case 'cpUser':
-      return await sendTRPCMessage({
+    case 'cpUser': {
+      const cpUser = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
@@ -54,6 +54,22 @@ export const getLoyaltyOwner = async (
         input: { id: ownerId },
         defaultValue: null,
       });
+
+      if (cpUser?.erxesCustomerId) {
+        const customer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'customers',
+          action: 'findOne',
+          input: { query: { _id: cpUser.erxesCustomerId } },
+          defaultValue: null,
+        });
+        return customer || cpUser;
+      }
+
+      return cpUser;
+    }
     default:
       return {};
   }

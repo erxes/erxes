@@ -51,9 +51,16 @@ const fmt = (v: number) =>
 
 type LabelMap = Record<string, { code?: string; title?: string }>;
 
-const joinLabel = (object: any) => {
+const INVENTORY_GENERAL_KEY = '_';
+const GENERAL_LABEL = 'Ерөнхий';
+
+const joinLabel = (id: string, object: any) => {
+  if (id === INVENTORY_GENERAL_KEY) {
+    return GENERAL_LABEL;
+  }
+
   const { code, title } = object || {};
-  return [code, title].filter(Boolean).join('') || 'Maybe deleted';
+  return [code, title].filter(Boolean).join('') || 'Олдоогүй';
 };
 
 const buildInventoryColumns = (
@@ -66,7 +73,10 @@ const buildInventoryColumns = (
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={joinLabel(branchMap[row.original.branchId])}
+          value={joinLabel(
+            row.original.branchId,
+            branchMap[row.original.branchId],
+          )}
         />
       </RecordTableInlineCell>
     ),
@@ -78,7 +88,10 @@ const buildInventoryColumns = (
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={joinLabel(departmentMap[row.original.departmentId])}
+          value={joinLabel(
+            row.original.departmentId,
+            departmentMap[row.original.departmentId],
+          )}
         />
       </RecordTableInlineCell>
     ),
@@ -127,8 +140,12 @@ type InventoriesTableProps = {
 export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
   const rows = parseInventories(inventories);
 
-  const branchIds = [...new Set(rows.map((r) => r.branchId))];
-  const departmentIds = [...new Set(rows.map((r) => r.departmentId))];
+  const branchIds = [...new Set(rows.map((r) => r.branchId))].filter(
+    (id) => id !== INVENTORY_GENERAL_KEY,
+  );
+  const departmentIds = [...new Set(rows.map((r) => r.departmentId))].filter(
+    (id) => id !== INVENTORY_GENERAL_KEY,
+  );
 
   const { branches, loading: loadingBranches } = useBranchesMain({
     variables: { ids: branchIds, withoutUserFilter: true },

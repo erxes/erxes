@@ -40,6 +40,8 @@ export const types = `
     category: ProductCategory
     vendor: Company
     hasSimilarity: Boolean
+    similarityId: String
+    similarity: ProductBulkSimilarity
 
     pdfAttachment: PdfAttachment
 
@@ -87,6 +89,7 @@ const queryParams = `
   segment: String,
   segmentData: String,
   groupedSimilarity: String,
+  similarity: Boolean,
   image: String,
   brand: String,
 

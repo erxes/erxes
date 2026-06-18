@@ -1,5 +1,5 @@
 import { ApolloError, useMutation } from '@apollo/client';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconChartHistogram } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import {
   Button,
@@ -11,6 +11,7 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
+import { useNavigate } from 'react-router';
 import { LOYALTY_SCORE_ROW_REMOVE } from '../graphql/mutations/loyaltyScoreRowsRemove';
 import { useLoyaltyScoreEdit } from '../hooks/useLoyaltyScoreEdit';
 import { IScore } from '../types/loyaltyScoreTypes';
@@ -28,6 +29,11 @@ export const ScoreMoreColumnCell = ({
   });
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleSeeScores = () => {
+    navigate(`/loyalty/scores?scoreCampaignId=${_id}`);
+  };
 
   const handleEdit = (scoreId: string) => {
     setEditScoreId(scoreId);
@@ -71,6 +77,9 @@ export const ScoreMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
               <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="see-scores" onSelect={handleSeeScores}>
+              <IconChartHistogram /> See scores
             </Command.Item>
             <Command.Item asChild>
               <Button

@@ -8,14 +8,15 @@ export const sendPosclientHealthCheck = async ({
   subdomain: string;
   pos: IPosDocument;
 }) => {
-  const { ALL_AUTO_INIT } = process.env;
+  const { ALLOW_OFFLINE_POS } = process.env;
 
   if (
-    [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
+    ![true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || '') ||
     pos.onServer
   ) {
     return { healthy: 'ok' };
   }
+
   sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
@@ -39,10 +40,10 @@ export const sendPosclientMessage = async (args: {
   const { action, pos, input, subdomain, method } = args;
   let lastAction = action;
 
-  const { ALL_AUTO_INIT } = process.env;
+  const { ALLOW_OFFLINE_POS } = process.env;
 
   if (
-    ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
+    [true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || '') &&
     !pos.onServer
   ) {
     lastAction = `posclient:${action}_${pos.token}`;

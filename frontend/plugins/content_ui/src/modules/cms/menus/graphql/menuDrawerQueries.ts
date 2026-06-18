@@ -47,8 +47,8 @@ export const MENU_CATEGORIES_QUERY = gql`
 `;
 
 export const MENU_TAGS_QUERY = gql`
-  query MenuTags($clientPortalId: String, $limit: Int) {
-    cmsTags(clientPortalId: $clientPortalId, limit: $limit) {
+  query MenuTags($clientPortalId: String, $language: String) {
+    cmsTags(clientPortalId: $clientPortalId, language: $language) {
       tags {
         _id
         name

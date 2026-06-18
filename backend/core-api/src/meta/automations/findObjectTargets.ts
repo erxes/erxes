@@ -112,10 +112,7 @@ const generateUserFilter = (field: string, value: string) => {
   return null;
 };
 
-export const CORE_FIND_OBJECT_TARGETS: Record<
-  TAutomationFindObjectType,
-  TFindObjectTarget
-> = {
+export const CORE_FIND_OBJECT_TARGETS: Record<string, TFindObjectTarget> = {
   [TAutomationFindObjectType.COMPANY]: {
     label: 'Company',
     lookupFields: [
@@ -170,7 +167,7 @@ export const buildFindObjectResult = ({
   value,
   doc,
 }: {
-  objectType: TAutomationFindObjectType;
+  objectType: string;
   field: string;
   value: string;
   doc?: Record<string, unknown> | null;

@@ -10,6 +10,7 @@ export const types = `
     kind: String!
     status: PaymentMethodStatus
     config: JSON
+    sendEmailOnPayment: Boolean
     createdAt: Date
   }
 
@@ -32,6 +33,7 @@ export const inputs = `
     kind: String!
     status: PaymentMethodStatus
     config: JSON
+    sendEmailOnPayment: Boolean
   }
 `;
 

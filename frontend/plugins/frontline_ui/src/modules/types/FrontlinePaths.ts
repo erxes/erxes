@@ -25,4 +25,5 @@ export enum FrontlinePaths {
   Reports = '/reports',
   Forms = '/forms',
   FormsCreate = '/:id/forms/create',
+  FormSubmissions = '/:id/forms/submissions/:formId',
 }

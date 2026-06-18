@@ -35,6 +35,7 @@ export type TExportFieldSelectionProps = {
   onConfirm: (selectedFields: string[]) => void;
   recordCount?: number;
   entityDisplayName?: string;
+  filters?: Record<string, any>;
 };
 
 export type TSearchAndActionsProps = {

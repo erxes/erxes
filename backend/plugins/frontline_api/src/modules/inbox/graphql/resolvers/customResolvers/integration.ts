@@ -69,8 +69,15 @@ export default {
     }));
   },
 
-  async websiteMessengerApps(_args) {
-    return [];
+  async websiteMessengerApps(
+    integration: IIntegrationDocument,
+    _args,
+    { models }: IContext,
+  ) {
+    return models.MessengerApps.find({
+      kind: 'website',
+      'credentials.integrationId': integration._id,
+    });
   },
 
   async knowledgeBaseMessengerApps(_args) {

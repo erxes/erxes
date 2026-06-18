@@ -159,20 +159,19 @@ export function FormDndProvider({
   };
 
   const setFields = (fields: Record<string, UniqueIdentifier[]>) => {
-    const fieldsObject = Object.entries(fields).map(
-      ([key, stepFields], order) => {
-        return [
-          key,
-          {
-            ...value[key],
-            fields: stepFields.map((field, index) => ({
-              ...fieldsDatasObject[field],
-              order: index + 1,
-            })),
-          },
-        ];
-      },
-    );
+    const fieldsObject = Object.entries(fields).map(([key, stepFields]) => {
+      return [
+        key,
+        {
+          ...value[key],
+          fields: stepFields.map((field, index) => ({
+            ...fieldsDatasObject[field],
+            stepId: key,
+            order: index + 1,
+          })),
+        },
+      ];
+    });
 
     onValueChange(Object.fromEntries(fieldsObject));
   };
@@ -187,7 +186,8 @@ export function FormDndProvider({
       placeholder: '',
       required: false,
       stepId,
-      options: [],
+      options: type.defaultOptions ?? [],
+      allowSearch: type.defaultAllowSearch,
     };
     const fieldsObject = Object.entries(value || {}).map(([key, value]) => {
       if (key === stepId) {

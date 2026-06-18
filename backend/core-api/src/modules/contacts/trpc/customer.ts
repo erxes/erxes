@@ -16,37 +16,39 @@ export const customerRouter = t.router({
         return models.Customers.find(query).lean();
       }),
 
-    findOne: t.procedure
-      .input(z.object({ query: z.any() }))
-      .query(async ({ ctx, input }) => {
-        const { query } = input;
-        const { models } = ctx;
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const query = input?.query || input?.selector || input;
+      const { models } = ctx;
 
-        const defaultFilter = { status: { $ne: 'deleted' } };
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
 
-        if (query?.customerPrimaryEmail) {
-          defaultFilter['$or'] = [
-            { emails: { $in: [query.customerPrimaryEmail] } },
-            { primaryEmail: query.customerPrimaryEmail },
-          ];
-        }
+      const defaultFilter = { status: { $ne: 'deleted' } };
 
-        if (query?.customerPrimaryPhone) {
-          defaultFilter['$or'] = [
-            { phones: { $in: [query.customerPrimaryPhone] } },
-            { primaryPhone: query.customerPrimaryPhone },
-          ];
-        }
+      if (query?.customerPrimaryEmail) {
+        defaultFilter['$or'] = [
+          { emails: { $in: [query.customerPrimaryEmail] } },
+          { primaryEmail: query.customerPrimaryEmail },
+        ];
+      }
 
-        if (query?.customerCode) {
-          defaultFilter['code'] = query.customerCode;
-        }
+      if (query?.customerPrimaryPhone) {
+        defaultFilter['$or'] = [
+          { phones: { $in: [query.customerPrimaryPhone] } },
+          { primaryPhone: query.customerPrimaryPhone },
+        ];
+      }
 
-        if (query?._id) {
-          defaultFilter['_id'] = query._id;
-        }
-        return models.Customers.findOne(defaultFilter).lean();
-      }),
+      if (query?.customerCode) {
+        defaultFilter['code'] = query.customerCode;
+      }
+
+      if (query?._id) {
+        defaultFilter['_id'] = query._id;
+      }
+      return models.Customers.findOne(defaultFilter).lean();
+    }),
 
     findActiveCustomers: t.procedure
       .input(
@@ -112,6 +114,10 @@ export const customerRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { query, doc } = input;
         const { models } = ctx;
+
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
         return models.Customers.updateOne(query, doc);
       }),

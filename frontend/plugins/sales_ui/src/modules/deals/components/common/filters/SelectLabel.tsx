@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useApolloClient } from '@apollo/client';
 import {
   IconCheck,
   IconLabel,
@@ -14,6 +15,7 @@ import {
   IconTagMinus,
 } from '@tabler/icons-react';
 import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
+import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import {
   usePipelineLabelLabel,
   usePipelineLabels,
@@ -72,14 +74,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== label._id)
-      : [...multipleValue, label._id];
+        ? multipleValue.filter((p) => p !== label._id)
+        : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-      ? selectedLabels.filter((p) => p._id !== label._id)
-      : [...selectedLabels, label];
+        ? selectedLabels.filter((p) => p._id !== label._id)
+        : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -106,6 +108,7 @@ export const SelectLabelsProvider = ({
 export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   const { labelPipelineLabel } = usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
+  const client = useApolloClient();
 
   const [pipelineId] = useQueryState('pipelineId');
 
@@ -117,6 +120,39 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     variables: { pipelineId },
     skip: !pipelineId,
   });
+
+  const updateDealLabelsInCache = (dealId: string, nextLabelIds: string[]) => {
+    const cacheId = client.cache.identify({ __typename: 'Deal', _id: dealId });
+
+    if (!cacheId) {
+      return;
+    }
+
+    const nextLabels = nextLabelIds
+      .map((id) => {
+        const found = pipelineLabels.find(
+          (item: IPipelineLabel) => item._id === id,
+        );
+
+        return found
+          ? {
+              __typename: 'SalesPipelineLabel' as const,
+              _id: found._id,
+              name: found.name,
+              colorCode: found.colorCode,
+            }
+          : null;
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    client.cache.modify({
+      id: cacheId,
+      fields: {
+        labelIds: () => nextLabelIds,
+        labels: () => nextLabels,
+      },
+    });
+  };
 
   const toggleLabel = (label: IPipelineLabel) => {
     if (!label._id) {
@@ -134,11 +170,22 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     onSelect(label);
 
     if (targetId) {
+      updateDealLabelsInCache(targetId, newLabelIds);
+
       labelPipelineLabel({
         variables: {
           targetId: targetId,
           labelIds: newLabelIds,
         },
+        update: () => {
+          updateDealLabelsInCache(targetId, newLabelIds);
+        },
+        refetchQueries: [
+          {
+            query: GET_DEAL_DETAIL,
+            variables: { _id: targetId },
+          },
+        ],
       });
     }
   };
@@ -281,14 +328,36 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
   );
 };
 
-export const SelectLabelsValue = () => {
+export const SelectLabelsValue = ({
+  showLabels = false,
+}: {
+  showLabels?: boolean;
+}) => {
+  const [pipelineId] = useQueryState('pipelineId');
+  const { pipelineLabels = [] } = usePipelineLabels({
+    variables: { pipelineId },
+    skip: !pipelineId,
+  });
   const { labelIds } = useSelectLabelsContext();
+  const selectedIds = new Set(labelIds ?? []);
 
   if ((labelIds || [])?.length !== 0) {
     return (
       <span className="text-muted-foreground flex items-center gap-1 -ml-1">
-        <IconLabel className="w-4 h-4 text-gray-400" /> Label +
-        {(labelIds || []).length}
+        {showLabels ? (
+          <>
+            <IconLabel className="w-4 h-4 text-gray-400" />
+            {pipelineLabels
+              .filter((label) => label._id && selectedIds.has(label._id))
+              .map((label) => label.name)
+              .join(', ')}
+          </>
+        ) : (
+          <>
+            <IconLabel className="w-4 h-4 text-gray-400" /> Label +
+            {(labelIds || []).length}
+          </>
+        )}
       </span>
     );
   }
@@ -473,6 +542,7 @@ export const SelectLabelsFilterBar = ({
   scope,
   targetId,
   initialValue,
+  showLabels,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
@@ -481,6 +551,7 @@ export const SelectLabelsFilterBar = ({
   scope?: string;
   targetId?: string;
   initialValue?: string[];
+  showLabels?: boolean;
 }) => {
   const isCardVariant = variant === 'card';
 
@@ -530,7 +601,7 @@ export const SelectLabelsFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectLabelsValue />
+          <SelectLabelsValue showLabels={showLabels} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant || 'filter'}>
           <SelectLabelsContent targetId={targetId} />

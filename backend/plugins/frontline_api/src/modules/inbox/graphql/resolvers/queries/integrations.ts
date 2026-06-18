@@ -208,7 +208,7 @@ export const integrationQueries = {
         method: 'query',
         module: 'tags',
         action: 'find',
-        input: { type: 'inbox:integration' },
+        input: { query: { type: 'inbox:integration' } },
       }),
       getIntegrationsKinds(),
       models.Channels.find({}),
@@ -260,4 +260,3 @@ markResolvers(integrationQueries, {
     skipPermission: true,
   },
 });
-

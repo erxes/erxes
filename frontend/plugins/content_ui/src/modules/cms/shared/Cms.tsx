@@ -6,13 +6,17 @@ import {
   IconFileText,
   IconLayoutGrid,
   IconList,
+  IconLock,
   IconPlus,
 } from '@tabler/icons-react';
-import { Button, Spinner, ToggleGroup } from 'erxes-ui';
+import { Button, Spinner, ToggleGroup, toast } from 'erxes-ui';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
 import { WebsiteDrawer } from '../components/websites/WebsiteDrawer';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
+import { IWebsite } from '../types';
 import { CmsLayout } from './CmsLayout';
 import { EmptyState } from './EmptyState';
 
@@ -31,41 +35,65 @@ const getThumbnailGradient = (color: string) => {
   return gradients[color as keyof typeof gradients] || gradients.orange;
 };
 
-interface Website {
-  _id: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  domain?: string;
-  url?: string;
-}
-
 export function Cms() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
-  const [editingWebsite, setEditingWebsite] = useState<any>(null);
-  const { data, loading, refetch } = useQuery(CONTENT_CMS_LIST);
+  const [editingWebsite, setEditingWebsite] = useState<IWebsite>();
+  const { data, loading, refetch } = useQuery<{
+    contentCMSList: IWebsite[];
+  }>(CONTENT_CMS_LIST);
+  const currentUser = useAtomValue(currentUserState);
   const cmsList = data?.contentCMSList || [];
-  const displayWebsites: Website[] = cmsList;
+  const displayWebsites: IWebsite[] = cmsList;
+  const onlyCms = cmsList.length === 1 ? cmsList[0] : null;
+
+  const canAccessWebsite = (website: IWebsite) =>
+    !!currentUser?.isOwner ||
+    website.accessPolicy !== 'assigned' ||
+    (website.assignedMemberIds || []).includes(currentUser?._id || '');
 
   const handleWebsiteCreatedOrUpdated = () => {
     refetch();
     setIsWebsiteDrawerOpen(false);
-    setEditingWebsite(null);
+    setEditingWebsite(undefined);
   };
 
   const handleCloseWebsiteDrawer = () => {
     setIsWebsiteDrawerOpen(false);
-    setEditingWebsite(null);
+    setEditingWebsite(undefined);
   };
 
-  const handleEditWebsite = (website: any) => {
+  const handleEditWebsite = (website: IWebsite) => {
+    if (!canAccessWebsite(website)) {
+      toast({
+        title: 'Access restricted',
+        description:
+          'This CMS is limited to assigned team members. Ask an owner to add you.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setEditingWebsite(website);
     setIsWebsiteDrawerOpen(true);
   };
 
-  const handleWebsiteClick = (website: any) => {
+  const handleWebsiteClick = (website: IWebsite) => {
+    if (!canAccessWebsite(website)) {
+      toast({
+        title: 'Access restricted',
+        description:
+          'This CMS is limited to assigned team members. Ask an owner to add you.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!website.clientPortalId) {
+      navigate('/content/cms');
+      return;
+    }
+
     navigate(`/content/cms/${website.clientPortalId}/posts`);
   };
 
@@ -85,6 +113,12 @@ export function Cms() {
       </Button>
     </div>
   );
+
+  if (!loading && onlyCms?.clientPortalId && canAccessWebsite(onlyCms)) {
+    return (
+      <Navigate to={`/content/cms/${onlyCms.clientPortalId}/posts`} replace />
+    );
+  }
 
   return (
     <CmsLayout
@@ -167,6 +201,15 @@ export function Cms() {
                       <div className="absolute bottom-2 right-2">
                         <div className="px-2 py-1 bg-white/90 rounded text-xs font-medium text-gray-700">
                           {website.domain}
+                        </div>
+                      </div>
+                    )}
+
+                    {!canAccessWebsite(website) && (
+                      <div className="absolute top-2 left-2">
+                        <div className="flex items-center gap-1 px-2 py-1 bg-black/60 rounded text-xs font-medium text-white">
+                          <IconLock className="w-3 h-3" />
+                          <span>Restricted</span>
                         </div>
                       </div>
                     )}

@@ -1,9 +1,7 @@
 import {
-  AUTOMATION_STATUSES,
-  AutomationConstants,
   IAutomationDocument,
   IAutomationExecutionDocument,
-  normalizeAutomationConstantsForTransport,
+  splitType,
 } from 'erxes-api-shared/core-modules';
 import {
   IAutomationEmailTemplateDocument,
@@ -15,11 +13,19 @@ import {
   getPlugin,
   getPlugins,
   sendWorkerMessage,
+  markResolvers,
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { coreAutomationConstants } from '~/meta/automations/constants';
 import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
+import {
+  generateAutomationHistoriesFilter,
+  generateAutomationsFilter,
+  addReferenceExtensionsToAutomationOutput,
+  getAutomationReferenceFields,
+  getAutomationConstants,
+  getAutomationSetPropertyTargets,
+} from './utils/queriesUtils';
 
 export interface IListArgs extends ICursorPaginateParams {
   status: string;
@@ -52,201 +58,12 @@ export interface IHistoriesParams {
   endDate?: Date;
 }
 
-const generateFilter = (params: IListArgs) => {
-  const {
-    status,
-    searchValue,
-    tagIds,
-    triggerTypes,
-    ids,
-    excludeIds = [],
-    createdByIds,
-    updatedByIds,
-    actionTypes,
-    createdAtFrom,
-    createdAtTo,
-    updatedAtFrom,
-    updatedAtTo,
-  } = params;
-
-  const filter: any = {
-    status: { $nin: [AUTOMATION_STATUSES.ARCHIVED, 'template'] },
-  };
-
-  if (status) {
-    filter.status = status;
-  }
-
-  if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
-  }
-
-  if (tagIds) {
-    filter.tagIds = { $in: tagIds };
-  }
-
-  if (triggerTypes?.length) {
-    filter['triggers.type'] = { $in: triggerTypes };
-  }
-
-  if (actionTypes?.length) {
-    filter['actions.type'] = { $in: actionTypes };
-  }
-
-  if (ids?.length) {
-    filter._id = { $in: ids };
-  }
-  if (excludeIds.length) {
-    filter._id = { $nin: excludeIds };
-  }
-  if (createdByIds?.length) {
-    filter.createdBy = { $in: createdByIds };
-  }
-  if (updatedByIds?.length) {
-    filter.updatedBy = { $in: updatedByIds };
-  }
-  if (createdAtFrom) {
-    filter.createdAt = { $gte: createdAtFrom };
-  }
-  if (createdAtTo) {
-    filter.createdAt = { ...(filter.createdAt || {}), $lte: createdAtTo };
-  }
-  if (updatedAtFrom) {
-    filter.updatedAt = { $gte: updatedAtFrom };
-  }
-  if (updatedAtTo) {
-    filter.updatedAt = { ...(filter.updatedAt || {}), $lte: updatedAtTo };
-  }
-
-  return filter;
-};
-
-const generateHistoriesFilter = (params: any) => {
-  const {
-    automationId,
-    triggerType,
-    triggerId,
-    status,
-    beginDate,
-    endDate,
-    targetId,
-    targetIds,
-  } = params;
-  const filter: any = { automationId };
-
-  if (status) {
-    filter.status = status;
-  }
-
-  if (triggerId) {
-    filter.triggerId = triggerId;
-  }
-
-  if (triggerType) {
-    filter.triggerType = triggerType;
-  }
-
-  if (beginDate) {
-    filter.createdAt = { $gte: beginDate };
-  }
-
-  if (endDate) {
-    filter.createdAt = { $lte: endDate };
-  }
-
-  if (targetId) {
-    filter.targetId = targetId;
-  }
-
-  if (targetIds?.length) {
-    filter.targetId = { $in: targetIds };
-  }
-
-  return filter;
-};
-
-type TAutomationConstantsResponse = {
-  triggersConst: any[];
-  triggerTypesConst: string[];
-  actionsConst: any[];
-  findObjectTargetsConst: any[];
-};
-
-const getAutomationConstants =
-  async (): Promise<TAutomationConstantsResponse> => {
-    const plugins = await getPlugins();
-    const normalizedCoreConstants = normalizeAutomationConstantsForTransport(
-      'core',
-      coreAutomationConstants,
-    );
-
-    const constants: TAutomationConstantsResponse = {
-      triggersConst: [...(normalizedCoreConstants.triggers || [])],
-      triggerTypesConst: [],
-      actionsConst: [...(normalizedCoreConstants.actions || [])],
-      findObjectTargetsConst: [
-        ...(normalizedCoreConstants.findObjectTargets || []),
-      ],
-    };
-
-    for (const pluginName of plugins) {
-      if (pluginName === 'core') {
-        continue;
-      }
-
-      const plugin = await getPlugin(pluginName);
-      const meta = plugin.config?.meta ?? {};
-
-      if (!meta?.automations?.constants) {
-        continue;
-      }
-
-      const pluginConstants = normalizeAutomationConstantsForTransport(
-        pluginName,
-        meta.automations.constants as AutomationConstants,
-      );
-      const {
-        triggers = [],
-        actions = [],
-        findObjectTargets = [],
-      } = pluginConstants as AutomationConstants;
-      constants.findObjectTargetsConst.push(...findObjectTargets);
-
-      for (const trigger of triggers) {
-        constants.triggersConst.push({ ...trigger, pluginName });
-
-        if (
-          pluginName !== 'core' &&
-          trigger.moduleName &&
-          trigger.collectionName
-        ) {
-          const propertyType = `${pluginName}:${trigger.moduleName}.${trigger.collectionName}`;
-          constants.triggerTypesConst = [
-            ...new Set([...constants.triggerTypesConst, propertyType]),
-          ];
-        }
-      }
-
-      for (const action of actions) {
-        constants.actionsConst.push({ ...action, pluginName });
-      }
-    }
-
-    constants.findObjectTargetsConst = constants.findObjectTargetsConst.filter(
-      (item, index, array) =>
-        array.findIndex((candidate) => candidate.value === item.value) ===
-        index,
-    );
-
-    return constants;
-  };
-
 export const automationQueries = {
   /**
    * Automations list
    */
   async automations(_root, params: IListArgs, { models }: IContext) {
-    const filter = generateFilter(params);
+    const filter = generateAutomationsFilter(params);
 
     return models.Automations.find(filter).lean();
   },
@@ -255,7 +72,7 @@ export const automationQueries = {
    * Automations for only main list
    */
   async automationsMain(_root, params: IListArgs, { models }: IContext) {
-    const filter = generateFilter(params);
+    const filter = generateAutomationsFilter(params);
 
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IAutomationDocument>({
@@ -287,6 +104,14 @@ export const automationQueries = {
     return models.Automations.getAutomation(_id);
   },
 
+  async cpAutomationDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Automations.getAutomation(_id);
+  },
+
   /**
    * Automations history list
    */
@@ -295,7 +120,7 @@ export const automationQueries = {
     params: IHistoriesParams,
     { models }: IContext,
   ) {
-    const filter: any = generateHistoriesFilter(params);
+    const filter: any = generateAutomationHistoriesFilter(params);
 
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IAutomationExecutionDocument>({
@@ -319,7 +144,7 @@ export const automationQueries = {
     params: IHistoriesParams,
     { models }: IContext,
   ) {
-    const filter: any = generateHistoriesFilter(params);
+    const filter: any = generateAutomationHistoriesFilter(params);
 
     return await models.AutomationExecutions.find(filter).countDocuments();
   },
@@ -338,8 +163,18 @@ export const automationQueries = {
     return models.Automations.find(filter).countDocuments();
   },
 
-  async automationConstants(_root, _args) {
+  async automationConstants() {
     return getAutomationConstants();
+  },
+
+  async automationSetPropertyTargets(
+    _root,
+    { sourceType }: { sourceType: string },
+  ) {
+    const [pluginName, moduleName, collectionName] = splitType(sourceType);
+    return await getAutomationSetPropertyTargets(
+      `${pluginName}:${moduleName}.${collectionName}`,
+    );
   },
 
   async automationNodeOutput(_root, { nodeType }: { nodeType: string }) {
@@ -347,13 +182,25 @@ export const automationQueries = {
 
     const matchedTrigger = triggersConst.find(({ type }) => type === nodeType);
 
-    if (matchedTrigger?.output) {
-      return matchedTrigger.output;
-    }
-
     const matchedAction = actionsConst.find(({ type }) => type === nodeType);
+    const output = matchedTrigger?.output || matchedAction?.output || null;
 
-    return matchedAction?.output || null;
+    return await addReferenceExtensionsToAutomationOutput({
+      nodeType,
+      output,
+    });
+  },
+
+  async automationReferenceFields(
+    _root,
+    { type, field }: { type: string; field: string },
+    { models }: IContext,
+  ) {
+    return await getAutomationReferenceFields({
+      field,
+      models,
+      type,
+    });
   },
 
   async getAutomationWebhookEndpoint(
@@ -362,6 +209,7 @@ export const automationQueries = {
     { models, subdomain }: IContext,
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     if (!DOMAIN) {
       throw new Error('DOMAIN is not set');
@@ -373,7 +221,9 @@ export const automationQueries = {
       throw new Error('Not found');
     }
 
-    return `${DOMAIN}/automation/${automation._id}/`;
+    const syntax = NODE_ENV === 'production' ? '/gateway/pl:automations' : '';
+
+    return `${DOMAIN}${syntax}/automation/${automation._id}/`;
   },
 
   async getAutomationExecutionDetail(
@@ -412,6 +262,25 @@ export const automationQueries = {
     );
 
     return sanitizeAiAgents(agents as any[]);
+  },
+
+  async automationsAiAgentTotalCounts(_root, _args, { models }: IContext) {
+    const counts = await models.AiAgents.aggregate([
+      {
+        $group: {
+          _id: '$connection.provider',
+          totalCount: { $sum: 1 },
+        },
+      },
+    ]);
+
+    return counts.reduce<Record<string, number>>((acc, { _id, totalCount }) => {
+      if (_id) {
+        acc[_id] = totalCount;
+      }
+
+      return acc;
+    }, {});
   },
 
   async automationsAiAgentDetail(
@@ -492,3 +361,7 @@ export const automationQueries = {
     return models.AutomationEmailTemplates.getEmailTemplate(_id);
   },
 };
+
+Object.assign(automationQueries.cpAutomationDetail, {
+  wrapperConfig: { forClientPortal: true },
+});

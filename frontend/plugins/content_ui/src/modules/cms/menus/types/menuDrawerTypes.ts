@@ -21,6 +21,10 @@ export interface MenuInput {
   clientPortalId: string;
   label: string;
   url: string;
+  contentType?: string;
+  contentTypeId?: string;
+  type?: 'cms' | 'web';
+  linkType?: string;
   kind: string;
   parentId?: string;
   target?: string;
@@ -32,6 +36,10 @@ export interface MenuRecord {
   _id: string;
   label: string;
   url?: string;
+  contentType?: string;
+  contentTypeId?: string;
+  type?: 'cms' | 'web';
+  linkType?: string;
   kind?: string;
   parentId?: string;
   target?: string;
@@ -51,6 +59,9 @@ export interface MenuFormData {
   kind: string;
   clientPortalId: string;
   parentId: string;
+  contentType?: string;
+  contentTypeId?: string;
+  type?: 'cms' | 'web';
   linkType: string;
   target: boolean;
 }

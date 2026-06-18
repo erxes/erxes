@@ -1,7 +1,10 @@
 import {
   IconCoins,
+  IconHash,
+  IconLabelFilled,
   IconLayoutGridAdd,
   IconNotebook,
+  IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
 import {
@@ -405,3 +408,70 @@ export const FilterBarTrStatus = () => {
     </Filter.BarItem>
   );
 };
+
+const FILTER_BAR_STRING_ICONS = {
+  searchValue: IconSearch,
+  code: IconHash,
+  name: IconLabelFilled,
+} as const;
+
+const FILTER_BAR_STRING_LABELS = {
+  searchValue: 'Search',
+  code: 'Code',
+  name: 'Name',
+} as const;
+
+type FilterBarStringKey = keyof typeof FILTER_BAR_STRING_ICONS;
+
+export const FilterBarStringItem = ({
+  queryKey,
+  value,
+}: {
+  queryKey: FilterBarStringKey;
+  value?: string | null;
+}) => {
+  const Icon = FILTER_BAR_STRING_ICONS[queryKey];
+  return (
+    <Filter.BarItem queryKey={queryKey}>
+      <Filter.BarName>
+        <Icon />
+        {FILTER_BAR_STRING_LABELS[queryKey]}
+      </Filter.BarName>
+      <Filter.BarButton filterKey={queryKey} inDialog>
+        {value}
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+export const FilterStringDialogViews = ({
+  filterKeys,
+}: {
+  filterKeys: FilterBarStringKey[];
+}) => (
+  <>
+    {filterKeys.map((filterKey) => (
+      <Filter.View key={filterKey} filterKey={filterKey} inDialog>
+        <Filter.DialogStringView filterKey={filterKey} />
+      </Filter.View>
+    ))}
+  </>
+);
+
+export const FilterPopoverStringItems = ({
+  filterKeys,
+}: {
+  filterKeys: FilterBarStringKey[];
+}) => (
+  <>
+    {filterKeys.map((filterKey) => {
+      const Icon = FILTER_BAR_STRING_ICONS[filterKey];
+      return (
+        <Filter.Item key={filterKey} value={filterKey} inDialog>
+          <Icon />
+          {FILTER_BAR_STRING_LABELS[filterKey]}
+        </Filter.Item>
+      );
+    })}
+  </>
+);

@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
 import { validCampaign } from '~/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface ICouponCampaignModel extends Model<ICouponCampaignDocument> {
   getCouponCampaign(_id: string): Promise<ICouponCampaignDocument>;
@@ -23,7 +24,12 @@ export interface ICouponCampaignModel extends Model<ICouponCampaignDocument> {
   removeCouponCampaigns(_ids: string[]): void;
 }
 
-export const loadCouponCampaignClass = (models: IModels) => {
+export const loadCouponCampaignClass = (
+  models: IModels,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog } = dispatcher;
+
   class CouponCampaign {
     public static async getCouponCampaign(_id: string) {
       const couponCampaign = await models.CouponCampaigns.findOne({
@@ -76,10 +82,19 @@ export const loadCouponCampaignClass = (models: IModels) => {
         modifiedAt: new Date(),
       };
 
-      return models.CouponCampaigns.create(doc);
+      const created = await models.CouponCampaigns.create(doc);
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     public static async updateCouponCampaign(_id, doc, user) {
+      const prevDoc = await models.CouponCampaigns.findOne({ _id }).lean();
       this.validateCampaign(doc);
 
       doc = {
@@ -88,11 +103,20 @@ export const loadCouponCampaignClass = (models: IModels) => {
         modifiedAt: new Date(),
       };
 
-      return models.CouponCampaigns.findOneAndUpdate(
+      const updated = await models.CouponCampaigns.findOneAndUpdate(
         { _id },
         { $set: doc },
         { new: true },
       );
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: doc,
+        prevDocument: prevDoc,
+      });
+
+      return updated;
     }
 
     public static async removeCouponCampaigns(_ids: string[]) {
@@ -101,21 +125,39 @@ export const loadCouponCampaignClass = (models: IModels) => {
       }).distinct('campaignId');
 
       const usedCampaignIds = _ids.filter((id) => campaignIds.includes(id));
-
       const deleteCampaignIds = _ids.filter(
         (id) => !usedCampaignIds.includes(id),
       );
-
       const now = new Date();
 
-      await models.CouponCampaigns.updateMany(
-        { _id: { $in: usedCampaignIds } },
-        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
-      );
+      if (usedCampaignIds.length) {
+        await models.CouponCampaigns.updateMany(
+          { _id: { $in: usedCampaignIds } },
+          { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
+        );
+        for (const id of usedCampaignIds) {
+          sendDbEventLog?.({
+            action: 'update',
+            docId: id,
+            currentDocument: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now },
+          });
+        }
+      }
 
-      return models.CouponCampaigns.deleteMany({
-        _id: { $in: deleteCampaignIds },
-      });
+      if (deleteCampaignIds.length) {
+        const result = await models.CouponCampaigns.deleteMany({
+          _id: { $in: deleteCampaignIds },
+        });
+        for (const id of deleteCampaignIds) {
+          sendDbEventLog?.({
+            action: 'delete',
+            docId: id,
+          });
+        }
+        return result;
+      }
+
+      return { deletedCount: 0 };
     }
   }
 

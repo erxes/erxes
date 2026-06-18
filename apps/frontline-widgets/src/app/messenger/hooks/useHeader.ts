@@ -20,8 +20,13 @@ export function useHeader() {
   const getCurrentTitle = (): string => {
     return (
       HEADER_ITEMS.find((item: IHeaderItem) => item.value === activeTab)
-        ?.title ?? 'Chat'
+        ?.title ?? 'Your conversations'
     );
+  };
+
+  const getCurrentEyebrow = (): string | undefined => {
+    return HEADER_ITEMS.find((item: IHeaderItem) => item.value === activeTab)
+      ?.eyebrow;
   };
 
   const renderHeaderContent = (): HeaderContentType => {
@@ -62,5 +67,6 @@ export function useHeader() {
     getCurrentTitle,
     renderHeaderContent,
     headerItems,
+    getCurrentEyebrow,
   };
 }

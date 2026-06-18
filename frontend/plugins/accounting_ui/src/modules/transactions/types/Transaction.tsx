@@ -79,6 +79,8 @@ interface ICommontTr {
   ctaxRow?: ICtaxRow;
 
   extraData?: any;
+  contentType?: string;
+  contentId?: string;
 
   sumDt?: number;
   sumCt?: number;

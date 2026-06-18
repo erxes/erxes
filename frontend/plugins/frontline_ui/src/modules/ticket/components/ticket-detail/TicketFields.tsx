@@ -370,14 +370,18 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             </Combobox.Content>
           </div>
         </TagsSelect.Provider>
-        <AttachmentUploader id={ticketId} />
+        <AttachmentUploader
+          id={ticketId}
+          attachments={ticket?.attachments || []}
+        />
         <Separator className="mt-4" />
-        <Attachments />
         <div className="min-h-56 overflow-y-auto">
           <BlockEditor
             editor={editor}
             onChange={canEditTicket ? handleDescriptionChange : undefined}
-            className={`min-h-full read-only${!canEditTicket ? ' pointer-events-none opacity-60' : ''}`}
+            className={`min-h-full read-only${
+              !canEditTicket ? ' pointer-events-none opacity-60' : ''
+            }`}
           />
         </div>
         <ActivityList contentId={ticketId} contentDetail={ticket} />

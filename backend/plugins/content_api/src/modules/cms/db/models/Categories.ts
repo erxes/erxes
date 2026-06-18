@@ -1,10 +1,13 @@
 import { Model } from 'mongoose';
 
-import slugify from 'slugify';
 import { IModels } from '~/connectionResolvers';
 import { IPostCategory, IPostCategoryDocument } from '@/cms/@types/posts';
 import { postCategorySchema } from '@/cms/db/definitions/posts';
-import { generateUniqueSlug } from '@/cms/utils/common';
+import {
+  createSlug,
+  generateUniqueSlug,
+  generateUniqueSlugWithExclusion,
+} from '@/cms/utils/common';
 
 export interface ICategoryModel extends Model<IPostCategoryDocument> {
   getCategories: (query: any) => Promise<IPostCategoryDocument[]>;
@@ -20,7 +23,7 @@ export interface ICategoryModel extends Model<IPostCategoryDocument> {
 export const loadCategoryClass = (models: IModels) => {
   class Categories {
     public static createCategory = async (data: IPostCategory) => {
-      const baseSlug = slugify(data.name, { lower: true });
+      const baseSlug = createSlug(data.name);
       data.slug = await generateUniqueSlug(
         models.Categories,
         data.clientPortalId,
@@ -33,12 +36,14 @@ export const loadCategoryClass = (models: IModels) => {
 
     public static updateCategory = async (id: string, data: IPostCategory) => {
       if (data.name) {
-        const baseSlug = slugify(data.name, { lower: true });
-        data.slug = await generateUniqueSlug(
+        const baseSlug = createSlug(data.name);
+        data.slug = await generateUniqueSlugWithExclusion(
           models.Categories,
           data.clientPortalId,
           'slug',
           baseSlug,
+          id,
+          1,
         );
       }
 

@@ -1,5 +1,5 @@
 export const mutations = `
-  toCheckSynced(ids: [String]): [CheckResponse]
+  toCheckSynced(ids: [String], contentType: String): [CheckResponse]
   toSyncDeals(dealIds: [String], configStageId: String, dateType: String): JSON
   toSyncOrders(orderIds: [String]): JSON
   toCheckProducts(productCodes: [String]): JSON

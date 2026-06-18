@@ -1,0 +1,65 @@
+# Contract: configure-plugin-navigation
+
+skill:
+  name: configure-plugin-navigation
+  version: "1.0.0"
+  type: feature
+  description: Configure erxes frontend plugin navigation and settings
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Frontend plugin name"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_ui$'"
+
+  - name: navigation_items
+    type: array
+    description: "Navigation items to add/modify"
+    required: true
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        icon:
+          type: string
+          description: "Tabler icon name"
+        group:
+          type: string
+          description: "Navigation group"
+
+rules_required:
+  - react-general-guidelines
+  - code-style
+
+preconditions:
+  - description: "Plugin must exist"
+    check: "test -d frontend/plugins/{plugin_name}_ui"
+  - description: "src/config.tsx exists"
+    check: "test -f frontend/plugins/{plugin_name}_ui/src/config.tsx"
+
+postconditions:
+  - description: "Lint passes"
+    command: "pnpm nx lint {plugin_name}_ui"
+    required: true
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_ui"
+    required: true
+
+composes_with:
+  - module-federation-expose
+  - create-page
+
+conventions:
+  - "Reuse plugin's existing IUIConfig shape"
+  - "Use icons from @tabler/icons-react"
+  - "Keep paths aligned with route registration and exposes"
+  - "Add modules only when they should appear in navigation"
+  - "Add widgets only when plugin exposes and implements them"
+  - "Do not add plugin navigation in frontend/core-ui"
+  - "Do not use IconSandbox as final icon"
+  - "Named exports only"

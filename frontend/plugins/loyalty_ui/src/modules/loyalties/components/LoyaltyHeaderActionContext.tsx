@@ -8,7 +8,7 @@ type LoyaltyHeaderActionContextType = {
 const LoyaltyHeaderActionContext =
   createContext<LoyaltyHeaderActionContextType>({
     action: null,
-    setAction: () => {},
+    setAction: () => ({}),
   });
 
 export const useLoyaltyHeaderAction = () =>

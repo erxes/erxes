@@ -1,4 +1,4 @@
-import { IconCashBanknote } from '@tabler/icons-react';
+import { IconCashBanknote, IconReceipt } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 
@@ -56,4 +56,12 @@ export const CONFIG: IUIConfig = {
       path: 'accounting',
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'transactions',
+        icon: IconReceipt,
+      },
+    ],
+  },
 };

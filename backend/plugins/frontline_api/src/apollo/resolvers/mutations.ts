@@ -1,6 +1,7 @@
 import { channelMutations } from '@/channel/graphql/resolvers/mutations/channel';
 import { conversationMutations } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { integrationMutations } from '@/inbox/graphql/resolvers/mutations/integrations';
+import { cpInboxMutations } from '@/inbox/graphql/resolvers/mutations/clientPortal';
 import { widgetMutations } from '@/inbox/graphql/resolvers/mutations/widget';
 import callMutations from '@/integrations/call/graphql/resolvers/mutations';
 import { facebookMutations } from '@/integrations/facebook/graphql/resolvers/mutations';
@@ -19,6 +20,7 @@ export const mutations = {
   ...channelMutations,
   ...conversationMutations,
   ...integrationMutations,
+  ...cpInboxMutations,
   ...facebookMutations,
   ...instagramMutations,
   ...callMutations,

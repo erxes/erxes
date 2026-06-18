@@ -71,7 +71,6 @@ export const types = `
     kioskMachine: JSON
     kitchenScreen: JSON
     token: String
-    erxesAppToken: String
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
     catProdMappings: [PoscCatProd]
@@ -81,7 +80,6 @@ export const types = `
     deliveryConfig: JSON
     branchId: String
     departmentId: String
-    checkRemainder: Boolean
     permissionConfig: JSON
     allowTypes: [String]
     isCheckRemainder: Boolean

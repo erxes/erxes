@@ -2,43 +2,49 @@ import { IAgent } from '@/agent/@types';
 import { IContext } from '~/connectionResolvers';
 
 export const agentMutations = {
-  async createAgent(_root: undefined, doc: IAgent, { models }: IContext) {
+  async createAgent(_root: undefined, doc: IAgent, { models, checkPermission }: IContext) {
+    await checkPermission('agentCreate');
     return models.Agents.createAgent(doc);
   },
 
   async updateAgent(
     _root: undefined,
     { _id, ...doc }: { _id: string } & IAgent,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('agentUpdate');
     return models.Agents.updateAgent(_id, doc);
   },
 
   async removeAgent(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('agentRemove');
     return models.Agents.removeAgent(_id);
   },
 
-  async agentsAdd(_root: undefined, doc: IAgent, { models }: IContext) {
+  async agentsAdd(_root: undefined, doc: IAgent, { models, checkPermission }: IContext) {
+    await checkPermission('agentCreate');
     return models.Agents.createAgent(doc);
   },
 
   async agentsEdit(
     _root: undefined,
     { _id, ...doc }: { _id: string } & IAgent,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('agentUpdate');
     return models.Agents.updateAgent(_id, doc);
   },
 
   async agentsRemove(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('agentRemove');
     return models.Agents.removeAgent(_id);
   },
 };

@@ -46,8 +46,8 @@ const configQueries = {
     }: {
       productIds: string[];
       accountId: string;
-      branchId: string;
-      departmentId: string;
+      branchId?: string;
+      departmentId?: string;
     },
     { models, checkPermission }: IContext,
   ) {

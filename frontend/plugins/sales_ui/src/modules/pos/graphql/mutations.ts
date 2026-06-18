@@ -7,7 +7,6 @@ const commonFields = `
   $orderPassword: String
   $scopeBrandIds: [String]
   $pdomain: String
-  $erxesAppToken: String
   $serviceCharge: Float
   $serviceChargeApplicableProductId: String
   $productDetails: [String]
@@ -26,19 +25,17 @@ const commonFields = `
   $waitingScreen: JSON
   $kioskMachine: JSON
   $uiOptions: JSON
-  $ebarimtConfig: JSON
-  $erkhetConfig: JSON
   $cardsConfig: JSON
   $catProdMappings: [CatProdInput]
   $initialCategoryIds: [String]
   $kioskExcludeCategoryIds: [String]
   $kioskExcludeProductIds: [String]
   $deliveryConfig: JSON
-  $checkRemainder: Boolean
   $permissionConfig: JSON
   $allowTypes: [String]
   $isCheckRemainder: Boolean
   $checkExcludeCategoryIds: [String]
+  $saveRemainder: Boolean
   $banFractions: Boolean
 `;
 
@@ -48,7 +45,6 @@ const commonVariables = `
   orderPassword: $orderPassword,
   scopeBrandIds: $scopeBrandIds,
   pdomain: $pdomain,
-  erxesAppToken: $erxesAppToken,
   serviceCharge: $serviceCharge,
   serviceChargeApplicableProductId: $serviceChargeApplicableProductId,
   productDetails: $productDetails,
@@ -67,19 +63,17 @@ const commonVariables = `
   waitingScreen: $waitingScreen,
   kioskMachine: $kioskMachine,
   uiOptions: $uiOptions,
-  ebarimtConfig: $ebarimtConfig,
-  erkhetConfig: $erkhetConfig,
   catProdMappings: $catProdMappings,
   initialCategoryIds: $initialCategoryIds,
   kioskExcludeCategoryIds: $kioskExcludeCategoryIds,
   kioskExcludeProductIds: $kioskExcludeProductIds,
   deliveryConfig: $deliveryConfig,
   cardsConfig: $cardsConfig,
-  checkRemainder: $checkRemainder,
   permissionConfig: $permissionConfig,
   allowTypes: $allowTypes,
   isCheckRemainder: $isCheckRemainder,
   checkExcludeCategoryIds: $checkExcludeCategoryIds,
+  saveRemainder: $saveRemainder,
   banFractions: $banFractions
 `;
 

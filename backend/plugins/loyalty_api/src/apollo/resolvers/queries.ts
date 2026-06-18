@@ -9,7 +9,7 @@ import { donateQueries } from '@/donate/graphql/resolvers/queries/donate';
 import { donateCampaignQueries } from '@/donate/graphql/resolvers/queries/donateCampaign';
 import { lotteryQueries } from '@/lottery/graphql/resolvers/queries/lottery';
 import { lotteryCampaignQueries } from '@/lottery/graphql/resolvers/queries/lotteryCampaign';
-import { pricingQueries } from '@/pricing/graphql/resolvers/queries/pricing';
+import { pricingPlanQueries } from '@/pricing/graphql/resolvers/queries/pricingPlan';
 import { scoreCampaignQueries } from '@/score/graphql/resolvers/queries/scoreCampaign';
 import { scoreLogQueries } from '@/score/graphql/resolvers/queries/scoreLog';
 import { spinQueries } from '@/spin/graphql/resolvers/queries/spin';
@@ -18,7 +18,7 @@ import { voucherQueries } from '@/voucher/graphql/resolvers/queries/voucher';
 import { voucherCampaignQueries } from '@/voucher/graphql/resolvers/queries/voucherCampaign';
 
 export const queries = {
-  ...pricingQueries,
+  ...pricingPlanQueries,
 
   ...agentQueries,
 

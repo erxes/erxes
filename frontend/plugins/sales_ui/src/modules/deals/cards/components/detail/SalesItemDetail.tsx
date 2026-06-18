@@ -5,7 +5,6 @@ import {
   AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
-  internalNoteCustomActivity,
 } from 'ui-modules';
 import { dealCustomActivities } from './DealActivityRows';
 import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';
@@ -76,6 +75,9 @@ export const SalesItemDetail = () => {
                     <ScrollArea className="h-full">
                       <div className="p-6">
                         <FieldsInDetail
+                          key={`${deal?._id || ''}-${JSON.stringify(
+                            deal?.propertiesData || {},
+                          )}`}
                           fieldContentType="sales:deal"
                           propertiesData={deal?.propertiesData || {}}
                           mutateHook={useDealCustomFieldEdit}

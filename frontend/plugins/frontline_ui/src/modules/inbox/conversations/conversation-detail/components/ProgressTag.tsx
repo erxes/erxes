@@ -10,7 +10,7 @@ interface TagStats {
   statuses: Record<Status, number>;
 }
 
-export const ProgressTags = ({ customerId }: { customerId: string }) => {
+export const ProgressTags = ({ customerId }: { customerId?: string }) => {
   const { conversationTagProgress } = useGetConversationTagProgress({
     variables: { customerId },
     skip: !customerId,

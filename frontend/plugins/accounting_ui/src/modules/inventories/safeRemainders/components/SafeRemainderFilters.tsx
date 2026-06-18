@@ -10,7 +10,7 @@ import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
 const SafeRemainderFilterPopover = () => {
   const queryParams = useSafeRemainderQueryParams();
   const hasFilters = Object.values(queryParams || {}).some(
-    (value) => value !== null,
+    (value) => value !== null && value !== undefined && value !== '',
   );
 
   return (

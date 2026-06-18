@@ -26,9 +26,11 @@ import { SelectMember, SelectTags } from 'ui-modules';
 
 export const AddProjectForm = ({
   onClose,
+  onComplete,
   task,
 }: {
   onClose: () => void;
+  onComplete?: (projectId: string) => void;
   task?: ITask;
 }) => {
   const navigate = useNavigate();
@@ -87,6 +89,8 @@ export const AddProjectForm = ({
       );
     }
 
+    const projectId = project?.data?.createProject?._id;
+    if (projectId) onComplete?.(projectId);
     onClose();
   };
 

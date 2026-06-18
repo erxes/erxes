@@ -92,36 +92,39 @@ export const requestBrowserInfo = ({
   }, 2000);
 };
 
-export const getSubdomain = (): string => {
-  const hostnameParts = window.location.hostname.split('.');
+export const getDomain = (subdomain: string) => {
+  const defaultValue = 'http://localhost:4000';
+  const VERSION = getEnv({ name: 'VERSION' });
 
-  if (hostnameParts.length > 2) {
-    return hostnameParts[0];
+  const baseDefault =
+    VERSION === 'os' ? defaultValue : `http://${subdomain}.api.erxes.com`;
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+    defaultValue: baseDefault,
+  });
+
+  return DOMAIN.replace('<subdomain>', subdomain);
+};
+export const getEnv = ({
+  name,
+  defaultValue,
+  subdomain,
+}: {
+  name: string;
+  defaultValue?: string;
+  subdomain?: string;
+}): string => {
+  let value = process.env[name] || '';
+
+  if (!value && defaultValue !== undefined) {
+    return defaultValue;
   }
 
-  // return an empty string (for open-source environments with no subdomain)
-  return '';
-};
+  if (subdomain) {
+    value = value.replace('<subdomain>', subdomain);
+  }
 
-export const getEnv = () => {
-  const wenv = (window as any).erxesEnv || {};
-
-  const subdomain = getSubdomain();
-
-  const getItem = (name: string) => {
-    const value = wenv[name] || process.env[name] || '';
-    // Only replace '<subdomain>' if it exists in the value
-    if (value.includes('<subdomain>')) {
-      return value.replace('<subdomain>', subdomain);
-    }
-
-    return value;
-  };
-
-  return {
-    API_URL: getItem('API_URL'),
-    API_SUBSCRIPTIONS_URL: getItem('API_SUBSCRIPTIONS_URL'),
-    // CALLS_APP_ID: getItem('CALLS_APP_ID'),
-    // CALLS_APP_SECRET: getItem('CALLS_APP_SECRET'),
-  };
+  return value || '';
 };

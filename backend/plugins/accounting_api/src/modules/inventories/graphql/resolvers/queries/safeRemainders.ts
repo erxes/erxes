@@ -1,6 +1,13 @@
 import { paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
+const buildDateRange = (from?: string, to?: string) => {
+  const range: any = {};
+  if (from) range.$gte = new Date(from);
+  if (to) range.$lte = new Date(to);
+  return Object.keys(range).length ? range : null;
+};
+
 const safeRemainderQueries = {
   safeRemainders: async (_root: any, params: any, { models }: IContext) => {
     const query: any = {};
@@ -19,27 +26,31 @@ const safeRemainderQueries = {
         $options: 'i',
       };
 
-      query.$or = [
-        {
-          name: regexOption,
-        },
-        {
-          code: regexOption,
-        },
-      ];
+      query.$or = [{ name: regexOption }, { code: regexOption }];
     }
 
-    const dateQuery: any = {};
-    if (params.beginDate) {
-      dateQuery.$gte = new Date(params.beginDate);
-    }
-    if (params.endDate) {
-      dateQuery.$lte = new Date(params.endDate);
+    const dateRange = buildDateRange(params.beginDate, params.endDate);
+    if (dateRange) query.date = dateRange;
+
+    if (params.createdUserId) {
+      query.createdBy = params.createdUserId;
     }
 
-    if (Object.keys(dateQuery).length) {
-      query.date = dateQuery;
+    if (params.modifiedUserId) {
+      query.modifiedBy = params.modifiedUserId;
     }
+
+    const createdAtRange = buildDateRange(
+      params.createdStartDate,
+      params.createdEndDate,
+    );
+    if (createdAtRange) query.createdAt = createdAtRange;
+
+    const modifiedAtRange = buildDateRange(
+      params.updatedStartDate,
+      params.updatedEndDate,
+    );
+    if (modifiedAtRange) query.modifiedAt = modifiedAtRange;
 
     if (params.productId) {
       const allRemainders = await models.SafeRemainders.find(query).lean();

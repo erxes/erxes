@@ -20,16 +20,16 @@ import { ITransactionDocument, ITrDetail } from '../@types/transaction';
 export const activeCost = async (
   models: IModels,
   accountId: string,
-  branchId: string,
-  departmentId: string,
-  productIds: string[],
+  branchId?: string,
+  departmentId?: string,
+  productIds: string[] = [],
 ) => {
   const aggCosts = await models.AdjustInvDetails.aggregate([
     {
       $match: {
         accountId,
-        branchId,
-        departmentId,
+        branchId: branchId || '_',
+        departmentId: departmentId || '_',
         productId: { $in: productIds || [] },
       },
     },
@@ -982,8 +982,9 @@ export const adjustRunning = async (
         );
 
         if (uncompletedTr) {
-          const warning =
-            `Inventory transaction must be complete before adjusting. Transaction: ${uncompletedTr.number || uncompletedTr._id}`;
+          const warning = `Inventory transaction must be complete before adjusting. Transaction: ${
+            uncompletedTr.number || uncompletedTr._id
+          }`;
 
           await modifierWrapper(models, adjustInventory, {
             checkedAt: new Date(),

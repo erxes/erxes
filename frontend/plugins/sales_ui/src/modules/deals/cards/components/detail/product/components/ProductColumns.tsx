@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
 import {
@@ -12,8 +13,12 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  Tooltip,
   cn,
   formatAmount,
+  Badge,
+  Popover,
+  Input,
 } from 'erxes-ui';
 import {
   IconCurrencyDollar,
@@ -21,14 +26,18 @@ import {
   IconLabel,
   IconPentagonNumber1,
   IconUser,
+  IconShoppingCart,
+  IconBox,
+  IconFileInvoice,
 } from '@tabler/icons-react';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { IProductData } from 'ui-modules';
 import { productMoreColumn } from './ProductMoreColumn';
+import { useUpdateProductRecord } from '../hooks/useProductRecord';
+import { useState } from 'react';
 
-const DUPLICATE_PRODUCT_CELL_CLASS =
-  'bg-pink-50/80 dark:bg-pink-950/30';
+const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
 
 const getProductId = (productData: IProductData) =>
   productData.productId || productData.product?._id || '';
@@ -42,14 +51,64 @@ const hasDuplicateProductId = (
   }
 
   return (
-    productsData.filter((productData) => getProductId(productData) === productId)
-      .length > 1
+    productsData.filter(
+      (productData) => getProductId(productData) === productId,
+    ).length > 1
   );
+};
+
+const IconChooserForType = ({ type }: { type: string }) => {
+  switch (type) {
+    case 'service':
+      return (
+        <Tooltip.Provider>
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <Badge className="bg-red-400">
+                <IconFileInvoice className="size-4 text-white" stroke={2} />
+              </Badge>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Service</Tooltip.Content>
+          </Tooltip>
+        </Tooltip.Provider>
+      );
+    case 'product':
+      return (
+        <Tooltip.Provider>
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <Badge className="bg-blue-400">
+                <IconBox className="size-4 text-white" stroke={2} />
+              </Badge>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Product</Tooltip.Content>
+          </Tooltip>
+        </Tooltip.Provider>
+      );
+    default:
+      return null;
+  }
 };
 
 export const productColumns: ColumnDef<IProductData>[] = [
   productMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IProductData>,
+  {
+    id: 'type',
+    accessorKey: 'product.type',
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label="Type" />
+    ),
+    cell: ({ cell }) => {
+      const type = cell.getValue() as string;
+      return (
+        <RecordTableInlineCell className="justify-center">
+          <IconChooserForType type={type} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 80,
+  },
   {
     id: 'name',
     accessorKey: 'name',
@@ -64,22 +123,70 @@ export const productColumns: ColumnDef<IProductData>[] = [
         table.options.data,
         productId,
       );
+      const [open, setOpen] = useState<boolean>(false);
+      const [_name, setName] = useState<string>(cell.getValue() as string);
+      const { updateRecord } = useUpdateProductRecord();
+      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
+        setName(el.currentTarget.value);
+      };
+      const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onSave();
+        }
+        if (e.key === 'Escape') {
+          setName(cell.getValue() as string);
+          setOpen(false);
+        }
+      };
 
+      const onSave = () => {
+        if (_name !== cell.getValue()) {
+          updateRecord(cell.row.original, {
+            product: { ...cell.row.original.product, name: _name },
+          });
+        }
+        setOpen(false);
+      };
       return (
-        <RecordTableInlineCell
-          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        <Popover
+          open={open}
+          onOpenChange={(open) => {
+            setOpen(open);
+            if (!open) {
+              onSave();
+            }
+          }}
         >
-          <div className="flex gap-1.5 items-center min-w-0">
-            {product?.code && (
-              <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
-                {product.code}
-              </span>
-            )}
-            <TextOverflowTooltip value={product?.name ?? ''} />
-          </div>
-        </RecordTableInlineCell>
+          <RecordTableInlineCell.Trigger
+            className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+          >
+            <div className="flex gap-1.5 items-center min-w-0">
+              {product?.code && (
+                <Badge
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpen(true);
+                  }}
+                >
+                  {product.code}
+                </Badge>
+              )}
+              <span>{product?.name}</span>
+            </div>
+          </RecordTableInlineCell.Trigger>
+          <RecordTableInlineCell.Content>
+            <Input
+              value={_name}
+              onChange={onChange}
+              onKeyDown={handleKeyDown}
+            />
+          </RecordTableInlineCell.Content>
+        </Popover>
       );
     },
+    size: 260,
   },
   {
     id: 'unitPrice',
@@ -100,6 +207,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
             _id={cell.row.original._id}
             product={cell.row.original}
             formatValue={(v: number) => formatAmount(v)}
+            calculateProduct={true}
           >
             {CurrencyIcon && (
               <CurrencyIcon className="size-4 text-muted-foreground shrink-0" />
@@ -108,6 +216,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 110,
   },
   {
     id: 'quantity',
@@ -219,20 +328,19 @@ export const productColumns: ColumnDef<IProductData>[] = [
     size: 120,
   },
   {
-    id: 'assignedUserId',
-    accessorKey: 'assignedUserId',
+    id: 'assignUserId',
+    accessorKey: 'assignUserId',
     header: () => (
       <RecordTable.InlineHead icon={IconUser} label="Assigned to" />
     ),
     cell: ({ cell }) => {
+      const assignedUserId =
+        cell.row.original.assignUserId || cell.row.original.assignedUserId;
+
       return (
         <ProductAssigneeField
-          value={
-            cell.row.original.assignedUserId
-              ? [cell.row.original.assignedUserId]
-              : []
-          }
-          field="assignedUserId"
+          value={assignedUserId ? [assignedUserId] : []}
+          field="assignUserId"
           _id={cell.row.original._id}
           product={cell.row.original}
         />

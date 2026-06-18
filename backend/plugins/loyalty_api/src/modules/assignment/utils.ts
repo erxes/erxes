@@ -12,7 +12,7 @@ export const generateFieldMaxValue = async (
     method: 'query',
     module: 'customers',
     action: 'findOne',
-    input: { _id: customerId },
+    input: { query: { _id: customerId } },
     defaultValue: null,
   });
 
@@ -22,12 +22,6 @@ export const generateFieldMaxValue = async (
       const { propertyName, propertyValue, propertyOperator } = condition || {};
 
       if (propertyName.includes(fieldId) && propertyOperator === 'numbere') {
-        const { customFieldsData = [] } = customer || {};
-
-        const customFieldData = customFieldsData.find(
-          (customFieldData) => customFieldData?.field === fieldId,
-        );
-
         const segment = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
@@ -43,7 +37,13 @@ export const generateFieldMaxValue = async (
         return {
           checkValue: Number(propertyValue) || 0,
           segmentId: segment?._id,
-          currentValue: Number(customFieldData?.value) || 0,
+          currentValue:
+            Number(
+              customer?.propertiesData?.[fieldId] ??
+                (customer?.customFieldsData || []).find(
+                  (customFieldData) => customFieldData?.field === fieldId,
+                )?.value,
+            ) || 0,
         };
       }
     }

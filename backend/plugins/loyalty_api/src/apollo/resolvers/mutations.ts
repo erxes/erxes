@@ -9,7 +9,7 @@ import { donateMutations } from '@/donate/graphql/resolvers/mutations/donate';
 import { donateCampaignMutations } from '@/donate/graphql/resolvers/mutations/donateCampaign';
 import { lotteryMutations } from '@/lottery/graphql/resolvers/mutations/lottery';
 import { lotteryCampaignMutations } from '@/lottery/graphql/resolvers/mutations/lotteryCampaign';
-import { pricingMutations } from '@/pricing/graphql/resolvers/mutations/pricing';
+import { pricingPlanMutations } from '@/pricing/graphql/resolvers/mutations/pricingPlan';
 import { scoreCampaignMutations } from '@/score/graphql/resolvers/mutations/scoreCampaign';
 import { scoreLogMutations } from '@/score/graphql/resolvers/mutations/scoreLog';
 import { spinsMutations } from '@/spin/graphql/resolvers/mutations/spin';
@@ -18,7 +18,7 @@ import { voucherMutations } from '@/voucher/graphql/resolvers/mutations/voucher'
 import { voucherCampaignMutations } from '@/voucher/graphql/resolvers/mutations/voucherCampaign';
 
 export const mutations = {
-  ...pricingMutations,
+  ...pricingPlanMutations,
 
   ...agentMutations,
 

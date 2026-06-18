@@ -1,6 +1,8 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
+  Skeleton,
+  Table,
   useQueryState,
   Popover,
   Combobox,
@@ -12,16 +14,46 @@ import { ICtaxRow } from '../types/CtaxRow';
 import { CtaxRowsCommandbar } from './CtaxRowsCommandbar';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useCtaxRowsRemove } from '../hooks/useCtaxRowsRemove';
+import { useMemo } from 'react';
+
+const CtaxRowsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const rowKeys = useMemo(
+    () => Array.from({ length: rows }, () => crypto.randomUUID()),
+    [rows],
+  );
+  return (
+    <>
+      {rowKeys.map((rowKey) => (
+        <Table.Row key={rowKey} className="h-cell">
+          {ctaxRowsColumns.map((col, colIndex) => (
+            <Table.Cell
+              key={`${rowKey}-${col.id ?? colIndex}`}
+              className="border-r-0 px-2"
+            >
+              <Skeleton className="h-4 w-full min-w-4" />
+            </Table.Cell>
+          ))}
+        </Table.Row>
+      ))}
+    </>
+  );
+};
+
 export const CtaxRowsTable = () => {
   const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
+  const isInitialLoading = loading && !ctaxRows?.length;
 
   return (
-    <RecordTable.Provider columns={ctaxRowsColumns} data={ctaxRows || []}>
+    <RecordTable.Provider
+      columns={ctaxRowsColumns}
+      data={isInitialLoading ? [] : ctaxRows || []}
+    >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
+            {isInitialLoading && <CtaxRowsInitialSkeleton rows={20} />}
             {!loading && (totalCount ?? 0) > (ctaxRows?.length ?? 0) && (
               <RecordTable.RowSkeleton
                 rows={4}

@@ -129,7 +129,7 @@ export const exportQueries = {
 
   async exportHeaders(
     _root: undefined,
-    { entityType }: { entityType: string },
+    { entityType, filters }: { entityType: string; filters?: Record<string, any> },
     { subdomain }: IContext,
   ) {
     const [pluginName, moduleName, collectionName] = splitType(entityType);
@@ -149,6 +149,7 @@ export const exportQueries = {
       input: {
         moduleName,
         collectionName,
+        ...(filters ? { filters } : {}),
       },
       defaultValue: [],
     });

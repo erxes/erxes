@@ -1,0 +1,55 @@
+# Contract: add-translations
+
+skill:
+  name: add-translations
+  version: "1.0.0"
+  type: feature
+  description: Add or update erxes frontend translation keys and locale JSON entries
+
+inputs:
+  - name: namespace
+    type: string
+    description: "Translation namespace (e.g., 'cms', 'sales')"
+    required: true
+
+  - name: keys
+    type: array
+    description: "Translation keys to add"
+    required: true
+    items:
+      type: object
+      properties:
+        key:
+          type: string
+          description: "Key path (e.g., 'tags.create-title')"
+        en:
+          type: string
+          description: "English translation"
+        mn:
+          type: string
+          description: "Mongolian translation"
+
+rules_required:
+  - translations
+  - code-style
+
+preconditions:
+  - description: "Namespace exists or can be created"
+    check: "test -f backend/gateway/src/locales/en/{namespace}.json || user_confirmed_create"
+  - description: "Keys follow existing style"
+    check: "keys_match_kebab_case_pattern"
+
+postconditions:
+  - description: "JSON syntax valid"
+    check: "jq empty backend/gateway/src/locales/en/{namespace}.json"
+  - description: "JSON syntax valid (Mongolian)"
+    check: "jq empty backend/gateway/src/locales/mn/{namespace}.json"
+
+conventions:
+  - "Supported languages: en and mn"
+  - "Add both English and Mongolian keys"
+  - "Follow kebab-case grouped by feature"
+  - "Use useTranslation(namespace, { keyPrefix }) when nearby code uses that"
+  - "Use interpolation for dynamic values, do not concatenate"
+  - "Check long Mongolian strings in compact UI"
+  - "Do not add comments to JSON locale files"

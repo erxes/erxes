@@ -8,42 +8,56 @@ import {
 import { integrationSchema } from '@/integrations/call/db/definitions/integrations';
 
 export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
-  getIntegrations(userId: string): Promise<ICallIntegrationDocument>;
+  getIntegrations(
+    userId: string,
+    isAdmin?: boolean,
+  ): Promise<ICallIntegrationDocument>;
   getIntegration(
     userId: string,
-    integrationId?: string,
+    integrationId: string,
+    isAdmin?: boolean,
   ): Promise<ICallIntegrationDocument>;
-  getIntegrationQueuesByUser(userId: string): Promise<string[]>;
+  getIntegrationQueuesByUser(
+    userId: string,
+    isAdmin?: boolean,
+  ): Promise<string[]>;
 }
 
 export const loadCallIntegrationClass = (models: IModels) => {
   class Integration {
-    public static async getIntegrations(userId: string) {
-      const integrations = await models.CallIntegrations.find({
-        'operators.userId': userId,
-      }).lean();
+    public static async getIntegrations(userId: string, isAdmin?: boolean) {
+      const integrations = isAdmin
+        ? await models.CallIntegrations.find().lean()
+        : await models.CallIntegrations.find({
+            'operators.userId': userId,
+          }).lean();
 
-      if (!integrations) {
+      if (!integrations?.length) {
         return [];
       }
 
-      const filteredIntegration = integrations.map((item: ICallIntegration) => {
-        const integration = item;
+      if (isAdmin) {
+        return integrations;
+      }
 
-        const filteredOperators = integration.operators.filter(
+      return integrations.map((item: ICallIntegration) => ({
+        ...item,
+        operators: item.operators.filter(
           (operator) => operator.userId === userId,
-        );
-
-        return { ...integration, operators: filteredOperators };
-      });
-
-      return filteredIntegration;
+        ),
+      }));
     }
-    public static async getIntegration(userId: string, integrationId: string) {
-      const integration = await models.CallIntegrations.findOne({
-        inboxId: integrationId,
-        'operators.userId': userId,
-      });
+
+    public static async getIntegration(
+      userId: string,
+      integrationId: string,
+      isAdmin?: boolean,
+    ) {
+      const query = isAdmin
+        ? { inboxId: integrationId }
+        : { inboxId: integrationId, 'operators.userId': userId };
+
+      const integration = await models.CallIntegrations.findOne(query);
 
       if (!integration) {
         throw new Error('Integration not found');
@@ -52,14 +66,14 @@ export const loadCallIntegrationClass = (models: IModels) => {
       return integration;
     }
     public static async getIntegrationQueuesByUser(userId: string) {
-      const integration = await models.CallIntegrations.findOne({
+      const integrations = await models.CallIntegrations.find({
         'operators.userId': userId,
-      });
+      }).lean();
 
-      if (!integration) {
+      if (!integrations.length) {
         throw new Error('Integration not found');
       }
-      return integration.queues || [];
+      return integrations.flatMap((integration) => integration.queues || []);
     }
   }
 

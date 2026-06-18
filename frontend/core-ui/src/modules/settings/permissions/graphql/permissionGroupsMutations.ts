@@ -47,3 +47,12 @@ export const UPDATE_USER_PERMISSION_GROUPS_MUTATION = gql`
     }
   }
 `;
+
+export const UPDATE_USERS_PERMISSION_GROUPS_MUTATION = gql`
+  mutation UsersUpdatePermissionGroups(
+    $userIds: [String]!
+    $groupIds: [String]!
+  ) {
+    usersUpdatePermissionGroups(userIds: $userIds, groupIds: $groupIds)
+  }
+`;

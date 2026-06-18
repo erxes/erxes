@@ -7,8 +7,19 @@ import { editingOAuthClientAtom } from '../state';
 import { useOAuthClientsForm } from '../hooks/useOAuthClientsForm';
 import { useOAuthClientsEdit } from '../hooks/useOAuthClientsEdit';
 import { TOAuthClientsForm } from '../hooks/useOAuthClientsForm';
+import { IOAuthClientApp } from '../types';
 import { OAuthClientForm } from './OAuthClientForm';
 import { OAuthClientSecretDialog } from './OAuthClientSecretDialog';
+
+const getDefaultAccessTokenLifetime = (
+  oauthClientApp?: IOAuthClientApp | null,
+) => {
+  if (oauthClientApp?.type !== 'confidential') {
+    return undefined;
+  }
+
+  return oauthClientApp.accessTokenLifetime || 'year';
+};
 
 export const EditOAuthClient = () => {
   const { toast } = useToast();
@@ -24,6 +35,7 @@ export const EditOAuthClient = () => {
     logo: editingOAuthClient?.logo,
     description: editingOAuthClient?.description,
     type: editingOAuthClient?.type,
+    accessTokenLifetime: getDefaultAccessTokenLifetime(editingOAuthClient),
     redirectUrls: editingOAuthClient?.redirectUrls || [],
   });
   const [revealedSecret, setRevealedSecret] = React.useState<{
@@ -38,6 +50,7 @@ export const EditOAuthClient = () => {
         logo: editingOAuthClient.logo,
         description: editingOAuthClient.description,
         type: editingOAuthClient.type,
+        accessTokenLifetime: getDefaultAccessTokenLifetime(editingOAuthClient),
         redirectUrls: editingOAuthClient.redirectUrls || [],
       });
     }
@@ -53,7 +66,12 @@ export const EditOAuthClient = () => {
       if (!editingOAuthClient) return;
 
       oauthClientAppsEdit({
-        variables: { _id: editingOAuthClient._id, ...data },
+        variables: {
+          _id: editingOAuthClient._id,
+          ...data,
+          accessTokenLifetime:
+            data.type === 'confidential' ? data.accessTokenLifetime : undefined,
+        },
         onCompleted: ({ oauthClientAppsEdit: oauthClientApp }) => {
           toast({
             variant: 'success',

@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { TagsSelect } from 'ui-modules';
 import { IconTags } from '@tabler/icons-react';
+import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const {
@@ -42,11 +43,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
 
   const startDate = (task as any)?.startDate;
   const description = (task as any)?.description;
-  const parsedDescription = description ? JSON.parse(description) : undefined;
-  const initialDescriptionContent =
-    Array.isArray(parsedDescription) && parsedDescription.length > 0
-      ? parsedDescription
-      : undefined;
+  const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
@@ -84,7 +81,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     if (!debouncedDescriptionContent) return;
     if (
       JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(description ? JSON.parse(description) : undefined)
+      JSON.stringify(parseDescriptionBlocks(description))
     ) {
       return;
     }

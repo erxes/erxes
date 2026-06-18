@@ -18,7 +18,7 @@ export const wishlistQueries: Record<string, Resolver> = {
       pluginName: 'core',
       module: 'products',
       action: 'findOne',
-      input: { _id: productId },
+      input: { query: { _id: productId } },
     });
 
     if (!product) return null;

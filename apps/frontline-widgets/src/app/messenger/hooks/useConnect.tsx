@@ -12,6 +12,7 @@ import {
   connectionAtom,
   customerDataAtom,
   customerIdAtom,
+  hasKnowledgeBaseTopicAtom,
   hasTicketConfigAtom,
   integrationIdAtom,
   messengerDataAtom,
@@ -37,6 +38,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
   const setUiOptions = useSetAtom(uiOptionsAtom);
   const setTicketConfig = useSetAtom(ticketConfigAtom);
   const setHasTicketConfig = useSetAtom(hasTicketConfigAtom);
+  const setHasKnowledgeBaseTopic = useSetAtom(hasKnowledgeBaseTopicAtom);
   const setCustomerId = useSetAtom(customerIdAtom);
   const [customerData, setCustomerData] = useAtom(customerDataAtom);
   const connectionKeyRef = useRef<string>('');
@@ -55,6 +57,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
             DEFAULT: '#5629B6',
             foreground: '#ffffff',
           },
+          navigationVariant: 'pill',
         };
 
         setConnection((prev: IConnectionInfo) => ({
@@ -76,6 +79,9 @@ export const useConnect = ({ integrationId }: connectionProps) => {
         setUiOptions(uiOptions as IWidgetUiOptions);
         setTicketConfig(connectionData.ticketConfig as ITicketConfig);
         setHasTicketConfig(!!connectionData.ticketConfig);
+        setHasKnowledgeBaseTopic(
+          !!connectionData.messengerData?.knowledgeBaseTopicId,
+        );
         // Apply uiOptions to Tailwind CSS
         if (uiOptions) {
           applyUiOptionsToTailwind(uiOptions);

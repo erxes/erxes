@@ -54,7 +54,13 @@ const SettingSyncOrder = lazy(() =>
   })),
 );
 
-const AccountingSettings = () => {
+const Permissions = lazy(() =>
+  import('~/pages/PermissionsPage').then((module) => ({
+    default: module.PermissionsPage,
+  })),
+);
+
+const AccountingSubSettings = () => {
   return (
     <Filter id="accounting-settings">
       <div className="flex flex-col flex-auto overflow-hidden">
@@ -67,13 +73,13 @@ const AccountingSettings = () => {
           <AccountingSidebar />
           <Suspense
             fallback={
-              <div className="flex justify-center items-center h-full">
+              <div className="flex flex-auto justify-center items-center h-full w-full">
                 <Spinner />
               </div>
             }
           >
             <Routes>
-              <Route path="/" element={<AccountingMainConfig />} />
+              <Route path="" element={<AccountingMainConfig />} />
               <Route path="/accounts" element={<Accounts />} />
               <Route
                 path="/account-categories"
@@ -87,11 +93,20 @@ const AccountingSettings = () => {
                 element={<SettingSyncDealReturn />}
               />
               <Route path="/sync-order" element={<SettingSyncOrder />} />
+              <Route path="/permissions" element={<Permissions />} />
             </Routes>
           </Suspense>
         </div>
       </div>
     </Filter>
+  );
+};
+
+const AccountingSettings = () => {
+  return (
+    <Routes>
+      <Route path="/*" element={<AccountingSubSettings />} />
+    </Routes>
   );
 };
 

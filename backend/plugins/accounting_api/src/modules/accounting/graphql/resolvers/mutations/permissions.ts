@@ -1,33 +1,88 @@
 import { IContext } from '~/connectionResolvers';
-import { ACCOUNT_PERMISSION_SCOPES, ACCOUNT_PERMISSION_WRITE_SCOPES } from '~/modules/accounting/@types/permission';
+import {
+  ACCOUNT_PERMISSION_SCOPES,
+  ACCOUNT_PERMISSION_WRITE_SCOPES,
+} from '~/modules/accounting/@types/permission';
+
+const READ_SCOPE_BY_RATE = Object.entries(
+  ACCOUNT_PERMISSION_SCOPES.RATE,
+).reduce((acc, [scope, rate]) => ({ ...acc, [rate]: scope }), {}) as Record<
+  number,
+  string
+>;
+
+const normalizeReadByWrite = ({
+  read,
+  write,
+}: {
+  read: string;
+  write: string;
+}) => {
+  const readRate =
+    (ACCOUNT_PERMISSION_SCOPES.RATE as Record<string, number>)[read] ?? 0;
+  const writeRate =
+    (ACCOUNT_PERMISSION_WRITE_SCOPES.RATE as Record<string, number>)[write] ??
+    0;
+
+  if (readRate >= writeRate) {
+    return read;
+  }
+
+  return READ_SCOPE_BY_RATE[writeRate] || ACCOUNT_PERMISSION_SCOPES.NONE;
+};
 
 const accountPermissionsMutations = {
   async setAccountPermissions(
     _root,
-    input: { accountIds: string[]; userId: string; level?: number; read?: string; write?: string },
+    input: {
+      accountIds: string[];
+      userId: string;
+      level?: number;
+      read?: string;
+      write?: string;
+    },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('manageAccountPermissions');
 
     const { accountIds, userId, level, read, write } = input;
 
-    const effectiveRead = read ?? ACCOUNT_PERMISSION_SCOPES.NONE;
+    const requestedRead = read ?? ACCOUNT_PERMISSION_SCOPES.NONE;
     const effectiveWrite = write ?? ACCOUNT_PERMISSION_WRITE_SCOPES.NONE;
 
-    if (!ACCOUNT_PERMISSION_SCOPES.ALL.includes(effectiveRead)) {
-      throw new Error(`Invalid read scope: ${effectiveRead}. Allowed: ${ACCOUNT_PERMISSION_SCOPES.ALL.join(', ')}`);
+    if (!ACCOUNT_PERMISSION_SCOPES.ALL.includes(requestedRead)) {
+      throw new Error(
+        `Invalid read scope: ${requestedRead}. Allowed: ${ACCOUNT_PERMISSION_SCOPES.ALL.join(
+          ', ',
+        )}`,
+      );
     }
     if (!ACCOUNT_PERMISSION_WRITE_SCOPES.ALL.includes(effectiveWrite)) {
-      throw new Error(`Invalid write scope: ${effectiveWrite}. Allowed: ${ACCOUNT_PERMISSION_WRITE_SCOPES.ALL.join(', ')}`);
+      throw new Error(
+        `Invalid write scope: ${effectiveWrite}. Allowed: ${ACCOUNT_PERMISSION_WRITE_SCOPES.ALL.join(
+          ', ',
+        )}`,
+      );
     }
 
-    if (effectiveRead === ACCOUNT_PERMISSION_SCOPES.NONE && effectiveWrite === ACCOUNT_PERMISSION_WRITE_SCOPES.NONE) {
+    const effectiveRead = normalizeReadByWrite({
+      read: requestedRead,
+      write: effectiveWrite,
+    });
+
+    if (
+      effectiveRead === ACCOUNT_PERMISSION_SCOPES.NONE &&
+      effectiveWrite === ACCOUNT_PERMISSION_WRITE_SCOPES.NONE
+    ) {
       await models.Permissions.deleteMany({
         userId,
-        accountId: { $in: accountIds }
+        accountId: { $in: accountIds },
       });
 
-      return accountIds.map(accId => ({ accountId: accId, status: 'deleted' }));
+      return accountIds.map((accId) => ({
+        accountId: accId,
+        status: 'deleted',
+      }));
     }
 
     const bulkOps: any[] = [];

@@ -1,35 +1,53 @@
-import { Avatar, Button, cn } from 'erxes-ui';
+import { IconBrain } from '@tabler/icons-react';
+import { Badge } from 'erxes-ui';
+import { motion } from 'motion/react';
 
 export const TypingStatus = () => {
   return (
-    <Button
-      variant="ghost"
-      className="flex group/customer-message items-center size-auto gap-2 flex-row p-0 hover:bg-transparent"
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6, scale: 0.97 }}
+      transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="flex items-end justify-start gap-2"
     >
-      <Avatar className='size-10'>
-        <Avatar.Fallback className="animate-pulse bg-accent">B</Avatar.Fallback>
-      </Avatar>
-      <div className="inline-flex text-xs text-muted-foreground py-2 px-3">
-        {'Typing...'.split('').map((letter, idx) => (
-          <p
-            key={idx}
-            className={cn(
-              {
-                'delay-0': idx === 0 || idx === 7,
-                'delay-75': idx === 1 || idx === 8,
-                'delay-100': idx === 2 || idx === 9,
-                'delay-150': idx === 3,
-                'delay-200': idx === 4,
-                'delay-300': idx === 5,
-                'delay-400': idx === 6,
-              },
-              letter === '.' ? `animate-bounce` : 'animate-pulse',
-            )}
-          >
-            {letter}
-          </p>
-        ))}
+      <div className="size-8 shrink-0 rounded-full bg-primary text-primary-foreground flex self-end items-center justify-center">
+        <IconBrain size={20} />
       </div>
-    </Button>
+      <div className="space-y-0.5">
+        <div className="text-[11px] text-muted-foreground px-1 font-medium">
+          Ai Agent{' '}
+          <Badge
+            variant={'ghost'}
+            className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
+          >
+            Ai
+          </Badge>
+        </div>
+        <div className="inline-flex flex-none items-center gap-1.5 p-3 bg-background rounded-2xl rounded-bl-sm shadow-sm">
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="block size-1 rounded-full"
+              animate={{
+                y: [0, -5, 0],
+                backgroundColor: [
+                  'var(--color-accent)',
+                  'var(--color-primary)',
+                  'var(--color-accent)',
+                ],
+              }}
+              transition={{
+                duration: 0.9,
+                repeat: Infinity,
+                repeatType: 'loop',
+                delay: i * 0.18,
+                ease: [0.45, 0, 0.55, 1],
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </motion.div>
   );
 };

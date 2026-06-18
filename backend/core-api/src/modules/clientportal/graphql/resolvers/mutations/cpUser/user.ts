@@ -4,6 +4,7 @@ import {
   cpUserService,
   socialAuthService,
   changeContactService,
+  contactService,
 } from '@/clientportal/services';
 import { getCPUserByIdOrThrow } from '@/clientportal/services/helpers/userUtils';
 import {
@@ -20,7 +21,9 @@ import type {
   ConfirmChangeEmailParams,
   RequestChangePhoneParams,
   ConfirmChangePhoneParams,
+  ChangePasswordParams,
 } from '@/clientportal/types/cpUserParams';
+import { validatePassword } from '@/clientportal/services/helpers/validators';
 
 export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalUserEdit(
@@ -60,6 +63,12 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     }
 
     const updatedCustomer = await models.Customers.updateCustomer(
+      cpUser.erxesCustomerId,
+      params,
+    );
+
+    await contactService.syncCustomerContactToCPUsers(
+      models,
       cpUser.erxesCustomerId,
       params,
     );
@@ -273,5 +282,52 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       throw new AuthenticationError('User not authenticated');
     }
     return changeContactService.confirmChangePhone(cpUser._id, code, models);
+  },
+
+  async clientPortalUserDelete(
+    _root: unknown,
+    _args: unknown,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    await models.CPUser.removeUser(cpUser._id, models);
+    return { _id: cpUser._id };
+  },
+
+  async clientPortalUserChangePassword(
+    _root: unknown,
+    { currentPassword, newPassword }: ChangePasswordParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    const user = await getCPUserByIdOrThrow(cpUser._id, models);
+
+    if (!user.password) {
+      throw new ValidationError('No password set for this account');
+    }
+
+    const isMatch = await models.CPUser.comparePassword(
+      currentPassword,
+      user.password,
+    );
+    if (!isMatch) {
+      throw new ValidationError('Current password is incorrect');
+    }
+
+    validatePassword(newPassword);
+
+    const hashedPassword = await models.CPUser.generatePassword(newPassword);
+    await models.CPUser.updateOne(
+      { _id: cpUser._id },
+      { $set: { password: hashedPassword }, $unset: { actionCode: '' } },
+    );
+
+    return getCPUserByIdOrThrow(cpUser._id, models);
   },
 };

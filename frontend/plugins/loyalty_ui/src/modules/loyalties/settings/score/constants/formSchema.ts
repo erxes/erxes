@@ -10,6 +10,10 @@ export const cardBasedRuleSchema = z.object({
 export const loyaltyScoreFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
+  order: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.coerce.number().optional(),
+  ),
   conditions: z.object({
     productCategoryIds: z.array(z.string()).optional(),
     productIds: z.array(z.string()).optional(),
@@ -32,6 +36,12 @@ export const loyaltyScoreFormSchema = z.object({
     })
     .optional(),
   subtract: z
+    .object({
+      placeholder: z.string().optional(),
+      currencyRatio: z.string().optional(),
+    })
+    .optional(),
+  set: z
     .object({
       placeholder: z.string().optional(),
       currencyRatio: z.string().optional(),

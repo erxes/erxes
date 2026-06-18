@@ -2,7 +2,6 @@ import {
   Label,
   Input,
   Sheet,
-  Textarea,
   ToggleGroup,
   Button,
   StringArrayInput,
@@ -10,10 +9,14 @@ import {
   Checkbox,
   ScrollArea,
   Tooltip,
+  BlockEditor,
+  useBlockEditor,
 } from 'erxes-ui';
 import { IFieldData, useFormDnd } from './FormDndProvider';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
+import { useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import {
   FieldValidatorPresetKey,
   FieldValidatorType,
@@ -29,11 +32,18 @@ import {
 const NUMBER_TYPES = ['number'];
 const DATE_TYPES = ['date'];
 
-const VALIDATOR_PRESET_OPTIONS: { value: FieldValidatorPresetKey; label: string }[] = [
+const VALIDATOR_PRESET_OPTIONS: {
+  value: FieldValidatorPresetKey;
+  label: string;
+}[] = [
   { value: 'EMAIL', label: 'Email address' },
-  { value: 'PHONE_INTL', label: 'International phone' },
+  { value: 'PHONE', label: 'Phone number' },
   { value: 'POSTAL_CODE', label: 'Postal / ZIP code' },
   { value: 'ALPHANUMERIC', label: 'Alphanumeric only' },
+  { value: 'MN_VEHICLE_REGISTRATION', label: 'Vehicle plate (MN)' },
+  { value: 'NUMBER', label: 'Numeric value' },
+  { value: 'DATE', label: 'Date value' },
+  { value: 'DATE_TIME', label: 'Date and time' },
 ];
 
 const getOperatorOptions = (fieldType?: string) => {
@@ -70,6 +80,15 @@ export const FormFieldDetail = ({
 }) => {
   const { handleChangeField, handleDeleteField, fields, getFieldValue } =
     useFormDnd();
+
+  const editor = useBlockEditor();
+
+  useEffect(() => {
+    const description = fieldData?.description || '';
+    editor.tryParseHTMLToBlocks(description).then((blocks) => {
+      editor.replaceBlocks(editor.document, blocks);
+    });
+  }, [fieldId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const availableFields = Object.entries(fields)
     .flatMap(([stepId, fieldIds]) =>
@@ -160,11 +179,17 @@ export const FormFieldDetail = ({
             </div>
             <div className="space-y-2 col-span-2">
               <Label>Description</Label>
-              <Textarea
-                value={fieldData?.description}
-                onChange={(e) =>
-                  handleValueChange('description', e.target.value)
-                }
+              <BlockEditor
+                editor={editor}
+                variant="outline"
+                className="min-h-20"
+                onChange={() => {
+                  editor.blocksToHTMLLossy(editor.document).then((html) => {
+                    const safe = DOMPurify.sanitize(html);
+                    const stripped = safe.replace(/<[^>]*>/g, '').trim();
+                    handleValueChange('description', stripped ? safe : '');
+                  });
+                }}
               />
             </div>
             <div className="space-y-2 col-span-2">
@@ -195,74 +220,79 @@ export const FormFieldDetail = ({
               />
             </div>
             {/* Validator Configuration */}
-            <div className="space-y-3 col-span-2">
-              <Label>Validation</Label>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                value={fieldData.validator?.type ?? 'NONE'}
-                onValueChange={(value) => {
-                  if (!value) return;
-                  handleChangeValidator({ type: value as FieldValidatorType });
-                }}
-              >
-                <ToggleGroup.Item value="NONE" className="flex-1">
-                  None
-                </ToggleGroup.Item>
-                <ToggleGroup.Item value="PRESET" className="flex-1">
-                  Preset
-                </ToggleGroup.Item>
-                <ToggleGroup.Item value="CUSTOM" className="flex-1">
-                  Custom
-                </ToggleGroup.Item>
-              </ToggleGroup>
-
-              {fieldData.validator?.type === 'PRESET' && (
-                <Select
-                  value={fieldData.validator.presetKey ?? ''}
-                  onValueChange={(value) =>
+            {fieldData.type?.startsWith('core:customer') ? null : (
+              <div className="space-y-3 col-span-2">
+                <Label>Validation</Label>
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  value={fieldData.validator?.type ?? 'NONE'}
+                  onValueChange={(value) => {
+                    if (!value) return;
                     handleChangeValidator({
-                      presetKey: value as FieldValidatorPresetKey,
-                    })
-                  }
+                      type: value as FieldValidatorType,
+                    });
+                  }}
                 >
-                  <Select.Trigger>
-                    <Select.Value placeholder="Select a preset rule" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {VALIDATOR_PRESET_OPTIONS.map((opt) => (
-                      <Select.Item key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              )}
+                  <ToggleGroup.Item value="NONE" className="flex-1">
+                    None
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="PRESET" className="flex-1">
+                    Preset
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="CUSTOM" className="flex-1">
+                    Custom
+                  </ToggleGroup.Item>
+                </ToggleGroup>
 
-              {fieldData.validator?.type === 'CUSTOM' && (
-                <Input
-                  value={fieldData.validator.customRegex ?? ''}
-                  onChange={(e) =>
-                    handleChangeValidator({ customRegex: e.target.value })
-                  }
-                  placeholder="Regex pattern (e.g. ^[A-Z]{3}\d{4}$)"
-                  spellCheck={false}
-                />
-              )}
-
-              {fieldData.validator?.type &&
-                fieldData.validator.type !== 'NONE' && (
-                  <Input
-                    value={fieldData.validator.errorMessage ?? ''}
-                    onChange={(e) =>
-                      handleChangeValidator({ errorMessage: e.target.value })
+                {fieldData.validator?.type === 'PRESET' && (
+                  <Select
+                    value={fieldData.validator.presetKey ?? ''}
+                    onValueChange={(value) =>
+                      handleChangeValidator({
+                        presetKey: value as FieldValidatorPresetKey,
+                      })
                     }
-                    placeholder="Error message shown to the user"
+                  >
+                    <Select.Trigger>
+                      <Select.Value placeholder="Select a preset rule" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {VALIDATOR_PRESET_OPTIONS.map((opt) => (
+                        <Select.Item key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                )}
+
+                {fieldData.validator?.type === 'CUSTOM' && (
+                  <Input
+                    value={fieldData.validator.customRegex ?? ''}
+                    onChange={(e) =>
+                      handleChangeValidator({ customRegex: e.target.value })
+                    }
+                    placeholder="Regex pattern (e.g. ^[A-Z]{3}\d{4}$)"
+                    spellCheck={false}
                   />
                 )}
-            </div>
 
-            {fieldData?.type === 'select' && (
+                {fieldData.validator?.type &&
+                  fieldData.validator.type !== 'NONE' && (
+                    <Input
+                      value={fieldData.validator.errorMessage ?? ''}
+                      onChange={(e) =>
+                        handleChangeValidator({ errorMessage: e.target.value })
+                      }
+                      placeholder="Error message shown to the user"
+                    />
+                  )}
+              </div>
+            )}
+
+            {(fieldData?.type === 'select' ||
+              fieldData?.type === 'select:countries') && (
               <div className="space-y-2 col-span-2 flex gap-2 items-center">
                 <Label htmlFor="allowSearch" className="flex items-center m-0!">
                   Allow search
@@ -291,8 +321,10 @@ export const FormFieldDetail = ({
               </div>
             )}
             {(fieldData?.type === 'select' ||
+              fieldData?.type === 'select:countries' ||
               fieldData?.type === 'radio' ||
-              fieldData?.type === 'check') && (
+              fieldData?.type === 'check' ||
+              fieldData?.type === 'core:customer:sex') && (
               <div className="space-y-2 col-span-2">
                 <Label>Options</Label>
                 <StringArrayInput

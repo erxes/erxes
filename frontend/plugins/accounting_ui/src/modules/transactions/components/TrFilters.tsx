@@ -66,10 +66,20 @@ const TransactionsFilterPopover = () => {
                   <IconNotebook />
                   Журнал
                 </Filter.Item>
+
+                <Command.Separator className="my-1" />
                 <Filter.Item value="statuses">
                   <IconToggleRightFilled />
                   Төлөв
                 </Filter.Item>
+                <SelectMember.FilterItem
+                  value="mentionOwnerId"
+                  label="Үйлдэгч"
+                />
+                <SelectMember.FilterItem
+                  value="mentionUserId"
+                  label="Баталгаажуулагч"
+                />
 
                 <Command.Separator className="my-1" />
                 <SelectAccount.FilterItem value="accountIds" />
@@ -128,6 +138,9 @@ const TransactionsFilterPopover = () => {
           <Filter.View filterKey="statuses">
             <AccountsFilterTrStatus />
           </Filter.View>
+          <SelectMember.FilterView mode="single" queryKey="mentionOwnerId" />
+          <SelectMember.FilterView mode="single" queryKey="mentionUserId" />
+
           <Filter.View filterKey="journal">
             <AccountsFilterTrJournal />
           </Filter.View>
@@ -233,6 +246,16 @@ export const TransactionsFilter = ({
           </Filter.BarButton>
         </Filter.BarItem>
 
+        <SelectMember.FilterBar
+          queryKey="mentionOwnerId"
+          label="Үйлдэгч"
+          mode="single"
+        />
+        <SelectMember.FilterBar
+          queryKey="mentionUserId"
+          label="Баталгаажуулагч"
+          mode="single"
+        />
         <SelectMember.FilterBar
           queryKey="createdUserId"
           label="Үүсгэсэн"

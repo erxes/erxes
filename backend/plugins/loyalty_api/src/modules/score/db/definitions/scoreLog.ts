@@ -21,13 +21,14 @@ export const scoreLogSchema = schemaWrapper(
         optional: true,
       },
       ownerId: { type: String, index: true, label: 'Owner' },
+      preScore: { type: Number, label: 'Previous Score', optional: true },
       changeScore: { type: Number, label: 'Changed Score' },
       description: { type: String, label: 'Description' },
       serviceName: { type: String, label: 'Service name' },
       targetId: { type: String, label: 'Target' },
       action: {
         type: String,
-        enum: ['add', 'subtract', 'refund'],
+        enum: ['add', 'subtract', 'set', 'refund', 'return'],
         label: 'Action',
       },
       sourceScoreLogId: {
@@ -35,8 +36,6 @@ export const scoreLogSchema = schemaWrapper(
         label: 'Source Score Log',
         optional: true,
       },
-      amount: { type: Number, label: 'Amount', optional: true },
-      quantity: { type: Number, label: 'Quantity', optional: true },
     },
     {
       timestamps: true,
@@ -49,6 +48,22 @@ scoreLogSchema.index({
   ownerId: 1,
   createdAt: 1,
   changeScore: 1,
+});
+
+scoreLogSchema.index({
+  ownerType: 1,
+  ownerId: 1,
+  createdAt: -1,
+});
+
+scoreLogSchema.index({
+  campaignId: 1,
+  createdAt: -1,
+});
+
+scoreLogSchema.index({
+  action: 1,
+  targetId: 1,
 });
 
 scoreLogSchema.index({

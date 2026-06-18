@@ -36,6 +36,7 @@ export const orderToReturnTrs = async ({
   let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:order', order._id];
+  const number = order.number;
 
   const oldTrs = await models.Transactions.find({
     contentType,
@@ -89,6 +90,7 @@ export const orderToReturnTrs = async ({
     _id: mainId,
     ptrId,
     parentId,
+    number,
     date,
     journal: JOURNALS.INV_SALE_RETURN,
     side: TR_SIDES.DEBIT,
@@ -147,6 +149,7 @@ export const orderToReturnTrs = async ({
         _id: nanoid(),
         ptrId,
         parentId,
+        number,
         date,
         journal,
         side,
@@ -172,11 +175,13 @@ export const orderToReturnTrs = async ({
       parentId,
       [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
       [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   }
 };

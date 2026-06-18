@@ -81,7 +81,8 @@ export const TR_STATUSES = {
     'canelled',
     'complete',
   ],
-  ACTIVE: ['progress', 'assigned', 'confirmed', 'complete'],
+  ACTIVE: ['progress', 'assigned', 'confirmed', 'canelled', 'complete'],
+  CONVERSATION: ['draft', 'mentioned', 'approved', 'rejeced', 'returned', 'plan'],
 };
 
 export const TR_INVENTORY_STATUS_TYPES = {

@@ -57,7 +57,7 @@ export interface IRule {
 
 export interface LeadData {
   adminEmails: string[];
-  thankImage?: string;
+  successImage?: string;
   thankTitle: string;
   thankContent: string;
   viewCount: number;
@@ -90,3 +90,11 @@ export interface IFormData {
   channelId: string;
   integrationId: string | null;
 }
+
+export type IAttachment = {
+  url: string;
+  name: string;
+  size: number;
+  type: string;
+  duration?: number;
+};

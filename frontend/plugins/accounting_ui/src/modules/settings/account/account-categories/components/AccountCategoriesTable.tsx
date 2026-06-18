@@ -4,6 +4,8 @@ import {
   ITextFieldContainerProps,
   RecordTable,
   RecordTableTree,
+  Skeleton,
+  Table,
   TextField,
   useQueryState,
   Popover,
@@ -22,8 +24,32 @@ import { AccountCategoriesCommandbar } from './AccountCategoriesCommandbar';
 import { useMemo } from 'react';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
+const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const rowKeys = useMemo(
+    () => Array.from({ length: rows }, () => crypto.randomUUID()),
+    [rows],
+  );
+  return (
+    <>
+      {rowKeys.map((rowKey) => (
+        <Table.Row key={rowKey} className="h-cell">
+          {accountCategoriesColumns.map((col, colIndex) => (
+            <Table.Cell
+              key={`${rowKey}-${col.id ?? colIndex}`}
+              className="border-r-0 px-2"
+            >
+              <Skeleton className="h-4 w-full min-w-4" />
+            </Table.Cell>
+          ))}
+        </Table.Row>
+      ))}
+    </>
+  );
+};
+
 export const AccountCategoriesTable = () => {
-  const { accountCategories } = useAccountCategories();
+  const { accountCategories, loading } = useAccountCategories();
+  const isInitialLoading = loading && !accountCategories?.length;
 
   const categoryObject = useMemo(() => {
     return (
@@ -36,18 +62,19 @@ export const AccountCategoriesTable = () => {
       ) || {}
     );
   }, [accountCategories]);
-  console.log({ accountCategories });
 
   return (
     <RecordTable.Provider
       columns={accountCategoriesColumns}
       data={
-        accountCategories?.map((category) => ({
-          ...category,
-          hasChildren: accountCategories.some(
-            (c) => c.parentId === category._id,
-          ),
-        })) || []
+        isInitialLoading
+          ? []
+          : accountCategories?.map((category) => ({
+              ...category,
+              hasChildren: accountCategories.some(
+                (c) => c.parentId === category._id,
+              ),
+            })) || []
       }
       stickyColumns={['more', 'checkbox', 'code']}
     >
@@ -67,6 +94,9 @@ export const AccountCategoriesTable = () => {
                   />
                 )}
               />
+              {isInitialLoading && (
+                <AccountCategoriesInitialSkeleton rows={20} />
+              )}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>

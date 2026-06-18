@@ -154,7 +154,7 @@ export default {
       return null;
     }
 
-    const response = await sendTRPCMessage({
+    return await sendTRPCMessage({
       subdomain,
 
       method: 'query',
@@ -164,7 +164,6 @@ export default {
       input: { _id: order.convertDealId },
       defaultValue: {},
     });
-    return response?.data;
   },
 
   async dealLink(order: IOrderDocument, _params, { subdomain }: IContext) {
@@ -172,7 +171,7 @@ export default {
       return null;
     }
 
-    const response = await sendTRPCMessage({
+    return await sendTRPCMessage({
       subdomain,
       method: 'query',
       pluginName: 'sales',
@@ -181,6 +180,5 @@ export default {
       input: { _id: order.convertDealId, type: 'deal' },
       defaultValue: {},
     });
-    return response?.data;
   },
 };

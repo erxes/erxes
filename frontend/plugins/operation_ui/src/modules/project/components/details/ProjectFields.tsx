@@ -19,6 +19,7 @@ import { SelectProjectPriority } from '@/project/components/select/SelectProject
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
 import { SelectTags, SelectMember } from 'ui-modules';
+import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
 export const ProjectFields = ({ projectId }: { projectId: string }) => {
   const { project } = useGetProject({
@@ -41,7 +42,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
 
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
-  >(description ? JSON.parse(description) : undefined);
+  >(parseDescriptionBlocks(description));
   const editor = useBlockEditor({
     initialContent: descriptionContent?.length ? descriptionContent : undefined,
     placeholder: 'Description...',
@@ -108,7 +109,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
     if (!debouncedDescriptionContent) return;
     if (
       JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(description ? JSON.parse(description) : undefined)
+      JSON.stringify(parseDescriptionBlocks(description))
     ) {
       return;
     }

@@ -3,7 +3,11 @@ import { useAtom } from 'jotai';
 import { useEffect, useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addEBarimtStageInConfigSchema, TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
+import {
+  addEBarimtStageInConfigSchema,
+  normalizeRuleIds,
+  TStageInEbarimtConfig,
+} from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { stageInEbarimtDetailAtom } from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
 import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
 import { useEbarimtConfigState } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useEbarimtConfigState';
@@ -37,10 +41,10 @@ export const EditStageInEBarimtConfig = () => {
       hasVat: false,
       citytaxPercent: '',
       vatPercent: '',
-      reverseVatRules: '',
+      reverseVatRules: [],
       hasCitytax: false,
       footerText: '',
-      reverseCtaxRules: '',
+      reverseCtaxRules: [],
       withDescription: false,
       skipEbarimt: false,
       headerText: '',
@@ -68,10 +72,10 @@ export const EditStageInEBarimtConfig = () => {
         hasVat: detail.hasVat || false,
         citytaxPercent: detail.citytaxPercent || '',
         vatPercent: detail.vatPercent || '',
-        reverseVatRules: detail.reverseVatRules || '',
+        reverseVatRules: normalizeRuleIds(detail.reverseVatRules),
         hasCitytax: detail.hasCitytax || false,
         footerText: detail.footerText || '',
-        reverseCtaxRules: detail.reverseCtaxRules || '',
+        reverseCtaxRules: normalizeRuleIds(detail.reverseCtaxRules),
         withDescription: detail.withDescription || false,
         skipEbarimt: detail.skipEbarimt || false,
         headerText: detail.headerText || '',
@@ -92,12 +96,20 @@ export const EditStageInEBarimtConfig = () => {
     try {
       setLoading(true);
       const existingConfig = getConfigByStageId(data.stageId);
-      await saveStageInEbarimtConfig(data, 'update', existingConfig?._id || detail._id);
+      await saveStageInEbarimtConfig(
+        data,
+        'update',
+        existingConfig?._id || detail._id,
+      );
       setOpen(null);
       setDetail(null);
       reset();
     } catch {
-      toast({ title: 'Error', description: 'Failed to save configuration', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save configuration',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -164,7 +176,9 @@ export const EditStageInEBarimtConfig = () => {
         </div>
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
-            <Button variant="outline" size="lg">Cancel</Button>
+            <Button variant="outline" size="lg">
+              Cancel
+            </Button>
           </Sheet.Close>
           <Button type="submit" form={FORM_ID} size="lg" disabled={loading}>
             {loading ? <Spinner /> : 'Save'}

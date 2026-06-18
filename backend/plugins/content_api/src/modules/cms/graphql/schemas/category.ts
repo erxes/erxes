@@ -40,6 +40,7 @@ export const inputs = `
         parentId: String
         status: String
         clientPortalId: String
+        language: String
         customFieldsData: JSON
         translations: [TranslationInput]
     }

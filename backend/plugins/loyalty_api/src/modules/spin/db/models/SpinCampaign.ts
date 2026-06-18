@@ -1,15 +1,13 @@
 import { Model } from 'mongoose';
-
 import { IModels } from '~/connectionResolvers';
-
 import {
   ISpinCampaign,
   ISpinCampaignDocument,
 } from '@/spin/@types/spinCampaign';
-
 import { spinCampaignSchema } from '@/spin/db/definitions/spinCampaign';
 import { CAMPAIGN_STATUS } from '~/constants';
 import { validCampaign } from '~/utils/validCampaign';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface ISpinCampaignModel extends Model<ISpinCampaignDocument> {
   getSpinCampaign(_id: string): Promise<ISpinCampaignDocument>;
@@ -21,7 +19,12 @@ export interface ISpinCampaignModel extends Model<ISpinCampaignDocument> {
   removeSpinCampaigns(_ids: string[]): void;
 }
 
-export const loadSpinCampaignClass = (models: IModels) => {
+export const loadSpinCampaignClass = (
+  models: IModels,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog } = dispatcher;
+
   class SpinCampaign {
     public static async getSpinCampaign(_id: string) {
       const spinCampaign = await models.SpinCampaigns.findOne({ _id }).lean();
@@ -58,7 +61,15 @@ export const loadSpinCampaignClass = (models: IModels) => {
         modifiedAt: new Date(),
       };
 
-      return models.SpinCampaigns.create(modifier);
+      const created = await models.SpinCampaigns.create(modifier);
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     public static async updateSpinCampaign(_id: string, doc: ISpinCampaign) {
@@ -68,12 +79,22 @@ export const loadSpinCampaignClass = (models: IModels) => {
         throw new Error(e.message);
       }
 
+      const prevDoc = await models.SpinCampaigns.findOne({ _id }).lean();
       const modifier = {
         ...doc,
         modifiedAt: new Date(),
       };
 
-      return models.SpinCampaigns.updateOne({ _id }, { $set: modifier });
+      const result = await models.SpinCampaigns.updateOne({ _id }, { $set: modifier });
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: modifier,
+        prevDocument: prevDoc,
+      });
+
+      return result;
     }
 
     public static async removeSpinCampaigns(ids: string[]) {
@@ -87,24 +108,40 @@ export const loadSpinCampaignClass = (models: IModels) => {
 
       const campaignIds = [...atSpinIds, ...atVoucherIds];
       const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
-
-      const deleteCampaignIds = ids.filter(
-        (id) => !usedCampaignIds.includes(id),
-      );
+      const deleteCampaignIds = ids.filter((id) => !usedCampaignIds.includes(id));
       const now = new Date();
 
-      await models.SpinCampaigns.updateMany(
-        { _id: { $in: usedCampaignIds } },
-        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
-      );
+      if (usedCampaignIds.length) {
+        await models.SpinCampaigns.updateMany(
+          { _id: { $in: usedCampaignIds } },
+          { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
+        );
+        for (const id of usedCampaignIds) {
+          sendDbEventLog?.({
+            action: 'update',
+            docId: id,
+            currentDocument: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now },
+          });
+        }
+      }
 
-      return models.SpinCampaigns.deleteMany({
-        _id: { $in: deleteCampaignIds },
-      });
+      if (deleteCampaignIds.length) {
+        const result = await models.SpinCampaigns.deleteMany({
+          _id: { $in: deleteCampaignIds },
+        });
+        for (const id of deleteCampaignIds) {
+          sendDbEventLog?.({
+            action: 'delete',
+            docId: id,
+          });
+        }
+        return result;
+      }
+
+      return { deletedCount: 0 };
     }
   }
 
   spinCampaignSchema.loadClass(SpinCampaign);
-
   return spinCampaignSchema;
 };

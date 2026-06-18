@@ -18,7 +18,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const deal = params.updatedDocument;
   const oldDeal = params.object;
 
-  if (!deal.stageId || deal.stageId === oldDeal?.stageId) {
+  if (!deal?.stageId || deal.stageId === oldDeal?.stageId) {
     return;
   }
 
@@ -84,7 +84,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           module: 'products',
           action: 'find',
           method: 'query',
-          input: { _id: { $in: productIds } },
+          input: { query: { _id: { $in: productIds } } },
         });
 
         productById = Object.fromEntries(products.map((p) => [p._id, p]));

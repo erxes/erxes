@@ -7,6 +7,7 @@ import { assignmentCampaignSchema } from '@/assignment/db/definitions/assignment
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IAssignmentCampaignModel extends Model<IAssignmentCampaignDocument> {
   getAssignmentCampaign(_id: string): Promise<IAssignmentCampaignDocument>;
@@ -24,7 +25,12 @@ export interface IAssignmentCampaignModel extends Model<IAssignmentCampaignDocum
   ): Promise<IAssignmentDocument>;
 }
 
-export const loadAssignmentCampaignClass = (models: IModels) => {
+export const loadAssignmentCampaignClass = (
+  models: IModels,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog } = dispatcher;
+
   class AssignmentCampaign {
     public static async getAssignmentCampaign(_id: string) {
       const assignmentCampaign = await models.AssignmentCampaigns.findOne({
@@ -45,19 +51,37 @@ export const loadAssignmentCampaignClass = (models: IModels) => {
         modifiedAt: new Date(),
       };
 
-      return models.AssignmentCampaigns.create(modifier);
+      const created = await models.AssignmentCampaigns.create(modifier);
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     public static async updateAssignmentCampaign(
       _id: string,
       doc: IAssignmentCampaign,
     ) {
+      const prevDoc = await models.AssignmentCampaigns.findOne({ _id }).lean();
       const modifier = {
         ...doc,
         modifiedAt: new Date(),
       };
 
-      return models.AssignmentCampaigns.updateOne({ _id }, { $set: modifier });
+      const result = await models.AssignmentCampaigns.updateOne({ _id }, { $set: modifier });
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: modifier,
+        prevDocument: prevDoc,
+      });
+
+      return result;
     }
 
     public static async awardAssignmentCampaign(
@@ -102,14 +126,34 @@ export const loadAssignmentCampaignClass = (models: IModels) => {
       );
       const now = new Date();
 
-      await models.AssignmentCampaigns.updateMany(
-        { _id: { $in: usedCampaignIds } },
-        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
-      );
+      if (usedCampaignIds.length) {
+        await models.AssignmentCampaigns.updateMany(
+          { _id: { $in: usedCampaignIds } },
+          { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
+        );
+        for (const id of usedCampaignIds) {
+          sendDbEventLog?.({
+            action: 'update',
+            docId: id,
+            currentDocument: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now },
+          });
+        }
+      }
 
-      return models.AssignmentCampaigns.deleteMany({
-        _id: { $in: deleteCampaignIds },
-      });
+      if (deleteCampaignIds.length) {
+        const result = await models.AssignmentCampaigns.deleteMany({
+          _id: { $in: deleteCampaignIds },
+        });
+        for (const id of deleteCampaignIds) {
+          sendDbEventLog?.({
+            action: 'delete',
+            docId: id,
+          });
+        }
+        return result;
+      }
+
+      return { deletedCount: 0 };
     }
   }
 

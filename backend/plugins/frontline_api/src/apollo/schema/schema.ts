@@ -86,6 +86,12 @@ import {
   types as TicketTypes,
 } from '@/ticket/graphql/schemas';
 
+import {
+  queries as CpInboxQueries,
+  mutations as CpInboxMutations,
+  subscriptions as CpInboxSubscriptions,
+} from '~/modules/inbox/graphql/schemas/clientPortal';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
@@ -120,6 +126,7 @@ export const queries = `
     ${FormQueries}
     ${FieldQueries}
     ${KnowledgeBaseQueries}
+    ${CpInboxQueries}
   `;
 
 export const mutations = `
@@ -136,6 +143,7 @@ export const mutations = `
    ${FormMutations}
    ${FieldMutations}
    ${KnowledgeBaseMutations}
+   ${CpInboxMutations}
 `;
 
 export default { types, queries, mutations };

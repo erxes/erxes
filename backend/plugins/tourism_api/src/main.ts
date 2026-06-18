@@ -63,7 +63,8 @@ startPlugin({
       return context;
     },
   },
-  onServerInit: async () => {
-    await initMQWorkers(redis);
-  },
+  //
+  // onServerInit: async () => {
+  //   await initMQWorkers(redis);
+  // },
 });

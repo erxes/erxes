@@ -41,7 +41,7 @@ export const ProductsRecordTable = ({
       newColumns.splice(amountIndex + 1, 0, currency, uom);
 
     const assignedIndex = newColumns.findIndex(
-      (col) => col.id === 'assignedUserId',
+      (col) => col.id === 'assignUserId',
     );
     if (assignedIndex !== -1)
       newColumns.splice(assignedIndex + 1, 0, branch, department);
@@ -55,16 +55,18 @@ export const ProductsRecordTable = ({
       columns={columns}
       data={products || []}
       className="my-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'name', 'type', 'unitPrice']}
     >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.RowList />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
+      <div className="max-h-[400px] overflow-y-auto">
+        <RecordTable.Scroll>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.RowList />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Scroll>
+      </div>
       <ProductCommandBar refetch={refetch} dealId={dealId} />
     </RecordTable.Provider>
   );

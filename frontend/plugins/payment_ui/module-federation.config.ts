@@ -18,6 +18,7 @@ const config: ModuleFederationConfig = {
     './config': './src/config.tsx',
     './paymentSettings': './src/modules/payment/Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

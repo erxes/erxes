@@ -1,12 +1,14 @@
-import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type ScoreCampaign {
     _id: String,
     title: String,
     description:String,
+    order: Int,
     add:JSON,
     subtract:JSON,
+    set:JSON,
     createdAt:Date,
     createdUserId:String,
     status:String,
@@ -42,14 +44,17 @@ export const queries = `
   scoreCampaign(_id:String): ScoreCampaign
   scoreCampaignAttributes(serviceName:String): JSON
   scoreCampaignServices: JSON
-  checkOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String): JSON
+  checkOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
+  cpCheckOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
 `;
 
 const mutationParams = `
   title: String,
   description:String,
+  order: Int,
   add:JSON,
   subtract:JSON,
+  set:JSON,
   createdAt:Date,
   createdUserId:String,
   ownerType:String,
@@ -69,5 +74,5 @@ export const mutations = `
   scoreCampaignUpdate(_id:String, ${mutationParams}): ScoreCampaign
   scoreCampaignRemove(_id:String): JSON
   scoreCampaignsRemove(_ids:[String]): JSON
-  refundLoyaltyScore(ownerId:String,ownerType:String,targetId:String): JSON
+  refundLoyaltyScore(ownerId:String, ownerType:String, targetId:String): JSON
 `;

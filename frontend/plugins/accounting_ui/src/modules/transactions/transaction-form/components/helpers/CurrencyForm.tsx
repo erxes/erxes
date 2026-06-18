@@ -207,7 +207,10 @@ const CurrencyFormBody = ({
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ['exchangeDiff'] }}
+                  defaultFilter={{
+                    journals: ['exchangeDiff'],
+                    permissionMode: 'write',
+                  }}
                 />
               </Form.Control>
               <Form.Message />

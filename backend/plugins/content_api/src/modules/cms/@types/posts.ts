@@ -33,7 +33,7 @@ export interface IPostTagDocument extends IPostTag, Document {
 
 export interface IPostCategory {
   name: string;
-  slug: string;
+  slug?: string;
   description?: string;
   parentId?: string;
   status?: 'active' | 'inactive';

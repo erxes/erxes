@@ -57,7 +57,7 @@ export const AccountField = ({
               value={field.value || ''}
               onValueChange={field.onChange}
               onCallback={onChangeAccount}
-              defaultFilter={{ ...filter }}
+              defaultFilter={{ ...filter, permissionMode: 'write' }}
             />
           </Form.Control>
           <Form.Message />

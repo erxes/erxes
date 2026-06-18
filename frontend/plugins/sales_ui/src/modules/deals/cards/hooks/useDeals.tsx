@@ -27,8 +27,14 @@ import {
 } from '@apollo/client';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo } from 'react';
+import {
+  DealsBoardState,
+  useAllDealsMap,
+  useDealsBoard,
+} from '@/deals/states/dealsBoardState';
 
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
+import { DEAL_CHANGED } from '@/deals/graphql/subscriptions/dealChanged';
 import { IDeal } from '@/deals/types/deals';
 import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { currentUserState } from 'ui-modules';
@@ -48,6 +54,13 @@ interface ISalesProductsDataChangedPayload {
     processId: string;
     action: string;
     data: any;
+  };
+}
+
+interface ISalesDealChangedPayload {
+  salesDealChanged: {
+    action: string;
+    deal?: IDeal;
   };
 }
 
@@ -84,8 +97,7 @@ export const useDeals = (
       userId: currentUser?._id,
       filter: options?.variables,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lastPipelineId, currentUser?._id, JSON.stringify(options?.variables)],
+    [lastPipelineId, currentUser?._id, options?.variables],
   );
 
   useEffect(() => {
@@ -119,7 +131,9 @@ export const useDeals = (
           updatedList = currentList.map((item: IDeal) =>
             item._id === deal._id ? { ...item, ...deal } : item,
           );
-          updatedList.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+          updatedList.sort(
+            (a: IDeal, b: IDeal) => (a.order ?? 0) - (b.order ?? 0),
+          );
         }
 
         if (action === 'remove') {
@@ -137,15 +151,14 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                ? prev.deals.totalCount - 1
-                : prev.deals.totalCount,
+                  ? prev.deals.totalCount - 1
+                  : prev.deals.totalCount,
           },
         };
       },
     });
 
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
@@ -207,6 +220,7 @@ export const useDealDetail = (
       _id: finalId,
     },
     skip: !finalId,
+    fetchPolicy: options?.fetchPolicy || 'cache-and-network',
   });
 
   useEffect(() => {
@@ -232,10 +246,54 @@ export const useDealDetail = (
     });
 
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [salesItemId]);
+  }, [refetch, salesItemId, subscribeToMore]);
 
-  return { deal: data?.dealDetail, loading, error, refetch };
+  useEffect(() => {
+    if (!finalId) return;
+
+    const unsubscribe = subscribeToMore<ISalesDealChangedPayload>({
+      document: DEAL_CHANGED,
+      variables: { _id: finalId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const changedDeal = subscriptionData?.data?.salesDealChanged?.deal;
+
+        if (!changedDeal) {
+          return prev;
+        }
+
+        const prevDeal = prev.dealDetail;
+        const isStageChanged =
+          changedDeal.stageId && changedDeal.stageId !== prevDeal?.stageId;
+
+        if (isStageChanged) {
+          refetch();
+        }
+
+        const pipelineId =
+          changedDeal.stage?.pipelineId ||
+          changedDeal.pipelineId ||
+          prevDeal?.pipelineId ||
+          prevDeal?.stage?.pipelineId;
+
+        return {
+          ...prev,
+          dealDetail: {
+            ...prevDeal,
+            ...changedDeal,
+            pipeline: changedDeal.pipeline || prevDeal?.pipeline,
+            pipelineId,
+            stage: changedDeal.stage || prevDeal?.stage,
+          },
+        };
+      },
+    });
+
+    return unsubscribe;
+  }, [finalId, refetch, subscribeToMore]);
+
+  const deal = data?.dealDetail;
+
+  return { deal, loading: loading && !deal, error, refetch };
 };
 
 export function useDealsEdit(options?: MutationHookOptions<any, any>) {
@@ -356,7 +414,6 @@ export function useDealsChange(options?: MutationHookOptions<any, any>) {
     variables: {
       ...options?.variables,
     },
-    awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
         title: 'Successfully updated deal order',
@@ -375,6 +432,106 @@ export function useDealsChange(options?: MutationHookOptions<any, any>) {
 
   return {
     changeDeals,
+    loading,
+    error,
+  };
+}
+
+export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
+  const { changeDeals, loading, error } = useDealsChange(options);
+  const [boardState, setBoardState] = useDealsBoard();
+  const [allDealsMap, setAllDealsMap] = useAllDealsMap();
+
+  const moveDealStage = ({
+    deal,
+    stageId,
+    aboveItemId,
+    onCompleted,
+  }: {
+    deal: IDeal;
+    stageId: string | string[];
+    aboveItemId?: string;
+    onCompleted?: () => void;
+  }) => {
+    const destinationStageId = Array.isArray(stageId) ? stageId[0] : stageId;
+    const nextAboveItemId = aboveItemId ?? '';
+
+    if (!destinationStageId || destinationStageId === deal.stageId) {
+      onCompleted?.();
+      return Promise.resolve(null);
+    }
+
+    if (boardState) {
+      setBoardState((prev: DealsBoardState | null) => {
+        if (!prev) return prev;
+
+        const nextColumnItems = Object.fromEntries(
+          Object.entries(prev.columnItems).map(([columnId, itemIds]) => [
+            columnId,
+            (itemIds ?? []).filter((itemId: string) => itemId !== deal._id),
+          ]),
+        );
+
+        const destinationItems = nextColumnItems[destinationStageId] || [];
+        const insertIndex = nextAboveItemId
+          ? destinationItems.indexOf(nextAboveItemId) + 1
+          : 0;
+        const normalizedIndex = insertIndex > 0 ? insertIndex : 0;
+
+        destinationItems.splice(normalizedIndex, 0, deal._id);
+
+        return {
+          ...prev,
+          items: {
+            ...prev.items,
+            [deal._id]: {
+              ...(prev.items[deal._id] || deal),
+              ...deal,
+              stageId: destinationStageId,
+              columnId: destinationStageId,
+            },
+          },
+          columnItems: {
+            ...nextColumnItems,
+            [destinationStageId]: destinationItems,
+          },
+        };
+      });
+
+      setAllDealsMap((prev: Record<string, IDeal>) => ({
+        ...prev,
+        [deal._id]: {
+          ...(prev[deal._id] || deal),
+          ...deal,
+          stageId: destinationStageId,
+        },
+      }));
+    }
+
+    return changeDeals({
+      variables: {
+        itemId: deal._id,
+        destinationStageId,
+        sourceStageId: deal.stageId,
+        aboveItemId: nextAboveItemId,
+      },
+    })
+      .then((result) => {
+        onCompleted?.();
+        return result;
+      })
+      .catch((mutationError) => {
+        if (boardState) {
+          setBoardState(boardState);
+          setAllDealsMap(allDealsMap);
+        }
+
+        throw mutationError;
+      });
+  };
+
+  return {
+    moveDealStage,
     loading,
     error,
   };

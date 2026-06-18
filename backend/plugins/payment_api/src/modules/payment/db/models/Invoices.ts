@@ -14,6 +14,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   checkInvoice(_id: string, subdomain: string): Promise<string>;
   removeInvoices(_ids: string[]): Promise<any>;
   markAsPaid(_id: string): Promise<string>;
+  scanBarcode(code: string): Promise<IInvoiceDocument>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -57,9 +58,13 @@ export const loadInvoiceClass = (models: IModels) => {
         const api = new ErxesPayment(payment);
 
         try {
-          const reponse = await api.createInvoice(transaction.toObject());
-          transaction.response = reponse;
-          await invoice.save();
+          const response = await api.createInvoice(transaction.toObject());
+          transaction.response = response;
+          transaction.details = {
+            ...transaction.details,
+            tdbOrderId: response.order?.id,
+          };
+          await transaction.save();
 
           return invoice;
         } catch (e) {
@@ -195,6 +200,24 @@ export const loadInvoiceClass = (models: IModels) => {
       redis.removeInvoices(_ids);
 
       return 'removed';
+    }
+
+    public static async scanBarcode(code: string) {
+      const invoice = await models.Invoices.findOneAndUpdate(
+        { invoiceNumber: code, scannedAt: null },
+        { $set: { scannedAt: new Date() } },
+        { new: true },
+      );
+
+      if (!invoice) {
+        const exists = await models.Invoices.exists({ invoiceNumber: code });
+        if (!exists) {
+          throw new Error(`Invoice not found for barcode: ${code}`);
+        }
+        throw new Error('Barcode already scanned');
+      }
+
+      return invoice;
     }
 
     public static async markAsPaid(_id: string) {

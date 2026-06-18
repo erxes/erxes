@@ -2,17 +2,18 @@ import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import { ICommonCampaignDocument } from '~/utils';
 
+export interface IScoreCampaignValue {
+  placeholder: string;
+  currencyRatio: string;
+}
+
 export interface IScoreCampaign {
   title: string;
   description: string;
-  add: {
-    placeholder: string;
-    currencyRatio: string;
-  };
-  subtract: {
-    placeholder: string;
-    currencyRatio: string;
-  };
+  order?: number;
+  add?: IScoreCampaignValue;
+  subtract?: IScoreCampaignValue;
+  set?: IScoreCampaignValue;
   createdUserId: string;
   ownerType: string;
   fieldGroupId: string;
@@ -28,7 +29,7 @@ export interface IScoreCampaign {
 export interface IScoreCampaignDocument
   extends Document,
     ICommonCampaignDocument,
-    IScoreCampaign {
+    Omit<IScoreCampaign, 'set'> {
   _id: string;
 }
 
@@ -37,8 +38,9 @@ export interface DoCampaignTypes {
   ownerId: string;
   campaignId: string;
   target: any;
+  oldTarget?: any;
   targetId?: string;
-  actionMethod: 'add' | 'subtract';
+  actionMethod: 'add' | 'subtract' | 'set';
   serviceName?: string;
 }
 

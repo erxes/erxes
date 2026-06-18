@@ -78,10 +78,8 @@ export const configSchema = new Schema({
   kioskMachine: field({ type: Object, optional: true }),
   kitchenScreen: field({ type: Object }),
   token: field({ type: String, label: 'Token generated at erxes-api' }),
-  erxesAppToken: field({ type: String, label: 'Erxes app token' }),
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
   ebarimtConfig: field({ type: ebarimtConfigSchema, optional: true }),
-  erkhetConfig: field({ type: Object }),
   catProdMappings: field({
     type: [Object],
     label: 'Product category mappings',
@@ -110,7 +108,6 @@ export const configSchema = new Schema({
     optional: true,
     label: 'Allow branches',
   }),
-  checkRemainder: field({ type: Boolean, optional: true }),
   permissionConfig: field({ type: Object, optional: true }),
   allowTypes: field({ type: [String], label: 'Allow Types' }),
   isCheckRemainder: field({ type: Boolean, optional: true }),

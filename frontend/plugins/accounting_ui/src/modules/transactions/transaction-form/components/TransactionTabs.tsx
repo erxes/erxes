@@ -1,4 +1,4 @@
-import { IconX, IconZoomExclamation } from '@tabler/icons-react';
+import { IconLock, IconX, IconZoomExclamation } from '@tabler/icons-react';
 import { Button, cn, Tabs, Tooltip } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect } from 'react';
@@ -31,6 +31,9 @@ import { ReceivableTransaction } from './forms/ReceivableForm';
 import { sumDtAndCt } from './Summary';
 import { TBalance } from './TBalance';
 
+const isHiddenTransaction = (transaction?: any) =>
+  transaction?.permission === 'hidden';
+
 // Separate the transaction form component to prevent unnecessary re-renders
 const TransactionForm = ({
   form,
@@ -62,6 +65,20 @@ const TransactionForm = ({
   if (field.journal === TrJournalEnum.INV_SALE_RETURN)
     return <InvSaleReturnForm form={form} index={index} />;
   return null;
+};
+
+const HiddenTransactionContent = () => {
+  return (
+    <div className="border border-dashed rounded-md bg-muted/30 p-8 text-sm text-muted-foreground flex items-start gap-3">
+      <IconLock className="size-5 mt-0.5" />
+      <div className="space-y-1">
+        <div className="font-medium text-foreground">Эрхгүй гүйлгээ</div>
+        <div>
+          Энэ гүйлгээний дансыг унших эрх хүрэхгүй тул мэдээллийг нуусан байна.
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const ErrorTip = ({ index, errors }: { index: number; errors?: any }) => {
@@ -142,6 +159,9 @@ export const TransactionsTabsList = ({
     },
   });
   const isSaved = Boolean(fields?.[0]?.parentId);
+  const hasHiddenTransaction = fields.some(isHiddenTransaction);
+  const activeField = fields[Number(activeJournal ?? '0')];
+  const isActiveFieldHidden = isHiddenTransaction(activeField);
 
   const journals = fields.map((f) => f.journal);
 
@@ -203,31 +223,42 @@ export const TransactionsTabsList = ({
     >
       <div className="flex items-center gap-3">
         <Tabs.List className="w-full justify-start flex-auto">
-          {fields.map((field, index) => (
-            <Tabs.Trigger
-              key={field.fieldId}
-              value={index.toString()}
-              className={cn(
-                index.toString() === activeJournal && 'font-bold',
-                'capitalize py-1 gap-2 pr-1 h-8',
-              )}
-              asChild
-            >
-              <div>
-                {TR_JOURNAL_LABELS[field.journal]}
-                <ErrorTip errors={form.formState.errors} index={index} />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={(e) => handleRemove(index, e)}
-                  disabled={fields.length === 1}
-                >
-                  <IconX />
-                </Button>
-              </div>
-            </Tabs.Trigger>
-          ))}
+          {fields.map((field, index) => {
+            const isHidden = isHiddenTransaction(field);
+            const label =
+              TR_JOURNAL_LABELS[field.journal as TrJournalEnum] ||
+              'Эрхгүй гүйлгээ';
+
+            return (
+              <Tabs.Trigger
+                key={field.fieldId}
+                value={index.toString()}
+                className={cn(
+                  index.toString() === activeJournal && 'font-bold',
+                  'capitalize py-1 gap-2 pr-1 h-8',
+                  isHidden && 'opacity-70 text-muted-foreground',
+                )}
+                asChild
+              >
+                <div>
+                  {isHidden && <IconLock className="size-4" />}
+                  {label}
+                  {!isHidden && (
+                    <ErrorTip errors={form.formState.errors} index={index} />
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={(e) => handleRemove(index, e)}
+                    disabled={fields.length === 1 || isHidden}
+                  >
+                    <IconX />
+                  </Button>
+                </div>
+              </Tabs.Trigger>
+            );
+          })}
           <Tabs.Trigger
             key={'tBalance'}
             value={'tBalance'}
@@ -240,7 +271,7 @@ export const TransactionsTabsList = ({
             <div>{'Т баланс'}</div>
           </Tabs.Trigger>
 
-          {!isPerfect && (
+          {!isPerfect && !hasHiddenTransaction && (
             <div className="inline-flex items-center justify-center rounded-sm px-3 text-sm font-medium hover:bg-accent capitalize py-1 gap-2 pr-1 h-8">
               <AddTransaction inForm onClick={handleAddTransaction}>
                 <div>{'+ Шинэ гүйлгээ'}</div>
@@ -250,13 +281,12 @@ export const TransactionsTabsList = ({
         </Tabs.List>
 
         {isSaved &&
-        PRINT_DOCUMENTS[fields[Number(activeJournal ?? '0')]?.journal] ? (
+        !isActiveFieldHidden &&
+        PRINT_DOCUMENTS[activeField?.journal] ? (
           <Button
             onClick={() => {
               window.open(
-                `/accounting/transaction/print?_id=${
-                  fields[Number(activeJournal ?? '0')]?._id
-                }`,
+                `/accounting/transaction/print?_id=${activeField?._id}&inPreview=true`,
                 '_blank',
               );
             }}
@@ -274,7 +304,11 @@ export const TransactionsTabsList = ({
           value={index.toString()}
           className="mt-6"
         >
-          <TransactionForm form={form} field={field} index={index} />
+          {isHiddenTransaction(field) ? (
+            <HiddenTransactionContent />
+          ) : (
+            <TransactionForm form={form} field={field} index={index} />
+          )}
         </Tabs.Content>
       ))}
       <Tabs.Content key={'tBalance'} value={'tBalance'} className="mt-6">

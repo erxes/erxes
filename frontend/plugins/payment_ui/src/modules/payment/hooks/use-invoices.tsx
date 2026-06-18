@@ -7,7 +7,11 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { INVOICES } from '~/modules/payment/graphql/queries';
+import { useEffect } from 'react';
+import {
+  INVOICE_SCANNED_SUBSCRIPTION,
+  INVOICES,
+} from '~/modules/payment/graphql/queries';
 
 export const INVOICES_CURSOR_SESSION_KEY = 'invoices-cursor';
 const LIMIT = 20;
@@ -17,20 +21,50 @@ export const useInvoices = (options?: OperationVariables) => {
     sessionKey: INVOICES_CURSOR_SESSION_KEY,
   });
 
-  const [queries] = useMultiQueryState<{ searchValue: string }>([
-    'searchValue',
-  ]);
+  const [queries] = useMultiQueryState<{
+    searchValue?: string;
+    status?: string;
+    kind?: string;
+  }>(['searchValue', 'status', 'kind']);
 
-  const { data, error, loading, fetchMore } = useQuery(INVOICES, {
-    variables: {
-      searchValue: queries?.searchValue,
-      limit: LIMIT,
-      cursor,
-      ...options?.variables,
+  const { data, error, loading, fetchMore, subscribeToMore } = useQuery(
+    INVOICES,
+    {
+      variables: {
+        searchValue: queries?.searchValue,
+        status: queries?.status,
+        kind: queries?.kind,
+        limit: LIMIT,
+        cursor,
+        ...options?.variables,
+      },
+      fetchPolicy: 'network-only',
+      ...options,
     },
-    fetchPolicy: 'network-only',
-    ...options,
-  });
+  );
+
+  useEffect(() => {
+    return subscribeToMore({
+      document: INVOICE_SCANNED_SUBSCRIPTION,
+      updateQuery: (prev, { subscriptionData }) => {
+        const scanned = subscriptionData?.data?.invoiceScanned;
+        if (!scanned) return prev;
+
+        const list = prev?.invoices?.list || [];
+        const updated = list.map((inv: any) =>
+          inv._id === scanned._id ? { ...inv, ...scanned } : inv,
+        );
+
+        return {
+          ...prev,
+          invoices: {
+            ...prev.invoices,
+            list: updated,
+          },
+        };
+      },
+    });
+  }, [subscribeToMore]);
 
   const invoices = data?.invoices?.list || [];
   const totalCount = data?.invoices?.totalCount || 0;

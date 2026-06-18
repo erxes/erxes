@@ -2,11 +2,13 @@ import { Model } from 'mongoose';
 
 import {
   CMS_DEFAULT_POST_URL_FIELD,
+  CMS_DEFAULT_POST_URL_PREFIX,
   CMS_POST_URL_FIELDS,
   CMSPostUrlField,
   ICMSMenu,
   ICMSMenuDocument,
   IMenuLinkedContent,
+  MenuContentSource,
   MenuLinkType,
 } from '@/cms/@types/cms';
 import { IModels } from '~/connectionResolvers';
@@ -45,6 +47,20 @@ type ResolvedMenuContent = {
   count?: number;
 };
 
+const normalizePostUrlPrefix = (postUrlPrefix?: string | null): string => {
+  const trimmedValue = postUrlPrefix?.trim();
+
+  if (!trimmedValue) {
+    return CMS_DEFAULT_POST_URL_PREFIX;
+  }
+
+  const withLeadingSlash = trimmedValue.startsWith('/')
+    ? trimmedValue
+    : `/${trimmedValue}`;
+
+  return withLeadingSlash.replace(/\/+$/g, '');
+};
+
 export interface ICMSMenuItemModel extends Model<ICMSMenuDocument> {
   getMenuItems: (query: any) => Promise<ICMSMenuDocument[]>;
   createMenuItem: (doc: ICMSMenu) => Promise<ICMSMenuDocument>;
@@ -75,18 +91,21 @@ export const loadMenuItemClass = (models: IModels) => {
     return mappedValue || fallback || 'URL';
   };
 
-  const normalizeContentType = (
-    contentType?: string | null,
-    linkType?: MenuLinkType,
-  ) => {
+  const normalizeContentType = (contentType?: string | null) => {
     if (contentType) {
       const normalized = String(contentType).toLowerCase();
-      return LINK_TYPE_BY_CONTENT_TYPE[normalized]
-        ? normalized
-        : CONTENT_TYPE_BY_LINK_TYPE[linkType || 'URL'];
+      if (LINK_TYPE_BY_CONTENT_TYPE[normalized]) return normalized;
+      return normalized;
     }
 
-    return CONTENT_TYPE_BY_LINK_TYPE[linkType || 'URL'];
+    return undefined;
+  };
+
+  const normalizeContentSource = (
+    value?: string | null,
+    fallback: MenuContentSource = 'cms',
+  ): MenuContentSource => {
+    return String(value || fallback).toLowerCase() === 'web' ? 'web' : 'cms';
   };
 
   const normalizeOpenInNewTab = (
@@ -107,57 +126,111 @@ export const loadMenuItemClass = (models: IModels) => {
   const toLegacyTarget = (openInNewTab: boolean) =>
     openInNewTab ? '_blank' : '';
 
-  const getPostUrlField = async (
+  const getPostUrlConfig = async (
     clientPortalId: string,
-  ): Promise<CMSPostUrlField> => {
+  ): Promise<{ postUrlField: CMSPostUrlField; postUrlPrefix: string }> => {
     const cms = await models.CMS.findOne({ clientPortalId })
-      .select({ postUrlField: 1 })
+      .select({ postUrlField: 1, postUrlPrefix: 1 })
       .lean();
+
+    const postUrlPrefix = normalizePostUrlPrefix(cms?.postUrlPrefix);
 
     if (
       cms?.postUrlField &&
       CMS_POST_URL_FIELDS.includes(cms.postUrlField as CMSPostUrlField)
     ) {
-      return cms.postUrlField as CMSPostUrlField;
+      return {
+        postUrlField: cms.postUrlField as CMSPostUrlField,
+        postUrlPrefix,
+      };
     }
 
-    return CMS_DEFAULT_POST_URL_FIELD;
+    return {
+      postUrlField: CMS_DEFAULT_POST_URL_FIELD,
+      postUrlPrefix,
+    };
   };
 
   const resolveLinkedContent = async (menuItem: {
     clientPortalId: string;
     linkType: MenuLinkType;
     contentTypeId?: string;
+    type?: MenuContentSource | string;
   }): Promise<ResolvedMenuContent | null> => {
     if (!menuItem.contentTypeId || !CONTENT_LINK_TYPES.has(menuItem.linkType)) {
       return null;
     }
 
-    const query = {
-      _id: menuItem.contentTypeId,
+    const contentTypeId = String(menuItem.contentTypeId).trim();
+    const slug = normalizeContentLookupValue(menuItem.linkType, contentTypeId);
+    const contentQuery: any = {
       clientPortalId: menuItem.clientPortalId,
+      $or: [{ _id: contentTypeId }],
     };
 
+    if (slug && slug !== contentTypeId) {
+      contentQuery.$or.push({ _id: slug });
+    }
+
+    if (slug) {
+      contentQuery.$or.push({ slug });
+    }
+
     switch (menuItem.linkType) {
-      case 'PAGE':
-        return models.Pages.findOne(query)
+      case 'PAGE': {
+        const pageModel: any =
+          normalizeContentSource(menuItem.type) === 'web'
+            ? models.WebPages
+            : models.Pages;
+
+        return pageModel
+          .findOne(contentQuery)
           .select({ _id: 1, name: 1, slug: 1 })
           .lean();
+      }
       case 'POST':
-        return models.Posts.findOne(query)
+        return models.Posts.findOne(contentQuery)
           .select({ _id: 1, title: 1, slug: 1, count: 1 })
           .lean();
       case 'CATEGORY':
-        return models.Categories.findOne(query)
+        return models.Categories.findOne(contentQuery)
           .select({ _id: 1, name: 1, slug: 1 })
           .lean();
       case 'TAG':
-        return models.PostTags.findOne(query)
+        return models.PostTags.findOne(contentQuery)
           .select({ _id: 1, name: 1, slug: 1 })
           .lean();
       default:
         return null;
     }
+  };
+
+  const normalizeContentLookupValue = (
+    linkType: MenuLinkType,
+    value: string,
+  ) => {
+    const trimmedValue = value.trim().replace(/^\/+|\/+$/g, '');
+
+    if (linkType === 'CATEGORY') {
+      return trimmedValue.replace(/^category\//, '');
+    }
+
+    if (linkType === 'TAG') {
+      return trimmedValue.replace(/^tag\//, '');
+    }
+
+    return trimmedValue;
+  };
+
+  const getLinkedContentLabel = (
+    linkType: MenuLinkType,
+    type?: MenuContentSource,
+  ) => {
+    if (linkType === 'PAGE' && type === 'web') {
+      return 'web page';
+    }
+
+    return CONTENT_TYPE_BY_LINK_TYPE[linkType];
   };
 
   const buildLinkedContentSummary = (
@@ -190,14 +263,16 @@ export const loadMenuItemClass = (models: IModels) => {
       case 'PAGE':
         return content.slug ? `/${content.slug}` : undefined;
       case 'POST': {
-        const postUrlField = await getPostUrlField(menuItem.clientPortalId);
+        const { postUrlField, postUrlPrefix } = await getPostUrlConfig(
+          menuItem.clientPortalId,
+        );
         const identifier = content[postUrlField];
 
         if (identifier === undefined || identifier === null) {
           return undefined;
         }
 
-        return `/${String(identifier)}`;
+        return `${postUrlPrefix}/${String(identifier)}`;
       }
       case 'CATEGORY':
         return content.slug ? `/category/${content.slug}` : undefined;
@@ -216,7 +291,9 @@ export const loadMenuItemClass = (models: IModels) => {
     const explicitUrlProvided = hasOwn(doc, 'url');
     const linkType = normalizeLinkType(
       mergedDoc.linkType || mergedDoc.contentType,
-      normalizeLinkType(existingMenuItem?.linkType || existingMenuItem?.contentType),
+      normalizeLinkType(
+        existingMenuItem?.linkType || existingMenuItem?.contentType,
+      ),
     );
     const existingLinkType = normalizeLinkType(
       existingMenuItem?.linkType || existingMenuItem?.contentType,
@@ -226,7 +303,11 @@ export const loadMenuItemClass = (models: IModels) => {
       return mergedDoc.url;
     }
 
-    if (existingMenuItem?.url && existingLinkType === 'URL' && !explicitUrlProvided) {
+    if (
+      existingMenuItem?.url &&
+      existingLinkType === 'URL' &&
+      !explicitUrlProvided
+    ) {
       return existingMenuItem.url;
     }
 
@@ -259,12 +340,20 @@ export const loadMenuItemClass = (models: IModels) => {
     if (!mergedDoc.clientPortalId) {
       throw new Error('clientPortalId is required');
     }
-
+    const newTypeSource = (doc as any).linkType || (doc as any).contentType;
+    const existingTypeSource = existingDoc.linkType || existingDoc.contentType;
     const linkType = normalizeLinkType(
-      mergedDoc.linkType || mergedDoc.contentType,
-      normalizeLinkType(existingDoc.linkType || existingDoc.contentType),
+      newTypeSource || mergedDoc.linkType || mergedDoc.contentType,
+      normalizeLinkType(existingTypeSource),
     );
-    const contentType = normalizeContentType(mergedDoc.contentType, linkType);
+    const contentType = normalizeContentType(mergedDoc.contentType);
+    const contentSource =
+      linkType === 'PAGE'
+        ? normalizeContentSource(
+            mergedDoc.type,
+            normalizeContentSource(existingDoc.type),
+          )
+        : undefined;
     const openInNewTab = normalizeOpenInNewTab(
       mergedDoc,
       normalizeOpenInNewTab(existingDoc, false),
@@ -274,27 +363,35 @@ export const loadMenuItemClass = (models: IModels) => {
       ...doc,
       clientPortalId: mergedDoc.clientPortalId,
       linkType,
-      contentType,
       openInNewTab,
       target: toLegacyTarget(openInNewTab),
     };
 
-    if (CONTENT_LINK_TYPES.has(linkType)) {
-      if (!mergedDoc.contentTypeId) {
-        throw new Error('contentTypeId is required for content links');
-      }
+    if (contentType) {
+      normalizedDoc.contentType = contentType;
+    } else {
+      normalizedDoc.contentType = undefined;
+    }
 
+    normalizedDoc.type = contentSource;
+
+    if (CONTENT_LINK_TYPES.has(linkType) && mergedDoc.contentTypeId) {
       const content = await resolveLinkedContent({
         clientPortalId: mergedDoc.clientPortalId,
         linkType,
         contentTypeId: mergedDoc.contentTypeId,
+        type: contentSource,
       });
 
       if (!content) {
-        throw new Error(`Linked ${contentType} not found`);
+        throw new Error(
+          'Linked ' +
+            getLinkedContentLabel(linkType, contentSource) +
+            ' not found',
+        );
       }
 
-      normalizedDoc.contentTypeId = mergedDoc.contentTypeId;
+      normalizedDoc.contentTypeId = String(content._id);
       normalizedDoc.url = await buildComputedUrl(
         {
           clientPortalId: mergedDoc.clientPortalId,
@@ -304,7 +401,7 @@ export const loadMenuItemClass = (models: IModels) => {
         content,
       );
     } else {
-      normalizedDoc.contentTypeId = undefined;
+      normalizedDoc.contentTypeId = mergedDoc.contentTypeId || undefined;
       normalizedDoc.url = await prepareDirectUrl(
         doc,
         mergedDoc,
@@ -317,7 +414,9 @@ export const loadMenuItemClass = (models: IModels) => {
 
   class MenuItems {
     public static getMenuItems = async (query: any) => {
-      const pages = await models.MenuItems.find(query).sort({ order: 1 }).lean();
+      const pages = await models.MenuItems.find(query)
+        .sort({ order: 1 })
+        .lean();
 
       return pages;
     };
@@ -352,17 +451,37 @@ export const loadMenuItemClass = (models: IModels) => {
 
       const normalizedDoc = await normalizeMenuInput(doc, existingMenuItem);
 
-      const updateDoc: any = { $set: normalizedDoc };
+      const updateDoc: any = {
+        $set: Object.fromEntries(
+          Object.entries(normalizedDoc).filter(
+            ([, value]) => value !== undefined,
+          ),
+        ),
+      };
 
-      if (normalizedDoc.linkType === 'URL') {
-        updateDoc.$unset = { contentTypeId: 1 };
+      if (
+        normalizedDoc.contentType === undefined ||
+        normalizedDoc.contentTypeId === undefined ||
+        normalizedDoc.type === undefined
+      ) {
+        updateDoc.$unset = {};
+
+        if (normalizedDoc.contentType === undefined) {
+          updateDoc.$unset.contentType = 1;
+        }
+
+        if (normalizedDoc.contentTypeId === undefined) {
+          updateDoc.$unset.contentTypeId = 1;
+        }
+
+        if (normalizedDoc.type === undefined) {
+          updateDoc.$unset.type = 1;
+        }
       }
 
-      const menu = await models.MenuItems.findOneAndUpdate(
-        { _id },
-        updateDoc,
-        { new: true },
-      );
+      const menu = await models.MenuItems.findOneAndUpdate({ _id }, updateDoc, {
+        new: true,
+      });
       return menu;
     };
 
@@ -380,18 +499,17 @@ export const loadMenuItemClass = (models: IModels) => {
       const linkType = normalizeLinkType(
         rawMenuItem.linkType || rawMenuItem.contentType,
       );
-      const contentType = normalizeContentType(rawMenuItem.contentType, linkType);
       const openInNewTab = normalizeOpenInNewTab(rawMenuItem, false);
       const content = await resolveLinkedContent({
         clientPortalId: rawMenuItem.clientPortalId,
         linkType,
         contentTypeId: rawMenuItem.contentTypeId,
+        type: rawMenuItem.type,
       });
 
       return {
         ...rawMenuItem,
         linkType,
-        contentType,
         openInNewTab,
         target: toLegacyTarget(openInNewTab),
         url: await buildComputedUrl(
@@ -402,7 +520,9 @@ export const loadMenuItemClass = (models: IModels) => {
           },
           content,
         ),
-        linkedContent: content ? buildLinkedContentSummary(linkType, content) : null,
+        linkedContent: content
+          ? buildLinkedContentSummary(linkType, content)
+          : null,
       };
     };
 

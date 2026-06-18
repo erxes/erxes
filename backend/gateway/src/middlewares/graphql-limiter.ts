@@ -22,6 +22,29 @@ import { maxDepthPlugin } from '@escape.tech/graphql-armor-max-depth';
 dotenv.config();
 
 const { GRAPHQL_LIMITER } = process.env;
+const DEBUG_GATEWAY_AUTH = process.env.DEBUG_GATEWAY_AUTH === 'true';
+
+const debugLimiter = (
+  req: any,
+  event: string,
+  extra: Record<string, unknown> = {},
+) => {
+  if (!DEBUG_GATEWAY_AUTH) {
+    return;
+  }
+
+  console.log(
+    JSON.stringify({
+      scope: 'gateway-graphql-limiter',
+      event,
+      method: req.method,
+      path: req.originalUrl,
+      hasUser: Boolean(req.user?._id),
+      userId: req.user?._id || '',
+      ...extra,
+    }),
+  );
+};
 
 export async function applyGraphqlLimiters(app: Express) {
   if (!GRAPHQL_LIMITER) {
@@ -61,7 +84,30 @@ export async function applyGraphqlLimiters(app: Express) {
     ],
   });
 
-  app.use('/graphql', json(), async (req, res, next) => {
+  app.use(
+    '/graphql',
+    (req, res, next) => {
+      const startedAt = Date.now();
+      debugLimiter(req, 'enter');
+
+      res.once('finish', () => {
+        debugLimiter(req, 'finish', {
+          statusCode: res.statusCode,
+          durationMs: Date.now() - startedAt,
+        });
+      });
+
+      res.once('close', () => {
+        debugLimiter(req, 'close', {
+          statusCode: res.statusCode,
+          durationMs: Date.now() - startedAt,
+        });
+      });
+
+      next();
+    },
+    json(),
+    async (req, res, next) => {
     if (req.body.query) {
       const { parse, validate, schema } = getEnveloped({
         req,
@@ -71,13 +117,23 @@ export async function applyGraphqlLimiters(app: Express) {
         const document = parse(req.body.query);
         const validationErrors = validate(schema, document);
         if (validationErrors?.length) {
+          debugLimiter(req, 'validation-error', {
+            errorCount: validationErrors.length,
+          });
           return res.status(400).json({ errors: validationErrors });
         }
+        debugLimiter(req, 'validated');
       } catch (e) {
+        debugLimiter(req, 'parse-or-validation-error', {
+          error: e instanceof Error ? e.message : 'unknown',
+        });
         return res.status(400).json({ errors: [e] });
       }
+    } else {
+      debugLimiter(req, 'no-query');
     }
 
     next();
-  });
+    },
+  );
 }

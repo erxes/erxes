@@ -8,9 +8,12 @@ export const Settings = () => {
   const {
     canSave,
     clientPortals,
+    cms,
+    isDeleting,
     isSaving,
     settings,
     updateSetting,
+    handleDelete,
     handleSave,
   } = useSettingsForm();
 
@@ -27,9 +30,12 @@ export const Settings = () => {
 
         <div className="min-w-0 flex-1 overflow-auto bg-muted/20">
           <SettingsForm
+            cms={cms}
+            isDeleting={isDeleting}
             settings={settings}
             clientPortals={clientPortals}
             updateSetting={updateSetting}
+            onDelete={handleDelete}
           />
         </div>
       </div>

@@ -61,8 +61,10 @@ const erkhetQueries = {
   async syncHistories(
     _root: undefined,
     params: ISyncHistoryParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const selector = generateFilter(params);
 
     return await cursorPaginate({
@@ -75,8 +77,10 @@ const erkhetQueries = {
   async syncHistoriesCount(
     _root: undefined,
     params: ISyncHistoryParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const selector = generateFilter(params);
 
     return models.SyncLogs.find(selector).countDocuments();

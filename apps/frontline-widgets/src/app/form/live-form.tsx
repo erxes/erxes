@@ -6,11 +6,13 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
   browserInfoAtom,
+  customerIdAtom,
   showConfirmationAtom,
 } from './states/erxesFormStates';
 import { ErxesFormValues } from './components/ErxesFormValues';
 import { ErxesFormFinal } from './components/ErxesFormFinal';
 import { useParams } from 'react-router-dom';
+import { getVisitorId } from '@libs/utils';
 
 export const LiveForm = () => {
   const { id: channelId, formId } = useParams<{ id: string; formId: string }>();
@@ -19,6 +21,7 @@ export const LiveForm = () => {
   const activeStep = useAtomValue(activeStepAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const showConfirmation = useAtomValue(showConfirmationAtom);
+  const customerId = useAtomValue(customerIdAtom);
 
   useEffect(() => {
     setBrowserInfo({
@@ -29,15 +32,32 @@ export const LiveForm = () => {
   }, []);
 
   useEffect(() => {
-    if (formId && channelId) {
-      connectMutation({
-        variables: {
-          channelId,
-          formCode: formId,
-        },
-      });
+    const storedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia?.(
+      '(prefers-color-scheme: dark)',
+    ).matches;
+    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-  }, [connectMutation, formId, channelId]);
+  }, []);
+
+  useEffect(() => {
+    if (formId && channelId) {
+      const connect = async () => {
+        const cachedCustomerId = customerId || (await getVisitorId());
+        connectMutation({
+          variables: {
+            channelId,
+            formCode: formId,
+            cachedCustomerId,
+          },
+        });
+      };
+      connect();
+    }
+  }, [connectMutation, formId, channelId, customerId]);
 
   useEffect(() => {
     if (form?.leadData?.primaryColor) {
@@ -89,7 +109,14 @@ export const LiveForm = () => {
 
   return (
     <Dialog open>
-      <Dialog.Content className="p-0 border-none">{formContent}</Dialog.Content>
+      <Dialog.Content className="p-0 border-none max-w-xl bg-transparent shadow-none gap-1">
+        {formContent}
+        <div className="flex items-center gap-0.5 justify-center my-1 text-primary-foreground text-[10px]">
+          <span>
+            Powered by <strong>Erxes</strong>
+          </span>
+        </div>
+      </Dialog.Content>
     </Dialog>
   );
 };

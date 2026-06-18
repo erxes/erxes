@@ -5,10 +5,12 @@ import { IModels } from '~/connectionResolvers';
 import {
   checkVouchersSale,
   confirmVoucherSale,
+  handleLoyaltyOwnerChange,
   handleLoyaltyReward,
   doScoreCampaign,
   refundLoyaltyScore,
   handleScore,
+  consumeScoreTargetChange,
 } from '~/utils/utils';
 import { checkPricing, getMainConditions } from '~/modules/pricing/utils';
 import {
@@ -16,6 +18,7 @@ import {
   calculatePriceAdjust,
 } from '~/modules/pricing/utils/rule';
 import { getAllowedProducts } from '~/modules/pricing/utils/product';
+import { SCORE_CAMPAIGN_STATUSES } from '~/modules/score/constants';
 
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
@@ -25,7 +28,8 @@ const t = initTRPC.context<LoyaltyTRPCContext>().create();
 const productSchema = z.object({
   productId: z.string(),
   quantity: z.number().int().positive(),
-  unitPrice: z.number().nonnegative(),
+  unitPrice: z.number().nonnegative().optional(),
+  price: z.number().nonnegative().optional(),
 });
 
 const discountInfoSchema = z
@@ -36,8 +40,11 @@ const discountInfoSchema = z
   .optional();
 
 const checkLoyaltiesInput = z.object({
-  ownerType: z.string(),
-  ownerId: z.string(),
+  ownerType: z.string().optional().default('customer'),
+  ownerId: z
+    .string()
+    .nullish()
+    .transform((value) => value || ''),
   products: z.array(productSchema),
   discountInfo: discountInfoSchema,
 });
@@ -56,25 +63,32 @@ const confirmLoyaltiesInput = z.object({
       ownerType: z.string().optional(),
       ownerId: z.string().optional(),
       targetid: z.string().optional(),
+      targetId: z.string().optional(),
+      targetType: z.string().optional(),
       serviceName: z.string().optional(),
-      totalAmount: z.string().optional(),
+      totalAmount: z.union([z.string(), z.number()]).optional(),
     })
+    .passthrough()
     .optional(),
 });
 
 const pricingProductSchema = z.object({
-  _id: z.string(),
-  unitPrice: z.number().nonnegative(),
+  _id: z.string().optional(),
+  itemId: z.string().optional(),
+  productId: z.string().optional(),
+  unitPrice: z.number().nonnegative().optional(),
+  price: z.number().nonnegative().optional(),
   quantity: z.number().int().positive(),
+  manufacturedDate: z.string().optional(),
 });
 
 const checkPricingInput = z.object({
   prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
-  departmentId: z.string(),
-  branchId: z.string(),
+  departmentId: z.string().optional().default(''),
+  branchId: z.string().optional().default(''),
   products: z.array(pricingProductSchema),
-  pipelineId: z.string(),
+  pipelineId: z.string().optional(),
 });
 
 const quantityRulesInput = z.object({
@@ -90,35 +104,72 @@ const quantityRulesInput = z.object({
 
 const checkCouponInput = z.object({
   code: z.string(),
-  ownerId: z.string(),
-  totalAmount: z.number().optional(),
+  ownerId: z
+    .string()
+    .nullish()
+    .transform((value) => value || ''),
+  totalAmount: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((value) => (value === undefined ? undefined : Number(value))),
 });
 
 const scoreCampaignInput = z.object({
   _id: z.string(),
 });
 
-const checkScoreAviableSubtractInput = z.object({
-  ownerType: z.string(),
-  ownerId: z.string(),
-  actionMethod: z.string(),
-  targetId: z.string(),
-});
+const checkScoreAviableSubtractInput = z
+  .object({
+    ownerType: z.string(),
+    ownerId: z.string(),
+    actionMethod: z.string().optional(),
+    targetId: z.string().optional(),
+    campaignId: z.string().optional(),
+    target: z.record(z.any()).optional(),
+  })
+  .passthrough();
 
 const updateScoreInput = z.object({
-  action: z.enum(['add', 'subtract']),
+  action: z.enum(['add', 'subtract', 'set']),
   ownerId: z.string(),
   ownerType: z.string(),
   campaignId: z.string(),
   target: z.record(z.any()),
   description: z.string(),
+  createdBy: z.string().optional(),
+  serviceName: z.string().optional(),
+  targetId: z.string().optional(),
 });
 
-const doScoreCampaignInput = z.object({
-  ownerType: z.string(),
-  ownerId: z.string(),
-  actionMethod: z.string(),
-  targetId: z.string(),
+const doScoreCampaignInput = z
+  .object({
+    ownerType: z.string(),
+    ownerId: z.string(),
+    actionMethod: z.string(),
+    campaignId: z.string().optional(),
+    serviceName: z.string().optional(),
+    target: z.record(z.any()).optional(),
+    oldTarget: z.record(z.any()).optional(),
+    targetId: z.string(),
+  })
+  .passthrough();
+
+const consumeTargetChangeInput = z
+  .object({
+    contentType: z.string(),
+    serviceName: z.string().optional(),
+    targetId: z.string().optional(),
+    target: z.record(z.any()).optional(),
+    oldTarget: z.record(z.any()).optional(),
+    stageContexts: z.record(z.any()).optional(),
+    ownerHints: z.record(z.string().optional()).optional(),
+  })
+  .passthrough();
+
+const getScoreCampaignsByStageInput = z.object({
+  boardId: z.string(),
+  pipelineId: z.string(),
+  stageId: z.string(),
 });
 
 const refundLoyaltyScoreInput = z.object({
@@ -140,6 +191,7 @@ const voucherCampaignsInput = z
   })
   .optional();
 
+// #region Router
 // ============================================================================
 // tRPC router
 // ============================================================================
@@ -151,17 +203,19 @@ export const appRouter = t.router({
         const { models, subdomain } = ctx;
         const { ownerType, ownerId, products, discountInfo } = input;
 
-        return {
-          data: await checkVouchersSale(
+        return (
+          (await checkVouchersSale(
             models,
             subdomain,
             ownerType,
             ownerId,
-            products,
+            products.map((product) => ({
+              ...product,
+              unitPrice: product.unitPrice ?? product.price ?? 0,
+            })),
             discountInfo,
-          ),
-          status: 'success',
-        };
+          )) || {}
+        );
       }),
 
     handleLoyaltyReward: t.procedure
@@ -169,7 +223,7 @@ export const appRouter = t.router({
       .mutation(async ({ ctx }) => {
         const { subdomain } = ctx;
         const result = await handleLoyaltyReward({ subdomain });
-        return { data: result, status: 'success' };
+        return result;
       }),
 
     confirmLoyalties: t.procedure
@@ -183,12 +237,24 @@ export const appRouter = t.router({
           checkInfo,
           extraInfo,
         );
-        return { data: result, status: 'success' };
+        return result;
       }),
 
-    changeCustomer: t.procedure.input(z.any()).mutation(async () => {
-      return;
-    }),
+    changeCustomer: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const { customerId, customerIds } = input || {};
+
+        await handleLoyaltyOwnerChange(
+          subdomain,
+          models,
+          customerId,
+          customerIds || [],
+        );
+
+        return null;
+      }),
   }),
 
   pricing: t.router({
@@ -208,24 +274,23 @@ export const appRouter = t.router({
 
         // Map products to OrderItem type expected by checkPricing
         const orderItems = products.map((p) => ({
-          itemId: p._id,
-          productId: p._id,
-          price: p.unitPrice,
+          itemId: p.itemId || p._id || p.productId || '',
+          productId: p.productId || p._id || p.itemId || '',
+          price: p.unitPrice ?? p.price ?? 0,
           quantity: p.quantity,
-          manufacturedDate: new Date().toISOString(),
+          manufacturedDate: p.manufacturedDate || new Date().toISOString(),
         }));
 
-        const data = await checkPricing({
+        return await checkPricing({
           models,
           subdomain,
           prioritizeRule,
           totalAmount,
           departmentId,
           branchId,
-          pipelineId,
+          pipelineId: pipelineId || '',
           orderItems,
         });
-        return { data: data || {}, status: 'success' };
       }),
 
     getQuantityRules: t.procedure
@@ -302,7 +367,7 @@ export const appRouter = t.router({
           }
         }
 
-        return { data: rulesByProductId, status: 'success' };
+        return rulesByProductId;
       }),
   }),
 
@@ -313,8 +378,7 @@ export const appRouter = t.router({
       .input(checkCouponInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const data = await models.Coupons.checkCoupon(input);
-        return { data, status: 'success' };
+        return await models.Coupons.checkCoupon(input);
       }),
   }),
 
@@ -326,26 +390,41 @@ export const appRouter = t.router({
       .input(scoreCampaignInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const data = await models.ScoreCampaigns.findOne(input);
-        return { data, status: 'success' };
+        return await models.ScoreCampaigns.findOne(input);
       }),
 
     checkScoreAviableSubtract: t.procedure
       .input(checkScoreAviableSubtractInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const data = await models.ScoreCampaigns.checkScoreAviableSubtract(
+        return await models.ScoreCampaigns.checkScoreAviableSubtract(
           input as any,
         );
-        return { data, status: 'success' };
+      }),
+
+    getScoreCampaignsByStage: t.procedure
+      .input(getScoreCampaignsByStageInput)
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        return await models.ScoreCampaigns.find({
+          status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+          'additionalConfig.cardBasedRule': {
+            $elemMatch: {
+              boardId: input.boardId,
+              pipelineId: input.pipelineId,
+              stageIds: { $in: [input.stageId] },
+            },
+          },
+        })
+          .sort({ order: 1, createdAt: 1 })
+          .lean();
       }),
 
     updateScore: t.procedure
       .input(updateScoreInput)
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        await handleScore(models, input);
-        return { data: null, status: 'success' };
+        return await handleScore(models, input);
       }),
 
     doScoreCampaign: t.procedure
@@ -353,16 +432,21 @@ export const appRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         // Type assertion to bypass persistent TypeScript mismatch; input is validated by Zod
-        const data = await doScoreCampaign(models, input as any);
-        return { data, status: 'success' };
+        return await doScoreCampaign(models, input);
+      }),
+
+    consumeTargetChange: t.procedure
+      .input(consumeTargetChangeInput)
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        return await consumeScoreTargetChange({ models, subdomain, input });
       }),
 
     refundLoyaltyScore: t.procedure
       .input(refundLoyaltyScoreInput)
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        const data = await refundLoyaltyScore(models, input);
-        return { data, status: 'success' };
+        return await refundLoyaltyScore(models, input);
       }),
   }),
 
@@ -373,8 +457,7 @@ export const appRouter = t.router({
       .input(voucherCampaignsInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const data = await models.VoucherCampaigns.find(input || {}).lean();
-        return { data, status: 'success' };
+        return await models.VoucherCampaigns.find(input || {}).lean();
       }),
   }),
   // At the top of appRouter in init-trpc.ts:

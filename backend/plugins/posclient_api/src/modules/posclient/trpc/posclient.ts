@@ -8,10 +8,10 @@ import {
   importProducts,
   importSlots,
   preImportProducts,
-  preRemovePos,
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
+  receiveProductsRemove,
   receiveUser,
 } from '~/modules/posclient/utils/syncUtils';
 
@@ -19,37 +19,40 @@ const t = initTRPC.context<PosTRPCContext>().create();
 
 export const posclientTrpcRouter = t.router({
   posclient: t.router({
-    getConfigByToken: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { token } = input;
-      const { models } = ctx;
-      return models.Configs.findOne({ token }).lean();
-    }),
-    manageConfig: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const data = input;
-      const { models, subdomain } = ctx;
-      return await receivePosConfig(subdomain, models, data);
-    }),
-    removeConfig: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { posId, posToken } = input;
-      const { models } = ctx;
+    getConfigByToken: t.procedure
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { token } = input;
+        const { models } = ctx;
+        return models.Configs.findOne({ token }).lean();
+      }),
+    manageConfig: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const data = input;
+        const { models, subdomain } = ctx;
+        return await receivePosConfig(subdomain, models, data);
+      }),
+    removeConfig: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { posToken } = input;
+        const { models } = ctx;
+        const posConfig = await models.Configs.getConfig({ token: posToken });
 
-      await preRemovePos(models, posId, posToken);
-      await models.Configs.removeConfig(posId);
-      return 'success';
-    }),
+        await models.Configs.removeConfig(posConfig._id);
+        return 'success';
+      }),
     covers: t.router({
       remove: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { models } = ctx;
 
         const { cover } = input;
         await models.Covers.updateOne(
           { _id: cover._id },
           { $set: { status: 'reconf' } },
         );
-        return {
-          status: 'success',
-          data: await models.Covers.findOne({ _id: cover._id }),
-        };
+        return await models.Covers.findOne({ _id: cover._id });
       }),
     }),
 
@@ -57,25 +60,16 @@ export const posclientTrpcRouter = t.router({
       const { channelToken } = input;
       const { models } = ctx;
       if (channelToken) {
-        return {
-          status: 'success',
-          data: { healthy: 'ok' },
-        };
+        return { healthy: 'ok' };
       }
 
       const conf = await models.Configs.findOne({ token: channelToken });
 
       if (!conf) {
-        return {
-          status: 'success',
-          data: { healthy: 'no' },
-        };
+        return { healthy: 'no' };
       }
 
-      return {
-        status: 'success',
-        data: { healthy: 'ok' },
-      };
+      return { healthy: 'ok' };
     }),
     crudData: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
@@ -85,6 +79,9 @@ export const posclientTrpcRouter = t.router({
         switch (type) {
           case 'product':
             await receiveProduct(models, input);
+            break;
+          case 'productsRemove':
+            await receiveProductsRemove(models, input);
             break;
           case 'productCategory':
             await receiveProductCategory(models, input);
@@ -108,24 +105,26 @@ export const posclientTrpcRouter = t.router({
         }
       }
     }),
-    updateSynced: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
+    updateSynced: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
 
-      const { responseIds, orderId, convertDealId } = input;
+        const { responseIds, orderId, convertDealId } = input;
 
-      await models.Orders.updateOne(
-        { _id: orderId },
-        { $set: { synced: true, convertDealId } },
-      );
-      await models.PutResponses.updateMany(
-        { _id: { $in: responseIds } },
-        { $set: { synced: true } },
-      );
-    }),
+        await models.Orders.updateOne(
+          { _id: orderId },
+          { $set: { synced: true, convertDealId } },
+        );
+        await models.PutResponses.updateMany(
+          { _id: { $in: responseIds } },
+          { $set: { synced: true } },
+        );
+      }),
     syncOrderFromPos: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { models } = ctx;
 
         const { order } = input;
 
@@ -168,7 +167,7 @@ export const posclientTrpcRouter = t.router({
     syncOrderFromPosRemove: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { models } = ctx;
 
         const { order } = input;
 
@@ -199,20 +198,14 @@ export const posclientTrpcRouter = t.router({
       const config = await models.Configs.findOne({ token: posToken });
 
       if (!config) {
-        return {
-          status: 'error',
-          errorMessage: 'Cannot find pos user or config',
-        };
+        throw new Error('Cannot find pos user or config');
       }
 
-      return {
-        status: 'success',
-        data: await ordersAdd(order, {
-          subdomain,
-          models,
-          config,
-        }),
-      };
+      return await ordersAdd(order, {
+        subdomain,
+        models,
+        config,
+      });
     }),
   }),
 });

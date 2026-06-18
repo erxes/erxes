@@ -58,6 +58,8 @@ const transactionFields = `
   ctaxAmount: Float
 
   extraData: JSON
+  contentType: String
+  contentId: String
 `;
 
 export const types = () => `
@@ -142,6 +144,11 @@ export const types = () => `
     totalCount: Int,
   }
 
+  type AccTransactionsByContentResponse {
+    list: [AccCommonTransaction],
+    totalCount: Int,
+  }
+
   type AccTrRecordsListResponse {
     list: [AccCommonTrRecord],
     pageInfo: PageInfo
@@ -164,13 +171,15 @@ const trsQueryParams = `
   ids: [String],
   excludeIds: Boolean,
   status: String,
-  mentionOwnerId: String
-  mentionUserIds: String
+  mentionOwnerId: String,
+  mentionUserId: String,
   searchValue: String,
   number: String,
   ptrStatus: String,
   customerType: String,
   customerId: String,
+  contentType: String,
+  contentId: String,
 
   accountIds: [String],
   accountKind: String,
@@ -197,14 +206,14 @@ const trsQueryParams = `
   statuses: [String],
   relAccounts: [String],
 
-  createdUserId: String
-  modifiedUserId: String
-  startDate: Date
-  endDate: Date
-  startUpdatedDate: Date
-  endUpdatedDate: Date
-  startCreatedDate: Date
-  endCreatedDate: Date
+  createdUserId: String,
+  modifiedUserId: String,
+  startDate: Date,
+  endDate: Date,
+  startUpdatedDate: Date,
+  endUpdatedDate: Date,
+  startCreatedDate: Date,
+  endCreatedDate: Date,
 `;
 
 const trRecsQueryParams = `
@@ -226,6 +235,14 @@ export const queries = `
     sortField: String
     sortDirection: Int
   ): [AccCommonTransaction]
+  accTransactionsByContent(
+    contentType: String!,
+    contentId: String!,
+    page: Int,
+    perPage: Int,
+    sortField: String
+    sortDirection: Int
+  ): AccTransactionsByContentResponse
   accTransactionsDetail(_id: String!): [AccCommonTransaction]
   accTransactionDetail(_id:String!): AccCommonTransaction
   accTransactionsCount(${trsQueryParams}): Int

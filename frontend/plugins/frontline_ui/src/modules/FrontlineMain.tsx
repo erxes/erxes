@@ -17,11 +17,6 @@ const CallStatisticsIndexPage = lazy(() =>
     default: module.CallIndexPage,
   })),
 );
-const CallStatisticsDetailPage = lazy(() =>
-  import('~/pages/CallStatisticsDetailPage').then((module) => ({
-    default: module.CallDetailPage,
-  })),
-);
 
 const Inbox = lazy(() =>
   import('~/pages/InboxIndexPage').then((module) => ({
@@ -41,6 +36,12 @@ const Report = lazy(() =>
   })),
 );
 
+const FormsView = lazy(() =>
+  import('@/forms/components/form-page/FormView').then((module) => ({
+    default: module.default,
+  })),
+);
+
 const Forms = lazy(() =>
   import('~/pages/FormsIndexPage').then((module) => ({
     default: module.default,
@@ -49,13 +50,7 @@ const Forms = lazy(() =>
 
 const FormDetailPage = lazy(() =>
   import('~/pages/FormDetailPage').then((module) => ({
-    default: module.FormDetailPage,
-  })),
-);
-
-const FormCreatePage = lazy(() =>
-  import('~/pages/FormCreatePage').then((module) => ({
-    default: module.FormCreatePage,
+    default: module.default,
   })),
 );
 
@@ -67,6 +62,12 @@ const FormPreviewPage = lazy(() =>
 
 const KnowledgeBase = lazy(() =>
   import('~/pages/knowledgebase/IndexPage').then((module) => ({
+    default: module.default,
+  })),
+);
+
+const FormSubmissionIndexPage = lazy(() =>
+  import('~/pages/FormSubmissionsPage').then((module) => ({
     default: module.default,
   })),
 );
@@ -89,13 +90,20 @@ const IntegrationsMain = () => {
         <Route path="/calls/statistics" element={<CallStatisticsIndexPage />} />
         <Route
           path="/calls/statistics/:id"
-          element={<CallStatisticsDetailPage />}
+          element={
+            <CallDashboardDetailPage backPath="/frontline/calls/statistics" />
+          }
         />
         <Route path="/calls/:id" element={<CallDashboardDetailPage />} />
         <Route path="/reports/*" element={<Report />} />
-        <Route path="/forms" element={<Forms />} />
-        <Route path="/forms/:formId" element={<FormDetailPage />} />
-        <Route path="/forms/create" element={<FormCreatePage />} />
+        <Route path="/forms" element={<FormsView />}>
+          <Route index element={<Forms />} />
+          <Route path=":formId" element={<FormDetailPage />} />
+          <Route
+            path="submissions/:formId"
+            element={<FormSubmissionIndexPage />}
+          />
+        </Route>
         <Route path="/forms/preview" element={<FormPreviewPage />} />
         <Route path="/knowledgebase" element={<KnowledgeBase />} />
       </Routes>

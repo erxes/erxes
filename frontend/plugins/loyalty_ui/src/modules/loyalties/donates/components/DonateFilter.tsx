@@ -1,4 +1,3 @@
-import { IconUser } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { DonateHotKeyScope } from '../types/path/DonateHotKeyScope';
 import { DonateTotalCount } from './DonateTotalCount';
@@ -6,7 +5,7 @@ import { useDonateLeadSessionKey } from '../hooks/useDonateLeadSessionKey';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectDonateCampaign } from './selects/SelectDonateCampaign';
 import { SelectOwnerType } from './selects/SelectOwnerType';
-import { SelectCustomer, SelectMember } from 'ui-modules';
+import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const DonateFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -14,8 +13,7 @@ const DonateFilterPopover = () => {
     ownerType: string;
     status: string;
     ownerId: string;
-    userId: string;
-  }>(['donateCampaign', 'ownerType', 'status', 'ownerId', 'userId']);
+  }>(['donateCampaign', 'ownerType', 'status', 'ownerId']);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -37,16 +35,14 @@ const DonateFilterPopover = () => {
                 <SelectDonateCampaign.FilterItem />
                 <SelectStatus.FilterItem />
                 <SelectOwnerType.FilterItem />
-                <SelectCustomer.FilterItem value="ownerId" label="Customer" />
-                <SelectMember.FilterItem value="userId" label="Team Member" />
+                <SelectOwner.FilterItem queryKey="ownerId" />
               </Command.List>
             </Command>
           </Filter.View>
           <SelectDonateCampaign.FilterView />
           <SelectStatus.FilterView />
           <SelectOwnerType.FilterView />
-          <SelectCustomer.FilterView filterKey="ownerId" mode="single" />
-          <SelectMember.FilterView queryKey="userId" mode="single" />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -60,10 +56,7 @@ const DonateFilterPopover = () => {
           <SelectOwnerType.FilterView />
         </Filter.View>
         <Filter.View filterKey="ownerId" inDialog>
-          <SelectCustomer.FilterView filterKey="ownerId" mode="single" />
-        </Filter.View>
-        <Filter.View filterKey="userId" inDialog>
-          <SelectMember.FilterView queryKey="userId" mode="single" />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -78,22 +71,7 @@ export const DonateFilter = () => {
       <Filter.Bar>
         <SelectDonateCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
-        <Filter.BarItem queryKey="ownerId">
-          <Filter.BarName>
-            <IconUser />
-            Customer
-          </Filter.BarName>
-          <SelectCustomer.FilterBar
-            filterKey="ownerId"
-            label="Customer"
-            mode="single"
-          />
-        </Filter.BarItem>
-        <SelectMember.FilterBar
-          queryKey="userId"
-          label="Team Member"
-          mode="single"
-        />
+        <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectStatus.FilterBar />
         <DonateFilterPopover />
         <DonateTotalCount />

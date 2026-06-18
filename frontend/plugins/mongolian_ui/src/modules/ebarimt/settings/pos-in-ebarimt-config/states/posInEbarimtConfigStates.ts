@@ -16,10 +16,10 @@ export interface IPosInEbarimtConfigRow {
   branchNo?: string;
   hasVat?: boolean;
   vatPercent?: string;
-  reverseVatRules?: string;
+  reverseVatRules?: string[];
   hasCitytax?: boolean;
   citytaxPercent?: string;
-  reverseCtaxRules?: string;
+  reverseCtaxRules?: string[];
   headerText?: string;
   footerText?: string;
   withDescription?: boolean;

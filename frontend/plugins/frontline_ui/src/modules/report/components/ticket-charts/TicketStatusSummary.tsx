@@ -31,6 +31,7 @@ import {
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
+import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
 import {
   getReportChartTypeAtom,
@@ -43,6 +44,7 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { type LegendPayload } from 'recharts';
@@ -70,6 +72,7 @@ export const TicketStatusSummary = ({
   const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
   const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
+  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -88,6 +91,7 @@ export const TicketStatusSummary = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
+        propertyIds: propertyFilter.length ? propertyFilter : undefined,
       },
     },
   });
@@ -273,6 +277,10 @@ const StatusLineChart = memo(function StatusLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="tk-status-primary" color="var(--primary)" />
+          <AreaGradient id="tk-status-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="name" tickLine={false} axisLine={false} />
         <YAxis yAxisId="count" tickLine={false} axisLine={false} />
@@ -287,18 +295,20 @@ const StatusLineChart = memo(function StatusLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.3}
+          fill="url(#tk-status-primary)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <Area
           yAxisId="percentage"
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
-          fillOpacity={0.3}
+          fill="url(#tk-status-success)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />

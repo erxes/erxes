@@ -16,9 +16,7 @@ import {
   Separator,
 } from 'erxes-ui';
 import { useState } from 'react';
-import {
-  ITicketCheckProgress,
-} from '../types';
+import { ITicketCheckProgress } from '../types';
 import { format } from 'date-fns';
 import { useGetTicketsByCustomer } from '../hooks/useGetTicketsByCustomer';
 import { TicketStatusInlineValue } from './ticket-check-progress';
@@ -66,11 +64,12 @@ export const TicketSubmissions = ({
       <div className="shrink-0">
         <Button
           type="button"
-          className="bg-primary flex-none shadow-2xs my-2 w-full"
+          variant={'secondary'}
+          className="bg-primary hover:bg-primary/70 text-primary-foreground flex-none shadow-2xs my-2 w-full"
           onClick={() => setPage('submit')}
         >
           <IconPlus size={16} />
-          Issue new ticket
+          Issue a new ticket
         </Button>
       </div>
     </div>
@@ -87,7 +86,7 @@ export const TicketSubmissionItem = ({
   return (
     <Collapsible
       key={ticket._id}
-      className="bg-background rounded-lg shadow-2xs"
+      className="bg-background rounded-lg shadow-2xs text-foreground"
       open={open}
       onOpenChange={setOpen}
     >
@@ -95,7 +94,9 @@ export const TicketSubmissionItem = ({
         <TicketStatusInlineValue status={ticket.status} />
         <div className="text-base font-semibold flex-1 shrink-0 truncate flex m-0 justify-between">
           {ticket.name || 'Untitled ticket'}
-          {!open && <TicketDateDisplay value={ticket?.createdAt || undefined} />}
+          {!open && (
+            <TicketDateDisplay value={ticket?.createdAt || undefined} />
+          )}
         </div>
         <div className="flex-none shrink-0">
           {open ? (
@@ -121,7 +122,7 @@ export const TicketSubmissionItem = ({
               placeholder="Close date"
             />
           </div>
-          <div className='flex justify-between items-center'>
+          <div className="flex justify-between items-center">
             <div className="text-sm text-muted-foreground px-1">
               {parseTicketDescription(ticket.description)}
             </div>

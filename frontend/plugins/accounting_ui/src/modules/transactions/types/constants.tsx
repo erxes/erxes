@@ -151,7 +151,7 @@ export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({
 
 export const TR_STATUS_GROUPS = [
   {
-    label: 'Хүсэлт',
+    label: 'DRAFTED',
     values: [
       TR_STATUSES.DRAFT,
       TR_STATUSES.MENTIONED,
@@ -161,7 +161,7 @@ export const TR_STATUS_GROUPS = [
     ],
   },
   {
-    label: 'Гүйцэтгэл',
+    label: 'PUBLISHED',
     values: [
       TR_STATUSES.PROGRESS,
       TR_STATUSES.ASSIGNED,
@@ -171,7 +171,7 @@ export const TR_STATUS_GROUPS = [
     ],
   },
   {
-    label: 'Төлөвлөгөө',
+    label: '',
     values: [TR_STATUSES.PLAN],
   },
 ];

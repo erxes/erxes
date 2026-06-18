@@ -59,8 +59,10 @@ export interface IPosOrder {
   subBranchId: string;
   departmentId: string;
   posToken: string;
+  posId?: string;
   syncedErkhet?: boolean;
   syncErkhetInfo?: string;
+  accountingResponse?: string;
   deliveryInfo?: any;
   description?: string;
   isPre?: boolean;

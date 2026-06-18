@@ -4,6 +4,7 @@ import { GeneralSettingsSkeleton } from '@/settings/general/components/GeneralSe
 import SelectControl from '@/settings/general/components/SelectControl';
 import { SelectCurrency } from '@/settings/general/components/SelectCurrency';
 import { SelectMainCurrency } from '@/settings/general/components/SelectMainCurrency';
+import { SelectTeamMemberMasterUsers } from '@/settings/general/components/SelectTeamMemberMasterUsers';
 import { SelectTimezone } from '@/settings/general/components/SelectTimezone';
 import { LANGUAGES } from '@/settings/general/constants/data';
 import { useGeneralSettingsForms } from '@/settings/general/hooks/useGeneralSettingsForms';
@@ -63,9 +64,30 @@ const GeneralSettings = () => {
       );
 
       const timezone = configs?.find((data: any) => data.code === 'TIMEZONE');
+      const checkMasterUsers = configs?.find(
+        (data: any) => data.code === 'CHECK_TEAM_MEMBER_SHOWN',
+      );
+      const branchMasterUserIds = configs?.find(
+        (data: any) => data.code === 'BRANCHES_MASTER_TEAM_MEMBERS_IDS',
+      );
+      const departmentMasterUserIds = configs?.find(
+        (data: any) => data.code === 'DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS',
+      );
 
       methods.setValue('dealCurrency', currencies?.value);
       methods.setValue('mainCurrency', mainCurrency?.value);
+      methods.setValue(
+        'CHECK_TEAM_MEMBER_SHOWN',
+        checkMasterUsers?.value ?? false,
+      );
+      methods.setValue(
+        'BRANCHES_MASTER_TEAM_MEMBERS_IDS',
+        branchMasterUserIds?.value || [],
+      );
+      methods.setValue(
+        'DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS',
+        departmentMasterUserIds?.value || [],
+      );
 
       if (timezone) {
         methods.setValue('TIMEZONE', timezone?.value);
@@ -90,11 +112,12 @@ const GeneralSettings = () => {
             languages.some((lng) => lang.value === lng),
           )}
           placeholder="Languages"
-          label= {t('language')}
+          label={t('language')}
         />
         <SelectMainCurrency />
         <SelectCurrency />
         <SelectTimezone />
+        <SelectTeamMemberMasterUsers />
         <Button disabled={isLoading} type="submit" className="w-1/4 ml-auto">
           {isLoading ? (
             <Spinner className="stroke-white/90 w-4 h-4" />

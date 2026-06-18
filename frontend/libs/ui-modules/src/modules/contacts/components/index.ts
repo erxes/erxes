@@ -1,3 +1,7 @@
+export * from './AddCustomer';
+export * from './AddCompany';
+export * from './AddCustomerForm';
+export * from './AddCompanyForm';
 export * from './CompaniesInline';
 export * from './CustomersInline';
 export * from './SelectCompaniesBulk';

@@ -34,9 +34,8 @@ export const adminMutations: Record<string, Resolver<any, any, IContext>> = {
   async cpUsersEdit(
     _root: unknown,
     { _id, ...params }: CpUsersEditParams,
-    { models, checkPermission }: IContext,
+    { models }: IContext,
   ) {
-    await checkPermission('clientPortalManage');
     return models.CPUser.updateUser(_id, params, models);
   },
 
@@ -54,9 +53,8 @@ export const adminMutations: Record<string, Resolver<any, any, IContext>> = {
   async cpUsersSetPassword(
     _root: unknown,
     { _id, newPassword }: CpUsersSetPasswordParams,
-    { models, checkPermission }: IContext,
+    { models }: IContext,
   ) {
-    await checkPermission('clientPortalManage');
     await getCPUserByIdOrThrow(_id, models);
 
     validatePassword(newPassword);

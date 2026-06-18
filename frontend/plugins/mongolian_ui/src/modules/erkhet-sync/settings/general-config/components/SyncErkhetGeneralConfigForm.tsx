@@ -67,23 +67,6 @@ export const SyncErkhetGeneralConfigForm = () => {
               </Form.Item>
             )}
           />
-          <Form.Field
-            name="getRemainderUrl"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Get remainder url</Form.Label>
-                <Form.Message />
-                <Form.Control>
-                  <Input
-                    placeholder="Enter get remainder url"
-                    className="h-8"
-                    {...field}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
         </div>
         <div className="flex flex-col gap-4">
           <h1 className="text-xl font-semibold mb-2">Product to erkhet</h1>

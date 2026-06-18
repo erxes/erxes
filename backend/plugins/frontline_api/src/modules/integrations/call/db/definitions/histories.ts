@@ -47,4 +47,15 @@ export const callHistorySchema = new Schema({
     label: `'Local' indicates the call was ended by Erxes, while 'remote' indicates the call was ended by the customer`,
   }),
   queueName: field({ type: String, label: 'queue name' }),
+  uniqueid: field({
+    type: String,
+    label: 'PBX call uniqueid (Call-ID) for end-to-end dedup',
+    optional: true,
+  }),
 });
+
+callHistorySchema.index(
+  { uniqueid: 1, extensionNumber: 1 },
+  { unique: true, partialFilterExpression: { uniqueid: { $type: 'string' } } },
+);
+callHistorySchema.index({ timeStamp: 1, extensionNumber: 1 });

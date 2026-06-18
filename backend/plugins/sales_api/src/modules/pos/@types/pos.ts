@@ -15,7 +15,6 @@ export interface IPos {
   serviceCharge?: number;
   serviceChargeApplicableProductId?: string;
   paymentTypes?: any[];
-  erxesAppToken: string;
   isOnline?: boolean;
   onServer?: boolean;
   branchId?: string;
@@ -28,8 +27,6 @@ export interface IPos {
   kitchenScreen?: any;
   uiOptions?: any;
   token: string;
-  ebarimtConfig?: any;
-  erkhetConfig?: any;
   syncInfos?: any;
   catProdMappings?: any;
   initialCategoryIds?: string;
@@ -37,7 +34,6 @@ export interface IPos {
   kioskExcludeProductIds?: string;
   deliveryConfig?: any;
   cardsConfig?: any;
-  checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes: string[];
   isCheckRemainder: boolean;

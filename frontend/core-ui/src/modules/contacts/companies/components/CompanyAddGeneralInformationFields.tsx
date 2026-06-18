@@ -11,8 +11,8 @@ import {
   CountryPhoneCodes,
 } from 'erxes-ui';
 import { SelectCompany, SelectMember } from 'ui-modules';
-import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES } from '../constants';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
+import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES } from 'ui-modules/modules/contacts/constants/companyConstants';
 
 const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter((i) => i).map((i) => ({
   label: i,

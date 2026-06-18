@@ -12,12 +12,27 @@ import { TAutomationActionComponent } from '@/automations/components/builder/nod
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
 import { IconArrowDown, IconRefresh } from '@tabler/icons-react';
-import { Button, RelativeDateDisplay, Table } from 'erxes-ui';
+import { type ColumnDef } from '@tanstack/table-core';
+import {
+  Button,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+} from 'erxes-ui';
+import { type ComponentProps } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   IAutomationHistory,
   IAutomationHistoryAction,
   splitAutomationNodeType,
 } from 'ui-modules';
+
+type AutomationHistoryActionTableRow = IAutomationHistoryAction & {
+  _id: string;
+  actionTypeLabel: string;
+  createdAtValue: string;
+  executionStatus: IAutomationHistory['status'];
+};
 
 const getHistoryResultErrorText = (value: unknown) => {
   const text = stringifyAutomationHistoryValue(value);
@@ -44,6 +59,118 @@ const formatExecutionDuration = (durationMs?: number) => {
   return `${minutes}m ${seconds}s`;
 };
 
+const getSetPropertyResultSummary = (result: any) => {
+  if (result?.target && Array.isArray(result?.changes)) {
+    const fields = result.changes
+      .map((change: any) => change.fieldLabel || change.field)
+      .filter(Boolean)
+      .join(', ');
+
+    return fields
+      ? `Updated ${result.target.count} ${result.target.label}: ${fields}`
+      : `Updated ${result.target.count} ${result.target.label}`;
+  }
+
+  if (typeof result?.summary === 'string') {
+    return result.summary;
+  }
+
+  const resultList = result?.result || [];
+  const errors = resultList.map((r: any) => r.error || '').join(', ');
+
+  return `Update for ${resultList.length} ${result.module}: ${
+    result.fields || ''
+  }, (${errors})`;
+};
+
+const formatSetPropertyValue = (value: unknown, emptyLabel: string) => {
+  if (value === undefined || value === null || value === '') {
+    return emptyLabel;
+  }
+
+  return stringifyAutomationHistoryValue(value);
+};
+
+const getSetPropertyStatusClassName = (status?: string) => {
+  if (status === 'failed') {
+    return 'text-destructive';
+  }
+
+  if (status === 'skipped') {
+    return 'text-muted-foreground';
+  }
+
+  return 'text-green-500';
+};
+
+const SetPropertyActionResult = ({ result }: { result: any }) => {
+  const { t } = useTranslation('automations');
+
+  if (!Array.isArray(result?.changes)) {
+    return getSetPropertyResultSummary(result);
+  }
+
+  const target = result.target || {};
+  const targetLabel = target.label || result.module || t('property-type');
+  const targetCount = target.count ?? result.changes.length;
+
+  return (
+    <div className="min-w-[420px] max-w-[560px] space-y-3 text-sm">
+      <div>
+        <div className="font-medium">
+          {t('set-property-updated-target', {
+            count: targetCount,
+            target: targetLabel,
+          })}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {t('set-property-change-count', {
+            count: result.changes.length,
+          })}
+        </div>
+      </div>
+      <div className="divide-y divide-border">
+        {result.changes.map((change: any, index: number) => (
+          <div key={`${change.field}-${index}`} className="py-2 first:pt-0">
+            <div className="flex items-center justify-between gap-4">
+              <span className="font-medium">
+                {change.fieldLabel || change.field}
+              </span>
+              <span
+                className={`text-xs font-medium ${getSetPropertyStatusClassName(
+                  change.status,
+                )}`}
+              >
+                {t(`set-property-status-${change.status || 'updated'}`)}
+              </span>
+            </div>
+
+            <div className="mt-1 grid grid-cols-[56px_1fr] gap-x-2 gap-y-1 text-xs">
+              <span className="text-muted-foreground">{t('value')}</span>
+              <span className="break-words font-medium">
+                {formatSetPropertyValue(
+                  change.value,
+                  t('set-property-empty-value'),
+                )}
+              </span>
+              {change.placeholder && (
+                <>
+                  <span className="text-muted-foreground">
+                    {t('set-property-from')}
+                  </span>
+                  <span className="break-all font-mono text-muted-foreground">
+                    {change.placeholder}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const getExecutionActionResultPreview = (
   action: IAutomationHistoryAction,
 ): string => {
@@ -63,12 +190,7 @@ const getExecutionActionResultPreview = (
   }
 
   if (action.actionType === 'setProperty') {
-    const resultList = result?.result || [];
-    const errors = resultList.map((r: any) => r.error || '').join(', ');
-
-    return `Update for ${resultList.length} ${result.module}: ${
-      result.fields || ''
-    }, (${errors})`;
+    return getSetPropertyResultSummary(result);
   }
 
   if (action.actionType === 'if') {
@@ -144,12 +266,7 @@ export const ExecutionActionResult = ({
   }
 
   if (action.actionType === 'setProperty') {
-    const resultList = result?.result || [];
-    const errors = resultList.map((r: any) => r.error || '').join(', ');
-
-    return `Update for ${resultList.length} ${result.module}: ${
-      result.fields || ''
-    }, (${errors})`;
+    return <SetPropertyActionResult result={result} />;
   }
 
   if (action.actionType === 'if') {
@@ -213,61 +330,131 @@ export const ExecutionActionResult = ({
   );
 };
 
+const automationHistoryActionColumns: ColumnDef<AutomationHistoryActionTableRow>[] =
+  [
+    {
+      id: 'createdAtValue',
+      accessorKey: 'createdAtValue',
+      header: () => <RecordTable.InlineHead label="Time" />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue<string>()} />
+        </RecordTableInlineCell>
+      ),
+      size: 144,
+    },
+    {
+      id: 'actionTypeLabel',
+      accessorKey: 'actionTypeLabel',
+      header: () => <RecordTable.InlineHead label="Action Type" />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>{cell.getValue<string>()}</RecordTableInlineCell>
+      ),
+      size: 256,
+    },
+    {
+      id: 'durationMs',
+      accessorKey: 'durationMs',
+      header: () => <RecordTable.InlineHead label="Duration" />,
+      cell: ({ row }) => (
+        <RecordTableInlineCell>
+          {formatExecutionDuration(row.original.durationMs)}
+        </RecordTableInlineCell>
+      ),
+      size: 112,
+    },
+    {
+      id: 'result',
+      header: () => <RecordTable.InlineHead label="Results" />,
+      cell: ({ row }) => (
+        <RecordTableInlineCell className="p-0">
+          <AutomationHistoryPopoverValue
+            className="h-10"
+            preview={getExecutionActionResultPreview(row.original)}
+            content={
+              <ExecutionActionResult
+                action={row.original}
+                status={row.original.executionStatus}
+              />
+            }
+          />
+        </RecordTableInlineCell>
+      ),
+      size: 560,
+    },
+  ];
+
+const AutomationHistoryActionRow = ({
+  isLast,
+  ...props
+}: ComponentProps<typeof RecordTable.Row> & { isLast: boolean }) => {
+  return (
+    <>
+      <RecordTable.Row {...props} />
+      {!isLast && (
+        <tr>
+          <td colSpan={automationHistoryActionColumns.length} className="py-2">
+            <div className="flex items-center justify-center text-muted-foreground">
+              <IconArrowDown />
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  );
+};
+
 export const AutomationHistoryByTable = () => {
   const { list, status, refetch, loading } = useAutomationHistoryResult();
+  const { t } = useTranslation('automations');
+  const tableList = list.map((action, index) => ({
+    ...action,
+    _id: action.actionId || `${action.actionType}-${index}`,
+    executionStatus: status,
+  }));
+
   return (
-    <div className="px-4">
-      <Button variant="ghost" disabled={loading} onClick={() => refetch()}>
-        Reload <IconRefresh />
-      </Button>
-      <Table>
-        <Table.Header className="[&_th]:w-40">
-          <Table.Row>
-            <Table.Head className="w-36!">Time</Table.Head>
-            <Table.Head className="w-64!">Action Type</Table.Head>
-            <Table.Head className="w-28!">Duration</Table.Head>
-            <Table.Head>Results</Table.Head>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {list.map(({ actionTypeLabel, createdAtValue, ...action }, index) => {
-            return (
-              <>
-                <Table.Row key={index}>
-                  <Table.Cell>
-                    <RelativeDateDisplay.Value value={createdAtValue} />
-                  </Table.Cell>
-                  <Table.Cell>{actionTypeLabel}</Table.Cell>
-                  <Table.Cell>
-                    {formatExecutionDuration(action.durationMs)}
-                  </Table.Cell>
-                  <Table.Cell className="p-0">
-                    <AutomationHistoryPopoverValue
-                      className="h-10"
-                      preview={getExecutionActionResultPreview(action)}
-                      content={
-                        <ExecutionActionResult
-                          action={action}
-                          status={status}
-                        />
-                      }
+    <div className="flex h-full min-h-0 flex-col px-4">
+      <div className="flex justify-end py-2">
+        <Button variant="ghost" disabled={loading} onClick={() => refetch()}>
+          Reload <IconRefresh />
+        </Button>
+      </div>
+      <RecordTable.Provider
+        columns={automationHistoryActionColumns}
+        data={tableList}
+        className="min-h-0 flex-1"
+      >
+        <RecordTable.Scroll>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              {loading && tableList.length === 0 ? (
+                <RecordTable.RowSkeleton rows={8} />
+              ) : (
+                <RecordTable.RowList
+                  Row={(props) => (
+                    <AutomationHistoryActionRow
+                      {...props}
+                      isLast={props.original === tableList[tableList.length - 1]}
                     />
-                  </Table.Cell>
-                </Table.Row>
-                {list.length - 1 > index && (
-                  <tr>
-                    <td colSpan={4} className="text-center py-2">
-                      <div className="flex items-center justify-center">
-                        <IconArrowDown />
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </>
-            );
-          })}
-        </Table.Body>
-      </Table>
+                  )}
+                />
+              )}
+              {!loading && tableList.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={automationHistoryActionColumns.length}
+                    className="py-10 text-center text-sm text-muted-foreground"
+                  >
+                    {t('no-results')}
+                  </td>
+                </tr>
+              )}
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Scroll>
+      </RecordTable.Provider>
     </div>
   );
 };

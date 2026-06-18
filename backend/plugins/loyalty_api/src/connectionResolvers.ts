@@ -36,9 +36,7 @@ import {
   ILotteryCampaignModel,
   loadLotteryCampaignClass,
 } from '@/lottery/db/models/LotteryCampaign';
-import { IPricingDocument } from '@/pricing/@types/pricing';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
-import { IPricingModel, loadPricingClass } from '@/pricing/db/models/Pricing';
 import {
   IPricingPlanModel,
   loadPricingPlanClass,
@@ -64,6 +62,7 @@ import {
   IVoucherCampaignModel,
   loadVoucherCampaignClass,
 } from '@/voucher/db/models/VoucherCampaign';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
@@ -79,7 +78,6 @@ export interface IModels {
   Lotteries: ILotteryModel;
   LotteryCampaigns: ILotteryCampaignModel;
   LoyaltyConfigs: ILoyaltyConfigModel;
-  Pricing: IPricingModel;
   PricingPlans: IPricingPlanModel;
   ScoreCampaigns: IScoreCampaignModel;
   ScoreLogs: IScoreLogModel;
@@ -97,8 +95,18 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
+  const loyaltyEventHandlers = eventHandlers('loyalty');
+
+  const assignmentDispatcher = loyaltyEventHandlers('assignment', 'assignment_campaigns');
+  const couponDispatcher = loyaltyEventHandlers('coupon', 'coupon_campaigns');
+  const donateDispatcher = loyaltyEventHandlers('donate', 'donate_campaigns');
+  const voucherDispatcher = loyaltyEventHandlers('voucher', 'voucher_campaigns');
+  const spinDispatcher = loyaltyEventHandlers('spin', 'spin_campaigns');
+  const scoreDispatcher = loyaltyEventHandlers('score', 'score_campaigns');
+  const lotteryDispatcher = loyaltyEventHandlers('lottery', 'lottery_campaigns');
 
   models.Agents = db.model<IAgentDocument, IAgentModel>(
     'agents',
@@ -113,7 +121,10 @@ export const loadClasses = (
   models.AssignmentCampaigns = db.model<
     IAssignmentCampaignDocument,
     IAssignmentCampaignModel
-  >('assignment_campaigns', loadAssignmentCampaignClass(models));
+  >(
+    'assignment_campaigns',
+    loadAssignmentCampaignClass(models, assignmentDispatcher),
+  );
 
   models.Coupons = db.model<ICouponDocument, ICouponModel>(
     'coupons',
@@ -123,7 +134,7 @@ export const loadClasses = (
   models.CouponCampaigns = db.model<
     ICouponCampaignDocument,
     ICouponCampaignModel
-  >('coupon_campaigns', loadCouponCampaignClass(models));
+  >('coupon_campaigns', loadCouponCampaignClass(models, couponDispatcher));
 
   models.Donates = db.model<IDonateDocument, IDonateModel>(
     'donates',
@@ -133,7 +144,7 @@ export const loadClasses = (
   models.DonateCampaigns = db.model<
     IDonateCampaignDocument,
     IDonateCampaignModel
-  >('donate_campaigns', loadDonateCampaignClass(models));
+  >('donate_campaigns', loadDonateCampaignClass(models, donateDispatcher));
 
   models.Lotteries = db.model<ILotteryDocument, ILotteryModel>(
     'lotteries',
@@ -143,26 +154,21 @@ export const loadClasses = (
   models.LotteryCampaigns = db.model<
     ILotteryCampaignDocument,
     ILotteryCampaignModel
-  >('lottery_campaigns', loadLotteryCampaignClass(models));
+  >('lottery_campaigns', loadLotteryCampaignClass(models, lotteryDispatcher));
 
   models.LoyaltyConfigs = db.model<ILoyaltyConfigDocument, ILoyaltyConfigModel>(
     'loyalty_configs',
     loadLoyaltyConfigClass(models),
   );
 
-  models.Pricing = db.model<IPricingDocument, IPricingModel>(
-    'loyalty_pricing',
-    loadPricingClass(models),
-  );
-
   models.PricingPlans = db.model<IPricingPlanDocument, IPricingPlanModel>(
-    'pricing',
+    'pricings',
     loadPricingPlanClass(models),
   );
 
   models.ScoreCampaigns = db.model<IScoreCampaignDocument, IScoreCampaignModel>(
     'score_campaigns',
-    loadScoreCampaignClass(models, subdomain),
+    loadScoreCampaignClass(models, subdomain, scoreDispatcher),
   );
 
   models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>(
@@ -177,7 +183,7 @@ export const loadClasses = (
 
   models.SpinCampaigns = db.model<ISpinCampaignDocument, ISpinCampaignModel>(
     'spin_campaigns',
-    loadSpinCampaignClass(models),
+    loadSpinCampaignClass(models, spinDispatcher),
   );
 
   models.Vouchers = db.model<IVoucherDocument, IVoucherModel>(
@@ -188,7 +194,7 @@ export const loadClasses = (
   models.VoucherCampaigns = db.model<
     IVoucherCampaignDocument,
     IVoucherCampaignModel
-  >('voucher_campaigns', loadVoucherCampaignClass(models));
+  >('voucher_campaigns', loadVoucherCampaignClass(models, voucherDispatcher));
 
   return models;
 };

@@ -4,6 +4,16 @@ export const CMS_TAGS_ADD = gql`
   mutation CmsTagsAdd($input: PostTagInput!) {
     cmsTagsAdd(input: $input) {
       _id
+      clientPortalId
+      name
+      slug
+      colorCode
+      createdAt
+      updatedAt
+      translations {
+        language
+        title
+      }
       __typename
     }
   }
@@ -19,6 +29,11 @@ export const CMS_TAGS_EDIT = gql`
       colorCode
       createdAt
       updatedAt
+      translations {
+        language
+        title
+      }
+      __typename
     }
   }
 `;

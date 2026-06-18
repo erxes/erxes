@@ -17,7 +17,7 @@ export const addStageInMovementErkhetConfigSchema = z.object({
   pipelineId: z.string().min(1, 'Pipeline is required'),
   stageId: z.string().min(1, 'Stage is required'),
   userEmail: z.string().min(1, 'User email is required'),
-  chooseResponseField: z.string().min(1, 'Choose response field is required'),
+  responseField: z.string().min(1, 'Response field is required'),
   defaultCustomer: z.string().min(1, 'Default customer is required'),
   details: z.array(movementDetailSchema).optional(),
 });

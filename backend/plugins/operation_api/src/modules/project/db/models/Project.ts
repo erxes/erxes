@@ -5,6 +5,7 @@ import {
   IProjectUpdate,
 } from '@/project/@types/project';
 import { projectSchema } from '@/project/db/definitions/project';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { Document } from 'mongodb';
 import { FlattenMaps, Model } from 'mongoose';
@@ -26,7 +27,11 @@ export interface IProjectModel extends Model<IProjectDocument> {
   removeProject(projectId: string): Promise<{ ok: number }>;
 }
 
-export const loadProjectClass = (models: IModels, subdomain: string) => {
+export const loadProjectClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Project {
     public static async getProject(_id: string) {
       const Project = await models.Project.findOne({ _id }).lean();
@@ -76,6 +81,11 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
           createdBy: user._id,
         });
       }
+      sendDbEventLog({
+        action: 'create',
+        docId: project._id,
+        currentDocument: project.toObject(),
+      });
 
       return project;
     }
@@ -109,6 +119,14 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
         { $set: { ...rest } },
         { new: true },
       );
+      if (updatedProject) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedProject._id,
+          currentDocument: updatedProject.toObject(),
+          prevDocument: project.toObject(),
+        });
+      }
 
       return updatedProject;
     }
@@ -120,7 +138,14 @@ export const loadProjectClass = (models: IModels, subdomain: string) => {
         throw new Error('Project has tasks');
       }
 
-      return models.Project.findOneAndDelete({ _id: projectId });
+      const project = await models.Project.findOneAndDelete({ _id: projectId });
+      if (project) {
+        sendDbEventLog({
+          action: 'delete',
+          docId: project._id,
+        });
+      }
+      return project;
     }
   }
 

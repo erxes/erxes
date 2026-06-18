@@ -119,7 +119,13 @@ export const automationMutations = {
     return automationIds;
   },
 
-  async automationsAiAgentAdd(_root, doc, { models, subdomain }: IContext) {
+  async automationsAiAgentAdd(
+    _root,
+    doc,
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsAiAgentAdd');
+
     const agent = await models.AiAgents.create(doc);
 
     await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: agent._id });
@@ -129,8 +135,10 @@ export const automationMutations = {
   async automationsAiAgentEdit(
     _root,
     { _id, ...doc },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('automationsAiAgentEdit');
+
     const currentAgent = await models.AiAgents.findOne({ _id });
 
     if (!currentAgent) {
@@ -153,6 +161,24 @@ export const automationMutations = {
     }
 
     return sanitizeAiAgent(updatedAgent);
+  },
+
+  async automationsAiAgentRemove(
+    _root,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsAiAgentRemove');
+
+    const agent = await models.AiAgents.findOne({ _id });
+
+    if (!agent) {
+      throw new Error('AI agent not found');
+    }
+
+    await models.AiAgents.deleteOne({ _id });
+
+    return { success: true };
   },
 
   async automationsAiAgentReindex(

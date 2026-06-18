@@ -51,7 +51,13 @@ export const FormCreatePage = lazy(() =>
 
 export const FormDetailPage = lazy(() =>
   import('~/pages/FormDetailPage').then((module) => ({
-    default: module.ChannelFormDetailPage,
+    default: module.default,
+  })),
+);
+
+const FormSubmissionIndexPage = lazy(() =>
+  import('~/pages/FormSubmissionsPage').then((module) => ({
+    default: module.default,
   })),
 );
 
@@ -173,6 +179,10 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.FormDetail}
             element={<FormDetailPage />}
+          />
+          <Route
+            path={FrontlinePaths.FormSubmissions}
+            element={<FormSubmissionIndexPage />}
           />
         </Route>
       </Routes>

@@ -51,7 +51,7 @@ export const formSetupValuesAtom = atom((get) => {
       title: general.title,
       name: general.title,
       type: 'lead',
-      description: confirmation.description,
+      description: general.description,
       buttonText: general.buttonText,
       numberOfPages: content.steps.length,
       leadData: {
@@ -75,7 +75,7 @@ export const formSetupValuesAtom = atom((get) => {
       },
     },
     formFields: Object.values(content.steps)
-      .map((step, stepIndex) => {
+      .map((step) => {
         return step.fields.map((field) => {
           return {
             tempFieldId: field.id,
@@ -85,7 +85,7 @@ export const formSetupValuesAtom = atom((get) => {
             isRequired: field.required,
             options: field.options,
             order: field.order,
-            pageNumber: stepIndex + 1,
+            pageNumber: step.order,
             text: field.label,
             type: field.type,
             validation: field.validation,

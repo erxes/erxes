@@ -1,7 +1,10 @@
 import {
+  CMS_ACCESS_POLICIES,
+  CMS_DEFAULT_ACCESS_POLICY,
   ICMSMenuDocument,
   ICMSPageDocument,
   IContentCMSDocument,
+  MENU_CONTENT_SOURCES,
   MENU_LINK_TYPES,
 } from '@/cms/@types/cms';
 import {
@@ -33,6 +36,14 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     language: { type: String, optional: true },
     languages: { type: [String], optional: true },
     postUrlField: { type: String, optional: true, default: '_id' },
+    postUrlPrefix: { type: String, optional: true, default: '/posts' },
+    accessPolicy: {
+      type: String,
+      enum: CMS_ACCESS_POLICIES,
+      optional: true,
+      default: CMS_DEFAULT_ACCESS_POLICY,
+    },
+    assignedMemberIds: { type: [String], optional: true, default: [] },
   },
   { timestamps: true },
 );
@@ -43,8 +54,9 @@ export const cmsMenuSchema = new mongoose.Schema<ICMSMenuDocument>(
     clientPortalId: { type: String, required: true },
     webId: { type: String, optional: true },
     label: { type: String, required: true },
-    contentType: { type: String },
-    contentTypeId: { type: String },
+    contentType: { type: String, optional: true },
+    contentTypeId: { type: String, optional: true },
+    type: { type: String, enum: MENU_CONTENT_SOURCES, optional: true },
     linkType: { type: String, enum: MENU_LINK_TYPES },
     kind: { type: String, required: true },
     icon: { type: String },

@@ -1,0 +1,158 @@
+# Contract: detect-scope
+
+skill:
+  name: detect-scope
+  version: "1.0.0"
+  type: meta
+  description: Detects user request intent, identifies target plugin/module, loads relevant code context, and asks minimal informed questions before proceeding to intake.
+
+inputs:
+  - name: user_request
+    type: string
+    description: "Raw user request describing what they want"
+    required: true
+
+  - name: detected_plugin
+    type: string
+    description: "Auto-detected plugin from feature-map.yaml"
+    required: false
+
+  - name: detected_module
+    type: string
+    description: "Auto-detected module from feature-map.yaml"
+    required: false
+
+outputs:
+  - name: detected_scope
+    type: object
+    description: "Detected scope with plugin, module, action, and context"
+    properties:
+      plugin:
+        type: string
+        description: "Plugin name (e.g., content, sales, operation)"
+      module:
+        type: string
+        description: "Module path within plugin (null for create-new-plugin)"
+        required: false
+      action:
+        type: enum
+        values: [create, modify, fix, delete, create-new-plugin]
+        description: "Action classification"
+      scope:
+        type: enum
+        values: [frontend, backend, both]
+        description: "Which layers are affected"
+      frontend_plugin:
+        type: string
+        required: false
+      backend_plugin:
+        type: string
+        required: false
+      existing_similar:
+        type: array
+        items:
+          type: object
+          properties:
+            plugin:
+              type: string
+            module:
+              type: string
+            components:
+              type: array
+              items: string
+        required: false
+      goal_condition:
+        type: string
+        description: "User's description of what 'done' looks like"
+      user_confirmed:
+        type: boolean
+        description: "Whether user confirmed the detected scope"
+
+rules_required:
+  - non-negotiable
+  - architecture
+
+preconditions:
+  - description: "Manifest must be loaded"
+    check: "manifest_loaded == true"
+  - description: "Context must be assembled"
+    check: "assemble_context_completed == true"
+
+postconditions:
+  - description: "Plugin/module identified or clarified"
+    check: "detected_scope.plugin != null || clarification_asked == true"
+  - description: "User confirmed scope or provided alternative"
+    check: "user_confirmed == true || user_provided_alternative == true"
+  - description: "Goal condition captured"
+    check: "detected_scope.goal_condition != null"
+  - description: "State file written"
+    check: "test -f .agents/state/last-detect-scope.json"
+    required: true
+    failure_message: "detect-scope MUST write output to .agents/state/last-detect-scope.json"
+
+workflow:
+  phases:
+    - parse: "Analyze user request for action type, entity, and scope hints"
+    - search: "Search feature-map.yaml for exact or fuzzy matches"
+    - classify: "Determine action classification (create, modify, fix, delete, create-new-plugin)"
+    - discover: "Read plugin AGENTS.md and explore plugin codebase structure"
+    - similar: "Find existing similar implementations in the same plugin"
+    - synthesize: "Build preliminary scope with all findings"
+    - confirm: "Ask user 1-3 minimal informed questions (scope confirmation + goal condition + optional reference)"
+    - handoff: "Pass confirmed scope to intake skill"
+
+examples:
+  - input:
+      user_request: "Add tags to posts"
+    output:
+      detected_scope:
+        plugin: "content"
+        module: "cms/tags"
+        action: "create"
+        scope: "both"
+        frontend_plugin: "content_ui"
+        backend_plugin: "content_api"
+        existing_similar:
+          - plugin: "content"
+            module: "cms/categories"
+            components: ["CategoriesRecordTable", "CategoryForm"]
+        goal_condition: "Tag management page + tag selector in post form"
+        user_confirmed: true
+
+  - input:
+      user_request: "Fix deal pipeline board - cards not dragging"
+    output:
+      detected_scope:
+        plugin: "sales"
+        module: "pipelines"
+        action: "fix"
+        scope: "frontend"
+        frontend_plugin: "sales_ui"
+        existing_similar: []
+        goal_condition: "Smooth drag-and-drop between stages"
+        user_confirmed: true
+
+  - input:
+      user_request: "Build a warehouse plugin for inventory management"
+    output:
+      detected_scope:
+        plugin: "warehouse"
+        module: null
+        action: "create-new-plugin"
+        scope: "both"
+        frontend_plugin: "warehouse_ui"
+        backend_plugin: "warehouse_api"
+        existing_similar: []
+        goal_condition: "Basic CRUD for products, stock tracking, warehouse locations"
+        user_confirmed: true
+
+composes_with:
+  - intake
+  - create-plugin
+  - plugin-workflow
+
+meta:
+  auto_invoke: true
+  invocation_order: -0.5  # After assemble-context (-1), before intake (0)
+  required_before: ["intake"]
+  description: "Runs silent discovery so intake can ask informed questions instead of obvious ones"

@@ -1,8 +1,8 @@
-import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
+import { Button, Filter, Input, Label, Switch, useToast } from 'erxes-ui';
 import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
 import { IProduct, IProductData, currentUserState } from 'ui-modules';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { IconSearch } from '@tabler/icons-react';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
@@ -29,6 +29,18 @@ const ProductsList = ({
   const { createDealsProductData } = useDealsCreateProductsData();
   const [localProductsData, setLocalProductsData] =
     useState<IProductData[]>(productsData);
+  const pendingProductPatchesRef = useRef<
+    Record<string, Partial<IProductData>>
+  >({});
+  const productOrderRef = useRef<string[]>(
+    (productsData || []).map((data) => data._id),
+  );
+  const productByIdRef = useRef<Record<string, IProduct>>(
+    products.reduce<Record<string, IProduct>>((acc, product) => {
+      acc[product._id] = product;
+      return acc;
+    }, {}),
+  );
   const setOnLocalChange = useSetAtom(onLocalChangeAtom);
 
   const [filters, setFilters] = useState<ProductFilterState>(
@@ -52,19 +64,60 @@ const ProductsList = ({
   const configs = currentUser?.configs || {};
   const currencies = configs?.dealCurrency || [];
 
-  const filteredProducts = filterProducts(products, filters);
+  products.forEach((product) => {
+    productByIdRef.current[product._id] = product;
+  });
+  localProductsData.forEach((data) => {
+    if (data.product?._id) {
+      productByIdRef.current[data.product._id] = data.product;
+    }
+  });
+
+  const availableProducts = Object.values(productByIdRef.current);
+
+  const filteredProducts = filterProducts(availableProducts, filters);
+  const { toast } = useToast();
 
   const productRecords = localProductsData
-    .map((data) => ({
-      ...data,
-      product: products.find((p) => p._id === data.productId),
-    }))
+    .map((data) => {
+      const product =
+        data.product ||
+        (data.productId ? productByIdRef.current[data.productId] : undefined);
+
+      return {
+        ...data,
+        product,
+      };
+    })
     .filter((record) => {
       if (!record.product) return false;
       return filteredProducts.some((p) => p._id === record.product?._id);
     });
 
+  const sortByStableProductOrder = useCallback((data: IProductData[]) => {
+    const ids = data.map((productData) => productData._id);
+    productOrderRef.current = [
+      ...productOrderRef.current.filter((id) => ids.includes(id)),
+      ...ids.filter((id) => !productOrderRef.current.includes(id)),
+    ];
+
+    const orderById = new Map(
+      productOrderRef.current.map((id, index) => [id, index]),
+    );
+
+    return [...data].sort(
+      (a, b) =>
+        (orderById.get(a._id) ?? Number.MAX_SAFE_INTEGER) -
+        (orderById.get(b._id) ?? Number.MAX_SAFE_INTEGER),
+    );
+  }, []);
+
   const updateLocalProduct = (id: string, patch: Partial<IProductData>) => {
+    pendingProductPatchesRef.current[id] = {
+      ...(pendingProductPatchesRef.current[id] || {}),
+      ...patch,
+    };
+
     setLocalProductsData((prev) => {
       const updated = prev.map((p) => (p._id === id ? { ...p, ...patch } : p));
 
@@ -74,8 +127,55 @@ const ProductsList = ({
   };
 
   useEffect(() => {
-    setLocalProductsData(productsData);
-  }, [productsData]);
+    setLocalProductsData((prev) => {
+      const hasPendingPatches =
+        Object.keys(pendingProductPatchesRef.current).length > 0;
+      const incomingProductsData = productsData || [];
+      const previousById = new Map(prev.map((data) => [data._id, data]));
+      const incomingById = new Map<string, IProductData>();
+
+      const updatedIncoming = incomingProductsData.map((data) => {
+        const previousRecord = previousById.get(data._id);
+        const pendingPatch = pendingProductPatchesRef.current[data._id];
+
+        if (pendingPatch) {
+          const hasServerCaughtUp = Object.entries(pendingPatch).every(
+            ([key, value]) =>
+              Object.is(data[key as keyof IProductData], value),
+          );
+
+          if (hasServerCaughtUp) {
+            delete pendingProductPatchesRef.current[data._id];
+          }
+        }
+
+        const updatedProductData = {
+          ...data,
+          product:
+            data.product ||
+            previousRecord?.product ||
+            (data.productId
+              ? productByIdRef.current[data.productId]
+              : undefined),
+          ...(pendingProductPatchesRef.current[data._id] || {}),
+        };
+
+        incomingById.set(data._id, updatedProductData);
+
+        return updatedProductData;
+      });
+
+      const updated =
+        hasPendingPatches && incomingProductsData.length < prev.length
+          ? [
+              ...prev.map((data) => incomingById.get(data._id) || data),
+              ...updatedIncoming.filter((data) => !previousById.has(data._id)),
+            ]
+          : updatedIncoming;
+
+      return sortByStableProductOrder(updated);
+    });
+  }, [productsData, sortByStableProductOrder]);
 
   useEffect(() => {
     setOnLocalChange(() => updateLocalProduct);
@@ -105,7 +205,7 @@ const ProductsList = ({
   };
 
   const onPoductBulkSave = (selectedProducts: IProduct[]) => {
-    if (!selectedProducts) return;
+    if (!selectedProducts?.length) return;
     const currency =
       currencies && currencies.length > 0 ? currencies[0] : 'MNT';
 
@@ -139,20 +239,47 @@ const ProductsList = ({
 
     docs.forEach((p) => calculatePerProductAmount('discount', p));
 
-    updateTotal(docs);
+    const previousProductsData = localProductsData;
+    const nextProductsData = [...previousProductsData, ...docs];
 
-    createDealsProductData({
+    setLocalProductsData(nextProductsData);
+    updateTotal(nextProductsData);
+
+    void createDealsProductData({
       variables: {
         processId,
         dealId,
         docs,
       },
+    }).catch(() => {
+      setLocalProductsData(previousProductsData);
+      updateTotal(previousProductsData);
     });
   };
 
   const handleSave = () => {
     const processId = localStorage.getItem('processId') || '';
+    const unassignedServiceItems = localProductsData.filter((data) => {
+      const product =
+        data.product || products.find((p) => p._id === data.productId);
+      const assignee = data.assignedUserId || data.assignUserId;
+      return product?.type === 'service' && data.tickUsed && !assignee;
+    });
 
+    if (unassignedServiceItems.length > 0) {
+      const names = unassignedServiceItems
+        .map((data) => {
+          const product =
+            data.product || products.find((p) => p._id === data.productId);
+          return product?.name || data.productId;
+        })
+        .join(', ');
+      return toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: `Please assign a team member to the following service item(s) before saving: ${names}.`,
+      });
+    }
     const formattedProductsData = localProductsData.map((data) => ({
       ...data,
       productId: data.product?._id || data.productId,
@@ -213,15 +340,15 @@ const ProductsList = ({
           <ProductFilterBar filters={filters} onChange={setFilters} />
         </div>
       </Filter>
-      <ProductsRecordTable
-        products={productRecords || ([] as IProductData[])}
-        refetch={refetch}
-        dealId={dealId}
-        showAdvancedView={showAdvancedView}
-        onLocalChange={updateLocalProduct}
-      />
+        <ProductsRecordTable
+          products={productRecords || ([] as IProductData[])}
+          refetch={refetch}
+          dealId={dealId}
+          showAdvancedView={showAdvancedView}
+          onLocalChange={updateLocalProduct}
+        />
       <ProductFooter
-        productsCount={products?.length || 0}
+        productsCount={localProductsData.length || 0}
         total={total}
         unUsedTotal={unUsedTotal}
         bothTotal={bothTotal}

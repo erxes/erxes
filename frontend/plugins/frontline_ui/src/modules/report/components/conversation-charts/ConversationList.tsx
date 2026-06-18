@@ -1,5 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '@/report/hooks/useConversationList';
+import { useConversationExport } from '@/report/hooks/useConversationExport';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { getFilters } from '@/report/utils/dateFilters';
 import {
@@ -12,8 +13,13 @@ import {
 import { ConversationListItem } from '@/report/types';
 import { formatDate } from 'date-fns';
 import { CustomersInline, MembersInline } from 'ui-modules';
-import { memo, useState, useEffect } from 'react';
-import { IconMessageShare } from '@tabler/icons-react';
+import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import {
+  IconMessageShare,
+  IconDownload,
+  IconChevronLeft,
+  IconChevronRight,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import {
@@ -24,12 +30,27 @@ import {
   getReportMemberFilterAtom,
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
+import ExcelJS from 'exceljs';
+import { downloadExcel } from '@/report/utils/exportCsv';
+
+const PER_PAGE = 10;
 
 interface ConversationListProps {
   title: string;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
+
+const CONVERSATION_LIST_EXPORT_COLUMNS = [
+  { key: 'content', header: 'Content', width: 40 },
+  { key: 'status', header: 'Status', width: 14 },
+  { key: 'assignedUserName', header: 'Assigned To', width: 22 },
+  { key: 'customerName', header: 'Customer', width: 22 },
+  { key: 'integrationName', header: 'Integration', width: 22 },
+  { key: 'tagNames', header: 'Tags', width: 22 },
+  { key: 'createdAt', header: 'Created At', width: 18 },
+  { key: 'closedAt', header: 'Closed At', width: 18 },
+] as const;
 
 export const ConversationList = ({
   title,
@@ -49,28 +70,136 @@ export const ConversationList = ({
   );
   const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
+  const [exporting, setExporting] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    const newFilters = getFilters(dateValue || undefined);
-    setFilters(newFilters);
+    setFilters(getFilters(dateValue || undefined));
+    setPage(1);
   }, [dateValue]);
 
-  const { conversationList, loading, error } = useConversationList({
-    variables: {
-      filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
-        callStatus:
-          sourceFilter === 'calls' && callStatusFilter !== 'all'
-            ? callStatusFilter
-            : undefined,
-      },
-    },
-  });
+  useEffect(() => {
+    setPage(1);
+  }, [channelFilter, memberFilter, sourceFilter, callStatusFilter]);
 
-  if (loading) {
+  const { conversationList, isFetching, isInitialLoad, error } =
+    useConversationList({
+      variables: {
+        filters: {
+          ...filters,
+          page,
+          limit: PER_PAGE,
+          channelIds: channelFilter.length ? channelFilter : undefined,
+          memberIds: memberFilter.length ? memberFilter : undefined,
+          source: sourceFilter !== 'all' ? sourceFilter : undefined,
+          callStatus:
+            sourceFilter === 'calls' && callStatusFilter !== 'all'
+              ? callStatusFilter
+              : undefined,
+        },
+      },
+    });
+
+  const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
+  const handleNext = useCallback(() => setPage((p) => p + 1), []);
+
+  const { fetchExport } = useConversationExport();
+
+  const handleExport = useCallback(async () => {
+    setExporting(true);
+    try {
+      const result = await fetchExport({
+        variables: {
+          filters: {
+            ...filters,
+            channelIds: channelFilter.length ? channelFilter : undefined,
+            memberIds: memberFilter.length ? memberFilter : undefined,
+            source: sourceFilter !== 'all' ? sourceFilter : undefined,
+            callStatus:
+              sourceFilter === 'calls' && callStatusFilter !== 'all'
+                ? callStatusFilter
+                : undefined,
+          },
+        },
+      });
+
+      const items = result.data?.reportConversationExport || [];
+      if (!items.length) return;
+
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet('Conversations');
+
+      sheet.columns = CONVERSATION_LIST_EXPORT_COLUMNS.map((col) => ({
+        header: col.header,
+        key: col.key,
+        width: col.width,
+      }));
+
+      const headerRow = sheet.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE9ECEF' },
+      };
+
+      const formatDateVal = (v?: string) => {
+        if (!v) return '';
+        try {
+          return formatDate(new Date(v), 'yyyy-MM-dd HH:mm');
+        } catch {
+          return v;
+        }
+      };
+
+      for (const item of items) {
+        sheet.addRow({
+          content: item.content || '',
+          status: item.status || '',
+          assignedUserName: item.assignedUserName || '',
+          customerName: item.customerName || '',
+          integrationName: item.integrationName || '',
+          tagNames: (item.tagNames || []).join(', '),
+          createdAt: formatDateVal(item.createdAt),
+          closedAt: formatDateVal(item.closedAt),
+        });
+      }
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const timestamp = new Date().toISOString().slice(0, 10);
+      downloadExcel(buffer, `conversation-list-${timestamp}.xlsx`);
+    } finally {
+      setExporting(false);
+    }
+  }, [
+    fetchExport,
+    filters,
+    channelFilter,
+    memberFilter,
+    sourceFilter,
+    callStatusFilter,
+  ]);
+
+  const filterEl = useMemo(
+    () => (
+      <>
+        <ReportFilter cardId={id} />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={handleExport}
+          disabled={exporting}
+          title="Export Excel"
+        >
+          <IconDownload className="size-3.5" />
+        </Button>
+      </>
+    ),
+    [id, handleExport, exporting],
+  );
+
+  if (isInitialLoad) {
     return (
       <FrontlineCard
         id={id}
@@ -79,6 +208,7 @@ export const ConversationList = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Skeleton />
         </FrontlineCard.Content>
@@ -116,7 +246,7 @@ export const ConversationList = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<ReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -124,21 +254,83 @@ export const ConversationList = ({
     );
   }
 
+  const { totalCount, totalPages } = conversationList;
+
   return (
     <FrontlineCard
       id={id}
       title={title}
-      description="Total conversations open in the last 30 days"
+      description={`${totalCount} conversations`}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header filter={<ReportFilter cardId={id} />} />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
-        <ConversationListTable conversationList={conversationList.list} />
+        <div
+          className={isFetching ? 'opacity-50 pointer-events-none' : undefined}
+        >
+          <ConversationListTable conversationList={conversationList.list} />
+        </div>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );
 };
+
+const Pagination = memo(function Pagination({
+  page,
+  totalPages,
+  totalCount,
+  onPrev,
+  onNext,
+}: {
+  page: number;
+  totalPages: number;
+  totalCount: number;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  if (totalPages <= 1) return null;
+  const from = (page - 1) * PER_PAGE + 1;
+  const to = Math.min(page * PER_PAGE, totalCount);
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t">
+      <span className="text-xs text-muted-foreground">
+        {from}–{to} of {totalCount}
+      </span>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrev}
+          disabled={page <= 1}
+        >
+          <IconChevronLeft className="size-4" />
+          Prev
+        </Button>
+        <span className="text-xs text-muted-foreground px-2">
+          {page} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNext}
+          disabled={page >= totalPages}
+        >
+          Next
+          <IconChevronRight className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+});
 
 const ConversationListTable = memo(function ConversationListTable({
   conversationList,
@@ -162,19 +354,6 @@ const ConversationListTable = memo(function ConversationListTable({
           </RecordTable>
         </RecordTable.Scroll>
       </RecordTable.Provider>
-
-      <div className="flex justify-center">
-        <Button
-          variant="outline"
-          size="icon"
-          className="w-auto"
-          onClick={() => {
-            navigate('/frontline/inbox');
-          }}
-        >
-          Go to conversations
-        </Button>
-      </div>
     </div>
   );
 });

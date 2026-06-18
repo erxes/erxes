@@ -19,7 +19,7 @@ export const PropertyEdit = () => {
 
   const navigate = useNavigate();
 
-  const [fieldType, ...relationType] = (fieldDetail?.type?.split(':') || []);
+  const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
 
   const handleSubmit = (data: IPropertyForm) => {
     editProperty({
@@ -44,6 +44,7 @@ export const PropertyEdit = () => {
       loading={editPropertyLoading}
       defaultValues={{
         ...fieldDetail,
+        icon: fieldDetail?.icon ?? '123',
         type: fieldType,
         relationType: relationType.join(':'),
       }}

@@ -18,7 +18,12 @@ import {
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import { IconSettings, IconGripVertical } from '@tabler/icons-react';
+import {
+  IconSettings,
+  IconGripVertical,
+  IconPin,
+  IconPinFilled,
+} from '@tabler/icons-react';
 import { Column } from '@tanstack/react-table';
 
 const getColumnLabel = (column: Column<any, unknown>): string => {
@@ -42,6 +47,7 @@ const getColumnLabel = (column: Column<any, unknown>): string => {
 };
 
 const SortableColumnItem = ({ column }: { column: Column<any, unknown> }) => {
+  const isPinned = !!column.getIsPinned();
   const {
     attributes,
     listeners,
@@ -49,7 +55,7 @@ const SortableColumnItem = ({ column }: { column: Column<any, unknown> }) => {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: column.id });
+  } = useSortable({ id: column.id, disabled: isPinned });
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -67,7 +73,9 @@ const SortableColumnItem = ({ column }: { column: Column<any, unknown> }) => {
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab text-muted-foreground flex-none flex items-center"
+        className={`text-muted-foreground flex-none flex items-center ${
+          isPinned ? 'cursor-default opacity-30' : 'cursor-grab'
+        }`}
       >
         <IconGripVertical size={14} />
       </div>
@@ -84,6 +92,20 @@ const SortableColumnItem = ({ column }: { column: Column<any, unknown> }) => {
       >
         {getColumnLabel(column)}
       </Label>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        title={isPinned ? 'Unpin column' : 'Pin column to left'}
+        aria-label={isPinned ? 'Unpin column' : 'Pin column to left'}
+        className="h-5 w-5 flex-none text-muted-foreground hover:text-foreground"
+        onClick={(e) => {
+          e.preventDefault();
+          column.pin(isPinned ? false : 'left');
+        }}
+      >
+        {isPinned ? <IconPinFilled size={13} /> : <IconPin size={13} />}
+      </Button>
     </div>
   );
 };
@@ -99,7 +121,7 @@ export const RecordTableColumnSelector = ({
 
   const columns = table
     .getAllLeafColumns()
-    .filter((col) => col.id !== 'select' && !col.getIsPinned());
+    .filter((col) => col.id !== 'select' && col.id !== 'more');
 
   const sensors = useSensors(
     useSensor(MouseSensor, {

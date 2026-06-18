@@ -1,20 +1,23 @@
-import { Spinner, Upload, cn } from 'erxes-ui';
+import { Attachments, useConfirm } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 
 import { IconPaperclip } from '@tabler/icons-react';
 import { removeTypename } from '@/utils';
-import { useAttachmentContext } from './AttachmentContext';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { IAttachment } from '@/ticket/types/attachments';
 
-const AttachmentUploader = ({ id }: { id?: string }) => {
-  const [isLoading, setIsLoading] = useState(false);
+type Props = {
+  id: string;
+  attachments: IAttachment[];
+};
+
+const AttachmentUploader = ({ id, attachments }: Props) => {
+  const { confirm } = useConfirm();
   const [uploadProgress, setUploadProgress] = useState({
     uploaded: 0,
     total: 0,
   });
-
-  const { addAttachment, attachments } = useAttachmentContext();
-  const { updateTicket } = useUpdateTicket();
+  const { updateTicket, loading } = useUpdateTicket();
 
   // Keep a ref to attachments so the effect can always read the latest value
   // without needing `attachments` as a dependency (which would cause a loop).
@@ -23,21 +26,20 @@ const AttachmentUploader = ({ id }: { id?: string }) => {
     attachmentsRef.current = attachments;
   }, [attachments]);
 
-  const handleUploadStart = (fileCount: number) => {
-    setIsLoading(true);
-    setUploadProgress({ uploaded: 0, total: fileCount });
+  const handleSave = async (nextAttachments: IAttachment[]): Promise<void> => {
+    await updateTicket({
+      variables: { _id: id, attachments: nextAttachments },
+    });
   };
 
-  const handleUploadProgress = () => {
-    setUploadProgress((prev) => ({
-      ...prev,
-      uploaded: prev.uploaded + 1,
-    }));
-  };
-
-  const handleAllUploadsComplete = () => {
-    setIsLoading(false);
-  };
+  const handleConfirmRemove = (attachment: IAttachment): Promise<boolean> =>
+    new Promise((resolve) => {
+      confirm({
+        message: `Are you sure you want to delete "${attachment.name}"?`,
+      })
+        .then(() => resolve(true))
+        .catch(() => resolve(false));
+    });
 
   useEffect(() => {
     if (
@@ -56,51 +58,21 @@ const AttachmentUploader = ({ id }: { id?: string }) => {
       // Reset progress immediately so that when Apollo refetches and
       // `attachments` syncs via the provider, this effect does NOT re-fire.
       setUploadProgress({ uploaded: 0, total: 0 });
-      setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uploadProgress]);
 
   return (
-    <Upload.Root
-      value={''}
-      multiple={true}
-      className={cn('items-center', {
-        'opacity-50': isLoading,
-      })}
-      onChange={(fileInfo) => {
-        if ('url' in fileInfo) {
-          addAttachment(fileInfo as any);
-        }
-      }}
+    <Attachments.Root
+      initialAttachments={attachments}
+      onSave={handleSave}
+      confirmRemove={handleConfirmRemove}
+      isLoading={loading}
     >
-      <Upload.Preview
-        className="hidden"
-        onUploadStart={(count) => handleUploadStart(count || 0)}
-        onUploadProgress={handleUploadProgress}
-        onAllUploadsComplete={handleAllUploadsComplete}
-      />
-      <Upload.Button
-        size="sm"
-        variant="ghost"
-        type="button"
-        className={cn('flex items-center gap-1 cursor-pointer text-sm', {
-          'opacity-50': isLoading,
-        })}
-      >
-        {isLoading ? (
-          <>
-            <Spinner />
-            <span>
-              {uploadProgress.uploaded}/{uploadProgress.total}
-            </span>
-          </>
-        ) : (
-          <IconPaperclip size={16} />
-        )}
-        Add attachments
-      </Upload.Button>
-    </Upload.Root>
+      <Attachments.Uploader onSave={handleSave} />
+      <Attachments.Files />
+      <Attachments.Preview />
+    </Attachments.Root>
   );
 };
 

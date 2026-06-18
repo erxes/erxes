@@ -30,7 +30,7 @@ export const CommentActionForm = ({
   }));
 
   return (
-    <div className="w-2xl! p-4">
+    <div className="w-xl p-4">
       <Form {...form}>
         <Form.Field
           control={control}
@@ -45,12 +45,6 @@ export const CommentActionForm = ({
                     limit={8000}
                   />
                 </div>
-                {/* <Attributes
-                  contentType="frontline:facebook.comments"
-                  value={field.value}
-                  onSelect={field.onChange}
-                  buttonText="Attributes"
-                /> */}
               </Form.Label>
               <Form.Control>
                 <Textarea {...field} placeholder="Enter your text" />

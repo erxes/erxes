@@ -2,9 +2,10 @@ import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { ACC_TRANSACTIONS_REMOVE } from '../graphql/accTransactionsRemove';
 import { TRANSACTIONS_QUERY } from '../graphql/transactionQueries';
-import { ACC_TRS__PER_PAGE } from '../types/constants';
+import { useTransactionsVariables } from './useTransactionVars';
 
 export const useTransactionsBulkRemove = () => {
+  const variables = useTransactionsVariables();
   const [_removeTransactions, { loading }] = useMutation(
     ACC_TRANSACTIONS_REMOVE,
   );
@@ -20,11 +21,7 @@ export const useTransactionsBulkRemove = () => {
             refetchQueries: [
               {
                 query: TRANSACTIONS_QUERY,
-                variables: {
-                  limit: ACC_TRS__PER_PAGE,
-                  orderBy: { date: 1 },
-                  cursor: '',
-                },
+                variables,
               },
             ],
           }),

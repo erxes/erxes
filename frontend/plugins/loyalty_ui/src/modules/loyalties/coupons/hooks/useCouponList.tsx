@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { useMemo, useCallback, useEffect } from 'react';
 import {
   useMultiQueryState,
+  useQueryState,
   useRecordTableCursor,
   EnumCursorDirection,
   mergeCursorData,
@@ -46,6 +47,8 @@ export const useCouponVariables = (options: UseCouponListOptions = {}) => {
     'sortField',
   ]);
 
+  const [ownerId] = useQueryState<string>('ownerId');
+
   const dateRange = parseDateRangeFromString(couponDate);
 
   const sortField = sortFieldQuery || (orderType ? 'createdAt' : undefined);
@@ -58,6 +61,7 @@ export const useCouponVariables = (options: UseCouponListOptions = {}) => {
     status: couponStatus || undefined,
     campaignId: couponCampaignId || undefined,
     ownerType: ownerType || undefined,
+    ownerId: ownerId || undefined,
     fromDate: dateRange?.from?.toISOString() || undefined,
     toDate: dateRange?.to?.toISOString() || undefined,
     sortField,

@@ -10,22 +10,32 @@ interface NumberRangeDialogViewProps {
   readonly label: string;
 }
 
+const toInputString = (v: unknown): string => {
+  if (v === null || v === undefined || v === '') return '';
+  if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+    return String(v);
+  }
+  return '';
+};
+
 export function NumberRangeDialogView({ minKey, maxKey, label }: Readonly<NumberRangeDialogViewProps>) {
   const { setDialogView, setOpenDialog, sessionKey } = useFilterContext();
   const [minQuery, setMinQuery] = useFilterQueryState<string>(minKey, sessionKey ?? '');
   const [maxQuery, setMaxQuery] = useFilterQueryState<string>(maxKey, sessionKey ?? '');
-  const [minVal, setMinVal] = useState('');
-  const [maxVal, setMaxVal] = useState('');
+  const [minVal, setMinVal] = useState<string>('');
+  const [maxVal, setMaxVal] = useState<string>('');
 
   useEffect(() => {
-    setMinVal(minQuery ?? '');
-    setMaxVal(maxQuery ?? '');
+    setMinVal(toInputString(minQuery));
+    setMaxVal(toInputString(maxQuery));
   }, [minQuery, maxQuery]);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setMinQuery(minVal.length > 0 ? minVal : null);
-    setMaxQuery(maxVal.length > 0 ? maxVal : null);
+    const nextMin = toInputString(minVal);
+    const nextMax = toInputString(maxVal);
+    setMinQuery(nextMin === '' ? null : nextMin);
+    setMaxQuery(nextMax === '' ? null : nextMax);
     setDialogView('root');
     setOpenDialog(false);
   };
@@ -74,12 +84,14 @@ export function NumberRangeBarItem({ minKey, maxKey, label, icon }: Readonly<Num
   const { setDialogView, setOpenDialog } = useFilterContext();
   const removeQuery = useRemoveQueryStateByKey();
 
-  if (!minQuery && !maxQuery) return null;
+  const hasMin = minQuery !== null && minQuery !== undefined && minQuery !== '';
+  const hasMax = maxQuery !== null && maxQuery !== undefined && maxQuery !== '';
+  if (!hasMin && !hasMax) return null;
 
   let displayValue: string;
-  if (minQuery && maxQuery) {
+  if (hasMin && hasMax) {
     displayValue = `${minQuery} – ${maxQuery}`;
-  } else if (minQuery) {
+  } else if (hasMin) {
     displayValue = `≥ ${minQuery}`;
   } else {
     displayValue = `≤ ${maxQuery}`;

@@ -1,7 +1,6 @@
 import { Form, Label } from 'erxes-ui';
 import { type Control } from 'react-hook-form';
-import { SelectProduct } from 'ui-modules';
-import { SelectCategory } from '@/pos/hooks/SelectCategory';
+import { SelectCategory, SelectProduct } from 'ui-modules';
 import { type ProductsFormData } from '@/pos/components/products/Products';
 
 interface KioskExcludeProductsProps {

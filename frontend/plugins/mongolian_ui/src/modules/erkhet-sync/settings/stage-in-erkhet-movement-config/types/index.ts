@@ -18,7 +18,7 @@ export interface MovementErkhetConfig {
   pipelineId: string;
   stageId: string;
   userEmail?: string;
-  chooseResponseField: string;
+  responseField: string;
   defaultCustomer?: string;
   details?: IMovementDetail[];
 }

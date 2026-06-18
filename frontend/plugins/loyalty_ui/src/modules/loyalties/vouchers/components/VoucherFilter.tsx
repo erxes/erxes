@@ -9,11 +9,13 @@ import { SelectVoucherCampaign } from './selects/SelectVoucherCampaign';
 import { SelectOwnerType } from './selects/SelectOwnerType';
 import { SelectOrderType } from './selects/SelectOrderType';
 import { SelectSortField } from './selects/SelectSortField';
+import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const VoucherFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     voucherCampaignId: string;
     ownerType: string;
+    ownerId: string;
     sortField: string;
     orderType: string;
     status: string;
@@ -21,6 +23,7 @@ const VoucherFilterPopover = () => {
   }>([
     'voucherCampaignId',
     'ownerType',
+    'ownerId',
     'sortField',
     'orderType',
     'status',
@@ -46,6 +49,7 @@ const VoucherFilterPopover = () => {
               <Command.List className="p-1">
                 <SelectVoucherCampaign.FilterItem />
                 <SelectOwnerType.FilterItem />
+                <SelectOwner.FilterItem queryKey="ownerId" />
                 <SelectSortField.FilterItem />
                 <SelectOrderType.FilterItem />
                 <SelectStatus.FilterItem />
@@ -58,6 +62,7 @@ const VoucherFilterPopover = () => {
           </Filter.View>
           <SelectVoucherCampaign.FilterView />
           <SelectOwnerType.FilterView />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
           <SelectSortField.FilterView />
           <SelectOrderType.FilterView />
           <SelectStatus.FilterView />
@@ -72,6 +77,9 @@ const VoucherFilterPopover = () => {
         </Filter.View>
         <Filter.View filterKey="ownerType" inDialog>
           <SelectOwnerType.FilterView />
+        </Filter.View>
+        <Filter.View filterKey="ownerId" inDialog>
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
         </Filter.View>
         <Filter.View filterKey="sortField" inDialog>
           <SelectSortField.FilterView />
@@ -98,6 +106,7 @@ export const VoucherFilter = () => {
       <Filter.Bar>
         <SelectVoucherCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
+        <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectSortField.FilterBar />
         <SelectOrderType.FilterBar />
         <SelectStatus.FilterBar />

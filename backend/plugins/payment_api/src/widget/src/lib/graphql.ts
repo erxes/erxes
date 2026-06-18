@@ -13,13 +13,13 @@ export const TRANSACTION_SUBSCRIPTION = gql`
 `;
 
 export const PAYMENTS_QRY = gql`
-query PaymentsPublic($kind: String, $ids: [String], $currency: String) {
-  paymentsPublic(kind: $kind, _ids: $ids, currency: $currency) {
-    _id
-    kind
-    name
+  query PaymentsPublic($kind: String, $_ids: [String], $currency: String) {
+    paymentsPublic(kind: $kind, _ids: $_ids, currency: $currency) {
+      _id
+      kind
+      name
+    }
   }
-}
 `;
 
 export const INVOICE = gql`
@@ -54,9 +54,9 @@ export const INVOICE = gql`
 `;
 
 export const ADD_TRANSACTION = gql`
-mutation PaymentTransactionsAdd($input: PaymentTransactionInput!) {
-  paymentTransactionsAdd(input: $input) {
-          _id
+  mutation PaymentTransactionsAdd($input: PaymentTransactionInput!) {
+    paymentTransactionsAdd(input: $input) {
+      _id
       amount
       invoiceId
       paymentId
@@ -64,12 +64,27 @@ mutation PaymentTransactionsAdd($input: PaymentTransactionInput!) {
       status
       response
       details
+    }
   }
-}
 `;
 
 export const CHECK_INVOICE = gql`
   mutation InvoicesCheck($id: String!) {
     invoicesCheck(_id: $id)
+  }
+`;
+
+export const SCAN_BARCODE = gql`
+  mutation InvoiceScanBarcode($code: String!) {
+    invoiceScanBarcode(code: $code) {
+      _id
+      invoiceNumber
+      amount
+      currency
+      description
+      status
+      scannedAt
+      createdAt
+    }
   }
 `;

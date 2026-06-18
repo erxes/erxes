@@ -1,10 +1,10 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import { NetworkStatus, OperationVariables, useQuery } from '@apollo/client';
 import { productsQueries } from '@/products/graphql';
 
 export const useProductCategories = (options?: OperationVariables) => {
-  const { data, loading, error } = useQuery(
+  const { data, loading, error, networkStatus } = useQuery(
     productsQueries.productCategories,
-    options
+    { notifyOnNetworkStatusChange: true, ...options },
   );
 
   const { productCategories } = data || {};
@@ -13,5 +13,9 @@ export const useProductCategories = (options?: OperationVariables) => {
     productCategories,
     loading,
     error,
+    networkStatus,
+    refetching:
+      networkStatus === NetworkStatus.refetch ||
+      networkStatus === NetworkStatus.setVariables,
   };
 };

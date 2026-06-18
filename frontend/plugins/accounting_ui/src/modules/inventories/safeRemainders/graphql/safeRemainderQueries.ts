@@ -77,6 +77,13 @@ const safeRemFilterParamDefs = `
   $beginDate: Date
   $endDate: Date
   $productId: String
+
+  $createdUserId: String
+  $modifiedUserId: String
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $updatedStartDate: Date
+  $updatedEndDate: Date
 `;
 
 const safeRemFilterParams = `
@@ -86,6 +93,12 @@ const safeRemFilterParams = `
   beginDate: $beginDate
   endDate: $endDate
   productId: $productId
+  createdUserId: $createdUserId
+  modifiedUserId: $modifiedUserId
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  updatedStartDate: $updatedStartDate
+  updatedEndDate: $updatedEndDate
 `;
 
 const commonParamDefs = `

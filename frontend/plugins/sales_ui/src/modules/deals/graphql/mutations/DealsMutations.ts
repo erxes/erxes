@@ -1,13 +1,17 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 const dealMutationVariables = `
   $productsData: JSON,
+  $mobileAmount: Float,
+  $mobileAmounts: JSON,
   $paymentsData: JSON,
   $extraData: JSON,
 `;
 
 const dealMutationParams = `
   productsData: $productsData,
+  mobileAmount: $mobileAmount,
+  mobileAmounts: $mobileAmounts,
   paymentsData: $paymentsData,
   extraData: $extraData,
 `;
@@ -22,6 +26,8 @@ export const dealFields = `
     unitPrice
   }
   productsData
+  mobileAmount
+  mobileAmounts
   paymentsData
   unUsedAmount
   amount
@@ -191,7 +197,6 @@ export const commonMutationParams = `
   departmentIds: $departmentIds
 `;
 
-
 export const ADD_DEALS = gql`
   mutation dealsAdd($name: String, ${copyVariables}, ${dealMutationVariables} ${commonMutationVariables}) {
     dealsAdd(name: $name, ${copyParams}, ${dealMutationParams}, ${commonMutationParams}) {
@@ -221,7 +226,8 @@ export const REMOVE_DEALS = gql`
 export const DEALS_CHANGE = gql`
   mutation dealsChange(${commonDragVariables}) {
     dealsChange(${commonDragParams}) {
-      _id
+      ${commonFields}
+      ${dealFields}
     }
   }
 `;

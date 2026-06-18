@@ -18,7 +18,6 @@ export const isInSegment = async (
 ) => {
   const { canUseFastPath, loadSegment, segment } =
     await checkIsSegmentCanUseFastPath({ subdomain, segmentId });
-
   if (canUseFastPath && loadSegment) {
     const selector = await compileSegmentToMongoSelector({
       segment,

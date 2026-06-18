@@ -35,14 +35,13 @@ export const useDonatesVariables = (options: UseDonatesListOptions = {}) => {
     }>(['status', 'donateCampaign', 'ownerType', 'voucherCampaignId']);
 
   const [ownerId] = useQueryState<string>('ownerId');
-  const [userId] = useQueryState<string>('userId');
 
   return {
     page: 1,
     perPage: DONATE_PER_PAGE,
     campaignId: donateCampaign || undefined,
     status: status || undefined,
-    ownerId: ownerId || userId || undefined,
+    ownerId: ownerId || undefined,
     ownerType: ownerType || undefined,
     voucherCampaignId: voucherCampaignId || undefined,
     ...options,

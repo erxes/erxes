@@ -338,7 +338,7 @@ export const StageInReturnErkhetConfigForm = () => {
     fetchPolicy: 'network-only',
   });
 
-  const configValue = data?.configsGetValue?.value;
+  const configValue = data?.mnConfigs?.[0]?.value;
 
   const parseConfigValue = (value: any) => {
     if (!value) return null;
@@ -362,7 +362,9 @@ export const StageInReturnErkhetConfigForm = () => {
 
       await createStageInReturnErkhetConfig({
         variables: {
-          configsMap: configsMapString,
+          code: 'returnEbarimtConfig',
+          subId: formData.stageId,
+          value: configsMapString.returnEbarimtConfig,
         },
       });
 

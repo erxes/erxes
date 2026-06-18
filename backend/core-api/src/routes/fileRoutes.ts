@@ -124,10 +124,26 @@ router.get(
       });
 
       if (inline && inline === 'true') {
-        const extension = sanitizedKey.split('.').pop();
+        const extension = (sanitizedKey.split('.').pop() || '').toLowerCase();
 
-        res.setHeader('Content-disposition', 'inline; filename="' + key + '"');
-        res.setHeader('Content-type', `application/${extension}`);
+        const mimeTypes: Record<string, string> = {
+          jpg: 'image/jpeg',
+          jpeg: 'image/jpeg',
+          png: 'image/png',
+          gif: 'image/gif',
+          webp: 'image/webp',
+          svg: 'image/svg+xml',
+          pdf: 'application/pdf',
+          mp4: 'video/mp4',
+          webm: 'video/webm',
+        };
+
+        const contentType = mimeTypes[extension] || `application/${extension}`;
+
+        const sanitizedFileName = sanitizeFilename(name || sanitizedKey);
+
+        res.setHeader('Content-Disposition', `inline; filename="${sanitizedFileName}"`);
+        res.setHeader('Content-Type', contentType);
 
         return res.send(response);
       }
@@ -136,13 +152,22 @@ router.get(
 
       return res.send(response);
     } catch (e) {
-      if ((e as Error).message.includes('key does not exist')) {
+      const message = (e as Error).message || '';
+
+      if (
+        message === 'Key cannot be empty' ||
+        message.startsWith('Invalid key:')
+      ) {
+        return res.status(400).send('Invalid key');
+      }
+
+      if (message.includes('key does not exist')) {
         return res.status(404).send('Not found');
       }
 
       if (
         (e as { code?: string }).code === 'AccessDenied' ||
-        (e as Error).message.includes('Access Denied')
+        message.includes('Access Denied')
       ) {
         return res.status(403).send('Access denied');
       }

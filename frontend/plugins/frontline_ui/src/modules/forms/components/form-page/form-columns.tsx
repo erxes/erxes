@@ -29,6 +29,7 @@ import { FormStatus } from './filters/FormStatus';
 import { FormInstallScript } from '../actions/install-form';
 import { RemoveForm } from '../actions/remove-form';
 import { OpenLiveForm } from '../actions/open-live-form';
+import { OpenSubmissionsAction } from '../actions/open-submissions';
 
 export function FormToggleStatus({
   formId,
@@ -159,6 +160,7 @@ export const FormsMoreColumnCell = ({
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <OpenLiveForm formId={_id} channelId={channelId as string} />
+        <OpenSubmissionsAction formId={_id} />
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
         <MoveFormToChannel
           formId={_id}

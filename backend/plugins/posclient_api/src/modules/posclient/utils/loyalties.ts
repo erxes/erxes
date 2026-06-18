@@ -1,5 +1,5 @@
 import { IOrderInput } from '~/modules/posclient/@types/types';
-// import { sendLoyaltiesMessage } from '../../messageBroker';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
   if (!doc.couponCode && !doc.voucherId && !doc.customerId) {
@@ -8,27 +8,28 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
 
   let loyalties: any = {};
   try {
-    // loyalties = await sendLoyaltiesMessage({
-    //   subdomain,
-    //   action: 'checkLoyalties',
-    //   data: {
-    //     ownerType: doc.customerType || 'customer',
-    //     ownerId: doc.customerId,
-    //     products: [
-    //       ...doc.items.map((i) => ({
-    //         productId: i.productId,
-    //         quantity: i.count,
-    //         unitPrice: i.unitPrice,
-    //       })),
-    //     ],
-    //     discountInfo: {
-    //       couponCode: doc.couponCode,
-    //       voucherId: doc.voucherId,
-    //     },
-    //   },
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
+    loyalties = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'loyalty',
+      action: 'checkLoyalties',
+      input: {
+        ownerType: doc.customerType || 'customer',
+        ownerId: doc.customerId,
+        products: [
+          ...doc.items.map((i) => ({
+            productId: i.productId,
+            quantity: i.count,
+            unitPrice: i.unitPrice,
+          })),
+        ],
+        discountInfo: {
+          couponCode: doc.couponCode,
+          voucherId: doc.voucherId,
+        },
+      },
+      defaultValue: {},
+    });
   } catch (e) {
     throw new Error(e.message);
   }

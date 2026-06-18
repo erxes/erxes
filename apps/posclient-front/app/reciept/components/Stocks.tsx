@@ -12,20 +12,16 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
 
     return (
       <div key={item.name}>
-        <div className="flex items-start leading-tight">
-          <div className="w-full line-clamp-2">
+        <div className="receipt-print__stock-name">
+          <div>
             {index + 1}. {name}
           </div>
         </div>
-        <div className="receipt-print__row flex items-start leading-tight">
-          <div className="w-3/12 text-right tabular-nums">
-            {formatNum(unitPrice)}
-          </div>
-          <div className="w-2/12 text-right tabular-nums">{formatNum(qty)}</div>
-          <div className="w-3/12 text-right tabular-nums">
-            {formatNum(discount)}
-          </div>
-          <div className="w-4/12 text-right tabular-nums font-semibold">
+        <div className="receipt-print__stock-row">
+          <div className="text-right tabular-nums">{formatNum(unitPrice)}</div>
+          <div className="text-right tabular-nums">{formatNum(qty)}</div>
+          <div className="text-right tabular-nums">{formatNum(discount)}</div>
+          <div className="text-right tabular-nums font-semibold">
             {formatNum(totalAmount)}
           </div>
         </div>
@@ -43,12 +39,12 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
         </div>
         {hasSumQty && (
           <div className="border-t border-black/15 pt-1 -mb-1 pb-0">
-            <div className="receipt-print__row flex items-start leading-tight">
-              <div className="w-3/12 text-right font-semibold">Дүн:</div>
-              <div className="w-2/12 text-right tabular-nums">
+            <div className="receipt-print__stock-row">
+              <div className="text-right font-semibold">Дүн:</div>
+              <div className="text-right tabular-nums">
                 {formatNum(items.reduce((sum, i) => sum + i.qty, 0))}
               </div>
-              <div className="w-3/12 text-right tabular-nums">
+              <div className="text-right tabular-nums">
                 {formatNum(
                   items.reduce(
                     (sum, i) => sum + (i.unitPrice * i.qty - i.totalAmount),
@@ -56,7 +52,7 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
                   )
                 )}
               </div>
-              <div className="w-4/12 text-right tabular-nums font-semibold">
+              <div className="text-right tabular-nums font-semibold">
                 {formatNum(items.reduce((sum, i) => sum + i.totalAmount, 0))}
               </div>
             </div>
@@ -68,11 +64,11 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
 
   return (
     <div className="receipt-print__section">
-      <div className="flex items-center whitespace-nowrap border-b border-black/15 font-semibold pb-1">
-        <div className="w-3/12 text-center">Үнэ</div>
-        <div className="w-2/12 text-center">Тоо</div>
-        <div className="w-3/12 text-center">Хөн</div>
-        <div className="w-4/12 text-center">Нийт үнэ</div>
+      <div className="receipt-print__stock-head">
+        <div className="text-center">Үнэ</div>
+        <div className="text-center">Тоо</div>
+        <div className="text-center">Хөн</div>
+        <div className="text-center">Нийт</div>
       </div>
       <div className="space-y-1 py-1 font-normal">
         {(receipts || []).map((receipt) => renderReceipt(receipt))}

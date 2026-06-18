@@ -17,9 +17,9 @@ const generateFilterQuery = async ({ isOnline, search }) => {
 
 const queries = {
   async posEnv() {
-    const { ALL_AUTO_INIT } = process.env;
+    const { ALLOW_OFFLINE_POS } = process.env;
     return {
-      ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || ''),
+      ALLOW_OFFLINE_POS: [true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || ''),
     };
   },
 

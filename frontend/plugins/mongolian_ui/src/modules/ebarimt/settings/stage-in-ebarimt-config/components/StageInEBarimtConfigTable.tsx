@@ -9,7 +9,13 @@ import {
   Combobox,
   Command,
 } from 'erxes-ui';
-import { IconClipboardList, IconCode, IconEdit, IconToggleLeft, IconTrash } from '@tabler/icons-react';
+import {
+  IconClipboardList,
+  IconCode,
+  IconEdit,
+  IconToggleLeft,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
@@ -18,6 +24,7 @@ import {
   IStageInEbarimtConfigRow,
 } from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
+import { normalizeRuleIds } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { AddStageInEBarimtConfig } from './AddStageInEBarimtConfig';
 import { StageInEBarimtConfigCommandbar } from './StageInEBarimtConfigCommandbar';
 
@@ -37,6 +44,8 @@ const useStageInEbarimtConfigRows = () => {
         _id: config._id,
         subId: config.subId,
         ...value,
+        reverseVatRules: normalizeRuleIds(value.reverseVatRules),
+        reverseCtaxRules: normalizeRuleIds(value.reverseCtaxRules),
       };
     },
   );
@@ -126,7 +135,9 @@ const columns: ColumnDef<IStageInEbarimtConfigRow>[] = [
   {
     id: 'companyName',
     accessorKey: 'companyName',
-    header: () => <RecordTable.InlineHead label="Company Name" icon={IconCode} />,
+    header: () => (
+      <RecordTable.InlineHead label="Company Name" icon={IconCode} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -148,7 +159,9 @@ const columns: ColumnDef<IStageInEbarimtConfigRow>[] = [
   {
     id: 'hasVat',
     accessorKey: 'hasVat',
-    header: () => <RecordTable.InlineHead label="Has VAT" icon={IconToggleLeft} />,
+    header: () => (
+      <RecordTable.InlineHead label="Has VAT" icon={IconToggleLeft} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() ? 'Yes' : 'No'} />
@@ -159,7 +172,9 @@ const columns: ColumnDef<IStageInEbarimtConfigRow>[] = [
   {
     id: 'hasCitytax',
     accessorKey: 'hasCitytax',
-    header: () => <RecordTable.InlineHead label="Has Citytax" icon={IconToggleLeft} />,
+    header: () => (
+      <RecordTable.InlineHead label="Has Citytax" icon={IconToggleLeft} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() ? 'Yes' : 'No'} />

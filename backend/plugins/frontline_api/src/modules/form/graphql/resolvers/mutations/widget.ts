@@ -62,6 +62,37 @@ function handleCompanyFields(
   }
 }
 
+function handleCoreCustomerField(
+  fieldName: string,
+  value: any,
+  customerDoc: any,
+) {
+  switch (fieldName) {
+    case 'avatar':
+      if (Array.isArray(value) && value.length > 0) {
+        customerDoc.avatar = value[0].url;
+      } else if (value?.url) {
+        customerDoc.avatar = value.url;
+      }
+      break;
+    case 'primaryEmail':
+      customerDoc.email = value;
+      break;
+    case 'primaryPhone':
+      customerDoc.phone = value;
+      break;
+    case 'sex':
+      customerDoc.sex = mapPronounToCode(value);
+      break;
+    case 'birthDate':
+      customerDoc.birthDate = value ? new Date(value) : value;
+      break;
+    default:
+      customerDoc[fieldName] = value;
+      break;
+  }
+}
+
 function isCustomField(type: string): boolean {
   return [
     'input',
@@ -149,30 +180,28 @@ function updateCustomerDoc(
     customerDoc.links = links;
   }
 
-  if (
-    customerDoc.email &&
-    !customer.emails.find((e) => e.email === customerDoc.email)
-  ) {
-    customerDoc.emails = [
-      ...customer.emails,
-      { email: customerDoc.email, type: 'other' },
-    ];
+  // emails/phones are string[] in the schema
+  if (customerDoc.email) {
+    const existingEmails: string[] = customer.emails || [];
+    if (!existingEmails.includes(customerDoc.email)) {
+      customerDoc.emails = [...existingEmails, customerDoc.email];
+    }
   }
 
-  if (
-    customerDoc.phone &&
-    !customer.phones.find((p) => p.phone === customerDoc.phone)
-  ) {
-    customerDoc.phones = [
-      ...customer.phones,
-      { phone: customerDoc.phone, type: 'other' },
-    ];
+  if (customerDoc.phone) {
+    const existingPhones: string[] = customer.phones || [];
+    if (!existingPhones.includes(customerDoc.phone)) {
+      customerDoc.phones = [...existingPhones, customerDoc.phone];
+    }
   }
 
   return customerDoc;
 }
 
-export const widgetFormMutation: Record<string, Resolver<any, any, IContext>> = {
+export const widgetFormMutation: Record<
+  string,
+  Resolver<any, any, IContext>
+> = {
   async widgetsLeadConnect(
     _root,
     args: { channelId: string; formCode: string; cachedCustomerId?: string },
@@ -287,7 +316,10 @@ export const widgetFormMutation: Record<string, Resolver<any, any, IContext>> = 
         customerDoc.pronoun = mapPronounToCode(value);
       }
 
-      if (customerSchemaLabels.some((e) => e.name === submissionType)) {
+      if (submissionType.startsWith('core:customer:')) {
+        const fieldName = submissionType.slice('core:customer:'.length);
+        handleCoreCustomerField(fieldName, value, customerDoc);
+      } else if (customerSchemaLabels.some((e) => e.name === submissionType)) {
         if (submissionType === 'avatar' && value.length > 0) {
           customerDoc.avatar = value[0].url;
         } else {
@@ -395,11 +427,24 @@ export const widgetFormMutation: Record<string, Resolver<any, any, IContext>> = 
         customerLinks,
       );
 
+      if (doc.email) {
+        if (saveAsCustomer) {
+          doc.primaryEmail = doc.email;
+        }
+        delete doc.email;
+      }
+
+      if (doc.phone) {
+        if (saveAsCustomer) {
+          doc.primaryPhone = doc.phone;
+        }
+        delete doc.phone;
+      }
+
       if (saveAsCustomer) {
         doc.state = 'customer';
-        doc.primaryEmail = customerDoc.email;
-        doc.primaryPhone = customerDoc.phone;
       }
+
       const updatedCustomer = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -534,7 +579,10 @@ export const widgetFormMutation: Record<string, Resolver<any, any, IContext>> = 
         customerDoc.pronoun = mapPronounToCode(value);
       }
 
-      if (customerSchemaLabels.some((e) => e.name === submissionType)) {
+      if (submissionType.startsWith('core:customer:')) {
+        const fieldName = submissionType.slice('core:customer:'.length);
+        handleCoreCustomerField(fieldName, value, customerDoc);
+      } else if (customerSchemaLabels.some((e) => e.name === submissionType)) {
         if (submissionType === 'avatar' && value.length > 0) {
           customerDoc.avatar = value[0].url;
         } else {
@@ -591,6 +639,7 @@ export const widgetFormMutation: Record<string, Resolver<any, any, IContext>> = 
 
     let customer: any = null;
 
+    console.log('Customer __Query:', customerQry, customerDoc);
     if (customerQry) {
       customer = await sendTRPCMessage({
         subdomain,
@@ -642,11 +691,24 @@ export const widgetFormMutation: Record<string, Resolver<any, any, IContext>> = 
         customerLinks,
       );
 
+      if (doc.email) {
+        if (saveAsCustomer) {
+          doc.primaryEmail = doc.email;
+        }
+        delete doc.email;
+      }
+
+      if (doc.phone) {
+        if (saveAsCustomer) {
+          doc.primaryPhone = doc.phone;
+        }
+        delete doc.phone;
+      }
+
       if (saveAsCustomer) {
         doc.state = 'customer';
-        doc.primaryEmail = customerDoc.email;
-        doc.primaryPhone = customerDoc.phone;
       }
+
       const updatedCustomer = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',

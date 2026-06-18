@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
+import { resolveRecordReferenceValue } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { evaluate } from 'mathjs';
 import { IModels } from '~/connectionResolvers';
 
 /**
@@ -7,20 +9,66 @@ import { IModels } from '~/connectionResolvers';
  * Only supports: numbers (int/float), +, -, *, /, parentheses.
  * No eval/Function — purely structural parsing, no code execution.
  */
+const normalizeLegacyExpression = (expr: string) =>
+  (expr || '')
+    .replace(/!==/g, '!=')
+    .replace(/===/g, '==')
+    .replace(/&&/g, ' and ')
+    .replace(/\|\|/g, ' or ')
+    .trim();
+
+const evaluateLegacyExpression = (expr: string): number | null => {
+  const expression = normalizeLegacyExpression(expr);
+
+  if (!/[<>=?:]|\band\b|\bor\b|\bnot\b/.test(expression)) {
+    return null;
+  }
+
+  const expressionWithoutLogicWords = expression.replace(
+    /\b(and|or|not)\b/g,
+    '',
+  );
+
+  if (/[A-Za-z_$]/.test(expressionWithoutLogicWords)) {
+    throw new Error(`Invalid math expression: ${expression.slice(0, 50)}`);
+  }
+
+  const result = evaluate(expression);
+  const numberResult = Number(result);
+
+  if (!Number.isFinite(numberResult)) {
+    return 0;
+  }
+
+  return numberResult;
+};
+
 export const safeEvalMath = (expr: string): number => {
   const input = (expr || '').trim();
   if (!input) return 0;
 
+  const legacyExpressionResult = evaluateLegacyExpression(input);
+
+  if (legacyExpressionResult !== null) {
+    return legacyExpressionResult;
+  }
+
   let pos = 0;
 
   /** look at the current character without moving forward */
-  function peek() { return input[pos]; }
+  function peek() {
+    return input[pos];
+  }
 
   /** grab the current character and step to the next one */
-  function advance() { return input[pos++]; }
+  function advance() {
+    return input[pos++];
+  }
 
   /** jump past any spaces */
-  function skipWhitespace() { while (pos < input.length && input[pos] === ' ') pos++; }
+  function skipWhitespace() {
+    while (pos < input.length && input[pos] === ' ') pos++;
+  }
 
   /** read a number like 42, 3.14, or -5 from the input */
   function parseNumber(): number {
@@ -110,17 +158,36 @@ export const safeEvalMath = (expr: string): number => {
   return result;
 };
 
-export const resolvePlaceholderValue = (target: any, attribute: string) => {
+export const resolvePlaceholderValue = async (
+  subdomain: string,
+  target: any,
+  attribute: string,
+) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
   const parent = target[propertyName] || {};
-  // Case 1: customer-customFieldsData-1  (look up in customFieldsData)
-  if (valueToCheck?.includes('customFieldsData')) {
-    const fieldId = attribute.split('.').pop(); // extract the field number after '.'
-    const obj = (parent.customFieldsData || []).find(
-      (item: any) => item.field === fieldId,
+
+  const normalizeValue = (value: any) => {
+    if (value && typeof value === 'object') {
+      return value.numberValue ?? value.value ?? '0';
+    }
+
+    return value ?? '0';
+  };
+
+  // Case 1: customer-propertiesData-1 / legacy customer-customFieldsData-1
+  if (
+    valueToCheck?.includes('propertiesData') ||
+    valueToCheck?.includes('customFieldsData')
+  ) {
+    const fieldId = attribute.split('.').pop()?.trim(); // extract the field id after '.'
+    return normalizeValue(
+      parent.propertiesData?.[fieldId || ''] ??
+        (parent.customFieldsData || []).find(
+          (item: any) => item.field === fieldId,
+        ) ??
+        '0',
     );
-    return obj?.value ?? '0';
   }
 
   // Case 2: paymentsData-loyalty-amount  (find in array/object by type)
@@ -128,39 +195,33 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
     const obj = Array.isArray(parent)
       ? parent.find((item: any) => item.type === valueToCheck)
       : parent[valueToCheck] || {};
-    return obj[valueField] || '0';
+    return normalizeValue(obj[valueField]);
   }
 
   // Case 3: customer-loyalty (simple nested property)
   if (valueToCheck) {
     const property = parent[valueToCheck];
-    return typeof property === 'object'
-      ? property?.value || '0'
-      : property || '0';
+    return normalizeValue(property);
+  }
+
+  if (propertyName === 'excludeAmount') {
+    const excludeLoyaltyAmount = await resolveRecordReferenceValue({
+      subdomain,
+      type: 'sales:deal',
+      path: 'excludeLoyaltyAmount',
+      target,
+      defaultValue: 0,
+    });
+    console.log({ excludeLoyaltyAmount });
+    return excludeLoyaltyAmount;
   }
 
   // Case 4: simple top-level value (e.g. {{score}})
-  return target[attribute] || '0';
+  return normalizeValue(target[attribute]);
 };
 
 export const doScoreCampaign = async (models: IModels, data: any) => {
-  const { ownerType, ownerId, actionMethod, targetId } = data;
-
   try {
-    await models.ScoreCampaigns.checkScoreAviableSubtract(data);
-
-    const scoreLogs =
-      (await models.ScoreLogs.find({
-        ownerId,
-        ownerType,
-        targetId,
-        action: actionMethod,
-      }).lean()) || [];
-
-    if (scoreLogs.length) {
-      return;
-    }
-
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error: any) {
     throw new Error(error?.message || 'Score campaign execution failed');
@@ -251,15 +312,15 @@ export const scoreActiveUsers = async ({ models }) => {
 };
 
 export const scorePoint = async ({ doc, models, filter }) => {
-  const { stageId, number } = doc;
+  const { stageId, pipelineId, boardId, number } = doc;
 
   const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
-    action: 'refund',
+    action: { $in: ['refund', 'return'] },
   });
 
-  let filterAggregate: any[] = [];
+  const filterAggregate: any[] = [];
 
-  if (stageId || number) {
+  if (stageId || pipelineId || boardId || number) {
     const lookup = [
       {
         $lookup: {
@@ -336,11 +397,11 @@ export const scorePoint = async ({ doc, models, filter }) => {
 };
 
 export const scoreProducts = async ({ doc, models, filter }) => {
-  const { stageId, number } = doc;
+  const { stageId, pipelineId, boardId, number } = doc;
 
-  let filterAggregate: any[] = [];
+  const filterAggregate: any[] = [];
 
-  if (stageId || number) {
+  if (stageId || pipelineId || boardId || number) {
     const lookup = [
       {
         $lookup: {
@@ -524,7 +585,9 @@ export const handleOnCreateCampaignScoreField = async ({ doc, subdomain }) => {
       throw new Error('Please provide a field name for score field');
     }
 
-    const fieldCode = `loyalty_score_${doc.fieldName?.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+    const fieldCode = `loyalty_score_${doc.fieldName
+      ?.toLowerCase()
+      .replace(/\s+/g, '_')}_${Date.now()}`;
 
     const field = await sendTRPCMessage({
       subdomain,
@@ -536,7 +599,7 @@ export const handleOnCreateCampaignScoreField = async ({ doc, subdomain }) => {
         name: doc.fieldName,
         code: fieldCode,
         groupId: doc.fieldGroupId,
-        type: 'input',
+        type: 'number',
         validations: { number: true },
         contentType: `core:${doc.ownerType}`,
       },
@@ -562,7 +625,9 @@ export const handleOnUpdateCampaignScoreField = async ({
     doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId;
 
   if (doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId) {
-    const fieldCode = `loyalty_score_${doc.fieldName?.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+    const fieldCode = `loyalty_score_${doc.fieldName
+      ?.toLowerCase()
+      .replace(/\s+/g, '_')}_${Date.now()}`;
 
     const field = await sendTRPCMessage({
       subdomain,
@@ -574,7 +639,7 @@ export const handleOnUpdateCampaignScoreField = async ({
         name: doc.fieldName,
         code: fieldCode,
         groupId: doc.fieldGroupId,
-        type: 'input',
+        type: 'number',
         validations: { number: true },
         contentType: `core:${doc.ownerType}`,
       },
@@ -602,6 +667,11 @@ export const handleOnUpdateCampaignScoreField = async ({
       doc.fieldOrigin === 'new'
     ) {
       modifiedFieldData.text = doc.fieldName;
+    }
+
+    if (doc.fieldId === scoreCampaign.fieldId && doc.fieldOrigin === 'new') {
+      modifiedFieldData.type = 'number';
+      modifiedFieldData.validations = { number: true };
     }
 
     if (Object.keys(modifiedFieldData).length > 0) {

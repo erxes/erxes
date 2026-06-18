@@ -17,6 +17,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -29,13 +30,22 @@ import { FormToggleStatus } from './actions/toggle-form';
 import { FormCommandBar } from './form-page/command-bar/form-command-bar';
 import { FormsCreateButton } from './form-page/forms-create';
 import { OpenLiveForm } from './actions/open-live-form';
+import { OpenSubmissionsAction } from './actions/open-submissions';
 
 export const FormsList = () => {
   const { id: channelId } = useParams<{ id: string }>();
+  const [{ searchValue, status, tagId }] = useMultiQueryState<{
+    searchValue?: string;
+    status?: string;
+    tagId?: string;
+  }>(['searchValue', 'status', 'tagId']);
 
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
     variables: {
       channelId: channelId || undefined,
+      searchValue: searchValue || undefined,
+      status: status || undefined,
+      tagId: tagId || undefined,
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -121,6 +131,7 @@ export const FormsMoreColumnCell = ({
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <OpenLiveForm formId={_id} channelId={channelId as string} />
+        <OpenSubmissionsAction formId={_id} />
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
         <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>

@@ -2,7 +2,9 @@ import { TAfterProcessProducers } from 'erxes-api-shared/core-modules';
 import { HandlerContext, isAfterMutationRule } from '../types';
 import { sendProducer } from '../utils';
 
-export function handleAfterMutation(context: HandlerContext): void {
+export async function handleAfterMutation(
+  context: HandlerContext,
+): Promise<void> {
   if (!isAfterMutationRule(context.rule)) {
     return;
   }
@@ -11,7 +13,7 @@ export function handleAfterMutation(context: HandlerContext): void {
   const { mutationName } = context.payload || {};
 
   if (mutationNames.includes(mutationName)) {
-    sendProducer(
+    await sendProducer(
       context,
       TAfterProcessProducers.AFTER_MUTATION,
       context.payload,

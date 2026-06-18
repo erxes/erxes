@@ -101,6 +101,51 @@ export const permissionMutations = {
     return models.Users.findOne({ _id: userId });
   },
 
+  // Assign permission groups to many users at once.
+  // Default groups (id contains ':') replace any existing group with the
+  // same plugin prefix; custom groups (Mongo ObjectId, no ':') are added.
+  async usersUpdatePermissionGroups(
+    _root: any,
+    { userIds, groupIds }: { userIds: string[]; groupIds: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('permissionsManage');
+
+    const newDefaultPrefixes = groupIds
+      .filter((id) => id.includes(':'))
+      .map((id) => id.split(':')[0]);
+
+    const users = await models.Users.find({
+      _id: { $in: userIds },
+    }).lean();
+
+    const foundIds = new Set(users.map((u: any) => u._id));
+    const missing = userIds.filter((id) => !foundIds.has(id));
+    if (missing.length) {
+      throw new Error(`Users not found: ${missing.join(', ')}`);
+    }
+
+    for (const user of users) {
+      const existing: string[] = user.permissionGroupIds || [];
+
+      const kept = existing.filter((id) => {
+        if (!id.includes(':')) return true;
+        const prefix = id.split(':')[0];
+        return !newDefaultPrefixes.includes(prefix);
+      });
+
+      const merged = Array.from(new Set([...kept, ...groupIds]));
+
+      await models.Users.updateUser(user._id, {
+        permissionGroupIds: merged,
+      });
+
+      await clearGroupActionsCache({ userId: user._id });
+    }
+
+    return { success: true, count: users.length };
+  },
+
   // Add custom permission to user
   async userAddCustomPermission(
     _root: any,

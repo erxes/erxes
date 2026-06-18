@@ -13,6 +13,7 @@ export type TPosOrderFormData = {
 
 export interface TPosOrder {
   _id: string;
+  accountingResponse?: string;
   createdAt: string;
   status: string;
   paidDate?: string;

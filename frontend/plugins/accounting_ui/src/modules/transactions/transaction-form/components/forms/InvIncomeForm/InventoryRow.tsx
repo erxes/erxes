@@ -229,7 +229,10 @@ export const InventoryRow = ({
                 onValueChange={(accountId) => {
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                defaultFilter={{
+                  journals: [JournalEnum.INVENTORY],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />

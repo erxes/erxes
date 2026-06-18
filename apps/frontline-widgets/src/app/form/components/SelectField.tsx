@@ -11,16 +11,26 @@ type Props = {
 export const SelectField = ({ erxesField, field }: Props) => {
   return (
     <ErxesFormItem span={erxesField.column}>
-      <Form.Label>{erxesField.text}</Form.Label>
+      <Form.Label className="text-widget-label">
+        {erxesField.text}
+        {erxesField.isRequired && <span className="text-destructive"> *</span>}
+      </Form.Label>
       <Select value={field.value} onValueChange={field.onChange}>
         <Form.Control>
-          <Select.Trigger>
-            <Select.Value placeholder={erxesField.text} />
+          <Select.Trigger className="text-foreground">
+            <Select.Value
+              placeholder={erxesField.text}
+              className="text-foreground"
+            />
           </Select.Trigger>
         </Form.Control>
         <Select.Content>
           {erxesField.options.map((option) => (
-            <Select.Item key={option} value={option}>
+            <Select.Item
+              key={option}
+              value={option}
+              className="text-foreground"
+            >
               {option}
             </Select.Item>
           ))}

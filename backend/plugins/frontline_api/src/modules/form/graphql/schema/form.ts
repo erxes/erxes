@@ -53,6 +53,7 @@ export const types = `
     formFieldId: String
     text: String
     formFieldText: String
+    formFieldType: String
     value: JSON
     submittedAt: Date
   }
@@ -60,6 +61,8 @@ export const types = `
   type Submission @key(fields: "_id") {
     _id: String!
     contentTypeId: String
+    formId: String
+    channelId: String
     customerId: String
     customer: Customer
     createdAt: Date
@@ -124,6 +127,12 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int,
   }
+
+  type SubmissionListResponse {
+    list: [Submission],
+    pageInfo: PageInfo
+    totalCount: Int,
+  }
 `;
 
 const commonFields = `
@@ -172,9 +181,8 @@ export const queries = `
   forms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
   formsMain(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
   formsTotalCount(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams} ): FormsTotalCount
-  formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): [Submission]
-  formSubmissionsTotalCount(${formSubmissionQueryParams},${cursorParams}): Int
-  formSubmissionDetail(contentTypeId: String!): Submission
+  formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): SubmissionListResponse
+  formSubmissionDetail(_id: String!): Submission
 
   formsGetContentTypes: [FormType]
 

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { posInEbarimtDetailAtom } from '@/ebarimt/settings/pos-in-ebarimt-config/states/posInEbarimtConfigStates';
 import {
   addEBarimtPosInConfigSchema,
+  normalizeRuleIds,
   TPosInEbarimtConfig,
 } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
 import { useSavePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useSavePosInEbarimtConfig';
@@ -34,10 +35,10 @@ export const EditPosInEBarimtConfig = () => {
       branchNo: '',
       hasVat: false,
       vatPercent: '',
-      reverseVatRules: '',
+      reverseVatRules: [],
       hasCitytax: false,
       citytaxPercent: '',
-      reverseCtaxRules: '',
+      reverseCtaxRules: [],
       headerText: '',
       footerText: '',
       withDescription: false,
@@ -64,10 +65,10 @@ export const EditPosInEBarimtConfig = () => {
         branchNo: detail.branchNo || '',
         hasVat: detail.hasVat || false,
         vatPercent: detail.vatPercent || '',
-        reverseVatRules: detail.reverseVatRules || '',
+        reverseVatRules: normalizeRuleIds(detail.reverseVatRules),
         hasCitytax: detail.hasCitytax || false,
         citytaxPercent: detail.citytaxPercent || '',
-        reverseCtaxRules: detail.reverseCtaxRules || '',
+        reverseCtaxRules: normalizeRuleIds(detail.reverseCtaxRules),
         headerText: detail.headerText || '',
         footerText: detail.footerText || '',
         withDescription: detail.withDescription || false,

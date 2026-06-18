@@ -2,7 +2,7 @@ import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IPosDocument } from './@types/pos';
 import { USER_FIELDS } from './db/definitions/constants';
-import { calcProductsTaxRule, getChildCategories, getConfig } from './utils';
+import { calcProductsTaxRule, getChildCategories } from './utils';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
@@ -47,19 +47,26 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
     pluginName: 'mongolian',
     module: 'mnConfigs',
     action: 'find',
-    input: { query: { $or: [{ code: 'EBARIMT' }, { code: 'posInEbarimt', subId: pos._id }] } },
+    input: {
+      query: {
+        $or: [{ code: 'EBARIMT' }, { code: 'posInEbarimt', subId: pos._id }],
+      },
+    },
     defaultValue: [],
   });
 
-  const ebarimtMain = ebarimtConfigs.find(conf => conf.code === 'EBARIMT');
-  const ebarimtPos = ebarimtConfigs.find(conf => conf.code === 'posInEbarimt' && conf.subId === pos._id);
+  const ebarimtMain = ebarimtConfigs.find((conf) => conf.code === 'EBARIMT');
+  const ebarimtPos = ebarimtConfigs.find(
+    (conf) => conf.code === 'posInEbarimt' && conf.subId === pos._id,
+  );
 
   data.pos.ebarimtConfig = {
     ...ebarimtMain?.value,
     ...ebarimtPos?.value,
     ebarimtUrl: ebarimtPos?.value?.ebarimtUrl || ebarimtMain?.value?.ebarimtUrl,
-    companyName: ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
-  }
+    companyName:
+      ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
+  };
 
   return data;
 };
@@ -81,6 +88,15 @@ export const getProductsData = async (
 
   const productGroups: any = [];
 
+  const ebarimtConfig = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolian',
+    module: 'mnConfigs',
+    action: 'getConfig',
+    input: { code: 'posInEbarimt', subId: pos._id },
+    defaultValue: [],
+  });
+
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
       subdomain,
@@ -97,7 +113,6 @@ export const getProductsData = async (
 
     const productCategories = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'productCategories',
       action: 'find',
@@ -107,10 +122,12 @@ export const getProductsData = async (
       },
       defaultValue: [],
     });
+
     const categories: any[] = [];
 
     for (const category of productCategories) {
       categories.push({
+        ...category,
         _id: category._id,
         name: category.name,
         description: category.description,
@@ -119,6 +136,7 @@ export const getProductsData = async (
         order: category.order,
         attachment: category.attachment,
         meta: category.meta,
+        status: category.status,
         isSimilarity: category.isSimilarity,
         similarities: category.similarities,
       });
@@ -129,7 +147,6 @@ export const getProductsData = async (
 
     const products: any[] = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'products',
       action: 'find',
@@ -145,7 +162,7 @@ export const getProductsData = async (
 
     const productsById = await calcProductsTaxRule(
       subdomain,
-      pos.ebarimtConfig,
+      ebarimtConfig,
       products,
     );
 
@@ -172,6 +189,8 @@ export const getProductsData = async (
 
     for (const productId of Object.keys(productsById)) {
       const product = productsById[productId];
+
+      product.similarityId = product.similarityId || null;
 
       const discount = pricing[productId] || {};
 
@@ -301,27 +320,4 @@ export const posSyncConfig = async (req, res) => {
   }
 
   return res.send({ error: 'wrong type' });
-};
-
-export const unfetchOrderInfo = async (req, res) => {
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
-
-  const { orderId, token } = req.body;
-  const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-
-  if (erkhetConfig?.apiToken !== token) {
-    return res.send({ error: 'not found token' });
-  }
-
-  const order = await models.PosOrders.findOne({ _id: orderId }).lean();
-  if (!order) {
-    return res.send({ error: 'not found order' });
-  }
-
-  await models.PosOrders.updateOne(
-    { _id: orderId },
-    { $set: { syncedErkhet: false } },
-  );
-  return res.send({ status: 'done' });
 };

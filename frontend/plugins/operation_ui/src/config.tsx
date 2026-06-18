@@ -1,4 +1,8 @@
-import { IconChecklist, IconListCheck } from '@tabler/icons-react';
+import {
+  IconChecklist,
+  IconClipboard,
+  IconListCheck,
+} from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig } from 'erxes-ui';
@@ -49,6 +53,7 @@ export const CONFIG: IUIConfig = {
       name: 'operation',
       icon: IconListCheck,
       path: 'operation',
+      hasAutomation: true,
     },
     {
       name: 'team',
@@ -64,6 +69,10 @@ export const CONFIG: IUIConfig = {
       {
         name: 'tasks',
         icon: IconChecklist,
+      },
+      {
+        name: 'projects',
+        icon: IconClipboard,
       },
     ],
   },

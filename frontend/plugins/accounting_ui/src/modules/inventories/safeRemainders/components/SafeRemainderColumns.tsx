@@ -30,7 +30,7 @@ const TransactionMoreColumnCell = ({
 const transactionMoreColumn = {
   id: 'more',
   cell: TransactionMoreColumnCell,
-  size: 33,
+  size: 20,
 };
 
 export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [

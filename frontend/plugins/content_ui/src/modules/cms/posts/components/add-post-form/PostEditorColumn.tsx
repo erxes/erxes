@@ -11,7 +11,6 @@ interface PostEditorColumnProps {
   selectedType: string | undefined;
   fieldGroups: FieldGroup[];
   fullPost: { _id?: string } | null | undefined;
-  generateSlug: (val: string) => string;
   handleEditorChange: (content: string) => void;
   getCustomFieldValue: (fieldId: string) => CustomFieldValue;
   updateCustomFieldValue: (
@@ -27,7 +26,6 @@ export const PostEditorColumn = ({
   selectedType,
   fieldGroups,
   fullPost,
-  generateSlug,
   handleEditorChange,
   getCustomFieldValue,
   updateCustomFieldValue,
@@ -47,19 +45,7 @@ export const PostEditorColumn = ({
             )}
           </Form.Label>
           <Form.Control>
-            <Input
-              {...field}
-              placeholder="Post title"
-              onChange={(e) => {
-                field.onChange(e);
-                if (
-                  selectedLanguage === defaultLanguage &&
-                  !form.getValues('slug')
-                ) {
-                  form.setValue('slug', generateSlug(e.target.value));
-                }
-              }}
-            />
+            <Input {...field} placeholder="Post title" />
           </Form.Control>
           <Form.Message />
         </Form.Item>

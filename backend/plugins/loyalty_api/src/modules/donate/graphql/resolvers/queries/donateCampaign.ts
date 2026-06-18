@@ -2,7 +2,8 @@ import {
   IDonateCampaignDocument,
   IDonateCampaignParams,
 } from '@/donate/@types/donateCampaign';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { Resolver } from 'erxes-api-shared/core-types';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
@@ -11,7 +12,7 @@ const generateFilter = (params: IDonateCampaignParams) => {
   const filter: FilterQuery<IDonateCampaignDocument> = {};
 
   if (params.searchValue) {
-    filter.name = new RegExp(params.searchValue, 'i');
+    filter.name = new RegExp(escapeRegExp(params.searchValue), 'i');
   }
 
   if (params.status) {
@@ -23,12 +24,13 @@ const generateFilter = (params: IDonateCampaignParams) => {
   return filter;
 };
 
-export const donateCampaignQueries = {
+export const donateCampaignQueries: Record<string, Resolver> = {
   async donateCampaigns(
     _root: undefined,
     params: IDonateCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignView');
     const filter: FilterQuery<IDonateCampaignDocument> = generateFilter(params);
 
     return cursorPaginate({
@@ -55,8 +57,13 @@ export const donateCampaignQueries = {
   async donateCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignView');
     return models.DonateCampaigns.getDonateCampaign(_id);
   },
+};
+
+donateCampaignQueries.cpDonateCampaigns.wrapperConfig = {
+  forClientPortal: true,
 };

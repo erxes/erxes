@@ -5,7 +5,10 @@ import { checkboxColumn } from 'erxes-ui/modules/record-table/components/Checkbo
 import { TErkhetConfig } from '../types';
 import { TStageInErkhetConfigRow } from '../hooks/useStageInErkhetConfigs';
 import { StageInErkhetConfigEditSheet } from './StageInErkhetConfigEditSheet';
-import { ErkhetConfigTitleCell, ErkhetConfigMoreCell } from '../../shared/components/ErkhetConfigColumnCells';
+import {
+  ErkhetConfigTitleCell,
+  ErkhetConfigMoreCell,
+} from '../../shared/components/ErkhetConfigColumnCells';
 
 export const buildStageInErkhetConfigColumns = (
   onEdit: (id: string, data: TErkhetConfig) => Promise<void>,
@@ -58,25 +61,35 @@ export const buildStageInErkhetConfigColumns = (
     accessorKey: 'userEmail',
     header: () => <RecordTable.InlineHead icon={IconAt} label="User Email" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {(cell.getValue() as string) || '—'}
+      </RecordTableInlineCell>
     ),
     size: 200,
   },
   {
-    id: 'chooseResponseField',
-    accessorKey: 'chooseResponseField',
-    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label="Response Field" />,
+    id: 'responseField',
+    accessorKey: 'responseField',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLayoutKanban} label="Response Field" />
+    ),
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {(cell.getValue() as string) || '—'}
+      </RecordTableInlineCell>
     ),
     size: 200,
   },
   {
     id: 'defaultPay',
     accessorKey: 'defaultPay',
-    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label="Default Pay" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLayoutKanban} label="Default Pay" />
+    ),
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {(cell.getValue() as string) || '—'}
+      </RecordTableInlineCell>
     ),
     size: 150,
   },

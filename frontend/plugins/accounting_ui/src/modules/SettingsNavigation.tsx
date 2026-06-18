@@ -11,7 +11,7 @@ export const SettingsNavigation = () => {
             name="Accounting"
             icon={IconListDetails}
             path="/"
-            pathPrefix="accounting"
+            pathPrefix="accounting/"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

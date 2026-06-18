@@ -33,7 +33,9 @@ export const NavigationMenuLinkItem = forwardRef<
       ? `${pathPrefix.replace(/\/$/, '')}/`
       : '';
     const normalizedPath = path.replace(/^\//, '');
-    const fullPath = `/${normalizedPathPrefix}${normalizedPath}`;
+    const fullPath = (
+      `/${normalizedPathPrefix}${normalizedPath}`
+    ).replace(/\/$/, '') || '/';
     const isActive = pathname.startsWith(fullPath);
 
     return (

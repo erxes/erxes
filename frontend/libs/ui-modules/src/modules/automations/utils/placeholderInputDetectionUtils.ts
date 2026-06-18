@@ -16,6 +16,56 @@ export function isInsideLockedExpression(value: string, cursorPos: number) {
   return { inCurly, inBracket };
 }
 
+export type LockedExpressionRange = {
+  start: number;
+  end: number;
+  token: string;
+};
+
+const LOCKED_EXPRESSION_REGEX = /\{\{[\s\S]*?\}\}|\[\[[\s\S]*?\]\]/g;
+
+export function getLockedExpressionRanges(value: string) {
+  const text = value || '';
+  const ranges: LockedExpressionRange[] = [];
+
+  for (const match of text.matchAll(LOCKED_EXPRESSION_REGEX)) {
+    const token = match[0];
+    const start = match.index || 0;
+    ranges.push({
+      start,
+      end: start + token.length,
+      token,
+    });
+  }
+
+  return ranges;
+}
+
+export function getLockedExpressionRangeAtCursor(
+  value: string,
+  cursorPos: number,
+) {
+  return (
+    getLockedExpressionRanges(value).find(
+      (range) => cursorPos > range.start && cursorPos < range.end,
+    ) || null
+  );
+}
+
+export function getAdjacentLockedExpressionRange(
+  value: string,
+  cursorPos: number,
+  direction: 'backward' | 'forward',
+) {
+  return (
+    getLockedExpressionRanges(value).find((range) =>
+      direction === 'backward'
+        ? range.end === cursorPos
+        : range.start === cursorPos,
+    ) || null
+  );
+}
+
 export function findActualTriggerPosition(
   value: string,
   cursorPos: number,

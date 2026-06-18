@@ -1,5 +1,5 @@
-import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
-import fetch from 'node-fetch';
+import { isEnabled } from 'erxes-api-shared/utils';
+import { getConfig, sendErkhetGet } from './utils';
 
 export default {
   products: ['products'],
@@ -18,25 +18,8 @@ export const afterQueryHandlers = async (subdomain, data) => {
     return results;
   }
   try {
-    const configs = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'configs',
-      action: 'getConfig',
-      input: { code: 'ERKHET', defaultValue: {} },
-      defaultValue: {},
-    });
-
-    const remConfigs = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'configs',
-      action: 'getConfig',
-      input: { code: 'remainderConfig', defaultValue: {} },
-      defaultValue: {},
-    });
+    const configs = await getConfig(subdomain, 'ERKHET', {});
+    const remConfigs = await getConfig(subdomain, 'remainderConfig', {});
 
     if (!Object.keys(remConfigs).includes(pipelineId)) {
       return results;
@@ -46,24 +29,15 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
     const codes = (results || []).map((item) => item.code);
 
-    const response = await fetch(
-      configs.getRemainderApiUrl +
-        '?' +
-        new URLSearchParams({
-          kind: 'remainder',
-          api_key: configs.apiKey,
-          api_secret: configs.apiSecret,
-          check_relate: codes.length < 4 ? '1' : '',
-          accounts: remConfig.account,
-          locations: remConfig.location,
-          inventories: codes.join(','),
-        }),
-      {
-        timeout: 8000,
-      },
-    );
-
-    const jsonRes = await response.json();
+    const jsonRes = await sendErkhetGet('/get-api/', {
+      kind: 'remainder',
+      api_key: configs.apiKey,
+      api_secret: configs.apiSecret,
+      check_relate: codes.length < 4 ? '1' : '',
+      accounts: remConfig.account,
+      locations: remConfig.location,
+      inventories: codes.join(','),
+    });
     const responseByCode = {};
 
     if (remConfig.account && remConfig.location) {

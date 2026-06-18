@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { label: 'Lotteries', path: '/loyalty/lotteries' },
   { label: 'Spins', path: '/loyalty/spins' },
   { label: 'Donates', path: '/loyalty/donates' },
-  { label: 'Score', path: '/loyalty/score' },
+  { label: 'Scores', path: '/loyalty/scores' },
   { label: 'Assignments', path: '/loyalty/assignments' },
   { label: 'Agents', path: '/loyalty/agents' },
   { label: 'Coupons', path: '/loyalty/coupons' },

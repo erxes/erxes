@@ -16,12 +16,33 @@ import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 
+type FormField = { tempFieldId?: string } & Record<string, unknown>;
+
+const buildEditFieldsVariables = (
+  id: string,
+  formFields: FormField[],
+  existingFields: { _id: string }[],
+) => ({
+  contentType: 'form',
+  contentTypeId: id,
+  updatedFields: formFields
+    .filter((field) => existingFields.some((f) => f._id === field.tempFieldId))
+    .map(({ tempFieldId, ...field }) => ({ ...field, _id: tempFieldId })),
+  newFields: formFields.filter(
+    (field) => !existingFields.some((f) => f._id === field.tempFieldId),
+  ),
+  removedFieldIds: existingFields
+    .filter((f) => !formFields.some((field) => field.tempFieldId === f._id))
+    .map((f) => f._id),
+});
+
 export const useFormMutate = () => {
-  const { formId: id, id: channelId } = useParams();
+  const { formId: id, id: _channelId } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
   const { formDetail } = useFormDetail({ formId: id as string });
+  const channelId = formDetail?.channelId || _channelId;
   const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
   const [createLeadIntegration, { loading: isCreatingIntegration }] =
@@ -62,22 +83,11 @@ export const useFormMutate = () => {
         },
         onCompleted: () => {
           fieldsBulkAction({
-            variables: {
-              contentType: 'form',
-              contentTypeId: id,
-              updatedFields: formFields
-                .filter((field) =>
-                  formDetail?.fields.some((f) => f._id === field.tempFieldId),
-                )
-                .map(({ tempFieldId, ...field }) => ({
-                  ...field,
-                  _id: tempFieldId,
-                })),
-              newFields: formFields.filter(
-                (field) =>
-                  !formDetail?.fields.some((f) => f._id === field.tempFieldId),
-              ),
-            },
+            variables: buildEditFieldsVariables(
+              id,
+              formFields,
+              formDetail?.fields || [],
+            ),
           });
         },
         onError: (error) => {
@@ -123,6 +133,9 @@ export const useFormMutate = () => {
       });
     }
     resetFormSetup();
+    if (!_channelId) {
+      navigate(`/frontline/forms`);
+    }
     navigate(`/settings/frontline/channels/${channelId}/forms`);
   };
 

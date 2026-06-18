@@ -158,7 +158,7 @@ const generateTagOptions = async (
     module: 'tags',
     action: 'find',
     input: {
-      type: 'sales:deal',
+      query: { type: 'sales:deal' },
     },
     defaultValue: [],
   });
@@ -203,7 +203,7 @@ export const generateSalesFields = async (
   }> = [];
 
   switch (collectionType) {
-    case 'deal':
+    case 'deals':
       schema = models.Deals.schema;
       break;
   }

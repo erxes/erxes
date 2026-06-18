@@ -33,6 +33,7 @@ const STORAGE_CONFIG_CODES = [
   'AZURE_STORAGE_CONNECTION_STRING',
   'AZURE_STORAGE_CONTAINER',
   'FILE_SYSTEM_PUBLIC',
+  'AWS_DISABLE_ACL',
 ] as const;
 
 type StorageConfigCode = (typeof STORAGE_CONFIG_CODES)[number];
@@ -311,6 +312,10 @@ const uploadToAWS = async (
     ? false
     : parseBoolean(readConfigValue(configs, 'FILE_SYSTEM_PUBLIC', 'true'));
 
+  const disableAcl = parseBoolean(
+    readConfigValue(configs, 'AWS_DISABLE_ACL', ''),
+  );
+
   const awsPrefix = readConfigValue(configs, 'AWS_PREFIX', '');
   const bucket = requireConfigValue(configs, 'AWS_BUCKET');
 
@@ -325,7 +330,7 @@ const uploadToAWS = async (
         Bucket: bucket,
         Key: finalFileName,
         Body: buffer,
-        ACL: isPublic ? 'public-read' : undefined,
+        ...(isPublic && !disableAcl ? { ACL: 'public-read' } : {}),
       },
       (err, res) => {
         if (err) {
@@ -454,7 +459,7 @@ const uploadToCloudflare = async (
         Bucket: bucketName,
         Key: finalFileName,
         Body: buffer,
-        ACL: isPublic ? 'public-read' : undefined,
+        ...(isPublic ? { ACL: 'public-read' } : {}),
       },
       (err, res) => {
         if (err) {

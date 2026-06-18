@@ -4,6 +4,7 @@ import {
   IconHash,
   IconLabel,
   IconUser,
+  IconShoppingCart,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -12,6 +13,7 @@ import {
   RecordTableInlineCell,
   CurrencyFormatedDisplay,
   CurrencyCode,
+  Badge,
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
 import { ProductNameCell } from './ProductNameCell';
@@ -41,6 +43,22 @@ export const productColumns: (
     header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
     cell: ({ cell }: { cell: any }) => <ProductNameCell cell={cell} />,
     size: 250,
+  },
+  {
+    id: 'type',
+    accessorKey: 'type',
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
+    ),
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell>
+        {cell.getValue() && (
+          <Badge variant="info">
+            <TextOverflowTooltip value={cell.getValue() as string} />
+          </Badge>
+        )}
+      </RecordTableInlineCell>
+    ),
   },
   {
     id: 'shortName',

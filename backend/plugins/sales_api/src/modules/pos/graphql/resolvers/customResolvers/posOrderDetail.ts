@@ -1,6 +1,5 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IPosOrderDocument } from '@/pos/@types/orders';
-import { getConfig } from '@/pos/utils';
 import { IContext } from '~/connectionResolvers';
 
 const resolvers = {
@@ -102,17 +101,6 @@ const resolvers = {
     return {};
   },
 
-  syncedErkhet: async (order, _, { subdomain }: IContext) => {
-    if (order.syncedErkhet) {
-      return true;
-    }
-    const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-    if (!erkhetConfig?.apiToken) {
-      return true;
-    }
-    return order.syncedErkhet;
-  },
-
   putResponses: async (order, _, { subdomain }: IContext) => {
     sendTRPCMessage({
       subdomain,
@@ -134,7 +122,7 @@ const resolvers = {
       return null;
     }
 
-    const response = await sendTRPCMessage({
+    return await sendTRPCMessage({
       subdomain,
 
       pluginName: 'sales',
@@ -142,7 +130,6 @@ const resolvers = {
       action: 'findOne',
       input: { _id: order.convertDealId },
     });
-    return response?.data;
   },
 
   async dealLink(order: IPosOrderDocument, _, { subdomain }: IContext) {
@@ -150,7 +137,7 @@ const resolvers = {
       return null;
     }
 
-    const response = await sendTRPCMessage({
+    return await sendTRPCMessage({
       subdomain,
 
       pluginName: 'sales',
@@ -158,7 +145,6 @@ const resolvers = {
       action: 'getLink',
       input: { _id: order.convertDealId, type: 'deal' },
     });
-    return response?.data;
   },
 };
 

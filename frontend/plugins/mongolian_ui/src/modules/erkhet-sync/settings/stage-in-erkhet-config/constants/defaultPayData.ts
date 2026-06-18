@@ -1,10 +1,9 @@
 export const DEFAULT_PAY_DATA = [
-  { label: 'Өрөөсөн баримтаар', value: 'Өрөөсөн баримтаар' },
-  { label: 'Зээлийн данс', value: 'Зээлийн данс' },
-  { label: 'Бэлэн мөнгө данс', value: 'Бэлэн мөнгө данс' },
-  { label: 'Картын данс', value: 'Картын данс' },
-  { label: 'Картын данс нэмэлт', value: 'Картын данс нэмэлт' },
-  { label: 'Мобайл данс', value: 'Мобайл данс' },
-  { label: 'Бартер данс', value: 'Бартер данс' },
-  { label: 'Урьдчилгаа данс', value: 'Урьдчилгаа данс' },
+  { label: 'Зээлийн данс', value: 'debtAmount' },
+  { label: 'Бэлэн мөнгө данс', value: 'cashAmount' },
+  { label: 'Картын данс', value: 'cardAmount' },
+  { label: 'Картын данс нэмэлт', value: 'card2Amount' },
+  { label: 'Мобайл данс', value: 'mobileAmount' },
+  { label: 'Бартер данс', value: 'debtBarterAmount' },
+  { label: 'Урьдчилгаа данс', value: 'preAmount' },
 ];

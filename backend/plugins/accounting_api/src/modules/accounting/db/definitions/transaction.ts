@@ -40,6 +40,9 @@ export const transactionDetailSchema = new Schema({
 
   assignUserId: { type: String, optional: true, esType: 'keyword' }, // AssignUserId
 
+  excludeVat: { type: Boolean, optional: true, label: 'Exclude Vat' },
+  excludeCtax: { type: Boolean, optional: true, label: 'Exclude Ctax' },
+
   productId: { type: String, optional: true, label: 'Product' },
   count: { type: Number, optional: true, label: 'Count' },
   unitPrice: { type: Number, optional: true, label: 'unitPrice' },
@@ -166,3 +169,17 @@ export const transactionSchema = schemaWrapper(
 transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });
 transactionSchema.index({ contentType: 1, contentId: 1 });
 transactionSchema.index({ date: 1, number: 1 });
+
+export const transactionCounterSchema = schemaWrapper(
+  new Schema({
+    _id: { type: String, label: 'Counter key' },
+    seq: { type: Number, default: 0, label: 'Sequence' },
+    createdAt: { type: Date, default: Date.now, label: 'Created at' },
+    updatedAt: { type: Date, default: Date.now, label: 'Modified at' },
+  }),
+);
+
+transactionCounterSchema.index(
+  { updatedAt: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 },
+);

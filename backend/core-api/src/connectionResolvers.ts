@@ -66,6 +66,7 @@ import {
   loadUserMovemmentClass,
 } from '@/organization/team-member/db/models/Users';
 import { IProductRuleDocument } from '@/products/@types/rule';
+import { IPackageDocument } from '@/products/@types/package';
 import {
   IProductCategoryModel,
   loadProductCategoryClass,
@@ -75,6 +76,7 @@ import {
   loadProductsConfigClass,
 } from '@/products/db/models/Configs';
 import { IProductModel, loadProductClass } from '@/products/db/models/Products';
+import { IPackageModel, loadPackageClass } from '@/products/db/models/Packages';
 import {
   IProductRuleModel,
   loadProductRuleClass,
@@ -240,7 +242,11 @@ import {
   ISegmentModel,
   loadSegmentClass,
 } from './modules/segments/db/models/Segments';
-
+import { IProductSimilarityDocument } from '@/products/@types/similarity';
+import {
+  IProductSimilarityModel,
+  loadProductSimilarityClass,
+} from '@/products/db/models/Similarities';
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 
 import {
@@ -274,8 +280,10 @@ export interface IModels {
   Tags: ITagModel;
   InternalNotes: IInternalNoteModel;
   Products: IProductModel;
+  Packages: IPackageModel;
   ProductCategories: IProductCategoryModel;
   ProductsConfigs: IProductsConfigModel;
+  ProductSimilarities: IProductSimilarityModel;
   Uoms: IUomModel;
   Structures: IStructureModel;
   Departments: IDepartmentModel;
@@ -419,6 +427,11 @@ export const loadClasses = (
     ),
   );
 
+  models.Packages = db.model<IPackageDocument, IPackageModel>(
+    'product_packages',
+    loadPackageClass(models),
+  );
+
   models.Uoms = db.model<IUomDocument, IUomModel>(
     'uoms',
     loadUomClass(models, subdomain, coreEventHandlers('products', 'uoms')),
@@ -445,6 +458,18 @@ export const loadClasses = (
       models,
       subdomain,
       coreEventHandlers('products', 'product_categories'),
+    ),
+  );
+
+  models.ProductSimilarities = db.model<
+    IProductSimilarityDocument,
+    IProductSimilarityModel
+  >(
+    'product_similarities',
+    loadProductSimilarityClass(
+      models,
+      subdomain,
+      coreEventHandlers('products', 'product_similarities'),
     ),
   );
 
@@ -514,7 +539,7 @@ export const loadClasses = (
 
   models.Relations = db.model<IRelationDocument, IRelationModel>(
     'relations',
-    loadRelationClass(models),
+    loadRelationClass(models, coreEventHandlers('relations', 'relations')),
   );
 
   models.Favorites = db.model<IFavoritesDocument, IFavoritesModel>(
@@ -669,7 +694,10 @@ export const loadClasses = (
 
   const db_name = db.name;
 
-  const logDb = db.useDb(`${db_name}_logs`);
+  const logDb = db.useDb(`${db_name}_logs`, {
+    useCache: true,
+    noListener: true,
+  });
 
   models.Logs = logDb.model<ILogDocument, ILogModel>(
     'logs',

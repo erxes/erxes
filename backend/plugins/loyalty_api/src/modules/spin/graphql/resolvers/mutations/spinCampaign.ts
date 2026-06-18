@@ -5,24 +5,27 @@ export const spinCampaignMutations = {
   async spinCampaignsAdd(
     _root: undefined,
     doc: ISpinCampaign,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignCreate');
     return models.SpinCampaigns.createSpinCampaign(doc);
   },
 
   async spinCampaignsEdit(
     _root: undefined,
     { _id, ...doc }: ISpinCampaign & { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignUpdate');
     return models.SpinCampaigns.updateSpinCampaign(_id, doc);
   },
 
   async spinCampaignsRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignRemove');
     return models.SpinCampaigns.removeSpinCampaigns(_ids);
   },
 };

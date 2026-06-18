@@ -1,8 +1,108 @@
 import { IconPlus, IconTrash, IconX } from '@tabler/icons-react';
-import { Button, Checkbox, Dialog, Form, ScrollArea } from 'erxes-ui';
+import {
+  Button,
+  Checkbox,
+  cn,
+  Combobox,
+  Command,
+  Dialog,
+  Form,
+  Popover,
+  ScrollArea,
+} from 'erxes-ui';
+import { useMemo, useState } from 'react';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
-import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
+import { SelectBoard, SelectPipeline, useStages } from 'ui-modules';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
+
+const MultiStageSelect = ({
+  value,
+  onValueChange,
+  pipelineId,
+  placeholder = 'Select stages...',
+}: {
+  value: string[];
+  onValueChange: (value: string[]) => void;
+  pipelineId?: string;
+  placeholder?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const isDisabled = !pipelineId;
+
+  const { stages: searchStages = [], loading } = useStages({
+    variables: { pipelineId: pipelineId || undefined, search: search || '' },
+    skip: !pipelineId,
+  });
+
+  const { stages: allStages = [] } = useStages({
+    variables: { pipelineId: pipelineId || undefined, search: '' },
+    skip: !pipelineId,
+  });
+
+  const stagesById = useMemo(() => {
+    const map = new Map<string, string>();
+    allStages.forEach((s) => map.set(s._id, s.name));
+    searchStages.forEach((s) => map.set(s._id, s.name));
+    return map;
+  }, [allStages, searchStages]);
+
+  const selectedLabel = useMemo(() => {
+    if (!value || value.length === 0) return '';
+    return value
+      .map((id) => stagesById.get(id) || id)
+      .filter(Boolean)
+      .join(', ');
+  }, [value, stagesById]);
+
+  const toggle = (id: string) => {
+    const next = value.includes(id)
+      ? value.filter((v) => v !== id)
+      : [...value, id];
+    onValueChange(next);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Form.Control>
+        <Combobox.Trigger
+          className={cn('w-full shadow-xs')}
+          disabled={isDisabled}
+        >
+          {selectedLabel ? (
+            <p className="font-medium text-sm truncate">{selectedLabel}</p>
+          ) : (
+            <span className="text-accent-foreground/80">{placeholder}</span>
+          )}
+        </Combobox.Trigger>
+      </Form.Control>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.Input
+            value={search}
+            onValueChange={setSearch}
+            placeholder="Search stage..."
+          />
+          <Command.Empty>
+            {loading ? 'Loading...' : 'No stages found'}
+          </Command.Empty>
+          <Command.List>
+            {searchStages.map((stage) => (
+              <Command.Item
+                key={stage._id}
+                value={stage._id}
+                onSelect={() => toggle(stage._id)}
+              >
+                <span className="font-medium">{stage.name}</span>
+                <Combobox.Check checked={value.includes(stage._id)} />
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
 
 const CardBasedRuleRow = ({
   form,
@@ -86,13 +186,10 @@ const CardBasedRuleRow = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Stages</Form.Label>
-              <SelectStage.FormItem
-                mode="multiple"
+              <MultiStageSelect
                 value={field.value || []}
                 pipelineId={pipelineId}
-                onValueChange={(value) =>
-                  field.onChange(Array.isArray(value) ? value : [value])
-                }
+                onValueChange={field.onChange}
                 placeholder="Select..."
               />
               <Form.Message />
@@ -106,13 +203,10 @@ const CardBasedRuleRow = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Refund Stages</Form.Label>
-              <SelectStage.FormItem
-                mode="multiple"
+              <MultiStageSelect
                 value={field.value || []}
                 pipelineId={pipelineId}
-                onValueChange={(value) =>
-                  field.onChange(Array.isArray(value) ? value : [value])
-                }
+                onValueChange={field.onChange}
                 placeholder="Select..."
               />
               <Form.Message />

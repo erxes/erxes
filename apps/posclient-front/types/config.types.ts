@@ -26,7 +26,6 @@ export interface IConfig {
     value?: string
     type?: string
   }
-  erxesAppToken?: string
   kitchenScreen?: IKitchenScreen
   uiOptions?: IUIOptions
   paymentTypes?: IPaymentType[]
@@ -39,6 +38,8 @@ export interface IConfig {
     cashiers?: IPermissionConfig
   }
   initialCategoryIds?: string[]
+  serviceCharge?: number
+  serviceChargeApplicableProductId?: string
   ebarimtConfig?: IEbarimtConfig
   branchId: string
   departmentId: string

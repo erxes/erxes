@@ -2,7 +2,7 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import { VoucherFormValues } from '../../../constants/voucherFormSchema';
-import { SelectCategory } from '~/modules/pricing/components/SelectCategory';
+import { SelectCategory } from 'ui-modules';
 
 interface VoucherAddRestrictionCoreFieldProps {
   form: UseFormReturn<VoucherFormValues>;

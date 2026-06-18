@@ -19,7 +19,7 @@ export interface IAccount {
   isOutBalance: boolean;
   mergedIds?: string[];
   extra?: {
-    bank?: BankEnum;
+    bank?: string;
     bankAccount?: string;
   };
   category?: IAccountCategory;
@@ -55,10 +55,4 @@ export enum JournalEnum {
   INVENTORY = 'inventory',
   INV_FOLLOW = 'invFollow',
   FIXED_ASSET = 'fixedAsset',
-}
-export enum BankEnum {
-  XAC = 'xac',
-  GOLOMT = 'golomt',
-  KHAN = 'khan',
-  TDB = 'tdb',
 }

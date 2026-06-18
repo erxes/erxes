@@ -4,9 +4,13 @@ import { IAttachment } from 'erxes-ui';
 export type FieldValidatorType = 'PRESET' | 'CUSTOM' | 'NONE';
 export type FieldValidatorPresetKey =
   | 'EMAIL'
-  | 'PHONE_INTL'
+  | 'PHONE'
   | 'POSTAL_CODE'
-  | 'ALPHANUMERIC';
+  | 'ALPHANUMERIC'
+  | 'MN_VEHICLE_REGISTRATION'
+  | 'NUMBER'
+  | 'DATE'
+  | 'DATE_TIME';
 
 export interface IFieldValidator {
   type: FieldValidatorType;

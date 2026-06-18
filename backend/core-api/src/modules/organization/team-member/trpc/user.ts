@@ -20,8 +20,12 @@ export const userTrpcRouter = t.router({
         return models.Users.find(query, fields);
       }),
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+      const query = input?.query || input?.selector || input;
       const { models } = ctx;
+
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
 
       return models.Users.findOne(query);
     }),
@@ -29,6 +33,10 @@ export const userTrpcRouter = t.router({
     updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { selector, modifier } = input;
       const { models } = ctx;
+
+      if (!selector || !Object.keys(selector).length) {
+        return {};
+      }
 
       return models.Users.updateOne(selector, modifier);
     }),

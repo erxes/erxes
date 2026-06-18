@@ -4,8 +4,9 @@ export const loyaltyConfigMutations = {
   async loyaltyConfigsUpdate(
     _root: undefined,
     param: { configsMap: Record<string, string> },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyConfigUpdate');
     const { configsMap } = param;
 
     const codes = Object.keys(configsMap);

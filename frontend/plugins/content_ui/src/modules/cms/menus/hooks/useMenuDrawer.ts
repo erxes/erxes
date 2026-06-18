@@ -155,7 +155,10 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     (m: RawMenuItem) => m._id !== menu?._id,
   );
 
-  const parentOptions = buildFlatTree(rawMenus).map((item) => ({
+  const parentOptions = buildFlatTree(
+    rawMenus,
+    selectedLanguage || cmsLanguage || defaultLanguage || 'en',
+  ).map((item) => ({
     _id: item._id,
     label: getDepthPrefix(item.depth) + item.label,
   }));
@@ -189,7 +192,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   });
 
   const { data: tagsData } = useQuery(MENU_TAGS_QUERY, {
-    variables: { clientPortalId, limit: 100 },
+    variables: { clientPortalId, language: selectedLanguage || cmsLanguage },
     skip: !isOpen || !clientPortalId || linkType !== 'tag',
     fetchPolicy: 'cache-first',
   });

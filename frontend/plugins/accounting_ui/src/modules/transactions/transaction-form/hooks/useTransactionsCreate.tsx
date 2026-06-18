@@ -3,10 +3,11 @@ import { ACC_TRANSACTIONS_CREATE } from '../graphql/mutations/accTransactionsCre
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
-import { ACC_TRS__PER_PAGE } from '../../types/constants';
+import { useTransactionsVariables } from '../../hooks/useTransactionVars';
 
 export const useTransactionsCreate = (options?: OperationVariables) => {
   const navigate = useNavigate();
+  const variables = useTransactionsVariables();
 
   const [_createTransaction, { loading }] = useMutation(
     ACC_TRANSACTIONS_CREATE,
@@ -34,13 +35,7 @@ export const useTransactionsCreate = (options?: OperationVariables) => {
       refetchQueries: [
         {
           query: TRANSACTIONS_QUERY,
-          variables: {
-            limit: ACC_TRS__PER_PAGE,
-            orderBy: {
-              date: 1,
-            },
-            cursor: '',
-          },
+          variables,
         },
       ],
       awaitRefetchQueries: true,

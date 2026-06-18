@@ -15,9 +15,9 @@ export const productCategoryToErkhet = async (
   const parentProductCategory = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'categories',
+    module: 'productCategories',
     action: 'findOne',
-    input: { _id: productCategory.parentId },
+    input: { query: { _id: productCategory.parentId } },
     defaultValue: null,
   });
 
@@ -31,7 +31,7 @@ export const productCategoryToErkhet = async (
     },
   };
 
-  await toErkhet(models, syncLog, mainConfig, sendData, 'product-change');
+  await toErkhet(models, mainConfig, sendData, 'product-change', syncLog);
 };
 
 export const productToErkhet = async (
@@ -48,9 +48,9 @@ export const productToErkhet = async (
   const productCategory = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'categories',
+    module: 'productCategories',
     action: 'findOne',
-    input: { _id: product.categoryId },
+    input: { query: { _id: product.categoryId } },
     defaultValue: null,
   });
 
@@ -100,5 +100,5 @@ export const productToErkhet = async (
     },
   };
 
-  await toErkhet(models, syncLog, mainConfig, sendData, 'product-change');
+  await toErkhet(models, mainConfig, sendData, 'product-change', syncLog);
 };

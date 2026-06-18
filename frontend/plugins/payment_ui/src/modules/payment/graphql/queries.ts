@@ -1,5 +1,11 @@
 import { gql } from '@apollo/client';
 
+export const INVOICE_SCANNED_SUBSCRIPTION = gql`
+  subscription InvoiceScanned {
+    invoiceScanned
+  }
+`;
+
 export const COUNTS = gql`
   query paymentsTotalCount($kind: String, $status: String) {
     paymentsTotalCount(kind: $kind, status: $status) {
@@ -46,6 +52,7 @@ query Invoices($kind: String, $status: String, $searchValue: String, $contentTyp
       description
       invoiceNumber
       status
+      scannedAt
       transactions {
         amount
         createdAt

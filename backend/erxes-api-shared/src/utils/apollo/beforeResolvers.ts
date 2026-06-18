@@ -7,15 +7,34 @@ import { initializePluginConfig } from '../service-discovery';
 
 export interface BeforeResolverParams {
   resolver: string;
-  args?: any;
-  user?: any;
-  headers?: Record<string, any>;
+  args?: Record<string, unknown>;
+  user?: unknown;
+  headers?: Record<string, unknown>;
 }
+
+export type BeforeResolverOkResult = {
+  status: 'ok';
+  args?: Record<string, unknown>;
+};
+
+export type BeforeResolverBlockedResult = {
+  status: 'blocked';
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+};
+
+export type BeforeResolverResult =
+  | BeforeResolverOkResult
+  | BeforeResolverBlockedResult
+  | Record<string, unknown>
+  | null
+  | undefined;
 
 export type BeforeResolverHandler = (
   subdomain: string,
   params: BeforeResolverParams,
-) => Promise<any> | any;
+) => Promise<BeforeResolverResult> | BeforeResolverResult;
 
 export interface BeforeResolversConfig {
   resolvers: Record<string, string[]>;
@@ -24,11 +43,23 @@ export interface BeforeResolversConfig {
 
 export enum TBeforeResolversProducers {
   HANDLE = 'handle',
+  CHECK = 'check',
 }
 
 export type TBeforeResolversProducersInput = {
   [TBeforeResolversProducers.HANDLE]: BeforeResolverParams;
+  [TBeforeResolversProducers.CHECK]: BeforeResolverParams;
 };
+
+const beforeResolverInput = z.object({
+  subdomain: z.string(),
+  data: z.object({
+    resolver: z.string(),
+    args: z.record(z.unknown()).optional(),
+    user: z.unknown().optional(),
+    headers: z.record(z.unknown()).optional(),
+  }),
+});
 
 export const startBeforeResolvers = async (
   app: Express,
@@ -47,20 +78,13 @@ export const startBeforeResolvers = async (
 
   const router = t.router({
     handle: t.procedure
-      .input(
-        z.object({
-          subdomain: z.string(),
-          data: z.object({
-            resolver: z.string(),
-            args: z.any(),
-            user: z.any().optional(),
-            headers: z.any().optional(),
-          }),
-        }),
-      )
+      .input(beforeResolverInput)
       .mutation(async ({ input }) => {
         return await handler(input.subdomain, input.data);
       }),
+    check: t.procedure.input(beforeResolverInput).query(async ({ input }) => {
+      return await handler(input.subdomain, input.data);
+    }),
   });
 
   const middleware = trpcExpress.createExpressMiddleware({

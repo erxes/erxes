@@ -156,7 +156,7 @@ const configQueries: Record<string, Resolver> = {
       input: { pipelineId: pipelineId },
     });
 
-    const stageIds = stages.data?.map((x) => x._id) || [];
+    const stageIds = stages?.map((x) => x._id) || [];
     const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
 
     const deals = await sendTRPCMessage({
@@ -182,6 +182,7 @@ const configQueries: Record<string, Resolver> = {
     });
 
     return deals?.data || [];
+    return deals || [];
   },
 
   async cpPmsRooms(
@@ -214,7 +215,7 @@ const configQueries: Record<string, Resolver> = {
       input: { pipelineId: pipelineId },
     }); 
 
-    const stageIds = stages.data?.map((x) => x._id) || [];
+    const stageIds = stages?.map((x) => x._id) || [];
     const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
 
     const deals = await sendTRPCMessage({
@@ -238,7 +239,7 @@ const configQueries: Record<string, Resolver> = {
         limit: perPage,
       },
     });
-    return deals?.data || [];
+    return deals || [];
   },
 
   async pmsCheckRooms(
@@ -267,7 +268,7 @@ const configQueries: Record<string, Resolver> = {
       input: { pipelineId: pipelineId },
     });
 
-    const stageIds = stages?.data.map((x) => x._id) || [];
+    const stageIds = stages?.map((x) => x._id) || [];
     const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
 
     const searchStart = new Date(startDate);
@@ -294,7 +295,7 @@ const configQueries: Record<string, Resolver> = {
 
     const busyProductIds = new Set<string>();
 
-    for (const deal of deals?.data || []) {
+    for (const deal of deals || []) {
       for (const productData of deal.productsData || []) {
         // Ensure we only care about the products the user actually searched for
         if (!ids.includes(productData.productId)) continue;
@@ -344,7 +345,7 @@ const configQueries: Record<string, Resolver> = {
       input: { pipelineId: pipelineId },
     });
 
-    const stageIds = stages?.data.map((x) => x._id) || [];
+    const stageIds = stages?.map((x) => x._id) || [];
     const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
 
     const deals = await sendTRPCMessage({
@@ -371,7 +372,7 @@ const configQueries: Record<string, Resolver> = {
       },
     });
     const array: any[] = [];
-    for (const x of deals?.data || []) {
+    for (const x of deals || []) {
       array.push(...(x?.productsData || []));
     }
     const productsFiltered = array.filter((productData) => {

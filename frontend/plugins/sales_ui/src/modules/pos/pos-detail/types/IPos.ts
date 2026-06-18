@@ -40,7 +40,6 @@ export interface IPosDetail {
   createdAt: Date;
   productDetails?: ProductDetail[];
   token: string;
-  erxesAppToken?: string;
   adminIds: string[];
   cashierIds: string[];
   paymentIds: string[];
@@ -57,19 +56,17 @@ export interface IPosDetail {
   kioskMachine?: IScreenConfig;
   kitchenScreen: IScreenConfig;
   uiOptions?: any;
-  ebarimtConfig: any;
-  erkhetConfig: any;
   catProdMappings?: CatProd[];
   initialCategoryIds?: string[];
   kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   cardsConfig?: any;
-  checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes?: string[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder: boolean;
   banFractions: boolean;
   branchTitle?: string;
   departmentTitle?: string;

@@ -1028,7 +1028,7 @@ const orderMutations: Record<string, Resolver> = {
           defaultValue: null,
         });
 
-        throw new Error(`Already converted: ${dealLink?.data || ''}`);
+        throw new Error(`Already converted: ${dealLink || ''}`);
       }
     }
 
@@ -1082,7 +1082,6 @@ const orderMutations: Record<string, Resolver> = {
         deal._id &&
         ['customer', 'company'].includes(order.customerType || 'customer')
       ) {
-
         // conformity to relation
         await sendTRPCMessage({
           subdomain,

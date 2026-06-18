@@ -40,7 +40,7 @@ export const deparmentQueries = {
       models,
       user,
       type: 'department',
-      params: { ...params, withoutUserFilter: true },
+      params,
     });
 
     const { list, totalCount, pageInfo } = await cursorPaginate({

@@ -61,7 +61,7 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
     cell: ({ row, cell }) => {
       const {
         queue,
-        queueChairman,
+        queuechairman,
         totalCalls,
         answeredCalls,
         abandonedCalls,
@@ -89,7 +89,7 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
             className="w-64 bg-accent p-1 rounded-xl"
           >
             <h4 className="text-xs uppercase font-mono font-semibold px-2 leading-8">
-              {queue} - {queueChairman}
+              {queue} - {queuechairman}
             </h4>
             <div className="p-3 flex flex-col text-sm bg-background shadow-sm rounded-lg">
               <div className="grid grid-cols-2 gap-1 pb-3">

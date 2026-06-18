@@ -11,7 +11,7 @@ const resolvers = {
       module: 'productCategories',
       action: 'findOne',
       input: {
-        _id: posProduct.categoryId,
+        query: { _id: posProduct.categoryId },
       },
     });
   },

@@ -2,9 +2,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { Button, Checkbox, Dialog, Form, Input, Spinner } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { TProductGroupForm } from '@/ebarimt/settings/product-group/constants/productGroupSchema';
-import { SelectSubProduct } from '@/ebarimt/settings/product-group/components/selects/SelectSubProduct';
-import { SelectMainProduct } from '@/ebarimt/settings/product-group/components/selects/SelectMainProduct';
 import { useCallback } from 'react';
+import { SelectProduct } from 'ui-modules';
 
 export const ProductGroupForm = ({
   form,
@@ -60,7 +59,7 @@ export const ProductGroupForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Main Product</Form.Label>
-                <SelectMainProduct
+                <SelectProduct
                   value={field.value}
                   onValueChange={(value) => field.onChange(value)}
                   disabled={loading}
@@ -75,7 +74,7 @@ export const ProductGroupForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Sub Product</Form.Label>
-                <SelectSubProduct
+                <SelectProduct
                   value={field.value}
                   onValueChange={(value) => field.onChange(value)}
                   disabled={loading}

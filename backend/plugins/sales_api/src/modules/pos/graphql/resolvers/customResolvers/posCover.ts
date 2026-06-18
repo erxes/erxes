@@ -13,8 +13,8 @@ export default {
 
       pluginName: 'core',
       module: 'users',
-      action: 'users.findOne',
-      input: { _id: cover.userId },
+      action: 'findOne',
+      input: { query: { _id: cover.userId } },
     });
   },
 
@@ -28,7 +28,7 @@ export default {
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
-      input: { _id: cover.createdBy },
+      input: { query: { _id: cover.createdBy } },
     });
   },
 
@@ -42,7 +42,7 @@ export default {
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
-      input: { _id: cover.modifiedBy },
+      input: { query: { _id: cover.modifiedBy } },
     });
   },
 

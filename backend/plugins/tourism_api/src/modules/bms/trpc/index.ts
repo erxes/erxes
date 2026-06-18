@@ -16,22 +16,11 @@ export const branchRouter = t.router({
           .limit(options?.limit || 0) // 0 means no limit
           .countDocuments();
 
-        return {
-          status: 'success',
-          data: count,
-          timestamp: new Date().toISOString(),
-        };
+        return count;
       } catch (error) {
         console.error('Count documents error:', error);
 
-        return {
-          status: 'error',
-          message: 'Failed to count documents',
-          ...(process.env.NODE_ENV === 'development' && {
-            error: error instanceof Error ? error.message : 'Unknown error',
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        };
+        throw new Error('Failed to count documents');
       }
     }),
   }),

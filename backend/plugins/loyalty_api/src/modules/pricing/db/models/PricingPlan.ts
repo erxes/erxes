@@ -7,6 +7,7 @@ import {
 } from '@/pricing/@types/pricingPlan';
 
 export interface IPricingPlanModel extends Model<IPricingPlanDocument> {
+  getPricingPlan(id: string): Promise<IPricingPlanDocument>;
   createPlan(doc: IPricingPlan, userId: string): Promise<IPricingPlanDocument>;
   updatePlan(
     id: string,
@@ -18,6 +19,14 @@ export interface IPricingPlanModel extends Model<IPricingPlanDocument> {
 
 export const loadPricingPlanClass = (models: IModels) => {
   class PricingPlan {
+    public static async getPricingPlan(id) {
+      const plan = await models.PricingPlans.findOne({_id: id}).lean();
+      if(!plan) {
+        throw new Error('not found pricing plan');
+      }
+      return plan;
+    }
+
     /**
      * Create pricing plan
      * @param doc Plan document to create

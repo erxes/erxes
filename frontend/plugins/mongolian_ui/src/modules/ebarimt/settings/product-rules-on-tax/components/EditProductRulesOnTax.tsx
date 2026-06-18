@@ -33,13 +33,13 @@ export const EditProductRulesOnTax = () => {
       taxType: '',
       taxCode: '',
       kind: '',
-      percent: 0,
-      productCategoryIds: '',
-      excludeCategoryIds: '',
-      productIds: '',
-      excludeProductIds: '',
-      tagIds: '',
-      excludeTagIds: '',
+      taxPercent: 0,
+      productCategoryIds: [],
+      excludeCategoryIds: [],
+      productIds: [],
+      excludeProductIds: [],
+      tagIds: [],
+      excludeTagIds: [],
       status: '',
     },
   });
@@ -52,16 +52,13 @@ export const EditProductRulesOnTax = () => {
         taxType: productRulesOnTaxDetail.taxType || '',
         taxCode: productRulesOnTaxDetail.taxCode || '',
         kind: productRulesOnTaxDetail.kind || '',
-        percent: productRulesOnTaxDetail.taxPercent || 0,
-        productCategoryIds:
-          productRulesOnTaxDetail.productCategoryIds?.join(', ') || '',
-        excludeCategoryIds:
-          productRulesOnTaxDetail.excludeCategoryIds?.join(', ') || '',
-        productIds: productRulesOnTaxDetail.productIds?.join(', ') || '',
-        excludeProductIds:
-          productRulesOnTaxDetail.excludeProductIds?.join(', ') || '',
-        tagIds: productRulesOnTaxDetail.tagIds?.join(', ') || '',
-        excludeTagIds: productRulesOnTaxDetail.excludeTagIds?.join(', ') || '',
+        taxPercent: productRulesOnTaxDetail.taxPercent || 0,
+        productCategoryIds: productRulesOnTaxDetail.productCategoryIds || [],
+        excludeCategoryIds: productRulesOnTaxDetail.excludeCategoryIds || [],
+        productIds: productRulesOnTaxDetail.productIds || [],
+        excludeProductIds: productRulesOnTaxDetail.excludeProductIds || [],
+        tagIds: productRulesOnTaxDetail.tagIds || [],
+        excludeTagIds: productRulesOnTaxDetail.excludeTagIds || [],
         status: productRulesOnTaxDetail.status || '',
       });
     }
@@ -74,14 +71,22 @@ export const EditProductRulesOnTax = () => {
   const handleSubmit = (data: TProductRulesOnTaxForm) => {
     if (!productRulesOnTaxDetail) return;
 
-    const toArray = (val: string | undefined) =>
-      val ? val.split(',').map((s) => s.trim()) : [];
+    const toArray = (val: string[] | string | undefined) =>
+      Array.isArray(val)
+        ? val
+        : val
+        ? val
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
 
     const newData: any = {
       title: data.title,
       taxType: data.taxType,
       taxCode: data.taxCode,
       kind: data.kind,
+      taxPercent: data.taxPercent,
       productCategoryIds: toArray(data.productCategoryIds),
       excludeCategoryIds: toArray(data.excludeCategoryIds),
       productIds: toArray(data.productIds),
@@ -89,10 +94,6 @@ export const EditProductRulesOnTax = () => {
       tagIds: toArray(data.tagIds),
       excludeTagIds: toArray(data.excludeTagIds),
     };
-
-    if (data.kind !== 'ctax') {
-      newData.taxPercent = data.percent;
-    }
 
     const initialData = {
       title: productRulesOnTaxDetail.title || '',
@@ -110,10 +111,6 @@ export const EditProductRulesOnTax = () => {
 
     const comparisonData = { ...newData };
     const comparisonInitial = { ...initialData };
-    if (data.kind === 'ctax') {
-      delete comparisonData.taxPercent;
-      delete comparisonInitial.taxPercent;
-    }
 
     if (isDeeplyEqual(comparisonData, comparisonInitial)) {
       toast({ title: 'Success', description: 'No changes made' });

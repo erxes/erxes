@@ -5,7 +5,16 @@ const FIELD_VALIDATOR_SCHEMA = z
   .object({
     type: z.enum(['PRESET', 'CUSTOM', 'NONE']),
     presetKey: z
-      .enum(['EMAIL', 'PHONE_INTL', 'POSTAL_CODE', 'ALPHANUMERIC'])
+      .enum([
+        'EMAIL',
+        'PHONE',
+        'POSTAL_CODE',
+        'ALPHANUMERIC',
+        'MN_VEHICLE_REGISTRATION',
+        'NUMBER',
+        'DATE',
+        'DATE_TIME',
+      ])
       .nullish(),
     customRegex: z.string().nullish(),
     errorMessage: z.string().nullish(),

@@ -5,9 +5,10 @@ import {
   TRANSACTIONS_QUERY,
   TR_RECORDS_QUERY,
 } from '../../graphql/transactionQueries';
-import { TRANSACTIONS_DETAIL_QUERY } from '../graphql/queries/accTransactionsDetail';
+import { useTransactionsVariables } from '../../hooks/useTransactionVars';
 
 export const useTransactionsUpdate = (options?: OperationVariables) => {
+  const variables = useTransactionsVariables();
   const [_updateTransaction, { loading }] = useMutation(
     ACC_TRANSACTIONS_UPDATE,
     options,
@@ -34,15 +35,12 @@ export const useTransactionsUpdate = (options?: OperationVariables) => {
       refetchQueries: [
         {
           query: TRANSACTIONS_QUERY,
-          variables: {
-            page: 1,
-            perPage: 20,
-          },
+          variables,
         },
         {
           query: TR_RECORDS_QUERY,
+          variables,
         },
-        TRANSACTIONS_DETAIL_QUERY,
       ],
       awaitRefetchQueries: true,
     });

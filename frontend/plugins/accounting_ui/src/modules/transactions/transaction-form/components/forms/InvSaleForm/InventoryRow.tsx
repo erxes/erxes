@@ -249,14 +249,10 @@ export const InventoryRow = ({
     },
     skip:
       !detail.productId ||
-      !trDoc.branchId ||
-      !trDoc.departmentId ||
       !trDoc.followInfos?.saleOutAccountId ||
       (initProductId.current &&
         detail.productId === initProductId.current &&
-        initBranchId.current &&
         trDoc.branchId === initBranchId.current &&
-        initDepartmentId.current &&
         trDoc.departmentId === initDepartmentId.current &&
         initOutAccountId.current &&
         trDoc.followInfos?.saleOutAccountId === initOutAccountId.current),
@@ -416,7 +412,10 @@ export const InventoryRow = ({
                   // setMount(false)
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.MAIN] }}
+                defaultFilter={{
+                  journals: [JournalEnum.MAIN],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />

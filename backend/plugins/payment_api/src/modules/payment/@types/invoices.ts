@@ -15,6 +15,7 @@ export interface IInvoice {
   contentTypeId: string;
   createdAt: Date;
   resolvedAt?: Date;
+  scannedAt?: Date;
   redirectUri?: string;
   paymentIds: string[];
   callback?: string;

@@ -31,7 +31,11 @@ import {
   instagramRepairIntegrations,
   instagramUpdateIntegrations,
 } from '@/integrations/instagram/messageBroker';
-import { getUniqueValue, sendTRPCMessage,markResolvers } from 'erxes-api-shared/utils';
+import {
+  getUniqueValue,
+  sendTRPCMessage,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 interface IntegrationParams {
@@ -382,7 +386,30 @@ export const integrationMutations = {
     if (brandId) {
       await models.Integrations.updateOne({ _id }, { $set: { brandId } });
     }
-    return models.Integrations.saveMessengerConfigs(_id, messengerData);
+
+    const { websiteApps, ...messengerDataWithoutApps } = messengerData ?? {};
+
+    if (Array.isArray(websiteApps)) {
+      await models.MessengerApps.deleteMany({
+        kind: 'website',
+        'credentials.integrationId': _id,
+      });
+
+      if (websiteApps.length > 0) {
+        await models.MessengerApps.insertMany(
+          websiteApps.map((app) => ({
+            kind: 'website',
+            showInInbox: app.showInInbox ?? false,
+            credentials: { ...app.credentials, integrationId: _id },
+          })),
+        );
+      }
+    }
+
+    return models.Integrations.saveMessengerConfigs(
+      _id,
+      messengerDataWithoutApps as IMessengerData,
+    );
   },
 
   async integrationsSaveMessengerColorTheme(
@@ -514,7 +541,7 @@ export const integrationMutations = {
     const updated = await models.Integrations.getIntegration({ _id });
 
     const serviceName = integration.kind.split('-')[0];
-    await sendUpdateIntegration(subdomain, serviceName, {
+    const result = await sendUpdateIntegration(subdomain, serviceName, {
       kind,
       integrationId: integration._id,
       doc: {
@@ -525,6 +552,10 @@ export const integrationMutations = {
         data: details ? JSON.stringify(details) : '',
       },
     });
+
+    if (result?.status === 'error') {
+      throw new Error(result.errorMessage || 'Failed to update integration');
+    }
 
     return updated;
   },
@@ -574,7 +605,9 @@ export const integrationMutations = {
     { subdomain }: IContext,
   ) {
     const serviceName = kind.split('-')[0];
-    return sendRepairIntegration(subdomain, serviceName, { integrationId: _id });
+    return sendRepairIntegration(subdomain, serviceName, {
+      integrationId: _id,
+    });
   },
   async integrationsArchive(
     _root,
@@ -619,7 +652,7 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, configId }: { _id: string; configId: string },
+    { _id, configId }: { _id: string; configId?: string },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(

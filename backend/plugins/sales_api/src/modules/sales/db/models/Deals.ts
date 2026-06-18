@@ -27,7 +27,7 @@ export interface IDealModel extends Model<IDealDocument> {
 export const loadDealClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog, getContext, createActivityLog }: EventDispatcherReturn,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
   class Deal {
     /** Get single deal */
@@ -56,7 +56,7 @@ export const loadDealClass = (
 
       const deal = await createBoardItem(models, doc);
 
-      sendDbEventLog?.({
+      sendDbEventLog({
         action: 'create',
         docId: deal._id,
         currentDocument: deal.toObject(),
@@ -85,7 +85,7 @@ export const loadDealClass = (
       const updatedDeal = await models.Deals.getDeal(_id);
       const updatedDealObj = updatedDeal.toObject();
 
-      sendDbEventLog?.({
+      sendDbEventLog({
         action: 'update',
         docId: updatedDeal._id,
         currentDocument: updatedDealObj,
@@ -117,7 +117,7 @@ export const loadDealClass = (
       const deals = await models.Deals.find({ _id: { $in: _ids } });
 
       for (const deal of deals) {
-        sendDbEventLog?.({
+        sendDbEventLog({
           action: 'delete',
           docId: deal._id,
         });

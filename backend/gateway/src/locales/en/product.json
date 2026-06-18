@@ -12,6 +12,7 @@
   "bundle-condition": "Bundle Condition",
   "bundle-rule": "Bundle Rule",
   "product-rule": "Product Rule",
+  "unavailable": "Unavailable",
   "add": {
     "create-product": "Create Product",
     "add-uom": "Add UOM",

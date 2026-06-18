@@ -1,5 +1,5 @@
 import { ITransactionDocument } from '@/accounting/@types/transaction';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export default {
@@ -167,6 +167,8 @@ export default {
         sumCt: 1,
         sumDt: 1,
         journal: 1,
+        originId: 1,
+        ptrStatus: 1,
       },
     ).lean();
 
@@ -176,8 +178,8 @@ export default {
       len: perPtrTrs.length,
       activeLen: perPtrTrs.filter((tr) => !tr.originId).length,
       status: perPtrTrs[0].ptrStatus,
-      diff: Math.abs(debit - credit),
-      value: Math.max(debit, credit),
+      diff: fixNum(Math.abs(debit - credit), 4),
+      value: fixNum(Math.max(debit, credit), 4),
     };
   },
 };

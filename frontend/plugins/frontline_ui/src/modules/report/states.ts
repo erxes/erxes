@@ -55,7 +55,7 @@ const callStatusFilterAtomCache = new Map<
 export const getReportChartTypeAtom = (cardId: string) =>
   getOrCreate(chartTypeAtomCache, cardId, () =>
     atom(
-      (get) => get(reportChartTypeState)[cardId] || ResponsesChartType.Bar,
+      (get) => get(reportChartTypeState)[cardId] || ResponsesChartType.Line,
       (get, set, newValue: ResponsesChartType) => {
         set(reportChartTypeState, {
           ...get(reportChartTypeState),
@@ -255,6 +255,26 @@ export const getReportCompanyFilterAtom = (cardId: string) =>
       (get, set, newValue: string[]) => {
         set(reportCompanyFilterState, {
           ...get(reportCompanyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportPropertyFilterState = atom<Record<string, string[]>>({});
+
+const propertyFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+
+export const getReportPropertyFilterAtom = (cardId: string) =>
+  getOrCreate(propertyFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportPropertyFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportPropertyFilterState, {
+          ...get(reportPropertyFilterState),
           [cardId]: newValue,
         });
       },
