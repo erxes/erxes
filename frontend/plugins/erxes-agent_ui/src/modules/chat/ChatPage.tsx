@@ -52,6 +52,7 @@ export const ChatPage = () => {
     messages,
     loading: chatLoading,
     messagesLoading,
+    streamTick,
   } = view;
 
   const [input, setInput] = useState('');
@@ -106,19 +107,13 @@ export const ChatPage = () => {
   }, [agentId, selectedAgent?.agentId]);
 
   // Keep the view pinned to the bottom — also while a reply streams (the last
-  // message grows without the list length changing).
-  const lastMsg = messages[messages.length - 1];
-  const lastMsgSize =
-    (lastMsg?.content?.length ?? 0) +
-    (lastMsg?.parts?.reduce(
-      (n, p) => n + (p.kind === 'thinking' ? p.text.length : 1),
-      0,
-    ) ?? 0);
+  // message grows without the list length changing). The store bumps streamTick
+  // on every live update, so following it re-fires this effect per token.
   useEffect(() => {
     if (atBottomRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages.length, chatLoading, lastMsgSize]);
+  }, [messages.length, chatLoading, streamTick]);
 
   // Switching threads re-pins to the bottom of the freshly loaded conversation.
   useEffect(() => {

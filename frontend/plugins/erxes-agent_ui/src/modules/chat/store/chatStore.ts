@@ -150,11 +150,27 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       };
     });
 
-  const appendMessage = (agentKey: string, threadId: string, msg: Message) => {
+  // Atomically claim a thread for a new turn: check `loading` and set it true in
+  // one synchronous step. Returns false when the thread is already streaming, so
+  // a concurrent send (regenerate, suggestion, double Enter) can't slip past the
+  // guard in the window before `loading` would otherwise be set.
+  const claimThread = (agentKey: string, threadId: string): boolean => {
+    const key = threadKey(agentKey, threadId);
+    if ((get().threads[key] ?? EMPTY_THREAD).loading) return false;
+    patchThread(agentKey, threadId, { loading: true });
+    return true;
+  };
+
+  const appendMessage = (
+    agentKey: string,
+    threadId: string,
+    msg: Omit<Message, '_clientId'> & { _clientId?: string },
+  ) => {
     const t = getThread(agentKey, threadId);
-    const withId: Message = msg._clientId
-      ? msg
-      : { ...msg, _clientId: `m-${randomIdSuffix(8)}` };
+    const withId: Message = {
+      ...msg,
+      _clientId: msg._clientId ?? `m-${randomIdSuffix(8)}`,
+    };
     patchThread(agentKey, threadId, { messages: [...t.messages, withId] });
   };
 
@@ -343,6 +359,11 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       else appendMessage(agentKey, threadId, next);
       live = next;
       liveState.hasLive = true;
+      // Bump a monotonic tick so the view can follow streamed output off a
+      // single dependency, rather than inferring growth from message contents.
+      patchThread(agentKey, threadId, {
+        streamTick: (getThread(agentKey, threadId).streamTick ?? 0) + 1,
+      });
     };
 
     const ops: ApplyOps = {
@@ -456,6 +477,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         const messages: Message[] = (data?.mastraThreadMessages ?? []).map(
           (m) => ({
             id: m._id,
+            _clientId: m._id || `m-${randomIdSuffix(8)}`,
             role: m.role,
             content: m.content,
             timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
@@ -564,7 +586,9 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       // concurrent send (regenerate, suggestion, double Enter) would overwrite
       // the in-flight AbortController, orphaning the first stream so it can no
       // longer be stopped and letting two replies interleave into one bubble.
-      if (getThread(agentKey, threadId).loading) return;
+      // claimThread checks-and-sets `loading` in one synchronous step so the
+      // guard holds even though `abort` is attached further down.
+      if (!claimThread(agentKey, threadId)) return;
 
       // Surface the session in the sidebar the instant the first message is
       // sent — don't wait for the turn to finish. The backend registers + tags
@@ -589,7 +613,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       });
 
       const abort = new AbortController();
-      patchThread(agentKey, threadId, { loading: true, abort });
+      patchThread(agentKey, threadId, { abort });
 
       try {
         const streamed = await sendViaStream(
@@ -644,6 +668,7 @@ export const selectAgentView = (
     messages: thread.messages,
     loading: thread.loading,
     messagesLoading: thread.messagesLoading,
+    streamTick: thread.streamTick,
   };
 };
 

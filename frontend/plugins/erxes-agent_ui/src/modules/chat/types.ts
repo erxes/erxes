@@ -33,8 +33,9 @@ export interface Message {
   // Stable client-generated id, assigned when the message is first appended.
   // Identifies the live streaming bubble independently of its position so an
   // error/other message appended mid-stream can't be clobbered, and gives the
-  // list a stable React key before a persisted `id` exists.
-  _clientId?: string;
+  // list a stable React key before a persisted `id` exists. Always present on a
+  // stored message — the patch helpers assign it on the way in.
+  _clientId: string;
   role: 'user' | 'assistant' | 'error';
   content: string;
   timestamp: Date;
@@ -71,6 +72,10 @@ export interface ThreadChatState {
   messagesLoading: boolean; // hydrating this thread's messages from the DB
   abort?: AbortController; // in-flight stream — abort() = interrupt
   activity?: string; // server-summarized "what is the agent doing right now"
+  // Monotonic counter bumped on every live stream update so the view can drive
+  // streaming auto-scroll off a single dependency instead of inferring growth
+  // from message contents.
+  streamTick?: number;
 }
 
 export interface AgentChatState {
@@ -86,6 +91,7 @@ export interface AgentChatView extends AgentChatState {
   messages: Message[];
   loading: boolean;
   messagesLoading: boolean;
+  streamTick?: number;
 }
 
 // A file in the composer, before the message is sent.
