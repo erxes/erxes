@@ -15,7 +15,7 @@ import {
   cn,
   toast,
 } from 'erxes-ui';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectMember } from '../../team-members/components/SelectMember';
@@ -23,17 +23,7 @@ import { useAddCustomer } from '../hooks/useAddCustomer';
 import { useFieldGroups } from '../../properties/hooks/useFieldGroups';
 import { useFields } from '../../properties/hooks/useFields';
 import { IFieldGroup } from '../../properties/types/fieldsTypes';
-import { FieldBoolean } from '../../properties/components/FieldBoolean';
-import { FieldDate } from '../../properties/components/FieldDate';
-import { FieldFile } from '../../properties/components/FieldFile';
-import { FieldLabel } from '../../properties/components/FieldLabel';
-import { FieldNumber } from '../../properties/components/FieldNumber';
-import { FieldPhone } from '../../properties/components/FieldPhone';
-import { FieldRelation } from '../../properties/components/FieldRelation';
-import { FieldSelect } from '../../properties/components/FieldSelect';
-import { FieldSelectMultiple } from '../../properties/components/FieldSelectMultiple';
-import { FieldString } from '../../properties/components/FieldString';
-import { FieldTextarea } from '../../properties/components/FieldTextarea';
+import { PropertyFormField } from '../../properties/components/PropertyFormField';
 
 const EMAIL_VALIDATION_STATUSES = [
   { label: 'Valid', value: 'valid' },
@@ -567,50 +557,12 @@ function CustomerPropertyField({
   value: unknown;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }) {
-  const handleChange = useCallback(
-    (newValue: unknown) => {
-      onFieldChange(field._id, newValue);
-    },
-    [field._id, onFieldChange],
-  );
-
-  const fieldProps = {
-    field,
-    value: value ?? '',
-    handleChange,
-    loading: false,
-    id: `customer_form_${field._id}`,
-    customFieldsData: {},
-  };
-
   return (
-    <FieldLabel field={field} id={fieldProps.id}>
-      {(() => {
-        switch (field.type) {
-          case 'text':
-            return <FieldString {...fieldProps} />;
-          case 'phone':
-            return <FieldPhone {...fieldProps} />;
-          case 'textarea':
-            return <FieldTextarea {...fieldProps} />;
-          case 'number':
-            return <FieldNumber {...fieldProps} />;
-          case 'boolean':
-            return <FieldBoolean {...fieldProps} />;
-          case 'date':
-            return <FieldDate {...fieldProps} />;
-          case 'select':
-            return <FieldSelect {...fieldProps} />;
-          case 'multiSelect':
-            return <FieldSelectMultiple {...fieldProps} />;
-          case 'relation':
-            return <FieldRelation {...fieldProps} />;
-          case 'file':
-            return <FieldFile {...fieldProps} />;
-          default:
-            return null;
-        }
-      })()}
-    </FieldLabel>
+    <PropertyFormField
+      field={field}
+      value={value}
+      idPrefix="customer_form"
+      onFieldChange={onFieldChange}
+    />
   );
 }
