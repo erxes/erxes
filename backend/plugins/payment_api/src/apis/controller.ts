@@ -128,7 +128,7 @@ export const callbackHandler = async (req, res) => {
             queueName: 'payments',
             jobName: 'transactionCallback',
             data: {
-              ...transaction,
+              ...transaction.toObject(),
               moduleName,
               collectionType,
               apiResponse: 'success',

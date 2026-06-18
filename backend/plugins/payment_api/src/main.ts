@@ -9,6 +9,7 @@ import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
+import './bullmq-safe-patch';
 
 const getWidgetApiUrl = (req: express.Request) => {
   const subdomain =
