@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
+
 
 const queries = {
   async khanbankConfigsList(
