@@ -1,5 +1,41 @@
 
 
+## [3.0.39](https://github.com/erxes/erxes/compare/3.0.38...3.0.39) (2026-06-18)
+
+
+### Bug Fixes
+
+* **agent-ui:** chat streaming correctness — message identity, send guard, scroll ([#8106](https://github.com/erxes/erxes/issues/8106)) ([df855ae](https://github.com/erxes/erxes/commit/df855ae0756f6e6da129255fbe44538f016fe17e))
+* **agent-ui:** make settings pages scrollable ([#8102](https://github.com/erxes/erxes/issues/8102)) ([8862931](https://github.com/erxes/erxes/commit/88629313441bdc8c794fc1be1a4248b1f639338e))
+* **agent:** new chat sessions appear immediately and survive a mid-run reload ([#8089](https://github.com/erxes/erxes/issues/8089)) ([5f49e1a](https://github.com/erxes/erxes/commit/5f49e1aa7feb80cf31848a4e0d2eb01b37ed0e68))
+* **content:** return to correct post type tab after publishing ([#7971](https://github.com/erxes/erxes/issues/7971)) ([635b09c](https://github.com/erxes/erxes/commit/635b09c2081e21128fe7ca05d9422014b15eca7f))
+* **core:** make customer CSV import idempotent and prevent row loss ([57d187b](https://github.com/erxes/erxes/commit/57d187b051e2472424a7845404fd6b93ed83ba26))
+* **core:** write customer migration error report to a writable dir ([468e547](https://github.com/erxes/erxes/commit/468e54788291f0b525cbdd8c314d0953bda8ef6e))
+* **gateway:** propagate user customPermissions so per-user grants work ([#8037](https://github.com/erxes/erxes/issues/8037)) ([59122ac](https://github.com/erxes/erxes/commit/59122acca1c7860d01e3699abbc8a07725eee414))
+* **payment:** persist transaction response and tdbOrderId on invoice ([b1b70a7](https://github.com/erxes/erxes/commit/b1b70a71866735d112180ccbf2191544a49cdae1))
+* **payment:** widget GraphQL routing, build, and invoice URL ([#8048](https://github.com/erxes/erxes/issues/8048)) ([da380b5](https://github.com/erxes/erxes/commit/da380b50988ea5e32765df0648ea768662037635))
+* record-table-cell ([#8079](https://github.com/erxes/erxes/issues/8079)) ([5e1bd83](https://github.com/erxes/erxes/commit/5e1bd83903a69f40bd5b407d0804d6ab2f84c2cd))
+* update import paths for handleTrigger and generateModels in triggerWorker and handleTrigger files ([356fd22](https://github.com/erxes/erxes/commit/356fd22bbd33b8c8b16c351c014051c63aa8f910))
+* use readImage for member avatar urls in permission ([#8025](https://github.com/erxes/erxes/issues/8025)) ([0a3b073](https://github.com/erxes/erxes/commit/0a3b0730fa0927f76b09eab7f5af7ff3fe80f4e0))
+
+
+### Features
+
+* add inline similarity edit and create from product detail ([6ad6832](https://github.com/erxes/erxes/commit/6ad6832a7de2c19470a110daca9d9a5b759d0552))
+* add isSimilarity filter to cp products query ([d206cbd](https://github.com/erxes/erxes/commit/d206cbda66c80b13f9da5e5db9e88a61440b6a1b))
+* **agent-chat:** in-chat agent editor + per-conversation thinking level ([#8104](https://github.com/erxes/erxes/issues/8104)) ([8e839a4](https://github.com/erxes/erxes/commit/8e839a4234280d1eafd6b927fa0352a5aaebc138)), closes [#8068](https://github.com/erxes/erxes/issues/8068)
+* **core:** add customer migration ([605b549](https://github.com/erxes/erxes/commit/605b54974a17eb71c2b52aa6c7202f572a9d64e7))
+* **core:** add customer migration  ([4072547](https://github.com/erxes/erxes/commit/4072547023c8c466cdef767d9fab3c1cfe6dd6e7))
+* **core:** automation message pro  ([c59f13b](https://github.com/erxes/erxes/commit/c59f13b095d0e63146bd0906bf9c70f7cb6f2a8f))
+* **erxes-agent:** agent evaluation + native knowledge dataset ([#8063](https://github.com/erxes/erxes/issues/8063)) ([c5a595d](https://github.com/erxes/erxes/commit/c5a595d312c47475fc694e63a9a17e7828653546))
+* **erxes-agent:** permission-control every action ([#8091](https://github.com/erxes/erxes/issues/8091)) ([7340c97](https://github.com/erxes/erxes/commit/7340c9743f13156ef1a122a73acc52e321ad78da))
+* feat add invited members, everyone can access to cms options on… ([#8076](https://github.com/erxes/erxes/issues/8076)) ([282670f](https://github.com/erxes/erxes/commit/282670f456e530e5f5b1d5c354584b78201bbbac))
+* **frontline:** add ticket custom properties report ([5838c46](https://github.com/erxes/erxes/commit/5838c464cfd9734ef10d6f4f050913300b03a99c))
+* **frontline:** re-authenticate Facebook/Instagram before repairing unhealthy integrations ([ef3d308](https://github.com/erxes/erxes/commit/ef3d3085430fad513d07be344f96f67b478214a7))
+* **frontline:** reflect SIP status in call widget button color ([f3e2e20](https://github.com/erxes/erxes/commit/f3e2e2067650fa03a5f8b0004c1de6563c171886))
+* implement reusable context menu component ([69efbf4](https://github.com/erxes/erxes/commit/69efbf4149dd976879f7bb33b5a708979b5c658f))
+* **mongolian:** improve check products ui and fix msdynamics config ([#8029](https://github.com/erxes/erxes/issues/8029)) ([d2b4191](https://github.com/erxes/erxes/commit/d2b41912a6c28a27c0948e6eab35366b81268553))
+
 ## [3.0.38](https://github.com/erxes/erxes/compare/3.0.37...3.0.38) (2026-06-16)
 
 
