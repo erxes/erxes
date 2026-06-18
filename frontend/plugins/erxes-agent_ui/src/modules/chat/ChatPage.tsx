@@ -23,6 +23,11 @@ import { MessageList } from '~/modules/chat/components/MessageList';
 import { Composer } from '~/modules/chat/components/Composer';
 import '~/modules/chat/chat.css';
 
+// Distance (px) from the bottom under which we keep following streamed output.
+const SCROLL_PIN_THRESHOLD = 120;
+// Distance (px) from the bottom past which the "Latest" jump button appears.
+const SCROLL_BUTTON_THRESHOLD = 280;
+
 export const ChatPage = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
@@ -48,6 +53,7 @@ export const ChatPage = () => {
     messages,
     loading: chatLoading,
     messagesLoading,
+    streamTick,
   } = view;
 
   const [input, setInput] = useState('');
@@ -55,6 +61,9 @@ export const ChatPage = () => {
   const [showScrollDown, setShowScrollDown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesBoxRef = useRef<HTMLDivElement>(null);
+  // Whether the view is pinned to the bottom. Gates streaming auto-scroll so a
+  // user who scrolled up to read history isn't yanked back on every token.
+  const atBottomRef = useRef(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
@@ -99,17 +108,18 @@ export const ChatPage = () => {
   }, [agentId, selectedAgent?.agentId]);
 
   // Keep the view pinned to the bottom — also while a reply streams (the last
-  // message grows without the list length changing).
-  const lastMsg = messages[messages.length - 1];
-  const lastMsgSize =
-    (lastMsg?.content?.length ?? 0) +
-    (lastMsg?.parts?.reduce(
-      (n, p) => n + (p.kind === 'thinking' ? p.text.length : 1),
-      0,
-    ) ?? 0);
+  // message grows without the list length changing). The store bumps streamTick
+  // on every live update, so following it re-fires this effect per token.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, chatLoading, lastMsgSize]);
+    if (atBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages.length, chatLoading, streamTick]);
+
+  // Switching threads re-pins to the bottom of the freshly loaded conversation.
+  useEffect(() => {
+    atBottomRef.current = true;
+  }, [activeThreadId]);
 
   useEffect(() => {
     if (!chatLoading) textareaRef.current?.focus();
@@ -183,6 +193,8 @@ export const ChatPage = () => {
 
   const sendMessage = (message: string, atts: ChatAttachment[]) => {
     if (!selectedAgent || !agentId) return;
+    // Sending re-pins to the bottom so the user follows their own message.
+    atBottomRef.current = true;
     // Fire-and-forget: the store holds the Apollo client reference so the
     // request continues even if the user navigates away before it completes.
     chatStore.sendMessage(
@@ -235,11 +247,15 @@ export const ChatPage = () => {
   const handleMessagesScroll = () => {
     const el = messagesBoxRef.current;
     if (!el) return;
-    setShowScrollDown(el.scrollHeight - el.scrollTop - el.clientHeight > 280);
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    atBottomRef.current = distanceFromBottom < SCROLL_PIN_THRESHOLD;
+    setShowScrollDown(distanceFromBottom > SCROLL_BUTTON_THRESHOLD);
   };
 
-  const scrollToBottom = () =>
+  const scrollToBottom = () => {
+    atBottomRef.current = true;
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="flex flex-col h-full">

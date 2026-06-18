@@ -25,7 +25,11 @@ import {
   SessionMeta,
   ThreadChatState,
 } from '~/modules/chat/types';
-import { generateThreadId, partsFromMeta } from '~/modules/chat/utils';
+import {
+  generateThreadId,
+  partsFromMeta,
+  randomIdSuffix,
+} from '~/modules/chat/utils';
 import { readStreamEvents } from '~/modules/chat/lib/streamTransport';
 import {
   ApplyOps,
@@ -175,20 +179,49 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       };
     });
 
-  const appendMessage = (agentKey: string, threadId: string, msg: Message) => {
-    const t = getThread(agentKey, threadId);
-    patchThread(agentKey, threadId, { messages: [...t.messages, msg] });
+  // Atomically claim a thread for a new turn: check `loading` and set it true in
+  // one synchronous step. Returns false when the thread is already streaming, so
+  // a concurrent send (regenerate, suggestion, double Enter) can't slip past the
+  // guard in the window before `loading` would otherwise be set.
+  const claimThread = (agentKey: string, threadId: string): boolean => {
+    const key = threadKey(agentKey, threadId);
+    if ((get().threads[key] ?? EMPTY_THREAD).loading) return false;
+    patchThread(agentKey, threadId, { loading: true });
+    return true;
   };
 
-  const replaceLastMessage = (
+  const appendMessage = (
     agentKey: string,
     threadId: string,
+    msg: Omit<Message, '_clientId'> & { _clientId?: string },
+  ) => {
+    const t = getThread(agentKey, threadId);
+    const withId: Message = {
+      ...msg,
+      _clientId: msg._clientId ?? `m-${randomIdSuffix(8)}`,
+    };
+    patchThread(agentKey, threadId, { messages: [...t.messages, withId] });
+  };
+
+  // Replace a message by its stable `_clientId` rather than by position, so an
+  // error (or any message) appended between two stream events can't be
+  // overwritten by the live bubble's next update. Appends if it's gone (e.g.
+  // the first live event, or a thread cleared mid-stream).
+  const replaceMessageById = (
+    agentKey: string,
+    threadId: string,
+    clientId: string,
     msg: Message,
   ) => {
     const t = getThread(agentKey, threadId);
-    patchThread(agentKey, threadId, {
-      messages: t.messages.slice(0, -1).concat(msg),
-    });
+    const idx = t.messages.findIndex((m) => m._clientId === clientId);
+    if (idx < 0) {
+      patchThread(agentKey, threadId, { messages: [...t.messages, msg] });
+      return;
+    }
+    const messages = t.messages.slice();
+    messages[idx] = msg;
+    patchThread(agentKey, threadId, { messages });
   };
 
   // Local-only title update — used when the server pushes an auto-generated
@@ -337,8 +370,11 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       return false;
     }
 
-    // The live assistant bubble; advanced in place as events arrive.
+    // The live assistant bubble; advanced in place as events arrive. Keyed by a
+    // stable client id so its updates land on the same row even if another
+    // message is appended mid-stream.
     let live: Message | null = null;
+    const liveClientId = `m-${randomIdSuffix(8)}`;
     const liveState: LiveState = { sawDone: false, hasLive: false };
 
     const upsertLive = (mutate: (m: Message) => Message) => {
@@ -347,12 +383,18 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         content: '',
         timestamp: new Date(),
         streaming: true,
+        _clientId: liveClientId,
       };
       const next = mutate({ ...base, parts: base.parts?.slice() });
-      if (live) replaceLastMessage(agentKey, threadId, next);
+      if (live) replaceMessageById(agentKey, threadId, liveClientId, next);
       else appendMessage(agentKey, threadId, next);
       live = next;
       liveState.hasLive = true;
+      // Bump a monotonic tick so the view can follow streamed output off a
+      // single dependency, rather than inferring growth from message contents.
+      patchThread(agentKey, threadId, {
+        streamTick: (getThread(agentKey, threadId).streamTick ?? 0) + 1,
+      });
     };
 
     const ops: ApplyOps = {
@@ -488,6 +530,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         const messages: Message[] = (data?.mastraThreadMessages ?? []).map(
           (m) => ({
             id: m._id,
+            _clientId: m._id || `m-${randomIdSuffix(8)}`,
             role: m.role,
             content: m.content,
             timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
@@ -593,6 +636,14 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       const threadId = agent.activeThreadId!;
       const reasoningEffort = agent.reasoningEffort;
 
+      // Never start a second stream on a thread that's already streaming — a
+      // concurrent send (regenerate, suggestion, double Enter) would overwrite
+      // the in-flight AbortController, orphaning the first stream so it can no
+      // longer be stopped and letting two replies interleave into one bubble.
+      // claimThread checks-and-sets `loading` in one synchronous step so the
+      // guard holds even though `abort` is attached further down.
+      if (!claimThread(agentKey, threadId)) return;
+
       // Surface the session in the sidebar the instant the first message is
       // sent — don't wait for the turn to finish. The backend registers + tags
       // the thread at turn start (so a refresh keeps it); this mirrors it into
@@ -616,7 +667,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       });
 
       const abort = new AbortController();
-      patchThread(agentKey, threadId, { loading: true, abort });
+      patchThread(agentKey, threadId, { abort });
 
       try {
         const streamed = await sendViaStream(
@@ -672,6 +723,7 @@ export const selectAgentView = (
     messages: thread.messages,
     loading: thread.loading,
     messagesLoading: thread.messagesLoading,
+    streamTick: thread.streamTick,
   };
 };
 

@@ -84,7 +84,7 @@ export const MessageList = ({
           <>
             {messages.map((msg, i) => (
               <MessageBubble
-                key={i}
+                key={msg._clientId}
                 msg={msg}
                 onRegenerate={
                   msg.role === 'assistant' &&
