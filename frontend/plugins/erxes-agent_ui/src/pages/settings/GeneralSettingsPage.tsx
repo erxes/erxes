@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { IconCheck, IconCopy, IconPaperclip } from '@tabler/icons-react';
-import { Badge, Button, CopyText, Form, Input, cn } from 'erxes-ui';
+import { Badge, Button, CopyText, Form, Input, cn, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGeneralSettings } from './hooks/useGeneralSettings';
@@ -14,10 +14,19 @@ import {
   generalSettingsSchema,
 } from './validations';
 
-const BOT_ENDPOINT_URL = 'http://localhost:3312/pl:erxes-agent/bot';
-
 export const GeneralSettingsPage = () => {
   const { settings, agents, save, saving } = useGeneralSettings();
+
+  // The bot webhook is served by the gateway at /pl:erxes-agent/* on this
+  // console's own origin — NOT the core GraphQL API URL, which can be a
+  // separate host/port on a split deployment. Derive it from the current
+  // origin so it's correct wherever the console is served from. `origin` is
+  // scheme+host+port with no trailing slash, so no trimming is needed.
+  // TODO: prefer a server-computed `settings.botEndpointUrl` once the backend
+  // exposes one, so a reverse-proxied / custom gateway host is reflected
+  // exactly rather than assumed to match the console origin.
+  const botBase = typeof window !== 'undefined' ? window.location.origin : '';
+  const botEndpointUrl = `${botBase}/pl:erxes-agent/bot`;
 
   const form = useForm<GeneralSettingsValues>({
     resolver: zodResolver(generalSettingsSchema),
@@ -46,9 +55,14 @@ export const GeneralSettingsPage = () => {
   const attachmentStorage = settings?.attachmentStorage;
 
   const onSubmit = async (doc: GeneralSettingsValues) => {
-    await save({ variables: { doc } });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      await save({ variables: { doc } });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      toast({ title: 'Settings saved' });
+    } catch {
+      // Error surfaced to the user via the mutation's onError toast.
+    }
   };
 
   return (
@@ -228,18 +242,18 @@ export const GeneralSettingsPage = () => {
             </li>
           </ol>
           <CopyText
-            value={BOT_ENDPOINT_URL}
+            value={botEndpointUrl}
             className={cn(
               'block w-full bg-muted px-3 py-2 rounded text-xs font-mono justify-between',
             )}
           >
-            <span>{BOT_ENDPOINT_URL}</span>
+            <span>{botEndpointUrl}</span>
             <IconCopy className="size-3.5 shrink-0 text-muted-foreground" />
           </CopyText>
           <p className="text-xs text-muted-foreground">
-            (Replace <code>3312</code> with your actual port. The gateway
-            proxies
-            <code> /pl:erxes-agent/*</code> to port 3312.)
+            Uses this console's origin, where the gateway proxies{' '}
+            <code>/pl:erxes-agent/*</code> to the agent service. If your gateway
+            is reached on a different host, substitute it here.
           </p>
         </div>
       </div>
