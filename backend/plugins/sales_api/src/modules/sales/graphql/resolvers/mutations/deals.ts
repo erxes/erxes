@@ -15,7 +15,7 @@ import {
 } from '../utils';
 import { addDeal, changeDeal, createProductsData, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { Resolver } from 'erxes-api-shared/core-types';
+import { IUserDocument, Resolver } from 'erxes-api-shared/core-types';
 
 export const dealMutations: Record<string, Resolver> = {
   /**
@@ -45,8 +45,18 @@ export const dealMutations: Record<string, Resolver> = {
   async cpDealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
-    { user, models, subdomain }: IContext,
+    {  models, subdomain ,cpUser}: IContext,
   ) {
+    const userId =
+    cpUser?.erxesCustomerId ||
+    cpUser?._id || null;
+    
+    if (!userId) {
+      throw new Error('ClientPortal User not found');
+    }
+
+    const user = { _id: `cp:${userId}` } as IUserDocument;
+
     return await editDeal({ models, subdomain, _id, processId, doc, user });
   },
 
@@ -80,7 +90,14 @@ export const dealMutations: Record<string, Resolver> = {
     },
     { cpUser, models, subdomain }: IContext,
   ) {
-    return changeDeal(subdomain, models, cpUser?._id, { ...doc });
+    const userId =
+      cpUser?.erxesCustomerId ||
+      cpUser?._id ||
+      null;
+    if (!userId) {
+        throw new Error('ClientPortal User not found');
+    }
+    return changeDeal(subdomain, models, `cp:${userId}`, { ...doc });
   },
 
   /**
