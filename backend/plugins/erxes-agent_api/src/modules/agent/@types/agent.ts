@@ -15,6 +15,7 @@ export interface IMastraAgent {
   maxSteps?: number;
   temperature?: number;
   isEnabled?: boolean;
+  createdBy?: string;
 }
 
 export interface IMastraAgentDocument

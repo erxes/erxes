@@ -1,3 +1,4 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IMastraAgent } from '@/agent/@types/agent';
 
@@ -5,10 +6,11 @@ export const agentMutations = {
   mastraAgentCreate: async (
     _parent: undefined,
     { doc }: { doc: IMastraAgent },
-    { models, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
     await checkPermission('agentsCreate');
-    return models.MastraAgent.createAgent(doc);
+    if (!user?._id) throw new ExpectedError('Login required');
+    return models.MastraAgent.createAgent({ ...doc, createdBy: user._id });
   },
 
   mastraAgentUpdate: async (
