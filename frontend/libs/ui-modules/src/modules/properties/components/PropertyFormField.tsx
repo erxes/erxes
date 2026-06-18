@@ -1,18 +1,21 @@
 import { ComponentType, useCallback } from 'react';
 import { IField } from '../types/fieldsTypes';
+import type { SpecificFieldProps } from './Field';
 import { FieldBoolean } from './FieldBoolean';
+import { FieldCheck } from './FieldCheck';
 import { FieldDate } from './FieldDate';
 import { FieldFile } from './FieldFile';
 import { FieldLabel } from './FieldLabel';
 import { FieldNumber } from './FieldNumber';
 import { FieldPhone } from './FieldPhone';
+import { FieldRadio } from './FieldRadio';
 import { FieldRelation } from './FieldRelation';
 import { FieldSelect } from './FieldSelect';
 import { FieldSelectMultiple } from './FieldSelectMultiple';
 import { FieldString } from './FieldString';
 import { FieldTextarea } from './FieldTextarea';
 
-const FIELD_COMPONENT_MAP: Record<string, ComponentType<any>> = {
+const FIELD_COMPONENT_MAP: Record<string, ComponentType<SpecificFieldProps>> = {
   text: FieldString,
   phone: FieldPhone,
   textarea: FieldTextarea,
@@ -20,6 +23,8 @@ const FIELD_COMPONENT_MAP: Record<string, ComponentType<any>> = {
   boolean: FieldBoolean,
   date: FieldDate,
   select: FieldSelect,
+  radio: FieldRadio,
+  check: FieldCheck,
   multiSelect: FieldSelectMultiple,
   relation: FieldRelation,
   file: FieldFile,
@@ -56,7 +61,6 @@ export function PropertyFormField({
         handleChange={handleChange}
         loading={false}
         id={id}
-        customFieldsData={{}}
       />
     </FieldLabel>
   );
