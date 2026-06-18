@@ -86,7 +86,12 @@ export const dealMutations: Record<string, Resolver> = {
     },
     { cpUser, models, subdomain }: IContext,
   ) {
-    return changeDeal(subdomain, models, cpUser?._id, { ...doc });
+    const userId =
+      cpUser?.erxesCustomerId ||
+      cpUser?._id ||
+      null;
+
+    return changeDeal(subdomain, models, `cp:${userId}`, { ...doc });
   },
 
   /**
