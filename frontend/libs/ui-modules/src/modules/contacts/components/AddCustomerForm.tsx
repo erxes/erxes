@@ -56,7 +56,7 @@ const SCHEMA = z.object({
   phoneValidationStatus: z.string().optional(),
   description: z.string().optional(),
   isSubscribed: z.string().optional(),
-  customFieldsData: z.record(z.unknown()).optional(),
+  propertiesData: z.record(z.unknown()).optional(),
 });
 
 type FormValues = z.infer<typeof SCHEMA>;
@@ -88,30 +88,30 @@ export function AddCustomerForm({
       phoneValidationStatus: 'unknown',
       description: '',
       isSubscribed: 'Yes',
-      customFieldsData: {},
+      propertiesData: {},
     },
   });
 
   const updateCustomFieldValue = useCallback(
     (fieldId: string, value: unknown) => {
-      const current = form.getValues('customFieldsData') || {};
-      form.setValue('customFieldsData', { ...current, [fieldId]: value });
+      const current = form.getValues('propertiesData') || {};
+      form.setValue('propertiesData', { ...current, [fieldId]: value });
     },
     [form],
   );
 
-  function onSubmit(data: FormValues) {
-    const { customFieldsData, ...rest } = data;
-
-    const propertiesData =
-      customFieldsData && Object.keys(customFieldsData).length > 0
-        ? Object.entries(customFieldsData)
-            .filter(([, v]) => v !== undefined && v !== null && v !== '')
-            .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {})
+  function onSubmit({ propertiesData, ...rest }: FormValues) {
+    const cleanPropertiesData =
+      propertiesData && Object.keys(propertiesData).length > 0
+        ? Object.fromEntries(
+            Object.entries(propertiesData).filter(
+              ([, v]) => v !== undefined && v !== null && v !== '',
+            ),
+          )
         : undefined;
 
     customersAdd({
-      variables: { ...rest, state, propertiesData },
+      variables: { ...rest, state, propertiesData: cleanPropertiesData },
       onError: (e) => {
         toast({
           title: 'Error',
@@ -136,7 +136,7 @@ export function AddCustomerForm({
     });
   }
 
-  const customFieldsData = form.watch('customFieldsData') || {};
+  const propertiesData = form.watch('propertiesData') || {};
   const title = state === 'lead' ? 'Create Lead' : 'Create Customer';
 
   const TABS: { key: Tab; label: string }[] = [
@@ -180,7 +180,7 @@ export function AddCustomerForm({
                 {activeTab === 'general' && <GeneralTab form={form} />}
                 {activeTab === 'properties' && (
                   <CustomerPropertiesSection
-                    customFieldsData={customFieldsData}
+                    propertiesData={propertiesData}
                     onFieldChange={updateCustomFieldValue}
                   />
                 )}
@@ -457,10 +457,10 @@ function GeneralTab({
 }
 
 function CustomerPropertiesSection({
-  customFieldsData,
+  propertiesData,
   onFieldChange,
 }: Readonly<{
-  customFieldsData: Record<string, unknown>;
+  propertiesData: Record<string, unknown>;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }>) {
   const { fieldGroups, loading } = useFieldGroups({
@@ -497,7 +497,7 @@ function CustomerPropertiesSection({
             <CustomerPropertyGroup
               key={group._id}
               group={group}
-              customFieldsData={customFieldsData}
+              propertiesData={propertiesData}
               onFieldChange={onFieldChange}
             />
           ))}
@@ -509,11 +509,11 @@ function CustomerPropertiesSection({
 
 function CustomerPropertyGroup({
   group,
-  customFieldsData,
+  propertiesData,
   onFieldChange,
 }: Readonly<{
   group: IFieldGroup;
-  customFieldsData: Record<string, unknown>;
+  propertiesData: Record<string, unknown>;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }>) {
   const { fields, loading } = useFields({
@@ -538,7 +538,7 @@ function CustomerPropertyGroup({
             <CustomerPropertyField
               key={field._id}
               field={field}
-              value={customFieldsData[field._id]}
+              value={propertiesData[field._id]}
               onFieldChange={onFieldChange}
             />
           ))}
