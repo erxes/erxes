@@ -50,6 +50,10 @@ export const dealMutations: Record<string, Resolver> = {
     const userId =
     cpUser?.erxesCustomerId ||
     cpUser?._id || null;
+    
+    if (!userId) {
+      throw new Error('ClientPortal User not found');
+    }
 
     const user = { _id: `cp:${userId}` } as IUserDocument;
 
@@ -90,7 +94,9 @@ export const dealMutations: Record<string, Resolver> = {
       cpUser?.erxesCustomerId ||
       cpUser?._id ||
       null;
-
+    if (!userId) {
+        throw new Error('ClientPortal User not found');
+    }
     return changeDeal(subdomain, models, `cp:${userId}`, { ...doc });
   },
 
