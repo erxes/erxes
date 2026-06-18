@@ -5,6 +5,7 @@ import { mutations } from '../../graphql';
 import {
   CategoryFilterType,
   InventoryCategoryAction,
+  InventoryCategoryItem,
   InventoryCategoryItems,
 } from '../types/inventoryCategory';
 
@@ -97,7 +98,7 @@ export const useSyncCategory = () => {
       }
 
       return undefined;
-    } catch (err) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to sync MS Dynamic categories',

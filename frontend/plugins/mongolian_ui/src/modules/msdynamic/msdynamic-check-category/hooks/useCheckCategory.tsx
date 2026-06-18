@@ -95,7 +95,7 @@ export const useCheckCategory = () => {
           description: 'MS Dynamic categories checked successfully',
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to check MS Dynamic categories',
