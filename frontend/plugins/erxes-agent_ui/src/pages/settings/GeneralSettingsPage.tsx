@@ -17,13 +17,17 @@ import {
 export const GeneralSettingsPage = () => {
   const { settings, agents, save, saving } = useGeneralSettings();
 
-  // Bot webhook lives behind the gateway at /pl:erxes-agent/bot. Derive its
-  // base from the configured gateway URL, falling back to the current origin —
-  // never a hardcoded localhost, which would be dead on any real deployment.
-  const botBase = (
-    settings?.erxesApiUrl ||
-    (typeof window !== 'undefined' ? window.location.origin : '')
-  ).replace(/\/+$/, '');
+  // The bot webhook is served by the gateway at /pl:erxes-agent/* on this
+  // console's own origin — NOT the core GraphQL API URL, which can be a
+  // separate host/port on a split deployment. Derive it from the current
+  // origin so it's correct wherever the console is served from.
+  // TODO: prefer a server-computed `settings.botEndpointUrl` once the backend
+  // exposes one, so a reverse-proxied / custom gateway host is reflected
+  // exactly rather than assumed to match the console origin.
+  const botBase =
+    typeof window !== 'undefined'
+      ? window.location.origin.replace(/\/+$/, '')
+      : '';
   const botEndpointUrl = `${botBase}/pl:erxes-agent/bot`;
 
   const form = useForm<GeneralSettingsValues>({
@@ -249,9 +253,9 @@ export const GeneralSettingsPage = () => {
             <IconCopy className="size-3.5 shrink-0 text-muted-foreground" />
           </CopyText>
           <p className="text-xs text-muted-foreground">
-            Derived from the configured <strong>erxes API URL</strong> above (or
-            this page's origin). The gateway proxies{' '}
-            <code>/pl:erxes-agent/*</code> to the agent service.
+            Uses this console's origin, where the gateway proxies{' '}
+            <code>/pl:erxes-agent/*</code> to the agent service. If your gateway
+            is reached on a different host, substitute it here.
           </p>
         </div>
       </div>
