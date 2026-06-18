@@ -1,4 +1,4 @@
-import { Component, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from 'erxes-ui';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 
@@ -22,6 +22,13 @@ export class PluginErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): State {
     return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    // Log for diagnostics. The retry button only re-renders the subtree, which
+    // won't recover a failed dynamic import — a full reload (the Reload button)
+    // is the real fix for chunk-load errors after a deploy.
+    console.error('[erxes-agent] plugin error', error, info.componentStack);
   }
 
   handleRetry = () => this.setState({ error: null });
