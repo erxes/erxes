@@ -448,7 +448,7 @@ export const sendReply = async (
     debugError(
       `Error occurred while trying to get page access token with ${e.message}`,
     );
-    return e;
+    throw new Error(e.message);
   }
 
   try {

@@ -2,7 +2,6 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
 import { Button, Card, Collapsible, Separator } from 'erxes-ui';
-import { FieldPath } from 'react-hook-form';
 import { REPLY_MESSAGE_ACTION_BUTTONS } from '../../constants/ReplyMessage';
 import { TBotMessage } from '../../states/replyMessageActionForm';
 import { FacebookMessageContent } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookMessageContent';
@@ -11,16 +10,10 @@ export const FacebookBotMessage = ({
   index,
   message,
   onRemove,
-  handleMessageChange,
 }: {
   index: number;
   message: TBotMessage;
   onRemove: (index: number) => void;
-  handleMessageChange: (
-    messageIndex: number,
-    field: FieldPath<TBotMessage>,
-    newData: any,
-  ) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: message._id });
@@ -35,7 +28,11 @@ export const FacebookBotMessage = ({
     {};
 
   const collapsibleTitle =
-    message.type === 'text' ? message.text : `${title} Message`;
+    message.type === 'text'
+      ? message.text
+        ? message.text
+        : 'Text Message'
+      : `${title} Message`;
 
   return (
     <Card ref={setNodeRef} style={style} {...attributes} className="mt-4 ">
@@ -65,11 +62,7 @@ export const FacebookBotMessage = ({
         <Separator />
         <Collapsible.Content>
           <Card.Content className="pt-4">
-            <FacebookMessageContent
-              index={index}
-              message={message}
-              handleMessageChange={handleMessageChange}
-            />
+            <FacebookMessageContent index={index} message={message} />
           </Card.Content>
         </Collapsible.Content>
       </Collapsible>
