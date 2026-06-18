@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApolloClient } from '@apollo/client';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
@@ -209,27 +209,30 @@ export const ChatPage = () => {
       attachments.addFiles(e.dataTransfer.files);
   };
 
-  const sendMessage = (
-    message: string,
-    atts: ChatAttachment[],
-    approvedOperations?: ApprovedOp[],
-    hidden?: boolean,
-  ) => {
-    if (!selectedAgent || !agentId) return;
-    // Sending re-pins to the bottom so the user follows their own message.
-    atBottomRef.current = true;
-    // Fire-and-forget: the store holds the Apollo client reference so the
-    // request continues even if the user navigates away before it completes.
-    chatStore.sendMessage(
-      apolloClient,
-      agentId,
-      selectedAgent.agentId,
-      message,
-      atts,
-      approvedOperations,
-      hidden,
-    );
-  };
+  const sendMessage = useCallback(
+    (
+      message: string,
+      atts: ChatAttachment[],
+      approvedOperations?: ApprovedOp[],
+      hidden?: boolean,
+    ) => {
+      if (!selectedAgent || !agentId) return;
+      // Sending re-pins to the bottom so the user follows their own message.
+      atBottomRef.current = true;
+      // Fire-and-forget: the store holds the Apollo client reference so the
+      // request continues even if the user navigates away before it completes.
+      chatStore.sendMessage(
+        apolloClient,
+        agentId,
+        selectedAgent.agentId,
+        message,
+        atts,
+        approvedOperations,
+        hidden,
+      );
+    },
+    [apolloClient, agentId, selectedAgent],
+  );
 
   // A destructive op the agent is waiting on (derived from the last turn) — drives
   // the approval bar above the composer. Both actions continue the turn without a
@@ -263,11 +266,30 @@ export const ChatPage = () => {
   };
 
   // Re-ask the question that produced the last reply (with its attachments).
-  const handleRegenerate = () => {
-    if (chatLoading) return;
-    const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+  // Reads messages from the store rather than closing over the `messages` array
+  // so this callback stays referentially stable across streamed tokens — the
+  // memoized message rows depend on it not changing every chunk.
+  const handleRegenerate = useCallback(() => {
+    if (!agentId || chatLoading) return;
+    const msgs = chatStore.getState(agentId).messages;
+    const lastUser = [...msgs].reverse().find((m) => m.role === 'user');
     if (lastUser) sendMessage(lastUser.content, lastUser.attachments || []);
-  };
+  }, [agentId, chatLoading, sendMessage]);
+
+  // Stable rating handler so the memoized message rows don't re-render per token.
+  const handleRate = useCallback(
+    (messageId: string, rating: 1 | -1) => {
+      if (!agentId || !activeThreadId) return;
+      chatStore.rateMessage(
+        apolloClient,
+        agentId,
+        activeThreadId,
+        messageId,
+        rating,
+      );
+    },
+    [apolloClient, agentId, activeThreadId],
+  );
 
   const handleStop = () => {
     if (agentId && activeThreadId) chatStore.stop(agentId, activeThreadId);
@@ -417,17 +439,7 @@ export const ChatPage = () => {
                   textareaRef.current?.focus();
                 }}
                 onRegenerate={handleRegenerate}
-                onRate={(messageId, rating) =>
-                  agentId &&
-                  activeThreadId &&
-                  chatStore.rateMessage(
-                    apolloClient,
-                    agentId,
-                    activeThreadId,
-                    messageId,
-                    rating,
-                  )
-                }
+                onRate={handleRate}
               />
 
               {showScrollDown && (
