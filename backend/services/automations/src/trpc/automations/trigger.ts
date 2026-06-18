@@ -1,10 +1,11 @@
+import { debugError } from '../../debugger';
+import { handleTrigger } from '../../executions/handleTrigger';
+import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { t } from '../init-trpc';
-import { generateModels } from '../../connectionResolver';
-import { checkIsWaitingAction } from '../../executions/checkIsWaitingActionTarget';
-import { executeWaitingAction } from '../../executions/executeWaitingAction';
-import { receiveTrigger } from '../../executions/receiveTrigger';
-import { repeatActionExecution } from '../../executions/repeatActionExecution';
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
 
 export const automationsTriggerTrpcRouter = t.router({
   automations: t.router({
@@ -25,40 +26,21 @@ export const automationsTriggerTrpcRouter = t.router({
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const { subdomain, processId } = ctx;
-        const models = await generateModels(subdomain);
-
-        const {
-          type,
-          targets,
-          repeatOptions,
-          recordType,
-          eventUpdateDescription,
-        } = input;
-
-        if (repeatOptions) {
-          repeatActionExecution(subdomain, models, repeatOptions);
-        } else {
-          const waitingAction = await checkIsWaitingAction(
-            subdomain,
-            models,
-            type,
-            targets,
+        try {
+          return await handleTrigger(ctx.subdomain, input);
+        } catch (error: unknown) {
+          debugError(
+            `Trigger mutation failed on subdomain ${
+              ctx.subdomain
+            }: ${getErrorMessage(error)}`,
           );
-          if (waitingAction) {
-            executeWaitingAction(subdomain, models, waitingAction);
-          }
-        }
-        await receiveTrigger({
-          models,
-          subdomain,
-          type,
-          targets,
-          recordType,
-          eventUpdateDescription,
-        });
 
-        return 'success';
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to handle trigger',
+            cause: error,
+          });
+        }
       }),
   }),
 });

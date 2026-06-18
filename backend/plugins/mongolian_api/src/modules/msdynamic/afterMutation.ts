@@ -27,7 +27,11 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
 
   const configsMap = dynamicConfigs.reduce(
     (acc, conf) => {
-      acc[conf.subId || 'noBrand'] = conf.value;
+      const sub = conf.subId || 'noBrand';
+      acc[sub] = conf.value;
+      if (sub === 'noBrand' && typeof conf.value === 'object') {
+        Object.assign(acc, conf.value);
+      }
       return acc;
     },
     {} as Record<string, any>,

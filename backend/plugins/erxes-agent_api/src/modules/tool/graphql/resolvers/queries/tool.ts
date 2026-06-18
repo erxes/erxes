@@ -9,8 +9,11 @@ export const toolQueries = {
   mastraAvailableErxesTools: async (
     _parent: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    // Builder helper for the agent form's operation picker — same gate as
+    // reading agents.
+    await checkPermission('agentsView');
     const settings = await models.MastraSettings.findOne({});
     const registry = await getOperationRegistry(settings);
     return registry.list;

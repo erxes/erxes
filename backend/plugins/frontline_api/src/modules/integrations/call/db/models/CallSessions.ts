@@ -171,7 +171,22 @@ export const loadCallSessionClass = (models: IModels) => {
           (payload.durationSec || 0) > 0);
       session.status = wasAnswered ? 'ended' : 'missed';
       session.endedAt = payload.endedAt || new Date();
-      if (payload.hangupCause) session.hangupCause = payload.hangupCause;
+      const ranks: Record<string, number> = {
+        ANSWERED: 4,
+        'NO ANSWER': 3,
+        BUSY: 2,
+        FAILED: 1,
+      };
+      const dispositionRank = (d?: string) =>
+        ranks[(d || '').toUpperCase()] ?? 0;
+      if (
+        payload.hangupCause &&
+        (!session.hangupCause ||
+          dispositionRank(payload.hangupCause) >=
+            dispositionRank(session.hangupCause))
+      ) {
+        session.hangupCause = payload.hangupCause;
+      }
       if (payload.durationSec !== undefined)
         session.durationSec = payload.durationSec;
       if (payload.recordUrl) session.recordUrl = payload.recordUrl;

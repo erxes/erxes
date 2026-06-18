@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useMutation } from '@apollo/client';
+import { ApolloCache, useMutation } from '@apollo/client';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   IconPlus,
@@ -27,8 +26,8 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_AGENT_REMOVE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
+import { toastError } from '~/lib/mutationToast';
 import {
   ToggleDeleteMenuItems,
   enabledStatusColumn,
@@ -37,29 +36,35 @@ import { useMastraAgentList, IMastraAgentRow } from './useMastraAgentList';
 
 type IAgent = IMastraAgentRow;
 
+// Refresh the agent lists after a row mutation without prop-drilling a refetch
+// through the table columns: invalidate every cached instance of both list
+// fields (paginated table + dropdown/chat list). Shared by remove + toggle.
+// cache.evict — not refetchQueries with fixed variables — so searched/paged
+// instances aren't missed (see useSaveAgent).
+const agentListMutationOptions = {
+  update: (cache: ApolloCache<unknown>) => {
+    cache.evict({ fieldName: 'mastraAgentsMain' });
+    cache.evict({ fieldName: 'mastraAgents' });
+    cache.gc();
+  },
+  onError: toastError(),
+};
+
 // ─── More menu cell ───────────────────────────────────────────────────────────
 
-const AgentMoreCell = ({
-  agent,
-  refetch,
-}: {
-  agent: IAgent;
-  refetch: () => void;
-}) => {
+const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
   const navigate = useNavigate();
   const { confirm } = useConfirm();
 
-  // Keep the chat sidebar / other MASTRA_AGENTS consumers fresh, then refresh
-  // this paginated list so the change shows without a manual reload.
-  const [removeAgent] = useMutation(MASTRA_AGENT_REMOVE, {
-    refetchQueries: [{ query: MASTRA_AGENTS }],
-    onCompleted: () => refetch(),
-  });
+  const [removeAgent] = useMutation(
+    MASTRA_AGENT_REMOVE,
+    agentListMutationOptions,
+  );
 
-  const [updateAgent] = useMutation(MASTRA_AGENT_UPDATE, {
-    refetchQueries: [{ query: MASTRA_AGENTS }],
-    onCompleted: () => refetch(),
-  });
+  const [updateAgent] = useMutation(
+    MASTRA_AGENT_UPDATE,
+    agentListMutationOptions,
+  );
 
   const handleDelete = () =>
     confirm({
@@ -209,28 +214,23 @@ const baseColumns: ColumnDef<IAgent>[] = [
   },
 ];
 
+// The row actions (delete / enable-toggle) self-invalidate the list cache, so
+// the columns no longer depend on any per-render value.
+const columns: ColumnDef<IAgent>[] = [
+  {
+    id: 'more',
+    cell: ({ row }) => <AgentMoreCell agent={row.original} />,
+    size: 33,
+  },
+  RecordTable.checkboxColumn as ColumnDef<IAgent>,
+  ...baseColumns,
+];
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export const AgentsIndexPage = () => {
-  const { agentsList, loading, pageInfo, handleFetchMore, refetch } =
+  const { agentsList, loading, pageInfo, handleFetchMore } =
     useMastraAgentList();
-
-  // The row actions (delete / enable-toggle) live in a column cell, so columns
-  // close over refetch to refresh the list after a mutation.
-  const columns = useMemo<ColumnDef<IAgent>[]>(
-    () => [
-      {
-        id: 'more',
-        cell: ({ row }) => (
-          <AgentMoreCell agent={row.original} refetch={refetch} />
-        ),
-        size: 33,
-      },
-      RecordTable.checkboxColumn as ColumnDef<IAgent>,
-      ...baseColumns,
-    ],
-    [refetch],
-  );
 
   return (
     <div className="flex flex-col h-full">

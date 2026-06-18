@@ -42,8 +42,12 @@ export const settingsQueries = {
   mastraSettings: async (
     _parent: undefined,
     _args: undefined,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    // Settings spread includes secrets (e.g. erxesApiToken) — gate the read.
+    // The lightweight, secret-free mastraAttachmentStorageStatus stays open for
+    // the chat UI.
+    await checkPermission('settingsView');
     const doc = await models.MastraSettings.getSettings();
     const obj: IMastraSettings = doc?.toObject ? doc.toObject() : doc;
 

@@ -40,6 +40,14 @@ const GeneralSettings = lazy(() =>
   })),
 );
 
+const MessageProSettings = lazy(() =>
+  import('~/pages/settings/workspace/MessageProSettingsPage').then(
+    (module) => ({
+      default: module.MessageProSettingsPage,
+    }),
+  ),
+);
+
 const TagsPage = lazy(() =>
   import('~/pages/settings/workspace/tags/TagsPage').then((module) => ({
     default: module.TagsPage,
@@ -161,6 +169,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.General}
           element={<GeneralSettings />}
+        />
+        <Route
+          path={SettingsWorkspacePath.MessagePro}
+          element={<MessageProSettings />}
         />
         <Route
           path={SettingsWorkspacePath.TeamMemberCatchAll}

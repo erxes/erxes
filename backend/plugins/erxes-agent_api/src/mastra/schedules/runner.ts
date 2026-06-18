@@ -11,14 +11,15 @@
 import type { IModels } from '~/connectionResolvers';
 import type { IMastraScheduleDocument } from '@/schedule/@types/schedule';
 import {
-  HISTORY_LIMIT,
   runAgentTurn,
+  patchNativeTurn,
   TurnAgent,
   TurnMessage,
 } from '@/agent/turn';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
-import { isLegacyProvider } from '~/mastra/providers';
 import { runWithAuth } from '~/mastra/requestContext';
+import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
+import { scopedResource } from '~/mastra/memory/mastraMemory';
 
 /** The dedicated output thread of one schedule — derived, never stored. */
 export const scheduleThreadId = (scheduleId: string) =>
@@ -76,49 +77,48 @@ export async function runSchedule(args: {
     }
 
     const settings = await models.MastraSettings.findOne({});
-    const providers = await models.MastraProvider.find({ isEnabled: true });
-    const { agent, tools } = await getOrCreateAgent(agentConfig, models);
+    const { agent } = await getOrCreateAgent(agentConfig, models, subdomain);
 
     const threadId = scheduleThreadId(schedule._id);
-    await models.MastraThread.ensureThread(
-      threadId,
-      schedule.agentId,
-      schedule.createdByUserId || '',
-      `Schedule: ${schedule.name}`,
-    );
 
-    // Replay the thread's own history so successive runs can build on earlier
-    // output (e.g. "compare with yesterday") — same gate as chat turns.
-    const history =
-      agentConfig.memoryEnabled === false
-        ? []
-        : await models.MastraMessage.getRecent(threadId, HISTORY_LIMIT);
-    const convo: TurnMessage[] = [
-      ...history.map((msg) => ({ role: msg.role, content: msg.content })),
-      { role: 'user', content: schedule.prompt },
-    ];
+    // The schedule's output thread lives in Mastra's native store under a
+    // schedule-scoped resource (kept out of users' chat lists). Memory replays
+    // the thread's own history so successive runs can build on earlier output
+    // (e.g. "compare with yesterday") and persists this turn itself.
+    const useMemory =
+      isAdvancedMemoryEnabled() && agentConfig.memoryEnabled !== false;
+    const memoryBinding = useMemory
+      ? {
+          thread: threadId,
+          resource: scopedResource(subdomain, `schedule:${schedule._id}`),
+        }
+      : undefined;
 
     const authCtx = { token: settings?.erxesApiToken, subdomain };
-    const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
+    const convo: TurnMessage[] = [{ role: 'user', content: schedule.prompt }];
     const reply = await runWithAuth(authCtx, () =>
       runAgentTurn({
         // Same narrowing as chat turns (turn.ts): Mastra's generate() output
         // is wider than the slice TurnAgent consumes.
         agent: agent as unknown as TurnAgent, // NOSONAR typescript:S4325 — removing it fails tsc
-        tools,
         convo,
         message: schedule.prompt,
-        isLegacy,
         authCtx,
+        memory: memoryBinding,
       }),
     );
 
-    await models.MastraMessage.addMessage(threadId, 'user', schedule.prompt);
-    if (reply) {
-      await models.MastraMessage.addMessage(threadId, 'assistant', reply);
+    // Native persistence already happened inside runAgentTurn; stamp the
+    // thread↔agent + tenant metadata so the output thread is attributable.
+    if (memoryBinding) {
+      await patchNativeTurn({
+        subdomain,
+        binding: memoryBinding,
+        agentId: schedule.agentId,
+        reply,
+      }).catch(() => null);
     }
-    await models.MastraThread.touchThread(threadId);
 
     return finish({ status: 'success', reply: reply ?? '' });
   } catch (e) {

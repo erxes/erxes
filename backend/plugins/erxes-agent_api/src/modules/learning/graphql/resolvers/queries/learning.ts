@@ -1,10 +1,12 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { computeLearningStatus } from '~/mastra/learning/config';
 import { MastraLearningStatus } from '@/learning/@types/learning';
+import { assertOwnedThread } from '@/session/nativeStore';
 
 /** Throws unless a logged-in user is on the context; returns their _id. */
 function requireUserId(user: { _id?: string } | null | undefined): string {
-  if (!user?._id) throw new Error('Login required');
+  if (!user?._id) throw new ExpectedError('Login required');
   return user._id;
 }
 
@@ -28,8 +30,9 @@ export const learningQueries = {
       page?: number;
       perPage?: number;
     },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.listLearnings(
       {
@@ -46,8 +49,9 @@ export const learningQueries = {
   mastraLearning: async (
     _: unknown,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.findOne({ _id });
   },
@@ -55,13 +59,19 @@ export const learningQueries = {
   mastraLearningStats: async (
     _: unknown,
     __: unknown,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return models.MastraLearning.getStats();
   },
 
-  mastraLearningStatus: async (_: unknown, __: unknown, { user }: IContext) => {
+  mastraLearningStatus: async (
+    _: unknown,
+    __: unknown,
+    { user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('learningView');
     requireUserId(user);
     return computeLearningStatus();
   },
@@ -71,10 +81,11 @@ export const learningQueries = {
   mastraMessageFeedbacks: async (
     _: unknown,
     { threadId }: { threadId: string },
-    { models, user }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('agentsChat');
     const userId = requireUserId(user);
-    await models.MastraThread.getOwnedThread(threadId, userId);
+    await assertOwnedThread(subdomain, userId, threadId);
     const docs = await models.MastraFeedback.find({ threadId, userId });
     const byMessage: Record<string, { rating: number; comment?: string }> = {};
     for (const d of docs) {

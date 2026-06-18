@@ -121,6 +121,7 @@ export const loadClass = (models: IModels) => {
         content?: string;
         firstRespondedUserId?: string;
         firstRespondedDate?: Date;
+        assignedUserId?: string;
       } = {};
 
       if (!doc.fromBot && !doc.internal) {
@@ -130,6 +131,15 @@ export const loadClass = (models: IModels) => {
       if (!conversation.firstRespondedUserId) {
         modifier.firstRespondedUserId = userId;
         modifier.firstRespondedDate = new Date();
+      }
+
+      if (
+        userId &&
+        !doc.internal &&
+        !doc.fromBot &&
+        !conversation.assignedUserId
+      ) {
+        modifier.assignedUserId = userId;
       }
 
       await models.Conversations.updateConversation(

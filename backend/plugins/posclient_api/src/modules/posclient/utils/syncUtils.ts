@@ -6,6 +6,20 @@ import {
   PRODUCT_STATUSES,
 } from '~/modules/posclient/db/definitions/constants';
 
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const isString = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0;
+
+const stringArray = (value: unknown) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(isString);
+};
+
 //uncomplete
 // import bsn
 export const getServerAddress = async (
@@ -14,9 +28,7 @@ export const getServerAddress = async (
 ) => {
   const { SERVER_DOMAIN } = process.env;
   if (SERVER_DOMAIN) {
-    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${
-      serviceName || 'sales'
-    }`;
+    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${serviceName || 'sales'}`;
   }
   //uncomplete
   const posService = { address: '' }; //await getService(serviceName || 'pos');
@@ -282,7 +294,6 @@ export const extractConfig = async (subdomain, doc) => {
     deliveryConfig: doc.deliveryConfig,
     cardsConfig: doc.cardsConfig,
     posId: doc._id,
-    erxesAppToken: doc.erxesAppToken,
     isOnline: doc.isOnline,
     onServer: doc.onServer,
     branchId: doc.branchId,
@@ -352,13 +363,122 @@ export const receiveProduct = async (models: IModels, data) => {
       { upsert: true },
     );
   }
+};
 
-  if (action === 'delete') {
-    if (!product || product.status === PRODUCT_STATUSES.DELETED) {
-      return;
-    }
-    // check usage
-    return models.Products.removeProducts([object._id]);
+export const receiveProductsRemove = async (models: IModels, data) => {
+  const { token, productIds } = data;
+
+  await models.Configs.getConfig({ token });
+
+  const productIdsToRemoveFromToken = stringArray(productIds);
+
+  if (!productIdsToRemoveFromToken.length) {
+    return;
+  }
+
+  await models.Products.updateMany(
+    { _id: { $in: productIdsToRemoveFromToken }, tokens: { $in: [token] } },
+    { $pull: { tokens: token } },
+  );
+
+  const productsWithoutTokens = await models.Products.find(
+    {
+      _id: { $in: productIdsToRemoveFromToken },
+      $or: [{ tokens: { $exists: false } }, { tokens: { $size: 0 } }],
+    },
+    { _id: 1 },
+  ).lean();
+
+  const productIdsToRemove = productsWithoutTokens.map(({ _id }) => _id);
+
+  if (productIdsToRemove.length) {
+    return models.Products.removeProducts(productIdsToRemove);
+  }
+};
+
+const getProductCategoryChildIds = async (
+  models: IModels,
+  categoryId: string,
+) => {
+  const category = await models.ProductCategories.findOne({
+    _id: categoryId,
+  }).lean();
+
+  if (!category?.order) {
+    return [categoryId];
+  }
+
+  const categories = await models.ProductCategories.find(
+    {
+      order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
+    },
+    { _id: 1 },
+  ).lean();
+
+  return categories.map(({ _id }) => _id);
+};
+
+const removeProductCategoryToken = async (
+  models: IModels,
+  token: string,
+  categoryId: string,
+) => {
+  const categoryIds = await getProductCategoryChildIds(models, categoryId);
+
+  await models.ProductCategories.updateMany(
+    { _id: { $in: categoryIds }, tokens: { $in: [token] } },
+    { $pull: { tokens: token } },
+  );
+
+  await models.Products.updateMany(
+    { categoryId: { $in: categoryIds }, tokens: { $in: [token] } },
+    { $pull: { tokens: token } },
+  );
+
+  const productsWithoutTokens = await models.Products.find(
+    {
+      categoryId: { $in: categoryIds },
+      $or: [{ tokens: { $exists: false } }, { tokens: { $size: 0 } }],
+    },
+    { _id: 1 },
+  ).lean();
+
+  const productIdsToRemove = productsWithoutTokens.map(({ _id }) => _id);
+
+  if (productIdsToRemove.length) {
+    await models.Products.removeProducts(productIdsToRemove);
+  }
+
+  await models.ProductCategories.deleteMany({
+    _id: { $in: categoryIds },
+    $or: [{ tokens: { $exists: false } }, { tokens: { $size: 0 } }],
+  });
+};
+
+const updateChildCategoryOrders = async (
+  models: IModels,
+  categoryId: string,
+  prevOrder?: string,
+  currentOrder?: string,
+) => {
+  if (!prevOrder || !currentOrder || prevOrder === currentOrder) {
+    return;
+  }
+
+  const childCategories = await models.ProductCategories.find({
+    _id: { $ne: categoryId },
+    order: { $regex: new RegExp(`^${escapeRegExp(prevOrder)}`) },
+  }).lean();
+
+  for (const childCategory of childCategories) {
+    await models.ProductCategories.updateOne(
+      { _id: childCategory._id },
+      {
+        $set: {
+          order: childCategory.order.replace(prevOrder, currentOrder),
+        },
+      },
+    );
   }
 };
 
@@ -379,6 +499,13 @@ export const receiveProductCategory = async (models: IModels, data) => {
       tokens.push(token);
     }
     const info = action === 'update' ? updatedDocument : object;
+    await updateChildCategoryOrders(
+      models,
+      object._id,
+      category?.order,
+      info.order,
+    );
+
     return await models.ProductCategories.updateOne(
       { _id: object._id },
       { ...info, tokens },
@@ -387,11 +514,11 @@ export const receiveProductCategory = async (models: IModels, data) => {
   }
 
   if (action === 'delete') {
-    if (category?.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
+    if (!category || category.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
       return;
     }
 
-    await models.ProductCategories.removeProductCategory(category._id);
+    await removeProductCategoryToken(models, token, category._id);
   }
 };
 

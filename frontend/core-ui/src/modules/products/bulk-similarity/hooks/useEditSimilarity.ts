@@ -7,7 +7,7 @@ export const useEditSimilarity = () => {
   const { toast } = useToast();
 
   const [editMutation, { loading }] = useMutation(PRODUCT_SIMILARITY_EDIT, {
-    refetchQueries: ['ProductSimilarities'],
+    refetchQueries: ['ProductSimilarities', 'ProductSimilarity'],
   });
 
   const edit = async (_id: string, doc: IBulkSaveInput) => {

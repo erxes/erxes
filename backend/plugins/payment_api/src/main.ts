@@ -1,5 +1,6 @@
-import { startPlugin } from 'erxes-api-shared/utils';
+import { getEnv, getSubdomain, startPlugin } from 'erxes-api-shared/utils';
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/trpc/init-trpc';
@@ -8,6 +9,20 @@ import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
+import './bullmq-safe-patch';
+
+const getWidgetApiUrl = (req: express.Request) => {
+  const subdomain =
+    getEnv({ name: 'VERSION' }) === 'saas' ? getSubdomain(req) : undefined;
+
+  return getEnv({ name: 'REACT_APP_API_URL', subdomain }).replace(/\/$/, '');
+};
+
+const getWidgetBaseUrl = (req: express.Request) => {
+  const apiUrl = getWidgetApiUrl(req);
+
+  return `${apiUrl}/pl:payment/widget/`;
+};
 
 startPlugin({
   name: 'payment',
@@ -59,17 +74,30 @@ startPlugin({
 
   onServerInit: async (app) => {
     app.get('/widget/config.js', (req, res) => {
+      const apiUrl = getWidgetApiUrl(req);
+
       res.type('application/javascript');
       res.send(`window.WIDGET_CONFIG = {
-        API_URL: "${process.env.REACT_APP_API_URL}"
+        API_URL: ${JSON.stringify(apiUrl)}
       };`);
     });
 
+    const sendWidgetIndex = (req: express.Request, res: express.Response) => {
+      const html = fs
+        .readFileSync(path.join(__dirname, '/public/widget/index.html'), 'utf8')
+        .split('/__PAYMENT_WIDGET_BASE__/')
+        .join(getWidgetBaseUrl(req));
+
+      res.type('html').send(html);
+    };
+
     app.use('/static', express.static(path.join(__dirname, '/public')));
-    app.use('/widget', express.static(path.join(__dirname, '/public/widget')));
-    app.get('/widget/*', (req, res) => {
-      res.sendFile(path.join(__dirname, '/public/widget/index.html'));
-    });
+    app.use(
+      '/widget',
+      express.static(path.join(__dirname, '/public/widget'), { index: false }),
+    );
+    app.get('/widget', (req, res) => sendWidgetIndex(req, res));
+    app.get('/widget/*', (req, res) => sendWidgetIndex(req, res));
 
     initPaymentsWorker();
   },

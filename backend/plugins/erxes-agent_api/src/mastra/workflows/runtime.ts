@@ -1,3 +1,4 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import {
   compileDefinition,
   CompiledDeps,
@@ -90,7 +91,7 @@ export function extractJsonObject(text: string): Record<string, unknown> {
   const start = candidate.indexOf('{');
   const end = candidate.lastIndexOf('}');
   if (start === -1 || end <= start) {
-    throw new Error('judgment reply contained no JSON object');
+    throw new ExpectedError('judgment reply contained no JSON object');
   }
   return JSON.parse(candidate.slice(start, end + 1));
 }
@@ -108,9 +109,6 @@ const judgeCache = new Map<string, JudgeAgent>();
 /** The minimal Mastra Agent surface the judgment path invokes. */
 interface JudgeAgent {
   generate(
-    messages: Array<{ role: string; content: string }>,
-  ): Promise<{ text?: unknown }>;
-  generateLegacy(
     messages: Array<{ role: string; content: string }>,
   ): Promise<{ text?: unknown }>;
 }
@@ -180,12 +178,12 @@ export async function buildRunDeps(
     executeOperation: async (operation, args) => {
       const meta = registry.operations.get(operation);
       if (!meta) {
-        throw new Error(
+        throw new ExpectedError(
           `operation "${operation}" does not exist on this instance`,
         );
       }
       if (!isOperationAllowed(meta, definition.policy as ToolPolicy)) {
-        throw new Error(
+        throw new ExpectedError(
           `operation "${operation}" is outside this workflow's policy`,
         );
       }
@@ -208,7 +206,7 @@ export async function buildRunDeps(
             status: 'blocked',
             error: 'blocked by destructive-ops guard',
           });
-        throw new Error(
+        throw new ExpectedError(
           `operation "${operation}" deletes or merges data and is blocked for this workflow (set destructiveOps: "allow" to permit)`,
         );
       }
@@ -252,7 +250,7 @@ export async function buildRunDeps(
 
     runJudgment: async ({ agentBindingId, prompt, outputSpec }) => {
       if (usage.llmCalls >= maxLlmCalls) {
-        throw new Error(
+        throw new ExpectedError(
           `workflow exceeded its LLM call limit (${maxLlmCalls}) — raise limits.maxLlmCalls if intentional`,
         );
       }
@@ -261,17 +259,12 @@ export async function buildRunDeps(
       const agentConfig = await models.MastraAgent.getAgent(agentBindingId);
       const providers = await models.MastraProvider.find({ isEnabled: true });
       const judge = getJudgeAgent(agentConfig, providers);
-      // Lazy import — providers.ts pulls AI-SDK chunks Jest cannot load.
-      const { isLegacyProvider } = await import('../providers');
-      const legacy = isLegacyProvider(agentConfig.provider, providers);
 
       const convo = [
         { role: 'system', content: judgmentInstruction(outputSpec) },
         { role: 'user', content: prompt },
       ];
-      const res = legacy
-        ? await judge.generateLegacy(convo)
-        : await judge.generate(convo);
+      const res = await judge.generate(convo);
       return extractJsonObject(String(res?.text ?? ''));
     },
   };

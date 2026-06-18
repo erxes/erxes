@@ -9,26 +9,26 @@ import {
 describe('advanced-memory config', () => {
   // ── Feature flag (AM-FLAG-1..4) ──────────────────────────────────────────
   describe('isAdvancedMemoryEnabled', () => {
-    it('AM-FLAG-1: defaults to false when unset', () => {
-      expect(isAdvancedMemoryEnabled({})).toBe(false);
+    it('AM-FLAG-1: defaults to enabled when unset', () => {
+      expect(isAdvancedMemoryEnabled({})).toBe(true);
     });
 
-    it('AM-FLAG-2: true only for exact "enable"', () => {
-      expect(isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: 'enable' })).toBe(
-        true,
+    it('AM-FLAG-2: false only for exact "disable"', () => {
+      expect(isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: 'disable' })).toBe(
+        false,
       );
     });
 
-    it('AM-FLAG-3: other truthy-looking values are off', () => {
-      for (const v of ['true', '1', 'on', 'ENABLE', 'enabled', 'yes']) {
-        expect(isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: v })).toBe(false);
+    it('AM-FLAG-3: other values leave it enabled', () => {
+      for (const v of ['enable', 'true', '1', 'on', 'DISABLE', 'disabled', 'no']) {
+        expect(isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: v })).toBe(true);
       }
     });
 
     it('AM-FLAG-4: trims surrounding whitespace', () => {
       expect(
-        isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: '  enable  ' }),
-      ).toBe(true);
+        isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: '  disable  ' }),
+      ).toBe(false);
     });
   });
 
@@ -129,7 +129,9 @@ describe('advanced-memory config', () => {
   // ── Status (AM-SET-1/2) ──────────────────────────────────────────────────
   describe('computeAdvancedMemoryStatus', () => {
     it('AM-SET-1: disabled → all details null', () => {
-      expect(computeAdvancedMemoryStatus({})).toEqual({
+      expect(
+        computeAdvancedMemoryStatus({ ERXES_AGENT_MEMORY: 'disable' }),
+      ).toEqual({
         enabled: false,
         embedder: null,
         embedderModel: null,

@@ -15,7 +15,6 @@ import {
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 import { generateModels, IModels } from '~/connectionResolvers';
-import { isLegacyProvider } from '~/mastra/providers';
 import {
   learningSweepCron,
   learningTenant,
@@ -24,6 +23,11 @@ import {
 import { ensureLearningCollection, setLearningVectorStatus } from './store';
 import { distillThread } from './distill';
 import { ExtractionRuntime } from './extractor';
+import {
+  listTenantThreadsForSweep,
+  getThreadTail,
+  markThreadDistilled,
+} from '@/session/nativeStore';
 
 const SERVICE = 'erxes-agent';
 const SWEEP_QUEUE = 'learning-sweep';
@@ -67,7 +71,6 @@ async function resolveRuntime(
       model: agentConfig.model,
       providers,
       authCtx: { token: settings?.erxesApiToken, subdomain },
-      isLegacy: isLegacyProvider(agentConfig.provider, providers),
     },
   };
 }
@@ -146,30 +149,39 @@ export async function runLearningSweep(
       return { ...result, error: 'no enabled agent for extraction' };
 
     const tuning = resolveLearningTuning();
-    const idleCutoff = new Date(Date.now() - tuning.idleMinutes * 60 * 1000);
+    const idleCutoff = Date.now() - tuning.idleMinutes * 60 * 1000;
 
-    // Idle threads with an undistilled tail. $expr compares the two counters.
-    const threads = await models.MastraThread.find({
-      lastMessageAt: { $lt: idleCutoff },
-      $expr: {
-        $gt: ['$messageCount', { $ifNull: ['$distilledMessageCount', 0] }],
-      },
-    })
-      .sort({ lastMessageAt: 1 })
-      .limit(MAX_THREADS_PER_SWEEP);
+    // Idle threads with an undistilled tail, from the native store. Native
+    // listThreads can't compare counters or filter by time server-side, so we
+    // fetch a wider oldest-first window (by metadata.subdomain) and filter here.
+    const candidates = await listTenantThreadsForSweep(
+      subdomain,
+      MAX_THREADS_PER_SWEEP * 5,
+    );
+    const threads = candidates
+      .filter(
+        (t) =>
+          t.updatedAt != null &&
+          t.updatedAt.getTime() < idleCutoff &&
+          t.totalCount > t.distilledCount,
+      )
+      .slice(0, MAX_THREADS_PER_SWEEP);
 
     for (const thread of threads) {
       try {
-        const all = await models.MastraMessage.getMessages(thread.threadId);
-        const cursor = thread.distilledMessageCount ?? 0;
-        const tail = all.slice(cursor);
+        const tail = await getThreadTail(
+          subdomain,
+          thread.threadId,
+          thread.resourceId,
+          thread.distilledCount,
+        );
         if (tail.length) {
           const distilled = await distillThread({
             models,
             tenant,
-            agentId: thread.agentId,
-            ownerResourceId: thread.userId || `thread:${thread.threadId}`,
-            messages: tail.map((m) => ({ role: m.role, content: m.content })),
+            agentId: thread.agentId || resolved.defaultAgentId,
+            ownerResourceId: thread.resourceId,
+            messages: tail,
             runtime: resolved.runtime,
           });
           result.created += distilled.created;
@@ -179,9 +191,11 @@ export async function runLearningSweep(
         }
         // Cursor advances only after a successful distillation, so failures
         // retry on the next sweep.
-        await models.MastraThread.updateOne(
-          { threadId: thread.threadId },
-          { $set: { distilledMessageCount: all.length } },
+        await markThreadDistilled(
+          subdomain,
+          thread.threadId,
+          thread.resourceId,
+          thread.totalCount,
         );
         result.threads++;
       } catch (e) {

@@ -3,12 +3,16 @@ import {
   IconAlertTriangle,
   IconStar,
   IconStarFilled,
+  IconSwitchHorizontal,
 } from '@tabler/icons-react';
 import { useEffect, useRef } from 'react';
+import { IMaskInput } from 'react-imask';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
 import { useBulkRows } from '../hooks/useBulkRows';
 import { useVariantFields } from '../hooks/useVariantFields';
+import { generateCodeSuffix } from '../utils';
+import { ChoosableProduct, ProductChooserSheet } from './ProductChooserSheet';
 
 const EditableCell = ({
   value,
@@ -70,7 +74,7 @@ const EditableCell = ({
         }
       }}
       className={cn(
-        'block px-2 w-full h-8 leading-8 cursor-text outline-none truncate',
+        'block px-2 outline-none w-full h-8 truncate leading-8 cursor-text',
         align === 'right' && 'text-right',
         'empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground',
         edited && 'text-warning',
@@ -83,15 +87,119 @@ const EditableCell = ({
   );
 };
 
+const NumericEditableCell = ({
+  value,
+  fallback,
+  onCommit,
+  placeholder,
+  disabled,
+  edited,
+}: {
+  value?: number;
+  fallback?: number;
+  onCommit: (next: number | undefined) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  edited?: boolean;
+}) => {
+  const shown = value ?? fallback;
+  return (
+    <IMaskInput
+      mask={Number as any}
+      thousandsSeparator=","
+      radix="."
+      unmask
+      value={shown != null ? String(shown) : ''}
+      placeholder={placeholder}
+      disabled={disabled}
+      autoComplete="off"
+      onAccept={(val, _mask, e) => {
+        if (!e) return;
+        onCommit(val === '' ? undefined : Number(val));
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+      className={cn(
+        'block w-full h-8 px-2 text-right bg-transparent outline-none truncate leading-8 cursor-text',
+        'placeholder:text-muted-foreground',
+        edited && 'text-warning',
+        disabled && 'cursor-not-allowed opacity-70',
+      )}
+    />
+  );
+};
+
 interface GeneratedProductsTableProps {
   fieldName: (fieldId: string) => string;
   unitPrice?: number;
 }
 
-const statusBadge = (isExcluded: boolean, productId?: string) => {
-  if (isExcluded) return <Badge variant="secondary">skipped</Badge>;
-  if (productId) return <Badge variant="success">existing</Badge>;
-  return <Badge variant="info">new</Badge>;
+const RowSwapCell = ({
+  index,
+  isExcluded,
+  productId,
+  code,
+  combination,
+  baseCode,
+  fieldIds,
+  labelOf,
+  excludeIds,
+}: {
+  index: number;
+  isExcluded: boolean;
+  productId?: string;
+  code: string;
+  combination: Record<string, string>;
+  baseCode: string;
+  fieldIds: string[];
+  labelOf: (fieldId: string, value: string) => string;
+  excludeIds: string[];
+}) => {
+  const { setValue, trigger } = useFormContext<BulkSimilarityFormValues>();
+
+  const handleChoose = (product: ChoosableProduct) => {
+    setValue(`rows.${index}.productId`, product._id);
+    setValue(`rows.${index}.code`, product.code);
+    setValue(`rows.${index}.codeEdited`, true);
+    if (product.unitPrice != null) {
+      setValue(`rows.${index}.unitPrice`, product.unitPrice);
+    }
+    trigger('rows');
+  };
+
+  const handleClear = () => {
+    const suffix = generateCodeSuffix(fieldIds, combination, labelOf);
+    setValue(`rows.${index}.productId`, undefined);
+    setValue(`rows.${index}.code`, `${baseCode}${suffix}`);
+    setValue(`rows.${index}.codeEdited`, false);
+    trigger('rows');
+  };
+
+  return (
+    <div className="flex justify-center items-center">
+      <ProductChooserSheet
+        excludeIds={excludeIds}
+        value={productId}
+        valueCode={code}
+        onChoose={handleChoose}
+        onClear={handleClear}
+      >
+        <Button
+          type="button"
+          variant={productId ? 'secondary' : 'ghost'}
+          size="icon"
+          className="bg-transparent size-7"
+          disabled={isExcluded}
+        >
+          <IconSwitchHorizontal size={14} />
+        </Button>
+      </ProductChooserSheet>
+    </div>
+  );
 };
 
 const EmptyPanel = ({
@@ -103,7 +211,7 @@ const EmptyPanel = ({
 }) => (
   <div
     className={cn(
-      'flex gap-2 justify-center items-center px-4 py-8 text-sm rounded-lg border border-dashed',
+      'flex justify-center items-center gap-2 px-4 py-8 border border-dashed rounded-lg text-sm',
       variant === 'muted' && 'text-muted-foreground',
       variant === 'destructive' && 'border-destructive/50 text-destructive',
     )}
@@ -126,6 +234,7 @@ export const GeneratedProductsTable = ({
     handleSetAllExcluded,
   } = useBulkRows();
   const watchedRows = useWatch({ control, name: 'rows' }) || [];
+  const baseCode = useWatch({ control, name: 'code' }) || '';
 
   if (!rows.length) {
     return (
@@ -147,10 +256,14 @@ export const GeneratedProductsTable = ({
   const headerState: boolean | 'indeterminate' =
     includedCount === 0 ? false : allIncluded ? true : 'indeterminate';
 
+  const usedProductIds = watchedRows
+    .map((r) => r.productId)
+    .filter((id): id is string => !!id);
+
   return (
-    <div className="overflow-auto max-h-[28rem] rounded-lg border">
+    <div className="border rounded-lg max-h-[28rem] overflow-auto">
       <Table>
-        <Table.Header className="sticky top-0 z-10 bg-sidebar">
+        <Table.Header className="top-0 z-10 sticky bg-sidebar">
           <Table.Row>
             <Table.Head className="px-3 w-10">
               <Tooltip.Provider>
@@ -179,7 +292,7 @@ export const GeneratedProductsTable = ({
                 {fieldName(fieldId)}
               </Table.Head>
             ))}
-            <Table.Head className="px-3 w-24">Status</Table.Head>
+            <Table.Head className="px-3 w-20 text-center">Swap</Table.Head>
             <Table.Head className="px-3 w-16 text-center">Star</Table.Head>
           </Table.Row>
         </Table.Header>
@@ -213,23 +326,17 @@ export const GeneratedProductsTable = ({
                   />
                 </Table.Cell>
                 <Table.Cell className="px-1">
-                  <div className="flex gap-1 items-center">
-                    <Controller
-                      control={control}
-                      name={`rows.${index}.code`}
-                      render={({ field }) => (
-                        <EditableCell
-                          value={field.value}
-                          onCommit={(next) => {
-                            field.onChange(next);
-                            // mark as hand-edited so regeneration won't
-                            // overwrite it from the base code
-                            setValue(`rows.${index}.codeEdited`, true);
-                          }}
-                          placeholder="code"
-                          className="font-mono"
-                        />
-                      )}
+                  <div className="flex items-center gap-1">
+                    <EditableCell
+                      value={code}
+                      onCommit={(next) => {
+                        setValue(`rows.${index}.code`, next, {
+                          shouldValidate: true,
+                        });
+                        setValue(`rows.${index}.codeEdited`, true);
+                      }}
+                      placeholder="code"
+                      className="font-mono"
                     />
                     {isDup && (
                       <Tooltip.Provider>
@@ -251,24 +358,15 @@ export const GeneratedProductsTable = ({
                     control={control}
                     name={`rows.${index}.unitPrice`}
                     render={({ field }) => (
-                      <EditableCell
-                        numeric
-                        align="right"
-                        value={
-                          field.value != null
-                            ? String(field.value)
-                            : unitPrice != null
-                              ? String(unitPrice)
-                              : ''
-                        }
+                      <NumericEditableCell
+                        value={field.value}
+                        fallback={unitPrice}
                         placeholder="0"
                         disabled={isExcluded}
                         edited={
                           field.value != null && field.value !== unitPrice
                         }
-                        onCommit={(next) =>
-                          field.onChange(next === '' ? undefined : Number(next))
-                        }
+                        onCommit={field.onChange}
                       />
                     )}
                   />
@@ -281,40 +379,36 @@ export const GeneratedProductsTable = ({
                   </Table.Cell>
                 ))}
                 <Table.Cell className="px-3">
-                  {statusBadge(isExcluded, row.productId)}
+                  <RowSwapCell
+                    index={index}
+                    isExcluded={isExcluded}
+                    productId={row.productId}
+                    code={code}
+                    combination={combination}
+                    baseCode={baseCode}
+                    fieldIds={fieldIds}
+                    labelOf={labelOf}
+                    excludeIds={usedProductIds}
+                  />
                 </Table.Cell>
                 <Table.Cell className="px-3 text-center">
                   <Controller
                     control={control}
                     name={`rows.${index}.isStar`}
                     render={({ field }) => (
-                      <Tooltip.Provider>
-                        <Tooltip>
-                          <Tooltip.Trigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7"
-                              onClick={() => handleSetRowStar(row.key)}
-                              disabled={isExcluded}
-                            >
-                              {field.value ? (
-                                <IconStarFilled
-                                  size={14}
-                                  className="text-warning"
-                                />
-                              ) : (
-                                <IconStar size={14} />
-                              )}
-                            </Button>
-                          </Tooltip.Trigger>
-                          <Tooltip.Content>
-                            {field.value
-                              ? 'Star product'
-                              : 'Set as star product'}
-                          </Tooltip.Content>
-                        </Tooltip>
-                      </Tooltip.Provider>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-7"
+                        onClick={() => handleSetRowStar(row.key)}
+                        disabled={isExcluded}
+                      >
+                        {field.value ? (
+                          <IconStarFilled size={14} className="text-warning" />
+                        ) : (
+                          <IconStar size={14} />
+                        )}
+                      </Button>
                     )}
                   />
                 </Table.Cell>
