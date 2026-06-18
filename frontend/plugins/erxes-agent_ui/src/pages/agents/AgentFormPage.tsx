@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { PageHeader } from 'ui-modules';
 import { AgentFormFields } from './components/AgentFormFields';
 import { useAgent } from './hooks/useAgent';
+import { useAvailableErxesTools } from './hooks/useAvailableErxesTools';
 import { useSaveAgent } from './hooks/useSaveAgent';
 import {
   AGENT_FORM_DEFAULTS,
@@ -28,6 +29,10 @@ export const AgentFormPage = () => {
 
   const { agent } = useAgent(id);
   const { saveAgent, saving } = useSaveAgent(id);
+  // Saving is restricted to admins/owners (mirrors the backend agentsCreate/Edit
+  // checks). useSaveAgent still toasts if a blocked submit slips through (Enter key).
+  const { canCreate, canEdit } = useAgentAccess();
+  const canSave = isEdit ? canEdit : canCreate;
 
   // Populate form from saved data — runs once when agent data arrives
   useEffect(() => {
@@ -92,7 +97,11 @@ export const AgentFormPage = () => {
               <IconArrowLeft /> Back
             </Link>
           </Button>
-          <Button type="submit" form="agent-form" disabled={saving || !model}>
+          <Button
+            type="submit"
+            form="agent-form"
+            disabled={saving || !model || !canSave}
+          >
             {saving ? 'Saving…' : saveLabel}
           </Button>
         </PageHeader.End>
@@ -113,7 +122,7 @@ export const AgentFormPage = () => {
             />
 
             <div className="flex gap-3 pb-4 sm:hidden">
-              <Button type="submit" disabled={saving}>
+              <Button type="submit" disabled={saving || !canSave}>
                 {saving ? 'Saving…' : saveLabel}
               </Button>
               <Button type="button" variant="outline" asChild>

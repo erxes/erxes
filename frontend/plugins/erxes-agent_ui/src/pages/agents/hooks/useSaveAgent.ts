@@ -1,25 +1,34 @@
-import { ApolloCache, useMutation } from '@apollo/client';
+import { ApolloError, useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_AGENT_CREATE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
-import { toastError } from '~/lib/mutationToast';
 import { AgentFormValues } from '../validations';
+
+const isPermissionError = (e: ApolloError) =>
+  e.graphQLErrors?.some((g) => g.extensions?.code === 'FORBIDDEN') ||
+  /permission/i.test(e.message);
+
+/** Toast a friendly permission message, falling back to the raw error. */
+const showError = (action: 'create' | 'edit') => (e: ApolloError) =>
+  toast(
+    isPermissionError(e)
+      ? {
+          title: 'Permission denied',
+          description: `You don't have permission to ${action} agents.`,
+          variant: 'destructive',
+        }
+      : { title: 'Error', description: e.message, variant: 'destructive' },
+  );
 
 /** Create/update mutations for the agent form; navigates back on success. */
 export const useSaveAgent = (id?: string) => {
   const navigate = useNavigate();
 
   const options = {
-    // Invalidate every variable-keyed instance of the agent lists — the
-    // paginated settings table (mastraAgentsMain) and the simple dropdown /
-    // chat-sidebar list (mastraAgents). refetchQueries only refreshes one
-    // exact-variable instance, so a searched or paged list would go stale.
-    update: (cache: ApolloCache<unknown>) => {
-      cache.evict({ fieldName: 'mastraAgentsMain' });
-      cache.evict({ fieldName: 'mastraAgents' });
-      cache.gc();
-    },
+    refetchQueries: [{ query: MASTRA_AGENTS }],
+    awaitRefetchQueries: true,
     onCompleted: () => navigate('/settings/erxes-agent/agents'),
-    onError: toastError('Save failed'),
   };
 
   const [createAgent, { loading: creating }] = useMutation(
