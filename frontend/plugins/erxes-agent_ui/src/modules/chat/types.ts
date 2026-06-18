@@ -57,11 +57,21 @@ export interface MessageMeta {
   interrupted?: boolean;
 }
 
-export interface SessionMeta {
+// One persisted chat session (thread) as returned by `mastraThreads` and held in
+// the Apollo cache. The session LIST lives in the cache (house convention), not
+// in the chat store — only per-thread streaming/message state stays in the store.
+export interface IMastraThread {
+  __typename?: 'MastraThread';
+  _id: string;
   threadId: string;
   title: string;
   messageCount: number;
-  lastMessageAt?: string;
+  lastMessageAt?: string | null;
+  createdAt?: string | null;
+}
+
+export interface IMastraThreadsResponse {
+  mastraThreads: IMastraThread[];
 }
 
 // Per-thread chat state. Keyed by `${agentKey}:${threadId}` so an in-flight
@@ -96,8 +106,6 @@ export const REASONING_EFFORT_OPTIONS: {
 ];
 
 export interface AgentChatState {
-  sessions: SessionMeta[];
-  sessionsLoaded: boolean;
   activeThreadId?: string;
   isDraft: boolean; // active session is new and not yet persisted
   // Power-user reasoning override for this agent's chat view. Unset = default.
@@ -160,8 +168,6 @@ export const EMPTY_THREAD: ThreadChatState = {
 };
 
 export const EMPTY_AGENT: AgentChatState = {
-  sessions: [],
-  sessionsLoaded: false,
   activeThreadId: undefined,
   isDraft: false,
   reasoningEffort: undefined,

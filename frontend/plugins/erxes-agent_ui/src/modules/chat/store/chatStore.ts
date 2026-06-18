@@ -4,14 +4,9 @@ import { REACT_APP_API_URL } from 'erxes-ui';
 import {
   MASTRA_AGENT_CHAT,
   MASTRA_MESSAGE_FEEDBACKS,
-  MASTRA_THREADS,
   MASTRA_THREAD_MESSAGES,
 } from '~/graphql/queries';
-import {
-  MASTRA_MESSAGE_FEEDBACK,
-  MASTRA_THREAD_REMOVE,
-  MASTRA_THREAD_RENAME,
-} from '~/graphql/mutations';
+import { MASTRA_MESSAGE_FEEDBACK } from '~/graphql/mutations';
 import {
   AgentChatState,
   AgentChatView,
@@ -22,7 +17,6 @@ import {
   MessageMeta,
   ReasoningEffort,
   REASONING_EFFORT_OPTIONS,
-  SessionMeta,
   ThreadChatState,
 } from '~/modules/chat/types';
 import {
@@ -30,6 +24,11 @@ import {
   partsFromMeta,
   randomIdSuffix,
 } from '~/modules/chat/utils';
+import {
+  prependThreadToCache,
+  refetchThreadsIntoCache,
+  setThreadTitleInCache,
+} from '~/modules/chat/threadsCache';
 import { readStreamEvents } from '~/modules/chat/lib/streamTransport';
 import {
   ApplyOps,
@@ -38,15 +37,6 @@ import {
 } from '~/modules/chat/lib/applyEvent';
 
 type Client = ApolloClient<object>;
-
-interface MastraThreadsResponse {
-  mastraThreads?: Array<{
-    threadId: string;
-    title?: string;
-    messageCount?: number;
-    lastMessageAt?: string;
-  }>;
-}
 
 interface MastraThreadMessagesResponse {
   mastraThreadMessages?: Array<{
@@ -110,11 +100,6 @@ interface ChatStoreState {
     effort: ReasoningEffort | undefined,
   ) => void;
   newDraft: (agentKey: string) => void;
-  loadSessions: (
-    client: Client,
-    agentKey: string,
-    mastraAgentId: string,
-  ) => Promise<void>;
   selectSession: (
     client: Client,
     agentKey: string,
@@ -127,18 +112,9 @@ interface ChatStoreState {
     messageId: string,
     rating: 1 | -1,
   ) => Promise<void>;
-  renameSession: (
-    client: Client,
-    agentKey: string,
-    threadId: string,
-    title: string,
-  ) => Promise<void>;
-  deleteSession: (
-    client: Client,
-    agentKey: string,
-    mastraAgentId: string,
-    threadId: string,
-  ) => Promise<void>;
+  // Drop a removed thread's local streaming/message state. The cached session
+  // list is filtered by useRemoveMastraThread; this only clears store-side state.
+  discardThread: (agentKey: string, threadId: string) => void;
   stop: (agentKey: string, threadId: string) => void;
   sendMessage: (
     client: Client,
@@ -224,22 +200,6 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     patchThread(agentKey, threadId, { messages });
   };
 
-  // Local-only title update — used when the server pushes an auto-generated
-  // title over the stream (the server already persisted it).
-  const setSessionTitle = (
-    agentKey: string,
-    threadId: string,
-    title: string,
-  ) => {
-    const agent = ensureAgent(agentKey);
-    if (!agent.sessions.some((s) => s.threadId === threadId)) return;
-    patchAgent(agentKey, {
-      sessions: agent.sessions.map((s) =>
-        s.threadId === threadId ? { ...s, title } : s,
-      ),
-    });
-  };
-
   const hydrateFeedbacks = async (
     client: Client,
     agentKey: string,
@@ -266,8 +226,9 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     }
   };
 
-  // Mark the turn persisted: refresh sessions (titles/ordering/counts) and flag
-  // unread when the user is looking at another agent.
+  // Mark the turn persisted: reconcile the cached session list
+  // (titles/ordering/counts + the real _id) and flag unread when the user is
+  // looking at another agent.
   const finishTurn = (
     client: Client,
     agentKey: string,
@@ -285,7 +246,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     if (agent.activeThreadId === threadId && agent.isDraft) {
       patchAgent(agentKey, { isDraft: false });
     }
-    void get().loadSessions(client, agentKey, mastraAgentId);
+    void refetchThreadsIntoCache(client, mastraAgentId);
   };
 
   // Legacy blocking transport — single GraphQL query, no intermediate events.
@@ -330,6 +291,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
   // before any event arrived (caller falls back to GraphQL); throws on errors
   // the user should see.
   const sendViaStream = async (
+    client: Client,
     agentKey: string,
     threadId: string,
     mastraAgentId: string,
@@ -407,7 +369,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         }),
       setActivity: (text) =>
         patchThread(agentKey, threadId, { activity: text }),
-      setSessionTitle: (tid, title) => setSessionTitle(agentKey, tid, title),
+      setSessionTitle: (tid, title) =>
+        setThreadTitleInCache(client, mastraAgentId, tid, title),
       fallbackThreadId: threadId,
     };
 
@@ -483,37 +446,6 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       patchThread(agentKey, threadId, { messages: [], loading: false });
     },
 
-    loadSessions: async (client, agentKey, mastraAgentId) => {
-      try {
-        const { data } = await client.query<MastraThreadsResponse>({
-          query: MASTRA_THREADS,
-          variables: { agentId: mastraAgentId },
-          fetchPolicy: 'network-only',
-        });
-        const sessions: SessionMeta[] = (data?.mastraThreads ?? []).map(
-          (t) => ({
-            threadId: t.threadId,
-            title: t.title || 'New chat',
-            messageCount: t.messageCount ?? 0,
-            lastMessageAt: t.lastMessageAt,
-          }),
-        );
-
-        const before = ensureAgent(agentKey);
-        patchAgent(agentKey, { sessions, sessionsLoaded: true });
-
-        if (!before.activeThreadId) {
-          if (sessions.length > 0) {
-            await get().selectSession(client, agentKey, sessions[0].threadId);
-          } else {
-            get().newDraft(agentKey);
-          }
-        }
-      } catch {
-        patchAgent(agentKey, { sessionsLoaded: true });
-      }
-    },
-
     selectSession: async (client, agentKey, threadId) => {
       patchAgent(agentKey, { activeThreadId: threadId, isDraft: false });
 
@@ -570,50 +502,17 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       }
     },
 
-    renameSession: async (client, agentKey, threadId, title) => {
-      const agent = ensureAgent(agentKey);
-      patchAgent(agentKey, {
-        sessions: agent.sessions.map((s) =>
-          s.threadId === threadId ? { ...s, title } : s,
-        ),
-      });
-      try {
-        await client.mutate({
-          mutation: MASTRA_THREAD_RENAME,
-          variables: { threadId, title },
-        });
-      } catch {
-        // best-effort; optimistic update already applied
-      }
-    },
-
-    deleteSession: async (client, agentKey, mastraAgentId, threadId) => {
-      try {
-        await client.mutate({
-          mutation: MASTRA_THREAD_REMOVE,
-          variables: { threadId },
-        });
-      } catch {
-        return;
-      }
-
+    discardThread: (agentKey, threadId) => {
       getThread(agentKey, threadId).abort?.abort();
       set((s) => {
         const next = { ...s.threads };
         delete next[threadKey(agentKey, threadId)];
         return { threads: next };
       });
-
-      const agent = ensureAgent(agentKey);
-      const remaining = agent.sessions.filter((s) => s.threadId !== threadId);
-      patchAgent(agentKey, { sessions: remaining });
-
-      if (agent.activeThreadId === threadId) {
-        if (remaining.length > 0) {
-          await get().selectSession(client, agentKey, remaining[0].threadId);
-        } else {
-          get().newDraft(agentKey);
-        }
+      // Drop the active selection so the view's bootstrap effect re-selects the
+      // next session (or opens a fresh draft) from the now-filtered cached list.
+      if (ensureAgent(agentKey).activeThreadId === threadId) {
+        patchAgent(agentKey, { activeThreadId: undefined, isDraft: false });
       }
     },
 
@@ -647,17 +546,11 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       // Surface the session in the sidebar the instant the first message is
       // sent — don't wait for the turn to finish. The backend registers + tags
       // the thread at turn start (so a refresh keeps it); this mirrors it into
-      // the list optimistically. The streamed thread_title event fills the real
-      // title, and loadSessions in finishTurn reconciles title/count/order.
-      if (!agent.sessions.some((s) => s.threadId === threadId)) {
-        patchAgent(agentKey, {
-          sessions: [
-            { threadId, title: 'New chat', messageCount: 0 },
-            ...agent.sessions,
-          ],
-          isDraft: false,
-        });
-      }
+      // the cached list optimistically. The streamed thread_title event fills
+      // the real title, and the finishTurn refetch reconciles title/count/order
+      // and the real _id into the same cached query.
+      prependThreadToCache(client, mastraAgentId, threadId);
+      if (agent.isDraft) patchAgent(agentKey, { isDraft: false });
 
       appendMessage(agentKey, threadId, {
         role: 'user',
@@ -671,6 +564,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
 
       try {
         const streamed = await sendViaStream(
+          client,
           agentKey,
           threadId,
           mastraAgentId,
@@ -791,8 +685,6 @@ export const chatStore = {
   setReasoningEffort: (agentKey: string, effort: ReasoningEffort | undefined) =>
     useChatStore.getState().setReasoningEffort(agentKey, effort),
   newDraft: (agentKey: string) => useChatStore.getState().newDraft(agentKey),
-  loadSessions: (client: Client, agentKey: string, mastraAgentId: string) =>
-    useChatStore.getState().loadSessions(client, agentKey, mastraAgentId),
   selectSession: (client: Client, agentKey: string, threadId: string) =>
     useChatStore.getState().selectSession(client, agentKey, threadId),
   rateMessage: (
@@ -805,21 +697,8 @@ export const chatStore = {
     useChatStore
       .getState()
       .rateMessage(client, agentKey, threadId, messageId, rating),
-  renameSession: (
-    client: Client,
-    agentKey: string,
-    threadId: string,
-    title: string,
-  ) => useChatStore.getState().renameSession(client, agentKey, threadId, title),
-  deleteSession: (
-    client: Client,
-    agentKey: string,
-    mastraAgentId: string,
-    threadId: string,
-  ) =>
-    useChatStore
-      .getState()
-      .deleteSession(client, agentKey, mastraAgentId, threadId),
+  discardThread: (agentKey: string, threadId: string) =>
+    useChatStore.getState().discardThread(agentKey, threadId),
   stop: (agentKey: string, threadId: string) =>
     useChatStore.getState().stop(agentKey, threadId),
   sendMessage: (

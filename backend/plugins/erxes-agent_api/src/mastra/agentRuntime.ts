@@ -44,12 +44,13 @@ export async function getOrCreateAgent(
   models: IModels,
   subdomain?: string,
 ): Promise<AgentWithTools> {
-  // Mastra Memory (semantic recall + working memory) is opt-in and tenant-bound
-  // — only attached when advanced memory is enabled AND we know the tenant.
+  // Mastra Memory (persistence + semantic recall + working memory) is attached
+  // whenever advanced memory is on and the agent hasn't opted out. An unknown
+  // tenant must NOT detach memory — that would stop the turn from being
+  // persisted (and lose the session); scopedResource defaults an empty subdomain
+  // to the "os" scope.
   const useMemory =
-    isAdvancedMemoryEnabled() &&
-    agentConfig.memoryEnabled !== false &&
-    Boolean(subdomain);
+    isAdvancedMemoryEnabled() && agentConfig.memoryEnabled !== false;
   const [providers, settings] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),

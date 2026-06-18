@@ -86,9 +86,7 @@ export async function runSchedule(args: {
     // the thread's own history so successive runs can build on earlier output
     // (e.g. "compare with yesterday") and persists this turn itself.
     const useMemory =
-      isAdvancedMemoryEnabled() &&
-      agentConfig.memoryEnabled !== false &&
-      Boolean(subdomain);
+      isAdvancedMemoryEnabled() && agentConfig.memoryEnabled !== false;
     const memoryBinding = useMemory
       ? {
           thread: threadId,
