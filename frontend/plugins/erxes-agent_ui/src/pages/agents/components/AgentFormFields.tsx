@@ -250,6 +250,29 @@ export const AgentFormFields = ({
             )}
           />
         )}
+
+        <Form.Field
+          control={form.control}
+          name="destructiveOps"
+          render={({ field }) => (
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <Label className="font-medium">
+                  Allow destructive operations
+                </Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {field.value === 'allow'
+                    ? 'The agent can delete and merge records — these are irreversible.'
+                    : 'Off: the agent can read, create and update, but cannot delete or merge records.'}
+                </p>
+              </div>
+              <Switch
+                checked={field.value === 'allow'}
+                onCheckedChange={(v) => field.onChange(v ? 'allow' : 'block')}
+              />
+            </div>
+          )}
+        />
       </FormSection>
 
       <FormSection title="Behavior">

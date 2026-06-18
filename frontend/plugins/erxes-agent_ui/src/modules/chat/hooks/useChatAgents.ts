@@ -17,6 +17,7 @@ export interface IChatAgent {
   instructions?: string;
   toolPolicy?: string;
   allowedTools?: string[];
+  destructiveOps?: 'allow' | 'block';
   memoryEnabled?: boolean;
   maxSteps?: number;
   temperature?: number | null;
