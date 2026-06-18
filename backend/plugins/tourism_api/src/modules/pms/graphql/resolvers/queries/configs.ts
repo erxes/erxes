@@ -182,7 +182,6 @@ const configQueries: Record<string, Resolver> = {
     });
 
     return deals?.data || [];
-    return deals || [];
   },
 
   async cpPmsRooms(
@@ -213,7 +212,7 @@ const configQueries: Record<string, Resolver> = {
       module: 'stage',
       action: 'find',
       input: { pipelineId: pipelineId },
-    }); 
+    });
 
     const stageIds = stages?.map((x) => x._id) || [];
     const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
