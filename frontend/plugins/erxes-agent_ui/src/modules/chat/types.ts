@@ -17,22 +17,51 @@ export interface ApprovedOp {
   args?: Record<string, unknown>;
 }
 
-// The shape a destructive tool result takes when the agent needs approval —
-// surfaced so the UI can show Approve / Deny and replay the exact op.
+// A tool result that asks for the user's approval. Two producers, both narrowed
+// to this shape: the `request_approval` tool (model-authored `summary` + the
+// `operations` it intends) and the execute-guard backstop (a single op the model
+// tried directly, no summary).
 export interface ApprovalRequest {
   requiresApproval: true;
-  operation: string;
-  args?: Record<string, unknown>;
+  summary?: string;
+  operations: ApprovedOp[];
 }
 
-/** Narrow an unknown tool result to an approval request. */
-export const asApprovalRequest = (
-  result: unknown,
-): ApprovalRequest | null => {
-  const r = result as Partial<ApprovalRequest> | null | undefined;
-  return r && r.requiresApproval === true && typeof r.operation === 'string'
-    ? { requiresApproval: true, operation: r.operation, args: r.args }
-    : null;
+/** Narrow an unknown tool result to an approval request (either producer). */
+export const asApprovalRequest = (result: unknown): ApprovalRequest | null => {
+  const r = result as
+    | {
+        requiresApproval?: unknown;
+        summary?: unknown;
+        operations?: unknown;
+        operation?: unknown;
+        args?: unknown;
+      }
+    | null
+    | undefined;
+  if (!r || r.requiresApproval !== true) return null;
+
+  // request_approval tool — model-authored summary + the ops to run.
+  if (typeof r.summary === 'string' && Array.isArray(r.operations)) {
+    const operations: ApprovedOp[] = r.operations
+      .filter(
+        (o): o is { operation: string; args?: Record<string, unknown> } =>
+          !!o && typeof (o as { operation?: unknown }).operation === 'string',
+      )
+      .map((o) => ({ operation: o.operation, args: o.args }));
+    return { requiresApproval: true, summary: r.summary, operations };
+  }
+
+  // execute-guard backstop — a single op the model attempted directly.
+  if (typeof r.operation === 'string') {
+    return {
+      requiresApproval: true,
+      operations: [
+        { operation: r.operation, args: r.args as Record<string, unknown> },
+      ],
+    };
+  }
+  return null;
 };
 
 // One chronological segment of an assistant turn. Thinking bursts and tool

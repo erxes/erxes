@@ -162,7 +162,15 @@ export function buildErxesMetaTools(params: {
     description:
       'Execute a single erxes operation (query or mutation) by its exact name. ' +
       'Use the operation name and arguments returned by search_erxes_operations. ' +
-      'Returns the operation result, or { success:false, … } with guidance if it fails.',
+      'Returns the operation result, or { success:false, … } with guidance if it fails. ' +
+      "When you need several operations that don't depend on each other's results, " +
+      'issue multiple calls to this tool in the SAME turn — they run in parallel. ' +
+      "Only sequence calls when one needs a previous call's output (e.g. create, " +
+      'then use the returned id).' +
+      (destructiveOps !== 'allow'
+        ? ' For destructive operations (delete / merge / remove), call ' +
+          'request_approval FIRST and run them here only after the user approves.'
+        : ''),
     inputSchema: z.object({
       operation: z
         .string()
@@ -251,8 +259,44 @@ export function buildErxesMetaTools(params: {
     },
   });
 
+  // Explicit human-in-the-loop gate. The model calls this BEFORE a destructive
+  // op so the user sees a clean, model-authored confirmation line (the bar reads
+  // `summary`) and an Approve / Deny prompt. It executes nothing; on approval the
+  // model runs the listed ops via execute_erxes_operation. The destructive guard
+  // above is the backstop if the model skips this and calls a delete directly.
+  const requestApproval = createTool({
+    id: 'request_approval',
+    description:
+      'Ask the user to approve destructive operations (delete / merge / remove) BEFORE running them. ' +
+      'Provide `summary` — one short line naming exactly what will be affected, e.g. "Delete these 3 products?" — ' +
+      'and `operations`, the operations you will run once approved. This executes nothing; the user gets an ' +
+      'Approve / Deny prompt. Only after they approve, run those operations with execute_erxes_operation. ' +
+      'Do NOT call the destructive operation before approval.',
+    inputSchema: z.object({
+      summary: z
+        .string()
+        .describe('One short confirmation line shown to the user.'),
+      operations: z
+        .array(
+          z.object({
+            operation: z.string(),
+            args: z.record(z.any()).optional(),
+          }),
+        )
+        .describe('The destructive operations to run once approved.'),
+    }),
+    outputSchema: z.any(),
+    execute: async ({ summary, operations }) => ({
+      requiresApproval: true,
+      summary,
+      operations: operations ?? [],
+    }),
+  });
+
   return {
     search_erxes_operations: search,
     execute_erxes_operation: execute,
+    // Only offered when approval is needed — with 'allow', ops run directly.
+    ...(destructiveOps !== 'allow' ? { request_approval: requestApproval } : {}),
   };
 }

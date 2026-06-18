@@ -30,16 +30,22 @@ export const pendingApproval = (
 ): { prompt: string; operations: ApprovedOp[] } | null => {
   const last = messages[messages.length - 1];
   if (!last || last.role !== 'assistant' || last.streaming) return null;
+  let summary: string | undefined;
   const operations: ApprovedOp[] = [];
   for (const part of last.parts ?? []) {
     if (part.kind === 'tool') {
       const req = asApprovalRequest(part.call.result);
-      if (req) operations.push({ operation: req.operation, args: req.args });
+      if (req) {
+        // Prefer the model's dedicated request_approval summary.
+        if (req.summary && !summary) summary = req.summary;
+        operations.push(...req.operations);
+      }
     }
   }
   if (!operations.length) return null;
   return {
-    prompt: lastSentences(last.content ?? '') || 'Confirm this action?',
+    // request_approval summary first; otherwise the last sentences of the reply.
+    prompt: summary || lastSentences(last.content ?? '') || 'Confirm this action?',
     operations,
   };
 };
