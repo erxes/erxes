@@ -24,6 +24,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
   Separator,
+  toast,
   useConfirm,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
@@ -51,14 +52,19 @@ const AgentMoreCell = ({
 
   // Keep the chat sidebar / other MASTRA_AGENTS consumers fresh, then refresh
   // this paginated list so the change shows without a manual reload.
+  const onError = (e: Error) =>
+    toast({ title: 'Error', description: e.message, variant: 'destructive' });
+
   const [removeAgent] = useMutation(MASTRA_AGENT_REMOVE, {
     refetchQueries: [{ query: MASTRA_AGENTS }],
     onCompleted: () => refetch(),
+    onError,
   });
 
   const [updateAgent] = useMutation(MASTRA_AGENT_UPDATE, {
     refetchQueries: [{ query: MASTRA_AGENTS }],
     onCompleted: () => refetch(),
+    onError,
   });
 
   const handleDelete = () =>

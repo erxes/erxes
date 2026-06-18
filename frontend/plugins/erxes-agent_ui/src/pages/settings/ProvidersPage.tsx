@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IconPlus, IconTrash, IconKey, IconCheck } from '@tabler/icons-react';
-import { Badge, Button, cn } from 'erxes-ui';
+import { Badge, Button, cn, useConfirm } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useProviders } from './hooks/useProviders';
@@ -18,6 +18,7 @@ const CUSTOM_KEY = '__custom__';
 export const ProvidersPage = () => {
   // `adding` holds the provider key being added/edited, or '__custom__' for a custom entry
   const [adding, setAdding] = useState<string | null>(null);
+  const { confirm } = useConfirm();
 
   const {
     providers,
@@ -94,11 +95,11 @@ export const ProvidersPage = () => {
     });
   };
 
-  const handleRemove = (p: IMastraProvider) => {
-    if (window.confirm(`Remove provider "${p.label || p.provider}"?`)) {
-      removeProvider({ variables: { _id: p._id } });
-    }
-  };
+  const handleRemove = (p: IMastraProvider) =>
+    confirm({
+      message: `Remove provider "${p.label || p.provider}"?`,
+      options: { okLabel: 'Remove', cancelLabel: 'Cancel' },
+    }).then(() => removeProvider({ variables: { _id: p._id } }));
 
   const formProvider = form.watch('provider');
   const editingKey = adding === CUSTOM_KEY ? formProvider : adding;
@@ -152,8 +153,8 @@ export const ProvidersPage = () => {
                         {p.apiKey
                           ? '••••••' + p.apiKey.slice(-4)
                           : p.envKey
-                            ? `env: ${p.envKey}`
-                            : 'No key'}
+                          ? `env: ${p.envKey}`
+                          : 'No key'}
                       </span>
                       {p.baseUrl && (
                         <span className="ml-2 text-xs">· {p.baseUrl}</span>
@@ -217,8 +218,8 @@ export const ProvidersPage = () => {
                     adding === preset.provider
                       ? 'border-primary bg-primary/5'
                       : envOnly
-                        ? 'border-green-500/40 hover:border-green-500/70'
-                        : 'border-border hover:border-primary/50',
+                      ? 'border-green-500/40 hover:border-green-500/70'
+                      : 'border-border hover:border-primary/50',
                   )}
                   role="button"
                   tabIndex={0}

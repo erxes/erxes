@@ -1,5 +1,7 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
+import { Spinner } from 'erxes-ui';
+import { PluginErrorBoundary } from '~/components/PluginErrorBoundary';
 
 const ProvidersPage = lazy(() =>
   import('~/pages/settings/ProvidersPage').then((m) => ({
@@ -27,15 +29,19 @@ const AgentFormPage = lazy(() =>
 
 const MastraSettings = () => {
   return (
-    <Suspense fallback={<div />}>
-      <Routes>
-        <Route path="/agents" element={<AgentsIndexPage />} />
-        <Route path="/agents/new" element={<AgentFormPage />} />
-        <Route path="/agents/edit/:id" element={<AgentFormPage />} />
-        <Route path="/providers" element={<ProvidersPage />} />
-        <Route path="/general" element={<GeneralSettingsPage />} />
-      </Routes>
-    </Suspense>
+    <PluginErrorBoundary>
+      <Suspense fallback={<Spinner />}>
+        <Routes>
+          <Route index element={<Navigate to="agents" replace />} />
+          <Route path="/agents" element={<AgentsIndexPage />} />
+          <Route path="/agents/new" element={<AgentFormPage />} />
+          <Route path="/agents/edit/:id" element={<AgentFormPage />} />
+          <Route path="/providers" element={<ProvidersPage />} />
+          <Route path="/general" element={<GeneralSettingsPage />} />
+          <Route path="*" element={<Navigate to="agents" replace />} />
+        </Routes>
+      </Suspense>
+    </PluginErrorBoundary>
   );
 };
 

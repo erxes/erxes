@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { IconCheck, IconCopy, IconPaperclip } from '@tabler/icons-react';
-import { Badge, Button, CopyText, Form, Input, cn } from 'erxes-ui';
+import { Badge, Button, CopyText, Form, Input, cn, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGeneralSettings } from './hooks/useGeneralSettings';
@@ -14,10 +14,17 @@ import {
   generalSettingsSchema,
 } from './validations';
 
-const BOT_ENDPOINT_URL = 'http://localhost:3312/pl:erxes-agent/bot';
-
 export const GeneralSettingsPage = () => {
   const { settings, agents, save, saving } = useGeneralSettings();
+
+  // Bot webhook lives behind the gateway at /pl:erxes-agent/bot. Derive its
+  // base from the configured gateway URL, falling back to the current origin —
+  // never a hardcoded localhost, which would be dead on any real deployment.
+  const botBase = (
+    settings?.erxesApiUrl ||
+    (typeof window !== 'undefined' ? window.location.origin : '')
+  ).replace(/\/+$/, '');
+  const botEndpointUrl = `${botBase}/pl:erxes-agent/bot`;
 
   const form = useForm<GeneralSettingsValues>({
     resolver: zodResolver(generalSettingsSchema),
@@ -46,9 +53,14 @@ export const GeneralSettingsPage = () => {
   const attachmentStorage = settings?.attachmentStorage;
 
   const onSubmit = async (doc: GeneralSettingsValues) => {
-    await save({ variables: { doc } });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      await save({ variables: { doc } });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      toast({ title: 'Settings saved' });
+    } catch {
+      // Error surfaced to the user via the mutation's onError toast.
+    }
   };
 
   return (
@@ -158,8 +170,8 @@ export const GeneralSettingsPage = () => {
                       {!attachmentStorage?.configured
                         ? 'No storage'
                         : field.value
-                          ? 'On'
-                          : 'Off'}
+                        ? 'On'
+                        : 'Off'}
                     </Badge>
                   </div>
 
@@ -228,18 +240,18 @@ export const GeneralSettingsPage = () => {
             </li>
           </ol>
           <CopyText
-            value={BOT_ENDPOINT_URL}
+            value={botEndpointUrl}
             className={cn(
               'block w-full bg-muted px-3 py-2 rounded text-xs font-mono justify-between',
             )}
           >
-            <span>{BOT_ENDPOINT_URL}</span>
+            <span>{botEndpointUrl}</span>
             <IconCopy className="size-3.5 shrink-0 text-muted-foreground" />
           </CopyText>
           <p className="text-xs text-muted-foreground">
-            (Replace <code>3312</code> with your actual port. The gateway
-            proxies
-            <code> /pl:erxes-agent/*</code> to port 3312.)
+            Derived from the configured <strong>erxes API URL</strong> above (or
+            this page's origin). The gateway proxies{' '}
+            <code>/pl:erxes-agent/*</code> to the agent service.
           </p>
         </div>
       </div>
