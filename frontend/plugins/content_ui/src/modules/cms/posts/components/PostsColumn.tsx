@@ -18,13 +18,14 @@ import {
   IconUser,
   IconEye,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
 import { PostPublicUrlButton } from './PostPublicUrlButton';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 import type { Posts } from '../types/postsType';
 import type { IWebsite } from '../../types';
+import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
 
 const getPostAuthorName = (post: Posts) => {
   const details = post.author?.details;
@@ -69,6 +70,7 @@ export const usePostsColumns = (
   cmsConfig?: IWebsite,
 ): ColumnDef<Posts>[] => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isMissing } = useIsTranslationMissing();
 
   return [
@@ -96,8 +98,22 @@ export const usePostsColumns = (
             <div
               onClick={(e) => {
                 e.stopPropagation();
+                if (onEditPost) {
+                  onEditPost(post);
+                  return;
+                }
+
                 navigate(
                   `/content/cms/${post.clientPortalId}/posts/detail/${post._id}`,
+                  {
+                    state: {
+                      returnTo: buildCurrentPostsReturnPath(
+                        location.pathname,
+                        location.search,
+                        post._id,
+                      ),
+                    },
+                  },
                 );
               }}
               className="cursor-pointer "
@@ -136,8 +152,7 @@ export const usePostsColumns = (
               value={
                 row.original.categories
                   ?.map((category) => category.name)
-                  .join(', ') ||
-                ''
+                  .join(', ') || ''
               }
             />
           </RecordTableInlineCell>
@@ -152,9 +167,7 @@ export const usePostsColumns = (
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip
-              value={
-                row.original.tags?.map((tag) => tag.name).join(', ') || ''
-              }
+              value={row.original.tags?.map((tag) => tag.name).join(', ') || ''}
             />
           </RecordTableInlineCell>
         );
