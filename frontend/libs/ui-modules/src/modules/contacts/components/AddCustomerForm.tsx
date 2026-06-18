@@ -1,19 +1,39 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
+  Collapsible,
   Editor,
   Form,
+  InfoCard,
   Input,
   ScrollArea,
   Select,
+  Sheet,
+  Spinner,
   Switch,
   Upload,
+  cn,
   toast,
 } from 'erxes-ui';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectMember } from '../../team-members/components/SelectMember';
 import { useAddCustomer } from '../hooks/useAddCustomer';
+import { useFieldGroups } from '../../properties/hooks/useFieldGroups';
+import { useFields } from '../../properties/hooks/useFields';
+import { IFieldGroup } from '../../properties/types/fieldsTypes';
+import { FieldBoolean } from '../../properties/components/FieldBoolean';
+import { FieldDate } from '../../properties/components/FieldDate';
+import { FieldFile } from '../../properties/components/FieldFile';
+import { FieldLabel } from '../../properties/components/FieldLabel';
+import { FieldNumber } from '../../properties/components/FieldNumber';
+import { FieldPhone } from '../../properties/components/FieldPhone';
+import { FieldRelation } from '../../properties/components/FieldRelation';
+import { FieldSelect } from '../../properties/components/FieldSelect';
+import { FieldSelectMultiple } from '../../properties/components/FieldSelectMultiple';
+import { FieldString } from '../../properties/components/FieldString';
+import { FieldTextarea } from '../../properties/components/FieldTextarea';
 
 const EMAIL_VALIDATION_STATUSES = [
   { label: 'Valid', value: 'valid' },
@@ -46,9 +66,11 @@ const SCHEMA = z.object({
   phoneValidationStatus: z.string().optional(),
   description: z.string().optional(),
   isSubscribed: z.string().optional(),
+  customFieldsData: z.record(z.unknown()).optional(),
 });
 
 type FormValues = z.infer<typeof SCHEMA>;
+type Tab = 'general' | 'properties';
 
 export function AddCustomerForm({
   onOpenChange,
@@ -60,6 +82,7 @@ export function AddCustomerForm({
   onSuccess?: (id: string) => void;
 }>) {
   const { customersAdd, loading } = useAddCustomer();
+  const [activeTab, setActiveTab] = useState<Tab>('general');
 
   const form = useForm<FormValues>({
     resolver: zodResolver(SCHEMA),
@@ -75,12 +98,30 @@ export function AddCustomerForm({
       phoneValidationStatus: 'unknown',
       description: '',
       isSubscribed: 'Yes',
+      customFieldsData: {},
     },
   });
 
+  const updateCustomFieldValue = useCallback(
+    (fieldId: string, value: unknown) => {
+      const current = form.getValues('customFieldsData') || {};
+      form.setValue('customFieldsData', { ...current, [fieldId]: value });
+    },
+    [form],
+  );
+
   function onSubmit(data: FormValues) {
+    const { customFieldsData, ...rest } = data;
+
+    const propertiesData =
+      customFieldsData && Object.keys(customFieldsData).length > 0
+        ? Object.entries(customFieldsData)
+            .filter(([, v]) => v !== undefined && v !== null && v !== '')
+            .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {})
+        : undefined;
+
     customersAdd({
-      variables: { ...data, state },
+      variables: { ...rest, state, propertiesData },
       onError: (e) => {
         toast({
           title: 'Error',
@@ -99,271 +140,68 @@ export function AddCustomerForm({
           variant: 'success',
         });
         form.reset();
+        setActiveTab('general');
         onOpenChange(false);
       },
     });
   }
 
+  const customFieldsData = form.watch('customFieldsData') || {};
+  const title = state === 'lead' ? 'Create Lead' : 'Create Customer';
+
+  const TABS: { key: Tab; label: string }[] = [
+    { key: 'general', label: 'General' },
+    { key: 'properties', label: 'Properties' },
+  ];
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full overflow-hidden bg-background"
+        className="flex overflow-hidden flex-col h-full"
       >
-        <ScrollArea className="flex-1">
-          <div className="p-5 space-y-4">
-            <Form.Field
-              name="avatar"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Upload.Root
-                      {...field}
-                      value={field.value || ''}
-                      onChange={(fileInfo) => {
-                        if ('url' in fileInfo) {
-                          field.onChange(fileInfo.url);
-                        }
-                      }}
-                    >
-                      <Upload.Preview className="rounded-full" />
-                      <div className="flex flex-col justify-center gap-2">
-                        <div className="flex gap-4">
-                          <Upload.Button
-                            size="sm"
-                            variant="outline"
-                            type="button"
-                          >
-                            Upload
-                          </Upload.Button>
-                          <Upload.RemoveButton
-                            size="sm"
-                            variant="outline"
-                            type="button"
-                          />
-                        </div>
-                        <Form.Description>
-                          Upload an avatar for the customer
-                        </Form.Description>
-                      </div>
-                    </Upload.Root>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+        <Sheet.Header className="gap-3 border-b">
+          <Sheet.Title>{title}</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Field
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      First Name{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
+        <Sheet.Content className="overflow-hidden flex-auto p-0">
+          <div className="flex h-full overflow-hidden">
+            <nav className="flex flex-col gap-1 p-2 border-r w-36 shrink-0 bg-sidebar">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveTab(tab.key)}
+                  className={cn(
+                    'text-left px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    activeTab === tab.key
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground',
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+
+            <ScrollArea className="flex-1 h-full">
+              <div className="p-4">
+                {activeTab === 'general' && (
+                  <GeneralTab form={form} />
                 )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
+                {activeTab === 'properties' && (
+                  <CustomerPropertiesSection
+                    customFieldsData={customFieldsData}
+                    onFieldChange={updateCustomFieldValue}
+                  />
                 )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Code</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="ownerId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Owner</Form.Label>
-                    <Form.Control>
-                      <div className="w-full">
-                        <SelectMember.FormItem
-                          value={field.value || ''}
-                          onValueChange={field.onChange}
-                          placeholder="Select owner"
-                        />
-                      </div>
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="primaryEmail"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control>
-                      <Input
-                        type="email"
-                        placeholder="email@example.com"
-                        {...field}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="emailValidationStatus"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Email Verification Status</Form.Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <Form.Control>
-                        <Select.Trigger>
-                          <Select.Value placeholder="Choose">
-                            {
-                              EMAIL_VALIDATION_STATUSES.find(
-                                (s) => s.value === field.value,
-                              )?.label
-                            }
-                          </Select.Value>
-                        </Select.Trigger>
-                      </Form.Control>
-                      <Select.Content>
-                        <Select.Group>
-                          {EMAIL_VALIDATION_STATUSES.map((s) => (
-                            <Select.Item key={s.value} value={s.value}>
-                              {s.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Group>
-                      </Select.Content>
-                    </Select>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="primaryPhone"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Phone</Form.Label>
-                    <Form.Control>
-                      <Input placeholder="+1 234 567 8900" {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="phoneValidationStatus"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Phone Verification Status</Form.Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <Form.Control>
-                        <Select.Trigger>
-                          <Select.Value placeholder="Choose">
-                            {
-                              PHONE_VALIDATION_STATUSES.find(
-                                (s) => s.value === field.value,
-                              )?.label
-                            }
-                          </Select.Value>
-                        </Select.Trigger>
-                      </Form.Control>
-                      <Select.Content>
-                        <Select.Group>
-                          {PHONE_VALIDATION_STATUSES.map((s) => (
-                            <Select.Item key={s.value} value={s.value}>
-                              {s.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Group>
-                      </Select.Content>
-                    </Select>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
-
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Description</Form.Label>
-                  <Form.Control>
-                    <Editor
-                      initialContent={field.value}
-                      onChange={field.onChange}
-                      scope="customer-add-description"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              name="isSubscribed"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item className="flex items-center space-x-2 space-y-0">
-                  <Form.Control>
-                    <Switch
-                      checked={field.value === 'Yes'}
-                      onCheckedChange={(checked) =>
-                        field.onChange(checked ? 'Yes' : 'No')
-                      }
-                    />
-                  </Form.Control>
-                  <Form.Label variant="peer">Subscribed</Form.Label>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+              </div>
+            </ScrollArea>
           </div>
-        </ScrollArea>
+        </Sheet.Content>
 
-        <div className="flex justify-end gap-2 p-4 border-t shrink-0">
+        <Sheet.Footer className="flex shrink-0 justify-end gap-1 bg-background p-2.5">
           <Button
             type="button"
             variant="outline"
@@ -372,12 +210,405 @@ export function AddCustomerForm({
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
-            {state === 'lead'
-              ? 'Create Lead'
-              : 'Create Customer'}
+            {loading ? 'Creating...' : title}
           </Button>
-        </div>
+        </Sheet.Footer>
       </form>
     </Form>
+  );
+}
+
+function GeneralTab({ form }: { form: ReturnType<typeof useForm<FormValues>> }) {
+  return (
+    <InfoCard title="Customer Information">
+      <InfoCard.Content>
+        <Form.Field
+          name="avatar"
+          control={form.control}
+          render={({ field }) => (
+            <Form.Item className="mb-4">
+              <Form.Control>
+                <Upload.Root
+                  {...field}
+                  value={field.value || ''}
+                  onChange={(fileInfo) => {
+                    if ('url' in fileInfo) {
+                      field.onChange(fileInfo.url);
+                    }
+                  }}
+                >
+                  <Upload.Preview className="rounded-full" />
+                  <div className="flex flex-col justify-center gap-2">
+                    <div className="flex gap-4">
+                      <Upload.Button size="sm" variant="outline" type="button">
+                        Upload
+                      </Upload.Button>
+                      <Upload.RemoveButton
+                        size="sm"
+                        variant="outline"
+                        type="button"
+                      />
+                    </div>
+                    <Form.Description>
+                      Upload an avatar for the customer
+                    </Form.Description>
+                  </div>
+                </Upload.Root>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <Form.Field
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>
+                  First Name <span className="text-destructive">*</span>
+                </Form.Label>
+                <Form.Control>
+                  <Input {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control>
+                  <Input {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="code"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Code</Form.Label>
+                <Form.Control>
+                  <Input {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="ownerId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Owner</Form.Label>
+                <Form.Control>
+                  <div className="w-full">
+                    <SelectMember.FormItem
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                      placeholder="Select owner"
+                    />
+                  </div>
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="primaryEmail"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Email</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="email"
+                    placeholder="email@example.com"
+                    {...field}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="emailValidationStatus"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Email Verification Status</Form.Label>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <Form.Control>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Choose">
+                        {
+                          EMAIL_VALIDATION_STATUSES.find(
+                            (s) => s.value === field.value,
+                          )?.label
+                        }
+                      </Select.Value>
+                    </Select.Trigger>
+                  </Form.Control>
+                  <Select.Content>
+                    <Select.Group>
+                      {EMAIL_VALIDATION_STATUSES.map((s) => (
+                        <Select.Item key={s.value} value={s.value}>
+                          {s.label}
+                        </Select.Item>
+                      ))}
+                    </Select.Group>
+                  </Select.Content>
+                </Select>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="primaryPhone"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Phone</Form.Label>
+                <Form.Control>
+                  <Input placeholder="+1 234 567 8900" {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="phoneValidationStatus"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Phone Verification Status</Form.Label>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <Form.Control>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Choose">
+                        {
+                          PHONE_VALIDATION_STATUSES.find(
+                            (s) => s.value === field.value,
+                          )?.label
+                        }
+                      </Select.Value>
+                    </Select.Trigger>
+                  </Form.Control>
+                  <Select.Content>
+                    <Select.Group>
+                      {PHONE_VALIDATION_STATUSES.map((s) => (
+                        <Select.Item key={s.value} value={s.value}>
+                          {s.label}
+                        </Select.Item>
+                      ))}
+                    </Select.Group>
+                  </Select.Content>
+                </Select>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </div>
+
+        <Form.Field
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <Form.Item className="mt-4">
+              <Form.Label>Description</Form.Label>
+              <Form.Control>
+                <Editor
+                  initialContent={field.value}
+                  onChange={field.onChange}
+                  scope="customer-add-description"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          name="isSubscribed"
+          control={form.control}
+          render={({ field }) => (
+            <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
+              <Form.Control>
+                <Switch
+                  checked={field.value === 'Yes'}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked ? 'Yes' : 'No')
+                  }
+                />
+              </Form.Control>
+              <Form.Label variant="peer">Subscribed</Form.Label>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      </InfoCard.Content>
+    </InfoCard>
+  );
+}
+
+function CustomerPropertiesSection({
+  customFieldsData,
+  onFieldChange,
+}: {
+  customFieldsData: Record<string, unknown>;
+  onFieldChange: (fieldId: string, value: unknown) => void;
+}) {
+  const { fieldGroups, loading } = useFieldGroups({
+    contentType: 'core:customer',
+  });
+
+  if (loading) {
+    return (
+      <InfoCard title="Customer Properties">
+        <InfoCard.Content>
+          <Spinner containerClassName="py-6" />
+        </InfoCard.Content>
+      </InfoCard>
+    );
+  }
+
+  if (fieldGroups.length === 0) {
+    return (
+      <InfoCard title="Customer Properties">
+        <InfoCard.Content>
+          <p className="text-sm text-muted-foreground py-4 text-center">
+            No properties found. Create properties in Settings.
+          </p>
+        </InfoCard.Content>
+      </InfoCard>
+    );
+  }
+
+  return (
+    <InfoCard title="Customer Properties">
+      <InfoCard.Content>
+        <div className="flex flex-col gap-4">
+          {fieldGroups.map((group) => (
+            <CustomerPropertyGroup
+              key={group._id}
+              group={group}
+              customFieldsData={customFieldsData}
+              onFieldChange={onFieldChange}
+            />
+          ))}
+        </div>
+      </InfoCard.Content>
+    </InfoCard>
+  );
+}
+
+function CustomerPropertyGroup({
+  group,
+  customFieldsData,
+  onFieldChange,
+}: {
+  group: IFieldGroup;
+  customFieldsData: Record<string, unknown>;
+  onFieldChange: (fieldId: string, value: unknown) => void;
+}) {
+  const { fields, loading } = useFields({
+    groupId: group._id,
+    contentType: 'core:customer',
+  });
+
+  if (loading) return <Spinner containerClassName="py-6" />;
+  if (fields.length === 0) return null;
+
+  return (
+    <Collapsible defaultOpen>
+      <Collapsible.Trigger asChild>
+        <Button variant="secondary" className="justify-start w-full">
+          <Collapsible.TriggerIcon />
+          {group.name}
+        </Button>
+      </Collapsible.Trigger>
+      <Collapsible.Content className="pt-4">
+        <div className="grid grid-cols-2 gap-4">
+          {fields.map((field) => (
+            <CustomerPropertyField
+              key={field._id}
+              field={field}
+              value={customFieldsData[field._id]}
+              onFieldChange={onFieldChange}
+            />
+          ))}
+        </div>
+      </Collapsible.Content>
+    </Collapsible>
+  );
+}
+
+function CustomerPropertyField({
+  field,
+  value,
+  onFieldChange,
+}: {
+  field: any;
+  value: unknown;
+  onFieldChange: (fieldId: string, value: unknown) => void;
+}) {
+  const handleChange = useCallback(
+    (newValue: unknown) => {
+      onFieldChange(field._id, newValue);
+    },
+    [field._id, onFieldChange],
+  );
+
+  const fieldProps = {
+    field,
+    value: value ?? '',
+    handleChange,
+    loading: false,
+    id: `customer_form_${field._id}`,
+    customFieldsData: {},
+  };
+
+  return (
+    <FieldLabel field={field} id={fieldProps.id}>
+      {(() => {
+        switch (field.type) {
+          case 'text':
+            return <FieldString {...fieldProps} />;
+          case 'phone':
+            return <FieldPhone {...fieldProps} />;
+          case 'textarea':
+            return <FieldTextarea {...fieldProps} />;
+          case 'number':
+            return <FieldNumber {...fieldProps} />;
+          case 'boolean':
+            return <FieldBoolean {...fieldProps} />;
+          case 'date':
+            return <FieldDate {...fieldProps} />;
+          case 'select':
+            return <FieldSelect {...fieldProps} />;
+          case 'multiSelect':
+            return <FieldSelectMultiple {...fieldProps} />;
+          case 'relation':
+            return <FieldRelation {...fieldProps} />;
+          case 'file':
+            return <FieldFile {...fieldProps} />;
+          default:
+            return null;
+        }
+      })()}
+    </FieldLabel>
   );
 }
