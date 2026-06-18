@@ -208,9 +208,9 @@ export function AddCustomerForm({
 
 function GeneralTab({
   form,
-}: {
+}: Readonly<{
   form: ReturnType<typeof useForm<FormValues>>;
-}) {
+}>) {
   return (
     <InfoCard title="Customer Information">
       <InfoCard.Content>
@@ -459,10 +459,10 @@ function GeneralTab({
 function CustomerPropertiesSection({
   customFieldsData,
   onFieldChange,
-}: {
+}: Readonly<{
   customFieldsData: Record<string, unknown>;
   onFieldChange: (fieldId: string, value: unknown) => void;
-}) {
+}>) {
   const { fieldGroups, loading } = useFieldGroups({
     contentType: 'core:customer',
   });
@@ -511,11 +511,11 @@ function CustomerPropertyGroup({
   group,
   customFieldsData,
   onFieldChange,
-}: {
+}: Readonly<{
   group: IFieldGroup;
   customFieldsData: Record<string, unknown>;
   onFieldChange: (fieldId: string, value: unknown) => void;
-}) {
+}>) {
   const { fields, loading } = useFields({
     groupId: group._id,
     contentType: 'core:customer',
@@ -552,11 +552,11 @@ function CustomerPropertyField({
   field,
   value,
   onFieldChange,
-}: {
+}: Readonly<{
   field: any;
   value: unknown;
   onFieldChange: (fieldId: string, value: unknown) => void;
-}) {
+}>) {
   return (
     <PropertyFormField
       field={field}

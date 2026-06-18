@@ -35,12 +35,12 @@ export function PropertyFormField({
   value,
   idPrefix,
   onFieldChange,
-}: {
+}: Readonly<{
   field: IField;
   value: unknown;
   idPrefix: string;
   onFieldChange: (fieldId: string, value: unknown) => void;
-}) {
+}>) {
   const handleChange = useCallback(
     (newValue: unknown) => {
       onFieldChange(field._id, newValue);
