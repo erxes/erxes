@@ -30,6 +30,11 @@ export interface Message {
   // Persisted message _id — present after hydration, or from the stream's
   // `done` event. Required for thumbs feedback.
   id?: string;
+  // Stable client-generated id, assigned when the message is first appended.
+  // Identifies the live streaming bubble independently of its position so an
+  // error/other message appended mid-stream can't be clobbered, and gives the
+  // list a stable React key before a persisted `id` exists.
+  _clientId?: string;
   role: 'user' | 'assistant' | 'error';
   content: string;
   timestamp: Date;

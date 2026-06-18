@@ -23,7 +23,11 @@ import {
   SessionMeta,
   ThreadChatState,
 } from '~/modules/chat/types';
-import { generateThreadId, partsFromMeta } from '~/modules/chat/utils';
+import {
+  generateThreadId,
+  partsFromMeta,
+  randomIdSuffix,
+} from '~/modules/chat/utils';
 import { readStreamEvents } from '~/modules/chat/lib/streamTransport';
 import {
   ApplyOps,
@@ -148,18 +152,31 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
 
   const appendMessage = (agentKey: string, threadId: string, msg: Message) => {
     const t = getThread(agentKey, threadId);
-    patchThread(agentKey, threadId, { messages: [...t.messages, msg] });
+    const withId: Message = msg._clientId
+      ? msg
+      : { ...msg, _clientId: `m-${randomIdSuffix(8)}` };
+    patchThread(agentKey, threadId, { messages: [...t.messages, withId] });
   };
 
-  const replaceLastMessage = (
+  // Replace a message by its stable `_clientId` rather than by position, so an
+  // error (or any message) appended between two stream events can't be
+  // overwritten by the live bubble's next update. Appends if it's gone (e.g.
+  // the first live event, or a thread cleared mid-stream).
+  const replaceMessageById = (
     agentKey: string,
     threadId: string,
+    clientId: string,
     msg: Message,
   ) => {
     const t = getThread(agentKey, threadId);
-    patchThread(agentKey, threadId, {
-      messages: t.messages.slice(0, -1).concat(msg),
-    });
+    const idx = t.messages.findIndex((m) => m._clientId === clientId);
+    if (idx < 0) {
+      patchThread(agentKey, threadId, { messages: [...t.messages, msg] });
+      return;
+    }
+    const messages = t.messages.slice();
+    messages[idx] = msg;
+    patchThread(agentKey, threadId, { messages });
   };
 
   // Local-only title update — used when the server pushes an auto-generated
@@ -306,8 +323,11 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       return false;
     }
 
-    // The live assistant bubble; advanced in place as events arrive.
+    // The live assistant bubble; advanced in place as events arrive. Keyed by a
+    // stable client id so its updates land on the same row even if another
+    // message is appended mid-stream.
     let live: Message | null = null;
+    const liveClientId = `m-${randomIdSuffix(8)}`;
     const liveState: LiveState = { sawDone: false, hasLive: false };
 
     const upsertLive = (mutate: (m: Message) => Message) => {
@@ -316,9 +336,10 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         content: '',
         timestamp: new Date(),
         streaming: true,
+        _clientId: liveClientId,
       };
       const next = mutate({ ...base, parts: base.parts?.slice() });
-      if (live) replaceLastMessage(agentKey, threadId, next);
+      if (live) replaceMessageById(agentKey, threadId, liveClientId, next);
       else appendMessage(agentKey, threadId, next);
       live = next;
       liveState.hasLive = true;
@@ -539,6 +560,12 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       }
       const threadId = agent.activeThreadId!;
 
+      // Never start a second stream on a thread that's already streaming — a
+      // concurrent send (regenerate, suggestion, double Enter) would overwrite
+      // the in-flight AbortController, orphaning the first stream so it can no
+      // longer be stopped and letting two replies interleave into one bubble.
+      if (getThread(agentKey, threadId).loading) return;
+
       // Surface the session in the sidebar the instant the first message is
       // sent — don't wait for the turn to finish. The backend registers + tags
       // the thread at turn start (so a refresh keeps it); this mirrors it into
@@ -610,7 +637,7 @@ export const selectAgentView = (
 ): AgentChatView => {
   const agent = s.agents[agentKey] ?? EMPTY_AGENT;
   const thread = agent.activeThreadId
-    ? (s.threads[threadKey(agentKey, agent.activeThreadId)] ?? EMPTY_THREAD)
+    ? s.threads[threadKey(agentKey, agent.activeThreadId)] ?? EMPTY_THREAD
     : EMPTY_THREAD;
   return {
     ...agent,
