@@ -63,11 +63,7 @@ const AgentRailItem = ({
         </Tooltip>
       </Tooltip.Provider>
 
-      <EditAgentDialog
-        agent={agent}
-        open={editing}
-        onOpenChange={setEditing}
-      />
+      <EditAgentDialog agent={agent} open={editing} onOpenChange={setEditing} />
 
       <div className="flex items-start gap-2">
         <div className="relative shrink-0">

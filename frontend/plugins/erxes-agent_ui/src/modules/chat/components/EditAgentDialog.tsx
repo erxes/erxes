@@ -172,7 +172,10 @@ export const EditAgentDialog = ({
                     <Form.Item>
                       <Form.Label>Name</Form.Label>
                       <Form.Control>
-                        <Input {...field} placeholder="Customer Support Agent" />
+                        <Input
+                          {...field}
+                          placeholder="Customer Support Agent"
+                        />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -400,7 +403,9 @@ export const EditAgentDialog = ({
                 <Tooltip>
                   <Tooltip.Trigger asChild>
                     <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/settings/erxes-agent/agents/edit/${agent._id}`}>
+                      <Link
+                        to={`/settings/erxes-agent/agents/edit/${agent._id}`}
+                      >
                         Open full editor
                       </Link>
                     </Button>
