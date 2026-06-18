@@ -1,11 +1,30 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChatAttachment, PendingAttachment } from '~/modules/chat/types';
 import { randomIdSuffix, uploadToStorage } from '~/modules/chat/utils';
+
+// Reject files larger than this before uploading — the round trip to storage
+// would only fail (or be slow) for oversize files.
+const MAX_ATTACHMENT_MB = 25;
+const MAX_ATTACHMENT_BYTES = MAX_ATTACHMENT_MB * 1024 * 1024;
 
 // Composer attachment state + upload lifecycle. Shared by the composer chips
 // and the chat-area drop overlay.
 export const useAttachments = (enabled: boolean) => {
   const [pendingAtts, setPendingAtts] = useState<PendingAttachment[]>([]);
+
+  // Revoke every outstanding preview object URL when the composer unmounts
+  // (navigate away mid-compose) — removeAttachment/clear only cover explicit
+  // removals.
+  const pendingRef = useRef<PendingAttachment[]>([]);
+  pendingRef.current = pendingAtts;
+  useEffect(
+    () => () => {
+      pendingRef.current.forEach(
+        (a) => a.previewUrl && URL.revokeObjectURL(a.previewUrl),
+      );
+    },
+    [],
+  );
 
   const addFiles = (files: FileList | File[]) => {
     if (!enabled) return;
@@ -26,6 +45,24 @@ export const useAttachments = (enabled: boolean) => {
       }
 
       const id = `att-${Date.now()}-${randomIdSuffix(6)}`;
+
+      // Reject oversize files up front — mark them errored without uploading
+      // (and without creating a preview URL that would need cleanup).
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        setPendingAtts((prev) => [
+          ...prev,
+          {
+            id,
+            name: file.name,
+            type: file.type || 'application/octet-stream',
+            size: file.size,
+            status: 'error',
+            error: `File exceeds the ${MAX_ATTACHMENT_MB} MB limit`,
+          },
+        ]);
+        continue;
+      }
+
       const entry: PendingAttachment = {
         id,
         name: file.name,
