@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { ClampedNumberInput } from '~/components/ClampedNumberInput';
 import { Field, FormSection } from '~/components/FormLayout';
 import {
   SelectModel,
@@ -280,14 +281,11 @@ export const AgentFormFields = ({
               hint="Max consecutive tool calls the agent can make (default: 10)"
             >
               <div className="flex items-center gap-2">
-                <Input
-                  type="number"
+                <ClampedNumberInput
+                  field={field}
                   min={1}
                   max={50}
-                  value={field.value}
-                  onChange={(e) =>
-                    field.onChange(parseInt(e.target.value, 10) || 10)
-                  }
+                  fallback={10}
                   className="w-24"
                 />
                 <Tooltip.Provider>
