@@ -14,7 +14,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { SelectBranchesContext } from '../contexts/SelectBranchesContext';
 import { useBranches } from '../hooks/useBranches';
@@ -31,10 +31,42 @@ export const SelectBranchesProvider = ({
   value,
   onValueChange,
   mode = 'single',
+  pruneMissing = false,
 }: ISelectBranchesProviderProps) => {
   const [newBranchName, setNewBranchName] = useState<string>('');
   const [selectedBranches, setSelectedBranches] = useState<IBranch[]>([]);
-  const branchIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const branchIds = useMemo(
+    () => (!value ? [] : Array.isArray(value) ? value : [value]),
+    [value],
+  );
+
+  const {
+    branches: existingBranches,
+    loading: existingLoading,
+    error: existingError,
+  } = useBranches({
+    variables: { ids: branchIds, limit: Math.max(branchIds.length, 1) },
+    skip: !pruneMissing || branchIds.length === 0,
+  });
+
+  useEffect(() => {
+    if (!pruneMissing || existingLoading || existingError) return;
+    if (branchIds.length === 0 || !existingBranches) return;
+
+    const existingIds = new Set(existingBranches.map((b) => b._id));
+    const prunedIds = branchIds.filter((id) => existingIds.has(id));
+    if (prunedIds.length === branchIds.length) return;
+
+    onValueChange?.(mode === 'single' ? prunedIds[0] ?? '' : prunedIds);
+  }, [
+    pruneMissing,
+    existingLoading,
+    existingError,
+    existingBranches,
+    branchIds,
+    mode,
+    onValueChange,
+  ]);
 
   const handleSelectCallback = (branch: IBranch) => {
     if (!branch) return;
@@ -46,14 +78,14 @@ export const SelectBranchesProvider = ({
     const newSelectedBranchIds = isSingleMode
       ? [branch._id]
       : isSelected
-        ? multipleValue.filter((p) => p !== branch._id)
-        : [...multipleValue, branch._id];
+      ? multipleValue.filter((p) => p !== branch._id)
+      : [...multipleValue, branch._id];
 
     const newSelectedBranches = isSingleMode
       ? [branch]
       : isSelected
-        ? selectedBranches.filter((p) => p._id !== branch._id)
-        : [...selectedBranches, branch];
+      ? selectedBranches.filter((p) => p._id !== branch._id)
+      : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
     onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
@@ -440,6 +472,7 @@ export const SelectBranchesComboboxItem = ({
 export const SelectBranchesFormItem = ({
   onValueChange,
   className,
+  pruneMissing = true,
   ...props
 }: Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> & {
   className?: string;
@@ -447,6 +480,7 @@ export const SelectBranchesFormItem = ({
   const [open, setOpen] = useState<boolean>(false);
   return (
     <SelectBranchesProvider
+      pruneMissing={pruneMissing}
       onValueChange={(value) => {
         onValueChange?.(value);
         setOpen(false);

@@ -10,7 +10,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SelectProductContext,
   useSelectProductContext,
@@ -20,7 +20,7 @@ import { IProduct } from '../types/Product';
 import { IconShoppingCart } from '@tabler/icons-react';
 import { ProductsInline } from './ProductsInline';
 import { useDebounce } from 'use-debounce';
-import { useProducts } from '../hooks/useProducts';
+import { useProducts, useProductsInline } from '../hooks/useProducts';
 
 interface SelectProductProviderProps {
   children: React.ReactNode;
@@ -28,6 +28,7 @@ interface SelectProductProviderProps {
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   defaultSearchValue?: string;
+  pruneMissing?: boolean;
 }
 
 const SelectProductProvider = ({
@@ -36,9 +37,40 @@ const SelectProductProvider = ({
   onValueChange,
   mode = 'single',
   defaultSearchValue,
+  pruneMissing = false,
 }: SelectProductProviderProps) => {
   const [products, setProducts] = useState<IProduct[]>([]);
-  const productIds = !value ? [] : Array.isArray(value) ? value : [value];
+  const productIds = useMemo(
+    () => (!value ? [] : Array.isArray(value) ? value : [value]),
+    [value],
+  );
+
+  const { products: assignedProducts, loading: assignedLoading } =
+    useProductsInline({
+      variables: { ids: productIds },
+      skip: !pruneMissing || productIds.length === 0,
+    });
+
+  useEffect(() => {
+    if (!pruneMissing || assignedLoading || productIds.length === 0) {
+      return;
+    }
+
+    const existingIds = new Set(assignedProducts.map((p) => p._id));
+    const prunedIds = productIds.filter((id) => existingIds.has(id));
+    if (prunedIds.length === productIds.length) {
+      return;
+    }
+
+    onValueChange?.(mode === 'single' ? prunedIds[0] ?? '' : prunedIds);
+  }, [
+    pruneMissing,
+    assignedLoading,
+    productIds,
+    assignedProducts,
+    mode,
+    onValueChange,
+  ]);
   const onSelect = (product: IProduct) => {
     if (!product) return;
     if (mode === 'single') {
@@ -353,6 +385,7 @@ export const SelectProductFormItem = ({
   onValueChange,
   className,
   placeholder,
+  pruneMissing = true,
   ...props
 }: Omit<React.ComponentProps<typeof SelectProductProvider>, 'children'> & {
   className?: string;
@@ -361,6 +394,7 @@ export const SelectProductFormItem = ({
   const [open, setOpen] = useState(false);
   return (
     <SelectProductProvider
+      pruneMissing={pruneMissing}
       onValueChange={(value) => {
         onValueChange?.(value);
         setOpen(false);

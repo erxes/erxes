@@ -32,6 +32,7 @@ interface SelectCategoryProviderProps {
   onValueChange?: (value: string[] | string) => void;
   onSelect?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
+  pruneMissing?: boolean;
 }
 
 interface SelectCategoryContextValue {
@@ -67,6 +68,7 @@ const SelectCategoryProvider = ({
   onValueChange,
   onSelect,
   mode = 'single',
+  pruneMissing = false,
 }: SelectCategoryProviderProps) => {
   const [selectedCategories, setSelectedCategories] = useState<
     IProductCategory[]
@@ -82,13 +84,34 @@ const SelectCategoryProvider = ({
     [selectedValue],
   );
   const handleValueChange = onValueChange || onSelect;
-  const { productCategories } = useProductCategories({
+  const { productCategories, loading: selectedLoading } = useProductCategories({
     variables: {
       ids: categoryIds,
       status: 'active',
     },
     skip: categoryIds.length === 0,
   });
+
+  useEffect(() => {
+    if (!pruneMissing || selectedLoading || categoryIds.length === 0) {
+      return;
+    }
+
+    const existingIds = new Set(productCategories.map((c) => c._id));
+    const prunedIds = categoryIds.filter((id) => existingIds.has(id));
+    if (prunedIds.length === categoryIds.length) {
+      return;
+    }
+
+    handleValueChange?.(mode === 'single' ? prunedIds[0] ?? '' : prunedIds);
+  }, [
+    pruneMissing,
+    selectedLoading,
+    categoryIds,
+    productCategories,
+    mode,
+    handleValueChange,
+  ]);
 
   useEffect(() => {
     if (!productCategories?.length) {
@@ -373,6 +396,7 @@ const SelectCategoryFormItem = ({
   className,
   placeholder,
   scope,
+  pruneMissing = true,
   ...props
 }: Omit<React.ComponentProps<typeof SelectCategoryProvider>, 'children'> & {
   className?: string;
@@ -383,6 +407,7 @@ const SelectCategoryFormItem = ({
 
   return (
     <SelectCategoryProvider
+      pruneMissing={pruneMissing}
       onValueChange={(value) => {
         onValueChange?.(value);
         onSelect?.(value);

@@ -39,6 +39,7 @@ const TagsSelectProvider = ({
   scope,
   targetIds,
   options,
+  pruneMissing = false,
 }: TagsSelectProps) => {
   const [open, setOpen] = useState(false);
   const { rootTags, tagsByParentId, tags, tagGroups, loading } = useGetTags({
@@ -51,6 +52,34 @@ const TagsSelectProvider = ({
     () => (Array.isArray(value) ? value : value ? [value] : []),
     [value],
   );
+
+  useEffect(() => {
+    if (!pruneMissing || targetIds || loading || !tags || !selectedIds.length) {
+      return;
+    }
+
+    const existingIds = new Set(tags.map((t) => t._id));
+    const prunedIds = selectedIds.filter((id) => existingIds.has(id));
+    if (prunedIds.length === selectedIds.length) {
+      return;
+    }
+
+    if (mode === 'single') {
+      (onValueChange as ((value: string | undefined) => void) | undefined)?.(
+        prunedIds[0],
+      );
+    } else {
+      (onValueChange as ((value: string[]) => void) | undefined)?.(prunedIds);
+    }
+  }, [
+    pruneMissing,
+    targetIds,
+    loading,
+    tags,
+    selectedIds,
+    mode,
+    onValueChange,
+  ]);
 
   const initialTags = useMemo(
     () => tags?.filter((tag) => selectedIds.includes(tag._id)) || [],
@@ -511,6 +540,7 @@ const TagsSelectFormItem = forwardRef<
       scope,
       className,
       targetIds,
+      pruneMissing = true,
       variant = 'ghost',
       size = 'default',
       ...props
@@ -518,7 +548,12 @@ const TagsSelectFormItem = forwardRef<
     ref,
   ) => {
     return (
-      <TagsSelectProvider {...props} scope={scope} targetIds={targetIds}>
+      <TagsSelectProvider
+        {...props}
+        scope={scope}
+        targetIds={targetIds}
+        pruneMissing={pruneMissing}
+      >
         <Form.Control>
           <TagsSelectTrigger
             ref={ref}

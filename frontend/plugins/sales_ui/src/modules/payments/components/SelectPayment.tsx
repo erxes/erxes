@@ -15,7 +15,7 @@ import {
 } from 'erxes-ui';
 
 import { Payment, usePayments } from '@/payments/hooks/usePayments';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 const SelectPaymentProvider = ({
@@ -42,6 +42,27 @@ const SelectPaymentProvider = ({
     () => (Array.isArray(value) ? value : (value && [value]) || []),
     [value],
   );
+
+  const { payments: existingPayments, loading: existingLoading } = usePayments({
+    status: 'active',
+  });
+
+  useEffect(() => {
+    if (existingLoading || !onValueChange) return;
+    if (!selectedIds.length || !existingPayments.length) return;
+
+    const existingIds = new Set(existingPayments.map((p) => p._id));
+    const prunedIds = selectedIds.filter((id) => existingIds.has(id));
+    if (prunedIds.length === selectedIds.length) return;
+
+    onValueChange(isSingleMode ? prunedIds[0] ?? null : prunedIds);
+  }, [
+    existingLoading,
+    existingPayments,
+    selectedIds,
+    isSingleMode,
+    onValueChange,
+  ]);
 
   const onSelect = React.useCallback(
     (payment: Payment | null) => {
