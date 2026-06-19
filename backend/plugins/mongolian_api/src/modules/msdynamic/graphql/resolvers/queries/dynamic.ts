@@ -163,14 +163,12 @@ export const msdynamicQueries = {
 
     const url = `${itemApi}?$filter=(${filterSection}) and (${locationFilterSection})&$select=No,Inventory`;
 
-    const credentials = Buffer.from(username + ':' + password).toString(
-      'base64',
-    );
-
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
-        Authorization: `Basic ${credentials}`,
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
       },
     }).then((r) => r.json());
 
