@@ -40,10 +40,12 @@ const SelectProductProvider = ({
   pruneMissing = false,
 }: SelectProductProviderProps) => {
   const [products, setProducts] = useState<IProduct[]>([]);
-  const productIds = useMemo(
-    () => (!value ? [] : Array.isArray(value) ? value : [value]),
-    [value],
-  );
+  const productIds = useMemo(() => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    return value ? [value] : [];
+  }, [value]);
 
   const { products: assignedProducts, loading: assignedLoading } =
     useProductsInline({

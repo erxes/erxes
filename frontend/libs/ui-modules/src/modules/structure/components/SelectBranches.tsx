@@ -35,10 +35,12 @@ export const SelectBranchesProvider = ({
 }: ISelectBranchesProviderProps) => {
   const [newBranchName, setNewBranchName] = useState<string>('');
   const [selectedBranches, setSelectedBranches] = useState<IBranch[]>([]);
-  const branchIds = useMemo(
-    () => (!value ? [] : Array.isArray(value) ? value : [value]),
-    [value],
-  );
+  const branchIds = useMemo(() => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    return value ? [value] : [];
+  }, [value]);
 
   const {
     branches: existingBranches,
