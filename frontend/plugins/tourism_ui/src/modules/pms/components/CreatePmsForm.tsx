@@ -9,7 +9,10 @@ import {
   PmsBranchFormType,
 } from '@/pms/constants/formSchema';
 import { usePmsBranchDetail } from '@/pms/hooks/usePmsBranchDetail';
-import { PmsCreateBranchVariables, usePmsCreateBranch } from '@/pms/hooks/usePmsCreateBranch';
+import {
+  PmsCreateBranchVariables,
+  usePmsCreateBranch,
+} from '@/pms/hooks/usePmsCreateBranch';
 import { usePmsEditBranch } from '@/pms/hooks/usePmsEditBranch';
 import {
   IPmsPaymentType,
@@ -79,6 +82,14 @@ const CreatePmsForm = ({
       stageId: '',
       roomsCategoryIds: [],
       extrasCategoryIds: [],
+      excludeExtraProductCategoryIds: [],
+      excludeExtraProductIds: [],
+      excludeRoomCategoryIds: [],
+      excludeRoomIds: [],
+      hasAppointment: false,
+      appointmentCategoryIds: [],
+      excludeAppointmentCategoryIds: [],
+      excludeAppointmentIds: [],
     },
   });
 
@@ -156,7 +167,15 @@ const CreatePmsForm = ({
     uiOptions,
     pipelineConfig,
     extraProductCategories: data.extrasCategoryIds || [],
+    excludeExtraProductCategoryIds: data.excludeExtraProductCategoryIds || [],
+    excludeExtraProductIds: data.excludeExtraProductIds || [],
     roomCategories: data.roomsCategoryIds || [],
+    excludeRoomCategoryIds: data.excludeRoomCategoryIds || [],
+    excludeRoomIds: data.excludeRoomIds || [],
+    hasAppointment: data.hasAppointment ?? false,
+    appointmentCategories: data.appointmentCategoryIds || [],
+    excludeAppointmentCategoryIds: data.excludeAppointmentCategoryIds || [],
+    excludeAppointmentIds: data.excludeAppointmentIds || [],
     discount: discounts,
     websiteReservationLock: data.websiteReservationLock ?? false,
     time: data.websiteReservationLock ? data.time || '' : '',
@@ -262,6 +281,16 @@ const CreatePmsForm = ({
         stageId: branchData.pipelineConfig?.stageId || '',
         roomsCategoryIds: branchData.roomCategories || [],
         extrasCategoryIds: branchData.extraProductCategories || [],
+        excludeExtraProductCategoryIds:
+          branchData.excludeExtraProductCategoryIds || [],
+        excludeExtraProductIds: branchData.excludeExtraProductIds || [],
+        excludeRoomCategoryIds: branchData.excludeRoomCategoryIds || [],
+        excludeRoomIds: branchData.excludeRoomIds || [],
+        hasAppointment: branchData.hasAppointment ?? false,
+        appointmentCategoryIds: branchData.appointmentCategories || [],
+        excludeAppointmentCategoryIds:
+          branchData.excludeAppointmentCategoryIds || [],
+        excludeAppointmentIds: branchData.excludeAppointmentIds || [],
       });
     },
     [form],

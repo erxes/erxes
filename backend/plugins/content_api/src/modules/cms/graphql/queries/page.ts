@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
 class PageQueryResolver extends BaseQueryResolver {
   async cmsPages(_parent: any, args: any, context: IContext) {
@@ -9,6 +10,8 @@ class PageQueryResolver extends BaseQueryResolver {
     const { models } = context;
 
     if (!clientPortalId) throw new Error('clientPortalId is required');
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
 
     const orderBy = args.orderBy || { createdAt: -1 };
 
@@ -31,6 +34,8 @@ class PageQueryResolver extends BaseQueryResolver {
     const { models } = context;
 
     if (!clientPortalId) throw new Error('clientPortalId is required');
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
 
     const orderBy = args.orderBy || { createdAt: -1 };
 

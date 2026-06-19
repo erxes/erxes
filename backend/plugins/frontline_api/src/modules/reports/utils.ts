@@ -381,6 +381,14 @@ export function buildTicketMatch(filters: IReportFilters) {
     match.branchId = { $in: filters.branchIds };
   }
 
+  if (filters.propertyIds?.length) {
+    andConditions.push({
+      $or: filters.propertyIds.map((propertyId) => ({
+        [`propertiesData.${propertyId}`]: { $exists: true },
+      })),
+    });
+  }
+
   if (filters.startDate) {
     match.startDate = { $gte: new Date(filters.startDate) };
   }

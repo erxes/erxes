@@ -210,13 +210,13 @@ export function CustomFields() {
         <div className="flex min-h-0 overflow-hidden flex-col flex-auto w-full">
           <div className="min-h-0 flex-auto overflow-y-auto">
             <div className="p-6">
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-lg mx-auto flex flex-col gap-2">
                 {/* Table Header */}
                 <Table>
                   <Table.Header>
                     <Table.Row>
                       <Table.Head>Name</Table.Head>
-                      <Table.Head>Type</Table.Head>
+                      <Table.Head>Data type</Table.Head>
                       <Table.Head className="w-12"></Table.Head>
                     </Table.Row>
                   </Table.Header>

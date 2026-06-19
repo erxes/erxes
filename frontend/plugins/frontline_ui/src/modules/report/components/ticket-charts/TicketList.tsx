@@ -29,6 +29,7 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { ColumnDef, Cell } from '@tanstack/react-table';
@@ -59,6 +60,7 @@ export const TicketList = ({
   const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
   const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
+  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
   const [page, setPage] = useState(1);
   const { fetchExport, loading: exportLoading } = useTicketExport();
@@ -79,6 +81,7 @@ export const TicketList = ({
     tagFilter,
     customerFilter,
     companyFilter,
+    propertyFilter,
   ]);
 
   const { ticketList, isInitialLoad, isFetching, error } = useTicketList({
@@ -95,6 +98,7 @@ export const TicketList = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
+        propertyIds: propertyFilter.length ? propertyFilter : undefined,
       },
     },
   });
@@ -116,6 +120,7 @@ export const TicketList = ({
           tagIds: tagFilter.length ? tagFilter : undefined,
           customerIds: customerFilter.length ? customerFilter : undefined,
           companyIds: companyFilter.length ? companyFilter : undefined,
+          propertyIds: propertyFilter.length ? propertyFilter : undefined,
         },
       },
     });
@@ -136,6 +141,7 @@ export const TicketList = ({
     tagFilter,
     customerFilter,
     companyFilter,
+    propertyFilter,
   ]);
 
   const filterEl = useMemo(

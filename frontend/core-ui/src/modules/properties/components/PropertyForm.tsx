@@ -17,7 +17,6 @@ import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
 import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
 import { Can } from 'ui-modules';
 
 export const PropertyForm = ({
@@ -25,14 +24,14 @@ export const PropertyForm = ({
   loading,
   defaultValues,
   isEdit,
+  disableType,
 }: {
   onSubmit: (data: IPropertyForm) => void;
   loading: boolean;
   defaultValues: IPropertyForm;
   isEdit?: boolean;
+  disableType?: boolean;
 }) => {
-  const { id } = useParams<{ id: string }>();
-
   const form = useForm<IPropertyForm>({
     resolver: zodResolver(propertySchema),
     defaultValues,
@@ -123,7 +122,7 @@ export const PropertyForm = ({
                   field.onChange(value);
                   form.setValue('options', []);
                 }}
-                disabled={Boolean(id)}
+                disabled={isEdit || disableType}
               >
                 <Form.Control>
                   <Select.Trigger>
@@ -146,7 +145,7 @@ export const PropertyForm = ({
           )}
         />
         <PropertyFormValidation form={form} />
-        <PropertyFormSelectFields form={form} />
+        <PropertyFormSelectFields form={form} isEdit={isEdit} />
         <PropertySelectRelationType form={form} />
         <Can action="fieldsManage">
           <Button type="submit" disabled={loading}>

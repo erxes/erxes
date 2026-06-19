@@ -16,6 +16,12 @@ import {
 } from './tools/scope';
 import { resolveDestructiveOpsPolicy } from './tools/destructiveGuard';
 import { writeAgentAction, AgentActionInput } from './auditLog';
+import { isAdvancedMemoryEnabled } from './memory/config';
+import { getMastraMemory } from './memory/mastraMemory';
+import { ToolCallFilter } from '@mastra/core/processors';
+import { isEvaluationEnabled } from './scoring/config';
+import { buildAgentScorers } from './scoring/scorers';
+import { getObservabilityHost } from './scoring/observability';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -36,7 +42,15 @@ export interface AgentWithTools {
 export async function getOrCreateAgent(
   agentConfig: IMastraAgentDocument,
   models: IModels,
+  subdomain?: string,
 ): Promise<AgentWithTools> {
+  // Mastra Memory (persistence + semantic recall + working memory) is attached
+  // whenever advanced memory is on and the agent hasn't opted out. An unknown
+  // tenant must NOT detach memory — that would stop the turn from being
+  // persisted (and lose the session); scopedResource defaults an empty subdomain
+  // to the "os" scope.
+  const useMemory =
+    isAdvancedMemoryEnabled() && agentConfig.memoryEnabled !== false;
   const [providers, settings] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),
@@ -60,7 +74,13 @@ export async function getOrCreateAgent(
   // agent (and its prompt) is rebuilt as soon as the registry refreshes.
   const inventory = capabilityInventory(registry.list, policy);
 
-  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}`;
+  // Evaluation is process-wide (env), but the observability host is per-tenant
+  // — so when it's on, the subdomain joins the cache key to keep each tenant's
+  // agent bound to its own Langfuse project (serviceName).
+  const evaluationEnabled = isEvaluationEnabled();
+  const evalTag = evaluationEnabled ? subdomain || 'os' : 'off';
+
+  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}:mem${useMemory ? subdomain : 'off'}:eval${evalTag}`;
 
   const cached = agentCache.get(cacheKey);
   if (cached) {
@@ -132,9 +152,9 @@ export async function getOrCreateAgent(
     });
   }
 
-  // Conversation memory is persisted in MongoDB (MastraThread / MastraMessage)
-  // and replayed into each request as message history — see mastraAgentChat.
-  // The agent itself is therefore stateless (no Mastra/LibSQL memory store).
+  // Conversation persistence + recent-history replay + recall are owned by the
+  // attached Mastra Memory (the chat store IS the native memory store; see
+  // memory below + session/nativeStore.ts). No custom message store.
   const toolNames = Object.keys(tools);
   const systemPrompt = buildSystemPrompt(agentConfig.instructions || '', {
     hasErxesTools: hasErxes,
@@ -160,31 +180,61 @@ export async function getOrCreateAgent(
   const temperature = agentConfig.temperature;
   const hasTemperature = typeof temperature === 'number';
 
+  // Per-tenant Mastra Memory (recall + working memory). ToolCallFilter strips
+  // tool-call frames from any replayed/recalled history so reasoning models
+  // (Kimi) don't reject the request. Both are opt-in via advanced memory.
+  const memory = useMemory ? await getMastraMemory(subdomain) : undefined;
+
+  // Quality scorers (heuristic + LLM-judge using this agent's own model) — only
+  // when ERXES_AGENT_EVALUATION=enable. Results export to Langfuse via the host
+  // registered below.
+  const scorers = evaluationEnabled ? buildAgentScorers(model) : undefined;
+
   const agent = new Agent({
     id: agentConfig.agentId,
     name: agentConfig.name,
     instructions: systemPrompt,
     model,
     tools: toolNames.length ? tools : undefined,
-    // The modern loop (generate/stream) reads defaultOptions; the legacy
-    // OpenAI-compatible loop (generateLegacy/streamLegacy) reads its own two
-    // keys and otherwise falls back to Mastra's internal default — all three
-    // must be set or legacy turns get silently truncated mid-task.
+    ...(memory ? { memory, inputProcessors: [new ToolCallFilter()] } : {}),
+    ...(scorers ? { scorers } : {}),
+    // generate()/stream() read defaultOptions. Temperature is only set when the
+    // agent configures it — otherwise the provider default applies (sending an
+    // explicit 0 is what reasoning models like Kimi reject).
     defaultOptions: {
       maxSteps,
       ...(hasTemperature ? { modelSettings: { temperature } } : {}),
     },
-    defaultGenerateOptionsLegacy: {
-      maxSteps,
-      ...(hasTemperature ? { temperature } : {}),
-    },
-    defaultStreamOptionsLegacy: {
-      maxSteps,
-      ...(hasTemperature ? { temperature } : {}),
-    },
-    // The two legacy keys are read at runtime but missing from Mastra's
-    // published AgentConfig type, hence the cast.
-  } as unknown as ConstructorParameters<typeof Agent>[0]) as unknown as Agent;
+  } as never);
+
+  // Wire the agent to the per-tenant observability host so traces + scores reach
+  // the central Langfuse. Two distinct hooks, both guarded (internal Mastra APIs):
+  //   • __registerMastra(host)  → the agent emits TRACES to host.observability.
+  //   • host.addScorer(scorer)  → registers each scorer so Mastra's onScorerRun
+  //     hook can resolve it (findScorer → getScorerById) AND sets scorer.#mastra
+  //     = host, so the scorer's run() emits its SCORE to Langfuse. (The host's
+  //     storage, set above, is what stops the hook from bailing.)
+  // Null host = evaluation off or Langfuse unconfigured → no-op.
+  if (evaluationEnabled) {
+    const host = await getObservabilityHost(subdomain);
+    if (host) {
+      const register = (
+        agent as unknown as { __registerMastra?: (m: unknown) => void }
+      ).__registerMastra;
+      if (typeof register === 'function') register.call(agent, host);
+
+      const addScorer = (
+        host as unknown as {
+          addScorer?: (s: unknown, key?: string, o?: { source: string }) => void;
+        }
+      ).addScorer;
+      if (scorers && typeof addScorer === 'function') {
+        for (const [id, entry] of Object.entries(scorers)) {
+          addScorer.call(host, entry.scorer, id, { source: 'code' });
+        }
+      }
+    }
+  }
 
   agentCache.set(cacheKey, agent);
   toolsCache.set(cacheKey, tools);

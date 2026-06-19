@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   IconPlus,
@@ -30,7 +30,6 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_SCHEDULES } from '~/graphql/queries';
 import {
   MASTRA_SCHEDULE_REMOVE,
   MASTRA_SCHEDULE_RUN_NOW,
@@ -40,25 +39,8 @@ import {
   ToggleDeleteMenuItems,
   enabledStatusColumn,
 } from '~/components/RecordTableShared';
-
-export interface IScheduleRow {
-  _id: string;
-  name: string;
-  description?: string;
-  agentId: string;
-  cron: string;
-  timezone?: string;
-  prompt: string;
-  isEnabled: boolean;
-  threadId: string;
-  lastRunAt?: string;
-  lastStatus?: 'success' | 'failed' | 'skipped';
-  lastError?: string;
-  lastDurationMs?: number;
-  runCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useSchedules } from './hooks/useSchedules';
+import { ISchedule, IScheduleRunNowResponse } from './types';
 
 // ─── More menu cell ───────────────────────────────────────────────────────────
 
@@ -67,7 +49,7 @@ const ScheduleMoreCell = ({
   schedule,
   refetch,
 }: {
-  schedule: IScheduleRow;
+  schedule: ISchedule;
   refetch: () => void;
 }) => {
   const navigate = useNavigate();
@@ -85,23 +67,30 @@ const ScheduleMoreCell = ({
       toast({ title: 'Error', description: e.message, variant: 'destructive' }),
   });
 
-  const [runNow, { loading: running }] = useMutation(MASTRA_SCHEDULE_RUN_NOW, {
-    onCompleted: (data) => {
-      const outcome = data?.mastraScheduleRunNow;
-      if (outcome?.lastStatus === 'failed') {
+  const [runNow, { loading: running }] = useMutation<IScheduleRunNowResponse>(
+    MASTRA_SCHEDULE_RUN_NOW,
+    {
+      onCompleted: (data) => {
+        const outcome = data?.mastraScheduleRunNow;
+        if (outcome?.lastStatus === 'failed') {
+          toast({
+            title: 'Run failed',
+            description: outcome.lastError || schedule.name,
+            variant: 'destructive',
+          });
+        } else {
+          toast({ title: 'Run finished', description: schedule.name });
+        }
+        refetch();
+      },
+      onError: (e) =>
         toast({
-          title: 'Run failed',
-          description: outcome.lastError || schedule.name,
+          title: 'Error',
+          description: e.message,
           variant: 'destructive',
-        });
-      } else {
-        toast({ title: 'Run finished', description: schedule.name });
-      }
-      refetch();
+        }),
     },
-    onError: (e) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
-  });
+  );
 
   /** Confirm, then remove the schedule together with its output thread. */
   const handleDelete = () =>
@@ -200,7 +189,7 @@ const STATUS_VARIANTS = {
 } as const;
 
 /** Status badge (with error tooltip on failure) plus relative run time. */
-const LastRunCell = ({ schedule }: { schedule: IScheduleRow }) => {
+const LastRunCell = ({ schedule }: { schedule: ISchedule }) => {
   if (!schedule.lastRunAt) {
     return (
       <RecordTableInlineCell>
@@ -239,7 +228,7 @@ const LastRunCell = ({ schedule }: { schedule: IScheduleRow }) => {
   );
 };
 
-const baseColumns: ColumnDef<IScheduleRow>[] = [
+const baseColumns: ColumnDef<ISchedule>[] = [
   {
     id: 'name',
     accessorKey: 'name',
@@ -295,7 +284,7 @@ const baseColumns: ColumnDef<IScheduleRow>[] = [
     ),
     size: 150,
   },
-  enabledStatusColumn<IScheduleRow>(),
+  enabledStatusColumn<ISchedule>(),
   {
     id: 'lastRun',
     header: () => (
@@ -322,7 +311,7 @@ const baseColumns: ColumnDef<IScheduleRow>[] = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 /** The full column set, with the actions column bound to this list's refetch. */
-const buildColumns = (refetch: () => void): ColumnDef<IScheduleRow>[] => [
+const buildColumns = (refetch: () => void): ColumnDef<ISchedule>[] => [
   {
     id: 'more',
     cell: ({ row }) => (
@@ -330,18 +319,13 @@ const buildColumns = (refetch: () => void): ColumnDef<IScheduleRow>[] => [
     ),
     size: 33,
   },
-  RecordTable.checkboxColumn as ColumnDef<IScheduleRow>,
+  RecordTable.checkboxColumn as ColumnDef<ISchedule>,
   ...baseColumns,
 ];
 
 /** Record table of all agent schedules with row actions. */
 export const SchedulesIndexPage = () => {
-  const { data, loading, refetch } = useQuery(MASTRA_SCHEDULES, {
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const schedules: IScheduleRow[] = data?.mastraSchedules || [];
+  const { schedules, loading, refetch } = useSchedules();
 
   const columns = useMemo(() => buildColumns(refetch), [refetch]);
 

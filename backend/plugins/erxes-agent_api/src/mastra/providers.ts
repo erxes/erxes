@@ -1,5 +1,3 @@
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-
 // The provider-document fields this module reads — satisfied by Mongoose
 // MastraProvider docs and by plain objects in tests.
 export interface ProviderDocLike {
@@ -12,62 +10,14 @@ export interface ProviderDocLike {
   headers?: Record<string, string>;
 }
 
-// ---------------------------------------------------------------------------
-// Kimi "thinking" compatibility shim.
-//
-// Kimi K2.5/K2.6 (incl. the Kimi For Coding model) are reasoning models with
-// thinking enabled. Their API requires every assistant message that carries
-// `tool_calls` to ALSO carry a `reasoning_content` field. During multi-step
-// tool calling — and when prior turns are replayed from memory — the AI SDK
-// does not send `reasoning_content` back, so the request fails with HTTP 400:
-//   "thinking is enabled but reasoning_content is missing in assistant tool
-//    call message at index N".
-// This is a known incompatibility across many clients (Goose, Cursor, Zed,
-// OpenCode…). The accepted fix is to ensure the field exists, defaulting it to
-// an empty string when missing. We do that here as fetch middleware so it works
-// regardless of how Mastra/the SDK build the message array internally.
-// ---------------------------------------------------------------------------
-function withReasoningContentShim(
-  baseFetch: typeof fetch = globalThis.fetch,
-): typeof fetch {
-  return ((input: Parameters<typeof fetch>[0], init?: RequestInit) => {
-    if (init?.body && typeof init.body === 'string') {
-      try {
-        const payload = JSON.parse(init.body);
-        if (Array.isArray(payload?.messages)) {
-          let mutated = false;
-          for (const m of payload.messages) {
-            if (
-              m?.role === 'assistant' &&
-              Array.isArray(m.tool_calls) &&
-              m.tool_calls.length > 0 &&
-              (m.reasoning_content === undefined ||
-                m.reasoning_content === null)
-            ) {
-              m.reasoning_content = '';
-              mutated = true;
-            }
-          }
-          if (mutated) init = { ...init, body: JSON.stringify(payload) };
-        }
-      } catch {
-        // Body isn't JSON we can parse — forward untouched.
-      }
-    }
-    return baseFetch(input, init);
-  }) as typeof fetch;
-}
-
-// Kimi/Moonshot reasoning models need the shim above; other OpenAI-compatible
-// providers (NVIDIA NIM, etc.) must not receive the extra field.
-function needsReasoningContentShim(
-  providerName: string,
-  baseURL: string,
-): boolean {
-  return (
-    /kimi|moonshot/i.test(providerName) || /kimi\.com|moonshot/i.test(baseURL)
-  );
-}
+// NOTE: the old Kimi "reasoning_content" fetch shim was removed here. It existed
+// because OpenAI-compatible models were built as AI-SDK-v1 objects (via
+// createOpenAICompatible) and driven through generateLegacy(), where the SDK
+// omitted `reasoning_content` on replayed assistant tool-call messages. The
+// native Mastra v5 generate() path (buildModel now returns a config object)
+// handles this correctly — verified with kimi-for-coding doing multi-step tool
+// calls in scripts/agent-cli.ts (no 400 "reasoning_content is missing"). If a
+// reasoning model regresses, reintroduce a shim via a model-level fetch.
 
 // ---------------------------------------------------------------------------
 // PROVIDER_PRESETS — connection data for known providers, used by the
@@ -138,6 +88,17 @@ export const PROVIDER_PRESETS: Array<{
     modelsEndpoint: 'https://api.cohere.com/v1/models',
   },
   {
+    // OpenCode Zen "Go" gateway — OpenAI-compatible. Hosts deepseek/qwen/glm/
+    // minimax coding models that (unlike kimi-for-coding) accept temperature 0,
+    // so Mastra's model-backed processors (PIIDetector, …) work against it.
+    provider: 'opencode-go',
+    label: 'OpenCode Go',
+    envKey: 'OPENCODE_API_KEY',
+    baseUrl: 'https://opencode.ai/zen/go/v1',
+    modelsEndpoint: 'https://opencode.ai/zen/go/v1/models',
+    isOpenAICompatible: true,
+  },
+  {
     provider: 'kimi',
     label: 'Kimi (Moonshot)',
     envKey: 'MOONSHOT_API_KEY',
@@ -174,40 +135,99 @@ export const PROVIDER_PRESETS: Array<{
   },
 ];
 
-// Providers whose SDK accepts a plain "<provider>/<modelId>" string rather than
-// a model object.  These are the native Mastra/Vercel AI SDK providers.
-export const NATIVE_ERXES_AGENT_PROVIDERS = new Set([
-  'openai',
-  'anthropic',
-  'google',
-  'groq',
-  'mistral',
-  'cohere',
-]);
+// ---------------------------------------------------------------------------
+// Reasoning effort → per-provider stream options.
+//
+// The chat view lets power users dial how hard the model "thinks" per
+// conversation. Each provider exposes this differently, so we translate a
+// single enum into the option each SDK understands. Unset effort (or a
+// provider we don't have a mapping for) yields no options — the agent's
+// configured default stands, exactly as before this feature existed.
+// ---------------------------------------------------------------------------
+export const REASONING_EFFORTS = ['off', 'low', 'medium', 'high'] as const;
+export type ReasoningEffort = (typeof REASONING_EFFORTS)[number];
 
-/**
- * Returns true when the provider should use `agent.generateLegacy(...)` (i.e.
- * it is OpenAI-compatible and goes through `createOpenAICompatible`).
- *
- * Uses `||` not `??` so that a Mongoose `default: false` on an existing DB doc
- * cannot mask a preset that correctly declares `isOpenAICompatible: true`.
- */
-export function isLegacyProvider(
-  providerName: string,
-  docs: ProviderDocLike[],
-): boolean {
-  const preset = PROVIDER_PRESETS.find((p) => p.provider === providerName);
-  const doc = docs.find((d) => d.provider === providerName);
+/** Type guard for the reasoning-effort enum — validates untrusted request input. */
+export function isReasoningEffort(v: unknown): v is ReasoningEffort {
   return (
-    preset?.isOpenAICompatible === true || doc?.isOpenAICompatible === true
+    typeof v === 'string' &&
+    (REASONING_EFFORTS as readonly string[]).includes(v)
   );
 }
 
-// What buildModel hands to Agent: a string ref ("openai/gpt-4o") for native
-// providers, or an instantiated OpenAI-compatible model.
-export type BuiltModel =
-  | string
-  | ReturnType<ReturnType<typeof createOpenAICompatible>>;
+// The `providerOptions` block Mastra forwards to the model SDK — keyed by
+// provider name, each value the option bag that provider understands.
+export type ReasoningProviderOptions = Record<string, Record<string, unknown>>;
+
+// Anthropic / Google take an explicit thinking-token budget. 'off' disables
+// reasoning where the provider supports it.
+const THINKING_BUDGET: Record<Exclude<ReasoningEffort, 'off'>, number> = {
+  low: 2048,
+  medium: 8192,
+  high: 16384,
+};
+
+// Per-provider translators: one entry per provider with a portable reasoning
+// knob. A provider absent from this table has none, so the model's configured
+// default stands (groq / mistral / cohere / OpenAI-compatible Kimi, NVIDIA…).
+const REASONING_BUILDERS: Record<
+  string,
+  (effort: ReasoningEffort) => ReasoningProviderOptions
+> = {
+  // gpt-5 / o-series accept 'minimal' | 'low' | 'medium' | 'high'.
+  openai: (effort) => ({
+    openai: { reasoningEffort: effort === 'off' ? 'minimal' : effort },
+  }),
+  anthropic: (effort) => ({
+    anthropic:
+      effort === 'off'
+        ? { thinking: { type: 'disabled' } }
+        : {
+            thinking: {
+              type: 'enabled',
+              budgetTokens: THINKING_BUDGET[effort],
+            },
+          },
+  }),
+  google: (effort) => ({
+    google: {
+      thinkingConfig: {
+        thinkingBudget: effort === 'off' ? 0 : THINKING_BUDGET[effort],
+      },
+    },
+  }),
+};
+
+/**
+ * Translate a reasoning-effort choice into the `providerOptions` block for the
+ * agent's provider. Returns `undefined` when there's nothing to apply (unset
+ * effort, or a provider without a known reasoning knob) so callers can spread
+ * it without touching the default behaviour.
+ */
+export function buildReasoningProviderOptions(
+  providerName: string,
+  effort?: ReasoningEffort,
+): ReasoningProviderOptions | undefined {
+  if (!effort) return undefined;
+  return REASONING_BUILDERS[providerName]?.(effort);
+}
+
+// What buildModel hands to Agent: a Mastra model config. A bare string ref
+// ("openai/gpt-4o") when the registry resolves the key from env, or a config
+// object — `{ id, apiKey }` for native providers with a DB-stored key, or
+// `{ id, url, apiKey, headers }` for OpenAI-compatible custom endpoints. All
+// three drive the MODERN generate()/stream() path (AI SDK v5) — there is no
+// more legacy split. (createOpenAICompatible from @ai-sdk/openai-compatible is
+// a v1/LanguageModelV1 model, which is exactly why it required generateLegacy;
+// the native config object resolves to Mastra's own v5 provider instead.)
+export interface BuiltModelConfig {
+  // `${provider}/${model}` — matches Mastra's OpenAICompatibleConfig.id shape.
+  id: `${string}/${string}`;
+  url?: string;
+  apiKey?: string;
+  headers?: Record<string, string>;
+}
+export type BuiltModel = string | BuiltModelConfig;
 
 /**
  * Build a Mastra/Vercel AI SDK model instance (or string ref) from DB data.
@@ -238,32 +258,29 @@ export function buildModel(
   const isOpenAICompatible =
     preset?.isOpenAICompatible === true || stored?.isOpenAICompatible === true;
 
+  const id = `${providerName}/${modelId}` as `${string}/${string}`;
+
   if (isOpenAICompatible) {
-    const baseURL = stored?.baseUrl || preset?.baseUrl || '';
+    const url = stored?.baseUrl || preset?.baseUrl || undefined;
     // Merge preset defaults with stored overrides (stored wins). Required for
     // gated endpoints like Kimi For Coding that demand a coding-agent User-Agent.
     const mergedHeaders = {
       ...(preset?.headers || {}),
       ...(stored?.headers || {}),
     };
-    const provider = createOpenAICompatible({
-      name: providerName,
-      baseURL,
-      apiKey: apiKey || '',
+    // Native Mastra config object → resolves to Mastra's v5 OpenAI-compatible
+    // provider and runs through generate()/stream(). Verified working for
+    // kimi-for-coding (custom url + User-Agent + DB key) in scripts/spike-native-model.ts.
+    return {
+      id,
+      url,
+      apiKey,
       headers: Object.keys(mergedHeaders).length ? mergedHeaders : undefined,
-      // Kimi/Moonshot reasoning models reject tool-call histories that omit
-      // reasoning_content — patch it in via fetch middleware.
-      ...(needsReasoningContentShim(providerName, baseURL)
-        ? { fetch: withReasoningContentShim() }
-        : {}),
-    });
-    return provider(modelId);
+    };
   }
 
-  // Standard Mastra string-based providers — inject API key into env if needed
-  if (apiKey && envKey) {
-    process.env[envKey] = apiKey;
-  }
-
-  return `${providerName}/${modelId}`;
+  // Native registry providers (openai/anthropic/google/...): pass the key
+  // explicitly when we have one (DB-stored or env) so no env mutation is needed;
+  // fall back to the bare string ref when the registry resolves the key itself.
+  return apiKey ? { id, apiKey } : id;
 }

@@ -488,6 +488,7 @@ const productQueries = {
       similarityGroup?.propertiesData || {};
 
     let fieldIds = Object.keys(selection);
+
     if (!fieldIds.length) {
       fieldIds = [
         ...new Set(
@@ -517,16 +518,18 @@ const productQueries = {
     }
 
     const valuesOf = (fieldId: string) => {
-      const present = new Set(
-        members
-          .map((member) => member.propertiesData?.[fieldId])
-          .filter((value) => value != null),
-      );
+      if (selection[fieldId]?.length) {
+        return selection[fieldId];
+      }
 
-      // keep the group's value order, but only offer existing variants
-      return selection[fieldId]?.length
-        ? selection[fieldId].filter((value) => present.has(value))
-        : [...present];
+      return [
+        ...new Set(
+          members
+            .map((member) => member.propertiesData?.[fieldId])
+            .map((value) => (Array.isArray(value) ? value[0] : value))
+            .filter((value) => value != null),
+        ),
+      ];
     };
 
     return {

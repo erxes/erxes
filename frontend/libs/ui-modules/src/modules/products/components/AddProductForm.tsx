@@ -11,6 +11,7 @@ import {
   InfoCard,
   Input,
   Label,
+  NumberInput,
   ScrollArea,
   Select,
   Sheet,
@@ -40,6 +41,7 @@ import {
   EMPTY_PRODUCT_FORM_VALUES,
   PRODUCT_FORM_SCHEMA,
 } from '../constants/addProductFormSchema';
+import { PRODUCT_DURATION_TYPES } from '../constants/productTypes';
 import { useAddProduct } from '../hooks/useProductsAdd';
 import { IProductFormValues } from '../types';
 import {
@@ -621,6 +623,8 @@ function AddProductFormFieldsDetail({
   showExtended?: boolean;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
+  const productType = form.watch('type');
+
   return (
     <div className={showExtended ? 'grid gap-4 lg:grid-cols-5' : ''}>
       <div className={showExtended ? 'grid gap-4 lg:col-span-3' : ''}>
@@ -724,6 +728,55 @@ function AddProductFormFieldsDetail({
                   </Form.Item>
                 )}
               />
+              {productType === 'unique' && (
+                <>
+                  <Form.Field
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('duration')}</Form.Label>
+                        <Form.Control>
+                          <NumberInput {...field} />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="durationType"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('duration-type')}</Form.Label>
+                        <Form.Control>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <Select.Trigger>
+                              <Select.Value
+                                placeholder={t('select-duration-type')}
+                              />
+                            </Select.Trigger>
+                            <Select.Content>
+                              {PRODUCT_DURATION_TYPES.map((durationType) => (
+                                <Select.Item
+                                  key={durationType.value}
+                                  value={durationType.value}
+                                >
+                                  {durationType.label}
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </>
+              )}
               <Form.Field
                 control={form.control}
                 name="uom"

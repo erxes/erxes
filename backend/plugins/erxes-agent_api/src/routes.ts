@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
+import { checkPermissionGroup } from 'erxes-api-shared/core-modules';
 import { generateModels } from './connectionResolvers';
 import { getOrCreateAgent } from './mastra/agentRuntime';
 import {
@@ -8,26 +9,24 @@ import {
   createActivityTracker,
   summarizeActivity,
 } from './mastra/activity';
-import { isLegacyProvider } from './mastra/providers';
-import { runWithAuth } from './mastra/requestContext';
-import { isAdvancedMemoryEnabled } from './mastra/memory/config';
+import { toolStatusLine } from './mastra/activity-signals';
 import {
-  recallBlock,
-  indexMessages,
-  readWorkingMemory,
-  refreshWorkingMemory,
-  deriveBotResourceId,
-  augmentConvo,
-  MemoryContext,
-} from './mastra/memory';
+  isReasoningEffort,
+  buildReasoningProviderOptions,
+  ReasoningEffort,
+} from './mastra/providers';
+import { runWithAuth, ApprovedOp } from './mastra/requestContext';
+import { isAdvancedMemoryEnabled } from './mastra/memory/config';
+import { scopedResource } from './mastra/memory/mastraMemory';
+import { augmentConvo } from './mastra/memory';
 import { readLearnedDigest } from './mastra/learning/digest';
 import {
   prepareChatTurn,
   persistTurn,
-  executeTextToolCall,
-  extractTextToolCall,
   synthesizeFromToolResults,
   toUserFacingError,
+  runAgentTurn,
+  patchNativeTurn,
   TurnAgent,
 } from '@/agent/turn';
 import {
@@ -197,31 +196,111 @@ function sanitizeAttachments(raw: unknown): IMastraChatAttachment[] | null {
   return out;
 }
 
-router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
-  const user = extractUserFromHeader(req.headers);
-  if (!user?._id) {
-    return res.status(401).json({ error: 'Login required' });
-  }
+// Validated POST /chat/stream payload. All shape-checking for the untrusted
+// request body lives here so the handler reads as straight-line logic.
+interface ChatStreamRequest {
+  agentId: string;
+  message: string;
+  threadId?: string;
+  reasoningEffort?: ReasoningEffort;
+  attachments: IMastraChatAttachment[];
+  approvedOperations: ApprovedOp[];
+}
 
-  const { agentId, message, threadId } = req.body || {};
+// Shape-check the per-turn destructive-op approvals the client echoes back when
+// the user clicks Approve. Returns the sanitized list, or null when malformed.
+const MAX_APPROVED_OPS = 20;
+function sanitizeApprovedOperations(raw: unknown): ApprovedOp[] | null {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw) || raw.length > MAX_APPROVED_OPS) return null;
+  const out: ApprovedOp[] = [];
+  for (const item of raw) {
+    const candidate = item as Record<string, unknown> | null | undefined;
+    if (!candidate || typeof candidate.operation !== 'string') return null;
+    const args =
+      candidate.args && typeof candidate.args === 'object'
+        ? (candidate.args as Record<string, unknown>)
+        : undefined;
+    out.push({ operation: candidate.operation, args });
+  }
+  return out;
+}
+
+type ParseResult =
+  | { ok: true; value: ChatStreamRequest }
+  | { ok: false; error: string };
+
+function parseChatStreamBody(raw: unknown): ParseResult {
+  const body = (raw ?? {}) as Record<string, unknown>;
+  const { agentId, message, threadId, reasoningEffort } = body;
+
   if (
     typeof agentId !== 'string' ||
     !agentId ||
     typeof message !== 'string' ||
     !message.trim()
   ) {
-    return res.status(400).json({ error: 'agentId and message are required' });
+    return { ok: false, error: 'agentId and message are required' };
   }
   if (threadId !== undefined && typeof threadId !== 'string') {
-    return res.status(400).json({ error: 'threadId must be a string' });
+    return { ok: false, error: 'threadId must be a string' };
+  }
+  if (reasoningEffort !== undefined && !isReasoningEffort(reasoningEffort)) {
+    return {
+      ok: false,
+      error: 'reasoningEffort must be off | low | medium | high',
+    };
   }
 
-  const attachments = sanitizeAttachments(req.body?.attachments);
+  const attachments = sanitizeAttachments(body.attachments);
   if (attachments === null) {
-    return res.status(400).json({ error: 'Invalid attachments payload' });
+    return { ok: false, error: 'Invalid attachments payload' };
   }
+
+  const approvedOperations = sanitizeApprovedOperations(body.approvedOperations);
+  if (approvedOperations === null) {
+    return { ok: false, error: 'Invalid approvedOperations payload' };
+  }
+
+  return {
+    ok: true,
+    value: {
+      agentId,
+      message,
+      threadId,
+      reasoningEffort,
+      attachments,
+      approvedOperations,
+    },
+  };
+}
+
+router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
+  const user = extractUserFromHeader(req.headers);
+  if (!user?._id) {
+    return res.status(401).json({ error: 'Login required' });
+  }
+
+  const parsed = parseChatStreamBody(req.body);
+  if (!parsed.ok) {
+    return res.status(400).json({ error: parsed.error });
+  }
+  // reasoningEffort is the optional per-conversation override from the composer.
+  const { agentId, message, threadId, reasoningEffort, attachments } =
+    parsed.value;
+  const { approvedOperations } = parsed.value;
 
   const subdomain = getSubdomain(req);
+
+  // Streaming chat is the HTTP twin of the mastraAgentChat resolver, so it is
+  // gated by the same `agentsChat` permission. checkPermissionGroup throws on
+  // denial (FORBIDDEN) — translate that into a 403 for the SSE client.
+  try {
+    await checkPermissionGroup(subdomain, user)('agentsChat');
+  } catch {
+    return res.status(403).json({ error: 'Permission required' });
+  }
+
   const models = await generateModels(subdomain);
 
   // Attachments require the instance's upload storage — reject early (the UI
@@ -333,32 +412,57 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       message,
       threadId,
       attachments,
+      approvedOperations,
     });
-    const { agent, tools, convo, authCtx, isLegacy } = prepared;
+    const { agent, convo, authCtx, memoryBinding } = prepared;
+
+    // Per-conversation reasoning override → provider-specific options, resolved
+    // once against the agent's provider. Providers without a portable reasoning
+    // knob yield undefined, so the model's configured default stands untouched.
+    const reasoningOptions = buildReasoningProviderOptions(
+      prepared.agentConfig.provider,
+      reasoningEffort,
+    );
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
     activity = createActivityTracker({
       userMessage: message,
       emit: (text) => send({ type: 'activity', text }),
+      // Tool steps narrate instantly (no LLM); reasoning bursts use the model.
+      toolSignal: toolStatusLine,
       summarize: (snapshot) =>
         summarizeActivity({
           provider: prepared.agentConfig.provider,
           model: prepared.agentConfig.model,
           providers: prepared.providers,
           authCtx,
-          isLegacy,
           snapshot,
         }),
     });
 
     let streamError: string | null = null;
 
+    // Plan B: the Langfuse trace id for this turn — stamped onto the assistant
+    // message (via meta below) so a later thumbs rating can attach a human score
+    // to the right trace. Captured from the stream; undefined when eval is off.
+    let langfuseTraceId: string | undefined;
     try {
       await runWithAuth(authCtx, async () => {
-        const stream = await (isLegacy
-          ? agent.streamLegacy(convo, { abortSignal: controller.signal })
-          : agent.stream(convo, { abortSignal: controller.signal }));
+        const stream = await agent.stream(convo, {
+          abortSignal: controller.signal,
+          ...(memoryBinding ? { memory: memoryBinding } : {}),
+          ...(reasoningOptions ? { providerOptions: reasoningOptions } : {}),
+        });
+        const tid = (stream as { traceId?: unknown }).traceId;
+        const resolvedTid =
+          tid && typeof (tid as PromiseLike<unknown>).then === 'function'
+            ? await (tid as Promise<unknown>).catch(() => undefined)
+            : tid;
+        // Only accept a string trace id — a non-string truthy value would slip
+        // past the falsy guard in pushUserScore and ship bad data to Langfuse.
+        langfuseTraceId =
+          typeof resolvedTid === 'string' ? resolvedTid : undefined;
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);
@@ -392,67 +496,28 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
     const interrupted = controller.signal.aborted;
     let reply: string | null = acc.text || null;
 
-    if (!interrupted) {
-      const trimmed = acc.text.trimStart();
+    if (!interrupted && !acc.text) {
+      // No answer text streamed — synthesize from tool results, or report the
+      // error. (Native generate() produces the final text itself, so this only
+      // fires when the model ended a turn on tool calls without prose.)
+      const toolResults = acc.toolCalls
+        .filter((tc) => tc.result !== undefined)
+        .map((tc) => ({
+          toolCallId: tc.toolCallId,
+          toolName: tc.toolName,
+          result: tc.result,
+        }));
 
-      // Text-emitted tool call (models without native tool_calls): execute it
-      // and replace the raw JSON the client already saw with the real answer.
-      const extracted = trimmed ? extractTextToolCall(trimmed) : null;
-      if (extracted) {
-        const handled = await executeTextToolCall({
+      if (toolResults.length) {
+        reply = await synthesizeFromToolResults({
           agent,
-          tools,
-          convo,
           message,
-          isLegacy,
           authCtx,
-          depth: 0,
-          extracted,
-          rawText: trimmed,
-          onToolEvent: (toolEvent) => {
-            const ev: StreamEvent =
-              toolEvent.phase === 'call'
-                ? {
-                    type: 'tool_call',
-                    toolName: toolEvent.toolName,
-                    args: toolEvent.args,
-                  }
-                : {
-                    type: 'tool_result',
-                    toolName: toolEvent.toolName,
-                    result: toolEvent.result,
-                    isError: toolEvent.isError,
-                  };
-            recordToolCall(ev);
-            send(ev);
-          },
+          toolResults,
         });
-        if (handled !== undefined && handled !== null) {
-          reply = handled;
-          send({ type: 'text_replace', text: handled });
-        }
-      } else if (!acc.text) {
-        // No text streamed — synthesize from tool results, or report the error.
-        const toolResults = acc.toolCalls
-          .filter((tc) => tc.result !== undefined)
-          .map((tc) => ({
-            toolCallId: tc.toolCallId,
-            toolName: tc.toolName,
-            result: tc.result,
-          }));
-
-        if (toolResults.length) {
-          reply = await synthesizeFromToolResults({
-            agent,
-            message,
-            isLegacy,
-            authCtx,
-            toolResults,
-          });
-          send({ type: 'text', text: reply });
-        } else if (streamError) {
-          throw new Error(streamError);
-        }
+        send({ type: 'text', text: reply });
+      } else if (streamError) {
+        throw new Error(streamError);
       }
     }
 
@@ -467,6 +532,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
             toolCalls: acc.toolCalls.length ? acc.toolCalls : undefined,
             parts: acc.parts.length ? acc.parts : undefined,
             interrupted: interrupted || undefined,
+            langfuseTraceId,
           }
         : undefined,
     });
@@ -529,117 +595,60 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
       });
     }
 
-    const providers = await models.MastraProvider.find({ isEnabled: true });
-    const { agent } = await getOrCreateAgent(agentConfig, models);
+    const { agent } = await getOrCreateAgent(agentConfig, models, subdomain);
 
-    // Conversation memory is Mongo-backed, keyed by the frontline conversationId.
+    // The frontline conversation is a Mastra-native thread owned by a synthetic
+    // "bot:*" resource (kept out of in-app users' chat lists). Memory replays
+    // history + runs recall/working-memory and persists this turn itself.
     const userText = text || '';
-    const useHistory = agentConfig.memoryEnabled !== false;
-    const advanced =
-      isAdvancedMemoryEnabled() && useHistory && !!userText.trim();
-    const history = useHistory
-      ? await models.MastraMessage.getRecent(conversationId, 20)
-      : [];
-    const recentHistory = history.map((msg) => ({
-      role: msg.role,
-      content: msg.content,
-    }));
+    const useMemory =
+      isAdvancedMemoryEnabled() &&
+      agentConfig.memoryEnabled !== false &&
+      Boolean(userText.trim());
+    const memoryBinding = useMemory
+      ? {
+          thread: conversationId,
+          resource: scopedResource(
+            subdomain,
+            `bot:${customerId || conversationId}`,
+          ),
+        }
+      : undefined;
 
-    const memCtx: MemoryContext = {
-      subdomain,
-      resourceId: deriveBotResourceId({ customerId, conversationId }),
-      threadId: conversationId,
-      agentId: agentConfig.agentId,
-    };
-
-    // Advanced memory: semantic recall + working memory (best-effort), plus
-    // the tenant's learned digest (shared, PII-free agent knowledge).
-    const [[recall, wmBlock], digest] = await Promise.all([
-      advanced
-        ? Promise.all([
-            recallBlock(userText, memCtx),
-            readWorkingMemory(models, memCtx),
-          ])
-        : Promise.resolve([null, null] as [string | null, string | null]),
-      readLearnedDigest(models, agentConfig.agentId),
-    ]);
-
+    // Shared learned digest (PII-free agent knowledge), separate from memory.
+    const digest = await readLearnedDigest(models, agentConfig.agentId);
     const convo = augmentConvo({
-      recentHistory,
+      recentHistory: [],
       userMessage: userText,
-      recallBlock: recall,
-      workingMemoryBlock: wmBlock,
+      recallBlock: null,
+      workingMemoryBlock: null,
       learnedDigestBlock: digest?.block,
     });
 
-    // Bot requests use the static app token from settings (no user session available)
+    // Bot requests use the static app token from settings (no user session).
     const authCtx = { token: settings?.erxesApiToken, subdomain };
-    const isLegacy = isLegacyProvider(agentConfig.provider, providers);
-    // The published Agent generics type tool results as wire chunks; this
-    // text-only webhook path reads only `.text`, hence the structural cast
-    // (same idiom as prepareChatTurn in @/agent/turn).
-    const turnAgent = agent as unknown as TurnAgent;
-    const result = await runWithAuth(authCtx, () =>
-      isLegacy ? turnAgent.generateLegacy(convo) : turnAgent.generate(convo),
-    );
-
-    const reply = result.text || '';
-
-    // Persist the exchange so the bot remembers across webhook calls. The
-    // synthetic "bot:*" owner keeps these threads out of every in-app user's
-    // session list and ownership checks.
-    await models.MastraThread.ensureThread(
-      conversationId,
-      agentConfig.agentId,
-      `bot:${customerId || conversationId}`,
-      userText,
-    );
-    const userMsg = await models.MastraMessage.addMessage(
-      conversationId,
-      'user',
-      userText,
-    );
-    const asstMsg = reply
-      ? await models.MastraMessage.addMessage(
-          conversationId,
-          'assistant',
-          reply,
-        )
-      : null;
-    await models.MastraThread.touchThread(conversationId);
-
-    // Advanced memory: index the exchange + refresh the profile (best-effort).
-    if (advanced) {
-      const toIndex = [
-        {
-          id: String(userMsg._id),
-          role: 'user',
-          text: userText,
-          createdAt: userMsg.createdAt?.toISOString?.(),
-        },
-      ];
-      if (asstMsg && reply) {
-        toIndex.push({
-          id: String(asstMsg._id),
-          role: 'assistant',
-          text: reply,
-          createdAt: asstMsg.createdAt?.toISOString?.(),
-        });
-      }
-      await indexMessages(memCtx, toIndex);
-
-      if (reply) {
-        void refreshWorkingMemory({
-          models,
-          ctx: memCtx,
-          exchange: { user: userText, assistant: reply },
-          provider: agentConfig.provider,
-          model: agentConfig.model,
-          providers,
+    const reply =
+      (await runWithAuth(authCtx, () =>
+        runAgentTurn({
+          // Structural cast (same idiom as prepareChatTurn): the published
+          // Agent generics are wider than the slice runAgentTurn consumes.
+          agent: agent as unknown as TurnAgent,
+          convo,
+          message: userText,
           authCtx,
-          isLegacy,
-        });
-      }
+          memory: memoryBinding,
+        }),
+      )) ?? '';
+
+    // Native persistence happened in runAgentTurn; stamp agentId + tenant so the
+    // bot thread is attributable + sweepable by the learning pass.
+    if (memoryBinding) {
+      await patchNativeTurn({
+        subdomain,
+        binding: memoryBinding,
+        agentId: agentConfig.agentId,
+        reply,
+      }).catch(() => null);
     }
 
     return res.json({ responses: [{ type: 'text', text: reply }] });

@@ -72,10 +72,21 @@ export const dealSchema = schemaWrapper(
       userId: { type: String, optional: true, esType: 'keyword' },
       order: { type: Number, index: true },
       name: { type: String, optional: true, label: 'Name' },
-      startDate: { type: Date, label: 'Start date', esType: 'date' },
-      closeDate: { type: Date, label: 'Close date', esType: 'date' },
+      startDate: {
+        type: Date,
+        index: true,
+        label: 'Start date',
+        esType: 'date',
+      },
+      closeDate: {
+        type: Date,
+        index: true,
+        label: 'Close date',
+        esType: 'date',
+      },
       stageChangedDate: {
         type: Date,
+        index: true,
         label: 'Stage changed date',
         esType: 'date',
       },

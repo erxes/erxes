@@ -7,7 +7,11 @@ import { Model } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
-import { PRODUCT_STATUSES } from '@/products/constants';
+import {
+  PRODUCT_DURATION_TYPES,
+  PRODUCT_STATUSES,
+  PRODUCT_TYPES,
+} from '@/products/constants';
 import { productSchema } from '@/products/db/definitions/products';
 import {
   checkCodeMask,
@@ -39,6 +43,45 @@ export const loadProductClass = (
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
   class Product {
+    private static normalizeDuration(
+      doc: IProduct,
+      currentProduct?: IProductDocument,
+    ) {
+      const type = doc.type || currentProduct?.type || PRODUCT_TYPES.PRODUCT;
+      const duration = doc.duration ?? currentProduct?.duration;
+      const durationType = doc.durationType ?? currentProduct?.durationType;
+
+      if (type !== PRODUCT_TYPES.UNIQUE) {
+        delete doc.duration;
+        delete doc.durationType;
+        return false;
+      }
+
+      if (
+        typeof duration !== 'number' ||
+        !Number.isFinite(duration) ||
+        duration <= 0
+      ) {
+        throw new Error('Duration must be greater than 0 for unique products');
+      }
+
+      if (!durationType || !PRODUCT_DURATION_TYPES.ALL.includes(durationType)) {
+        throw new Error(
+          'A valid duration type is required for unique products',
+        );
+      }
+
+      if (doc.duration !== undefined) {
+        doc.duration = duration;
+      }
+
+      if (doc.durationType !== undefined) {
+        doc.durationType = durationType;
+      }
+
+      return true;
+    }
+
     /**
      * Get Product
      */
@@ -56,6 +99,8 @@ export const loadProductClass = (
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
+      this.normalizeDuration(doc);
+
       doc.code = doc.code
         .replace(/\*/g, '')
         .replace(/_/g, '')
@@ -144,6 +189,7 @@ export const loadProductClass = (
 
     public static async updateProductFromBulk(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
+      const keepsDuration = this.normalizeDuration(doc, product);
 
       const category = await models.ProductCategories.getProductCategory({
         _id: doc.categoryId || product.categoryId,
@@ -176,7 +222,15 @@ export const loadProductClass = (
         ...doc,
       });
 
-      await models.Products.updateOne({ _id }, { $set: doc });
+      await models.Products.updateOne(
+        { _id },
+        keepsDuration
+          ? { $set: doc }
+          : {
+              $set: doc,
+              $unset: { duration: 1, durationType: 1 },
+            },
+      );
 
       const updatedProduct = await models.Products.findOne({ _id }).lean();
       if (updatedProduct) {

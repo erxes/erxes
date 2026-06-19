@@ -139,7 +139,6 @@ export function parseCandidates(raw: string): CandidateLearning[] {
 // avoids a static @mastra/core type dependency in a lazily-loaded path.
 interface StatelessAgent {
   generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
-  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
 }
 
 const _agents = new Map<string, StatelessAgent>();
@@ -152,8 +151,11 @@ async function statelessAgent(
   provider: string,
   model: string,
   providers: ProviderDocLike[],
+  outputProcessors?: unknown[],
 ): Promise<StatelessAgent> {
-  const key = `${id}:${provider}:${model}`;
+  // Include the processor count so an agent built with a different processor
+  // pipeline (e.g. with vs. without the PIIDetector) is never reused.
+  const key = `${id}:${provider}:${model}:p${outputProcessors?.length ?? 0}`;
   let cached = _agents.get(key);
   if (!cached) {
     const { Agent } = await import('@mastra/core/agent');
@@ -163,10 +165,47 @@ async function statelessAgent(
       name,
       instructions,
       model: buildModel(provider, model, providers),
-    }) as unknown as StatelessAgent;
+      ...(outputProcessors?.length ? { outputProcessors } : {}),
+    } as never) as unknown as StatelessAgent;
     _agents.set(key, cached);
   }
   return cached;
+}
+
+/**
+ * Mastra's model-backed PII detector, attached as the distiller's output
+ * processor. It replaces the old regex scrub + LLM privacy gate: every distilled
+ * statement is screened for names/emails/phones/ids/account details (incl.
+ * contextual PII) and redacted in place before parsing — so no raw identifier
+ * ever reaches the shared knowledge tier. Uses the distiller's own model.
+ */
+async function buildPiiProcessor(
+  provider: string,
+  model: string,
+  providers: ProviderDocLike[],
+): Promise<unknown> {
+  const { PIIDetector } = await import('@mastra/core/processors');
+  const { buildModel } = await import('~/mastra/providers');
+  return new PIIDetector({
+    model: buildModel(provider, model, providers) as never,
+    strategy: 'redact',
+    redactionMethod: 'placeholder',
+    detectionTypes: [
+      'email',
+      'phone',
+      'name',
+      'address',
+      'credit-card',
+      'ssn',
+      'api-key',
+      'ip-address',
+      'url',
+    ],
+    // Drive structured output via prompt-injected JSON, not the provider's
+    // native response_format — OpenAI-compatible gateways like OpenCode/DeepSeek
+    // reject response_format ("This response_format type is unavailable now").
+    structuredOutputOptions: { jsonPromptInjection: true },
+  } as never);
 }
 
 export interface ExtractionRuntime {
@@ -174,7 +213,6 @@ export interface ExtractionRuntime {
   model: string;
   providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
-  isLegacy: boolean;
 }
 
 /** One single-turn generate under the request's auth context; returns text. */
@@ -186,9 +224,7 @@ async function runStateless(
   const { runWithAuth } = await import('~/mastra/requestContext');
   const msgs = [{ role: 'user', content: userContent }];
   const result = await runWithAuth(rt.authCtx, () =>
-    rt.isLegacy
-      ? agent.generateLegacy(msgs)
-      : agent.generate(msgs, { maxSteps: 1 }),
+    agent.generate(msgs, { maxSteps: 1 }),
   );
   return result?.text ?? '';
 }
@@ -206,6 +242,7 @@ export async function extractCandidates(
     rt.provider,
     rt.model,
     rt.providers,
+    [await buildPiiProcessor(rt.provider, rt.model, rt.providers)],
   );
   const text = await runStateless(
     agent,
@@ -213,32 +250,4 @@ export async function extractCandidates(
     rt,
   );
   return parseCandidates(text);
-}
-
-/** Run the LLM privacy gate over candidate statements. Fail-closed. */
-export async function gateCandidates(
-  statements: string[],
-  rt: ExtractionRuntime,
-): Promise<boolean[]> {
-  if (!statements.length) return [];
-  const { PRIVACY_GATE_INSTRUCTIONS, buildGateUserContent, parseGateVerdicts } =
-    await import('./sanitize');
-  const agent = await statelessAgent(
-    'mastra-learning-privacy-gate',
-    'Learning Privacy Gate',
-    PRIVACY_GATE_INSTRUCTIONS,
-    rt.provider,
-    rt.model,
-    rt.providers,
-  );
-  try {
-    const text = await runStateless(
-      agent,
-      buildGateUserContent(statements),
-      rt,
-    );
-    return parseGateVerdicts(text, statements.length);
-  } catch {
-    return new Array(statements.length).fill(false);
-  }
 }

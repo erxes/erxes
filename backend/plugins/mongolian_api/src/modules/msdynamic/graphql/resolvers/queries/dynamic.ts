@@ -23,7 +23,12 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
     return acc;
   }, {});
 
-  const config = map[brandId || 'noBrand'];
+  const key = brandId || 'noBrand';
+  let config = map[key];
+
+  if (!config && map['noBrand'] && typeof map['noBrand'] === 'object') {
+    config = map['noBrand'][key];
+  }
 
   if (!config) {
     throw new Error('MS Dynamic config not found.');
@@ -78,11 +83,7 @@ const generateFilter = (params: any) => {
  * ============================
  */
 export const msdynamicQueries = {
-  async syncMsdHistories(
-    _root,
-    params,
-    { models, checkPermission }: IContext,
-  ) {
+  async syncMsdHistories(_root, params, { models, checkPermission }: IContext) {
     await checkPermission('showMsd');
 
     return cursorPaginate({
@@ -108,12 +109,10 @@ export const msdynamicQueries = {
       productCodes,
       brandId,
       posToken,
-      branchId,
     }: {
       productCodes: string[];
       brandId: string;
       posToken?: string;
-      branchId?: string;
     },
     { subdomain, checkPermission }: IContext,
   ) {

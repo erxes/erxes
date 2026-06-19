@@ -29,7 +29,15 @@ export interface PmsCreateBranchVariables {
   permissionConfig?: any;
   pipelineConfig?: IPmsPipelineConfig;
   extraProductCategories?: string[];
+  excludeExtraProductCategoryIds?: string[];
+  excludeExtraProductIds?: string[];
   roomCategories?: string[];
+  excludeRoomCategoryIds?: string[];
+  excludeRoomIds?: string[];
+  hasAppointment?: boolean;
+  appointmentCategories?: string[];
+  excludeAppointmentCategoryIds?: string[];
+  excludeAppointmentIds?: string[];
   discount?: IPmsPaymentType[];
   websiteReservationLock?: boolean;
   time?: string;

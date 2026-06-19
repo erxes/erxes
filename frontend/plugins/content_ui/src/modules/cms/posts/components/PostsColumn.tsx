@@ -18,13 +18,14 @@ import {
   IconUser,
   IconEye,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
 import { PostPublicUrlButton } from './PostPublicUrlButton';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 import type { Posts } from '../types/postsType';
 import type { IWebsite } from '../../types';
+import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
 
 const getPostAuthorName = (post: Posts) => {
   const details = post.author?.details;
@@ -69,6 +70,7 @@ export const usePostsColumns = (
   cmsConfig?: IWebsite,
 ): ColumnDef<Posts>[] => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isMissing } = useIsTranslationMissing();
 
   return [
@@ -96,8 +98,22 @@ export const usePostsColumns = (
             <div
               onClick={(e) => {
                 e.stopPropagation();
+                if (onEditPost) {
+                  onEditPost(post);
+                  return;
+                }
+
                 navigate(
                   `/content/cms/${post.clientPortalId}/posts/detail/${post._id}`,
+                  {
+                    state: {
+                      returnTo: buildCurrentPostsReturnPath(
+                        location.pathname,
+                        location.search,
+                        post._id,
+                      ),
+                    },
+                  },
                 );
               }}
               className="cursor-pointer "
@@ -106,7 +122,10 @@ export const usePostsColumns = (
                 variant={missing ? 'outline' : 'secondary'}
                 className={missing ? 'text-red-500 border-red-300' : ''}
               >
-                <TextOverflowTooltip value={post.title} />
+                <TextOverflowTooltip
+                  value={post.title}
+                  className="leading-normal"
+                />
               </Badge>
             </div>
           </RecordTableInlineCell>
@@ -136,9 +155,9 @@ export const usePostsColumns = (
               value={
                 row.original.categories
                   ?.map((category) => category.name)
-                  .join(', ') ||
-                ''
+                  .join(', ') || ''
               }
+              className="leading-normal"
             />
           </RecordTableInlineCell>
         );
@@ -152,9 +171,8 @@ export const usePostsColumns = (
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip
-              value={
-                row.original.tags?.map((tag) => tag.name).join(', ') || ''
-              }
+              value={row.original.tags?.map((tag) => tag.name).join(', ') || ''}
+              className="leading-normal"
             />
           </RecordTableInlineCell>
         );
@@ -166,7 +184,10 @@ export const usePostsColumns = (
       header: () => <RecordTable.InlineHead icon={IconUser} label="Author" />,
       cell: ({ row }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={getPostAuthorName(row.original)} />
+          <TextOverflowTooltip
+            value={getPostAuthorName(row.original)}
+            className="leading-normal"
+          />
         </RecordTableInlineCell>
       ),
       size: 180,
@@ -193,7 +214,7 @@ export const usePostsColumns = (
           (post.type === 'post' ? 'Post' : post.type);
         return (
           <RecordTableInlineCell>
-            <TextOverflowTooltip value={typeLabel} />
+            <TextOverflowTooltip value={typeLabel} className="leading-normal" />
           </RecordTableInlineCell>
         );
       },

@@ -57,3 +57,8 @@ export const CDRSchema = new Schema({
 });
 
 CDRSchema.index({ acctId: 1 }, { unique: true });
+CDRSchema.index({ inboxIntegrationId: 1, start: -1 });
+CDRSchema.index({ uniqueid: 1 });
+CDRSchema.index({ dstchannelExt: 1 });
+CDRSchema.index({ dstanswer: 1 });
+CDRSchema.index({ src: 1 });
