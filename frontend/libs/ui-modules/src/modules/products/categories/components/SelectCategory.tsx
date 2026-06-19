@@ -1,5 +1,6 @@
 import { IconCategory } from '@tabler/icons-react';
 import {
+  Badge,
   Button,
   cn,
   Combobox,
@@ -32,7 +33,6 @@ interface SelectCategoryProviderProps {
   onValueChange?: (value: string[] | string) => void;
   onSelect?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
-  pruneMissing?: boolean;
 }
 
 interface SelectCategoryContextValue {
@@ -68,7 +68,6 @@ const SelectCategoryProvider = ({
   onValueChange,
   onSelect,
   mode = 'single',
-  pruneMissing = false,
 }: SelectCategoryProviderProps) => {
   const [selectedCategories, setSelectedCategories] = useState<
     IProductCategory[]
@@ -84,34 +83,13 @@ const SelectCategoryProvider = ({
     [selectedValue],
   );
   const handleValueChange = onValueChange || onSelect;
-  const { productCategories, loading: selectedLoading } = useProductCategories({
+  const { productCategories } = useProductCategories({
     variables: {
       ids: categoryIds,
       status: 'active',
     },
     skip: categoryIds.length === 0,
   });
-
-  useEffect(() => {
-    if (!pruneMissing || selectedLoading || categoryIds.length === 0) {
-      return;
-    }
-
-    const existingIds = new Set(productCategories.map((c) => c._id));
-    const prunedIds = categoryIds.filter((id) => existingIds.has(id));
-    if (prunedIds.length === categoryIds.length) {
-      return;
-    }
-
-    handleValueChange?.(mode === 'single' ? prunedIds[0] ?? '' : prunedIds);
-  }, [
-    pruneMissing,
-    selectedLoading,
-    categoryIds,
-    productCategories,
-    mode,
-    handleValueChange,
-  ]);
 
   useEffect(() => {
     if (!productCategories?.length) {
@@ -181,7 +159,7 @@ const SelectCategoryProvider = ({
 const SelectCategoryCommand = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedCategories } = useSelectCategoryContext();
+  const { categoryIds } = useSelectCategoryContext();
   const { productCategories, loading, error } = useProductCategories({
     variables: {
       searchValue: debouncedSearch,
@@ -200,7 +178,7 @@ const SelectCategoryCommand = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
-        {selectedCategories.length > 0 && (
+        {categoryIds.length > 0 && (
           <>
             <div className="flex flex-wrap gap-2 p-2">
               <SelectCategoryList />
@@ -292,7 +270,7 @@ const SelectCategoryList = ({
       <span className="truncate">
         {selectedCategory
           ? `${selectedCategory.code || ''} ${selectedCategory.name}`.trim()
-          : placeholder || 'Select category'}
+          : categoryIds[0] || placeholder || 'Select category'}
       </span>
     );
   }
@@ -301,6 +279,22 @@ const SelectCategoryList = ({
     <div className="flex flex-wrap gap-2 w-full">
       {categoryIds.map((categoryId) => {
         const category = categoryMap.get(categoryId);
+
+        if (!category) {
+          return (
+            <Badge
+              key={categoryId}
+              variant="warning"
+              className="font-mono"
+              title={`Unknown id: ${categoryId}`}
+              onClose={() =>
+                onSelectCategory({ _id: categoryId } as IProductCategory)
+              }
+            >
+              <span className="max-w-24 truncate">{categoryId}</span>
+            </Badge>
+          );
+        }
 
         return (
           <Button
@@ -311,15 +305,11 @@ const SelectCategoryList = ({
             className="h-7 max-w-full px-2 font-normal"
             onClick={(event) => {
               event.stopPropagation();
-              if (category) {
-                onSelectCategory(category);
-              }
+              onSelectCategory(category);
             }}
           >
             <span className="truncate">
-              {category
-                ? `${category.code || ''} ${category.name}`.trim()
-                : categoryId}
+              {`${category.code || ''} ${category.name}`.trim()}
             </span>
           </Button>
         );
@@ -396,7 +386,6 @@ const SelectCategoryFormItem = ({
   className,
   placeholder,
   scope,
-  pruneMissing = true,
   ...props
 }: Omit<React.ComponentProps<typeof SelectCategoryProvider>, 'children'> & {
   className?: string;
@@ -407,7 +396,6 @@ const SelectCategoryFormItem = ({
 
   return (
     <SelectCategoryProvider
-      pruneMissing={pruneMissing}
       onValueChange={(value) => {
         onValueChange?.(value);
         onSelect?.(value);

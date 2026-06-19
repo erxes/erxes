@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Combobox,
   Command,
@@ -39,7 +40,6 @@ const TagsSelectProvider = ({
   scope,
   targetIds,
   options,
-  pruneMissing = false,
 }: TagsSelectProps) => {
   const [open, setOpen] = useState(false);
   const { rootTags, tagsByParentId, tags, tagGroups, loading } = useGetTags({
@@ -52,34 +52,6 @@ const TagsSelectProvider = ({
     () => (Array.isArray(value) ? value : value ? [value] : []),
     [value],
   );
-
-  useEffect(() => {
-    if (!pruneMissing || targetIds || loading || !tags || !selectedIds.length) {
-      return;
-    }
-
-    const existingIds = new Set(tags.map((t) => t._id));
-    const prunedIds = selectedIds.filter((id) => existingIds.has(id));
-    if (prunedIds.length === selectedIds.length) {
-      return;
-    }
-
-    if (mode === 'single') {
-      (onValueChange as ((value: string | undefined) => void) | undefined)?.(
-        prunedIds[0],
-      );
-    } else {
-      (onValueChange as ((value: string[]) => void) | undefined)?.(prunedIds);
-    }
-  }, [
-    pruneMissing,
-    targetIds,
-    loading,
-    tags,
-    selectedIds,
-    mode,
-    onValueChange,
-  ]);
 
   const initialTags = useMemo(
     () => tags?.filter((tag) => selectedIds.includes(tag._id)) || [],
@@ -389,9 +361,46 @@ const TagsSelectedList = ({
     mode,
     targetIds,
     type,
+    value,
+    loading,
   } = useTagsSelectContext();
   const { giveTags } = useGiveTags();
-  if (!selectedTags || selectedTags.length === 0) return null;
+
+  const selectedIds = useMemo(
+    () => (Array.isArray(value) ? value : value ? [value] : []),
+    [value],
+  );
+
+  const missingIds = useMemo(() => {
+    if (loading) return [];
+    return selectedIds.filter(
+      (id) => !selectedTags.some((tag) => tag._id === id),
+    );
+  }, [loading, selectedIds, selectedTags]);
+
+  const removeId = (id: string) => {
+    if (mode === 'single') {
+      setSelectedTags([]);
+      (onValueChange as (value: string | undefined) => void)?.(undefined);
+      if (targetIds) {
+        giveTags({ variables: { type, targetIds, tagIds: [] } });
+      }
+      return;
+    }
+    const newIds = selectedIds.filter((selectedId) => selectedId !== id);
+    setSelectedTags(selectedTags.filter((tag) => tag._id !== id));
+    (onValueChange as (value: string[]) => void)?.(newIds);
+    if (targetIds) {
+      giveTags({ variables: { type, targetIds, tagIds: newIds } });
+    }
+  };
+
+  if (
+    (!selectedTags || selectedTags.length === 0) &&
+    missingIds.length === 0
+  ) {
+    return null;
+  }
 
   return (
     <>
@@ -446,6 +455,23 @@ const TagsSelectedList = ({
           {...props}
         />
       ))}
+      {missingIds.map((id) =>
+        renderAsPlainText ? (
+          <span key={id} className="font-mono text-xs truncate">
+            {id}
+          </span>
+        ) : (
+          <Badge
+            key={id}
+            variant="warning"
+            className="font-mono"
+            title={`Unknown id: ${id}`}
+            onClose={() => removeId(id)}
+          >
+            <span className="max-w-24 truncate">{id}</span>
+          </Badge>
+        ),
+      )}
     </>
   );
 };
@@ -540,7 +566,6 @@ const TagsSelectFormItem = forwardRef<
       scope,
       className,
       targetIds,
-      pruneMissing = true,
       variant = 'ghost',
       size = 'default',
       ...props
@@ -548,12 +573,7 @@ const TagsSelectFormItem = forwardRef<
     ref,
   ) => {
     return (
-      <TagsSelectProvider
-        {...props}
-        scope={scope}
-        targetIds={targetIds}
-        pruneMissing={pruneMissing}
-      >
+      <TagsSelectProvider {...props} scope={scope} targetIds={targetIds}>
         <Form.Control>
           <TagsSelectTrigger
             ref={ref}

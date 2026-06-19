@@ -27,7 +27,6 @@ export type ISelectBranchesProviderProps = {
   mode?: 'single' | 'multiple';
   branchIds?: string[];
   children?: React.ReactNode;
-  pruneMissing?: boolean;
   options?: (newSelectedBranchIds: string[]) => MutationHookOptions<
     {
       BranchesMain: {

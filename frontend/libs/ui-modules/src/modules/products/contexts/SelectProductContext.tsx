@@ -10,6 +10,7 @@ export type ISelectProductContext = {
   error: string | null;
   defaultSearchValue?: string;
   selectedProducts?: IProduct[];
+  mode?: 'single' | 'multiple';
 };
 
 export const SelectProductContext = createContext<ISelectProductContext | null>(

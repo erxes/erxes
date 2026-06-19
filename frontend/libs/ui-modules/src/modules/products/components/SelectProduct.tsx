@@ -1,4 +1,5 @@
 import {
+  Badge,
   Combobox,
   Command,
   Filter,
@@ -10,7 +11,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SelectProductContext,
   useSelectProductContext,
@@ -28,7 +29,6 @@ interface SelectProductProviderProps {
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   defaultSearchValue?: string;
-  pruneMissing?: boolean;
 }
 
 const SelectProductProvider = ({
@@ -37,42 +37,9 @@ const SelectProductProvider = ({
   onValueChange,
   mode = 'single',
   defaultSearchValue,
-  pruneMissing = false,
 }: SelectProductProviderProps) => {
   const [products, setProducts] = useState<IProduct[]>([]);
-  const productIds = useMemo(() => {
-    if (Array.isArray(value)) {
-      return value;
-    }
-    return value ? [value] : [];
-  }, [value]);
-
-  const { products: assignedProducts, loading: assignedLoading } =
-    useProductsInline({
-      variables: { ids: productIds },
-      skip: !pruneMissing || productIds.length === 0,
-    });
-
-  useEffect(() => {
-    if (!pruneMissing || assignedLoading || productIds.length === 0) {
-      return;
-    }
-
-    const existingIds = new Set(assignedProducts.map((p) => p._id));
-    const prunedIds = productIds.filter((id) => existingIds.has(id));
-    if (prunedIds.length === productIds.length) {
-      return;
-    }
-
-    onValueChange?.(mode === 'single' ? prunedIds[0] ?? '' : prunedIds);
-  }, [
-    pruneMissing,
-    assignedLoading,
-    productIds,
-    assignedProducts,
-    mode,
-    onValueChange,
-  ]);
+  const productIds = !value ? [] : Array.isArray(value) ? value : [value];
   const onSelect = (product: IProduct) => {
     if (!product) return;
     if (mode === 'single') {
@@ -105,6 +72,7 @@ const SelectProductProvider = ({
         loading: false,
         error: null,
         defaultSearchValue,
+        mode,
       }}
     >
       {children}
@@ -264,6 +232,44 @@ const SelectProductRoot = React.forwardRef<
   },
 );
 
+const SelectProductMissingBadges = () => {
+  const { productIds, onSelect, mode } = useSelectProductContext();
+
+  const { products: resolved, loading } = useProductsInline({
+    variables: { ids: productIds },
+    skip: productIds.length === 0,
+  });
+
+  const missingIds = useMemo(() => {
+    if (loading || productIds.length === 0) return [];
+    return productIds.filter((id) => !resolved.some((p) => p._id === id));
+  }, [loading, productIds, resolved]);
+
+  if (missingIds.length === 0) return null;
+
+  return (
+    <>
+      {missingIds.map((id) =>
+        mode === 'multiple' ? (
+          <Badge
+            key={id}
+            variant="warning"
+            className="font-mono"
+            title={`Unknown id: ${id}`}
+            onClose={() => onSelect({ _id: id } as IProduct)}
+          >
+            <span className="max-w-24 truncate">{id}</span>
+          </Badge>
+        ) : (
+          <span key={id} className="font-mono text-xs truncate">
+            {id}
+          </span>
+        ),
+      )}
+    </>
+  );
+};
+
 const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   const { productIds, products, setProducts } = useSelectProductContext();
 
@@ -272,12 +278,15 @@ const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   }
 
   return (
-    <ProductsInline
-      productIds={productIds}
-      products={products}
-      updateProducts={setProducts}
-      placeholder={placeholder}
-    />
+    <div className="flex flex-wrap gap-1 items-center min-w-0">
+      <ProductsInline
+        productIds={productIds}
+        products={products}
+        updateProducts={setProducts}
+        placeholder={placeholder}
+      />
+      <SelectProductMissingBadges />
+    </div>
   );
 };
 
@@ -387,7 +396,6 @@ export const SelectProductFormItem = ({
   onValueChange,
   className,
   placeholder,
-  pruneMissing = true,
   ...props
 }: Omit<React.ComponentProps<typeof SelectProductProvider>, 'children'> & {
   className?: string;
@@ -396,7 +404,6 @@ export const SelectProductFormItem = ({
   const [open, setOpen] = useState(false);
   return (
     <SelectProductProvider
-      pruneMissing={pruneMissing}
       onValueChange={(value) => {
         onValueChange?.(value);
         setOpen(false);

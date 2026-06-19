@@ -4,6 +4,7 @@ import {
 } from '@/payments/components/contexts/SelectPaymentContext';
 import { IconPlus } from '@tabler/icons-react';
 import {
+  Badge,
   Button,
   Combobox,
   Command,
@@ -15,7 +16,7 @@ import {
 } from 'erxes-ui';
 
 import { Payment, usePayments } from '@/payments/hooks/usePayments';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 const SelectPaymentProvider = ({
@@ -42,27 +43,6 @@ const SelectPaymentProvider = ({
     () => (Array.isArray(value) ? value : (value && [value]) || []),
     [value],
   );
-
-  const { payments: existingPayments, loading: existingLoading } = usePayments({
-    status: 'active',
-  });
-
-  useEffect(() => {
-    if (existingLoading || !onValueChange) return;
-    if (!selectedIds.length || !existingPayments.length) return;
-
-    const existingIds = new Set(existingPayments.map((p) => p._id));
-    const prunedIds = selectedIds.filter((id) => existingIds.has(id));
-    if (prunedIds.length === selectedIds.length) return;
-
-    onValueChange(isSingleMode ? prunedIds[0] ?? null : prunedIds);
-  }, [
-    existingLoading,
-    existingPayments,
-    selectedIds,
-    isSingleMode,
-    onValueChange,
-  ]);
 
   const onSelect = React.useCallback(
     (payment: Payment | null) => {
@@ -99,8 +79,9 @@ const SelectPaymentProvider = ({
       payments: currentPayments,
       setPayments: setCurrentPayments,
       loading: currentPayments.length !== selectedIds.length,
+      mode,
     }),
-    [currentPayments, onSelect, selectedIds],
+    [currentPayments, onSelect, selectedIds, mode],
   );
 
   return (
@@ -115,11 +96,13 @@ const PaymentInline = ({
   paymentIds,
   placeholder,
   updatePayments,
+  onRemoveMissing,
 }: {
   payments?: Payment[];
   paymentIds?: string[];
   placeholder?: string;
   updatePayments?: (payments: Payment[]) => void;
+  onRemoveMissing?: (id: string) => void;
 }) => {
   const { payments: fetchedPayments, loading } = usePayments({
     status: 'active',
@@ -137,11 +120,18 @@ const PaymentInline = ({
     }
   }, [paymentIds, fetchedPayments, payments, updatePayments]);
 
+  const missingIds = React.useMemo(() => {
+    if (loading || !paymentIds?.length || !fetchedPayments.length) return [];
+    return paymentIds.filter(
+      (id) => !fetchedPayments.some((p) => p._id === id),
+    );
+  }, [loading, paymentIds, fetchedPayments]);
+
   if (loading && paymentIds?.length && !payments?.length) {
     return <span className="text-sm text-muted-foreground">Loading...</span>;
   }
 
-  if (!payments?.length) {
+  if (!payments?.length && missingIds.length === 0) {
     return (
       <span className="text-sm text-muted-foreground">
         {placeholder || 'Select payment'}
@@ -151,7 +141,7 @@ const PaymentInline = ({
 
   return (
     <div className="flex flex-wrap gap-1 items-center">
-      {payments.map((payment) => (
+      {payments?.map((payment) => (
         <span
           key={payment._id}
           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent text-sm"
@@ -159,18 +149,40 @@ const PaymentInline = ({
           {payment.name}
         </span>
       ))}
+      {missingIds.map((id) => (
+        <Badge
+          key={id}
+          variant="warning"
+          className="font-mono"
+          title={`Unknown id: ${id}`}
+          onClose={onRemoveMissing ? () => onRemoveMissing(id) : undefined}
+        >
+          <span className="max-w-24 truncate">{id}</span>
+        </Badge>
+      ))}
     </div>
   );
 };
 
 const SelectPaymentValue = ({ placeholder }: { placeholder?: string }) => {
-  const { paymentIds, payments, setPayments } = useSelectPaymentContext();
+  const { paymentIds, payments, setPayments, onSelect, mode } =
+    useSelectPaymentContext();
+
+  const handleRemoveMissing = (id: string) => {
+    if (mode === 'multiple') {
+      onSelect({ _id: id } as Payment);
+    } else {
+      onSelect(null);
+    }
+  };
+
   return (
     <PaymentInline
       paymentIds={paymentIds}
       payments={payments}
       updatePayments={setPayments}
       placeholder={placeholder}
+      onRemoveMissing={handleRemoveMissing}
     />
   );
 };

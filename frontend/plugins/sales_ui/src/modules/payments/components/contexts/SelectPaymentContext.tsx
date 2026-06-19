@@ -8,6 +8,7 @@ export type ISelectPaymentContext = {
   payments: Payment[];
   setPayments: (payments: Payment[]) => void;
   loading: boolean;
+  mode?: 'single' | 'multiple';
 };
 
 export const SelectPaymentContext = createContext<ISelectPaymentContext | null>(
