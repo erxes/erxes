@@ -4,7 +4,9 @@ import { DateDisplay } from './ChannelsColumns';
 import {
   IconDots,
   IconEdit,
+  IconForms,
   IconLayoutKanban,
+  IconMessageReply,
   IconTrash,
   IconUsers,
 } from '@tabler/icons-react';
@@ -28,8 +30,17 @@ export const ChannelCard = ({
   members?: IChannelMember[];
 }) => {
   const navigate = useNavigate();
-  const { _id, name, description, icon, memberCount, pipelineCount, createdAt } =
-    channel;
+  const {
+    _id,
+    name,
+    description,
+    icon,
+    memberCount,
+    pipelineCount,
+    responseTemplateCount,
+    formCount,
+    createdAt,
+  } = channel;
 
   const memberUsers = (members ?? [])
     .map((channelMember) => channelMember.member)
@@ -50,44 +61,84 @@ export const ChannelCard = ({
           openDetails();
         }
       }}
-      className="group flex flex-col gap-3 p-4 border border-border transition-colors hover:border-primary/40 hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="group flex flex-col gap-4 p-5 border border-border/60 shadow-none transition-colors cursor-pointer hover:border-border hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       <div className="flex items-start gap-3">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
           <IconComponent name={icon} size={18} />
         </div>
         <div className="min-w-0 flex-1">
-          <Card.Title className="truncate text-sm font-semibold leading-tight">
+          <Card.Title className="truncate text-sm font-medium leading-tight">
             {name}
           </Card.Title>
-          {description && (
-            <Card.Description className="mt-0.5 line-clamp-2 text-xs">
-              {description}
-            </Card.Description>
-          )}
+          <Card.Description className="mt-0.5 line-clamp-1 text-xs">
+            {description || 'No description'}
+          </Card.Description>
         </div>
         <ChannelCardActions channelId={_id} />
       </div>
 
-      <div className="mt-auto flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 text-sm">
+        <ChannelRow label="Members">
           {memberUsers.length > 0 ? (
             <MembersInline.Provider members={memberUsers} size="sm">
               <MembersInline.Avatar size="sm" />
             </MembersInline.Provider>
           ) : null}
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <IconUsers size={14} />
+          <span className="flex items-center gap-1">
+            <IconUsers size={14} className="text-muted-foreground" />
             {memberCount}
           </span>
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <IconLayoutKanban size={14} />
-            {pipelineCount}
+        </ChannelRow>
+
+        <ChannelRow label="Pipelines">
+          <span className="flex items-center gap-1">
+            <IconLayoutKanban size={14} className="text-muted-foreground" />
+            {pipelineCount ?? 0}
           </span>
-        </div>
-        <DateDisplay date={createdAt} />
+        </ChannelRow>
+
+        <ChannelRow label="Forms">
+          <span className="flex items-center gap-1">
+            <IconForms size={14} className="text-muted-foreground" />
+            {formCount ?? 0}
+          </span>
+        </ChannelRow>
+
+        <ChannelRow label="Templates">
+          <span className="flex items-center gap-1">
+            <IconMessageReply size={14} className="text-muted-foreground" />
+            {responseTemplateCount ?? 0}
+          </span>
+        </ChannelRow>
+
+        <ChannelRow label="Status">
+          <span className="flex items-center gap-1.5 text-foreground">
+            <span className="size-1.5 rounded-full bg-success" />
+            Active
+          </span>
+        </ChannelRow>
+
+        <ChannelRow label="Created">
+          <DateDisplay date={createdAt} />
+        </ChannelRow>
       </div>
     </Card>
+  );
+};
+
+const ChannelRow = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-2 text-foreground">{children}</div>
+    </div>
   );
 };
 

@@ -1,58 +1,154 @@
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import {
+  Combobox,
+  Command,
   Empty,
-  EnumCursorDirection,
-  Skeleton,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
+  Spinner,
+  useConfirm,
   useMultiQueryState,
 } from 'erxes-ui';
+import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IResponseTemplate } from '../types';
-import { IconGitBranch } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconCalendarPlus,
+  IconCalendarUp,
+  IconEdit,
+  IconGitBranch,
+  IconTrash,
+} from '@tabler/icons-react';
 import { CreateResponse } from '@/responseTemplate/components/CreateResponse';
-import { ResponseCard } from '@/responseTemplate/components/ResponseCard';
-import { useEffect, useRef } from 'react';
+import { useRemoveResponse } from '../hooks/useRemoveResponse';
+import { useNavigate } from 'react-router-dom';
+
+const ResponseMoreCell = ({
+  cell,
+}: {
+  cell: Cell<IResponseTemplate, unknown>;
+}) => {
+  const { _id, channelId } = cell.row.original;
+  const navigate = useNavigate();
+  const { removeResponse, loading } = useRemoveResponse();
+  const { confirm } = useConfirm();
+
+  const handleEdit = () => {
+    navigate(`/settings/frontline/channels/${channelId}/response/${_id}`);
+  };
+
+  const handleDelete = () => {
+    confirm({
+      message: 'Are you sure you want to delete this response?',
+      options: { confirmationValue: 'delete' },
+    })
+      .then(() => {
+        removeResponse({ variables: { id: _id } });
+      });
+  };
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item
+              value="delete"
+              onSelect={handleDelete}
+              className="text-destructive"
+            >
+              {loading ? <Spinner size="sm" /> : <IconTrash />} Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+const ResponseNameCell = ({
+  cell,
+}: {
+  cell: Cell<IResponseTemplate, unknown>;
+}) => {
+  const navigate = useNavigate();
+  const { _id, channelId } = cell.row.original;
+  return (
+    <RecordTableInlineCell
+      onClick={() =>
+        navigate(`/settings/frontline/channels/${channelId}/response/${_id}`)
+      }
+    >
+      {cell.getValue() as string}
+    </RecordTableInlineCell>
+  );
+};
+
+export const responseColumns: ColumnDef<IResponseTemplate>[] = [
+  {
+    id: 'more',
+    size: 25,
+    cell: ResponseMoreCell,
+  },
+  {
+    accessorKey: 'name',
+    id: 'name',
+    header: () => <RecordTable.InlineHead label="Title" icon={IconAlignLeft} />,
+    size: 400,
+    cell: ResponseNameCell,
+  },
+  {
+    accessorKey: 'createdAt',
+    id: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead label="Created at" icon={IconCalendarPlus} />
+    ),
+    size: 120,
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
+  },
+  {
+    accessorKey: 'updatedAt',
+    id: 'updatedAt',
+    header: () => (
+      <RecordTable.InlineHead label="Updated at" icon={IconCalendarUp} />
+    ),
+    size: 120,
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
+  },
+];
 
 export const ResponseList = ({ channelId }: { channelId: string }) => {
   const [{ searchValue }] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',
   ]);
 
-  const { responses, isInitialLoad, handleFetchMore, pageInfo } =
-    useGetResponses({
-      variables: {
-        filter: { channelId, searchValue: searchValue || undefined },
-      },
-    });
+  const { responses, isInitialLoad, handleFetchMore, pageInfo } = useGetResponses({
+    variables: {
+      filter: { channelId, searchValue: searchValue || undefined },
+    },
+  });
 
-  const sentinelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const node = sentinelRef.current;
-    if (!node || !pageInfo?.hasNextPage) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          handleFetchMore({ direction: EnumCursorDirection.FORWARD });
-        }
-      },
-      { rootMargin: '200px' },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [pageInfo?.hasNextPage, handleFetchMore]);
-
-  if (isInitialLoad) {
-    return (
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 p-3">
-        {Array.from({ length: 12 }).map((_, index) => (
-          <Skeleton key={index} className="h-36 rounded-xl" />
-        ))}
-      </div>
-    );
-  }
-
-  if (responses?.length === 0) {
+  if (!isInitialLoad && responses?.length === 0) {
     return (
       <Empty className="bg-sidebar rounded-lg m-3">
         <Empty.Header>
@@ -78,22 +174,26 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
   }
 
   return (
-    <div className="overflow-auto h-full">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 p-3">
-        {(responses || []).map((response: IResponseTemplate) => (
-          <ResponseCard key={response._id} response={response} />
-        ))}
-      </div>
-      {pageInfo?.hasNextPage && (
-        <div
-          ref={sentinelRef}
-          className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 px-3 pb-3"
-        >
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-36 rounded-xl" />
-          ))}
-        </div>
-      )}
-    </div>
+    <RecordTable.Provider
+      columns={responseColumns as unknown as ColumnDef<IResponseTemplate>[]}
+      data={responses || []}
+      className="m-3"
+    >
+      <RecordTable.CursorProvider
+        hasPreviousPage={pageInfo?.hasPreviousPage}
+        hasNextPage={pageInfo?.hasNextPage}
+        dataLength={responses?.length}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+            {isInitialLoad && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.CursorProvider>
+    </RecordTable.Provider>
   );
 };

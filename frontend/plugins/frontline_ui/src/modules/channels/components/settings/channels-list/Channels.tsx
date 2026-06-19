@@ -29,10 +29,12 @@ export function Channels() {
 
   if (loading && (!channels || channels.length === 0)) {
     return (
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 p-3">
-        {Array.from({ length: 12 }).map((_, index) => (
-          <Skeleton key={index} className="h-28 rounded-xl" />
-        ))}
+      <div className="mx-auto w-full max-w-7xl px-6 py-4">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <Skeleton key={index} className="h-64 rounded-xl" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -59,16 +61,26 @@ export function Channels() {
     );
   }
 
+  const channelCount = channels?.length ?? 0;
+
   return (
     <div className="overflow-auto h-full">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 p-3">
-        {(channels ?? []).map((channel) => (
-          <ChannelCard
-            key={channel._id}
-            channel={channel}
-            members={membersByChannel[channel._id]}
-          />
-        ))}
+      <div className="mx-auto w-full max-w-7xl px-6 py-4">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-medium text-foreground">
+            All channels
+            <span className="ml-1.5 text-muted-foreground">{channelCount}</span>
+          </h2>
+        </div>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+          {(channels ?? []).map((channel) => (
+            <ChannelCard
+              key={channel._id}
+              channel={channel}
+              members={membersByChannel[channel._id]}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
