@@ -100,8 +100,8 @@ export const useCheckSyncedDealsVariables = (
     boardId: string;
     pipelineId: string;
     stageId: string;
-    dealSearch: string;
-    number: string;
+    dealSearch: string | number;
+    number: string | number;
     stageChangedDateRange: string;
     dateType: string;
     dateRange: string;
@@ -132,7 +132,7 @@ export const useCheckSyncedDealsVariables = (
     },
     cursor,
     number: String(number ?? '') || undefined,
-    search: dealSearch || undefined,
+    search: String(dealSearch ?? '') || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
     createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
