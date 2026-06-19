@@ -17,17 +17,17 @@ import {
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
-// Client portal post lists default to last-published-first by publishedDate so
-// editors can control ordering simply by adjusting a post's publish date. An
-// explicit sortField/orderBy from the caller still takes precedence.
-const withDefaultPostOrder = <T extends { sortField?: string; orderBy?: any }>(
+// Public client-portal post lists are always ordered newest-published-first by
+// publishedDate, so editors control feed ordering purely through publish dates.
+// Any caller-supplied sortField/sortDirection/orderBy is intentionally ignored —
+// otherwise a storefront defaulting to `createdAt` silently overrides this.
+const withForcedPublishedOrder = <T extends Record<string, any>>(
   args: T,
 ): T => {
-  if (args.sortField || args.orderBy) {
-    return args;
-  }
-
-  return { ...args, orderBy: { publishedDate: -1 } };
+  const next = { ...args, orderBy: { publishedDate: -1 } } as T;
+  delete (next as any).sortField;
+  delete (next as any).sortDirection;
+  return next;
 };
 
 const applyFieldConstraint = (query: any, field: string, value: any) => {
@@ -482,7 +482,7 @@ class PostQueryResolver extends BaseQueryResolver {
     const { list } = await this.getListWithTranslations(
       models.Posts,
       query,
-      withDefaultPostOrder({ ...args, clientPortalId, language }),
+      withForcedPublishedOrder({ ...args, clientPortalId, language }),
       FIELD_MAPPINGS.POST,
     );
 
@@ -502,7 +502,7 @@ class PostQueryResolver extends BaseQueryResolver {
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,
       query,
-      withDefaultPostOrder({ ...args, clientPortalId, language }),
+      withForcedPublishedOrder({ ...args, clientPortalId, language }),
       FIELD_MAPPINGS.POST,
     );
 
