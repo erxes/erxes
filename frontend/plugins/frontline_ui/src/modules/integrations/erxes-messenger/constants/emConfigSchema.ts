@@ -15,10 +15,12 @@ export const EM_CONFIG_SCHEMA = z.object({
             text: z.string().optional(),
             type: z.enum(['button', 'link']).optional(),
             link: z.string().optional(),
+            contentType: z.string().optional().default('text'),
           }),
         )
         .optional(),
       botCheck: z.boolean().optional(),
+      botShowInitialMessage: z.boolean().optional(),
       automationId: z.string().optional().nullable(),
     })
     .optional(),

@@ -72,4 +72,5 @@ export const productMoreColumn: ColumnDef<IProductData> = {
   id: 'more',
   size: 33,
   cell: ProductMoreColumnCell,
+  header: RecordTable.ColumnSelector,
 };

@@ -15,6 +15,7 @@ import {
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
+import { sendPublishedPostNotification } from '@/cms/utils/notifications';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -331,7 +332,7 @@ export const postMutations: Record<string, Resolver> = {
   },
 
   cmsPostsChangeStatus: async (_parent, args, context: IContext) => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const { _id, status } = args;
     const post = await models.Posts.findOne({ _id }).lean();
 
@@ -355,7 +356,9 @@ export const postMutations: Record<string, Resolver> = {
       clientPortalId: post.clientPortalId,
     });
 
-    return models.Posts.changeStatus(_id, status);
+    const updatedPost = await models.Posts.changeStatus(_id, status);
+
+    return updatedPost;
   },
 
   cmsPostsToggleFeatured: async (_parent, args, context: IContext) => {
@@ -380,6 +383,40 @@ export const postMutations: Record<string, Resolver> = {
     });
 
     return models.Posts.toggleFeatured(_id);
+  },
+
+  cmsPostsSendNotification: async (_parent, args, context: IContext) => {
+    const { models, subdomain } = context;
+    const { _id } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
+
+    if (post.status !== 'published') {
+      throw new Error('Only published posts can send notifications');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions: CMS_POST_ACTIONS.approve,
+      document: post,
+    });
+
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: post.clientPortalId,
+    });
+
+    const { recipientCount } = await sendPublishedPostNotification(
+      subdomain,
+      post,
+    );
+
+    return { success: true, recipientCount };
   },
 
   cmsAddTranslation: async (_parent, args, context: IContext) => {

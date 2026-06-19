@@ -29,6 +29,7 @@ const persistentMenuSchema = new Schema({
   text: { type: String },
   type: { type: String },
   link: { type: String, optional: true },
+  contentType: { type: String, default: 'text' },
   isEditing: { type: Boolean },
 });
 

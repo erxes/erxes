@@ -47,7 +47,8 @@ export interface IMessengerOnlineHours {
 }
 
 export interface IMessengerOnlineHoursDocument
-  extends IMessengerOnlineHours, Document {}
+  extends IMessengerOnlineHours,
+    Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -64,6 +65,7 @@ type BotPersistentMenuTypeMessenger = {
   type: string;
   text: string;
   link: string;
+  contentType: string;
   isEditing?: boolean;
 };
 type WebsiteApp = {
