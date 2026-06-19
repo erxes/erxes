@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { TAutomationFindObjectType } from './constants';
 import { TAutomationProducers } from './types';
 
 export const AutomationBaseInput = z.object({
@@ -9,6 +8,10 @@ export const AutomationBaseInput = z.object({
 
 export const AutomationExecActionInput = z.object({
   createdAt: z.string().optional(),
+  startedAt: z.string().optional(),
+  finishedAt: z.string().optional(),
+  durationMs: z.number().optional(),
+  status: z.enum(['success', 'error', 'waiting']).optional(),
   actionId: z.string(),
   actionType: z.string(),
   actionConfig: z.any().optional(),
@@ -79,6 +82,7 @@ export const CheckCustomTriggerInputData = z.object({
   }),
   target: z.record(z.any()),
   config: z.record(z.any()),
+  eventUpdateDescription: z.record(z.string(), z.any()).optional(),
 });
 
 export const CheckTargetMatchInputData = z.object({
@@ -90,24 +94,9 @@ export const CheckTargetMatchInputData = z.object({
 });
 
 export const FindObjectInputData = z.object({
-  objectType: z.nativeEnum(TAutomationFindObjectType),
+  objectType: z.string(),
   field: z.string(),
   value: z.string(),
-});
-
-export const ReplacePlaceholdersInputData = z.object({
-  moduleName: z.string(),
-  target: z.record(z.any()),
-  config: z.record(z.any()),
-  relatedValueProps: z
-    .record(
-      z.string(),
-      z.object({
-        key: z.string(),
-        filter: z.object({ key: z.string(), value: z.any() }).optional(),
-      }),
-    )
-    .optional(),
 });
 
 export const ResolveOutputPathsInputData = z.object({
@@ -146,10 +135,6 @@ export const FindObjectInput = AutomationBaseInput.extend({
   data: FindObjectInputData,
 });
 
-export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
-  data: ReplacePlaceholdersInputData,
-});
-
 export const ResolveOutputPathsInput = AutomationBaseInput.extend({
   data: ResolveOutputPathsInputData,
 });
@@ -173,16 +158,11 @@ export type TAutomationProducersInput = {
     typeof CheckTargetMatchInputData
   >;
   [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
-  [TAutomationProducers.REPLACE_PLACEHOLDERS]: z.infer<
-    typeof ReplacePlaceholdersInputData
-  >;
   [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<
     typeof ResolveOutputPathsInputData
   >;
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
-  [TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES]: z.infer<
-    typeof AutomationBaseInput
-  >;
+
   [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
     typeof GenerateAiContextInputData
   >;

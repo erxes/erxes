@@ -12,6 +12,7 @@ import {
   CMS_CUSTOM_FIELD_GROUPS,
 } from './graphql';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
+import { createSlug } from '../utils/createSlug';
 import {
   CategoryCustomFieldsSection,
   FieldGroup,
@@ -133,15 +134,6 @@ const EMPTY_FORM_VALUES: CategoryFormType = {
   status: 'active',
   customFieldsData: [],
 };
-
-const generateSlug = (name: string): string =>
-  name
-    .toLowerCase()
-    .trim()
-    .replaceAll(/[^a-z0-9\s-]/g, '')
-    .replaceAll(/\s+/g, '-')
-    .replaceAll(/-+/g, '-')
-    .replaceAll(/^-+|-+$/g, '');
 
 const collectDescendantIds = (
   allCategories: Category[],
@@ -338,7 +330,7 @@ export function CmsCategoryDrawer({
     ) {
       return;
     }
-    const generatedSlug = generateSlug(nameValue);
+    const generatedSlug = createSlug(nameValue);
     if (generatedSlug !== slugValue) {
       form.setValue('slug', generatedSlug);
     }
@@ -882,8 +874,8 @@ export function CmsCategoryDrawer({
                       ? 'Saving...'
                       : 'Creating...'
                     : isEditing
-                    ? 'Save Changes'
-                    : 'Create Category'}
+                      ? 'Save Changes'
+                      : 'Create Category'}
                 </Button>
               </div>
             </form>

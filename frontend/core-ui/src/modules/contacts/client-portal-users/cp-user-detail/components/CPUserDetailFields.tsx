@@ -1,5 +1,7 @@
-import { Badge, RelativeDateDisplay } from 'erxes-ui';
-import { SelectCustomer } from 'ui-modules';
+import { Button, Badge, RelativeDateDisplay } from 'erxes-ui';
+import { IconExternalLink } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
+import { SelectCustomer, SelectCompany } from 'ui-modules';
 import { DataListItem } from '@/contacts/components/ContactDataListItem';
 import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
 import { TextFieldCPUser } from '@/contacts/client-portal-users/cp-user-detail/components/TextFieldCPUser';
@@ -15,7 +17,11 @@ export function CPUserDetailFields() {
 
   if (!cpUser) return null;
 
-  const { _id, type, lastLoginAt, createdAt, erxesCustomerId } = cpUser;
+  const { _id, type, lastLoginAt, createdAt, erxesCustomerId, erxesCompanyId } =
+    cpUser;
+  const customerLink = erxesCustomerId
+    ? `/contacts/customers?contactId=${erxesCustomerId}`
+    : null;
 
   return (
     <div className="py-8 space-y-6 px-8">
@@ -71,11 +77,22 @@ export function CPUserDetailFields() {
             />
           </DataListItem>
           <DataListItem label={t('company', { defaultValue: 'Company' })}>
-            <TextFieldCPUser
-              field="companyName"
-              _id={_id}
-              value={cpUser.companyName ?? ''}
-              placeholder={t('addCompany', { defaultValue: 'Add company' })}
+            <SelectCompany
+              mode="single"
+              value={erxesCompanyId ?? ''}
+              onValueChange={(value) =>
+                cpUserEdit({
+                  variables: {
+                    _id,
+                    erxesCompanyId:
+                      typeof value === 'string'
+                        ? value || undefined
+                        : value && value.length > 0
+                          ? value[0]
+                          : undefined,
+                  },
+                })
+              }
             />
           </DataListItem>
           <DataListItem
@@ -92,32 +109,49 @@ export function CPUserDetailFields() {
               })}
             />
           </DataListItem>
-          <DataListItem
-            label={t('customer', { defaultValue: 'Customer' })}
-          >
-            {type === 'customer' ? (
-              <SelectCustomer
-                mode="single"
-                value={erxesCustomerId ?? ''}
-                onValueChange={(value) =>
-                  cpUserEdit({
-                    variables: {
-                      _id,
-                      erxesCustomerId:
-                        typeof value === 'string'
-                          ? value || undefined
-                          : value && value.length > 0
-                            ? value[0]
-                            : undefined,
-                    },
-                  })
-                }
-              />
-            ) : (
-              <span className="text-muted-foreground">
-                {erxesCustomerId || '-'}
-              </span>
-            )}
+          <DataListItem label={t('customer', { defaultValue: 'Customer' })}>
+            <div className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                {type === 'customer' ? (
+                  <SelectCustomer
+                    mode="single"
+                    value={erxesCustomerId ?? ''}
+                    onValueChange={(value) =>
+                      cpUserEdit({
+                        variables: {
+                          _id,
+                          erxesCustomerId:
+                            typeof value === 'string'
+                              ? value || undefined
+                              : value && value.length > 0
+                                ? value[0]
+                                : undefined,
+                        },
+                      })
+                    }
+                  />
+                ) : (
+                  <span className="text-muted-foreground">
+                    {erxesCustomerId || '-'}
+                  </span>
+                )}
+              </div>
+
+              {customerLink && (
+                <Button asChild variant="link" className="h-auto shrink-0 p-0">
+                  <Link
+                    to={customerLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={t('openCustomerInContacts', {
+                      defaultValue: 'Open customer in contacts',
+                    })}
+                  >
+                    <IconExternalLink className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
+            </div>
           </DataListItem>
         </div>
         {lastLoginAt && (

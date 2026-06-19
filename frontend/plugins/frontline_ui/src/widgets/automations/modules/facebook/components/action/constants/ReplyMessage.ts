@@ -6,6 +6,7 @@ import {
   IconMusic,
   IconPaperclip,
   IconPhotoScan,
+  IconTicket,
   IconVideo,
 } from '@tabler/icons-react';
 import { generateAutomationElementId } from 'ui-modules';
@@ -15,6 +16,7 @@ export const REPLY_MESSAGE_ACTION_BUTTONS = [
   { type: 'card', title: 'Card', icon: IconCards },
   { type: 'quickReplies', title: 'Quick Replies', icon: IconBolt },
   { type: 'input', title: 'Input', icon: IconForms, limit: 1 },
+  { type: 'ticketForm', title: 'Ticket Form', icon: IconTicket, limit: 1 },
   { type: 'image', title: 'Image', icon: IconPhotoScan, inProgress: true },
   {
     type: 'attachments',
@@ -60,5 +62,8 @@ export const INITIAL_OBJ_MESSAGE_TYPES = {
       value: '1',
       type: 'minute' as 'minute' | 'hour' | 'day' | 'month' | 'year',
     },
+  },
+  ticketForm: {
+    text: 'Please fill in the ticket details:',
   },
 };

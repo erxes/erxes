@@ -49,9 +49,16 @@ export const SEGMENTS_GET_TYPES = gql`
 `;
 
 export const PROPERTIES_WITH_FIELDS = gql(`
-    query Query($contentType: String!) {
+    query PropertiesWithFields($contentType: String!) {
       fieldsCombinedByContentType(contentType: $contentType)
       segmentsGetAssociationTypes(contentType: $contentType)
+    }
+`);
+
+export const AUTOMATION_PROPERTIES_WITH_FIELDS = gql(`
+    query AutomationPropertiesWithFields($contentType: String!, $sourceType: String!) {
+      fieldsCombinedByContentType(contentType: $contentType, usageType: "automations")
+      automationSetPropertyTargets(sourceType: $sourceType)
     }
 `);
 
@@ -71,7 +78,7 @@ export const SEGMENT_DETAIL = gql`
 `;
 
 export const SEGMENTS_PREVIEW_COUNT = gql`
-  query Query(
+  query SegmentsPreviewCount(
     $contentType: String!
     $conditions: JSON
     $subOf: String

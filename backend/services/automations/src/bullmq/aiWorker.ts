@@ -21,7 +21,6 @@ export const checkAiAgentHealthWorker = async (job: Job) => {
 
 export const indexAiAgentKnowledgeWorker = async (job: Job) => {
   const { data, subdomain } = job.data;
-  console.log({ data });
   const { agentId, fileId } = data;
   const models = await generateModels(subdomain);
 
@@ -32,7 +31,6 @@ export const indexAiAgentKnowledgeWorker = async (job: Job) => {
   }
 
   const parsedAgent = parseAiAgentInput(agent);
-  console.log({ parsedAgent });
 
   return await indexAiAgentKnowledgeFiles({
     models,

@@ -45,7 +45,6 @@ export const SCORE_LOGS_QUERY = gql`
         ownerType
         owner
         totalScore
-        preScore
         change
         action
         description

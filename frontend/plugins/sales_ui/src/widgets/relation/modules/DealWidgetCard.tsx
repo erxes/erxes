@@ -5,7 +5,7 @@ import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { PriorityBadge } from '@/deals/components/deal-selects/PriorityInline';
 import { IDeal } from '@/deals/types/deals';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
-import Labels from '@/deals/cards/components/detail/overview/label/Labels';
+import { Labels } from '@/deals/cards/components/detail/overview/label/Labels';
 
 const PRIORITY_MAP: Record<string, number> = {
   'No Priority': 0,
@@ -32,10 +32,14 @@ const OverflowItems = ({ items }: { items: { title: string }[] }) => {
             <span className="font-medium text-foreground truncate min-w-0">
               {first.title}
             </span>
-            <span className="shrink-0 text-muted-foreground">+{rest.length}</span>
+            <span className="shrink-0 text-muted-foreground">
+              +{rest.length}
+            </span>
           </span>
         </Tooltip.Trigger>
-        <Tooltip.Content>{items.map((i) => i.title).join(', ')}</Tooltip.Content>
+        <Tooltip.Content>
+          {items.map((i) => i.title).join(', ')}
+        </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );
@@ -100,18 +104,27 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
         )}
         <div className="flex flex-col gap-1 min-w-0">
           <h5 className="font-semibold">{name}</h5>
-          {(priorityNum > 0 || stage?.name || isArchived || hasDepartments || hasBranches) && (
+          {(priorityNum > 0 ||
+            stage?.name ||
+            isArchived ||
+            hasDepartments ||
+            hasBranches) && (
             <div className="mt-1.5 grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1.5 text-xs overflow-hidden">
               {stage?.name && (
                 <>
                   <span className="text-muted-foreground">Stage</span>
-                  <span className="font-medium text-foreground truncate min-w-0">{stage.name}</span>
+                  <span className="font-medium text-foreground truncate min-w-0">
+                    {stage.name}
+                  </span>
                 </>
               )}
               {priorityNum > 0 && (
                 <>
                   <span className="text-muted-foreground">Priority</span>
-                  <PriorityBadge priority={priorityNum} className="text-xs py-0 h-5 w-fit" />
+                  <PriorityBadge
+                    priority={priorityNum}
+                    className="text-xs py-0 h-5 w-fit"
+                  />
                 </>
               )}
               {hasDepartments && (
@@ -135,7 +148,9 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
               {isArchived && (
                 <>
                   <span className="text-muted-foreground">Status</span>
-                  <Badge variant="secondary" className="text-xs py-0 h-5 w-fit">Archived</Badge>
+                  <Badge variant="secondary" className="text-xs py-0 h-5 w-fit">
+                    Archived
+                  </Badge>
                 </>
               )}
             </div>

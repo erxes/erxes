@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { format, endOfDay, startOfMonth } from 'date-fns';
+import { format, endOfDay, startOfMonth, subMonths } from 'date-fns';
 import { ScrollArea, Spinner, Tabs } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 
@@ -43,7 +43,7 @@ export function CallReportsPage() {
   const [integrationId, setIntegrationId] = useState('');
   const [queueId, setQueueId] = useState('');
   const [direction, setDirection] = useState('all');
-  const [dateFilter, setDateFilter] = useState(format(new Date(), 'yyyy-MMM'));
+  const [dateFilter, setDateFilter] = useState('last-3-months');
 
   // ── Integrations ─────────────────────────────────────────────────────────
   const { callUserIntegrations = [], loading: integrationsLoading } =
@@ -88,7 +88,7 @@ export function CallReportsPage() {
   // ── Derived date values ───────────────────────────────────────────────────
   const { startDate, endDate, dateRangeLabel } = useMemo(() => {
     const { fromDate, toDate } = getDateRange(dateFilter);
-    const start = fromDate ?? startOfMonth(new Date());
+    const start = fromDate ?? startOfMonth(subMonths(new Date(), 3));
     const end = toDate ?? endOfDay(new Date());
     return {
       startDate: start.toISOString(),
@@ -188,7 +188,7 @@ export function CallReportsPage() {
             </div>
 
             {/* Scrollable tab content */}
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 min-h-0">
               <div className="mx-auto w-full max-w-[1440px] px-6 pb-10 pt-5">
                 <Tabs.Content value="overview" className="mt-0 outline-none">
                   <OverviewSection />

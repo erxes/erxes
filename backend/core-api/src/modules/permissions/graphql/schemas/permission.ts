@@ -49,6 +49,7 @@ export const types = `
     description: String
     plugin: String!
     permissions: [PermissionGroupPermission]!
+    members: [User]
   }
 
   type PermissionGroup {
@@ -56,6 +57,7 @@ export const types = `
     name: String!
     description: String
     permissions: [PermissionGroupPermission]!
+    members: [User]
     createdAt: Date
     updatedAt: Date
   }

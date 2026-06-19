@@ -79,9 +79,12 @@ const callQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
+      isAdmin,
     );
     if (!integration) {
       throw new Error('Integration not found');
@@ -137,9 +140,12 @@ const callQueries = {
     const day = String(today.getDate()).padStart(2, '0');
 
     const formattedDate = `${year}-${month}-${day}`;
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
+      isAdmin,
     );
     if (!integration) {
       throw new Error('Integration not found');
@@ -628,8 +634,11 @@ const callQueries = {
     { startDate, endDate, queueId, direction },
     { models, user }: IContext,
   ) {
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
+      isAdmin,
     );
 
     const isContainsQueue = true;
@@ -821,8 +830,11 @@ const callQueries = {
     if (!queueId) {
       return [];
     }
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
+      isAdmin,
     );
 
     const isContainsQueue = queueId && queues.includes(queueId);
@@ -1580,9 +1592,15 @@ const callQueries = {
       {
         $addFields: {
           day: {
-            $dateTrunc: {
-              date: '$start',
-              unit: 'day',
+            $dateFromString: {
+              dateString: {
+                $dateToString: {
+                  date: '$start',
+                  format: '%Y-%m-%d',
+                  timezone: 'Asia/Ulaanbaatar',
+                },
+              },
+              format: '%Y-%m-%d',
               timezone: 'Asia/Ulaanbaatar',
             },
           },

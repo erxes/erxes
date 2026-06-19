@@ -17,6 +17,8 @@ export const AutomationBuilderCanvas = () => {
     reactFlowWrapper,
     nodes,
     edges,
+    edgeType,
+    flowDirection,
     onNodesChange,
     onEdgesChange,
     editorWrapper,
@@ -59,6 +61,8 @@ export const AutomationBuilderCanvas = () => {
         {showGrid && <Background />}
         {showMiniMap && <MiniMap pannable position="top-left" zoomable />}
         <AutomationBuilderControls
+          edgeType={edgeType}
+          flowDirection={flowDirection}
           showGrid={showGrid}
           showMiniMap={showMiniMap}
           onToggleGrid={() => setShowGrid((value) => !value)}

@@ -78,9 +78,9 @@ export const dealMutations: Record<string, Resolver> = {
       destinationStageId: string;
       sourceStageId: string;
     },
-    { user, models, subdomain }: IContext,
+    { cpUser, models, subdomain }: IContext,
   ) {
-    return changeDeal(subdomain, models, user._id, { ...doc });
+    return changeDeal(subdomain, models, cpUser?._id, { ...doc });
   },
 
   /**

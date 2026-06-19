@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+*.log
+mastra-memory.db
+
+# FastEmbed model cache (downloaded at runtime; can be 100MB+)
+local_cache/
+.fastembed_cache/

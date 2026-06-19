@@ -16,13 +16,7 @@ export const useConversationReportsByStatus = (
   const { data, loading, error, refetch } =
     useQuery<ReportConversationOpenDateResponse>(
       GET_OPEN_CONVERSATIONS_BY_DATE,
-      {
-        ...options,
-        variables: {
-          ...options?.variables,
-          status: 'open',
-        },
-      },
+      options,
     );
 
   const handleRefetch = (variables: any) => {

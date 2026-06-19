@@ -17,6 +17,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
 import { permissions } from '~/meta/permissions';
+import { salesReferences } from './meta/references';
 
 startPlugin({
   name: 'sales',
@@ -58,6 +59,7 @@ startPlugin({
   meta: {
     automations,
     segments,
+    references: salesReferences,
     tags: { types: [{ type: 'deal', description: 'Sales' }] },
     properties: {
       types: [

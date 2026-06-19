@@ -23,7 +23,7 @@ export const useFields = ({
   );
 
   const fields = (data?.fields?.list || []).map((field) => {
-    const type = field.type?.startsWith('relation') ? 'relation' : field.type;
+    const type = field.type?.startsWith('relation:') ? 'relation' : field.type;
     const relationType =
       type === 'relation' ? field.type?.replace('relation:', '') : undefined;
 

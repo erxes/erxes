@@ -67,7 +67,7 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
           'rounded-md shadow-md bg-background w-[280px] relative font-mono transition-all duration-200',
           {
             'ring-2 ring-primary': selected,
-            'ring-2 ring-red-300': data?.error,
+            'ring-2 ring-destructive': data?.error,
           },
         )}
       >
@@ -115,6 +115,7 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
           className="!bg-primary"
           addButtonClassName="hover:border-primary hover:text-primary "
           showAddButton={!actionId}
+          flowDirection={data.flowDirection}
         />
       </div>
     </div>

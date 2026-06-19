@@ -89,11 +89,11 @@ export const ProductDetailSheet = () => {
         }))
       : data.subUoms;
 
-    const uomName = data.uom
-      ? uoms.find((u) => u._id === data.uom)?.name || data.uom
+    const uomCode = data.uom
+      ? uoms.find((u) => u._id === data.uom)?.code || data.uom
       : data.uom;
 
-    return { ...data, attachment, attachmentMore, subUoms, uom: uomName };
+    return { ...data, attachment, attachmentMore, subUoms, uom: uomCode };
   };
 
   const handleSave = (data: ProductFormValues) => {

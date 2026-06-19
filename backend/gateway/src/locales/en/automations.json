@@ -85,11 +85,22 @@
   "select-property-type": "Select a property type",
   "rules": "Rules",
   "add-rule": "Add Rule",
+  "set-property-updated-target": "Updated {{count}} {{target}}",
+  "set-property-change-count": "{{count}} changes",
+  "set-property-from": "From",
+  "set-property-empty-value": "Empty",
+  "set-property-status-updated": "Updated",
+  "set-property-status-cleared": "Cleared",
+  "set-property-status-skipped": "Skipped",
+  "set-property-status-failed": "Failed",
 
   "select-target-type": "Select target type",
   "event-listen-description": "This determines where the event will be listened from.",
 
   "ai-agent": "Ai Agent",
+  "ai-agent-delete-confirm-message": "Are you sure you want to delete \"{{name}}\"?",
+  "ai-agent-delete-success": "AI agent deleted successfully",
+  "select-provider": "Select Provider",
   "select-ai-agent": "Select ai agent",
   "add-new-agent": "Add new agent",
   "goal-type": "Goal Type",
@@ -109,6 +120,7 @@
   "choose-action-type": "Choose your action type",
   "action-type-description": "Pick what should happen next after the automation is triggered",
   "search": "Search...",
+  "filter-by-type": "Filter by type",
   "variables-help-aria-label": "How variables work",
   "variables-help-title": "How variables work",
   "variables-help-description": "Use variables from triggers or previous actions to fill fields in the current node.",
@@ -130,6 +142,45 @@
 
   "delete-automation-success": "Automations deleted successfully",
   "automation-updated-success": "Automation updated successfully",
+  "conversation-event-trigger": {
+    "event-groups": "Event groups",
+    "events": "Events",
+    "empty-summary": "No events selected",
+    "loading-summary": "Loading...",
+    "validation-error-title": "Conversation event trigger is incomplete",
+    "validation-error-description": "Select at least one conversation event, keep at least one action enabled, and choose the required targets.",
+    "action-required": "Select at least one action.",
+    "target-required": "Select at least one target.",
+    "assignee": {
+      "label": "Assignee",
+      "description": "Trigger when a conversation is assigned or unassigned.",
+      "target-label": "Users",
+      "target-placeholder": "Select users",
+      "actions": {
+        "assigned": "Assigned",
+        "unassigned": "Unassigned"
+      }
+    },
+    "status": {
+      "label": "Status",
+      "description": "Trigger when a conversation opens, closes, or reopens.",
+      "actions": {
+        "open": "Open",
+        "closed": "Closed",
+        "reopened": "Reopened"
+      }
+    },
+    "tag": {
+      "label": "Tag",
+      "description": "Trigger when conversation tags are added or removed.",
+      "target-label": "Tags",
+      "target-placeholder": "Select tags",
+      "actions": {
+        "added": "Added",
+        "removed": "Removed"
+      }
+    }
+  },
   "error": "Error",
   "success": "Success"
 }

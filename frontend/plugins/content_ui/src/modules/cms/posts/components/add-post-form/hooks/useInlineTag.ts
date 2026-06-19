@@ -1,11 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { CMS_TAGS_ADD } from '../../../../tags/graphql/mutations';
-
-const toSlug = (name: string) =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+import { createSlug } from '../../../../utils/createSlug';
 
 export const useInlineTag = (websiteId: string) => {
   const [addTagMutation] = useMutation(CMS_TAGS_ADD);
@@ -26,7 +21,7 @@ export const useInlineTag = (websiteId: string) => {
             variables: {
               input: {
                 name: opt.label,
-                slug: toSlug(opt.label),
+                slug: createSlug(opt.label),
                 clientPortalId: websiteId,
                 colorCode: '',
               },

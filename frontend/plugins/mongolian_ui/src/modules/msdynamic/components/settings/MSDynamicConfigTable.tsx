@@ -1,7 +1,7 @@
 import { IconClipboardList } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 
-import { MC_DYNAMIC_CONFIG_CURSOR_SESSION_KEY } from '../../constants/mcDynamicConfigSessionKey';
+import { MS_DYNAMIC_CONFIG_CURSOR_SESSION_KEY } from '../../constants/msDynamicConfigSessionKey';
 import { useMSDynamicConfigActions } from '../../hooks/useMSDynamicConfigActions';
 import { useMSDynamicConfigs } from '../../hooks/useMSDynamicConfigs';
 import { AddMSDynamicConfig } from './AddMSDynamicConfig';
@@ -28,7 +28,7 @@ export const MSDynamicConfigTable = () => {
       <RecordTable.Scroll>
         <RecordTable.CursorProvider
           dataLength={rows.length}
-          sessionKey={MC_DYNAMIC_CONFIG_CURSOR_SESSION_KEY}
+          sessionKey={MS_DYNAMIC_CONFIG_CURSOR_SESSION_KEY}
         >
           <RecordTable>
             <RecordTable.Header />

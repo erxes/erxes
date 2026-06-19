@@ -19,6 +19,7 @@ type ActivityLogFormRootProps = {
   variant?: 'forward' | 'backward';
   customActivities?: ActivityLogCustomActivity[];
   options?: QueryHookOptions<ActivityLogsQueryData>;
+  showExactDate?: boolean;
   children: React.ReactNode;
 };
 
@@ -29,6 +30,7 @@ const ActivityLogsRoot = ({
   variant = 'forward',
   customActivities,
   options,
+  showExactDate,
   children,
 }: ActivityLogFormRootProps) => {
   const {
@@ -66,6 +68,7 @@ const ActivityLogsRoot = ({
       hasPreviousPage={hasPreviousPage}
       totalCount={totalCount}
       limit={limit}
+      showExactDate={showExactDate}
     >
       {children}
     </ActivityLogProvider>
@@ -94,6 +97,7 @@ type LegacyProps = {
   showInternalNotes?: boolean;
   emptyMessage?: string;
   options?: QueryHookOptions<ActivityLogsQueryData>;
+  showExactDate?: boolean;
 };
 
 // Legacy component wrapper
@@ -106,6 +110,7 @@ const ActivityLogsLegacy = ({
   showInternalNotes = true,
   emptyMessage,
   options,
+  showExactDate,
 }: LegacyProps) => {
   const mergedActivities = showInternalNotes
     ? [internalNoteCustomActivity, ...(customActivities || [])]
@@ -119,6 +124,7 @@ const ActivityLogsLegacy = ({
       variant={variant}
       customActivities={mergedActivities}
       options={options}
+      showExactDate={showExactDate}
     >
       <ActivityLogsWrapper>
         <ActivityLogsContent emptyMessage={emptyMessage} />

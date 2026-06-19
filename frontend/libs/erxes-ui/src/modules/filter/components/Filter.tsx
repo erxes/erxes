@@ -406,10 +406,21 @@ const FilterDialogStringView = ({
   );
 };
 
-const FilterPopoverDateView = ({ filterKey, label }: { filterKey: string; label?: string }) => {
-  const { resetFilterState } = useFilterContext();
+const FilterPopoverDateView = ({
+  filterKey,
+  label,
+}: {
+  filterKey: string;
+  label?: string;
+}) => {
+  const { resetFilterState, sessionKey } = useFilterContext();
 
-  const [query, setQuery] = useFilterQueryState<string>(filterKey, filterKey);
+  // Reset the table cursor keyed by sessionKey (not filterKey) so picking a date
+  // preset clears pagination — consistent with FilterBarDate / DialogDateView.
+  const [query, setQuery] = useFilterQueryState<string>(
+    filterKey,
+    sessionKey ?? '',
+  );
 
   return (
     <DateFilterCommand

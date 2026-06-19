@@ -62,7 +62,24 @@ export interface ISegment {
 
 export type FieldQueryResponse = {
   fieldsCombinedByContentType: IField[];
-  segmentsGetAssociationTypes: { value: string; description: string }[];
+  segmentsGetAssociationTypes?: TPropertyTypeOption[];
+  automationSetPropertyTargets?: TPropertyTypeOption[];
+};
+
+export type TPropertyTypeOption = {
+  label?: string;
+  type?: string;
+  source?: 'target' | 'relation' | 'resolver';
+  cardinality?: 'one' | 'many';
+  sourceType?: string;
+  relation?: {
+    contentType: string;
+    relatedContentType: string;
+  };
+  resolverKey?: string;
+  pluginName?: string;
+  value: string;
+  description: string;
 };
 
 export type TConditionParentFieldName = `conditionSegments.${number}`;
