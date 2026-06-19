@@ -10,6 +10,9 @@ import {
 } from '../../../../graphql/queries';
 import { createSlug } from '../../../../utils/createSlug';
 
+// A single custom-field value as stored on the form and in translation snapshots.
+type CustomFieldEntry = { field: string; value: CustomFieldValue };
+
 interface PostFormData {
   title: string;
   slug: string;
@@ -44,7 +47,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
         title: string;
         content: string;
         excerpt: string;
-        customFieldsData: CustomFieldValue[];
+        customFieldsData: CustomFieldEntry[];
       }
     >
   >({});
@@ -52,7 +55,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     title: string;
     content: string;
     excerpt: string;
-    customFieldsData: CustomFieldValue[];
+    customFieldsData: CustomFieldEntry[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
 
@@ -113,7 +116,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
           title: string;
           content: string;
           excerpt: string;
-          customFieldsData: CustomFieldValue[];
+          customFieldsData: CustomFieldEntry[];
         }
       > = {};
       translationsData.cmsTranslations.forEach(
@@ -122,7 +125,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
           title: string;
           content: string;
           excerpt: string;
-          customFieldsData: CustomFieldValue[];
+          customFieldsData: CustomFieldEntry[];
         }) => {
           translationsMap[t.language] = {
             title: t.title || '',
