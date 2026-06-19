@@ -72,6 +72,8 @@ const inboxMessageTriggerOutput = {
     { key: 'conversationId', label: 'Conversation ID' },
     { key: 'customerId', label: 'Customer ID' },
     { key: 'botId', label: 'Bot ID' },
+    { key: 'ticket:name', label: 'Ticket name' },
+    { key: 'ticket:description', label: 'Ticket description' },
   ],
 };
 
@@ -80,6 +82,8 @@ const inboxMessageActionOutput = {
     { key: '_id', label: 'Message ID' },
     { key: 'conversationId', label: 'Conversation ID' },
     { key: 'content', label: 'Message content' },
+    { key: 'ticket:name', label: 'Ticket name' },
+    { key: 'ticket:description', label: 'Ticket description' },
   ],
 };
 export const inboxAutomationConstants = {
@@ -105,6 +109,41 @@ export const inboxAutomationConstants = {
         'Start with a blank workflow that enrolls and is triggered off messenger widget messages',
       isCustom: true,
       output: inboxMessageTriggerOutput,
+      conditions: [
+        {
+          type: 'directMessage',
+          icon: 'IconMessage',
+          label: 'Direct Message',
+          description:
+            'Fires when the customer sends any text message (default)',
+        },
+        {
+          type: 'getStarted',
+          icon: 'IconPlayerPlay',
+          label: 'Get Started',
+          description: 'Fires when the customer clicks the Get Started button',
+        },
+        {
+          type: 'quickReply',
+          icon: 'IconMessageDots',
+          label: 'Quick Reply',
+          description: 'Fires when the customer clicks a quick reply button',
+        },
+        {
+          type: 'requestCreateTicket',
+          icon: 'IconTicket',
+          label: 'Request Create Ticket',
+          description:
+            'Fires when the customer clicks the Create Ticket button in the persistent menu',
+        },
+        {
+          type: 'ticketFormSubmission',
+          icon: 'IconTicket',
+          label: 'Ticket Form Submission',
+          description:
+            'Fires when the customer submits the ticket form with name and description',
+        },
+      ],
     },
   ],
 
@@ -116,7 +155,7 @@ export const inboxAutomationConstants = {
       icon: 'IconMessage',
       label: 'Send Messenger Message',
       description: 'Send a message to the messenger widget conversation',
-      isAvailableOptionalConnect: false,
+      isAvailableOptionalConnect: true,
       output: inboxMessageActionOutput,
     },
   ],
