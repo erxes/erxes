@@ -15,6 +15,7 @@ import {
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
+import { notifyIfNewlyPublished } from '@/cms/utils/notifications';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -113,6 +114,8 @@ export const postMutations: Record<string, Resolver> = {
 
     await saveTranslations(models, post._id, translations || []);
 
+    await notifyIfNewlyPublished(subdomain, post);
+
     return post;
   },
 
@@ -186,6 +189,8 @@ export const postMutations: Record<string, Resolver> = {
 
     await saveTranslations(models, post._id, translations || []);
 
+    await notifyIfNewlyPublished(subdomain, post);
+
     return post;
   },
 
@@ -257,6 +262,12 @@ export const postMutations: Record<string, Resolver> = {
         );
         await saveTranslations(models, _id, remainingTranslations);
 
+        await notifyIfNewlyPublished(
+          subdomain,
+          post,
+          existingPost.status,
+        );
+
         return post;
       }
     }
@@ -272,6 +283,8 @@ export const postMutations: Record<string, Resolver> = {
     const post = await models.Posts.updatePost(_id, postInput);
 
     await saveTranslations(models, _id, translations || []);
+
+    await notifyIfNewlyPublished(subdomain, post, existingPost.status);
 
     return post;
   },
@@ -331,7 +344,7 @@ export const postMutations: Record<string, Resolver> = {
   },
 
   cmsPostsChangeStatus: async (_parent, args, context: IContext) => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const { _id, status } = args;
     const post = await models.Posts.findOne({ _id }).lean();
 
@@ -355,7 +368,11 @@ export const postMutations: Record<string, Resolver> = {
       clientPortalId: post.clientPortalId,
     });
 
-    return models.Posts.changeStatus(_id, status);
+    const updatedPost = await models.Posts.changeStatus(_id, status);
+    
+    await notifyIfNewlyPublished(subdomain, updatedPost, post.status);
+
+    return updatedPost;
   },
 
   cmsPostsToggleFeatured: async (_parent, args, context: IContext) => {
