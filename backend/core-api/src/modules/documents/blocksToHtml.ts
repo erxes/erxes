@@ -264,6 +264,18 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
       return html;
     }
 
+    case 'documentPlaceholder': {
+      const { documentId } = props || {};
+
+      if (!documentId) {
+        return '';
+      }
+
+      return `<div class="erxes-document-placeholder" data-document-id="${escapeHtml(
+        documentId,
+      )}">{{ document.${escapeHtml(documentId)} }}</div>`;
+    }
+
     case 'table': {
       const { rows } = content || {};
       if (!rows || !Array.isArray(rows)) return '';
