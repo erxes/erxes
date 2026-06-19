@@ -21,7 +21,7 @@ export const TypingStatus = () => {
             variant={'ghost'}
             className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
           >
-            Ai
+            Auto
           </Badge>
         </div>
         <div className="inline-flex flex-none items-center gap-1.5 p-3 bg-background rounded-2xl rounded-bl-sm shadow-sm">

@@ -66,15 +66,18 @@ export const erxesMessengerSetSetupAtom = atom(
               text?: string;
               type?: string;
               link?: string;
+              contentType?: string;
             }) => ({
               text: menu.text ?? menu.name ?? '',
               type: (menu.type === 'link' ? 'link' : 'button') as
                 | 'button'
                 | 'link',
               link: menu.link ?? '',
+              contentType: menu.contentType ?? 'text',
             }),
           ),
           botCheck: payload?.messengerData?.botCheck,
+          botShowInitialMessage: payload?.messengerData?.botShowInitialMessage,
           automationId: payload?.messengerData?.automationId,
         },
       };

@@ -27,6 +27,8 @@ export interface IMessage {
   attachments?: IAttachment[];
   formWidgetData?: IFormWidgetItem[];
   internal?: boolean;
+  botData?: unknown[];
+  fromBot?: boolean;
 }
 
 export enum ConversationStatus {

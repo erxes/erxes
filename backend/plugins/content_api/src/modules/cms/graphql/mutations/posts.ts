@@ -332,7 +332,7 @@ export const postMutations: Record<string, Resolver> = {
   },
 
   cmsPostsChangeStatus: async (_parent, args, context: IContext) => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const { _id, status } = args;
     const post = await models.Posts.findOne({ _id }).lean();
 

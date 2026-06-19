@@ -17,7 +17,21 @@ export const MESSAGE_TYPES = {
   VIDEO_CALL: 'videoCall',
   VIDEO_CALL_REQUEST: 'videoCallRequest',
   TEXT: 'text',
-  ALL: ['videoCall', 'videoCallRequest', 'text'],
+  GET_STARTED: 'getStarted',
+  QUICK_REPLY: 'quickReply',
+  CUSTOMER_REGISTRATION: 'customerRegistration',
+  TICKET_FORM_SUBMISSION: 'ticketFormSubmission',
+  REQUEST_CREATE_TICKET: 'requestCreateTicket',
+  ALL: [
+    'videoCall',
+    'videoCallRequest',
+    'text',
+    'getStarted',
+    'quickReply',
+    'customerRegistration',
+    'ticketFormSubmission',
+    'requestCreateTicket',
+  ],
 };
 
 export const CONVERSATION_SELECT_OPTIONS = {

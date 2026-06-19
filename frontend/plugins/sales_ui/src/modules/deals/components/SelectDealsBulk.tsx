@@ -178,7 +178,9 @@ const DealsList = ({
                       )}
                       onClick={() => handleDealSelect(deal)}
                     >
-                      <div>{deal.name}</div>
+                      <div className={cn(!deal.name && 'text-accent-foreground italic')}>
+                        {deal.name || 'Untitled deal'}
+                      </div>
                       {isSelected ? (
                         <IconCheck className="ml-auto" />
                       ) : (
@@ -232,13 +234,9 @@ const SelectedDealsList = ({
               className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
               onClick={() => handleRemoveDeal(dealId)}
             >
-              {/* <ProductsInline
-                productIds={[dealId]}
-                products={deal ? [deal] : []}
-                updateProducts={(products) =>
-                  setSelectedDeals((prev) => [...prev, ...products])
-                }
-              /> */}
+              <div className={cn(!deal?.name && 'text-accent-foreground italic')}>
+                {deal?.name || 'Untitled deal'}
+              </div>
               <IconX className="ml-auto" />
             </Button>
           );
