@@ -3,14 +3,14 @@ import {
   RecordTableInlineCell,
   Input,
   Popover,
-  RelativeDateDisplay,
   Badge,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { tagMoreColumn } from './TagsMoreColumn';
 import { useState } from 'react';
-import { IconTag, IconCalendar } from '@tabler/icons-react';
+import { IconTag } from '@tabler/icons-react';
+import { createDateColumn } from '@/cms/shared/columns';
 import { CmsTag } from '@/cms/tags/types/tagTypes';
 import { useEditTag } from '@/cms/tags/hooks/useEditTag';
 import { useIsTranslationMissing } from '@/cms/shared/hooks/useIsTranslationMissing';
@@ -134,21 +134,7 @@ export const useTagsColumns = (
         </RecordTableInlineCell>
       ),
     },
-    {
-      id: 'createdAt',
-      header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
-      ),
-      accessorKey: 'createdAt',
-      size: 120,
-      cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      ),
-    },
+    createDateColumn({ id: 'createdAt', label: 'Created', size: 120 }),
   ];
 };
 

@@ -35,6 +35,52 @@ const getThumbnailGradient = (color: string) => {
   return gradients[color as keyof typeof gradients] || gradients.orange;
 };
 
+const formatCreatedOn = (createdAt: string) =>
+  new Date(createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+const WebsiteCreatedOn = ({ createdAt }: { createdAt: string }) => (
+  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+    <IconCalendar className="w-3 h-3" />
+    <span>Created on: {formatCreatedOn(createdAt)}</span>
+  </div>
+);
+
+const WebsiteActions = ({
+  website,
+  onEdit,
+}: {
+  website: IWebsite;
+  onEdit: (website: IWebsite) => void;
+}) => (
+  <div className="flex items-center gap-2">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onEdit(website);
+      }}
+      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+    >
+      <IconEdit className="w-3 h-3" />
+      <span>Manage</span>
+    </button>
+    {website.url && (
+      <a
+        href={website.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+      >
+        <IconArrowUpRight className="w-3 h-3" />
+      </a>
+    )}
+  </div>
+);
+
 export function Cms() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
@@ -224,43 +270,11 @@ export function Cms() {
                     </p>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <IconCalendar className="w-3 h-3" />
-                        <span>
-                          Created on:{' '}
-                          {new Date(website.createdAt).toLocaleDateString(
-                            'en-US',
-                            {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            },
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditWebsite(website);
-                          }}
-                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                        >
-                          <IconEdit className="w-3 h-3" />
-                          <span>Manage</span>
-                        </button>
-                        {website.url && (
-                          <a
-                            href={website.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                          >
-                            <IconArrowUpRight className="w-3 h-3" />
-                          </a>
-                        )}
-                      </div>
+                      <WebsiteCreatedOn createdAt={website.createdAt} />
+                      <WebsiteActions
+                        website={website}
+                        onEdit={handleEditWebsite}
+                      />
                     </div>
                   </div>
                 </div>
@@ -306,20 +320,7 @@ export function Cms() {
                         {website.description || 'No description available'}
                       </p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <IconCalendar className="w-3 h-3" />
-                          <span>
-                            Created on:{' '}
-                            {new Date(website.createdAt).toLocaleDateString(
-                              'en-US',
-                              {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              },
-                            )}
-                          </span>
-                        </div>
+                        <WebsiteCreatedOn createdAt={website.createdAt} />
                         {website.domain && (
                           <div className="flex items-center gap-1">
                             <span className="font-medium">
@@ -329,29 +330,10 @@ export function Cms() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditWebsite(website);
-                        }}
-                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        <IconEdit className="w-3 h-3" />
-                        <span>Manage</span>
-                      </button>
-                      {website.url && (
-                        <a
-                          href={website.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                        >
-                          <IconArrowUpRight className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
+                    <WebsiteActions
+                      website={website}
+                      onEdit={handleEditWebsite}
+                    />
                   </div>
                 </div>
               ))}

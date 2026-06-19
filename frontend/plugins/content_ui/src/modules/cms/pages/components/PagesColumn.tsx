@@ -2,17 +2,12 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
-  RelativeDateDisplay,
   Badge,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { pageMoreColumn } from './PagesMoreColumn';
-import {
-  IconUser,
-  IconArticle,
-  IconCalendar,
-  IconSitemap,
-} from '@tabler/icons-react';
+import { IconUser, IconArticle, IconSitemap } from '@tabler/icons-react';
+import { createDateColumn } from '@/cms/shared/columns';
 import { useNavigate } from 'react-router-dom';
 import { IPage } from '../types/pageTypes';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
@@ -98,33 +93,7 @@ export const usePagesColumns = (
       ),
     },
 
-    {
-      id: 'createdAt',
-      header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
-      ),
-      accessorKey: 'createdAt',
-      cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      ),
-    },
-    {
-      id: 'updatedAt',
-      header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Updated" />
-      ),
-      accessorKey: 'updatedAt',
-      cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      ),
-    },
+    createDateColumn({ id: 'createdAt', label: 'Created' }),
+    createDateColumn({ id: 'updatedAt', label: 'Updated' }),
   ];
 };

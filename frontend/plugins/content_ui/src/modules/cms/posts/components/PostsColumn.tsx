@@ -2,10 +2,10 @@ import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  RelativeDateDisplay,
   Badge,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
+import { createDateColumn } from '@/cms/shared/columns';
 import {
   IconCalendarEvent,
   IconCalendarPlus,
@@ -250,35 +250,17 @@ export const usePostsColumns = (
         );
       },
     },
-    {
+    createDateColumn({
       id: 'createdAt',
-      header: () => (
-        <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
-      ),
-      accessorKey: 'createdAt',
-      cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      ),
+      label: 'Created At',
+      icon: IconCalendarPlus,
       size: 140,
-    },
-    {
+    }),
+    createDateColumn({
       id: 'updatedAt',
-      header: () => (
-        <RecordTable.InlineHead label="Updated At" icon={IconCalendarUp} />
-      ),
-      accessorKey: 'updatedAt',
-      cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      ),
+      label: 'Updated At',
+      icon: IconCalendarUp,
       size: 140,
-    },
+    }),
   ];
 };

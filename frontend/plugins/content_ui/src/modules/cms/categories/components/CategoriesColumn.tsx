@@ -2,13 +2,13 @@ import {
   RecordTable,
   RecordTableInlineCell,
   Input,
-  RelativeDateDisplay,
   Popover,
   Badge,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { categoryMoreColumn } from './CategoriesMoreColumn';
+import { createDateColumn } from '@/cms/shared/columns';
 import { useState } from 'react';
 import {
   IconUser,
@@ -183,21 +183,12 @@ export const useCategoriesColumns = (
         return <RecordTableInlineCell>{parentName}</RecordTableInlineCell>;
       },
     },
-    {
+    createDateColumn({
       id: 'createdAt',
-      header: () => (
-        <RecordTable.InlineHead icon={IconCalendarPlus} label="Created At" />
-      ),
-      accessorKey: 'createdAt',
+      label: 'Created At',
+      icon: IconCalendarPlus,
       size: 120,
-      cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      ),
-    },
+    }),
   ];
 };
 

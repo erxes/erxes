@@ -3,15 +3,15 @@ import {
   RecordTableInlineCell,
   Input,
   Popover,
-  RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { customTypeMoreColumn } from './CustomTypesMoreColumn';
 import { useState } from 'react';
-import { IconLayout, IconCalendar, IconArticle } from '@tabler/icons-react';
+import { IconLayout, IconArticle } from '@tabler/icons-react';
 import { ICustomPostType } from '../types/customTypeTypes';
 import { useEditCustomType } from '../hooks/useEditCustomType';
+import { createDateColumn } from '@/cms/shared/columns';
 
 export const createCustomTypesColumns = (
   websiteId: string,
@@ -108,20 +108,6 @@ export const createCustomTypesColumns = (
         </RecordTableInlineCell>
       ),
     },
-    {
-      id: 'createdAt',
-      header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
-      ),
-      accessorKey: 'createdAt',
-      size: 120,
-      cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      ),
-    },
+    createDateColumn({ id: 'createdAt', label: 'Created', size: 120 }),
   ];
 };

@@ -1,3 +1,19 @@
+import {
+  IconAt,
+  IconCalendarEvent,
+  IconChevronDown,
+  IconCircleCheck,
+  IconFile,
+  IconLink,
+  IconListDetails,
+  IconNumbers,
+  IconPhoto,
+  IconSquareCheck,
+  IconTable,
+  IconTextScan2,
+  IconTextSize,
+} from '@tabler/icons-react';
+
 export type FieldType =
   | 'text'
   | 'textarea'
@@ -49,22 +65,6 @@ export interface ICustomFieldGroup {
   enabledCategoryIds?: string[];
   enabledPostIds?: string[];
 }
-
-import {
-  IconAt,
-  IconCalendarEvent,
-  IconChevronDown,
-  IconCircleCheck,
-  IconFile,
-  IconLink,
-  IconListDetails,
-  IconNumbers,
-  IconPhoto,
-  IconSquareCheck,
-  IconTable,
-  IconTextScan2,
-  IconTextSize,
-} from '@tabler/icons-react';
 
 export const FIELD_TYPES: {
   value: FieldType;
