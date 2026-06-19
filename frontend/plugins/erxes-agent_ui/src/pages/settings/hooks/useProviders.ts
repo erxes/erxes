@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import {
   MASTRA_PROVIDERS,
   MASTRA_PROVIDER_PRESETS,
@@ -8,6 +9,7 @@ import {
   MASTRA_PROVIDER_SAVE,
   MASTRA_PROVIDER_REMOVE,
 } from '~/graphql/mutations';
+import { toastError } from '~/lib/mutationToast';
 import {
   IProviderCatalogResponse,
   IProviderPresetsResponse,
@@ -31,11 +33,14 @@ export const useProviders = (onSaved: () => void) => {
       onCompleted: () => {
         refetch();
         onSaved();
+        toast({ title: 'Provider saved' });
       },
+      onError: toastError(),
     },
   );
   const [removeProvider] = useMutation(MASTRA_PROVIDER_REMOVE, {
     onCompleted: () => refetch(),
+    onError: toastError(),
   });
 
   const providers = providersData?.mastraProviders ?? [];

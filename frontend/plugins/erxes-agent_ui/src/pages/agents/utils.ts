@@ -1,10 +1,13 @@
 import { IErxesTool, IToolItem, IToolPluginGroup } from './types';
 
-export const toSlug = (name: string): string =>
+// Slugify a name into an agentId. Names with no ASCII alphanumerics (e.g.
+// "日本語", "!!!") would otherwise slug to an empty string and fail the
+// required-field check with no visible hint — fall back to a non-empty default.
+export const toSlug = (name: string, fallback = 'agent'): string =>
   name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+    .replace(/(^-|-$)/g, '') || fallback;
 
 // Built-in (non-erxes) tools, offered alongside operations in the picker.
 // Keep in sync with backend mastra/tools/builtins.ts (BUILTIN_TOOLS keys).

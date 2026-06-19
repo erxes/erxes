@@ -4,26 +4,32 @@ import { REACT_APP_API_URL } from 'erxes-ui';
 import {
   MASTRA_AGENT_CHAT,
   MASTRA_MESSAGE_FEEDBACKS,
-  MASTRA_THREADS,
   MASTRA_THREAD_MESSAGES,
 } from '~/graphql/queries';
-import {
-  MASTRA_MESSAGE_FEEDBACK,
-  MASTRA_THREAD_REMOVE,
-  MASTRA_THREAD_RENAME,
-} from '~/graphql/mutations';
+import { MASTRA_MESSAGE_FEEDBACK } from '~/graphql/mutations';
 import {
   AgentChatState,
   AgentChatView,
   ChatAttachment,
+  ApprovedOp,
   EMPTY_AGENT,
   EMPTY_THREAD,
   Message,
   MessageMeta,
-  SessionMeta,
+  ReasoningEffort,
+  REASONING_EFFORT_OPTIONS,
   ThreadChatState,
 } from '~/modules/chat/types';
-import { generateThreadId, partsFromMeta } from '~/modules/chat/utils';
+import {
+  generateThreadId,
+  partsFromMeta,
+  randomIdSuffix,
+} from '~/modules/chat/utils';
+import {
+  prependThreadToCache,
+  refetchThreadsIntoCache,
+  setThreadTitleInCache,
+} from '~/modules/chat/threadsCache';
 import { readStreamEvents } from '~/modules/chat/lib/streamTransport';
 import {
   ApplyOps,
@@ -32,15 +38,6 @@ import {
 } from '~/modules/chat/lib/applyEvent';
 
 type Client = ApolloClient<object>;
-
-interface MastraThreadsResponse {
-  mastraThreads?: Array<{
-    threadId: string;
-    title?: string;
-    messageCount?: number;
-    lastMessageAt?: string;
-  }>;
-}
 
 interface MastraThreadMessagesResponse {
   mastraThreadMessages?: Array<{
@@ -64,6 +61,29 @@ interface MastraAgentChatResponse {
 const threadKey = (agentKey: string, threadId: string) =>
   `${agentKey}:${threadId}`;
 
+const REASONING_EFFORT_VALUES: readonly string[] = REASONING_EFFORT_OPTIONS.map(
+  (o) => o.value,
+);
+
+const isReasoningEffort = (v: unknown): v is ReasoningEffort =>
+  typeof v === 'string' && REASONING_EFFORT_VALUES.includes(v);
+
+/** localStorage key holding the persisted reasoning choice for one agent. */
+const reasoningEffortStorageKey = (agentKey: string) =>
+  `erxes-agent:reasoningEffort:${agentKey}`;
+
+// Best-effort read of the persisted choice — localStorage may be unavailable
+// (private mode / SSR) and may hold stale values from an older enum. Read once
+// at agent-slice creation (setCurrentAgent), never inside a reactive selector.
+const loadReasoningEffort = (agentKey: string): ReasoningEffort | undefined => {
+  try {
+    const raw = localStorage.getItem(reasoningEffortStorageKey(agentKey));
+    return isReasoningEffort(raw) ? raw : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 // DB-backed chat store. Sessions (threads) and their messages live in MongoDB
 // via the erxes-agent_api plugin; this store mirrors them in memory for the UI.
 // Replies stream over SSE through the gateway plugin proxy, falling back to the
@@ -76,12 +96,11 @@ interface ChatStoreState {
 
   setCurrentAgent: (agentId: string | undefined) => void;
   markRead: (agentKey: string) => void;
-  newDraft: (agentKey: string) => void;
-  loadSessions: (
-    client: Client,
+  setReasoningEffort: (
     agentKey: string,
-    mastraAgentId: string,
-  ) => Promise<void>;
+    effort: ReasoningEffort | undefined,
+  ) => void;
+  newDraft: (agentKey: string) => void;
   selectSession: (
     client: Client,
     agentKey: string,
@@ -94,18 +113,9 @@ interface ChatStoreState {
     messageId: string,
     rating: 1 | -1,
   ) => Promise<void>;
-  renameSession: (
-    client: Client,
-    agentKey: string,
-    threadId: string,
-    title: string,
-  ) => Promise<void>;
-  deleteSession: (
-    client: Client,
-    agentKey: string,
-    mastraAgentId: string,
-    threadId: string,
-  ) => Promise<void>;
+  // Drop a removed thread's local streaming/message state. The cached session
+  // list is filtered by useRemoveMastraThread; this only clears store-side state.
+  discardThread: (agentKey: string, threadId: string) => void;
   stop: (agentKey: string, threadId: string) => void;
   sendMessage: (
     client: Client,
@@ -113,6 +123,10 @@ interface ChatStoreState {
     mastraAgentId: string,
     message: string,
     attachments?: ChatAttachment[],
+    approvedOperations?: ApprovedOp[],
+    // Don't render a user bubble for this send (used by approve/deny — the turn
+    // continues without a visible "Approved" message).
+    hidden?: boolean,
   ) => Promise<void>;
 }
 
@@ -146,36 +160,49 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       };
     });
 
-  const appendMessage = (agentKey: string, threadId: string, msg: Message) => {
-    const t = getThread(agentKey, threadId);
-    patchThread(agentKey, threadId, { messages: [...t.messages, msg] });
+  // Atomically claim a thread for a new turn: check `loading` and set it true in
+  // one synchronous step. Returns false when the thread is already streaming, so
+  // a concurrent send (regenerate, suggestion, double Enter) can't slip past the
+  // guard in the window before `loading` would otherwise be set.
+  const claimThread = (agentKey: string, threadId: string): boolean => {
+    const key = threadKey(agentKey, threadId);
+    if ((get().threads[key] ?? EMPTY_THREAD).loading) return false;
+    patchThread(agentKey, threadId, { loading: true });
+    return true;
   };
 
-  const replaceLastMessage = (
+  const appendMessage = (
     agentKey: string,
     threadId: string,
+    msg: Omit<Message, '_clientId'> & { _clientId?: string },
+  ) => {
+    const t = getThread(agentKey, threadId);
+    const withId: Message = {
+      ...msg,
+      _clientId: msg._clientId ?? `m-${randomIdSuffix(8)}`,
+    };
+    patchThread(agentKey, threadId, { messages: [...t.messages, withId] });
+  };
+
+  // Replace a message by its stable `_clientId` rather than by position, so an
+  // error (or any message) appended between two stream events can't be
+  // overwritten by the live bubble's next update. Appends if it's gone (e.g.
+  // the first live event, or a thread cleared mid-stream).
+  const replaceMessageById = (
+    agentKey: string,
+    threadId: string,
+    clientId: string,
     msg: Message,
   ) => {
     const t = getThread(agentKey, threadId);
-    patchThread(agentKey, threadId, {
-      messages: t.messages.slice(0, -1).concat(msg),
-    });
-  };
-
-  // Local-only title update — used when the server pushes an auto-generated
-  // title over the stream (the server already persisted it).
-  const setSessionTitle = (
-    agentKey: string,
-    threadId: string,
-    title: string,
-  ) => {
-    const agent = ensureAgent(agentKey);
-    if (!agent.sessions.some((s) => s.threadId === threadId)) return;
-    patchAgent(agentKey, {
-      sessions: agent.sessions.map((s) =>
-        s.threadId === threadId ? { ...s, title } : s,
-      ),
-    });
+    const idx = t.messages.findIndex((m) => m._clientId === clientId);
+    if (idx < 0) {
+      patchThread(agentKey, threadId, { messages: [...t.messages, msg] });
+      return;
+    }
+    const messages = t.messages.slice();
+    messages[idx] = msg;
+    patchThread(agentKey, threadId, { messages });
   };
 
   const hydrateFeedbacks = async (
@@ -204,8 +231,9 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     }
   };
 
-  // Mark the turn persisted: refresh sessions (titles/ordering/counts) and flag
-  // unread when the user is looking at another agent.
+  // Mark the turn persisted: reconcile the cached session list
+  // (titles/ordering/counts + the real _id) and flag unread when the user is
+  // looking at another agent.
   const finishTurn = (
     client: Client,
     agentKey: string,
@@ -223,7 +251,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     if (agent.activeThreadId === threadId && agent.isDraft) {
       patchAgent(agentKey, { isDraft: false });
     }
-    void get().loadSessions(client, agentKey, mastraAgentId);
+    void refetchThreadsIntoCache(client, mastraAgentId);
   };
 
   // Legacy blocking transport — single GraphQL query, no intermediate events.
@@ -268,12 +296,15 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
   // before any event arrived (caller falls back to GraphQL); throws on errors
   // the user should see.
   const sendViaStream = async (
+    client: Client,
     agentKey: string,
     threadId: string,
     mastraAgentId: string,
     message: string,
     abort: AbortController,
     attachments?: ChatAttachment[],
+    reasoningEffort?: ReasoningEffort,
+    approvedOperations?: ApprovedOp[],
   ): Promise<boolean> => {
     let response: Response;
     try {
@@ -288,6 +319,10 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
             message,
             threadId,
             attachments: attachments?.length ? attachments : undefined,
+            reasoningEffort: reasoningEffort || undefined,
+            approvedOperations: approvedOperations?.length
+              ? approvedOperations
+              : undefined,
           }),
           signal: abort.signal,
         },
@@ -306,9 +341,46 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       return false;
     }
 
-    // The live assistant bubble; advanced in place as events arrive.
+    // The live assistant bubble; advanced in place as events arrive. Keyed by a
+    // stable client id so its updates land on the same row even if another
+    // message is appended mid-stream.
     let live: Message | null = null;
+    const liveClientId = `m-${randomIdSuffix(8)}`;
     const liveState: LiveState = { sawDone: false, hasLive: false };
+
+    // Coalesce store writes to one per animation frame. A fast provider emits
+    // many tokens per frame; without this the live bubble re-renders (and
+    // re-parses its whole growing markdown) on every token, pegging the main
+    // thread so streaming stutters. `live` still advances synchronously so each
+    // event builds on the latest; only the store write — and the React render
+    // it triggers — is throttled to ~60fps. `flushLive` is called synchronously
+    // at every terminal point so the final state is never left in the buffer.
+    let flushScheduled = false;
+    let liveDirty = false;
+
+    const flushLive = () => {
+      flushScheduled = false;
+      if (!liveDirty || !live) return;
+      liveDirty = false;
+      // replaceMessageById appends when the row isn't in the store yet (the
+      // first flush), so this one call covers both append and in-place update.
+      replaceMessageById(agentKey, threadId, liveClientId, live);
+      // Bump a monotonic tick so the view can follow streamed output off a
+      // single dependency, rather than inferring growth from message contents.
+      patchThread(agentKey, threadId, {
+        streamTick: (getThread(agentKey, threadId).streamTick ?? 0) + 1,
+      });
+    };
+
+    const scheduleFlush = () => {
+      if (flushScheduled) return;
+      flushScheduled = true;
+      if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(flushLive);
+      } else {
+        setTimeout(flushLive, 16);
+      }
+    };
 
     const upsertLive = (mutate: (m: Message) => Message) => {
       const base: Message = live ?? {
@@ -316,12 +388,12 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         content: '',
         timestamp: new Date(),
         streaming: true,
+        _clientId: liveClientId,
       };
-      const next = mutate({ ...base, parts: base.parts?.slice() });
-      if (live) replaceLastMessage(agentKey, threadId, next);
-      else appendMessage(agentKey, threadId, next);
-      live = next;
+      live = mutate({ ...base, parts: base.parts?.slice() });
       liveState.hasLive = true;
+      liveDirty = true;
+      scheduleFlush();
     };
 
     const ops: ApplyOps = {
@@ -334,7 +406,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         }),
       setActivity: (text) =>
         patchThread(agentKey, threadId, { activity: text }),
-      setSessionTitle: (tid, title) => setSessionTitle(agentKey, tid, title),
+      setSessionTitle: (tid, title) =>
+        setThreadTitleInCache(client, mastraAgentId, tid, title),
       fallbackThreadId: threadId,
     };
 
@@ -343,7 +416,11 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         applyStreamEvent(ops, ev, liveState);
       }
     } catch (err) {
-      if (!abort.signal.aborted) throw err;
+      if (!abort.signal.aborted) {
+        // Persist whatever streamed before the failure, then surface the error.
+        flushLive();
+        throw err;
+      }
     }
 
     // User pressed stop, or the connection dropped mid-stream: finalize what we
@@ -361,6 +438,10 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       );
     }
 
+    // Write the final buffered state synchronously — the last events (done /
+    // finalize above) may still be sitting in the coalesced frame.
+    flushLive();
+
     return true;
   };
 
@@ -372,7 +453,17 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
 
     setCurrentAgent: (agentId) => {
       set({ currentViewedAgentId: agentId });
-      if (agentId) get().markRead(agentId);
+      if (agentId) {
+        get().markRead(agentId);
+        // Hydrate the persisted reasoning choice exactly once, when this
+        // agent's slice first comes into view. Reads localStorage a single
+        // time so the reactive selector never has to.
+        if (!get().agents[agentId]) {
+          patchAgent(agentId, {
+            reasoningEffort: loadReasoningEffort(agentId),
+          });
+        }
+      }
     },
 
     markRead: (agentKey) =>
@@ -382,41 +473,22 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           : s,
       ),
 
+    // Persist the power-user reasoning choice for this agent's chat view.
+    setReasoningEffort: (agentKey, effort) => {
+      try {
+        const key = reasoningEffortStorageKey(agentKey);
+        if (effort) localStorage.setItem(key, effort);
+        else localStorage.removeItem(key);
+      } catch {
+        // localStorage unavailable — the in-memory patch below still applies.
+      }
+      patchAgent(agentKey, { reasoningEffort: effort });
+    },
+
     newDraft: (agentKey) => {
       const threadId = generateThreadId();
       patchAgent(agentKey, { activeThreadId: threadId, isDraft: true });
       patchThread(agentKey, threadId, { messages: [], loading: false });
-    },
-
-    loadSessions: async (client, agentKey, mastraAgentId) => {
-      try {
-        const { data } = await client.query<MastraThreadsResponse>({
-          query: MASTRA_THREADS,
-          variables: { agentId: mastraAgentId },
-          fetchPolicy: 'network-only',
-        });
-        const sessions: SessionMeta[] = (data?.mastraThreads ?? []).map(
-          (t) => ({
-            threadId: t.threadId,
-            title: t.title || 'New chat',
-            messageCount: t.messageCount ?? 0,
-            lastMessageAt: t.lastMessageAt,
-          }),
-        );
-
-        const before = ensureAgent(agentKey);
-        patchAgent(agentKey, { sessions, sessionsLoaded: true });
-
-        if (!before.activeThreadId) {
-          if (sessions.length > 0) {
-            await get().selectSession(client, agentKey, sessions[0].threadId);
-          } else {
-            get().newDraft(agentKey);
-          }
-        }
-      } catch {
-        patchAgent(agentKey, { sessionsLoaded: true });
-      }
     },
 
     selectSession: async (client, agentKey, threadId) => {
@@ -435,6 +507,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         const messages: Message[] = (data?.mastraThreadMessages ?? []).map(
           (m) => ({
             id: m._id,
+            _clientId: m._id || `m-${randomIdSuffix(8)}`,
             role: m.role,
             content: m.content,
             timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
@@ -474,50 +547,17 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       }
     },
 
-    renameSession: async (client, agentKey, threadId, title) => {
-      const agent = ensureAgent(agentKey);
-      patchAgent(agentKey, {
-        sessions: agent.sessions.map((s) =>
-          s.threadId === threadId ? { ...s, title } : s,
-        ),
-      });
-      try {
-        await client.mutate({
-          mutation: MASTRA_THREAD_RENAME,
-          variables: { threadId, title },
-        });
-      } catch {
-        // best-effort; optimistic update already applied
-      }
-    },
-
-    deleteSession: async (client, agentKey, mastraAgentId, threadId) => {
-      try {
-        await client.mutate({
-          mutation: MASTRA_THREAD_REMOVE,
-          variables: { threadId },
-        });
-      } catch {
-        return;
-      }
-
+    discardThread: (agentKey, threadId) => {
       getThread(agentKey, threadId).abort?.abort();
       set((s) => {
         const next = { ...s.threads };
         delete next[threadKey(agentKey, threadId)];
         return { threads: next };
       });
-
-      const agent = ensureAgent(agentKey);
-      const remaining = agent.sessions.filter((s) => s.threadId !== threadId);
-      patchAgent(agentKey, { sessions: remaining });
-
-      if (agent.activeThreadId === threadId) {
-        if (remaining.length > 0) {
-          await get().selectSession(client, agentKey, remaining[0].threadId);
-        } else {
-          get().newDraft(agentKey);
-        }
+      // Drop the active selection so the view's bootstrap effect re-selects the
+      // next session (or opens a fresh draft) from the now-filtered cached list.
+      if (ensureAgent(agentKey).activeThreadId === threadId) {
+        patchAgent(agentKey, { activeThreadId: undefined, isDraft: false });
       }
     },
 
@@ -531,6 +571,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       mastraAgentId,
       message,
       attachments,
+      approvedOperations,
+      hidden,
     ) => {
       let agent = ensureAgent(agentKey);
       if (!agent.activeThreadId) {
@@ -538,40 +580,48 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         agent = ensureAgent(agentKey);
       }
       const threadId = agent.activeThreadId!;
+      const reasoningEffort = agent.reasoningEffort;
+
+      // Never start a second stream on a thread that's already streaming — a
+      // concurrent send (regenerate, suggestion, double Enter) would overwrite
+      // the in-flight AbortController, orphaning the first stream so it can no
+      // longer be stopped and letting two replies interleave into one bubble.
+      // claimThread checks-and-sets `loading` in one synchronous step so the
+      // guard holds even though `abort` is attached further down.
+      if (!claimThread(agentKey, threadId)) return;
 
       // Surface the session in the sidebar the instant the first message is
       // sent — don't wait for the turn to finish. The backend registers + tags
       // the thread at turn start (so a refresh keeps it); this mirrors it into
-      // the list optimistically. The streamed thread_title event fills the real
-      // title, and loadSessions in finishTurn reconciles title/count/order.
-      if (!agent.sessions.some((s) => s.threadId === threadId)) {
-        patchAgent(agentKey, {
-          sessions: [
-            { threadId, title: 'New chat', messageCount: 0 },
-            ...agent.sessions,
-          ],
-          isDraft: false,
+      // the cached list optimistically. The streamed thread_title event fills
+      // the real title, and the finishTurn refetch reconciles title/count/order
+      // and the real _id into the same cached query.
+      prependThreadToCache(client, mastraAgentId, threadId);
+      if (agent.isDraft) patchAgent(agentKey, { isDraft: false });
+
+      if (!hidden) {
+        appendMessage(agentKey, threadId, {
+          role: 'user',
+          content: message,
+          timestamp: new Date(),
+          attachments: attachments?.length ? attachments : undefined,
         });
       }
 
-      appendMessage(agentKey, threadId, {
-        role: 'user',
-        content: message,
-        timestamp: new Date(),
-        attachments: attachments?.length ? attachments : undefined,
-      });
-
       const abort = new AbortController();
-      patchThread(agentKey, threadId, { loading: true, abort });
+      patchThread(agentKey, threadId, { abort });
 
       try {
         const streamed = await sendViaStream(
+          client,
           agentKey,
           threadId,
           mastraAgentId,
           message,
           abort,
           attachments,
+          reasoningEffort,
+          approvedOperations,
         );
         if (!streamed) {
           await sendViaQuery(
@@ -617,6 +667,7 @@ export const selectAgentView = (
     messages: thread.messages,
     loading: thread.loading,
     messagesLoading: thread.messagesLoading,
+    streamTick: thread.streamTick,
   };
 };
 
@@ -681,9 +732,9 @@ export const chatStore = {
   setCurrentAgent: (agentId: string | undefined) =>
     useChatStore.getState().setCurrentAgent(agentId),
   markRead: (agentKey: string) => useChatStore.getState().markRead(agentKey),
+  setReasoningEffort: (agentKey: string, effort: ReasoningEffort | undefined) =>
+    useChatStore.getState().setReasoningEffort(agentKey, effort),
   newDraft: (agentKey: string) => useChatStore.getState().newDraft(agentKey),
-  loadSessions: (client: Client, agentKey: string, mastraAgentId: string) =>
-    useChatStore.getState().loadSessions(client, agentKey, mastraAgentId),
   selectSession: (client: Client, agentKey: string, threadId: string) =>
     useChatStore.getState().selectSession(client, agentKey, threadId),
   rateMessage: (
@@ -696,21 +747,8 @@ export const chatStore = {
     useChatStore
       .getState()
       .rateMessage(client, agentKey, threadId, messageId, rating),
-  renameSession: (
-    client: Client,
-    agentKey: string,
-    threadId: string,
-    title: string,
-  ) => useChatStore.getState().renameSession(client, agentKey, threadId, title),
-  deleteSession: (
-    client: Client,
-    agentKey: string,
-    mastraAgentId: string,
-    threadId: string,
-  ) =>
-    useChatStore
-      .getState()
-      .deleteSession(client, agentKey, mastraAgentId, threadId),
+  discardThread: (agentKey: string, threadId: string) =>
+    useChatStore.getState().discardThread(agentKey, threadId),
   stop: (agentKey: string, threadId: string) =>
     useChatStore.getState().stop(agentKey, threadId),
   sendMessage: (
@@ -719,8 +757,18 @@ export const chatStore = {
     mastraAgentId: string,
     message: string,
     attachments?: ChatAttachment[],
+    approvedOperations?: ApprovedOp[],
+    hidden?: boolean,
   ) =>
     useChatStore
       .getState()
-      .sendMessage(client, agentKey, mastraAgentId, message, attachments),
+      .sendMessage(
+        client,
+        agentKey,
+        mastraAgentId,
+        message,
+        attachments,
+        approvedOperations,
+        hidden,
+      ),
 };

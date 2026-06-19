@@ -12,6 +12,15 @@ export interface IChatAgent {
   provider?: string;
   description?: string;
   isEnabled?: boolean;
+  // Full settings — present on the MASTRA_AGENTS payload, used by the in-chat
+  // "Edit agent" modal so it can populate without a second fetch.
+  instructions?: string;
+  toolPolicy?: string;
+  allowedTools?: string[];
+  destructiveOps?: 'allow' | 'ask';
+  memoryEnabled?: boolean;
+  maxSteps?: number;
+  temperature?: number | null;
 }
 
 interface MastraAgentsResponse {

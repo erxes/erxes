@@ -53,6 +53,9 @@
     "ratio": "Ratio",
     "inverse-ratio": "Inverse Ratio",
     "currency": "Currency",
+    "duration": "Duration",
+    "duration-type": "Duration type",
+    "select-duration-type": "Select duration type",
     "add-product-rule": "Add product rule",
     "edit-product-rule": "Edit product rule",
     "choose-categories-to-include": "Choose categories to include",
@@ -64,6 +67,9 @@
     "bundle-condition-added": "Bundle condition added"
   },
   "detail": {
+    "duration": "Duration",
+    "duration-type": "Duration type",
+    "select-duration-type": "Select duration type",
     "product-information": "Product Information",
     "more-info": "More info",
     "brand": "Brand",

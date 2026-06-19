@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
 export const providerFormSchema = z.object({
-  provider: z.string(),
+  // Required: a custom provider with a blank key would otherwise silently
+  // no-op on save. Presets pre-fill this with their own key.
+  provider: z.string().min(1, 'Provider key is required'),
   apiKey: z.string(),
   baseUrl: z.string(),
   modelsEndpoint: z.string(),

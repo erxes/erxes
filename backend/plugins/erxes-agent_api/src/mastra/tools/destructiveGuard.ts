@@ -1,12 +1,13 @@
 import { OperationMeta } from './operationRegistry';
+import { ApprovedOp } from '../requestContext';
 
 // Consent for irreversible mutations, stored per-agent (and per-workflow).
-//   'block' (default) → the agent may NOT run remove/delete/merge operations.
-//   'allow'           → destructive operations are permitted.
-// 'confirm' is intentionally NOT a value yet: a human-in-the-loop approval flow
-// does not exist on the chat/scheduled transports, so anything other than an
-// explicit 'allow' must fall through to 'block' and never silently destroy data.
-export type DestructiveOpsPolicy = 'block' | 'allow';
+//   'ask' (default) → remove/delete/merge run only after the user approves them
+//                     in chat (the agent never silently destroys data, and never
+//                     hard-refuses — it asks).
+//   'allow'         → destructive operations run without asking.
+// The legacy value 'block' resolves to 'ask' (we no longer hard-refuse).
+export type DestructiveOpsPolicy = 'ask' | 'allow';
 
 // erxes mutation names are suffix-based: customersRemove, dealsRemove,
 // segmentsDelete, customersMerge, companiesMerge. Match those verbs anywhere in
@@ -32,24 +33,48 @@ export function resolveDestructiveOpsPolicy(
 ): DestructiveOpsPolicy {
   const value = (config as { destructiveOps?: unknown } | null | undefined)
     ?.destructiveOps;
-  return value === 'allow' ? 'allow' : 'block';
+  // Only an explicit 'allow' skips the prompt; everything else (incl. the legacy
+  // 'block' and a missing field) means "ask the user".
+  return value === 'allow' ? 'allow' : 'ask';
 }
 
 /**
- * The structured refusal returned to the model when it attempts a destructive
- * operation without consent. Deliberately actionable: the model should explain
- * the limit to the user and offer a safe alternative, NOT silently retry.
+ * True when the user approved this operation for the turn. Matched on operation
+ * NAME only — the user approves the action ("delete these products"), so the
+ * agent may run it even if it adjusts the arguments between turns (e.g. it
+ * settles on the right id field). Matching exact args was too brittle: a single
+ * arg-shape change by the model re-triggered the prompt in a loop. Args are kept
+ * on ApprovedOp for display/audit.
  */
-export function destructiveBlockedResult(operation: string) {
+export function isApprovedOperation(
+  operation: string,
+  approved: ApprovedOp[] | undefined,
+): boolean {
+  if (!approved?.length) return false;
+  return approved.some((a) => a.operation === operation);
+}
+
+/**
+ * The structured result returned when the model attempts a destructive
+ * operation that the user has not yet approved. The agent must NOT retry — it
+ * surfaces the intent so the user gets an Approve / Deny prompt; the operation
+ * runs only on the follow-up turn carrying the approval.
+ */
+export function destructiveApprovalRequiredResult(
+  operation: string,
+  args: Record<string, unknown>,
+) {
   return {
     success: false,
-    blocked: true,
-    error: `Operation "${operation}" deletes or merges data and is blocked for this agent.`,
+    requiresApproval: true,
+    operation,
+    args,
+    error: `Operation "${operation}" deletes or merges data and needs the user's approval.`,
     instruction:
-      'Do NOT retry this operation. Tell the user plainly that this agent is not ' +
-      'allowed to delete or merge records, and that an administrator can enable ' +
-      'destructive operations in the agent settings if it is intended. Where it ' +
-      'helps, suggest a non-destructive alternative such as editing or archiving ' +
-      'instead of removing.',
+      'Do NOT retry this operation and take no other action this turn. Reply with ' +
+      'ONE short question asking the user to confirm, naming exactly what will be ' +
+      'affected (for example: "Delete these 7 products?"). Do NOT mention buttons, ' +
+      'approval, or that they will be prompted — just ask the question. The ' +
+      'operation runs automatically once they approve.',
   };
 }

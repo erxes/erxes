@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApolloClient } from '@apollo/client';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
@@ -9,19 +9,29 @@ import {
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Empty, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { ChatAttachment } from '~/modules/chat/types';
+import { ChatAttachment, ApprovedOp } from '~/modules/chat/types';
 import { chatStore } from '~/modules/chat/store/chatStore';
 import {
   useChatAgents,
   useAttachmentsEnabled,
 } from '~/modules/chat/hooks/useChatAgents';
 import { useAgentChatView } from '~/modules/chat/hooks/useChatView';
+import { useMastraThreads } from '~/modules/chat/hooks/useMastraThreads';
+import { useRenameMastraThread } from '~/modules/chat/hooks/useRenameMastraThread';
+import { useRemoveMastraThread } from '~/modules/chat/hooks/useRemoveMastraThread';
 import { useAttachments } from '~/modules/chat/hooks/useAttachments';
 import { AgentRail } from '~/modules/chat/components/AgentRail';
 import { SessionList } from '~/modules/chat/components/SessionList';
 import { MessageList } from '~/modules/chat/components/MessageList';
 import { Composer } from '~/modules/chat/components/Composer';
+import { ApprovalBar } from '~/modules/chat/components/ApprovalBar';
+import { pendingApproval } from '~/modules/chat/utils';
 import '~/modules/chat/chat.css';
+
+// Distance (px) from the bottom under which we keep following streamed output.
+const SCROLL_PIN_THRESHOLD = 120;
+// Distance (px) from the bottom past which the "Latest" jump button appears.
+const SCROLL_BUTTON_THRESHOLD = 280;
 
 export const ChatPage = () => {
   const { agentId } = useParams<{ agentId: string }>();
@@ -40,20 +50,31 @@ export const ChatPage = () => {
 
   const view = useAgentChatView(agentId);
   const {
-    sessions,
-    sessionsLoaded,
     activeThreadId,
     isDraft,
+    reasoningEffort,
     messages,
     loading: chatLoading,
     messagesLoading,
+    streamTick,
   } = view;
+
+  // The persisted session list lives in the Apollo cache, not the chat store.
+  const { threads, loading: threadsLoading } = useMastraThreads(
+    selectedAgent?.agentId,
+  );
+  const sessionsLoaded = !!selectedAgent && !threadsLoading;
+  const { renameThread } = useRenameMastraThread();
+  const { removeThread } = useRemoveMastraThread(selectedAgent?.agentId);
 
   const [input, setInput] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesBoxRef = useRef<HTMLDivElement>(null);
+  // Whether the view is pinned to the bottom. Gates streaming auto-scroll so a
+  // user who scrolled up to read history isn't yanked back on every token.
+  const atBottomRef = useRef(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
@@ -90,25 +111,32 @@ export const ChatPage = () => {
     return () => chatStore.setCurrentAgent(undefined);
   }, [agentId]);
 
-  // Load the agent's persisted sessions once its record is available.
+  // Bootstrap / re-home the active session: once the cached list has loaded and
+  // nothing is selected (first open of this agent, or after deleting the active
+  // session), open the most recent session or a fresh draft.
   useEffect(() => {
-    if (!agentId || !selectedAgent) return;
-    chatStore.loadSessions(apolloClient, agentId, selectedAgent.agentId);
+    if (!agentId || !selectedAgent || !sessionsLoaded || activeThreadId) return;
+    if (threads.length > 0) {
+      chatStore.selectSession(apolloClient, agentId, threads[0].threadId);
+    } else {
+      chatStore.newDraft(agentId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId, selectedAgent?.agentId]);
+  }, [agentId, selectedAgent?.agentId, sessionsLoaded, activeThreadId, threads]);
 
   // Keep the view pinned to the bottom — also while a reply streams (the last
-  // message grows without the list length changing).
-  const lastMsg = messages[messages.length - 1];
-  const lastMsgSize =
-    (lastMsg?.content?.length ?? 0) +
-    (lastMsg?.parts?.reduce(
-      (n, p) => n + (p.kind === 'thinking' ? p.text.length : 1),
-      0,
-    ) ?? 0);
+  // message grows without the list length changing). The store bumps streamTick
+  // on every live update, so following it re-fires this effect per token.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, chatLoading, lastMsgSize]);
+    if (atBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages.length, chatLoading, streamTick]);
+
+  // Switching threads re-pins to the bottom of the freshly loaded conversation.
+  useEffect(() => {
+    atBottomRef.current = true;
+  }, [activeThreadId]);
 
   useEffect(() => {
     if (!chatLoading) textareaRef.current?.focus();
@@ -137,14 +165,15 @@ export const ChatPage = () => {
   ) => {
     e.stopPropagation();
     if (!agentId || !selectedAgent) return;
-    if (window.confirm('Delete this session and all its messages?')) {
-      chatStore.deleteSession(
-        apolloClient,
-        agentId,
-        selectedAgent.agentId,
-        threadId,
-      );
-    }
+    if (!window.confirm('Delete this session and all its messages?')) return;
+    // The cached list filter (hook) + local state teardown (store); the
+    // bootstrap effect re-selects the next session if this one was active.
+    removeThread(threadId);
+    chatStore.discardThread(agentId, threadId);
+  };
+
+  const handleRenameSession = (id: string, threadId: string, title: string) => {
+    renameThread(id, threadId, title);
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -180,17 +209,44 @@ export const ChatPage = () => {
       attachments.addFiles(e.dataTransfer.files);
   };
 
-  const sendMessage = (message: string, atts: ChatAttachment[]) => {
-    if (!selectedAgent || !agentId) return;
-    // Fire-and-forget: the store holds the Apollo client reference so the
-    // request continues even if the user navigates away before it completes.
-    chatStore.sendMessage(
-      apolloClient,
-      agentId,
-      selectedAgent.agentId,
-      message,
-      atts,
-    );
+  const sendMessage = useCallback(
+    (
+      message: string,
+      atts: ChatAttachment[],
+      approvedOperations?: ApprovedOp[],
+      hidden?: boolean,
+    ) => {
+      if (!selectedAgent || !agentId) return;
+      // Sending re-pins to the bottom so the user follows their own message.
+      atBottomRef.current = true;
+      // Fire-and-forget: the store holds the Apollo client reference so the
+      // request continues even if the user navigates away before it completes.
+      chatStore.sendMessage(
+        apolloClient,
+        agentId,
+        selectedAgent.agentId,
+        message,
+        atts,
+        approvedOperations,
+        hidden,
+      );
+    },
+    [apolloClient, agentId, selectedAgent],
+  );
+
+  // A destructive op the agent is waiting on (derived from the last turn) — drives
+  // the approval bar above the composer. Both actions continue the turn without a
+  // visible user bubble (hidden send): Approve replays the gated op, Deny cancels.
+  const approval = pendingApproval(messages);
+
+  const handleApprove = () => {
+    if (chatLoading || !approval) return;
+    sendMessage('Approved.', [], approval.operations, true);
+  };
+
+  const handleDeny = () => {
+    if (chatLoading) return;
+    sendMessage('Cancelled — do not delete or merge anything.', [], undefined, true);
   };
 
   const handleSend = () => {
@@ -210,11 +266,30 @@ export const ChatPage = () => {
   };
 
   // Re-ask the question that produced the last reply (with its attachments).
-  const handleRegenerate = () => {
-    if (chatLoading) return;
-    const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+  // Reads messages from the store rather than closing over the `messages` array
+  // so this callback stays referentially stable across streamed tokens — the
+  // memoized message rows depend on it not changing every chunk.
+  const handleRegenerate = useCallback(() => {
+    if (!agentId || chatLoading) return;
+    const msgs = chatStore.getState(agentId).messages;
+    const lastUser = [...msgs].reverse().find((m) => m.role === 'user');
     if (lastUser) sendMessage(lastUser.content, lastUser.attachments || []);
-  };
+  }, [agentId, chatLoading, sendMessage]);
+
+  // Stable rating handler so the memoized message rows don't re-render per token.
+  const handleRate = useCallback(
+    (messageId: string, rating: 1 | -1) => {
+      if (!agentId || !activeThreadId) return;
+      chatStore.rateMessage(
+        apolloClient,
+        agentId,
+        activeThreadId,
+        messageId,
+        rating,
+      );
+    },
+    [apolloClient, agentId, activeThreadId],
+  );
 
   const handleStop = () => {
     if (agentId && activeThreadId) chatStore.stop(agentId, activeThreadId);
@@ -234,11 +309,15 @@ export const ChatPage = () => {
   const handleMessagesScroll = () => {
     const el = messagesBoxRef.current;
     if (!el) return;
-    setShowScrollDown(el.scrollHeight - el.scrollTop - el.clientHeight > 280);
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    atBottomRef.current = distanceFromBottom < SCROLL_PIN_THRESHOLD;
+    setShowScrollDown(distanceFromBottom > SCROLL_BUTTON_THRESHOLD);
   };
 
-  const scrollToBottom = () =>
+  const scrollToBottom = () => {
+    atBottomRef.current = true;
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -288,13 +367,14 @@ export const ChatPage = () => {
         {selectedAgent && agentId && (
           <SessionList
             agentId={agentId}
-            sessions={sessions}
+            sessions={threads}
             sessionsLoaded={sessionsLoaded}
             isDraft={isDraft}
             activeThreadId={activeThreadId}
             onSelect={handleSelectSession}
             onNew={handleNewThread}
             onDelete={handleDeleteSession}
+            onRename={handleRenameSession}
           />
         )}
 
@@ -359,17 +439,7 @@ export const ChatPage = () => {
                   textareaRef.current?.focus();
                 }}
                 onRegenerate={handleRegenerate}
-                onRate={(messageId, rating) =>
-                  agentId &&
-                  activeThreadId &&
-                  chatStore.rateMessage(
-                    apolloClient,
-                    agentId,
-                    activeThreadId,
-                    messageId,
-                    rating,
-                  )
-                }
+                onRate={handleRate}
               />
 
               {showScrollDown && (
@@ -381,6 +451,15 @@ export const ChatPage = () => {
                   <IconArrowDown className="size-3.5" />
                   Latest
                 </button>
+              )}
+
+              {approval && !chatLoading && (
+                <ApprovalBar
+                  prompt={approval.prompt}
+                  busy={chatLoading}
+                  onApprove={handleApprove}
+                  onDeny={handleDeny}
+                />
               )}
 
               <Composer
@@ -397,6 +476,10 @@ export const ChatPage = () => {
                 onRemoveAttachment={attachments.removeAttachment}
                 uploadsInFlight={attachments.uploadsInFlight}
                 agentName={selectedAgent.name}
+                reasoningEffort={reasoningEffort}
+                onReasoningEffortChange={(effort) =>
+                  chatStore.setReasoningEffort(agentId!, effort)
+                }
                 textareaRef={textareaRef}
                 fileInputRef={fileInputRef}
               />
