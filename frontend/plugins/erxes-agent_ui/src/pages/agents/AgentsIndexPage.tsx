@@ -31,6 +31,7 @@ import {
   ToggleDeleteMenuItems,
   enabledStatusColumn,
 } from '~/components/RecordTableShared';
+import { PermissionButton } from '~/components/PermissionButton';
 import { useMastraAgentList, IMastraAgentRow } from './useMastraAgentList';
 import {
   agentMutationError,
@@ -54,20 +55,14 @@ const agentListCacheUpdate = (cache: ApolloCache<unknown>) => {
 const CreateAgentButton = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { canCreate } = useAgentAccess();
-  const handleClick = () =>
-    canCreate
-      ? navigate('/settings/erxes-agent/agents/new')
-      : showAgentPermissionError('create');
-  // Looks disabled for non-admins/owners but stays clickable so the click still
-  // surfaces the toaster — a native `disabled` button would swallow the event.
   return (
-    <Button
-      onClick={handleClick}
-      aria-disabled={!canCreate}
-      className={canCreate ? undefined : 'opacity-50'}
+    <PermissionButton
+      allowed={canCreate}
+      onDenied={() => showAgentPermissionError('create')}
+      onClick={() => navigate('/settings/erxes-agent/agents/new')}
     >
       {children}
-    </Button>
+    </PermissionButton>
   );
 };
 
@@ -88,10 +83,7 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
     onError: agentMutationError('edit'),
   });
 
-  // Deleting is restricted to admins/owners — block the call and toast, with the
-  // mutation onError as a backend-enforced safety net.
   const handleDelete = () => {
-    if (!canRemove) return showAgentPermissionError('delete');
     confirm({
       message: `Remove "${agent.name}"? This cannot be undone.`,
       options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
@@ -99,7 +91,6 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
   };
 
   const handleToggle = () => {
-    if (!canEdit) return showAgentPermissionError('edit');
     updateAgent({
       variables: { _id: agent._id, doc: { isEnabled: !agent.isEnabled } },
     });
@@ -130,19 +121,16 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
               </Button>
             </Command.Item>
             <Command.Item asChild>
-              <Button
+              <PermissionButton
                 variant="ghost"
                 size="sm"
-                aria-disabled={!canEdit}
-                className={`justify-start w-full h-8${canEdit ? '' : ' opacity-50'}`}
-                onClick={() =>
-                  canEdit
-                    ? navigate(`/settings/erxes-agent/agents/edit/${agent._id}`)
-                    : showAgentPermissionError('edit')
-                }
+                className="justify-start w-full h-8"
+                allowed={canEdit}
+                onDenied={() => showAgentPermissionError('edit')}
+                onClick={() => navigate(`/settings/erxes-agent/agents/edit/${agent._id}`)}
               >
                 <IconPencil className="size-4" /> Edit
-              </Button>
+              </PermissionButton>
             </Command.Item>
             <ToggleDeleteMenuItems
               isEnabled={agent.isEnabled}
@@ -150,6 +138,8 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
               onDelete={handleDelete}
               toggleDisabled={!canEdit}
               deleteDisabled={!canRemove}
+              onToggleDenied={() => showAgentPermissionError('edit')}
+              onDeleteDenied={() => showAgentPermissionError('delete')}
             />
           </Command.List>
         </Command>

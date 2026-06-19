@@ -132,7 +132,7 @@ export const AgentRail = ({
   const [editingAgent, setEditingAgent] = useState<IChatAgent | null>(null);
 
   return (
-    <div className="w-56 border-r flex flex-col shrink-0">
+    <div className="flex flex-col h-full">
       <div className="px-3 py-2.5 border-b">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Agents
