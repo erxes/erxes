@@ -4,6 +4,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
 import {
+  IconChevronLeft,
   IconLoader2,
   IconMessage2,
   IconPlus,
@@ -133,6 +134,7 @@ interface SessionListProps {
   onNew: () => void;
   onDelete: DeleteHandler;
   onRename: RenameHandler;
+  onBack?: () => void;
 }
 
 export const SessionList = ({
@@ -145,13 +147,27 @@ export const SessionList = ({
   onNew,
   onDelete,
   onRename,
+  onBack,
 }: SessionListProps) => {
   return (
-    <div className="w-60 border-r flex flex-col shrink-0">
-      <div className="px-3 py-2 border-b flex items-center justify-between">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Sessions
-        </p>
+    <div className="flex flex-col h-full">
+      <div className="px-2 py-2 border-b flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={onBack}
+              title="Back to agents"
+            >
+              <IconChevronLeft className="size-3.5" />
+            </Button>
+          )}
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Sessions
+          </p>
+        </div>
         <Button variant="ghost" size="icon" className="size-6" onClick={onNew}>
           <IconPlus className="size-3.5" />
         </Button>

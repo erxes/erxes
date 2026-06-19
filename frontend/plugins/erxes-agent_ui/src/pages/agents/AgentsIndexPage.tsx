@@ -27,27 +27,43 @@ import {
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { MASTRA_AGENT_REMOVE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
-import { toastError } from '~/lib/mutationToast';
 import {
   ToggleDeleteMenuItems,
   enabledStatusColumn,
 } from '~/components/RecordTableShared';
+import { PermissionButton } from '~/components/PermissionButton';
 import { useMastraAgentList, IMastraAgentRow } from './useMastraAgentList';
+import {
+  agentMutationError,
+  showAgentPermissionError,
+  useAgentAccess,
+} from './hooks/useAgentAccess';
 
 type IAgent = IMastraAgentRow;
 
 // Refresh the agent lists after a row mutation without prop-drilling a refetch
 // through the table columns: invalidate every cached instance of both list
 // fields (paginated table + dropdown/chat list). Shared by remove + toggle.
-// cache.evict — not refetchQueries with fixed variables — so searched/paged
-// instances aren't missed (see useSaveAgent).
-const agentListMutationOptions = {
-  update: (cache: ApolloCache<unknown>) => {
-    cache.evict({ fieldName: 'mastraAgentsMain' });
-    cache.evict({ fieldName: 'mastraAgents' });
-    cache.gc();
-  },
-  onError: toastError(),
+const agentListCacheUpdate = (cache: ApolloCache<unknown>) => {
+  cache.evict({ fieldName: 'mastraAgentsMain' });
+  cache.evict({ fieldName: 'mastraAgents' });
+  cache.gc();
+};
+
+// ─── Create button (admin/owner only) ──────────────────────────────────────────
+
+const CreateAgentButton = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
+  const { canCreate } = useAgentAccess();
+  return (
+    <PermissionButton
+      allowed={canCreate}
+      onDenied={() => showAgentPermissionError('create')}
+      onClick={() => navigate('/settings/erxes-agent/agents/new')}
+    >
+      {children}
+    </PermissionButton>
+  );
 };
 
 // ─── More menu cell ───────────────────────────────────────────────────────────
@@ -55,27 +71,30 @@ const agentListMutationOptions = {
 const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
   const navigate = useNavigate();
   const { confirm } = useConfirm();
+  const { canEdit, canRemove } = useAgentAccess();
 
-  const [removeAgent] = useMutation(
-    MASTRA_AGENT_REMOVE,
-    agentListMutationOptions,
-  );
+  const [removeAgent] = useMutation(MASTRA_AGENT_REMOVE, {
+    update: agentListCacheUpdate,
+    onError: agentMutationError('delete'),
+  });
 
-  const [updateAgent] = useMutation(
-    MASTRA_AGENT_UPDATE,
-    agentListMutationOptions,
-  );
+  const [updateAgent] = useMutation(MASTRA_AGENT_UPDATE, {
+    update: agentListCacheUpdate,
+    onError: agentMutationError('edit'),
+  });
 
-  const handleDelete = () =>
+  const handleDelete = () => {
     confirm({
       message: `Remove "${agent.name}"? This cannot be undone.`,
       options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
     }).then(() => removeAgent({ variables: { _id: agent._id } }));
+  };
 
-  const handleToggle = () =>
+  const handleToggle = () => {
     updateAgent({
       variables: { _id: agent._id, doc: { isEnabled: !agent.isEnabled } },
     });
+  };
 
   return (
     <Popover>
@@ -102,21 +121,25 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
               </Button>
             </Command.Item>
             <Command.Item asChild>
-              <Button
+              <PermissionButton
                 variant="ghost"
                 size="sm"
                 className="justify-start w-full h-8"
-                onClick={() =>
-                  navigate(`/settings/erxes-agent/agents/edit/${agent._id}`)
-                }
+                allowed={canEdit}
+                onDenied={() => showAgentPermissionError('edit')}
+                onClick={() => navigate(`/settings/erxes-agent/agents/edit/${agent._id}`)}
               >
                 <IconPencil className="size-4" /> Edit
-              </Button>
+              </PermissionButton>
             </Command.Item>
             <ToggleDeleteMenuItems
               isEnabled={agent.isEnabled}
               onToggle={handleToggle}
               onDelete={handleDelete}
+              toggleDisabled={!canEdit}
+              deleteDisabled={!canRemove}
+              onToggleDenied={() => showAgentPermissionError('edit')}
+              onDeleteDenied={() => showAgentPermissionError('delete')}
             />
           </Command.List>
         </Command>
@@ -214,8 +237,7 @@ const baseColumns: ColumnDef<IAgent>[] = [
   },
 ];
 
-// The row actions (delete / enable-toggle) self-invalidate the list cache, so
-// the columns no longer depend on any per-render value.
+// Row actions self-invalidate the list cache, so columns don't depend on refetch.
 const columns: ColumnDef<IAgent>[] = [
   {
     id: 'more',
@@ -252,11 +274,9 @@ export const AgentsIndexPage = () => {
           <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
         <PageHeader.End>
-          <Button asChild>
-            <Link to="/settings/erxes-agent/agents/new">
-              <IconPlus /> New Agent
-            </Link>
-          </Button>
+          <CreateAgentButton>
+            <IconPlus /> New Agent
+          </CreateAgentButton>
         </PageHeader.End>
       </PageHeader>
 
@@ -273,11 +293,9 @@ export const AgentsIndexPage = () => {
               </Empty.Description>
             </Empty.Header>
             <Empty.Content>
-              <Button asChild>
-                <Link to="/settings/erxes-agent/agents/new">
-                  <IconPlus /> Create Agent
-                </Link>
-              </Button>
+              <CreateAgentButton>
+                <IconPlus /> Create Agent
+              </CreateAgentButton>
             </Empty.Content>
           </Empty>
         </div>

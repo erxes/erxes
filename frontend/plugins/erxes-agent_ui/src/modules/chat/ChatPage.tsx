@@ -36,6 +36,7 @@ const SCROLL_BUTTON_THRESHOLD = 280;
 export const ChatPage = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
+  const [railOpen, setRailOpen] = useState(!agentId);
   const apolloClient = useApolloClient();
   const [searchParams] = useSearchParams();
 
@@ -319,6 +320,8 @@ export const ChatPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const showAgentRail = !selectedAgent || railOpen;
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -357,26 +360,46 @@ export const ChatPage = () => {
       </PageHeader>
 
       <div className="flex flex-1 overflow-hidden">
-        <AgentRail
-          agents={agents}
-          loading={agentsLoading}
-          activeAgentId={agentId}
-          onSelect={(id) => navigate(`/erxes-agent/chat/${id}`)}
-        />
-
-        {selectedAgent && agentId && (
-          <SessionList
-            agentId={agentId}
-            sessions={threads}
-            sessionsLoaded={sessionsLoaded}
-            isDraft={isDraft}
-            activeThreadId={activeThreadId}
-            onSelect={handleSelectSession}
-            onNew={handleNewThread}
-            onDelete={handleDeleteSession}
-            onRename={handleRenameSession}
-          />
-        )}
+        {/* ── Side panel: AgentRail ↔ SessionList slide ── */}
+        <div className="relative shrink-0 border-r overflow-hidden w-60">
+          <div
+            className="absolute inset-0 transition-transform duration-200 ease-in-out"
+            style={{
+              transform: showAgentRail ? 'translateX(0)' : 'translateX(-100%)',
+            }}
+          >
+            <AgentRail
+              agents={agents}
+              loading={agentsLoading}
+              activeAgentId={agentId}
+              onSelect={(id) => {
+                navigate(`/erxes-agent/chat/${id}`);
+                setRailOpen(false);
+              }}
+            />
+          </div>
+          {selectedAgent && agentId && (
+            <div
+              className="absolute inset-0 transition-transform duration-200 ease-in-out"
+              style={{
+                transform: showAgentRail ? 'translateX(100%)' : 'translateX(0)',
+              }}
+            >
+              <SessionList
+                agentId={agentId}
+                sessions={threads}
+                sessionsLoaded={sessionsLoaded}
+                isDraft={isDraft}
+                activeThreadId={activeThreadId}
+                onSelect={handleSelectSession}
+                onNew={handleNewThread}
+                onDelete={handleDeleteSession}
+                onRename={handleRenameSession}
+                onBack={() => setRailOpen(true)}
+              />
+            </div>
+          )}
+        </div>
 
         {/* ── Chat area ── */}
         <div
