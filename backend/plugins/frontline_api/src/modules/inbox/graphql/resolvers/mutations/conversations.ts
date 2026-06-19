@@ -622,6 +622,7 @@ export const conversationMutations = {
           text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR,
         },
       ],
+      fromBot: true,
     });
     await graphqlPubsub.publish(
       `conversationMessageInserted:${message.conversationId}`,

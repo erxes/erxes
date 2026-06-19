@@ -2,7 +2,11 @@ import {
   IconBrain,
   IconCircleDashed,
   IconFile,
+  IconHeadset,
+  IconPlayerPlay,
+  IconRobot,
   IconSparkles,
+  IconTicket,
 } from '@tabler/icons-react';
 import { differenceInHours, differenceInMinutes, format } from 'date-fns';
 import DOMPurify from 'dompurify';
@@ -12,11 +16,12 @@ import {
   Button,
   cn,
   formatDateISOStringToRelativeDate,
+  Input,
   readImage,
   Tooltip,
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import {
   ReadConversationResult,
@@ -26,6 +31,7 @@ import {
   connectionAtom,
   conversationIdAtom,
   setActiveTabAtom,
+  uiOptionsAtom,
 } from '../states';
 import { IAttachment, IConversationMessage, ISupporter } from '../types';
 import { AvatarGroup } from './avatar-group';
@@ -184,7 +190,7 @@ export function ConversationMessage({
                   : 'font-medium text-muted-foreground',
               )}
             >
-              AI Agent
+              AI Bot
             </span>
             <span
               className={cn(
@@ -221,7 +227,7 @@ export function ConversationMessage({
             className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5 mt-0.5"
           >
             <IconCircleDashed size={10} />
-            AI Agent · Automated
+            AI Bot · Automated
           </Badge>
         </div>
 
@@ -619,6 +625,62 @@ export const CustomerMessage = ({
   );
 };
 
+const TicketFormInline = ({
+  onSubmit,
+}: {
+  onSubmit: (payload: Record<string, string>) => void;
+}) => {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    onSubmit({
+      'ticket:name': name.trim(),
+      'ticket:description': description.trim(),
+    });
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground px-1 mt-1">
+        <IconTicket size={13} className="text-primary shrink-0" />
+        Ticket info submitted
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-2 w-full">
+      <Input
+        placeholder="Ticket name *"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="text-sm h-8"
+        required
+      />
+      <Input
+        placeholder="Description (optional)"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="text-sm h-8"
+      />
+      <Button
+        type="submit"
+        size="sm"
+        className="h-7 text-xs self-start rounded-xl"
+        disabled={!name.trim()}
+      >
+        <IconTicket size={13} />
+        Submit
+      </Button>
+    </form>
+  );
+};
+
 export const BotMessage = ({
   content,
   botData,
@@ -628,6 +690,12 @@ export const BotMessage = ({
   isLastMessage,
   isMiddleMessage,
   isSingleMessage,
+  showOperatorToggle,
+  operatorStatus,
+  onToggleOperator,
+  onQuickReply,
+  onGetStarted,
+  onTicketFormSubmit,
 }: {
   content?: string;
   botData?: any[];
@@ -637,62 +705,128 @@ export const BotMessage = ({
   isLastMessage?: boolean;
   isMiddleMessage?: boolean;
   isSingleMessage?: boolean;
+  showOperatorToggle?: boolean;
+  operatorStatus?: 'bot' | 'operator';
+  onToggleOperator?: () => void;
+  onQuickReply?: (title: string) => void;
+  onGetStarted?: () => void;
+  onTicketFormSubmit?: (payload: Record<string, string>) => void;
 }) => {
-  const htmlContent = botData?.length
-    ? botData.map((item: any) => item?.text || item?.content || '').join('')
+  const uiOptions = useAtomValue(uiOptionsAtom);
+  const hasTicketForm = botData?.some(
+    (item: any) => item?.type === 'ticketForm',
+  );
+  const textItems = botData?.filter(
+    (item: any) => item?.type !== 'quickReplies' && item?.type !== 'ticketForm',
+  );
+  const quickReplies: Array<{ title: string }> =
+    botData?.find((item: any) => item?.type === 'quickReplies')?.elements || [];
+
+  const htmlContent = textItems?.length
+    ? textItems.map((item: any) => item?.text || item?.content || '').join('')
     : content
-      ? `<p>${content}</p>`
-      : '';
+    ? `<p>${content}</p>`
+    : '';
 
   if (createdAt) {
     return (
       <Tooltip.Provider>
         <Tooltip>
           <Tooltip.Trigger asChild>
-            <div className="flex items-end justify-start gap-2 mr-auto max-w-[80%]">
-              {showAvatar ? (
-                <div className="mb-5 size-8 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                  <IconBrain size={20} />
+            <div className="flex flex-col mr-auto max-w-[80%]">
+              <div className="flex items-end justify-start gap-2">
+                {showAvatar ? (
+                  <div className="size-8 shrink-0 mb-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                    <IconBrain size={20} />
+                  </div>
+                ) : (
+                  <div className="size-8 shrink-0 mb-4" />
+                )}
+                <div className="flex flex-col gap-0.5 flex-1">
+                  {(isFirstMessage || isSingleMessage) && (
+                    <span className="text-[11px] text-muted-foreground px-1 font-medium">
+                      Bot{' '}
+                      <Badge
+                        variant={'ghost'}
+                        className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
+                      >
+                        Auto
+                      </Badge>
+                    </span>
+                  )}
+                  {htmlContent && htmlContent !== '<p></p>' && (
+                    <div
+                      className={cn(
+                        'h-auto font-normal flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word text-pretty',
+                        isSingleMessage &&
+                          'rounded-2xl rounded-bl-sm shadow-sm',
+                        isFirstMessage && 'rounded-2xl rounded-b-sm shadow-2xs',
+                        isMiddleMessage && 'rounded-sm shadow-2xs',
+                        isLastMessage &&
+                          'rounded-2xl rounded-bl-sm rounded-t-sm shadow-2xs',
+                        isLastMessage &&
+                          isSingleMessage &&
+                          'rounded-2xl rounded-bl-sm shadow-2xs',
+                      )}
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(htmlContent),
+                      }}
+                    />
+                  )}
+                  {(isLastMessage || isSingleMessage) && (
+                    <span className="text-[10px] text-muted-foreground px-1 mt-0.5">
+                      {formatRelativeTime(createdAt)}
+                    </span>
+                  )}
                 </div>
-              ) : (
-                // <div
-                //   className="size-8 shrink-0 mb-5 rounded-full bg-size-[50%] bg-no-repeat bg-center bg-primary"
-                //   style={{ backgroundImage: defaultLogo }}
-                // />
-                <div className="size-8 shrink-0" />
-              )}
-              <div className="flex flex-col gap-0.5 flex-1">
-                {(isFirstMessage || isSingleMessage) && (
-                  <span className="text-[11px] text-muted-foreground px-1 font-medium">
-                    Ai Agent{' '}
-                    <Badge
-                      variant={'ghost'}
-                      className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
-                    >
-                      Ai
-                    </Badge>
-                  </span>
-                )}
-                {htmlContent && htmlContent !== '<p></p>' && (
-                  <div
-                    className={cn(
-                      'h-auto font-normal flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word text-pretty',
-                      isSingleMessage && 'rounded-2xl rounded-bl-sm shadow-sm',
-                      isFirstMessage && 'rounded-2xl rounded-b-sm shadow-2xs',
-                      isMiddleMessage && 'rounded-sm shadow-2xs',
-                      isLastMessage && 'rounded-2xl rounded-bl-sm shadow-2xs',
-                    )}
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(htmlContent),
-                    }}
-                  />
-                )}
-                {(isLastMessage || isSingleMessage) && (
-                  <span className="text-[10px] text-muted-foreground px-1 mt-0.5">
-                    {formatRelativeTime(createdAt)}
-                  </span>
-                )}
               </div>
+              {(isLastMessage || isSingleMessage) &&
+                (quickReplies.length > 0 || showOperatorToggle) && (
+                  <div className="flex flex-wrap gap-1.5 mt-1.5 pl-10">
+                    {quickReplies.length > 0 &&
+                      onQuickReply &&
+                      quickReplies.map((qr, idx) => (
+                        <Button
+                          key={idx}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onQuickReply(qr.title)}
+                          className="h-7 text-xs gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
+                        >
+                          {qr.title}
+                        </Button>
+                      ))}
+                    {showOperatorToggle && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={onToggleOperator}
+                        className="h-7 text-xs gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
+                      >
+                        {operatorStatus === 'operator' ? (
+                          <>
+                            <IconRobot size={13} />
+                            Talk to bot
+                          </>
+                        ) : (
+                          <>
+                            <IconHeadset size={13} />
+                            Talk to human
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              {(isLastMessage || isSingleMessage) &&
+                hasTicketForm &&
+                onTicketFormSubmit && (
+                  <div className="pl-10 mt-1.5">
+                    <TicketFormInline onSubmit={onTicketFormSubmit} />
+                  </div>
+                )}
             </div>
           </Tooltip.Trigger>
           <Tooltip.Content>
@@ -704,29 +838,46 @@ export const BotMessage = ({
   }
 
   return (
-    <div className="flex justify-start items-end gap-2">
+    <div className="flex self-start items-start gap-2">
       <div
-        className="w-8 h-8 rounded-full bg-size-[50%] bg-no-repeat bg-center mb-5 bg-primary"
-        style={{ backgroundImage: defaultLogo }}
+        className="w-8 h-8 rounded-full bg-size-[50%] bg-no-repeat bg-center bg-primary mt-6"
+        style={
+          uiOptions && { backgroundImage: `url(${readImage(uiOptions?.logo)})` }
+        }
       />
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-1">
         <span className="text-[11px] text-muted-foreground px-1 font-medium">
           Erxes
         </span>
-        <span className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-snug text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all rounded-lg shadow-2xs">
+        <span className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all rounded-2xl rounded-bl-sm shadow-sm">
           {content}
         </span>
+        {onGetStarted && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onGetStarted}
+            className="self-start h-7 text-xs gap-1.5 rounded-xl text-primary hover:bg-primary/10 hover:text-primary"
+          >
+            <IconPlayerPlay size={13} />
+            Get Started
+          </Button>
+        )}
       </div>
     </div>
   );
 };
 
 export const WelcomeMessage = ({ content }: { content?: string }) => {
+  const uiOptions = useAtomValue(uiOptionsAtom);
   return (
-    <div className="flex items-end self-start gap-2">
+    <div className="flex items-end self-start gap-2 mb-2">
       <div
         className="w-8 h-8 rounded-full bg-size-[50%] bg-no-repeat bg-center bg-primary"
-        style={{ backgroundImage: defaultLogo }}
+        style={
+          uiOptions && { backgroundImage: `url(${readImage(uiOptions?.logo)})` }
+        }
       />
       <div className="flex flex-col max-w-3/4">
         <span className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-pretty text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces rounded-2xl rounded-bl-sm shadow-2xs">

@@ -4,6 +4,7 @@ import { TBotMessage } from '../../states/replyMessageActionForm';
 import { FacebookCardsMessage } from './FacebookCardsMessage';
 import { FacebookQuickRepliesMessage } from './FacebookQuickRepliesMessage';
 import { FacebookTextMessage } from './FacebookTextMessage';
+import { FacebookTicketFormMessage } from './FacebookTicketFormMessage';
 import { FacebookMessageProps } from '~/widgets/automations/modules/facebook/components/action/types/messageActionForm';
 
 type MessageComponents = {
@@ -41,6 +42,7 @@ export const FacebookMessageContent = ({
     card: FacebookCardsMessage,
     quickReplies: FacebookQuickRepliesMessage,
     input: FacebookInputMessage,
+    ticketForm: FacebookTicketFormMessage,
     image: ({}: FacebookMessageProps<{ type: 'image' }>) => null,
     audio: ({}: FacebookMessageProps<{ type: 'audio' }>) => null,
     video: ({}: FacebookMessageProps<{ type: 'video' }>) => null,
