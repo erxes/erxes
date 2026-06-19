@@ -366,10 +366,12 @@ const TagsSelectedList = ({
   } = useTagsSelectContext();
   const { giveTags } = useGiveTags();
 
-  const selectedIds = useMemo(
-    () => (Array.isArray(value) ? value : value ? [value] : []),
-    [value],
-  );
+  const selectedIds = useMemo(() => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    return value ? [value] : [];
+  }, [value]);
 
   const missingIds = useMemo(() => {
     if (loading) return [];

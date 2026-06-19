@@ -43,6 +43,7 @@ interface SelectCategoryContextValue {
     React.SetStateAction<IProductCategory[]>
   >;
   mode: 'single' | 'multiple';
+  removeId: (id: string) => void;
 }
 
 const SelectCategoryContext = createContext<SelectCategoryContextValue | null>(
@@ -141,6 +142,18 @@ const SelectCategoryProvider = ({
     handleValueChange?.(newSelectedCategoryIds);
   };
 
+  const removeId = (id: string) => {
+    if (mode === 'single') {
+      setSelectedCategories([]);
+      handleValueChange?.('');
+      return;
+    }
+    setSelectedCategories((previousCategories) =>
+      previousCategories.filter((category) => category._id !== id),
+    );
+    handleValueChange?.(categoryIds.filter((categoryId) => categoryId !== id));
+  };
+
   return (
     <SelectCategoryContext.Provider
       value={{
@@ -149,6 +162,7 @@ const SelectCategoryProvider = ({
         selectedCategories,
         setSelectedCategories,
         mode,
+        removeId,
       }}
     >
       {children}
@@ -253,7 +267,7 @@ const SelectCategoryList = ({
   placeholder?: string;
   renderAsPlainText?: boolean;
 }) => {
-  const { categoryIds, selectedCategories, onSelectCategory } =
+  const { categoryIds, selectedCategories, onSelectCategory, removeId } =
     useSelectCategoryContext();
 
   if (categoryIds.length === 0) {
@@ -287,9 +301,7 @@ const SelectCategoryList = ({
               variant="warning"
               className="font-mono"
               title={`Unknown id: ${categoryId}`}
-              onClose={() =>
-                onSelectCategory({ _id: categoryId } as IProductCategory)
-              }
+              onClose={() => removeId(categoryId)}
             >
               <span className="max-w-24 truncate">{categoryId}</span>
             </Badge>

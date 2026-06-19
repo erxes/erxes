@@ -72,6 +72,20 @@ const SelectPaymentProvider = ({
     [isSingleMode, mode, onValueChange, setOpen, value],
   );
 
+  const removeId = React.useCallback(
+    (id: string) => {
+      if (isSingleMode) {
+        setCurrentPayments([]);
+        onValueChange?.(null);
+        return;
+      }
+      const arrayValue = Array.isArray(value) ? value : [];
+      setCurrentPayments((prev) => prev.filter((p) => p._id !== id));
+      onValueChange?.(arrayValue.filter((v) => v !== id));
+    },
+    [isSingleMode, onValueChange, value],
+  );
+
   const contextValue = React.useMemo(
     () => ({
       paymentIds: selectedIds,
@@ -80,8 +94,9 @@ const SelectPaymentProvider = ({
       setPayments: setCurrentPayments,
       loading: currentPayments.length !== selectedIds.length,
       mode,
+      removeId,
     }),
-    [currentPayments, onSelect, selectedIds, mode],
+    [currentPayments, onSelect, selectedIds, mode, removeId],
   );
 
   return (
@@ -165,16 +180,8 @@ const PaymentInline = ({
 };
 
 const SelectPaymentValue = ({ placeholder }: { placeholder?: string }) => {
-  const { paymentIds, payments, setPayments, onSelect, mode } =
+  const { paymentIds, payments, setPayments, removeId } =
     useSelectPaymentContext();
-
-  const handleRemoveMissing = (id: string) => {
-    if (mode === 'multiple') {
-      onSelect({ _id: id } as Payment);
-    } else {
-      onSelect(null);
-    }
-  };
 
   return (
     <PaymentInline
@@ -182,7 +189,7 @@ const SelectPaymentValue = ({ placeholder }: { placeholder?: string }) => {
       payments={payments}
       updatePayments={setPayments}
       placeholder={placeholder}
-      onRemoveMissing={handleRemoveMissing}
+      onRemoveMissing={removeId}
     />
   );
 };

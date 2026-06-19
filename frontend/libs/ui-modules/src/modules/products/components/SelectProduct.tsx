@@ -62,6 +62,16 @@ const SelectProductProvider = ({
     });
     onValueChange?.(newSelectedProductIds);
   };
+  const removeId = (id: string) => {
+    if (mode === 'single') {
+      setProducts([]);
+      onValueChange?.('');
+      return;
+    }
+    const arrayValue = Array.isArray(value) ? value : [];
+    setProducts((prev) => prev.filter((p) => p._id !== id));
+    onValueChange?.(arrayValue.filter((v) => v !== id));
+  };
   return (
     <SelectProductContext.Provider
       value={{
@@ -73,6 +83,7 @@ const SelectProductProvider = ({
         error: null,
         defaultSearchValue,
         mode,
+        removeId,
       }}
     >
       {children}
@@ -233,7 +244,7 @@ const SelectProductRoot = React.forwardRef<
 );
 
 const SelectProductMissingBadges = () => {
-  const { productIds, onSelect, mode } = useSelectProductContext();
+  const { productIds, removeId, mode } = useSelectProductContext();
 
   const { products: resolved, loading } = useProductsInline({
     variables: { ids: productIds },
@@ -256,7 +267,7 @@ const SelectProductMissingBadges = () => {
             variant="warning"
             className="font-mono"
             title={`Unknown id: ${id}`}
-            onClose={() => onSelect({ _id: id } as IProduct)}
+            onClose={() => removeId?.(id)}
           >
             <span className="max-w-24 truncate">{id}</span>
           </Badge>

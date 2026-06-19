@@ -11,6 +11,7 @@ export type ISelectProductContext = {
   defaultSearchValue?: string;
   selectedProducts?: IProduct[];
   mode?: 'single' | 'multiple';
+  removeId?: (id: string) => void;
 };
 
 export const SelectProductContext = createContext<ISelectProductContext | null>(

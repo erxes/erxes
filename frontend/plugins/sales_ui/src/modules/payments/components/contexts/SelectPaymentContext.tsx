@@ -9,6 +9,7 @@ export type ISelectPaymentContext = {
   setPayments: (payments: Payment[]) => void;
   loading: boolean;
   mode?: 'single' | 'multiple';
+  removeId?: (id: string) => void;
 };
 
 export const SelectPaymentContext = createContext<ISelectPaymentContext | null>(
