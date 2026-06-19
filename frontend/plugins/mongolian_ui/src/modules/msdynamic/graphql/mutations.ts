@@ -1,6 +1,28 @@
-const updateConfigs = `
-  mutation configsUpdate($configsMap: JSON!) {
-    configsUpdate(configsMap: $configsMap)
+const createConfig = `
+  mutation mnConfigsCreate($code: String!, $subId: String, $value: JSON) {
+    mnConfigsCreate(code: $code, subId: $subId, value: $value) {
+      _id
+      code
+      subId
+      value
+    }
+  }
+`;
+
+const updateConfig = `
+  mutation mnConfigsUpdate($id: String!, $subId: String, $value: JSON) {
+    mnConfigsUpdate(_id: $id, subId: $subId, value: $value) {
+      _id
+      code
+      subId
+      value
+    }
+  }
+`;
+
+const removeConfig = `
+  mutation mnConfigsRemove($id: String!) {
+    mnConfigsRemove(_id: $id)
   }
 `;
 
@@ -47,8 +69,8 @@ const toSyncPrices = `
 `;
 
 const toCheckMsdSynced = `
-  mutation toCheckMsdSynced($ids: [String], $brandId: String) {
-    toCheckMsdSynced(ids: $ids, brandId: $brandId) {
+  mutation toCheckMsdSynced($ids: [String]) {
+    toCheckMsdSynced(ids: $ids) {
       _id
       isSynced
       syncedDate
@@ -71,7 +93,9 @@ const toSendMsdOrders = `
 `;
 
 export default {
-  updateConfigs,
+  createConfig,
+  updateConfig,
+  removeConfig,
   toCheckProducts,
   toSyncProducts,
   toCheckCategories,

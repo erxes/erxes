@@ -34,6 +34,12 @@ import {
   types as PackageTypes,
 } from './package';
 
+import {
+  mutations as SimilarityMutations,
+  queries as SimilarityQueries,
+  types as SimilarityTypes,
+} from './similarity';
+
 export const types = `
   ${CategoryTypes}
   ${ProductTypes}
@@ -41,6 +47,7 @@ export const types = `
   ${UomTypes}
   ${RuleTypes}
   ${PackageTypes}
+  ${SimilarityTypes}
 `;
 
 export const queries = `
@@ -50,6 +57,7 @@ export const queries = `
   ${UomQueries}
   ${RuleQueries}
   ${PackageQueries}
+  ${SimilarityQueries}
 `;
 
 export const mutations = `
@@ -59,4 +67,5 @@ export const mutations = `
   ${UomMutations}
   ${RuleMutations}
   ${PackageMutations}
+  ${SimilarityMutations}
 `;

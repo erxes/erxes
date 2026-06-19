@@ -1,5 +1,6 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { lookup } from 'node:dns/promises';
 import {
   decodeHtmlEntities as decodeEntities,
@@ -111,11 +112,11 @@ function isPrivateIp(ip: string): boolean {
 async function assertPublicHttpUrl(raw: string): Promise<URL> {
   const url = new URL(raw);
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    throw new Error('Only http(s) URLs are allowed');
+    throw new ExpectedError('Only http(s) URLs are allowed');
   }
   const addrs = await lookup(url.hostname, { all: true });
   if (!addrs.length || addrs.some((a) => isPrivateIp(a.address))) {
-    throw new Error('URL resolves to a private or unknown address');
+    throw new ExpectedError('URL resolves to a private or unknown address');
   }
   return url;
 }
@@ -227,12 +228,13 @@ function evalMathExpression(expr: string): number {
       pos++;
     }
     if (start === pos) {
-      throw new Error(
+      throw new ExpectedError(
         `Unexpected character "${source[pos] ?? 'end of input'}" in expression`,
       );
     }
     const num = Number(source.slice(start, pos));
-    if (Number.isNaN(num)) throw new Error('Invalid number in expression');
+    if (Number.isNaN(num))
+      throw new ExpectedError('Invalid number in expression');
     return num;
   }
 
@@ -252,7 +254,8 @@ function evalMathExpression(expr: string): number {
       pos++;
       const inner = parseAddSub();
       skipWs();
-      if (source[pos] !== ')') throw new Error('Unbalanced parentheses');
+      if (source[pos] !== ')')
+        throw new ExpectedError('Unbalanced parentheses');
       pos++;
       return inner;
     }
@@ -294,7 +297,9 @@ function evalMathExpression(expr: string): number {
   const value = parseAddSub();
   skipWs();
   if (pos < source.length) {
-    throw new Error(`Unexpected character "${source[pos]}" in expression`);
+    throw new ExpectedError(
+      `Unexpected character "${source[pos]}" in expression`,
+    );
   }
   return value;
 }

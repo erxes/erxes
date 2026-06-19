@@ -1,6 +1,10 @@
 import { Button, Table, DropdownMenu, Collapsible } from 'erxes-ui';
 import { IconEdit, IconTrash, IconDots, IconPlus } from '@tabler/icons-react';
-import { ICustomFieldGroup, ICustomField } from '../types/customFieldTypes';
+import {
+  ICustomFieldGroup,
+  ICustomField,
+  FIELD_TYPES_OBJECT,
+} from '../types/customFieldTypes';
 
 interface CustomFieldGroupItemProps {
   group: ICustomFieldGroup;
@@ -30,21 +34,11 @@ export function CustomFieldGroupItem({
       defaultOpen={selectedGroupId === group._id}
       onOpenChange={(open) => open && onSelectGroup(group)}
     >
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_3rem] items-center">
+      <div className="relative">
         <Collapsible.Trigger asChild>
-          <Button
-            variant="secondary"
-            className="col-span-2 grid w-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-0 rounded-r-none px-2"
-          >
-            <span className="flex min-w-0 items-center gap-2">
-              <Collapsible.TriggerIcon className="size-4 shrink-0" />
-              <span className="truncate text-left">{group.label}</span>
-            </span>
-            {group.code && (
-              <code className="min-w-0 truncate justify-self-start text-xs text-muted-foreground font-mono">
-                {group.code}
-              </code>
-            )}
+          <Button variant="secondary" className="w-full justify-start">
+            <Collapsible.TriggerIcon />
+            <span className="truncate leading-normal">{group.label}</span>
           </Button>
         </Collapsible.Trigger>
         <DropdownMenu>
@@ -52,21 +46,21 @@ export function CustomFieldGroupItem({
             <Button
               variant="secondary"
               size="icon"
-              className="h-7 w-full rounded-l-none"
+              className="absolute right-0.5 top-0.5 size-6 px-0"
             >
-              <IconDots className="w-4 h-4" />
+              <IconDots />
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content className="min-w-48">
             <DropdownMenu.Item onClick={() => onEditGroup(group)}>
-              <IconEdit className="w-4 h-4" />
+              <IconEdit />
               Edit
             </DropdownMenu.Item>
             <DropdownMenu.Item
               className="text-destructive"
               onClick={() => onDeleteGroup(group._id)}
             >
-              <IconTrash className="w-4 h-4" />
+              <IconTrash />
               Delete
             </DropdownMenu.Item>
           </DropdownMenu.Content>
@@ -80,86 +74,77 @@ export function CustomFieldGroupItem({
               <Table.Row className="hover:bg-background">
                 <Table.Cell
                   colSpan={3}
-                  className="h-auto py-8 text-center text-muted-foreground"
+                  className="h-auto py-12 text-center text-muted-foreground"
                 >
-                  No fields in this group
+                  No fields found
                 </Table.Cell>
               </Table.Row>
             ) : (
-              (group.fields || []).map((field: ICustomField) => (
-                <Table.Row key={field._id} className="hover:bg-accent/50">
-                  <Table.Cell className="py-3">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-base">
-                            {field.label}
-                          </span>
+              (group.fields || []).map((field: ICustomField) => {
+                const fieldTypeObject = FIELD_TYPES_OBJECT[field.type];
+                return (
+                  <Table.Row key={field._id} className="hover:bg-sidebar">
+                    <Table.Cell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-full w-full justify-start hover:bg-transparent"
+                        asChild
+                      >
+                        <div>
+                          {fieldTypeObject?.icon}
+                          {field.label}
                           {field.isRequired && (
-                            <span className="text-xs px-2 py-0.5 bg-destructive/10 text-destructive rounded-full font-medium">
-                              Required
-                            </span>
+                            <span className="text-destructive">*</span>
                           )}
                         </div>
-                        {field.code && (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-medium text-muted-foreground">
-                              Code:
-                            </span>
-                            <code className="text-xs px-1.5 py-0.5 bg-muted rounded font-mono">
-                              {field.code}
-                            </code>
-                          </div>
-                        )}
-                        {field.description && (
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {field.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell className="py-3">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-md">
-                      <span className="text-sm font-medium capitalize">
-                        {field.type}
-                      </span>
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell className="w-8 p-0.5">
-                    <DropdownMenu>
-                      <DropdownMenu.Trigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-muted-foreground hover:text-foreground"
-                        >
-                          <IconDots className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenu.Trigger>
-                      <DropdownMenu.Content className="min-w-48">
-                        <DropdownMenu.Item onClick={() => onEditField(field)}>
-                          <IconEdit className="w-4 h-4" />
-                          Edit field
-                        </DropdownMenu.Item>
-                        <DropdownMenu.Item
-                          className="text-destructive"
-                          onClick={() => onDeleteField(field._id)}
-                        >
-                          <IconTrash className="w-4 h-4" />
-                          Delete field
-                        </DropdownMenu.Item>
-                      </DropdownMenu.Content>
-                    </DropdownMenu>
-                  </Table.Cell>
-                </Table.Row>
-              ))
+                      </Button>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-full w-full justify-start hover:bg-transparent text-muted-foreground"
+                        asChild
+                      >
+                        <div>{fieldTypeObject?.label || field.type}</div>
+                      </Button>
+                    </Table.Cell>
+                    <Table.Cell className="w-8 p-0.5">
+                      <DropdownMenu>
+                        <DropdownMenu.Trigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-full w-full text-muted-foreground size-7"
+                          >
+                            <IconDots />
+                          </Button>
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Content className="min-w-48">
+                          <DropdownMenu.Item onClick={() => onEditField(field)}>
+                            <IconEdit />
+                            Edit
+                          </DropdownMenu.Item>
+                          <DropdownMenu.Item
+                            className="text-destructive"
+                            onClick={() => onDeleteField(field._id)}
+                          >
+                            <IconTrash />
+                            Delete
+                          </DropdownMenu.Item>
+                        </DropdownMenu.Content>
+                      </DropdownMenu>
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })
             )}
           </Table.Body>
         </Table>
         <div className="flex items-center justify-end mt-2">
           <Button variant="secondary" onClick={onAddField}>
-            <IconPlus className="w-4 h-4" />
+            <IconPlus />
             Add field
           </Button>
         </div>

@@ -3,6 +3,7 @@ import { callUiAtom } from '@/integrations/call/states/callUiAtom';
 import { callNumberState } from '@/integrations/call/states/callWidgetStates';
 import {
   IconArrowUpRight,
+  IconPhoneIncoming,
   IconPhoneOutgoing,
   IconPhoneX,
 } from '@tabler/icons-react';
@@ -78,6 +79,8 @@ export const CallHistoryList = ({
           >
             {callHistory.callStatus === 'cancelled' ? (
               <IconPhoneX className="text-destructive" />
+            ) : callHistory.callType === 'incoming' ? (
+              <IconPhoneIncoming className="text-accent-foreground" />
             ) : (
               <IconPhoneOutgoing className="text-accent-foreground" />
             )}
@@ -89,7 +92,9 @@ export const CallHistoryList = ({
               {formatPhoneNumber({ value: callHistory.customerPhone })}
             </span>
             <span className="ml-auto text-accent-foreground">
-              {format(new Date(callHistory.callStartTime), 'MMM, dd, HH:mm')}
+              {callHistory.callStartTime
+                ? format(new Date(callHistory.callStartTime), 'MMM, dd, HH:mm')
+                : ''}
             </span>
             <Tooltip.Provider>
               <Tooltip>

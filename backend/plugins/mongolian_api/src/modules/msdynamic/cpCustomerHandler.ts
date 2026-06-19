@@ -9,7 +9,11 @@ const getDynamicConfigsMap = async (models: any) => {
   }
 
   return configs.reduce((acc: any, conf: any) => {
-    acc[conf.subId || 'noBrand'] = conf.value;
+    const sub = conf.subId || 'noBrand';
+    acc[sub] = conf.value;
+    if (sub === 'noBrand' && typeof conf.value === 'object') {
+      Object.assign(acc, conf.value);
+    }
     return acc;
   }, {});
 };

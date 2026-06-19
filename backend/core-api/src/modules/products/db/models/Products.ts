@@ -7,7 +7,11 @@ import { Model } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
-import { PRODUCT_STATUSES } from '@/products/constants';
+import {
+  PRODUCT_DURATION_TYPES,
+  PRODUCT_STATUSES,
+  PRODUCT_TYPES,
+} from '@/products/constants';
 import { productSchema } from '@/products/db/definitions/products';
 import {
   checkCodeMask,
@@ -21,6 +25,10 @@ export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
+  updateProductFromBulk(
+    _id: string,
+    doc: IProduct,
+  ): Promise<IProductDocument | null>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
     productIds: string[],
@@ -35,6 +43,45 @@ export const loadProductClass = (
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
   class Product {
+    private static normalizeDuration(
+      doc: IProduct,
+      currentProduct?: IProductDocument,
+    ) {
+      const type = doc.type || currentProduct?.type || PRODUCT_TYPES.PRODUCT;
+      const duration = doc.duration ?? currentProduct?.duration;
+      const durationType = doc.durationType ?? currentProduct?.durationType;
+
+      if (type !== PRODUCT_TYPES.UNIQUE) {
+        delete doc.duration;
+        delete doc.durationType;
+        return false;
+      }
+
+      if (
+        typeof duration !== 'number' ||
+        !Number.isFinite(duration) ||
+        duration <= 0
+      ) {
+        throw new Error('Duration must be greater than 0 for unique products');
+      }
+
+      if (!durationType || !PRODUCT_DURATION_TYPES.ALL.includes(durationType)) {
+        throw new Error(
+          'A valid duration type is required for unique products',
+        );
+      }
+
+      if (doc.duration !== undefined) {
+        doc.duration = duration;
+      }
+
+      if (doc.durationType !== undefined) {
+        doc.durationType = durationType;
+      }
+
+      return true;
+    }
+
     /**
      * Get Product
      */
@@ -52,6 +99,8 @@ export const loadProductClass = (
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
+      this.normalizeDuration(doc);
+
       doc.code = doc.code
         .replace(/\*/g, '')
         .replace(/_/g, '')
@@ -123,11 +172,24 @@ export const loadProductClass = (
       return product;
     }
 
-    /**
-     * Update Product
-     */
     public static async updateProduct(_id: string, doc: IProduct) {
+      const existing = await models.Products.findOne(
+        { _id },
+        { similarityId: 1 },
+      );
+
+      if (existing?.similarityId) {
+        const { code, propertiesData, ...rest } = doc;
+
+        return this.updateProductFromBulk(_id, rest as IProduct);
+      }
+
+      return this.updateProductFromBulk(_id, doc);
+    }
+
+    public static async updateProductFromBulk(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
+      const keepsDuration = this.normalizeDuration(doc, product);
 
       const category = await models.ProductCategories.getProductCategory({
         _id: doc.categoryId || product.categoryId,
@@ -160,7 +222,15 @@ export const loadProductClass = (
         ...doc,
       });
 
-      await models.Products.updateOne({ _id }, { $set: doc });
+      await models.Products.updateOne(
+        { _id },
+        keepsDuration
+          ? { $set: doc }
+          : {
+              $set: doc,
+              $unset: { duration: 1, durationType: 1 },
+            },
+      );
 
       const updatedProduct = await models.Products.findOne({ _id }).lean();
       if (updatedProduct) {
@@ -180,9 +250,6 @@ export const loadProductClass = (
       return updatedProduct;
     }
 
-    /**
-     * Remove products
-     */
     public static async removeProducts(_ids: string[]) {
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
@@ -237,9 +304,6 @@ export const loadProductClass = (
       return response;
     }
 
-    /**
-     * Merge products
-     */
     public static async mergeProducts(
       productIds: string[],
       productFields: IProduct,
@@ -272,17 +336,13 @@ export const loadProductClass = (
 
         const productBarcodes = productObj.barcodes || [];
 
-        // merge custom fields data
-        // property note: prepare mergeProperties method
         propertiesData = {
           ...propertiesData,
           ...(productObj.propertiesData || {}),
         };
 
-        // Merging products tagIds
         tagIds = tagIds.concat(productTags);
 
-        // Merging products barcodes
         barcodes = barcodes.concat(productBarcodes);
 
         const oldProduct = await models.Products.findById(productId);
@@ -303,13 +363,10 @@ export const loadProductClass = (
         }
       }
 
-      // Removing Duplicates
       tagIds = Array.from(new Set(tagIds));
 
-      // Removing Duplicates
       barcodes = Array.from(new Set(barcodes));
 
-      // Creating product with properties
       const product = await models.Products.createProduct({
         ...productFields,
         propertiesData,
@@ -325,14 +382,10 @@ export const loadProductClass = (
         categoryId,
         vendorId,
       });
-      // Note: createProduct already logs the create event
 
       return product;
     }
 
-    /**
-     * Duplicate product
-     */
     public static async duplicateProduct(productId: string) {
       const product = await models.Products.findOne({ _id: productId }).lean();
 
@@ -351,9 +404,6 @@ export const loadProductClass = (
       return newProduct;
     }
 
-    /**
-     * Check product duplication
-     */
     static async checkCodeDuplication(code: string) {
       const product = await models.Products.findOne({
         code,
@@ -365,9 +415,6 @@ export const loadProductClass = (
       }
     }
 
-    /**
-     * Generate product code
-     */
     public static async generateCode(maxAttempts = 10) {
       let attempts = 0;
 
@@ -390,9 +437,6 @@ export const loadProductClass = (
       );
     }
 
-    /**
-     * Check product barcode
-     */
     static fixBarcodes(barcodes?, variants?) {
       if (barcodes?.length) {
         barcodes = barcodes

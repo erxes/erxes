@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   IconPlus,
@@ -11,10 +10,7 @@ import {
   IconListNumbers,
   IconPencil,
   IconPlayerPlay,
-  IconTrash,
   IconEye,
-  IconToggleLeft,
-  IconToggleRight,
   IconVersions,
 } from '@tabler/icons-react';
 import {
@@ -33,24 +29,14 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_WORKFLOWS } from '~/graphql/queries';
 import {
-  MASTRA_WORKFLOW_REMOVE,
-  MASTRA_WORKFLOW_RUN_START,
-  MASTRA_WORKFLOW_SET_ENABLED,
-} from '~/graphql/mutations';
+  ToggleDeleteMenuItems,
+  enabledStatusColumn,
+} from '~/components/RecordTableShared';
 import { stepCount, triggerLabel } from './shared';
-
-export interface IWorkflowRow {
-  _id: string;
-  name: string;
-  description?: string;
-  definition: any;
-  version: number;
-  isEnabled: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useWorkflows } from './hooks/useWorkflows';
+import { useWorkflowActions } from './hooks/useWorkflowMutations';
+import { IWorkflow } from './types';
 
 // ─── More menu cell ───────────────────────────────────────────────────────────
 
@@ -58,32 +44,21 @@ const WorkflowMoreCell = ({
   workflow,
   refetch,
 }: {
-  workflow: IWorkflowRow;
+  workflow: IWorkflow;
   refetch: () => void;
 }) => {
   const navigate = useNavigate();
   const { confirm } = useConfirm();
-
-  const [removeWorkflow] = useMutation(MASTRA_WORKFLOW_REMOVE, {
-    onCompleted: () => refetch(),
-    onError: (e) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
-  });
-
-  const [setEnabled] = useMutation(MASTRA_WORKFLOW_SET_ENABLED, {
-    onCompleted: () => refetch(),
-    onError: (e) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
-  });
-
-  const [runStart] = useMutation(MASTRA_WORKFLOW_RUN_START, {
-    onCompleted: () => {
+  const { removeWorkflow, setEnabled, runStart } = useWorkflowActions(
+    refetch,
+    () => {
       toast({ title: 'Run started', description: workflow.name });
       navigate(`/erxes-agent/workflows/${workflow._id}`);
     },
-    onError: (e) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
-  });
+  );
+
+  const handleRun = () =>
+    runStart({ variables: { _id: workflow._id, input: {} } });
 
   const handleDelete = () =>
     confirm({
@@ -122,9 +97,7 @@ const WorkflowMoreCell = ({
                 variant="ghost"
                 size="sm"
                 className="justify-start w-full h-8"
-                onClick={() =>
-                  runStart({ variables: { _id: workflow._id, input: {} } })
-                }
+                onClick={handleRun}
               >
                 <IconPlayerPlay className="size-4" /> Run now
               </Button>
@@ -141,41 +114,18 @@ const WorkflowMoreCell = ({
                 <IconPencil className="size-4" /> Edit
               </Button>
             </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={() =>
-                  setEnabled({
-                    variables: {
-                      _id: workflow._id,
-                      isEnabled: !workflow.isEnabled,
-                    },
-                  })
-                }
-              >
-                {workflow.isEnabled ? (
-                  <>
-                    <IconToggleLeft className="size-4" /> Disable
-                  </>
-                ) : (
-                  <>
-                    <IconToggleRight className="size-4" /> Enable
-                  </>
-                )}
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8 text-destructive"
-                onClick={handleDelete}
-              >
-                <IconTrash className="size-4" /> Delete
-              </Button>
-            </Command.Item>
+            <ToggleDeleteMenuItems
+              isEnabled={workflow.isEnabled}
+              onToggle={() =>
+                setEnabled({
+                  variables: {
+                    _id: workflow._id,
+                    isEnabled: !workflow.isEnabled,
+                  },
+                })
+              }
+              onDelete={handleDelete}
+            />
           </Command.List>
         </Command>
       </Combobox.Content>
@@ -185,7 +135,7 @@ const WorkflowMoreCell = ({
 
 // ─── Columns ──────────────────────────────────────────────────────────────────
 
-const baseColumns: ColumnDef<IWorkflowRow>[] = [
+const baseColumns: ColumnDef<IWorkflow>[] = [
   {
     id: 'name',
     accessorKey: 'name',
@@ -249,24 +199,7 @@ const baseColumns: ColumnDef<IWorkflowRow>[] = [
     ),
     size: 80,
   },
-  {
-    id: 'status',
-    accessorKey: 'isEnabled',
-    header: () => (
-      <RecordTable.InlineHead icon={IconToggleRight} label="Status" />
-    ),
-    cell: ({ cell }) => {
-      const isEnabled = cell.getValue() as boolean;
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={isEnabled ? 'success' : 'secondary'}>
-            {isEnabled ? 'Active' : 'Disabled'}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
-  },
+  enabledStatusColumn<IWorkflow>(),
   {
     id: 'updatedAt',
     accessorKey: 'updatedAt',
@@ -287,14 +220,9 @@ const baseColumns: ColumnDef<IWorkflowRow>[] = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export const WorkflowsIndexPage = () => {
-  const { data, loading, refetch } = useQuery(MASTRA_WORKFLOWS, {
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
-  });
+  const { workflows, loading, refetch } = useWorkflows();
 
-  const workflows: IWorkflowRow[] = data?.mastraWorkflows || [];
-
-  const columns = useMemo<ColumnDef<IWorkflowRow>[]>(
+  const columns = useMemo<ColumnDef<IWorkflow>[]>(
     () => [
       {
         id: 'more',
@@ -303,7 +231,7 @@ export const WorkflowsIndexPage = () => {
         ),
         size: 33,
       },
-      RecordTable.checkboxColumn as ColumnDef<IWorkflowRow>,
+      RecordTable.checkboxColumn as ColumnDef<IWorkflow>,
       ...baseColumns,
     ],
     [refetch],

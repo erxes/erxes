@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import {
   IconChevronRight,
   IconPencil,
@@ -13,6 +13,7 @@ import {
   Breadcrumb,
   Button,
   Card,
+  cn,
   Label,
   Popover,
   Separator,
@@ -21,22 +22,23 @@ import {
   toast,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_WORKFLOW, MASTRA_WORKFLOW_RUNS } from '~/graphql/queries';
-import {
-  MASTRA_WORKFLOW_RUN_START,
-  MASTRA_WORKFLOW_SET_ENABLED,
-} from '~/graphql/mutations';
+import { MASTRA_WORKFLOW_RUN_START } from '~/graphql/mutations';
 import {
   RunStatusBadge,
   formatDuration,
+  formatTimestamp,
   stepCount,
   triggerLabel,
 } from './shared';
 import { WorkflowGraph } from './graph/WorkflowGraph';
+import { useWorkflow } from './hooks/useWorkflow';
+import { useWorkflowRuns } from './hooks/useWorkflowRuns';
+import { useWorkflowActions } from './hooks/useWorkflowMutations';
+import { IWorkflowRun, IWorkflowRunStepSummary } from './types';
 
 const RUNS_PER_PAGE = 30;
 
-const JsonBlock = ({ value }: { value: any }) => (
+const JsonBlock = ({ value }: { value: unknown }) => (
   <pre className="text-xs font-mono bg-muted rounded-md p-3 overflow-auto max-h-72 whitespace-pre-wrap break-all">
     {JSON.stringify(value, null, 2)}
   </pre>
@@ -65,14 +67,14 @@ const RunNowButton = ({
   });
 
   const handleRun = () => {
-    let input: any = {};
+    let input: unknown = {};
     if (payload.trim()) {
       try {
         input = JSON.parse(payload);
-      } catch (e: any) {
+      } catch (e) {
         toast({
           title: 'Invalid JSON payload',
-          description: e.message,
+          description: e instanceof Error ? e.message : 'Invalid JSON',
           variant: 'destructive',
         });
         return;
@@ -98,7 +100,7 @@ const RunNowButton = ({
         </div>
         <Textarea
           value={payload}
-          onChange={(e: any) => setPayload(e.target.value)}
+          onChange={(e) => setPayload(e.target.value)}
           placeholder='{ "customerId": "..." }'
           rows={5}
           className="font-mono text-xs"
@@ -113,10 +115,12 @@ const RunNowButton = ({
 
 // ─── Run row ──────────────────────────────────────────────────────────────────
 
-const RunRow = ({ run }: { run: any }) => {
+const RunRow = ({ run }: { run: IWorkflowRun }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const steps = run.stepsSummary ? Object.entries(run.stepsSummary) : [];
+  const steps: [string, IWorkflowRunStepSummary][] = run.stepsSummary
+    ? Object.entries(run.stepsSummary)
+    : [];
 
   return (
     <div className="border border-border/60 rounded-md">
@@ -126,9 +130,10 @@ const RunRow = ({ run }: { run: any }) => {
         className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent text-left"
       >
         <IconChevronRight
-          className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${
-            expanded ? 'rotate-90' : ''
-          }`}
+          className={cn(
+            'size-3.5 shrink-0 text-muted-foreground transition-transform',
+            expanded && 'rotate-90',
+          )}
         />
         <RunStatusBadge status={run.status} />
         <span className="text-xs text-muted-foreground">
@@ -142,7 +147,7 @@ const RunRow = ({ run }: { run: any }) => {
           {formatDuration(run.startedAt, run.finishedAt)}
         </span>
         <span className="text-xs text-muted-foreground">
-          {run.startedAt ? new Date(run.startedAt).toLocaleString() : '—'}
+          {formatTimestamp(run.startedAt)}
         </span>
       </button>
 
@@ -154,7 +159,7 @@ const RunRow = ({ run }: { run: any }) => {
                 Steps
               </p>
               <div className="space-y-1">
-                {steps.map(([stepId, summary]: [string, any]) => (
+                {steps.map(([stepId, summary]) => (
                   <div key={stepId} className="flex items-center gap-2 text-sm">
                     <RunStatusBadge status={summary?.status} />
                     <span className="font-mono text-xs">{stepId}</span>
@@ -216,29 +221,15 @@ export const WorkflowDetailPage = () => {
     'graph',
   );
 
-  const { data: workflowData, refetch: refetchWorkflow } = useQuery(
-    MASTRA_WORKFLOW,
-    { variables: { _id: id }, skip: !id },
-  );
-  const workflow = workflowData?.mastraWorkflow;
+  const { workflow, refetch: refetchWorkflow } = useWorkflow(id);
 
   const {
-    data: runsData,
+    runs,
     loading: runsLoading,
     refetch: refetchRuns,
     startPolling,
     stopPolling,
-  } = useQuery(MASTRA_WORKFLOW_RUNS, {
-    variables: { workflowId: id, page: 1, perPage: RUNS_PER_PAGE },
-    skip: !id,
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const runs: any[] = useMemo(
-    () => runsData?.mastraWorkflowRuns || [],
-    [runsData?.mastraWorkflowRuns],
-  );
+  } = useWorkflowRuns(id, RUNS_PER_PAGE);
 
   const hasActiveRun = runs.some((r) => r.status === 'running');
   const latestRun = runs[0];
@@ -250,11 +241,7 @@ export const WorkflowDetailPage = () => {
     return () => stopPolling();
   }, [hasActiveRun, startPolling, stopPolling]);
 
-  const [setEnabled] = useMutation(MASTRA_WORKFLOW_SET_ENABLED, {
-    onCompleted: () => refetchWorkflow(),
-    onError: (e) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
-  });
+  const { setEnabled } = useWorkflowActions(refetchWorkflow);
 
   if (!workflow) {
     return (
@@ -338,7 +325,7 @@ export const WorkflowDetailPage = () => {
                 </Badge>
                 <Badge variant="secondary">v{workflow.version}</Badge>
                 <span className="text-xs text-muted-foreground ml-auto">
-                  Updated {new Date(workflow.updatedAt).toLocaleString()}
+                  Updated {formatTimestamp(workflow.updatedAt)}
                 </span>
               </div>
 

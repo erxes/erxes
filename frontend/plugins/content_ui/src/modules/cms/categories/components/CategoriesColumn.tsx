@@ -115,7 +115,10 @@ export const useCategoriesColumns = (
                 className={missing ? 'border-red-300' : ''}
               >
                 {prefix}
-                <TextOverflowTooltip value={cell.getValue() as string} />
+                <TextOverflowTooltip
+                  value={cell.getValue() as string}
+                  className="leading-normal"
+                />
               </Badge>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
@@ -152,7 +155,7 @@ export const useCategoriesColumns = (
           return (
             <RecordTableInlineCell>
               <Badge variant="destructive" className="border-red-300">
-                <TextOverflowTooltip value={value} />
+                <TextOverflowTooltip value={value} className="leading-normal" />
               </Badge>
             </RecordTableInlineCell>
           );

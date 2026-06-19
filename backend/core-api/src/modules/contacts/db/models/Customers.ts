@@ -260,6 +260,11 @@ export const loadCustomerClass = (
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
+      // Snapshot before deletion so the removal is revertable (point-in-time).
+      const prevDocuments = await models.Customers.find({
+        _id: { $in: customerIds },
+      }).lean();
+
       const response = await models.Customers.deleteMany({
         _id: { $in: customerIds },
       });
@@ -267,6 +272,7 @@ export const loadCustomerClass = (
       sendDbEventLog({
         action: 'deleteMany',
         docIds: customerIds,
+        prevDocuments,
       });
       return response;
     }

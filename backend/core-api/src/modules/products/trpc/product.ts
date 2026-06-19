@@ -2,6 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { similaritiesTrpcRouter } from '@/products/trpc/similarity';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -9,6 +10,7 @@ const inventoryKey = (id?: string) => id || '_';
 
 export const productsTrpcRouter = t.router({
   products: t.router({
+    similarities: similaritiesTrpcRouter,
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const {
         query: rawQuery,
@@ -146,7 +148,6 @@ export const productsTrpcRouter = t.router({
         return models.ProductRules.find({ _id: { $in: _ids } }).lean();
       }),
     }),
-
 
     setInventories: t.procedure
       .input(

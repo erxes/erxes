@@ -1,29 +1,36 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { prepareChatTurn, persistTurn, runAgentTurn } from '@/agent/turn';
 
 export const agentQueries = {
-  mastraAgents: (
+  mastraAgents: async (
     _parent: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
-    return models.MastraAgent.getAgents();
+    await checkPermission('agentsView');
+    return models.MastraAgent.getAgents(user?._id);
   },
 
-  mastraAgent: (
+  mastraAgent: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
-    return models.MastraAgent.getAgent(_id);
+    await checkPermission('agentsView');
+    return models.MastraAgent.getAgent(_id, user?._id);
   },
 
-  mastraAgentsMain: (
+  mastraAgentsMain: async (
     _parent: undefined,
     params: { page?: number; perPage?: number; searchValue?: string },
-    { models }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
-    return models.MastraAgent.getAgentsList(params || {});
+    await checkPermission('agentsView');
+    return models.MastraAgent.getAgentsList({
+      ...(params || {}),
+      userId: user?._id,
+    });
   },
 
   mastraAgentChat: async (
@@ -33,9 +40,10 @@ export const agentQueries = {
       message,
       threadId,
     }: { agentId: string; message: string; threadId?: string },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
-    if (!user?._id) throw new Error('Login required');
+    await checkPermission('agentsChat');
+    if (!user?._id) throw new ExpectedError('Login required');
 
     const prepared = await prepareChatTurn({
       models,
@@ -46,14 +54,13 @@ export const agentQueries = {
       threadId,
     });
 
-    const { agent, tools, convo, authCtx, isLegacy } = prepared;
+    const { agent, convo, authCtx, memoryBinding } = prepared;
     const reply = await runAgentTurn({
       agent,
-      tools,
       convo,
       message,
-      isLegacy,
       authCtx,
+      memory: memoryBinding,
     });
 
     // Persist the completed exchange so the session survives reloads. Only the

@@ -14,6 +14,8 @@ import {
 } from '@/cms/utils/permissions';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
+import { notifyIfNewlyPublished } from '@/cms/utils/notifications';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -46,6 +48,8 @@ export const postMutations: Record<string, Resolver> = {
     const { models, user, subdomain } = context;
     const { input } = args;
     const { translations, language, ...postInput } = input;
+
+    await assertCmsAccessByClientPortal(context, postInput.clientPortalId);
 
     await requireCmsPermission(context, [
       CMS_POST_ACTIONS.createPublished,
@@ -109,6 +113,8 @@ export const postMutations: Record<string, Resolver> = {
     const post = await models.Posts.createPost(postInput);
 
     await saveTranslations(models, post._id, translations || []);
+
+    await notifyIfNewlyPublished(subdomain, post);
 
     return post;
   },
@@ -183,6 +189,8 @@ export const postMutations: Record<string, Resolver> = {
 
     await saveTranslations(models, post._id, translations || []);
 
+    await notifyIfNewlyPublished(subdomain, post);
+
     return post;
   },
 
@@ -195,6 +203,8 @@ export const postMutations: Record<string, Resolver> = {
     if (!existingPost) {
       throw new Error('Post not found');
     }
+
+    await assertCmsAccessByClientPortal(context, existingPost.clientPortalId);
 
     await assertCmsDocumentAccess({
       context,
@@ -252,6 +262,12 @@ export const postMutations: Record<string, Resolver> = {
         );
         await saveTranslations(models, _id, remainingTranslations);
 
+        await notifyIfNewlyPublished(
+          subdomain,
+          post,
+          existingPost.status,
+        );
+
         return post;
       }
     }
@@ -268,6 +284,8 @@ export const postMutations: Record<string, Resolver> = {
 
     await saveTranslations(models, _id, translations || []);
 
+    await notifyIfNewlyPublished(subdomain, post, existingPost.status);
+
     return post;
   },
 
@@ -279,6 +297,8 @@ export const postMutations: Record<string, Resolver> = {
     if (!post) {
       throw new Error('Post not found');
     }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
 
     await assertCmsDocumentAccess({
       context,
@@ -308,6 +328,7 @@ export const postMutations: Record<string, Resolver> = {
     }
 
     for (const post of posts) {
+      await assertCmsAccessByClientPortal(context, post.clientPortalId);
       await assertCmsDocumentAccess({
         context,
         actions: CMS_POST_ACTIONS.remove,
@@ -323,13 +344,15 @@ export const postMutations: Record<string, Resolver> = {
   },
 
   cmsPostsChangeStatus: async (_parent, args, context: IContext) => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const { _id, status } = args;
     const post = await models.Posts.findOne({ _id }).lean();
 
     if (!post) {
       throw new Error('Post not found');
     }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
 
     await assertCmsDocumentAccess({
       context,
@@ -345,7 +368,11 @@ export const postMutations: Record<string, Resolver> = {
       clientPortalId: post.clientPortalId,
     });
 
-    return models.Posts.changeStatus(_id, status);
+    const updatedPost = await models.Posts.changeStatus(_id, status);
+    
+    await notifyIfNewlyPublished(subdomain, updatedPost, post.status);
+
+    return updatedPost;
   },
 
   cmsPostsToggleFeatured: async (_parent, args, context: IContext) => {
@@ -356,6 +383,8 @@ export const postMutations: Record<string, Resolver> = {
     if (!post) {
       throw new Error('Post not found');
     }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
 
     await assertCmsDocumentAccess({
       context,

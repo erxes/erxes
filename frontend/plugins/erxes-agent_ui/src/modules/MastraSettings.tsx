@@ -1,5 +1,6 @@
-import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { lazy } from 'react';
+import { Route } from 'react-router';
+import { PluginRoutesShell } from '~/components/PluginRoutesShell';
 
 const ProvidersPage = lazy(() =>
   import('~/pages/settings/ProvidersPage').then((m) => ({
@@ -27,15 +28,13 @@ const AgentFormPage = lazy(() =>
 
 const MastraSettings = () => {
   return (
-    <Suspense fallback={<div />}>
-      <Routes>
-        <Route path="/agents" element={<AgentsIndexPage />} />
-        <Route path="/agents/new" element={<AgentFormPage />} />
-        <Route path="/agents/edit/:id" element={<AgentFormPage />} />
-        <Route path="/providers" element={<ProvidersPage />} />
-        <Route path="/general" element={<GeneralSettingsPage />} />
-      </Routes>
-    </Suspense>
+    <PluginRoutesShell defaultPath="agents">
+      <Route path="/agents" element={<AgentsIndexPage />} />
+      <Route path="/agents/new" element={<AgentFormPage />} />
+      <Route path="/agents/edit/:id" element={<AgentFormPage />} />
+      <Route path="/providers" element={<ProvidersPage />} />
+      <Route path="/general" element={<GeneralSettingsPage />} />
+    </PluginRoutesShell>
   );
 };
 

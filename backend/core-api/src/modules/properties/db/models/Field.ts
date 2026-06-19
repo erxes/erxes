@@ -258,7 +258,7 @@ export const loadFieldClass = (models: IModels) => {
           $or: [{ code: key }, { _id: key }],
         }).lean();
 
-        let value = data[key];
+        const value = data[key];
 
         if (field) {
           propertiesData[field._id] = value;

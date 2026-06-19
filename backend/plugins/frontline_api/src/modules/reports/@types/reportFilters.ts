@@ -19,6 +19,7 @@ export type IReportFilters = {
   customerIds?: string[];
   frequency?: string;
   branchIds?: string[];
+  propertyIds?: string[];
 };
 
 export type IReportTagsFilters = {

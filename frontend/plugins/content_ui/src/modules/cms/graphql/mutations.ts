@@ -43,6 +43,8 @@ export const CONTENT_CREATE_CMS = gql`
       name
       postUrlField
       postUrlPrefix
+      accessPolicy
+      assignedMemberIds
       updatedAt
       content
     }
@@ -92,6 +94,8 @@ export const CONTENT_UPDATE_CMS = gql`
       name
       postUrlField
       postUrlPrefix
+      accessPolicy
+      assignedMemberIds
       updatedAt
       content
     }

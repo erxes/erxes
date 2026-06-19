@@ -21,18 +21,7 @@ import { useMutation } from '@apollo/client';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
 import { getDepthPrefix } from '../menuUtils';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
-
-interface MenuItem {
-  _id: string;
-  label: string;
-  parentId?: string;
-  kind?: string;
-  url?: string;
-  order?: number;
-  depth?: number;
-  translations?: { language: string }[];
-  [key: string]: unknown;
-}
+import { MenuItem } from '../types/menuDrawerTypes';
 
 const BADGE_CLASS =
   'mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent';
@@ -109,7 +98,7 @@ const LabelCell = ({ cell, refetch, isMissing }: LabelCellProps) => {
       }}
     >
       <RecordTableInlineCell.Trigger>
-        <span className={missing ? 'text-red-500' : ''}>
+        <span className={`leading-normal ${missing ? 'text-red-500' : ''}`}>
           {getDepthPrefix(original.depth || 0) + (cell.getValue() as string)}
         </span>
       </RecordTableInlineCell.Trigger>
