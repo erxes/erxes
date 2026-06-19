@@ -6,36 +6,24 @@ import {
   Popover,
   RecordTable,
   RecordTableInlineCell,
+  RelativeDateDisplay,
   Spinner,
-  Tooltip,
   useConfirm,
   useMultiQueryState,
 } from 'erxes-ui';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IResponseTemplate } from '../types';
-import { IconEdit, IconGitBranch, IconTrash } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconCalendarPlus,
+  IconCalendarUp,
+  IconEdit,
+  IconGitBranch,
+  IconTrash,
+} from '@tabler/icons-react';
 import { CreateResponse } from '@/responseTemplate/components/CreateResponse';
 import { useRemoveResponse } from '../hooks/useRemoveResponse';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
-
-const DateDisplay = ({ date }: { date: string }) => {
-  if (!date) return null;
-  return (
-    <Tooltip.Provider>
-      <Tooltip>
-        <Tooltip.Trigger>
-          <div className="text-muted-foreground text-xs">
-            {format(new Date(date), 'MMM d, yyyy')}
-          </div>
-        </Tooltip.Trigger>
-        <Tooltip.Content>
-          {format(new Date(date), 'MMM d, yyyy HH:mm')}
-        </Tooltip.Content>
-      </Tooltip>
-    </Tooltip.Provider>
-  );
-};
 
 const ResponseMoreCell = ({
   cell,
@@ -107,38 +95,44 @@ const ResponseNameCell = ({
 export const responseColumns: ColumnDef<IResponseTemplate>[] = [
   {
     id: 'more',
-    size: 45,
-    minSize: 45,
-    maxSize: 45,
+    size: 25,
     cell: ResponseMoreCell,
   },
   {
     accessorKey: 'name',
     id: 'name',
-    header: 'title',
+    header: () => <RecordTable.InlineHead label="Title" icon={IconAlignLeft} />,
     size: 400,
     cell: ResponseNameCell,
   },
   {
     accessorKey: 'createdAt',
     id: 'createdAt',
-    header: 'created at',
+    header: () => (
+      <RecordTable.InlineHead label="Created at" icon={IconCalendarPlus} />
+    ),
     size: 120,
     cell: ({ cell }) => (
-      <RecordTableInlineCell className="justify-center">
-        <DateDisplay date={cell.getValue() as string} />
-      </RecordTableInlineCell>
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
     ),
   },
   {
     accessorKey: 'updatedAt',
     id: 'updatedAt',
-    header: 'updated at',
+    header: () => (
+      <RecordTable.InlineHead label="Updated at" icon={IconCalendarUp} />
+    ),
     size: 120,
     cell: ({ cell }) => (
-      <RecordTableInlineCell className="justify-center">
-        <DateDisplay date={cell.getValue() as string} />
-      </RecordTableInlineCell>
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
     ),
   },
 ];
