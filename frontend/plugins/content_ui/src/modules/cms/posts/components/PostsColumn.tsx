@@ -122,7 +122,10 @@ export const usePostsColumns = (
                 variant={missing ? 'outline' : 'secondary'}
                 className={missing ? 'text-red-500 border-red-300' : ''}
               >
-                <TextOverflowTooltip value={post.title} />
+                <TextOverflowTooltip
+                  value={post.title}
+                  className="leading-normal"
+                />
               </Badge>
             </div>
           </RecordTableInlineCell>
@@ -154,6 +157,7 @@ export const usePostsColumns = (
                   ?.map((category) => category.name)
                   .join(', ') || ''
               }
+              className="leading-normal"
             />
           </RecordTableInlineCell>
         );
@@ -168,6 +172,7 @@ export const usePostsColumns = (
           <RecordTableInlineCell>
             <TextOverflowTooltip
               value={row.original.tags?.map((tag) => tag.name).join(', ') || ''}
+              className="leading-normal"
             />
           </RecordTableInlineCell>
         );
@@ -179,7 +184,10 @@ export const usePostsColumns = (
       header: () => <RecordTable.InlineHead icon={IconUser} label="Author" />,
       cell: ({ row }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={getPostAuthorName(row.original)} />
+          <TextOverflowTooltip
+            value={getPostAuthorName(row.original)}
+            className="leading-normal"
+          />
         </RecordTableInlineCell>
       ),
       size: 180,
@@ -206,7 +214,7 @@ export const usePostsColumns = (
           (post.type === 'post' ? 'Post' : post.type);
         return (
           <RecordTableInlineCell>
-            <TextOverflowTooltip value={typeLabel} />
+            <TextOverflowTooltip value={typeLabel} className="leading-normal" />
           </RecordTableInlineCell>
         );
       },

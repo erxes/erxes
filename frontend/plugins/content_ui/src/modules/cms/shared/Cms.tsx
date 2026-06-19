@@ -133,7 +133,7 @@ export function Cms() {
       ) : (
         <>
           <div className="flex justify-between items-center mb-6">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               Found {cmsList.length} results
             </div>
             <ToggleGroup
@@ -153,7 +153,7 @@ export function Cms() {
           </div>
 
           {cmsList.length === 0 ? (
-            <div className="bg-white rounded-lg overflow-hidden">
+            <div className="bg-card rounded-lg overflow-hidden">
               <EmptyState
                 icon={IconFileText}
                 title="No CMS yet"
@@ -167,7 +167,7 @@ export function Cms() {
               {displayWebsites.map((website, index) => (
                 <div
                   key={website._id}
-                  className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                  className="bg-card h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => handleWebsiteClick(website)}
                 >
                   <div
@@ -216,15 +216,15 @@ export function Cms() {
                   </div>
 
                   <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                    <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
                       {website.name}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
                       {website.description || 'No description available'}
                     </p>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <IconCalendar className="w-3 h-3" />
                         <span>
                           Created on:{' '}
@@ -244,7 +244,7 @@ export function Cms() {
                             e.stopPropagation();
                             handleEditWebsite(website);
                           }}
-                          className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                         >
                           <IconEdit className="w-3 h-3" />
                           <span>Manage</span>
@@ -255,7 +255,7 @@ export function Cms() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
+                            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                           >
                             <IconArrowUpRight className="w-3 h-3" />
                           </a>
@@ -271,7 +271,7 @@ export function Cms() {
               {displayWebsites.map((website, index) => (
                 <div
                   key={website._id}
-                  className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  className="bg-card rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => handleWebsiteClick(website)}
                 >
                   <div className="flex items-center gap-4">
@@ -299,13 +299,13 @@ export function Cms() {
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 mb-1">
+                      <h3 className="font-semibold text-foreground mb-1">
                         {website.name}
                       </h3>
-                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                      <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                         {website.description || 'No description available'}
                       </p>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <IconCalendar className="w-3 h-3" />
                           <span>
@@ -335,7 +335,7 @@ export function Cms() {
                           e.stopPropagation();
                           handleEditWebsite(website);
                         }}
-                        className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                       >
                         <IconEdit className="w-3 h-3" />
                         <span>Manage</span>
@@ -346,7 +346,7 @@ export function Cms() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                         >
                           <IconArrowUpRight className="w-3 h-3" />
                         </a>
