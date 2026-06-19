@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import * as path from 'path';
 
 export default defineConfig({
-  base: '/__PAYMENT_WIDGET_BASE__/',
+  base: process.env.NODE_ENV === 'production' ? '/__PAYMENT_WIDGET_BASE__/' : '/',
   server: {
     port: 5173,
     hmr: true,

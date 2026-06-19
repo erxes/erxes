@@ -4,17 +4,15 @@ import { API_URL } from './config';
 import InvoiceDetail from './pages/InvoiceDetail';
 
 function App() {
-  const widgetBasePath = new URL(
-    `${API_URL.replace(/\/$/, '')}/pl:payment/widget`,
-  ).pathname;
+  const basename = new URL(`${API_URL}/widget`).pathname;
 
   return (
-    <Router basename={widgetBasePath}>
+    <Router
+      basename={basename}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Routes>
-        <Route
-          path="/pl:payment/widget/invoice/:id"
-          element={<InvoiceDetail />}
-        />
+        <Route path="/invoice/:id" element={<InvoiceDetail />} />
       </Routes>
     </Router>
   );
