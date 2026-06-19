@@ -84,27 +84,16 @@ export const MessageList = ({
           <>
             {messages.map((msg, i) => (
               <MessageBubble
-                key={i}
+                key={msg._clientId}
                 msg={msg}
-                onRegenerate={
-                  msg.role === 'assistant' &&
-                  !msg.streaming &&
-                  !chatLoading &&
-                  i === messages.length - 1
-                    ? onRegenerate
-                    : undefined
-                }
-                onRate={
-                  msg.role === 'assistant' &&
-                  !msg.streaming &&
-                  msg.id &&
-                  ratingEnabled
-                    ? (rating) => onRate(msg.id!, rating)
-                    : undefined
-                }
+                isLast={i === messages.length - 1}
+                chatLoading={chatLoading}
+                ratingEnabled={ratingEnabled}
+                onRegenerate={onRegenerate}
+                onRate={onRate}
               />
             ))}
-            {chatLoading && lastMsg?.role === 'user' && <WaitingIndicator />}
+            {chatLoading && !lastMsg?.streaming && <WaitingIndicator />}
           </>
         )}
         <div ref={endRef} />

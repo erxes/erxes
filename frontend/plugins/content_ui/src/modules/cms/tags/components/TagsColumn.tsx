@@ -100,7 +100,10 @@ export const useTagsColumns = (
                 variant={missing ? 'destructive' : 'secondary'}
                 className={missing ? 'border-red-300' : ''}
               >
-                <TextOverflowTooltip value={cell.getValue() as string} />
+                <TextOverflowTooltip
+                  value={cell.getValue() as string}
+                  className="leading-normal"
+                />
               </Badge>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
@@ -123,8 +126,11 @@ export const useTagsColumns = (
       header: () => <RecordTable.InlineHead icon={IconTag} label="Slug" />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
-        <RecordTableInlineCell className="text-gray-500">
-          <TextOverflowTooltip value={cell.getValue() as string} />
+        <RecordTableInlineCell className="text-muted-foreground">
+          <TextOverflowTooltip
+            value={cell.getValue() as string}
+            className="leading-normal"
+          />
         </RecordTableInlineCell>
       ),
     },

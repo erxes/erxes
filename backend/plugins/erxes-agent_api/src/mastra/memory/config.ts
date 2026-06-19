@@ -61,12 +61,13 @@ function val(env: Env, key: string): string {
 }
 
 /**
- * The master switch. Advanced memory is enabled ONLY when ERXES_AGENT_MEMORY is
- * exactly "enable" (whitespace-trimmed). Every other value — true/1/on/ENABLE —
- * is treated as off, so the flag is unambiguous and hard to enable by accident.
+ * The master switch. Advanced memory is ON by default — chat persistence and the
+ * session sidebar ride on it, so it must not depend on an env opt-in. Set
+ * ERXES_AGENT_MEMORY to exactly "disable" (whitespace-trimmed) to turn it off;
+ * every other value (including absent) leaves it enabled.
  */
 export function isAdvancedMemoryEnabled(env: Env = process.env): boolean {
-  return val(env, 'ERXES_AGENT_MEMORY') === 'enable';
+  return val(env, 'ERXES_AGENT_MEMORY') !== 'disable';
 }
 
 /** Resolve the embedder kind, model, dimension, and (for openai) endpoint/key. */

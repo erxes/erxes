@@ -45,7 +45,15 @@ const PmsBranchDetail = gql`
       uiOptions
       pipelineConfig
       extraProductCategories
+      excludeExtraProductCategoryIds
+      excludeExtraProductIds
       roomCategories
+      excludeRoomCategoryIds
+      excludeRoomIds
+      hasAppointment
+      appointmentCategories
+      excludeAppointmentCategoryIds
+      excludeAppointmentIds
       websiteReservationLock
       time
       discount

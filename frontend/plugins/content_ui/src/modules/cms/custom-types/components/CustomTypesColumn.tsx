@@ -74,7 +74,9 @@ export const createCustomTypesColumns = (
             }}
           >
             <RecordTableInlineCell.Trigger>
-              <span>{cell.getValue() as string}</span>
+              <span className="leading-normal">
+                {cell.getValue() as string}
+              </span>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
               <Input
@@ -99,7 +101,10 @@ export const createCustomTypesColumns = (
       accessorKey: 'description',
       cell: ({ cell }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip
+            value={cell.getValue() as string}
+            className="leading-normal"
+          />
         </RecordTableInlineCell>
       ),
     },
