@@ -79,9 +79,7 @@ export const queries = `
 
 export const mutations = `
   toCheckMsdProducts(brandId: String): JSON
-  toCheckMsdPrices(brandId: String): JSON
   toSyncMsdProducts(brandId: String, action: String, products: [JSON]): JSON
-  toSyncMsdPrices(prices: [JSON]): JSON
   toSyncMsdCustomers(brandId: String, action: String, customers: [JSON]): JSON
   toSendMsdOrders(orderIds: [String]): MsdCheckResponse
   toCheckMsdSynced(ids: [String]): [MsdCheckResponse]
