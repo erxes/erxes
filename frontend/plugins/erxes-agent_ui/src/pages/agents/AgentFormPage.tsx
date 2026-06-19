@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { PageHeader } from 'ui-modules';
 import { AgentFormFields } from './components/AgentFormFields';
 import { useAgent } from './hooks/useAgent';
-import { useAvailableErxesTools } from './hooks/useAvailableErxesTools';
+import { useAgentAccess } from './hooks/useAgentAccess';
 import { useSaveAgent } from './hooks/useSaveAgent';
 import {
   AGENT_FORM_DEFAULTS,
@@ -29,8 +29,6 @@ export const AgentFormPage = () => {
 
   const { agent } = useAgent(id);
   const { saveAgent, saving } = useSaveAgent(id);
-  // Saving is restricted to admins/owners (mirrors the backend agentsCreate/Edit
-  // checks). useSaveAgent still toasts if a blocked submit slips through (Enter key).
   const { canCreate, canEdit } = useAgentAccess();
   const canSave = isEdit ? canEdit : canCreate;
 

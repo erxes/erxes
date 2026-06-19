@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { IconAlertCircle, IconRefresh } from '@tabler/icons-react';
-import { Tooltip } from 'erxes-ui';
-import { Message } from '~/modules/chat/types';
+import { Collapsible, Tooltip } from 'erxes-ui';
+import { TurnPart, Message } from '~/modules/chat/types';
 import { AgentAvatar } from '~/modules/chat/components/Avatars';
 import {
   ChatMarkdown,
@@ -12,6 +12,52 @@ import { FeedbackButtons } from '~/modules/chat/components/FeedbackButtons';
 import { MessageAttachments } from '~/modules/chat/components/MessageAttachments';
 import { ThinkingSection } from '~/modules/chat/components/ThinkingSection';
 import { ToolCallRow } from '~/modules/chat/components/ToolCallRow';
+
+// All thinking + tool-call parts collapsed into one "Show thinking process" row.
+// Starts closed so the final response text is the first thing the user sees.
+// Each tool call inside still has its own expand for request/response detail.
+const ToolsSection = ({
+  parts,
+  streaming,
+}: {
+  parts: TurnPart[];
+  streaming: boolean;
+}) => {
+  const toolCount = parts.filter((p) => p.kind === 'tool').length;
+
+  return (
+    <Collapsible defaultOpen={false} className="mb-3">
+      <Collapsible.TriggerButton className="h-auto w-auto py-0.5 text-xs gap-1.5 text-muted-foreground hover:text-foreground">
+        <Collapsible.TriggerIcon className="size-3 shrink-0" />
+        Show thinking process
+        {toolCount > 0 && (
+          <span className="opacity-50 font-mono">
+            · {toolCount} tool{toolCount !== 1 ? 's' : ''}
+          </span>
+        )}
+      </Collapsible.TriggerButton>
+      <Collapsible.Content>
+        <div className="mt-2 space-y-1">
+          {parts.map((part, i) =>
+            part.kind === 'thinking' ? (
+              <ThinkingSection
+                key={i}
+                text={part.text}
+                live={streaming && !part.done && i === parts.length - 1}
+              />
+            ) : (
+              <ToolCallRow
+                key={part.call.toolCallId ?? `tool-${i}`}
+                call={part.call}
+                streaming={streaming}
+              />
+            ),
+          )}
+        </div>
+      </Collapsible.Content>
+    </Collapsible>
+  );
+};
 
 // memo() so a streaming turn only re-renders the live bubble, not every prior
 // message. The store keeps stable object references for unchanged messages, so
@@ -71,13 +117,10 @@ export const MessageBubble = memo(function MessageBubble({
     );
   }
 
-  // assistant — chronological turn parts (thinking / tool calls), then the
-  // (possibly still streaming) answer text
+  // assistant — transparent bubble with subtle border + shadow so it sits
+  // cleanly against any theme background without a solid fill
   const streaming = !!msg.streaming;
   const parts = msg.parts ?? [];
-  // The footer below only renders when !streaming, so the streaming guard is
-  // implicit here. Regenerate is offered on the last reply once the turn is
-  // idle; rating needs a persisted id and the feature flag.
   const canRegenerate = isLast && !chatLoading;
   const handleRate =
     ratingEnabled && msg.id
@@ -87,25 +130,9 @@ export const MessageBubble = memo(function MessageBubble({
   return (
     <div className="flex justify-start items-start gap-2.5 group ea-msg-in">
       <AgentAvatar live={streaming} />
-      <div className="max-w-[82%] min-w-0 bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
+      <div className="max-w-[82%] min-w-0 rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm">
         {parts.length > 0 && (
-          <div className="mb-2 space-y-1">
-            {parts.map((part, i) =>
-              part.kind === 'thinking' ? (
-                <ThinkingSection
-                  key={i}
-                  text={part.text}
-                  live={streaming && !part.done && i === parts.length - 1}
-                />
-              ) : (
-                <ToolCallRow
-                  key={part.call.toolCallId ?? `tool-${i}`}
-                  call={part.call}
-                  streaming={streaming}
-                />
-              ),
-            )}
-          </div>
+          <ToolsSection parts={parts} streaming={streaming} />
         )}
         {msg.content ? (
           streaming ? (
