@@ -3,6 +3,7 @@ import invoiceMutations from '@/payment/graphql/resolvers/mutations/invoices';
 import transactionMutations from '@/payment/graphql/resolvers/mutations/transactions';
 import golomtBankMutations from '@/corporateGateway/golomtbank/graphql/resolvers/mutations';
 import khanBankMutations from '@/corporateGateway/khanbank/graphql/resolvers/mutations';
+import tdbMutations from '@/corporateGateway/tdb/graphql/resolvers/mutations';
 
 export const mutations = {
   ...paymentMutations,
@@ -10,4 +11,5 @@ export const mutations = {
   ...transactionMutations,
   ...golomtBankMutations,
   ...khanBankMutations,
+  ...tdbMutations,
 };
