@@ -78,7 +78,7 @@ startPlugin({
 
       res.type('application/javascript');
       res.send(`window.WIDGET_CONFIG = {
-        API_URL: ${JSON.stringify(`${apiUrl}/pl:payment`)}
+        API_URL: ${JSON.stringify(apiUrl)}
       };`);
     });
 

@@ -10,7 +10,7 @@ import { API_URL } from '../config';
 const wsUri = window.location.origin.replace(/^http/, 'ws');
 
 const httpLink = createHttpLink({
-  uri: `${API_URL}/graphql`,
+  uri: `${API_URL}/pl:payment/graphql`,
   credentials: 'include',
 });
 

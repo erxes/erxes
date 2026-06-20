@@ -4,7 +4,7 @@ import { API_URL } from './config';
 import InvoiceDetail from './pages/InvoiceDetail';
 
 function App() {
-  const basename = new URL(`${API_URL}/widget`).pathname;
+  const basename = new URL(`${API_URL}/pl:payment/widget`).pathname;
 
   return (
     <Router
