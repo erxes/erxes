@@ -87,6 +87,28 @@ export const isReplacementUpdate = (update: UpdateExpr): boolean => {
   return keys.every((k) => !k.startsWith('$'));
 };
 
+/** True when any target path of a `$set`/`$unset` payload is positional. */
+const hasPositionalPaths = (inner: unknown): boolean => {
+  if (!inner || typeof inner !== 'object' || Array.isArray(inner)) return false;
+  return Object.keys(inner).some(hasPositional);
+};
+
+/**
+ * Classify a single top-level update entry (key + value): `true` forces the
+ * complex post-read fallback, `false` means it is replayable in memory.
+ */
+const isComplexEntry = (key: string, value: unknown): boolean => {
+  // Shorthand top-level field (implicit $set) — complex only if positional.
+  if (!key.startsWith('$')) return hasPositional(key);
+  // Insert-only injected operator ($setOnInsert) → no effect on an existing doc.
+  if (IGNORABLE_UPDATE_OPERATORS.has(key)) return false;
+  // Known complex operator, or any operator we do not explicitly replay.
+  if (COMPLEX_UPDATE_OPERATORS.has(key)) return true;
+  if (!SIMPLE_UPDATE_OPERATORS.has(key)) return true;
+  // $set / $unset: complex only if a target path is positional.
+  return hasPositionalPaths(value);
+};
+
 /**
  * Classify an update: `true` => complex => MUST fall back to the post re-read;
  * `false` => simple => its after-image can be computed in memory via
@@ -101,37 +123,10 @@ export const isComplexUpdate = (
   update: UpdateExpr,
   hasArrayFilters = false,
 ): boolean => {
-  // Aggregation pipeline: arbitrary expressions, not replayable.
-  if (isPipelineUpdate(update)) return true;
-  if (!update) return true; // nothing classifiable → be safe, treat as complex
+  if (Array.isArray(update)) return true; // aggregation pipeline: not replayable
+  if (!update) return true; // nothing classifiable → treat as complex
   if (hasArrayFilters) return true;
-
-  const u = update as Record<string, unknown>;
-  for (const key of Object.keys(u)) {
-    if (key.startsWith('$')) {
-      // Insert-only injected operator ($setOnInsert) → no effect on an existing
-      // doc, so it neither blocks the in-memory path nor needs replaying.
-      if (IGNORABLE_UPDATE_OPERATORS.has(key)) continue;
-      // Known complex operator → fall back.
-      if (COMPLEX_UPDATE_OPERATORS.has(key)) return true;
-      // Any operator that isn't one we can replay → fall back (be conservative
-      // about operators we don't explicitly recognize).
-      if (!SIMPLE_UPDATE_OPERATORS.has(key)) return true;
-
-      // $set / $unset: inspect their target paths for positional tokens.
-      const inner = u[key];
-      if (inner && typeof inner === 'object' && !Array.isArray(inner)) {
-        for (const path of Object.keys(inner as Record<string, unknown>)) {
-          if (hasPositional(path)) return true;
-        }
-      }
-    } else {
-      // Shorthand top-level field (implicit $set). Positional token → complex.
-      if (hasPositional(key)) return true;
-    }
-  }
-
-  return false;
+  return Object.keys(update).some((key) => isComplexEntry(key, update[key]));
 };
 
 /**
@@ -143,28 +138,31 @@ export const isComplexUpdate = (
  */
 export const extractTouchedPaths = (update: UpdateExpr): string[] => {
   if (!update || Array.isArray(update)) return [];
-  const u = update as Record<string, unknown>;
   const paths = new Set<string>();
-
-  for (const key of Object.keys(u)) {
-    if (key.startsWith('$')) {
-      // Insert-only operators never change an existing doc → not a touched path.
-      if (IGNORABLE_UPDATE_OPERATORS.has(key)) continue;
-      const inner = u[key];
-      if (inner && typeof inner === 'object' && !Array.isArray(inner)) {
-        for (const path of Object.keys(inner as Record<string, unknown>)) {
-          // Strip a positional/array suffix to its root array path so the
-          // projection still selects the containing field.
-          paths.add(rootArrayPath(path));
-        }
-      }
-    } else {
-      // Shorthand field (implicit $set).
-      paths.add(rootArrayPath(key));
-    }
+  for (const key of Object.keys(update)) {
+    collectTouchedPaths(key, update[key], paths);
   }
-
   return Array.from(paths).filter((p) => p.length > 0);
+};
+
+/** Add the projection path(s) a single update entry touches into `paths`. */
+const collectTouchedPaths = (
+  key: string,
+  value: unknown,
+  paths: Set<string>,
+): void => {
+  if (!key.startsWith('$')) {
+    // Shorthand field (implicit $set).
+    paths.add(rootArrayPath(key));
+    return;
+  }
+  // Insert-only operators never change an existing doc → not a touched path.
+  if (IGNORABLE_UPDATE_OPERATORS.has(key)) return;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+  // Strip a positional/array suffix to the root field the projection selects.
+  for (const path of Object.keys(value)) {
+    paths.add(rootArrayPath(path));
+  }
 };
 
 /**
@@ -232,7 +230,7 @@ const applyUnset = (after: Record<string, unknown>, unsetObj: unknown): void => 
   if (!unsetObj || typeof unsetObj !== 'object' || Array.isArray(unsetObj)) {
     return;
   }
-  for (const path of Object.keys(unsetObj as Record<string, unknown>)) {
+  for (const path of Object.keys(unsetObj)) {
     _loadash.unset(after, path);
   }
 };

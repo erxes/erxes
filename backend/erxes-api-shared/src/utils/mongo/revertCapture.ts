@@ -315,10 +315,7 @@ const journalUpdates = (
       );
       if (!hasChanges(updateDescription)) continue;
 
-      entries.push({
-        docId: id,
-        updateDescription: updateDescription as Record<string, unknown>,
-      });
+      entries.push({ docId: id, updateDescription });
     }
 
     if (!entries.length) return;
@@ -429,7 +426,7 @@ const makeUpdatePostHook = () => {
       // Fall back to the stashed pre value only if the cast update is unavailable.
       const castUpdate =
         typeof this.getUpdate === 'function' ? this.getUpdate() : undefined;
-      const update = (castUpdate ?? this[UPDATE_EXPR]) as UpdateExpr;
+      const update = castUpdate ?? this[UPDATE_EXPR];
       const hasArrayFilters = Boolean(this[HAS_ARRAY_FILTERS]);
 
       // In-memory after-image for every before-doc (the same operators apply to

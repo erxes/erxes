@@ -69,16 +69,17 @@ const isLogFamily = (name: string): boolean =>
  * Optional env override: a comma-separated list of additional collection names
  * to deny. Parsed once at module load. Not required — defaults stand alone.
  */
-const ENV_DENY: ReadonlyArray<string> = (process.env.REVERT_CAPTURE_DENYLIST ||
-  '')
-  .split(',')
-  .map((s) => s.trim().toLowerCase())
-  .filter(Boolean);
+const ENV_DENY: ReadonlySet<string> = new Set(
+  (process.env.REVERT_CAPTURE_DENYLIST || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
+);
 
 /**
  * True when a collection must be skipped by revert capture. Always skips the log
- * family (substring) so the journal can never journal itself; otherwise exact
- * (case-insensitive) match against the denylist + env override.
+ * family (segment-bounded) so the journal can never journal itself; otherwise
+ * exact (case-insensitive) match against the denylist + env override.
  */
 export const isRevertCaptureDenied = (collectionName?: string): boolean => {
   if (!collectionName) return false;
@@ -89,7 +90,7 @@ export const isRevertCaptureDenied = (collectionName?: string): boolean => {
   if (isLogFamily(name)) return true;
 
   if (REVERT_CAPTURE_DENYLIST.some((d) => d.toLowerCase() === name)) return true;
-  if (ENV_DENY.includes(name)) return true;
+  if (ENV_DENY.has(name)) return true;
 
   return false;
 };
