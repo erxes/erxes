@@ -379,7 +379,7 @@ export default {
         productRows.push(
           `<tr>
             <td>${index}</td>
-            <td>${product.name}</td>
+            <td>${product.code} - ${product.name}</td>
             <td>${pd.quantity}</td>
             <td>${toMoney(pd.unitPrice)}</td>
             <td>${toMoney(tAmount)}</td>
@@ -491,7 +491,7 @@ export default {
           `<tr>
             <td>${index}</td>
             <td>${categoryName}</td>
-            <td>${product.name}</td>
+            <td>${product.code} - ${product.name}</td>
             <td>${pd.quantity}</td>
             <td>${toMoney(pd.unitPrice)}</td>
             <td>${toMoney(tAmount)}</td>
