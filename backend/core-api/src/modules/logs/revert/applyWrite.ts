@@ -52,6 +52,21 @@ export const createSnapshotMatchesLive = (
 };
 
 /**
+ * Mirror a revert write into Elasticsearch — BEST-EFFORT. Mongo is the source of
+ * truth for the revert; ES is only a search mirror (also re-synced out of band by
+ * the oplog tailer). A revert must NEVER fail or report an error because ES is
+ * unreachable or misconfigured, so any ES error here is swallowed — the
+ * authoritative Mongo write has already succeeded by this point.
+ */
+const mirrorToEs = async (fn: () => Promise<unknown>): Promise<void> => {
+  try {
+    await fn();
+  } catch {
+    /* best-effort ES mirror; never surface to the revert result */
+  }
+};
+
+/**
  * Apply one computed inverse op (insert/delete/update) as a raw model write with
  * its conflict guards, then mirror the change into Elasticsearch. Returns a
  * structured {ok} | {conflict} result instead of throwing on a benign conflict.
@@ -95,12 +110,14 @@ export const applyWrite = async (args: {
 
     await model.create(document);
 
-    await saveEsDoc({
-      subdomain,
-      contentType: input.contentType,
-      _id: input.docId,
-      document,
-    });
+    await mirrorToEs(() =>
+      saveEsDoc({
+        subdomain,
+        contentType: input.contentType,
+        _id: input.docId,
+        document,
+      }),
+    );
 
     return { ok: true };
   }
@@ -131,11 +148,13 @@ export const applyWrite = async (args: {
 
     await model.deleteOne({ _id: input.docId });
 
-    await deleteEsDoc({
-      subdomain,
-      contentType: input.contentType,
-      _id: input.docId,
-    });
+    await mirrorToEs(() =>
+      deleteEsDoc({
+        subdomain,
+        contentType: input.contentType,
+        _id: input.docId,
+      }),
+    );
 
     return { ok: true };
   }
@@ -160,12 +179,14 @@ export const applyWrite = async (args: {
 
   const fresh = (await model.findById(input.docId).lean()) as RawDoc | null;
   if (fresh) {
-    await saveEsDoc({
-      subdomain,
-      contentType: input.contentType,
-      _id: input.docId,
-      document: fresh,
-    });
+    await mirrorToEs(() =>
+      saveEsDoc({
+        subdomain,
+        contentType: input.contentType,
+        _id: input.docId,
+        document: fresh,
+      }),
+    );
   }
 
   return { ok: true };
