@@ -34,6 +34,7 @@ import {
   types as GolomtTransferTypes,
   mutations as GolomtTransferMutations,
 } from '@/corporateGateway/golomtbank/graphql/schema/transfer';
+
 import {
   types as KhanbankConfigTypes,
   queries as KhanbankConfigQueries,
@@ -50,6 +51,18 @@ import {
   mutations as KhanbankTransferMutations,
 } from '@/corporateGateway/khanbank/graphql/schema/transfer';
 
+import {
+  types as TdbConfigTypes,
+  mutations as TdbConfigMutations,
+  queries as TdbConfigQueries,
+} from '@/corporateGateway/tdb/graphql/schema/configs';
+
+import {
+  types as TdbOrderTypes,
+  mutations as TdbOrderMutations,
+  queries as TdbOrderQueries,
+} from '@/corporateGateway/tdb/graphql/schema/orders';
+
 export const types = `
   ${PaymentTypes}
   ${InvoiceTypes}
@@ -61,6 +74,11 @@ export const types = `
   ${GolomtConfigTypes}
   ${GolomtAccountTypes}
   ${GolomtTransferTypes}
+  ${KhanbankConfigTypes}
+  ${KhanbankAccountTypes}
+  ${KhanbankTransferTypes}
+  ${TdbConfigTypes}
+  ${TdbOrderTypes}
 `;
 
 export const queries = `
@@ -69,6 +87,10 @@ export const queries = `
   ${TransactionQueries}
   ${GolomtConfigQueries}
   ${GolomtAccountQueries}
+  ${KhanbankConfigQueries}
+  ${KhanbankAccountQueries}
+  ${TdbConfigQueries}
+  ${TdbOrderQueries}
 `;
 
 export const mutations = `
@@ -77,6 +99,10 @@ export const mutations = `
   ${TransactionMutations}
   ${GolomtConfigMutations}
   ${GolomtTransferMutations}
+  ${KhanbankConfigMutations}
+  ${KhanbankTransferMutations}
+  ${TdbConfigMutations}
+  ${TdbOrderMutations}
 `;
 
 export default { types, queries, mutations };

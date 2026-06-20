@@ -4,6 +4,7 @@ import transactionQueries from '@/payment/graphql/resolvers/queries/transactions
 import publicPaymentQueries from '@/payment/graphql/resolvers/queries/paymentPublic';
 import golomtBankQueries from '@/corporateGateway/golomtbank/graphql/resolvers/queries';
 import khanBankQueries from '@/corporateGateway/khanbank/graphql/resolvers/queries';
+import tdbQueries from '@/corporateGateway/tdb/graphql/resolvers/queries'; 
 
 export const queries = {
   ...paymentQueries,
@@ -12,4 +13,5 @@ export const queries = {
   ...publicPaymentQueries,
   ...golomtBankQueries,
   ...khanBankQueries,
+  ...tdbQueries,
 };
