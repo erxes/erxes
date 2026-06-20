@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Command } from 'erxes-ui';
 import { SelectLead } from '../select/SelectLead';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
@@ -7,13 +8,14 @@ export const ProjectsChangeLeadTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item
       onSelect={() => {
         setCurrentContent('lead');
       }}
     >
-      <div className="flex gap-2 items-center">Change Lead</div>
+      <div className="flex gap-2 items-center">{t('change-lead')}</div>
     </Command.Item>
   );
 };

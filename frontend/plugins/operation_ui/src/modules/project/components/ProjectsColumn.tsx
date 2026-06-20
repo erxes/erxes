@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import {
@@ -204,6 +205,7 @@ export const projectsColumns = (
         <RecordTable.InlineHead label="Members" icon={IconUsersGroup} />
       ),
       cell: ({ cell }) => {
+        const { t } = useTranslation('operation');
         const memberIds = cell.getValue() as string[];
         const { updateProject } = useUpdateProject();
         const [localMemberIds, setLocalMemberIds] = useState<string[]>(
@@ -257,7 +259,7 @@ export const projectsColumns = (
               cell.row.original._id,
               'Members',
             )}
-            placeholder="Members not specified"
+            placeholder={t('members-not-specified')}
           />
         );
       },

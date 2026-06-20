@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Form,
@@ -28,6 +29,7 @@ export const TemplateForm = ({
   onCancel?: () => void;
   afterSave?: () => void;
 }) => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   
   const [descriptionContent, setDescriptionContent] = useState<Block[] | undefined>(
@@ -79,20 +81,20 @@ export const TemplateForm = ({
     if (template) {
       editMutation({ variables: { _id: template._id, ...variables } })
         .then(() => {
-          toast({ title: 'Template updated' });
+          toast({ title: t('template-updated') });
           afterSave?.();
         })
         .catch((e) => {
-          toast({ title: 'Error', description: e.message, variant: 'destructive' });
+          toast({ title: t('error'), description: e.message, variant: 'destructive' });
         });
     } else {
       addMutation({ variables })
         .then(() => {
-          toast({ title: 'Template created' });
+          toast({ title: t('template-created') });
           afterSave?.();
         })
         .catch((e) => {
-          toast({ title: 'Error', description: e.message, variant: 'destructive' });
+          toast({ title: t('error'), description: e.message, variant: 'destructive' });
         });
     }
   };
@@ -107,7 +109,7 @@ export const TemplateForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Template Name</Form.Label>
+                  <Form.Label>{t('template-name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} placeholder="e.g., Bug Report, Feature Request" />
                   </Form.Control>
@@ -119,22 +121,22 @@ export const TemplateForm = ({
           <Separator />
 
           <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-              <h3 className="font-semibold text-sm text-foreground/80">Task Content</h3>
+              <h3 className="font-semibold text-sm text-foreground/80">{t('task-content')}</h3>
               <Form.Field
                 control={form.control}
                 name="taskName"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Task Title</Form.Label>
+                    <Form.Label>{t('task-title')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder="Default task title" />
+                      <Input {...field} placeholder={t('default-task-title')} />
                     </Form.Control>
                   </Form.Item>
                 )}
               />
 
               <div className="space-y-2">
-                 <Label>Task Description</Label>
+                 <Label>{t('task-description')}</Label>
                  <div className="border rounded-md min-h-[150px] p-2">
                     <BlockEditor
                       editor={editor}
@@ -147,9 +149,9 @@ export const TemplateForm = ({
 
           <div className="flex justify-end gap-2 shrink-0 pt-2 mt-auto">
             <Button variant="outline" onClick={onCancel} type="button">
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button type="submit">Save Template</Button>
+            <Button type="submit">{t('save-template')}</Button>
           </div>
         </form>
       </Form>

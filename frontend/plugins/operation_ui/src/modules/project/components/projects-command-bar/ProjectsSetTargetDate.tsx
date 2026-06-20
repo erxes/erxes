@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import { format, nextFriday, addDays } from 'date-fns';
 import { Button, Calendar, Command } from 'erxes-ui';
@@ -43,9 +44,10 @@ export const ProjectsSetTargetDateTrigger = ({
 }: {
   setCurrentContent: (content: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item onSelect={() => setCurrentContent('targetDate')}>
-      <div className="flex gap-2 items-center">Set Target Date</div>
+      <div className="flex gap-2 items-center">{t('set-target-date')}</div>
     </Command.Item>
   );
 };
@@ -57,6 +59,7 @@ export const ProjectsSetTargetDateContent = ({
   projectIds: string[];
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const { updateProject, loading } = useUpdateProject();
   const [showCalendar, setShowCalendar] = useState(false);
 
@@ -84,7 +87,7 @@ export const ProjectsSetTargetDateContent = ({
           onClick={() => setShowCalendar(false)}
         >
           <IconChevronLeft className="size-4 mr-1" />
-          Back to options
+          {t('back-to-options')}
         </Button>
         <Calendar
           mode="single"
@@ -110,7 +113,7 @@ export const ProjectsSetTargetDateContent = ({
           disabled={loading}
         >
           <IconCalendarTime className="size-4 mr-2" />
-          <span>Custom date</span>
+          <span>{t('custom-date')}</span>
         </Command.Item>
 
         <Command.Separator />
