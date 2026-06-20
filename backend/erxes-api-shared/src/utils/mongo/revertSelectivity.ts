@@ -55,14 +55,15 @@ export const REVERT_CAPTURE_DENYLIST: ReadonlyArray<string> = [
  * collections that merely contain "logs" (blogs, catalogs, dialogs, changelogs)
  * are not wrongly denied — that would silently make them un-revertable.
  * Matches: `logs`, `log`, any `*_log` / `*_logs` (e.g. `{subdomain}_logs`), and
- * the explicit `event_log` / `audit_log` compound tokens.
+ * the `event_log(s)` / `audit_log(s)` tokens when they appear as whole, underscore-
+ * delimited segments (so `prevent_logger` / `catalogs` are NOT wrongly denied).
  */
 const isLogFamily = (name: string): boolean =>
   name === 'logs' ||
   name === 'log' ||
   /_logs?$/.test(name) ||
-  name.includes('event_log') ||
-  name.includes('audit_log');
+  /(^|_)event_logs?($|_)/.test(name) ||
+  /(^|_)audit_logs?($|_)/.test(name);
 
 /**
  * Optional env override: a comma-separated list of additional collection names

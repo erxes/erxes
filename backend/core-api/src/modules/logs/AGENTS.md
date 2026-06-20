@@ -73,9 +73,11 @@ resolutions)` → `revert/revertByProcessId.ts` reverse-replays the process's
 
 ### Always on
 
-Capture is **always on** — there is no enable flag. Every create/update/delete
+Capture is **always on** — there is no enable flag. Every **update/delete**
 through any of the ~124 wrapped schemas is journaled from the moment a service
-boots, so nothing is ever silently left unrecoverable. Bulk capture is capped at
+boots, so no edit or deletion is ever silently left unrecoverable. (Creates are
+NOT captured — reverting a brand-new record is just deleting it, so a new record
+is removable but has no prior state to "restore".) Bulk capture is capped at
 `REVERT_AUTO_JOURNAL_MAX` snapshots per write (optional tuning override, default
 1000 — capture runs regardless of whether it is set). Every hook is wrapped so a
 capture failure can never block/throw out of a write.
