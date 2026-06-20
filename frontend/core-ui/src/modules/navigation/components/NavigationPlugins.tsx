@@ -10,8 +10,12 @@ import { useTranslation } from 'react-i18next';
 const displayName = (name: string) =>
   /[\sA-Z]/.test(name) ? name : name.charAt(0).toUpperCase() + name.slice(1);
 
-const usePluginDisplayName = (name: string) => {
-  const { t } = useTranslation(name);
+const usePluginDisplayName = (name: string, i18n?: boolean) => {
+  const { t } = useTranslation(i18n ? name : 'common');
+
+  if (!i18n) {
+    return displayName(name);
+  }
 
   return displayName(t(name, { defaultValue: '' }) || name);
 };
@@ -19,8 +23,11 @@ const usePluginDisplayName = (name: string) => {
 export const NavigationPluginExitButton = () => {
   const [activePlugin, setActivePlugin] = useAtom(activePluginState);
 
+  const navigationGroups = usePluginsNavigationGroups();
+
   const { t } = useTranslation('common', { keyPrefix: 'plugin' });
-  const pluginName = usePluginDisplayName(activePlugin ?? '');
+
+  const pluginName = usePluginDisplayName(activePlugin ?? '', activePlugin ? navigationGroups[activePlugin]?.i18n : false);
 
   if (!activePlugin) {
     return null;
@@ -52,7 +59,7 @@ const NavigationPluginMenu = ({
   group: any;
   setActivePlugin: (name: string) => void;
 }) => {
-  const pluginName = usePluginDisplayName(name);
+  const pluginName = usePluginDisplayName(name, group.i18n);
 
   return (
     <Sidebar.MenuItem key={name}>
@@ -68,10 +75,10 @@ const NavigationPluginModules = ({ activePlugin }: { activePlugin: string }) => 
   const navigationGroups = usePluginsNavigationGroups();
 
   const { t } = useTranslation('common', { keyPrefix: 'plugin' });
-  
-  const pluginName = usePluginDisplayName(activePlugin);
 
-  const { contents, subGroups } = navigationGroups[activePlugin];
+  const { contents, subGroups, i18n } = navigationGroups[activePlugin];
+
+  const pluginName = usePluginDisplayName(activePlugin, i18n);
 
   return (
     <>
