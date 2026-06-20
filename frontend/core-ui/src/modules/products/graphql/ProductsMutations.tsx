@@ -159,6 +159,37 @@ const productsEdit = gql`
       durationType: $durationType
     ) {
       _id
+      name
+      shortName
+      type
+      code
+      categoryId
+      vendorId
+      scopeBrandIds
+      status
+      description
+      unitPrice
+      duration
+      durationType
+      barcodes
+      variants
+      barcodeDescription
+      currency
+      attachment {
+        url
+        name
+        size
+        type
+      }
+      attachmentMore {
+        url
+        name
+        size
+        type
+      }
+      uom
+      subUoms
+      propertiesData
     }
   }
 `;
