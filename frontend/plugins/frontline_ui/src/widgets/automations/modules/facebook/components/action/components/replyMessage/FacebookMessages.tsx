@@ -13,6 +13,8 @@ import {
 } from '@dnd-kit/sortable';
 import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
 import { FacebookBotMessage } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookBotMessage';
+import { FieldPath } from 'react-hook-form';
+import { TBotMessage } from '../../states/replyMessageActionForm';
 
 export const FacebookMessages = () => {
   const { setValue, messages } = useReplyMessageAction();
@@ -40,6 +42,14 @@ export const FacebookMessages = () => {
     );
   };
 
+  const handleMessageChange = (
+    messageIndex: number,
+    field: FieldPath<TBotMessage>,
+    newData: any,
+  ) => {
+    setValue(`messages.${messageIndex}.${field}`, newData);
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -57,6 +67,7 @@ export const FacebookMessages = () => {
               index={index}
               message={message}
               onRemove={onRemove}
+              handleMessageChange={handleMessageChange}
             />
           ))}
         </div>

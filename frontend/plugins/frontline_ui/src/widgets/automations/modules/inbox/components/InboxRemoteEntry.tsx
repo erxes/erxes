@@ -3,8 +3,10 @@ import {
   AutomationRemoteEntryProps,
   AutomationRemoteEntryTypes,
   AutomationRemoteEntryWrapper,
+  splitAutomationNodeType,
 } from 'ui-modules';
 import { InboxMessageTriggerForm } from './trigger/InboxMessageTriggerForm';
+import { MessengerMessageTriggerNodeContent } from './trigger/MessengerMessageTriggerNodeContent';
 import { InboxMessageActionForm } from './action/InboxMessageActionForm';
 import { InboxMessageActionConfig } from './action/InboxMessageActionConfig';
 
@@ -25,15 +27,37 @@ export const InboxRemoteEntry = (props: AutomationRemoteEntryProps) => {
     <AutomationRemoteEntryWrapper
       props={props}
       remoteEntries={{
-        triggerForm: ConversationEventTriggerForm,
-        triggerConfigContent: ConversationEventTriggerNodeContent,
-        // triggerForm: InboxMessageTriggerForm,
+        triggerForm: renderTriggerForm,
+        triggerConfigContent: renderTriggerConfigContent,
         actionForm: renderActionForm,
         actionNodeConfiguration: InboxMessageActionConfig,
       }}
     />
   );
 };
+
+function renderTriggerForm(props: AutomationRemoteEntryTypes['triggerForm']) {
+  const triggerType = props.activeTrigger?.type || '';
+  const [, , collectionType] = splitAutomationNodeType(triggerType);
+
+  if (collectionType === 'messages') {
+    return <InboxMessageTriggerForm {...props} />;
+  }
+
+  return <ConversationEventTriggerForm {...props} />;
+}
+
+function renderTriggerConfigContent(
+  props: AutomationRemoteEntryTypes['triggerConfigContent'],
+) {
+  const [, , collectionType] = splitAutomationNodeType(props.type || '');
+
+  if (collectionType === 'messages') {
+    return <MessengerMessageTriggerNodeContent {...props} />;
+  }
+
+  return <ConversationEventTriggerNodeContent {...props} />;
+}
 
 function renderActionForm(props: AutomationRemoteEntryTypes['actionForm']) {
   return <InboxMessageActionForm {...props} />;

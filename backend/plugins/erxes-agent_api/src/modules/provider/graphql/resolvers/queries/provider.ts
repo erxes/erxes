@@ -14,24 +14,27 @@ interface ProviderModelEntry {
 
 /** Queries over configured providers, presets, and live model catalogs. */
 export const providerQueries = {
-  mastraProviders: (
+  mastraProviders: async (
     _parent: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('providersView');
     return models.MastraProvider.getProviders();
   },
 
-  mastraProvider: (
+  mastraProvider: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('providersView');
     return models.MastraProvider.getProvider(_id);
   },
 
   // Returns static presets — used only by the "Add Provider" form in the UI
-  // to pre-fill fields when a user picks a known provider.
+  // to pre-fill fields when a user picks a known provider. No stored secrets are
+  // involved, so this stays open to any logged-in user.
   mastraProviderPresets: () => {
     return PROVIDER_PRESETS;
   },
@@ -40,8 +43,9 @@ export const providerQueries = {
   mastraProviderCatalog: async (
     _parent: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('providersView');
     const storedProviders = await models.MastraProvider.find({
       isEnabled: true,
     });
@@ -65,8 +69,9 @@ export const providerQueries = {
   mastraProviderModels: async (
     _parent: undefined,
     { provider }: { provider: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('providersView');
     // Prefer the stored DB doc (supports custom/unknown providers too)
     const stored = await models.MastraProvider.findOne({ provider });
 

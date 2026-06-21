@@ -7,6 +7,11 @@
 #   docker compose -f backend/plugins/erxes-agent_api/docker-compose.yml down
 #
 # Health:  curl http://localhost:6333/healthz
+#
+# NOTE: agent observability (Langfuse) is NOT here — it is a single, centrally
+# deployed server shared by all tenants, not per-deploy infra. Its standalone
+# stack lives in deploy/langfuse/; clients only set LANGFUSE_* in .env to point
+# at it. See docs/SCORING-OBSERVABILITY.md.
 services:
   qdrant:
     image: qdrant/qdrant:v1.12.4

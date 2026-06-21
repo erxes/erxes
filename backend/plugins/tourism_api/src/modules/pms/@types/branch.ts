@@ -16,7 +16,15 @@ export interface IPmsBranch {
   status: string;
   pipelineConfig: any;
   extraProductCategories?: string[];
+  excludeExtraProductCategoryIds?: string[];
+  excludeExtraProductIds?: string[];
   roomCategories?: string[];
+  excludeRoomCategoryIds?: string[];
+  excludeRoomIds?: string[];
+  hasAppointment?: boolean;
+  appointmentCategories?: string[];
+  excludeAppointmentCategoryIds?: string[];
+  excludeAppointmentIds?: string[];
   websiteReservationLock?: boolean;
   time?: string;
   discount?: any;

@@ -6,6 +6,7 @@ import {
   IconMusic,
   IconPaperclip,
   IconPhotoScan,
+  IconTicket,
   IconVideo,
 } from '@tabler/icons-react';
 import { generateAutomationElementId } from 'ui-modules';
@@ -49,6 +50,9 @@ export const INITIAL_OBJ_MESSAGE_TYPES = {
       value: '1',
       type: DEFAULT_INPUT_TIME_UNIT,
     },
+  },
+  ticketForm: {
+    text: 'Please fill in the ticket details:',
   },
 };
 

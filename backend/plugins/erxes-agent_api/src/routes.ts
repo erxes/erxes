@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
+import { checkPermissionGroup } from 'erxes-api-shared/core-modules';
 import { generateModels } from './connectionResolvers';
 import { getOrCreateAgent } from './mastra/agentRuntime';
 import {
@@ -9,7 +10,12 @@ import {
   summarizeActivity,
 } from './mastra/activity';
 import { toolStatusLine } from './mastra/activity-signals';
-import { runWithAuth } from './mastra/requestContext';
+import {
+  isReasoningEffort,
+  buildReasoningProviderOptions,
+  ReasoningEffort,
+} from './mastra/providers';
+import { runWithAuth, ApprovedOp } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
 import { scopedResource } from './mastra/memory/mastraMemory';
 import { augmentConvo } from './mastra/memory';
@@ -190,31 +196,111 @@ function sanitizeAttachments(raw: unknown): IMastraChatAttachment[] | null {
   return out;
 }
 
-router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
-  const user = extractUserFromHeader(req.headers);
-  if (!user?._id) {
-    return res.status(401).json({ error: 'Login required' });
-  }
+// Validated POST /chat/stream payload. All shape-checking for the untrusted
+// request body lives here so the handler reads as straight-line logic.
+interface ChatStreamRequest {
+  agentId: string;
+  message: string;
+  threadId?: string;
+  reasoningEffort?: ReasoningEffort;
+  attachments: IMastraChatAttachment[];
+  approvedOperations: ApprovedOp[];
+}
 
-  const { agentId, message, threadId } = req.body || {};
+// Shape-check the per-turn destructive-op approvals the client echoes back when
+// the user clicks Approve. Returns the sanitized list, or null when malformed.
+const MAX_APPROVED_OPS = 20;
+function sanitizeApprovedOperations(raw: unknown): ApprovedOp[] | null {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw) || raw.length > MAX_APPROVED_OPS) return null;
+  const out: ApprovedOp[] = [];
+  for (const item of raw) {
+    const candidate = item as Record<string, unknown> | null | undefined;
+    if (!candidate || typeof candidate.operation !== 'string') return null;
+    const args =
+      candidate.args && typeof candidate.args === 'object'
+        ? (candidate.args as Record<string, unknown>)
+        : undefined;
+    out.push({ operation: candidate.operation, args });
+  }
+  return out;
+}
+
+type ParseResult =
+  | { ok: true; value: ChatStreamRequest }
+  | { ok: false; error: string };
+
+function parseChatStreamBody(raw: unknown): ParseResult {
+  const body = (raw ?? {}) as Record<string, unknown>;
+  const { agentId, message, threadId, reasoningEffort } = body;
+
   if (
     typeof agentId !== 'string' ||
     !agentId ||
     typeof message !== 'string' ||
     !message.trim()
   ) {
-    return res.status(400).json({ error: 'agentId and message are required' });
+    return { ok: false, error: 'agentId and message are required' };
   }
   if (threadId !== undefined && typeof threadId !== 'string') {
-    return res.status(400).json({ error: 'threadId must be a string' });
+    return { ok: false, error: 'threadId must be a string' };
+  }
+  if (reasoningEffort !== undefined && !isReasoningEffort(reasoningEffort)) {
+    return {
+      ok: false,
+      error: 'reasoningEffort must be off | low | medium | high',
+    };
   }
 
-  const attachments = sanitizeAttachments(req.body?.attachments);
+  const attachments = sanitizeAttachments(body.attachments);
   if (attachments === null) {
-    return res.status(400).json({ error: 'Invalid attachments payload' });
+    return { ok: false, error: 'Invalid attachments payload' };
   }
+
+  const approvedOperations = sanitizeApprovedOperations(body.approvedOperations);
+  if (approvedOperations === null) {
+    return { ok: false, error: 'Invalid approvedOperations payload' };
+  }
+
+  return {
+    ok: true,
+    value: {
+      agentId,
+      message,
+      threadId,
+      reasoningEffort,
+      attachments,
+      approvedOperations,
+    },
+  };
+}
+
+router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
+  const user = extractUserFromHeader(req.headers);
+  if (!user?._id) {
+    return res.status(401).json({ error: 'Login required' });
+  }
+
+  const parsed = parseChatStreamBody(req.body);
+  if (!parsed.ok) {
+    return res.status(400).json({ error: parsed.error });
+  }
+  // reasoningEffort is the optional per-conversation override from the composer.
+  const { agentId, message, threadId, reasoningEffort, attachments } =
+    parsed.value;
+  const { approvedOperations } = parsed.value;
 
   const subdomain = getSubdomain(req);
+
+  // Streaming chat is the HTTP twin of the mastraAgentChat resolver, so it is
+  // gated by the same `agentsChat` permission. checkPermissionGroup throws on
+  // denial (FORBIDDEN) — translate that into a 403 for the SSE client.
+  try {
+    await checkPermissionGroup(subdomain, user)('agentsChat');
+  } catch {
+    return res.status(403).json({ error: 'Permission required' });
+  }
+
   const models = await generateModels(subdomain);
 
   // Attachments require the instance's upload storage — reject early (the UI
@@ -326,8 +412,17 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       message,
       threadId,
       attachments,
+      approvedOperations,
     });
     const { agent, convo, authCtx, memoryBinding } = prepared;
+
+    // Per-conversation reasoning override → provider-specific options, resolved
+    // once against the agent's provider. Providers without a portable reasoning
+    // knob yield undefined, so the model's configured default stands untouched.
+    const reasoningOptions = buildReasoningProviderOptions(
+      prepared.agentConfig.provider,
+      reasoningEffort,
+    );
 
     // Narrates "what is the agent doing" while the turn runs — throttled
     // summaries of the live reasoning/tool signals, pushed as activity events.
@@ -348,12 +443,26 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
 
     let streamError: string | null = null;
 
+    // Plan B: the Langfuse trace id for this turn — stamped onto the assistant
+    // message (via meta below) so a later thumbs rating can attach a human score
+    // to the right trace. Captured from the stream; undefined when eval is off.
+    let langfuseTraceId: string | undefined;
     try {
       await runWithAuth(authCtx, async () => {
         const stream = await agent.stream(convo, {
           abortSignal: controller.signal,
           ...(memoryBinding ? { memory: memoryBinding } : {}),
+          ...(reasoningOptions ? { providerOptions: reasoningOptions } : {}),
         });
+        const tid = (stream as { traceId?: unknown }).traceId;
+        const resolvedTid =
+          tid && typeof (tid as PromiseLike<unknown>).then === 'function'
+            ? await (tid as Promise<unknown>).catch(() => undefined)
+            : tid;
+        // Only accept a string trace id — a non-string truthy value would slip
+        // past the falsy guard in pushUserScore and ship bad data to Langfuse.
+        langfuseTraceId =
+          typeof resolvedTid === 'string' ? resolvedTid : undefined;
 
         for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
           const ev = normalizeChunk(chunk);
@@ -423,6 +532,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
             toolCalls: acc.toolCalls.length ? acc.toolCalls : undefined,
             parts: acc.parts.length ? acc.parts : undefined,
             interrupted: interrupted || undefined,
+            langfuseTraceId,
           }
         : undefined,
     });
@@ -494,7 +604,6 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
     const useMemory =
       isAdvancedMemoryEnabled() &&
       agentConfig.memoryEnabled !== false &&
-      Boolean(subdomain) &&
       Boolean(userText.trim());
     const memoryBinding = useMemory
       ? {

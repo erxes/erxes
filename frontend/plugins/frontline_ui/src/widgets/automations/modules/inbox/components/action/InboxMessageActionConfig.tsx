@@ -1,13 +1,13 @@
 import { AutomationActionNodeConfigProps } from 'ui-modules';
+import { ActionMessageConfigContent } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/ActionMessageConfigContent';
+import { TMessageActionForm } from '~/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm';
 
-type TInboxMessageActionForm = { text?: string };
+export const InboxMessageActionConfig = (
+  props: AutomationActionNodeConfigProps<TMessageActionForm>,
+) => {
+  const { messages = [] } = props.config || {};
 
-export const InboxMessageActionConfig = ({
-  config,
-}: AutomationActionNodeConfigProps<TInboxMessageActionForm>) => {
-  const text = config?.text;
-
-  if (!text) {
+  if (!messages.length) {
     return (
       <p className="text-xs text-muted-foreground italic">
         No message configured
@@ -15,5 +15,5 @@ export const InboxMessageActionConfig = ({
     );
   }
 
-  return <p className="line-clamp-3 text-xs text-foreground">{text}</p>;
+  return <ActionMessageConfigContent {...props} />;
 };

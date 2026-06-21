@@ -12,7 +12,7 @@ import {
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
 import { CSSProperties, FC, SyntheticEvent, useEffect, useState } from 'react';
-import { Spinner } from 'erxes-ui/components';
+import { Dialog, Spinner } from 'erxes-ui/components';
 
 const IMAGE_STYLES = ['normal', 'wide', 'float-left', 'float-right'] as const;
 
@@ -86,6 +86,7 @@ const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
 const CustomImagePreview: FC<FileBlockRenderProps> = ({ block, editor }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const src = downloadUrl ?? block.props.url;
   const isResolving = loadingState === 'loading';
@@ -118,29 +119,52 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block, editor }) => {
   return (
     <div className="bn-visual-media-wrapper">
       {(!imgLoaded || isResolving) && (
-        <div className="flex items-center justify-center min-h-24 w-full">
+        <div className="flex min-h-24 w-full items-center justify-center">
           <Spinner size="sm" />
         </div>
       )}
+
       {!isResolving && src && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          className="bn-visual-media mx-auto w-full"
-          src={src}
-          alt={block.props.caption || block.props.name || ''}
-          contentEditable={false}
-          draggable={false}
-          style={
-            imgLoaded
-              ? {
-                  height: 'auto',
-                  maxWidth: hasPreviewWidth ? '100%' : `${maxWidth}px`,
-                }
-              : { display: 'none' }
-          }
-          onLoad={handleImageLoad}
-          onError={() => setImgLoaded(true)}
-        />
+        <>
+          <div
+            className="bn-visual-media mx-auto w-full cursor-pointer border-0 bg-transparent p-0"
+            style={imgLoaded ? undefined : { display: 'none' }}
+            contentEditable={false}
+            tabIndex={0}
+            onDoubleClick={() => setPreviewOpen(true)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                setPreviewOpen(true);
+              }
+            }}
+          >
+            <img
+              className="block h-auto w-full"
+              src={src}
+              alt={block.props.caption || block.props.name || ''}
+              draggable={false}
+              style={{
+                maxWidth: hasPreviewWidth ? '100%' : `${maxWidth}px`,
+              }}
+              onLoad={handleImageLoad}
+              onError={() => setImgLoaded(true)}
+            />
+          </div>
+
+          <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+            <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
+              <Dialog.Title className="sr-only">
+                {block.props.caption || block.props.name || 'Image preview'}
+              </Dialog.Title>
+              <img
+                src={src}
+                alt={block.props.caption || block.props.name || ''}
+                className="max-h-[85vh] max-w-[90vw] rounded object-contain shadow-2xl"
+              />
+            </Dialog.Content>
+          </Dialog>
+        </>
       )}
     </div>
   );
@@ -154,6 +178,7 @@ const getFloatContainerStyle = (
     width: '100%',
     maxWidth: `${maxWidth}px`,
   };
+
   if (imageStyle === 'float-left') {
     return {
       ...base,
@@ -187,7 +212,6 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   const containerStyle = getFloatContainerStyle(imageStyle, maxWidth);
 
   const img = (
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={url}
       alt={caption || name || ''}
@@ -239,7 +263,9 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
     styleEl.textContent = `[data-id="${blockId}"]{float:${dir};max-width:${maxWidth}px;width:100%;${margin};margin-bottom:.75em}`;
     document.head.appendChild(styleEl);
 
-    return () => document.getElementById(styleId)?.remove();
+    return () => {
+      document.getElementById(styleId)?.remove();
+    };
   }, [
     props.block.id,
     imageStyle,
@@ -275,8 +301,10 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
   parse: (element) => {
     if (element.tagName === 'IMG') {
       if (element.closest('figure')) return undefined;
+
       const img = element as HTMLImageElement;
       const imageStyle = getImageStyleFromElement(img);
+
       return {
         url: img.src || undefined,
         previewWidth:
@@ -286,12 +314,16 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
         imageStyle,
       };
     }
+
     if (element.tagName === 'FIGURE') {
       const img = element.querySelector('img');
+
       if (!img) return undefined;
+
       const caption =
         element.querySelector('figcaption')?.textContent || undefined;
       const imageStyle = getImageStyleFromElement(element);
+
       return {
         url: img.src || undefined,
         caption,
@@ -302,6 +334,7 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
         imageStyle,
       };
     }
+
     return undefined;
   },
 });

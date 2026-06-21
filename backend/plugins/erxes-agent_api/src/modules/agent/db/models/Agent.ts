@@ -1,5 +1,5 @@
 import { FilterQuery, Model } from 'mongoose';
-import { escapeRegExp } from 'erxes-api-shared/utils';
+import { escapeRegExp, ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { agentSchema } from '@/agent/db/definitions/agent';
 import { IMastraAgent, IMastraAgentDocument } from '@/agent/@types/agent';
@@ -9,6 +9,7 @@ export interface IMastraAgentListParams {
   page?: number;
   perPage?: number;
   searchValue?: string;
+  userId?: string;
 }
 
 export interface IMastraAgentListResult {
@@ -17,8 +18,8 @@ export interface IMastraAgentListResult {
 }
 
 export interface IMastraAgentModel extends Model<IMastraAgentDocument> {
-  getAgent(_id: string): Promise<IMastraAgentDocument>;
-  getAgents(): Promise<IMastraAgentDocument[]>;
+  getAgent(_id: string, userId?: string): Promise<IMastraAgentDocument>;
+  getAgents(userId?: string): Promise<IMastraAgentDocument[]>;
   getAgentsList(
     params: IMastraAgentListParams,
   ): Promise<IMastraAgentListResult>;
@@ -35,16 +36,19 @@ export const loadAgentClass = (_models: IModels) => {
   /** Static CRUD/query helpers for stored agent configurations. */
   // skipcq: JS-0327 — the mongoose loadClass pattern requires a class of statics
   class MastraAgent {
-    /** Fetch one agent config by _id; throws when it does not exist. */
-    public static async getAgent(_id: string) {
-      const agent = await _models.MastraAgent.findOne({ _id });
-      if (!agent) throw new Error('Agent not found');
+    /** Fetch one agent config by _id; throws when not found or not owned by userId. */
+    public static async getAgent(_id: string, userId?: string) {
+      const filter: FilterQuery<IMastraAgentDocument> = { _id };
+      if (userId) filter.createdBy = userId;
+      const agent = await _models.MastraAgent.findOne(filter);
+      if (!agent) throw new ExpectedError('Agent not found');
       return agent;
     }
 
-    /** All agent configs, newest first. */
-    public static getAgents() {
-      return _models.MastraAgent.find().sort({ createdAt: -1 });
+    /** All agents owned by userId, newest first. */
+    public static getAgents(userId?: string) {
+      const filter: FilterQuery<IMastraAgentDocument> = userId ? { createdBy: userId } : {};
+      return _models.MastraAgent.find(filter).sort({ createdAt: -1 });
     }
 
     // Offset-paginated list for the Agents settings table (scroll-triggered
@@ -54,18 +58,25 @@ export const loadAgentClass = (_models: IModels) => {
       page = 1,
       perPage = 30,
       searchValue,
+      userId,
     }: IMastraAgentListParams) {
-      const filter: FilterQuery<IMastraAgentDocument> = {};
+      const filter: FilterQuery<IMastraAgentDocument> = userId ? { createdBy: userId } : {};
 
       if (searchValue) {
         const re = new RegExp(escapeRegExp(searchValue), 'i');
-        filter.$or = [
-          { name: re },
-          { agentId: re },
-          { description: re },
-          { provider: re },
-          { model: re },
+        filter.$and = [
+          userId ? { createdBy: userId } : {},
+          {
+            $or: [
+              { name: re },
+              { agentId: re },
+              { description: re },
+              { provider: re },
+              { model: re },
+            ],
+          },
         ];
+        delete filter.createdBy;
       }
 
       const limit = Math.min(Math.max(perPage, 1), 100);
@@ -94,7 +105,7 @@ export const loadAgentClass = (_models: IModels) => {
         { $set: doc },
         { new: true },
       );
-      if (!updated) throw new Error('Agent not found');
+      if (!updated) throw new ExpectedError('Agent not found');
       invalidateAgentCache(_id);
       return updated;
     }

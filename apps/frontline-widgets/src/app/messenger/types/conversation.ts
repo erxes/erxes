@@ -68,6 +68,7 @@ export interface IConversation {
   customer: ICustomer;
   assignedUser?: IUser;
   messages: IMessage[];
+  operatorStatus?: 'bot' | 'operator';
 }
 
 export interface IConversationMessage {

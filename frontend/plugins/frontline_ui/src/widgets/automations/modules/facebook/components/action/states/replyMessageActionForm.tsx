@@ -39,6 +39,7 @@ const quickRepliesSchema = z.object({
     z.object({
       _id: z.string(),
       text: z.string(),
+      contentType: z.string().optional(),
       image_url: z.string().optional(),
       isEditing: z.boolean().default(false).optional(),
     }),
@@ -87,6 +88,12 @@ const audioMessageSchema = z.object({
   audio: z.string().min(1, 'Audio is required'),
 });
 
+const ticketFormSchema = z.object({
+  _id: z.string(),
+  type: z.literal('ticketForm'),
+  text: z.string(),
+});
+
 const replyMessageSchema = z.discriminatedUnion('type', [
   textMessageSchema,
   imageMessageSchema,
@@ -96,6 +103,7 @@ const replyMessageSchema = z.discriminatedUnion('type', [
   attachmentsMessageSchema,
   inputMessageSchema,
   quickRepliesSchema,
+  ticketFormSchema,
 ]);
 export const replyMessageFormSchema = z.object({
   messages: z.array(replyMessageSchema),

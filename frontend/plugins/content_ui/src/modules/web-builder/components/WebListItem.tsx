@@ -28,11 +28,11 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
     }).then(() => removeWeb(web._id));
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
+    <div className="bg-card rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
       <div className="flex items-center gap-4">
         <div
           className={`w-12 h-12 ${
-            thumbnailUrl ? 'bg-gray-100' : gradient
+            thumbnailUrl ? 'bg-muted' : gradient
           } rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden`}
         >
           {thumbnailUrl ? (
@@ -47,11 +47,11 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 truncate">{web.name}</h3>
-          <p className="text-sm text-gray-500 truncate">
+          <h3 className="font-semibold text-foreground truncate">{web.name}</h3>
+          <p className="text-sm text-muted-foreground truncate">
             {web.description || 'No description'}
           </p>
-          <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
             {web.domain && <span className="font-medium">{web.domain}</span>}
             {web.templateType && (
               <span className="capitalize">{web.templateType}</span>

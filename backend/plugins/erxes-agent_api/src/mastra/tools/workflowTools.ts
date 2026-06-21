@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import { createTool } from '@mastra/core/tools';
 import { getCurrentAuth } from '../requestContext';
 import {
@@ -69,7 +70,7 @@ const tenant = () => getCurrentAuth()?.subdomain || 'os';
  */
 const requireTeamMember = () => {
   if (!getCurrentAuth()?.userHeader) {
-    throw new Error(
+    throw new ExpectedError(
       'Workflow tools are only available to logged-in team members — not in this conversation.',
     );
   }

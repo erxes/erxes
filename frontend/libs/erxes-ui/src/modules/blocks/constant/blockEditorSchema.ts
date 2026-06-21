@@ -6,6 +6,7 @@ import {
   createStyleSpec,
 } from '@blocknote/core';
 import { Attribute, Mention } from '../components/BlockEditor';
+import { customFileBlock } from '../components/CustomFileBlock';
 import { customImageBlock } from '../components/CustomImageBlock';
 import { documentPlaceholderBlock } from '../components/DocumentPlaceholderBlock';
 import { galleryBlock } from '../components/GalleryBlock';
@@ -30,6 +31,7 @@ export const BLOCK_SCHEMA = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     image: customImageBlock,
+    file: customFileBlock,
     gallery: galleryBlock,
     documentPlaceholder: documentPlaceholderBlock,
   },

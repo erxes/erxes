@@ -652,7 +652,7 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, configId }: { _id: string; configId: string },
+    { _id, configId }: { _id: string; configId?: string },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(

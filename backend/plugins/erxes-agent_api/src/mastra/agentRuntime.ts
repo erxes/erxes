@@ -19,6 +19,9 @@ import { writeAgentAction, AgentActionInput } from './auditLog';
 import { isAdvancedMemoryEnabled } from './memory/config';
 import { getMastraMemory } from './memory/mastraMemory';
 import { ToolCallFilter } from '@mastra/core/processors';
+import { isEvaluationEnabled } from './scoring/config';
+import { buildAgentScorers } from './scoring/scorers';
+import { getObservabilityHost } from './scoring/observability';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -41,12 +44,13 @@ export async function getOrCreateAgent(
   models: IModels,
   subdomain?: string,
 ): Promise<AgentWithTools> {
-  // Mastra Memory (semantic recall + working memory) is opt-in and tenant-bound
-  // — only attached when advanced memory is enabled AND we know the tenant.
+  // Mastra Memory (persistence + semantic recall + working memory) is attached
+  // whenever advanced memory is on and the agent hasn't opted out. An unknown
+  // tenant must NOT detach memory — that would stop the turn from being
+  // persisted (and lose the session); scopedResource defaults an empty subdomain
+  // to the "os" scope.
   const useMemory =
-    isAdvancedMemoryEnabled() &&
-    agentConfig.memoryEnabled !== false &&
-    Boolean(subdomain);
+    isAdvancedMemoryEnabled() && agentConfig.memoryEnabled !== false;
   const [providers, settings] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),
@@ -70,7 +74,13 @@ export async function getOrCreateAgent(
   // agent (and its prompt) is rebuilt as soon as the registry refreshes.
   const inventory = capabilityInventory(registry.list, policy);
 
-  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}:mem${useMemory ? subdomain : 'off'}`;
+  // Evaluation is process-wide (env), but the observability host is per-tenant
+  // — so when it's on, the subdomain joins the cache key to keep each tenant's
+  // agent bound to its own Langfuse project (serviceName).
+  const evaluationEnabled = isEvaluationEnabled();
+  const evalTag = evaluationEnabled ? subdomain || 'os' : 'off';
+
+  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}:mem${useMemory ? subdomain : 'off'}:eval${evalTag}`;
 
   const cached = agentCache.get(cacheKey);
   if (cached) {
@@ -175,6 +185,11 @@ export async function getOrCreateAgent(
   // (Kimi) don't reject the request. Both are opt-in via advanced memory.
   const memory = useMemory ? await getMastraMemory(subdomain) : undefined;
 
+  // Quality scorers (heuristic + LLM-judge using this agent's own model) — only
+  // when ERXES_AGENT_EVALUATION=enable. Results export to Langfuse via the host
+  // registered below.
+  const scorers = evaluationEnabled ? buildAgentScorers(model) : undefined;
+
   const agent = new Agent({
     id: agentConfig.agentId,
     name: agentConfig.name,
@@ -182,6 +197,7 @@ export async function getOrCreateAgent(
     model,
     tools: toolNames.length ? tools : undefined,
     ...(memory ? { memory, inputProcessors: [new ToolCallFilter()] } : {}),
+    ...(scorers ? { scorers } : {}),
     // generate()/stream() read defaultOptions. Temperature is only set when the
     // agent configures it — otherwise the provider default applies (sending an
     // explicit 0 is what reasoning models like Kimi reject).
@@ -190,6 +206,35 @@ export async function getOrCreateAgent(
       ...(hasTemperature ? { modelSettings: { temperature } } : {}),
     },
   } as never);
+
+  // Wire the agent to the per-tenant observability host so traces + scores reach
+  // the central Langfuse. Two distinct hooks, both guarded (internal Mastra APIs):
+  //   • __registerMastra(host)  → the agent emits TRACES to host.observability.
+  //   • host.addScorer(scorer)  → registers each scorer so Mastra's onScorerRun
+  //     hook can resolve it (findScorer → getScorerById) AND sets scorer.#mastra
+  //     = host, so the scorer's run() emits its SCORE to Langfuse. (The host's
+  //     storage, set above, is what stops the hook from bailing.)
+  // Null host = evaluation off or Langfuse unconfigured → no-op.
+  if (evaluationEnabled) {
+    const host = await getObservabilityHost(subdomain);
+    if (host) {
+      const register = (
+        agent as unknown as { __registerMastra?: (m: unknown) => void }
+      ).__registerMastra;
+      if (typeof register === 'function') register.call(agent, host);
+
+      const addScorer = (
+        host as unknown as {
+          addScorer?: (s: unknown, key?: string, o?: { source: string }) => void;
+        }
+      ).addScorer;
+      if (scorers && typeof addScorer === 'function') {
+        for (const [id, entry] of Object.entries(scorers)) {
+          addScorer.call(host, entry.scorer, id, { source: 'code' });
+        }
+      }
+    }
+  }
 
   agentCache.set(cacheKey, agent);
   toolsCache.set(cacheKey, tools);

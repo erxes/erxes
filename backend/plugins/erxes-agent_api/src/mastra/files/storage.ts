@@ -1,4 +1,5 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ExpectedError, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { createTTLCache } from '~/utils/ttlCache';
 
 // ---------------------------------------------------------------------------
 // Attachment storage — detection + retrieval.
@@ -87,15 +88,15 @@ export function evaluateStorageConfigs(
 
 // Storage config rarely changes — cache per subdomain briefly so every chat
 // page load / stream request doesn't round-trip to core.
-const statusCache = new Map<string, { status: StorageStatus; at: number }>();
 const STATUS_TTL_MS = 60_000;
+const statusCache = createTTLCache<StorageStatus>(STATUS_TTL_MS);
 
 /** Fetch (and briefly cache) the instance's upload-storage status. */
 export async function getStorageStatus(
   subdomain: string,
 ): Promise<StorageStatus> {
   const cached = statusCache.get(subdomain);
-  if (cached && Date.now() - cached.at < STATUS_TTL_MS) return cached.status;
+  if (cached) return cached;
 
   let configs: Record<string, string> = {};
   try {
@@ -115,7 +116,7 @@ export async function getStorageStatus(
   }
 
   const status = evaluateStorageConfigs(configs);
-  statusCache.set(subdomain, { status, at: Date.now() });
+  statusCache.set(subdomain, status);
   return status;
 }
 
@@ -150,14 +151,14 @@ export async function fetchAttachmentBuffer(params: {
 
   const lenHeader = Number(res.headers.get('content-length') || 0);
   if (lenHeader > MAX_ATTACHMENT_BYTES) {
-    throw new Error(
+    throw new ExpectedError(
       `File "${name || keyOrUrl}" is too large to read (max 20MB)`,
     );
   }
 
   const buffer = Buffer.from(await res.arrayBuffer());
   if (buffer.length > MAX_ATTACHMENT_BYTES) {
-    throw new Error(
+    throw new ExpectedError(
       `File "${name || keyOrUrl}" is too large to read (max 20MB)`,
     );
   }

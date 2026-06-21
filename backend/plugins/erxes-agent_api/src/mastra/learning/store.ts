@@ -8,6 +8,7 @@
 // ---------------------------------------------------------------------------
 
 import { createHash } from 'crypto';
+import { ExpectedError } from 'erxes-api-shared/utils';
 import {
   isLearningEnabled,
   learningCollectionName,
@@ -45,7 +46,7 @@ export function buildLearningFilter(args: {
   statuses?: string[];
 }): { must: QdrantCondition[] } {
   if (!args.subdomain) {
-    throw new Error(
+    throw new ExpectedError(
       '[mastra:learning] refusing to query Qdrant without a subdomain (tenant isolation).',
     );
   }

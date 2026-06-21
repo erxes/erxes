@@ -77,7 +77,7 @@ import {
   loadCleaningHistoryClass,
 } from '@/pms/db/models/CleaningHistory';
 import { IConfigModel, loadConfigClass } from '@/pms/db/models/Configs';
-import { IPmsBranchDocument } from '@/pms/@types/branch';
+import { IPmsBranch, IPmsBranchDocument } from '@/pms/@types/branch';
 import {
   ICleaningDocument,
   ICleaningHistoryDocument,
@@ -192,7 +192,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     ICustomTourFieldGroupDocument,
     ICustomTourFieldGroupModel
   >('bm_custom_tour_groups', loadCustomTourFieldGroupClass(models));
-
 
   models.TourCategoryTranslations = db.model<
     ITourCategoryTranslationDocument,

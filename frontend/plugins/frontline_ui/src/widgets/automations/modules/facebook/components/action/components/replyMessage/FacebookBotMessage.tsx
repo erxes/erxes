@@ -5,15 +5,22 @@ import { Button, Card, Collapsible, Separator } from 'erxes-ui';
 import { REPLY_MESSAGE_ACTION_BUTTONS } from '../../constants/ReplyMessage';
 import { TBotMessage } from '../../states/replyMessageActionForm';
 import { FacebookMessageContent } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookMessageContent';
+import { FieldPath } from 'react-hook-form';
 
 export const FacebookBotMessage = ({
   index,
   message,
   onRemove,
+  handleMessageChange,
 }: {
   index: number;
   message: TBotMessage;
   onRemove: (index: number) => void;
+  handleMessageChange: (
+    messageIndex: number,
+    field: FieldPath<TBotMessage>,
+    newData: any,
+  ) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: message._id });
@@ -62,7 +69,11 @@ export const FacebookBotMessage = ({
         <Separator />
         <Collapsible.Content>
           <Card.Content className="pt-4">
-            <FacebookMessageContent index={index} message={message} />
+            <FacebookMessageContent
+              index={index}
+              message={message}
+              handleMessageChange={handleMessageChange}
+            />
           </Card.Content>
         </Collapsible.Content>
       </Collapsible>

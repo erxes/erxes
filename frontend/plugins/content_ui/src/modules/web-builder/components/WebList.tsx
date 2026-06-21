@@ -35,7 +35,7 @@ export const WebList = () => {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-gray-500">Found {webs.length} results</div>
+        <div className="text-sm text-muted-foreground">Found {webs.length} results</div>
         <ToggleGroup
           type="single"
           value={viewMode}
