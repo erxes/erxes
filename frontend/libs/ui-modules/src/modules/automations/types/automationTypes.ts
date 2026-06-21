@@ -226,6 +226,7 @@ export type IAutomationsActionConfigConstants = {
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
+  allowedMultiTriggerTypes?: string[];
   folks?: IAutomationsActionFolkConfig[];
 };
 

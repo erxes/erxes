@@ -2,7 +2,7 @@ import {
   IconBolt,
   IconCards,
   IconForms,
-  IconLetterTSmall,
+  IconMessage,
   IconMusic,
   IconPaperclip,
   IconPhotoScan,
@@ -11,22 +11,7 @@ import {
 } from '@tabler/icons-react';
 import { generateAutomationElementId } from 'ui-modules';
 
-export const REPLY_MESSAGE_ACTION_BUTTONS = [
-  { type: 'text', title: 'Text', icon: IconLetterTSmall },
-  { type: 'card', title: 'Card', icon: IconCards },
-  { type: 'quickReplies', title: 'Quick Replies', icon: IconBolt },
-  { type: 'input', title: 'Input', icon: IconForms, limit: 1 },
-  { type: 'ticketForm', title: 'Ticket Form', icon: IconTicket, limit: 1 },
-  { type: 'image', title: 'Image', icon: IconPhotoScan, inProgress: true },
-  {
-    type: 'attachments',
-    title: 'Attachments',
-    icon: IconPaperclip,
-    inProgress: true,
-  },
-  { type: 'audio', title: 'Audio', icon: IconMusic, inProgress: true },
-  { type: 'video', title: 'Video', icon: IconVideo, inProgress: true },
-];
+const DEFAULT_INPUT_TIME_UNIT = 'minute' as const;
 
 export const INITIAL_OBJ_MESSAGE_TYPES = {
   text: {
@@ -41,6 +26,9 @@ export const INITIAL_OBJ_MESSAGE_TYPES = {
       {
         _id: generateAutomationElementId(),
         label: `Page 1`,
+        title: '',
+        subtitle: '',
+        buttons: [],
       },
     ],
   },
@@ -60,10 +48,35 @@ export const INITIAL_OBJ_MESSAGE_TYPES = {
     input: {
       text: '',
       value: '1',
-      type: 'minute' as 'minute' | 'hour' | 'day' | 'month' | 'year',
+      type: DEFAULT_INPUT_TIME_UNIT,
     },
   },
   ticketForm: {
     text: 'Please fill in the ticket details:',
   },
 };
+
+type TReplyMessageActionType = keyof typeof INITIAL_OBJ_MESSAGE_TYPES;
+type TReplyMessageActionIcon = typeof IconMessage;
+
+type TReplyMessageActionButton = {
+  type: TReplyMessageActionType;
+  title: string;
+  icon: TReplyMessageActionIcon;
+  limit?: number;
+};
+
+export const REPLY_MESSAGE_ACTION_BUTTONS: TReplyMessageActionButton[] = [
+  { type: 'text', title: 'Text', icon: IconMessage },
+  { type: 'card', title: 'Card', icon: IconCards },
+  { type: 'quickReplies', title: 'Quick Replies', icon: IconBolt },
+  { type: 'input', title: 'Input', icon: IconForms, limit: 1 },
+  { type: 'image', title: 'Image', icon: IconPhotoScan },
+  {
+    type: 'attachments',
+    title: 'Attachments',
+    icon: IconPaperclip,
+  },
+  { type: 'audio', title: 'Audio', icon: IconMusic },
+  { type: 'video', title: 'Video', icon: IconVideo },
+];

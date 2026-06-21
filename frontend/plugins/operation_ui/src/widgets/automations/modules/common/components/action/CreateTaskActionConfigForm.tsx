@@ -12,6 +12,8 @@ import { Control, useForm, useWatch } from 'react-hook-form';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
+  TPlaceholderInputSuggestion,
+  TPlaceholderInputSuggestionType,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
@@ -55,7 +57,7 @@ const PlaceholderFormField = ({
   propertyType: string;
   variant?: 'expression' | 'fixed';
   selectMode?: 'one' | 'many';
-  enabled?: Record<string, boolean>;
+  enabled?: readonly TPlaceholderInputSuggestionType[];
   selectionType?: ComponentProps<typeof PlaceholderInput>['selectionType'];
   suggestionsOptions?: ComponentProps<
     typeof PlaceholderInput
@@ -252,7 +254,7 @@ export const CreateTaskActionConfigForm = ({
           name="assigneeId"
           label="Assignee"
           propertyType={propertyType}
-          enabled={{ call_user: true }}
+          enabled={[TPlaceholderInputSuggestion.CallUser]}
         />
       </div>
 
@@ -299,14 +301,14 @@ export const CreateTaskActionConfigForm = ({
           name="startDate"
           label="Start date"
           propertyType={propertyType}
-          enabled={{ date: true }}
+          enabled={[TPlaceholderInputSuggestion.Date]}
         />
         <PlaceholderFormField
           control={control}
           name="targetDate"
           label="Target date"
           propertyType={propertyType}
-          enabled={{ date: true }}
+          enabled={[TPlaceholderInputSuggestion.Date]}
         />
       </div>
 
@@ -316,7 +318,7 @@ export const CreateTaskActionConfigForm = ({
         label="Tags"
         propertyType={propertyType}
         selectMode="many"
-        enabled={{ call_tag: true }}
+        enabled={[TPlaceholderInputSuggestion.CallTag]}
       />
     </Form>
   );

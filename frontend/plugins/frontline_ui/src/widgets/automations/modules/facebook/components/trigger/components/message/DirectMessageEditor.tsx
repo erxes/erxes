@@ -13,7 +13,7 @@ type Props = {
 };
 
 export const DirectMessageEditor = ({
-  conditions = [],
+  conditions,
   onConditionChange,
 }: Props) => {
   const { hasConditions, addCondition, removeCondition, updateCondition } =

@@ -256,8 +256,8 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
 
       let html = `<div style="margin: 16px 0;">
         <img src="${escapeHtml(src)}" alt="${escapeHtml(
-          name || '',
-        )}" width="${width}" style="${imgStyle}" />`;
+        name || '',
+      )}" width="${width}" style="${imgStyle}" />`;
 
       if (caption) {
         html += `<div style="margin-top: 8px; font-size: 14px; color: #666; font-style: italic;">${escapeHtml(
@@ -269,6 +269,17 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
       return html;
     }
 
+    case 'documentPlaceholder': {
+      const { documentId } = props || {};
+
+      if (!documentId) {
+        return '';
+      }
+
+      return `<div class="erxes-document-placeholder" data-document-id="${escapeHtml(
+        documentId,
+      )}">{{ document.${escapeHtml(documentId)} }}</div>`;
+    }
     case 'gallery': {
       let images: { url?: string; caption?: string }[] = [];
       try {
