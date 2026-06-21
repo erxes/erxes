@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.17.54](https://github.com/erxes/erxes/compare/2.17.53...2.17.54) (2026-06-21)
+
+### Bug Fixes
+
+* resolve "Body is unusable" error in clientPortalCheckTokiInvoice ([5d919bd](https://github.com/erxes/erxes/commit/5d919bda8e5051e08f62a29c1390abb579dae4c1))
+* sales documents with product code ([20462d3](https://github.com/erxes/erxes/commit/20462d3b6f1d0d6e51cfea3f9b7ae122256f78a9))
+* syncerkhet calc pricing percent ([7ff1bb9](https://github.com/erxes/erxes/commit/7ff1bb999d575b0085884e1240adaa3d598500e7))
+* update legal age check to support new isAdult21 field ([4669cf4](https://github.com/erxes/erxes/commit/4669cf4758ab85e7471c6d81776d6eeee8d4c338))
+* update SMS API endpoint to callpro in all plugins ([#7750](https://github.com/erxes/erxes/issues/7750)) ([bae1ce8](https://github.com/erxes/erxes/commit/bae1ce838e8c422704a19f84b9567740d444c3f8))
+
 ## [2.17.53](https://github.com/erxes/erxes/compare/2.17.52...2.17.53) (2026-05-19)
 
 
