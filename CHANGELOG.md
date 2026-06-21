@@ -1,4 +1,16 @@
+# Changelog
 
+## [3.0.41](https://github.com/erxes/erxes/compare/3.0.40...3.0.41) (2026-06-21)
+
+
+### Bug Fixes
+
+* remove hardcoded gateway proxy from nginx config ([bc5d8eb](https://github.com/erxes/erxes/commit/bc5d8ebce15a43df0608b089ed5f3ffa8d6bef3a))
+
+
+### Features
+
+* enhance Facebook bot automation, email template placeholders, and placeholder input type safety ([#8170](https://github.com/erxes/erxes/issues/8170)) ([e5d0b87](https://github.com/erxes/erxes/commit/e5d0b874c9973dbe217aa1197c109d36de2457b9))
 
 ## [3.0.40](https://github.com/erxes/erxes/compare/3.0.39...3.0.40) (2026-06-21)
 
@@ -165,7 +177,7 @@
 * **erxes-agent:** configurable temperature per agent ([#7997](https://github.com/erxes/erxes/issues/7997)) ([5f8da46](https://github.com/erxes/erxes/commit/5f8da469b65120792b00d4da6e039b99a4c79a29))
 * **operation:** add import/export to task and project command bars ([#7975](https://github.com/erxes/erxes/issues/7975)) ([1c68862](https://github.com/erxes/erxes/commit/1c688624224aafdce1486025534800df92c0e1d1))
 
-# Changelog
+
 
 ## [3.0.33](https://github.com/erxes/erxes/compare/3.0.32...3.0.33) (2026-06-11)
 
