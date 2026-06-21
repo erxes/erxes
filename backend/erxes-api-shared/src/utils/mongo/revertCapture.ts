@@ -43,6 +43,9 @@ const MAX_SNAPSHOT = Number(process.env.REVERT_AUTO_JOURNAL_MAX || 1000);
 const SNAP = Symbol('revertCaptureSnapshot');
 const SNAP_SAVE = Symbol('revertCaptureSaveSnapshot');
 const WAS_NEW = Symbol('revertCaptureWasNew');
+// Set when a bulk delete/update matched MORE rows than MAX_SNAPSHOT, so the
+// journaled snapshot is truncated and the entry is only PARTIALLY revertable.
+const OVERFLOW = Symbol('revertCaptureOverflow');
 // The (raw, pre-cast) update operators stashed in the update PRE hook so the
 // POST hook can synthesize the after-image in memory (simple ops) instead of
 // re-reading. `null` => complex => fall back to the post re-read.
@@ -83,6 +86,7 @@ type QueryHookThis = {
   [SNAP]?: Array<Record<string, unknown>>;
   [UPDATE_EXPR]?: UpdateExpr;
   [HAS_ARRAY_FILTERS]?: boolean;
+  [OVERFLOW]?: boolean;
 };
 
 /** `this` inside the document-level `save` middleware. */
@@ -196,6 +200,7 @@ const journalDeletes = (
   model: CaptureModel,
   docs: Array<Record<string, unknown>>,
   kind: DeleteKind,
+  overflow = false,
 ): void => {
   try {
     if (!docs || !docs.length) return;
@@ -207,6 +212,7 @@ const journalDeletes = (
       emitPutLog({
         ...base,
         action: 'deleteMany',
+        ...(overflow ? { revertOverflow: true } : {}),
         docIds: docs.map((d) => toIdString(d._id)),
         payload: { collectionName, prevDocuments: docs, mongooseName, dbName },
       });
@@ -244,11 +250,14 @@ const makePreHook = (kind: DeleteKind) => {
       // delete pre-read is intentionally NOT projected.
       const query = this.model.find(filter).lean();
       if (kind === 'delete') {
-        query.limit(1);
+        this[SNAP] = await query.limit(1);
       } else {
-        query.limit(MAX_SNAPSHOT);
+        // Fetch one past the cap so a bulk delete whose match count exceeds
+        // MAX_SNAPSHOT is FLAGGED (revertOverflow) rather than silently truncated.
+        const docs = await query.limit(MAX_SNAPSHOT + 1);
+        this[OVERFLOW] = docs.length > MAX_SNAPSHOT;
+        this[SNAP] = this[OVERFLOW] ? docs.slice(0, MAX_SNAPSHOT) : docs;
       }
-      this[SNAP] = await query;
     } catch {
       this[SNAP] = undefined;
     }
@@ -261,7 +270,7 @@ const makePostHook = (kind: DeleteKind) => {
     try {
       const docs = this[SNAP];
       if (docs?.length) {
-        journalDeletes(this.model, docs, kind);
+        journalDeletes(this.model, docs, kind, Boolean(this[OVERFLOW]));
       }
     } catch {
       /* never disturb the write path */
@@ -295,6 +304,7 @@ const journalUpdates = (
   model: CaptureModel,
   beforeDocs: Array<Record<string, unknown>>,
   afterById: Map<string, Record<string, unknown>>,
+  overflow = false,
 ): void => {
   try {
     if (!beforeDocs || !beforeDocs.length) return;
@@ -327,6 +337,7 @@ const journalUpdates = (
       emitPutLog({
         ...base,
         action: 'update',
+        ...(overflow ? { revertOverflow: true } : {}),
         docId: only.docId,
         payload: {
           collectionName,
@@ -344,6 +355,7 @@ const journalUpdates = (
     emitPutLog({
       ...base,
       action: 'updateBatch',
+      ...(overflow ? { revertOverflow: true } : {}),
       docIds: entries.map((e) => e.docId),
       payload: { collectionName, updates: entries, mongooseName, dbName },
     });
@@ -384,7 +396,9 @@ const makeUpdatePreHook = () => {
 
       const simple = !isComplexUpdate(update, hasArrayFilters);
 
-      const query = this.model.find(filter).limit(MAX_SNAPSHOT).lean();
+      // Fetch one past the cap so a bulk update whose match count exceeds
+      // MAX_SNAPSHOT is FLAGGED (revertOverflow) rather than silently truncated.
+      const query = this.model.find(filter).limit(MAX_SNAPSHOT + 1).lean();
 
       if (simple) {
         // Only the touched paths are needed to synthesize + diff the after-image.
@@ -396,7 +410,9 @@ const makeUpdatePreHook = () => {
         }
       }
 
-      this[SNAP] = await query;
+      const docs = await query;
+      this[OVERFLOW] = docs.length > MAX_SNAPSHOT;
+      this[SNAP] = this[OVERFLOW] ? docs.slice(0, MAX_SNAPSHOT) : docs;
     } catch {
       this[SNAP] = undefined;
       this[UPDATE_EXPR] = undefined;
@@ -443,7 +459,7 @@ const makeUpdatePostHook = () => {
       }
 
       if (allComputed) {
-        journalUpdates(this.model, before, inMemory);
+        journalUpdates(this.model, before, inMemory, Boolean(this[OVERFLOW]));
         return;
       }
 
@@ -455,7 +471,7 @@ const makeUpdatePostHook = () => {
       const afterById = new Map<string, Record<string, unknown>>(
         after.map((d) => [toIdString(d._id), d]),
       );
-      journalUpdates(this.model, before, afterById);
+      journalUpdates(this.model, before, afterById, Boolean(this[OVERFLOW]));
     } catch {
       /* never disturb the write path */
     }
