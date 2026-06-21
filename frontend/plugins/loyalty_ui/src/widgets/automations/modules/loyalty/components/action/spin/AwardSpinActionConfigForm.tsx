@@ -3,6 +3,7 @@ import { Form } from 'erxes-ui';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
+  TPlaceholderInputSuggestion,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
@@ -54,11 +55,11 @@ export const AwardSpinActionConfigForm = ({
                   selectMode: 'one',
                   allowOnlyTriggers: true,
                 }}
-                enabled={{
-                  call_user: true,
-                  call_company: true,
-                  call_customer: true,
-                }}
+                enabled={[
+                  TPlaceholderInputSuggestion.CallUser,
+                  TPlaceholderInputSuggestion.CallCompany,
+                  TPlaceholderInputSuggestion.CallCustomer,
+                ]}
               />
               <Form.Message />
             </Form.Item>

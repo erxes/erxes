@@ -13,3 +13,8 @@ export * from './components/AutomationNodeMetaInfoRow';
 export * from './hooks/useFormValidationErrorHandler';
 export * from './utils/automationVariableDragUtils';
 export * from './utils/automationVariableBlockEditorUtils';
+export {
+  TPlaceholderInputSuggestion,
+  TPlaceholderInputSuggestionsOption,
+  TPlaceholderInputSuggestionType,
+} from './types/placeholderInputTypes';

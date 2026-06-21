@@ -116,6 +116,13 @@
   "select-goal-type": "Select goal type",
   "instruction-prompt": "Instruction Prompt",
   "enter-prompt": "Enter prompt",
+  "ai-agent-input": "AI input",
+  "ai-agent-input-description": "Drag an output variable here. Leave this empty to send the full trigger payload.",
+  "ai-agent-input-mode": "Input mode",
+  "ai-agent-input-mode-full-trigger": "Full trigger payload",
+  "ai-agent-input-mode-output-variable": "Output variable",
+  "ai-agent-input-mode-custom": "Custom text",
+  "ai-agent-input-full-trigger-warning": "This action will send the full trigger payload to the AI agent. Add an output variable when only specific data is needed.",
 
   "request": "Request",
   "body": "Body",

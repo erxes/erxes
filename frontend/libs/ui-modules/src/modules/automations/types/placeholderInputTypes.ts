@@ -1,13 +1,26 @@
-export type SuggestionType =
-  | 'attribute'
-  | 'option'
-  | 'date'
-  | 'emoji'
-  | 'call_user'
-  | 'call_tag'
-  | 'call_product'
-  | 'call_company'
-  | 'call_customer';
+export enum TPlaceholderInputSuggestion {
+  Attribute = 'attribute',
+  Emoji = 'emoji',
+  Date = 'date',
+  Option = 'option',
+  CallUser = 'call_user',
+  CallTag = 'call_tag',
+  CallProduct = 'call_product',
+  CallCompany = 'call_company',
+  CallCustomer = 'call_customer',
+}
+export type TPlaceholderInputSuggestions = `${TPlaceholderInputSuggestion}`;
+
+export type TPlaceholderInputSuggestionType =
+  | TPlaceholderInputSuggestion.Attribute
+  | TPlaceholderInputSuggestion.Option
+  | TPlaceholderInputSuggestion.Date
+  | TPlaceholderInputSuggestion.Emoji
+  | TPlaceholderInputSuggestion.CallUser
+  | TPlaceholderInputSuggestion.CallTag
+  | TPlaceholderInputSuggestion.CallProduct
+  | TPlaceholderInputSuggestion.CallCustomer
+  | TPlaceholderInputSuggestion.CallCompany;
 
 export interface SuggestionItem {
   id: string;
@@ -24,13 +37,12 @@ export interface SuggestionConfig {
   // Controls how the popover renders for this type
   mode?: 'command' | 'custom';
   render?: (props: CustomRendererProps) => React.ReactNode;
-  options?: SuggestionsOption;
+  options?: TPlaceholderInputSuggestionsOption;
 }
 
-// Dynamic enabling config
-export interface EnabledSuggestions extends Partial<Record<string, boolean>> {}
+export type EnabledSuggestions = readonly TPlaceholderInputSuggestionType[];
 
-export interface DisabledSuggestions extends Partial<Record<string, boolean>> {}
+export type DisabledSuggestions = readonly TPlaceholderInputSuggestionType[];
 
 type CustomRendererProps = {
   searchValue: string;
@@ -38,7 +50,7 @@ type CustomRendererProps = {
   selectField: string;
 };
 
-export type SuggestionsOption = {
+export type TPlaceholderInputSuggestionsOption = {
   selectFieldName?: string;
   formatSelection?: (value: string) => string;
   options?: { label: string; value: string }[];
@@ -65,10 +77,12 @@ type PlaceholderSuggestionProps = {
   enabled?: EnabledSuggestions;
   disabled?: DisabledSuggestions;
   suggestionGroups?: string[];
-  suggestionsOptions?: Partial<Record<string, SuggestionsOption>>;
+  suggestionsOptions?: Partial<
+    Record<TPlaceholderInputSuggestions, TPlaceholderInputSuggestionsOption>
+  >;
   enableAll?: boolean;
   // Selection-only mode: restrict input to suggestions
-  selectionType?: SuggestionType;
+  selectionType?: TPlaceholderInputSuggestionType;
   // Dynamic: add/override triggers and renderers
   extraSuggestionConfigs?: SuggestionConfig[];
 };
