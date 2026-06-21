@@ -16,6 +16,13 @@
         "{projectRoot}/core-modules/package.json",
         "{projectRoot}/core-modules/dist"
       ]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "backend/erxes-api-shared/jest.config.ts"
+      }
     }
   }
 }
