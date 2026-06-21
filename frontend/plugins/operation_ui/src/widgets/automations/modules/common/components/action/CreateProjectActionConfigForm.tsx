@@ -7,6 +7,8 @@ import { Control, useForm } from 'react-hook-form';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
+  TPlaceholderInputSuggestion,
+  TPlaceholderInputSuggestionType,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
@@ -49,7 +51,7 @@ const PlaceholderFormField = ({
   propertyType: string;
   variant?: 'expression' | 'fixed';
   selectMode?: 'one' | 'many';
-  enabled?: Record<string, boolean>;
+  enabled?: readonly TPlaceholderInputSuggestionType[];
 }) => (
   <Form.Field
     control={control}
@@ -200,7 +202,7 @@ export const CreateProjectActionConfigForm = ({
           name="leadId"
           label="Lead"
           propertyType={propertyType}
-          enabled={{ call_user: true }}
+          enabled={[TPlaceholderInputSuggestion.CallUser]}
         />
         <PlaceholderFormField
           control={control}
@@ -208,7 +210,7 @@ export const CreateProjectActionConfigForm = ({
           label="Members"
           propertyType={propertyType}
           selectMode="many"
-          enabled={{ call_user: true }}
+          enabled={[TPlaceholderInputSuggestion.CallUser]}
         />
       </div>
 
@@ -218,14 +220,14 @@ export const CreateProjectActionConfigForm = ({
           name="startDate"
           label="Start date"
           propertyType={propertyType}
-          enabled={{ date: true }}
+          enabled={[TPlaceholderInputSuggestion.Date]}
         />
         <PlaceholderFormField
           control={control}
           name="targetDate"
           label="Target date"
           propertyType={propertyType}
-          enabled={{ date: true }}
+          enabled={[TPlaceholderInputSuggestion.Date]}
         />
       </div>
 
@@ -235,7 +237,7 @@ export const CreateProjectActionConfigForm = ({
         label="Tags"
         propertyType={propertyType}
         selectMode="many"
-        enabled={{ call_tag: true }}
+        enabled={[TPlaceholderInputSuggestion.CallTag]}
       />
     </Form>
   );

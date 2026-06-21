@@ -4,6 +4,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { getEnv } from 'erxes-api-shared/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
+import { renderEmailContent } from './renderEmailContent';
 import { replaceDocuments } from './replaceDocuments';
 import {
   filterOutSenderEmail,
@@ -29,7 +30,6 @@ export const generateEmailPayload = async ({
   const version = getEnv({ name: 'VERSION' });
   const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
 
-  const template = { content: config?.html || '' };
   const isSaasVersion = version === 'saas';
   const isProduction = getEnv({ name: 'NODE_ENV' }) === 'production';
   const isDefaultSender = senderType === 'default' || !senderType;
@@ -59,8 +59,10 @@ export const generateEmailPayload = async ({
     fromUserEmail = emails[0];
   }
 
+  const templateContent = renderEmailContent(config?.content, config?.html);
+
   let replacedContent = normalizeEmailActionPlaceholders(
-    template?.content || '',
+    templateContent,
     targetType,
   );
 
@@ -84,15 +86,18 @@ export const generateEmailPayload = async ({
     targetType,
   });
 
-  if (!toEmails?.length && ccEmails?.length) {
-    throw new Error('"Recieving emails not found"');
+  const filteredToEmails = filterOutSenderEmail(toEmails, fromUserEmail);
+  const filteredCcEmails = filterOutSenderEmail(ccEmails, fromUserEmail);
+
+  if (!filteredToEmails?.length) {
+    throw new Error('"Receiving emails not found"');
   }
 
   return {
     title: subject,
     fromEmail: formatFromEmail(sender, fromUserEmail),
-    toEmails: filterOutSenderEmail(toEmails, fromUserEmail),
-    ccEmails: filterOutSenderEmail(ccEmails, fromUserEmail),
+    toEmails: filteredToEmails,
+    ccEmails: filteredCcEmails,
     customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, '-'),
   };
 };

@@ -75,14 +75,47 @@ const ActionConfigMessage = ({
           buttons={message.quickReplies}
         />
       );
-    // case 'image':
-    //   return renderCard({ image });
-    // case 'video':
-    //   return renderCard({ video });
-    // case 'audio':
-    //   return renderCard({ audio });
-    // case 'attachments':
-    //   return renderCard({ attachments });
+    case 'image':
+      return (
+        <ActionMessageCard
+          _id={_id}
+          type={type}
+          actionData={actionData}
+          text="Image attachment"
+          subtitle={message.image}
+        />
+      );
+    case 'video':
+      return (
+        <ActionMessageCard
+          _id={_id}
+          type={type}
+          actionData={actionData}
+          text="Video attachment"
+          subtitle={message.video}
+        />
+      );
+    case 'audio':
+      return (
+        <ActionMessageCard
+          _id={_id}
+          type={type}
+          actionData={actionData}
+          text="Audio attachment"
+          subtitle={message.audio}
+        />
+      );
+    case 'attachments':
+      return (message.attachments || []).map((attachment) => (
+        <ActionMessageCard
+          key={attachment._id}
+          _id={attachment._id}
+          type={type}
+          actionData={actionData}
+          text="File attachment"
+          subtitle={attachment.url}
+        />
+      ));
     case 'input':
       if (!botId) {
         return (

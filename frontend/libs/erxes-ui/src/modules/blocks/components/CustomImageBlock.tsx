@@ -11,9 +11,8 @@ import {
   useUploadLoading,
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
-import { CSSProperties, FC, useEffect, useState } from 'react';
+import { CSSProperties, FC, SyntheticEvent, useEffect, useState } from 'react';
 import { Dialog, Spinner } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
 
 const IMAGE_STYLES = ['normal', 'wide', 'float-left', 'float-right'] as const;
 
@@ -37,20 +36,17 @@ const getImageStyle = (value?: string): ImageStyle =>
     ? (value as ImageStyle)
     : 'normal';
 
-const getImageStyleClasses = (imageStyle: ImageStyle) => {
-  switch (imageStyle) {
-    case 'wide':
-      return 'w-full max-w-[1080px]';
-    case 'float-left':
-      return 'max-w-[400px] w-full';
-    case 'float-right':
-      return 'max-w-[400px] w-full';
-    default:
-      return 'w-full max-w-[720px]';
-  }
+const getEditorMaxImageWidth = (
+  editor: FileBlockRenderProps['editor'],
+  imageStyle: ImageStyle,
+) => {
+  const editorWidth =
+    editor.domElement?.firstElementChild?.clientWidth ||
+    IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
+
+  return Math.min(editorWidth, IMAGE_STYLE_PRESETS[imageStyle].maxWidth);
 };
 
-/** Reads the image style from a DOM element's data attribute or class name. */
 const getImageStyleFromElement = (element: HTMLElement): ImageStyle => {
   const explicitStyle =
     element.getAttribute('data-image-style') ||
@@ -84,12 +80,10 @@ type FileBlockRenderProps = Omit<
   'buttonText' | 'buttonIcon' | 'children'
 >;
 
-/** Casts image render props to file block wrapper props. */
 const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
   props as unknown as FileBlockRenderProps;
 
-/** Renders the image preview with a double-click to open full-size dialog. */
-const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
+const CustomImagePreview: FC<FileBlockRenderProps> = ({ block, editor }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
   const [imgLoaded, setImgLoaded] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -99,50 +93,74 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
   const imageStyle = getImageStyle(
     (block.props as { imageStyle?: string }).imageStyle,
   );
+  const maxWidth = getEditorMaxImageWidth(editor, imageStyle);
+  const hasPreviewWidth = Boolean(
+    (block.props as { previewWidth?: number }).previewWidth,
+  );
+  const previewWidth =
+    (block.props as { previewWidth?: number }).previewWidth || maxWidth;
+
+  const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) => {
+    setImgLoaded(true);
+
+    if (hasPreviewWidth) {
+      return;
+    }
+
+    const naturalWidth = event.currentTarget.naturalWidth || previewWidth;
+
+    editor.updateBlock(block, {
+      props: {
+        previewWidth: Math.min(naturalWidth, previewWidth),
+      },
+    });
+  };
 
   return (
     <div className="bn-visual-media-wrapper">
       {(!imgLoaded || isResolving) && (
-        <div className="flex items-center justify-center min-h-24 w-full">
+        <div className="flex min-h-24 w-full items-center justify-center">
           <Spinner size="sm" />
         </div>
       )}
+
       {!isResolving && src && (
         <>
           <div
-            className={cn(
-              'bn-visual-media mx-auto cursor-pointer p-0 border-0 bg-transparent',
-              getImageStyleClasses(imageStyle),
-            )}
+            className="bn-visual-media mx-auto w-full cursor-pointer border-0 bg-transparent p-0"
             style={imgLoaded ? undefined : { display: 'none' }}
             contentEditable={false}
             tabIndex={0}
             onDoubleClick={() => setPreviewOpen(true)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
                 setPreviewOpen(true);
               }
             }}
           >
             <img
-              className="w-full h-auto block"
+              className="block h-auto w-full"
               src={src}
               alt={block.props.caption || block.props.name || ''}
               draggable={false}
-              onLoad={() => setImgLoaded(true)}
+              style={{
+                maxWidth: hasPreviewWidth ? '100%' : `${maxWidth}px`,
+              }}
+              onLoad={handleImageLoad}
               onError={() => setImgLoaded(true)}
             />
           </div>
+
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-            <Dialog.Content className="bg-transparent shadow-none p-0 border-0 max-w-fit">
+            <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
               <Dialog.Title className="sr-only">
                 {block.props.caption || block.props.name || 'Image preview'}
               </Dialog.Title>
               <img
                 src={src}
                 alt={block.props.caption || block.props.name || ''}
-                className="shadow-2xl rounded max-w-[90vw] max-h-[85vh] object-contain"
+                className="max-h-[85vh] max-w-[90vw] rounded object-contain shadow-2xl"
               />
             </Dialog.Content>
           </Dialog>
@@ -152,7 +170,6 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
   );
 };
 
-/** Returns inline styles for float-left/right image container positioning. */
 const getFloatContainerStyle = (
   imageStyle: ImageStyle,
   maxWidth: number,
@@ -161,24 +178,28 @@ const getFloatContainerStyle = (
     width: '100%',
     maxWidth: `${maxWidth}px`,
   };
-  if (imageStyle === 'float-left')
+
+  if (imageStyle === 'float-left') {
     return {
       ...base,
       float: 'left',
       marginRight: '1.25em',
       marginBottom: '0.5em',
     };
-  if (imageStyle === 'float-right')
+  }
+
+  if (imageStyle === 'float-right') {
     return {
       ...base,
       float: 'right',
       marginLeft: '1.25em',
       marginBottom: '0.5em',
     };
+  }
+
   return { ...base, margin: '0 auto' };
 };
 
-/** Renders the image block as external HTML for export. */
 const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   const { url, caption, name, previewWidth } = block.props;
   const imageStyle = getImageStyle(
@@ -213,7 +234,6 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   );
 };
 
-/** Renders the image block content with upload loading state and float style injection. */
 const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
   const fileProps = toFileBlockProps(props);
@@ -281,8 +301,10 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
   parse: (element) => {
     if (element.tagName === 'IMG') {
       if (element.closest('figure')) return undefined;
+
       const img = element as HTMLImageElement;
       const imageStyle = getImageStyleFromElement(img);
+
       return {
         url: img.src || undefined,
         previewWidth:
@@ -292,12 +314,16 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
         imageStyle,
       };
     }
+
     if (element.tagName === 'FIGURE') {
       const img = element.querySelector('img');
+
       if (!img) return undefined;
+
       const caption =
         element.querySelector('figcaption')?.textContent || undefined;
       const imageStyle = getImageStyleFromElement(element);
+
       return {
         url: img.src || undefined,
         caption,
@@ -308,6 +334,7 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
         imageStyle,
       };
     }
+
     return undefined;
   },
 });
