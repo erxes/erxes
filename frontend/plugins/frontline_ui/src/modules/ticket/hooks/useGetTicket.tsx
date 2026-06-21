@@ -30,8 +30,12 @@ export const useGetTicket = (options: QueryHookOptions) => {
 
         const newTicket = subscriptionData.data.ticketChanged.ticket;
 
+
         return {
-          getTicket: newTicket,
+          getTicket: {
+            ...prev.getTicket,
+            ...newTicket,
+          },
         };
       },
     });
