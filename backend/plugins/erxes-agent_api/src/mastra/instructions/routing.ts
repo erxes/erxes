@@ -68,6 +68,14 @@ export interface ToolInfo {
   description?: string;
 }
 
+// The lean "always loaded" half of a skill: just enough for the agent to know
+// the playbook exists and when it applies. The full body is pulled in on
+// demand via load_skill (progressive disclosure).
+export interface SkillInfo {
+  name: string;
+  description: string;
+}
+
 // Matches the auto-generated placeholder descriptions (e.g. "mutation brandsAdd",
 // "query users") that carry no real meaning — fall back to a humanized name then.
 const GENERIC_DESC = /^(query|mutation)\s+\S+$/i;
@@ -163,6 +171,27 @@ ${hasRenderChart ? `\n${RENDER_CHART_HINT}` : ''}
 `.trim();
 };
 
+// Progressive disclosure (the Anthropic Agent Skills pattern): the index below
+// is ALWAYS in the prompt so the agent knows which verified playbooks exist and
+// when each applies; the detailed body is pulled in only when needed via
+// load_skill. This is how an admin "teaches" the agent a specific task once and
+// the agent stops failing at it — a loaded playbook overrides improvisation.
+const SKILLS_BLOCK = (skills: SkillInfo[]) =>
+  `
+## Skills — your verified playbooks (load before acting)
+
+You have step-by-step playbooks for specific tasks. Each one below is something you have been TAUGHT to do a precise way.
+
+Available skills (name — when to use):
+${skills.map((s) => `- ${s.name} — ${s.description}`).join('\n')}
+
+How to use them:
+1. When the user's request matches one of these skills, FIRST call load_skill with its exact name to read the full instructions.
+2. Then follow those instructions exactly — they are verified and take priority over your own guesses about how to do the task.
+3. If several could apply, load the closest match. If none clearly apply, proceed normally with your other tools.
+4. Never tell the user you are "loading a skill" or mention these names — just do the task.
+`.trim();
+
 const NO_TOOLS_BLOCK = `
 ## Capabilities
 
@@ -173,7 +202,8 @@ If the user asks you to read or change erxes data, explain that this agent is no
 /**
  * Builds the full system prompt for an agent.
  *
- *   [small-talk] + [erxes search→execute block?] + [builtin block?] + [agent instructions]
+ *   [small-talk] + [erxes search→execute block?] + [builtin block?]
+ *     + [skills index?] + [agent instructions]
  *
  * When the agent has neither erxes operations nor builtins, a short "no tools"
  * block keeps it honest about its (chat-only) capabilities.
@@ -185,6 +215,7 @@ export function buildSystemPrompt(
     scopeLine: string;
     inventoryLines?: string[];
     builtins: ToolInfo[];
+    skills?: SkillInfo[];
   },
 ): string {
   const parts: string[] = [SMALL_TALK_BLOCK.trim(), COMMUNICATION_BLOCK];
@@ -194,6 +225,10 @@ export function buildSystemPrompt(
   }
   if (opts.builtins.length) parts.push(BUILTIN_BLOCK(opts.builtins));
   if (!opts.hasErxesTools && !opts.builtins.length) parts.push(NO_TOOLS_BLOCK);
+
+  // The skill index sits between the agent's capabilities and its custom
+  // instructions: it is a capability, but custom instructions may reference it.
+  if (opts.skills?.length) parts.push(SKILLS_BLOCK(opts.skills));
 
   if (agentInstructions?.trim()) {
     parts.push(`## Agent Instructions\n\n${agentInstructions.trim()}`);
