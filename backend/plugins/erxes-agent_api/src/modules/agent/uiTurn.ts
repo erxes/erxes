@@ -77,6 +77,16 @@ export class UITurnAccumulator {
   }
 
   private recordToolCall(call: IMastraToolCall): void {
+    // Dedupe by toolCallId — a repeated input chunk for the same call updates
+    // the existing entry in place (the parts entry shares its object identity)
+    // rather than appending a duplicate.
+    const existing = call.toolCallId
+      ? this.toolCalls.find((tc) => tc.toolCallId === call.toolCallId)
+      : undefined;
+    if (existing) {
+      Object.assign(existing, call);
+      return;
+    }
     this.toolCalls.push(call);
     this.parts.push({ kind: 'tool', call });
   }
@@ -86,15 +96,12 @@ export class UITurnAccumulator {
     result: unknown,
     isError: boolean,
   ): void {
-    const existing = this.toolCalls.find(
-      (tc) => tc.toolCallId === toolCallId,
-    );
-    if (existing) {
-      existing.result = result;
-      existing.isError = isError;
-    } else {
-      this.recordToolCall({ toolCallId, toolName: '', result, isError });
-    }
+    const existing = this.toolCalls.find((tc) => tc.toolCallId === toolCallId);
+    // Drop an orphan output (a protocol violation Mastra never emits): with no
+    // matching call there is no toolName/args to render or persist it against.
+    if (!existing) return;
+    existing.result = result;
+    existing.isError = isError;
   }
 
   /** Tool results gathered this turn, for the no-prose synthesis fallback. */

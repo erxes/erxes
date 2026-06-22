@@ -34,30 +34,31 @@ const isToolType = (type: string): boolean =>
   type === 'dynamic-tool' || type.startsWith('tool-');
 
 /** Narrow a UIMessage part to a normalized tool view, or null when it is not a
- *  tool part. */
+ *  tool part. The field reads are defensive (every field optional, state
+ *  defaulted) so a contract drift renders blank rather than crashing. */
 export const asToolPart = (part: MessagePart): ToolPartView | null => {
   if (!isToolType(part.type)) return null;
   const p = part as MessagePart & {
     type: string;
     toolName?: string;
     toolCallId?: string;
-    state: ToolPartState;
+    state?: ToolPartState;
     input?: unknown;
     output?: unknown;
     errorText?: string;
   };
   const toolName =
     p.type === 'dynamic-tool' ? (p.toolName ?? '') : p.type.slice('tool-'.length);
-  const isError = p.state === 'output-error';
+  const state: ToolPartState = p.state ?? 'input-available';
   return {
     toolCallId: p.toolCallId,
     toolName,
-    state: p.state,
+    state,
     input: p.input,
     output: p.output,
     errorText: p.errorText,
-    isError,
-    pending: p.state === 'input-streaming' || p.state === 'input-available',
+    isError: state === 'output-error',
+    pending: state === 'input-streaming' || state === 'input-available',
   };
 };
 

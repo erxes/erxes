@@ -12,6 +12,17 @@ import {
 
 type MessagePart = AgentUIMessage['parts'][number];
 
+// A `dynamic-tool` error part needs a string errorText, so stringify a
+// non-string persisted result rather than dropping its detail.
+const errorTextOf = (result: unknown): string => {
+  if (typeof result === 'string') return result;
+  try {
+    return JSON.stringify(result) || 'Tool failed';
+  } catch {
+    return 'Tool failed';
+  }
+};
+
 // One persisted tool call → a `dynamic-tool` UIMessage part (the erxes tools are
 // runtime-registered, so they render via the dynamic-tool variant). The part is
 // built per-state so it satisfies the discriminated union.
@@ -27,8 +38,7 @@ const toToolPart = (call: DbToolCall, fallbackId: string): MessagePart => {
       ...base,
       state: 'output-error',
       input: call.args,
-      errorText:
-        typeof call.result === 'string' ? call.result : 'Tool failed',
+      errorText: errorTextOf(call.result),
     };
   }
   if (call.result !== undefined) {
