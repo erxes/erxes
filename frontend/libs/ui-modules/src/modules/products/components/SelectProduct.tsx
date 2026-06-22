@@ -117,6 +117,7 @@ const SelectProductContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        <SelectProductMissingBadges />
         {products?.length > 0 && (
           <>
             {products.map((product) => (
@@ -260,23 +261,26 @@ const SelectProductMissingBadges = () => {
 
   return (
     <>
-      {missingIds.map((id) =>
-        mode === 'multiple' ? (
-          <Badge
-            key={id}
-            variant="warning"
-            className="font-mono"
-            title={`Unknown id: ${id}`}
-            onClose={() => removeId?.(id)}
-          >
-            <span className="max-w-24 truncate">{id}</span>
-          </Badge>
-        ) : (
-          <span key={id} className="font-mono text-xs truncate">
-            {id}
-          </span>
-        ),
-      )}
+      <div className="flex flex-wrap gap-2 p-2">
+        {missingIds.map((id) =>
+          mode === 'multiple' ? (
+            <Badge
+              key={id}
+              variant="secondary"
+              className="font-mono"
+              title={`Unknown id: ${id}`}
+              onClose={() => removeId?.(id)}
+            >
+              <span className="max-w-24 truncate">{id}</span>
+            </Badge>
+          ) : (
+            <span key={id} className="font-mono text-xs truncate">
+              {id}
+            </span>
+          ),
+        )}
+      </div>
+      <Command.Separator className="my-1" />
     </>
   );
 };
@@ -289,15 +293,12 @@ const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   }
 
   return (
-    <div className="flex flex-wrap gap-1 items-center min-w-0">
-      <ProductsInline
-        productIds={productIds}
-        products={products}
-        updateProducts={setProducts}
-        placeholder={placeholder}
-      />
-      <SelectProductMissingBadges />
-    </div>
+    <ProductsInline
+      productIds={productIds}
+      products={products}
+      updateProducts={setProducts}
+      placeholder={placeholder}
+    />
   );
 };
 

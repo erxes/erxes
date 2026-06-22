@@ -111,13 +111,11 @@ const PaymentInline = ({
   paymentIds,
   placeholder,
   updatePayments,
-  onRemoveMissing,
 }: {
   payments?: Payment[];
   paymentIds?: string[];
   placeholder?: string;
   updatePayments?: (payments: Payment[]) => void;
-  onRemoveMissing?: (id: string) => void;
 }) => {
   const { payments: fetchedPayments, loading } = usePayments({
     status: 'active',
@@ -135,18 +133,11 @@ const PaymentInline = ({
     }
   }, [paymentIds, fetchedPayments, payments, updatePayments]);
 
-  const missingIds = React.useMemo(() => {
-    if (loading || !paymentIds?.length || !fetchedPayments.length) return [];
-    return paymentIds.filter(
-      (id) => !fetchedPayments.some((p) => p._id === id),
-    );
-  }, [loading, paymentIds, fetchedPayments]);
-
   if (loading && paymentIds?.length && !payments?.length) {
     return <span className="text-sm text-muted-foreground">Loading...</span>;
   }
 
-  if (!payments?.length && missingIds.length === 0) {
+  if (!payments?.length) {
     return (
       <span className="text-sm text-muted-foreground">
         {placeholder || 'Select payment'}
@@ -156,7 +147,7 @@ const PaymentInline = ({
 
   return (
     <div className="flex flex-wrap gap-1 items-center">
-      {payments?.map((payment) => (
+      {payments.map((payment) => (
         <span
           key={payment._id}
           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent text-sm"
@@ -164,24 +155,12 @@ const PaymentInline = ({
           {payment.name}
         </span>
       ))}
-      {missingIds.map((id) => (
-        <Badge
-          key={id}
-          variant="warning"
-          className="font-mono"
-          title={`Unknown id: ${id}`}
-          onClose={onRemoveMissing ? () => onRemoveMissing(id) : undefined}
-        >
-          <span className="max-w-24 truncate">{id}</span>
-        </Badge>
-      ))}
     </div>
   );
 };
 
 const SelectPaymentValue = ({ placeholder }: { placeholder?: string }) => {
-  const { paymentIds, payments, setPayments, removeId } =
-    useSelectPaymentContext();
+  const { paymentIds, payments, setPayments } = useSelectPaymentContext();
 
   return (
     <PaymentInline
@@ -189,8 +168,42 @@ const SelectPaymentValue = ({ placeholder }: { placeholder?: string }) => {
       payments={payments}
       updatePayments={setPayments}
       placeholder={placeholder}
-      onRemoveMissing={removeId}
     />
+  );
+};
+
+const SelectPaymentMissingBadges = () => {
+  const { paymentIds, removeId } = useSelectPaymentContext();
+  const { payments: fetchedPayments, loading } = usePayments({
+    status: 'active',
+  });
+
+  const missingIds = React.useMemo(() => {
+    if (loading || !paymentIds.length || !fetchedPayments.length) return [];
+    return paymentIds.filter(
+      (id) => !fetchedPayments.some((p) => p._id === id),
+    );
+  }, [loading, paymentIds, fetchedPayments]);
+
+  if (missingIds.length === 0) return null;
+
+  return (
+    <>
+      <div className="flex flex-wrap gap-2 p-2">
+        {missingIds.map((id) => (
+          <Badge
+            key={id}
+            variant="secondary"
+            className="font-mono"
+            title={`Unknown id: ${id}`}
+            onClose={removeId ? () => removeId(id) : undefined}
+          >
+            <span className="max-w-24 truncate">{id}</span>
+          </Badge>
+        ))}
+      </div>
+      <Command.Separator className="my-1" />
+    </>
   );
 };
 
@@ -242,6 +255,7 @@ const SelectPaymentContent = () => {
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
+        <SelectPaymentMissingBadges />
         {selectedPayments.length > 0 && (
           <>
             {selectedPayments.map((payment) => (

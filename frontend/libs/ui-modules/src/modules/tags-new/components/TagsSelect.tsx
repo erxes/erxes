@@ -465,7 +465,7 @@ const TagsSelectedList = ({
         ) : (
           <Badge
             key={id}
-            variant="warning"
+            variant="secondary"
             className="font-mono"
             title={`Unknown id: ${id}`}
             onClose={() => removeId(id)}

@@ -51,7 +51,7 @@ export const BranchBadge = React.forwardRef<
         return (
           <Badge
             ref={ref}
-            variant="warning"
+            variant="secondary"
             className="font-mono"
             title={`Unknown id: ${branchId}`}
             onClose={props.onClose}

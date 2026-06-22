@@ -298,7 +298,7 @@ const SelectCategoryList = ({
           return (
             <Badge
               key={categoryId}
-              variant="warning"
+              variant="secondary"
               className="font-mono"
               title={`Unknown id: ${categoryId}`}
               onClose={() => removeId(categoryId)}

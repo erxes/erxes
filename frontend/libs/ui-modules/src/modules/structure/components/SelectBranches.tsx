@@ -84,7 +84,7 @@ export const SelectBranchesCommand = ({
 }) => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedBranches, branchIds } = useSelectBranchesContext();
+  const { branchIds } = useSelectBranchesContext();
   const [noBranchesSearchValue, setNoBranchesSearchValue] =
     useState<string>('');
 
@@ -115,7 +115,7 @@ export const SelectBranchesCommand = ({
         focusOnMount
       />
       <Command.List>
-        {selectedBranches?.length > 0 && (
+        {(branchIds?.length ?? 0) > 0 && (
           <>
             <div className="flex flex-wrap justify-start p-2 gap-2">
               <BranchesList />
@@ -246,12 +246,12 @@ export const BranchesList = ({
 };
 
 export const SelectBranchesValue = () => {
-  const { selectedBranches, mode } = useSelectBranchesContext();
+  const { branchIds, mode } = useSelectBranchesContext();
 
-  if (selectedBranches?.length > 1 && mode === 'multiple')
+  if (mode === 'multiple' && (branchIds?.length ?? 0) > 1)
     return (
       <span className="text-muted-foreground">
-        {selectedBranches.length} branches selected
+        {branchIds?.length} branches selected
       </span>
     );
 
