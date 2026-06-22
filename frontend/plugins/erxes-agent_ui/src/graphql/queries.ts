@@ -1,26 +1,68 @@
 import { gql } from '@apollo/client';
 
+export const AGENT_FIELDS = gql`
+  fragment AgentFields on MastraAgent {
+    _id
+    name
+    agentId
+    description
+    instructions
+    provider
+    model
+    toolPolicy
+    allowedTools
+    destructiveOps
+    memoryEnabled
+    maxSteps
+    temperature
+    isEnabled
+    createdAt
+    updatedAt
+  }
+`;
+
+export const WORKFLOW_FIELDS = gql`
+  fragment WorkflowFields on MastraWorkflow {
+    _id
+    name
+    description
+    definition
+    version
+    isEnabled
+    createdAt
+    updatedAt
+  }
+`;
+
+export const SCHEDULE_FIELDS = gql`
+  fragment ScheduleFields on MastraSchedule {
+    _id
+    name
+    description
+    agentId
+    cron
+    timezone
+    prompt
+    isEnabled
+    threadId
+    lastRunAt
+    lastStatus
+    lastError
+    lastReply
+    lastDurationMs
+    runCount
+    createdAt
+    updatedAt
+  }
+`;
+
 export const MASTRA_AGENTS = gql`
   query MastraAgents {
     mastraAgents {
-      _id
-      name
-      agentId
-      description
-      instructions
-      provider
-      model
-      toolPolicy
-      allowedTools
-      destructiveOps
-      memoryEnabled
-      maxSteps
-      temperature
-      isEnabled
-      createdAt
-      updatedAt
+      ...AgentFields
     }
   }
+  ${AGENT_FIELDS}
 `;
 
 export const MASTRA_AGENTS_MAIN = gql`
@@ -50,24 +92,10 @@ export const MASTRA_AGENTS_MAIN = gql`
 export const MASTRA_AGENT = gql`
   query MastraAgent($_id: String!) {
     mastraAgent(_id: $_id) {
-      _id
-      name
-      agentId
-      description
-      instructions
-      provider
-      model
-      toolPolicy
-      allowedTools
-      destructiveOps
-      memoryEnabled
-      maxSteps
-      temperature
-      isEnabled
-      createdAt
-      updatedAt
+      ...AgentFields
     }
   }
+  ${AGENT_FIELDS}
 `;
 
 export const MASTRA_AGENT_CHAT = gql`
@@ -287,80 +315,38 @@ export const MASTRA_MESSAGE_FEEDBACKS = gql`
 export const MASTRA_WORKFLOWS = gql`
   query MastraWorkflows {
     mastraWorkflows {
-      _id
-      name
-      description
-      definition
-      version
-      isEnabled
-      createdAt
-      updatedAt
+      ...WorkflowFields
     }
   }
+  ${WORKFLOW_FIELDS}
 `;
 
 export const MASTRA_WORKFLOW = gql`
   query MastraWorkflow($_id: String!) {
     mastraWorkflow(_id: $_id) {
-      _id
-      name
-      description
-      definition
-      version
-      isEnabled
+      ...WorkflowFields
       createdByUserId
-      createdAt
-      updatedAt
     }
   }
+  ${WORKFLOW_FIELDS}
 `;
 
 export const MASTRA_SCHEDULES = gql`
   query MastraSchedules {
     mastraSchedules {
-      _id
-      name
-      description
-      agentId
-      cron
-      timezone
-      prompt
-      isEnabled
-      threadId
-      lastRunAt
-      lastStatus
-      lastError
-      lastReply
-      lastDurationMs
-      runCount
-      createdAt
-      updatedAt
+      ...ScheduleFields
     }
   }
+  ${SCHEDULE_FIELDS}
 `;
 
 export const MASTRA_SCHEDULE = gql`
   query MastraSchedule($_id: String!) {
     mastraSchedule(_id: $_id) {
-      _id
-      name
-      description
-      agentId
-      cron
-      timezone
-      prompt
-      isEnabled
-      threadId
-      lastRunAt
-      lastStatus
-      lastError
-      lastReply
-      lastDurationMs
-      runCount
-      createdAt
-      updatedAt
+      ...ScheduleFields
     }
   }
+  ${SCHEDULE_FIELDS}
 `;
 
 export const MASTRA_WORKFLOW_RUNS = gql`

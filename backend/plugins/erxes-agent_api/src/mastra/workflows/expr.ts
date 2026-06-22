@@ -1,5 +1,5 @@
 import { ExpectedError } from 'erxes-api-shared/utils';
-import { RefScope, resolveValue } from './refs';
+import { RefScope, lookup } from './refs';
 
 /**
  * The restricted condition language for branch steps (docs/WORKFLOW-SPEC.md
@@ -230,13 +230,27 @@ function looseEquals(a: unknown, b: unknown): boolean {
   return a === b;
 }
 
+// Forgiving-but-explicit ordering: LLM-origin operands may be strings, so
+// coerce via Number() and treat a NaN on either side as a non-comparison
+// (false) instead of the silent always-false a bare `as number` cast yields.
+function compareNumeric(
+  a: unknown,
+  b: unknown,
+  cmp: (x: number, y: number) => boolean,
+): boolean {
+  const x = Number(a);
+  const y = Number(b);
+  if (Number.isNaN(x) || Number.isNaN(y)) return false;
+  return cmp(x, y);
+}
+
 /** Evaluates a parsed condition AST against the runtime ref scope. */
 export function evalExpr(node: ExprNode, scope: RefScope): unknown {
   switch (node.kind) {
     case 'lit':
       return node.value;
     case 'ref':
-      return resolveValue(`{{${node.path}}}`, scope);
+      return lookup(node.path, scope);
     case 'not':
       return !evalExpr(node.operand, scope);
     case 'binary': {
@@ -259,13 +273,13 @@ export function evalExpr(node: ExprNode, scope: RefScope): unknown {
         case '!=':
           return !looseEquals(leftVal, rightVal);
         case '>':
-          return (leftVal as number) > (rightVal as number);
+          return compareNumeric(leftVal, rightVal, (x, y) => x > y);
         case '<':
-          return (leftVal as number) < (rightVal as number);
+          return compareNumeric(leftVal, rightVal, (x, y) => x < y);
         case '>=':
-          return (leftVal as number) >= (rightVal as number);
+          return compareNumeric(leftVal, rightVal, (x, y) => x >= y);
         case '<=':
-          return (leftVal as number) <= (rightVal as number);
+          return compareNumeric(leftVal, rightVal, (x, y) => x <= y);
         case 'in':
           if (Array.isArray(rightVal))
             return rightVal.some((member) => looseEquals(member, leftVal));

@@ -35,7 +35,7 @@ export interface GqlFieldDef {
 // and frequently use Python-style single quotes instead of standard JSON double
 // quotes (e.g. "['id1','id2']" instead of ["id1","id2"]).  Both forms must be
 // coerced back to the real type so Zod validation never rejects valid LLM output.
-function parseJsonPreprocess(val: unknown): unknown {
+export function parseJsonPreprocess(val: unknown): unknown {
   if (typeof val !== 'string') return val;
   // 1. Standard JSON — handles properly-quoted strings and arrays.
   try {
@@ -199,6 +199,23 @@ function namedTypeOf(type: GqlTypeRef | null | undefined): {
 }
 
 /**
+ * Wrapper-aware leaf collection: the safe leaf (scalar/enum) field names of an
+ * OBJECT type, with _id floated first when present. Never injects _id on types
+ * that lack one. The shared primitive behind every response-field builder.
+ */
+function collectLeaves(
+  typeName: string,
+  objectFieldsMap: Record<string, GqlFieldDef[]>,
+): string[] {
+  const leaves = (objectFieldsMap[typeName] || [])
+    .filter((field) => LEAF_KINDS.has(namedTypeOf(field.type).kind))
+    .map((field) => field.name);
+  return leaves.includes('_id')
+    ? ['_id', ...leaves.filter((n) => n !== '_id')]
+    : leaves;
+}
+
+/**
  * A selection of safe leaf (scalar/enum) fields for an OBJECT type, always
  * including _id, capped to keep results lean.
  */
@@ -207,17 +224,9 @@ function buildSelectionForType(
   objectFieldsMap: Record<string, GqlFieldDef[]>,
   maxFields = 12,
 ): string {
-  const fields = objectFieldsMap[typeName];
-  if (!fields || !fields.length) return '_id';
-  const leaves: string[] = fields
-    .filter((field) => LEAF_KINDS.has(namedTypeOf(field.type).kind))
-    .map((field) => field.name);
+  const leaves = collectLeaves(typeName, objectFieldsMap);
   if (!leaves.length) return '_id';
-  // Keep _id first when it exists; never inject it if the type lacks one.
-  const ordered = leaves.includes('_id')
-    ? ['_id', ...leaves.filter((n) => n !== '_id')]
-    : leaves;
-  return ordered.slice(0, maxFields).join(' ');
+  return leaves.slice(0, maxFields).join(' ');
 }
 
 /**
@@ -388,14 +397,17 @@ export function describeSelectableFields(
   return { type: baseTypeName, isList: Boolean(listField), fields, nested };
 }
 
-/** Pick the response selection: curated override, requested, introspected, or stored. */
+/**
+ * The single authority on a response selection. Always returns a concrete
+ * selection string: curated override → agent-requested → schema-introspected →
+ * the wrapper-aware `_id name` fallback. buildGraphqlOperation just consumes it.
+ */
 export function chooseResponseFields(
   erxesOperation: string,
-  storedFields: string | undefined,
   returnType: GqlTypeRef | null | undefined,
   objectFieldsMap?: Record<string, GqlFieldDef[]>,
   requestedFields?: string[],
-): string | undefined {
+): string {
   if (erxesOperation === 'dealsAdd') return '_id name stageId';
   // Agent-requested fields win when at least one validates against the schema;
   // invalid names are dropped inside buildRequestedSelection, and an all-invalid
@@ -413,8 +425,13 @@ export function chooseResponseFields(
   // invalid for the type (e.g. `_id` on a *ListResponse`, or `name` on User).
   const introspected = buildIntrospectedSelection(returnType, objectFieldsMap);
   if (introspected) return introspected;
-  const stored = (storedFields || '').trim();
-  return stored || undefined;
+  // Final fallback: ListResponse/Connection wrappers expose items under `list`;
+  // plain object/array types select _id + name so records carry a human label.
+  const rootTypeName = resolveReturnTypeName(returnType);
+  return rootTypeName.endsWith('ListResponse') ||
+    rootTypeName.endsWith('Connection')
+    ? 'list { _id name } totalCount'
+    : '_id name';
 }
 
 /**
@@ -439,8 +456,8 @@ export function buildGraphqlOperation(
   operationType: 'query' | 'mutation',
   args: GqlArgDef[],
   inputArgs: Record<string, unknown>,
-  returnType?: GqlTypeRef | null,
-  responseFields?: string,
+  returnType: GqlTypeRef | null | undefined,
+  responseFields: string,
 ): { query: string; variables: Record<string, unknown> } {
   const provided = (args || []).filter(
     (argDef) => !isNoopValue(inputArgs[argDef.name]),
@@ -460,23 +477,10 @@ export function buildGraphqlOperation(
     variables[argDef.name] = inputArgs[argDef.name];
 
   // Add a selection set for object return types; skip for scalars/enums.
-  // When no explicit responseFields are configured, choose a sensible default:
-  // - ListResponse wrapper types (e.g. SalesPipelinesListResponse) expose
-  //   their items under a `list` field — select that with _id + name.
-  // - Regular object / array types: select _id + name so the LLM can
-  //   identify records by name, not just raw MongoDB IDs.
-  let defaultFields = '_id name';
-  if (!responseFields) {
-    const rootTypeName = resolveReturnTypeName(returnType);
-    if (
-      rootTypeName.endsWith('ListResponse') ||
-      rootTypeName.endsWith('Connection')
-    ) {
-      defaultFields = 'list { _id name } totalCount';
-    }
-  }
+  // responseFields is resolved upstream by chooseResponseFields (the single
+  // selection authority), so it is always a concrete selection here.
   const selection = needsSelectionSet(returnType)
-    ? ` { ${responseFields || defaultFields} }`
+    ? ` { ${responseFields} }`
     : '';
 
   const opStr = `${operation}${argList ? `(${argList})` : ''}${selection}`;

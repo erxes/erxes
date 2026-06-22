@@ -1,6 +1,9 @@
 import { IModels } from '~/connectionResolvers';
-import { getMastraMemory } from '~/mastra/memory/mastraMemory';
-import { getThreadTitle } from '@/session/nativeStore';
+import {
+  getThreadTitle,
+  getNativeMemory,
+  ensureThreadRegistered,
+} from '@/session/nativeStore';
 import {
   IMastraChatAttachment,
   IMastraMessageMeta,
@@ -123,7 +126,23 @@ export async function patchNativeTurn(params: {
   attachments?: IMastraChatAttachment[];
 }): Promise<string | null> {
   const { subdomain, binding, agentId, reply, meta, attachments } = params;
-  const memory = await getMastraMemory(subdomain);
+
+  // Stamp the erxes thread↔agent binding + tenant FIRST, and independently of
+  // the message-meta patch below. agentId backs the thread-list filter and is
+  // what makes the thread listable (listOwnedThreads → metadata.agentId);
+  // subdomain lets the learning sweep enumerate a tenant's threads. Doing it
+  // first means a failure in the (best-effort) message patch can never leave a
+  // turn that streamed fine but whose thread is invisible. ensureThreadRegistered
+  // is idempotent — it back-fills the binding when missing/stale and no-ops
+  // otherwise (and re-creates the thread if it somehow vanished).
+  await ensureThreadRegistered(
+    subdomain,
+    binding.thread,
+    binding.resource,
+    agentId,
+  );
+
+  const memory = await getNativeMemory(subdomain);
 
   // Recent messages newest-first. No vectorSearchString → recall is a plain
   // recency list (not semantic search, no embedding/LLM work), and an explicit
@@ -135,7 +154,7 @@ export async function patchNativeTurn(params: {
     perPage: 4,
     page: 0,
     orderBy: { field: 'createdAt', direction: 'DESC' },
-  } as never)) as { messages?: NativeChatMessage[] };
+  })) as { messages?: NativeChatMessage[] };
   const recent = recalled?.messages ?? [];
 
   const patches: { id: string; content: Record<string, unknown> }[] = [];
@@ -177,28 +196,7 @@ export async function patchNativeTurn(params: {
   }
 
   if (patches.length) {
-    await memory.updateMessages({ messages: patches } as never);
-  }
-
-  // Stamp the erxes thread↔agent binding + tenant. agentId backs the thread-list
-  // filter; subdomain lets the learning sweep enumerate a tenant's threads
-  // (native listThreads filters by exact resourceId or metadata, and resourceId
-  // is per-user). updateThread requires a title, so preserve the current one
-  // (native generateTitle / a later rename own it).
-  const thread = (await memory.getThreadById({
-    threadId: binding.thread,
-    resourceId: binding.resource,
-  } as never)) as { title?: string; metadata?: Record<string, unknown> } | null;
-  const tMeta = (thread?.metadata ?? {}) as {
-    agentId?: string;
-    subdomain?: string;
-  };
-  if (thread && (tMeta.agentId !== agentId || tMeta.subdomain !== subdomain)) {
-    await memory.updateThread({
-      id: binding.thread,
-      title: thread.title ?? '',
-      metadata: { ...(thread.metadata ?? {}), agentId, subdomain },
-    } as never);
+    await memory.updateMessages({ messages: patches });
   }
 
   // The native assistant message id — the client rates this (feedback resolves

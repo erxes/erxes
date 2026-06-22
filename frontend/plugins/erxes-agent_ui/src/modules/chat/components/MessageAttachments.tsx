@@ -4,7 +4,7 @@ import {
   attachmentSrc,
   formatFileSize,
   isImageAttachment,
-} from '~/modules/chat/utils';
+} from '~/modules/chat/lib/attachments';
 
 // Attachments render as their own block OUTSIDE the chat bubble — images as
 // standalone rounded cards, other files as download cards.

@@ -6,9 +6,12 @@ import {
   IconSend,
 } from '@tabler/icons-react';
 import { Button, Textarea, Tooltip } from 'erxes-ui';
-import { PendingAttachment, ReasoningEffort } from '~/modules/chat/types';
+import { ReasoningEffort } from '~/modules/chat/types';
+import { useAttachments } from '~/modules/chat/hooks/useAttachments';
 import { ComposerAttachmentChip } from '~/modules/chat/components/ComposerAttachmentChip';
 import { ReasoningEffortControl } from '~/modules/chat/components/ReasoningEffortControl';
+
+type AttachmentsBag = ReturnType<typeof useAttachments>;
 
 export const Composer = ({
   input,
@@ -16,13 +19,9 @@ export const Composer = ({
   onSend,
   onStop,
   onKeyDown,
-  onPaste,
   chatLoading,
   attachmentsEnabled,
-  pendingAtts,
-  onAddFiles,
-  onRemoveAttachment,
-  uploadsInFlight,
+  attachments,
   agentName,
   reasoningEffort,
   onReasoningEffortChange,
@@ -34,19 +33,18 @@ export const Composer = ({
   onSend: () => void;
   onStop: () => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
-  onPaste: (e: React.ClipboardEvent) => void;
   chatLoading: boolean;
   attachmentsEnabled: boolean;
-  pendingAtts: PendingAttachment[];
-  onAddFiles: (files: FileList | File[]) => void;
-  onRemoveAttachment: (id: string) => void;
-  uploadsInFlight: boolean;
+  attachments: AttachmentsBag;
   agentName: string;
   reasoningEffort?: ReasoningEffort;
   onReasoningEffortChange: (effort?: ReasoningEffort) => void;
   textareaRef: RefObject<HTMLTextAreaElement>;
   fileInputRef: RefObject<HTMLInputElement>;
-}) => (
+}) => {
+  const { pendingAtts, addFiles, removeAttachment, uploadsInFlight, onPaste } =
+    attachments;
+  return (
   <div className="p-3 pt-1 bg-background">
     <div className="max-w-3xl mx-auto w-full">
       <div
@@ -60,7 +58,7 @@ export const Composer = ({
               <ComposerAttachmentChip
                 key={att.id}
                 att={att}
-                onRemove={() => onRemoveAttachment(att.id)}
+                onRemove={() => removeAttachment(att.id)}
               />
             ))}
           </div>
@@ -74,7 +72,7 @@ export const Composer = ({
                 multiple
                 className="hidden"
                 onChange={(e) => {
-                  if (e.target.files?.length) onAddFiles(e.target.files);
+                  if (e.target.files?.length) addFiles(e.target.files);
                   e.target.value = '';
                 }}
               />
@@ -153,4 +151,5 @@ export const Composer = ({
       </p>
     </div>
   </div>
-);
+  );
+};

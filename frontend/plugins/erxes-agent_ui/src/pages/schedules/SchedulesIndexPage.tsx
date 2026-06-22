@@ -15,30 +15,27 @@ import {
 } from '@tabler/icons-react';
 import {
   Badge,
-  Breadcrumb,
   Button,
-  Combobox,
   Command,
-  Empty,
-  Popover,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Separator,
   Tooltip,
   toast,
   useConfirm,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
 import {
   MASTRA_SCHEDULE_REMOVE,
   MASTRA_SCHEDULE_RUN_NOW,
   MASTRA_SCHEDULE_SET_ENABLED,
 } from '~/graphql/mutations';
+import { toastError } from '~/lib/mutationToast';
 import {
+  RowActionsMenu,
   ToggleDeleteMenuItems,
   enabledStatusColumn,
 } from '~/components/RecordTableShared';
+import { ResourceIndexLayout } from '~/components/ResourceIndexLayout';
 import { useSchedules } from './hooks/useSchedules';
 import { ISchedule, IScheduleRunNowResponse } from './types';
 
@@ -57,14 +54,12 @@ const ScheduleMoreCell = ({
 
   const [removeSchedule] = useMutation(MASTRA_SCHEDULE_REMOVE, {
     onCompleted: () => refetch(),
-    onError: (e) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: toastError(),
   });
 
   const [setEnabled] = useMutation(MASTRA_SCHEDULE_SET_ENABLED, {
     onCompleted: () => refetch(),
-    onError: (e) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: toastError(),
   });
 
   const [runNow, { loading: running }] = useMutation<IScheduleRunNowResponse>(
@@ -83,12 +78,7 @@ const ScheduleMoreCell = ({
         }
         refetch();
       },
-      onError: (e) =>
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        }),
+      onError: toastError(),
     },
   );
 
@@ -100,82 +90,66 @@ const ScheduleMoreCell = ({
     }).then(() => removeSchedule({ variables: { _id: schedule._id } }));
 
   return (
-    // skipcq: JS-0415 — action menu scaffolding nests past the lint cap
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content
-        side="right"
-        align="start"
-        avoidCollisions={false}
-        className="w-44 min-w-0 [&>button]:cursor-pointer"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Command>
-          <Command.List>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                disabled={running}
-                onClick={() => {
-                  toast({ title: 'Running…', description: schedule.name });
-                  runNow({ variables: { _id: schedule._id } });
-                }}
-              >
-                <IconPlayerPlay className="size-4" /> Run now
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                disabled={!schedule.lastRunAt}
-                title={
-                  schedule.lastRunAt
-                    ? undefined
-                    : 'No output yet — the thread is created on the first run'
-                }
-                onClick={() =>
-                  navigate(
-                    `/erxes-agent/chat/${schedule.agentId}?thread=${schedule.threadId}`,
-                  )
-                }
-              >
-                <IconMessageCircle className="size-4" /> View output
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={() =>
-                  navigate(`/erxes-agent/schedules/edit/${schedule._id}`)
-                }
-              >
-                <IconPencil className="size-4" /> Edit
-              </Button>
-            </Command.Item>
-            <ToggleDeleteMenuItems
-              isEnabled={schedule.isEnabled}
-              onToggle={() =>
-                setEnabled({
-                  variables: {
-                    _id: schedule._id,
-                    isEnabled: !schedule.isEnabled,
-                  },
-                })
-              }
-              onDelete={handleDelete}
-            />
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+    <RowActionsMenu>
+      <Command.Item asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start w-full h-8"
+          disabled={running}
+          onClick={() => {
+            toast({ title: 'Running…', description: schedule.name });
+            runNow({ variables: { _id: schedule._id } });
+          }}
+        >
+          <IconPlayerPlay className="size-4" /> Run now
+        </Button>
+      </Command.Item>
+      <Command.Item asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start w-full h-8"
+          disabled={!schedule.lastRunAt}
+          title={
+            schedule.lastRunAt
+              ? undefined
+              : 'No output yet — the thread is created on the first run'
+          }
+          onClick={() =>
+            navigate(
+              `/erxes-agent/chat/${schedule.agentId}?thread=${schedule.threadId}`,
+            )
+          }
+        >
+          <IconMessageCircle className="size-4" /> View output
+        </Button>
+      </Command.Item>
+      <Command.Item asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start w-full h-8"
+          onClick={() =>
+            navigate(`/erxes-agent/schedules/edit/${schedule._id}`)
+          }
+        >
+          <IconPencil className="size-4" /> Edit
+        </Button>
+      </Command.Item>
+      <ToggleDeleteMenuItems
+        isEnabled={schedule.isEnabled}
+        onToggle={() =>
+          setEnabled({
+            variables: {
+              _id: schedule._id,
+              isEnabled: !schedule.isEnabled,
+            },
+          })
+        }
+        onDelete={handleDelete}
+      />
+    </RowActionsMenu>
   );
 };
 
@@ -330,87 +304,27 @@ export const SchedulesIndexPage = () => {
   const columns = useMemo(() => buildColumns(refetch), [refetch]);
 
   return (
-    // skipcq: JS-0415 — page scaffolding (header/empty state/table) nests past the cap
-    <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/erxes-agent/schedules">
-                    <IconCalendarTime />
-                    Schedules
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
-        </PageHeader.Start>
-        <PageHeader.End>
+    <ResourceIndexLayout<ISchedule>
+      icon={IconCalendarTime}
+      title="Schedules"
+      rootPath="/erxes-agent/schedules"
+      sessionKey="erxes_agent_schedules"
+      columns={columns}
+      data={schedules}
+      loading={loading}
+      newButton={{ to: '/erxes-agent/schedules/new', label: 'New Schedule' }}
+      empty={{
+        title: 'No schedules yet',
+        description:
+          'Run an agent on a recurring cron — daily reports, periodic checks, reminders.',
+        action: (
           <Button asChild>
             <Link to="/erxes-agent/schedules/new">
-              <IconPlus /> New Schedule
+              <IconPlus /> Create Schedule
             </Link>
           </Button>
-        </PageHeader.End>
-      </PageHeader>
-
-      {!loading && schedules.length === 0 ? (
-        // skipcq: JS-0415 — empty-state scaffolding nests past the lint cap
-        <div className="flex-1 flex items-center justify-center p-4">
-          <Empty className="border border-dashed max-w-sm w-full">
-            <Empty.Header>
-              <Empty.Media variant="icon">
-                <IconCalendarTime />
-              </Empty.Media>
-              <Empty.Title>No schedules yet</Empty.Title>
-              <Empty.Description>
-                Run an agent on a recurring cron — daily reports, periodic
-                checks, reminders.
-              </Empty.Description>
-            </Empty.Header>
-            <Empty.Content>
-              <Button asChild>
-                <Link to="/erxes-agent/schedules/new">
-                  <IconPlus /> Create Schedule
-                </Link>
-              </Button>
-            </Empty.Content>
-          </Empty>
-        </div>
-      ) : (
-        // skipcq: JS-0415 — record-table scaffolding nests past the lint cap
-        <div className="flex-1 min-h-0">
-          <RecordTable.Provider
-            columns={columns}
-            data={schedules}
-            className="m-3"
-            stickyColumns={['more', 'checkbox', 'name']}
-          >
-            <RecordTable.CursorProvider
-              hasPreviousPage={false}
-              hasNextPage={false}
-              loading={loading}
-              dataLength={schedules.length}
-              sessionKey="erxes_agent_schedules"
-            >
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  {loading && schedules.length === 0 ? (
-                    <RecordTable.RowSkeleton rows={10} />
-                  ) : (
-                    <RecordTable.RowList />
-                  )}
-                </RecordTable.Body>
-              </RecordTable>
-            </RecordTable.CursorProvider>
-          </RecordTable.Provider>
-        </div>
-      )}
-    </div>
+        ),
+      }}
+    />
   );
 };

@@ -10,10 +10,17 @@
 // See docs/COMPANY_KNOWLEDGE_RAG.md.
 // ---------------------------------------------------------------------------
 
-import { trimEdgeChars } from '~/mastra/text';
-
 import {
   Env,
+  val,
+  parsePositiveInt,
+  parseScore,
+  collectionName as buildCollectionName,
+  enabledBy,
+  canonicalTenant,
+  buildVectorStatus,
+} from '~/mastra/configEnv';
+import {
   resolveEmbedderConfig,
   qdrantUrl,
   qdrantApiKey,
@@ -43,18 +50,13 @@ export interface KnowledgeStatus {
 // there is no unattended sweep (Agent = Person), so freshness is usage-driven.
 const DEFAULT_REFRESH_MINUTES = 60;
 
-/** Read one env var as trimmed text (absent → empty string). */
-function val(env: Env, key: string): string {
-  return (env[key] ?? '').trim();
-}
-
 /**
  * The master switch. Company knowledge is enabled ONLY when
  * ERXES_AGENT_KNOWLEDGE is exactly "enable" (whitespace-trimmed) — same
  * unambiguous contract as ERXES_AGENT_MEMORY, but independent of it.
  */
 export function isKnowledgeEnabled(env: Env = process.env): boolean {
-  return val(env, 'ERXES_AGENT_KNOWLEDGE') === 'enable';
+  return enabledBy(env, 'ERXES_AGENT_KNOWLEDGE');
 }
 
 /**
@@ -66,21 +68,7 @@ export function knowledgeCollectionName(
   model: string,
   dimension: number,
 ): string {
-  const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-  const trimmed = trimEdgeChars(slug, '_', '_');
-  return `mastra_knowledge_${trimmed}_${dimension}`;
-}
-
-/** Parse a positive integer from env text, falling back to the default. */
-function parsePositiveInt(raw: string, def: number): number {
-  const n = parseInt(raw, 10);
-  return Number.isFinite(n) && n > 0 ? n : def;
-}
-
-/** Parse a 0..1 score from env text, falling back to the default. */
-function parseScore(raw: string, def: number): number {
-  const n = parseFloat(raw);
-  return Number.isFinite(n) && n >= 0 && n <= 1 ? n : def;
+  return buildCollectionName('mastra_knowledge', model, dimension);
 }
 
 /** Knowledge retrieval knobs (topK / minScore / overfetch) with safe defaults. */
@@ -168,8 +156,7 @@ export function knowledgeTenant(
   requestSubdomain: string | undefined,
   env: Env = process.env,
 ): string | undefined {
-  if (val(env, 'VERSION') === 'saas') return requestSubdomain || undefined;
-  return 'os';
+  return canonicalTenant(env, requestSubdomain);
 }
 
 /**
@@ -194,11 +181,8 @@ export function computeKnowledgeStatus(
 
   const emb = resolveEmbedderConfig(env);
   return {
+    ...buildVectorStatus('mastra_knowledge', emb, qdrantUrl(env)),
     enabled: true,
-    embedder: emb.kind,
-    embedderModel: emb.model,
-    qdrantUrl: qdrantUrl(env),
     qdrantReachable: health?.reachable ?? null,
-    collection: knowledgeCollectionName(emb.model, emb.dimension),
   };
 }

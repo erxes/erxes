@@ -10,9 +10,17 @@
 // ---------------------------------------------------------------------------
 
 import { createHmac } from 'crypto';
-import { trimEdgeChars } from '~/mastra/text';
 import {
   Env,
+  val,
+  parsePositiveInt,
+  parseScore,
+  collectionName as buildCollectionName,
+  enabledBy,
+  canonicalTenant,
+  buildVectorStatus,
+} from '~/mastra/configEnv';
+import {
   resolveEmbedderConfig,
   qdrantUrl,
   qdrantApiKey,
@@ -47,18 +55,13 @@ export interface LearningTuning {
   feedbackDownDelta: number;
 }
 
-/** Read one env var as trimmed text (absent → empty string). */
-function val(env: Env, key: string): string {
-  return (env[key] ?? '').trim();
-}
-
 /**
  * The master switch. Learning is enabled ONLY when ERXES_AGENT_LEARNING is
  * exactly "enable" — same unambiguous contract as ERXES_AGENT_MEMORY /
  * ERXES_AGENT_KNOWLEDGE, independent of both.
  */
 export function isLearningEnabled(env: Env = process.env): boolean {
-  return val(env, 'ERXES_AGENT_LEARNING') === 'enable';
+  return enabledBy(env, 'ERXES_AGENT_LEARNING');
 }
 
 /** Qdrant collection for distilled learnings, separate from memory/knowledge. */
@@ -66,21 +69,7 @@ export function learningCollectionName(
   model: string,
   dimension: number,
 ): string {
-  const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-  const trimmed = trimEdgeChars(slug, '_', '_');
-  return `mastra_learnings_${trimmed}_${dimension}`;
-}
-
-/** Parse a positive integer from env text, falling back to the default. */
-function parsePositiveInt(raw: string, def: number): number {
-  const n = parseInt(raw, 10);
-  return Number.isFinite(n) && n > 0 ? n : def;
-}
-
-/** Parse a 0..1 score from env text, falling back to the default. */
-function parseScore(raw: string, def: number): number {
-  const n = parseFloat(raw);
-  return Number.isFinite(n) && n >= 0 && n <= 1 ? n : def;
+  return buildCollectionName('mastra_learnings', model, dimension);
 }
 
 /** All learning knobs with safe defaults; invalid env values are ignored. */
@@ -136,8 +125,7 @@ export function learningTenant(
   requestSubdomain: string | undefined,
   env: Env = process.env,
 ): string | undefined {
-  if (val(env, 'VERSION') === 'saas') return requestSubdomain || undefined;
-  return 'os';
+  return canonicalTenant(env, requestSubdomain);
 }
 
 /**
@@ -182,11 +170,8 @@ export function computeLearningStatus(env: Env = process.env): LearningStatus {
   const emb = resolveEmbedderConfig(env);
   const tuning = resolveLearningTuning(env);
   return {
+    ...buildVectorStatus('mastra_learnings', emb, qdrantUrl(env)),
     enabled: true,
-    embedder: emb.kind,
-    embedderModel: emb.model,
-    qdrantUrl: qdrantUrl(env),
-    collection: learningCollectionName(emb.model, emb.dimension),
     autoPromoteMinSources: tuning.autoPromoteMinSources,
     autoPromoteMinConfidence: tuning.autoPromoteMinConfidence,
   };

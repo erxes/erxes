@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import { ChatVizMessage } from 'erxes-ui';
 import { CopyButton } from '~/modules/chat/components/CopyButton';
-import { splitStreamingMarkdown } from '~/modules/chat/utils';
+import { splitStreamingMarkdown } from '~/modules/chat/lib/markdown';
 
 // Extract the raw text out of a code node's children (string or nested nodes).
 const codeText = (children: ReactNode): string => {

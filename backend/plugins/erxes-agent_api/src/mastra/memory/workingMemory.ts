@@ -15,6 +15,7 @@
 // Type-only imports are erased at runtime, so they keep that contract.
 import type { IModels } from '~/connectionResolvers';
 import type { ProviderDocLike } from '~/mastra/providers';
+import { getStatelessAgent, runStateless } from '~/mastra/statelessAgent';
 import type { MemoryContext } from './semanticRecall';
 import type { ConvoMessage } from './convo';
 
@@ -103,38 +104,6 @@ export async function readWorkingMemory(
   }
 }
 
-// The minimal surface used from a Mastra Agent — typed locally so the lazy
-// import keeps this module free of a static @mastra/core type dependency.
-interface ExtractorAgent {
-  generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
-}
-
-// Tool-less extractor agents, cached per provider+model. Built lazily so the
-// Mastra Agent / provider deps are only loaded when a refresh actually runs.
-const _extractors = new Map<string, ExtractorAgent>();
-
-/** Lazily build (and cache per provider+model) the profile extractor agent. */
-async function extractorFor(
-  provider: string,
-  model: string,
-  providers: ProviderDocLike[],
-): Promise<ExtractorAgent> {
-  const key = `${provider}:${model}`;
-  let cached = _extractors.get(key);
-  if (!cached) {
-    const { Agent } = await import('@mastra/core/agent');
-    const { buildModel } = await import('~/mastra/providers');
-    cached = new Agent({
-      id: 'mastra-wm-extractor',
-      name: 'Working Memory Extractor',
-      instructions: WM_EXTRACTOR_INSTRUCTIONS,
-      model: buildModel(provider, model, providers),
-    }) as unknown as ExtractorAgent;
-    _extractors.set(key, cached);
-  }
-  return cached;
-}
-
 /**
  * Update the profile from the latest exchange. Best-effort and intended to run
  * fire-and-forget after the reply is returned, so it never adds chat latency.
@@ -155,15 +124,20 @@ export async function refreshWorkingMemory(params: {
       ctx.resourceId,
       ctx.agentId,
     );
-    const { runWithAuth } = await import('~/mastra/requestContext');
-    const extractor = await extractorFor(provider, model, providers);
-    const msgs = [
-      { role: 'user', content: buildRefreshUserContent(existing, exchange) },
-    ];
-    const result = await runWithAuth(authCtx, () =>
-      extractor.generate(msgs, { maxSteps: 1 }),
+    const extractor = await getStatelessAgent({
+      id: 'mastra-wm-extractor',
+      name: 'Working Memory Extractor',
+      instructions: WM_EXTRACTOR_INSTRUCTIONS,
+      provider,
+      model,
+      providers,
+    });
+    const text = await runStateless(
+      extractor,
+      buildRefreshUserContent(existing, exchange),
+      authCtx,
     );
-    const updated = mergeWorkingMemory(existing, result?.text);
+    const updated = mergeWorkingMemory(existing, text);
     if (updated.trim() && updated !== existing) {
       await models.MastraWorkingMemory.saveMemory(
         ctx.resourceId,

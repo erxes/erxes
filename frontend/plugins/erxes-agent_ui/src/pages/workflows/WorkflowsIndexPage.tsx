@@ -15,24 +15,20 @@ import {
 } from '@tabler/icons-react';
 import {
   Badge,
-  Breadcrumb,
   Button,
-  Combobox,
   Command,
-  Empty,
-  Popover,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Separator,
   toast,
   useConfirm,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
 import {
+  RowActionsMenu,
   ToggleDeleteMenuItems,
   enabledStatusColumn,
 } from '~/components/RecordTableShared';
+import { ResourceIndexLayout } from '~/components/ResourceIndexLayout';
 import { stepCount, triggerLabel } from './shared';
 import { useWorkflows } from './hooks/useWorkflows';
 import { useWorkflowActions } from './hooks/useWorkflowMutations';
@@ -67,69 +63,52 @@ const WorkflowMoreCell = ({
     }).then(() => removeWorkflow({ variables: { _id: workflow._id } }));
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content
-        side="right"
-        align="start"
-        avoidCollisions={false}
-        className="w-44 min-w-0 [&>button]:cursor-pointer"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Command>
-          <Command.List>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={() =>
-                  navigate(`/erxes-agent/workflows/${workflow._id}`)
-                }
-              >
-                <IconEye className="size-4" /> View runs
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={handleRun}
-              >
-                <IconPlayerPlay className="size-4" /> Run now
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={() =>
-                  navigate(`/erxes-agent/workflows/edit/${workflow._id}`)
-                }
-              >
-                <IconPencil className="size-4" /> Edit
-              </Button>
-            </Command.Item>
-            <ToggleDeleteMenuItems
-              isEnabled={workflow.isEnabled}
-              onToggle={() =>
-                setEnabled({
-                  variables: {
-                    _id: workflow._id,
-                    isEnabled: !workflow.isEnabled,
-                  },
-                })
-              }
-              onDelete={handleDelete}
-            />
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+    <RowActionsMenu>
+      <Command.Item asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start w-full h-8"
+          onClick={() => navigate(`/erxes-agent/workflows/${workflow._id}`)}
+        >
+          <IconEye className="size-4" /> View runs
+        </Button>
+      </Command.Item>
+      <Command.Item asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start w-full h-8"
+          onClick={handleRun}
+        >
+          <IconPlayerPlay className="size-4" /> Run now
+        </Button>
+      </Command.Item>
+      <Command.Item asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start w-full h-8"
+          onClick={() =>
+            navigate(`/erxes-agent/workflows/edit/${workflow._id}`)
+          }
+        >
+          <IconPencil className="size-4" /> Edit
+        </Button>
+      </Command.Item>
+      <ToggleDeleteMenuItems
+        isEnabled={workflow.isEnabled}
+        onToggle={() =>
+          setEnabled({
+            variables: {
+              _id: workflow._id,
+              isEnabled: !workflow.isEnabled,
+            },
+          })
+        }
+        onDelete={handleDelete}
+      />
+    </RowActionsMenu>
   );
 };
 
@@ -238,83 +217,26 @@ export const WorkflowsIndexPage = () => {
   );
 
   return (
-    <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/erxes-agent/workflows">
-                    <IconSitemap />
-                    Workflows
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
-        </PageHeader.Start>
-        <PageHeader.End>
+    <ResourceIndexLayout<IWorkflow>
+      icon={IconSitemap}
+      title="Workflows"
+      rootPath="/erxes-agent/workflows"
+      sessionKey="erxes_agent_workflows"
+      columns={columns}
+      data={workflows}
+      loading={loading}
+      newButton={{ to: '/erxes-agent/workflows/new', label: 'New Workflow' }}
+      empty={{
+        title: 'No workflows yet',
+        description: 'Ask an agent to build one in Chat, or create one by hand.',
+        action: (
           <Button asChild>
             <Link to="/erxes-agent/workflows/new">
-              <IconPlus /> New Workflow
+              <IconPlus /> Create Workflow
             </Link>
           </Button>
-        </PageHeader.End>
-      </PageHeader>
-
-      {!loading && workflows.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <Empty className="border border-dashed max-w-sm w-full">
-            <Empty.Header>
-              <Empty.Media variant="icon">
-                <IconSitemap />
-              </Empty.Media>
-              <Empty.Title>No workflows yet</Empty.Title>
-              <Empty.Description>
-                Ask an agent to build one in Chat, or create one by hand.
-              </Empty.Description>
-            </Empty.Header>
-            <Empty.Content>
-              <Button asChild>
-                <Link to="/erxes-agent/workflows/new">
-                  <IconPlus /> Create Workflow
-                </Link>
-              </Button>
-            </Empty.Content>
-          </Empty>
-        </div>
-      ) : (
-        <div className="flex-1 min-h-0">
-          <RecordTable.Provider
-            columns={columns}
-            data={workflows}
-            className="m-3"
-            stickyColumns={['more', 'checkbox', 'name']}
-          >
-            <RecordTable.CursorProvider
-              hasPreviousPage={false}
-              hasNextPage={false}
-              loading={loading}
-              dataLength={workflows.length}
-              sessionKey="erxes_agent_workflows"
-            >
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  {loading && workflows.length === 0 ? (
-                    <RecordTable.RowSkeleton rows={10} />
-                  ) : (
-                    <RecordTable.RowList />
-                  )}
-                </RecordTable.Body>
-              </RecordTable>
-            </RecordTable.CursorProvider>
-          </RecordTable.Provider>
-        </div>
-      )}
-    </div>
+        ),
+      }}
+    />
   );
 };

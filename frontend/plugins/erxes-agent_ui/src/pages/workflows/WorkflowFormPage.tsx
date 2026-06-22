@@ -1,31 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  IconArrowLeft,
-  IconCircleCheck,
-  IconInfoCircle,
-  IconSitemap,
-} from '@tabler/icons-react';
+import { useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { IconCircleCheck, IconInfoCircle, IconSitemap } from '@tabler/icons-react';
 import {
   Alert,
-  Breadcrumb,
   Button,
   Form,
   Input,
   Label,
-  Separator,
   Switch,
   Textarea,
   toast,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
 import { FormSection } from '~/components/FormLayout';
+import { ResourceFormLayout } from '~/components/ResourceFormLayout';
+import { useResourceForm } from '~/components/useResourceForm';
 import { WorkflowGraph } from './graph/WorkflowGraph';
 import { useWorkflow } from './hooks/useWorkflow';
 import { useWorkflowFormMutations } from './hooks/useWorkflowMutations';
-import { IWorkflowDefinition, IWorkflowValidation } from './types';
+import { IWorkflow, IWorkflowDefinition, IWorkflowValidation } from './types';
 import { workflowFormSchema, WorkflowFormValues } from './validations';
 
 // Minimal valid starter so a hand-authored workflow begins from a runnable shape.
@@ -64,23 +56,20 @@ export const WorkflowFormPage = () => {
     null,
   );
 
-  const form = useForm<WorkflowFormValues>({
-    resolver: zodResolver(workflowFormSchema),
-    defaultValues: DEFAULT_VALUES,
-  });
-
   const { workflow } = useWorkflow(id, !isEdit);
 
-  useEffect(() => {
-    if (isEdit && workflow) {
-      form.reset({
-        name: workflow.name || '',
-        description: workflow.description || '',
-        isEnabled: workflow.isEnabled ?? false,
-        definitionText: JSON.stringify(workflow.definition ?? {}, null, 2),
-      });
-    }
-  }, [workflow, isEdit, form]);
+  const form = useResourceForm<WorkflowFormValues, IWorkflow>({
+    schema: workflowFormSchema,
+    defaults: DEFAULT_VALUES,
+    isEdit,
+    record: workflow,
+    load: (workflow) => ({
+      name: workflow.name || '',
+      description: workflow.description || '',
+      isEnabled: workflow.isEnabled ?? false,
+      definitionText: JSON.stringify(workflow.definition ?? {}, null, 2),
+    }),
+  });
 
   const {
     validate,

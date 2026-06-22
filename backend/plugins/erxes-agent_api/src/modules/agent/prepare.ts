@@ -10,31 +10,81 @@ import { ApprovedOp } from '~/mastra/requestContext';
 import { buildChatUserContent } from '~/mastra/files/chatContent';
 import { IMastraChatAttachment } from '@/session/@types/session';
 import { ensureThreadRegistered } from '@/session/nativeStore';
-import { PreparedTurn, TurnAgent, TurnMessage } from '@/agent/types';
+import {
+  PreparedTurn,
+  TurnAgent,
+  TurnIdentity,
+  TurnMessage,
+} from '@/agent/types';
 
 // Turn setup: everything a chat turn needs before the model runs — agent +
 // tools, thread ownership check, replayed history, advanced-memory blocks, and
-// the auth context tools execute under. Throws user-facing errors on bad
-// agent/thread.
-export async function prepareChatTurn(params: {
+// the auth context tools execute under. One spine shared by all four callers
+// (in-app chat, the GraphQL resolver, the frontline bot webhook, scheduled
+// runs); `identity` (see TurnIdentity) is the single knob that varies — it
+// decides resource scoping, auth, ownership gating, and the memory toggle.
+// Throws user-facing errors on bad agent/thread.
+
+// Per-identity resource id, the memory toggle, and the auth context. Pure
+// (no I/O) so the spine reads as straight-line logic.
+function resolveIdentity(
+  identity: TurnIdentity,
+  agentId: string,
+  advanced: boolean,
+  message: string,
+): { resourceId: string; useMemory: boolean; userHeader?: string } {
+  switch (identity.kind) {
+    case 'user':
+      return {
+        resourceId: deriveResourceId({ user: identity.user, agentId }),
+        // Advanced memory rides on the agent's own history toggle.
+        useMemory: advanced,
+        userHeader: identity.user
+          ? Buffer.from(JSON.stringify(identity.user)).toString('base64')
+          : undefined,
+      };
+    case 'bot':
+      return {
+        resourceId: identity.resourceKey,
+        // The bot only persists/recalls when there is a real user message.
+        useMemory: advanced && Boolean(message.trim()),
+      };
+    case 'schedule':
+      return {
+        resourceId: identity.resourceKey,
+        useMemory: advanced,
+      };
+  }
+}
+
+export interface PrepareTurnParams {
   models: IModels;
   subdomain: string;
-  user: IUserDocument;
+  identity: TurnIdentity;
   agentId: string;
   message: string;
   threadId?: string;
   attachments?: IMastraChatAttachment[];
   approvedOperations?: ApprovedOp[];
-}): Promise<PreparedTurn> {
+  // Weave the tenant's learned digest into the convo (and stamp its ids onto
+  // the turn). On for chat/bot; off for scheduled runs (whose prompt is run
+  // verbatim, the pre-generalization behaviour).
+  weaveDigest?: boolean;
+}
+
+export async function prepareTurn(
+  params: PrepareTurnParams,
+): Promise<PreparedTurn> {
   const {
     models,
     subdomain,
-    user,
+    identity,
     agentId,
     message,
     threadId,
     attachments,
     approvedOperations,
+    weaveDigest = true,
   } = params;
 
   // Same NoSQL-injection guard as sessionId below: agentId arrives from the
@@ -68,33 +118,40 @@ export async function prepareChatTurn(params: {
   // Advanced memory rides on the agent's own memory toggle.
   const advanced = isAdvancedMemoryEnabled() && useHistory;
 
+  const { resourceId, useMemory, userHeader } = resolveIdentity(
+    identity,
+    agentId,
+    advanced,
+    message,
+  );
+
   const memCtx: MemoryContext = {
     subdomain,
-    resourceId: deriveResourceId({ user, agentId }),
+    resourceId,
     threadId: sessionId,
     agentId,
   };
 
   // Mastra Memory (attached to the agent in getOrCreateAgent) is the ONLY chat
   // store: it persists the turn, replays recent history, and runs semantic
-  // recall + working memory via the per-turn binding below. Active whenever
-  // advanced memory is on. An unknown tenant does NOT skip persistence — it
-  // would silently drop the turn and lose the session; scopedResource defaults
-  // an empty subdomain to the "os" scope so the thread is still persisted and
-  // listable.
-  const useMemory = advanced;
+  // recall + working memory via the per-turn binding below. An unknown tenant
+  // does NOT skip persistence — scopedResource defaults an empty subdomain to
+  // the "os" scope so the thread is still persisted and listable.
   const memoryBinding = useMemory
-    ? {
-        thread: sessionId,
-        resource: scopedResource(subdomain, memCtx.resourceId),
-      }
+    ? { thread: sessionId, resource: scopedResource(subdomain, resourceId) }
     : undefined;
 
-  // Ownership gate: a CONTINUED thread must belong to this user. getThreadById
+  // Ownership gate: a CONTINUED thread must belong to this caller. getThreadById
   // without a resource returns the thread whatever its owner; if it exists under
   // a different resource it is someone else's session — reported as "not found"
-  // (no existence leak). A fresh sessionId simply doesn't exist yet.
-  if (memoryBinding && typeof threadId === 'string' && threadId) {
+  // (no existence leak). Only in-app users own threads; bot/schedule resources
+  // are synthetic and self-scoped, so the gate is a no-op for them.
+  if (
+    identity.kind === 'user' &&
+    memoryBinding &&
+    typeof threadId === 'string' &&
+    threadId
+  ) {
     const memory = await getMastraMemory(subdomain);
     const existing = (await memory.getThreadById({
       threadId: sessionId,
@@ -109,9 +166,11 @@ export async function prepareChatTurn(params: {
   // finishes. This is what lets a refresh WHILE the agent is still running keep
   // the session: the sidebar query (listOwnedThreads → metadata.agentId) finds
   // it, and reopening it hydrates the persisted turn. patchNativeTurn re-stamps
-  // the same binding at turn-end. Best-effort: never block the turn on a store
-  // hiccup (the end-of-turn stamp is the backstop).
-  if (memoryBinding) {
+  // the same binding at turn-end. In-app chat only (bot/schedule threads are not
+  // user-listable, and their binding stamp at turn-end suffices). Best-effort:
+  // never block the turn on a store hiccup (the end-of-turn stamp is the
+  // backstop).
+  if (identity.kind === 'user' && memoryBinding) {
     await ensureThreadRegistered(
       subdomain,
       sessionId,
@@ -127,8 +186,11 @@ export async function prepareChatTurn(params: {
   }
 
   // The tenant's learned digest (shared "Agent knowledge") is woven into the
-  // turn — separate from Mastra Memory. Best-effort: null on error.
-  const digest = await readLearnedDigest(models, agentId);
+  // turn — separate from Mastra Memory. Best-effort: null on error. Skipped for
+  // scheduled runs (weaveDigest=false), whose prompt is run verbatim.
+  const digest = weaveDigest
+    ? await readLearnedDigest(models, agentId)
+    : null;
 
   // Mastra Memory replays recent history + recall itself, so generate() gets
   // ONLY the new user message (+ the learned digest). Passing replayed history
@@ -153,9 +215,6 @@ export async function prepareChatTurn(params: {
     convo[convo.length - 1] = { role: 'user', content };
   }
 
-  const userHeader = user
-    ? Buffer.from(JSON.stringify(user)).toString('base64')
-    : undefined;
   const authCtx = {
     userHeader,
     token: settings?.erxesApiToken,
@@ -182,4 +241,20 @@ export async function prepareChatTurn(params: {
     attachments,
     learningIds: digest?.ids ?? [],
   };
+}
+
+// Thin wrapper for the in-app chat path (SSE route + mastraAgentChat resolver),
+// kept so those callers stay stable. Delegates to the generalized prepareTurn.
+export async function prepareChatTurn(params: {
+  models: IModels;
+  subdomain: string;
+  user: IUserDocument;
+  agentId: string;
+  message: string;
+  threadId?: string;
+  attachments?: IMastraChatAttachment[];
+  approvedOperations?: ApprovedOp[];
+}): Promise<PreparedTurn> {
+  const { user, ...rest } = params;
+  return prepareTurn({ ...rest, identity: { kind: 'user', user } });
 }

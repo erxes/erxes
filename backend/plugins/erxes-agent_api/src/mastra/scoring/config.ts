@@ -13,17 +13,14 @@
 // "same host" default. Everything is OFF until the switch is `enable`.
 // ---------------------------------------------------------------------------
 
-export type Env = Record<string, string | undefined>;
+import { Env, val, enabledBy } from '~/mastra/configEnv';
+
+export type { Env };
 
 export interface LangfuseConfig {
   baseUrl: string;
   publicKey: string;
   secretKey: string;
-}
-
-/** Read one env var as trimmed text (absent → empty string). */
-function val(env: Env, key: string): string {
-  return (env[key] ?? '').trim();
 }
 
 /**
@@ -32,7 +29,7 @@ function val(env: Env, key: string): string {
  * isAdvancedMemoryEnabled so the flag is unambiguous.
  */
 export function isEvaluationEnabled(env: Env = process.env): boolean {
-  return val(env, 'ERXES_AGENT_EVALUATION') === 'enable';
+  return enabledBy(env, 'ERXES_AGENT_EVALUATION');
 }
 
 /**
