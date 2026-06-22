@@ -116,20 +116,22 @@ export const SelectCustomersProvider = ({
 const SelectCustomersValue = ({
   placeholder,
   className,
+  fallbackLabel,
 }: {
   placeholder?: string;
   className?: string;
+  fallbackLabel?: string;
 }) => {
   const { t } = useTranslation('sales');
   const { value, customers } = useSelectCustomersContext();
   const selectedCustomer = customers?.find(
-    (customer) => customer._id === value,
+    (customer: ICustomer) => customer._id === value,
   );
 
   if (!selectedCustomer) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-customer')}
+        {fallbackLabel || placeholder || t('select-customer')}
       </span>
     );
   }

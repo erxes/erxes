@@ -138,7 +138,7 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
     query.paidDate = { $exists: true };
   }
 
-  if (paidDate === 'today' || !Object.keys(query).length) {
+  if (paidDate === 'today') {
     const now = new Date();
 
     const startDate = getToday(now);

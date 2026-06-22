@@ -4,6 +4,7 @@ import {
   IconClock,
   IconUser,
   IconTag,
+  IconFileText,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import { useTranslation } from 'react-i18next';
@@ -213,6 +214,21 @@ export const secondOrderColumns: ColumnDef<IOrder>[] = [
       );
     },
     size: 150,
+  },
+  {
+    id: 'description',
+    accessorKey: 'description',
+    header: () => (
+      <RecordTable.InlineHead icon={IconFileText} label="Description" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 200,
   },
 ];
 

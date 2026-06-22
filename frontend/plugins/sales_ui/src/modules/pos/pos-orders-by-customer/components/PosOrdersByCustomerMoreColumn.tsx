@@ -13,11 +13,22 @@ export const PosOrdersByCustomerMoreColumnCell = ({
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const { posId } = useParams();
-  const { _id } = cell.row.original;
+  const { _id, customerDetail } = cell.row.original;
 
   const handleSeeOrders = (customerId: string) => {
     const newSearchParams = new URLSearchParams();
     newSearchParams.set('customer', customerId);
+
+    const detail = customerDetail || ({} as any);
+    const displayName =
+      detail.primaryName ||
+      `${detail.firstName || ''} ${detail.lastName || ''}`.trim() ||
+      detail.primaryEmail ||
+      detail.primaryPhone ||
+      '';
+    if (displayName) {
+      newSearchParams.set('customerName', displayName);
+    }
 
     if (!posId) {
       navigate(`../orders?${newSearchParams.toString()}`);
