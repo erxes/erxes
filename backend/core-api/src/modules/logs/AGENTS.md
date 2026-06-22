@@ -190,13 +190,23 @@ is still honored when present.
 
 ---
 
+## Verification
+
+Outcome-based Jest specs (real MongoDB via mongodb-memory-server) cover the capture
+spine in `backend/erxes-api-shared/src/utils/mongo/__tests__/` — run with
+`pnpm nx test erxes-api-shared` (also in CI: `.github/workflows/ci-test-revert.yml`).
+They assert the in-memory after-image equals what Mongo actually stored, the hooks
+journal the real change, selectivity, and the bulk-overflow marker.
+
 ## Known gaps (NOT production-done)
 
 - Cascade completeness untested (delete may restore the parent but not related
   docs unless they pass through hooked ops).
 - Standalone Mongo = no transactions → multi-doc revert can partially apply
   (result reports `reverted` vs `conflicts`).
-- Bulk capture >`REVERT_AUTO_JOURNAL_MAX` truncates with no marker yet.
+- Bulk capture >`REVERT_AUTO_JOURNAL_MAX` truncates the snapshot, but now STAMPS
+  the journal entry with `revertOverflow:true`; the consumer persists it on each
+  Log row's payload and the Undo panel warns the change is only partially undoable.
 - The in-memory after-image removes the post re-read only for the SIMPLE update
   path ($set/$unset/shorthand); COMPLEX operators (see list above) still do the
   full post re-read. Replacement (`replaceOne`/`findOneAndReplace`) is NOT hooked.
