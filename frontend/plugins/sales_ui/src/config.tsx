@@ -1,6 +1,5 @@
 import { IconBriefcase, IconSandbox } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
-
 import { IUIConfig } from 'erxes-ui';
 
 const MainNavigation = lazy(() =>
@@ -26,10 +25,16 @@ const SalesSettingsNavigation = lazy(() =>
     default: module.SalesSettingsNavigation,
   })),
 );
+const ReportsPage = lazy(() =>
+  import('./pages/ReportsPage').then((module) => ({
+    default: module.ReportsPage,
+  })),
+);
 
 export const CONFIG: IUIConfig = {
   name: 'sales',
   path: 'sales',
+
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
       <SalesSettingsNavigation />
@@ -50,6 +55,7 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
+
   modules: [
     {
       name: 'sales',
@@ -66,7 +72,12 @@ export const CONFIG: IUIConfig = {
       icon: IconBriefcase,
       path: 'sales/pos',
     },
+    {
+      name: 'reports',
+      path: 'sales/reports',
+    },
   ],
+
   widgets: {
     relationWidgets: [
       {

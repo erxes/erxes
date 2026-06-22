@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router';
 import { Suspense, lazy } from 'react';
-
 import { Spinner } from 'erxes-ui';
 
 const DealsMain = lazy(() =>
@@ -15,12 +14,19 @@ const PosMain = lazy(() =>
   })),
 );
 
+const ReportsMain = lazy(() =>
+  import('~/pages/ReportsPage').then((module) => ({
+    default: module.ReportsPage,
+  })),
+);
+
 const SalesMain = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
         <Route path="/deals" element={<DealsMain />} />
         <Route path="/pos/*" element={<PosMain />} />
+        <Route path="/reports" element={<ReportsMain />} />
       </Routes>
     </Suspense>
   );

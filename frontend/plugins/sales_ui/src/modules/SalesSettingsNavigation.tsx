@@ -11,7 +11,6 @@ export const SalesSettingsNavigation = () => {
             path="/deals"
             name="Deals"
           />
-
           <SettingsNavigationMenuLinkItem
             pathPrefix="sales"
             path="/pos"
