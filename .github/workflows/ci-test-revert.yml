@@ -1,0 +1,47 @@
+name: CI test--revert capture
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/erxes-api-shared/**'
+      - '.github/workflows/ci-test-revert.yml'
+  pull_request:
+    paths:
+      - 'backend/erxes-api-shared/**'
+      - '.github/workflows/ci-test-revert.yml'
+
+env:
+  NX_DAEMON: false
+
+jobs:
+  revert-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The integration specs boot a real mongod via mongodb-memory-server; cache
+      # the downloaded binary so reruns don't re-fetch it.
+      - name: Cache mongodb-memory-server binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run revert-capture tests (jest + real MongoDB oracle)
+        run: pnpm nx test erxes-api-shared

@@ -58,6 +58,8 @@ type DeleteManyEventPayload = {
   contentType?: string;
   mongooseName?: string;
   dbName?: string;
+  // Set when the bulk match exceeded the capture cap → only partially revertable.
+  revertOverflow?: boolean;
 };
 
 type UpdateBatchEntry = {
@@ -74,6 +76,8 @@ type UpdateBatchEventPayload = {
   contentType?: string;
   mongooseName?: string;
   dbName?: string;
+  // Set when the bulk match exceeded the capture cap → only partially revertable.
+  revertOverflow?: boolean;
 };
 
 const getCollectionType = (contentType?: string, collectionName?: string) => {
@@ -248,6 +252,7 @@ const handleDeleteMany = async (
         prevDocument: snapshotById.get(String(docId)),
         mongooseName: payload.mongooseName,
         dbName: payload.dbName,
+        ...(payload.revertOverflow ? { revertOverflow: true } : {}),
       },
       payload.contentType,
       collectionName,
@@ -294,6 +299,7 @@ const handleUpdateBatch = async (
         updateDescription: entry.updateDescription || {},
         mongooseName: payload.mongooseName,
         dbName: payload.dbName,
+        ...(payload.revertOverflow ? { revertOverflow: true } : {}),
       },
       payload.contentType,
       collectionName,
@@ -422,8 +428,15 @@ const actionMap: Record<string, Function> = {
 
 export const handleMongoChangeEvent = async (
   Logs: Model<ILogDocument>,
-  { action, payload, docIds, docId, processId, contentType, userId }: IJobData,
+  jobData: IJobData,
 ) => {
+  const { action, payload, docIds, processId, contentType, userId } = jobData;
+  let { docId } = jobData;
+  // Optional marker the auto-capture stamps when a bulk op exceeded the snapshot
+  // cap; persisted per row so the revert UI can warn it is only partial.
+  const revertOverflow = Boolean(
+    (jobData as { revertOverflow?: boolean }).revertOverflow,
+  );
   if (!action) {
     throw new Error('Action is required');
   }
@@ -446,6 +459,7 @@ export const handleMongoChangeEvent = async (
       contentType,
       mongooseName: payload?.mongooseName,
       dbName: payload?.dbName,
+      revertOverflow,
     });
   }
 
@@ -461,6 +475,7 @@ export const handleMongoChangeEvent = async (
       contentType,
       mongooseName: payload?.mongooseName,
       dbName: payload?.dbName,
+      revertOverflow,
     });
   }
 
