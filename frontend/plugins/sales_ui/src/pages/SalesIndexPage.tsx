@@ -50,7 +50,7 @@ export const SalesIndexPage = () => {
             <Button variant="ghost" asChild>
               <Link to={`/settings/sales/deals?activeBoardId=${boardId}`}>
                 <IconSettings />
-                Go To Settings
+                {t('go-to-settings')}
               </Link>
             </Button>
           </PageHeader.End>
