@@ -22,7 +22,6 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Separator,
   useConfirm,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
@@ -270,8 +269,6 @@ export const AgentsIndexPage = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
         <PageHeader.End>
           <CreateAgentButton>
