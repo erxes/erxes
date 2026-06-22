@@ -42,6 +42,52 @@ export class BaseQueryBuilder {
   }
 
   /**
+   * Translation-aware search. The base document only holds the default
+   * language, so a regex over base fields misses content authored in any other
+   * language (e.g. Mongolian Cyrillic stored in the `Translations` collection).
+   * This matches the base fields AND any document whose translation for the
+   * active language matches, unioned by `_id`.
+   */
+  protected async addTranslatableSearchQuery(
+    query: any,
+    searchValue: string,
+    options: {
+      baseFields: string[];
+      language?: string;
+      translationType: string;
+      translationFields: string[];
+    },
+  ): Promise<void> {
+    if (!searchValue?.trim()) return;
+
+    const pattern = escapeRegExp(searchValue.trim());
+    const regex = new RegExp(pattern, 'i');
+
+    const orConditions: any[] = options.baseFields.map((field) => ({
+      [field]: regex,
+    }));
+
+    if (options.language) {
+      const matches = await this.models.Translations.find({
+        type: options.translationType,
+        language: options.language,
+        $or: options.translationFields.map((field) => ({ [field]: regex })),
+      })
+        .select('objectId')
+        .lean();
+
+      if (matches.length) {
+        const ids = Array.from(
+          new Set(matches.map((match: any) => String(match.objectId))),
+        );
+        orConditions.push({ _id: { $in: ids } });
+      }
+    }
+
+    query.$or = orConditions;
+  }
+
+  /**
    * Add array field filter to query
    */
   protected addArrayFilter(query: any, field: string, values: string[]): void {
@@ -66,14 +112,15 @@ export class PostQueryBuilder extends BaseQueryBuilder {
       clientPortalId: args.clientPortalId,
     };
 
-    // Add search functionality
+    // Add search functionality (also matches non-default-language content
+    // stored in the Translations collection).
     if (args.searchValue) {
-      this.addSearchQuery(query, args.searchValue, [
-        'title',
-        'slug',
-        'content',
-        'excerpt',
-      ]);
+      await this.addTranslatableSearchQuery(query, args.searchValue, {
+        baseFields: ['title', 'slug', 'content', 'excerpt'],
+        language: args.language,
+        translationType: 'post',
+        translationFields: ['title', 'content', 'excerpt'],
+      });
     }
 
     // Add filters
