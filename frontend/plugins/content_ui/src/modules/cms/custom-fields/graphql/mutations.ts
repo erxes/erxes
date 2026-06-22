@@ -6,6 +6,7 @@ export const CMS_CUSTOM_FIELD_GROUP_ADD = gql`
       _id
       label
       code
+      order
       clientPortalId
       customPostTypeIds
       customPostTypes {
@@ -31,6 +32,7 @@ export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql`
       _id
       label
       code
+      order
       clientPortalId
       customPostTypeIds
       customPostTypes {

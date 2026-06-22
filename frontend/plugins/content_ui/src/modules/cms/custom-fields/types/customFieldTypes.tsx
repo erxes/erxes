@@ -36,6 +36,7 @@ export interface ICustomFieldGroup {
   _id: string;
   label: string;
   code: string;
+  order?: number;
   clientPortalId: string;
   customPostTypeIds: string[];
   customPostTypes?: Array<{

@@ -133,7 +133,7 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
 
     public static getCustomFieldGroups = async (query: any) => {
       return await models.CustomFieldGroups.find(query)
-        .sort({ name: 1 })
+        .sort({ order: 1, name: 1 })
         .lean();
     };
   }
