@@ -3,22 +3,56 @@ import { IconPlus } from '@tabler/icons-react';
 
 import {
   Button,
+  FocusSheet,
   Kbd,
   Sheet,
+  Sidebar,
+  Spinner,
   usePreviousHotkeyScope,
+  useQueryState,
   useScopedHotkeys,
   useSetHotkeyScope,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { AddCustomerForm } from './AddCustomerForm';
 import { useTranslation } from 'react-i18next';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
+
+const TABS = ['overview', 'properties'];
+
+const CustomerCreateSidebar = () => {
+  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  return (
+    <Sidebar.Content>
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
+        <Sidebar.GroupContent className="mt-2">
+          <Sidebar.Menu>
+            {TABS.map((tab) => (
+              <Sidebar.MenuItem key={tab}>
+                <Sidebar.MenuButton
+                  isActive={
+                    selectedTab === tab || (tab === 'overview' && !selectedTab)
+                  }
+                  onClick={() => setSelectedTab(tab)}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            ))}
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+    </Sidebar.Content>
+  );
+};
 
 export const CustomerAddSheet = () => {
   const { t } = useTranslation('contact');
   const { isLead } = useIsCustomerLeadSessionKey();
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
+  const [, setSelectedTab] = useQueryState<string>('tab');
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
 
   const onOpen = () => {
@@ -31,6 +65,7 @@ export const CustomerAddSheet = () => {
   const onClose = () => {
     setHotkeyScope(ContactsHotKeyScope.CustomersPage);
     setOpen(false);
+    setSelectedTab(null);
   };
 
   useScopedHotkeys(`c`, () => onOpen(), ContactsHotKeyScope.CustomersPage);
@@ -40,40 +75,30 @@ export const CustomerAddSheet = () => {
     ContactsHotKeyScope.CustomerAddSheet,
   );
 
+  const title = isLead ? t('lead.add._') : t('customer.add._');
+
   return (
-    <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+    <FocusSheet open={open} onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {isLead ? t('lead.add._') : t('customer.add._')}
+          {title}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
-      <Sheet.View
-        className="sm:max-w-3xl p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <AddCustomerForm onOpenChange={setOpen} />
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-export const CustomerAddSheetHeader = () => {
-  const { t } = useTranslation('contact');
-  const { isLead } = useIsCustomerLeadSessionKey();
-
-  return (
-    <Sheet.Header className="p-5">
-      <Sheet.Title>
-        {isLead ? t('lead.add._') : t('customer.add._')}
-      </Sheet.Title>
-      <Sheet.Description className="sr-only">
-        "Manage the uoms for your product & service"
-      </Sheet.Description>
-      <Sheet.Close />
-    </Sheet.Header>
+      <FocusSheet.View className="w-[50%] md:w-[50%] lg:w-[50%]">
+        <FocusSheet.Header title={title} />
+        <FocusSheet.Content className="flex-1 min-h-0">
+          <FocusSheet.SideBar>
+            <CustomerCreateSidebar />
+          </FocusSheet.SideBar>
+          <div className="flex overflow-hidden flex-col flex-1">
+            <Suspense fallback={<Spinner />}>
+              {open && <AddCustomerForm onOpenChange={setOpen} />}
+            </Suspense>
+          </div>
+        </FocusSheet.Content>
+      </FocusSheet.View>
+    </FocusSheet>
   );
 };

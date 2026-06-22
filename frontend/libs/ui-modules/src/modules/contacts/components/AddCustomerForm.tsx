@@ -8,14 +8,13 @@ import {
   Input,
   ScrollArea,
   Select,
-  Sheet,
   Spinner,
   Switch,
   Upload,
-  cn,
   toast,
+  useQueryState,
 } from 'erxes-ui';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectMember } from '../../team-members/components/SelectMember';
@@ -60,7 +59,6 @@ const SCHEMA = z.object({
 });
 
 type FormValues = z.infer<typeof SCHEMA>;
-type Tab = 'general' | 'properties';
 
 export function AddCustomerForm({
   onOpenChange,
@@ -72,7 +70,7 @@ export function AddCustomerForm({
   onSuccess?: (id: string) => void;
 }>) {
   const { customersAdd, loading } = useAddCustomer();
-  const [activeTab, setActiveTab] = useState<Tab>('general');
+  const [activeTab] = useQueryState<string>('tab');
 
   const form = useForm<FormValues>({
     resolver: zodResolver(SCHEMA),
@@ -130,7 +128,6 @@ export function AddCustomerForm({
           variant: 'success',
         });
         form.reset();
-        setActiveTab('general');
         onOpenChange(false);
       },
     });
@@ -138,11 +135,7 @@ export function AddCustomerForm({
 
   const propertiesData = form.watch('propertiesData') || {};
   const title = state === 'lead' ? 'Create Lead' : 'Create Customer';
-
-  const TABS: { key: Tab; label: string }[] = [
-    { key: 'general', label: 'General' },
-    { key: 'properties', label: 'Properties' },
-  ];
+  const isPropertiesTab = activeTab === 'properties';
 
   return (
     <Form {...form}>
@@ -150,46 +143,18 @@ export function AddCustomerForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex overflow-hidden flex-col h-full"
       >
-        <Sheet.Header className="gap-3 border-b">
-          <Sheet.Title>{title}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
+        <ScrollArea className="flex-1" viewportClassName="p-4">
+          {isPropertiesTab ? (
+            <CustomerPropertiesSection
+              propertiesData={propertiesData}
+              onFieldChange={updateCustomFieldValue}
+            />
+          ) : (
+            <GeneralTab form={form} />
+          )}
+        </ScrollArea>
 
-        <Sheet.Content className="overflow-hidden flex-auto p-0">
-          <div className="flex h-full overflow-hidden">
-            <nav className="flex flex-col gap-1 p-2 border-r w-36 shrink-0 bg-sidebar">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setActiveTab(tab.key)}
-                  className={cn(
-                    'text-left px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                    activeTab === tab.key
-                      ? 'bg-accent text-accent-foreground'
-                      : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground',
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-
-            <ScrollArea className="flex-1 h-full">
-              <div className="p-4">
-                {activeTab === 'general' && <GeneralTab form={form} />}
-                {activeTab === 'properties' && (
-                  <CustomerPropertiesSection
-                    propertiesData={propertiesData}
-                    onFieldChange={updateCustomFieldValue}
-                  />
-                )}
-              </div>
-            </ScrollArea>
-          </div>
-        </Sheet.Content>
-
-        <Sheet.Footer className="flex shrink-0 justify-end gap-1 bg-background p-2.5">
+        <div className="flex shrink-0 justify-end gap-1 bg-background p-2.5 border-t">
           <Button
             type="button"
             variant="outline"
@@ -200,7 +165,7 @@ export function AddCustomerForm({
           <Button type="submit" disabled={loading}>
             {loading ? 'Creating...' : title}
           </Button>
-        </Sheet.Footer>
+        </div>
       </form>
     </Form>
   );
