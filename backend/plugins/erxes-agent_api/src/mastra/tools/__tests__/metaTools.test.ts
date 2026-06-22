@@ -16,7 +16,7 @@ jest.mock('../erxesTools', () => ({
 import { buildErxesMetaTools } from '../metaTools';
 import { runWithAuth } from '../../requestContext';
 import type { OperationRegistry, OperationMeta } from '../operationRegistry';
-import type { AgentActionInput } from '../auditLog';
+import type { AgentActionInput } from '../../auditLog';
 
 const mkRegistry = (ops: Array<Partial<OperationMeta>>): OperationRegistry => {
   const list = ops.map(

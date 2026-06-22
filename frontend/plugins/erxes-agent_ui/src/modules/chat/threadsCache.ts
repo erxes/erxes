@@ -1,8 +1,9 @@
-import { ApolloClient } from '@apollo/client';
+import { ApolloCache, ApolloClient } from '@apollo/client';
 import { MASTRA_THREADS } from '~/graphql/queries';
 import { IMastraThread, IMastraThreadsResponse } from '~/modules/chat/types';
 
 type Client = ApolloClient<object>;
+type Cache = ApolloCache<object>;
 
 // Write helpers for the cached `mastraThreads` list. The session list lives in
 // the Apollo cache (house convention); the chat store reconciles it through
@@ -10,7 +11,26 @@ type Client = ApolloClient<object>;
 // the dedicated hooks — these cover the store-driven moments (send / stream
 // title / turn end) where there is no GraphQL mutation to hang an update on.
 
-const variablesFor = (mastraAgentId: string) => ({ agentId: mastraAgentId });
+// Single entry point for editing the cached `mastraThreads` list. The recipe
+// receives the current list (never null) and returns the next one; returning the
+// same reference (or undefined) leaves the cache untouched. Every site below —
+// and the rename/remove hooks — routes through this so the
+// `updateQuery({ query, variables }, prev => prev ?? undefined)` dance lives in
+// one place.
+export const updateThreadsCache = (
+  cache: Cache,
+  mastraAgentId: string,
+  recipe: (threads: IMastraThread[]) => IMastraThread[] | undefined,
+) => {
+  cache.updateQuery<IMastraThreadsResponse>(
+    { query: MASTRA_THREADS, variables: { agentId: mastraAgentId } },
+    (prev) => {
+      const next = recipe(prev?.mastraThreads ?? []);
+      if (!next || next === prev?.mastraThreads) return prev ?? undefined;
+      return { mastraThreads: next };
+    },
+  );
+};
 
 // Surface a brand-new session in the sidebar the instant the first message is
 // sent. Idempotent: skips when the thread is already in the list, so a resend
@@ -21,23 +41,19 @@ export const prependThreadToCache = (
   mastraAgentId: string,
   threadId: string,
 ) => {
-  client.cache.updateQuery<IMastraThreadsResponse>(
-    { query: MASTRA_THREADS, variables: variablesFor(mastraAgentId) },
-    (prev) => {
-      const list = prev?.mastraThreads ?? [];
-      if (list.some((t) => t.threadId === threadId)) return prev ?? undefined;
-      const optimistic: IMastraThread = {
-        __typename: 'MastraThread',
-        _id: threadId,
-        threadId,
-        title: 'New chat',
-        messageCount: 0,
-        lastMessageAt: null,
-        createdAt: null,
-      };
-      return { mastraThreads: [optimistic, ...list] };
-    },
-  );
+  updateThreadsCache(client.cache, mastraAgentId, (list) => {
+    if (list.some((t) => t.threadId === threadId)) return undefined;
+    const optimistic: IMastraThread = {
+      __typename: 'MastraThread',
+      _id: threadId,
+      threadId,
+      title: 'New chat',
+      messageCount: 0,
+      lastMessageAt: null,
+      createdAt: null,
+    };
+    return [optimistic, ...list];
+  });
 };
 
 // Local title update for the server-pushed `thread_title` stream event (the
@@ -48,16 +64,8 @@ export const setThreadTitleInCache = (
   threadId: string,
   title: string,
 ) => {
-  client.cache.updateQuery<IMastraThreadsResponse>(
-    { query: MASTRA_THREADS, variables: variablesFor(mastraAgentId) },
-    (prev) => {
-      if (!prev) return prev ?? undefined;
-      return {
-        mastraThreads: prev.mastraThreads.map((t) =>
-          t.threadId === threadId ? { ...t, title } : t,
-        ),
-      };
-    },
+  updateThreadsCache(client.cache, mastraAgentId, (list) =>
+    list.map((t) => (t.threadId === threadId ? { ...t, title } : t)),
   );
 };
 
@@ -72,7 +80,7 @@ export const refetchThreadsIntoCache = async (
   try {
     await client.query<IMastraThreadsResponse>({
       query: MASTRA_THREADS,
-      variables: variablesFor(mastraAgentId),
+      variables: { agentId: mastraAgentId },
       fetchPolicy: 'network-only',
     });
   } catch {

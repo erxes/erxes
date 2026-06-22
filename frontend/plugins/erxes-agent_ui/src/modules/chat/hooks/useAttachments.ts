@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChatAttachment, PendingAttachment } from '~/modules/chat/types';
-import { randomIdSuffix, uploadToStorage } from '~/modules/chat/utils';
+import { randomIdSuffix } from '~/modules/chat/lib/ids';
+import { uploadToStorage } from '~/modules/chat/lib/attachments';
 
 // Reject files larger than this before uploading — the round trip to storage
 // would only fail (or be slow) for oversize files.
@@ -123,6 +124,44 @@ export const useAttachments = (enabled: boolean) => {
       .filter((a) => a.status === 'done' && a.url)
       .map((a) => ({ url: a.url!, name: a.name, type: a.type, size: a.size }));
 
+  // Whole-chat-area drop target + clipboard ingestion. `dragDepth` guards against
+  // the flicker from dragenter/dragleave firing on every child; `isDragging`
+  // drives the drop overlay in the view.
+  const [isDragging, setIsDragging] = useState(false);
+  const dragDepth = useRef(0);
+
+  const onPaste = (e: React.ClipboardEvent) => {
+    if (!enabled) return;
+    const files = Array.from(e.clipboardData?.files || []);
+    if (files.length) {
+      e.preventDefault();
+      addFiles(files);
+    }
+  };
+
+  const onDragEnter = (e: React.DragEvent) => {
+    if (!enabled || !e.dataTransfer?.types?.includes('Files')) return;
+    e.preventDefault();
+    dragDepth.current += 1;
+    setIsDragging(true);
+  };
+  const onDragOver = (e: React.DragEvent) => {
+    if (enabled) e.preventDefault();
+  };
+  const onDragLeave = (e: React.DragEvent) => {
+    if (!enabled) return;
+    e.preventDefault();
+    dragDepth.current = Math.max(0, dragDepth.current - 1);
+    if (dragDepth.current === 0) setIsDragging(false);
+  };
+  const onDrop = (e: React.DragEvent) => {
+    if (!enabled) return;
+    e.preventDefault();
+    dragDepth.current = 0;
+    setIsDragging(false);
+    if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
+  };
+
   return {
     pendingAtts,
     addFiles,
@@ -130,5 +169,11 @@ export const useAttachments = (enabled: boolean) => {
     clear,
     uploadsInFlight,
     collectReady,
+    isDragging,
+    onPaste,
+    onDragEnter,
+    onDragOver,
+    onDragLeave,
+    onDrop,
   };
 };

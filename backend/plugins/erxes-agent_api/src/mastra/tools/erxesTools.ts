@@ -17,11 +17,16 @@ import {
   humanizeOperation,
   truncateWords,
 } from './humanize';
+import {
+  INTERNAL_ERROR_RE,
+  looksLikeStackFrame,
+  sanitizeServerError,
+} from './serverErrorClassifier';
 
 // Re-export the introspection + humanisation surface so existing importers
 // (metaTools, operationRegistry, tests) keep their `from './erxesTools'` paths.
 export type { GqlArgDef, GqlFieldDef, GqlTypeRef };
-export { graphqlTypeToString };
+export { graphqlTypeToString, sanitizeServerError };
 
 /** Connection settings for reaching the erxes gateway (API URL + app token). */
 export interface ErxesToolSettings {
@@ -57,6 +62,24 @@ export const asBearer = (token?: string | null): string =>
 // in the error payload so the LLM can retry immediately with a valid value.
 // ---------------------------------------------------------------------------
 
+/**
+ * POST a GraphQL request to `${apiUrl}/graphql` and return the parsed JSON
+ * envelope. The single fetch+json site every gateway/subgraph caller routes
+ * through; per-site error handling (null / {} / warnings) stays at the callers.
+ */
+async function gqlFetch<TJson>(
+  apiUrl: string,
+  authHeaders: Record<string, string>,
+  body: Record<string, unknown>,
+): Promise<TJson> {
+  const res = await fetch(`${apiUrl}/graphql`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders },
+    body: JSON.stringify(body),
+  });
+  return (await res.json()) as TJson;
+}
+
 /** Fire one GraphQL query and return its `data` payload, or null on any failure. */
 async function gqlCall<TData = Record<string, unknown>>(
   apiUrl: string,
@@ -64,12 +87,9 @@ async function gqlCall<TData = Record<string, unknown>>(
   query: string,
 ): Promise<TData | null> {
   try {
-    const res = await fetch(`${apiUrl}/graphql`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ query }),
+    const json = await gqlFetch<{ data?: TData | null }>(apiUrl, authHeaders, {
+      query,
     });
-    const json = (await res.json()) as { data?: TData | null };
     return json?.data ?? null;
   } catch {
     return null;
@@ -143,55 +163,6 @@ const ENTITY_RESOLVERS: Record<
 > = {
   stage: { key: 'availableStages', resolver: resolveAvailableStages },
 };
-
-// Turns a raw GraphQL error from the gateway into a clean, model-usable result.
-// erxes server resolvers sometimes CRASH on missing/empty args (e.g.
-// getTicketPipelines → "Cannot read properties of undefined (reading 'name')",
-// salesPipelines → "Cannot return null for non-nullable field …") instead of
-// validating. Those internal stack-ish messages must never reach the user, and
-// the model should be told to provide the required arguments rather than retry
-// the same empty call.
-const INTERNAL_ERROR_RE =
-  /cannot read propert|undefined \(reading|return null for non-nullable|is not a function|reading '/i;
-// Stack-frame heuristic without super-linear backtracking: a " at " marker
-// plus a ":line:col)" suffix anywhere in the message.
-const STACK_FRAME_RE = /:\d+:\d+\)/;
-/** True when the message looks like a raw stack frame rather than a user error. */
-const looksLikeStackFrame = (msg: string): boolean =>
-  msg.includes(' at ') && STACK_FRAME_RE.test(msg);
-const REQUIRED_ARG_RE =
-  /argument "([^"]+)" of type|"([^"]+)" is required|required, but it was not provided|was not provided/i;
-
-/** Turn a raw gateway error into a clean, model-usable { error, instruction }. */
-export function sanitizeServerError(raw: string): {
-  error: string;
-  instruction: string;
-} {
-  const msg = (raw || '').trim();
-  const reqMatch = msg.match(REQUIRED_ARG_RE);
-  if (reqMatch && !INTERNAL_ERROR_RE.test(msg) && !looksLikeStackFrame(msg)) {
-    // Clean validation error — surface it; it tells the model what to supply.
-    return {
-      error: msg,
-      instruction:
-        "This operation needs one or more required arguments. Re-read the operation's argument list from search_erxes_operations and call it again WITH those arguments filled in — never call it with empty args.",
-    };
-  }
-  if (INTERNAL_ERROR_RE.test(msg) || looksLikeStackFrame(msg)) {
-    // Internal server crash — hide the stack-ish detail entirely.
-    return {
-      error:
-        'That operation could not be completed (the service rejected the request).',
-      instruction:
-        'Do NOT show this technical detail to the user and do NOT retry the same call. The operation likely needs required arguments you did not provide, or is not usable this way. Provide the required arguments, choose a different operation, or skip this step and continue.',
-    };
-  }
-  return {
-    error: msg,
-    instruction:
-      'Tell the user in plain words; do not retry the same call unchanged.',
-  };
-}
 
 /**
  * Map an actionable "not found"/validation error onto a structured failure
@@ -410,7 +381,6 @@ export async function executeErxesOperation(
     // `name` field, like User, still produce a runnable query).
     const finalResponseFields = chooseResponseFields(
       erxesOperation,
-      undefined,
       op.returnType,
       objectFieldsMap,
       requestedFields,
@@ -428,12 +398,7 @@ export async function executeErxesOperation(
         op.returnType,
         finalResponseFields,
       );
-      const response = await fetch(`${apiUrl}/graphql`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ query, variables }),
-      });
-      return (await response.json()) as GraphqlEnvelope;
+      return gqlFetch<GraphqlEnvelope>(apiUrl, authHeaders, { query, variables });
     };
 
     let data = await runCall(resolvedArgs);
@@ -470,12 +435,16 @@ export async function executeErxesOperation(
 }
 
 /**
- * Fetches all INPUT_OBJECT type definitions so graphqlTypeToZod can build real
- * Zod schemas for them instead of falling back to z.any().
+ * Walk `__schema { types }` once and project each named type onto a map keyed by
+ * type name. `selector` is the introspection sub-selection (inputFields / fields),
+ * `pick` returns the field list to store for a matching type (or undefined to
+ * skip it). The shared core behind fetchInputTypesMap / fetchObjectFieldsMap.
  */
-export async function fetchInputTypesMap(
+async function introspectNamedTypes<TField>(
   settings: ErxesToolSettings | null,
-): Promise<Record<string, GqlArgDef[]>> {
+  selector: string,
+  pick: (namedType: IntrospectedNamedType) => TField[] | null | undefined,
+): Promise<Record<string, TField[]>> {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
 
@@ -484,7 +453,7 @@ export async function fetchInputTypesMap(
       types {
         name
         kind
-        inputFields {
+        ${selector} {
           name
           type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
         }
@@ -493,28 +462,31 @@ export async function fetchInputTypesMap(
   }`;
 
   try {
-    const response = await fetch(`${apiUrl}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: asBearer(token) } : {}),
-      },
-      body: JSON.stringify({ query }),
-    });
-    const data = (await response.json()) as {
+    const data = await gqlFetch<{
       data?: { __schema?: { types?: IntrospectedNamedType[] } };
-    };
+    }>(apiUrl, token ? { Authorization: asBearer(token) } : {}, { query });
     const types = data?.data?.__schema?.types || [];
-    const map: Record<string, GqlArgDef[]> = {};
+    const map: Record<string, TField[]> = {};
     for (const namedType of types) {
-      if (namedType.kind === 'INPUT_OBJECT' && namedType.inputFields?.length) {
-        map[namedType.name] = namedType.inputFields;
-      }
+      const fields = pick(namedType);
+      if (fields?.length) map[namedType.name] = fields;
     }
     return map;
   } catch {
     return {};
   }
+}
+
+/**
+ * Fetches all INPUT_OBJECT type definitions so graphqlTypeToZod can build real
+ * Zod schemas for them instead of falling back to z.any().
+ */
+export function fetchInputTypesMap(
+  settings: ErxesToolSettings | null,
+): Promise<Record<string, GqlArgDef[]>> {
+  return introspectNamedTypes(settings, 'inputFields', (namedType) =>
+    namedType.kind === 'INPUT_OBJECT' ? namedType.inputFields : undefined,
+  );
 }
 
 // ─── Plugin ownership via live subgraph introspection ────────────────────────
@@ -546,22 +518,17 @@ async function fetchPluginMap(token: string): Promise<Map<string, string>> {
         const address = await getPluginAddress(name);
         if (!address) return;
 
-        const res = await fetch(`${address}/graphql`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders },
-          body: JSON.stringify({
-            query:
-              '{ __schema { queryType { fields { name } } mutationType { fields { name } } } }',
-          }),
-        });
-        const json = (await res.json()) as {
+        const json = await gqlFetch<{
           data?: {
             __schema?: {
               queryType?: { fields?: Array<{ name?: string }> | null };
               mutationType?: { fields?: Array<{ name?: string }> | null };
             };
           };
-        };
+        }>(address, authHeaders, {
+          query:
+            '{ __schema { queryType { fields { name } } mutationType { fields { name } } } }',
+        });
         const schema = json?.data?.__schema;
         const fields = [
           ...(schema?.queryType?.fields || []),
@@ -586,52 +553,14 @@ async function fetchPluginMap(token: string): Promise<Map<string, string>> {
  * Introspect all OBJECT types → their fields, so chooseResponseFields can build
  * a valid selection set for any return type (replacing the naive `_id name`).
  */
-export async function fetchObjectFieldsMap(
+export function fetchObjectFieldsMap(
   settings: ErxesToolSettings | null,
 ): Promise<Record<string, GqlFieldDef[]>> {
-  const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
-  const token = settings?.erxesApiToken || '';
-
-  const query = `{
-    __schema {
-      types {
-        name
-        kind
-        fields {
-          name
-          type { kind name ofType { kind name ofType { kind name ofType { kind name } } } }
-        }
-      }
-    }
-  }`;
-
-  try {
-    const response = await fetch(`${apiUrl}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: asBearer(token) } : {}),
-      },
-      body: JSON.stringify({ query }),
-    });
-    const data = (await response.json()) as {
-      data?: { __schema?: { types?: IntrospectedNamedType[] } };
-    };
-    const types = data?.data?.__schema?.types || [];
-    const map: Record<string, GqlFieldDef[]> = {};
-    for (const namedType of types) {
-      if (
-        namedType.kind === 'OBJECT' &&
-        namedType.fields?.length &&
-        !String(namedType.name).startsWith('__')
-      ) {
-        map[namedType.name] = namedType.fields;
-      }
-    }
-    return map;
-  } catch {
-    return {};
-  }
+  return introspectNamedTypes(settings, 'fields', (namedType) =>
+    namedType.kind === 'OBJECT' && !String(namedType.name).startsWith('__')
+      ? namedType.fields
+      : undefined,
+  );
 }
 
 /**
@@ -647,50 +576,34 @@ export async function fetchAvailableErxesTools(
     ? { Authorization: asBearer(token) }
     : {};
 
+  const introspectionQuery = `{
+    __schema {
+      queryType {
+        fields {
+          name description
+          type { name kind ofType { name kind ofType { name kind } } }
+          args {
+            name description
+            type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
+          }
+        }
+      }
+      mutationType {
+        fields {
+          name description
+          type { name kind ofType { name kind ofType { name kind } } }
+          args {
+            name description
+            type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
+          }
+        }
+      }
+    }
+  }`;
+
   // Resolve plugin ownership (per-subgraph introspection) and the full gateway
   // field list (for descriptions/args/types) in parallel.
-  const [pluginMap, schemaRes] = await Promise.all([
-    fetchPluginMap(token),
-    fetch(`${apiUrl}/graphql`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders },
-      body: JSON.stringify({
-        query: `{
-          __schema {
-            queryType {
-              fields {
-                name description
-                type { name kind ofType { name kind ofType { name kind } } }
-                args {
-                  name description
-                  type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
-                }
-              }
-            }
-            mutationType {
-              fields {
-                name description
-                type { name kind ofType { name kind ofType { name kind } } }
-                args {
-                  name description
-                  type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
-                }
-              }
-            }
-          }
-        }`,
-      }),
-    }),
-  ]);
-
-  if (!schemaRes.ok) {
-    console.warn(
-      `[mastra] gateway introspection failed: HTTP ${schemaRes.status}`,
-    );
-    return [];
-  }
-
-  let schemaData: {
+  type SchemaResult = {
     data?: {
       __schema?: {
         queryType?: { fields?: GqlFieldDef[] | null };
@@ -698,10 +611,15 @@ export async function fetchAvailableErxesTools(
       };
     };
   };
+  let pluginMap: Map<string, string>;
+  let schemaData: SchemaResult;
   try {
-    schemaData = await schemaRes.json();
+    [pluginMap, schemaData] = await Promise.all([
+      fetchPluginMap(token),
+      gqlFetch<SchemaResult>(apiUrl, authHeaders, { query: introspectionQuery }),
+    ]);
   } catch {
-    console.warn('[mastra] gateway introspection returned invalid JSON');
+    console.warn('[mastra] gateway introspection failed');
     return [];
   }
   const schema = schemaData?.data?.__schema;

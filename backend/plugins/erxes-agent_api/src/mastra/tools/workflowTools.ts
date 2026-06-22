@@ -4,6 +4,7 @@ import { createTool } from '@mastra/core/tools';
 import { getCurrentAuth } from '../requestContext';
 import {
   validateDefinition,
+  ValidationIssue,
   WorkflowDefinition,
   WorkflowStep,
 } from '../workflows/dsl';
@@ -14,7 +15,7 @@ import {
 } from '../workflows/compiler';
 import { buildManualEnvelope } from '../workflows/envelope';
 import { runWorkflow } from '../workflows/runtime';
-import { getOperationRegistry } from './operationRegistry';
+import { getOperationRegistry, OperationRegistry } from './operationRegistry';
 
 /**
  * Builder tools — what turns a chat agent into the workflow MASTER AGENT
@@ -101,6 +102,42 @@ const fail = (e: unknown) => ({
   success: false as const,
   error: (e as { message?: string } | null | undefined)?.message || String(e),
 });
+
+/** Models plus a lazy operation-registry loader, shared by the builder tools. */
+interface WorkflowContext {
+  models: Awaited<ReturnType<typeof getModels>>;
+  getRegistry: () => Promise<OperationRegistry>;
+}
+
+/**
+ * Builder-tool preamble: gate to team members, load the tenant models, and
+ * hand the body a lazy registry loader (only fetched when a tool actually
+ * validates). The registry is memoized so repeat calls within one tool reuse it.
+ */
+async function withWorkflowContext<T>(
+  run: (ctx: WorkflowContext) => Promise<T>,
+): Promise<T> {
+  requireTeamMember();
+  const models = await getModels();
+  let registry: Promise<OperationRegistry> | undefined;
+  const getRegistry = () =>
+    (registry ??= models.MastraSettings.getSettings().then(getOperationRegistry));
+  return run({ models, getRegistry });
+}
+
+/** Validate a draft against the live registry, returning the typed definition. */
+async function validatedDefinition(
+  definition: Record<string, unknown>,
+  getRegistry: () => Promise<OperationRegistry>,
+): Promise<
+  | { ok: true; definition: WorkflowDefinition; errors: ValidationIssue[] }
+  | { ok: false; definition?: undefined; errors: ValidationIssue[] }
+> {
+  const result = validateDefinition(definition, await getRegistry());
+  return result.ok && result.definition
+    ? { ok: true, definition: result.definition, errors: result.errors }
+    : { ok: false, errors: result.errors };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -197,22 +234,19 @@ export const workflowValidateTool = tool({
     errors: z.array(z.object({ path: z.string(), message: z.string() })),
     instruction: z.string().optional(),
   }),
-  execute: async ({ definition }: { definition: Record<string, unknown> }) => {
-    requireTeamMember();
-    const models = await getModels();
-    const settings = await models.MastraSettings.getSettings();
-    const registry = await getOperationRegistry(settings);
-    const result = validateDefinition(definition, registry);
-    return {
-      ok: result.ok,
-      errors: result.errors,
-      // Validation is preparation, not the result — without this nudge models
-      // routinely end the turn here and the workflow never gets created.
-      instruction: result.ok
-        ? 'Validation passed. If the user already asked you to create/save this workflow (or confirmed a plan), call workflowSave NOW in this same turn. Otherwise present the plan in plain language and ask for confirmation.'
-        : 'Fix every error above and validate again before saving.',
-    };
-  },
+  execute: ({ definition }: { definition: Record<string, unknown> }) =>
+    withWorkflowContext(async ({ getRegistry }) => {
+      const result = await validatedDefinition(definition, getRegistry);
+      return {
+        ok: result.ok,
+        errors: result.errors,
+        // Validation is preparation, not the result — without this nudge models
+        // routinely end the turn here and the workflow never gets created.
+        instruction: result.ok
+          ? 'Validation passed. If the user already asked you to create/save this workflow (or confirmed a plan), call workflowSave NOW in this same turn. Otherwise present the plan in plain language and ask for confirmation.'
+          : 'Fix every error above and validate again before saving.',
+      };
+    }),
 });
 
 export const workflowSimulateTool = tool({
@@ -248,14 +282,11 @@ export const workflowSimulateTool = tool({
     definition: Record<string, unknown>;
     triggerPayload?: Record<string, unknown>;
     assumptions?: Record<string, Record<string, unknown>>;
-  }) => {
-    requireTeamMember();
+  }) =>
+    withWorkflowContext(async ({ getRegistry }) => {
     try {
-      const models = await getModels();
-      const settings = await models.MastraSettings.getSettings();
-      const registry = await getOperationRegistry(settings);
-      const check = validateDefinition(definition, registry);
-      if (!check.ok || !check.definition) {
+      const check = await validatedDefinition(definition, getRegistry);
+      if (!check.ok) {
         return { success: false, errors: check.errors };
       }
 
@@ -371,7 +402,7 @@ export const workflowSimulateTool = tool({
     } catch (e) {
       return fail(e);
     }
-  },
+    }),
 });
 
 export const workflowSaveTool = tool({
@@ -401,29 +432,26 @@ export const workflowSaveTool = tool({
     description?: string;
     definition: Record<string, unknown>;
     enable?: boolean;
-  }) => {
-    requireTeamMember();
-    try {
-      const models = await getModels();
-      const settings = await models.MastraSettings.getSettings();
-      const registry = await getOperationRegistry(settings);
-      const check = validateDefinition(definition, registry);
-      if (!check.ok || !check.definition) {
-        return { success: false, errors: check.errors };
-      }
+  }) =>
+    withWorkflowContext(async ({ models, getRegistry }) => {
+      try {
+        const check = await validatedDefinition(definition, getRegistry);
+        if (!check.ok) {
+          return { success: false, errors: check.errors };
+        }
 
-      const doc = await models.MastraWorkflow.createWorkflow({
-        name,
-        description,
-        definition: check.definition,
-        isEnabled: Boolean(enable),
-        createdByUserId: currentUserId(),
-      });
-      return { success: true, workflowId: doc._id, version: doc.version };
-    } catch (e) {
-      return fail(e);
-    }
-  },
+        const doc = await models.MastraWorkflow.createWorkflow({
+          name,
+          description,
+          definition: check.definition,
+          isEnabled: Boolean(enable),
+          createdByUserId: currentUserId(),
+        });
+        return { success: true, workflowId: doc._id, version: doc.version };
+      } catch (e) {
+        return fail(e);
+      }
+    }),
 });
 
 export const workflowUpdateTool = tool({
@@ -455,35 +483,33 @@ export const workflowUpdateTool = tool({
     description?: string;
     definition?: Record<string, unknown>;
     enable?: boolean;
-  }) => {
-    requireTeamMember();
-    try {
-      const models = await getModels();
-      if (definition) {
-        const settings = await models.MastraSettings.getSettings();
-        const registry = await getOperationRegistry(settings);
-        const check = validateDefinition(definition, registry);
-        if (!check.ok) return { success: false, errors: check.errors };
+  }) =>
+    withWorkflowContext(async ({ models, getRegistry }) => {
+      try {
+        const patch: {
+          name?: string;
+          description?: string;
+          definition?: WorkflowDefinition;
+          isEnabled?: boolean;
+        } = {};
+        if (definition !== undefined) {
+          const check = await validatedDefinition(definition, getRegistry);
+          if (!check.ok) return { success: false, errors: check.errors };
+          // The validator already produced a typed definition — no cast needed.
+          patch.definition = check.definition;
+        }
+        if (name !== undefined) patch.name = name;
+        if (description !== undefined) patch.description = description;
+        if (enable !== undefined) patch.isEnabled = enable;
+        const doc = await models.MastraWorkflow.updateWorkflow(
+          workflowId,
+          patch,
+        );
+        return { success: true, version: doc.version };
+      } catch (e) {
+        return fail(e);
       }
-      const patch: {
-        name?: string;
-        description?: string;
-        definition?: WorkflowDefinition;
-        isEnabled?: boolean;
-      } = {};
-      if (name !== undefined) patch.name = name;
-      if (description !== undefined) patch.description = description;
-      if (definition !== undefined) {
-        // Validated above whenever provided — safe to treat as a definition.
-        patch.definition = definition as unknown as WorkflowDefinition;
-      }
-      if (enable !== undefined) patch.isEnabled = enable;
-      const doc = await models.MastraWorkflow.updateWorkflow(workflowId, patch);
-      return { success: true, version: doc.version };
-    } catch (e) {
-      return fail(e);
-    }
-  },
+    }),
 });
 
 export const workflowListTool = tool({

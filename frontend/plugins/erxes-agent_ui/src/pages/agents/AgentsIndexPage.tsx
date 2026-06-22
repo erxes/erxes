@@ -13,25 +13,21 @@ import {
 } from '@tabler/icons-react';
 import {
   Badge,
-  Breadcrumb,
   Button,
-  Combobox,
   Command,
-  Empty,
-  Popover,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Separator,
   useConfirm,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
 import { MASTRA_AGENT_REMOVE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
 import {
+  RowActionsMenu,
   ToggleDeleteMenuItems,
   enabledStatusColumn,
 } from '~/components/RecordTableShared';
 import { PermissionButton } from '~/components/PermissionButton';
+import { ResourceIndexLayout } from '~/components/ResourceIndexLayout';
 import { useMastraAgentList, IMastraAgentRow } from './useMastraAgentList';
 import {
   agentMutationError,
@@ -97,54 +93,41 @@ const AgentMoreCell = ({ agent }: { agent: IAgent }) => {
   };
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content
-        side="right"
-        align="start"
-        avoidCollisions={false}
-        className="w-44 min-w-0 [&>button]:cursor-pointer"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Command>
-          <Command.List>
-            <Command.Item asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                onClick={() => navigate(`/erxes-agent/chat/${agent._id}`)}
-              >
-                <IconMessageCircle className="size-4" /> Chat
-              </Button>
-            </Command.Item>
-            <Command.Item asChild>
-              <PermissionButton
-                variant="ghost"
-                size="sm"
-                className="justify-start w-full h-8"
-                allowed={canEdit}
-                onDenied={() => showAgentPermissionError('edit')}
-                onClick={() => navigate(`/settings/erxes-agent/agents/edit/${agent._id}`)}
-              >
-                <IconPencil className="size-4" /> Edit
-              </PermissionButton>
-            </Command.Item>
-            <ToggleDeleteMenuItems
-              isEnabled={agent.isEnabled}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-              toggleDisabled={!canEdit}
-              deleteDisabled={!canRemove}
-              onToggleDenied={() => showAgentPermissionError('edit')}
-              onDeleteDenied={() => showAgentPermissionError('delete')}
-            />
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+    <RowActionsMenu>
+      <Command.Item asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start w-full h-8"
+          onClick={() => navigate(`/erxes-agent/chat/${agent._id}`)}
+        >
+          <IconMessageCircle className="size-4" /> Chat
+        </Button>
+      </Command.Item>
+      <Command.Item asChild>
+        <PermissionButton
+          variant="ghost"
+          size="sm"
+          className="justify-start w-full h-8"
+          allowed={canEdit}
+          onDenied={() => showAgentPermissionError('edit')}
+          onClick={() =>
+            navigate(`/settings/erxes-agent/agents/edit/${agent._id}`)
+          }
+        >
+          <IconPencil className="size-4" /> Edit
+        </PermissionButton>
+      </Command.Item>
+      <ToggleDeleteMenuItems
+        isEnabled={agent.isEnabled}
+        onToggle={handleToggle}
+        onDelete={handleDelete}
+        toggleDisabled={!canEdit}
+        deleteDisabled={!canRemove}
+        onToggleDenied={() => showAgentPermissionError('edit')}
+        onDeleteDenied={() => showAgentPermissionError('delete')}
+      />
+    </RowActionsMenu>
   );
 };
 
@@ -255,85 +238,31 @@ export const AgentsIndexPage = () => {
     useMastraAgentList();
 
   return (
-    <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/erxes-agent/agents">
-                    <IconRobot />
-                    Agents
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
-        </PageHeader.Start>
-        <PageHeader.End>
+    <ResourceIndexLayout<IAgent>
+      icon={IconRobot}
+      title="Agents"
+      rootPath="/settings/erxes-agent/agents"
+      sessionKey="erxes_agent_agents"
+      columns={columns}
+      data={agentsList}
+      loading={loading}
+      skeletonRows={20}
+      pageInfo={pageInfo}
+      onFetchMore={handleFetchMore}
+      headerExtra={
+        <CreateAgentButton>
+          <IconPlus /> New Agent
+        </CreateAgentButton>
+      }
+      empty={{
+        title: 'No agents yet',
+        description: 'Create your first Mastra AI agent to get started.',
+        action: (
           <CreateAgentButton>
-            <IconPlus /> New Agent
+            <IconPlus /> Create Agent
           </CreateAgentButton>
-        </PageHeader.End>
-      </PageHeader>
-
-      {!loading && agentsList.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <Empty className="border border-dashed max-w-sm w-full">
-            <Empty.Header>
-              <Empty.Media variant="icon">
-                <IconRobot />
-              </Empty.Media>
-              <Empty.Title>No agents yet</Empty.Title>
-              <Empty.Description>
-                Create your first Mastra AI agent to get started.
-              </Empty.Description>
-            </Empty.Header>
-            <Empty.Content>
-              <CreateAgentButton>
-                <IconPlus /> Create Agent
-              </CreateAgentButton>
-            </Empty.Content>
-          </Empty>
-        </div>
-      ) : (
-        <div className="flex-1 min-h-0">
-          <RecordTable.Provider
-            columns={columns}
-            data={agentsList}
-            className="m-3"
-            stickyColumns={['more', 'checkbox', 'name']}
-          >
-            <RecordTable.CursorProvider
-              hasPreviousPage={pageInfo.hasPreviousPage}
-              hasNextPage={pageInfo.hasNextPage}
-              loading={loading}
-              dataLength={agentsList.length}
-              sessionKey="erxes_agent_agents"
-            >
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.CursorBackwardSkeleton
-                    handleFetchMore={handleFetchMore}
-                  />
-                  {loading && agentsList.length === 0 ? (
-                    <RecordTable.RowSkeleton rows={20} />
-                  ) : (
-                    <RecordTable.RowList />
-                  )}
-                  <RecordTable.CursorForwardSkeleton
-                    handleFetchMore={handleFetchMore}
-                  />
-                </RecordTable.Body>
-              </RecordTable>
-            </RecordTable.CursorProvider>
-          </RecordTable.Provider>
-        </div>
-      )}
-    </div>
+        ),
+      }}
+    />
   );
 };

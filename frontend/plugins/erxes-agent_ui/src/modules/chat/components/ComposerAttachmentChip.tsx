@@ -5,7 +5,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { PendingAttachment } from '~/modules/chat/types';
-import { formatFileSize } from '~/modules/chat/utils';
+import { formatFileSize } from '~/modules/chat/lib/attachments';
 
 export const ComposerAttachmentChip = ({
   att,

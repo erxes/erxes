@@ -7,8 +7,8 @@
 // never visible to a live agent turn.
 // ---------------------------------------------------------------------------
 
-import { createHash } from 'crypto';
 import { ExpectedError } from 'erxes-api-shared/utils';
+import { uuidFromHash } from '~/mastra/qdrantIds';
 import {
   isLearningEnabled,
   learningCollectionName,
@@ -28,13 +28,7 @@ import { IMastraLearningDocument } from '@/learning/@types/learning';
 
 /** Deterministic UUID-shaped point id from the learning id (idempotent upserts). */
 export function learningPointId(subdomain: string, learningId: string): string {
-  const hex = createHash('sha256')
-    .update(`learning:${subdomain}:${learningId}`)
-    .digest('hex');
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(
-    12,
-    16,
-  )}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+  return uuidFromHash(`learning:${subdomain}:${learningId}`);
 }
 
 // One Qdrant filter condition ({key, match} clauses).
@@ -166,18 +160,32 @@ export async function searchLearnings(
 // Curation actions must succeed even when Qdrant is down; the sweep's
 // reconciliation pass will converge the index later.
 
+/**
+ * Run a vector op only when learning is enabled and a subdomain is known,
+ * swallowing any failure with a warning. The label names the skipped op.
+ */
+async function bestEffort(
+  label: string,
+  subdomain: string | undefined,
+  fn: () => Promise<void>,
+): Promise<void> {
+  if (!isLearningEnabled() || !subdomain) return;
+  try {
+    await fn();
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn(`[mastra:learning] ${label} skipped: ${e?.message || e}`);
+  }
+}
+
 /** Best-effort re-embed + upsert; never throws (sweep reconciles later). */
 export async function syncLearningVectorSafe(
   subdomain: string | undefined,
   learning: IMastraLearningDocument,
 ): Promise<void> {
-  if (!isLearningEnabled() || !subdomain) return;
-  try {
-    await indexLearning(subdomain, learning);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn(`[mastra:learning] vector sync skipped: ${e?.message || e}`);
-  }
+  await bestEffort('vector sync', subdomain, () =>
+    indexLearning(subdomain as string, learning),
+  );
 }
 
 /** Best-effort status flip on the vector payload; never throws. */
@@ -186,15 +194,9 @@ export async function setLearningVectorStatusSafe(
   learningId: string,
   status: string,
 ): Promise<void> {
-  if (!isLearningEnabled() || !subdomain) return;
-  try {
-    await setLearningVectorStatus(subdomain, learningId, status);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[mastra:learning] vector status sync skipped: ${e?.message || e}`,
-    );
-  }
+  await bestEffort('vector status sync', subdomain, () =>
+    setLearningVectorStatus(subdomain as string, learningId, status),
+  );
 }
 
 /** Best-effort vector delete; never throws. */
@@ -202,11 +204,7 @@ export async function deleteLearningVectorSafe(
   subdomain: string | undefined,
   learningId: string,
 ): Promise<void> {
-  if (!isLearningEnabled() || !subdomain) return;
-  try {
-    await deleteLearningVector(subdomain, learningId);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn(`[mastra:learning] vector delete skipped: ${e?.message || e}`);
-  }
+  await bestEffort('vector delete', subdomain, () =>
+    deleteLearningVector(subdomain as string, learningId),
+  );
 }

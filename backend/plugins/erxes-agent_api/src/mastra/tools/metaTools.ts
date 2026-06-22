@@ -5,7 +5,10 @@ import {
   graphqlTypeToString,
   type ErxesToolSettings,
 } from './erxesTools';
-import { describeSelectableFields } from './schemaIntrospect';
+import {
+  describeSelectableFields,
+  parseJsonPreprocess,
+} from './schemaIntrospect';
 import { OperationMeta, OperationRegistry } from './operationRegistry';
 import { ToolPolicy, isOperationAllowed } from './scope';
 import {
@@ -17,29 +20,13 @@ import {
 import { getCurrentAuth } from '../requestContext';
 import { makeAgentProcessId, type AgentActionInput } from '../auditLog';
 
-// LLMs sometimes pass the args object as a JSON string. Parse it back so the
-// execute tool always receives a real object.
+// LLMs sometimes pass the args object as a JSON string (standard or
+// single-quoted). parseJsonPreprocess coerces it back; keep only real objects.
 function coerceArgs(val: unknown): Record<string, unknown> {
-  if (val && typeof val === 'object' && !Array.isArray(val))
-    return val as Record<string, unknown>;
-  if (typeof val === 'string') {
-    const trimmed = val.trim();
-    if (!trimmed) return {};
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
-        return parsed;
-    } catch {
-      try {
-        const parsed = JSON.parse(trimmed.replace(/'/g, '"'));
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
-          return parsed;
-      } catch {
-        /* fall through */
-      }
-    }
-  }
-  return {};
+  const parsed = typeof val === 'string' ? parseJsonPreprocess(val) : val;
+  return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+    ? (parsed as Record<string, unknown>)
+    : {};
 }
 
 // LLMs may pass the fields list as a real array, a JSON string, or a
@@ -48,13 +35,8 @@ function coerceFields(val: unknown): string[] {
   const fromString = (raw: string): string[] => {
     const trimmed = raw.trim();
     if (!trimmed) return [];
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) return parsed.map(String);
-    } catch {
-      /* fall through to comma-split */
-    }
-    return trimmed.split(',');
+    const parsed = parseJsonPreprocess(trimmed);
+    return Array.isArray(parsed) ? parsed.map(String) : trimmed.split(',');
   };
   const arr = Array.isArray(val)
     ? val.map(String)

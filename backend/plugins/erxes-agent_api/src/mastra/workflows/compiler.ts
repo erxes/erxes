@@ -3,13 +3,16 @@ import { ExpectedError } from 'erxes-api-shared/utils';
 import {
   WorkflowDefinition,
   WorkflowStep,
+  STEP_SUPPORT,
   branchStepSchema,
   buildOutputZod,
+  isCompiledStep,
   parallelStepSchema,
   validateDefinition,
 } from './dsl';
 import { parseExpr, evalExpr, ExprNode } from './expr';
 import { resolveValue, RefScope } from './refs';
+import { createWorkflow, createStep, WorkflowChain } from './mastraChain';
 import type { TriggerEnvelope } from './envelope';
 
 /**
@@ -76,20 +79,6 @@ export interface CompiledWorkflow {
   createRunAsync(): Promise<CompiledRunHandle>;
 }
 
-/** The subset of Mastra's fluent workflow-builder API the compiler drives. */
-interface WorkflowChain {
-  then(step: unknown): WorkflowChain;
-  sleep(ms: number): WorkflowChain;
-  branch(pairs: Array<[unknown, unknown]>): WorkflowChain;
-  parallel(steps: unknown[]): WorkflowChain;
-  map(
-    fn: (args: {
-      inputData: Record<string, unknown>;
-    }) => Promise<WorkflowState>,
-  ): WorkflowChain;
-  commit(): CompiledWorkflow;
-}
-
 type BranchStep = z.infer<typeof branchStepSchema>;
 type ParallelStep = z.infer<typeof parallelStepSchema>;
 
@@ -107,6 +96,20 @@ const withOutput = (
   trigger: state.trigger,
   steps: { ...state.steps, [id]: { output } },
 });
+
+/** A value is a WorkflowState iff it is an object carrying a `trigger` key. */
+const isWorkflowState = (value: unknown): value is WorkflowState =>
+  Boolean(value) && typeof value === 'object' && 'trigger' in (value as object);
+
+/**
+ * Reconstructs the WorkflowState(s) out of Mastra's keyed container output —
+ * the single owner of the "a state is an object with a trigger key" contract.
+ * Branch keeps [0] (exactly one arm runs); parallel merges all of them.
+ */
+const unwrapContainerStates = (
+  inputData: Record<string, unknown> | undefined,
+): WorkflowState[] =>
+  Object.values(inputData || {}).filter(isWorkflowState);
 
 /**
  * Definition → committed Mastra workflow.
@@ -130,12 +133,9 @@ export function compileDefinition(
     );
   }
 
-  // Lazy CJS require, NOT dynamic import(): under tsx, import() of a Mastra
-  // subpath inside a CJS module resolves to the ESM build through the loader
-  // hooks and deadlocks (never settles). require() deterministically picks the
-  // .cjs build — the path the rest of this plugin already runs on.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { createWorkflow, createStep } = require('@mastra/core/workflows'); // skipcq: JS-0359
+  // createWorkflow/createStep come thinly typed from mastraChain — the untyped
+  // CJS require() (and the cast it forces) is confined there, not threaded
+  // through every builder below.
 
   /** Bridges run state into the ref-resolution scope (plus static bindings). */
   const mkScope = (state: WorkflowState): RefScope => ({
@@ -238,7 +238,7 @@ export function compileDefinition(
         outputSchema: stateSchema,
       }),
       steps,
-    ).commit();
+    ).commit() as CompiledWorkflow;
 
   /** Compiles a branch step: first-match arms, an always-runs else, an unwrap. */
   const compileBranch = (chain: WorkflowChain, step: BranchStep) => {
@@ -255,13 +255,11 @@ export function compileDefinition(
     const elseId = `${key}_${step.id}_else`;
     const elseTarget = step.else?.length
       ? buildNested(elseId, step.else)
-      : (
-          createWorkflow({
-            id: elseId,
-            inputSchema: stateSchema,
-            outputSchema: stateSchema,
-          }) as WorkflowChain
-        )
+      : createWorkflow({
+          id: elseId,
+          inputSchema: stateSchema,
+          outputSchema: stateSchema,
+        })
           .then(
             createStep({
               id: `${elseId}_noop`,
@@ -284,9 +282,10 @@ export function compileDefinition(
     // unwrap it back into plain state, recording which arm ran.
     return chain.branch(pairs).map(({ inputData }) => {
       for (const [armId, value] of Object.entries(inputData || {})) {
-        if (value && typeof value === 'object' && 'trigger' in value) {
-          const state = value as WorkflowState;
-          return Promise.resolve(withOutput(state, step.id, { taken: armId }));
+        if (isWorkflowState(value)) {
+          return Promise.resolve(
+            withOutput(value, step.id, { taken: armId }),
+          );
         }
       }
       throw new Error(
@@ -301,7 +300,7 @@ export function compileDefinition(
     // Every fan-out member receives the same pre-parallel state; the merge
     // recombines their step outputs (ids are globally unique, so no clashes).
     return chain.parallel(subs).map(({ inputData }) => {
-      const states = Object.values(inputData || {}) as WorkflowState[];
+      const states = unwrapContainerStates(inputData);
       if (!states.length)
         throw new Error(`parallel "${step.id}" produced no results`);
       const merged: WorkflowState = {
@@ -320,11 +319,21 @@ export function compileDefinition(
   function buildChain(start: WorkflowChain, steps: WorkflowStep[]) {
     let chain = start;
     for (const step of steps) {
-      if (step.type === 'wait') {
-        // Workflow-level sleep: the run parks in Mastra (status `waiting`,
-        // snapshot persisted) instead of holding a process timer.
-        chain = chain.sleep(step.duration);
-        continue;
+      // validateDefinition rejects non-compiled types before we get here; the
+      // STEP_SUPPORT guard keeps the compiler's "what runs" in lockstep with
+      // the validator's "what's allowed" from the one source of truth.
+      if (!isCompiledStep(step.type)) {
+        // 'wait' is schema'd and emits a chain.sleep, but is 'planned' (no
+        // resume worker yet) — validation never lets a wait step reach here.
+        if (step.type === 'wait') {
+          chain = chain.sleep(step.duration);
+          continue;
+        }
+        throw new Error(
+          `step type "${step.type}" is not compilable (${
+            STEP_SUPPORT[step.type as keyof typeof STEP_SUPPORT] ?? 'unknown'
+          })`,
+        );
       }
       if (step.type === 'branch') {
         chain = compileBranch(chain, step);
@@ -346,7 +355,7 @@ export function compileDefinition(
       outputSchema: stateSchema,
     }),
     definition.steps,
-  ).commit();
+  ).commit() as CompiledWorkflow;
 }
 
 /**

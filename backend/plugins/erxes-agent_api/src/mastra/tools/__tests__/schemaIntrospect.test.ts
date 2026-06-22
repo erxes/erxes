@@ -44,7 +44,7 @@ const DEAL_LIST = object('DealListResponse');
 
 describe('chooseResponseFields — agent-requested fields', () => {
   it('selects requested top-level scalars and always prepends _id', () => {
-    const sel = chooseResponseFields('deals', undefined, DEAL, objectFieldsMap, [
+    const sel = chooseResponseFields('deals', DEAL, objectFieldsMap, [
       'name',
       'amount',
     ]);
@@ -52,7 +52,7 @@ describe('chooseResponseFields — agent-requested fields', () => {
   });
 
   it('drops unknown field names but keeps the valid ones', () => {
-    const sel = chooseResponseFields('deals', undefined, DEAL, objectFieldsMap, [
+    const sel = chooseResponseFields('deals', DEAL, objectFieldsMap, [
       'name',
       'bogus',
       'amount',
@@ -61,7 +61,7 @@ describe('chooseResponseFields — agent-requested fields', () => {
   });
 
   it('groups one level of nested children under their parent object', () => {
-    const sel = chooseResponseFields('deals', undefined, DEAL, objectFieldsMap, [
+    const sel = chooseResponseFields('deals', DEAL, objectFieldsMap, [
       'name',
       'customer.email',
       'customer.name',
@@ -70,14 +70,14 @@ describe('chooseResponseFields — agent-requested fields', () => {
   });
 
   it('auto-expands a bare object field to its default leaves', () => {
-    const sel = chooseResponseFields('deals', undefined, DEAL, objectFieldsMap, [
+    const sel = chooseResponseFields('deals', DEAL, objectFieldsMap, [
       'customer',
     ]);
     expect(sel).toBe('_id customer { _id name email primaryPhone }');
   });
 
   it('drops paths deeper than one level', () => {
-    const sel = chooseResponseFields('deals', undefined, DEAL, objectFieldsMap, [
+    const sel = chooseResponseFields('deals', DEAL, objectFieldsMap, [
       'name',
       'customer.address.city',
     ]);
@@ -85,7 +85,7 @@ describe('chooseResponseFields — agent-requested fields', () => {
   });
 
   it('falls back to the auto selection when every requested field is invalid', () => {
-    const sel = chooseResponseFields('deals', undefined, DEAL, objectFieldsMap, [
+    const sel = chooseResponseFields('deals', DEAL, objectFieldsMap, [
       'bogus',
       'nope',
     ]);
@@ -96,7 +96,6 @@ describe('chooseResponseFields — agent-requested fields', () => {
   it('applies requested fields to the inner item type for list wrappers', () => {
     const sel = chooseResponseFields(
       'deals',
-      undefined,
       DEAL_LIST,
       objectFieldsMap,
       ['name', 'amount'],
@@ -105,14 +104,14 @@ describe('chooseResponseFields — agent-requested fields', () => {
   });
 
   it('ignores requested fields for the curated dealsAdd selection', () => {
-    const sel = chooseResponseFields('dealsAdd', undefined, DEAL, objectFieldsMap, [
+    const sel = chooseResponseFields('dealsAdd', DEAL, objectFieldsMap, [
       'amount',
     ]);
     expect(sel).toBe('_id name stageId');
   });
 
   it('still auto-selects when no fields are requested', () => {
-    const sel = chooseResponseFields('deals', undefined, DEAL, objectFieldsMap);
+    const sel = chooseResponseFields('deals', DEAL, objectFieldsMap);
     expect(sel).toBe('_id name amount stageId status');
   });
 });

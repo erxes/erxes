@@ -22,6 +22,7 @@ interface RecordedOp {
 const linearDef = (): WorkflowDefinition => ({
   trigger: { type: 'manual', config: {} },
   policy: { mode: 'all', allowed: [] },
+  destructiveOps: 'block',
   bindings: { judge: { kind: 'agent', id: 'agent-1' } },
   limits: { maxLlmCalls: 10 },
   steps: [
@@ -49,6 +50,7 @@ const linearDef = (): WorkflowDefinition => ({
 const branchDef = (): WorkflowDefinition => ({
   trigger: { type: 'manual', config: {} },
   policy: { mode: 'all', allowed: [] },
+  destructiveOps: 'block',
   bindings: { judge: { kind: 'agent', id: 'agent-1' } },
   limits: { maxLlmCalls: 10 },
   steps: [
@@ -105,6 +107,7 @@ const branchDef = (): WorkflowDefinition => ({
 const parallelDef = (): WorkflowDefinition => ({
   trigger: { type: 'manual', config: {} },
   policy: { mode: 'all', allowed: [] },
+  destructiveOps: 'block',
   bindings: {},
   limits: { maxLlmCalls: 10 },
   steps: [

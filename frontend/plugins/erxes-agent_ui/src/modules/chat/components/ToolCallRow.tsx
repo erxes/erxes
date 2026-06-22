@@ -6,7 +6,7 @@ import {
   IconTool,
 } from '@tabler/icons-react';
 import { ToolCallInfo } from '~/modules/chat/types';
-import { formatJson } from '~/modules/chat/utils';
+import { formatJson } from '~/modules/chat/lib/markdown';
 
 export const ToolCallRow = ({
   call,

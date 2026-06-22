@@ -104,7 +104,10 @@ export function extractJsonObject(text: string): Record<string, unknown> {
  * schedule/automation runs, with the app token). The workflow policy is the
  * security boundary; judgment is classification only.
  */
-const judgeCache = new Map<string, JudgeAgent>();
+// Keyed by agent _id, holding the cached agent's version: a newer version
+// overwrites its single entry, so eviction is one Map.set instead of an O(n)
+// startsWith scan over every cached agent.
+const judgeCache = new Map<string, { version: number; judge: JudgeAgent }>();
 
 /** The minimal Mastra Agent surface the judgment path invokes. */
 interface JudgeAgent {
@@ -118,9 +121,9 @@ function getJudgeAgent(
   agentConfig: IMastraAgentDocument,
   providers: ProviderDocLike[],
 ): JudgeAgent {
-  const key = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}`;
-  const hit = judgeCache.get(key);
-  if (hit) return hit;
+  const version = agentConfig.updatedAt?.getTime?.() ?? 0;
+  const hit = judgeCache.get(agentConfig._id);
+  if (hit && hit.version === version) return hit.judge;
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Agent } = require('@mastra/core/agent'); // skipcq: JS-0359
@@ -137,12 +140,7 @@ function getJudgeAgent(
     defaultOptions: { maxSteps: 1 },
   });
 
-  for (const cachedKey of judgeCache.keys()) {
-    if (cachedKey.startsWith(`${agentConfig._id}:`)) {
-      judgeCache.delete(cachedKey);
-    }
-  }
-  judgeCache.set(key, judge);
+  judgeCache.set(agentConfig._id, { version, judge });
   return judge;
 }
 

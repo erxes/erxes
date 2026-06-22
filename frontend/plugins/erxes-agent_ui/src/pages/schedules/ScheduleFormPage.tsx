@@ -1,38 +1,31 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  IconArrowLeft,
-  IconCalendarTime,
-  IconInfoCircle,
-} from '@tabler/icons-react';
+import { IconCalendarTime, IconInfoCircle } from '@tabler/icons-react';
 import {
   Alert,
-  Button,
-  Breadcrumb,
   Combobox,
   Command,
   Form,
   Input,
   Popover,
-  Separator,
   Switch,
   Textarea,
   toast,
 } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
 import { MASTRA_SCHEDULE, MASTRA_SCHEDULES } from '~/graphql/queries';
 import {
   MASTRA_SCHEDULE_CREATE,
   MASTRA_SCHEDULE_UPDATE,
 } from '~/graphql/mutations';
+import { toastError } from '~/lib/mutationToast';
 import { FormSection } from '~/components/FormLayout';
+import { ResourceFormLayout } from '~/components/ResourceFormLayout';
+import { useResourceForm } from '~/components/useResourceForm';
 import { ScheduleTimingFields } from './ScheduleTimingFields';
 import { useScheduleAgents } from './hooks/useScheduleAgents';
-import { IScheduleQueryResponse } from './types';
+import { ISchedule, IScheduleQueryResponse } from './types';
 
 const scheduleFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -117,11 +110,6 @@ export const ScheduleFormPage = () => {
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
-  const form = useForm<ScheduleFormValues>({
-    resolver: zodResolver(scheduleFormSchema),
-    defaultValues: DEFAULT_VALUES,
-  });
-
   const { data: scheduleData } = useQuery<IScheduleQueryResponse>(
     MASTRA_SCHEDULE,
     {
@@ -130,20 +118,21 @@ export const ScheduleFormPage = () => {
     },
   );
 
-  useEffect(() => {
-    if (isEdit && scheduleData?.mastraSchedule) {
-      const schedule = scheduleData.mastraSchedule;
-      form.reset({
-        name: schedule.name || '',
-        description: schedule.description || '',
-        agentId: schedule.agentId || '',
-        cron: schedule.cron || DEFAULT_VALUES.cron,
-        timezone: schedule.timezone || 'UTC',
-        prompt: schedule.prompt || '',
-        isEnabled: schedule.isEnabled ?? false,
-      });
-    }
-  }, [scheduleData, isEdit, form]);
+  const form = useResourceForm<ScheduleFormValues, ISchedule>({
+    schema: scheduleFormSchema,
+    defaults: DEFAULT_VALUES,
+    isEdit,
+    record: scheduleData?.mastraSchedule,
+    load: (schedule) => ({
+      name: schedule.name || '',
+      description: schedule.description || '',
+      agentId: schedule.agentId || '',
+      cron: schedule.cron || DEFAULT_VALUES.cron,
+      timezone: schedule.timezone || 'UTC',
+      prompt: schedule.prompt || '',
+      isEnabled: schedule.isEnabled ?? false,
+    }),
+  });
 
   const mutationOptions = (successTitle: string) => ({
     refetchQueries: [{ query: MASTRA_SCHEDULES }],
@@ -152,8 +141,7 @@ export const ScheduleFormPage = () => {
       toast({ title: successTitle });
       navigate('/erxes-agent/schedules');
     },
-    onError: (e: { message: string }) =>
-      toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+    onError: toastError(),
   });
   const [createSchedule, { loading: creating }] = useMutation(
     MASTRA_SCHEDULE_CREATE,
@@ -174,52 +162,21 @@ export const ScheduleFormPage = () => {
   };
 
   const isSaving = creating || updating;
-  const saveLabel = isEdit ? 'Save Changes' : 'Create Schedule';
 
   return (
-    // skipcq: JS-0415 — page scaffolding (header/breadcrumb) nests past the cap
-    <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/erxes-agent/schedules">
-                    <IconCalendarTime />
-                    Schedules
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <span className="text-muted-foreground">
-                  {isEdit ? 'Edit Schedule' : 'New Schedule'}
-                </span>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-        </PageHeader.Start>
-        <PageHeader.End>
-          <Button variant="outline" asChild>
-            <Link to="/erxes-agent/schedules">
-              <IconArrowLeft /> Back
-            </Link>
-          </Button>
-          <Button type="submit" form="schedule-form" disabled={isSaving}>
-            {isSaving ? 'Saving…' : saveLabel}
-          </Button>
-        </PageHeader.End>
-      </PageHeader>
-
-      <div className="flex-1 overflow-auto p-4">
-        <Form {...form}>
-          <form
-            id="schedule-form"
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="max-w-2xl mx-auto space-y-4"
-          >
+    <ResourceFormLayout
+      icon={IconCalendarTime}
+      title="Schedules"
+      noun="Schedule"
+      rootPath="/erxes-agent/schedules"
+      isEdit={isEdit}
+      saving={isSaving}
+      saveLabel={isEdit ? 'Save Changes' : 'Create Schedule'}
+      formId="schedule-form"
+      form={form}
+      onSubmit={onSubmit}
+      mobileFooter
+    >
             <FormSection title="Basic Info">
               <Form.Field
                 control={form.control}
@@ -343,18 +300,6 @@ export const ScheduleFormPage = () => {
                 </Alert.Description>
               </Alert>
             </FormSection>
-
-            <div className="flex gap-3 pb-4 sm:hidden">
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? 'Saving…' : saveLabel}
-              </Button>
-              <Button type="button" variant="outline" asChild>
-                <Link to="/erxes-agent/schedules">Cancel</Link>
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </div>
+    </ResourceFormLayout>
   );
 };

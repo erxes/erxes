@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { AGENT_FIELDS, WORKFLOW_FIELDS } from './queries';
 
 export const MASTRA_THREAD_RENAME = gql`
   mutation MastraThreadRename($threadId: String!, $title: String!) {
@@ -19,47 +20,19 @@ export const MASTRA_THREAD_REMOVE = gql`
 export const MASTRA_AGENT_CREATE = gql`
   mutation MastraAgentCreate($doc: MastraAgentInput!) {
     mastraAgentCreate(doc: $doc) {
-      _id
-      name
-      agentId
-      description
-      instructions
-      provider
-      model
-      toolPolicy
-      allowedTools
-      destructiveOps
-      memoryEnabled
-      maxSteps
-      temperature
-      isEnabled
-      createdAt
-      updatedAt
+      ...AgentFields
     }
   }
+  ${AGENT_FIELDS}
 `;
 
 export const MASTRA_AGENT_UPDATE = gql`
   mutation MastraAgentUpdate($_id: String!, $doc: MastraAgentInput!) {
     mastraAgentUpdate(_id: $_id, doc: $doc) {
-      _id
-      name
-      agentId
-      description
-      instructions
-      provider
-      model
-      toolPolicy
-      allowedTools
-      destructiveOps
-      memoryEnabled
-      maxSteps
-      temperature
-      isEnabled
-      createdAt
-      updatedAt
+      ...AgentFields
     }
   }
+  ${AGENT_FIELDS}
 `;
 
 export const MASTRA_AGENT_REMOVE = gql`
@@ -174,31 +147,19 @@ export const MASTRA_LEARNING_REMOVE = gql`
 export const MASTRA_WORKFLOW_CREATE = gql`
   mutation MastraWorkflowCreate($doc: MastraWorkflowInput!) {
     mastraWorkflowCreate(doc: $doc) {
-      _id
-      name
-      description
-      definition
-      version
-      isEnabled
-      createdAt
-      updatedAt
+      ...WorkflowFields
     }
   }
+  ${WORKFLOW_FIELDS}
 `;
 
 export const MASTRA_WORKFLOW_UPDATE = gql`
   mutation MastraWorkflowUpdate($_id: String!, $doc: MastraWorkflowInput!) {
     mastraWorkflowUpdate(_id: $_id, doc: $doc) {
-      _id
-      name
-      description
-      definition
-      version
-      isEnabled
-      createdAt
-      updatedAt
+      ...WorkflowFields
     }
   }
+  ${WORKFLOW_FIELDS}
 `;
 
 export const MASTRA_WORKFLOW_REMOVE = gql`

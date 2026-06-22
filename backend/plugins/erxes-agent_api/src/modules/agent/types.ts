@@ -1,4 +1,5 @@
 import type { ToolsInput } from '@mastra/core/agent';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IMastraAgentDocument } from '@/agent/@types/agent';
 import { IMastraProviderDocument } from '@/provider/@types/provider';
 import { IMastraSettingsDocument } from '@/settings/@types/settings';
@@ -56,12 +57,56 @@ export interface TurnAgent {
   ): Promise<{ fullStream: unknown }>;
 }
 
+// One normalized streaming event — the SSE wire shape, also the unit the turn
+// accumulator folds. (Mirrors the `data: {json}` events documented on the SSE
+// route; `done` carries the final reply/messageId.)
+export interface StreamEvent {
+  type: string;
+  text?: string;
+  message?: string;
+  toolCallId?: string;
+  toolName?: string;
+  args?: unknown;
+  result?: unknown;
+  isError?: boolean;
+  reply?: string | null;
+  interrupted?: boolean;
+  messageId?: string | null;
+  threadId?: string;
+  title?: string;
+}
+
 // Per-turn Mastra Memory binding — which thread + (tenant-scoped) resource this
 // turn reads/writes. Passed to generate()/stream() so Mastra recalls + persists.
 export interface MemoryBinding {
   thread: string;
   resource: string;
 }
+
+// Who/what is driving a turn — the one knob that varies across the four
+// callers (in-app chat, the GraphQL resolver, the frontline bot webhook, and
+// scheduled runs). It decides resource scoping, the auth context, ownership
+// gating, and whether memory rides on the agent's history toggle or on the
+// message being non-empty. The rest of prepareTurn is shared.
+export type TurnIdentity =
+  | {
+      // In-app user — the SSE route and the mastraAgentChat resolver. Threads
+      // are owned/listed by the user's resource; ownership is enforced.
+      kind: 'user';
+      user: IUserDocument;
+    }
+  | {
+      // The frontline bot webhook — a synthetic resource kept out of users'
+      // chat lists. No ownership gate; memory rides on a non-empty message.
+      kind: 'bot';
+      resourceKey: string;
+    }
+  | {
+      // A scheduled run — a schedule-scoped resource. No ownership gate; the
+      // convo is the schedule's prompt (no learned digest woven in).
+      kind: 'schedule';
+      resourceKey: string;
+    };
 
 export interface PreparedTurn {
   agentConfig: IMastraAgentDocument;

@@ -99,8 +99,12 @@ export function checkRef(
   return null;
 }
 
-/** Walks one dot path through the scope, returning undefined on any dead end. */
-function lookup(path: string, scope: RefScope): unknown {
+/**
+ * Walks one dot path through the scope, returning undefined on any dead end.
+ * The public path-resolution primitive: evalExpr resolves an already-parsed
+ * ref through this directly, and resolveValue uses it for `{{ }}` strings.
+ */
+export function lookup(path: string, scope: RefScope): unknown {
   const segs = path.split('.');
   let cur: unknown = scope;
   for (const seg of segs) {

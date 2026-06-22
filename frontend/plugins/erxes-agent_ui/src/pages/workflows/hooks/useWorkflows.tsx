@@ -1,18 +1,13 @@
-import { useQuery } from '@apollo/client';
 import { MASTRA_WORKFLOWS } from '~/graphql/queries';
+import { useResourceList } from '~/components/useResourceList';
 import { IWorkflow, IWorkflowsQueryResponse } from '../types';
 
 /** All workflows for the list page. Network-only so the table reflects edits. */
 export const useWorkflows = () => {
-  const { data, loading, refetch } = useQuery<IWorkflowsQueryResponse>(
-    MASTRA_WORKFLOWS,
-    {
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
-    },
-  );
+  const { items, loading, refetch } = useResourceList<
+    IWorkflowsQueryResponse,
+    IWorkflow
+  >(MASTRA_WORKFLOWS, (data) => data?.mastraWorkflows ?? []);
 
-  const workflows: IWorkflow[] = data?.mastraWorkflows ?? [];
-
-  return { workflows, loading, refetch };
+  return { workflows: items, loading, refetch };
 };

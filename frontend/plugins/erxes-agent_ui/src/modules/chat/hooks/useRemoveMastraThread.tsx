@@ -1,8 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { MASTRA_THREAD_REMOVE } from '~/graphql/mutations';
-import { MASTRA_THREADS } from '~/graphql/queries';
-import { IMastraThreadsResponse } from '~/modules/chat/types';
+import { updateThreadsCache } from '~/modules/chat/threadsCache';
 
 interface MastraThreadRemoveResponse {
   mastraThreadRemove: boolean;
@@ -22,16 +21,8 @@ export const useRemoveMastraThread = (mastraAgentId?: string) => {
       optimisticResponse: { mastraThreadRemove: true },
       update: (cache) => {
         if (!mastraAgentId) return;
-        cache.updateQuery<IMastraThreadsResponse>(
-          { query: MASTRA_THREADS, variables: { agentId: mastraAgentId } },
-          (prev) =>
-            prev
-              ? {
-                  mastraThreads: prev.mastraThreads.filter(
-                    (t) => t.threadId !== threadId,
-                  ),
-                }
-              : prev ?? undefined,
+        updateThreadsCache(cache, mastraAgentId, (list) =>
+          list.filter((t) => t.threadId !== threadId),
         );
       },
       onError: (error) => {

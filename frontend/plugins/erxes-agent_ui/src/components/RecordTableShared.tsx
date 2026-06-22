@@ -6,7 +6,9 @@ import {
 } from '@tabler/icons-react';
 import {
   Badge,
+  Combobox,
   Command,
+  Popover,
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
@@ -14,6 +16,26 @@ import { PermissionButton } from './PermissionButton';
 
 // Bits shared by the plugin's record tables (agents, workflows, schedules)
 // so the row menus and status columns stay identical across the lists.
+
+/** Popover-anchored "more" menu shared by every list's actions column. */
+export const RowActionsMenu = ({ children }: { children: React.ReactNode }) => (
+  <Popover>
+    <Popover.Trigger asChild>
+      <RecordTable.MoreButton className="w-full h-full" />
+    </Popover.Trigger>
+    <Combobox.Content
+      side="right"
+      align="start"
+      avoidCollisions={false}
+      className="w-44 min-w-0 [&>button]:cursor-pointer"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <Command>
+        <Command.List>{children}</Command.List>
+      </Command>
+    </Combobox.Content>
+  </Popover>
+);
 
 /** Enable/disable + delete tail of a row actions menu. */
 export const ToggleDeleteMenuItems = ({

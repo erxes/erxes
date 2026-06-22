@@ -20,22 +20,14 @@ import {
   REASONING_EFFORT_OPTIONS,
   ThreadChatState,
 } from '~/modules/chat/types';
-import {
-  generateThreadId,
-  partsFromMeta,
-  randomIdSuffix,
-} from '~/modules/chat/utils';
+import { generateThreadId, randomIdSuffix } from '~/modules/chat/lib/ids';
+import { partsFromMeta } from '~/modules/chat/lib/messageParts';
 import {
   prependThreadToCache,
   refetchThreadsIntoCache,
   setThreadTitleInCache,
 } from '~/modules/chat/threadsCache';
-import { readStreamEvents } from '~/modules/chat/lib/streamTransport';
-import {
-  ApplyOps,
-  applyStreamEvent,
-  LiveState,
-} from '~/modules/chat/lib/applyEvent';
+import { runStream } from '~/modules/chat/lib/runStream';
 
 type Client = ApolloClient<object>;
 
@@ -184,27 +176,6 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
     patchThread(agentKey, threadId, { messages: [...t.messages, withId] });
   };
 
-  // Replace a message by its stable `_clientId` rather than by position, so an
-  // error (or any message) appended between two stream events can't be
-  // overwritten by the live bubble's next update. Appends if it's gone (e.g.
-  // the first live event, or a thread cleared mid-stream).
-  const replaceMessageById = (
-    agentKey: string,
-    threadId: string,
-    clientId: string,
-    msg: Message,
-  ) => {
-    const t = getThread(agentKey, threadId);
-    const idx = t.messages.findIndex((m) => m._clientId === clientId);
-    if (idx < 0) {
-      patchThread(agentKey, threadId, { messages: [...t.messages, msg] });
-      return;
-    }
-    const messages = t.messages.slice();
-    messages[idx] = msg;
-    patchThread(agentKey, threadId, { messages });
-  };
-
   const hydrateFeedbacks = async (
     client: Client,
     agentKey: string,
@@ -341,63 +312,29 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       return false;
     }
 
-    // The live assistant bubble; advanced in place as events arrive. Keyed by a
-    // stable client id so its updates land on the same row even if another
-    // message is appended mid-stream.
-    let live: Message | null = null;
-    const liveClientId = `m-${randomIdSuffix(8)}`;
-    const liveState: LiveState = { sawDone: false, hasLive: false };
-
-    // Coalesce store writes to one per animation frame. A fast provider emits
-    // many tokens per frame; without this the live bubble re-renders (and
-    // re-parses its whole growing markdown) on every token, pegging the main
-    // thread so streaming stutters. `live` still advances synchronously so each
-    // event builds on the latest; only the store write — and the React render
-    // it triggers — is throttled to ~60fps. `flushLive` is called synchronously
-    // at every terminal point so the final state is never left in the buffer.
-    let flushScheduled = false;
-    let liveDirty = false;
-
-    const flushLive = () => {
-      flushScheduled = false;
-      if (!liveDirty || !live) return;
-      liveDirty = false;
-      // replaceMessageById appends when the row isn't in the store yet (the
-      // first flush), so this one call covers both append and in-place update.
-      replaceMessageById(agentKey, threadId, liveClientId, live);
-      // Bump a monotonic tick so the view can follow streamed output off a
-      // single dependency, rather than inferring growth from message contents.
-      patchThread(agentKey, threadId, {
-        streamTick: (getThread(agentKey, threadId).streamTick ?? 0) + 1,
-      });
-    };
-
-    const scheduleFlush = () => {
-      if (flushScheduled) return;
-      flushScheduled = true;
-      if (typeof requestAnimationFrame === 'function') {
-        requestAnimationFrame(flushLive);
-      } else {
-        setTimeout(flushLive, 16);
-      }
-    };
-
-    const upsertLive = (mutate: (m: Message) => Message) => {
-      const base: Message = live ?? {
-        role: 'assistant',
-        content: '',
-        timestamp: new Date(),
-        streaming: true,
-        _clientId: liveClientId,
-      };
-      live = mutate({ ...base, parts: base.parts?.slice() });
-      liveState.hasLive = true;
-      liveDirty = true;
-      scheduleFlush();
-    };
-
-    const ops: ApplyOps = {
-      upsertLive,
+    await runStream(response, threadId, abort, {
+      // Fold the live-bubble write and the streamTick bump into a single store
+      // update so a flush re-renders the view once per frame, not twice.
+      commitLive: (clientId, msg) =>
+        set((s) => {
+          const key = threadKey(agentKey, threadId);
+          const prev = s.threads[key] ?? EMPTY_THREAD;
+          const idx = prev.messages.findIndex((m) => m._clientId === clientId);
+          const messages =
+            idx < 0
+              ? [...prev.messages, msg]
+              : prev.messages.map((m, i) => (i === idx ? msg : m));
+          return {
+            threads: {
+              ...s.threads,
+              [key]: {
+                ...prev,
+                messages,
+                streamTick: (prev.streamTick ?? 0) + 1,
+              },
+            },
+          };
+        }),
       appendError: (content) =>
         appendMessage(agentKey, threadId, {
           role: 'error',
@@ -408,39 +345,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
         patchThread(agentKey, threadId, { activity: text }),
       setSessionTitle: (tid, title) =>
         setThreadTitleInCache(client, mastraAgentId, tid, title),
-      fallbackThreadId: threadId,
-    };
-
-    try {
-      for await (const ev of readStreamEvents(response)) {
-        applyStreamEvent(ops, ev, liveState);
-      }
-    } catch (err) {
-      if (!abort.signal.aborted) {
-        // Persist whatever streamed before the failure, then surface the error.
-        flushLive();
-        throw err;
-      }
-    }
-
-    // User pressed stop, or the connection dropped mid-stream: finalize what we
-    // have so the partial reply stays visible.
-    if (!liveState.sawDone && live) {
-      upsertLive((m) => ({
-        ...m,
-        streaming: false,
-        interrupted: abort.signal.aborted,
-      }));
-    }
-    if (!liveState.sawDone && !live && !abort.signal.aborted) {
-      throw new Error(
-        'The connection to the agent was lost. Please try again.',
-      );
-    }
-
-    // Write the final buffered state synchronously — the last events (done /
-    // finalize above) may still be sitting in the coalesced frame.
-    flushLive();
+    });
 
     return true;
   };
@@ -715,8 +620,46 @@ export const selectAgentActivity = (
 export const selectHasUnread = (s: ChatStoreState, agentKey: string): boolean =>
   s.unreadAgents.includes(agentKey);
 
+// The store actions exposed verbatim on the imperative facade (same name, same
+// signature). Selectors below are kept separate because they compose/rename.
+type StoreActionKey =
+  | 'setCurrentAgent'
+  | 'markRead'
+  | 'setReasoningEffort'
+  | 'newDraft'
+  | 'selectSession'
+  | 'rateMessage'
+  | 'discardThread'
+  | 'stop'
+  | 'sendMessage';
+
+type StoreActions = Pick<ChatStoreState, StoreActionKey>;
+
+const ACTION_KEYS: StoreActionKey[] = [
+  'setCurrentAgent',
+  'markRead',
+  'setReasoningEffort',
+  'newDraft',
+  'selectSession',
+  'rateMessage',
+  'discardThread',
+  'stop',
+  'sendMessage',
+];
+
+// Each action delegates to the live store rather than being hand-forwarded, so
+// adding/changing a store action only touches ACTION_KEYS above.
+const actionForwarders = Object.fromEntries(
+  ACTION_KEYS.map((key) => [
+    key,
+    (...args: unknown[]) =>
+      (useChatStore.getState()[key] as (...a: unknown[]) => unknown)(...args),
+  ]),
+) as StoreActions;
+
 // Imperative facade so call sites keep reading `chatStore.x(...)` while reactive
-// reads move to the hooks in ./hooks. Methods delegate to the live store.
+// reads move to the hooks in ./hooks. Selectors compose getState(); actions
+// delegate to the live store via actionForwarders.
 export const chatStore = {
   getState: (agentKey: string) =>
     selectAgentView(useChatStore.getState(), agentKey),
@@ -729,46 +672,5 @@ export const chatStore = {
     selectAgentActivity(useChatStore.getState(), agentKey),
   isThreadWorking: (agentKey: string, threadId: string) =>
     selectThreadWorking(useChatStore.getState(), agentKey, threadId),
-  setCurrentAgent: (agentId: string | undefined) =>
-    useChatStore.getState().setCurrentAgent(agentId),
-  markRead: (agentKey: string) => useChatStore.getState().markRead(agentKey),
-  setReasoningEffort: (agentKey: string, effort: ReasoningEffort | undefined) =>
-    useChatStore.getState().setReasoningEffort(agentKey, effort),
-  newDraft: (agentKey: string) => useChatStore.getState().newDraft(agentKey),
-  selectSession: (client: Client, agentKey: string, threadId: string) =>
-    useChatStore.getState().selectSession(client, agentKey, threadId),
-  rateMessage: (
-    client: Client,
-    agentKey: string,
-    threadId: string,
-    messageId: string,
-    rating: 1 | -1,
-  ) =>
-    useChatStore
-      .getState()
-      .rateMessage(client, agentKey, threadId, messageId, rating),
-  discardThread: (agentKey: string, threadId: string) =>
-    useChatStore.getState().discardThread(agentKey, threadId),
-  stop: (agentKey: string, threadId: string) =>
-    useChatStore.getState().stop(agentKey, threadId),
-  sendMessage: (
-    client: Client,
-    agentKey: string,
-    mastraAgentId: string,
-    message: string,
-    attachments?: ChatAttachment[],
-    approvedOperations?: ApprovedOp[],
-    hidden?: boolean,
-  ) =>
-    useChatStore
-      .getState()
-      .sendMessage(
-        client,
-        agentKey,
-        mastraAgentId,
-        message,
-        attachments,
-        approvedOperations,
-        hidden,
-      ),
+  ...actionForwarders,
 };

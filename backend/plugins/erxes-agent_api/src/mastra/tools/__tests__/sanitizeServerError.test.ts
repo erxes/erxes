@@ -1,4 +1,4 @@
-import { sanitizeServerError } from '../erxesTools';
+import { sanitizeServerError } from '../serverErrorClassifier';
 
 describe('sanitizeServerError', () => {
   it('hides internal "reading name" crashes from the user (the live bug)', () => {

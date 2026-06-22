@@ -19,12 +19,8 @@ import { Memory } from '@mastra/memory';
 import { MongoDBStore } from '@mastra/mongodb';
 import { QdrantVector } from '@mastra/qdrant';
 import { getEmbedder } from './embedder';
-import { resolveRecallTuning } from './config';
+import { resolveRecallTuning, qdrantUrl } from './config';
 import { TITLER_INSTRUCTIONS } from '~/mastra/titler';
-
-/** Qdrant endpoint for memory vectors (env override, local default). */
-const QDRANT_URL = () =>
-  process.env.ERXES_AGENT_QDRANT_URL || 'http://localhost:6333';
 
 // Memory storage shares the app's Mongo connection (MONGO_URL). Mastra's
 // MongoDBStore provisions its collections in a dedicated database on that same
@@ -84,7 +80,7 @@ export async function getMastraMemory(_subdomain?: string): Promise<Memory> {
 
     const vector = new QdrantVector({
       id: 'erxes-agent-memory',
-      url: QDRANT_URL(),
+      url: qdrantUrl(),
       // Client/server minor-version skew otherwise logs a noisy warning per call.
       checkCompatibility: false,
     } as never);
