@@ -374,12 +374,12 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
     },
     cell: ({ row }) => {
       const item = row.original.items;
-      const value =
-        item?.discountPercent && item.discountPercent > 0
-          ? 'Percent'
-          : item?.discountAmount && item.discountAmount > 0
-            ? 'Amount'
-            : '';
+      let value = '';
+      if (item?.discountPercent && item.discountPercent > 0) {
+        value = 'Percent';
+      } else if (item?.discountAmount && item.discountAmount > 0) {
+        value = 'Amount';
+      }
       return (
         <RecordTableInlineCell>
           {value ? <Badge variant="default">{value}</Badge> : ''}

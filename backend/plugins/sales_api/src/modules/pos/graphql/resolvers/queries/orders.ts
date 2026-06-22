@@ -904,7 +904,7 @@ const queries = {
       params.types?.length ||
       params.statuses?.length ||
       params.excludeStatuses?.length ||
-      params.hasPaidDate ||
+      params.hasPaidDate !== undefined ||
       params.brandId;
 
     const resultProducts = hasOrderFilter
