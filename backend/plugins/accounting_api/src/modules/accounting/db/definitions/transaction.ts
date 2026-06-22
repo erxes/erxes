@@ -46,6 +46,8 @@ export const transactionDetailSchema = new Schema({
   productId: { type: String, optional: true, label: 'Product' },
   count: { type: Number, optional: true, label: 'Count' },
   unitPrice: { type: Number, optional: true, label: 'unitPrice' },
+
+  fixedAssetId: { type: String, optional: true, label: 'Fixed asset' },
 });
 
 export const transactionSchema = schemaWrapper(
@@ -169,6 +171,7 @@ export const transactionSchema = schemaWrapper(
 transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });
 transactionSchema.index({ contentType: 1, contentId: 1 });
 transactionSchema.index({ date: 1, number: 1 });
+transactionSchema.index({ 'details.fixedAssetId': 1 });
 
 export const transactionCounterSchema = schemaWrapper(
   new Schema({

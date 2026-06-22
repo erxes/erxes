@@ -22,6 +22,7 @@ export interface ITrDetail {
   excludeCtax?: boolean;
 
   productId?: string;
+  fixedAssetId?: string;
   count?: number;
   unitPrice?: number;
   tempAmount?: number;

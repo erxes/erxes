@@ -1,6 +1,6 @@
 import { Filter, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
 import { AccountSettingsBreadcrumb } from './settings/components/AccountSettingsBreadcrumb';
 import { AccountingTopbar } from './settings/components/AccountingTopbar';
@@ -21,6 +21,18 @@ const Accounts = lazy(() =>
 const AccountCategories = lazy(() =>
   import('~/pages/AccountCategoriesPage').then((module) => ({
     default: module.AccountCategoriesPage,
+  })),
+);
+
+const FixedAssets = lazy(() =>
+  import('~/pages/FixedAssetsPage').then((module) => ({
+    default: module.FixedAssetsPage,
+  })),
+);
+
+const FixedAssetCategories = lazy(() =>
+  import('~/pages/FixedAssetCategoriesPage').then((module) => ({
+    default: module.FixedAssetCategoriesPage,
   })),
 );
 
@@ -79,21 +91,62 @@ const AccountingSubSettings = () => {
             }
           >
             <Routes>
-              <Route path="" element={<AccountingMainConfig />} />
-              <Route path="/accounts" element={<Accounts />} />
+              <Route path="config" element={<AccountingMainConfig />} />
+              <Route path="/config/accounts" element={<Accounts />} />
               <Route
-                path="/account-categories"
+                path="/config/account-categories"
                 element={<AccountCategories />}
               />
-              <Route path="/vat-rows" element={<VatRows />} />
-              <Route path="/ctax-rows" element={<CTaxRows />} />
-              <Route path="/sync-deal" element={<SettingSyncDeal />} />
               <Route
-                path="/sync-deal-return"
+                path="/config/fixed-assets"
+                element={
+                  <Navigate
+                    to="/settings/accounting/fixed-assets/assets"
+                    replace
+                  />
+                }
+              />
+              <Route
+                path="/config/fixed-assets/categories"
+                element={
+                  <Navigate
+                    to="/settings/accounting/fixed-assets/categories"
+                    replace
+                  />
+                }
+              />
+              <Route
+                path="/config/fixed-assets/assets"
+                element={
+                  <Navigate
+                    to="/settings/accounting/fixed-assets/assets"
+                    replace
+                  />
+                }
+              />
+              <Route
+                path="/fixed-assets"
+                element={
+                  <Navigate
+                    to="/settings/accounting/fixed-assets/assets"
+                    replace
+                  />
+                }
+              />
+              <Route
+                path="/fixed-assets/categories"
+                element={<FixedAssetCategories />}
+              />
+              <Route path="/fixed-assets/assets" element={<FixedAssets />} />
+              <Route path="/config/vat-rows" element={<VatRows />} />
+              <Route path="/config/ctax-rows" element={<CTaxRows />} />
+              <Route path="/config/sync-deal" element={<SettingSyncDeal />} />
+              <Route
+                path="/config/sync-deal-return"
                 element={<SettingSyncDealReturn />}
               />
-              <Route path="/sync-order" element={<SettingSyncOrder />} />
-              <Route path="/permissions" element={<Permissions />} />
+              <Route path="/config/sync-order" element={<SettingSyncOrder />} />
+              <Route path="/config/permissions" element={<Permissions />} />
             </Routes>
           </Suspense>
         </div>

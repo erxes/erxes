@@ -94,6 +94,7 @@ const SelectProductContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  console.log(productIds, products.length, 'kkkkk')
   return (
     <Command shouldFilter={false}>
       <Command.Input

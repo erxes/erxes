@@ -23,6 +23,8 @@ export interface ITrDetail {
   productId?: string;
   count?: number;
   unitPrice?: number;
+
+  fixedAssetId?: string;
 }
 
 export interface ITransaction {
