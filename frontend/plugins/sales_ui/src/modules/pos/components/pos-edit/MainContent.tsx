@@ -136,7 +136,7 @@ export const MainContent: React.FC<MainContentProps> = ({
     return (
       <div className="p-6 text-center">
         <p className="text-destructive">
-          {t('failed-to-load-pos-details')}: {error.message}
+          {t('failed-to-load-pos-details', { message: error.message })}
         </p>
       </div>
     );

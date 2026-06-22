@@ -33,6 +33,7 @@ const normalizeSelectedIds = (value?: string | string[]) => {
 };
 
 const CardDetails = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const { companies, customers, tags, customProperties } = deal;
 
   const productMap = new Map(deal.products?.map((p) => [p._id, p]));
@@ -105,7 +106,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
               key={currency}
               className="flex justify-between text-xs font-semibold"
             >
-              <span className="text-muted-foreground">Total</span>
+              <span className="text-muted-foreground">{t('total')}</span>
               <span>
                 {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 {currency && (
@@ -121,7 +122,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
               key={currency}
               className="flex justify-between text-xs opacity-60"
             >
-              <span className="text-muted-foreground">Unused</span>
+              <span className="text-muted-foreground">{t('unused')}</span>
               <span>
                 {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 {currency && (

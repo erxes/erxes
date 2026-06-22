@@ -164,10 +164,11 @@ const SelectExcludeStatusContent = () => {
 };
 
 export const SelectExcludeStatusFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="excludeStatus">
       <IconBan />
-      Exclude Status
+      {t('exclude-status')}
     </Filter.Item>
   );
 };
@@ -212,6 +213,7 @@ export const SelectExcludeStatusFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('sales');
   const [excludeStatus, setExcludeStatus] = useQueryState<string[] | string>(
     'excludeStatus',
   );
@@ -221,7 +223,7 @@ export const SelectExcludeStatusFilterBar = ({
     <Filter.BarItem queryKey={'excludeStatus'}>
       <Filter.BarName>
         <IconBan />
-        Exclude Status
+        {t('exclude-status')}
       </Filter.BarName>
       <SelectExcludeStatusProvider
         mode={mode}

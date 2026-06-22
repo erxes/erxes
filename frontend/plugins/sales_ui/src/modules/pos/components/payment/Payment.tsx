@@ -142,7 +142,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details', { message: error.message })}
           </p>
         </div>
       );

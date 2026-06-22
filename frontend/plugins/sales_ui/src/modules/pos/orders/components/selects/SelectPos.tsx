@@ -152,12 +152,15 @@ const SelectPosContent = () => {
   );
 };
 
-export const SelectPosFilterItem = () => (
-  <Filter.Item value="pos">
-    <IconLabel />
-    Pos
-  </Filter.Item>
-);
+export const SelectPosFilterItem = () => {
+  const { t } = useTranslation('sales');
+  return (
+    <Filter.Item value="pos">
+      <IconLabel />
+      {t('pos')}
+    </Filter.Item>
+  );
+};
 
 export const SelectPosFilterView = ({
   onValueChange,

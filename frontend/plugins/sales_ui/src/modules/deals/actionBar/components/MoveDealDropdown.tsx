@@ -32,7 +32,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
           stageId,
         },
       });
-      toast({ title: 'Deal moved successfully', variant: 'success' });
+      toast({ title: t('deal-moved-successfully'), variant: 'success' });
       setOpen(false);
     } finally {
       setIsMoving(false);

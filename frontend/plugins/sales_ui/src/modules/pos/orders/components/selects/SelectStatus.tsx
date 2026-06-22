@@ -154,10 +154,11 @@ const SelectStatusContent = () => {
 };
 
 export const SelectStatusFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="status">
       <IconFlag />
-      Status
+      {t('status')}
     </Filter.Item>
   );
 };
@@ -202,6 +203,7 @@ export const SelectStatusFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('sales');
   const [status, setStatus] = useQueryState<string[] | string>('status');
   const [open, setOpen] = useState(false);
 
@@ -209,7 +211,7 @@ export const SelectStatusFilterBar = ({
     <Filter.BarItem queryKey={'status'}>
       <Filter.BarName>
         <IconFlag />
-        Status
+        {t('status')}
       </Filter.BarName>
       <SelectStatusProvider
         mode={mode}

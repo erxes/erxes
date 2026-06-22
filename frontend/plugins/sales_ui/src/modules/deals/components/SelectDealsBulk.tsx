@@ -183,7 +183,7 @@ const DealsList = ({
                       onClick={() => handleDealSelect(deal)}
                     >
                       <div className={cn(!deal.name && 'text-accent-foreground italic')}>
-                        {deal.name || 'Untitled deal'}
+                        {deal.name || t('untitled-deal')}
                       </div>
                       {isSelected ? (
                         <IconCheck className="ml-auto" />
@@ -220,6 +220,7 @@ const SelectedDealsList = ({
   setSelectedDeals,
   setSelectedDealIds,
 }: DealsListProps) => {
+  const { t } = useTranslation('sales');
   const handleRemoveDeal = (dealId: string) => {
     setSelectedDeals((prev) => prev.filter((p) => p._id !== dealId));
     setSelectedDealIds((prev) => prev.filter((id) => id !== dealId));
@@ -228,7 +229,7 @@ const SelectedDealsList = ({
   return (
     <ScrollArea className="h-full">
       <div className="p-4 flex flex-col gap-1">
-        <div className="text-accent-foreground text-xs px-3 mb-1">Added</div>
+        <div className="text-accent-foreground text-xs px-3 mb-1">{t('added')}</div>
         {selectedDealIds.map((dealId) => {
           const deal = selectedDeals.find((p) => p._id === dealId);
           return (
@@ -239,7 +240,7 @@ const SelectedDealsList = ({
               onClick={() => handleRemoveDeal(dealId)}
             >
               <div className={cn(!deal?.name && 'text-accent-foreground italic')}>
-                {deal?.name || 'Untitled deal'}
+                {deal?.name || t('untitled-deal')}
               </div>
               <IconX className="ml-auto" />
             </Button>

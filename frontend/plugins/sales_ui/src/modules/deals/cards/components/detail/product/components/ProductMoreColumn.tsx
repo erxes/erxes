@@ -40,7 +40,7 @@ export const ProductMoreColumnCell = ({
         });
       } catch (e) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });

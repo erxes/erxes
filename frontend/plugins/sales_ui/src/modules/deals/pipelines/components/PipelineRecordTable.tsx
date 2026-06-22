@@ -54,6 +54,7 @@ export const PipelineMoreColumnCell = ({
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
   const { _id, status } = cell.row.original;
+  const { t } = useTranslation('sales');
 
   const onRemove = () => {
     confirm({
@@ -103,7 +104,6 @@ export const PipelineMoreColumnCell = ({
       }
     });
   };
-  const { t } = useTranslation('sales');
 
   const navigate = useNavigate();
   return (
@@ -301,7 +301,7 @@ const PipelineRecordTable = () => {
 
   return (
     <>
-      <PageSubHeader>Pipelines ({totalCount})</PageSubHeader>
+      <PageSubHeader>{t('pipelines-with-count', { count: totalCount })}</PageSubHeader>
       <RecordTable.Provider
         columns={pipelinesColumns}
         data={pipelines || []}

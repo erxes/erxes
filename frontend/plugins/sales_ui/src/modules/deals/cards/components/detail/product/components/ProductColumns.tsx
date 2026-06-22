@@ -59,6 +59,7 @@ const hasDuplicateProductId = (
 };
 
 const IconChooserForType = ({ type }: { type: string }) => {
+  const { t } = useTranslation('sales');
   switch (type) {
     case 'service':
       return (
@@ -69,7 +70,7 @@ const IconChooserForType = ({ type }: { type: string }) => {
                 <IconFileInvoice className="size-4 text-white" stroke={2} />
               </Badge>
             </Tooltip.Trigger>
-            <Tooltip.Content>Service</Tooltip.Content>
+            <Tooltip.Content>{t('service')}</Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
       );
@@ -82,7 +83,7 @@ const IconChooserForType = ({ type }: { type: string }) => {
                 <IconBox className="size-4 text-white" stroke={2} />
               </Badge>
             </Tooltip.Trigger>
-            <Tooltip.Content>Product</Tooltip.Content>
+            <Tooltip.Content>{t('product')}</Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
       );

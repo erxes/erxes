@@ -154,10 +154,11 @@ const SelectTypeContent = () => {
 };
 
 export const SelectTypeFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="types">
       <IconCategory />
-      Type
+      {t('type')}
     </Filter.Item>
   );
 };
@@ -200,6 +201,7 @@ export const SelectTypeFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('sales');
   const [type, setType] = useQueryState<string[] | string>('types');
   const [open, setOpen] = useState(false);
 
@@ -207,7 +209,7 @@ export const SelectTypeFilterBar = ({
     <Filter.BarItem queryKey={'types'}>
       <Filter.BarName>
         <IconCategory />
-        Type
+        {t('type')}
       </Filter.BarName>
       <SelectTypeProvider
         mode={mode}

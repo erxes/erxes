@@ -212,10 +212,11 @@ const SelectCustomersContent = () => {
 };
 
 export const SelectCustomersFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="customers">
       <IconUsers />
-      Customers
+      {t('customers')}
     </Filter.Item>
   );
 };
@@ -265,6 +266,7 @@ export const SelectCustomersFilterBar = ({
   mode?: 'single' | 'multiple';
   searchValue?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const [customers, setCustomers] = useQueryState<string[] | string>(
     'customers',
   );
@@ -274,7 +276,7 @@ export const SelectCustomersFilterBar = ({
     <Filter.BarItem queryKey={'customers'}>
       <Filter.BarName>
         <IconUsers />
-        Customers
+        {t('customers')}
       </Filter.BarName>
       <SelectCustomersProvider
         mode={mode}
