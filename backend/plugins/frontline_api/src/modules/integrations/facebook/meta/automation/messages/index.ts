@@ -305,7 +305,7 @@ export const actionCreateMessage = async ({
           conversationId: conversation._id,
           botId,
           botData,
-          mid: sendReplyResult.mid,
+          mid: sendReplyResult.message_id || sendReplyResult.mid,
           conversationErxesApiId: conversation.erxesApiId,
           source: messageSource,
         });
