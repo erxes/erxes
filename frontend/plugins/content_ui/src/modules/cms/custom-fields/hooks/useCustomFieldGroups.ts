@@ -107,6 +107,7 @@ export const useCustomFieldGroups = (websiteId?: string) => {
 
   // Persist a new group order. `orderedGroups` is the full list in its desired
   // order; only groups whose 1-based position changed are written.
+  // `label` is required by CustomFieldGroupInput, so it is always sent.
   const reorderGroups = async (orderedGroups: ICustomFieldGroup[]) => {
     const changes = orderedGroups
       .map((group, index) => ({ group, order: index + 1 }))
@@ -116,7 +117,9 @@ export const useCustomFieldGroups = (websiteId?: string) => {
 
     await Promise.all(
       changes.map(({ group, order }) =>
-        editGroupSilent({ variables: { _id: group._id, input: { order } } }),
+        editGroupSilent({
+          variables: { _id: group._id, input: { label: group.label, order } },
+        }),
       ),
     );
     await refetch();
@@ -124,12 +127,19 @@ export const useCustomFieldGroups = (websiteId?: string) => {
 
   // Persist a new field order within a group. `reorderedFields` is the group's
   // `fields` array in its desired order (array position is the display order).
+  // `label` is required by CustomFieldGroupInput, so it is always sent.
   const reorderFields = async (
     groupId: string,
     reorderedFields: ICustomFieldGroup['fields'],
   ) => {
+    const group = groups.find((g) => g._id === groupId);
+    if (!group) return;
+
     await editGroupSilent({
-      variables: { _id: groupId, input: { fields: reorderedFields } },
+      variables: {
+        _id: groupId,
+        input: { label: group.label, fields: reorderedFields },
+      },
     });
     await refetch();
   };
