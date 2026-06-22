@@ -2,7 +2,7 @@ import { IOrder } from '@/pos/types/order';
 
 export interface IPosOrdersByCustomer {
   _id: string;
-  customerDetail: {
+  customerDetail?: {
     _id?: string;
     state?: string;
     primaryName?: string;
@@ -12,7 +12,7 @@ export interface IPosOrdersByCustomer {
     primaryPhone?: string;
     code?: string;
     emails?: { email?: string };
-  };
+  } | null;
   customerType: string;
   orders: IOrder[];
   totalOrders: number;
