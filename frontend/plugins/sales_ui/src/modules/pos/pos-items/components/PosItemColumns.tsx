@@ -267,6 +267,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
           <TextOverflowTooltip
             value={
               item?.productCategoryCode ||
+              item?.productCategory?.code ||
               item?.product?.productCategory?.code ||
               ''
             }
@@ -289,6 +290,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
           <TextOverflowTooltip
             value={
               item?.productCategoryName ||
+              item?.productCategory?.name ||
               item?.product?.productCategory?.name ||
               ''
             }
@@ -366,13 +368,18 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'discountType',
-    accessorKey: 'discountType',
     header: () => {
       const { t } = useTranslation('sales');
       return <RecordTable.InlineHead icon={IconUser} label={t('discount-type')} />;
     },
-    cell: ({ cell }) => {
-      const value = cell.getValue() as string;
+    cell: ({ row }) => {
+      const item = row.original.items;
+      const value =
+        item?.discountPercent && item.discountPercent > 0
+          ? 'Percent'
+          : item?.discountAmount && item.discountAmount > 0
+            ? 'Amount'
+            : '';
       return (
         <RecordTableInlineCell>
           {value ? <Badge variant="default">{value}</Badge> : ''}
@@ -423,8 +430,8 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       const paidAmounts: Array<{ type?: string }> = Array.isArray(raw)
         ? raw
         : raw
-          ? [raw as { type?: string }]
-          : [];
+        ? [raw as { type?: string }]
+        : [];
       const types = paidAmounts
         .map((pa) => pa.type)
         .filter((t): t is string => Boolean(t))
