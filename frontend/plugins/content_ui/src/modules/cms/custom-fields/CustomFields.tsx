@@ -8,7 +8,7 @@ import {
   cn,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import {
@@ -90,6 +90,14 @@ export function CustomFields() {
     reorderFields,
   } = useCustomFieldGroups(websiteId);
 
+  // Local order so a drop reflects immediately (no snap-back while the
+  // persisted order round-trips); re-synced whenever the stored order changes.
+  const [orderedGroups, setOrderedGroups] = useState(groups);
+  const groupsKey = groups.map((g) => g._id).join('|');
+  useEffect(() => {
+    setOrderedGroups(groups);
+  }, [groupsKey]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, {
@@ -100,12 +108,14 @@ export function CustomFields() {
   const handleGroupDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
 
-    const oldIndex = groups.findIndex((g) => g._id === active.id);
-    const newIndex = groups.findIndex((g) => g._id === over.id);
+    const oldIndex = orderedGroups.findIndex((g) => g._id === active.id);
+    const newIndex = orderedGroups.findIndex((g) => g._id === over.id);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    reorderGroups(arrayMove(groups, oldIndex, newIndex));
+    const next = arrayMove(orderedGroups, oldIndex, newIndex);
+    setOrderedGroups(next);
+    reorderGroups(next);
   };
 
   const { data: customTypesData } = useQuery(CMS_CUSTOM_POST_TYPES, {
@@ -321,11 +331,11 @@ export function CustomFields() {
                     onDragEnd={handleGroupDragEnd}
                   >
                     <SortableContext
-                      items={groups.map((g) => g._id)}
+                      items={orderedGroups.map((g) => g._id)}
                       strategy={verticalListSortingStrategy}
                     >
                       <div className="flex flex-col gap-2 mt-2">
-                        {groups.map((group) => (
+                        {orderedGroups.map((group) => (
                           <SortableGroup key={group._id} group={group}>
                             {(dragHandleProps) => (
                               <CustomFieldGroupItem

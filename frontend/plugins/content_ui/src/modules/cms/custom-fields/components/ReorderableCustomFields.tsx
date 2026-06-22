@@ -1,6 +1,6 @@
 import { Button, Collapsible, cn } from 'erxes-ui';
 import { IconGripVertical } from '@tabler/icons-react';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -74,7 +74,15 @@ function FieldList({
   renderField: ReorderableCustomFieldsProps['renderField'];
   onReorderFields: (groupId: string, fields: FieldDefinition[]) => void;
 }) {
-  const fields = group.fields || [];
+  const groupFields = group.fields || [];
+
+  // Local order so a drop reflects immediately (no snap-back while the
+  // persisted order round-trips); re-synced whenever the stored order changes.
+  const [fields, setFields] = useState(groupFields);
+  const fieldsKey = groupFields.map((f) => f._id).join('|');
+  useEffect(() => {
+    setFields(group.fields || []);
+  }, [fieldsKey]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -91,7 +99,9 @@ function FieldList({
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    onReorderFields(group._id, arrayMove(fields, oldIndex, newIndex));
+    const next = arrayMove(fields, oldIndex, newIndex);
+    setFields(next);
+    onReorderFields(group._id, next);
   };
 
   return (
@@ -144,6 +154,14 @@ export const ReorderableCustomFields = ({
   const { reorderVisibleGroups, reorderFields } =
     useCustomFieldOrdering(websiteId);
 
+  // Local order so a drop reflects immediately (no snap-back while the
+  // persisted order round-trips); re-synced whenever the stored order changes.
+  const [groups, setGroups] = useState(fieldGroups);
+  const groupsKey = fieldGroups.map((g) => g._id).join('|');
+  useEffect(() => {
+    setGroups(fieldGroups);
+  }, [groupsKey]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, {
@@ -154,12 +172,14 @@ export const ReorderableCustomFields = ({
   const handleGroupDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
 
-    const oldIndex = fieldGroups.findIndex((g) => g._id === active.id);
-    const newIndex = fieldGroups.findIndex((g) => g._id === over.id);
+    const oldIndex = groups.findIndex((g) => g._id === active.id);
+    const newIndex = groups.findIndex((g) => g._id === over.id);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    reorderVisibleGroups(arrayMove(fieldGroups, oldIndex, newIndex));
+    const next = arrayMove(groups, oldIndex, newIndex);
+    setGroups(next);
+    reorderVisibleGroups(next);
   };
 
   return (
@@ -171,10 +191,10 @@ export const ReorderableCustomFields = ({
         onDragEnd={handleGroupDragEnd}
       >
         <SortableContext
-          items={fieldGroups.map((g) => g._id)}
+          items={groups.map((g) => g._id)}
           strategy={verticalListSortingStrategy}
         >
-          {fieldGroups.map((group) => (
+          {groups.map((group) => (
             <Sortable key={group._id} id={group._id}>
               {(dragHandleProps) => (
                 <Collapsible defaultOpen className="group">

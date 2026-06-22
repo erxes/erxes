@@ -6,7 +6,7 @@ import {
   IconPlus,
   IconGripVertical,
 } from '@tabler/icons-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -146,7 +146,15 @@ export function CustomFieldGroupItem({
   onReorderFields,
   dragHandleProps,
 }: CustomFieldGroupItemProps) {
-  const fields = group.fields || [];
+  const groupFields = group.fields || [];
+
+  // Local order so a drop reflects immediately (no snap-back while the
+  // persisted order round-trips); re-synced whenever the stored order changes.
+  const [fields, setFields] = useState(groupFields);
+  const fieldsKey = groupFields.map((f) => f._id).join('|');
+  useEffect(() => {
+    setFields(group.fields || []);
+  }, [fieldsKey]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -163,7 +171,9 @@ export function CustomFieldGroupItem({
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    onReorderFields(group._id, arrayMove(fields, oldIndex, newIndex));
+    const next = arrayMove(fields, oldIndex, newIndex);
+    setFields(next);
+    onReorderFields(group._id, next);
   };
 
   return (
