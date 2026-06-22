@@ -16,9 +16,9 @@ interface CmsTranslatableBadgeProps {
 
 /**
  * Record-table cell for a translatable field. Shows the value as a secondary
- * badge, the default-language fallback in a "missing" (red) style, and a muted
- * placeholder when there is no content in either the selected or default
- * language.
+ * badge, the default-language fallback in a "missing" (red) style, and the same
+ * "missing" style for the placeholder shown when there is no content in either
+ * the selected or default language.
  */
 export const CmsTranslatableBadge = ({
   value,
@@ -32,7 +32,7 @@ export const CmsTranslatableBadge = ({
 
   if (!hasValue) {
     return (
-      <Badge variant="outline" className="italic text-muted-foreground">
+      <Badge variant={missingVariant} className={cn(missingClassName)}>
         {prefix}
         {placeholder}
       </Badge>
