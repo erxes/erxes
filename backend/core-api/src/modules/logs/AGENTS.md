@@ -21,19 +21,66 @@ recoverable — but it's auth-agnostic (agent and human run under the same user)
    `mongooseName` + `dbName`, onto the same `put_log` BullMQ queue the manual
    `sendDbEventLog` uses → stored in `{subdomain}_logs`. Creates are NOT captured
    (revert of a new record = delete it).
+
+   **Efficient capture path (the common update case does NO post re-read):** the
+   update PRE hook stashes the raw update operators (`query.getUpdate()`) and a
+   PROJECTED before-snapshot (only the touched paths + `_id`). The POST hook
+   synthesizes the after-image **in memory** from `before + operators` for the
+   simple cases (`$set` / `$unset` / shorthand fields) — no second query — and
+   only falls back to the old post re-read (full doc) for COMPLEX operators (see
+   below). Pure helpers `applyUpdateOperators` / `extractTouchedPaths` /
+   `isComplexUpdate` live in `mongo/afterImage.ts` and are unit-tested
+   (`.personal/revert-afterImage.test.js`). Delete snapshots stay UNPROJECTED
+   (revert re-inserts the whole doc). `getDiffObjects` is still the single diff
+   source, so the emitted `updateDescription` shape is byte-identical.
+
+   **Fallback operators (force the post re-read; never guessed in memory):**
+   `$inc`, `$mul`, `$min`, `$max`, `$rename`, `$currentDate`, `$bit`, `$push`,
+   `$pull`, `$pullAll`, `$pop`, `$addToSet`; any positional path
+   (`a.$`, `a.$[]`, `a.$[elem]`); any `arrayFilters` option; aggregation-pipeline
+   updates (array form); and any unrecognized `$`-operator.
+
+   **`$setOnInsert` is IGNORED, not a fallback** — it only takes effect on an
+   upsert-INSERT, and we never journal creates, so it cannot affect any diff we
+   capture. This matters because Mongoose auto-injects `$setOnInsert: { createdAt }`
+   (and `$set.updatedAt`) into EVERY update on a `timestamps: true` schema (the
+   erxes-wide default) BEFORE our pre-hook runs; treating it as complex would force
+   ~every real update onto the slow re-read and defeat the optimization. So the
+   common in-memory path DOES fire for timestamped schemas.
+
+   **Batched bulk journaling:** a multi-doc `updateMany` now emits ONE `put_log`
+   message (`action:'updateBatch'`, `docIds[]`, `payload.updates[]`) instead of N
+   jobs; the consumer (`handleUpdateBatch`) `insertMany`s one single-`update` Log
+   row per entry — the stored rows are IDENTICAL to the legacy single-`update`
+   shape, so `computeInverse`/`conflict` read them unchanged. A single changed doc
+   still emits the exact legacy single-`update` job.
+
+   **Selectivity (denylist + opt-out):** `mongo/revertSelectivity.ts` holds a
+   small, commented, env-overridable (`REVERT_CAPTURE_DENYLIST`) collection
+   denylist. The logs/audit family is ALWAYS skipped (substring match) so the
+   journal never journals itself; ephemeral session/queue/lock/metric churn is
+   skipped too. `installRevertCaptureHooks` installs ZERO hooks for a denied
+   schema that declares its `collection` name, or one that opts out via
+   `schema.options.revertCapture === false` / `skipRevertCapture: true`; a runtime
+   guard (`isModelDenied`) enforces the always-skip-logs invariant for schemas
+   whose collection name is only known at write time. Normal entity collections
+   are unchanged (still captured).
 3. **Invert** — `revert/computeInverse.ts` (pure): create→delete, delete→re-insert
    (keep `_id`), update→restore prior field values.
 4. **Revert** — `logsRevertProcess(processId, dryRun, force, skipConflicts,
 resolutions)` → `revert/revertByProcessId.ts` reverse-replays the process's
    entries (dedup → authorize → plan → conflicts → dry-run/apply → marker).
 
-### Flag
+### Always on
 
-Capture is gated behind **`REVERT_AUTO_JOURNAL=enable`** — a complete no-op when
-off (zero risk to the ~124 wrapped schemas). Must be set on EVERY writing service;
-off by default (changes before enabling are unrecoverable). Bulk capture capped at
-`REVERT_AUTO_JOURNAL_MAX` (default 1000). Every hook is wrapped so a capture
-failure can never block/throw out of a write.
+Capture is **always on** — there is no enable flag. Every **update/delete**
+through any of the ~124 wrapped schemas is journaled from the moment a service
+boots, so no edit or deletion is ever silently left unrecoverable. (Creates are
+NOT captured — reverting a brand-new record is just deleting it, so a new record
+is removable but has no prior state to "restore".) Bulk capture is capped at
+`REVERT_AUTO_JOURNAL_MAX` snapshots per write (optional tuning override, default
+1000 — capture runs regardless of whether it is set). Every hook is wrapped so a
+capture failure can never block/throw out of a write.
 
 ### Zero-config + authz
 
@@ -50,16 +97,27 @@ is still honored when present.
 
 - `revertCapture.ts` — the auto-capture: `installRevertCaptureHooks(schema)`
   (pre/post hooks for delete*/update*/save), `journalDeletes`/`journalUpdates`,
-  `registerRevertContentTypeResolver`. Gated by `REVERT_AUTO_JOURNAL`.
+  `registerRevertContentTypeResolver`. Always on (no enable flag). Update POST
+  computes the after-image in memory (no re-read) for the simple case; emits one
+  batched `updateBatch` message for multi-doc updates.
+- `afterImage.ts` — PURE (no mongoose runtime): `applyUpdateOperators`,
+  `extractTouchedPaths`, `isComplexUpdate`, `isReplacementUpdate`,
+  `COMPLEX_UPDATE_OPERATORS`. The in-memory after-image + simple/complex
+  classifier. Unit-tested by `.personal/revert-afterImage.test.js`.
+- `revertSelectivity.ts` — `REVERT_CAPTURE_DENYLIST`, `isRevertCaptureDenied`,
+  `isSchemaRevertOptedOut`. The collection denylist + per-schema opt-out.
 - `mongoose-utils.ts` — `schemaWrapper` calls `installRevertCaptureHooks`.
 - `index.ts` — re-exports revertCapture. ⚠️ After editing shared, **`pnpm build`**
   it and **restart** consumers (it's loaded as built dist, not via tsx-watch).
 
 **Journal consumer:** `backend/services/logs/src/bullmq/mongo.ts`
 
-- `handleDelete`/`handleDeleteMany`/`handleUpdate` + dispatcher. Stores
-  `prevDocument(s)` / `updateDescription` + `mongooseName` + `dbName`. (Fixed: the
-  single-`delete` path used to drop `prevDocument`.)
+- `handleDelete`/`handleDeleteMany`/`handleUpdate`/`handleUpdateBatch` +
+  dispatcher. Stores `prevDocument(s)` / `updateDescription` + `mongooseName` +
+  `dbName`. (Fixed: the single-`delete` path used to drop `prevDocument`.)
+  `handleUpdateBatch` expands one `updateBatch` message into N `insertMany`'d
+  single-`update` rows (identical stored shape; only the queue transport is
+  collapsed).
 
 **Engine:** `backend/core-api/src/modules/logs/revert/`
 
@@ -123,7 +181,7 @@ is still honored when present.
 - **Cloud-vs-local trap**: root `.env` `MONGO_URL` points at cloud Atlas; force
   `MONGO_URL=mongodb://127.0.0.1:27017/erxes` for local. Verify the boot log says
   `Connected to the database: mongodb://127.0.0.1...`.
-- Enable capture: `REVERT_AUTO_JOURNAL=enable` on core-api (and any writing svc).
+- Capture is always on — no flag to set; it journals from boot on every service.
 - Adding a `Log` GraphQL field needs core-api restart **and** a gateway
   recompose (kill `:4000` + `:50000` + the router, relaunch gateway).
 - Smoke test: create+delete a tag/department (no `meta/logs` entry → zero-config)
@@ -139,14 +197,23 @@ is still honored when present.
 - Standalone Mongo = no transactions → multi-doc revert can partially apply
   (result reports `reverted` vs `conflicts`).
 - Bulk capture >`REVERT_AUTO_JOURNAL_MAX` truncates with no marker yet.
-- `.save()` capture coded but not independently live-verified.
+- The in-memory after-image removes the post re-read only for the SIMPLE update
+  path ($set/$unset/shorthand); COMPLEX operators (see list above) still do the
+  full post re-read. Replacement (`replaceOne`/`findOneAndReplace`) is NOT hooked.
+- `.save()` capture coded but not independently live-verified (still reads the
+  prior doc once in PRE — it has the after-image via `toObject()`, no re-read).
 - Old `MongoLogDetailContent` panel may still show "No document snapshot" even
   when one was captured (cosmetic).
 - UI doesn't auto-refetch lists after revert; System Logs is admin-only.
 - Org/separate-connection entities are _guarded_ (refused), not yet revertable
   (needs connection-aware applyWrite).
-- No automated tests; perf of the extra read-per-write is unmeasured; not human-
-  reviewed/CI'd; not in a PR.
+- Pure capture helpers (`afterImage.ts` / `revertSelectivity.ts`) now have a
+  standalone unit harness (`.personal/revert-afterImage.test.js`, run with
+  `node`), but it is NOT wired into CI/`nx test` (erxes-api-shared has no jest
+  target). Engine/consumer integration still has no automated tests; the
+  in-memory perf win is reasoned-about, not benchmarked; not human-reviewed/CI'd;
+  not in a PR. **Out of scope (follow-ups):** per-doc version/etag field; replica-
+  set/change-streams/CDC migration; moving the journal to a separate cluster.
 
 ## Commit trail (branch feat/erxes-agent-process-correlation)
 

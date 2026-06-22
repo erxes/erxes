@@ -10,6 +10,208 @@ import {
 } from '@/cms/@types/cms';
 import { cmsSchema } from '@/cms/db/definitions/cms';
 
+/**
+ * Content whose translatable fields live in the base document for the default
+ * language and in the `Translations` collection for every other language. The
+ * `fieldMappings` mirror `FIELD_MAPPINGS` in cms/utils/base-resolvers.ts
+ * (base document field -> translation document field) so re-homing stays in
+ * sync with how the read path overlays translations.
+ */
+type TranslatableContentConfig = {
+  type: string;
+  modelKey: 'Posts' | 'Categories' | 'PostTags' | 'Pages' | 'MenuItems';
+  fieldMappings: Record<string, string>;
+};
+
+const TRANSLATABLE_CONTENT_TYPES: TranslatableContentConfig[] = [
+  {
+    type: 'post',
+    modelKey: 'Posts',
+    fieldMappings: {
+      title: 'title',
+      content: 'content',
+      excerpt: 'excerpt',
+      customFieldsData: 'customFieldsData',
+    },
+  },
+  {
+    type: 'category',
+    modelKey: 'Categories',
+    fieldMappings: {
+      name: 'title',
+      description: 'content',
+      customFieldsData: 'customFieldsData',
+    },
+  },
+  {
+    type: 'tag',
+    modelKey: 'PostTags',
+    fieldMappings: { name: 'title' },
+  },
+  {
+    type: 'page',
+    modelKey: 'Pages',
+    fieldMappings: {
+      name: 'title',
+      description: 'content',
+      customFieldsData: 'customFieldsData',
+    },
+  },
+  {
+    type: 'menu',
+    modelKey: 'MenuItems',
+    fieldMappings: { label: 'title' },
+  },
+];
+
+const hasTranslatableValue = (value: unknown): boolean => {
+  if (value === undefined || value === null) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+};
+
+/**
+ * Build the bulk-write operations for a single document when its site's default
+ * language changes: preserve the old-default base content as an old-language
+ * translation, promote the new-language translation into the base fields, and
+ * drop the now-redundant new-language translation. Pulled out of
+ * `rehomeDefaultLanguageContent` to keep that function's complexity in check.
+ */
+const buildRehomeOpsForDocument = (
+  doc: any,
+  fieldMappings: Record<string, string>,
+  oldLanguage: string,
+  newLanguage: string,
+  type: string,
+  newTranslationMap: Map<string, any>,
+): { translationOps: any[]; documentOp: Record<string, any> | null } => {
+  const objectId = String(doc._id);
+  const translationOps: any[] = [];
+
+  // 1. Preserve the current (old-default) base content as an old-language
+  //    translation so it remains reachable after the switch.
+  const oldTranslationFields: Record<string, any> = {};
+  for (const [baseField, translationField] of Object.entries(fieldMappings)) {
+    oldTranslationFields[translationField] = doc[baseField] ?? '';
+  }
+
+  translationOps.push({
+    updateOne: {
+      filter: { objectId, language: oldLanguage, type },
+      update: {
+        $set: { ...oldTranslationFields, objectId, language: oldLanguage, type },
+      },
+      upsert: true,
+    },
+  });
+
+  // 2. Promote the new-language translation into the base fields. Only
+  //    non-empty values win, matching the read-time overlay so what the
+  //    editor saw under the new language is exactly what becomes default.
+  const newTranslation = newTranslationMap.get(objectId);
+  if (!newTranslation) {
+    return { translationOps, documentOp: null };
+  }
+
+  const baseUpdate: Record<string, any> = {};
+  for (const [baseField, translationField] of Object.entries(fieldMappings)) {
+    const value = newTranslation[translationField];
+    if (hasTranslatableValue(value)) {
+      baseUpdate[baseField] = value;
+    }
+  }
+
+  const documentOp = Object.keys(baseUpdate).length
+    ? { updateOne: { filter: { _id: doc._id }, update: { $set: baseUpdate } } }
+    : null;
+
+  // 3. The new language now lives in the base fields, so its standalone
+  //    translation record is redundant.
+  translationOps.push({
+    deleteOne: { filter: { objectId, language: newLanguage, type } },
+  });
+
+  return { translationOps, documentOp };
+};
+
+/**
+ * Move content between the base document and the `Translations` collection when
+ * a site's default language changes. Without this, the old default's content is
+ * stranded in the base fields (with no translation pointing to it) while the new
+ * default's translation is ignored, so editors see content "disappear".
+ */
+const rehomeDefaultLanguageContent = async (
+  models: IModels,
+  clientPortalId: string,
+  oldLanguage: string,
+  newLanguage: string,
+) => {
+  for (const { type, modelKey, fieldMappings } of TRANSLATABLE_CONTENT_TYPES) {
+    const model = models[modelKey] as any;
+    const documents = await model.find({ clientPortalId }).lean();
+
+    if (!documents.length) {
+      continue;
+    }
+
+    const objectIds = documents.map((doc: any) => String(doc._id));
+    const newTranslations = await models.Translations.find({
+      objectId: { $in: objectIds },
+      language: newLanguage,
+      type,
+    }).lean();
+
+    const newTranslationMap = new Map<string, any>(
+      newTranslations.map((translation: any) => [
+        String(translation.objectId),
+        translation,
+      ]),
+    );
+
+    const translationOps: any[] = [];
+    const documentOps: any[] = [];
+
+    for (const doc of documents) {
+      const { translationOps: docTranslationOps, documentOp } =
+        buildRehomeOpsForDocument(
+          doc,
+          fieldMappings,
+          oldLanguage,
+          newLanguage,
+          type,
+          newTranslationMap,
+        );
+
+      translationOps.push(...docTranslationOps);
+      if (documentOp) {
+        documentOps.push(documentOp);
+      }
+    }
+
+    if (!documentOps.length && !translationOps.length) {
+      continue;
+    }
+
+    // Base documents and their translations live in separate collections, so
+    // wrap both writes in a transaction — a partial apply would leave the new
+    // default's content out of sync with its translation records.
+    const session = await models.Translations.startSession();
+    try {
+      await session.withTransaction(async () => {
+        if (documentOps.length) {
+          await model.bulkWrite(documentOps, { session });
+        }
+        if (translationOps.length) {
+          await models.Translations.bulkWrite(translationOps, { session });
+        }
+      });
+    } finally {
+      await session.endSession();
+    }
+  }
+};
+
 export interface ICMSModel extends Model<IContentCMSDocument> {
   getContentCMS(_id: string): Promise<IContentCMSDocument>;
   getContentCMSs(): Promise<IContentCMSDocument[]>;
@@ -77,6 +279,26 @@ export const loadCmsClass = (models: IModels) => {
       return models.CMS.create(this.buildCmsDoc(doc));
     }
     public static async updateContentCMS(_id: string, doc: IContentCMSInput) {
+      const existing = await models.CMS.findOne({ _id }).lean();
+
+      const previousLanguage = existing?.language;
+      const nextLanguage = doc.language;
+
+      // Default language changed: re-home content so nothing disappears.
+      if (
+        existing?.clientPortalId &&
+        previousLanguage &&
+        nextLanguage &&
+        previousLanguage !== nextLanguage
+      ) {
+        await rehomeDefaultLanguageContent(
+          models,
+          existing.clientPortalId,
+          previousLanguage,
+          nextLanguage,
+        );
+      }
+
       return models.CMS.findOneAndUpdate({ _id }, this.buildCmsDoc(doc), {
         new: true,
       });

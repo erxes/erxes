@@ -66,20 +66,43 @@ const FileVariantIcon = ({
   }
 };
 
+const TICKET_FIELD_LABELS: Record<string, string> = {
+  'ticket:name': 'Ticket name',
+  'ticket:description': 'Description',
+};
+
+const normalizeFormWidgetData = (
+  data: IFormWidgetItem[] | Record<string, string> | null | undefined,
+): IFormWidgetItem[] => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  // Legacy object format: { "ticket:name": "...", "ticket:description": "..." }
+  return Object.entries(data).map(([key, value]) => ({
+    _id: key,
+    type: key === 'ticket:description' ? 'textarea' : 'input',
+    text: TICKET_FIELD_LABELS[key] || key,
+    value: String(value),
+    column: 6,
+  }));
+};
+
 export const ConversationFormDisplay = ({
   content,
   formWidgetData,
   createdAt,
 }: IMessage) => {
+  const items = normalizeFormWidgetData(
+    formWidgetData as IFormWidgetItem[] | Record<string, string> | null,
+  );
   return (
-    <div className="flex flex-col gap-2 relative flex-1">
+    <div className="flex flex-col gap-2 relative flex-1 mt-8">
       <div className="flex flex-col bg-muted rounded-t-lg rounded-b-2xl p-2">
         <div className="px-3 pb-2 flex items-center gap-2 text-primary">
           <IconForms size={24} />
           <span className="text-sm font-semibold">{content}</span>
         </div>
         <div className="bg-background p-4 rounded-lg grid grid-cols-6 gap-6">
-          {formWidgetData?.map((item: IFormWidgetItem) => (
+          {items.map((item: IFormWidgetItem) => (
             <div
               key={item._id}
               className={cn(

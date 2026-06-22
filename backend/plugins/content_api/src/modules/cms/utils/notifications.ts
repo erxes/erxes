@@ -49,25 +49,25 @@ const fetchCpUserIdsForPortal = async (
   return cpUserIds;
 };
 
-const notifyClientPortalUsersOfPublishedPost = async (
+export const sendPublishedPostNotification = async (
   subdomain: string,
   post: PublishedPostNotification,
-) => {
+): Promise<{ recipientCount: number }> => {
   const cpUserIds = await fetchCpUserIdsForPortal(
     subdomain,
     post.clientPortalId,
   );
 
   if (cpUserIds.length === 0) {
-    return;
+    return { recipientCount: 0 };
   }
-  console.log('cpUserIds in content',cpUserIds)
+
   const message =
     (post.title && String(post.title).trim()) ||
     (post.excerpt && String(post.excerpt).trim()) ||
     'A new post has been published';
 
-  const aws = await sendTRPCMessage({
+  await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'mutation',
@@ -93,24 +93,6 @@ const notifyClientPortalUsersOfPublishedPost = async (
       },
     },
   });
-  console.log('aws', aws);
-};
 
-export const notifyIfNewlyPublished = async (
-  subdomain: string,
-  post: PublishedPostNotification,
-  previousStatus?: string,
-) => {
-  if (post.status !== 'published' || previousStatus === 'published') {
-    return;
-  }
-
-  try {
-    await notifyClientPortalUsersOfPublishedPost(subdomain, post);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(
-      `Failed to send client portal post published notification: ${message}`,
-    );
-  }
+  return { recipientCount: cpUserIds.length };
 };

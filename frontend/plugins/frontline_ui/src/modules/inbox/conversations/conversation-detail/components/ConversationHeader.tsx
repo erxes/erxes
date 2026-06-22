@@ -1,4 +1,5 @@
 import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
+import { useConversationAutomatedReplyControl } from '@/inbox/conversations/hooks/useConversationAutomatedReplyControl';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChangeConversationStatus';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
@@ -6,13 +7,19 @@ import { sideWidgetOpenState } from '@/inbox/states/sideWidgetOpenState';
 import { refetchConversationsAtom } from '../../states/refetchConversationState';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
-import { IconArrowLeft, IconDots } from '@tabler/icons-react';
+import {
+  IconArrowLeft,
+  IconDots,
+  IconPlayerPause,
+  IconPlayerPlay,
+} from '@tabler/icons-react';
 import {
   Button,
   DropdownMenu,
   ScrollArea,
   Separator,
   Skeleton,
+  cn,
   toast,
   useQueryState,
 } from 'erxes-ui';
@@ -51,6 +58,7 @@ export const ConversationHeader = () => {
         )}
         <Separator.Inline />
         <AssignConversation />
+        <AutomatedReplyStatusBadge />
         {isSideWidgetOpen ? (
           <div className="ml-auto flex-none">
             <ConversationActionsDropdown />
@@ -65,6 +73,70 @@ export const ConversationHeader = () => {
       </div>
       <ScrollArea.Bar orientation="horizontal" />
     </ScrollArea>
+  );
+};
+
+const AutomatedReplyStatusBadge = () => {
+  const { _id, automatedReplyControl } = useConversationContext();
+  const { setAutomatedReplyControl, loading } =
+    useConversationAutomatedReplyControl();
+  const status = automatedReplyControl?.status;
+
+  if (!status) {
+    return null;
+  }
+
+  const isActive = status === 'active';
+  const label = isActive
+    ? 'Automation active'
+    : status === 'human_active' &&
+      automatedReplyControl?.reason === 'operator_reply'
+    ? 'Automation paused: operator active'
+    : 'Automation paused';
+  const nextStatus = isActive ? 'human_active' : 'active';
+  const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
+  const Icon = isActive ? IconPlayerPlay : IconPlayerPause;
+  const ActionIcon = isActive ? IconPlayerPause : IconPlayerPlay;
+
+  const handleToggleAutomation = () => {
+    setAutomatedReplyControl({
+      variables: {
+        _id,
+        status: nextStatus,
+        reason: 'manual',
+      },
+      onCompleted: () => {
+        toast({
+          title: isActive ? 'Automation paused' : 'Automation resumed',
+        });
+      },
+    });
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <Button
+          variant="ghost"
+          className={cn(
+            'h-7 flex-none gap-1.5 rounded-md border px-2 text-xs font-medium shadow-none',
+            isActive
+              ? 'border-border bg-muted/50 text-muted-foreground hover:bg-muted'
+              : 'border-primary/20 bg-primary/10 text-primary hover:bg-primary/15',
+          )}
+          disabled={loading}
+        >
+          <Icon className="size-3.5 flex-none" />
+          <span className="max-w-[280px] truncate">{label}</span>
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="start" className="min-w-[220px]">
+        <DropdownMenu.Item disabled={loading} onClick={handleToggleAutomation}>
+          <ActionIcon className="size-4" />
+          {actionLabel}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
   );
 };
 

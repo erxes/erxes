@@ -100,10 +100,14 @@ export const documents = {
     const model = modelMap[moduleName];
 
     if (!model) {
-      throw new Error(`Unknown content type: ${moduleName}`);
+      return [content];
     }
 
     const documents = await model.find({ _id: { $in: replacerIds } });
+
+    if (!documents.length) {
+      return [content];
+    }
 
     const replacedContents: any[] = [];
 

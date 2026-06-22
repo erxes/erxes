@@ -3,10 +3,85 @@ import { generateModels, IModels } from '~/connectionResolvers';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { IFacebookConversation } from '@/integrations/facebook/@types/conversations';
 import {
+  TBotConfigMessageAttachment,
   TBotConfigMessageButton,
   TBotData,
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
+
+type TFacebookAutomationPayload = {
+  executionId?: string;
+  actionId?: string;
+  btnId?: string;
+  botId?: string;
+  isBackBtn?: boolean;
+  persistentMenuId?: string;
+  persistentMenuType?: string;
+};
+
+type TFacebookOpenThreadAdData = {
+  source?: string;
+  type?: string;
+  adId?: string;
+  postId?: string;
+  pageId?: string;
+};
+
+type TFacebookAutomationTarget =
+  Partial<IFacebookConversationMessageDocument> & {
+    payload?: TFacebookAutomationPayload;
+    entryType?: 'direct' | 'open_thread';
+    adData?: TFacebookOpenThreadAdData;
+    openThread?: {
+      source: string;
+      type: string;
+      adId?: string;
+      postId?: string;
+      pageId?: string;
+    };
+  };
+
+type TContentCondition = {
+  operator?: string;
+  keywords?: { text?: string }[];
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === 'object' && !Array.isArray(value);
+
+const getStringValue = (value: unknown) =>
+  typeof value === 'string' ? value : undefined;
+
+const getBooleanValue = (value: unknown) =>
+  typeof value === 'boolean' ? value : undefined;
+
+export const parseAutomationPayload = (
+  payload?: string,
+): TFacebookAutomationPayload => {
+  if (!payload) {
+    return {};
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(payload);
+
+    if (!isRecord(parsed)) {
+      return {};
+    }
+
+    return {
+      executionId: getStringValue(parsed.executionId),
+      actionId: getStringValue(parsed.actionId),
+      btnId: getStringValue(parsed.btnId),
+      botId: getStringValue(parsed.botId),
+      isBackBtn: getBooleanValue(parsed.isBackBtn),
+      persistentMenuId: getStringValue(parsed.persistentMenuId),
+      persistentMenuType: getStringValue(parsed.persistentMenuType),
+    };
+  } catch {
+    return {};
+  }
+};
 
 export const triggerFacebookMessageAutomation = (
   subdomain: string,
@@ -16,19 +91,19 @@ export const triggerFacebookMessageAutomation = (
     adData,
   }: {
     conversationMessage: IFacebookConversationMessageDocument;
-    payload: any;
-    adData: any;
+    payload?: string;
+    adData?: TFacebookOpenThreadAdData;
   },
 ) => {
   if (conversationMessage.fromBot || conversationMessage.internal) {
     return;
   }
 
-  const target: any = { ...conversationMessage };
+  const target: TFacebookAutomationTarget = { ...conversationMessage };
   let repeatOptions;
 
   if (payload) {
-    target.payload = JSON.parse(payload || '{}');
+    target.payload = parseAutomationPayload(payload);
     const { executionId, actionId, btnId } = target?.payload || {};
 
     if (executionId && actionId) {
@@ -61,11 +136,15 @@ export const triggerFacebookMessageAutomation = (
   );
 };
 
-export const checkIsBot = async (models: IModels, message, recipientId) => {
-  let selector: any = { pageId: recipientId };
+export const checkIsBot = async (
+  models: IModels,
+  message: { payload?: string } | undefined,
+  recipientId: string,
+) => {
+  let selector: { pageId: string } | { _id: string } = { pageId: recipientId };
 
   if (message?.payload) {
-    const payload = JSON.parse(message?.payload || '{}');
+    const payload = parseAutomationPayload(message.payload);
     if (payload.botId) {
       selector = { _id: payload.botId };
     }
@@ -77,7 +156,7 @@ export const checkIsBot = async (models: IModels, message, recipientId) => {
 
 export const generatePayloadString = (
   conversation: IFacebookConversation,
-  btn: any,
+  btn: { _id: string },
   customerId: string,
   executionId: string,
   actionId: string,
@@ -100,6 +179,9 @@ export const generateBotData = (
     cards,
     quickReplies,
     image,
+    video,
+    audio,
+    attachments,
   }: {
     type: string;
     buttons: TBotConfigMessageButton[];
@@ -118,9 +200,12 @@ export const generateBotData = (
       image_url?: string;
     }[];
     image: string;
+    video?: string;
+    audio?: string;
+    attachments?: TBotConfigMessageAttachment[];
   },
 ) => {
-  let botData: TBotData[] = [];
+  const botData: TBotData[] = [];
 
   const generateButtons = (buttons: TBotConfigMessageButton[]) => {
     return buttons.map((btn) => ({
@@ -159,10 +244,21 @@ export const generateBotData = (
     });
   }
 
-  if (type === 'image') {
+  const mediaUrls =
+    type === 'image'
+      ? [image]
+      : type === 'video'
+      ? [video || '']
+      : type === 'audio'
+      ? [audio || '']
+      : type === 'attachments'
+      ? (attachments || []).map(({ url }) => url)
+      : [];
+
+  for (const mediaUrl of mediaUrls.filter(Boolean)) {
     botData.push({
       type: 'file',
-      url: getUrl(subdomain, image),
+      url: getUrl(subdomain, mediaUrl),
     });
   }
 
@@ -182,11 +278,14 @@ export const generateBotData = (
   return botData;
 };
 
-export const checkContentConditions = (content: string, conditions: any[]) => {
+export const checkContentConditions = (
+  content: string,
+  conditions: TContentCondition[],
+) => {
   for (const cond of conditions || []) {
     const keywords = (cond?.keywords || [])
       .map((keyword) => keyword.text)
-      .filter((keyword) => keyword);
+      .filter((keyword): keyword is string => !!keyword);
 
     switch (cond?.operator || '') {
       case 'every':
@@ -232,11 +331,13 @@ export const getUrl = (subdomain, key) => {
 export const checkAdsTrigger = async (subdomain, { target, config }) => {
   const { botId, adsType, adIds = [], checkContent, conditions } = config || {};
 
-  if (!target?.adData) {
+  const adData = target?.adData;
+
+  if (!adData) {
     return false;
   }
 
-  const { adId, pageId } = target?.adData;
+  const { adId, pageId } = adData;
 
   const models = await generateModels(subdomain);
 

@@ -9,7 +9,6 @@ exclude_patterns = [
   "**/*.min.js",
   "**/__generated__/**",
   "**/*.generated.*",
-  "backend/plugins/erxes-agent_api/scripts/**",
 ]
 
 test_patterns = [

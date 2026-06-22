@@ -1,16 +1,26 @@
 import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
-import { MESSAGE_TRIGGER_CONDITIONS } from '../constants/messageTriggerOptions';
+import {
+  DIRECT_MESSAGE_OPERATOR_TYPES,
+  MESSAGE_TRIGGER_CONDITIONS,
+} from '../constants/messageTriggerOptions';
+import { TCommentTriggerCondition } from '../types/commentTrigger';
 import { TMessageTriggerCondition } from '../types/messageTrigger';
 import { TTriggerConditionSummaryItem } from '../types/triggerSummary';
+
+const getKeywordTexts = (
+  keywords: Array<{
+    text: string;
+  }> = [],
+) => keywords.map(({ text }) => text.trim()).filter(Boolean);
 
 const buildConditionValue = (
   condition: TMessageTriggerCondition,
   bot?: IFacebookBot,
 ) => {
   if (condition.type === 'direct') {
-    const keywords = (condition.conditions || [])
-      .flatMap(({ keywords = [] }) => keywords.map(({ text }) => text))
-      .filter((text) => text.trim().length > 0);
+    const keywords = (condition.conditions || []).flatMap(
+      ({ keywords = [] }) => getKeywordTexts(keywords),
+    );
 
     if (!keywords.length) {
       return 'Any direct text message';
@@ -62,4 +72,27 @@ export const buildSelectedConditionSummaries = ({
         value: buildConditionValue(condition, bot),
       };
     });
+};
+
+export const buildCommentTriggerConditionSummaries = ({
+  conditions = [],
+}: {
+  conditions?: TCommentTriggerCondition[];
+}): TTriggerConditionSummaryItem[] => {
+  return conditions.map((condition) => {
+    const keywords = getKeywordTexts(condition.keywords);
+    const operator = DIRECT_MESSAGE_OPERATOR_TYPES.find(
+      ({ value }) => value === condition.operator,
+    );
+
+    return {
+      _id: condition._id,
+      type: 'commentContent',
+      label: 'Comment content',
+      description: keywords.length
+        ? operator?.label || 'Matches keywords'
+        : 'No keywords configured',
+      value: keywords.join(','),
+    };
+  });
 };

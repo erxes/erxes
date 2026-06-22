@@ -13,6 +13,9 @@ import { Control, useForm, useWatch } from 'react-hook-form';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
+  TPlaceholderInputSuggestion,
+  TPlaceholderInputSuggestionsOption,
+  TPlaceholderInputSuggestionType,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
@@ -85,13 +88,11 @@ const PlaceholderFormField = ({
   propertyType: string;
   variant?: 'expression' | 'fixed';
   selectMode?: 'one' | 'many';
-  enabled?: Record<string, boolean>;
-  selectionType?: React.ComponentProps<
-    typeof PlaceholderInput
-  >['selectionType'];
-  suggestionsOptions?: React.ComponentProps<
-    typeof PlaceholderInput
-  >['suggestionsOptions'];
+  enabled?: readonly TPlaceholderInputSuggestionType[];
+  selectionType?: TPlaceholderInputSuggestionType;
+  suggestionsOptions?: Partial<
+    Record<string, TPlaceholderInputSuggestionsOption>
+  >;
 }) => (
   <Form.Field
     control={control}
@@ -247,10 +248,8 @@ export const CreateTicketActionConfigForm = ({
           name="priority"
           label="Priority"
           propertyType={propertyType}
-          enabled={{
-            option: true,
-          }}
-          selectionType="option"
+          enabled={[TPlaceholderInputSuggestion.Option]}
+          selectionType={TPlaceholderInputSuggestion.Option}
           suggestionsOptions={{
             option: {
               options: PROJECT_PRIORITIES_OPTIONS.map((label, value) => ({
@@ -265,9 +264,7 @@ export const CreateTicketActionConfigForm = ({
           name="assigneeId"
           label="Assignee"
           propertyType={propertyType}
-          enabled={{
-            call_user: true,
-          }}
+          enabled={[TPlaceholderInputSuggestion.CallUser]}
         />
       </div>
 
@@ -277,18 +274,14 @@ export const CreateTicketActionConfigForm = ({
           name="startDate"
           label="Start date"
           propertyType={propertyType}
-          enabled={{
-            date: true,
-          }}
+          enabled={[TPlaceholderInputSuggestion.Date]}
         />
         <PlaceholderFormField
           control={control}
           name="targetDate"
           label="Target date"
           propertyType={propertyType}
-          enabled={{
-            date: true,
-          }}
+          enabled={[TPlaceholderInputSuggestion.Date]}
         />
       </div>
 
@@ -313,9 +306,7 @@ export const CreateTicketActionConfigForm = ({
           label="Companies"
           propertyType={propertyType}
           selectMode="many"
-          enabled={{
-            call_company: true,
-          }}
+          enabled={[TPlaceholderInputSuggestion.CallCompany]}
         />
       </div>
     </Form>

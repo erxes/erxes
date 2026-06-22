@@ -24,6 +24,7 @@ import {
   PlaceholderInput,
   TAutomationAction,
   TAutomationActionProps,
+  TPlaceholderInputSuggestion,
   useFormValidationErrorHandler,
 } from 'ui-modules';
 
@@ -201,7 +202,7 @@ const TranformConfigRow = ({
                       mode === 'expression',
                     )
                   }
-                  disabled={{ attribute: true }}
+                  disabled={[TPlaceholderInputSuggestion.Attribute]}
                 >
                   <PlaceholderInput.Header />
                 </PlaceholderInput>

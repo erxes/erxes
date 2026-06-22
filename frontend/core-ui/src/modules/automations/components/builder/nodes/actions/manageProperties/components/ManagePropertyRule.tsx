@@ -1,7 +1,7 @@
 import { useManagePropertyRule } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRule';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
-import { PlaceholderInput } from 'ui-modules';
+import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';
 
 interface LocalRuleProps {
   index: number;
@@ -109,7 +109,7 @@ export const ManagePropertyRule = ({
                 propertyType={propertyType}
                 value={field.value ?? ''}
                 onChange={field.onChange}
-                disabled={{ attribute: true }}
+                disabled={[TPlaceholderInputSuggestion.Attribute]}
                 isExpression={rule.isExpression}
                 onChangeInputMode={(mode) =>
                   handleUpdate({ isExpression: mode === 'expression' })

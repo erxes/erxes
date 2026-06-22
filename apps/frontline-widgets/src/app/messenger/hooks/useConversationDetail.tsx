@@ -9,7 +9,9 @@ import {
   ConversationMessageInserted,
   conversationBotTypingStatus,
 } from '../graphql/subscriptions';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useAtom } from 'jotai';
+import { isBotTypingAtom } from '../states';
 import { IConversation } from '../types';
 
 interface IQueryResponse {
@@ -30,7 +32,7 @@ export const useConversationDetail = (
   options?: QueryHookOptions<IQueryResponse>,
 ) => {
   const client = useApolloClient();
-  const [isBotTyping, setIsBotTyping] = useState(false);
+  const [isBotTyping, setIsBotTyping] = useAtom(isBotTypingAtom);
   const botTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
