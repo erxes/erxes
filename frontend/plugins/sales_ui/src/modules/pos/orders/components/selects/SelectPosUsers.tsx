@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   cn,
   Combobox,
@@ -126,13 +127,14 @@ const SelectUsersValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value, users } = useSelectUsersContext();
   const selectedUser = users?.find((user) => user._id === value);
 
   if (!selectedUser) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select user'}
+        {placeholder || t('select-user')}
       </span>
     );
   }
@@ -175,15 +177,16 @@ const SelectUsersCommandItem = ({ user }: { user: IUser }) => {
 };
 
 const SelectUsersContent = () => {
+  const { t } = useTranslation('sales');
   const { users, loading } = useSelectUsersContext();
 
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search users" />
+        <Command.Input placeholder={t('search-users')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading users...</span>
+            <span className="text-muted-foreground">{t('loading-users')}</span>
           </div>
         </Command.List>
       </Command>
@@ -192,9 +195,9 @@ const SelectUsersContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search users" />
+      <Command.Input placeholder={t('search-users')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No users found</span>
+        <span className="text-muted-foreground">{t('no-users-found')}</span>
       </Command.Empty>
       <Command.List>
         {users?.map((user) => (

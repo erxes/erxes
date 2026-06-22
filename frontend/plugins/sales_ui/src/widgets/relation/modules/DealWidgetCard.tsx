@@ -1,5 +1,6 @@
 import { Badge, Card, Separator, Tooltip } from 'erxes-ui';
 import { IconBuildingSkyscraper, IconMapPin } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { PriorityBadge } from '@/deals/components/deal-selects/PriorityInline';
@@ -46,6 +47,7 @@ const OverflowItems = ({ items }: { items: { title: string }[] }) => {
 };
 
 export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const {
     startDate,
     closeDate,
@@ -85,14 +87,14 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
           id={_id}
           type="startDate"
           variant="card"
-          placeholder="Start Date"
+          placeholder={t('start-date')}
         />
         <DateSelectDeal
           value={closeDate}
           id={_id}
           type="closeDate"
           variant="card"
-          placeholder="Close Date"
+          placeholder={t('close-date')}
         />
       </div>
       <Separator />

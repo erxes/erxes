@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   cn,
   Combobox,
@@ -96,6 +97,7 @@ const SelectExcludeStatusValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value, excludeStatuses } = useSelectExcludeStatusContext();
   const selectedExcludeStatus = excludeStatuses?.find(
     (type) => type.value === value,
@@ -104,7 +106,7 @@ const SelectExcludeStatusValue = ({
   if (!selectedExcludeStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select exclude status'}
+        {placeholder || t('select-exclude-status')}
       </span>
     );
   }
@@ -140,13 +142,14 @@ const SelectExcludeStatusCommandItem = ({
 };
 
 const SelectExcludeStatusContent = () => {
+  const { t } = useTranslation('sales');
   const { excludeStatuses } = useSelectExcludeStatusContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search exclude status" />
+      <Command.Input placeholder={t('search-exclude-status')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No exclude statuses found</span>
+        <span className="text-muted-foreground">{t('no-exclude-statuses-found')}</span>
       </Command.Empty>
       <Command.List>
         {excludeStatuses?.map((excludeStatus) => (

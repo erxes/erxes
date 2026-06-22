@@ -31,6 +31,7 @@ import { IDeal, IPaymentsData } from '@/deals/types/deals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useRefundScoreCampaign } from '../hooks/useRefundScoreCampaign';
 import { useCheckOwnerScore } from '../hooks/useCheckOwnerScore';
+import { useTranslation } from 'react-i18next';
 
 interface IPaymentType {
   type: string;
@@ -143,6 +144,9 @@ const OwnerScoreCampaignScore = ({
       refetchCheckOwnerScore();
     });
   };
+
+  const { t } = useTranslation('sales');
+
   return (
     <Popover>
       <Popover.Trigger asChild>
@@ -154,13 +158,13 @@ const OwnerScoreCampaignScore = ({
         <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b">
           <IconAward size={16} className="text-amber-500 shrink-0" />
           <span className="font-semibold text-sm text-foreground truncate">
-            Score Campaign
+            {t('score-campaign')}
           </span>
         </div>
         <div className="p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Customer
+              {t('customer')}
             </span>
             <span className="text-sm text-foreground truncate max-w-44">
               {customer.primaryEmail || customer._id}
@@ -168,11 +172,11 @@ const OwnerScoreCampaignScore = ({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Available Score
+              {t('available-score')}
             </span>
             <span className="text-xl font-bold text-foreground">
               {checkLoading ? (
-                <span className="text-sm text-muted-foreground">Loading…</span>
+                <span className="text-sm text-muted-foreground">{t('loading')}…</span>
               ) : (
                 checkOwnerScore.toLocaleString()
               )}
@@ -562,18 +566,21 @@ const ProductsPayment = ({
       },
     });
   };
+
+  const { t } = useTranslation('sales');
+
   return (
     <div className="flex flex-col gap-4 px-8">
       <div className="flex bg-muted/50 rounded-lg p-3 gap-12 justify-center">
         <div className="flex flex-col items-center">
           <span className="text-xs font-medium text-muted-foreground uppercase">
-            Total
+            {t('total')}
           </span>
           <div className="font-semibold text-lg">{renderTotals(total)}</div>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-xs font-medium text-muted-foreground uppercase">
-            Change
+            {t('change')}
           </span>
           <div
             className={`font-semibold text-lg flex ${
@@ -593,7 +600,7 @@ const ProductsPayment = ({
         <div className="flex items-center gap-2 py-2 w-full justify-center">
           <div className="flex w-full justify-between items-center">
             <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
-              CASH
+              {t('cash')}
             </p>
             <div className="flex flex-1 items-center">
               <Input
@@ -605,7 +612,7 @@ const ProductsPayment = ({
                 }
                 onClick={() => fillRemainingIfEmpty('cash')}
                 className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                placeholder="Type amount"
+                placeholder={t('type-amount')}
               />
             </div>
             <div className="flex flex-1 items-center">
@@ -777,7 +784,7 @@ const ProductsPayment = ({
                       <Input
                         readOnly
                         className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-400 cursor-pointer"
-                        placeholder="Read QRCode"
+                        placeholder={t('read-qrcode')}
                         onClick={() => openQrModal(paymentType)}
                         value={
                           hasInitialAmount
@@ -805,7 +812,7 @@ const ProductsPayment = ({
                           fillRemainingIfEmpty(typeName, payInfo.maxVal)
                         }
                         className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                        placeholder="Type amount"
+                        placeholder={t('type-amount')}
                       />
                     )}
                   </div>
@@ -842,7 +849,7 @@ const ProductsPayment = ({
       <div className="flex items-center justify-end pt-2">
         <Button size="sm" onClick={handleSave}>
           <IconDeviceFloppy className="w-4 h-4 mr-1" />
-          Save
+          {t('save')}
         </Button>
       </div>
 
@@ -854,9 +861,9 @@ const ProductsPayment = ({
       >
         <Dialog.Content className="max-w-sm">
           <Dialog.Header className="gap-1">
-            <Dialog.Title>Read QR Code</Dialog.Title>
+            <Dialog.Title>{t('read-qrcode')}</Dialog.Title>
             <Dialog.Description>
-              Enter the customer QR code to unlock loyalty score payment.
+              {t('enter-customer-qrcode-to-loyalty-score')}
             </Dialog.Description>
           </Dialog.Header>
           {/* <div className="py-2"> */}
@@ -869,15 +876,15 @@ const ProductsPayment = ({
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
               e.key === 'Enter' && handleQrConfirm()
             }
-            placeholder="Enter customer QR code"
+            placeholder={t('enter-customer-qr-code')}
             autoFocus
           />
           {/* </div> */}
           <Dialog.Footer>
             <Button variant="outline" onClick={handleQrDismiss}>
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button onClick={handleQrConfirm}>Confirm</Button>
+            <Button onClick={handleQrConfirm}>{t('confirm')}</Button>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>

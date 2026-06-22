@@ -14,6 +14,7 @@ import {
 } from 'erxes-ui';
 import { IPosOrdersBySubs } from '@/pos/pos-order-by-subsription/types/PosOrderBySubs';
 import { PosOrderBySubsMoreColumn } from '@/pos/pos-order-by-subsription/components/PosOrderBySubsMoreColumn';
+import { useTranslation } from 'react-i18next';
 
 export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
   PosOrderBySubsMoreColumn,
@@ -21,7 +22,10 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
   {
     id: 'group',
     accessorKey: 'group',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Group" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('group')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -33,15 +37,17 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMobiledata} label="Count" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconMobiledata} label={t('count')} />;
+    },
     cell: ({ cell }) => {
+      const { t } = useTranslation('sales');
       const value = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
           <Badge variant={value ? 'success' : 'secondary'}>
-            {value ? 'Online' : 'Offline'}
+            {value ? t('online') : t('offline')}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -50,14 +56,16 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
   {
     id: 'cashAmount',
     accessorKey: 'cashAmount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconPhone} label="Cash Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconPhone} label={t('cash-amount')} />;
+    },
     cell: ({ cell }) => {
+      const { t } = useTranslation('sales');
       const value = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
-          <Badge variant="default">{value ? 'On Server' : 'Local Only'}</Badge>
+          <Badge variant="default">{value ? t('on-server') : t('local-only')}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -65,9 +73,10 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
   {
     id: 'mobileAmount',
     accessorKey: 'mobileAmount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconBuilding} label="Mobile Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('mobile-amount')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -79,7 +88,10 @@ export const PosOrdersBySubsColumns: ColumnDef<IPosOrdersBySubs>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="Amount" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconChartBar} label={t('amount')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

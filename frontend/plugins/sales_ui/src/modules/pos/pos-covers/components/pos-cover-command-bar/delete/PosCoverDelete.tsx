@@ -1,9 +1,11 @@
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { useRemovePosCover } from '../../../hooks/usePosCoverRemove';
 
 export const PosCoverDelete = ({ productIds }: { productIds: string[] }) => {
+  const { t } = useTranslation('sales');
   const { confirm } = useConfirm();
   const { removePosCover } = useRemovePosCover();
   const { toast } = useToast();
@@ -13,22 +15,18 @@ export const PosCoverDelete = ({ productIds }: { productIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${
-            productIds.length
-          } selected pos cover${productIds.length === 1 ? '' : 's'}?`,
+          message: t('delete-pos-cover-confirm', { count: productIds.length }),
         }).then(() => {
           removePosCover(productIds, {
             onCompleted: () => {
               toast({
-                title: 'Success',
-                description: `${productIds.length} pos cover${
-                  productIds.length === 1 ? '' : 's'
-                } deleted successfully.`,
+                title: t('success'),
+                description: t('pos-cover-deleted', { count: productIds.length }),
               });
             },
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -38,7 +36,7 @@ export const PosCoverDelete = ({ productIds }: { productIds: string[] }) => {
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

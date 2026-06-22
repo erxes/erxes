@@ -5,6 +5,7 @@ import { DealSelect } from 'ui-modules';
 import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
 import { useDealsContext } from '@/deals/context/DealContext';
+import { useTranslation } from 'react-i18next';
 
 interface MoveDealDropdownProps {
   deal: IDeal;
@@ -16,6 +17,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
   const { editDeals } = useDealsContext();
   const [open, setOpen] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
+  const { t } = useTranslation('sales');
 
   const handleMove = async (
     _boardId: string,
@@ -46,7 +48,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
           onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
         >
           <IconLayoutBoard size={16} />
-          Move Deal
+          {t('move-deal')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-62 py-2">

@@ -3,9 +3,11 @@ import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePosList } from '@/pos/hooks/usePosList';
 
 export const PosIndexPage = () => {
+  const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const { posList, loading } = usePosList();
 
@@ -26,7 +28,7 @@ export const PosIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/sales/pos">
                     <IconCashRegister />
-                    pos
+                    {t('pos')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -39,7 +41,7 @@ export const PosIndexPage = () => {
           <Button variant="outline" asChild>
             <Link to="/settings/sales/pos">
               <IconSettings />
-              Go to settings
+              {t('go-to-settings')}
             </Link>
           </Button>
         </PageHeader.End>
