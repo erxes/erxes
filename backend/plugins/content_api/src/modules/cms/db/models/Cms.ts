@@ -85,7 +85,7 @@ const buildRehomeOpsForDocument = (
   newLanguage: string,
   type: string,
   newTranslationMap: Map<string, any>,
-): { translationOps: any[]; documentOp: Record<string, any> | null } => {
+): { translationOps: any[]; documentOp: Record<string, any> } => {
   const objectId = String(doc._id);
   const translationOps: any[] = [];
 
@@ -106,25 +106,26 @@ const buildRehomeOpsForDocument = (
     },
   });
 
-  // 2. Promote the new-language translation into the base fields. Only
-  //    non-empty values win, matching the read-time overlay so what the
-  //    editor saw under the new language is exactly what becomes default.
+  // 2. Replace the base fields with the new language's content. Unlike the
+  //    read-time overlay (which falls back to the default for empty values),
+  //    promoting a language must NOT inherit the old default's content: a field
+  //    the new language left empty has to become empty, otherwise the previous
+  //    default's text leaks into the new default. Missing/empty values are reset
+  //    to an empty value matching the field's shape (array vs. string).
   const newTranslation = newTranslationMap.get(objectId);
-  if (!newTranslation) {
-    return { translationOps, documentOp: null };
-  }
-
   const baseUpdate: Record<string, any> = {};
   for (const [baseField, translationField] of Object.entries(fieldMappings)) {
-    const value = newTranslation[translationField];
-    if (hasTranslatableValue(value)) {
-      baseUpdate[baseField] = value;
-    }
+    const value = newTranslation?.[translationField];
+    baseUpdate[baseField] = hasTranslatableValue(value)
+      ? value
+      : Array.isArray(doc[baseField])
+        ? []
+        : '';
   }
 
-  const documentOp = Object.keys(baseUpdate).length
-    ? { updateOne: { filter: { _id: doc._id }, update: { $set: baseUpdate } } }
-    : null;
+  const documentOp = {
+    updateOne: { filter: { _id: doc._id }, update: { $set: baseUpdate } },
+  };
 
   // 3. The new language now lives in the base fields, so its standalone
   //    translation record is redundant.
@@ -184,9 +185,7 @@ const rehomeDefaultLanguageContent = async (
         );
 
       translationOps.push(...docTranslationOps);
-      if (documentOp) {
-        documentOps.push(documentOp);
-      }
+      documentOps.push(documentOp);
     }
 
     if (!documentOps.length && !translationOps.length) {
