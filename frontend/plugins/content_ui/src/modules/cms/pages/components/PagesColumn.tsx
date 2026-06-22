@@ -52,7 +52,7 @@ export const usePagesColumns = (
                 variant={missing ? 'outline' : 'secondary'}
                 className={missing ? 'text-red-500 border-red-300' : ''}
               >
-                <TextOverflowTooltip value={page.name} />
+                <TextOverflowTooltip value={page.name} className="leading-normal" />
               </Badge>
             </div>
           </RecordTableInlineCell>
@@ -76,7 +76,10 @@ export const usePagesColumns = (
         const parent = pages?.find((p) => p._id === page.parentId);
         return (
           <RecordTableInlineCell>
-            <TextOverflowTooltip value={parent?.name || page.parentId} />
+            <TextOverflowTooltip
+              value={parent?.name || page.parentId}
+              className="leading-normal"
+            />
           </RecordTableInlineCell>
         );
       },
@@ -87,7 +90,10 @@ export const usePagesColumns = (
       accessorKey: 'slug',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-gray-500">
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip
+            value={cell.getValue() as string}
+            className="leading-normal"
+          />
         </RecordTableInlineCell>
       ),
     },

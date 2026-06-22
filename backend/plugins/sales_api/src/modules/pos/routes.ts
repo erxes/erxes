@@ -127,6 +127,7 @@ export const getProductsData = async (
 
     for (const category of productCategories) {
       categories.push({
+        ...category,
         _id: category._id,
         name: category.name,
         description: category.description,
@@ -135,6 +136,7 @@ export const getProductsData = async (
         order: category.order,
         attachment: category.attachment,
         meta: category.meta,
+        status: category.status,
         isSimilarity: category.isSimilarity,
         similarities: category.similarities,
       });

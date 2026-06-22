@@ -7,15 +7,14 @@ import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/co
 export const FacebookInputMessage = ({
   index,
   message,
-  handleMessageChange,
 }: FacebookMessageProps<{ type: 'input' }>) => {
-  const { control } = useReplyMessageAction();
+  const { control, setValue } = useReplyMessageAction();
 
   const { value, type } = message?.input || {};
 
   const handleValueChange = (
     e: ChangeEvent<HTMLInputElement>,
-    onChange: (...event: any[]) => void,
+    onChange: (value: string) => void,
   ) => {
     let { value } = e.currentTarget;
     let intervalType: 'minute' | 'hour' | 'day' | 'month' | 'year' | undefined;
@@ -45,7 +44,7 @@ export const FacebookInputMessage = ({
     }
 
     if (intervalType) {
-      handleMessageChange(index, 'input.type', intervalType);
+      setValue(`messages.${index}.input.type`, intervalType);
     }
 
     onChange(value);
@@ -53,7 +52,7 @@ export const FacebookInputMessage = ({
 
   const handleIntervalChange = (
     type: string,
-    onChange: (...event: any[]) => void,
+    onChange: (value: string) => void,
   ) => {
     const maxValues: Record<string, number> = {
       minute: 59,
@@ -68,7 +67,7 @@ export const FacebookInputMessage = ({
     const max = maxValues[type] ?? Infinity;
 
     if (numericValue > max) {
-      handleMessageChange(index, 'input.value', '1');
+      setValue(`messages.${index}.input.value`, '1');
     }
 
     onChange(type);

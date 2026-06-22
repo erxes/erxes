@@ -6,8 +6,9 @@ import {
   IconSend,
 } from '@tabler/icons-react';
 import { Button, Textarea, Tooltip } from 'erxes-ui';
-import { PendingAttachment } from '~/modules/chat/types';
+import { PendingAttachment, ReasoningEffort } from '~/modules/chat/types';
 import { ComposerAttachmentChip } from '~/modules/chat/components/ComposerAttachmentChip';
+import { ReasoningEffortControl } from '~/modules/chat/components/ReasoningEffortControl';
 
 export const Composer = ({
   input,
@@ -23,6 +24,8 @@ export const Composer = ({
   onRemoveAttachment,
   uploadsInFlight,
   agentName,
+  reasoningEffort,
+  onReasoningEffortChange,
   textareaRef,
   fileInputRef,
 }: {
@@ -39,6 +42,8 @@ export const Composer = ({
   onRemoveAttachment: (id: string) => void;
   uploadsInFlight: boolean;
   agentName: string;
+  reasoningEffort?: ReasoningEffort;
+  onReasoningEffortChange: (effort?: ReasoningEffort) => void;
   textareaRef: RefObject<HTMLTextAreaElement>;
   fileInputRef: RefObject<HTMLInputElement>;
 }) => (
@@ -93,6 +98,11 @@ export const Composer = ({
               </Tooltip.Provider>
             </>
           )}
+          <ReasoningEffortControl
+            value={reasoningEffort}
+            onChange={onReasoningEffortChange}
+            disabled={chatLoading}
+          />
           <Textarea
             ref={textareaRef}
             value={input}

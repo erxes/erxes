@@ -6,6 +6,7 @@ import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
 import { scopedResource, getMastraMemory } from '~/mastra/memory/mastraMemory';
 import { deriveResourceId, augmentConvo, MemoryContext } from '~/mastra/memory';
 import { readLearnedDigest } from '~/mastra/learning/digest';
+import { ApprovedOp } from '~/mastra/requestContext';
 import { buildChatUserContent } from '~/mastra/files/chatContent';
 import { IMastraChatAttachment } from '@/session/@types/session';
 import { ensureThreadRegistered } from '@/session/nativeStore';
@@ -23,9 +24,18 @@ export async function prepareChatTurn(params: {
   message: string;
   threadId?: string;
   attachments?: IMastraChatAttachment[];
+  approvedOperations?: ApprovedOp[];
 }): Promise<PreparedTurn> {
-  const { models, subdomain, user, agentId, message, threadId, attachments } =
-    params;
+  const {
+    models,
+    subdomain,
+    user,
+    agentId,
+    message,
+    threadId,
+    attachments,
+    approvedOperations,
+  } = params;
 
   // Same NoSQL-injection guard as sessionId below: agentId arrives from the
   // request body, so a crafted object must never reach a Mongo query.
@@ -67,10 +77,12 @@ export async function prepareChatTurn(params: {
 
   // Mastra Memory (attached to the agent in getOrCreateAgent) is the ONLY chat
   // store: it persists the turn, replays recent history, and runs semantic
-  // recall + working memory via the per-turn binding below. Active when advanced
-  // memory is on AND we know the tenant. (No tenant → the turn is answered
-  // statelessly; there is no custom fallback store.)
-  const useMemory = advanced && Boolean(subdomain);
+  // recall + working memory via the per-turn binding below. Active whenever
+  // advanced memory is on. An unknown tenant does NOT skip persistence — it
+  // would silently drop the turn and lose the session; scopedResource defaults
+  // an empty subdomain to the "os" scope so the thread is still persisted and
+  // listable.
+  const useMemory = advanced;
   const memoryBinding = useMemory
     ? {
         thread: sessionId,
@@ -144,7 +156,12 @@ export async function prepareChatTurn(params: {
   const userHeader = user
     ? Buffer.from(JSON.stringify(user)).toString('base64')
     : undefined;
-  const authCtx = { userHeader, token: settings?.erxesApiToken, subdomain };
+  const authCtx = {
+    userHeader,
+    token: settings?.erxesApiToken,
+    subdomain,
+    approvedOps: approvedOperations,
+  };
 
   return {
     agentConfig,

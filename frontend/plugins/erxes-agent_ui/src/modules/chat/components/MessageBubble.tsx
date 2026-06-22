@@ -1,23 +1,84 @@
+import { memo } from 'react';
 import { IconAlertCircle, IconRefresh } from '@tabler/icons-react';
-import { Tooltip } from 'erxes-ui';
-import { Message } from '~/modules/chat/types';
+import { Collapsible, Tooltip } from 'erxes-ui';
+import { TurnPart, Message } from '~/modules/chat/types';
 import { AgentAvatar } from '~/modules/chat/components/Avatars';
-import { ChatMarkdown } from '~/modules/chat/components/ChatMarkdown';
+import {
+  ChatMarkdown,
+  StreamingMarkdown,
+} from '~/modules/chat/components/ChatMarkdown';
 import { CopyButton } from '~/modules/chat/components/CopyButton';
 import { FeedbackButtons } from '~/modules/chat/components/FeedbackButtons';
 import { MessageAttachments } from '~/modules/chat/components/MessageAttachments';
 import { ThinkingSection } from '~/modules/chat/components/ThinkingSection';
 import { ToolCallRow } from '~/modules/chat/components/ToolCallRow';
 
-export const MessageBubble = ({
+// All thinking + tool-call parts collapsed into one "Show thinking process" row.
+// Starts closed so the final response text is the first thing the user sees.
+// Each tool call inside still has its own expand for request/response detail.
+const ToolsSection = ({
+  parts,
+  streaming,
+}: {
+  parts: TurnPart[];
+  streaming: boolean;
+}) => {
+  const toolCount = parts.filter((p) => p.kind === 'tool').length;
+
+  return (
+    <Collapsible defaultOpen={false} className="mb-3">
+      <Collapsible.TriggerButton className="h-auto w-auto py-0.5 text-xs gap-1.5 text-muted-foreground hover:text-foreground">
+        <Collapsible.TriggerIcon className="size-3 shrink-0" />
+        Show thinking process
+        {toolCount > 0 && (
+          <span className="opacity-50 font-mono">
+            · {toolCount} tool{toolCount !== 1 ? 's' : ''}
+          </span>
+        )}
+      </Collapsible.TriggerButton>
+      <Collapsible.Content>
+        <div className="mt-2 space-y-1">
+          {parts.map((part, i) =>
+            part.kind === 'thinking' ? (
+              <ThinkingSection
+                key={i}
+                text={part.text}
+                live={streaming && !part.done && i === parts.length - 1}
+              />
+            ) : (
+              <ToolCallRow
+                key={part.call.toolCallId ?? `tool-${i}`}
+                call={part.call}
+                streaming={streaming}
+              />
+            ),
+          )}
+        </div>
+      </Collapsible.Content>
+    </Collapsible>
+  );
+};
+
+// memo() so a streaming turn only re-renders the live bubble, not every prior
+// message. The store keeps stable object references for unchanged messages, so
+// shallow prop equality holds — provided callers pass stable callbacks and the
+// per-message gating (regenerate/rate) is derived here from primitive flags
+// rather than passed as freshly-built closures.
+export const MessageBubble = memo(function MessageBubble({
   msg,
+  isLast,
+  chatLoading,
+  ratingEnabled,
   onRegenerate,
   onRate,
 }: {
   msg: Message;
-  onRegenerate?: () => void;
-  onRate?: (rating: 1 | -1) => void;
-}) => {
+  isLast: boolean;
+  chatLoading: boolean;
+  ratingEnabled: boolean;
+  onRegenerate: () => void;
+  onRate: (messageId: string, rating: 1 | -1) => void;
+}) {
   if (msg.role === 'error') {
     return (
       <div className="flex justify-center ea-msg-in">
@@ -56,36 +117,29 @@ export const MessageBubble = ({
     );
   }
 
-  // assistant — chronological turn parts (thinking / tool calls), then the
-  // (possibly still streaming) answer text
+  // assistant — transparent bubble with subtle border + shadow so it sits
+  // cleanly against any theme background without a solid fill
   const streaming = !!msg.streaming;
   const parts = msg.parts ?? [];
+  const canRegenerate = isLast && !chatLoading;
+  const handleRate =
+    ratingEnabled && msg.id
+      ? (rating: 1 | -1) => onRate(msg.id!, rating)
+      : undefined;
 
   return (
     <div className="flex justify-start items-start gap-2.5 group ea-msg-in">
       <AgentAvatar live={streaming} />
-      <div className="max-w-[82%] min-w-0 bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
+      <div className="max-w-[82%] min-w-0 rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm">
         {parts.length > 0 && (
-          <div className="mb-2 space-y-1">
-            {parts.map((part, i) =>
-              part.kind === 'thinking' ? (
-                <ThinkingSection
-                  key={i}
-                  text={part.text}
-                  live={streaming && !part.done && i === parts.length - 1}
-                />
-              ) : (
-                <ToolCallRow
-                  key={part.call.toolCallId ?? `tool-${i}`}
-                  call={part.call}
-                  streaming={streaming}
-                />
-              ),
-            )}
-          </div>
+          <ToolsSection parts={parts} streaming={streaming} />
         )}
         {msg.content ? (
-          <ChatMarkdown content={msg.content} />
+          streaming ? (
+            <StreamingMarkdown content={msg.content} />
+          ) : (
+            <ChatMarkdown content={msg.content} />
+          )
         ) : streaming && !parts.length ? (
           <div className="flex items-center gap-1.5 py-1">
             <span className="ea-typing-dot" />
@@ -108,7 +162,7 @@ export const MessageBubble = ({
               )}
             </p>
             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              {onRegenerate && (
+              {canRegenerate && (
                 <Tooltip.Provider>
                   <Tooltip>
                     <Tooltip.Trigger asChild>
@@ -124,8 +178,8 @@ export const MessageBubble = ({
                   </Tooltip>
                 </Tooltip.Provider>
               )}
-              {onRate && (
-                <FeedbackButtons rating={msg.rating} onRate={onRate} />
+              {handleRate && (
+                <FeedbackButtons rating={msg.rating} onRate={handleRate} />
               )}
               <CopyButton text={msg.content} />
             </div>
@@ -134,4 +188,4 @@ export const MessageBubble = ({
       </div>
     </div>
   );
-};
+});

@@ -6,11 +6,11 @@ import {
 } from '@tabler/icons-react';
 import {
   Badge,
-  Button,
   Command,
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { PermissionButton } from './PermissionButton';
 
 // Bits shared by the plugin's record tables (agents, workflows, schedules)
 // so the row menus and status columns stay identical across the lists.
@@ -20,17 +20,27 @@ export const ToggleDeleteMenuItems = ({
   isEnabled,
   onToggle,
   onDelete,
+  toggleDisabled = false,
+  deleteDisabled = false,
+  onToggleDenied,
+  onDeleteDenied,
 }: {
   isEnabled: boolean;
   onToggle: () => void;
   onDelete: () => void;
+  toggleDisabled?: boolean;
+  deleteDisabled?: boolean;
+  onToggleDenied?: () => void;
+  onDeleteDenied?: () => void;
 }) => (
   <>
     <Command.Item asChild>
-      <Button
+      <PermissionButton
         variant="ghost"
         size="sm"
         className="justify-start w-full h-8"
+        allowed={!toggleDisabled}
+        onDenied={onToggleDenied ?? (() => {})}
         onClick={onToggle}
       >
         {isEnabled ? (
@@ -42,17 +52,19 @@ export const ToggleDeleteMenuItems = ({
             <IconToggleRight className="size-4" /> Enable
           </>
         )}
-      </Button>
+      </PermissionButton>
     </Command.Item>
     <Command.Item asChild>
-      <Button
+      <PermissionButton
         variant="ghost"
         size="sm"
         className="justify-start w-full h-8 text-destructive"
+        allowed={!deleteDisabled}
+        onDenied={onDeleteDenied ?? (() => {})}
         onClick={onDelete}
       >
         <IconTrash className="size-4" /> Delete
-      </Button>
+      </PermissionButton>
     </Command.Item>
   </>
 );

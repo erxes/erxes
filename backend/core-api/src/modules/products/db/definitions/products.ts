@@ -1,4 +1,8 @@
-import { PRODUCT_STATUSES, PRODUCT_TYPES } from '@/products/constants';
+import {
+  PRODUCT_DURATION_TYPES,
+  PRODUCT_STATUSES,
+  PRODUCT_TYPES,
+} from '@/products/constants';
 import {
   attachmentSchema,
   customFieldSchema,
@@ -97,6 +101,18 @@ export const productSchema = schemaWrapper(
 
       inventories: { type: Object, optional: true },
       discounts: { type: Object, optional: true },
+      duration: {
+        type: Number,
+        optional: true,
+        min: 1,
+        label: 'Duration',
+      },
+      durationType: {
+        type: String,
+        enum: PRODUCT_DURATION_TYPES.ALL,
+        optional: true,
+        label: 'Duration type',
+      },
 
       similarityId: {
         type: String,

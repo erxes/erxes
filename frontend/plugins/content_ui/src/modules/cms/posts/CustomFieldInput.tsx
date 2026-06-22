@@ -11,9 +11,10 @@ import {
   Editor,
 } from 'erxes-ui';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
-import { useEffect } from 'react';
 import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
 import { SpreadsheetInput } from './SpreadsheetInput';
+import { GalleryUploader } from './GalleryUploader';
+import { useAutoUpload } from './hooks/useAutoUpload';
 
 export interface FieldDefinition {
   _id: string;
@@ -30,77 +31,6 @@ interface CustomFieldInputProps {
   field: FieldDefinition;
   value: CustomFieldValue;
   onChange: (value: string | boolean | string[]) => void;
-}
-
-function ImageFieldInput({
-  value,
-  onChange,
-  buttonLabel = 'Upload file',
-  buttonClassName,
-}: {
-  value: CustomFieldValue;
-  onChange: (value: string) => void;
-  buttonLabel?: string;
-  buttonClassName?: string;
-}) {
-  const url = typeof value === 'string' ? value : '';
-
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 1,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (added) => {
-      if (added[0]?.url) onChange(added[0].url);
-    },
-  });
-
-  useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload();
-    }
-  }, [uploadProps.files.length]);
-
-  return (
-    <div className="space-y-2">
-      {url && (
-        <div className="relative group w-full rounded-md border overflow-hidden aspect-[3/1] bg-muted">
-          <img
-            src={readImage(url)}
-            alt="uploaded"
-            className="w-full h-full object-contain"
-          />
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute top-2 right-2 p-1 rounded-md bg-destructive text-white opacity-0 group-hover:opacity-100 transition"
-          >
-            <IconX size={14} />
-          </button>
-        </div>
-      )}
-      <div>
-        <input {...uploadProps.getInputProps()} />
-        <Button
-          variant="outline"
-          className={buttonClassName}
-          type="button"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
-        >
-          <IconUpload size={16} className="mr-2" />
-          {uploadProps.loading ? 'Uploading...' : url ? `Change ${buttonLabel.toLowerCase()}` : buttonLabel}
-        </Button>
-        <p className="text-xs text-muted-foreground mt-1">
-          Max 20MB · JPG, PNG, GIF, WebP, SVG
-        </p>
-      </div>
-      {!!uploadProps.errors.length && (
-        <p className="text-xs text-destructive">
-          {uploadProps.errors[0]?.message || 'Upload failed'}
-        </p>
-      )}
-    </div>
-  );
 }
 
 function FileFieldInput({
@@ -125,12 +55,7 @@ function FileFieldInput({
       if (url) onChange([url]);
     },
   });
-
-  useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload();
-    }
-  }, [uploadProps.files.length]);
+  useAutoUpload(uploadProps);
 
   const handleRemove = (url: string) => {
     onChange(urls.filter((u) => u !== url));
@@ -145,7 +70,10 @@ function FileFieldInput({
               key={url}
               className="flex items-center gap-2 border rounded p-2 bg-muted"
             >
-              <IconPaperclip size={16} className="text-muted-foreground shrink-0" />
+              <IconPaperclip
+                size={16}
+                className="text-muted-foreground shrink-0"
+              />
               <span className="text-sm flex-1 truncate">{url}</span>
               <Button
                 variant="ghost"
@@ -176,11 +104,9 @@ function FileFieldInput({
           <IconUpload size={16} className="mr-2" />
           {uploadProps.loading ? 'Uploading...' : buttonLabel}
         </Button>
-        <p className="text-xs text-muted-foreground mt-1">
-          Max 20MB
-        </p>
+        <p className="text-xs text-muted-foreground mt-1">Max 20MB</p>
       </div>
-      {!!uploadProps.errors.length && (
+      {Boolean(uploadProps.errors.length) && (
         <p className="text-xs text-destructive">
           {uploadProps.errors[0]?.message || 'Upload failed'}
         </p>
@@ -194,197 +120,175 @@ export const CustomFieldInput = ({
   value,
   onChange,
 }: CustomFieldInputProps) => {
-  const renderInput = () => {
-    switch (field.type) {
-      case 'text':
-      case 'email':
-      case 'url':
-        return (
-          <Input
-            type={field.type === 'text' ? 'text' : field.type}
-            placeholder={
-              field.placeholder || `Enter ${field.label.toLowerCase()}`
-            }
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full"
-          />
-        );
+  const enterPlaceholder =
+    field.placeholder || `Enter ${field.label.toLowerCase()}`;
+  const selectPlaceholder =
+    field.placeholder || `Select ${field.label.toLowerCase()}`;
+  const options = field.options || [];
+  const selectedValues = Array.isArray(value) ? value : [];
+  const multiOptions = options.map((option: string) => ({
+    label: option,
+    value: option,
+  }));
+  const imageUrls = Array.isArray(value) ? value : [];
 
-      case 'textarea':
-        return (
-          <Textarea
-            placeholder={
-              field.placeholder || `Enter ${field.label.toLowerCase()}`
-            }
-            rows={10}
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full resize-none"
-          />
-        );
+  if (!Array.isArray(value) && typeof value === 'string' && value) {
+    imageUrls.push(value);
+  }
 
-      case 'number':
-        return (
-          <Input
-            type="number"
-            placeholder={
-              field.placeholder || `Enter ${field.label.toLowerCase()}`
-            }
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full"
-          />
-        );
-
-      case 'date':
-        return (
-          <DatePicker
-            value={value ? new Date(value) : undefined}
-            onChange={(date) =>
-              onChange(date ? (date as Date).toISOString() : '')
-            }
-            placeholder={field.placeholder || 'Select date'}
-          />
-        );
-
-      case 'checkbox':
-      case 'boolean':
-        return (
-          <Switch
-            checked={!!value}
-            onCheckedChange={(checked) => onChange(checked)}
-          />
-        );
-
-      case 'select':
-        if (!field.options?.length) return null;
-        return (
-          <Select value={value || ''} onValueChange={onChange}>
-            <Select.Trigger className="w-full">
-              <Select.Value
-                placeholder={
-                  field.placeholder || `Select ${field.label.toLowerCase()}`
-                }
-              />
-            </Select.Trigger>
-            <Select.Content>
-              {field.options.map((option: string, idx: number) => (
-                <Select.Item key={idx} value={option}>
-                  {option}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
-        );
-
-      case 'radio':
-        if (!field.options?.length) return null;
-        return (
-          <div className="flex flex-col gap-2">
-            {field.options.map((option: string, idx: number) => (
-              <label
-                key={idx}
-                className="flex items-center gap-2 cursor-pointer text-sm"
-              >
-                <input
-                  type="radio"
-                  name={field._id}
-                  value={option}
-                  checked={value === option}
-                  onChange={(e) => onChange(e.target.value)}
-                  className="h-4 w-4 text-primary border-input focus:ring-primary"
-                />
-                <span>{option}</span>
-              </label>
-            ))}
-          </div>
-        );
-
-      case 'spreadsheet':
-        return (
-          <SpreadsheetInput
-            value={typeof value === 'string' ? value : ''}
-            onChange={onChange}
-            placeholder={field.placeholder}
-          />
-        );
-
-      case 'multiSelect': {
-        if (!field.options?.length) return null;
-        const selectedValues = Array.isArray(value) ? value : [];
-        const multiOptions = field.options.map((opt: string) => ({
-          label: opt,
-          value: opt,
-        }));
-        return (
-          <MultipleSelector
-            value={multiOptions.filter((o: { value: string }) =>
-              selectedValues.includes(o.value),
-            )}
-            options={multiOptions}
-            placeholder={
-              field.placeholder || `Select ${field.label.toLowerCase()}`
-            }
-            hidePlaceholderWhenSelected
-            emptyIndicator="No options"
-            onChange={(opts: { value: string }[]) =>
-              onChange(opts.map((o) => o.value))
-            }
-          />
-        );
-      }
-
-      case 'image':
-        return (
-          <ImageFieldInput
-            value={value}
-            onChange={(url) => onChange(url)}
-          />
-        );
-
-      case 'file':
-        return (
-          <FileFieldInput
-            value={value}
-            onChange={(urls) => onChange(urls)}
-          />
-        );
-
-      case 'richText':
-        return (
-          <Editor
-            className="h-64 border"
-            key={field._id}
-            isHTML
-            initialContent={typeof value === 'string' ? value : ''}
-            onChange={(content) => onChange(content)}
-            uploadFile={async (file) => {
-              const formData = new FormData();
-              formData.append('file', file);
-              const response = await fetch(
-                `${REACT_APP_API_URL}/upload-file?kind=main`,
-                { method: 'post', body: formData, credentials: 'include' },
-              );
-              const key = await response.text();
-              return readImage(key);
-            }}
-          />
-        );
-
-      default:
-        return (
-          <Input
-            placeholder={
-              field.placeholder || `Enter ${field.label.toLowerCase()}`
-            }
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full"
-          />
-        );
-    }
+  const fieldInputs = {
+    text: (
+      <Input
+        type="text"
+        placeholder={enterPlaceholder}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full"
+      />
+    ),
+    email: (
+      <Input
+        type="email"
+        placeholder={enterPlaceholder}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full"
+      />
+    ),
+    url: (
+      <Input
+        type="url"
+        placeholder={enterPlaceholder}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full"
+      />
+    ),
+    textarea: (
+      <Textarea
+        placeholder={enterPlaceholder}
+        rows={10}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full resize-none"
+      />
+    ),
+    number: (
+      <Input
+        type="number"
+        placeholder={enterPlaceholder}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full"
+      />
+    ),
+    date: (
+      <DatePicker
+        value={value ? new Date(value) : undefined}
+        onChange={(date) => onChange(date ? (date as Date).toISOString() : '')}
+        placeholder={field.placeholder || 'Select date'}
+      />
+    ),
+    checkbox: (
+      <Switch
+        checked={Boolean(value)}
+        onCheckedChange={(checked) => onChange(checked)}
+      />
+    ),
+    boolean: (
+      <Switch
+        checked={Boolean(value)}
+        onCheckedChange={(checked) => onChange(checked)}
+      />
+    ),
+    select: options.length ? (
+      <Select value={value || ''} onValueChange={onChange}>
+        <Select.Trigger className="w-full">
+          <Select.Value placeholder={selectPlaceholder} />
+        </Select.Trigger>
+        <Select.Content>
+          {options.map((option: string) => (
+            <Select.Item key={option} value={option}>
+              {option}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    ) : null,
+    radio: options.length ? (
+      <div className="flex flex-col gap-2">
+        {options.map((option: string) => (
+          <label
+            key={option}
+            className="flex items-center gap-2 cursor-pointer text-sm"
+          >
+            <input
+              type="radio"
+              name={field._id}
+              value={option}
+              checked={value === option}
+              onChange={(e) => onChange(e.target.value)}
+              className="h-4 w-4 text-primary border-input focus:ring-primary"
+            />
+            <span>{option}</span>
+          </label>
+        ))}
+      </div>
+    ) : null,
+    spreadsheet: (
+      <SpreadsheetInput
+        value={typeof value === 'string' ? value : ''}
+        onChange={onChange}
+        placeholder={field.placeholder}
+      />
+    ),
+    multiSelect: options.length ? (
+      <MultipleSelector
+        value={multiOptions.filter((option: { value: string }) =>
+          selectedValues.includes(option.value),
+        )}
+        options={multiOptions}
+        placeholder={selectPlaceholder}
+        hidePlaceholderWhenSelected
+        emptyIndicator="No options"
+        onChange={(selectedOptions: { value: string }[]) =>
+          onChange(selectedOptions.map((option) => option.value))
+        }
+      />
+    ) : null,
+    image: (
+      <GalleryUploader value={imageUrls} onChange={(urls) => onChange(urls)} />
+    ),
+    file: <FileFieldInput value={value} onChange={(urls) => onChange(urls)} />,
+    richText: (
+      <Editor
+        className="h-64 border"
+        key={field._id}
+        isHTML
+        initialContent={typeof value === 'string' ? value : ''}
+        onChange={(content) => onChange(content)}
+        uploadFile={async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          const response = await fetch(
+            `${REACT_APP_API_URL}/upload-file?kind=main`,
+            { method: 'post', body: formData, credentials: 'include' },
+          );
+          const key = await response.text();
+          return readImage(key);
+        }}
+      />
+    ),
   };
 
-  return renderInput();
+  return (
+    fieldInputs[field.type as keyof typeof fieldInputs] || (
+      <Input
+        placeholder={enterPlaceholder}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full"
+      />
+    )
+  );
 };

@@ -369,6 +369,7 @@ export async function executeErxesOperation(
   inputTypesMap?: Record<string, GqlArgDef[]>,
   objectFieldsMap?: Record<string, GqlFieldDef[]>,
   processId?: string,
+  requestedFields?: string[],
 ): Promise<unknown> {
   // Any internal failure (a malformed introspection shape, an undefined field
   // access, a network blip) must become a STRUCTURED result the model can act
@@ -412,6 +413,7 @@ export async function executeErxesOperation(
       undefined,
       op.returnType,
       objectFieldsMap,
+      requestedFields,
     );
 
     /** Builds and POSTs the GraphQL operation with the given args. */

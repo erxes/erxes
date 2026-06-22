@@ -57,6 +57,15 @@ export interface ProductDetail {
   vendorId?: string;
   scopeBrandIds?: string[];
   currency?: string;
+  duration?: number;
+  durationType?:
+    | 'minute'
+    | 'hour'
+    | 'day'
+    | 'week'
+    | 'month'
+    | 'quarter'
+    | 'year';
   variants?: Record<string, unknown>;
   customFieldsData?: Record<string, unknown>;
   propertiesData?: Record<string, unknown>;

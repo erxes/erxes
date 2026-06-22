@@ -1,5 +1,5 @@
 import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRuntimeInfo';
-import { AiAgentInputMappingFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputMappingFields';
+import { AiAgentInputFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputFields';
 import { AiAgentMemoryFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentMemoryFields';
 import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectBuilder';
 import { AiAgentTopicBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentTopicBuilder';
@@ -108,7 +108,7 @@ export const AIAgentConfigForm = ({
               }}
             />
 
-            <AiAgentInputMappingFields />
+            <AiAgentInputFields />
 
             {config?.goalType === 'classification' && <AiAgentObjectBuilder />}
             {config?.goalType === 'splitTopic' && <AiAgentTopicBuilder />}

@@ -1,9 +1,11 @@
+import { memo, useMemo } from 'react';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import { ChatVizMessage } from 'erxes-ui';
 import { CopyButton } from '~/modules/chat/components/CopyButton';
+import { splitStreamingMarkdown } from '~/modules/chat/utils';
 
 // Extract the raw text out of a code node's children (string or nested nodes).
 const codeText = (children: ReactNode): string => {
@@ -102,11 +104,15 @@ const components: Components = {
   ),
 };
 
-// Renders assistant markdown: GFM (tables/strikethrough/task lists), sanitized
-// HTML, and chart-viz fenced blocks as interactive charts. Replaces the former
-// hand-rolled inline/block parser.
-export const ChatMarkdown = ({ content }: { content: string }) => (
-  <div className="space-y-1 text-sm break-words">
+// One parsed markdown block. Memoized on its source string so a frozen block
+// (its text settled once the stream moved past it) never re-parses or reflows,
+// even as later blocks keep streaming in.
+const MarkdownBlock = memo(function MarkdownBlock({
+  content,
+}: {
+  content: string;
+}) {
+  return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeSanitize]}
@@ -114,5 +120,42 @@ export const ChatMarkdown = ({ content }: { content: string }) => (
     >
       {content}
     </ReactMarkdown>
-  </div>
-);
+  );
+});
+
+// Renders assistant markdown: GFM (tables/strikethrough/task lists), sanitized
+// HTML, and chart-viz fenced blocks as interactive charts. Replaces the former
+// hand-rolled inline/block parser. Used for settled messages — the whole string
+// in one pass, so block boundaries are always parsed correctly.
+export const ChatMarkdown = memo(function ChatMarkdown({
+  content,
+}: {
+  content: string;
+}) {
+  return (
+    <div className="space-y-1 text-sm break-words">
+      <MarkdownBlock content={content} />
+    </div>
+  );
+});
+
+// Streaming variant: completed blocks are frozen (each its own memoized block,
+// so finished text can't be re-interpreted or reflowed as context grows), and
+// only the trailing in-progress block re-renders per frame. This is what makes
+// the reveal feel seamless. Blocks only ever append during a turn, so the index
+// key is stable. Settled messages render via ChatMarkdown (whole string) so the
+// transient split heuristic never affects the final output.
+export const StreamingMarkdown = ({ content }: { content: string }) => {
+  const { blocks, tail } = useMemo(
+    () => splitStreamingMarkdown(content),
+    [content],
+  );
+  return (
+    <div className="space-y-1 text-sm break-words">
+      {blocks.map((block, i) => (
+        <MarkdownBlock key={i} content={block} />
+      ))}
+      {tail ? <MarkdownBlock content={tail} /> : null}
+    </div>
+  );
+};

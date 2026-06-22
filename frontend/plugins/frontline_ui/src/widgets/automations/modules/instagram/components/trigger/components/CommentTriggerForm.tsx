@@ -2,7 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { cn, Form, Select, Switch, toast } from 'erxes-ui';
 import { useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
-import { AutomationTriggerFormProps } from 'ui-modules';
+import {
+  AutomationTriggerFormProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 import { z } from 'zod';
 import { InstagramPostSelector } from '~/widgets/automations/modules/instagram/components/InstagramPostSelector';
 import { InstagramBotSelector } from '~/widgets/automations/modules/instagram/components/InstagramBotSelector';
@@ -45,15 +48,13 @@ export const CommentTriggerForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: { postType: 'specific', ...(activeTrigger.config || {}) },
   });
+  const { handleValidationErrors } = useFormValidationErrorHandler({
+    formName: 'Trigger',
+  });
   const { control, watch } = form;
 
   useImperativeHandle(formRef, () => ({
-    submit: form.handleSubmit(onSaveTriggerConfig, () =>
-      toast({
-        title: 'There is some error in the form',
-        variant: 'destructive',
-      }),
-    ),
+    submit: form.handleSubmit(onSaveTriggerConfig, handleValidationErrors),
   }));
 
   const [botId, checkContent, postType] = watch([
@@ -63,7 +64,7 @@ export const CommentTriggerForm = ({
   ]);
 
   return (
-    <div className="h-full w-2xl">
+    <div className="h-full ">
       <Form {...form}>
         <Form.Field
           control={control}

@@ -21,12 +21,14 @@ export const agentSchema = new Schema(
     },
     allowedTools: [{ type: String }],
     // Consent for irreversible deletes/merges (remove/delete/merge mutations).
-    // Defaults to 'block' so the agent cannot destroy data by mistake; set to
-    // 'allow' to opt a specific agent into destructive operations.
+    //   'ask' (default) → the agent asks the user to approve each one in chat.
+    //   'allow'         → they run without asking.
+    // 'block' is the legacy value (treated as 'ask'); kept in the enum so old
+    // documents validate. The agent never hard-refuses a destructive op.
     destructiveOps: {
       type: String,
-      enum: ['allow', 'block'],
-      default: 'block',
+      enum: ['allow', 'ask', 'block'],
+      default: 'ask',
       label: 'Destructive Operations',
     },
     memoryEnabled: { type: Boolean, default: true },
@@ -36,6 +38,7 @@ export const agentSchema = new Schema(
     // e.g. Kimi thinking models reject anything but 1.
     temperature: { type: Number, min: 0, max: 2, label: 'Temperature' },
     isEnabled: { type: Boolean, default: true },
+    createdBy: { type: String, label: 'Created By' },
   },
   { timestamps: true },
 );

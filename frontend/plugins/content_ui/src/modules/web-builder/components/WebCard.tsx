@@ -43,8 +43,8 @@ export const WebCard = ({ web, index }: WebCardProps) => {
     }).then(() => removeWeb(web._id));
 
   return (
-    <div className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
-      <div className={`aspect-video relative overflow-hidden bg-gray-100`}>
+    <div className="bg-card h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+      <div className={`aspect-video relative overflow-hidden bg-muted`}>
         {thumbnailUrl ? (
           <>
             <img
@@ -71,15 +71,15 @@ export const WebCard = ({ web, index }: WebCardProps) => {
       </div>
 
       <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+        <h3 className="font-semibold text-foreground mb-1 line-clamp-1">
           {web.name}
         </h3>
-        <p className="text-sm text-gray-500 mb-4 line-clamp-2 min-h-[2.5rem]">
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-10">
           {web.description || 'No description'}
         </p>
 
         <div className="flex items-center justify-between">
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-muted-foreground">
             {web.templateType && (
               <span className="capitalize">{web.templateType}</span>
             )}

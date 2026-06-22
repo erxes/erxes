@@ -6,9 +6,11 @@ import { IField } from '../types/fieldsTypes';
 export const useFields = ({
   groupId,
   contentType,
+  limit,
 }: {
   groupId?: string;
   contentType: string;
+  limit?: number;
 }) => {
   const { data, loading, refetch } = useQuery<ICursorListResponse<IField>>(
     FIELDS_QUERY,
@@ -17,6 +19,7 @@ export const useFields = ({
         params: {
           groupId,
           contentType,
+          limit,
         },
       },
     },
