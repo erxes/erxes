@@ -1,7 +1,7 @@
 import { FocusSheet, Sheet, Spinner, Button, useQueryState } from 'erxes-ui';
 import { lazy, Suspense, useState } from 'react';
 import { IconPlus } from '@tabler/icons-react';
-import { CustomerCreateSidebar } from './CustomerCreateSidebar';
+import { SheetNavSidebar } from '../../shared/components/SheetNavSidebar';
 
 const AddCustomerForm = lazy(() =>
   import('./AddCustomerForm').then((module) => ({
@@ -41,7 +41,7 @@ export const AddCustomer = ({
         <FocusSheet.Header title={title} />
         <FocusSheet.Content className="flex-1 min-h-0">
           <FocusSheet.SideBar>
-            <CustomerCreateSidebar />
+            <SheetNavSidebar tabs={['overview', 'properties']} groupLabel="General" />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1">
             <Suspense fallback={<Spinner />}>

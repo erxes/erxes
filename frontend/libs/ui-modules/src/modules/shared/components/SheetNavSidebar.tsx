@@ -1,21 +1,24 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
 
-const TABS = ['overview', 'properties'];
-
-export const CustomerCreateSidebar = () => {
+export function SheetNavSidebar({
+  tabs,
+  groupLabel,
+}: {
+  tabs: string[];
+  groupLabel: string;
+}) {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   return (
     <Sidebar.Content>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{groupLabel}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
-            {TABS.map((tab) => (
+            {tabs.map((tab, index) => (
               <Sidebar.MenuItem key={tab}>
                 <Sidebar.MenuButton
                   isActive={
-                    selectedTab === tab ||
-                    (tab === 'overview' && !selectedTab)
+                    selectedTab === tab || (index === 0 && !selectedTab)
                   }
                   onClick={() => setSelectedTab(tab)}
                 >
@@ -28,4 +31,4 @@ export const CustomerCreateSidebar = () => {
       </Sidebar.Group>
     </Sidebar.Content>
   );
-};
+}

@@ -6,7 +6,6 @@ import {
   FocusSheet,
   Kbd,
   Sheet,
-  Sidebar,
   Spinner,
   usePreviousHotkeyScope,
   useQueryState,
@@ -17,35 +16,7 @@ import { Suspense, useState } from 'react';
 import { AddCustomerForm } from './AddCustomerForm';
 import { useTranslation } from 'react-i18next';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
-
-const TABS = ['overview', 'properties'];
-
-const CustomerCreateSidebar = () => {
-  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  return (
-    <Sidebar.Content>
-      <Sidebar.Group>
-        <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
-        <Sidebar.GroupContent className="mt-2">
-          <Sidebar.Menu>
-            {TABS.map((tab) => (
-              <Sidebar.MenuItem key={tab}>
-                <Sidebar.MenuButton
-                  isActive={
-                    selectedTab === tab || (tab === 'overview' && !selectedTab)
-                  }
-                  onClick={() => setSelectedTab(tab)}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </Sidebar.MenuButton>
-              </Sidebar.MenuItem>
-            ))}
-          </Sidebar.Menu>
-        </Sidebar.GroupContent>
-      </Sidebar.Group>
-    </Sidebar.Content>
-  );
-};
+import { SheetNavSidebar } from 'ui-modules';
 
 export const CustomerAddSheet = () => {
   const { t } = useTranslation('contact');
@@ -90,7 +61,7 @@ export const CustomerAddSheet = () => {
         <FocusSheet.Header title={title} />
         <FocusSheet.Content className="flex-1 min-h-0">
           <FocusSheet.SideBar>
-            <CustomerCreateSidebar />
+            <SheetNavSidebar tabs={['overview', 'properties']} groupLabel="General" />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1">
             <Suspense fallback={<Spinner />}>
