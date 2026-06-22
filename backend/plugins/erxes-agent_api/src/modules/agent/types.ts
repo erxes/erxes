@@ -57,25 +57,6 @@ export interface TurnAgent {
   ): Promise<{ fullStream: unknown }>;
 }
 
-// One normalized streaming event — the SSE wire shape, also the unit the turn
-// accumulator folds. (Mirrors the `data: {json}` events documented on the SSE
-// route; `done` carries the final reply/messageId.)
-export interface StreamEvent {
-  type: string;
-  text?: string;
-  message?: string;
-  toolCallId?: string;
-  toolName?: string;
-  args?: unknown;
-  result?: unknown;
-  isError?: boolean;
-  reply?: string | null;
-  interrupted?: boolean;
-  messageId?: string | null;
-  threadId?: string;
-  title?: string;
-}
-
 // Per-turn Mastra Memory binding — which thread + (tenant-scoped) resource this
 // turn reads/writes. Passed to generate()/stream() so Mastra recalls + persists.
 export interface MemoryBinding {

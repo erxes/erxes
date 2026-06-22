@@ -1,5 +1,10 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import {
+  createUIMessageStream,
+  pipeUIMessageStreamToResponse,
+  type UIMessageChunk,
+} from 'ai';
 import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
 import { checkPermissionGroup } from 'erxes-api-shared/core-modules';
 import { generateModels } from './connectionResolvers';
@@ -29,11 +34,8 @@ import {
   patchNativeTurn,
   TurnAgent,
 } from '@/agent/turn';
-import {
-  IMastraChatAttachment,
-  IMastraToolCall,
-  IMastraTurnPart,
-} from '@/session/@types/session';
+import { IMastraChatAttachment } from '@/session/@types/session';
+import { UITurnAccumulator } from '@/agent/uiTurn';
 import { attachmentStorageStatus } from '@/settings/graphql/resolvers/queries/settings';
 
 export const router: Router = Router();
@@ -49,114 +51,51 @@ const llmRouteLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
 });
 
-// ─── Streaming chat (SSE) ─────────────────────────────────────────────────────
+// ─── Streaming chat (AI SDK UIMessage stream) ────────────────────────────────
 //
 // POST /chat/stream — the in-app chat UI's transport, proxied through the
 // gateway at /pl:erxes-agent/chat/stream. The gateway's userMiddleware has
 // already authenticated the request and forwarded the user as a base64 header.
 //
-// Emits `data: {json}\n\n` events:
-//   {type:'thinking', text}        — model reasoning delta
-//   {type:'text', text}            — answer text delta
-//   {type:'text_replace', text}    — replace all streamed text (fallback paths)
-//   {type:'tool_call', toolCallId, toolName, args}
-//   {type:'tool_result', toolCallId, toolName, result, isError}
-//   {type:'activity', text}        — LLM one-liner of what the agent is doing
-//   {type:'done', reply, interrupted}
-//   {type:'thread_title', threadId, title} — LLM-generated conversation title
-//   {type:'error', message}
+// The body is the standard AI SDK v5 UIMessage stream (text / reasoning / tool
+// parts), produced by Mastra's `toUIMessageStream` and bridged to the Express
+// response with `pipeUIMessageStreamToResponse`. On top of the model parts we
+// write three erxes-only transient data parts:
+//   data-activity      — LLM one-liner of what the agent is doing right now
+//   data-thread-title  — the auto-generated conversation title (after the turn)
+//   data-heartbeat     — keeps the gateway proxy socket warm during long tools
+// and stamp `messageId` / `interrupted` / `langfuseTraceId` onto the assistant
+// message's metadata via the final `finish` chunk.
 //
 // Interrupt: the client aborts the fetch; the closed connection aborts the
 // agent run via AbortSignal. Whatever text already streamed is persisted and
 // marked `interrupted` so the partial reply survives reloads.
 
-interface StreamEvent {
-  type: string;
-  text?: string;
-  message?: string;
-  toolCallId?: string;
-  toolName?: string;
-  args?: unknown;
-  result?: unknown;
-  isError?: boolean;
-  reply?: string | null;
-  interrupted?: boolean;
-  messageId?: string | null;
-  threadId?: string;
-  title?: string;
+// The slice of the Mastra agent stream this route drives: the v5 UIMessage chunk
+// stream plus the optional Langfuse trace id. The published Agent type is wider;
+// this declares only what we consume so the concrete stream satisfies it.
+interface UIMessageStreamSource {
+  toUIMessageStream(options?: {
+    sendReasoning?: boolean;
+    sendSources?: boolean;
+    sendStart?: boolean;
+    sendFinish?: boolean;
+  }): AsyncIterable<UIMessageChunk>;
+  traceId?: unknown;
 }
 
-// The slice of a raw Mastra/AI-SDK stream chunk payload that normalizeChunk
-// reads. Chunks are untyped wire data; the cast below declares only what we use.
-interface RawChunkPayload {
-  text?: string;
-  textDelta?: string;
-  toolCallId?: string;
-  toolName?: string;
-  args?: unknown;
-  input?: unknown;
-  result?: unknown;
-  output?: unknown;
-  isError?: boolean;
-  error?: unknown;
-  message?: string;
-}
-
-// Normalize Mastra stream chunks (modern `{type, payload}` and legacy AI-SDK
-// flat shapes) into the wire events above.
-function normalizeChunk(raw: unknown): StreamEvent | null {
-  const chunk = (raw ?? {}) as {
-    type?: string;
-    payload?: RawChunkPayload;
-  } & RawChunkPayload;
-  const type = chunk.type;
-  const payload = chunk.payload ?? chunk;
-
-  switch (type) {
-    case 'text-delta': {
-      const text = payload.text ?? payload.textDelta ?? '';
-      return text ? { type: 'text', text } : null;
-    }
-    case 'reasoning': // legacy AI-SDK reasoning delta
-    case 'reasoning-delta': {
-      const text = payload.text ?? payload.textDelta ?? '';
-      return text ? { type: 'thinking', text } : null;
-    }
-    case 'tool-call':
-      return {
-        type: 'tool_call',
-        toolCallId: payload.toolCallId,
-        toolName: payload.toolName,
-        args: payload.args ?? payload.input,
-      };
-    case 'tool-result':
-      return {
-        type: 'tool_result',
-        toolCallId: payload.toolCallId,
-        toolName: payload.toolName,
-        result: payload.result ?? payload.output,
-        isError: Boolean(payload.isError),
-      };
-    case 'tool-error':
-      return {
-        type: 'tool_result',
-        toolCallId: payload.toolCallId,
-        toolName: payload.toolName,
-        result: payload.error ?? payload.result,
-        isError: true,
-      };
-    case 'error': {
-      const errorValue = payload.error ?? payload;
-      const message =
-        typeof errorValue === 'string'
-          ? errorValue
-          : (errorValue as { message?: string } | null | undefined)?.message ||
-            'Agent error';
-      return { type: 'error', message };
-    }
-    default:
-      return null;
-  }
+// A Mastra stream may expose `traceId` as a value or a promise — sniff and
+// resolve it, accepting only a string (a non-string truthy value would slip past
+// the falsy guard in pushUserScore and ship bad data to Langfuse).
+async function resolveTraceId(
+  stream: UIMessageStreamSource,
+): Promise<string | undefined> {
+  const tid = stream.traceId;
+  const resolved =
+    tid && typeof (tid as PromiseLike<unknown>).then === 'function'
+      ? await (tid as Promise<unknown>).catch(() => undefined)
+      : tid;
+  return typeof resolved === 'string' ? resolved : undefined;
 }
 
 // Shape-check the attachments array a chat turn may carry. Returns the
@@ -318,248 +257,204 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   // The plugin's global cors() stamps `Access-Control-Allow-Origin: *` on
   // every response, and the gateway proxy pipes upstream headers over its own
   // whitelist-scoped ones. Browsers reject a wildcard origin on credentialed
-  // requests ("Failed to fetch"), so drop it and let the gateway's CORS
-  // headers (exact origin + credentials) stand.
+  // requests ("Failed to fetch"), so drop it (pipeUIMessageStreamToResponse sets
+  // the SSE headers below) and let the gateway's CORS headers stand.
   res.removeHeader('Access-Control-Allow-Origin');
 
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache, no-transform');
-  res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no');
-  res.flushHeaders();
-
   let clientGone = false;
+  let heartbeat: ReturnType<typeof setInterval> | undefined;
   const controller = new AbortController();
+  const stopHeartbeat = () => {
+    if (heartbeat) clearInterval(heartbeat);
+    heartbeat = undefined;
+  };
   req.on('close', () => {
     clientGone = true;
     controller.abort();
+    stopHeartbeat();
   });
 
-  const send = (event: StreamEvent) => {
-    if (clientGone || res.writableEnded) return;
-    res.write(`data: ${JSON.stringify(event)}\n\n`);
-  };
-
-  // SSE comment heartbeat so the gateway proxy never sees an idle socket
-  // during long tool calls.
-  const heartbeat = setInterval(() => {
-    if (!clientGone && !res.writableEnded) res.write(': ping\n\n');
-  }, 10000);
-
-  // Accumulated turn state — what gets persisted and what `done` reports.
-  // `parts` keeps reasoning bursts and tool calls in arrival order (thinking →
-  // tool → thinking → …); tool entries in `parts` share object identity with
-  // `toolCalls`, so a result landing later updates both.
-  const acc = {
-    text: '',
-    thinking: '',
-    toolCalls: [] as IMastraToolCall[],
-    parts: [] as IMastraTurnPart[],
-  };
-
-  // A new non-thinking event ends the current reasoning burst — the next
-  // thinking delta starts a fresh part instead of growing the old one.
-  let thinkingOpen = false;
-
-  const appendThinking = (text: string) => {
-    acc.thinking += text;
-    const last = acc.parts[acc.parts.length - 1];
-    if (thinkingOpen && last?.kind === 'thinking') last.text += text;
-    else {
-      acc.parts.push({ kind: 'thinking', text });
-      thinkingOpen = true;
-    }
-  };
-
-  const recordToolCall = (ev: StreamEvent) => {
-    thinkingOpen = false;
-    if (ev.type === 'tool_call') {
-      const call: IMastraToolCall = {
-        toolCallId: ev.toolCallId,
-        toolName: ev.toolName as string,
-        args: ev.args,
-      };
-      acc.toolCalls.push(call);
-      acc.parts.push({ kind: 'tool', call });
-    } else if (ev.type === 'tool_result') {
-      const existing = ev.toolCallId
-        ? acc.toolCalls.find((tc) => tc.toolCallId === ev.toolCallId)
-        : undefined;
-      if (existing) {
-        existing.result = ev.result;
-        existing.isError = ev.isError;
-      } else {
-        const call: IMastraToolCall = {
-          toolCallId: ev.toolCallId,
-          toolName: ev.toolName as string,
-          result: ev.result,
-          isError: ev.isError,
-        };
-        acc.toolCalls.push(call);
-        acc.parts.push({ kind: 'tool', call });
-      }
-    }
-  };
-
+  // Folds the model's UIMessage chunks into the erxes-only turn artifacts we
+  // persist (ordered parts, thinking, tool calls). The live render is driven by
+  // the chunks themselves — this only assembles what gets written to Mongo.
+  const acc = new UITurnAccumulator();
   let activity: ActivityTracker | null = null;
 
-  try {
-    const prepared = await prepareChatTurn({
-      models,
-      subdomain,
-      user,
-      agentId,
-      message,
-      threadId,
-      attachments,
-      approvedOperations,
-    });
-    const { agent, convo, authCtx, memoryBinding } = prepared;
+  const stream = createUIMessageStream({
+    onError: (err) => {
+      console.error('[mastra chat stream error]', err);
+      return toUserFacingError(err).message;
+    },
+    execute: async ({ writer }) => {
+      // A transient data part keeps the gateway proxy socket warm during long
+      // tool calls: it streams as bytes but is dropped client-side (never added
+      // to the message). Replaces the old `: ping` SSE comment.
+      heartbeat = setInterval(() => {
+        if (!clientGone)
+          writer.write({ type: 'data-heartbeat', data: {}, transient: true });
+      }, 10000);
 
-    // Per-conversation reasoning override → provider-specific options, resolved
-    // once against the agent's provider. Providers without a portable reasoning
-    // knob yield undefined, so the model's configured default stands untouched.
-    const reasoningOptions = buildReasoningProviderOptions(
-      prepared.agentConfig.provider,
-      reasoningEffort,
-    );
-
-    // Narrates "what is the agent doing" while the turn runs — throttled
-    // summaries of the live reasoning/tool signals, pushed as activity events.
-    activity = createActivityTracker({
-      userMessage: message,
-      emit: (text) => send({ type: 'activity', text }),
-      // Tool steps narrate instantly (no LLM); reasoning bursts use the model.
-      toolSignal: toolStatusLine,
-      summarize: (snapshot) =>
-        summarizeActivity({
-          provider: prepared.agentConfig.provider,
-          model: prepared.agentConfig.model,
-          providers: prepared.providers,
-          authCtx,
-          snapshot,
-        }),
-    });
-
-    let streamError: string | null = null;
-
-    // Plan B: the Langfuse trace id for this turn — stamped onto the assistant
-    // message (via meta below) so a later thumbs rating can attach a human score
-    // to the right trace. Captured from the stream; undefined when eval is off.
-    let langfuseTraceId: string | undefined;
-    try {
-      await runWithAuth(authCtx, async () => {
-        const stream = await agent.stream(convo, {
-          abortSignal: controller.signal,
-          ...(memoryBinding ? { memory: memoryBinding } : {}),
-          ...(reasoningOptions ? { providerOptions: reasoningOptions } : {}),
-        });
-        const tid = (stream as { traceId?: unknown }).traceId;
-        const resolvedTid =
-          tid && typeof (tid as PromiseLike<unknown>).then === 'function'
-            ? await (tid as Promise<unknown>).catch(() => undefined)
-            : tid;
-        // Only accept a string trace id — a non-string truthy value would slip
-        // past the falsy guard in pushUserScore and ship bad data to Langfuse.
-        langfuseTraceId =
-          typeof resolvedTid === 'string' ? resolvedTid : undefined;
-
-        for await (const chunk of stream.fullStream as AsyncIterable<unknown>) {
-          const ev = normalizeChunk(chunk);
-          if (!ev) continue;
-
-          if (ev.type === 'text') {
-            acc.text += ev.text ?? '';
-            thinkingOpen = false;
-          } else if (ev.type === 'thinking') {
-            appendThinking(ev.text ?? '');
-            activity?.onThinking(ev.text ?? '');
-          } else if (ev.type === 'error') {
-            streamError = ev.message ?? null;
-            continue; // surfaced after the loop so fallbacks still apply
-          } else {
-            recordToolCall(ev);
-            if (ev.type === 'tool_call')
-              activity?.onToolCall(ev.toolName ?? '', ev.args);
-          }
-
-          send(ev);
-        }
-      });
-    } catch (err) {
-      // An abort lands here on most providers — that's an interrupt, not an error.
-      if (!controller.signal.aborted) throw err;
-    }
-
-    activity.stop();
-
-    const interrupted = controller.signal.aborted;
-    let reply: string | null = acc.text || null;
-
-    if (!interrupted && !acc.text) {
-      // No answer text streamed — synthesize from tool results, or report the
-      // error. (Native generate() produces the final text itself, so this only
-      // fires when the model ended a turn on tool calls without prose.)
-      const toolResults = acc.toolCalls
-        .filter((tc) => tc.result !== undefined)
-        .map((tc) => ({
-          toolCallId: tc.toolCallId,
-          toolName: tc.toolName,
-          result: tc.result,
-        }));
-
-      if (toolResults.length) {
-        reply = await synthesizeFromToolResults({
-          agent,
+      try {
+        const prepared = await prepareChatTurn({
+          models,
+          subdomain,
+          user,
+          agentId,
           message,
-          authCtx,
-          toolResults,
+          threadId,
+          attachments,
+          approvedOperations,
         });
-        send({ type: 'text', text: reply });
-      } else if (streamError) {
-        throw new Error(streamError);
-      }
-    }
+        const { agent, convo, authCtx, memoryBinding } = prepared;
 
-    const { titlePromise, assistantMessageId } = await persistTurn({
-      models,
-      prepared,
-      message,
-      reply,
-      meta: reply
-        ? {
-            thinking: acc.thinking || undefined,
-            toolCalls: acc.toolCalls.length ? acc.toolCalls : undefined,
-            parts: acc.parts.length ? acc.parts : undefined,
-            interrupted: interrupted || undefined,
-            langfuseTraceId,
+        // Per-conversation reasoning override → provider-specific options,
+        // resolved once against the agent's provider. Providers without a
+        // portable reasoning knob yield undefined, so the model's configured
+        // default stands untouched.
+        const reasoningOptions = buildReasoningProviderOptions(
+          prepared.agentConfig.provider,
+          reasoningEffort,
+        );
+
+        // Narrates "what is the agent doing" while the turn runs — throttled
+        // summaries of the live reasoning/tool signals, pushed as transient
+        // `data-activity` parts.
+        activity = createActivityTracker({
+          userMessage: message,
+          emit: (text) => {
+            if (!clientGone)
+              writer.write({
+                type: 'data-activity',
+                data: { text },
+                transient: true,
+              });
+          },
+          // Tool steps narrate instantly (no LLM); reasoning bursts use the model.
+          toolSignal: toolStatusLine,
+          summarize: (snapshot) =>
+            summarizeActivity({
+              provider: prepared.agentConfig.provider,
+              model: prepared.agentConfig.model,
+              providers: prepared.providers,
+              authCtx,
+              snapshot,
+            }),
+        });
+
+        // Plan B: the Langfuse trace id for this turn — stamped onto the
+        // assistant message (via the finish chunk below) so a later thumbs
+        // rating can attach a human score to the right trace. Undefined when
+        // evaluation is off.
+        let langfuseTraceId: string | undefined;
+        try {
+          await runWithAuth(authCtx, async () => {
+            const modelStream = (await agent.stream(convo, {
+              abortSignal: controller.signal,
+              ...(memoryBinding ? { memory: memoryBinding } : {}),
+              ...(reasoningOptions
+                ? { providerOptions: reasoningOptions }
+                : {}),
+            })) as unknown as UIMessageStreamSource;
+            langfuseTraceId = await resolveTraceId(modelStream);
+
+            // sendFinish:false — we emit the final `finish` ourselves after
+            // persisting, so it can carry the native messageId the client rates.
+            for await (const chunk of modelStream.toUIMessageStream({
+              sendReasoning: true,
+              sendSources: false,
+              sendFinish: false,
+            })) {
+              acc.fold(chunk);
+              if (chunk.type === 'reasoning-delta')
+                activity?.onThinking(chunk.delta ?? '');
+              else if (chunk.type === 'tool-input-available')
+                activity?.onToolCall(chunk.toolName, chunk.input);
+              writer.write(chunk);
+            }
+          });
+        } catch (err) {
+          // An abort lands here on most providers — an interrupt, not an error.
+          if (!controller.signal.aborted) throw err;
+        }
+
+        activity?.stop();
+
+        const interrupted = controller.signal.aborted;
+        let reply: string | null = acc.text || null;
+
+        if (!interrupted && !acc.text) {
+          // No answer text streamed — synthesize from tool results. (Native
+          // generate() produces the final text itself, so this only fires when
+          // the model ended a turn on tool calls without prose.)
+          // synthesizeFromToolResults internally skips synthesis when nothing
+          // real came back, so we never fabricate a success.
+          const toolResults = acc.toolResults();
+          if (toolResults.length) {
+            reply = await synthesizeFromToolResults({
+              agent,
+              message,
+              authCtx,
+              toolResults,
+            });
+            if (reply) {
+              const id = `synth-${Date.now()}`;
+              writer.write({ type: 'text-start', id });
+              writer.write({ type: 'text-delta', id, delta: reply });
+              writer.write({ type: 'text-end', id });
+            }
           }
-        : undefined,
-    });
+        }
 
-    send({ type: 'done', reply, interrupted, messageId: assistantMessageId });
+        const { titlePromise, assistantMessageId } = await persistTurn({
+          models,
+          prepared,
+          message,
+          reply,
+          meta: reply ? acc.meta(interrupted, langfuseTraceId) : undefined,
+        });
 
-    // The auto-titler summarizes the conversation in the background; hold the
-    // stream open briefly so the client gets the new sidebar title without a
-    // refetch. Bounded — a slow/failed titling never hangs the stream (the
-    // title still self-persists and shows on the next session-list load).
-    if (!clientGone) {
-      const title = await Promise.race([
-        titlePromise,
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
-      ]);
-      if (title) {
-        send({ type: 'thread_title', threadId: prepared.sessionId, title });
+        // Close the assistant message with its final metadata: the native id
+        // the client rates, the interrupted flag, and the Langfuse trace id.
+        // Replaces the old `done` event (sendFinish:false suppressed Mastra's).
+        writer.write({
+          type: 'finish',
+          messageMetadata: {
+            messageId: assistantMessageId,
+            interrupted,
+            langfuseTraceId,
+          },
+        });
+
+        // The auto-titler summarizes the conversation in the background; hold
+        // the stream open briefly so the client gets the new sidebar title
+        // without a refetch. Bounded — a slow/failed titling never hangs the
+        // stream (the title still self-persists for the next session-list load).
+        if (!clientGone) {
+          const title = await Promise.race([
+            titlePromise,
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
+          ]);
+          if (title && !clientGone) {
+            writer.write({
+              type: 'data-thread-title',
+              data: { threadId: prepared.sessionId, title },
+              transient: true,
+            });
+          }
+        }
+      } finally {
+        activity?.stop();
+        stopHeartbeat();
       }
-    }
-  } catch (err) {
-    console.error('[mastra chat stream error]', err);
-    send({ type: 'error', message: toUserFacingError(err).message });
-  } finally {
-    activity?.stop();
-    clearInterval(heartbeat);
-    if (!res.writableEnded) res.end();
-  }
+    },
+  });
+
+  pipeUIMessageStreamToResponse({
+    response: res,
+    stream,
+    // Keep the gateway proxy from buffering the streamed SSE body.
+    headers: { 'X-Accel-Buffering': 'no' },
+  });
 });
 
 // erxes frontline bot webhook — called by frontline_api when botEndpointUrl is set

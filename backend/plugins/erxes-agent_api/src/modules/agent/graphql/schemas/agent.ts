@@ -46,7 +46,6 @@ export const queries = `
   mastraAgents: [MastraAgent]
   mastraAgentsMain(page: Int, perPage: Int, searchValue: String): MastraAgentListResponse
   mastraAgent(_id: String!): MastraAgent
-  mastraAgentChat(agentId: String!, message: String!, threadId: String): String
 `;
 
 export const mutations = `
