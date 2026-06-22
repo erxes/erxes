@@ -72,6 +72,70 @@ const hasTranslatableValue = (value: unknown): boolean => {
 };
 
 /**
+ * Build the bulk-write operations for a single document when its site's default
+ * language changes: preserve the old-default base content as an old-language
+ * translation, promote the new-language translation into the base fields, and
+ * drop the now-redundant new-language translation. Pulled out of
+ * `rehomeDefaultLanguageContent` to keep that function's complexity in check.
+ */
+const buildRehomeOpsForDocument = (
+  doc: any,
+  fieldMappings: Record<string, string>,
+  oldLanguage: string,
+  newLanguage: string,
+  type: string,
+  newTranslationMap: Map<string, any>,
+): { translationOps: any[]; documentOp: any | null } => {
+  const objectId = String(doc._id);
+  const translationOps: any[] = [];
+
+  // 1. Preserve the current (old-default) base content as an old-language
+  //    translation so it remains reachable after the switch.
+  const oldTranslationFields: Record<string, any> = {};
+  for (const [baseField, translationField] of Object.entries(fieldMappings)) {
+    oldTranslationFields[translationField] = doc[baseField] ?? '';
+  }
+
+  translationOps.push({
+    updateOne: {
+      filter: { objectId, language: oldLanguage, type },
+      update: {
+        $set: { ...oldTranslationFields, objectId, language: oldLanguage, type },
+      },
+      upsert: true,
+    },
+  });
+
+  // 2. Promote the new-language translation into the base fields. Only
+  //    non-empty values win, matching the read-time overlay so what the
+  //    editor saw under the new language is exactly what becomes default.
+  const newTranslation = newTranslationMap.get(objectId);
+  if (!newTranslation) {
+    return { translationOps, documentOp: null };
+  }
+
+  const baseUpdate: Record<string, any> = {};
+  for (const [baseField, translationField] of Object.entries(fieldMappings)) {
+    const value = newTranslation[translationField];
+    if (hasTranslatableValue(value)) {
+      baseUpdate[baseField] = value;
+    }
+  }
+
+  const documentOp = Object.keys(baseUpdate).length
+    ? { updateOne: { filter: { _id: doc._id }, update: { $set: baseUpdate } } }
+    : null;
+
+  // 3. The new language now lives in the base fields, so its standalone
+  //    translation record is redundant.
+  translationOps.push({
+    deleteOne: { filter: { objectId, language: newLanguage, type } },
+  });
+
+  return { translationOps, documentOp };
+};
+
+/**
  * Move content between the base document and the `Translations` collection when
  * a site's default language changes. Without this, the old default's content is
  * stranded in the base fields (with no translation pointing to it) while the new
@@ -109,63 +173,41 @@ const rehomeDefaultLanguageContent = async (
     const documentOps: any[] = [];
 
     for (const doc of documents) {
-      const objectId = String(doc._id);
+      const { translationOps: docTranslationOps, documentOp } =
+        buildRehomeOpsForDocument(
+          doc,
+          fieldMappings,
+          oldLanguage,
+          newLanguage,
+          type,
+          newTranslationMap,
+        );
 
-      // 1. Preserve the current (old-default) base content as an old-language
-      //    translation so it remains reachable after the switch.
-      const oldTranslationFields: Record<string, any> = {};
-      for (const [baseField, translationField] of Object.entries(
-        fieldMappings,
-      )) {
-        oldTranslationFields[translationField] = doc[baseField] ?? '';
+      translationOps.push(...docTranslationOps);
+      if (documentOp) {
+        documentOps.push(documentOp);
       }
+    }
 
-      translationOps.push({
-        updateOne: {
-          filter: { objectId, language: oldLanguage, type },
-          update: {
-            $set: { ...oldTranslationFields, objectId, language: oldLanguage, type },
-          },
-          upsert: true,
-        },
-      });
+    if (!documentOps.length && !translationOps.length) {
+      continue;
+    }
 
-      // 2. Promote the new-language translation into the base fields. Only
-      //    non-empty values win, matching the read-time overlay so what the
-      //    editor saw under the new language is exactly what becomes default.
-      const newTranslation = newTranslationMap.get(objectId);
-      if (!newTranslation) {
-        continue;
-      }
-
-      const baseUpdate: Record<string, any> = {};
-      for (const [baseField, translationField] of Object.entries(
-        fieldMappings,
-      )) {
-        const value = newTranslation[translationField];
-        if (hasTranslatableValue(value)) {
-          baseUpdate[baseField] = value;
+    // Base documents and their translations live in separate collections, so
+    // wrap both writes in a transaction — a partial apply would leave the new
+    // default's content out of sync with its translation records.
+    const session = await models.Translations.startSession();
+    try {
+      await session.withTransaction(async () => {
+        if (documentOps.length) {
+          await model.bulkWrite(documentOps, { session });
         }
-      }
-
-      if (Object.keys(baseUpdate).length) {
-        documentOps.push({
-          updateOne: { filter: { _id: doc._id }, update: { $set: baseUpdate } },
-        });
-      }
-
-      // 3. The new language now lives in the base fields, so its standalone
-      //    translation record is redundant.
-      translationOps.push({
-        deleteOne: { filter: { objectId, language: newLanguage, type } },
+        if (translationOps.length) {
+          await models.Translations.bulkWrite(translationOps, { session });
+        }
       });
-    }
-
-    if (documentOps.length) {
-      await model.bulkWrite(documentOps);
-    }
-    if (translationOps.length) {
-      await models.Translations.bulkWrite(translationOps);
+    } finally {
+      await session.endSession();
     }
   }
 };

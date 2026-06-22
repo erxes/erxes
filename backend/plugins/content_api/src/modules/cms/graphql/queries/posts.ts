@@ -23,11 +23,16 @@ import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 // otherwise a storefront defaulting to `createdAt` silently overrides this.
 const withForcedPublishedOrder = <T extends Record<string, any>>(
   args: T,
-): T => {
-  const next = { ...args, orderBy: { publishedDate: -1 } } as T;
-  delete (next as any).sortField;
-  delete (next as any).sortDirection;
-  return next;
+): Omit<T, 'sortField' | 'sortDirection'> & { orderBy: { publishedDate: -1 } } => {
+  const next: Record<string, unknown> = {
+    ...args,
+    orderBy: { publishedDate: -1 },
+  };
+  delete next.sortField;
+  delete next.sortDirection;
+  return next as Omit<T, 'sortField' | 'sortDirection'> & {
+    orderBy: { publishedDate: -1 };
+  };
 };
 
 const applyFieldConstraint = (query: any, field: string, value: any) => {
@@ -521,10 +526,19 @@ class PostQueryResolver extends BaseQueryResolver {
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
 
+    // Match cpPosts/cpPostList: force newest-published-first ordering so this
+    // feed stays consistent. getListWithDefaultPagination sorts by
+    // sortField/sortDirection (not orderBy), so override those directly.
     const list = await this.getListWithDefaultPagination(
       models.Posts,
       query,
-      { ...args, clientPortalId, language },
+      {
+        ...args,
+        clientPortalId,
+        language,
+        sortField: 'publishedDate',
+        sortDirection: 'desc',
+      },
       FIELD_MAPPINGS.POST,
     );
 
