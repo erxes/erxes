@@ -47,11 +47,11 @@ function SortableFieldRow({
   field,
   onEditField,
   onDeleteField,
-}: {
+}: Readonly<{
   field: ICustomField;
   onEditField: (field: ICustomField) => void;
   onDeleteField: (fieldId: string) => void;
-}) {
+}>) {
   const {
     attributes,
     listeners,

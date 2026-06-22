@@ -41,10 +41,10 @@ type DragHandleProps = React.HTMLAttributes<HTMLElement>;
 function Sortable({
   id,
   children,
-}: {
+}: Readonly<{
   id: string;
   children: (dragHandleProps: DragHandleProps) => ReactNode;
-}) {
+}>) {
   const {
     attributes,
     listeners,
@@ -69,11 +69,11 @@ function FieldList({
   group,
   renderField,
   onReorderFields,
-}: {
+}: Readonly<{
   group: ReorderableFieldGroup;
   renderField: ReorderableCustomFieldsProps['renderField'];
   onReorderFields: (groupId: string, fields: FieldDefinition[]) => void;
-}) {
+}>) {
   const groupFields = group.fields || [];
 
   // Local order so a drop reflects immediately (no snap-back while the

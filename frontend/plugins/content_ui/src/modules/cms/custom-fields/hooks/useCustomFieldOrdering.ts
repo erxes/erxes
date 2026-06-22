@@ -4,12 +4,7 @@ import { useMemo } from 'react';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import { CMS_CUSTOM_FIELD_GROUP_EDIT } from '../graphql/mutations';
 import { ICustomFieldGroup } from '../types/customFieldTypes';
-
-const byOrder = (a: ICustomFieldGroup, b: ICustomFieldGroup) => {
-  const aOrder = typeof a.order === 'number' ? a.order : Number.MAX_SAFE_INTEGER;
-  const bOrder = typeof b.order === 'number' ? b.order : Number.MAX_SAFE_INTEGER;
-  return aOrder - bOrder;
-};
+import { compareByOrder } from '../utils/comparators';
 
 /**
  * Drag-reorder helpers for custom field groups/fields usable from the content
@@ -30,7 +25,7 @@ export const useCustomFieldOrdering = (websiteId?: string) => {
     () =>
       [
         ...((data?.cmsCustomFieldGroupList?.list || []) as ICustomFieldGroup[]),
-      ].sort(byOrder),
+      ].sort(compareByOrder),
     [data?.cmsCustomFieldGroupList?.list],
   );
 

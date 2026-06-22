@@ -116,11 +116,8 @@ const buildRehomeOpsForDocument = (
   const baseUpdate: Record<string, any> = {};
   for (const [baseField, translationField] of Object.entries(fieldMappings)) {
     const value = newTranslation?.[translationField];
-    baseUpdate[baseField] = hasTranslatableValue(value)
-      ? value
-      : Array.isArray(doc[baseField])
-        ? []
-        : '';
+    const emptyValue = Array.isArray(doc[baseField]) ? [] : '';
+    baseUpdate[baseField] = hasTranslatableValue(value) ? value : emptyValue;
   }
 
   const documentOp = {

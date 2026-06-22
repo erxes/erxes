@@ -42,10 +42,10 @@ import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
 function SortableGroup({
   group,
   children,
-}: {
+}: Readonly<{
   group: ICustomFieldGroup;
   children: (dragHandleProps: React.HTMLAttributes<HTMLElement>) => ReactNode;
-}) {
+}>) {
   const {
     attributes,
     listeners,

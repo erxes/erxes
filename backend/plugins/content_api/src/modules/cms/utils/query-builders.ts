@@ -1,3 +1,4 @@
+import type { FilterQuery } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 
@@ -49,7 +50,7 @@ export class BaseQueryBuilder {
    * active language matches, unioned by `_id`.
    */
   protected async addTranslatableSearchQuery(
-    query: any,
+    query: FilterQuery<any>,
     searchValue: string,
     options: {
       baseFields: string[];
@@ -63,9 +64,11 @@ export class BaseQueryBuilder {
     const pattern = escapeRegExp(searchValue.trim());
     const regex = new RegExp(pattern, 'i');
 
-    const orConditions: any[] = options.baseFields.map((field) => ({
-      [field]: regex,
-    }));
+    const orConditions: Array<FilterQuery<any>> = options.baseFields.map(
+      (field) => ({
+        [field]: regex,
+      }),
+    );
 
     if (options.language) {
       const matches = await this.models.Translations.find({
@@ -74,11 +77,11 @@ export class BaseQueryBuilder {
         $or: options.translationFields.map((field) => ({ [field]: regex })),
       })
         .select('objectId')
-        .lean();
+        .lean<Array<{ objectId: string }>>();
 
       if (matches.length) {
         const ids = Array.from(
-          new Set(matches.map((match: any) => String(match.objectId))),
+          new Set(matches.map((match) => String(match.objectId))),
         );
         orConditions.push({ _id: { $in: ids } });
       }
