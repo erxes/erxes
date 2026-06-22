@@ -117,7 +117,7 @@ export const CopyTaskMenu = ({
   };
 
   const getPriorityLabel = (priority: number): string => {
-    return PROJECT_PRIORITIES_OPTIONS[priority] || t('no-priority');
+    return t(PROJECT_PRIORITIES_OPTIONS[priority] || 'no-priority');
   };
 
   const generateMarkdown = (t: ITask): string => `**Name:** ${

@@ -22,17 +22,17 @@ const buildDueDateOptions = () => {
 
   return [
     {
-      label: 'Tomorrow',
+      label: 'tomorrow',
       date: tomorrow,
       description: format(tomorrow, 'EEE, MMM dd'),
     },
     {
-      label: 'End of this week',
+      label: 'end-of-this-week',
       date: endOfWeek,
       description: format(endOfWeek, 'EEE, MMM dd'),
     },
     {
-      label: 'In one week',
+      label: 'in-one-week',
       date: inOneWeek,
       description: format(inOneWeek, 'EEE, MMM dd'),
     },
@@ -129,7 +129,7 @@ export const ProjectsSetTargetDateContent = ({
           >
             <IconClock className="size-4 mr-2" />
             <div className="flex justify-between items-center w-full">
-              <span>{option.label}</span>
+              <span>{t(option.label)}</span>
               <span className="text-xs text-muted-foreground">
                 {option.description}
               </span>
