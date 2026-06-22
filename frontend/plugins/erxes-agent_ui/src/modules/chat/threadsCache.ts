@@ -80,7 +80,7 @@ export const refetchThreadsIntoCache = async (
   try {
     await client.query<IMastraThreadsResponse>({
       query: MASTRA_THREADS,
-      variables: variablesFor(mastraAgentId),
+      variables: { agentId: mastraAgentId },
       fetchPolicy: 'network-only',
     });
   } catch {

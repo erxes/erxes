@@ -1,16 +1,24 @@
 import { useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { IconCircleCheck, IconInfoCircle, IconSitemap } from '@tabler/icons-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  IconArrowLeft,
+  IconCircleCheck,
+  IconInfoCircle,
+  IconSitemap,
+} from '@tabler/icons-react';
 import {
   Alert,
+  Breadcrumb,
   Button,
   Form,
   Input,
   Label,
+  Separator,
   Switch,
   Textarea,
   toast,
 } from 'erxes-ui';
+import { PageHeader } from 'ui-modules';
 import { FormSection } from '~/components/FormLayout';
 import { ResourceFormLayout } from '~/components/ResourceFormLayout';
 import { useResourceForm } from '~/components/useResourceForm';
