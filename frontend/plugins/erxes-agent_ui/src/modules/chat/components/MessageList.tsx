@@ -1,7 +1,7 @@
 import { RefObject } from 'react';
 import { IconRobot } from '@tabler/icons-react';
 import { Badge, Skeleton } from 'erxes-ui';
-import { Message } from '~/modules/chat/types';
+import { AgentUIMessage } from '~/modules/chat/types';
 import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
 import { MessageBubble } from '~/modules/chat/components/MessageBubble';
 import { WaitingIndicator } from '~/modules/chat/components/Avatars';
@@ -21,7 +21,7 @@ export const MessageList = ({
   onRate,
 }: {
   agent: IChatAgent;
-  messages: Message[];
+  messages: AgentUIMessage[];
   messagesLoading: boolean;
   chatLoading: boolean;
   attachmentsEnabled: boolean;
@@ -33,7 +33,12 @@ export const MessageList = ({
   onRegenerate: () => void;
   onRate: (messageId: string, rating: 1 | -1) => void;
 }) => {
-  const lastMsg = messages[messages.length - 1];
+  // Approve/deny replies are sent hidden — they continue a gated turn without a
+  // visible user bubble.
+  const visible = messages.filter(
+    (m) => !(m.role === 'user' && m.metadata?.hidden),
+  );
+  const lastMsg = visible[visible.length - 1];
 
   return (
     <div ref={boxRef} onScroll={onScroll} className="flex-1 overflow-auto p-4">
@@ -44,7 +49,7 @@ export const MessageList = ({
               <Skeleton key={i} className="h-16 w-2/3 rounded-2xl" />
             ))}
           </div>
-        ) : messages.length === 0 ? (
+        ) : visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[55vh] text-center gap-2 ea-msg-in">
             <div className="relative mb-2">
               <div className="ea-orb absolute -inset-5 rounded-full" />
@@ -82,18 +87,18 @@ export const MessageList = ({
           </div>
         ) : (
           <>
-            {messages.map((msg, i) => (
+            {visible.map((msg, i) => (
               <MessageBubble
-                key={msg._clientId}
+                key={msg.id}
                 msg={msg}
-                isLast={i === messages.length - 1}
+                isLast={i === visible.length - 1}
                 chatLoading={chatLoading}
                 ratingEnabled={ratingEnabled}
                 onRegenerate={onRegenerate}
                 onRate={onRate}
               />
             ))}
-            {chatLoading && !lastMsg?.streaming && <WaitingIndicator />}
+            {chatLoading && lastMsg?.role !== 'assistant' && <WaitingIndicator />}
           </>
         )}
         <div ref={endRef} />

@@ -98,16 +98,6 @@ export const MASTRA_AGENT = gql`
   ${AGENT_FIELDS}
 `;
 
-export const MASTRA_AGENT_CHAT = gql`
-  query MastraAgentChat(
-    $agentId: String!
-    $message: String!
-    $threadId: String
-  ) {
-    mastraAgentChat(agentId: $agentId, message: $message, threadId: $threadId)
-  }
-`;
-
 export const MASTRA_THREADS = gql`
   query MastraThreads($agentId: String!) {
     mastraThreads(agentId: $agentId) {

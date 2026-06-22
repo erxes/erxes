@@ -1,57 +1,47 @@
 import { ApolloClient } from '@apollo/client';
+import { Chat } from '@ai-sdk/react';
+import type { ChatStatus } from 'ai';
 import { create } from 'zustand';
-import { REACT_APP_API_URL } from 'erxes-ui';
 import {
-  MASTRA_AGENT_CHAT,
   MASTRA_MESSAGE_FEEDBACKS,
   MASTRA_THREAD_MESSAGES,
 } from '~/graphql/queries';
 import { MASTRA_MESSAGE_FEEDBACK } from '~/graphql/mutations';
 import {
   AgentChatState,
-  AgentChatView,
-  ChatAttachment,
+  AgentUIMessage,
   ApprovedOp,
+  ChatAttachment,
+  DbThreadMessage,
   EMPTY_AGENT,
-  EMPTY_THREAD,
-  Message,
-  MessageMeta,
   ReasoningEffort,
   REASONING_EFFORT_OPTIONS,
-  ThreadChatState,
 } from '~/modules/chat/types';
-import { generateThreadId, randomIdSuffix } from '~/modules/chat/lib/ids';
-import { partsFromMeta } from '~/modules/chat/lib/messageParts';
+import { generateThreadId } from '~/modules/chat/lib/ids';
+import { messageText } from '~/modules/chat/lib/uiParts';
+import { metaToUIMessages } from '~/modules/chat/lib/messageMapping';
+import { createChatTransport } from '~/modules/chat/lib/chatTransport';
 import {
   prependThreadToCache,
   refetchThreadsIntoCache,
   setThreadTitleInCache,
 } from '~/modules/chat/threadsCache';
-import { runStream } from '~/modules/chat/lib/runStream';
 
 type Client = ApolloClient<object>;
 
 interface MastraThreadMessagesResponse {
-  mastraThreadMessages?: Array<{
-    _id: string;
-    role: Message['role'];
-    content: string;
-    createdAt?: string;
-    meta?: MessageMeta;
-    attachments?: ChatAttachment[];
-  }>;
+  mastraThreadMessages?: DbThreadMessage[];
 }
 
 interface MastraMessageFeedbacksResponse {
   mastraMessageFeedbacks?: Record<string, { rating: number }>;
 }
 
-interface MastraAgentChatResponse {
-  mastraAgentChat?: string | null;
-}
-
 const threadKey = (agentKey: string, threadId: string) =>
   `${agentKey}:${threadId}`;
+
+const isWorkingStatus = (status?: ChatStatus): boolean =>
+  status === 'submitted' || status === 'streaming';
 
 const REASONING_EFFORT_VALUES: readonly string[] = REASONING_EFFORT_OPTIONS.map(
   (o) => o.value,
@@ -65,8 +55,7 @@ const reasoningEffortStorageKey = (agentKey: string) =>
   `erxes-agent:reasoningEffort:${agentKey}`;
 
 // Best-effort read of the persisted choice — localStorage may be unavailable
-// (private mode / SSR) and may hold stale values from an older enum. Read once
-// at agent-slice creation (setCurrentAgent), never inside a reactive selector.
+// (private mode / SSR) and may hold stale values from an older enum.
 const loadReasoningEffort = (agentKey: string): ReasoningEffort | undefined => {
   try {
     const raw = localStorage.getItem(reasoningEffortStorageKey(agentKey));
@@ -76,13 +65,26 @@ const loadReasoningEffort = (agentKey: string): ReasoningEffort | undefined => {
   }
 };
 
-// DB-backed chat store. Sessions (threads) and their messages live in MongoDB
-// via the erxes-agent_api plugin; this store mirrors them in memory for the UI.
-// Replies stream over SSE through the gateway plugin proxy, falling back to the
-// blocking GraphQL query when the stream transport is unavailable.
+// Status-subscription teardowns, keyed by `${agentKey}:${threadId}`. Kept out of
+// zustand (no reactivity needed) so the Chat refs in state stay opaque.
+const statusUnsubs = new Map<string, () => void>();
+
+// A stable, transport-less Chat the view binds to whenever no thread is active,
+// so `useChat({ chat })` always has a defined instance (hooks can't be skipped).
+const EMPTY_CHAT = new Chat<AgentUIMessage>({});
+
+// Registry-backed chat store. The active turn's message state is owned by AI SDK
+// `Chat` instances (one per agent+thread); this store keeps only the registry of
+// those refs, the agent-level shell state, and a couple of lightweight signals
+// (per-thread status + activity) mirrored so the sidebar badges stay reactive for
+// agents whose conversation view is NOT mounted (background streaming). The heavy
+// `messages` array is never mirrored here — it lives in the Chat.
 interface ChatStoreState {
   agents: Record<string, AgentChatState>;
-  threads: Record<string, ThreadChatState>;
+  chats: Record<string, Chat<AgentUIMessage>>;
+  threadStatus: Record<string, ChatStatus>;
+  threadActivity: Record<string, string | undefined>;
+  threadHydrating: Record<string, boolean>;
   unreadAgents: string[];
   currentViewedAgentId?: string;
 
@@ -92,23 +94,23 @@ interface ChatStoreState {
     agentKey: string,
     effort: ReasoningEffort | undefined,
   ) => void;
-  newDraft: (agentKey: string) => void;
+  newDraft: (client: Client, agentKey: string, mastraAgentId: string) => void;
   selectSession: (
     client: Client,
     agentKey: string,
+    mastraAgentId: string,
     threadId: string,
   ) => Promise<void>;
   rateMessage: (
     client: Client,
     agentKey: string,
-    threadId: string,
     messageId: string,
     rating: 1 | -1,
   ) => Promise<void>;
-  // Drop a removed thread's local streaming/message state. The cached session
-  // list is filtered by useRemoveMastraThread; this only clears store-side state.
+  // Drop a removed thread's Chat + signals. The cached session list is filtered
+  // by useRemoveMastraThread; this only clears store-side state.
   discardThread: (agentKey: string, threadId: string) => void;
-  stop: (agentKey: string, threadId: string) => void;
+  stop: (agentKey: string) => void;
   sendMessage: (
     client: Client,
     agentKey: string,
@@ -116,19 +118,19 @@ interface ChatStoreState {
     message: string,
     attachments?: ChatAttachment[],
     approvedOperations?: ApprovedOp[],
-    // Don't render a user bubble for this send (used by approve/deny — the turn
+    // Don't render a user bubble for this send (approve/deny — the turn
     // continues without a visible "Approved" message).
     hidden?: boolean,
-  ) => Promise<void>;
+  ) => void;
+  // Re-ask the question that produced the last reply (with its attachments).
+  regenerate: (
+    client: Client,
+    agentKey: string,
+    mastraAgentId: string,
+  ) => void;
 }
 
 export const useChatStore = create<ChatStoreState>((set, get) => {
-  const getThread = (agentKey: string, threadId: string): ThreadChatState =>
-    get().threads[threadKey(agentKey, threadId)] ?? EMPTY_THREAD;
-
-  const ensureAgent = (agentKey: string): AgentChatState =>
-    get().agents[agentKey] ?? EMPTY_AGENT;
-
   const patchAgent = (agentKey: string, partial: Partial<AgentChatState>) =>
     set((s) => ({
       agents: {
@@ -137,48 +139,87 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       },
     }));
 
-  const patchThread = (
-    agentKey: string,
-    threadId: string,
-    partial: Partial<ThreadChatState>,
-  ) =>
-    set((s) => {
-      const key = threadKey(agentKey, threadId);
-      return {
-        threads: {
-          ...s.threads,
-          [key]: { ...(s.threads[key] ?? EMPTY_THREAD), ...partial },
-        },
-      };
-    });
+  const setThreadActivity = (key: string, text: string | undefined) =>
+    set((s) => ({ threadActivity: { ...s.threadActivity, [key]: text } }));
 
-  // Atomically claim a thread for a new turn: check `loading` and set it true in
-  // one synchronous step. Returns false when the thread is already streaming, so
-  // a concurrent send (regenerate, suggestion, double Enter) can't slip past the
-  // guard in the window before `loading` would otherwise be set.
-  const claimThread = (agentKey: string, threadId: string): boolean => {
+  // Mark the turn persisted: clear activity, reconcile the cached session list
+  // (titles/ordering/counts + the real _id), and flag unread when the user is
+  // looking at another agent.
+  const finishTurn = (
+    client: Client,
+    agentKey: string,
+    mastraAgentId: string,
+    threadId: string,
+  ) => {
     const key = threadKey(agentKey, threadId);
-    if ((get().threads[key] ?? EMPTY_THREAD).loading) return false;
-    patchThread(agentKey, threadId, { loading: true });
-    return true;
+    setThreadActivity(key, undefined);
+    if (get().currentViewedAgentId !== agentKey) {
+      set((s) =>
+        s.unreadAgents.includes(agentKey)
+          ? s
+          : { unreadAgents: [...s.unreadAgents, agentKey] },
+      );
+    }
+    const agent = get().agents[agentKey];
+    if (agent?.activeThreadId === threadId && agent.isDraft) {
+      patchAgent(agentKey, { isDraft: false });
+    }
+    void refetchThreadsIntoCache(client, mastraAgentId);
   };
 
-  const appendMessage = (
+  // Create + register a Chat for one agent+thread, wiring the transport and the
+  // signal bridge (status → threadStatus, data-activity → threadActivity,
+  // data-thread-title → cache). Returns the existing ref when already present so
+  // a background-streaming thread is never recreated.
+  const ensureChat = (
+    client: Client,
     agentKey: string,
+    mastraAgentId: string,
     threadId: string,
-    msg: Omit<Message, '_clientId'> & { _clientId?: string },
-  ) => {
-    const t = getThread(agentKey, threadId);
-    const withId: Message = {
-      ...msg,
-      _clientId: msg._clientId ?? `m-${randomIdSuffix(8)}`,
-    };
-    patchThread(agentKey, threadId, { messages: [...t.messages, withId] });
+    initialMessages: AgentUIMessage[],
+  ): Chat<AgentUIMessage> => {
+    const key = threadKey(agentKey, threadId);
+    const existing = get().chats[key];
+    if (existing) return existing;
+
+    const chat = new Chat<AgentUIMessage>({
+      id: threadId,
+      messages: initialMessages,
+      transport: createChatTransport(mastraAgentId, threadId),
+      onData: (part) => {
+        if (part.type === 'data-activity') {
+          setThreadActivity(key, part.data.text);
+        } else if (part.type === 'data-thread-title') {
+          setThreadTitleInCache(
+            client,
+            mastraAgentId,
+            part.data.threadId || threadId,
+            part.data.title,
+          );
+        }
+        // data-heartbeat is dropped — it only keeps the proxy socket warm.
+      },
+      onFinish: () => finishTurn(client, agentKey, mastraAgentId, threadId),
+      onError: () => setThreadActivity(key, undefined),
+    });
+
+    // Mirror the Chat's status into the store so background threads keep the
+    // sidebar badges reactive even when their conversation view is unmounted.
+    const unsub = chat['~registerStatusCallback'](() =>
+      set((s) => ({ threadStatus: { ...s.threadStatus, [key]: chat.status } })),
+    );
+    statusUnsubs.set(key, unsub);
+
+    set((s) => ({
+      chats: { ...s.chats, [key]: chat },
+      threadStatus: { ...s.threadStatus, [key]: chat.status },
+    }));
+    return chat;
   };
 
   const hydrateFeedbacks = async (
     client: Client,
-    agentKey: string,
+    chat: Chat<AgentUIMessage>,
     threadId: string,
   ) => {
     try {
@@ -189,170 +230,65 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       });
       const byMessage = data?.mastraMessageFeedbacks ?? {};
       if (!Object.keys(byMessage).length) return;
-      const thread = getThread(agentKey, threadId);
-      patchThread(agentKey, threadId, {
-        messages: thread.messages.map((m) =>
-          m.id && byMessage[m.id]
-            ? { ...m, rating: byMessage[m.id].rating }
-            : m,
-        ),
+      chat.messages = chat.messages.map((m) => {
+        const id = m.metadata?.messageId;
+        return id && byMessage[id]
+          ? { ...m, metadata: { ...m.metadata, rating: byMessage[id].rating } }
+          : m;
       });
     } catch {
       // ignore — thumbs just render unselected
     }
   };
 
-  // Mark the turn persisted: reconcile the cached session list
-  // (titles/ordering/counts + the real _id) and flag unread when the user is
-  // looking at another agent.
-  const finishTurn = (
+  // Shared send path used by sendMessage + regenerate.
+  const doSend = (
     client: Client,
     agentKey: string,
-    threadId: string,
-    mastraAgentId: string,
-  ) => {
-    if (get().currentViewedAgentId !== agentKey) {
-      set((s) =>
-        s.unreadAgents.includes(agentKey)
-          ? s
-          : { unreadAgents: [...s.unreadAgents, agentKey] },
-      );
-    }
-    const agent = ensureAgent(agentKey);
-    if (agent.activeThreadId === threadId && agent.isDraft) {
-      patchAgent(agentKey, { isDraft: false });
-    }
-    void refetchThreadsIntoCache(client, mastraAgentId);
-  };
-
-  // Legacy blocking transport — single GraphQL query, no intermediate events.
-  const sendViaQuery = async (
-    client: Client,
-    agentKey: string,
-    threadId: string,
     mastraAgentId: string,
     message: string,
-  ) => {
-    const result = await client.query<MastraAgentChatResponse>({
-      query: MASTRA_AGENT_CHAT,
-      variables: { agentId: mastraAgentId, message, threadId },
-      fetchPolicy: 'no-cache',
-    });
-
-    const gqlErrors = result.errors;
-    const reply = result?.data?.mastraAgentChat ?? null;
-
-    if (gqlErrors?.length) {
-      appendMessage(agentKey, threadId, {
-        role: 'error',
-        content: gqlErrors[0].message,
-        timestamp: new Date(),
-      });
-    } else if (reply) {
-      appendMessage(agentKey, threadId, {
-        role: 'assistant',
-        content: reply,
-        timestamp: new Date(),
-      });
-    } else {
-      appendMessage(agentKey, threadId, {
-        role: 'error',
-        content: 'The agent returned an empty response. Please try again.',
-        timestamp: new Date(),
-      });
-    }
-  };
-
-  // Stream the reply over SSE. Returns false when the endpoint is unreachable
-  // before any event arrived (caller falls back to GraphQL); throws on errors
-  // the user should see.
-  const sendViaStream = async (
-    client: Client,
-    agentKey: string,
-    threadId: string,
-    mastraAgentId: string,
-    message: string,
-    abort: AbortController,
     attachments?: ChatAttachment[],
-    reasoningEffort?: ReasoningEffort,
     approvedOperations?: ApprovedOp[],
-  ): Promise<boolean> => {
-    let response: Response;
-    try {
-      response = await fetch(
-        `${REACT_APP_API_URL}/pl:erxes-agent/chat/stream`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            agentId: mastraAgentId,
-            message,
-            threadId,
-            attachments: attachments?.length ? attachments : undefined,
-            reasoningEffort: reasoningEffort || undefined,
-            approvedOperations: approvedOperations?.length
-              ? approvedOperations
-              : undefined,
-          }),
-          signal: abort.signal,
+    hidden?: boolean,
+  ) => {
+    let agent = get().agents[agentKey] ?? EMPTY_AGENT;
+    if (!agent.activeThreadId) {
+      get().newDraft(client, agentKey, mastraAgentId);
+      agent = get().agents[agentKey] ?? EMPTY_AGENT;
+    }
+    const threadId = agent.activeThreadId;
+    if (!threadId) return;
+
+    const chat = ensureChat(client, agentKey, mastraAgentId, threadId, []);
+    // Never start a second turn on a thread that's already streaming — a
+    // concurrent send (regenerate, suggestion, double Enter) would interleave
+    // two replies. `status` is the AI SDK's own in-flight guard.
+    if (chat.status !== 'ready') return;
+
+    // Surface the session in the sidebar the instant the first message is sent.
+    prependThreadToCache(client, mastraAgentId, threadId);
+    if (agent.isDraft) patchAgent(agentKey, { isDraft: false });
+
+    void chat.sendMessage(
+      { text: message, ...(hidden ? { metadata: { hidden: true } } : {}) },
+      {
+        body: {
+          ...(agent.reasoningEffort
+            ? { reasoningEffort: agent.reasoningEffort }
+            : {}),
+          ...(attachments?.length ? { attachments } : {}),
+          ...(approvedOperations?.length ? { approvedOperations } : {}),
         },
-      );
-    } catch {
-      if (abort.signal.aborted) return true; // user stopped before transport settled
-      return false; // network-level failure — try the GraphQL fallback
-    }
-
-    if (!response.ok || !response.body) {
-      if (response.status === 401) throw new Error('Login required');
-      if (response.status === 400) {
-        const body = await response.json().catch(() => null);
-        throw new Error(body?.error || 'The agent rejected this message.');
-      }
-      return false;
-    }
-
-    await runStream(response, threadId, abort, {
-      // Fold the live-bubble write and the streamTick bump into a single store
-      // update so a flush re-renders the view once per frame, not twice.
-      commitLive: (clientId, msg) =>
-        set((s) => {
-          const key = threadKey(agentKey, threadId);
-          const prev = s.threads[key] ?? EMPTY_THREAD;
-          const idx = prev.messages.findIndex((m) => m._clientId === clientId);
-          const messages =
-            idx < 0
-              ? [...prev.messages, msg]
-              : prev.messages.map((m, i) => (i === idx ? msg : m));
-          return {
-            threads: {
-              ...s.threads,
-              [key]: {
-                ...prev,
-                messages,
-                streamTick: (prev.streamTick ?? 0) + 1,
-              },
-            },
-          };
-        }),
-      appendError: (content) =>
-        appendMessage(agentKey, threadId, {
-          role: 'error',
-          content,
-          timestamp: new Date(),
-        }),
-      setActivity: (text) =>
-        patchThread(agentKey, threadId, { activity: text }),
-      setSessionTitle: (tid, title) =>
-        setThreadTitleInCache(client, mastraAgentId, tid, title),
-    });
-
-    return true;
+      },
+    );
   };
 
   return {
     agents: {},
-    threads: {},
+    chats: {},
+    threadStatus: {},
+    threadActivity: {},
+    threadHydrating: {},
     unreadAgents: [],
     currentViewedAgentId: undefined,
 
@@ -360,13 +296,10 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       set({ currentViewedAgentId: agentId });
       if (agentId) {
         get().markRead(agentId);
-        // Hydrate the persisted reasoning choice exactly once, when this
-        // agent's slice first comes into view. Reads localStorage a single
-        // time so the reactive selector never has to.
+        // Hydrate the persisted reasoning choice exactly once, when this agent's
+        // slice first comes into view.
         if (!get().agents[agentId]) {
-          patchAgent(agentId, {
-            reasoningEffort: loadReasoningEffort(agentId),
-          });
+          patchAgent(agentId, { reasoningEffort: loadReasoningEffort(agentId) });
         }
       }
     },
@@ -378,7 +311,6 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
           : s,
       ),
 
-    // Persist the power-user reasoning choice for this agent's chat view.
     setReasoningEffort: (agentKey, effort) => {
       try {
         const key = reasoningEffortStorageKey(agentKey);
@@ -390,87 +322,101 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       patchAgent(agentKey, { reasoningEffort: effort });
     },
 
-    newDraft: (agentKey) => {
+    newDraft: (client, agentKey, mastraAgentId) => {
       const threadId = generateThreadId();
-      patchAgent(agentKey, { activeThreadId: threadId, isDraft: true });
-      patchThread(agentKey, threadId, { messages: [], loading: false });
+      ensureChat(client, agentKey, mastraAgentId, threadId, []);
+      patchAgent(agentKey, {
+        activeThreadId: threadId,
+        isDraft: true,
+        mastraAgentId,
+      });
     },
 
-    selectSession: async (client, agentKey, threadId) => {
-      patchAgent(agentKey, { activeThreadId: threadId, isDraft: false });
+    selectSession: async (client, agentKey, mastraAgentId, threadId) => {
+      patchAgent(agentKey, {
+        activeThreadId: threadId,
+        isDraft: false,
+        mastraAgentId,
+      });
 
-      const existing = getThread(agentKey, threadId);
-      if (existing.loading) return; // never clobber a streaming thread
+      const key = threadKey(agentKey, threadId);
+      // An existing Chat (revisited, or streaming in the background) keeps its
+      // live state — never reload over it.
+      if (get().chats[key]) return;
 
-      patchThread(agentKey, threadId, { messagesLoading: true });
+      const chat = ensureChat(client, agentKey, mastraAgentId, threadId, []);
+      set((s) => ({ threadHydrating: { ...s.threadHydrating, [key]: true } }));
       try {
         const { data } = await client.query<MastraThreadMessagesResponse>({
           query: MASTRA_THREAD_MESSAGES,
           variables: { threadId },
           fetchPolicy: 'network-only',
         });
-        const messages: Message[] = (data?.mastraThreadMessages ?? []).map(
-          (m) => ({
-            id: m._id,
-            _clientId: m._id || `m-${randomIdSuffix(8)}`,
-            role: m.role,
-            content: m.content,
-            timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
-            parts: partsFromMeta(m.meta),
-            attachments:
-              Array.isArray(m.attachments) && m.attachments.length
-                ? m.attachments
-                : undefined,
-            interrupted: m.meta?.interrupted || undefined,
-          }),
-        );
-        patchThread(agentKey, threadId, { messages, messagesLoading: false });
-        void hydrateFeedbacks(client, agentKey, threadId);
+        chat.messages = metaToUIMessages(data?.mastraThreadMessages ?? []);
+        await hydrateFeedbacks(client, chat, threadId);
       } catch {
-        patchThread(agentKey, threadId, { messagesLoading: false });
+        // leave the chat empty — the composer still works
+      } finally {
+        set((s) => ({
+          threadHydrating: { ...s.threadHydrating, [key]: false },
+        }));
       }
     },
 
-    rateMessage: async (client, agentKey, threadId, messageId, rating) => {
-      const thread = getThread(agentKey, threadId);
-      patchThread(agentKey, threadId, {
-        messages: thread.messages.map((m) =>
-          m.id === messageId ? { ...m, rating } : m,
-        ),
-      });
+    rateMessage: async (client, agentKey, messageId, rating) => {
+      const agent = get().agents[agentKey];
+      const chat = agent?.activeThreadId
+        ? get().chats[threadKey(agentKey, agent.activeThreadId)]
+        : undefined;
+      if (!chat) return;
+      const apply = (value: number | undefined) => {
+        chat.messages = chat.messages.map((m) =>
+          m.metadata?.messageId === messageId
+            ? { ...m, metadata: { ...m.metadata, rating: value } }
+            : m,
+        );
+      };
+      apply(rating);
       try {
         await client.mutate({
           mutation: MASTRA_MESSAGE_FEEDBACK,
           variables: { messageId, rating },
         });
       } catch {
-        patchThread(agentKey, threadId, {
-          messages: getThread(agentKey, threadId).messages.map((m) =>
-            m.id === messageId ? { ...m, rating: undefined } : m,
-          ),
-        });
+        apply(undefined);
       }
     },
 
     discardThread: (agentKey, threadId) => {
-      getThread(agentKey, threadId).abort?.abort();
+      const key = threadKey(agentKey, threadId);
+      void get().chats[key]?.stop();
+      statusUnsubs.get(key)?.();
+      statusUnsubs.delete(key);
       set((s) => {
-        const next = { ...s.threads };
-        delete next[threadKey(agentKey, threadId)];
-        return { threads: next };
+        const chats = { ...s.chats };
+        const threadStatus = { ...s.threadStatus };
+        const threadActivity = { ...s.threadActivity };
+        const threadHydrating = { ...s.threadHydrating };
+        delete chats[key];
+        delete threadStatus[key];
+        delete threadActivity[key];
+        delete threadHydrating[key];
+        return { chats, threadStatus, threadActivity, threadHydrating };
       });
-      // Drop the active selection so the view's bootstrap effect re-selects the
-      // next session (or opens a fresh draft) from the now-filtered cached list.
-      if (ensureAgent(agentKey).activeThreadId === threadId) {
+      // Drop the active selection so the view's bootstrap re-selects the next
+      // session (or opens a fresh draft) from the now-filtered cached list.
+      if (get().agents[agentKey]?.activeThreadId === threadId) {
         patchAgent(agentKey, { activeThreadId: undefined, isDraft: false });
       }
     },
 
-    stop: (agentKey, threadId) => {
-      getThread(agentKey, threadId).abort?.abort();
+    stop: (agentKey) => {
+      const agent = get().agents[agentKey];
+      if (!agent?.activeThreadId) return;
+      void get().chats[threadKey(agentKey, agent.activeThreadId)]?.stop();
     },
 
-    sendMessage: async (
+    sendMessage: (
       client,
       agentKey,
       mastraAgentId,
@@ -478,102 +424,59 @@ export const useChatStore = create<ChatStoreState>((set, get) => {
       attachments,
       approvedOperations,
       hidden,
-    ) => {
-      let agent = ensureAgent(agentKey);
-      if (!agent.activeThreadId) {
-        get().newDraft(agentKey);
-        agent = ensureAgent(agentKey);
-      }
-      const threadId = agent.activeThreadId!;
-      const reasoningEffort = agent.reasoningEffort;
+    ) =>
+      doSend(
+        client,
+        agentKey,
+        mastraAgentId,
+        message,
+        attachments,
+        approvedOperations,
+        hidden,
+      ),
 
-      // Never start a second stream on a thread that's already streaming — a
-      // concurrent send (regenerate, suggestion, double Enter) would overwrite
-      // the in-flight AbortController, orphaning the first stream so it can no
-      // longer be stopped and letting two replies interleave into one bubble.
-      // claimThread checks-and-sets `loading` in one synchronous step so the
-      // guard holds even though `abort` is attached further down.
-      if (!claimThread(agentKey, threadId)) return;
-
-      // Surface the session in the sidebar the instant the first message is
-      // sent — don't wait for the turn to finish. The backend registers + tags
-      // the thread at turn start (so a refresh keeps it); this mirrors it into
-      // the cached list optimistically. The streamed thread_title event fills
-      // the real title, and the finishTurn refetch reconciles title/count/order
-      // and the real _id into the same cached query.
-      prependThreadToCache(client, mastraAgentId, threadId);
-      if (agent.isDraft) patchAgent(agentKey, { isDraft: false });
-
-      if (!hidden) {
-        appendMessage(agentKey, threadId, {
-          role: 'user',
-          content: message,
-          timestamp: new Date(),
-          attachments: attachments?.length ? attachments : undefined,
-        });
-      }
-
-      const abort = new AbortController();
-      patchThread(agentKey, threadId, { abort });
-
-      try {
-        const streamed = await sendViaStream(
-          client,
-          agentKey,
-          threadId,
-          mastraAgentId,
-          message,
-          abort,
-          attachments,
-          reasoningEffort,
-          approvedOperations,
-        );
-        if (!streamed) {
-          await sendViaQuery(
-            client,
-            agentKey,
-            threadId,
-            mastraAgentId,
-            message,
-          );
-        }
-        finishTurn(client, agentKey, threadId, mastraAgentId);
-      } catch (err) {
-        appendMessage(agentKey, threadId, {
-          role: 'error',
-          content:
-            (err as Error)?.message ??
-            'Failed to reach the agent. Check your connection and try again.',
-          timestamp: new Date(),
-        });
-      } finally {
-        patchThread(agentKey, threadId, {
-          loading: false,
-          abort: undefined,
-          activity: undefined,
-        });
-      }
+    regenerate: (client, agentKey, mastraAgentId) => {
+      const agent = get().agents[agentKey];
+      if (!agent?.activeThreadId) return;
+      const chat = get().chats[threadKey(agentKey, agent.activeThreadId)];
+      if (!chat || chat.status !== 'ready') return;
+      // Skip hidden approve/deny replies — re-ask the real question.
+      const lastUser = [...chat.messages]
+        .reverse()
+        .find((m) => m.role === 'user' && !m.metadata?.hidden);
+      if (!lastUser) return;
+      doSend(
+        client,
+        agentKey,
+        mastraAgentId,
+        messageText(lastUser),
+        lastUser.metadata?.attachments,
+      );
     },
   };
 });
 
 // ── Selectors (granular reactive reads) ─────────────────────────────────────
 
-export const selectAgentView = (
+export const selectAgentShell = (
   s: ChatStoreState,
   agentKey: string,
-): AgentChatView => {
-  const agent = s.agents[agentKey] ?? EMPTY_AGENT;
-  const thread = agent.activeThreadId
-    ? (s.threads[threadKey(agentKey, agent.activeThreadId)] ?? EMPTY_THREAD)
-    : EMPTY_THREAD;
-  return {
-    ...agent,
-    messages: thread.messages,
-    loading: thread.loading,
-    messagesLoading: thread.messagesLoading,
-    streamTick: thread.streamTick,
-  };
+): AgentChatState => s.agents[agentKey] ?? EMPTY_AGENT;
+
+export const selectActiveChat = (
+  s: ChatStoreState,
+  agentKey: string,
+): Chat<AgentUIMessage> => {
+  const threadId = s.agents[agentKey]?.activeThreadId;
+  return (threadId && s.chats[threadKey(agentKey, threadId)]) || EMPTY_CHAT;
+};
+
+export const selectThreadHydrating = (
+  s: ChatStoreState,
+  agentKey: string,
+): boolean => {
+  const threadId = s.agents[agentKey]?.activeThreadId;
+  return threadId ? !!s.threadHydrating[threadKey(agentKey, threadId)] : false;
 };
 
 export const selectIsAgentWorking = (
@@ -581,8 +484,8 @@ export const selectIsAgentWorking = (
   agentKey: string,
 ): boolean => {
   const prefix = `${agentKey}:`;
-  return Object.entries(s.threads).some(
-    ([key, t]) => t.loading && key.startsWith(prefix),
+  return Object.entries(s.threadStatus).some(
+    ([key, status]) => key.startsWith(prefix) && isWorkingStatus(status),
   );
 };
 
@@ -590,29 +493,18 @@ export const selectThreadWorking = (
   s: ChatStoreState,
   agentKey: string,
   threadId: string,
-): boolean =>
-  (s.threads[threadKey(agentKey, threadId)] ?? EMPTY_THREAD).loading;
+): boolean => isWorkingStatus(s.threadStatus[threadKey(agentKey, threadId)]);
 
-// One-line summary of what the agent is doing right now. Prefers the
-// server-pushed `activity` events; falls back to coarse phase labels until the
-// first summary arrives or on older backends.
+// One-line summary of what the agent is doing right now: the server-pushed
+// activity for any working thread of this agent, or a coarse fallback.
 export const selectAgentActivity = (
   s: ChatStoreState,
   agentKey: string,
 ): string | undefined => {
   const prefix = `${agentKey}:`;
-  for (const [key, t] of Object.entries(s.threads)) {
-    if (!t.loading || !key.startsWith(prefix)) continue;
-    if (t.activity) return t.activity;
-    const last = t.messages[t.messages.length - 1];
-    if (!last || last.role !== 'assistant') return 'Waiting for the agent…';
-    const part = last.parts?.[last.parts.length - 1];
-    if (part?.kind === 'tool' && part.call.result === undefined) {
-      return `Running ${part.call.toolName}…`;
-    }
-    if (part?.kind === 'thinking' && !part.done) return 'Thinking…';
-    if (last.content) return 'Writing a reply…';
-    return 'Working…';
+  for (const [key, status] of Object.entries(s.threadStatus)) {
+    if (!key.startsWith(prefix) || !isWorkingStatus(status)) continue;
+    return s.threadActivity[key] ?? 'Working…';
   }
   return undefined;
 };
@@ -620,8 +512,8 @@ export const selectAgentActivity = (
 export const selectHasUnread = (s: ChatStoreState, agentKey: string): boolean =>
   s.unreadAgents.includes(agentKey);
 
-// The store actions exposed verbatim on the imperative facade (same name, same
-// signature). Selectors below are kept separate because they compose/rename.
+// Imperative facade so call sites keep reading `chatStore.x(...)`. Each action
+// delegates to the live store; reactive reads use the hooks in ./hooks.
 type StoreActionKey =
   | 'setCurrentAgent'
   | 'markRead'
@@ -631,7 +523,8 @@ type StoreActionKey =
   | 'rateMessage'
   | 'discardThread'
   | 'stop'
-  | 'sendMessage';
+  | 'sendMessage'
+  | 'regenerate';
 
 type StoreActions = Pick<ChatStoreState, StoreActionKey>;
 
@@ -645,32 +538,13 @@ const ACTION_KEYS: StoreActionKey[] = [
   'discardThread',
   'stop',
   'sendMessage',
+  'regenerate',
 ];
 
-// Each action delegates to the live store rather than being hand-forwarded, so
-// adding/changing a store action only touches ACTION_KEYS above.
-const actionForwarders = Object.fromEntries(
+export const chatStore = Object.fromEntries(
   ACTION_KEYS.map((key) => [
     key,
     (...args: unknown[]) =>
       (useChatStore.getState()[key] as (...a: unknown[]) => unknown)(...args),
   ]),
 ) as StoreActions;
-
-// Imperative facade so call sites keep reading `chatStore.x(...)` while reactive
-// reads move to the hooks in ./hooks. Selectors compose getState(); actions
-// delegate to the live store via actionForwarders.
-export const chatStore = {
-  getState: (agentKey: string) =>
-    selectAgentView(useChatStore.getState(), agentKey),
-  hasUnread: (agentKey: string) =>
-    selectHasUnread(useChatStore.getState(), agentKey),
-  hasAnyActivity: () => useChatStore.getState().unreadAgents.length > 0,
-  isAgentWorking: (agentKey: string) =>
-    selectIsAgentWorking(useChatStore.getState(), agentKey),
-  getAgentActivity: (agentKey: string) =>
-    selectAgentActivity(useChatStore.getState(), agentKey),
-  isThreadWorking: (agentKey: string, threadId: string) =>
-    selectThreadWorking(useChatStore.getState(), agentKey, threadId),
-  ...actionForwarders,
-};

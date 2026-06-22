@@ -5,18 +5,20 @@ import {
   IconChevronRight,
   IconTool,
 } from '@tabler/icons-react';
-import { ToolCallInfo } from '~/modules/chat/types';
+import { ToolPartView } from '~/modules/chat/lib/uiParts';
 import { formatJson } from '~/modules/chat/lib/markdown';
 
 export const ToolCallRow = ({
   call,
   streaming,
 }: {
-  call: ToolCallInfo;
+  call: ToolPartView;
   streaming?: boolean;
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const pending = call.result === undefined && streaming;
+  const pending = call.pending && streaming;
+  const settled = call.state === 'output-available' || call.state === 'output-error';
+  const result = call.isError ? call.errorText : call.output;
 
   return (
     <div
@@ -44,19 +46,19 @@ export const ToolCallRow = ({
           <span className="ea-tool-running size-2 shrink-0 rounded-full" />
         ) : call.isError ? (
           <IconAlertCircle className="size-3.5 shrink-0 text-destructive" />
-        ) : call.result !== undefined ? (
+        ) : settled ? (
           <IconCheck className="size-3.5 shrink-0 text-success" />
         ) : null}
       </button>
       {expanded && (
         <div className="ea-expand px-3 pb-2.5 space-y-2">
-          {call.args !== undefined && (
+          {call.input !== undefined && (
             <div>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
                 Request
               </p>
               <pre className="text-[11px] font-mono bg-muted/40 rounded-md p-2 overflow-auto max-h-40 whitespace-pre-wrap break-all">
-                {formatJson(call.args)}
+                {formatJson(call.input)}
               </pre>
             </div>
           )}
@@ -65,7 +67,7 @@ export const ToolCallRow = ({
               Response
             </p>
             <pre className="text-[11px] font-mono bg-muted/40 rounded-md p-2 overflow-auto max-h-60 whitespace-pre-wrap break-all">
-              {pending ? 'Running…' : formatJson(call.result) || '—'}
+              {pending ? 'Running…' : formatJson(result) || '—'}
             </pre>
           </div>
         </div>

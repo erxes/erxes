@@ -1,7 +1,8 @@
 import { memo } from 'react';
-import { IconAlertCircle, IconRefresh } from '@tabler/icons-react';
+import { IconRefresh } from '@tabler/icons-react';
 import { Collapsible, Tooltip } from 'erxes-ui';
-import { TurnPart, Message } from '~/modules/chat/types';
+import { AgentUIMessage } from '~/modules/chat/types';
+import { asToolPart, messageText } from '~/modules/chat/lib/uiParts';
 import { AgentAvatar } from '~/modules/chat/components/Avatars';
 import {
   ChatMarkdown,
@@ -13,17 +14,24 @@ import { MessageAttachments } from '~/modules/chat/components/MessageAttachments
 import { ThinkingSection } from '~/modules/chat/components/ThinkingSection';
 import { ToolCallRow } from '~/modules/chat/components/ToolCallRow';
 
-// All thinking + tool-call parts collapsed into one "Show thinking process" row.
+type MessagePart = AgentUIMessage['parts'][number];
+
+const formatTime = (iso?: string): string =>
+  (iso ? new Date(iso) : new Date()).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+// All reasoning + tool-call parts collapsed into one "Show thinking process" row.
 // Starts closed so the final response text is the first thing the user sees.
-// Each tool call inside still has its own expand for request/response detail.
 const ToolsSection = ({
   parts,
   streaming,
 }: {
-  parts: TurnPart[];
+  parts: MessagePart[];
   streaming: boolean;
 }) => {
-  const toolCount = parts.filter((p) => p.kind === 'tool').length;
+  const toolCount = parts.filter((p) => !!asToolPart(p)).length;
 
   return (
     <Collapsible defaultOpen={false} className="mb-3">
@@ -38,21 +46,28 @@ const ToolsSection = ({
       </Collapsible.TriggerButton>
       <Collapsible.Content>
         <div className="mt-2 space-y-1">
-          {parts.map((part, i) =>
-            part.kind === 'thinking' ? (
-              <ThinkingSection
-                key={i}
-                text={part.text}
-                live={streaming && !part.done && i === parts.length - 1}
-              />
-            ) : (
-              <ToolCallRow
-                key={part.call.toolCallId ?? `tool-${i}`}
-                call={part.call}
-                streaming={streaming}
-              />
-            ),
-          )}
+          {parts.map((part, i) => {
+            const tool = asToolPart(part);
+            if (tool) {
+              return (
+                <ToolCallRow
+                  key={tool.toolCallId ?? `tool-${i}`}
+                  call={tool}
+                  streaming={streaming}
+                />
+              );
+            }
+            if (part.type === 'reasoning') {
+              return (
+                <ThinkingSection
+                  key={`reasoning-${i}`}
+                  text={part.text}
+                  live={streaming && part.state === 'streaming'}
+                />
+              );
+            }
+            return null;
+          })}
         </div>
       </Collapsible.Content>
     </Collapsible>
@@ -60,10 +75,8 @@ const ToolsSection = ({
 };
 
 // memo() so a streaming turn only re-renders the live bubble, not every prior
-// message. The store keeps stable object references for unchanged messages, so
-// shallow prop equality holds — provided callers pass stable callbacks and the
-// per-message gating (regenerate/rate) is derived here from primitive flags
-// rather than passed as freshly-built closures.
+// message — useChat keeps stable refs for settled messages, so shallow prop
+// equality holds provided callers pass stable callbacks.
 export const MessageBubble = memo(function MessageBubble({
   msg,
   isLast,
@@ -72,43 +85,28 @@ export const MessageBubble = memo(function MessageBubble({
   onRegenerate,
   onRate,
 }: {
-  msg: Message;
+  msg: AgentUIMessage;
   isLast: boolean;
   chatLoading: boolean;
   ratingEnabled: boolean;
   onRegenerate: () => void;
   onRate: (messageId: string, rating: 1 | -1) => void;
 }) {
-  if (msg.role === 'error') {
-    return (
-      <div className="flex justify-center ea-msg-in">
-        <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/8 border border-destructive/20 rounded-lg px-3 py-2 max-w-[80%]">
-          <IconAlertCircle className="size-3.5 shrink-0" />
-          <span>{msg.content}</span>
-        </div>
-      </div>
-    );
-  }
+  const text = messageText(msg);
 
   if (msg.role === 'user') {
-    const time = msg.timestamp.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-    const hasText = !!msg.content.trim();
+    const attachments = msg.metadata?.attachments;
+    const time = formatTime(msg.metadata?.createdAt);
+    const hasText = !!text.trim();
     return (
       <div className="flex flex-col items-end gap-1.5 ea-msg-in">
-        {msg.attachments && msg.attachments.length > 0 && (
-          <MessageAttachments attachments={msg.attachments} />
+        {attachments && attachments.length > 0 && (
+          <MessageAttachments attachments={attachments} />
         )}
         {hasText ? (
           <div className="max-w-[78%] bg-gradient-to-br from-primary to-primary/85 text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">
-              {msg.content}
-            </p>
-            <p className="text-[10px] mt-1 text-primary-foreground/60">
-              {time}
-            </p>
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">{text}</p>
+            <p className="text-[10px] mt-1 text-primary-foreground/60">{time}</p>
           </div>
         ) : (
           <p className="text-[10px] text-muted-foreground pr-1">{time}</p>
@@ -117,45 +115,44 @@ export const MessageBubble = memo(function MessageBubble({
     );
   }
 
-  // assistant — transparent bubble with subtle border + shadow so it sits
-  // cleanly against any theme background without a solid fill
-  const streaming = !!msg.streaming;
-  const parts = msg.parts ?? [];
+  // assistant — transparent bubble with subtle border + shadow.
+  const streaming = isLast && chatLoading;
+  const turnParts = msg.parts.filter(
+    (p) => p.type === 'reasoning' || !!asToolPart(p),
+  );
   const canRegenerate = isLast && !chatLoading;
+  const messageId = msg.metadata?.messageId;
   const handleRate =
-    ratingEnabled && msg.id
-      ? (rating: 1 | -1) => onRate(msg.id!, rating)
+    ratingEnabled && messageId
+      ? (rating: 1 | -1) => onRate(messageId, rating)
       : undefined;
 
   return (
     <div className="flex justify-start items-start gap-2.5 group ea-msg-in">
       <AgentAvatar live={streaming} />
       <div className="max-w-[82%] min-w-0 rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm">
-        {parts.length > 0 && (
-          <ToolsSection parts={parts} streaming={streaming} />
+        {turnParts.length > 0 && (
+          <ToolsSection parts={turnParts} streaming={streaming} />
         )}
-        {msg.content ? (
+        {text ? (
           streaming ? (
-            <StreamingMarkdown content={msg.content} />
+            <StreamingMarkdown content={text} />
           ) : (
-            <ChatMarkdown content={msg.content} />
+            <ChatMarkdown content={text} />
           )
-        ) : streaming && !parts.length ? (
+        ) : streaming && !turnParts.length ? (
           <div className="flex items-center gap-1.5 py-1">
             <span className="ea-typing-dot" />
             <span className="ea-typing-dot" />
             <span className="ea-typing-dot" />
           </div>
         ) : null}
-        {streaming && msg.content && <span className="ea-caret" />}
+        {streaming && text && <span className="ea-caret" />}
         {!streaming && (
           <div className="flex items-center justify-between gap-2 mt-1.5">
             <p className="text-[10px] text-muted-foreground">
-              {msg.timestamp.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-              {msg.interrupted && (
+              {formatTime(msg.metadata?.createdAt)}
+              {msg.metadata?.interrupted && (
                 <span className="ml-1.5 text-amber-600 dark:text-amber-500">
                   · stopped
                 </span>
@@ -179,9 +176,9 @@ export const MessageBubble = memo(function MessageBubble({
                 </Tooltip.Provider>
               )}
               {handleRate && (
-                <FeedbackButtons rating={msg.rating} onRate={handleRate} />
+                <FeedbackButtons rating={msg.metadata?.rating} onRate={handleRate} />
               )}
-              <CopyButton text={msg.content} />
+              <CopyButton text={text} />
             </div>
           </div>
         )}

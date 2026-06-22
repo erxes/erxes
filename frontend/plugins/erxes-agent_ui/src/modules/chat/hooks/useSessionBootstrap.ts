@@ -2,8 +2,7 @@ import { useEffect } from 'react';
 import { useApolloClient } from '@apollo/client';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { IMastraThread } from '~/modules/chat/types';
-import { chatStore } from '~/modules/chat/store/chatStore';
-import { useAgentChatView } from '~/modules/chat/hooks/useChatView';
+import { chatStore, useChatStore } from '~/modules/chat/store/chatStore';
 
 // Owns the session state-machine that used to live in ChatPage's effects: slug→id
 // redirect, ?thread= deep-link, current-agent tracking, and bootstrapping /
@@ -20,8 +19,11 @@ export const useSessionBootstrap = (
   const apolloClient = useApolloClient();
   const [searchParams] = useSearchParams();
 
-  const { activeThreadId } = useAgentChatView(agentId);
+  const activeThreadId = useChatStore((s) =>
+    agentId ? s.agents[agentId]?.activeThreadId : undefined,
+  );
   const threadParam = searchParams.get('thread');
+  const mastraAgentId = selectedAgent?.agentId;
 
   // Slug routes normalize to the _id route so the chat store stays keyed by _id.
   useEffect(() => {
@@ -37,12 +39,12 @@ export const useSessionBootstrap = (
 
   // Deep link: ?thread=<id> opens that session once sessions have loaded.
   useEffect(() => {
-    if (!agentId || !threadParam || !sessionsLoaded) return;
+    if (!agentId || !mastraAgentId || !threadParam || !sessionsLoaded) return;
     if (threadParam !== activeThreadId) {
-      chatStore.selectSession(apolloClient, agentId, threadParam);
+      chatStore.selectSession(apolloClient, agentId, mastraAgentId, threadParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId, threadParam, sessionsLoaded]);
+  }, [agentId, mastraAgentId, threadParam, sessionsLoaded]);
 
   // Track the viewed agent (clears its unread badge); clear on navigate away.
   useEffect(() => {
@@ -54,12 +56,24 @@ export const useSessionBootstrap = (
   // nothing is selected (first open of this agent, or after deleting the active
   // session), open the most recent session or a fresh draft.
   useEffect(() => {
-    if (!agentId || !selectedAgent || !sessionsLoaded || activeThreadId) return;
+    if (
+      !agentId ||
+      !selectedAgent ||
+      !mastraAgentId ||
+      !sessionsLoaded ||
+      activeThreadId
+    )
+      return;
     if (threads.length > 0) {
-      chatStore.selectSession(apolloClient, agentId, threads[0].threadId);
+      chatStore.selectSession(
+        apolloClient,
+        agentId,
+        mastraAgentId,
+        threads[0].threadId,
+      );
     } else {
-      chatStore.newDraft(agentId);
+      chatStore.newDraft(apolloClient, agentId, mastraAgentId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId, selectedAgent?.agentId, sessionsLoaded, activeThreadId, threads]);
+  }, [agentId, mastraAgentId, sessionsLoaded, activeThreadId, threads]);
 };

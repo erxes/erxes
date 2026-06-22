@@ -26,7 +26,7 @@ import { SessionList } from '~/modules/chat/components/SessionList';
 import { MessageList } from '~/modules/chat/components/MessageList';
 import { Composer } from '~/modules/chat/components/Composer';
 import { ApprovalBar } from '~/modules/chat/components/ApprovalBar';
-import { pendingApproval } from '~/modules/chat/lib/approval';
+import { pendingApproval } from '~/modules/chat/lib/uiParts';
 import '~/modules/chat/chat.css';
 
 // Distance (px) from the bottom under which we keep following streamed output.
@@ -62,7 +62,6 @@ export const ChatPage = () => {
     messages,
     loading: chatLoading,
     messagesLoading,
-    streamTick,
   } = view;
 
   // The persisted session list lives in the Apollo cache, not the chat store.
@@ -91,13 +90,13 @@ export const ChatPage = () => {
   useSessionBootstrap(selectedAgent, threads, sessionsLoaded);
 
   // Keep the view pinned to the bottom — also while a reply streams (the last
-  // message grows without the list length changing). The store bumps streamTick
-  // on every live update, so following it re-fires this effect per token.
+  // message grows in place). `messages` is a fresh array on every throttled
+  // streaming update, so following it re-fires this effect as the reply grows.
   useEffect(() => {
     if (atBottomRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages.length, chatLoading, streamTick]);
+  }, [messages, chatLoading]);
 
   // Switching threads re-pins to the bottom of the freshly loaded conversation.
   useEffect(() => {
@@ -117,12 +116,18 @@ export const ChatPage = () => {
   }, [input]);
 
   const handleNewThread = () => {
-    if (agentId) chatStore.newDraft(agentId);
+    if (agentId && selectedAgent)
+      chatStore.newDraft(apolloClient, agentId, selectedAgent.agentId);
   };
 
   const handleSelectSession = (threadId: string) => {
-    if (!agentId || threadId === activeThreadId) return;
-    chatStore.selectSession(apolloClient, agentId, threadId);
+    if (!agentId || !selectedAgent || threadId === activeThreadId) return;
+    chatStore.selectSession(
+      apolloClient,
+      agentId,
+      selectedAgent.agentId,
+      threadId,
+    );
   };
 
   const handleDeleteSession = (
@@ -170,7 +175,7 @@ export const ChatPage = () => {
   // A destructive op the agent is waiting on (derived from the last turn) — drives
   // the approval bar above the composer. Both actions continue the turn without a
   // visible user bubble (hidden send): Approve replays the gated op, Deny cancels.
-  const approval = pendingApproval(messages);
+  const approval = pendingApproval(messages, chatLoading);
 
   const handleApprove = () => {
     if (chatLoading || !approval) return;
@@ -199,33 +204,25 @@ export const ChatPage = () => {
   };
 
   // Re-ask the question that produced the last reply (with its attachments).
-  // Reads messages from the store rather than closing over the `messages` array
-  // so this callback stays referentially stable across streamed tokens — the
-  // memoized message rows depend on it not changing every chunk.
+  // The store reads the last user message off the active Chat, so this callback
+  // stays referentially stable across streamed tokens — the memoized message
+  // rows depend on it not changing every chunk.
   const handleRegenerate = useCallback(() => {
-    if (!agentId || chatLoading) return;
-    const msgs = chatStore.getState(agentId).messages;
-    const lastUser = [...msgs].reverse().find((m) => m.role === 'user');
-    if (lastUser) sendMessage(lastUser.content, lastUser.attachments || []);
-  }, [agentId, chatLoading, sendMessage]);
+    if (!agentId || !selectedAgent || chatLoading) return;
+    chatStore.regenerate(apolloClient, agentId, selectedAgent.agentId);
+  }, [apolloClient, agentId, selectedAgent, chatLoading]);
 
   // Stable rating handler so the memoized message rows don't re-render per token.
   const handleRate = useCallback(
     (messageId: string, rating: 1 | -1) => {
-      if (!agentId || !activeThreadId) return;
-      chatStore.rateMessage(
-        apolloClient,
-        agentId,
-        activeThreadId,
-        messageId,
-        rating,
-      );
+      if (!agentId) return;
+      chatStore.rateMessage(apolloClient, agentId, messageId, rating);
     },
-    [apolloClient, agentId, activeThreadId],
+    [apolloClient, agentId],
   );
 
   const handleStop = () => {
-    if (agentId && activeThreadId) chatStore.stop(agentId, activeThreadId);
+    if (agentId) chatStore.stop(agentId);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

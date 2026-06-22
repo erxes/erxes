@@ -1,27 +1,46 @@
 import { useShallow } from 'zustand/react/shallow';
-import { AgentChatView, EMPTY_AGENT, EMPTY_THREAD } from '~/modules/chat/types';
+import { useChat } from '@ai-sdk/react';
+import { AgentChatState, AgentUIMessage } from '~/modules/chat/types';
 import {
+  selectActiveChat,
   selectAgentActivity,
-  selectAgentView,
+  selectAgentShell,
   selectHasUnread,
   selectIsAgentWorking,
+  selectThreadHydrating,
   selectThreadWorking,
   useChatStore,
 } from '~/modules/chat/store/chatStore';
 
-const EMPTY_VIEW: AgentChatView = {
-  ...EMPTY_AGENT,
-  messages: EMPTY_THREAD.messages,
-  loading: EMPTY_THREAD.loading,
-  messagesLoading: EMPTY_THREAD.messagesLoading,
-};
+// What the conversation view renders: the agent's shell state plus the active
+// thread's live message state, read straight off the bound AI SDK `Chat`.
+export interface AgentChatView extends AgentChatState {
+  messages: AgentUIMessage[];
+  loading: boolean; // a turn is in flight (submitted / streaming)
+  messagesLoading: boolean; // hydrating this thread's history from the DB
+  error?: Error;
+}
 
-// The active agent's session + conversation view. Re-renders only when this
-// agent's slice (sessions / active thread messages / loading) changes.
-export const useAgentChatView = (agentId?: string): AgentChatView =>
-  useChatStore(
-    useShallow((s) => (agentId ? selectAgentView(s, agentId) : EMPTY_VIEW)),
-  );
+// The active agent's session + conversation view. `useChat` binds to the active
+// thread's Chat (or a shared empty one), so messages/status re-render granularly
+// without the heavy array ever passing through zustand.
+export const useAgentChatView = (agentId?: string): AgentChatView => {
+  const key = agentId ?? '';
+  const shell = useChatStore(useShallow((s) => selectAgentShell(s, key)));
+  const chat = useChatStore((s) => selectActiveChat(s, key));
+  const messagesLoading = useChatStore((s) => selectThreadHydrating(s, key));
+  const { messages, status, error } = useChat({
+    chat,
+    experimental_throttle: 50,
+  });
+  return {
+    ...shell,
+    messages,
+    loading: status === 'submitted' || status === 'streaming',
+    messagesLoading,
+    error,
+  };
+};
 
 export const useAgentWorking = (agentId: string): boolean =>
   useChatStore((s) => selectIsAgentWorking(s, agentId));
