@@ -10,6 +10,7 @@ import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectV
 import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const SpinFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     spinCampaign: string;
     ownerType: string;

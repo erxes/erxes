@@ -10,6 +10,7 @@ import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectV
 import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const LotteryFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     lotteryCampaign: string;
     ownerType: string;
