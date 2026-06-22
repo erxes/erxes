@@ -85,7 +85,7 @@ const buildRehomeOpsForDocument = (
   newLanguage: string,
   type: string,
   newTranslationMap: Map<string, any>,
-): { translationOps: any[]; documentOp: any | null } => {
+): { translationOps: any[]; documentOp: Record<string, any> | null } => {
   const objectId = String(doc._id);
   const translationOps: any[] = [];
 
