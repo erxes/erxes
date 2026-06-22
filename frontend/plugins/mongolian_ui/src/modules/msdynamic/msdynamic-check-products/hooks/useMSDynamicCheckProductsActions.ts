@@ -154,7 +154,9 @@ export const useMSDynamicCheckProductsActions = ({
   };
 
   /** Sync selected products then refresh from server */
-  const syncProducts = async () => {
+  const syncProducts = async (selectedProducts?: MSDynamicCheckProduct[]) => {
+    const productsToSync = selectedProducts ?? syncableProducts;
+
     if (!hasDynamicConfig) {
       toast({
         title: 'Error',
@@ -165,7 +167,7 @@ export const useMSDynamicCheckProductsActions = ({
       return;
     }
 
-    if (!syncableProducts.length) {
+    if (!productsToSync.length) {
       toast({
         title: 'Warning',
         description: 'No products to sync',
@@ -181,7 +183,7 @@ export const useMSDynamicCheckProductsActions = ({
         variables: {
           brandId,
           action: MSDYNAMIC_PRODUCT_ACTIONS[selectedFilter],
-          products: syncableProducts,
+          products: productsToSync,
         },
       });
 
@@ -197,7 +199,7 @@ export const useMSDynamicCheckProductsActions = ({
 
       toast({
         title: 'Success',
-        description: `${syncableProducts.length} products synced`,
+        description: `${productsToSync.length} products synced`,
       });
     } catch (error) {
       toast({

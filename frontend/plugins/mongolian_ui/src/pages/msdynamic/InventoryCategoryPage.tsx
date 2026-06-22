@@ -1,11 +1,5 @@
-import { useLocation } from 'react-router-dom';
-import InventoryCategoryContainer from '@/msdynamic/containers/InventoryCategory';
+import { InventoryCategoryContainer } from '~/modules/msdynamic/msdynamic-check-category/components/InventoryCategory';
 
 export const InventoryCategoryPage = () => {
-  const location = useLocation();
-  const queryParams = Object.fromEntries(new URLSearchParams(location.search));
-
-  return <InventoryCategoryContainer queryParams={queryParams} />;
+  return <InventoryCategoryContainer />;
 };
-
-export default InventoryCategoryPage;

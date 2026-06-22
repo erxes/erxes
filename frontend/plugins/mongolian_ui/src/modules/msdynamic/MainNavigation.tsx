@@ -9,6 +9,7 @@ import {
   IconChecklist,
 } from '@tabler/icons-react';
 
+/* Mongolian plugin nav-siin MSDynamic holboos haruulna */
 export const MainNavigation = () => {
   return (
     <>
@@ -26,7 +27,7 @@ export const MainNavigation = () => {
 
       <NavigationMenuLinkItem
         name="Categories"
-        path="mongolian/msdynamic/category"
+        path="mongolian/msdynamic/categories"
         icon={IconCategory}
       />
 
