@@ -50,6 +50,10 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
     !isRevertMutation &&
     (source === 'mongo' || (source === 'graphql' && action === 'mutation'));
 
+  // The auto-capture flags a bulk change that matched more records than the
+  // snapshot cap, so only part of it was journaled — warn that undo is partial.
+  const overflow = Boolean(detail.payload?.revertOverflow);
+
   // Quietly check on open whether this was already undone, so we can show that
   // immediately instead of making the user click "Undo" only to find out.
   const [checking, setChecking] = useState(revertable);
@@ -191,6 +195,25 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
       </div>
 
       <div className="px-6 py-5">
+        {/* Large bulk change — capture was truncated, so undo is only partial */}
+        {overflow && !done && (
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3">
+            <IconAlertTriangle
+              size={20}
+              className="mt-0.5 shrink-0 text-warning"
+            />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Large change — only part can be undone
+              </p>
+              <p className="text-sm text-muted-foreground">
+                This affected more records than we keep a backup for, so undoing
+                it puts back the ones we saved but may leave some out.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Quiet pre-check on open */}
         {checking && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
