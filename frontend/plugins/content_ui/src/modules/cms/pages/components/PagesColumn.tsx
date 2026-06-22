@@ -3,7 +3,6 @@ import {
   RecordTableInlineCell,
   TextOverflowTooltip,
   RelativeDateDisplay,
-  Badge,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { pageMoreColumn } from './PagesMoreColumn';
@@ -16,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { IPage } from '../types/pageTypes';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { CmsTranslatableBadge } from '../../shared/components/CmsTranslatableBadge';
 
 export const usePagesColumns = (
   onEditPage?: (page: IPage) => void,
@@ -48,12 +48,11 @@ export const usePagesColumns = (
               }}
               className="cursor-pointer"
             >
-              <Badge
-                variant={missing ? 'outline' : 'secondary'}
-                className={missing ? 'text-red-500 border-red-300' : ''}
-              >
-                <TextOverflowTooltip value={page.name} className="leading-normal" />
-              </Badge>
+              <CmsTranslatableBadge
+                value={page.name}
+                missing={missing}
+                placeholder="Untitled page"
+              />
             </div>
           </RecordTableInlineCell>
         );
