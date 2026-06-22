@@ -1,4 +1,5 @@
 import {
+  Badge,
   Combobox,
   Command,
   Filter,
@@ -10,7 +11,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SelectProductContext,
   useSelectProductContext,
@@ -20,7 +21,7 @@ import { IProduct } from '../types/Product';
 import { IconShoppingCart } from '@tabler/icons-react';
 import { ProductsInline } from './ProductsInline';
 import { useDebounce } from 'use-debounce';
-import { useProducts } from '../hooks/useProducts';
+import { useProducts, useProductsInline } from '../hooks/useProducts';
 
 interface SelectProductProviderProps {
   children: React.ReactNode;
@@ -61,6 +62,16 @@ const SelectProductProvider = ({
     });
     onValueChange?.(newSelectedProductIds);
   };
+  const removeId = (id: string) => {
+    if (mode === 'single') {
+      setProducts([]);
+      onValueChange?.('');
+      return;
+    }
+    const arrayValue = Array.isArray(value) ? value : [];
+    setProducts((prev) => prev.filter((p) => p._id !== id));
+    onValueChange?.(arrayValue.filter((v) => v !== id));
+  };
   return (
     <SelectProductContext.Provider
       value={{
@@ -71,6 +82,8 @@ const SelectProductProvider = ({
         loading: false,
         error: null,
         defaultSearchValue,
+        mode,
+        removeId,
       }}
     >
       {children}
@@ -104,6 +117,7 @@ const SelectProductContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        <SelectProductMissingBadges />
         {products?.length > 0 && (
           <>
             {products.map((product) => (
@@ -229,6 +243,47 @@ const SelectProductRoot = React.forwardRef<
     );
   },
 );
+
+const SelectProductMissingBadges = () => {
+  const { productIds, removeId, mode } = useSelectProductContext();
+
+  const { products: resolved, loading } = useProductsInline({
+    variables: { ids: productIds },
+    skip: productIds.length === 0,
+  });
+
+  const missingIds = useMemo(() => {
+    if (loading || productIds.length === 0) return [];
+    return productIds.filter((id) => !resolved.some((p) => p._id === id));
+  }, [loading, productIds, resolved]);
+
+  if (missingIds.length === 0) return null;
+
+  return (
+    <>
+      <div className="flex flex-wrap gap-2 p-2">
+        {missingIds.map((id) =>
+          mode === 'multiple' ? (
+            <Badge
+              key={id}
+              variant="secondary"
+              className="font-mono"
+              title={`Unknown id: ${id}`}
+              onClose={() => removeId?.(id)}
+            >
+              <span className="max-w-24 truncate">{id}</span>
+            </Badge>
+          ) : (
+            <span key={id} className="font-mono text-xs truncate">
+              {id}
+            </span>
+          ),
+        )}
+      </div>
+      <Command.Separator className="my-1" />
+    </>
+  );
+};
 
 const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   const { productIds, products, setProducts } = useSelectProductContext();
