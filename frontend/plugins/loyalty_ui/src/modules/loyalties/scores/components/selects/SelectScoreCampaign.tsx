@@ -17,6 +17,7 @@ import {
 } from 'erxes-ui';
 import { IconTag } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { SCORE_CAMPAIGNS_SIMPLE_QUERY } from '../../graphql/queries';
 
 interface CampaignOption {
@@ -110,13 +111,14 @@ const SelectScoreCampaignValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value, options } = useSelectScoreCampaignContext();
   const selected = options.find((o) => o.value === value);
 
   if (!selected) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select campaign'}
+        {placeholder || t('select-campaign')}
       </span>
     );
   }
@@ -129,6 +131,7 @@ const SelectScoreCampaignValue = ({
 };
 
 const SelectScoreCampaignContent = () => {
+  const { t } = useTranslation('loyalty');
   const { value, onValueChange, options, loading, search, setSearch } =
     useSelectScoreCampaignContext();
 
@@ -137,10 +140,10 @@ const SelectScoreCampaignContent = () => {
       <Command.Input
         value={search}
         onValueChange={setSearch}
-        placeholder="Search campaigns..."
+        placeholder={t('search-campaigns')}
       />
       <Command.Empty>
-        {loading ? 'Loading...' : 'No campaigns found'}
+        {loading ? t('loading') : t('no-campaigns-found')}
       </Command.Empty>
       <Command.List>
         {options.map((opt) => (
@@ -158,12 +161,15 @@ const SelectScoreCampaignContent = () => {
   );
 };
 
-export const SelectScoreCampaignFilterItem = () => (
-  <Filter.Item value="scoreCampaignId">
-    <IconTag />
-    Campaign
-  </Filter.Item>
-);
+export const SelectScoreCampaignFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="scoreCampaignId">
+      <IconTag />
+      {t('campaign')}
+    </Filter.Item>
+  );
+};
 
 export const SelectScoreCampaignFilterView = ({
   queryKey = 'scoreCampaignId',
@@ -189,6 +195,7 @@ export const SelectScoreCampaignFilterView = ({
 };
 
 export const SelectScoreCampaignFilterBar = () => {
+  const { t } = useTranslation('loyalty');
   const [value, setValue] = useQueryState<string>('scoreCampaignId');
   const [open, setOpen] = useState(false);
 
@@ -196,7 +203,7 @@ export const SelectScoreCampaignFilterBar = () => {
     <Filter.BarItem queryKey="scoreCampaignId">
       <Filter.BarName>
         <IconTag />
-        Campaign
+        {t('campaign')}
       </Filter.BarName>
       <SelectScoreCampaignProvider
         value={value || ''}

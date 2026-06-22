@@ -1,22 +1,24 @@
 import { Sidebar } from 'erxes-ui';
 import { NavLink } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const NAV_ITEMS = [
-  { label: 'Vouchers', path: '/loyalty/vouchers' },
-  { label: 'Lotteries', path: '/loyalty/lotteries' },
-  { label: 'Spins', path: '/loyalty/spins' },
-  { label: 'Donates', path: '/loyalty/donates' },
-  { label: 'Scores', path: '/loyalty/scores' },
-  { label: 'Assignments', path: '/loyalty/assignments' },
-  { label: 'Agents', path: '/loyalty/agents' },
-  { label: 'Coupons', path: '/loyalty/coupons' },
+  { label: 'vouchers', path: '/loyalty/vouchers' },
+  { label: 'lotteries', path: '/loyalty/lotteries' },
+  { label: 'spins', path: '/loyalty/spins' },
+  { label: 'donates', path: '/loyalty/donates' },
+  { label: 'scores', path: '/loyalty/scores' },
+  { label: 'assignments', path: '/loyalty/assignments' },
+  { label: 'agents', path: '/loyalty/agents' },
+  { label: 'coupons', path: '/loyalty/coupons' },
 ];
 
 export const LoyaltyMainSidebar = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Loyalty modules</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('loyalty-modules')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {NAV_ITEMS.map(({ label, path }) => (
@@ -24,7 +26,7 @@ export const LoyaltyMainSidebar = () => {
                 <NavLink to={path} end className="w-full">
                   {({ isActive }) => (
                     <Sidebar.MenuButton isActive={isActive} asChild={false}>
-                      {label}
+                      {t(label)}
                     </Sidebar.MenuButton>
                   )}
                 </NavLink>

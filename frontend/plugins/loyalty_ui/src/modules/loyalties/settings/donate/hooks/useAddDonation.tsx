@@ -1,5 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
 import { DONATIONS_CURSOR_SESSION_KEY } from '../constants/donationsCursorSessionKey';
 import { CREATE_DONATE_CAMPAIGN } from '../graphql/mutations/DonationMutations';
@@ -21,6 +22,7 @@ export interface AddDonationVariables {
 }
 
 export const useAddDonation = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
   const { cursor } = useRecordTableCursor({
     sessionKey: DONATIONS_CURSOR_SESSION_KEY,
@@ -82,15 +84,15 @@ export const useAddDonation = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Donation campaign created successfully',
+          title: t('success'),
+          description: t('donation-campaign-created'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

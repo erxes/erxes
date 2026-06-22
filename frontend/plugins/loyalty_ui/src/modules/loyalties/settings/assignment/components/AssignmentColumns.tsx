@@ -11,6 +11,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AssignmentNameCell } from '../assignment-detail/components/AssignmentNameCell';
 import { IAssignment } from '../types/assignmentTypes';
 import { assignmentMoreColumn } from './AssignmentMoreColumn';
@@ -45,7 +46,10 @@ export const assignmentColumns: (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconTag} label={t('title')} />;
+    },
     cell: ({ cell }: { cell: any }) => {
       return (
         <AssignmentNameCell
@@ -59,9 +63,10 @@ export const assignmentColumns: (
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />;
+    },
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -74,9 +79,10 @@ export const assignmentColumns: (
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />;
+    },
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -89,7 +95,10 @@ export const assignmentColumns: (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="status" icon={IconHash} />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead label={t('status')} icon={IconHash} />;
+    },
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (
