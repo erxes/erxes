@@ -3,7 +3,6 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Badge,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -23,6 +22,7 @@ import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
 import { PostPublicUrlButton } from './PostPublicUrlButton';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { CmsTranslatableBadge } from '../../shared/components/CmsTranslatableBadge';
 import type { Posts } from '../types/postsType';
 import type { IWebsite } from '../../types';
 import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
@@ -118,15 +118,11 @@ export const usePostsColumns = (
               }}
               className="cursor-pointer "
             >
-              <Badge
-                variant={missing ? 'outline' : 'secondary'}
-                className={missing ? 'text-red-500 border-red-300' : ''}
-              >
-                <TextOverflowTooltip
-                  value={post.title}
-                  className="leading-normal"
-                />
-              </Badge>
+              <CmsTranslatableBadge
+                value={post.title}
+                missing={missing}
+                placeholder="Untitled post"
+              />
             </div>
           </RecordTableInlineCell>
         );
