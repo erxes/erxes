@@ -120,7 +120,7 @@
   "total-tax": "Total Tax",
   "unused-total": "Unused Total",
   "unused": "Unused",
-  "forecasted": "Forecasted",
+  "forecasted": "Forecasted ({{percentage}}%)",
   "amount": "Amount",
   "cash-amount": "Cash Amount",
   "mobile-amount": "Mobile Amount",

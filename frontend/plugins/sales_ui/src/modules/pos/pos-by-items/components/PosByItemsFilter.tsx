@@ -30,7 +30,6 @@ import { SelectStatus } from './selects/SelectStatus';
 import { SelectExcludeStatus } from './selects/SelectExcludeStatus';
 import { SelectUsers } from './selects/SelectPosUsers';
 import { SelectCategory, SelectCompany, SelectCustomer } from 'ui-modules/modules';
-import { useTranslation } from 'react-i18next';
 
 export const PosByItemsFilterPopover = () => {
   const { t } = useTranslation('sales');
