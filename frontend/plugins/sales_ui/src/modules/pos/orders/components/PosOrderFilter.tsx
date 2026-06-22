@@ -53,6 +53,7 @@ export const PosOrderFilterPopover = () => {
   const [customer, setCustomer] = useQueryState<string>('customer');
   const [company, setCompany] = useQueryState<string>('company');
   const [user, setUser] = useQueryState<string>('user');
+  const [, setCustomerName] = useQueryState<string>('customerName');
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
@@ -116,6 +117,7 @@ export const PosOrderFilterPopover = () => {
               value={customer || ''}
               onValueChange={(value) => {
                 setCustomer(value as any);
+                setCustomerName(null);
                 resetFilterState();
               }}
             >
@@ -184,9 +186,17 @@ export const PosOrderFilter = () => {
   const [number] = useFilterQueryState<string>('number');
   const { sessionKey } = usePosOrderLeadSessionKey();
   const [customer, setCustomer] = useQueryState<string>('customer');
+  const [customerName, setCustomerName] = useQueryState<string>('customerName');
   const [company, setCompany] = useQueryState<string>('company');
   const [user, setUser] = useQueryState<string>('user');
   const [open, setOpen] = useState<boolean>(false);
+
+  const handleCustomerChange = (value: string) => {
+    setCustomer(value as string);
+    setCustomerName(null);
+    setOpen(false);
+  };
+
   return (
     <Filter id="pos-orders-filter" sessionKey={sessionKey}>
       <Filter.Bar>
@@ -208,15 +218,12 @@ export const PosOrderFilter = () => {
           <SelectCustomers.Provider
             mode="single"
             value={customer || ''}
-            onValueChange={(value) => {
-              setCustomer(value as string);
-              setOpen(false);
-            }}
+            onValueChange={handleCustomerChange}
           >
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey={'customer'}>
-                  <SelectCustomers.Value />
+                  <SelectCustomers.Value fallbackLabel={customerName || undefined} />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
