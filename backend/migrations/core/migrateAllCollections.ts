@@ -174,7 +174,9 @@ async function main() {
     console.log(`Batch size: ${batchSize}`);
     console.log(
       `Collections: ${collections.length}` +
-        (includeList.length ? ' (from INCLUDE_COLLECTIONS)' : ' (auto-discovered)') +
+        (includeList.length
+          ? ' (from INCLUDE_COLLECTIONS)'
+          : ' (auto-discovered)') +
         (excludeList.size ? `, excluding ${excludeList.size}` : ''),
     );
     console.log('');

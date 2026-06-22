@@ -15,26 +15,32 @@ async function addTypeToTranslations() {
     if (!db) {
       throw new Error('Database connection not established');
     }
-    
+
     const translationsCollection = db.collection('translations');
 
     // Check if collection exists
-    const collections = await db.listCollections({ name: 'translations' }).toArray();
+    const collections = await db
+      .listCollections({ name: 'translations' })
+      .toArray();
     if (collections.length === 0) {
-      console.log('⚠️  Translations collection does not exist yet. Nothing to migrate.');
+      console.log(
+        '⚠️  Translations collection does not exist yet. Nothing to migrate.',
+      );
       await mongoose.disconnect();
       return;
     }
 
     // Count documents without type field
     const countWithoutType = await translationsCollection.countDocuments({
-      type: { $exists: false }
+      type: { $exists: false },
     });
 
     console.log(`📊 Found ${countWithoutType} translations without type field`);
 
     if (countWithoutType === 0) {
-      console.log('✅ All translations already have type field. Nothing to migrate.');
+      console.log(
+        '✅ All translations already have type field. Nothing to migrate.',
+      );
       await mongoose.disconnect();
       return;
     }
@@ -42,7 +48,7 @@ async function addTypeToTranslations() {
     // Update all documents without type field to have default 'post' type
     const result = await translationsCollection.updateMany(
       { type: { $exists: false } },
-      { $set: { type: 'post' } }
+      { $set: { type: 'post' } },
     );
 
     console.log(`✅ Migration completed successfully!`);

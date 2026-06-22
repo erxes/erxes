@@ -101,7 +101,10 @@ function main(): void {
     const ok = res.status === 0 && !res.error;
     results.push({ rel: t.rel, ok });
     if (!ok) {
-      console.error(`\n✖ FAILED: ${t.rel}` + (res.error ? ` (${res.error.message})` : ` (exit ${res.status})`));
+      console.error(
+        `\n✖ FAILED: ${t.rel}` +
+          (res.error ? ` (${res.error.message})` : ` (exit ${res.status})`),
+      );
       if (!keepGoing) {
         summarize(results, targets.length);
         process.exit(1);
@@ -115,11 +118,16 @@ function main(): void {
   process.exit(results.some((r) => !r.ok) ? 1 : 0);
 }
 
-function summarize(results: { rel: string; ok: boolean }[], total: number): void {
+function summarize(
+  results: { rel: string; ok: boolean }[],
+  total: number,
+): void {
   const passed = results.filter((r) => r.ok).length;
   const failed = results.filter((r) => !r.ok);
   console.log('\n' + '═'.repeat(60));
-  console.log(`Summary: ${passed}/${total} succeeded, ${failed.length} failed, ${total - results.length} not run`);
+  console.log(
+    `Summary: ${passed}/${total} succeeded, ${failed.length} failed, ${total - results.length} not run`,
+  );
   for (const f of failed) console.log(`  ✖ ${f.rel}`);
   console.log('═'.repeat(60));
 }
