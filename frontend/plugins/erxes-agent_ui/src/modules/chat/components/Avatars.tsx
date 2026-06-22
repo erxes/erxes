@@ -1,12 +1,12 @@
-import { IconRobot } from '@tabler/icons-react';
+import { ErxesLogoIcon } from 'erxes-ui';
 
 export const AgentAvatar = ({ live }: { live?: boolean }) => (
   <div
-    className={`size-8 shrink-0 rounded-full bg-gradient-to-br from-primary/25 via-primary/10 to-transparent border border-primary/20 flex items-center justify-center ${
+    className={`size-8 shrink-0 rounded-full bg-transparent border border-primary/20 flex items-center justify-center ${
       live ? 'ea-avatar-live' : ''
     }`}
   >
-    <IconRobot className="size-4.5 text-primary" />
+    <ErxesLogoIcon className="size-5 text-primary flex-none" />
   </div>
 );
 

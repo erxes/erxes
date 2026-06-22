@@ -54,3 +54,4 @@ export * from './stepper';
 export * from './color-picker';
 export * from './copy-text';
 export * from './erxes-logo-icon';
+export * from './chatbot-icon';

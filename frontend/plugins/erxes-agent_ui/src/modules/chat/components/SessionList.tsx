@@ -59,17 +59,19 @@ const SessionItem = ({
   return (
     <button
       onClick={() => onSelect(session.threadId)}
-      className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-all hover:bg-accent border-l-2 ${
-        active
-          ? 'bg-accent border-primary'
-          : 'border-transparent hover:border-border'
+      className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-all ${
+        active ? 'bg-primary/10 text-primary' : ''
       } ${working ? 'ea-working' : ''}`}
     >
       <div className="flex items-center gap-1.5">
         {working ? (
           <IconLoader2 className="size-3.5 text-primary shrink-0 animate-spin" />
         ) : (
-          <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
+          <IconMessage2
+            className={`size-3.5 shrink-0 ${
+              active ? 'text-primary' : 'text-muted-foreground'
+            }`}
+          />
         )}
         {editing ? (
           <input
@@ -191,7 +193,11 @@ export const SessionList = ({
                 }`}
               >
                 <div className="flex items-center gap-1.5">
-                  <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
+          <IconMessage2
+            className={`size-3.5 shrink-0 ${
+              active ? 'text-primary' : 'text-muted-foreground'
+            }`}
+          />
                   <p className="text-sm truncate flex-1">New chat</p>
                 </div>
                 <p className="text-[11px] text-muted-foreground pl-5">

@@ -261,6 +261,7 @@
   aspect-ratio: 1;
   border-radius: 9999px;
   filter: blur(70px);
+  
   background: radial-gradient(
     circle,
     color-mix(in oklch, var(--primary) 22%, transparent),

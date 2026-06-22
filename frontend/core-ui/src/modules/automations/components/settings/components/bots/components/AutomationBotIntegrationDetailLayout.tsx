@@ -11,7 +11,7 @@ export const AutomationBotIntegrationDetailLayout = ({
     <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8">
       <div>
         <Button variant="ghost" asChild>
-          <Link to="/settings/automations/bots">
+          <Link to="/settings/automations/bot<IconRobots">
             <IconChevronLeft />
             Bots
           </Link>

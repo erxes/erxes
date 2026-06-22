@@ -1,6 +1,5 @@
 import { RefObject } from 'react';
-import { IconRobot } from '@tabler/icons-react';
-import { Badge, Skeleton } from 'erxes-ui';
+import { Badge, ErxesLogoIcon, Skeleton } from 'erxes-ui';
 import { Message } from '~/modules/chat/types';
 import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
 import { MessageBubble } from '~/modules/chat/components/MessageBubble';
@@ -48,8 +47,8 @@ export const MessageList = ({
           <div className="flex flex-col items-center justify-center min-h-[55vh] text-center gap-2 ea-msg-in">
             <div className="relative mb-2">
               <div className="ea-orb absolute -inset-5 rounded-full" />
-              <div className="relative size-16 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/8 to-transparent border border-primary/20 flex items-center justify-center">
-                <IconRobot className="size-8 text-primary" />
+              <div className="relative size-16 rounded-2xl bg-transparent border border-primary/20 flex items-center justify-center">
+                <ErxesLogoIcon className="size-7 text-primary flex-none" />
               </div>
             </div>
             <p className="text-lg font-semibold">{agent.name}</p>

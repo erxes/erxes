@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { IconRobot, IconSettings } from '@tabler/icons-react';
-import { Button, Skeleton, Tooltip } from 'erxes-ui';
+import { IconSettings } from '@tabler/icons-react';
+import { Button, ErxesLogoIcon, Skeleton, Tooltip } from 'erxes-ui';
 import { IChatAgent } from '~/modules/chat/hooks/useChatAgents';
 import {
   useAgentActivity,
@@ -78,8 +78,8 @@ const AgentRailItem = ({
                 : 'bg-muted border-border'
             } ${isWorking ? 'ea-avatar-live' : ''}`}
           >
-            <IconRobot
-              className={`size-4 transition-colors ${
+            <ErxesLogoIcon
+              className={`size-4 transition-colors flex-none ${
                 isActive || isWorking ? 'text-primary' : 'text-muted-foreground'
               }`}
             />
@@ -147,7 +147,7 @@ export const AgentRail = ({
           </div>
         ) : agents.length === 0 ? (
           <div className="p-4 text-center">
-            <IconRobot className="size-8 text-muted-foreground mx-auto mb-2" />
+            <ErxesLogoIcon className="size-7 text-muted-foreground mx-auto mb-2 flex-none" />
             <p className="text-sm text-muted-foreground">No enabled agents.</p>
           </div>
         ) : (

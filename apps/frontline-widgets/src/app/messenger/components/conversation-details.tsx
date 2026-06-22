@@ -322,7 +322,7 @@ export const ConversationDetails = () => {
             </Avatar>
           )}
           {isOnline && !isLastMessageFromBot && (
-            <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-success border-2 border-primary" />
+            <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-success border-2" />
           )}
         </div>
         <div className="flex-1 min-w-0">
