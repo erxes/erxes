@@ -193,21 +193,15 @@ const rehomeDefaultLanguageContent = async (
       continue;
     }
 
-    // Base documents and their translations live in separate collections, so
-    // wrap both writes in a transaction — a partial apply would leave the new
-    // default's content out of sync with its translation records.
-    const session = await models.Translations.startSession();
-    try {
-      await session.withTransaction(async () => {
-        if (documentOps.length) {
-          await model.bulkWrite(documentOps, { session });
-        }
-        if (translationOps.length) {
-          await models.Translations.bulkWrite(translationOps, { session });
-        }
-      });
-    } finally {
-      await session.endSession();
+    // NOTE: base documents and their translations live in separate
+    // collections. We intentionally do not wrap these in a transaction —
+    // the deployment's MongoDB may not be a replica set, and a session-bound
+    // write buffers and times out there ("buffering timed out after 10000ms").
+    if (documentOps.length) {
+      await model.bulkWrite(documentOps);
+    }
+    if (translationOps.length) {
+      await models.Translations.bulkWrite(translationOps);
     }
   }
 };
