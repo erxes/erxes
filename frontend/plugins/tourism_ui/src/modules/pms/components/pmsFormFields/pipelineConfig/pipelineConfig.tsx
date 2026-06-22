@@ -1,5 +1,6 @@
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { Form, Label, InfoCard, Switch } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 import { SelectBoardFormItem, SelectPipelineFormItem } from './SelectSalesFlow';
@@ -11,6 +12,7 @@ const PipelineConfig = ({
 }: {
   form: UseFormReturn<PmsBranchFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   const boardId = useWatch({ control: form.control, name: 'boardId' });
   const roomsCategoryIds = useWatch({
     control: form.control,
@@ -116,7 +118,7 @@ const PipelineConfig = ({
 
   return (
     <PmsFormFieldsLayout>
-      <InfoCard title="Stage">
+      <InfoCard title={t('stage')}>
         <InfoCard.Content>
           <div className="grid grid-cols-2 gap-6">
             <Form.Field
@@ -124,12 +126,12 @@ const PipelineConfig = ({
               name="boardId"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>BOARD</Label>
+                  <Label>{t('board')}</Label>
                   <Form.Control>
                     <SelectBoardFormItem
                       value={field.value}
                       onValueChange={handleBoardChange}
-                      placeholder="Choose a board"
+                      placeholder={t('choose-a-board')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -142,13 +144,13 @@ const PipelineConfig = ({
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>PIPELINE</Label>
+                  <Label>{t('pipeline')}</Label>
                   <Form.Control>
                     <SelectPipelineFormItem
                       value={field.value}
                       boardId={boardId || ''}
                       onValueChange={handlePipelineChange}
-                      placeholder="Choose a pipeline"
+                      placeholder={t('choose-a-pipeline')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -159,14 +161,14 @@ const PipelineConfig = ({
         </InfoCard.Content>
       </InfoCard>
 
-      <InfoCard title="Room categories">
+      <InfoCard title={t('room-categories')}>
         <InfoCard.Content>
           <Form.Field
             control={form.control}
             name="roomsCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Label>ROOM CATEGORIES</Label>
+                <Label>{t('room-categories')}</Label>
                 <Form.Control>
                   <SelectCategory
                     mode="multiple"
@@ -222,14 +224,14 @@ const PipelineConfig = ({
         </InfoCard.Content>
       </InfoCard>
 
-      <InfoCard title="Extra product categories">
+      <InfoCard title={t('extra-product-categories')}>
         <InfoCard.Content>
           <Form.Field
             control={form.control}
             name="extrasCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Label>EXTRA PRODUCT CATEGORIES</Label>
+                <Label>{t('extra-product-categories')}</Label>
                 <Form.Control>
                   <SelectCategory
                     mode="multiple"

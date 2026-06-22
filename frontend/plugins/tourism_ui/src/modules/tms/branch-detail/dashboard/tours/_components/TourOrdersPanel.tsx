@@ -9,6 +9,7 @@ import {
 import { useTourOrders, ITourOrder } from '../hooks/useTourOrders';
 import { Card, Select, Separator, Spinner } from 'erxes-ui';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CustomersInline } from 'ui-modules';
 import { OrderDetailSheet } from './OrderDetailSheet';
 
@@ -74,6 +75,7 @@ function OrderRow({
   order: ITourOrder;
   onClick: () => void;
 }>) {
+  const { t } = useTranslation('tourism');
   const hasCustomer = Boolean(order.customerId);
   const additionalCustomersCount = Array.isArray(order.additionalCustomers)
     ? order.additionalCustomers.length
@@ -82,7 +84,7 @@ function OrderRow({
   return (
     <CustomersInline.Provider
       customerIds={order.customerId ? [order.customerId] : []}
-      placeholder="Unnamed customer"
+      placeholder={t('unnamed-customer')}
     >
       <Card
         className="overflow-hidden transition-all border cursor-pointer bg-background hover:bg-muted/30"
@@ -105,7 +107,7 @@ function OrderRow({
                     {hasCustomer ? (
                       <CustomersInline.Title />
                     ) : (
-                      'Unknown customer'
+                      t('unknown-customer')
                     )}
                   </div>
                   <div className="font-mono text-[11px] text-muted-foreground truncate">
@@ -118,13 +120,13 @@ function OrderRow({
                 {order.numberOfPeople != null && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-[11px] font-medium text-muted-foreground">
                     <IconUsers className="w-3.5 h-3.5" />
-                    {order.numberOfPeople} people
+                    {t('people-count', { count: order.numberOfPeople })}
                   </span>
                 )}
 
                 {additionalCustomersCount > 0 && (
                   <span className="rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                    +{additionalCustomersCount} additional
+                    {t('additional-customers', { count: additionalCustomersCount })}
                   </span>
                 )}
               </div>
@@ -135,7 +137,7 @@ function OrderRow({
               {order.amount != null && (
                 <div className="text-right">
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Amount
+                    {t('amount')}
                   </div>
                   <div className="mt-1 text-[28px] font-semibold leading-none text-foreground">
                     {order.amount.toLocaleString()}
@@ -166,7 +168,7 @@ function OrderRow({
           </div>
 
           <span className="text-[11px] text-muted-foreground">
-            View details
+            {t('view-details')}
           </span>
         </div>
       </Card>
@@ -175,6 +177,7 @@ function OrderRow({
 }
 
 export const TourOrdersPanel = ({ tourId }: Props) => {
+  const { t } = useTranslation('tourism');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<OrderFilterValue>('all');
   const { orders, refetch, loading } = useTourOrders({
@@ -205,11 +208,10 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
       <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
         <IconClipboardList className="w-8 h-8 text-muted-foreground" />
 
-        <h3 className="text-base font-semibold">No bookings yet</h3>
+        <h3 className="text-base font-semibold">{t(‘no-bookings-yet’)}</h3>
 
         <p className="max-w-xs text-sm text-muted-foreground">
-          This tour doesn’t have any bookings yet. Once customers make a
-          reservation, they will appear here.
+          {t(‘no-bookings-yet-desc’)}
         </p>
       </div>
     );
@@ -229,7 +231,7 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
               <Select.Trigger className="h-9 max-w-[120px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
                 <div className="flex items-center min-w-0 gap-2">
                   <IconFilter className="w-4 h-4 text-muted-foreground" />
-                  <Select.Value placeholder="All statuses" />
+                  <Select.Value placeholder={t('all-statuses')} />
                 </div>
               </Select.Trigger>
               <Select.Content>
@@ -242,8 +244,7 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
             </Select>
 
             <span className="inline-flex items-center px-3 text-xs font-medium h-9 text-muted-foreground">
-              {filteredOrders.length}{' '}
-              {filteredOrders.length === 1 ? 'record found' : 'records found'}
+              {t('record-found', { count: filteredOrders.length })}
             </span>
           </div>
         </div>
@@ -263,10 +264,10 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
             <div className="flex flex-col items-center justify-center w-full gap-2 px-4 text-center min-h-32">
               <IconClipboardList className="h-7 w-7 text-muted-foreground" />
               <p className="text-sm font-medium text-foreground">
-                No matching bookings
+                {t('no-matching-bookings')}
               </p>
               <p className="max-w-xs text-xs text-muted-foreground">
-                There are no bookings with the selected status right now.
+                {t('no-matching-bookings-desc')}
               </p>
             </div>
           </div>

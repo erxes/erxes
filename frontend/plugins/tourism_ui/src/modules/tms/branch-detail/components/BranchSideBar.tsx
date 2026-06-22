@@ -1,4 +1,5 @@
 import { Sidebar } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 const steps = [
@@ -11,10 +12,11 @@ const steps = [
 ];
 
 export const BranchSideBar = ({ activeTab }: { activeTab: string }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Tour Management</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('tour-management')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {steps.map((step) => (

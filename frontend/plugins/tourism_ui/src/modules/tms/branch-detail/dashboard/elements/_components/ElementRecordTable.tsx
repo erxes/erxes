@@ -1,5 +1,6 @@
 import { IconPuzzle } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ElementCreateSheet } from './ElementCreateSheet';
 import { elementColumns } from './ElementColumns';
 import { useElements } from '../hooks/useElements';
@@ -96,16 +97,17 @@ function EmptyStateRow({
   branchLanguages?: string[];
   mainLanguage?: string;
 }) {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconPuzzle size={64} stroke={1.5} className="text-muted-foreground" />
 
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No elements yet
+        {t('no-elements-yet')}
       </h2>
 
       <p className="max-w-sm text-sm text-muted-foreground">
-        Create your first element to get started.
+        {t('no-elements-yet-desc')}
       </p>
 
       <ElementCreateSheet
