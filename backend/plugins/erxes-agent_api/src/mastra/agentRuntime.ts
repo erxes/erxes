@@ -7,6 +7,8 @@ import { buildModel } from './providers';
 import { buildSystemPrompt, ToolInfo } from './instructions/routing';
 import { getOperationRegistry } from './tools/operationRegistry';
 import { buildErxesMetaTools } from './tools/metaTools';
+import { buildSkillTools } from './tools/skillTools';
+import { skillsFingerprint } from '@/skill/skillScope';
 import {
   resolveToolPolicy,
   isBuiltinAllowed,
@@ -31,7 +33,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, ToolsInput>();
 
 // Increment this whenever routing.ts, the meta-tools, or provider logic changes.
-const ROUTING_VERSION = 25;
+const ROUTING_VERSION = 26;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -51,9 +53,13 @@ export async function getOrCreateAgent(
   // to the "os" scope.
   const useMemory =
     isAdvancedMemoryEnabled() && agentConfig.memoryEnabled !== false;
-  const [providers, settings] = await Promise.all([
+  const [providers, settings, skillIndex] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),
+    // The lean skill index (name + description, no body) for this agent. Powers
+    // the always-loaded "Skills" prompt block AND the cache fingerprint below,
+    // so teaching/editing a skill takes effect on the very next turn.
+    models.MastraAgentSkill.listIndexForAgent(agentConfig.agentId),
   ]);
 
   // The agent's reach: 'all' (every erxes operation + builtin) by default, or a
@@ -80,7 +86,11 @@ export async function getOrCreateAgent(
   const evaluationEnabled = isEvaluationEnabled();
   const evalTag = evaluationEnabled ? subdomain || 'os' : 'off';
 
-  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}:mem${useMemory ? subdomain : 'off'}:eval${evalTag}`;
+  // Skill index fingerprint — like inventory.fingerprint, it joins the cache key
+  // so adding/editing/removing a skill rebuilds the agent (and its prompt).
+  const skillsFp = skillsFingerprint(skillIndex);
+
+  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}:skills${skillsFp}:mem${useMemory ? subdomain : 'off'}:eval${evalTag}`;
 
   const cached = agentCache.get(cacheKey);
   if (cached) {
@@ -152,6 +162,22 @@ export async function getOrCreateAgent(
     });
   }
 
+  // Skill playbooks (procedural memory). Bound whenever this agent has at least
+  // one available skill; load_skill is scoped to this agent, so it can only
+  // read this agent's own enabled skills. Not policy-gated — skills are the
+  // agent's own taught behaviour, already scoped per agent.
+  const skillNames = skillIndex.map((skill) => skill.name);
+  if (skillNames.length) {
+    Object.assign(
+      tools,
+      buildSkillTools({
+        models,
+        agentId: agentConfig.agentId,
+        availableNames: skillNames,
+      }),
+    );
+  }
+
   // Conversation persistence + recent-history replay + recall are owned by the
   // attached Mastra Memory (the chat store IS the native memory store; see
   // memory below + session/nativeStore.ts). No custom message store.
@@ -161,6 +187,10 @@ export async function getOrCreateAgent(
     scopeLine: scopeSummary(policy),
     inventoryLines: inventory.lines,
     builtins: builtinInfos,
+    skills: skillIndex.map((skill) => ({
+      name: skill.name,
+      description: skill.description,
+    })),
   });
 
   // Workflow builds are 20+ steps (guide → searches → validate → simulate →

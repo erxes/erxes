@@ -161,6 +161,15 @@ const SPECS: Spec[] = [
     viewAlways: true,
     edit: 'Edit, re-status or pin a learning statement',
   },
+  {
+    name: 'skill',
+    description: 'Agent skills (teachable task playbooks)',
+    prefix: 'agentSkills',
+    noun: 'skill',
+    view: 'List and read agent skill playbooks',
+    viewAlways: true,
+    edit: 'Update a skill playbook or its agent scope',
+  },
 ];
 
 const modules: IPermissionModule[] = SPECS.map((s) =>
@@ -216,6 +225,7 @@ export const permissions: IPermissionConfig = {
         grant('workflow', ['workflowsView', 'workflowsRun']),
         grant('schedule', ['schedulesView']),
         grant('learning', ['learningView']),
+        grant('skill', ['agentSkillsView']),
       ],
     },
     {
@@ -229,6 +239,7 @@ export const permissions: IPermissionConfig = {
         grant('workflow', ['workflowsView']),
         grant('schedule', ['schedulesView']),
         grant('learning', ['learningView']),
+        grant('skill', ['agentSkillsView']),
       ],
     },
   ],
