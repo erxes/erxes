@@ -42,11 +42,15 @@ export function isSkillAvailableToAgent(
  * displayed name must be one and the same — normalising on save guarantees it.
  */
 export function normalizeSkillName(raw: string): string {
+  // Split on any run of non-alphanumerics and rejoin with single dashes. Doing
+  // it via split+filter (rather than a trailing-dash-trimming regex) keeps the
+  // patterns simple and linear — no backtracking risk.
   return (raw || '')
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .join('-');
 }
 
 /**
@@ -72,6 +76,6 @@ export function skillsFingerprint(
           skill.updatedAt ? new Date(skill.updatedAt).getTime() : 0
         }`,
     )
-    .sort()
+    .sort((a, b) => a.localeCompare(b))
     .join('|');
 }
