@@ -10,6 +10,7 @@ interface PostEditorColumnProps {
   defaultLanguage: string;
   selectedType: string | undefined;
   fieldGroups: FieldGroup[];
+  websiteId?: string;
   fullPost: { _id?: string } | null | undefined;
   handleEditorChange: (content: string) => void;
   getCustomFieldValue: (fieldId: string) => CustomFieldValue;
@@ -25,6 +26,7 @@ export const PostEditorColumn = ({
   defaultLanguage,
   selectedType,
   fieldGroups,
+  websiteId,
   fullPost,
   handleEditorChange,
   getCustomFieldValue,
@@ -61,6 +63,7 @@ export const PostEditorColumn = ({
     {selectedType && fieldGroups.length > 0 && (
       <CustomFieldsSection
         fieldGroups={fieldGroups}
+        websiteId={websiteId}
         getCustomFieldValue={getCustomFieldValue}
         updateCustomFieldValue={updateCustomFieldValue}
       />
