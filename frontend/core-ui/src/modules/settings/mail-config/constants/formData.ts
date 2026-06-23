@@ -57,7 +57,7 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
     {
       name: 'MAIL_PASS',
       inputType: 'input',
-      type: 'input',
+      type: 'password',
       label: 'Password',
       description: '',
     },
@@ -73,14 +73,14 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
     {
       name: 'AWS_SES_ACCESS_KEY_ID',
       inputType: 'input',
-      type: 'input',
+      type: 'password',
       label: 'AWS SES Access Key id',
       description: '',
     },
     {
       name: 'AWS_SES_SECRET_ACCESS_KEY',
       inputType: 'input',
-      type: 'input',
+      type: 'password',
       label: 'AWS SES Secret Access Key',
       description: '',
     },

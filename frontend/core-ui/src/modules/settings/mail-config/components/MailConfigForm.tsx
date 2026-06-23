@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useMailConfigForm } from '@/settings/mail-config/hooks/useMailConfigForm';
 import { Button, Form, Input, Select, cn } from 'erxes-ui';
+import { PasswordInput } from '@/settings/components/PasswordInput';
 import { MAIL_CONFIG_FIELDS } from '@/settings/mail-config/constants/formData';
 import { TMailConfigForm } from '@/settings/mail-config/types';
 import { Path, useWatch } from 'react-hook-form';
@@ -162,7 +163,11 @@ const MailConfigForm = () => {
                       <Form.Description>{description}</Form.Description>
                     </div>
                     <Form.Control>
-                      <Input type={type} {...field} className="h-7" />
+                      {type === 'password' ? (
+                        <PasswordInput {...field} className="h-7" />
+                      ) : (
+                        <Input type={type} {...field} className="h-7" />
+                      )}
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -190,7 +195,11 @@ const MailConfigForm = () => {
                       <Form.Description>{description}</Form.Description>
                     </div>
                     <Form.Control>
-                      <Input type={type} {...field} className="h-7" />
+                      {type === 'password' ? (
+                        <PasswordInput {...field} className="h-7" />
+                      ) : (
+                        <Input type={type} {...field} className="h-7" />
+                      )}
                     </Form.Control>
                   </Form.Item>
                 )}
