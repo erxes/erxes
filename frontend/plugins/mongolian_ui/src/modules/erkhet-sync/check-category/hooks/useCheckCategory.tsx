@@ -1,7 +1,8 @@
 import { useMutation } from '@apollo/client';
-import { checkCategoriesMutation } from '../graphql/mutations/checkCategoriesMutations';
 import { useToast } from 'erxes-ui';
-import { useAtom, atom } from 'jotai';
+import { atom, useAtom } from 'jotai';
+import { useCallback, useMemo } from 'react';
+import { checkCategoriesMutation } from '../graphql/mutations/checkCategoriesMutations';
 import { CategoryItem, CategoryStatus } from '../types/categoryItem';
 import { ICheckCategory } from '../types/checkCategory';
 import { useSyncCategory } from './useSyncCategory';
@@ -17,9 +18,24 @@ interface PageInfo {
   hasNextPage: boolean;
 }
 
+const EMPTY_PAGE_INFO: PageInfo = {
+  hasPreviousPage: false,
+  hasNextPage: false,
+};
+
 const toCheckCategoriesAtom = atom<CategoryItem[] | null>(null);
 const toCheckCategoriesDataAtom = atom<CheckCategoriesResponse | null>(null);
 const selectedFilterAtom = atom<CategoryStatus>('create');
+export const syncedCategoryCodesAtom = atom<Set<string>>(new Set<string>());
+
+const buildCategoryItems = (
+  responseData: CheckCategoriesResponse,
+): CategoryItem[] =>
+  (['create', 'update', 'delete'] as const).flatMap<CategoryItem>((status) =>
+    (responseData[status]?.items ?? []).map(
+      (item: ICheckCategory) => ({ ...item, status } as CategoryItem),
+    ),
+  );
 
 export const useCheckCategory = () => {
   const [toCheckCategories, setToCheckCategories] = useAtom(
@@ -29,6 +45,7 @@ export const useCheckCategory = () => {
     toCheckCategoriesDataAtom,
   );
   const [selectedFilter, setSelectedFilter] = useAtom(selectedFilterAtom);
+  const [syncedCodes, setSyncedCodes] = useAtom(syncedCategoryCodesAtom);
   const [mutate, { loading, error }] = useMutation(checkCategoriesMutation);
   const {
     syncCategories: syncCategoriesAction,
@@ -38,62 +55,60 @@ export const useCheckCategory = () => {
 
   const { toast } = useToast();
 
-  const checkCategory = async () => {
-    try {
-      const response = await mutate({
-        onError: (error) => {
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
-      });
+  const runCheck = useCallback(
+    async (silent = false): Promise<CategoryItem[] | null> => {
+      try {
+        const response = await mutate({
+          onError: (mutationError) => {
+            toast({
+              title: 'Error',
+              description: mutationError.message,
+              variant: 'destructive',
+            });
+          },
+        });
 
-      const responseData = response.data?.toCheckCategories;
+        const responseData: CheckCategoriesResponse | undefined =
+          response.data?.toCheckCategories;
 
-      if (responseData) {
-        const existingSyncedCategories =
-          toCheckCategories?.filter((item) => item.isSynced === true) || [];
+        if (!responseData) {
+          return null;
+        }
 
-        const allCategories: CategoryItem[] = [
-          ...existingSyncedCategories,
-          ...(responseData.create?.items || []).map((item: ICheckCategory) => ({
-            ...item,
-            status: 'create' as const,
-            isSynced: false,
-          })),
-          ...(responseData.update?.items || []).map((item: ICheckCategory) => ({
-            ...item,
-            status: 'update' as const,
-            isSynced: false,
-          })),
-          ...(responseData.delete?.items || []).map((item: ICheckCategory) => ({
-            ...item,
-            status: 'delete' as const,
-            isSynced: false,
-          })),
-        ];
+        const allCategories = buildCategoryItems(responseData);
 
         setToCheckCategoriesData(responseData);
         setToCheckCategories(allCategories);
+        setSyncedCodes(new Set<string>());
 
+        if (!silent) {
+          const pendingCount = allCategories.length;
+          toast({
+            title: pendingCount > 0 ? 'Success' : 'Up to date',
+            description:
+              pendingCount > 0
+                ? `${pendingCount} categories to sync`
+                : 'No categories require syncing',
+          });
+        }
+
+        return allCategories;
+      } catch (err) {
+        console.error('Check category error:', err);
         toast({
-          title: 'Success',
-          description: `${allCategories.length} categories found`,
+          title: 'Error',
+          description: 'Failed to check categories',
+          variant: 'destructive',
         });
+        return null;
       }
-    } catch (err) {
-      console.error('Check category error:', err);
-      toast({
-        title: 'Error',
-        description: 'Failed to check categories',
-        variant: 'destructive',
-      });
-    }
-  };
+    },
+    [mutate, setToCheckCategories, setToCheckCategoriesData, toast],
+  );
 
-  const syncCategories = async () => {
+  const checkCategory = useCallback(() => runCheck(false), [runCheck]);
+
+  const syncCategories = useCallback(async () => {
     if (!toCheckCategories || toCheckCategories.length === 0) {
       toast({
         title: 'Warning',
@@ -103,38 +118,51 @@ export const useCheckCategory = () => {
       return;
     }
 
-    const updatedCategories = await syncCategoriesAction(
+    const categoriesToSync = toCheckCategories.filter(
+      (item) => item.status === selectedFilter,
+    );
+
+    const syncResult = await syncCategoriesAction(
       toCheckCategories,
       selectedFilter,
     );
 
-    if (updatedCategories) {
-      setToCheckCategories(updatedCategories);
+    if (syncResult) {
+      setSyncedCodes(new Set(categoriesToSync.map((item) => item.code)));
+      await runCheck(true);
     }
-  };
+  }, [
+    runCheck,
+    selectedFilter,
+    syncCategoriesAction,
+    toCheckCategories,
+    toast,
+  ]);
 
-  const getFilteredCategories = (): CategoryItem[] => {
-    if (!toCheckCategories) return [];
-    return toCheckCategories.filter((item) => item.status === selectedFilter);
-  };
-
-  const pageInfo: PageInfo = {
-    hasPreviousPage: false,
-    hasNextPage: false,
-  };
+  const filteredCategories = useMemo<CategoryItem[]>(
+    () =>
+      (toCheckCategories ?? [])
+        .filter((item) => item.status === selectedFilter)
+        .map((item) =>
+          syncedCodes.has(item.code)
+            ? { ...item, status: 'synced' as CategoryStatus }
+            : item,
+        ),
+    [toCheckCategories, selectedFilter, syncedCodes],
+  );
 
   return {
     toCheckCategories,
     toCheckCategoriesData,
     selectedFilter,
     setSelectedFilter,
-    filteredCategories: getFilteredCategories(),
+    filteredCategories,
     checkCategory,
     syncCategories,
     loading,
     syncLoading,
     error,
     syncError,
-    pageInfo,
+    pageInfo: EMPTY_PAGE_INFO,
   };
 };
