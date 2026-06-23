@@ -114,6 +114,7 @@ export const types = `
     type: String
     text: String
     link: String
+    contentType: String
     isEditing: Boolean
   }
   input MessengerOnlineHoursSchema {

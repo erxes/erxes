@@ -1,4 +1,4 @@
-import { IconChevronDown, IconChevronUp, IconPlus } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -10,13 +10,12 @@ import {
   Separator,
   Sheet,
   Spinner,
-  Switch,
   toast,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
-import { FacebookMessageButtonsGenerator } from '~/widgets/automations/modules/facebook/components/action/components/FacebookMessageButtonsGenerator';
+import { useEffect, useState } from 'react';
 import { FacebookBotPageSelectorSteps } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageSelectorSteps';
+import { FacebookPersistentMenuGenerator } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPersistentMenuGenerator';
 import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';
 import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
@@ -27,7 +26,21 @@ export const AutomationFbBotFormContent = () => {
   const { form } = useFbBotFormContext();
   const [isOptionalOpen, setOptionalOpen] = useState(false);
   const { onSave, onSaveloading } = useFacebookBotSave();
-  const [accountId, pageId] = form.watch(['accountId', 'pageId']);
+  const [accountId, pageId, persistentMenus] = form.watch([
+    'accountId',
+    'pageId',
+    'persistentMenus',
+  ]);
+  const hasHumanHandoffMenu = persistentMenus?.some(
+    (menu) => menu.type === 'human_handoff',
+  );
+  const hasBackButtonMenu = persistentMenus?.some(
+    (menu) => menu.type === 'back_button',
+  );
+
+  useEffect(() => {
+    form.setValue('isEnabledBackBtn', Boolean(hasBackButtonMenu));
+  }, [form, hasBackButtonMenu]);
 
   return (
     <>
@@ -61,15 +74,9 @@ export const AutomationFbBotFormContent = () => {
                   <Form.Description>
                     Configure menu items that appear in your bot
                   </Form.Description>
-                  <FacebookMessageButtonsGenerator
-                    addButtonContent={
-                      <>
-                        <IconPlus />
-                        Add persistent menu
-                      </>
-                    }
-                    buttons={field.value}
-                    setButtons={field.onChange}
+                  <FacebookPersistentMenuGenerator
+                    menus={field.value}
+                    setMenus={field.onChange}
                     limit={5}
                   />
                   <Form.Message />
@@ -141,37 +148,50 @@ export const AutomationFbBotFormContent = () => {
                     </Form.Item>
                   )}
                 />
-                <Form.Field
-                  control={form.control}
-                  name="isEnabledBackBtn"
-                  render={({ field }) => (
-                    <Form.Item className="flex justify-between">
-                      <Form.Label className="mt-3">
-                        Enable Back Button on Persistence menu
-                      </Form.Label>
-                      <Switch
-                        className="flex-none"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  control={form.control}
-                  name="backButtonText"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Back Button Text</Form.Label>
-                      <Input
-                        {...field}
-                        disabled={!form.watch('isEnabledBackBtn')}
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                {hasHumanHandoffMenu && (
+                  <>
+                    <Form.Field
+                      control={form.control}
+                      name="handoffPauseMinutes"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Inactivity pause minutes</Form.Label>
+                          <Input
+                            type="number"
+                            min={1}
+                            value={field.value || 10}
+                            onChange={(event) =>
+                              field.onChange(event.currentTarget.value)
+                            }
+                          />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="handoffMessage"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Human handoff message</Form.Label>
+                          <Input {...field} />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="automationActiveMessage"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>Automation active message</Form.Label>
+                          <Input {...field} />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                  </>
+                )}
               </Collapsible.Content>
             </Collapsible>
           </div>

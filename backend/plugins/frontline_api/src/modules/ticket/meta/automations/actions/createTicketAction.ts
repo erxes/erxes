@@ -146,6 +146,43 @@ const getAutomationUserId = (
   getString(target, 'userId') ||
   getString(target, 'createdBy');
 
+const resolveUserId = async (
+  models: IModels,
+  subdomain: string,
+  resolvedConfig: Record<string, unknown>,
+  target: Record<string, unknown>,
+): Promise<string | undefined> => {
+  const fromConfig = getAutomationUserId(resolvedConfig, target);
+  if (fromConfig) return fromConfig;
+
+  // Fall back to the conversation's assigned/responding user
+  const conversationId = getString(target, 'conversationId');
+  if (conversationId) {
+    const conversation = await models.Conversations.findOne(
+      { _id: conversationId },
+      { assignedUserId: 1, userId: 1 },
+    ).lean();
+    const convUserId =
+      (conversation?.assignedUserId && String(conversation.assignedUserId)) ||
+      (conversation?.userId && String(conversation.userId));
+    if (convUserId) return convUserId;
+  }
+
+  // Fall back to the first owner user in the system
+  const owners: { _id: string }[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'users',
+    action: 'find',
+    input: { query: { isOwner: true } },
+    defaultValue: [],
+  });
+  if (owners?.length) return String(owners[0]._id);
+
+  return undefined;
+};
+
 const buildTicketDoc = (data: Record<string, unknown>): ITicket => {
   const name = getString(data, 'name') || getString(data, 'cardName');
   const channelId = getString(data, 'channelId');
@@ -195,7 +232,7 @@ export const createTicketAction = async ({
     defaultValue: '',
   });
   const target = toRecord(execution.target);
-  const userId = getAutomationUserId(resolvedConfig, target);
+  const userId = await resolveUserId(models, subdomain, resolvedConfig, target);
 
   if (!userId) {
     throw new Error('Ticket automation requires a user to create ticket');

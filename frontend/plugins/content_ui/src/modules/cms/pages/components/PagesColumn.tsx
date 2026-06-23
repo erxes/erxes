@@ -3,7 +3,6 @@ import {
   RecordTableInlineCell,
   TextOverflowTooltip,
   RelativeDateDisplay,
-  Badge,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { pageMoreColumn } from './PagesMoreColumn';
@@ -16,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { IPage } from '../types/pageTypes';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { CmsTranslatableBadge } from '../../shared/components/CmsTranslatableBadge';
 
 export const usePagesColumns = (
   onEditPage?: (page: IPage) => void,
@@ -48,12 +48,11 @@ export const usePagesColumns = (
               }}
               className="cursor-pointer"
             >
-              <Badge
-                variant={missing ? 'outline' : 'secondary'}
-                className={missing ? 'text-red-500 border-red-300' : ''}
-              >
-                <TextOverflowTooltip value={page.name} />
-              </Badge>
+              <CmsTranslatableBadge
+                value={page.name}
+                missing={missing}
+                placeholder="Untitled page"
+              />
             </div>
           </RecordTableInlineCell>
         );
@@ -76,7 +75,10 @@ export const usePagesColumns = (
         const parent = pages?.find((p) => p._id === page.parentId);
         return (
           <RecordTableInlineCell>
-            <TextOverflowTooltip value={parent?.name || page.parentId} />
+            <TextOverflowTooltip
+              value={parent?.name || page.parentId}
+              className="leading-normal"
+            />
           </RecordTableInlineCell>
         );
       },
@@ -87,7 +89,10 @@ export const usePagesColumns = (
       accessorKey: 'slug',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-gray-500">
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip
+            value={cell.getValue() as string}
+            className="leading-normal"
+          />
         </RecordTableInlineCell>
       ),
     },

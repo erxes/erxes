@@ -22,9 +22,11 @@ export const organizationConfigMutations = {
       const doc = { code, value };
 
       await models.Configs.createOrUpdateConfig(doc);
-
-      await resetConfigsCache();
     }
+
+    await resetConfigsCache();
+
+    return true;
   },
 
   async configsActivateInstallation(

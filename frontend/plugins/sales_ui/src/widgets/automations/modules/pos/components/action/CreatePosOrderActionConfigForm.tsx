@@ -5,6 +5,7 @@ import { Control, useForm, useWatch } from 'react-hook-form';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
+  TPlaceholderInputSuggestion,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
@@ -74,11 +75,13 @@ const CustomerField = ({
             selectMode: 'one',
             allowOnlyTriggers: true,
           }}
-          enabled={{
-            call_customer: !['company', 'user'].includes(customerType || ''),
-            call_company: customerType === 'company',
-            call_user: customerType === 'user',
-          }}
+          enabled={[
+            customerType === 'company'
+              ? TPlaceholderInputSuggestion.CallCompany
+              : customerType === 'user'
+                ? TPlaceholderInputSuggestion.CallUser
+                : TPlaceholderInputSuggestion.CallCustomer,
+          ]}
         />
         <Form.Message />
       </Form.Item>
@@ -182,9 +185,7 @@ export const CreatePosOrderActionConfigForm = ({
                 delimiter: ',',
                 allowOnlyTriggers: true,
               }}
-              enabled={{
-                call_product: true,
-              }}
+              enabled={[TPlaceholderInputSuggestion.CallProduct]}
             />
             <Form.Message />
           </Form.Item>

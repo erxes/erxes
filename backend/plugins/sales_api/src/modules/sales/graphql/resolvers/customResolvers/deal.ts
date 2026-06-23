@@ -76,10 +76,12 @@ export default {
       return [];
     }
 
-    return deal.productsData.map((pd) => ({
-      __typename: 'Product',
-      _id: pd.productId,
-    }));
+    return deal.productsData
+      .filter((pd) => !!pd.productId)
+      .map((pd) => ({
+        __typename: 'Product',
+        _id: pd.productId,
+      }));
   },
 
   async unusedAmount(deal: IDealDocument) {
@@ -95,6 +97,10 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
+    if (!deal.stageId) {
+      return null;
+    }
+
     return (await models.Stages.getStage(deal.stageId)).pipelineId;
   },
 
@@ -109,8 +115,8 @@ export default {
     if (!deal.stageId) {
       return null;
     }
+
     const pipeline = await loaders.deal.pipelineByDealId.load(deal.stageId);
-    // Deal may reference a deleted stage/pipeline — don't crash the list.
     return pipeline?.boardId ?? null;
   },
 

@@ -1,19 +1,42 @@
-import { Badge, Button, Input, Popover, Tooltip } from 'erxes-ui';
-import { IconPlus, IconX } from '@tabler/icons-react';
+import {
+  Badge,
+  Button,
+  Collapsible,
+  IconComponent,
+  Sheet,
+  Table,
+  toast,
+  Tooltip,
+} from 'erxes-ui';
+import { IconArrowLeft, IconPlus, IconX } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
-import { useFields } from 'ui-modules';
+import { useFields, useFieldGroups } from 'ui-modules';
+import { PropertyForm } from '@/properties/components/PropertyForm';
+import { FIELD_TYPES_OBJECT } from '@/properties/constants/fieldTypes';
+import { useAddProperty } from '@/properties/hooks/useAddProperty';
+import { IPropertyForm } from '@/properties/types/Properties';
 import { useVariantFields } from '../hooks/useVariantFields';
+
+const CONTENT_TYPE = 'core:product';
+const FIELDS_LIMIT = 100;
+
+type VariantField = ReturnType<typeof useFields>['fields'][number];
 
 export const VariantFieldAddButton = () => {
   const { fieldIds, handleToggleFieldValue } = useVariantFields();
-  const { fields, loading } = useFields({ contentType: 'core:product' });
+
+  const { fields, loading, refetch } = useFields({
+    contentType: CONTENT_TYPE,
+    limit: FIELDS_LIMIT,
+  });
   const optionFields = fields.filter((f) => (f.options || []).length > 0);
 
   return (
-    <AddFieldPopover
+    <AddFieldSheet
       fields={optionFields}
       activeFieldIds={fieldIds}
       loading={loading}
+      refetchFields={refetch}
       onPick={(fieldId, value) => handleToggleFieldValue(fieldId, value)}
     />
   );
@@ -22,14 +45,18 @@ export const VariantFieldAddButton = () => {
 export const VariantFieldPicker = () => {
   const { properties, fieldIds, handleToggleFieldValue, handleRemoveField } =
     useVariantFields();
-  const { fields } = useFields({ contentType: 'core:product' });
+
+  const { fields } = useFields({
+    contentType: CONTENT_TYPE,
+    limit: FIELDS_LIMIT,
+  });
 
   const optionFields = fields.filter((f) => (f.options || []).length > 0);
 
   return (
     <div className="flex flex-col gap-3">
       {fieldIds.length === 0 && (
-        <div className="flex justify-center items-center px-4 py-6 text-sm rounded-lg border border-dashed text-muted-foreground">
+        <div className="flex justify-center items-center px-4 py-6 border border-dashed rounded-lg text-muted-foreground text-sm">
           No fields added yet.
         </div>
       )}
@@ -44,10 +71,10 @@ export const VariantFieldPicker = () => {
         return (
           <div
             key={fieldId}
-            className="flex gap-3 items-center p-2 rounded-lg bg-foreground/5"
+            className="flex items-center gap-3 bg-foreground/5 p-2 rounded-lg"
           >
             <div className="w-32 shrink-0">
-              <div className="text-sm font-medium truncate" title={field.name}>
+              <div className="font-medium text-sm truncate" title={field.name}>
                 {field.name}
               </div>
             </div>
@@ -74,7 +101,7 @@ export const VariantFieldPicker = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 size-7"
+                    className="size-7 shrink-0"
                     onClick={() => handleRemoveField(fieldId)}
                   >
                     <IconX size={14} />
@@ -90,80 +117,254 @@ export const VariantFieldPicker = () => {
   );
 };
 
-const AddFieldPopover = ({
+const AddFieldSheet = ({
   fields,
   activeFieldIds,
   loading,
+  refetchFields,
   onPick,
 }: {
-  fields: ReturnType<typeof useFields>['fields'];
+  fields: VariantField[];
   activeFieldIds: string[];
   loading: boolean;
+  refetchFields: () => Promise<unknown>;
   onPick: (fieldId: string, value: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [createGroup, setCreateGroup] = useState<string | null>(null);
+  const { fieldGroups, loading: groupsLoading } = useFieldGroups({
+    contentType: CONTENT_TYPE,
+    limit: FIELDS_LIMIT,
+  });
 
   const available = useMemo(
     () => fields.filter((f) => !activeFieldIds.includes(f._id)),
     [fields, activeFieldIds],
   );
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return available;
-    return available.filter((f) => f.name?.toLowerCase().includes(q));
-  }, [available, search]);
+  const groups = useMemo(() => {
+    const byGroup = new Map<string, VariantField[]>();
+    for (const field of available) {
+      const key = field.groupId || '';
+      byGroup.set(key, [...(byGroup.get(key) || []), field]);
+    }
+
+    const ordered = fieldGroups
+      .map((group) => ({
+        _id: group._id,
+        name: group.name,
+        fields: byGroup.get(group._id) || [],
+      }))
+      .filter((group) => group.fields.length);
+
+    const ungrouped = [...byGroup.entries()]
+      .filter(([key]) => !fieldGroups.some((group) => group._id === key))
+      .flatMap(([, list]) => list);
+
+    if (ungrouped.length) {
+      ordered.push({ _id: '', name: 'Ungrouped', fields: ungrouped });
+    }
+
+    return ordered;
+  }, [available, fieldGroups]);
+
+  const handlePick = (field: VariantField) => {
+    const first = field.options?.[0];
+    if (!first) return;
+    onPick(field._id, first.value);
+    setOpen(false);
+  };
+
+  const handleCreated = (fieldId: string, value: string) => {
+    onPick(fieldId, value);
+    setCreateGroup(null);
+    setOpen(false);
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setCreateGroup(null);
+  };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
+      <Sheet.Trigger asChild>
         <Button
           variant="ghost"
           size="icon"
           className="size-6 text-accent-foreground"
-          disabled={!loading && !available.length}
         >
           <IconPlus className="size-4" />
         </Button>
-      </Popover.Trigger>
-      <Popover.Content className="p-2 w-56" align="end">
-        {available.length > 5 && (
-          <Input
-            autoFocus
-            placeholder="Search fields…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="mb-2"
-          />
-        )}
-        {loading && <div className="text-sm">Loading…</div>}
-        {!loading && filtered.length === 0 && (
-          <div className="text-sm text-muted-foreground">
-            {available.length ? 'No matches' : 'No more fields'}
-          </div>
-        )}
-        <div className="flex flex-col">
-          {filtered.map((field) => (
-            <button
-              type="button"
-              key={field._id}
-              className="px-2 py-1.5 text-sm text-left rounded hover:bg-accent"
-              onClick={() => {
-                // adding the first option starts the axis; user picks the rest
-                const first = field.options?.[0];
-                if (first) {
-                  onPick(field._id, first.value);
-                  setOpen(false);
-                  setSearch('');
-                }
-              }}
+      </Sheet.Trigger>
+      <Sheet.View className="flex flex-col p-0 sm:max-w-md">
+        <Sheet.Header className="gap-3">
+          {createGroup && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="-ml-2 size-7"
+              onClick={() => setCreateGroup(null)}
             >
-              {field.name}
-            </button>
-          ))}
+              <IconArrowLeft className="size-4" />
+            </Button>
+          )}
+          <Sheet.Title>
+            {createGroup ? 'New property' : 'Add variant field'}
+          </Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
+            Pick a property to use as a variant axis, or create a new one.
+          </Sheet.Description>
+        </Sheet.Header>
+
+        {createGroup ? (
+          <CreatePropertyForm
+            groupId={createGroup}
+            refetchFields={refetchFields}
+            onCreated={handleCreated}
+          />
+        ) : (
+          <Sheet.Content className="flex-auto p-5 overflow-auto">
+            <div className="flex flex-col gap-2">
+              {groups.map((group) => (
+                <Collapsible
+                  key={group._id || 'ungrouped'}
+                  className="group"
+                  defaultOpen
+                >
+                  <div className="relative">
+                    <Collapsible.Trigger asChild>
+                      <Button
+                        variant="secondary"
+                        className="w-full justify-start"
+                      >
+                        <Collapsible.TriggerIcon />
+                        {group.name}
+                      </Button>
+                    </Collapsible.Trigger>
+                    {group._id && (
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute right-0.5 top-0.5 size-6 px-0"
+                        onClick={() => setCreateGroup(group._id)}
+                      >
+                        <IconPlus />
+                      </Button>
+                    )}
+                  </div>
+
+                  <Collapsible.Content className="pt-2">
+                    <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
+                      <Table.Body>
+                        {group.fields.map((field) => {
+                          const fieldTypeObject =
+                            FIELD_TYPES_OBJECT[field.type || ''];
+
+                          return (
+                            <Table.Row
+                              key={field._id}
+                              className="hover:bg-sidebar cursor-pointer"
+                              onClick={() => handlePick(field)}
+                            >
+                              <Table.Cell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-full w-full justify-start hover:bg-transparent"
+                                  asChild
+                                >
+                                  <div>
+                                    <IconComponent name={field.icon} />
+                                    {field.name}
+                                  </div>
+                                </Button>
+                              </Table.Cell>
+                              <Table.Cell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-full w-full justify-end hover:bg-transparent text-muted-foreground"
+                                  asChild
+                                >
+                                  <div>
+                                    {fieldTypeObject?.icon}
+                                    {fieldTypeObject?.label}
+                                  </div>
+                                </Button>
+                              </Table.Cell>
+                            </Table.Row>
+                          );
+                        })}
+                      </Table.Body>
+                    </Table>
+                  </Collapsible.Content>
+                </Collapsible>
+              ))}
+            </div>
+          </Sheet.Content>
+        )}
+      </Sheet.View>
+    </Sheet>
+  );
+};
+
+const CreatePropertyForm = ({
+  groupId,
+  refetchFields,
+  onCreated,
+}: {
+  groupId: string;
+  refetchFields: () => Promise<unknown>;
+  onCreated: (fieldId: string, value: string) => void;
+}) => {
+  const { addProperty, loading } = useAddProperty();
+
+  const handleSubmit = (data: IPropertyForm) => {
+    addProperty({
+      variables: {
+        ...data,
+        groupId: groupId || undefined,
+        contentType: CONTENT_TYPE,
+      },
+      onCompleted: async (res) => {
+        await refetchFields();
+        const newId = res?.fieldAdd?._id;
+        const firstValue = data.options?.[0]?.value;
+        if (newId && firstValue) onCreated(newId, firstValue);
+        toast({ title: 'Property created', variant: 'success' });
+      },
+      onError: (error) =>
+        toast({
+          title: 'Error',
+          variant: 'destructive',
+          description: error.message,
+        }),
+    });
+  };
+
+  return (
+    <Sheet.Content className="flex-auto p-5 overflow-auto">
+      <div className="flex flex-col gap-5">
+        <div onSubmit={(e) => e.stopPropagation()}>
+          <PropertyForm
+            onSubmit={handleSubmit}
+            loading={loading}
+            disableType
+            defaultValues={{
+              icon: '123',
+              name: '',
+              type: 'multiSelect',
+              isSearchable: false,
+              description: '',
+              code: '',
+              validation: '',
+              options: [],
+            }}
+          />
         </div>
-      </Popover.Content>
-    </Popover>
+      </div>
+    </Sheet.Content>
   );
 };

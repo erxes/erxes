@@ -2,7 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
 import { useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
-import { AutomationTriggerFormProps } from 'ui-modules';
+import {
+  AutomationTriggerFormProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 import { commentTriggerSchema } from '../schemas/commentTriggerSchema';
 import { TCommentTriggerForm } from '../types/commentTrigger';
 
@@ -19,13 +22,11 @@ export const useCommentTriggerForm = ({
     defaultValues: { postType: 'specific', ...(activeTrigger?.config || {}) },
   });
 
+  const { handleValidationErrors } = useFormValidationErrorHandler({
+    formName: 'Trigger',
+  });
   useImperativeHandle(formRef, () => ({
-    submit: form.handleSubmit(onSaveTriggerConfig, () =>
-      toast({
-        title: 'There is some error in the form',
-        variant: 'destructive',
-      }),
-    ),
+    submit: form.handleSubmit(onSaveTriggerConfig, handleValidationErrors),
   }));
 
   const [botId, checkContent, postType] = form.watch([

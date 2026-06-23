@@ -1,6 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { Checkbox, Form, Input } from 'erxes-ui';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
+import { SelectBrand } from 'ui-modules/modules/brands';
 
 import { getMSDynamicFieldLabel, TMSDynamicConfig } from '../../types';
 
@@ -11,7 +12,6 @@ type MSDynamicTextFieldName = Exclude<
 
 const CONNECTION_FIELDS: MSDynamicTextFieldName[] = [
   'title',
-  'brandId',
   'posConf',
   'productUrl',
   'username',
@@ -109,6 +109,25 @@ export const MSDynamicConfigFormFields = ({
         className="space-y-8 py-2"
       >
         <MSDynamicFieldSection title="Connection">
+          <Form.Field
+            control={form.control}
+            name="brandId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{getMSDynamicFieldLabel('brandId')}</Form.Label>
+                <Form.Control>
+                  <SelectBrand.FormItem
+                    mode="single"
+                    value={field.value}
+                    onValueChange={(brand) =>
+                      field.onChange(getSingleSelectValue(brand))
+                    }
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
           {CONNECTION_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}

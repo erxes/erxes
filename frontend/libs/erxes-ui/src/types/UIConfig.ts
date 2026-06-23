@@ -20,6 +20,11 @@ export type IUIConfig = {
     customerDetailWidgets?: {
       name: string;
     }[];
+    formWidgets?: {
+      name: string;
+      contentType: string;
+      icon?: React.ElementType;
+    }[];
   };
   modules?: {
     name: string;

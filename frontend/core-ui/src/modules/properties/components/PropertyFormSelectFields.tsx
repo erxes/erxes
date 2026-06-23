@@ -2,17 +2,17 @@ import { Button, Form, InfoCard, Input } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { IPropertyForm } from '../types/Properties';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
 
 export const PropertyFormSelectFields = ({
   form,
+  isEdit,
 }: {
   form: UseFormReturn<IPropertyForm>;
+  isEdit?: boolean;
 }) => {
-  const { id } = useParams<{ id: string }>();
-
   const type = form.watch('type');
-  
+  const options = (form.formState.defaultValues?.options as unknown[])?.length ?? 0;
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'options' as never,
@@ -35,7 +35,7 @@ export const PropertyFormSelectFields = ({
                   <Form.Item className="flex-auto">
                     {index === 0 && <Form.Label>Label</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder="Enter label" disabled={Boolean(id)}/>
+                      <Input {...field} placeholder="Enter label" disabled={isEdit && index < options}/>
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -48,7 +48,7 @@ export const PropertyFormSelectFields = ({
                   <Form.Item className="flex-auto">
                     {index === 0 && <Form.Label>Value</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder="Enter value" disabled={Boolean(id)}/>
+                      <Input {...field} placeholder="Enter value" disabled={isEdit && index < options}/>
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

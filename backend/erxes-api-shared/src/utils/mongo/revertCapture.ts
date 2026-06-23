@@ -2,6 +2,16 @@ import { Schema } from 'mongoose';
 import { sendWorkerQueue } from '../mq-worker';
 import { getEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
 import { getDiffObjects } from '../utils';
+import {
+  applyUpdateOperators,
+  extractTouchedPaths,
+  isComplexUpdate,
+  UpdateExpr,
+} from './afterImage';
+import {
+  isRevertCaptureDenied,
+  isSchemaRevertOptedOut,
+} from './revertSelectivity';
 
 /**
  * Dynamic, zero-per-call-site capture for point-in-time revert.
@@ -19,12 +29,11 @@ import { getDiffObjects } from '../utils';
  * before→after diff (to restore prior field values). Creates are intentionally
  * NOT captured: reverting a new record is just deleting it.
  *
- * Safety: the whole thing is gated behind REVERT_AUTO_JOURNAL=enable (a complete
- * no-op otherwise, so the 124 schemas are untouched when disabled), and every
- * hook is wrapped so a capture failure can NEVER block or throw out of the write.
+ * Always on: capture runs for every wrapped schema from boot, so no change is
+ * ever silently left unrecoverable. Safety comes from the hooks themselves —
+ * every one is wrapped so a capture failure can NEVER block or throw out of the
+ * write; capture is best-effort and always subordinate to the write it observes.
  */
-
-const AUTO_JOURNAL_ENABLED = process.env.REVERT_AUTO_JOURNAL === 'enable';
 
 // Bound the extra read a bulk delete triggers. Beyond this many matches we keep
 // the ids but skip the snapshot (still audited; the overflow is not auto-revertable).
@@ -34,11 +43,21 @@ const MAX_SNAPSHOT = Number(process.env.REVERT_AUTO_JOURNAL_MAX || 1000);
 const SNAP = Symbol('revertCaptureSnapshot');
 const SNAP_SAVE = Symbol('revertCaptureSaveSnapshot');
 const WAS_NEW = Symbol('revertCaptureWasNew');
+// The (raw, pre-cast) update operators stashed in the update PRE hook so the
+// POST hook can synthesize the after-image in memory (simple ops) instead of
+// re-reading. `null` => complex => fall back to the post re-read.
+const UPDATE_EXPR = Symbol('revertCaptureUpdateExpr');
+// Whether the update carries arrayFilters (positional element targeting), which
+// forces the complex re-read fallback. Stashed PRE→POST for a consistent
+// classification on both sides (the projection decision and the synthesis
+// decision MUST agree).
+const HAS_ARRAY_FILTERS = Symbol('revertCaptureHasArrayFilters');
 
 /** A lean, awaitable Mongoose array query — only the bits these hooks chain. */
 type LeanArrayQuery = PromiseLike<Array<Record<string, unknown>>> & {
   limit: (n: number) => LeanArrayQuery;
   lean: () => LeanArrayQuery;
+  select: (projection: Record<string, number>) => LeanArrayQuery;
 };
 
 /** A lean, awaitable single-document Mongoose query. */
@@ -59,7 +78,11 @@ type CaptureModel = {
 type QueryHookThis = {
   model: CaptureModel;
   getFilter?: () => Record<string, unknown>;
-  [stash: symbol]: Array<Record<string, unknown>> | undefined;
+  getUpdate?: () => UpdateExpr;
+  getOptions?: () => { arrayFilters?: unknown[] } | undefined;
+  [SNAP]?: Array<Record<string, unknown>>;
+  [UPDATE_EXPR]?: UpdateExpr;
+  [HAS_ARRAY_FILTERS]?: boolean;
 };
 
 /** `this` inside the document-level `save` middleware. */
@@ -113,6 +136,16 @@ const emitPutLog = (payload: Record<string, unknown>): void => {
 };
 
 type DeleteKind = 'delete' | 'deleteMany';
+
+/**
+ * Runtime denylist guard. Install-time selectivity (installRevertCaptureHooks)
+ * already skips hooks for schemas whose collection name is known and denied, but
+ * many schemas don't declare `options.collection`, so the collection name is
+ * only reliable at write time (`model.collection.name`). This guard enforces the
+ * ALWAYS-skip-logs invariant (no journaling the journal) regardless.
+ */
+const isModelDenied = (model: CaptureModel): boolean =>
+  isRevertCaptureDenied(model?.collection?.name || model?.modelName);
 
 /**
  * Resolve the runtime context + model identity shared by every journal entry:
@@ -201,8 +234,14 @@ const journalDeletes = (
 const makePreHook = (kind: DeleteKind) => {
   return async function (this: QueryHookThis) {
     try {
+      if (isModelDenied(this.model)) {
+        this[SNAP] = undefined;
+        return;
+      }
       const filter =
         typeof this.getFilter === 'function' ? this.getFilter() : {};
+      // Deletes carry the WHOLE prior document (revert re-inserts it), so the
+      // delete pre-read is intentionally NOT projected.
       const query = this.model.find(filter).lean();
       if (kind === 'delete') {
         query.limit(1);
@@ -241,11 +280,16 @@ const hasChanges = (ud: {
     Object.keys(ud.removed || {}).length > 0 ||
     Object.keys(ud.updated || {}).length > 0);
 
+/** One per-document update entry inside a batched `updateBatch` journal message. */
+type UpdateEntry = { docId: string; updateDescription: Record<string, unknown> };
+
 /**
- * Journal one `update` event per changed document, carrying the before→after
- * diff (updateDescription) the revert engine inverts. A bulk updateMany thus
- * becomes N per-document revertable updates rather than one un-revertable
- * aggregate. No-op for documents whose content did not actually change.
+ * Journal edits carrying the before→after diff (updateDescription) the revert
+ * engine inverts. A bulk updateMany over N docs becomes N per-document
+ * revertable updates — but emitted as ONE `put_log` message (the consumer
+ * expands it into N identical single-`update` Log rows), instead of N separate
+ * BullMQ jobs. A single changed doc still emits the single-doc `update` shape
+ * BYTE-FOR-BYTE as before. No-op for documents whose content did not change.
  */
 const journalUpdates = (
   model: CaptureModel,
@@ -254,10 +298,12 @@ const journalUpdates = (
 ): void => {
   try {
     if (!beforeDocs || !beforeDocs.length) return;
+    if (isModelDenied(model)) return;
 
     const { collectionName, mongooseName, dbName, base } =
       buildJournalBase(model);
 
+    const entries: UpdateEntry[] = [];
     for (const before of beforeDocs) {
       const id = toIdString(before._id);
       const after = afterById.get(id);
@@ -269,37 +315,139 @@ const journalUpdates = (
       );
       if (!hasChanges(updateDescription)) continue;
 
+      entries.push({ docId: id, updateDescription });
+    }
+
+    if (!entries.length) return;
+
+    if (entries.length === 1) {
+      // Single changed doc: keep the exact legacy single-`update` shape so the
+      // consumer's handleUpdate path and the stored Log row are unchanged.
+      const only = entries[0];
       emitPutLog({
         ...base,
         action: 'update',
-        docId: id,
-        payload: { collectionName, updateDescription, mongooseName, dbName },
+        docId: only.docId,
+        payload: {
+          collectionName,
+          updateDescription: only.updateDescription,
+          mongooseName,
+          dbName,
+        },
       });
+      return;
     }
+
+    // Multiple changed docs: ONE message carrying all per-doc entries. The
+    // consumer insertMany's one single-`update` Log row per entry (identical
+    // stored shape), so computeInverse/conflict read each row exactly as today.
+    emitPutLog({
+      ...base,
+      action: 'updateBatch',
+      docIds: entries.map((e) => e.docId),
+      payload: { collectionName, updates: entries, mongooseName, dbName },
+    });
   } catch {
     /* capture is best-effort and must never disturb the write */
   }
 };
 
-/** Build a `pre` update hook that snapshots the to-be-updated docs. */
+/**
+ * Build a `pre` update hook that snapshots the to-be-updated docs and stashes
+ * the (raw, pre-cast) update operators. For the SIMPLE case ($set/$unset/
+ * shorthand) the snapshot is PROJECTED to only the touched paths (+ _id), since
+ * the in-memory after-image only needs those. For the COMPLEX fallback we read
+ * the FULL doc (the post re-read needs to diff the whole document).
+ */
 const makeUpdatePreHook = () => {
   return async function (this: QueryHookThis) {
     try {
+      if (isModelDenied(this.model)) {
+        this[SNAP] = undefined;
+        this[UPDATE_EXPR] = undefined;
+        return;
+      }
+
       const filter =
         typeof this.getFilter === 'function' ? this.getFilter() : {};
-      this[SNAP] = await this.model.find(filter).limit(MAX_SNAPSHOT).lean();
+
+      const update: UpdateExpr =
+        typeof this.getUpdate === 'function' ? this.getUpdate() : undefined;
+      this[UPDATE_EXPR] = update;
+
+      const options =
+        typeof this.getOptions === 'function' ? this.getOptions() : undefined;
+      const hasArrayFilters =
+        Array.isArray(options?.arrayFilters) &&
+        (options?.arrayFilters?.length ?? 0) > 0;
+      this[HAS_ARRAY_FILTERS] = hasArrayFilters;
+
+      const simple = !isComplexUpdate(update, hasArrayFilters);
+
+      const query = this.model.find(filter).limit(MAX_SNAPSHOT).lean();
+
+      if (simple) {
+        // Only the touched paths are needed to synthesize + diff the after-image.
+        const touched = extractTouchedPaths(update);
+        if (touched.length) {
+          const projection: Record<string, number> = { _id: 1 };
+          for (const p of touched) projection[p] = 1;
+          query.select(projection);
+        }
+      }
+
+      this[SNAP] = await query;
     } catch {
       this[SNAP] = undefined;
+      this[UPDATE_EXPR] = undefined;
     }
   };
 };
 
-/** Build a `post` update hook that diffs before→after and journals per-doc edits. */
+/**
+ * Build a `post` update hook. COMMON path ($set/$unset/shorthand): compute the
+ * after-image IN MEMORY from the stashed before-snapshot + update operators — NO
+ * post re-read. COMPLEX path ($inc/$push/positional/pipeline/replacement/…):
+ * fall back to the existing post re-read (preserve current behavior; never guess
+ * an after-image).
+ */
 const makeUpdatePostHook = () => {
   return async function (this: QueryHookThis) {
     try {
       const before = this[SNAP];
       if (!before?.length) return;
+
+      // Use the POST-hook update operators, not the pre-hook ones: Mongoose casts
+      // the update IN PLACE during exec, so by the post hook this.getUpdate()
+      // carries SCHEMA-CAST values (e.g. $set a string '42' onto a Number field ->
+      // 42; a date string -> Date; an id string -> ObjectId). The pre-cast value
+      // would yield a wrong-typed in-memory after-image that diverges from what
+      // Mongo actually stored — causing false revert conflicts and phantom diffs.
+      // Fall back to the stashed pre value only if the cast update is unavailable.
+      const castUpdate =
+        typeof this.getUpdate === 'function' ? this.getUpdate() : undefined;
+      const update = castUpdate ?? this[UPDATE_EXPR];
+      const hasArrayFilters = Boolean(this[HAS_ARRAY_FILTERS]);
+
+      // In-memory after-image for every before-doc (the same operators apply to
+      // each matched doc). Returns null for complex updates → fall back.
+      const inMemory = new Map<string, Record<string, unknown>>();
+      let allComputed = true;
+      for (const b of before) {
+        const after = applyUpdateOperators(b, update, hasArrayFilters);
+        if (after === null) {
+          allComputed = false;
+          break;
+        }
+        inMemory.set(toIdString(b._id), after);
+      }
+
+      if (allComputed) {
+        journalUpdates(this.model, before, inMemory);
+        return;
+      }
+
+      // COMPLEX fallback: re-read the after state (full docs) and diff.
       const ids = before.map((d) => d._id);
       const after = (await this.model
         .find({ _id: { $in: ids } })
@@ -352,13 +500,29 @@ const savePostHook = function (this: SaveHookThis) {
 };
 
 /**
- * Install the delete-capture hooks on a schema. Called from `schemaWrapper`, so
- * every wrapped schema gets them. No-op unless REVERT_AUTO_JOURNAL=enable.
+ * Install the capture hooks on a schema. Called from `schemaWrapper`, so every
+ * wrapped schema gets them — always on, so no change is ever left unjournaled.
+ *
+ * SELECTIVITY: a denied schema gets ZERO hooks (no per-write overhead). Denial
+ * is decided two ways here:
+ *   (a) per-schema opt-out — `schema.options.revertCapture === false` (or
+ *       `skipRevertCapture: true`),
+ *   (b) collection-name denylist — when the schema declares its collection name
+ *       (`schema.options.collection`) and it is on the denylist.
+ * Schemas that don't declare a collection name still pass through here (the name
+ * isn't reliably known until a model binds), but the runtime guard in the hooks
+ * (`isModelDenied`) enforces the always-skip-logs invariant at write time.
  */
 export const installRevertCaptureHooks = (schema: Schema): void => {
-  if (!AUTO_JOURNAL_ENABLED) {
-    return;
-  }
+  const options = (schema as unknown as { options?: unknown }).options as
+    | { collection?: string; revertCapture?: boolean; skipRevertCapture?: boolean }
+    | undefined;
+
+  // (a) Per-schema opt-out → no hooks at all.
+  if (isSchemaRevertOptedOut(options)) return;
+
+  // (b) Known, denied collection name → no hooks at all.
+  if (options?.collection && isRevertCaptureDenied(options.collection)) return;
 
   // Query-level middleware (Model.deleteMany / Model.deleteOne / findOneAndDelete).
   schema.pre('deleteMany', makePreHook('deleteMany'));

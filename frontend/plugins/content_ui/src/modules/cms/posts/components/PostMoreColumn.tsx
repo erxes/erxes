@@ -1,12 +1,17 @@
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconBell, IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import {
-  Button, Combobox,
-  Command, Popover, RecordTable, useConfirm,
-  useToast
+  Button,
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  useConfirm,
+  useToast,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { useRemovePosts } from '../hooks/useRemovePosts';
+import { useSendPostNotification } from '../hooks/useSendPostNotification';
 import { Posts } from '../types/postsType';
 
 interface PostMoreColumnCellProps {
@@ -22,19 +27,58 @@ export const PostMoreColumnCell = ({
   onDelete,
   onRefetch,
 }: PostMoreColumnCellProps) => {
-  const { _id } = cell.row.original;
+  const post = cell.row.original;
+  const { _id, status } = post;
+  const isPublished = status === 'published';
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { removePosts, loading } = useRemovePosts();
+  const { removePosts, loading: removing } = useRemovePosts();
+  const { sendPostNotification, loading: sendingNotification } =
+    useSendPostNotification();
+  const loading = removing || sendingNotification;
 
   const handleEdit = () => {
-    const post = cell.row.original;
     if (onEdit) {
       onEdit(post);
     } else {
       navigate(`/content/cms/posts/detail/${_id}`);
     }
+  };
+
+  const handleSendNotification = () => {
+    confirm({
+      message:
+        'Send a notification to all client portal users about this post?',
+    }).then(() => {
+      sendPostNotification(_id)
+        .then((result) => {
+          const recipientCount = result?.recipientCount ?? 0;
+
+          if (recipientCount === 0) {
+            toast({
+              title: 'No recipients',
+              description:
+                'No client portal users were found for this website.',
+              variant: 'warning',
+            });
+            return;
+          }
+
+          toast({
+            title: 'Notification sent',
+            variant: 'success',
+            description: `Notification sent to ${recipientCount} client portal user${recipientCount === 1 ? '' : 's'}.`,
+          });
+        })
+        .catch((e: Error) => {
+          toast({
+            title: 'Error',
+            description: e.message,
+            variant: 'destructive',
+          });
+        });
+    });
   };
 
   const handleDelete = () => {
@@ -87,6 +131,20 @@ export const PostMoreColumnCell = ({
                 Edit
               </Button>
             </Command.Item>
+            {isPublished && (
+              <Command.Item asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start h-8"
+                  onClick={handleSendNotification}
+                  disabled={loading}
+                >
+                  <IconBell className="size-4" />
+                  Send notification
+                </Button>
+              </Command.Item>
+            )}
             <Command.Item asChild>
               <Button
                 variant="ghost"

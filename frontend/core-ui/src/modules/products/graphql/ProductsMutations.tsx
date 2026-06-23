@@ -20,6 +20,8 @@ const productsAdd = gql`
     $scopeBrandIds: [String]
     $uom: String
     $subUoms: JSON
+    $duration: Float
+    $durationType: ProductDurationType
   ) {
     productsAdd(
       name: $name
@@ -40,6 +42,8 @@ const productsAdd = gql`
       scopeBrandIds: $scopeBrandIds
       uom: $uom
       subUoms: $subUoms
+      duration: $duration
+      durationType: $durationType
     ) {
       _id
       attachment {
@@ -56,6 +60,8 @@ const productsAdd = gql`
       uom
       unitPrice
       type
+      duration
+      durationType
       vendor {
         _id
         primaryName
@@ -126,6 +132,8 @@ const productsEdit = gql`
     $scopeBrandIds: [String]
     $attachment: AttachmentInput
     $attachmentMore: [AttachmentInput]
+    $duration: Float
+    $durationType: ProductDurationType
   ) {
     productsEdit(
       _id: $_id
@@ -147,8 +155,41 @@ const productsEdit = gql`
       scopeBrandIds: $scopeBrandIds
       attachment: $attachment
       attachmentMore: $attachmentMore
+      duration: $duration
+      durationType: $durationType
     ) {
       _id
+      name
+      shortName
+      type
+      code
+      categoryId
+      vendorId
+      scopeBrandIds
+      status
+      description
+      unitPrice
+      duration
+      durationType
+      barcodes
+      variants
+      barcodeDescription
+      currency
+      attachment {
+        url
+        name
+        size
+        type
+      }
+      attachmentMore {
+        url
+        name
+        size
+        type
+      }
+      uom
+      subUoms
+      propertiesData
     }
   }
 `;

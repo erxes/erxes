@@ -2,15 +2,15 @@ import {
   IconCopy,
   IconPhotoScan,
   IconTrash,
-  IconUpload,
 } from '@tabler/icons-react';
-import { Avatar, Button, cn, Dialog, Label } from 'erxes-ui';
+import { Button, cn, Dialog, Label } from 'erxes-ui';
+import { useId } from 'react';
 import { useFbBotFileUploadSection } from '../hooks/useFbBotFileUploadSection';
 
 type FileUploadSectionProps = {
   onUpload?: (file: string | null) => void;
-  limit?: number; // in MB, default 25MB
-  url?: string; // Optional URL prop
+  limit?: number;
+  url?: string;
   mimeType?: string;
 };
 
@@ -20,6 +20,7 @@ export const FileUploadSection = ({
   url: urlProp,
   mimeType = 'image/*',
 }: FileUploadSectionProps) => {
+  const inputId = useId();
   const {
     uploadedFileUrl,
     isImageType,
@@ -107,11 +108,11 @@ export const FileUploadSection = ({
         type="file"
         onChange={handleFileSelect}
         className="hidden"
-        id="file-upload-input"
-        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
+        id={inputId}
+        accept={mimeType}
       />
       <label
-        htmlFor="file-upload-input"
+        htmlFor={inputId}
         className="flex flex-col gap-2 items-center justify-center cursor-pointer w-full h-full"
       >
         {isLoading ? (
@@ -130,25 +131,6 @@ export const FileUploadSection = ({
           </>
         )}
       </label>
-    </div>
-  );
-};
-
-export const QuickReplyImageUploader = ({
-  image_url,
-  onUpload,
-}: {
-  image_url: string;
-  onUpload: (image_url: string | null) => void;
-}) => {
-  return (
-    <div className="p-2 mr-2 rounded-full border border-dashed ">
-      <Avatar>
-        <Avatar.Image src={image_url} />
-        <Avatar.Fallback>
-          <IconUpload />
-        </Avatar.Fallback>
-      </Avatar>
     </div>
   );
 };

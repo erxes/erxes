@@ -72,6 +72,8 @@ export function getProductFormDefaultValues(
     customFieldsData:
       productDetail.customFieldsData || productDetail.propertiesData || {},
     currency: productDetail.currency || '',
+    duration: productDetail.duration,
+    durationType: productDetail.durationType,
     variants: toVariantsRecord(productDetail.variants),
     subUoms: (productDetail.subUoms || []).map((subUom) => ({
       ...subUom,

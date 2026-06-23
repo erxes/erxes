@@ -42,6 +42,7 @@ import { useParams } from 'react-router';
 import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
 import { useState } from 'react';
 import { useTopics } from '@/knowledgebase/hooks/useTopics';
+import { EM_CONTENT_TYPES } from '../constants/emContentTypes';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
@@ -178,6 +179,29 @@ export const EMConfig = () => {
                       <Form.Description>
                         When enabled, incoming messages will be handled by the
                         selected automation bot.
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="botSetup.botShowInitialMessage"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <div className="flex items-center gap-3">
+                        <Form.Control>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </Form.Control>
+                        <Form.Label variant="peer" className="leading-6">
+                          Show Initial Message
+                        </Form.Label>
+                      </div>
+                      <Form.Description>
+                        When enabled, the bot will display the greeting message
+                        as an initial message in the conversation.
                       </Form.Description>
                       <Form.Message />
                     </Form.Item>
@@ -442,12 +466,39 @@ const PersistentMenu = ({
                   </Form.Item>
                 )}
               />
+              <Form.Field
+                name={`botSetup.persistentMenu.${index}.contentType`}
+                render={({ field }) => (
+                  <Form.Item
+                    className={currentType === 'button' ? '' : 'hidden'}
+                  >
+                    <Form.Label>Content type</Form.Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Form.Control>
+                        <Select.Trigger>
+                          <Select.Value placeholder="Select content type" />
+                        </Select.Trigger>
+                      </Form.Control>
+                      <Select.Content>
+                        {EM_CONTENT_TYPES.map(({ type, label }) => (
+                          <Select.Item key={type} value={type}>
+                            {label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </div>
           );
         })}
       </div>
       <Button
-        onClick={() => append({ text: '', type: 'button' })}
+        onClick={() =>
+          append({ text: '', type: 'button', contentType: 'text' })
+        }
         className="flex w-full mt-5!"
         variant="secondary"
       >
@@ -552,8 +603,8 @@ const SelectMessengerAutomation = ({
           {loading
             ? 'Loading…'
             : selected
-              ? selected.name
-              : 'Select an automation'}
+            ? selected.name
+            : 'Select an automation'}
         </span>
       </Combobox.Trigger>
       <Combobox.Content>

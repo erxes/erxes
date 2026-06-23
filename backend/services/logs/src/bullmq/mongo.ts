@@ -12,6 +12,10 @@ export const LOG_ACTIONS = {
   UPDATE_MANY: 'updateMany',
   BULK_WRITE: 'bulkWrite',
   DELETE_MANY: 'deleteMany',
+  // Auto-capture batched edit: ONE message carrying N per-doc updateDescriptions
+  // (one updateMany write). Expanded into N identical single-`update` Log rows so
+  // computeInverse/conflict read each row exactly as a single `update`.
+  UPDATE_BATCH: 'updateBatch',
 } as const;
 
 type LogAction = (typeof LOG_ACTIONS)[keyof typeof LOG_ACTIONS];
@@ -49,6 +53,22 @@ type DeleteManyEventPayload = {
   docIds: string[];
   // Docs as they were before deletion; matched to docIds by _id (any order).
   prevDocuments?: unknown[];
+  processId?: string;
+  userId?: string;
+  contentType?: string;
+  mongooseName?: string;
+  dbName?: string;
+};
+
+type UpdateBatchEntry = {
+  docId: string;
+  updateDescription?: Record<string, unknown>;
+};
+
+type UpdateBatchEventPayload = {
+  collectionName: string;
+  // Per-doc edits; each becomes one single-`update` Log row.
+  updates: UpdateBatchEntry[];
   processId?: string;
   userId?: string;
   contentType?: string;
@@ -252,6 +272,54 @@ const handleDeleteMany = async (
   return await Logs.insertMany(entries);
 };
 
+/**
+ * Auto-capture batched edit: expand ONE message into N single-`update` Log rows,
+ * each IDENTICAL to what handleUpdate stores (action 'update', payload
+ * {collectionName, updateDescription, mongooseName, dbName, collectionType}), so
+ * computeInverse/conflict read each row exactly as a single update. Only the
+ * QUEUE transport is collapsed; the stored rows are unchanged.
+ */
+const handleUpdateBatch = async (
+  Logs: Model<ILogDocument>,
+  payload: UpdateBatchEventPayload,
+) => {
+  const { collectionName, updates, processId, userId } = payload;
+
+  const entries = (updates || []).map((entry) => ({
+    action: LOG_ACTIONS.UPDATE,
+    docId: String(entry.docId),
+    payload: withCollectionType(
+      {
+        collectionName,
+        updateDescription: entry.updateDescription || {},
+        mongooseName: payload.mongooseName,
+        dbName: payload.dbName,
+      },
+      payload.contentType,
+      collectionName,
+    ),
+    source: 'mongo',
+    status: LOG_STATUSES.SUCCESS,
+    processId,
+    userId,
+    createdAt: new Date(),
+    contentType: payload.contentType,
+  }));
+
+  if (!entries.length) return [];
+
+  if (entries.length > BATCH_SIZE) {
+    const results: ILogDocument[] = [];
+    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+      const inserted = await Logs.insertMany(entries.slice(i, i + BATCH_SIZE));
+      results.push(...inserted);
+    }
+    return results;
+  }
+
+  return await Logs.insertMany(entries);
+};
+
 const handleUpdateMany = async (
   Logs: Model<ILogDocument>,
   payload: BulkEventPayload,
@@ -349,6 +417,7 @@ const actionMap: Record<string, Function> = {
   [LOG_ACTIONS.UPDATE_MANY]: handleUpdateMany,
   [LOG_ACTIONS.BULK_WRITE]: handleBulkWrite,
   [LOG_ACTIONS.DELETE_MANY]: handleDeleteMany,
+  [LOG_ACTIONS.UPDATE_BATCH]: handleUpdateBatch,
 };
 
 export const handleMongoChangeEvent = async (
@@ -372,6 +441,21 @@ export const handleMongoChangeEvent = async (
       collectionName: payload?.collectionName || '',
       docIds,
       prevDocuments: (payload as { prevDocuments?: unknown[] })?.prevDocuments,
+      processId,
+      userId,
+      contentType,
+      mongooseName: payload?.mongooseName,
+      dbName: payload?.dbName,
+    });
+  }
+
+  // Auto-capture batched edit: one message carrying N per-doc updateDescriptions
+  // → expanded into N single-`update` rows (identical stored shape).
+  if (logAction === LOG_ACTIONS.UPDATE_BATCH) {
+    return await handleUpdateBatch(Logs, {
+      collectionName: payload?.collectionName || '',
+      updates:
+        (payload as { updates?: UpdateBatchEntry[] })?.updates || [],
       processId,
       userId,
       contentType,
