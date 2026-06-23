@@ -66,14 +66,8 @@ export const loadTagClass = (
           _id: tag.parentId,
         }).lean();
 
-        const childTags = await models.Tags.find({ parentId: tag._id }).lean();
-
         if (parentTag?.isGroup && isGroup) {
           throw new Error('Nested group is not allowed 3');
-        }
-
-        if (!tag.isGroup && childTags.length) {
-          throw new Error('Group has tags');
         }
       }
     }
