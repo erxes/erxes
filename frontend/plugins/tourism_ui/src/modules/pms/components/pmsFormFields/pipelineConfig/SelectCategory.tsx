@@ -174,7 +174,7 @@ const SelectCategoryContent = () => {
             <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
               {t('no-categories-found')}
               {/* <Button variant="secondary" size="sm" asChild>
-                <Link to="/settings/products/categories">Add Category</Link>
+                <Link to="/settings/products/categories">{t('add-category')}</Link>
               </Button> */}
             </div>
           </Command.Empty>

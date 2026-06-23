@@ -20,6 +20,7 @@ export const AmenityRecordTable = ({
   branchLanguages,
   mainLanguage,
 }: AmenityRecordTableProps) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -51,7 +52,7 @@ export const AmenityRecordTable = ({
 
   return (
     <RecordTable.Provider
-      columns={amenityColumns(branchId, branchLanguages, mainLanguage)}
+      columns={amenityColumns(branchId, branchLanguages, mainLanguage, t)}
       data={amenities || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name', 'icon']}

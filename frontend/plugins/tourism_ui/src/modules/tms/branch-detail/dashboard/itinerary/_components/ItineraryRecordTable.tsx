@@ -28,6 +28,7 @@ export const ItineraryRecordTable = ({
   branchLanguages,
   mainLanguage,
 }: ItineraryRecordTableProps) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -82,8 +83,8 @@ export const ItineraryRecordTable = ({
         branchId,
         branchLanguages,
         mainLanguage,
-      }),
-    [branchId, branchLanguages, handleEditClick, mainLanguage],
+      }, t),
+    [branchId, branchLanguages, handleEditClick, mainLanguage, t],
   );
   const rowData = itineraries || [];
 

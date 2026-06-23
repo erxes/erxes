@@ -21,6 +21,7 @@ export const ElementRecordTable = ({
   branchLanguages,
   mainLanguage,
 }: ElementRecordTableProps) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -58,6 +59,7 @@ export const ElementRecordTable = ({
         branchId,
         branchLanguages,
         mainLanguage,
+        t,
       )}
       data={elements || []}
       className="h-full"

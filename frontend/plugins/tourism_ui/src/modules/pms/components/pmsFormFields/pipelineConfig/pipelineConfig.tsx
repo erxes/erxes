@@ -187,7 +187,7 @@ const PipelineConfig = ({
               name="excludeRoomCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE ROOM CATEGORIES</Label>
+                  <Label>{t('exclude-room-categories')}</Label>
                   <Form.Control>
                     <SelectCategory
                       currentCategoryIds={roomsCategoryIds}
@@ -206,14 +206,14 @@ const PipelineConfig = ({
               name="excludeRoomIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE ROOMS</Label>
+                  <Label>{t('exclude-rooms')}</Label>
                   <Form.Control>
                     <SelectProducts
                       mode="multiple"
                       value={field.value}
                       categories={roomsCategoryIds}
                       onValueChange={handleExcludeRoomChange}
-                      placeholder="Select rooms"
+                      placeholder={t('select-rooms')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -250,7 +250,7 @@ const PipelineConfig = ({
               name="excludeExtraProductCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE EXTRA PRODUCT CATEGORIES</Label>
+                  <Label>{t('exclude-extra-product-categories')}</Label>
                   <Form.Control>
                     <SelectCategory
                       currentCategoryIds={extrasCategoryIds}
@@ -269,14 +269,14 @@ const PipelineConfig = ({
               name="excludeExtraProductIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE EXTRA PRODUCTS</Label>
+                  <Label>{t('exclude-extra-products')}</Label>
                   <Form.Control>
                     <SelectProducts
                       mode="multiple"
                       value={field.value}
                       categories={extrasCategoryIds}
                       onValueChange={handleExcludeExtraProductChange}
-                      placeholder="Select extra products"
+                      placeholder={t('select-extra-products')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -287,7 +287,7 @@ const PipelineConfig = ({
         </InfoCard.Content>
       </InfoCard>
 
-      <InfoCard title="Appointment product categories">
+      <InfoCard title={t('appointment-product-categories')}>
         <InfoCard.Content>
           <Form.Field
             control={form.control}
@@ -299,7 +299,7 @@ const PipelineConfig = ({
                   onCheckedChange={handleAppointmentToggle}
                   className="w-10 h-6 [&_span]:size-4 [&_span]:data-[state=checked]:translate-x-[19px] rtl:[&_span]:data-[state=checked]:-translate-x-[19px]"
                 />
-                <Label>ENABLE APPOINTMENTS</Label>
+                <Label>{t('enable-appointments')}</Label>
               </div>
             )}
           />
@@ -309,7 +309,7 @@ const PipelineConfig = ({
             name="appointmentCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Label>APPOINTMENT CATEGORIES</Label>
+                <Label>{t('appointment-categories')}</Label>
                 <Form.Control>
                   <SelectCategory
                     mode="multiple"
@@ -328,7 +328,7 @@ const PipelineConfig = ({
               name="excludeAppointmentCategoryIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE APPOINTMENT CATEGORIES</Label>
+                  <Label>{t('exclude-appointment-categories')}</Label>
                   <Form.Control>
                     <SelectCategory
                       currentCategoryIds={appointmentCategoryIds}
@@ -347,14 +347,14 @@ const PipelineConfig = ({
               name="excludeAppointmentIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Label>EXCLUDE APPOINTMENTS</Label>
+                  <Label>{t('exclude-appointments')}</Label>
                   <Form.Control>
                     <SelectProducts
                       mode="multiple"
                       value={field.value}
                       categories={appointmentCategoryIds}
                       onValueChange={handleExcludeAppointmentChange}
-                      placeholder="Select appointments"
+                      placeholder={t('select-appointments')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />

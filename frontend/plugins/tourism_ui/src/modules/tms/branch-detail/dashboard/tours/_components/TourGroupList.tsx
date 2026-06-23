@@ -23,6 +23,7 @@ export const TourGroupList = ({
   branchLanguages?: string[];
   mainLanguage?: string;
 }) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -52,8 +53,8 @@ export const TourGroupList = ({
             templateTourId: row.templateTourId,
           });
         },
-      }),
-    [],
+      }, t),
+    [t],
   );
   const tableOptions: TableOptions<TourGroupRow> = useMemo(
     () => ({

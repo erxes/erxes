@@ -1093,7 +1093,7 @@ const FieldDrawer = ({
                               key={option.value}
                               value={option.value}
                             >
-                              {option.label}
+                              {t(`field-type-${option.value}`)}
                             </Select.Item>
                           ))}
                         </Select.Content>

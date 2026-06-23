@@ -150,6 +150,7 @@ export const PmsCreateSheetFooter = ({
 export const CreatePmsSheetContentLayout: FC<
   CreatePmsSheetContentLayoutProps
 > = ({ children, form }) => {
+  const { t } = useTranslation('tourism');
   const [currentStep, setCurrentStep] = useAtom(stepState);
 
   const handleStepChange = async (nextStep: number) => {
@@ -181,7 +182,7 @@ export const CreatePmsSheetContentLayout: FC<
                       isActive={active}
                       onClick={() => void handleStepChange(stepNumber)}
                     >
-                      {`${stepNumber}. ${step}`}
+                      {`${stepNumber}. ${t(step)}`}
                     </Sidebar.MenuButton>
                   </Sidebar.MenuItem>
                 );

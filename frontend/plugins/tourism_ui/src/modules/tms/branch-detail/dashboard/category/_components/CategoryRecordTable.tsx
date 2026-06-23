@@ -21,6 +21,7 @@ export const CategoryRecordTable = ({
   branchLanguages,
   mainLanguage,
 }: CategoryRecordTableProps) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -57,7 +58,7 @@ export const CategoryRecordTable = ({
 
   return (
     <RecordTable.Provider
-      columns={categoryColumns(categoryObject, branchLanguages, mainLanguage)}
+      columns={categoryColumns(categoryObject, branchLanguages, mainLanguage, t)}
       data={categoriesWithChildren || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}

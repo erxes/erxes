@@ -61,7 +61,7 @@ export const ToursViewControl = ({ className }: ToursViewControlProps) => {
               className="flex-col gap-0 h-11"
             >
               <IconCalendarMonth className="size-5!" />
-              <span className="text-xs font-normal">Calendar</span>
+              <span className="text-xs font-normal">{t('calendar')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

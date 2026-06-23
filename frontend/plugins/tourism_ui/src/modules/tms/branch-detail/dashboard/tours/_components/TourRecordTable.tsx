@@ -30,6 +30,7 @@ export const TourRecordTable = ({
     'fixed' | 'flexible' | undefined
   >(undefined);
 
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -65,8 +66,8 @@ export const TourRecordTable = ({
     }
   }, []);
   const columns = useMemo(
-    () => TourColumns(categories || [], handleEdit, handleDuplicate),
-    [categories, handleDuplicate, handleEdit],
+    () => TourColumns(categories || [], handleEdit, handleDuplicate, t),
+    [categories, handleDuplicate, handleEdit, t],
   );
 
   if (!loading && (totalCount ?? 0) === 0) {
