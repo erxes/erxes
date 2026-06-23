@@ -116,8 +116,7 @@ export const loadProductCategoryClass = (
         await this.checkCodeDuplication(doc.code);
       }
 
-      let parentId =
-        doc.parentId !== undefined ? doc.parentId : category.parentId;
+      let parentId = doc.parentId ?? category.parentId;
 
       if (parentId === _id) {
         parentId = '';

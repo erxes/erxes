@@ -73,11 +73,9 @@ export const SelectCategory = React.forwardRef<
                 category={category}
                 selected={selectedCategory?._id === category._id}
                 onSelect={handleSelect}
-                hasChildren={
-                  availableCategories.find(
-                    (c: IProductCategory) => c.parentId === category._id,
-                  ) !== undefined
-                }
+                hasChildren={availableCategories.some(
+                  (c: IProductCategory) => c.parentId === category._id,
+                )}
               />
             ))}
           </Command.List>
