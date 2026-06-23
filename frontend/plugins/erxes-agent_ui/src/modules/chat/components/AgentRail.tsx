@@ -74,7 +74,7 @@ const AgentRailItem = ({
           <div
             className={`size-7 rounded-lg border flex items-center justify-center transition-colors ${
               isActive || isWorking
-                ? 'bg-gradient-to-br from-primary/25 to-primary/5 border-primary/30'
+                ? 'bg-muted border-border'
                 : 'bg-muted border-border'
             } ${isWorking ? 'ea-avatar-live' : ''}`}
           >
@@ -89,10 +89,18 @@ const AgentRailItem = ({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium truncate leading-tight">
+          <p
+            className={`text-sm font-medium truncate leading-tight ${
+              isActive ? 'text-primary' : ''
+            }`}
+          >
             {agent.name}
           </p>
-          <p className="text-xs text-muted-foreground truncate font-mono mt-0.5">
+          <p
+            className={`text-xs truncate font-mono mt-0.5 ${
+              isActive ? 'text-primary' : 'text-muted-foreground'
+            }`}
+          >
             {agent.model}
           </p>
         </div>
@@ -134,7 +142,7 @@ export const AgentRail = ({
   return (
     <div className="flex flex-col h-full">
       <div className="px-3 py-2.5 border-b">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <p className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">
           Agents
         </p>
       </div>
