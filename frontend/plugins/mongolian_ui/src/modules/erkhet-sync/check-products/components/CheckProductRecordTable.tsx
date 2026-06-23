@@ -11,7 +11,7 @@ export const CheckProductRecordTable = () => {
     useCheckProduct();
   const { t } = useTranslation('mongolian');
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const isInitialLoading = loading && !toCheckProducts;
+  const isInitialLoading = loading && toCheckProducts === null;
 
   const handleFetchMore = () => {
     checkProduct();
@@ -48,7 +48,7 @@ export const CheckProductRecordTable = () => {
             <Spinner />
           </div>
         )}
-        {!loading && !toCheckProducts && filteredProducts?.length === 0 && (
+        {!loading && toCheckProducts === null && filteredProducts?.length === 0 && (
           <div className="absolute inset-0">
             <div className="h-full w-full px-8 flex justify-center">
               <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">

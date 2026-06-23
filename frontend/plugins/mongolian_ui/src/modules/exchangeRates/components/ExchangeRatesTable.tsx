@@ -1,6 +1,5 @@
 import { IconArrowsExchange } from '@tabler/icons-react';
-import { RecordTable, Spinner, useQueryState } from 'erxes-ui';
-import { useMemo } from 'react';
+import { RecordTable, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { EXCHANGE_RATES_CURSOR_SESSION_KEY } from '../constants';
 import { useExchangeRates } from '../hooks/useExchangeRates';
@@ -11,7 +10,6 @@ import { exchangeRatesColumns } from './ExchangeRatesTableColumns';
 export const ExchangeRatesTable = () => {
   const { t } = useTranslation('mongolian');
   const [searchValue] = useQueryState<string>('searchValue');
-  const memoizedColumns = useMemo(() => exchangeRatesColumns, []);
 
   const { rows, totalCount, pageInfo, loading, handleFetchMore } =
     useExchangeRates(searchValue ?? undefined);
@@ -21,7 +19,7 @@ export const ExchangeRatesTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={memoizedColumns}
+      columns={exchangeRatesColumns}
       data={rows}
       className="m-3"
       stickyColumns={['more', 'checkbox']}
@@ -48,12 +46,6 @@ export const ExchangeRatesTable = () => {
               />
             </RecordTable.Body>
           </RecordTable>
-
-          {isInitialLoading && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Spinner />
-            </div>
-          )}
 
           {!isInitialLoading && totalCount === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">

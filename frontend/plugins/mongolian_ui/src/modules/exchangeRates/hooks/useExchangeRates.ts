@@ -52,13 +52,14 @@ export const useExchangeRates = (searchValue?: string) => {
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) return prev;
 
-          return Object.assign({}, prev, {
+          return {
+            ...prev,
             exchangeRatesMain: mergeCursorData({
               direction,
               fetchMoreResult: fetchMoreResult.exchangeRatesMain,
               prevResult: prev.exchangeRatesMain,
             }),
-          });
+          };
         },
       });
     },

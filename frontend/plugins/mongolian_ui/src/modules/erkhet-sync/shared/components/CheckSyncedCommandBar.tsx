@@ -1,23 +1,23 @@
 import { IconRefresh } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 
-interface CheckSyncedCommandBarProps {
-  sync: (...args: any[]) => any;
+interface CheckSyncedCommandBarProps<TData extends { status: string }> {
+  sync: (items: TData[], status: TData['status']) => Promise<unknown>;
   loading: boolean;
 }
 
-export const CheckSyncedCommandBar = ({
+export const CheckSyncedCommandBar = <TData extends { status: string }>({
   sync,
   loading,
-}: CheckSyncedCommandBarProps) => {
+}: CheckSyncedCommandBarProps<TData>) => {
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const selectedCount = selectedRows.length;
 
   const handleSync = async () => {
-    const selectedItems = selectedRows.map((row) => row.original);
+    const selectedItems = selectedRows.map((row) => row.original) as TData[];
 
-    await sync(selectedItems, selectedItems[0]?.status);
+    await sync(selectedItems, selectedItems[0]!.status);
 
     table.setRowSelection({});
   };

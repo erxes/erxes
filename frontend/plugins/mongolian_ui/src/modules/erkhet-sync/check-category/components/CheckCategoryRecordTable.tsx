@@ -16,7 +16,7 @@ export const CheckCategoryRecordTable = () => {
     toCheckCategories,
   } = useCheckCategory();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const isInitialLoading = loading && !toCheckCategories;
+  const isInitialLoading = loading && toCheckCategories === null;
 
   const handleFetchMore = () => {
     checkCategory();
@@ -53,7 +53,7 @@ export const CheckCategoryRecordTable = () => {
             <Spinner />
           </div>
         )}
-        {!loading && !toCheckCategories && filteredCategories?.length === 0 && (
+        {!loading && toCheckCategories === null && filteredCategories?.length === 0 && (
           <div className="absolute inset-0">
             <div className="h-full w-full px-8 flex justify-center">
               <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
