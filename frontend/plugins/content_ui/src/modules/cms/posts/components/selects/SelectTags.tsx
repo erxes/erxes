@@ -65,12 +65,14 @@ export const SelectTagsProvider = ({
   children,
   mode = 'single',
   clientPortalId,
+  open,
 }: {
   value: string | string[];
   onValueChange: (tag: string) => void;
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
   clientPortalId?: string;
+  open?: boolean;
 }) => {
   const language = useAtomValue(cmsLanguageAtom);
   const fetchedCursorsRef = useRef<Set<string>>(new Set());
@@ -140,8 +142,9 @@ export const SelectTagsProvider = ({
   }, [fetchMore, pageInfo?.endCursor, pageInfo?.hasNextPage, variables]);
 
   useEffect(() => {
+    if (open === false) return;
     fetchRemainingTags();
-  }, [fetchRemainingTags]);
+  }, [fetchRemainingTags, open]);
 
   const tags = useMemo(() => data?.cmsTags?.tags || [], [data?.cmsTags?.tags]);
 
@@ -324,6 +327,7 @@ export const SelectTagsFilterBar = ({
         mode={mode}
         value={tags || (mode === 'single' ? '' : [])}
         clientPortalId={clientPortalId}
+        open={open}
         onValueChange={(value) => {
           if (value.length > 0) {
             setTags(value as string[] | string);

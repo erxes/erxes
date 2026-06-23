@@ -1,7 +1,8 @@
+import { useEffect, useRef } from 'react';
 import {
+  IconCalendarCheck,
   IconCalendarPlus,
   IconCalendarUp,
-  IconLabel,
   IconSearch,
 } from '@tabler/icons-react';
 
@@ -11,6 +12,7 @@ import {
   Filter,
   useFilterQueryState,
   useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { PostsTotalCount } from './PostsTotalCount';
@@ -18,7 +20,7 @@ import { useIsPostsLeadSessionKey } from '../hooks/usePostsLeadSessionKey';
 import { SelectStatus } from './selects/SelectStatus';
 import { SelectTags } from './selects/SelectTags';
 import { SelectCategories } from './selects/SelectCategories';
-import { useCustomTypes } from '../../custom-types/hooks/useCustomTypes';
+import { SelectType } from './selects/SelectType';
 
 interface PostsFilterPopoverProps {
   clientPortalId?: string;
@@ -30,7 +32,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
     searchValue: string;
     status: string;
     type: string;
-    categories: string;
+    categories: string[];
     created: string;
     updated: string;
     publishedDate: string;
@@ -67,10 +69,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
                   Search
                 </Filter.Item>
                 <SelectStatus.FilterItem />
-                <Filter.Item value="type" inDialog>
-                  <IconLabel />
-                  Type
-                </Filter.Item>
+                <SelectType.FilterItem />
                 <SelectTags.FilterItem />
                 <SelectCategories.FilterItem />
                 <Command.Separator className="my-1" />
@@ -83,7 +82,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
                   Updated At
                 </Filter.Item>
                 <Filter.Item value="publishedDate">
-                  <IconCalendarPlus />
+                  <IconCalendarCheck />
                   Publish Date
                 </Filter.Item>
               </Command.List>
@@ -92,6 +91,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
           <SelectTags.FilterView clientPortalId={clientPortalId || ''} />
           <SelectCategories.FilterView clientPortalId={clientPortalId} />
           <SelectStatus.FilterView />
+          <SelectType.FilterView clientPortalId={clientPortalId} />
           <Filter.View filterKey="created">
             <Filter.DateView filterKey="created" />
           </Filter.View>
@@ -111,7 +111,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
           <SelectStatus.FilterView />
         </Filter.View>
         <Filter.View filterKey="type" inDialog>
-          <Filter.DialogStringView filterKey="type" />
+          <SelectType.FilterView clientPortalId={clientPortalId} />
         </Filter.View>
         <Filter.View filterKey="categories" inDialog>
           <SelectCategories.FilterView clientPortalId={clientPortalId} />
@@ -135,15 +135,40 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
 
 export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
-  const [type] = useFilterQueryState<string>('type');
   const { sessionKey } = useIsPostsLeadSessionKey();
-  const { customTypes } = useCustomTypes({ clientPortalId });
-  const typeLabel =
-    type === 'post'
-      ? 'Post'
-      : customTypes.find((t) => t.code === type)?.pluralLabel ||
-        customTypes.find((t) => t.code === type)?.label ||
-        type;
+
+  // Enforce mutual exclusivity: setting one date filter clears the other two
+  const [created, setCreated] = useQueryState<string>('created');
+  const [updated, setUpdated] = useQueryState<string>('updated');
+  const [publishedDate, setPublishedDate] = useQueryState<string>('publishedDate');
+
+  const prevCreated = useRef(created);
+  const prevUpdated = useRef(updated);
+  const prevPublishedDate = useRef(publishedDate);
+
+  useEffect(() => {
+    if (created && created !== prevCreated.current) {
+      setUpdated(null);
+      setPublishedDate(null);
+    }
+    prevCreated.current = created;
+  }, [created]);
+
+  useEffect(() => {
+    if (updated && updated !== prevUpdated.current) {
+      setCreated(null);
+      setPublishedDate(null);
+    }
+    prevUpdated.current = updated;
+  }, [updated]);
+
+  useEffect(() => {
+    if (publishedDate && publishedDate !== prevPublishedDate.current) {
+      setCreated(null);
+      setUpdated(null);
+    }
+    prevPublishedDate.current = publishedDate;
+  }, [publishedDate]);
 
   return (
     <Filter id="posts-filter" sessionKey={sessionKey}>
@@ -158,15 +183,7 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
           </Filter.BarButton>
         </Filter.BarItem>
         <SelectStatus.FilterBar />
-        <Filter.BarItem queryKey="type">
-          <Filter.BarName>
-            <IconLabel />
-            Type
-          </Filter.BarName>
-          <Filter.BarButton filterKey="type" inDialog>
-            {typeLabel}
-          </Filter.BarButton>
-        </Filter.BarItem>
+        <SelectType.FilterBar clientPortalId={clientPortalId || undefined} />
         <SelectTags.FilterBar clientPortalId={clientPortalId} />
         <SelectCategories.FilterBar clientPortalId={clientPortalId} />
         <Filter.BarItem queryKey="created">
@@ -185,7 +202,7 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
         </Filter.BarItem>
         <Filter.BarItem queryKey="publishedDate">
           <Filter.BarName>
-            <IconCalendarPlus />
+            <IconCalendarCheck />
             Publish Date
           </Filter.BarName>
           <Filter.Date filterKey="publishedDate" />
