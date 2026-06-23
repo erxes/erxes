@@ -64,7 +64,7 @@ const SelectTeamMemberContent = () => {
   const filteredUsers = users.filter((user) => user._id !== currentUser._id);
 
   const membersList = [currentUser, ...filteredUsers].filter(
-    (user) => !members.find((member) => member._id === user._id),
+    (user) => !members.some((member) => member._id === user._id),
   );
 
   return (

@@ -218,7 +218,7 @@ export const SelectStatusTicketFilterView = ({
         value={status || ''}
         pipelineId={pipelineId}
         onValueChange={(value) => {
-          setStatus(value as string);
+          setStatus(value);
           resetFilterState();
         }}
       >
