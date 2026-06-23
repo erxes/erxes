@@ -87,11 +87,11 @@ export const FieldSelectMultipleContent = ({
         {options.map((o) => (
           <Command.Item
             key={o.value}
-            value={o.value as string}
+            value={o.value}
             onSelect={() => handleSelect(o.value)}
           >
             {o.label}
-            <Combobox.Check checked={value.includes(o.value as string)} />
+            <Combobox.Check checked={value.includes(o.value)} />
           </Command.Item>
         ))}
       </Command.List>
