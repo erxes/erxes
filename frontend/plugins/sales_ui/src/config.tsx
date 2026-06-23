@@ -1,4 +1,4 @@
-import { IconBriefcase, IconSandbox } from '@tabler/icons-react';
+import { IconBriefcase, IconReceipt, IconSandbox } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig } from 'erxes-ui';
@@ -72,6 +72,10 @@ export const CONFIG: IUIConfig = {
       {
         name: 'deals',
         icon: IconSandbox,
+      },
+      {
+        name: 'posOrders',
+        icon: IconReceipt,
       },
     ],
   },
