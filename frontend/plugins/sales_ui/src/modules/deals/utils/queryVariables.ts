@@ -13,14 +13,14 @@ const DATE_RANGE_MAP: Record<string, [string, string]> = {
   createdStartDate: ['createdStartDate', 'createdEndDate'],
   startDateStartDate: ['startDateStartDate', 'startDateEndDate'],
   closeDateStartDate: ['closeDateStartDate', 'closeDateEndDate'],
-  stageChangedStartDate: ['stateChangedStartDate', 'stateChangedEndDate'],
+  stageChangedStartDate: ['stageChangedStartDate', 'stageChangedEndDate'],
 };
 
 const DATE_UPPER_BOUND_KEYS = new Set([
   'startDateEndDate',
   'createdEndDate',
   'closeDateEndDate',
-  'stateChangedEndDate',
+  'stageChangedEndDate',
 ]);
 
 const parseValidRange = (value: string) => {

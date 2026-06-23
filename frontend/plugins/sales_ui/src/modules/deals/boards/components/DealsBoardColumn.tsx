@@ -68,9 +68,9 @@ export function DealsBoardColumn({
 
   useEffect(() => {
     if (!loading) {
-      const finalCount = !isUndefinedOrNull(totalCount)
-        ? totalCount
-        : deals?.length || 0;
+      const finalCount = isUndefinedOrNull(totalCount)
+        ? deals?.length || 0
+        : totalCount;
       setDealCountByBoard((prev) => ({
         ...prev,
         [column._id]: finalCount,

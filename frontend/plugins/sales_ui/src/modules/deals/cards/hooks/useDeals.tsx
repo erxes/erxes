@@ -206,9 +206,9 @@ export const useDeals = (
       if (loading) {
         setTotalCount(null);
       } else {
-        const finalCount = !isUndefinedOrNull(totalCount)
-          ? totalCount
-          : deals?.length || 0;
+        const finalCount = isUndefinedOrNull(totalCount)
+          ? deals?.length || 0
+          : totalCount;
         setTotalCount(finalCount);
       }
     }
