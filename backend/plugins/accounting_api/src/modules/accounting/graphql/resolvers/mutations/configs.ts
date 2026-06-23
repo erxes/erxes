@@ -3,10 +3,10 @@ import { IContext } from '~/connectionResolvers';
 
 // Configs whose value is a list of user ids that must always include the
 // organization owner(s).
-const OWNER_INCLUSIVE_CODES = [
+const OWNER_INCLUSIVE_CODES = new Set([
   'dominantReadAccountUsers',
   'dominantWriteAccountUsers',
-];
+]);
 
 const configMutations = {
   async accountingsConfigsCreate(
@@ -46,9 +46,7 @@ const configMutations = {
 
     // Fetch the organization owner ids once, only when an owner-inclusive
     // config is being saved.
-    const needsOwners = codes.some((code) =>
-      OWNER_INCLUSIVE_CODES.includes(code),
-    );
+    const needsOwners = codes.some((code) => OWNER_INCLUSIVE_CODES.has(code));
     let ownerUserIds: string[] = [];
 
     if (needsOwners) {
@@ -74,7 +72,7 @@ const configMutations = {
       let value = configsMap[code];
 
       // Always keep the organization owner(s) in the dominant access lists.
-      if (OWNER_INCLUSIVE_CODES.includes(code)) {
+      if (OWNER_INCLUSIVE_CODES.has(code)) {
         value = Array.from(new Set([...(value || []), ...ownerUserIds]));
       }
 
