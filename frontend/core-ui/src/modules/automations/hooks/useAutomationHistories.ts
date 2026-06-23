@@ -1,4 +1,3 @@
-import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AUTOMATION_HISTORIES_CURSOR_SESSION_KEY } from '@/automations/constants';
 import { AUTOMATION_HISTORIES } from '@/automations/graphql/automationQueries';
 import { StatusBadgeValue } from '@/automations/types';
