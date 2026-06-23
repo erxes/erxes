@@ -1,12 +1,15 @@
 import {
+  cn,
   Empty,
   FocusSheet,
   Form,
   ScrollArea,
   Tabs,
+  useFocusSheet,
   useMultiQueryState,
   useToast,
 } from 'erxes-ui';
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +24,7 @@ import {
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ProductDetailSidebar } from '@/products/product-detail/components/ProductDetailSidebar';
 import { ProductDetailFooter } from '@/products/product-detail/components/ProductDetailFooter';
+import { FormWidgetSideTabs } from '@/widgets/components/FormWidgets';
 import { ProductDetailFields } from '@/products/product-detail/components/ProductDetailFields';
 import { ProductDetailSimilarity } from '@/products/product-detail/components/ProductDetailSimilarity';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
@@ -153,13 +157,12 @@ export const ProductDetailSheet = () => {
         setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })
       }
     >
-      <FocusSheet.View
+      <ProductDetailSheetView
         loading={loading}
         error={!!error}
         notFound={!productDetail}
         notFoundState={<ProductDetailEmptyState />}
         errorState={<ProductDetailErrorState />}
-        className="w-[70%] md:w-[70%]"
       >
         <FocusSheet.Header title={productDetail?.name || t('product-detail')} />
         <FocusSheet.Content className="flex overflow-hidden flex-row flex-1 min-w-0 min-h-0">
@@ -241,9 +244,40 @@ export const ProductDetailSheet = () => {
               </form>
             </Form>
           </div>
+          <FormWidgetSideTabs contentType="core:product" form={form} />
         </FocusSheet.Content>
-      </FocusSheet.View>
+      </ProductDetailSheetView>
     </FocusSheet>
+  );
+};
+
+const ProductDetailSheetView = ({
+  children,
+  ...props
+}: {
+  children: ReactNode;
+  loading?: boolean;
+  error?: boolean;
+  notFound?: boolean;
+  notFoundState?: ReactNode;
+  errorState?: ReactNode;
+}) => {
+  const { activeSideTab } = useFocusSheet();
+
+  const widthClass = activeSideTab
+    ? 'w-[90%] md:w-[90%] lg:w-[90%]'
+    : 'w-[70%] md:w-[70%] lg:w-[70%]';
+
+  return (
+    <FocusSheet.View
+      className={cn(
+        'transition-[width] duration-300 ease-in-out',
+        widthClass,
+      )}
+      {...props}
+    >
+      {children}
+    </FocusSheet.View>
   );
 };
 
