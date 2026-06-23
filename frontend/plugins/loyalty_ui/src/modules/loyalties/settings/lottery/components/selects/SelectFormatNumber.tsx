@@ -34,19 +34,19 @@ export const formatNumberByPattern = (
 
   switch (pattern) {
     case '[0-9]':
-      return numStr.replace(/[^0-9]/g, '');
+      return numStr.replaceAll(/\D/g, '');
     case '[a-z]':
-      return numStr.replace(/[^a-z]/g, '');
+      return numStr.replaceAll(/[^a-z]/g, '');
     case '[A-Z]':
-      return numStr.replace(/[^A-Z]/g, '');
+      return numStr.replaceAll(/[^A-Z]/g, '');
     case '[a-z][A-Z]':
-      return numStr.replace(/[^a-zA-Z]/g, '');
+      return numStr.replaceAll(/[^a-zA-Z]/g, '');
     case '[0-9][a-z]':
-      return numStr.replace(/[^0-9a-z]/g, '');
+      return numStr.replaceAll(/[^0-9a-z]/g, '');
     case '[0-9][A-Z]':
-      return numStr.replace(/[^0-9A-Z]/g, '');
+      return numStr.replaceAll(/[^0-9A-Z]/g, '');
     case '[0-9a-z][A-Z]':
-      return numStr.replace(/[^0-9a-zA-Z]/g, '');
+      return numStr.replaceAll(/[^0-9a-zA-Z]/g, '');
     default:
       return displayNum(value);
   }
