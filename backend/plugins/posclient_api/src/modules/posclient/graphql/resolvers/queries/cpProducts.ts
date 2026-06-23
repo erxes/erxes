@@ -473,15 +473,17 @@ const cpProductQueries: Record<string, Resolver> = {
 
     if (groupedSimilarity === 'config') {
       const getRegex = (str) => {
-        return ['*', '.', '_'].includes(str)
-          ? new RegExp(
-              `^${str
-                .replace(/\./g, '\\.')
-                .replace(/\*/g, '.')
-                .replace(/_/g, '.')}.*`,
-              'igu',
-            )
-          : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+        if (['*', '.', '_'].includes(str)) {
+          // Escape all regex meta-characters first (including backslash itself),
+          // then translate the SQL-LIKE-style wildcards back to '.':
+          //   '*' has been escaped to '\*' by escapeRegExp -> rewrite to '.'
+          //   '_' is not a regex meta-character           -> rewrite to '.'
+          const escaped = escapeRegExp(str)
+            .replace(/\\\*/g, '.')
+            .replace(/_/g, '.');
+          return new RegExp(`^${escaped}.*`, 'igu');
+        }
+        return new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
       const similarityGroups = await models.ProductsConfigs.getConfig(
