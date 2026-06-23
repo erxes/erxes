@@ -12,19 +12,19 @@ export function StringArrayInput({
   styleClasses,
   onBlur,
 }: {
-  value: string[];
-  onValueChange: (value: string[]) => void;
-  id?: string;
-  placeholder?: string;
-  styleClasses?: {
-    inlineTagsContainer?: string;
-    input?: string;
-    tag?: {
-      body?: string;
-      closeButton?: string;
+  readonly value: string[];
+  readonly onValueChange: (value: string[]) => void;
+  readonly id?: string;
+  readonly placeholder?: string;
+  readonly styleClasses?: {
+    readonly inlineTagsContainer?: string;
+    readonly input?: string;
+    readonly tag?: {
+      readonly body?: string;
+      readonly closeButton?: string;
     };
   };
-  onBlur?: () => void;
+  readonly onBlur?: () => void;
 }) {
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
   return (

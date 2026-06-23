@@ -90,7 +90,6 @@ const CommandInput = React.forwardRef<
       return (
         <div
           className={cn('flex items-center border-b px-3', wrapperClassName)}
-          cmdk-input-wrapper=""
         >
           <IconSearch className="mr-2 h-4 w-4 shrink-0 opacity-50" />
           <CommandPrimitive.Input
