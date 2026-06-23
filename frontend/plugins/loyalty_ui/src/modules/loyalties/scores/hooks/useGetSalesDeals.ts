@@ -7,6 +7,7 @@ const GET_SALES_DEALS = gql`
     $stageId: String
     $limit: Int
     $orderBy: JSON
+    $noSkipArchive: Boolean
   ) {
     deals(
       search: $search
@@ -14,6 +15,7 @@ const GET_SALES_DEALS = gql`
       stageId: $stageId
       limit: $limit
       orderBy: $orderBy
+      noSkipArchive: $noSkipArchive
     ) {
       list {
         _id
@@ -52,6 +54,9 @@ export const useGetSalesDeals = (params: IParams) => {
         ...params,
         limit: DEALS_SEARCH_LIMIT,
         orderBy: DEALS_SEARCH_ORDER_BY,
+        // Include archived deals so deals in archived stages/pipelines are
+        // still findable when giving scores.
+        noSkipArchive: true,
       },
       skip: !params.pipelineId && !params.stageId && !params.search,
       errorPolicy: 'all',
