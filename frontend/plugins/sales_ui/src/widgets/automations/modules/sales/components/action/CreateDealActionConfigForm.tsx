@@ -6,6 +6,7 @@ import {
   SelectStage,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
+  TPlaceholderInputSuggestion,
 } from 'ui-modules';
 import {
   TSalesActionConfigForm,
@@ -149,9 +150,7 @@ export const CreateDealActionConfigForm = ({
                 selectMode: 'one',
                 allowOnlyTriggers: true,
               }}
-              enabled={{
-                call_user: true,
-              }}
+              enabled={[TPlaceholderInputSuggestion.CallUser]}
             />
             <Form.Message />
           </Form.Item>
@@ -171,9 +170,7 @@ export const CreateDealActionConfigForm = ({
                 selectMode: 'one',
                 allowOnlyTriggers: true,
               }}
-              enabled={{
-                date: true,
-              }}
+              enabled={[TPlaceholderInputSuggestion.Date]}
             />
             <Form.Message />
           </Form.Item>
@@ -224,15 +221,13 @@ export const CreateDealActionConfigForm = ({
               propertyType={targetType}
               value={field.value}
               onChange={field.onChange}
-              selectionType="option"
+              selectionType={TPlaceholderInputSuggestion.Option}
               popoverPosition="left"
               placeholderConfig={{
                 selectMode: 'one',
                 allowOnlyTriggers: true,
               }}
-              enabled={{
-                option: true,
-              }}
+              enabled={[TPlaceholderInputSuggestion.Option]}
               suggestionsOptions={{
                 option: {
                   options: ['Critical', 'High', 'Medium', 'Low'].map((p) => ({

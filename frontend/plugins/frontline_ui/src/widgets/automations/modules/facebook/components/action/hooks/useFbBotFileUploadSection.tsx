@@ -1,6 +1,6 @@
 import { REACT_APP_API_URL, useToast, useUpload } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   IconPhotoScan,
   IconVideo,
@@ -25,6 +25,18 @@ const getFileTypeConst = (
 
 const checkIsImageType = (mimeType: string) => mimeType.startsWith('image/');
 
+const resolveUploadedFileUrl = (fileUrl?: string | null) => {
+  if (!fileUrl) {
+    return null;
+  }
+
+  try {
+    return readImage(decodeURIComponent(fileUrl));
+  } catch {
+    return readImage(fileUrl);
+  }
+};
+
 export const useFbBotFileUploadSection = ({
   url,
   mimeType,
@@ -38,7 +50,7 @@ export const useFbBotFileUploadSection = ({
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(
-    url || null,
+    resolveUploadedFileUrl(url),
   );
   const [uploadedFileMimeType, setUploadedFileMimeType] =
     useState<string>(mimeType);
@@ -46,7 +58,12 @@ export const useFbBotFileUploadSection = ({
   const { toast } = useToast();
 
   const sizeLimit = limit * 1024 * 1024;
-  const isImageType = checkIsImageType(mimeType);
+  const isImageType = checkIsImageType(uploadedFileMimeType);
+
+  useEffect(() => {
+    setUploadedFileUrl(resolveUploadedFileUrl(url));
+    setUploadedFileMimeType(mimeType);
+  }, [mimeType, url]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -114,7 +131,7 @@ export const useFbBotFileUploadSection = ({
         },
       });
     },
-    [upload, sizeLimit, limit, toast, onUpload, url],
+    [isImageType, upload, sizeLimit, limit, toast, onUpload, url],
   );
 
   const handleDrop = useCallback(

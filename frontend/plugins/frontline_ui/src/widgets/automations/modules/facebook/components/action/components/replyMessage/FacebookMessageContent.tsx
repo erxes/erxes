@@ -1,11 +1,12 @@
-import { FieldPath } from 'react-hook-form';
 import { FacebookInputMessage } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookInputMessage';
 import { TBotMessage } from '../../states/replyMessageActionForm';
 import { FacebookCardsMessage } from './FacebookCardsMessage';
+import { FacebookMediaMessage } from './FacebookMediaMessage';
 import { FacebookQuickRepliesMessage } from './FacebookQuickRepliesMessage';
 import { FacebookTextMessage } from './FacebookTextMessage';
 import { FacebookTicketFormMessage } from './FacebookTicketFormMessage';
 import { FacebookMessageProps } from '~/widgets/automations/modules/facebook/components/action/types/messageActionForm';
+import { FieldPath } from 'react-hook-form';
 
 type MessageComponents = {
   [M in TBotMessage as M['type']]: React.ComponentType<{
@@ -43,10 +44,18 @@ export const FacebookMessageContent = ({
     quickReplies: FacebookQuickRepliesMessage,
     input: FacebookInputMessage,
     ticketForm: FacebookTicketFormMessage,
-    image: ({}: FacebookMessageProps<{ type: 'image' }>) => null,
-    audio: ({}: FacebookMessageProps<{ type: 'audio' }>) => null,
-    video: ({}: FacebookMessageProps<{ type: 'video' }>) => null,
-    attachments: ({}: FacebookMessageProps<{ type: 'attachments' }>) => null,
+    image: (props: FacebookMessageProps<{ type: 'image' }>) => (
+      <FacebookMediaMessage {...props} />
+    ),
+    audio: (props: FacebookMessageProps<{ type: 'audio' }>) => (
+      <FacebookMediaMessage {...props} />
+    ),
+    video: (props: FacebookMessageProps<{ type: 'video' }>) => (
+      <FacebookMediaMessage {...props} />
+    ),
+    attachments: (props: FacebookMessageProps<{ type: 'attachments' }>) => (
+      <FacebookMediaMessage {...props} />
+    ),
   };
 
   const MessageComponent = componentMap[

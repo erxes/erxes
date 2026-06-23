@@ -29,7 +29,7 @@ export const ProductFormSchema = z
       (value) => (value === '' || value == null ? undefined : Number(value)),
       z.number().positive('Duration must be greater than 0').optional(),
     ),
-    durationType: z.enum(PRODUCT_DURATION_TYPE_VALUES).optional(),
+    durationType: z.enum(PRODUCT_DURATION_TYPE_VALUES).nullish(),
     attachment: z.any().optional(),
     attachmentMore: z.any().optional(),
     currency: z.string().optional(),

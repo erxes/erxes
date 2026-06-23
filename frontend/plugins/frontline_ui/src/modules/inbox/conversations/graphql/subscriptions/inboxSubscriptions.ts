@@ -37,8 +37,9 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       isCustomerRead
       userId
       customerId
-      fromBot
       botData
+      source
+      fromBot
     }
   }
 `;
