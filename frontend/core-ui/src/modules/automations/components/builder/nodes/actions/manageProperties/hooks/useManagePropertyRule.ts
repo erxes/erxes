@@ -6,6 +6,7 @@ import {
   groupFieldsByType,
   IField,
   TPlaceholderInputSuggestion,
+  TPlaceholderInputSuggestionsOption,
   useGetFieldsProperties,
 } from 'ui-modules';
 
@@ -188,7 +189,9 @@ const useManagePropertyRuleInputProps = (
   operators: { value: string; label: string }[] = [],
 ) => {
   const enabled = selectedField ? [TPlaceholderInputSuggestion.Attribute] : [];
-  const suggestionsOptions: any = {};
+  const suggestionsOptions: Partial<
+    Record<TPlaceholderInputSuggestion, TPlaceholderInputSuggestionsOption>
+  > = {};
   let isDisabled = false;
   if (!selectedField || !operators.some((op) => op.value === rule?.operator)) {
     isDisabled = true;
