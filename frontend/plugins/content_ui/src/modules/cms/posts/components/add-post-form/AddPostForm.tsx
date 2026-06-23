@@ -322,6 +322,7 @@ export const AddPostForm = ({
               defaultLanguage={defaultLanguage}
               selectedType={selectedType}
               fieldGroups={fieldGroups}
+              websiteId={websiteId}
               fullPost={fullPost}
               handleEditorChange={handlePostEditorChange}
               getCustomFieldValue={getCustomFieldValue}
