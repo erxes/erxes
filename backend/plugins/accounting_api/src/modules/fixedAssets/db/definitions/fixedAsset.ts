@@ -4,7 +4,6 @@ import {
   FIXED_ASSET_DEPRECIATION_METHODS,
   FIXED_ASSET_STATUSES,
 } from '../../@types/constants';
-import { accountConfigSchema } from './accountConfig';
 
 export const fixedAssetSchema = new Schema({
   _id: mongooseStringRandomId,
@@ -23,12 +22,6 @@ export const fixedAssetSchema = new Schema({
     default: FIXED_ASSET_STATUSES.ACTIVE,
     label: 'Status',
     index: true,
-  },
-  // Category-оос хуулагдаж хадгалагдах, тухайн хөрөнгө дээр override хийх боломжтой дансны тохиргоо
-  accounts: {
-    type: accountConfigSchema,
-    optional: true,
-    label: 'Accounts',
   },
   // Энэ хөрөнгө дээр ашиглах элэгдэл бодох арга
   depreciationMethod: {

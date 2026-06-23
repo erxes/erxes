@@ -6,7 +6,6 @@ const categoryParamsDef = `
   $description: String
   $parentId: String
   $status: String
-  $accounts: JSON
   $depreciationMethod: String
   $defaultUsefulLife: Float
   $defaultSalvageValue: Float
@@ -21,7 +20,6 @@ const categoryParams = `
   description: $description
   parentId: $parentId
   status: $status
-  accounts: $accounts
   depreciationMethod: $depreciationMethod
   defaultUsefulLife: $defaultUsefulLife
   defaultSalvageValue: $defaultSalvageValue
@@ -36,7 +34,6 @@ const assetParamsDef = `
   $categoryId: String!
   $description: String
   $status: String
-  $accounts: JSON
   $depreciationMethod: String
   $usefulLife: Float
   $salvageValue: Float
@@ -52,7 +49,6 @@ const assetParams = `
   categoryId: $categoryId
   description: $description
   status: $status
-  accounts: $accounts
   depreciationMethod: $depreciationMethod
   usefulLife: $usefulLife
   salvageValue: $salvageValue

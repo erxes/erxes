@@ -7,8 +7,6 @@ export const types = `
     description: String
     status: String
 
-    accounts: FixedAssetAccounts
-
     depreciationMethod: String
     usefulLife: Float
     salvageValue: Float
@@ -36,7 +34,6 @@ export const mutations = `
     categoryId: String!
     description: String
     status: String
-    accounts: JSON
     depreciationMethod: String
     usefulLife: Float
     salvageValue: Float
@@ -53,7 +50,6 @@ export const mutations = `
     categoryId: String!
     description: String
     status: String
-    accounts: JSON
     depreciationMethod: String
     usefulLife: Float
     salvageValue: Float

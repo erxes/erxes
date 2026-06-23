@@ -1,8 +1,8 @@
 import { UseFormReturn } from 'react-hook-form';
-import { Button, Form, Input, Sheet, Spinner, Textarea } from 'erxes-ui';
+import { Button, Form, Input, Select, Sheet, Spinner, Textarea } from 'erxes-ui';
+import { FIXED_ASSET_DEPRECIATION_METHODS } from '../constants/depreciationMethods';
 import { TFixedAssetCategoryForm } from '../types/FixedAsset';
 import { SelectFixedAssetCategory } from './SelectFixedAssetCategory';
-import { FixedAssetAccountFields } from './FixedAssetAccountFields';
 
 const NumberInput = ({
   field,
@@ -33,17 +33,20 @@ export const FixedAssetCategoryForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="py-4 grid grid-cols-2 gap-5"
+        className="py-4 grid grid-cols-1 md:grid-cols-3 gap-5"
       >
         <Form.Field
           control={form.control}
-          name="name"
+          name="parentId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Нэр</Form.Label>
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
+              <Form.Label>Эцэг бүлэг</Form.Label>
+              <SelectFixedAssetCategory
+                recordId={field.value}
+                selected={field.value}
+                onSelect={field.onChange}
+                nullable
+              />
               <Form.Message />
             </Form.Item>
           )}
@@ -63,16 +66,13 @@ export const FixedAssetCategoryForm = ({
         />
         <Form.Field
           control={form.control}
-          name="parentId"
+          name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Эцэг бүлэг</Form.Label>
-              <SelectFixedAssetCategory
-                recordId={field.value}
-                selected={field.value}
-                onSelect={field.onChange}
-                nullable
-              />
+              <Form.Label>Нэр</Form.Label>
+              <Form.Control>
+                <Input {...field} />
+              </Form.Control>
               <Form.Message />
             </Form.Item>
           )}
@@ -84,7 +84,18 @@ export const FixedAssetCategoryForm = ({
             <Form.Item>
               <Form.Label>Элэгдлийн арга</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Элэгдлийн арга сонгох" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
+                      <Select.Item key={method.value} value={method.value}>
+                        {method.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -123,7 +134,18 @@ export const FixedAssetCategoryForm = ({
             <Form.Item>
               <Form.Label>Татварын элэгдлийн арга</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Татварын элэгдлийн арга сонгох" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
+                      <Select.Item key={method.value} value={method.value}>
+                        {method.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -159,7 +181,7 @@ export const FixedAssetCategoryForm = ({
           control={form.control}
           name="description"
           render={({ field }) => (
-            <Form.Item className="col-span-2">
+            <Form.Item className="col-span-1 md:col-span-3">
               <Form.Label>Тайлбар</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
@@ -168,8 +190,7 @@ export const FixedAssetCategoryForm = ({
             </Form.Item>
           )}
         />
-        <FixedAssetAccountFields form={form} />
-        <Sheet.Footer className="col-span-2 mt-4">
+        <Sheet.Footer className="col-span-1 md:col-span-3 mt-4">
           <Sheet.Close asChild>
             <Button variant="outline" type="button" size="lg">
               Болих

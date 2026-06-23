@@ -1,16 +1,4 @@
 export const types = `
-  type FixedAssetAccounts {
-    fixedAssetAccountId: String
-    accumulatedDepreciationAccountId: String
-    depreciationExpenseAccountId: String
-    gainAccountId: String
-    lossAccountId: String
-    revaluationReserveAccountId: String
-    deferredTaxAssetAccountId: String
-    deferredTaxLiabilityAccountId: String
-    incomeTaxExpenseAccountId: String
-  }
-
   type FixedAssetCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     code: String
@@ -18,8 +6,6 @@ export const types = `
     description: String
     parentId: String
     status: String
-
-    accounts: FixedAssetAccounts
 
     depreciationMethod: String
     defaultUsefulLife: Float
@@ -47,7 +33,6 @@ export const mutations = `
     description: String
     parentId: String
     status: String
-    accounts: JSON
     depreciationMethod: String
     defaultUsefulLife: Float
     defaultSalvageValue: Float
@@ -63,7 +48,6 @@ export const mutations = `
     description: String
     parentId: String
     status: String
-    accounts: JSON
     depreciationMethod: String
     defaultUsefulLife: Float
     defaultSalvageValue: Float

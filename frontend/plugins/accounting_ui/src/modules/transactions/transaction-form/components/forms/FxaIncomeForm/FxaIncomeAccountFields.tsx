@@ -2,6 +2,7 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
+import { useFixedAssetAccountConfigs } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
 
 export const FxaIncomeAccountFields = ({
   form,
@@ -9,7 +10,35 @@ export const FxaIncomeAccountFields = ({
 }: {
   form: ITransactionGroupForm;
   index: number;
-}) => (
+}) => {
+  const { configs } = useFixedAssetAccountConfigs();
+
+  const applyAccountConfig = (accountId: string) => {
+    const value = configs?.find((config) => config.accountId === accountId)?.value;
+
+    if (!value) {
+      return;
+    }
+
+    form.setValue(
+      `trDocs.${index}.followInfos.accumulatedDepreciationAccountId`,
+      value.depreciationAccountId,
+    );
+    form.setValue(
+      `trDocs.${index}.followInfos.deferredTaxAssetAccountId`,
+      value.taxAssetAccountId,
+    );
+    form.setValue(
+      `trDocs.${index}.followInfos.deferredTaxLiabilityAccountId`,
+      value.taxLiabilityAccountId,
+    );
+    form.setValue(
+      `trDocs.${index}.followInfos.incomeTaxExpenseAccountId`,
+      value.TaxExpenseAccountId,
+    );
+  };
+
+  return (
   <>
     <Form.Field
       control={form.control}
@@ -20,7 +49,10 @@ export const FxaIncomeAccountFields = ({
           <Form.Control>
             <SelectAccount
               value={field.value || ''}
-              onValueChange={field.onChange}
+              onValueChange={(value) => {
+                field.onChange(value);
+                applyAccountConfig(value as string);
+              }}
               defaultFilter={{
                 journals: [JournalEnum.FIXED_ASSET],
                 permissionMode: 'write',
@@ -58,4 +90,5 @@ export const FxaIncomeAccountFields = ({
       )}
     />
   </>
-);
+  );
+};

@@ -7,17 +7,6 @@ export const FIXED_ASSETS_QUERY = gql`
       code
       name
       categoryId
-      accounts {
-        fixedAssetAccountId
-        accumulatedDepreciationAccountId
-        depreciationExpenseAccountId
-        gainAccountId
-        lossAccountId
-        revaluationReserveAccountId
-        deferredTaxAssetAccountId
-        deferredTaxLiabilityAccountId
-        incomeTaxExpenseAccountId
-      }
       depreciationMethod
       usefulLife
       salvageValue

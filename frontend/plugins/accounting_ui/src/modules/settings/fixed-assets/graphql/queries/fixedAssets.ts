@@ -1,17 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const fixedAssetAccountFields = `
-  fixedAssetAccountId
-  accumulatedDepreciationAccountId
-  depreciationExpenseAccountId
-  gainAccountId
-  lossAccountId
-  revaluationReserveAccountId
-  deferredTaxAssetAccountId
-  deferredTaxLiabilityAccountId
-  incomeTaxExpenseAccountId
-`;
-
 export const fixedAssetCategoryFields = `
   _id
   code
@@ -25,9 +13,6 @@ export const fixedAssetCategoryFields = `
   taxDepreciationMethod
   defaultTaxUsefulLife
   defaultTaxSalvageValue
-  accounts {
-    ${fixedAssetAccountFields}
-  }
 `;
 
 export const fixedAssetFields = `
@@ -44,9 +29,6 @@ export const fixedAssetFields = `
   taxUsefulLife
   taxSalvageValue
   propertiesData
-  accounts {
-    ${fixedAssetAccountFields}
-  }
 `;
 
 export const GET_FIXED_ASSET_CATEGORIES = gql`

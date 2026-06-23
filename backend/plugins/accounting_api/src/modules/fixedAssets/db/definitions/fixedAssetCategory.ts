@@ -4,7 +4,6 @@ import {
   FIXED_ASSET_CATEGORY_STATUSES,
   FIXED_ASSET_DEPRECIATION_METHODS,
 } from '../../@types/constants';
-import { accountConfigSchema } from './accountConfig';
 
 export const fixedAssetCategorySchema = new Schema({
   _id: mongooseStringRandomId,
@@ -23,12 +22,6 @@ export const fixedAssetCategorySchema = new Schema({
     default: FIXED_ASSET_CATEGORY_STATUSES.ACTIVE,
     label: 'Status',
     index: true,
-  },
-  // Энэ бүлгээс үүсэх хөрөнгүүдэд default-оор хуулах дансны тохиргоо
-  accounts: {
-    type: accountConfigSchema,
-    optional: true,
-    label: 'Accounts',
   },
   // Элэгдэл бодох арга
   depreciationMethod: {

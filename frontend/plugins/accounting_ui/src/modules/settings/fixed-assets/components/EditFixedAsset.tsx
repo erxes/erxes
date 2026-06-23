@@ -25,7 +25,7 @@ export const EditFixedAsset = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
+      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none md:max-w-4xl">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
           <Sheet.Title>Үндсэн хөрөнгө засах</Sheet.Title>
           <Sheet.Close />

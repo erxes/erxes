@@ -1,16 +1,10 @@
 import { IFixedAsset } from '@/fixedAssets/@types/fixedAsset';
-import {
-  IFixedAssetAccounts,
-  IFixedAssetCategory,
-} from '@/fixedAssets/@types/fixedAssetCategory';
+import { IFixedAssetCategory } from '@/fixedAssets/@types/fixedAssetCategory';
 import { IContext } from '~/connectionResolvers';
 
 const buildAuditFields = (userId?: string, isEdit = false) => ({
   ...(isEdit ? { modifiedBy: userId, updatedAt: new Date() } : { createdBy: userId }),
 });
-
-const hasAccountValues = (accounts?: IFixedAssetAccounts) =>
-  Object.values(accounts || {}).some(Boolean);
 
 const fixedAssetMutations = {
   async fixedAssetCategoriesAdd(
@@ -82,7 +76,6 @@ const fixedAssetMutations = {
     return models.FixedAssets.create({
       ...doc,
       status: doc.status || 'active',
-      accounts: hasAccountValues(doc.accounts) ? doc.accounts : category?.accounts,
       depreciationMethod:
         doc.depreciationMethod || category?.depreciationMethod,
       usefulLife: doc.usefulLife ?? category?.defaultUsefulLife,

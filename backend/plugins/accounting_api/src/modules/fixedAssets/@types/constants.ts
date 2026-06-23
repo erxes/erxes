@@ -49,7 +49,15 @@ export const FXA_LOG_EVENT_TYPES = {
 
 export const FIXED_ASSET_DEPRECIATION_METHODS = {
   STRAIGHT_LINE: 'straightLine',
+  SUM_OF_YEARS_DIGITS: 'sumOfYearsDigits',
+  DOUBLE_DECLINING_BALANCE: 'doubleDecliningBalance',
   DECLINING_BALANCE: 'decliningBalance',
   MANUAL: 'manual',
-  ALL: ['straightLine', 'decliningBalance', 'manual'],
+  ALL: [
+    'straightLine',
+    'sumOfYearsDigits',
+    'doubleDecliningBalance',
+    'decliningBalance',
+    'manual',
+  ],
 };

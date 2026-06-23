@@ -36,6 +36,12 @@ const FixedAssetCategories = lazy(() =>
   })),
 );
 
+const FixedAssetAccountConfigs = lazy(() =>
+  import('~/pages/FixedAssetAccountConfigsPage').then((module) => ({
+    default: module.FixedAssetAccountConfigsPage,
+  })),
+);
+
 const VatRows = lazy(() =>
   import('~/pages/VatRowsPage').then((module) => ({
     default: module.VatRowsPage,
@@ -116,6 +122,15 @@ const AccountingSubSettings = () => {
                 }
               />
               <Route
+                path="/config/fixed-assets/accounts-config"
+                element={
+                  <Navigate
+                    to="/settings/accounting/fixed-assets/accounts-config"
+                    replace
+                  />
+                }
+              />
+              <Route
                 path="/config/fixed-assets/assets"
                 element={
                   <Navigate
@@ -136,6 +151,10 @@ const AccountingSubSettings = () => {
               <Route
                 path="/fixed-assets/categories"
                 element={<FixedAssetCategories />}
+              />
+              <Route
+                path="/fixed-assets/accounts-config"
+                element={<FixedAssetAccountConfigs />}
               />
               <Route path="/fixed-assets/assets" element={<FixedAssets />} />
               <Route path="/config/vat-rows" element={<VatRows />} />

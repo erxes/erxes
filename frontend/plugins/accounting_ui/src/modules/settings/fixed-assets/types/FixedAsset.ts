@@ -1,18 +1,6 @@
 import { z } from 'zod';
 import { fixedAssetCategorySchema, fixedAssetSchema } from '../constants/schema';
 
-export interface IFixedAssetAccounts {
-  fixedAssetAccountId?: string;
-  accumulatedDepreciationAccountId?: string;
-  depreciationExpenseAccountId?: string;
-  gainAccountId?: string;
-  lossAccountId?: string;
-  revaluationReserveAccountId?: string;
-  deferredTaxAssetAccountId?: string;
-  deferredTaxLiabilityAccountId?: string;
-  incomeTaxExpenseAccountId?: string;
-}
-
 export interface IFixedAssetCategory {
   _id: string;
   code: string;
@@ -20,7 +8,6 @@ export interface IFixedAssetCategory {
   description?: string;
   parentId?: string;
   status?: string;
-  accounts?: IFixedAssetAccounts;
   depreciationMethod?: string;
   defaultUsefulLife?: number;
   defaultSalvageValue?: number;
@@ -36,7 +23,6 @@ export interface IFixedAsset {
   categoryId: string;
   description?: string;
   status?: string;
-  accounts?: IFixedAssetAccounts;
   depreciationMethod?: string;
   usefulLife?: number;
   salvageValue?: number;

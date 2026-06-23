@@ -13,17 +13,14 @@ type TFixedAssetOption = {
   _id: string;
   code?: string;
   name?: string;
-  accounts?: Record<string, string | undefined>;
 };
 
 const SelectFixedAsset = ({
   value,
   onValueChange,
-  onSelect,
 }: {
   value?: string;
   onValueChange: (value: string) => void;
-  onSelect: (fixedAsset: TFixedAssetOption) => void;
 }) => {
   const { data } = useQuery<{ fixedAssets?: TFixedAssetOption[] }>(
     FIXED_ASSETS_QUERY,
@@ -34,13 +31,7 @@ const SelectFixedAsset = ({
   return (
     <Select
       value={value || ''}
-      onValueChange={(fixedAssetId) => {
-        onValueChange(fixedAssetId);
-        const fixedAsset = fixedAssets.find((item) => item._id === fixedAssetId);
-        if (fixedAsset) {
-          onSelect(fixedAsset);
-        }
-      }}
+      onValueChange={onValueChange}
     >
       <Select.Trigger className="h-8 min-w-60">
         <Select.Value placeholder="Үндсэн хөрөнгө" />
@@ -54,19 +45,6 @@ const SelectFixedAsset = ({
       </Select.Content>
     </Select>
   );
-};
-
-const fillMissingFxaAccounts = (
-  form: ITransactionGroupForm,
-  journalIndex: number,
-  fixedAsset?: TFixedAssetOption,
-) => {
-  for (const [key, value] of Object.entries(fixedAsset?.accounts || {})) {
-    const path = `trDocs.${journalIndex}.followInfos.${key}` as any;
-    if (value && !form.getValues(path)) {
-      form.setValue(path, value);
-    }
-  }
 };
 
 const getFxaDetailDefaultValues = (
@@ -170,13 +148,6 @@ export const FxaOutDetailsTable = ({
                       <SelectFixedAsset
                         value={field.value || ''}
                         onValueChange={field.onChange}
-                        onSelect={(fixedAsset) =>
-                          fillMissingFxaAccounts(
-                            form,
-                            journalIndex,
-                            fixedAsset,
-                          )
-                        }
                       />
                     )}
                   />

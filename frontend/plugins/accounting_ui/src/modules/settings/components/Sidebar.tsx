@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router';
 import { SETTINGS_ROUTES } from '../constants/settingsRoutes';
 
 const FIXED_ASSET_SETTINGS_ROUTES = {
+  '/settings/accounting/fixed-assets/accounts-config': 'Дансны багц',
   '/settings/accounting/fixed-assets/categories': 'Бүлэг',
   '/settings/accounting/fixed-assets/assets': 'Үндсэн хөрөнгө',
 };

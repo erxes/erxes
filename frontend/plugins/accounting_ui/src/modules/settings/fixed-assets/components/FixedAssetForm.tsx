@@ -1,8 +1,21 @@
-import { UseFormReturn } from 'react-hook-form';
-import { Button, Form, Input, Sheet, Spinner, Textarea } from 'erxes-ui';
+import { FieldErrors, UseFormReturn } from 'react-hook-form';
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  Sheet,
+  Spinner,
+  Textarea,
+  toast,
+} from 'erxes-ui';
+import {
+  FIXED_ASSET_DEPRECIATION_METHODS,
+  FIXED_ASSET_DEPRECIATION_METHOD_VALUES,
+} from '../constants/depreciationMethods';
+import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
 import { TFixedAssetForm } from '../types/FixedAsset';
 import { SelectFixedAssetCategory } from './SelectFixedAssetCategory';
-import { FixedAssetAccountFields } from './FixedAssetAccountFields';
 
 const NumberInput = ({
   field,
@@ -29,21 +42,80 @@ export const FixedAssetForm = ({
   handleSubmit: (data: TFixedAssetForm) => void;
   loading: boolean;
 }) => {
+  const { fixedAssetCategories } = useFixedAssetCategories();
+
+  const getDepreciationMethod = (value?: string) =>
+    FIXED_ASSET_DEPRECIATION_METHOD_VALUES.includes(
+      value as (typeof FIXED_ASSET_DEPRECIATION_METHOD_VALUES)[number],
+    )
+      ? (value as (typeof FIXED_ASSET_DEPRECIATION_METHOD_VALUES)[number])
+      : undefined;
+
+  const applyCategoryDefaults = (categoryId?: string) => {
+    const category = fixedAssetCategories?.find(
+      (item) => item._id === categoryId,
+    );
+
+    if (!category) {
+      return;
+    }
+
+    form.setValue(
+      'depreciationMethod',
+      getDepreciationMethod(category.depreciationMethod),
+    );
+    form.setValue('usefulLife', category.defaultUsefulLife);
+    form.setValue('salvageValue', category.defaultSalvageValue);
+    form.setValue(
+      'taxDepreciationMethod',
+      getDepreciationMethod(category.taxDepreciationMethod),
+    );
+    form.setValue('taxUsefulLife', category.defaultTaxUsefulLife);
+    form.setValue('taxSalvageValue', category.defaultTaxSalvageValue);
+  };
+
+  const handleInvalid = (errors: FieldErrors<TFixedAssetForm>) => {
+    const fieldLabels: Partial<Record<keyof TFixedAssetForm, string>> = {
+      name: 'Нэр',
+      code: 'Код',
+      categoryId: 'Бүлэг',
+      depreciationMethod: 'Элэгдлийн арга',
+      usefulLife: 'Ашиглах хугацаа',
+      salvageValue: 'Үлдэх өртөг',
+      taxDepreciationMethod: 'Татварын элэгдлийн арга',
+      taxUsefulLife: 'Татварын ашиглах хугацаа',
+      taxSalvageValue: 'Татварын үлдэх өртөг',
+    };
+    const invalidFields = Object.keys(errors).map(
+      (field) => fieldLabels[field as keyof TFixedAssetForm] || field,
+    );
+
+    toast({
+      title: 'Мэдээлэл дутуу байна',
+      description: `Шалгах талбар: ${invalidFields.join(', ')}`,
+      variant: 'destructive',
+    });
+  };
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="py-4 grid grid-cols-2 gap-5"
+        onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
+        className="py-4 grid grid-cols-1 md:grid-cols-3 gap-5"
       >
         <Form.Field
           control={form.control}
-          name="name"
+          name="categoryId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Нэр</Form.Label>
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
+              <Form.Label>Бүлэг</Form.Label>
+              <SelectFixedAssetCategory
+                selected={field.value}
+                onSelect={(categoryId) => {
+                  field.onChange(categoryId);
+                  applyCategoryDefaults(categoryId);
+                }}
+              />
               <Form.Message />
             </Form.Item>
           )}
@@ -63,14 +135,13 @@ export const FixedAssetForm = ({
         />
         <Form.Field
           control={form.control}
-          name="categoryId"
+          name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Бүлэг</Form.Label>
-              <SelectFixedAssetCategory
-                selected={field.value}
-                onSelect={field.onChange}
-              />
+              <Form.Label>Нэр</Form.Label>
+              <Form.Control>
+                <Input {...field} />
+              </Form.Control>
               <Form.Message />
             </Form.Item>
           )}
@@ -82,7 +153,18 @@ export const FixedAssetForm = ({
             <Form.Item>
               <Form.Label>Элэгдлийн арга</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Элэгдлийн арга сонгох" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
+                      <Select.Item key={method.value} value={method.value}>
+                        {method.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -121,7 +203,18 @@ export const FixedAssetForm = ({
             <Form.Item>
               <Form.Label>Татварын элэгдлийн арга</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Татварын элэгдлийн арга сонгох" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
+                      <Select.Item key={method.value} value={method.value}>
+                        {method.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -157,7 +250,7 @@ export const FixedAssetForm = ({
           control={form.control}
           name="description"
           render={({ field }) => (
-            <Form.Item className="col-span-2">
+            <Form.Item className="col-span-1 md:col-span-3">
               <Form.Label>Тайлбар</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
@@ -166,8 +259,7 @@ export const FixedAssetForm = ({
             </Form.Item>
           )}
         />
-        <FixedAssetAccountFields form={form} />
-        <Sheet.Footer className="col-span-2 mt-4">
+        <Sheet.Footer className="col-span-1 md:col-span-3 mt-4">
           <Sheet.Close asChild>
             <Button variant="outline" type="button" size="lg">
               Болих
@@ -175,7 +267,7 @@ export const FixedAssetForm = ({
           </Sheet.Close>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Хөрөнгө хадгалах
+            Хадгалах
           </Button>
         </Sheet.Footer>
       </form>

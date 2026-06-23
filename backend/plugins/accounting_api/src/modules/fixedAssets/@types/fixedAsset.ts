@@ -1,5 +1,4 @@
 import { Document } from 'mongoose';
-import { IFixedAssetAccounts } from './fixedAssetCategory';
 
 export interface IFixedAsset {
   code: string;
@@ -8,7 +7,6 @@ export interface IFixedAsset {
   description?: string;
   status: string;
 
-  accounts?: IFixedAssetAccounts;
   propertiesData?: Record<string, unknown>;
 
   depreciationMethod?: string;
