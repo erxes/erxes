@@ -99,7 +99,7 @@ export const useTickets = (
       document: TICKET_LIST_CHANGED,
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!subscriptionData.data || !prev?.getTickets?.list) return prev;
 
         const { type, ticket } = subscriptionData.data.ticketListChanged;
         const currentList = prev.getTickets.list;
@@ -137,8 +137,8 @@ export const useTickets = (
               type === 'create'
                 ? prev.getTickets.totalCount + 1
                 : type === 'remove'
-                ? prev.getTickets.totalCount - 1
-                : prev.getTickets.totalCount,
+                  ? prev.getTickets.totalCount - 1
+                  : prev.getTickets.totalCount,
           },
         };
       },
