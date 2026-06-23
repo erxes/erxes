@@ -7,9 +7,9 @@ export function setAtJSONProperty(obj: any, path: Path, value: any): any {
   const [head, ...rest] = path;
   const nextContainer = Array.isArray(obj)
     ? [...(obj ?? [])]
-    : { ...(obj ?? {}) };
-  (nextContainer as any)[head as any] = setAtJSONProperty(
-    (nextContainer as any)[head as any],
+    : { ...obj };
+  (nextContainer)[head as any] = setAtJSONProperty(
+    (nextContainer)[head as any],
     rest,
     value,
   );
@@ -24,7 +24,7 @@ export function deleteAtJSONProperty(obj: any, path: Path): any {
       const idx = Number(head);
       return [...obj.slice(0, idx), ...obj.slice(idx + 1)];
     }
-    const clone = { ...(obj ?? {}) } as Record<string, any>;
+    const clone = { ...obj } as Record<string, any>;
     delete clone[head as any];
     return clone;
   }
@@ -35,7 +35,7 @@ export function deleteAtJSONProperty(obj: any, path: Path): any {
     arr[idx] = child;
     return arr;
   }
-  return { ...(obj ?? {}), [head as any]: child };
+  return { ...obj, [head as any]: child };
 }
 
 export function detectJSONPropertyValueType(
