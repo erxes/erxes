@@ -13,10 +13,6 @@ export const CheckProductRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const isInitialLoading = loading && toCheckProducts === null;
 
-  const handleFetchMore = () => {
-    checkProduct();
-  };
-
   return (
     <RecordTable.Provider
       columns={checkProductColumns}
@@ -34,13 +30,11 @@ export const CheckProductRecordTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
+              handleFetchMore={checkProduct}
             />
             {loading && <RecordTable.RowSkeleton rows={40} />}
             <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
+            <RecordTable.CursorForwardSkeleton handleFetchMore={checkProduct} />
           </RecordTable.Body>
         </RecordTable>
         {isInitialLoading && (
@@ -48,26 +42,28 @@ export const CheckProductRecordTable = () => {
             <Spinner />
           </div>
         )}
-        {!loading && !toCheckProducts?.length && filteredProducts?.length === 0 && (
-          <div className="absolute inset-0">
-            <div className="h-full w-full px-8 flex justify-center">
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                <div className="mb-6">
-                  <IconShoppingCartX
-                    size={64}
-                    className="text-muted-foreground mx-auto mb-4"
-                  />
-                  <h3 className="text-xl font-semibold mb-2">
-                    {t('no-product-yet')}
-                  </h3>
-                  <p className="text-muted-foreground max-w-md">
-                    {t('create-first-product')}
-                  </p>
+        {!loading &&
+          !toCheckProducts?.length &&
+          filteredProducts?.length === 0 && (
+            <div className="absolute inset-0">
+              <div className="h-full w-full px-8 flex justify-center">
+                <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                  <div className="mb-6">
+                    <IconShoppingCartX
+                      size={64}
+                      className="text-muted-foreground mx-auto mb-4"
+                    />
+                    <h3 className="text-xl font-semibold mb-2">
+                      {t('no-product-yet')}
+                    </h3>
+                    <p className="text-muted-foreground max-w-md">
+                      {t('create-first-product')}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
       </RecordTable.CursorProvider>
       <CheckProductCommandBar />
     </RecordTable.Provider>

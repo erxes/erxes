@@ -18,10 +18,6 @@ export const CheckCategoryRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const isInitialLoading = loading && toCheckCategories === null;
 
-  const handleFetchMore = () => {
-    checkCategory();
-  };
-
   return (
     <RecordTable.Provider
       columns={checkCategoryColumns}
@@ -39,12 +35,12 @@ export const CheckCategoryRecordTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
+              handleFetchMore={checkCategory}
             />
             {loading && <RecordTable.RowSkeleton rows={40} />}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
+              handleFetchMore={checkCategory}
             />
           </RecordTable.Body>
         </RecordTable>
@@ -53,26 +49,28 @@ export const CheckCategoryRecordTable = () => {
             <Spinner />
           </div>
         )}
-        {!loading && !toCheckCategories?.length && filteredCategories?.length === 0 && (
-          <div className="absolute inset-0">
-            <div className="h-full w-full px-8 flex justify-center">
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                <div className="mb-6">
-                  <IconShoppingCartX
-                    size={64}
-                    className="text-muted-foreground mx-auto mb-4"
-                  />
-                  <h3 className="text-xl font-semibold mb-2">
-                    {t('no-category-yet')}
-                  </h3>
-                  <p className="text-muted-foreground max-w-md">
-                    {t('create-first-category')}
-                  </p>
+        {!loading &&
+          !toCheckCategories?.length &&
+          filteredCategories?.length === 0 && (
+            <div className="absolute inset-0">
+              <div className="h-full w-full px-8 flex justify-center">
+                <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                  <div className="mb-6">
+                    <IconShoppingCartX
+                      size={64}
+                      className="text-muted-foreground mx-auto mb-4"
+                    />
+                    <h3 className="text-xl font-semibold mb-2">
+                      {t('no-category-yet')}
+                    </h3>
+                    <p className="text-muted-foreground max-w-md">
+                      {t('create-first-category')}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
       </RecordTable.CursorProvider>
       <CheckCategoryCommandBar />
     </RecordTable.Provider>
