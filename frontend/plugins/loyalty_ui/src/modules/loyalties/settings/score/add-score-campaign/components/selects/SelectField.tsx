@@ -250,7 +250,6 @@ export const SelectFieldFilterBar = ({
   contentTypes,
   groupId,
 }: {
-  iconOnly?: boolean;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   contentTypes?: string[];
