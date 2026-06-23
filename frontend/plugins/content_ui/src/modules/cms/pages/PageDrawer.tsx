@@ -764,6 +764,7 @@ export function PageDrawer({
               {fieldGroups.length > 0 && (
                 <PageCustomFieldsSection
                   fieldGroups={fieldGroups}
+                  websiteId={clientPortalId}
                   form={form}
                 />
               )}
