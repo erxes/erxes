@@ -74,7 +74,7 @@ const AgentRailItem = ({
           <div
             className={`size-7 rounded-lg border flex items-center justify-center transition-colors ${
               isActive || isWorking
-                ? 'bg-muted border-border'
+                ? 'bg-transarent border border-primary/30'
                 : 'bg-muted border-border'
             } ${isWorking ? 'ea-avatar-live' : ''}`}
           >

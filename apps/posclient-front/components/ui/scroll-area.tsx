@@ -55,7 +55,7 @@ const ScrollAreaXWithButton = ({
       <ScrollBar orientation="horizontal" className="mr-8" />
       <ScrollAreaPrimitive.Corner />
 
-      <div className="flex gap-2 flex-col items-center absolute h-full right-0 inset-y-0  rounded-none w-8">
+      <div className="flex gap-2 flex-col items-center absolute h-full  right-0 inset-y-0  rounded-none w-8">
         {scrollLeft > 0 && (
           <Button
             variant="ghost"
@@ -119,7 +119,7 @@ const ScrollAreaYWithButton = ({
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
-      <ScrollBar className="bottom-12 " />
+      <ScrollBar className="bottom-0" />
       <ScrollAreaPrimitive.Corner />
 
       <div className="flex gap-2 items-center absolute w-full left-0 bottom-0 rounded-none">
@@ -129,7 +129,7 @@ const ScrollAreaYWithButton = ({
             className="flex-auto rounded-none bg-white"
             onClick={scrollToTop}
           >
-            <ChevronUp className="h-5 w-5" />
+            <ChevronUp className="h-5 w-" />
           </Button>
         )}
         <Button

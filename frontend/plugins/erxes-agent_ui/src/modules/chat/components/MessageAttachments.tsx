@@ -47,7 +47,7 @@ export const MessageAttachments = ({
           className="flex items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-2 text-xs shadow-sm hover:border-primary/40 hover:bg-primary/4 transition-colors max-w-64"
         >
           <span className="size-8 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
-            <IconFileText className="size-4 text-primary" />
+            <IconFileText className="size-4 text-muted-foreground" />
           </span>
           <span className="min-w-0">
             <span className="block truncate font-medium text-foreground">
