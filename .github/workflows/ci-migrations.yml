@@ -5,11 +5,11 @@ on:
     branches:
       - main
     paths:
-      - 'backend/migrations/**'
+      - 'backend/saas-migrations/**'
       - '.github/workflows/ci-migrations.yml'
   pull_request:
     paths:
-      - 'backend/migrations/**'
+      - 'backend/saas-migrations/**'
       - '.github/workflows/ci-migrations.yml'
 
 env:
