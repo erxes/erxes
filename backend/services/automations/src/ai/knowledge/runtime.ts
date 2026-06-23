@@ -1,4 +1,5 @@
 import type { IModels } from '../../connectionResolver';
+import type { IKnowledgeChunkDocument } from '../../mongo/knowledgeChunk';
 import type { TAiAgentInput } from '../aiAgent';
 import type { TAiAgentLoadedContextFile } from '../aiAgent/context';
 import { TAiAgentActionConfig } from '../aiAction/contract';
@@ -114,6 +115,34 @@ const mapDocumentToChunk = (doc: any): TAiKnowledgeChunk => ({
   metadata: doc.metadata || {},
 });
 
+const mapSharedKnowledgeDocumentToChunk = (
+  doc: IKnowledgeChunkDocument,
+): TAiKnowledgeChunk => {
+  return {
+    id: doc._id,
+    sourceType: doc.sourceType,
+    sourceId: doc.sourceId,
+    sourceUrl: doc.sourceUrl,
+    fileId: doc.sourceId,
+    fileName: doc.title,
+    chunkIndex: doc.chunkIndex,
+    title: doc.title,
+    headingPath: doc.headingPath || [],
+    content: doc.content,
+    contentHash: doc.contentHash,
+    byteSize: doc.byteSize,
+    tokenCount: doc.tokenCount || 0,
+    topics: doc.topics || [],
+    keywords: doc.keywords || [],
+    priority: doc.priority || 'normal',
+    language: doc.language || 'unknown',
+    metadata: doc.metadata || {},
+  };
+};
+
+const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const getCandidateChunks = async ({
   models,
   agentId,
@@ -184,6 +213,77 @@ const getCandidateChunks = async ({
   return Array.from(chunksById.values()).map(mapDocumentToChunk);
 };
 
+const getSharedKnowledgeCandidateChunks = async ({
+  models,
+  searchText,
+}: {
+  models: IModels;
+  searchText: string;
+}) => {
+  const terms = extractKnowledgeTerms(searchText, 32);
+  const chunksById = new Map<string, TAiKnowledgeChunk>();
+  const collect = (docs: TAiKnowledgeChunk[]) => {
+    for (const doc of docs) {
+      chunksById.set(String(doc.id), doc);
+    }
+  };
+  const mapDocuments = (docs: IKnowledgeChunkDocument[]) =>
+    docs.map(mapSharedKnowledgeDocumentToChunk);
+
+  collect(
+    mapDocuments(
+      await models.KnowledgeChunks.find({
+        priority: 'always',
+        visibility: 'public',
+      })
+        .limit(20)
+        .lean<IKnowledgeChunkDocument[]>(),
+    ),
+  );
+
+  if (!terms.length) {
+    return Array.from(chunksById.values());
+  }
+
+  const titleMatcher = new RegExp(terms.map(escapeRegex).join('|'), 'i');
+
+  collect(
+    mapDocuments(
+      await models.KnowledgeChunks.find({
+        visibility: 'public',
+        $or: [
+          { topics: { $in: terms } },
+          { keywords: { $in: terms } },
+          { title: titleMatcher },
+        ],
+      })
+        .limit(MAX_CANDIDATE_CHUNKS)
+        .lean<IKnowledgeChunkDocument[]>(),
+    ),
+  );
+
+  try {
+    collect(
+      mapDocuments(
+        await models.KnowledgeChunks.find(
+          {
+            visibility: 'public',
+            $text: { $search: searchText },
+          },
+          { score: { $meta: 'textScore' } },
+        )
+          .sort({ score: { $meta: 'textScore' } })
+          .limit(MAX_CANDIDATE_CHUNKS)
+          .lean<IKnowledgeChunkDocument[]>(),
+      ),
+    );
+  } catch (_error) {
+    return Array.from(chunksById.values());
+  }
+
+  return Array.from(chunksById.values());
+};
+
 export const retrieveAiAgentKnowledgeContextFiles = async ({
   models,
   agentId,
@@ -209,11 +309,18 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
     return [];
   }
 
-  const candidates = await getCandidateChunks({
-    models,
-    agentId,
-    searchText,
-  });
+  const [agentCandidates, sharedCandidates] = await Promise.all([
+    getCandidateChunks({
+      models,
+      agentId,
+      searchText,
+    }),
+    getSharedKnowledgeCandidateChunks({
+      models,
+      searchText,
+    }),
+  ]);
+  const candidates = [...agentCandidates, ...sharedCandidates];
 
   if (!candidates.length) {
     return [];

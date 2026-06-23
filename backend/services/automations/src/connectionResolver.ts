@@ -13,6 +13,10 @@ import {
   IAiAgentKnowledgeChunkDocument,
 } from './mongo/aiAgentKnowledgeChunk';
 import {
+  IKnowledgeChunkDocument,
+  knowledgeChunkSchema,
+} from './mongo/knowledgeChunk';
+import {
   AiAgentDocument,
   aiAgentSchema,
   automationExecutionSchema,
@@ -30,6 +34,7 @@ export interface IModels {
   AiAgents: Model<AiAgentDocument>;
   AutomationMemory: Model<IAutomationMemoryDocument>;
   AiAgentKnowledgeChunks: Model<IAiAgentKnowledgeChunkDocument>;
+  KnowledgeChunks: Model<IKnowledgeChunkDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -69,6 +74,11 @@ export const loadClasses = (db: Connection, subdomain: string): IModels => {
     IAiAgentKnowledgeChunkDocument,
     Model<IAiAgentKnowledgeChunkDocument>
   >('automations_ai_agent_knowledge_chunks', aiAgentKnowledgeChunkSchema);
+
+  models.KnowledgeChunks = db.model<
+    IKnowledgeChunkDocument,
+    Model<IKnowledgeChunkDocument>
+  >('automations_knowledge_chunks', knowledgeChunkSchema);
 
   return models;
 };

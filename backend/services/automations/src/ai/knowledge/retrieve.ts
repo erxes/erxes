@@ -80,8 +80,7 @@ export const retrieveAiKnowledgeChunks = ({
   };
   const includeAlways = config.includeAlways !== false;
   const topK = config.topK || DEFAULT_TOP_K;
-  const maxContextBytes =
-    config.maxContextBytes || DEFAULT_MAX_CONTEXT_BYTES;
+  const maxContextBytes = config.maxContextBytes || DEFAULT_MAX_CONTEXT_BYTES;
   const minScore = config.minScore ?? 1;
 
   const alwaysChunks = includeAlways
@@ -100,10 +99,10 @@ export const retrieveAiKnowledgeChunks = ({
     .filter((item) => item.score >= minScore)
     .sort((a, b) => b.score - a.score);
 
-  const selectedScored = dedupeScoredChunks([
-    ...alwaysChunks,
-    ...scored,
-  ]).slice(0, Math.max(topK * 3, topK));
+  const selectedScored = dedupeScoredChunks([...alwaysChunks, ...scored]).slice(
+    0,
+    Math.max(topK * 3, topK),
+  );
 
   const fitted = fitChunksWithinBytes(
     selectedScored.map(({ chunk }) => chunk),
@@ -123,14 +122,13 @@ export const retrieveAiKnowledgeChunks = ({
   };
 };
 
-export const formatAiKnowledgeChunksForPrompt = (
-  chunks: TAiKnowledgeChunk[],
-) =>
+export const formatAiKnowledgeChunksForPrompt = (chunks: TAiKnowledgeChunk[]) =>
   chunks
     .map((chunk) => {
       const heading = [
         `source="${chunk.fileName}"`,
         chunk.title ? `title="${chunk.title}"` : '',
+        chunk.sourceUrl ? `url="${chunk.sourceUrl}"` : '',
         chunk.topics.length ? `topics="${chunk.topics.join(', ')}"` : '',
       ]
         .filter(Boolean)

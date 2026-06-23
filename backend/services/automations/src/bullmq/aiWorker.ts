@@ -1,9 +1,12 @@
 import {
   getAiAgentHealth,
   indexAiAgentKnowledgeFiles,
+  indexKnowledgeDocument,
   parseAiAgentInput,
+  removeKnowledgeDocument,
 } from '../ai';
-import { Job } from 'bullmq';
+import type { TKnowledgeIndexJob } from 'erxes-api-shared/utils';
+import type { Job } from 'bullmq';
 import { generateModels } from '../connectionResolver';
 
 export const checkAiAgentHealthWorker = async (job: Job) => {
@@ -42,6 +45,25 @@ export const indexAiAgentKnowledgeWorker = async (job: Job) => {
   });
 };
 
+export const indexKnowledgeDocumentWorker = async (
+  job: Job<{ subdomain: string; data: TKnowledgeIndexJob }>,
+) => {
+  const { data, subdomain } = job.data;
+  const models = await generateModels(subdomain);
+
+  if (data.operation === 'remove') {
+    return removeKnowledgeDocument({
+      models,
+      source: data.source,
+    });
+  }
+
+  return indexKnowledgeDocument({
+    models,
+    document: data.document,
+  });
+};
+
 export const aiWorker = async (job: Job) => {
   const name = job.name;
   switch (name) {
@@ -49,6 +71,8 @@ export const aiWorker = async (job: Job) => {
       return checkAiAgentHealthWorker(job);
     case 'indexAiAgentKnowledge':
       return indexAiAgentKnowledgeWorker(job);
+    case 'indexKnowledgeDocument':
+      return indexKnowledgeDocumentWorker(job);
     default:
       throw new Error(`Unknown job name: ${name}`);
   }
