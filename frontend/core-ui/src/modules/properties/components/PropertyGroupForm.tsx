@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { propertyGroupSchema } from '../propertySchema';
 import { useParams } from 'react-router-dom';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
+import { PropertyFormLogicFields } from './PropertyFormLogicFields';
 
 export const PropertyGroupForm = ({
   isEdit,
@@ -80,6 +81,7 @@ export const PropertyGroupForm = ({
               </Form.Item>
             )}
           />
+          <PropertyFormLogicFields form={form} />
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant={'ghost'} onClick={onCancel}>

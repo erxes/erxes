@@ -14,6 +14,7 @@ export const FIELD_GROUPS_QUERY = gql`
         order
         updatedAt
         configs
+        logics
       }
       ${GQL_PAGE_INFO}
     }
@@ -32,7 +33,9 @@ export const FIELDS_QUERY = gql`
         order
         groupId
         validations
-        logics 
+        logics
+        isVisible
+        isVisibleInDetail
         createdAt
         updatedAt
         options {
@@ -60,6 +63,8 @@ export const FIELD_DETAILS_QUERY = gql`
       validations
       logics
       icon
+      isVisible
+      isVisibleInDetail
       createdAt
       updatedAt
     }

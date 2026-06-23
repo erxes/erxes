@@ -26,6 +26,8 @@ export const types = `
         logics: JSON
         configs: JSON
         icon: String
+        isVisible: Boolean
+        isVisibleInDetail: Boolean
         createdAt: Date
         updatedAt: Date
     }
@@ -67,13 +69,15 @@ const mutationParams = `
     groupId: String
     contentType: String
     contentTypeId: String
-    
+
     type: String
     options: [FieldOptionInput]
     validations: JSON
     logics: JSON
     configs: JSON
     icon: String
+    isVisible: Boolean
+    isVisibleInDetail: Boolean
 `;
 
 export const mutations = `

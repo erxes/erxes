@@ -1,10 +1,5 @@
 import { z } from 'zod';
 
-export const propertyGroupSchema = z.object({
-  name: z.string().min(1, 'Group name is required'),
-  code: z.string().optional(),
-});
-
 export const optionSchema = z.object({
   label: z.string().min(1, 'Label is required'),
   value: z.string().min(1, 'Value is required'),
@@ -17,6 +12,12 @@ export const logicSchema = z.object({
   action: z.string(),
 });
 
+export const propertyGroupSchema = z.object({
+  name: z.string().min(1, 'Group name is required'),
+  code: z.string().optional(),
+  logics: z.array(logicSchema).nullable().optional(),
+});
+
 export const propertySchema = z
   .object({
     icon: z.string().default('123'),
@@ -27,6 +28,7 @@ export const propertySchema = z
     relationType: z.string().optional(),
     validation: z.string().optional(),
     isSearchable: z.boolean().default(false),
+    isVisibleInDetail: z.boolean().default(true),
     logics: z.array(logicSchema).nullable().optional(),
     options: z
       .array(optionSchema)

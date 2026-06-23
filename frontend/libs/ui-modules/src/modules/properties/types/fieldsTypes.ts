@@ -1,3 +1,5 @@
+type LogicItem = { field: string; operator: string; value: string; action: string };
+
 export type IField = {
   _id: string;
   name: string;
@@ -6,7 +8,9 @@ export type IField = {
   type: string;
   group?: string;
   groupId?: string;
-  logics?: Record<string, any>;
+  logics?: LogicItem[] | null;
+  isVisible?: boolean;
+  isVisibleInDetail?: boolean;
   relationType?: string;
   multiple?: boolean;
   icon?: string;
@@ -22,7 +26,7 @@ export interface IFieldGroup {
   description: string;
   contentType: string;
   order: number;
-  logics?: Record<string, any>;
+  logics?: LogicItem[] | null;
   configs?: Record<string, any>;
 }
 
