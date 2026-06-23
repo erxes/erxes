@@ -8,17 +8,17 @@ export const TicketReportsView = () => {
     <div className="p-6 flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          title="Total Tickets"
+          title={t('total-tickets')}
           value="0"
-          subtitle="All priorities"
+          subtitle={t('all-priorities')}
           icon={<IconTicket className="h-5 w-5" />}
           valueClass="text-foreground"
           iconClass="bg-muted text-muted-foreground"
         />
         <KpiCard
-          title="Resolved"
+          title={t('resolved')}
           value="0"
-          subtitle="Closed tickets"
+          subtitle={t('closed-tickets')}
           icon={<IconCircleCheck className="h-5 w-5" />}
           valueClass="text-[var(--pos)]"
           iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"

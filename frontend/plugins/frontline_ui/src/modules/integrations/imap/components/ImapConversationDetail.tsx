@@ -417,7 +417,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
         <button
           className="p-1 rounded text-[#5f6368] hover:text-foreground hover:bg-background/10 transition-colors"
           onClick={p.onClose}
-          aria-label="Discard"
+          aria-label={t('discard')}
         >
           <IconX size={14} />
         </button>
@@ -515,7 +515,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
         suppressContentEditableWarning
         role="textbox"
         aria-multiline="true"
-        aria-label="Email body"
+        aria-label={t('email-body')}
         data-placeholder={t('write-your-message')}
       />
 

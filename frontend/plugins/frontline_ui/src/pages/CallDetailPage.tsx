@@ -207,7 +207,7 @@ export const CallDetailAgents = ({
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <RecordTable.Provider columns={agentColumns} data={filteredMembersList}>
+      <RecordTable.Provider columns={useAgentColumns()} data={filteredMembersList}>
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
@@ -221,10 +221,12 @@ export const CallDetailAgents = ({
   );
 };
 
-export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
+export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
+  const { t } = useTranslation('frontline');
+  return [
   {
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label={t('status')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge
@@ -246,7 +248,7 @@ export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
   },
   {
     accessorKey: 'member_extension',
-    header: () => <RecordTable.InlineHead label="Extention" />,
+    header: () => <RecordTable.InlineHead label={t('extension')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-mono">
         <Badge variant="secondary">{cell.getValue() as string}</Badge>
@@ -257,7 +259,7 @@ export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
 
   {
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => {
       const { first_name, last_name } = cell.row.original;
       return (
@@ -270,7 +272,7 @@ export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
   },
   {
     accessorKey: 'answer',
-    header: () => <RecordTable.InlineHead label="Answered" />,
+    header: () => <RecordTable.InlineHead label={t('answered')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
         {cell.getValue() as number}
@@ -280,7 +282,7 @@ export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
   },
   {
     accessorKey: 'abandon',
-    header: () => <RecordTable.InlineHead label="Abandoned" />,
+    header: () => <RecordTable.InlineHead label={t('abandoned')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
         {cell.getValue() as number}
@@ -290,7 +292,7 @@ export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
   },
   {
     accessorKey: 'talktime',
-    header: () => <RecordTable.InlineHead label="Talk Time" />,
+    header: () => <RecordTable.InlineHead label={t('talk-time')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
         {formatSeconds(cell.getValue() as number)}
@@ -300,7 +302,7 @@ export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
   },
   {
     accessorKey: 'pausetime',
-    header: () => <RecordTable.InlineHead label="Pause Time" />,
+    header: () => <RecordTable.InlineHead label={t('pause-time')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
         {safeFormatDate(cell?.getValue())}
@@ -308,7 +310,8 @@ export const agentColumns: ColumnDef<ICallQueueAgent>[] = [
     ),
     size: 200,
   },
-];
+  ];
+};
 
 export const CallDetailCard = ({
   description,
@@ -363,7 +366,7 @@ export const CallDetailWaiting = ({
         columns={[
           {
             accessorKey: 'callerid',
-            header: () => <RecordTable.InlineHead label="Caller ID" />,
+            header: () => <RecordTable.InlineHead label={t('caller-id')} />,
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {formatPhoneNumber({
@@ -375,7 +378,7 @@ export const CallDetailWaiting = ({
           },
           {
             accessorKey: 'callerchannel',
-            header: () => <RecordTable.InlineHead label="Caller Channel" />,
+            header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {cell.getValue() as string}
@@ -414,7 +417,7 @@ export const CallDetailTalking = ({
         columns={[
           {
             accessorKey: 'callerid',
-            header: () => <RecordTable.InlineHead label="Caller ID" />,
+            header: () => <RecordTable.InlineHead label={t('caller-id')} />,
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {formatPhoneNumber({
@@ -426,7 +429,7 @@ export const CallDetailTalking = ({
           },
           {
             accessorKey: 'calleeid',
-            header: () => <RecordTable.InlineHead label="Caller Channel" />,
+            header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {cell.getValue() as string}
@@ -435,7 +438,7 @@ export const CallDetailTalking = ({
           },
           {
             accessorKey: 'bridge_time',
-            header: () => <RecordTable.InlineHead label="Duration" />,
+            header: () => <RecordTable.InlineHead label={t('duration')} />,
             cell: ({ cell }) => {
               // eslint-disable-next-line react-hooks/rules-of-hooks
               const duration = useCallDurationFromDate(cell.getValue() as Date);

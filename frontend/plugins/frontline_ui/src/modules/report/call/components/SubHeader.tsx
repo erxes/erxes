@@ -73,10 +73,10 @@ export function SubHeader({
         <Filter.Bar>
           {/* Integration */}
           {integrationsLoading ? (
-            <LoadingChip label="Integration" />
+            <LoadingChip label={t('integrations')} />
           ) : (
             <SelectChip
-              label="Integration"
+              label={t('integrations')}
               value={integrationLabel}
               options={integrationOptions}
               onSelect={setIntegrationId}
@@ -86,10 +86,10 @@ export function SubHeader({
 
           {/* Queue */}
           {queuesLoading ? (
-            <LoadingChip label="Queue" />
+            <LoadingChip label={t('queue')} />
           ) : (
             <SelectChip
-              label="Queue"
+              label={t('queue')}
               value={queueLabel}
               options={queueOptions}
               onSelect={setQueueId}
@@ -100,7 +100,7 @@ export function SubHeader({
 
           {/* Direction */}
           <SelectChip
-            label="Direction"
+            label={t('direction')}
             value={directionLabel}
             options={DIRECTION_OPTIONS}
             onSelect={setDirection}
@@ -124,7 +124,7 @@ export function SubHeader({
               <button
                 onClick={handleClearDate}
                 className="rounded-r flex items-center px-2 hover:bg-muted-foreground/10 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Clear date filter"
+                aria-label={t('clear-date-filter')}
               >
                 <IconX className="h-3 w-3" />
               </button>
@@ -138,7 +138,7 @@ export function SubHeader({
         <Filter.View filterKey={DATE_FILTER_KEY} inDialog>
           <Filter.DialogDateView
             filterKey={DATE_FILTER_KEY}
-            label="Date range"
+            label={t('date-range')}
           />
         </Filter.View>
       </Filter.Dialog>

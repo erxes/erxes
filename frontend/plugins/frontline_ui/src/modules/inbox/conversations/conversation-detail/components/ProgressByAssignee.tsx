@@ -47,7 +47,7 @@ export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
                 <div className="flex items-center gap-2 w-full">
                   <MembersInline
                     memberIds={[item.assigneeId]}
-                    placeholder="No Assignee"
+                    placeholder={t('no-assignee')}
                   />
 
                   <ChartContainer config={{}} className="aspect-square size-6">

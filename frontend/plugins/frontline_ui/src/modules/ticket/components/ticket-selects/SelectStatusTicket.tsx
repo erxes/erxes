@@ -237,6 +237,7 @@ export const SelectStatusTicketFilterBar = ({
   pipelineId?: string;
   scope?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [status, setStatus] = useQueryState<string>('statusId');
   const [open, setOpen] = useState(false);
 
@@ -251,7 +252,7 @@ export const SelectStatusTicketFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <Filter.BarButton filterKey="statusId">
-          <SelectStatusValue placeholder="Status" />
+          <SelectStatusValue placeholder={t('status')} />
         </Filter.BarButton>
         <Combobox.Content>
           <SelectStatusContent />

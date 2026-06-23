@@ -94,10 +94,10 @@ export const TicketTotalCount = ({
     >
       <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
       <FrontlineCard.Content>
-        <InfoCard title="Total Tickets">
+        <InfoCard title={t('total-tickets')}>
           <InfoCard.Content className="text-center">
             {loading ? (
-              <span className="text-muted-foreground text-sm">Loading...</span>
+              <span className="text-muted-foreground text-sm">{t('loading')}</span>
             ) : (
               <span className="text-2xl font-bold">{totalCount}</span>
             )}

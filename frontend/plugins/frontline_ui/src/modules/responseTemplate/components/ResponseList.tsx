@@ -94,53 +94,57 @@ const ResponseNameCell = ({
   );
 };
 
-export const responseColumns: ColumnDef<IResponseTemplate>[] = [
-  {
-    id: 'more',
-    size: 25,
-    cell: ResponseMoreCell,
-  },
-  {
-    accessorKey: 'name',
-    id: 'name',
-    header: () => <RecordTable.InlineHead label="Title" icon={IconAlignLeft} />,
-    size: 400,
-    cell: ResponseNameCell,
-  },
-  {
-    accessorKey: 'createdAt',
-    id: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created at" icon={IconCalendarPlus} />
-    ),
-    size: 120,
-    cell: ({ cell }) => (
-      <RelativeDateDisplay value={cell.getValue() as string} asChild>
-        <RecordTableInlineCell>
-          <RelativeDateDisplay.Value value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      </RelativeDateDisplay>
-    ),
-  },
-  {
-    accessorKey: 'updatedAt',
-    id: 'updatedAt',
-    header: () => (
-      <RecordTable.InlineHead label="Updated at" icon={IconCalendarUp} />
-    ),
-    size: 120,
-    cell: ({ cell }) => (
-      <RelativeDateDisplay value={cell.getValue() as string} asChild>
-        <RecordTableInlineCell>
-          <RelativeDateDisplay.Value value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      </RelativeDateDisplay>
-    ),
-  },
-];
+export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
+  const { t } = useTranslation('frontline');
+  return [
+    {
+      id: 'more',
+      size: 25,
+      cell: ResponseMoreCell,
+    },
+    {
+      accessorKey: 'name',
+      id: 'name',
+      header: () => <RecordTable.InlineHead label={t('title-label')} icon={IconAlignLeft} />,
+      size: 400,
+      cell: ResponseNameCell,
+    },
+    {
+      accessorKey: 'createdAt',
+      id: 'createdAt',
+      header: () => (
+        <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
+      ),
+      size: 120,
+      cell: ({ cell }) => (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      ),
+    },
+    {
+      accessorKey: 'updatedAt',
+      id: 'updatedAt',
+      header: () => (
+        <RecordTable.InlineHead label={t('updated-at-label')} icon={IconCalendarUp} />
+      ),
+      size: 120,
+      cell: ({ cell }) => (
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
+      ),
+    },
+  ];
+};
 
 export const ResponseList = ({ channelId }: { channelId: string }) => {
   const { t } = useTranslation('frontline');
+  const responseColumns = useResponseColumns();
   const [{ searchValue }] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',
   ]);

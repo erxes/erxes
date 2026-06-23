@@ -11,8 +11,8 @@ export function TopNumbersSection() {
 
   return (
     <SectionCard
-      title="Top Contact Numbers"
-      description="Highest-volume phone numbers in the selected period"
+      title={t('top-contact-numbers')}
+      description={t('highest-volume-phone-numbers')}
       accentClass="bg-[var(--chart-5)]"
       loading={loading}
       skeletonHeight="h-48"

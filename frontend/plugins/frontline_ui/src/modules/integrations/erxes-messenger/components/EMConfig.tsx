@@ -197,12 +197,11 @@ export const EMConfig = () => {
                           />
                         </Form.Control>
                         <Form.Label variant="peer" className="leading-6">
-                          Show Initial Message
+                          {t('show-initial-message')}
                         </Form.Label>
                       </div>
                       <Form.Description>
-                        When enabled, the bot will display the greeting message
-                        as an initial message in the conversation.
+                        {t('show-initial-message-description')}
                       </Form.Description>
                       <Form.Message />
                     </Form.Item>
@@ -471,11 +470,11 @@ const PersistentMenu = ({
                   <Form.Item
                     className={currentType === 'button' ? '' : 'hidden'}
                   >
-                    <Form.Label>Content type</Form.Label>
+                    <Form.Label>{t('content-type')}</Form.Label>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Form.Control>
                         <Select.Trigger>
-                          <Select.Value placeholder="Select content type" />
+                          <Select.Value placeholder={t('select-content-type')} />
                         </Select.Trigger>
                       </Form.Control>
                       <Select.Content>

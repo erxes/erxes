@@ -187,6 +187,7 @@ const SelectStateFilterView = () => {
 };
 
 const SelectStateTicketFilterBar = ({ scope }: { scope?: string }) => {
+  const { t } = useTranslation('frontline');
   const [state, setState] = useQueryState<string>('state');
   const [open, setOpen] = useState(false);
 
@@ -200,7 +201,7 @@ const SelectStateTicketFilterBar = ({ scope }: { scope?: string }) => {
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerTicket variant="filter">
-          <SelectStateValue placeholder="State" />
+          <SelectStateValue placeholder={t('state')} />
         </SelectTriggerTicket>
         <SelectTicketContent variant="filter">
           <SelectStateContent />

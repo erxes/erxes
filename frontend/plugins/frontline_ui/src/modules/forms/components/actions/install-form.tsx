@@ -112,7 +112,7 @@ export function FormInstallScript({
           variant="outline"
           size={'icon'}
           onClick={() => setDialogOpen(true)}
-          title="View installation script"
+          title={t('view-installation-script')}
         >
           <IconCode />
         </Button>

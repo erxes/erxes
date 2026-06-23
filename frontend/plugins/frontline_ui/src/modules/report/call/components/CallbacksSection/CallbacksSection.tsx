@@ -47,8 +47,8 @@ export function CallbacksSection() {
 
       {/* Detail table */}
       <SectionCard
-        title="Callback Recovery"
-        description="Per-queue missed call follow-up statistics"
+        title={t('callback-recovery')}
+        description={t('per-queue-missed-call-follow-up')}
         accentClass="bg-[var(--warn)]"
         loading={loading}
         skeletonHeight="h-32"
@@ -112,7 +112,7 @@ export function CallbacksSection() {
                       {fmtPct(row.callbackRate)}
                     </Table.Cell>
                     <Table.Cell className="text-right font-mono text-sm">
-                      {fmt(row.averageCallbackTime)} min
+                      {fmt(row.averageCallbackTime)} {t('min')}
                     </Table.Cell>
                   </Table.Row>
                 ))}

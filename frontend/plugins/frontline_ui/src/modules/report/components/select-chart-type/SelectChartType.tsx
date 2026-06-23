@@ -76,6 +76,7 @@ export const SelectChartCommandItem = ({
 }: {
   option: ResponsesChartTypeOption;
 }) => {
+  const { t } = useTranslation('frontline');
   const { onValueChange, value } = useChartSelectContext();
   const Icon = option.IconComponent;
   return (
@@ -87,7 +88,7 @@ export const SelectChartCommandItem = ({
     >
       <div className="flex items-center gap-2">
         <Icon className="size-4" />
-        <span className="text-sm">{option.label}</span>
+        <span className="text-sm">{t(option.label)}</span>
       </div>
       <Combobox.Check checked={value === option.value} />
     </Command.Item>

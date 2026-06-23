@@ -36,16 +36,16 @@ import { IPipeline } from '@/pipelines/types';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 
 const TICKET_STATE_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'archived', label: 'Archived' },
-  { value: 'deleted', label: 'Deleted' },
+  { value: 'active', label: 'active' },
+  { value: 'archived', label: 'archived' },
+  { value: 'deleted', label: 'deleted' },
 ];
 
 const FREQUENCY_OPTIONS = [
-  { value: 'day', label: 'Daily' },
-  { value: 'week', label: 'Weekly' },
-  { value: 'month', label: 'Monthly' },
-  { value: 'year', label: 'Yearly' },
+  { value: 'day', label: 'daily' },
+  { value: 'week', label: 'weekly' },
+  { value: 'month', label: 'monthly' },
+  { value: 'year', label: 'yearly' },
 ];
 
 const PRIORITY_OPTIONS = PROJECT_PRIORITIES_OPTIONS.map((label, index) => ({
@@ -423,7 +423,7 @@ const StateFilterView = ({
       >
         <div className="flex items-center gap-2">
           {value === option.value && <IconCheck className="size-4" />}
-          <span>{option.label}</span>
+          <span>{t(option.label)}</span>
         </div>
       </Command.Item>
     ))}
@@ -532,7 +532,9 @@ const FrequencyFilterView = ({
 }: {
   value: string;
   onValueChange: (value: string) => void;
-}) => (
+}) => {
+  const { t } = useTranslation('frontline');
+  return (
   <Command.List className="max-h-[500px] overflow-y-auto">
     <BackButton />
     {FREQUENCY_OPTIONS.map((option) => (
@@ -543,12 +545,13 @@ const FrequencyFilterView = ({
       >
         <div className={cn('flex items-center gap-2')}>
           {value === option.value && <IconCheck className="size-4" />}
-          <span>{option.label}</span>
+          <span>{t(option.label)}</span>
         </div>
       </Command.Item>
     ))}
   </Command.List>
-);
+  );
+};
 
 const DateView = ({
   filterKey,

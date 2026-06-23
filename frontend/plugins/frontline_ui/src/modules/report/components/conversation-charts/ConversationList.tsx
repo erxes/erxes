@@ -192,7 +192,7 @@ export const ConversationList = ({
           className="size-7"
           onClick={handleExport}
           disabled={exporting}
-          title="Export Excel"
+          title={t('export-excel')}
         >
           <IconDownload className="size-3.5" />
         </Button>

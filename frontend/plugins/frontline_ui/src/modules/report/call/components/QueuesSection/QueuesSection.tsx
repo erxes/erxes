@@ -44,8 +44,8 @@ export function QueuesSection({ queueOptions }: QueuesSectionProps) {
 
   return (
     <SectionCard
-      title="Queue Snapshot"
-      description="Per-queue answer rate, wait and talk times"
+      title={t('queue-snapshot')}
+      description={t('per-queue-answer-rate')}
       accentClass="bg-[var(--chart-1)]"
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

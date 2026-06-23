@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import {
   Button,
@@ -156,7 +157,7 @@ export const AutomationFbBotFormContent = () => {
                       name="handoffPauseMinutes"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Inactivity pause minutes</Form.Label>
+                          <Form.Label>{t('inactivity-pause-minutes')}</Form.Label>
                           <Input
                             type="number"
                             min={1}
@@ -174,7 +175,7 @@ export const AutomationFbBotFormContent = () => {
                       name="handoffMessage"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Human handoff message</Form.Label>
+                          <Form.Label>{t('human-handoff-message')}</Form.Label>
                           <Input {...field} />
                           <Form.Message />
                         </Form.Item>
@@ -185,7 +186,7 @@ export const AutomationFbBotFormContent = () => {
                       name="automationActiveMessage"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Automation active message</Form.Label>
+                          <Form.Label>{t('automation-active-message')}</Form.Label>
                           <Input {...field} />
                           <Form.Message />
                         </Form.Item>
