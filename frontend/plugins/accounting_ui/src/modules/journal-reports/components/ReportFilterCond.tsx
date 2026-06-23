@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+
 export const ReportFilterCond = () => {
-  return <>Filters:</>;
+  const { t } = useTranslation('accounting');
+  return <>{t('filters')}:</>;
 };

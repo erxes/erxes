@@ -4,6 +4,7 @@ import { Button, Dialog, Form, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderEdit } from '../hooks/useSafeRemainderEdit';
@@ -11,6 +12,7 @@ import { TSafeRemainderEditForm } from '../types/safeRemainderForm';
 import { safeRemainderEditSchema } from '../types/safeRemainderSchema';
 
 export const EditSafeRemainder = () => {
+  const { t } = useTranslation('accounting');
   const form = useForm<TSafeRemainderEditForm>({
     resolver: zodResolver(safeRemainderEditSchema),
     defaultValues: {},
@@ -72,7 +74,7 @@ export const EditSafeRemainder = () => {
             name="incomeRule.accountId"
             render={({ field }) => (
               <Form.Item className="col-span-2">
-                <Form.Label>Account</Form.Label>
+                <Form.Label>{t('account')}</Form.Label>
                 <Form.Control>
                   <SelectAccount
                     value={field.value || ''}
@@ -107,7 +109,7 @@ export const EditSafeRemainder = () => {
             name="outRule.accountId"
             render={({ field }) => (
               <Form.Item className="col-span-2">
-                <Form.Label>Account</Form.Label>
+                <Form.Label>{t('account')}</Form.Label>
                 <Form.Control>
                   <SelectAccount
                     value={field.value}
@@ -142,7 +144,7 @@ export const EditSafeRemainder = () => {
             name="saleRule.outAccountId"
             render={({ field }) => (
               <Form.Item className="col-span-2">
-                <Form.Label>Account</Form.Label>
+                <Form.Label>{t('account')}</Form.Label>
                 <Form.Control>
                   <SelectAccount
                     value={field.value}
@@ -160,7 +162,7 @@ export const EditSafeRemainder = () => {
             name="saleRule.costAccountId"
             render={({ field }) => (
               <Form.Item className="col-span-2">
-                <Form.Label>COST Account</Form.Label>
+                <Form.Label>{t('cost-account')}</Form.Label>
                 <Form.Control>
                   <SelectAccount
                     value={field.value}
@@ -178,7 +180,7 @@ export const EditSafeRemainder = () => {
             name="saleRule.accountId"
             render={({ field }) => (
               <Form.Item className="col-span-2">
-                <Form.Label>SALE Account</Form.Label>
+                <Form.Label>{t('sale-account')}</Form.Label>
                 <Form.Control>
                   <SelectAccount
                     value={field.value}
@@ -196,7 +198,7 @@ export const EditSafeRemainder = () => {
         <Dialog.Footer className="col-span-2 mt-4">
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            {t('save')}
           </Button>
         </Dialog.Footer>
       </form>

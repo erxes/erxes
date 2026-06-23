@@ -1,5 +1,6 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ADJUST_INVENTORIES_QUERY } from '../graphql/adjustInventoryQueries';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 import { ADJUST_INVENTORY_REMOVE } from '../graphql/adjustInventoryRemove';
@@ -9,6 +10,7 @@ export const useAdjustInventoryRemove = (
   adjustId: string,
   options?: OperationVariables,
 ) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const [_removeMutation, { loading }] = useMutation(
     ADJUST_INVENTORY_REMOVE,
@@ -24,7 +26,7 @@ export const useAdjustInventoryRemove = (
       },
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -32,8 +34,8 @@ export const useAdjustInventoryRemove = (
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Inventory adjust running successfully',
+          title: t('success'),
+          description: t('inventory-adjust-running-successfully'),
         });
         options?.onCompleted?.(data);
       },
