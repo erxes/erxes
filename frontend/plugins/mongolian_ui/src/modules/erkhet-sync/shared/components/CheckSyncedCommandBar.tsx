@@ -2,7 +2,7 @@ import { IconRefresh } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 
 interface CheckSyncedCommandBarProps {
-  sync: (items: any[], status: string) => Promise<any>;
+  sync: (...args: any[]) => any;
   loading: boolean;
 }
 
