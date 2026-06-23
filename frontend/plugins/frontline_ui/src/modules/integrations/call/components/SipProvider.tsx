@@ -102,13 +102,15 @@ const SipProvider = ({
         'Calling registerSip is not allowed when autoRegister === true',
       );
     }
+    if (sipState.sipStatus === SipStatusEnum.REGISTERED) {
+      return;
+    }
     if (sipState.sipStatus !== SipStatusEnum.CONNECTED) {
-      throw new Error(
-        `Calling registerSip is not allowed when sip status is ${sipState.sipStatus} (expected ${SipStatusEnum.CONNECTED})`,
-      );
+      reinitializeJsSIP();
+      return;
     }
     return uaRef.current?.register();
-  }, [autoRegister, sipState.sipStatus]);
+  }, [autoRegister, sipState.sipStatus, reinitializeJsSIP]);
 
   const unregisterSip = useCallback(() => {
     if (autoRegister) {
@@ -651,7 +653,7 @@ const SipProvider = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, callInfo?.isUnregistered]);
 
   // Create context value
   const contextValue = useMemo(
