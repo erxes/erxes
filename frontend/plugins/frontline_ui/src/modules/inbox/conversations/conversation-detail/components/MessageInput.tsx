@@ -43,6 +43,24 @@ import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 
+/**
+ * Strip all HTML tags from `input` and return the plain-text content.
+ *
+ * Uses the browser's HTML parser via `DOMParser` instead of a regex so that
+ * nested or smuggled tag fragments (e.g. `<<scr<b>ipt>`) cannot re-form into a
+ * live tag after stripping. This addresses CodeQL rule
+ * `js/incomplete-multi-character-sanitization` (alert #1028).
+ */
+const stripHtmlToText = (input: string): string => {
+  if (!input) return '';
+  try {
+    const doc = new DOMParser().parseFromString(input, 'text/html');
+    return doc.body?.textContent ?? '';
+  } catch {
+    return '';
+  }
+};
+
 export const MessageInput = ({
   conversationId,
 }: {
@@ -247,7 +265,7 @@ export const MessageInput = ({
     setContent(blocks as Block[]);
 
     const html = await editor?.blocksToHTMLLossy(blocks);
-    const plain = html?.replace(/<[^>]+>/g, '')?.trim() || '';
+    const plain = stripHtmlToText(html ?? '').trim();
 
     if (plain.length >= 1) {
       setSearchValue(plain);
