@@ -202,10 +202,6 @@ export const getOrSetCallCookie = async (wsServer) => {
     CALL_API_PASSWORD,
     CALL_API_EXPIRY = '86400',
   } = process.env;
-  // disable on production !!!
-  // if (process.env.NODE_ENV !== 'production') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  // }
 
   if (!CALL_API_USER || !CALL_API_PASSWORD) {
     throw new Error('Regular API credentials missing!');
