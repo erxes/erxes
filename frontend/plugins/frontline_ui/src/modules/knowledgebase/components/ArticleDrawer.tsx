@@ -290,15 +290,22 @@ export function ArticleDrawer({
                         <Form.Label>Reaction Choices</Form.Label>
                         <Form.Control>
                           <MultipleSelector
-                            options={REACTIONS}
+                            options={REACTIONS.map((r) => ({
+                              value: r.value,
+                              label: r.label,
+                              svg: r.svg,
+                            }))}
                             value={
-                              field.value?.map((choice) => ({
-                                value: choice,
-                                label:
-                                  REACTIONS.find(
-                                    (reaction) => reaction.value === choice,
-                                  )?.label || '',
-                              })) || []
+                              field.value?.map((choice) => {
+                                const reaction = REACTIONS.find(
+                                  (r) => r.value === choice,
+                                );
+                                return {
+                                  value: choice,
+                                  label: reaction?.label || '',
+                                  svg: reaction?.svg || '',
+                                };
+                              }) || []
                             }
                             onChange={(value) => {
                               field.onChange(value.map((item) => item.value));
