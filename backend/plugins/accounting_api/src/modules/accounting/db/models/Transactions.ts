@@ -387,12 +387,7 @@ export const loadTransactionClass = (
     ) {
       docs = normalizeParentWorkflowDocs(docs, userId);
       if (!options.skipAccountPermission) {
-        await assertCanWriteTransactionAccounts({
-          models,
-          subdomain,
-          docs,
-          userId,
-        });
+        await assertCanWriteTransactionAccounts({ models, docs, userId });
       }
 
       const transactions: ITransactionDocument[] = [];
@@ -530,7 +525,6 @@ export const loadTransactionClass = (
       if (!options.skipAccountPermission) {
         await assertCanWriteTransactionAccounts({
           models,
-          subdomain,
           docs,
           userId,
           oldTrs,

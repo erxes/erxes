@@ -1,5 +1,4 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
   ITransactionDocument,
@@ -125,13 +124,11 @@ const canReadExistingTransaction = ({
 
 export const assertCanWriteTransactionAccounts = async ({
   models,
-  subdomain,
   docs,
   userId,
   oldTrs,
 }: {
   models: IModels;
-  subdomain: string;
   docs: ITransaction[];
   userId: string;
   oldTrs?: ITransaction[];
@@ -145,20 +142,6 @@ export const assertCanWriteTransactionAccounts = async ({
   ];
 
   if (!accountIds.length) {
-    return;
-  }
-
-  const user = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'users',
-    action: 'findOne',
-    input: { query: { _id: userId } },
-    defaultValue: null,
-  });
-
-  if (user?.isOwner) {
     return;
   }
 
