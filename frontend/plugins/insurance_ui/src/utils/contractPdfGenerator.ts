@@ -1,3 +1,117 @@
+import DOMPurify, { type Config } from 'dompurify';
+
+const SANITIZE_OPTS: Config = { ADD_TAGS: ['style'] };
+// SECURITY: Contract templates need custom CSS for printable layouts, so this
+// sanitizer intentionally allows <style>. Keep sanitized previews in sandboxed
+// iframes or Blob popups so template CSS cannot observe or style parent DOM.
+// FORCE_BODY makes DOMPurify keep <style> in a body fragment instead of
+// hoisting it to a head it then discards. Available since DOMPurify 1.x;
+// the workspace pins ^3.2.4 in package.json, so the option is stable.
+const STYLE_SANITIZE_OPTS: Config = { ADD_TAGS: ['style'], FORCE_BODY: true };
+
+// HTML5 spec says <title> and <style> are raw-text elements — their content
+// cannot contain other tags — so a regex is sufficient and avoids reading
+// from a parsed DOM (which would trip CodeQL's js/xss-through-dom rule when
+// the result is later reinterpreted as HTML).
+const TITLE_BLOCK = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
+const STYLE_BLOCK = /<style\b[^>]*>[\s\S]*?<\/style>/gi;
+
+/**
+ * Strips every match of `pattern` from `html`, repeating until the result is
+ * stable. A single replace pass can leave a fresh match exposed when blocks
+ * are nested or interleaved (`<sty<style>x</style>le>`), which trips CodeQL's
+ * js/incomplete-multi-character-sanitization rule.
+ */
+function stripUntilStable(html: string, pattern: RegExp): string {
+  let prev = html;
+  let next = html.replace(pattern, '');
+  while (next !== prev) {
+    prev = next;
+    next = next.replace(pattern, '');
+  }
+  return next;
+}
+
+/**
+ * Sanitizes a user-edited contract template and returns a complete document
+ * safe to render in a new window or iframe. Uses DOMPurify in fragment mode
+ * (WHOLE_DOCUMENT defaults to false) to address SonarCloud rule
+ * typescript:S8479. <style> blocks are extracted up-front and sanitized with
+ * FORCE_BODY so they survive in the rebuilt <head> — fragment mode otherwise
+ * drops everything outside <body>, leaving the preview unstyled. The <title>
+ * block is stripped beforehand because DOMPurify's KEEP_CONTENT default
+ * would otherwise leak the title text into the rendered body.
+ */
+export function sanitizeContractHtml(html: string): string {
+  const styleBlocks = (html.match(STYLE_BLOCK) || [])
+    .map((style) => DOMPurify.sanitize(style, STYLE_SANITIZE_OPTS))
+    .join('');
+  const stripped = stripUntilStable(
+    stripUntilStable(html, TITLE_BLOCK),
+    STYLE_BLOCK,
+  );
+  const sanitizedBody = DOMPurify.sanitize(stripped, SANITIZE_OPTS);
+  // Inherit lang from the host document so non-Mongolian deployments still
+  // get accessible text (screen readers, font selection). Falls back to 'mn'
+  // because that's the canonical erxes deployment locale. The value is
+  // restricted to BCP-47 charset (letters, digits, hyphen) so it cannot
+  // close the attribute or inject markup even if upstream code is ever
+  // compromised.
+  const rawLang =
+    (typeof document !== 'undefined' && document.documentElement.lang) || 'mn';
+  const lang = rawLang.replace(/[^a-zA-Z0-9-]/g, '') || 'mn';
+  return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8">${styleBlocks}</head><body>${sanitizedBody}</body></html>`;
+}
+
+/**
+ * Opens sanitized contract HTML in a new window via a Blob URL. Replaces the
+ * deprecated `document.write(...)` API (SonarCloud rule typescript:S1874).
+ *
+ * Callers that need to act on the popup once it has loaded (e.g. to trigger
+ * print) pass an `onLoad` callback. Registering it inside the helper avoids
+ * a race with the async `load` event vs. the caller's `.onload` setter, and
+ * lets the helper share a single `load` listener for both URL revocation
+ * and the caller's logic.
+ */
+export function openSanitizedContractWindow(
+  html: string,
+  onLoad?: (win: Window) => void,
+): Window | null {
+  const blob = new Blob([sanitizeContractHtml(html)], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  let revoked = false;
+  const revokeUrl = () => {
+    if (!revoked) {
+      URL.revokeObjectURL(url);
+      revoked = true;
+    }
+  };
+  const win = window.open('', '_blank');
+  if (!win) {
+    revokeUrl();
+    return null;
+  }
+  // Fallback timeout for popups that never fire `load` (e.g. closed before
+  // navigation completes). Cleared on load so the closure doesn't linger for
+  // 5 minutes after a successful open.
+  const cleanupTimeout = setTimeout(() => {
+    if (win.closed) {
+      revokeUrl();
+    }
+  }, 300_000);
+  win.addEventListener(
+    'load',
+    () => {
+      clearTimeout(cleanupTimeout);
+      revokeUrl();
+      onLoad?.(win);
+    },
+    { once: true },
+  );
+  win.location.href = url;
+  return win;
+}
+
 interface Contract {
   contractNumber: string;
   paymentStatus: string;
@@ -318,27 +432,19 @@ function generateContractHTML(contract: Contract): string {
 }
 
 export function generateContractPDF(contract: Contract): void {
-  // Create a new window for printing
-  const printWindow = window.open('', '_blank');
+  const printWindow = openSanitizedContractWindow(
+    generateContractHTML(contract),
+    (win) => {
+      win.focus();
+      win.print();
+      // Close window after printing (user can cancel)
+      setTimeout(() => win.close(), 100);
+    },
+  );
 
   if (!printWindow) {
-    alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
-    return;
+    alert('Popup blocked. Please allow popups.');
   }
-
-  // Write HTML to the new window
-  printWindow.document.write(generateContractHTML(contract));
-  printWindow.document.close();
-
-  // Wait for content to load, then trigger print
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-    // Close window after printing (user can cancel)
-    setTimeout(() => {
-      printWindow.close();
-    }, 100);
-  };
 }
 
 export function downloadContractHTML(contract: Contract): void {

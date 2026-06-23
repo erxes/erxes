@@ -7,6 +7,7 @@ import {
   useCustomers,
   useCreateInsuranceContract,
 } from '../hooks';
+import { openSanitizedContractWindow } from '~/utils/contractPdfGenerator';
 
 interface ContractFormProps {
   open: boolean;
@@ -179,12 +180,11 @@ export const ContractForm = ({
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          const previewWindow = window.open('', '_blank');
-                          if (previewWindow) {
-                            previewWindow.document.write(
-                              selectedProduct.pdfContent || '',
-                            );
-                            previewWindow.document.close();
+                          const previewWindow = openSanitizedContractWindow(
+                            selectedProduct.pdfContent || '',
+                          );
+                          if (!previewWindow) {
+                            alert('Popup blocked. Please allow popups.');
                           }
                         }}
                       >
