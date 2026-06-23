@@ -229,11 +229,14 @@ function VirtualizedCardListInner<TItem extends BaseBoardItem>({
 
 // Sortable card wrapper
 interface SortableCardProps<TItem extends BaseBoardItem> {
-  item: TItem;
-  renderCard: (item: TItem, isDragOverlay?: boolean) => React.ReactNode;
-  virtualStart: number;
-  measureRef: (el: HTMLElement | null) => void;
-  index: number;
+  readonly item: TItem;
+  readonly renderCard: (
+    item: TItem,
+    isDragOverlay?: boolean,
+  ) => React.ReactNode;
+  readonly virtualStart: number;
+  readonly measureRef: (el: HTMLElement | null) => void;
+  readonly index: number;
 }
 
 function SortableCardInner<TItem extends BaseBoardItem>({

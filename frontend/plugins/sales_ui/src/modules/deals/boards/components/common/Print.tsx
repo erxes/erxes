@@ -105,7 +105,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                           min="1"
                           {...field}
                           onChange={(e) =>
-                            field.onChange(parseInt(e.target.value) || 1)
+                            field.onChange(Number.parseInt(e.target.value) || 1)
                           }
                         />
                       </Form.Item>
@@ -123,7 +123,9 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                           type="number"
                           {...field}
                           onChange={(e) =>
-                            field.onChange(parseInt(e.target.value) || 300)
+                            field.onChange(
+                              Number.parseInt(e.target.value) || 300,
+                            )
                           }
                         />
                       </Form.Item>
