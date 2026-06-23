@@ -62,8 +62,9 @@ export const sendPublishedPostNotification = async (
     return { recipientCount: 0 };
   }
 
-  const message =
-    (post.title && String(post.title).trim()) ||
+  const postTitle =
+    (post.title && String(post.title).trim()) || 'New post published';
+  const postExcerpt =
     (post.excerpt && String(post.excerpt).trim()) ||
     'A new post has been published';
 
@@ -78,8 +79,8 @@ export const sendPublishedPostNotification = async (
       clientPortalId: post.clientPortalId,
       eventType: 'postPublished',
       data: {
-        title: 'New post published',
-        message,
+        title: postTitle,
+        message: postExcerpt,
         type: 'info',
         contentType: 'content:post',
         contentTypeId: post._id,
