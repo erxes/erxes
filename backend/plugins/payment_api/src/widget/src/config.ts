@@ -12,4 +12,4 @@ const fromWidget = window.WIDGET_CONFIG?.API_URL;
 export const API_URL =
   fromWidget && fromWidget !== 'undefined'
     ? fromWidget
-     : `${window.location.origin}/pl:payment`;
+    : `${window.location.origin}/pl:payment`;
