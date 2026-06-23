@@ -5,6 +5,7 @@
   "description": "One-off database migration scripts, consolidated per domain, with a unified runner.",
   "scripts": {
     "migrate": "tsx ./run.ts",
-    "migrate:list": "tsx ./run.ts --list"
+    "migrate:list": "tsx ./run.ts --list",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   }
 }
