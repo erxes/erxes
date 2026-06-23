@@ -174,7 +174,7 @@ const SplitConfig: React.FC = () => {
           activeIndex={activeIndex}
           onSelect={setActiveIndex}
         />
-        <div className="bg-white rounded-xl border p-6 space-y-6">
+        <div className="rounded-xl border p-6 space-y-6">
           <div className="flex flex-col gap-2">
             <Label className="text-sm font-medium">{t('title')}</Label>
             <Input

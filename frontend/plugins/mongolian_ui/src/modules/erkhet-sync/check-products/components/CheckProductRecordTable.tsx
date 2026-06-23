@@ -1,88 +1,75 @@
-import { RecordTable, Button } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { CHECK_PRODUCTS_CURSOR_SESSION_KEY } from '../constants/checkProductsCursorSessionKey';
 import { useCheckProduct } from '../hooks/useCheckProduct';
 import { checkProductColumns } from './CheckProductColumn';
+import { CheckProductCommandBar } from './CheckProductCommandBar';
 
 export const CheckProductRecordTable = () => {
-  const {
-    filteredProducts,
-    loading,
-    pageInfo,
-    checkProduct,
-    syncProducts,
-    syncLoading,
-    toCheckProducts,
-  } = useCheckProduct();
-  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { filteredProducts, loading, pageInfo, checkProduct, toCheckProducts } =
+    useCheckProduct();
   const { t } = useTranslation('mongolian');
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const isInitialLoading = loading && !toCheckProducts;
 
   const handleFetchMore = () => {
     checkProduct();
   };
 
   return (
-    <div className="m-3 h-full">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">{t('products')}</h2>
-        <Button
-          onClick={syncProducts}
-          disabled={
-            syncLoading || !filteredProducts || filteredProducts.length === 0
-          }
-        >
-          {syncLoading ? t('syncing') : t('sync')}
-        </Button>
-      </div>
-
-      <RecordTable.Provider
-        columns={checkProductColumns}
-        data={filteredProducts || []}
-        className="h-full w-full px-2 overflow-y-auto"
-        stickyColumns={['more', 'checkbox', 'createdAt']}
+    <RecordTable.Provider
+      columns={checkProductColumns}
+      data={filteredProducts || []}
+      className="m-3"
+      stickyColumns={['more', 'checkbox', 'createdAt']}
+    >
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={filteredProducts?.length}
+        sessionKey={CHECK_PRODUCTS_CURSOR_SESSION_KEY}
       >
-        <RecordTable.CursorProvider
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
-          dataLength={filteredProducts?.length}
-          sessionKey={CHECK_PRODUCTS_CURSOR_SESSION_KEY}
-        >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {loading && <RecordTable.RowSkeleton rows={40} />}
-              <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
-          {!loading && !toCheckProducts && filteredProducts?.length === 0 && (
-            <div className="absolute inset-0">
-              <div className="h-full w-full px-8 flex justify-center">
-                <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                  <div className="mb-6">
-                    <IconShoppingCartX
-                      size={64}
-                      className="text-muted-foreground mx-auto mb-4"
-                    />
-                    <h3 className="text-xl font-semibold mb-2">
-                      {t('no-product-yet')}
-                    </h3>
-                    <p className="text-muted-foreground max-w-md">
-                      {t('create-first-product')}
-                    </p>
-                  </div>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+        {isInitialLoading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Spinner />
+          </div>
+        )}
+        {!loading && !toCheckProducts && filteredProducts?.length === 0 && (
+          <div className="absolute inset-0">
+            <div className="h-full w-full px-8 flex justify-center">
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                <div className="mb-6">
+                  <IconShoppingCartX
+                    size={64}
+                    className="text-muted-foreground mx-auto mb-4"
+                  />
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-product-yet')}
+                  </h3>
+                  <p className="text-muted-foreground max-w-md">
+                    {t('create-first-product')}
+                  </p>
                 </div>
               </div>
             </div>
-          )}
-        </RecordTable.CursorProvider>
-      </RecordTable.Provider>
-    </div>
+          </div>
+        )}
+      </RecordTable.CursorProvider>
+      <CheckProductCommandBar />
+    </RecordTable.Provider>
   );
 };
