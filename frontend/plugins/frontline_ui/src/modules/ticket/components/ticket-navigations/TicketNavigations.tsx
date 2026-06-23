@@ -55,7 +55,15 @@ export function TicketNavigations() {
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
 
   useEffect(() => {
-    if (!channelId && channels?.[0]?._id) {
+    if (!channels?.length || !channels[0]?._id) {
+      return;
+    }
+
+    const hasSelectedChannel = channels.some(
+      (channel) => channel._id === channelId,
+    );
+
+    if (!channelId || !hasSelectedChannel) {
       setChannelId(channels[0]._id);
     }
   }, [channels, setChannelId, channelId]);
@@ -115,7 +123,9 @@ const Pipelines = () => {
                     setPipelineId(pipeline._id);
                   }}
                 >
-                  <span className="capitalize min-w-0 truncate">{pipeline.name}</span>
+                  <span className="capitalize min-w-0 truncate">
+                    {pipeline.name}
+                  </span>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))
