@@ -14,6 +14,18 @@ interface ICreatePricingDoc {
   vendors?: string[];
   tags?: string[];
   tagsExcluded?: string[];
+  customerType?: 'customer' | 'company';
+  customerIds?: string[];
+  customerTags?: string[];
+  customerExcludeTags?: string[];
+  customerSegmentIds?: string[];
+  companyIds?: string[];
+  companyTags?: string[];
+  companyExcludeTags?: string[];
+  companySegmentIds?: string[];
+  agentUserIds?: string[];
+  agentUserPositions?: string[];
+  agentSegmentIds?: string[];
   productsBundle?: string[][];
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;

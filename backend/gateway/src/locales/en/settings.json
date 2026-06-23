@@ -82,6 +82,9 @@
     "status": "Status",
     "role": "Role",
     "actions": "Actions",
+    "branches": "Branches",
+    "departments": "Departments",
+    "unit": "Unit",
     "team-member": "Team Member"
   },
 

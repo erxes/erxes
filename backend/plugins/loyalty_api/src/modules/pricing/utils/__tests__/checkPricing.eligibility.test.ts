@@ -1,0 +1,144 @@
+/**
+ * Integration spec: checkPricing must skip plans that fail the customer/agent
+ * eligibility gate BEFORE computing any discount. The gate is wired in
+ * utils/index.ts, so these are green.
+ *
+ * For reference, the wiring is — inside the plan loop, before processing items:
+ *   const segmentCache = new Map(); // created once per checkPricing call
+ *   if (!(await planMatchesContext(subdomain, plan,
+ *         { customerId, agentId }, segmentCache))) continue;
+ * See backend/plugins/loyalty_api/AGENTS.md → "Customer & agent targeting".
+ */
+jest.mock('../product', () => ({
+  getAllowedProducts: jest.fn(
+    (_subdomain: string, _plan: unknown, productIds: string[]) => productIds,
+  ),
+}));
+
+jest.mock('../rule', () => ({
+  checkRepeatRule: jest.fn(() => true),
+  calculateDiscountValue: jest.fn((_type: string, value: number) => value),
+  calculatePriceAdjust: jest.fn((_price: number, discountValue: number) => discountValue),
+  calculatePriceRule: jest.fn(() => ({ passed: true, type: '', value: 0, bonusProducts: [] })),
+  calculateQuantityRule: jest.fn(() => ({ passed: true, type: '', value: 0, bonusProducts: [] })),
+  calculateExpiryRule: jest.fn(() => ({ passed: true, type: '', value: 0, bonusProducts: [] })),
+}));
+
+jest.mock('erxes-api-shared/utils', () => ({
+  sendTRPCMessage: jest.fn().mockResolvedValue(false),
+}));
+
+import { IModels } from '~/connectionResolvers';
+import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
+import { checkPricing } from '../index';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+
+const mockedTRPC = sendTRPCMessage as jest.Mock;
+
+const DISCOUNT = 10;
+
+const plan = (
+  overrides: Partial<IPricingPlanDocument> = {},
+): IPricingPlanDocument =>
+  ({
+    _id: 'plan-1',
+    status: 'active',
+    type: 'subtraction',
+    value: DISCOUNT,
+    applyType: 'product',
+    products: ['p1'],
+    isPriority: false,
+    customerType: 'customer',
+    customerIds: [],
+    customerTags: [],
+    customerExcludeTags: [],
+    customerSegmentIds: [],
+    companyIds: [],
+    companyTags: [],
+    companyExcludeTags: [],
+    companySegmentIds: [],
+    agentUserIds: [],
+    agentUserPositions: [],
+    agentSegmentIds: [],
+    ...overrides,
+    // Boundary cast: a full Mongoose document is impractical to build in a unit test.
+  }) as unknown as IPricingPlanDocument;
+
+const makeModels = (plans: IPricingPlanDocument[]): IModels =>
+  ({
+    PricingPlans: {
+      find: jest.fn(() => ({ sort: jest.fn().mockResolvedValue(plans) })),
+    },
+    // Boundary cast: only PricingPlans.find is exercised by checkPricing.
+  }) as unknown as IModels;
+
+const run = (
+  plans: IPricingPlanDocument[],
+  context: { customerId?: string; companyId?: string; agentId?: string } = {},
+) =>
+  checkPricing({
+    models: makeModels(plans),
+    subdomain: 'test',
+    prioritizeRule: 'exclude',
+    totalAmount: 100,
+    departmentId: '',
+    branchId: '',
+    pipelineId: '',
+    orderItems: [{ itemId: 'i1', productId: 'p1', quantity: 1, price: 100 }],
+    ...context,
+  });
+
+beforeEach(() => mockedTRPC.mockReset().mockResolvedValue(false));
+
+describe('checkPricing — applies eligible plans', () => {
+  it('applies an unconstrained plan even with no customer/agent (backwards compatible)', async () => {
+    const result = await run([plan()]);
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+
+  it('applies a plan whose customer constraint matches', async () => {
+    const result = await run([plan({ customerIds: ['c1'] })], { customerId: 'c1' });
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+});
+
+describe('checkPricing — skips ineligible plans', () => {
+  it('skips a plan whose customer is not targeted', async () => {
+    const result = await run([plan({ customerIds: ['c1'] })], { customerId: 'c2' });
+    expect(result?.i1?.value).toBe(0);
+  });
+
+  it('skips a customer-targeted plan when no customerId is supplied', async () => {
+    const result = await run([plan({ customerIds: ['c1'] })], {});
+    expect(result?.i1?.value).toBe(0);
+  });
+
+  it('skips a plan whose agent is not targeted', async () => {
+    const result = await run([plan({ agentUserIds: ['u1'] })], { agentId: 'u2' });
+    expect(result?.i1?.value).toBe(0);
+  });
+
+  it('skips a customer-segment plan when the customer is not a member', async () => {
+    mockedTRPC.mockResolvedValue(false); // isInSegment → false
+    const result = await run([plan({ customerSegmentIds: ['seg-vip'] })], {
+      customerId: 'c1',
+    });
+    expect(result?.i1?.value).toBe(0);
+  });
+
+  it('skips a company-typed plan when no companyId is supplied', async () => {
+    const result = await run(
+      [plan({ customerType: 'company', companyIds: ['co1'] })],
+      { customerId: 'co1' },
+    );
+    expect(result?.i1?.value).toBe(0);
+  });
+
+  it('applies a company-typed plan whose companyId matches', async () => {
+    const result = await run(
+      [plan({ customerType: 'company', companyIds: ['co1'] })],
+      { companyId: 'co1' },
+    );
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+});

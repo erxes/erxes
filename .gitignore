@@ -47,6 +47,8 @@ Thumbs.db
 .nx/workspace-data
 .nx
 .env
+.env.bak*
+.env.local
 
 # Agent skills and configuration
 .agents/*
@@ -85,3 +87,6 @@ backend/core-api/src/utils/private/uploads/
 
 # Sentry CLI local auth (token set via SENTRY_AUTH_TOKEN env var)
 .sentryclirc
+
+# Personal scratch / specs (untracked)
+.personal/

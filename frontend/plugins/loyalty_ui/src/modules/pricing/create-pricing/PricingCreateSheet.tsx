@@ -17,6 +17,12 @@ import {
   SelectProduct,
   SelectCategory,
 } from 'ui-modules';
+import {
+  CustomerAgentConditions,
+  CUSTOMER_AGENT_DEFAULTS,
+  customerAgentToDoc,
+  type CustomerAgentFormValues,
+} from '@/pricing/edit-pricing/components/options/CustomerAgentConditions';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import {
@@ -29,7 +35,7 @@ interface PricingCreateSheetProps {
   trigger?: React.ReactNode;
 }
 
-interface PricingFormValues {
+interface PricingFormValues extends CustomerAgentFormValues {
   name: string;
   status: 'draft';
   isPriority: boolean;
@@ -119,6 +125,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       productTagIds: [],
       excludeTagIds: [],
       bundleProductIds: [],
+      ...CUSTOMER_AGENT_DEFAULTS,
     },
   });
 
@@ -228,6 +235,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       if (values.appliesTo === 'bundle' && values.bundleProductIds.length) {
         doc.productsBundle = [values.bundleProductIds];
       }
+
+      // Customer & agent conditions are independent of `appliesTo`. Only the
+      // active buyer-kind is written; the inactive kind is cleared.
+      Object.assign(doc, customerAgentToDoc(values));
 
       await createPricing(doc);
 
@@ -641,6 +652,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   )}
                 />
               )}
+              <CustomerAgentConditions control={form.control} />
             </div>
 
             <Sheet.Footer className="px-5 py-4 border-t bg-background">
