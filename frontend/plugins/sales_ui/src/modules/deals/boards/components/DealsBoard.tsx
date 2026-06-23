@@ -7,7 +7,8 @@ import {
 } from '@/deals/states/dealsBoardState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ColumnPaginationState } from '@/deals/types/boards';
+import { BoardDealColumn, ColumnPaginationState } from '@/deals/types/boards';
+import { IDeal } from '@/deals/types/deals';
 import { DealsBoardCard } from './DealsBoardCard';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
@@ -84,7 +85,13 @@ export const DealsBoard = () => {
     });
 
     setFetchMoreTriggers({});
-  }, [columnIdsKey, queryVariablesKey, setBoardState, setAllDealsMap, initColumn]);
+  }, [
+    columnIdsKey,
+    queryVariablesKey,
+    setBoardState,
+    setAllDealsMap,
+    initColumn,
+  ]);
 
   useEffect(() => {
     setBoardState((prev) => {
@@ -217,23 +224,25 @@ export const DealsBoard = () => {
   if (!boardState) return null;
 
   return (
-    <GenericBoard<any, any>
-      initialState={boardState}
-      onStateChange={handleStateChange}
-      renderCard={(deal) => <DealsBoardCard deal={deal} />}
-      renderColumnHeader={(column, count) => (
-        <DealsBoardColumn
-          column={column}
-          count={count}
-          pipelineId={pipelineId || ''}
-          queryVariables={queryVariables}
-          fetchMoreTrigger={fetchMoreTriggers[column._id] || 0}
-          onFetchComplete={handleFetchComplete}
-          locallyMovedIdsRef={locallyMovedIdsRef}
-        />
-      )}
-      columnPagination={columnPaginationState}
-      onLoadMore={handleLoadMore}
-    />
+    <>
+      <GenericBoard<IDeal, BoardDealColumn>
+        initialState={boardState}
+        onStateChange={handleStateChange}
+        renderCard={(deal) => <DealsBoardCard deal={deal} />}
+        renderColumnHeader={(column, count) => (
+          <DealsBoardColumn
+            column={column}
+            count={count}
+            pipelineId={pipelineId || ''}
+            queryVariables={queryVariables}
+            fetchMoreTrigger={fetchMoreTriggers[column._id] || 0}
+            onFetchComplete={handleFetchComplete}
+            locallyMovedIdsRef={locallyMovedIdsRef}
+          />
+        )}
+        columnPagination={columnPaginationState}
+        onLoadMore={handleLoadMore}
+      />
+    </>
   );
 };

@@ -188,6 +188,34 @@ export const GET_DEALS = gql`
   }
 `;
 
+// Archived deals live outside the normal `deals` list (which excludes them).
+// Used by the merge picker to optionally offer archived deals as merge sources.
+// Filtered by pipeline on the backend; the picker narrows to a single stage.
+export const GET_ARCHIVED_DEALS = gql`
+  query ArchivedDeals(
+    $pipelineId: String!
+    $search: String
+    $limit: Int
+    $orderBy: JSON
+  ) {
+    archivedDeals(
+      pipelineId: $pipelineId
+      search: $search
+      limit: $limit
+      orderBy: $orderBy
+    ) {
+      list {
+        _id
+        name
+        number
+        stageId
+        status
+      }
+      totalCount
+    }
+  }
+`;
+
 export const GET_DEAL_DETAIL = gql`
   query DealDetail($_id: String!) {
     dealDetail(_id: $_id) {

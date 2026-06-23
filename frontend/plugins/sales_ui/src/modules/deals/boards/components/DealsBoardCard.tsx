@@ -7,7 +7,7 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
-import { CopyText, Separator, useQueryState } from 'erxes-ui';
+import { CopyText, Separator, cn, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
 import {
@@ -168,6 +168,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     stage,
     tagIds,
   } = deal;
+
   const onCardClick = () => {
     setSalesItemId(_id);
     setActiveDealAtom(_id);
@@ -178,7 +179,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
 
   return (
     <div
-      className={showArchivedBadge ? 'relative overflow-hidden' : ''}
+      className={cn(showArchivedBadge && 'relative overflow-hidden')}
       onClick={() => onCardClick()}
     >
       <div className="flex items-center justify-between h-9 px-1.5">

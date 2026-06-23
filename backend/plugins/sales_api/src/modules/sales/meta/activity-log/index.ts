@@ -8,7 +8,11 @@ import { DEAL_ACTIVITY_FIELDS } from './constants';
 import {
   generateDealConvertedActivityLog,
   generateDealCreatedActivityLog,
+  generateDealMergedActivityLog,
+  generateDealMergedIntoActivityLog,
   generateDealMovedActivityLog,
+  generateDealSplitActivityLog,
+  generateDealSplitChildActivityLog,
   generateDealWatchActivityLog,
 } from './builders';
 import { dealActivityResolvers } from './resolvers';
@@ -55,7 +59,11 @@ export async function generateDealUpdateActivityLogs(
 export {
   generateDealConvertedActivityLog,
   generateDealCreatedActivityLog,
+  generateDealMergedActivityLog,
+  generateDealMergedIntoActivityLog,
   generateDealMovedActivityLog,
+  generateDealSplitActivityLog,
+  generateDealSplitChildActivityLog,
   generateDealWatchActivityLog,
 };
 export { generateBoardActivityLogs } from './board';

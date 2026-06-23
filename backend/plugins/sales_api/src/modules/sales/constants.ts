@@ -1,7 +1,10 @@
 export const SALES_STATUSES = {
   ACTIVE: 'active',
   ARCHIVED: 'archived',
-  ALL: ['active', 'archived'],
+  // Source deals that were merged into another deal. They are never hard
+  // deleted so their timeline/history stays intact and traceable.
+  MERGED: 'merged',
+  ALL: ['active', 'archived', 'merged'],
 };
 
 export const VISIBILITIES = {

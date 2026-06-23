@@ -108,8 +108,7 @@ export default {
     if (!deal.stageId) {
       return null;
     }
-
-    return await loaders.deal.pipelineByDealId.load(deal.stageId);
+    return (await loaders.deal.pipelineByDealId.load(deal.stageId)) || null;
   },
 
   async boardId(deal: IDealDocument, _args: undefined, { loaders }: IContext) {
@@ -125,8 +124,9 @@ export default {
     if (!deal.stageId) {
       return null;
     }
-
-    return models.Stages.getStage(deal.stageId);
+    // Use findOne (not getStage) so a deleted stage returns null instead of
+    // throwing and breaking the whole deals list / merge picker.
+    return await models.Stages.findOne({ _id: deal.stageId });
   },
 
   async isWatched(deal: IDealDocument, _args: undefined, { user }: IContext) {
@@ -153,6 +153,50 @@ export default {
     }
 
     return { __typename: 'User', _id: deal.userId };
+  },
+
+  async mergedInto(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!deal.mergeInfo?.mergedIntoId) {
+      return null;
+    }
+    return await models.Deals.findOne({ _id: deal.mergeInfo.mergedIntoId });
+  },
+
+  async mergedDeals(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!deal.mergeInfo?.mergedDealIds?.length) {
+      return [];
+    }
+    return await models.Deals.find({ _id: { $in: deal.mergeInfo.mergedDealIds } });
+  },
+
+  async splitSource(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!deal.splitInfo?.splitSourceId) {
+      return null;
+    }
+    return await models.Deals.findOne({ _id: deal.splitInfo.splitSourceId });
+  },
+
+  async splitChildren(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!deal.splitInfo?.splitChildIds?.length) {
+      return [];
+    }
+    return await models.Deals.find({ _id: { $in: deal.splitInfo.splitChildIds } });
   },
 
   async vendorCustomers(

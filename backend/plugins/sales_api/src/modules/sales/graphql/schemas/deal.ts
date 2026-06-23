@@ -24,6 +24,15 @@ const inputDeps = `
     quantity: Int
     unitPrice: Float
   }
+
+  input DealSplitInput {
+    name: String
+    stageId: String
+    assignedUserIds: [String]
+    productIds: [String]
+    amount: Float
+    description: String
+  }
 `;
 
 const queryParams = `
@@ -136,7 +145,28 @@ export const types = `
     paymentsData: JSON
     extraData: JSON
 
+    # --- merge / split tracking ---
+    mergeInfo: DealMergeInfo
+    mergedInto: Deal
+    mergedDeals: [Deal]
+
+    splitInfo: DealSplitInfo
+    splitSource: Deal
+    splitChildren: [Deal]
+
     cursor: String
+  }
+
+  type DealMergeInfo {
+    mergedIntoId: String
+    mergedDealIds: [String]
+    mergedAt: Date
+  }
+
+  type DealSplitInfo {
+    splitSourceId: String
+    splitChildIds: [String]
+    splitAt: Date
   }
 
   type SalesTotalForType {
@@ -240,6 +270,9 @@ export const mutations = `
   dealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
+
+  dealsMerge(sourceDealIds: [ID!]!, targetDealId: ID!, name: String, fields: JSON): Deal
+  dealsSplit(dealId: ID!, splits: [DealSplitInput!]!): [Deal]
 
   cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
   cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal

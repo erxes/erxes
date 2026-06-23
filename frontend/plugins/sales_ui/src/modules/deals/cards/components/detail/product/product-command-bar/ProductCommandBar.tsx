@@ -1,6 +1,7 @@
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 
 import { ProductsDelete } from './ProductDelete';
+import { DealSplitSheet } from '../split/DealSplitSheet';
 
 export const ProductCommandBar = ({
   refetch,
@@ -11,17 +12,25 @@ export const ProductCommandBar = ({
 }) => {
   const { table } = RecordTable.useRecordTable();
 
+  const selectedProductIds = table
+    .getFilteredSelectedRowModel()
+    .rows.map((row) => row.original._id);
+
   return (
-    <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
+    <CommandBar open={selectedProductIds.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {selectedProductIds.length} selected
         </CommandBar.Value>
         <Separator.Inline />
+        <DealSplitSheet
+          productIds={selectedProductIds}
+          refetch={refetch}
+          dealId={dealId}
+        />
+        <Separator.Inline />
         <ProductsDelete
-          productIds={table
-            .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id)}
+          productIds={selectedProductIds}
           refetch={refetch}
           dealId={dealId}
         />

@@ -86,6 +86,24 @@ export interface IDeal {
   mobileAmounts?: Array<{ _id?: string; amount: number }>;
   paymentsData?: IPaymentsData;
   extraData?: any;
+
+  // --- merge tracking ---
+  mergeInfo?: IDealMergeInfo;
+
+  // --- split tracking ---
+  splitInfo?: IDealSplitInfo;
+}
+
+export interface IDealMergeInfo {
+  mergedIntoId?: string;
+  mergedDealIds?: string[];
+  mergedAt?: Date;
+}
+
+export interface IDealSplitInfo {
+  splitSourceId?: string;
+  splitChildIds?: string[];
+  splitAt?: Date;
 }
 
 export interface IDealDocument extends IDeal, Document {
@@ -94,6 +112,18 @@ export interface IDealDocument extends IDeal, Document {
   updatedAt?: Date;
 
   customProperties?: Record<string, any>;
+}
+
+export interface IDealSplitInput {
+  name?: string;
+  stageId?: string;
+  assignedUserIds?: string[];
+  // Product line _ids (from the source deal's productsData) to move/copy
+  // into this child deal.
+  productIds?: string[];
+  // Optional explicit amount allocated to this child (partial allocation).
+  amount?: number;
+  description?: string;
 }
 
 export interface IDate {
