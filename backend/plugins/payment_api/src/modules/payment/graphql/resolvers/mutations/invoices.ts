@@ -157,11 +157,10 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { input }: { input: IInvoice },
     { models, subdomain }: IContext,
   ) {
-    // Use a separate variable for the widget base URL
-    const widgetBaseUrl =
-      process.env.WIDGET_BASE_URL || 'http://localhost:4000';
-    // Optionally replace subdomain if needed
-    const domain = widgetBaseUrl.replace('<subdomain>', subdomain);
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:5173';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
