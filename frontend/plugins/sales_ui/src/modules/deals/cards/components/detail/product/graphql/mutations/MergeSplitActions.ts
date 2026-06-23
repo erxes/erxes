@@ -16,7 +16,9 @@ export const MERGE_DEALS = gql`
       _id
       name
       productsData
-      mergedDealIds
+      mergeInfo {
+        mergedDealIds
+      }
     }
   }
 `;
@@ -27,7 +29,9 @@ export const SPLIT_DEAL = gql`
       _id
       name
       stageId
-      splitSourceId
+      splitInfo {
+        splitSourceId
+      }
       productsData
     }
   }

@@ -160,10 +160,10 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
-    if (!deal.mergedIntoId) {
+    if (!deal.mergeInfo?.mergedIntoId) {
       return null;
     }
-    return await models.Deals.findOne({ _id: deal.mergedIntoId });
+    return await models.Deals.findOne({ _id: deal.mergeInfo.mergedIntoId });
   },
 
   async mergedDeals(
@@ -171,10 +171,10 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
-    if (!deal.mergedDealIds?.length) {
+    if (!deal.mergeInfo?.mergedDealIds?.length) {
       return [];
     }
-    return await models.Deals.find({ _id: { $in: deal.mergedDealIds } });
+    return await models.Deals.find({ _id: { $in: deal.mergeInfo.mergedDealIds } });
   },
 
   async splitSource(
@@ -182,10 +182,10 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
-    if (!deal.splitSourceId) {
+    if (!deal.splitInfo?.splitSourceId) {
       return null;
     }
-    return await models.Deals.findOne({ _id: deal.splitSourceId });
+    return await models.Deals.findOne({ _id: deal.splitInfo.splitSourceId });
   },
 
   async splitChildren(
@@ -193,10 +193,10 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
-    if (!deal.splitChildIds?.length) {
+    if (!deal.splitInfo?.splitChildIds?.length) {
       return [];
     }
-    return await models.Deals.find({ _id: { $in: deal.splitChildIds } });
+    return await models.Deals.find({ _id: { $in: deal.splitInfo.splitChildIds } });
   },
 
   async vendorCustomers(

@@ -75,8 +75,8 @@ const ConfiguredProviderCard = ({
   const keyHint = p.apiKey
     ? '••••••' + p.apiKey.slice(-4)
     : p.envKey
-      ? `env: ${p.envKey}`
-      : 'No key';
+    ? `env: ${p.envKey}`
+    : 'No key';
 
   return (
     <div className="rounded-lg border bg-card p-4 flex items-center justify-between">

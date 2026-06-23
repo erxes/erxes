@@ -88,16 +88,20 @@ export interface IDeal {
   extraData?: any;
 
   // --- merge tracking ---
-  // On a source deal: the target deal it was merged into.
-  mergedIntoId?: string;
-  // On a target deal: the source deals that were merged into it.
-  mergedDealIds?: string[];
-  mergedAt?: Date;
+  mergeInfo?: IDealMergeInfo;
 
   // --- split tracking ---
-  // On a child deal: the original deal it was split from.
+  splitInfo?: IDealSplitInfo;
+}
+
+export interface IDealMergeInfo {
+  mergedIntoId?: string;
+  mergedDealIds?: string[];
+  mergedAt?: Date;
+}
+
+export interface IDealSplitInfo {
   splitSourceId?: string;
-  // On an original deal: the child deals produced by splitting it.
   splitChildIds?: string[];
   splitAt?: Date;
 }

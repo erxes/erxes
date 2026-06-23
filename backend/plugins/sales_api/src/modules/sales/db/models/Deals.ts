@@ -228,8 +228,10 @@ export const loadDealClass = (
           prevTargetObj.departmentIds,
           ...sourceObjs.map((source) => source.departmentIds),
         ),
-        mergedDealIds: unionIds(prevTargetObj.mergedDealIds, sources),
-        mergedAt: new Date(),
+        mergeInfo: {
+          mergedDealIds: unionIds(prevTargetObj.mergeInfo?.mergedDealIds, sources),
+          mergedAt: new Date(),
+        },
       };
 
       // The deal-level merge above is deterministic (union / target-wins). When
@@ -270,8 +272,10 @@ export const loadDealClass = (
         {
           $set: {
             status: SALES_STATUSES.MERGED,
-            mergedIntoId: targetDealId,
-            mergedAt: new Date(),
+            mergeInfo: {
+              mergedIntoId: targetDealId,
+              mergedAt: new Date(),
+            },
           },
         },
       );
@@ -316,7 +320,7 @@ export const loadDealClass = (
           currentDocument: {
             ...source,
             status: SALES_STATUSES.MERGED,
-            mergedIntoId: targetDealId,
+            mergeInfo: { mergedIntoId: targetDealId },
           },
           prevDocument: source,
         });
@@ -339,8 +343,9 @@ export const loadDealClass = (
      *
      * - each child can take a subset of the source's product lines and/or an
      *   explicit allocated amount (partial allocation)
-     * - children keep a `splitSourceId` back-reference and the original keeps
-     *   `splitChildIds`, so both stay traceable; the original is untouched
+     * - children keep a `splitInfo.splitSourceId` back-reference and the
+     *   original keeps `splitInfo.splitChildIds`, so both stay traceable; the
+     *   original is untouched
      * - relations are copied to each child; create/split activity logs emitted
      */
     public static async splitDeal(dealId: string, splits: IDealSplitInput[]) {
@@ -382,8 +387,10 @@ export const loadDealClass = (
           productsData,
           propertiesData: sourceObj.propertiesData,
           customFieldsData: sourceObj.customFieldsData,
-          splitSourceId: dealId,
-          splitAt: new Date(),
+          splitInfo: {
+            splitSourceId: dealId,
+            splitAt: new Date(),
+          },
           order: await getNewOrder({
             collection: models.Deals,
             stageId,
@@ -428,8 +435,10 @@ export const loadDealClass = (
         { _id: dealId },
         {
           $set: {
-            splitChildIds: unionIds(sourceObj.splitChildIds, childIds),
-            splitAt: new Date(),
+            splitInfo: {
+              splitChildIds: unionIds(sourceObj.splitInfo?.splitChildIds, childIds),
+              splitAt: new Date(),
+            },
             productsData: remainingProductsData,
             ...(await getTotalAmounts(remainingProductsData)),
           },

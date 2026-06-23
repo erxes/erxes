@@ -230,8 +230,10 @@ export const generateDealMergedActivityLog = (
     description: `merged ${sourceDealIds.length} deal(s) into this deal`,
   },
   changes: {
-    mergedDealIds: sourceDealIds,
-    mergedAt: new Date(),
+    mergeInfo: {
+      mergedDealIds: sourceDealIds,
+      mergedAt: new Date(),
+    },
   },
   metadata: {
     sourceDealIds,
@@ -251,8 +253,10 @@ export const generateDealMergedIntoActivityLog = (
     description: 'merged into another deal',
   },
   changes: {
-    mergedIntoId: targetDealId,
-    mergedAt: new Date(),
+    mergeInfo: {
+      mergedIntoId: targetDealId,
+      mergedAt: new Date(),
+    },
   },
   metadata: {
     targetDealId,
@@ -272,8 +276,10 @@ export const generateDealSplitActivityLog = (
     description: `split into ${childDealIds.length} deal(s)`,
   },
   changes: {
-    splitChildIds: childDealIds,
-    splitAt: new Date(),
+    splitInfo: {
+      splitChildIds: childDealIds,
+      splitAt: new Date(),
+    },
   },
   metadata: {
     childDealIds,
@@ -293,8 +299,10 @@ export const generateDealSplitChildActivityLog = (
     description: 'created from a split deal',
   },
   changes: {
-    splitSourceId: sourceDealId,
-    splitAt: new Date(),
+    splitInfo: {
+      splitSourceId: sourceDealId,
+      splitAt: new Date(),
+    },
   },
   metadata: {
     sourceDealId,

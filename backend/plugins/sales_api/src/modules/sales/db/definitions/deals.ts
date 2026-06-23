@@ -64,6 +64,46 @@ const mobileAmountSchema = new Schema({
   amount: { type: Number },
 });
 
+const mergeInfoSchema = new Schema(
+  {
+    mergedIntoId: {
+      type: String,
+      optional: true,
+      index: true,
+      esType: 'keyword',
+      label: 'Merged into deal',
+    },
+    mergedDealIds: {
+      type: [String],
+      optional: true,
+      esType: 'keyword',
+      label: 'Merged source deals',
+    },
+    mergedAt: { type: Date, optional: true, label: 'Merged at' },
+  },
+  { _id: false },
+);
+
+const splitInfoSchema = new Schema(
+  {
+    splitSourceId: {
+      type: String,
+      optional: true,
+      index: true,
+      esType: 'keyword',
+      label: 'Split from deal',
+    },
+    splitChildIds: {
+      type: [String],
+      optional: true,
+      esType: 'keyword',
+      label: 'Split child deals',
+    },
+    splitAt: { type: Date, optional: true, label: 'Split at' },
+  },
+  { _id: false },
+);
+
 export const dealSchema = schemaWrapper(
   new Schema(
     {
@@ -183,36 +223,10 @@ export const dealSchema = schemaWrapper(
       extraData: { type: Object, optional: true },
 
       // --- merge tracking ---
-      mergedIntoId: {
-        type: String,
-        optional: true,
-        index: true,
-        esType: 'keyword',
-        label: 'Merged into deal',
-      },
-      mergedDealIds: {
-        type: [String],
-        optional: true,
-        esType: 'keyword',
-        label: 'Merged source deals',
-      },
-      mergedAt: { type: Date, optional: true, label: 'Merged at' },
+      mergeInfo: { type: mergeInfoSchema, optional: true, label: 'Merge info' },
 
       // --- split tracking ---
-      splitSourceId: {
-        type: String,
-        optional: true,
-        index: true,
-        esType: 'keyword',
-        label: 'Split from deal',
-      },
-      splitChildIds: {
-        type: [String],
-        optional: true,
-        esType: 'keyword',
-        label: 'Split child deals',
-      },
-      splitAt: { type: Date, optional: true, label: 'Split at' },
+      splitInfo: { type: splitInfoSchema, optional: true, label: 'Split info' },
     },
     {
       timestamps: true,

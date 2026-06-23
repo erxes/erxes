@@ -146,19 +146,27 @@ export const types = `
     extraData: JSON
 
     # --- merge / split tracking ---
-    mergedIntoId: String
-    mergedDealIds: [String]
-    mergedAt: Date
+    mergeInfo: DealMergeInfo
     mergedInto: Deal
     mergedDeals: [Deal]
 
-    splitSourceId: String
-    splitChildIds: [String]
-    splitAt: Date
+    splitInfo: DealSplitInfo
     splitSource: Deal
     splitChildren: [Deal]
 
     cursor: String
+  }
+
+  type DealMergeInfo {
+    mergedIntoId: String
+    mergedDealIds: [String]
+    mergedAt: Date
+  }
+
+  type DealSplitInfo {
+    splitSourceId: String
+    splitChildIds: [String]
+    splitAt: Date
   }
 
   type SalesTotalForType {
