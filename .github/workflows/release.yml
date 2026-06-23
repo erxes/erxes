@@ -10,6 +10,12 @@ on:
         description: 'Version to release (e.g. 3.0.4)'
         required: true
 
+# Least-privilege GITHUB_TOKEN. This workflow only retags Docker Hub images
+# using DOCKERHUB_USERNAME/DOCKERHUB_TOKEN secrets and does not need write
+# access to the GitHub repo, packages, or any other scope.
+permissions:
+  contents: read
+
 jobs:
   tag-docker-images:
     name: Tag ${{ matrix.image }}
