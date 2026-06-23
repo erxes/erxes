@@ -48,7 +48,7 @@ export const CheckProductRecordTable = () => {
             <Spinner />
           </div>
         )}
-        {!loading && toCheckProducts === null && filteredProducts?.length === 0 && (
+        {!loading && !toCheckProducts?.length && filteredProducts?.length === 0 && (
           <div className="absolute inset-0">
             <div className="h-full w-full px-8 flex justify-center">
               <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
