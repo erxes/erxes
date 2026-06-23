@@ -1,10 +1,11 @@
-import { Form, Button, Collapsible } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 import { UseFormReturn, Controller } from 'react-hook-form';
 import {
   CustomFieldInput,
   CustomFieldValue,
   FieldDefinition,
 } from '../../posts/CustomFieldInput';
+import { ReorderableCustomFields } from '../../custom-fields/components/ReorderableCustomFields';
 import { IPageFormData } from '../types/pageTypes';
 
 interface CustomFieldDataItem {
@@ -12,7 +13,7 @@ interface CustomFieldDataItem {
   value: CustomFieldValue;
 }
 
-interface CustomFieldsData extends Array<CustomFieldDataItem> {}
+type CustomFieldsData = CustomFieldDataItem[];
 
 export interface FieldGroup {
   _id: string;
@@ -31,6 +32,7 @@ export interface FieldGroup {
 
 interface PageCustomFieldsSectionProps {
   fieldGroups: FieldGroup[];
+  websiteId?: string;
   form: UseFormReturn<IPageFormData>;
 }
 
@@ -93,54 +95,41 @@ const CustomFieldController = ({
 
 export const PageCustomFieldsSection = ({
   fieldGroups,
+  websiteId,
   form,
 }: PageCustomFieldsSectionProps) => (
-  <div className="space-y-3 mt-6 pt-6 border-t">
-    <div className="text-sm font-semibold text-foreground">Custom Fields</div>
-    {fieldGroups.map((group) => (
-      <Collapsible key={group._id} defaultOpen className="group">
-        <Collapsible.Trigger asChild>
-          <Button variant="secondary" className="w-full justify-start">
-            <Collapsible.TriggerIcon />
-            {group.label}
-          </Button>
-        </Collapsible.Trigger>
-        <Collapsible.Content className="pt-4">
-          <div className="grid gap-4 grid-cols-1">
-            {(group.fields || []).map((field) => (
-              <Form.Field
-                key={field._id}
-                control={form.control}
-                name={`customFieldsData`}
-                render={({ field: formField }) => {
-                  const currentData: CustomFieldsData = formField.value || [];
-                  const fieldValue = getFieldValue(currentData, field._id);
+  <ReorderableCustomFields
+    fieldGroups={fieldGroups}
+    websiteId={websiteId}
+    renderField={(field) => (
+      <Form.Field
+        control={form.control}
+        name={`customFieldsData`}
+        render={({ field: formField }) => {
+          const currentData: CustomFieldsData = formField.value || [];
+          const fieldValue = getFieldValue(currentData, field._id);
 
-                  return (
-                    <div className="flex flex-col gap-2">
-                      <Form.Label
-                        className="text-sm font-medium"
-                        htmlFor={`custom-field-${field._id}`}
-                      >
-                        {field.label}
-                        {field.isRequired && (
-                          <span className="text-destructive ml-1">*</span>
-                        )}
-                      </Form.Label>
-                      <CustomFieldController
-                        field={field}
-                        fieldValue={fieldValue}
-                        form={form}
-                      />
-                      <Form.Message />
-                    </div>
-                  );
-                }}
+          return (
+            <div className="flex flex-col gap-2">
+              <Form.Label
+                className="text-sm font-medium"
+                htmlFor={`custom-field-${field._id}`}
+              >
+                {field.label}
+                {field.isRequired && (
+                  <span className="text-destructive ml-1">*</span>
+                )}
+              </Form.Label>
+              <CustomFieldController
+                field={field}
+                fieldValue={fieldValue}
+                form={form}
               />
-            ))}
-          </div>
-        </Collapsible.Content>
-      </Collapsible>
-    ))}
-  </div>
+              <Form.Message />
+            </div>
+          );
+        }}
+      />
+    )}
+  />
 );

@@ -2,7 +2,12 @@ import { TManagePropertiesForm } from '@/automations/components/builder/nodes/ac
 import { PROPERTY_OPERATOR } from '@/automations/constants';
 import { useCallback, useEffect, useRef } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { useGetFieldsProperties, groupFieldsByType, IField } from 'ui-modules';
+import {
+  groupFieldsByType,
+  IField,
+  TPlaceholderInputSuggestion,
+  useGetFieldsProperties,
+} from 'ui-modules';
 
 type TManagePropertyField = IField & {
   fieldId?: string;
@@ -182,7 +187,7 @@ const useManagePropertyRuleInputProps = (
   rule?: TManagePropertiesForm['rules'][number],
   operators: { value: string; label: string }[] = [],
 ) => {
-  const enabled: any = selectedField ? { attribute: true } : undefined;
+  const enabled = selectedField ? [TPlaceholderInputSuggestion.Attribute] : [];
   const suggestionsOptions: any = {};
   let isDisabled = false;
   if (!selectedField || !operators.some((op) => op.value === rule?.operator)) {
@@ -194,11 +199,11 @@ const useManagePropertyRuleInputProps = (
   }
 
   if (selectedField?.selectOptions?.length) {
-    enabled.option = true;
+    enabled.push(TPlaceholderInputSuggestion.Option);
   }
 
   if (selectedField?.type === 'Date') {
-    enabled.date = true;
+    enabled.push(TPlaceholderInputSuggestion.Date);
   }
 
   if (selectedField?.type !== 'String') {
@@ -217,7 +222,7 @@ const useManagePropertyRuleInputProps = (
   }
 
   if (selectedField?.type === 'Boolean') {
-    enabled.option = true;
+    enabled.push(TPlaceholderInputSuggestion.Option);
     suggestionsOptions.option = {
       options: [
         {
