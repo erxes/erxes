@@ -7,8 +7,7 @@ import {
 } from '@/ota/@types/tourAvailabilities';
 import { otaTourAvailabilitySchema } from '@/ota/db/definitions/tourAvailabilities';
 
-export interface ITourAvailabilityModel
-  extends Model<IOTATourAvailabilityDocument> {
+export interface ITourAvailabilityModel extends Model<IOTATourAvailabilityDocument> {
   createTourAvailability: (
     data: IOTATourAvailability,
   ) => Promise<IOTATourAvailabilityDocument>;
@@ -23,13 +22,13 @@ export interface ITourAvailabilityModel
 
 export const loadTourAvailabilityClass = (models: IModels) => {
   class TourAvailabilities {
-    public static createTourAvailability = async (
+    public static readonly createTourAvailability = async (
       data: IOTATourAvailability,
     ) => {
       return models.TourAvailabilities.create(data);
     };
 
-    public static updateTourAvailability = async (
+    public static readonly updateTourAvailability = async (
       _id: string,
       data: Partial<IOTATourAvailability>,
     ) => {
@@ -40,7 +39,7 @@ export const loadTourAvailabilityClass = (models: IModels) => {
       );
     };
 
-    public static deleteTourAvailability = async (_id: string) => {
+    public static readonly deleteTourAvailability = async (_id: string) => {
       return models.TourAvailabilities.findOneAndDelete({ _id });
     };
   }
