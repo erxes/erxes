@@ -3,14 +3,26 @@ import { Collection, Db, MongoClient } from 'mongodb';
 
 dotenv.config();
 
-const { MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true' } =
-  process.env;
+const {
+  MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true',
+  CORE_MONGO_URL,
+  TARGET_SUBDOMAIN,
+} = process.env;
 
 if (!MONGO_URL) {
   throw new Error('Environment variable MONGO_URL not set.');
 }
 
-const client = new MongoClient(MONGO_URL);
+if (!TARGET_SUBDOMAIN) {
+  throw new Error('Environment variable TARGET_SUBDOMAIN must be set.');
+}
+
+function extractDbName(url: string): string {
+  const withoutQuery = url.split('?')[0];
+  return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
+}
+
+const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 
 let db: Db;
 let Conformities: Collection;
@@ -31,7 +43,24 @@ const conformityFilter = {
 const command = async () => {
   await client.connect();
 
-  db = client.db();
+  const coreUrl = CORE_MONGO_URL || MONGO_URL;
+  const coreDbName = extractDbName(coreUrl);
+  const coreDb = client.db(coreDbName);
+
+  const targetOrg = await coreDb
+    .collection('organizations')
+    .findOne({ subdomain: TARGET_SUBDOMAIN }, { projection: { _id: 1 } });
+
+  if (!targetOrg) {
+    throw new Error(
+      `Organization with subdomain "${TARGET_SUBDOMAIN}" not found in ${coreDbName}.organizations`,
+    );
+  }
+
+  const targetDbName = `erxes_${targetOrg._id}`;
+  console.log(`Target: ${TARGET_SUBDOMAIN} → ${targetDbName}`);
+
+  db = client.db(targetDbName);
   Conformities = db.collection('conformities');
   Relations = db.collection('relations');
 
