@@ -11,17 +11,22 @@ import {
   Popover,
   useMultiQueryState,
 } from 'erxes-ui';
+import { Can } from 'ui-modules';
+import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { INVOICES_CURSOR_SESSION_KEY } from '~/modules/payment/hooks/use-invoices';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { InvoiceKindFilter } from './InvoiceKindFilter';
 import { InvoiceStatusFilter } from './InvoiceStatusFilter';
 
 export const InvoiceFilterBar = () => {
-  const [queries] = useMultiQueryState<{ status?: string; kind?: string }>([
-    'status',
-    'kind',
-  ]);
-  const { status, kind } = queries;
+  const [queries] = useMultiQueryState<{
+    searchValue?: string;
+    status?: string;
+    kind?: string;
+  }>(['searchValue', 'status', 'kind']);
+  const { searchValue, status, kind } = queries;
+
+  const getFilters = () => ({ searchValue, status, kind });
 
   const kindLabel = kind ? PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind : undefined;
 
@@ -30,7 +35,7 @@ export const InvoiceFilterBar = () => {
       <PageSubHeader>
         <Filter.Bar>
           <Filter.Popover scope="invoices-page">
-            <Filter.Trigger isFiltered={!!status || !!kind} />
+            <Filter.Trigger isFiltered={!!searchValue || !!status || !!kind} />
             <Combobox.Content>
               <Filter.View>
                 <Command>
@@ -95,6 +100,15 @@ export const InvoiceFilterBar = () => {
             </Popover>
           </Filter.BarItem>
         </Filter.Bar>
+
+        <Can action="invoicesExportManage">
+          <Export
+            pluginName="payment"
+            moduleName="payment"
+            collectionName="invoice"
+            getFilters={getFilters}
+          />
+        </Can>
       </PageSubHeader>
     </Filter>
   );

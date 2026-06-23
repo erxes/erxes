@@ -1,4 +1,10 @@
 import { getEnv, getSubdomain, startPlugin } from 'erxes-api-shared/utils';
+import {
+  createCoreModuleProducerHandler,
+  TImportExportProducers,
+  TGetExportDataInput,
+  TGetExportHeadersInput,
+} from 'erxes-api-shared/core-modules';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -9,6 +15,8 @@ import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
+import { invoiceExportHandlers } from '~/modules/payment/meta/import-export/export/exportHandlers';
+import { permissions } from '~/meta/permissions';
 import './bullmq-safe-patch';
 
 const getWidgetApiUrl = (req: express.Request) => {
@@ -56,6 +64,36 @@ startPlugin({
       context.subdomain = subdomain;
 
       return context;
+    },
+  },
+
+  meta: {
+    permissions,
+  },
+
+  importExport: {
+    export: {
+      types: [
+        {
+          label: 'Invoice',
+          contentType: 'payment:payment.invoice',
+          permissions: ['invoicesExportManage'],
+        },
+      ],
+      getExportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { payment: invoiceExportHandlers },
+        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+      getExportData: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { payment: invoiceExportHandlers },
+        methodName: TImportExportProducers.GET_EXPORT_DATA,
+        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+        generateModels,
+      }),
     },
   },
 
