@@ -204,7 +204,7 @@ export const SelectStatusTaskFilterView = ({ teamId }: { teamId?: string }) => {
       <SelectStatusProvider
         value={status || ''}
         teamId={teamId}
-        onValueChange={(value) => setStatus(value as string)}
+        onValueChange={(value) => setStatus(value)}
       >
         <SelectStatusContent />
       </SelectStatusProvider>

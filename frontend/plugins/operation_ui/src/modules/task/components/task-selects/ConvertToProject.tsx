@@ -33,20 +33,18 @@ export const ConvertToProject = ({ task }: { task: ITask }) => {
   }
 
   return (
-    <>
-      <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
-        <Sheet.Trigger asChild>
-          <Button variant="outline">Convert to Project</Button>
-        </Sheet.Trigger>
-        <Sheet.View
-          className="sm:max-w-3xl w-full p-0"
-          onEscapeKeyDown={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <AddProjectForm task={task} onClose={onClose} />
-        </Sheet.View>
-      </Sheet>
-    </>
+    <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
+      <Sheet.Trigger asChild>
+        <Button variant="outline">Convert to Project</Button>
+      </Sheet.Trigger>
+      <Sheet.View
+        className="sm:max-w-3xl w-full p-0"
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <AddProjectForm task={task} onClose={onClose} />
+      </Sheet.View>
+    </Sheet>
   );
 };
