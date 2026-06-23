@@ -35,5 +35,5 @@
     "require": ["tsconfig-paths/register"]
   },
   "exclude": ["dist", "frontend/**/*"],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../../migrations/frontline/migrateChannel.ts", "../../migrations/frontline/migrateForms.ts", "../../migrations/frontline/migrateResponseTemplates.ts", "../../migrations/frontline/migrateTickets.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

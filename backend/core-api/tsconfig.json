@@ -35,5 +35,5 @@
     "require": ["tsconfig-paths/register"]
   },
   "exclude": ["dist", "frontend"],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../migrations/core/migratePost.ts", "../migrations/core/migrateProductsToOrg.ts", "../migrations/core/migrateProperties.ts", "../migrations/core/migratePropertiesData.ts", "../migrations/core/migrateConformitiesToRelations.ts", "../migrations/core/migrateTags.ts", "../migrations/core/migrateContentType.ts", "../migrations/core/migrateAllCollections.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

@@ -51,7 +51,6 @@
   ],
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "../../migrations/mongolian/CoreConfigToMnConfigs.ts"
+    "src/**/*.tsx"
   ]
 }

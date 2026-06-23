@@ -35,5 +35,5 @@
     "require": ["tsconfig-paths/register"]
   },
   "exclude": ["dist", "frontend/**/*"],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/apollo/subscription.js", "../../migrations/operation/migrateCycle.ts", "../../migrations/operation/migrateTasks.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/apollo/subscription.js"]
 }

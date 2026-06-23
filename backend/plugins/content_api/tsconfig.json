@@ -35,5 +35,5 @@
     "require": ["tsconfig-paths/register"]
   },
   "exclude": ["dist", "frontend/**/*"],
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../../migrations/content/add-type-to-translations.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }
