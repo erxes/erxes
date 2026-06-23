@@ -108,7 +108,7 @@ export const SelectCategoryItem = ({
       onSelect={() => onSelect(_id)}
       selected={selected}
     >
-      <SelectCategoryBadge category={category} selected={selected} />
+      <SelectCategoryBadge category={category} />
     </SelectTree.Item>
   );
 };
@@ -117,7 +117,6 @@ export const SelectCategoryBadge = ({
   category,
 }: {
   category?: IProductCategory;
-  selected?: boolean;
 }) => {
   if (!category) return null;
   const { avatar, code, name, productCount } = category;
