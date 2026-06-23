@@ -1,4 +1,5 @@
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { useTranslation } from 'react-i18next';
 import {
   Combobox,
   Command,
@@ -30,6 +31,7 @@ const ResponseMoreCell = ({
 }: {
   cell: Cell<IResponseTemplate, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
   const { _id, channelId } = cell.row.original;
   const navigate = useNavigate();
   const { removeResponse, loading } = useRemoveResponse();
@@ -41,7 +43,7 @@ const ResponseMoreCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this response?',
+      message: t('confirm-delete-response'),
       options: { confirmationValue: 'delete' },
     })
       .then(() => {
@@ -58,14 +60,14 @@ const ResponseMoreCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item
               value="delete"
               onSelect={handleDelete}
               className="text-destructive"
             >
-              {loading ? <Spinner size="sm" /> : <IconTrash />} Delete
+              {loading ? <Spinner size="sm" /> : <IconTrash />} {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -138,6 +140,7 @@ export const responseColumns: ColumnDef<IResponseTemplate>[] = [
 ];
 
 export const ResponseList = ({ channelId }: { channelId: string }) => {
+  const { t } = useTranslation('frontline');
   const [{ searchValue }] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',
   ]);
@@ -156,12 +159,12 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
             <IconGitBranch />
           </Empty.Media>
           <Empty.Title>
-            {searchValue ? 'No results found' : 'No responses yet'}
+            {searchValue ? t('no-results-found') : t('no-responses-yet')}
           </Empty.Title>
           <Empty.Description>
             {searchValue
-              ? 'Try a different search term'
-              : 'Get started by creating your first response'}
+              ? t('try-different-search-term')
+              : t('get-started-creating-first-response')}
           </Empty.Description>
         </Empty.Header>
         {!searchValue && (

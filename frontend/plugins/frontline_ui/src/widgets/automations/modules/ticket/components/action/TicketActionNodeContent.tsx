@@ -2,26 +2,28 @@ import {
   AutomationActionNodeConfigProps,
   AutomationNodeMetaInfoRow,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { TTicketActionConfigForm } from '../../states/ticketActionConfigFormDefinitions';
 
 const LABELS: Partial<Record<keyof TTicketActionConfigForm, string>> = {
-  channelId: 'Channel',
-  pipelineId: 'Pipeline',
-  statusId: 'Status',
-  name: 'Name',
-  description: 'Description',
-  priority: 'Priority',
-  assigneeId: 'Assignee',
-  startDate: 'Start date',
-  targetDate: 'Target date',
-  labelIds: 'Labels',
-  tagIds: 'Tags',
-  companyIds: 'Companies',
+  channelId: 'channel-label',
+  pipelineId: 'pipeline-label',
+  statusId: 'status',
+  name: 'name',
+  description: 'description',
+  priority: 'priority-label',
+  assigneeId: 'assignee',
+  startDate: 'start-date',
+  targetDate: 'target-date',
+  labelIds: 'labels',
+  tagIds: 'tags',
+  companyIds: 'companies',
 };
 
 export const TicketActionNodeContent = ({
   config,
 }: AutomationActionNodeConfigProps<TTicketActionConfigForm>) => {
+  const { t } = useTranslation('frontline');
   return (
     <div>
       {Object.entries(config || {})
@@ -31,7 +33,7 @@ export const TicketActionNodeContent = ({
         .map(([key, value]) => (
           <AutomationNodeMetaInfoRow
             key={key}
-            fieldName={LABELS[key as keyof TTicketActionConfigForm] || key}
+            fieldName={t(LABELS[key as keyof TTicketActionConfigForm] || key)}
             content={String(value)}
           />
         ))}

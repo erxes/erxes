@@ -7,6 +7,7 @@ import {
   useFilterQueryState,
 } from 'erxes-ui';
 import { IconCalendar, IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useCallFilters } from '../hooks/useCallFilters';
 import type { SelectOption } from '../types';
 
@@ -36,6 +37,7 @@ export function SubHeader({
   integrationsLoading,
   queuesLoading,
 }: SubHeaderProps) {
+  const { t } = useTranslation('frontline');
   const {
     integrationId,
     setIntegrationId,
@@ -109,7 +111,7 @@ export function SubHeader({
           <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium">
             <Filter.BarName>
               <IconCalendar className="h-3.5 w-3.5" />
-              Date
+              {t('date')}
             </Filter.BarName>
             <Filter.BarButton
               inDialog
@@ -208,6 +210,7 @@ function SelectChip({
   selected: string;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
   return (
@@ -230,7 +233,7 @@ function SelectChip({
               <Command.Input placeholder={`Search ${label.toLowerCase()}…`} />
             )}
             <Command.List className="pb-2">
-              <Command.Empty>No options found</Command.Empty>
+              <Command.Empty>{t('no-options-found')}</Command.Empty>
               <Command.Group>
                 {options.map((opt) => (
                   <Command.Item

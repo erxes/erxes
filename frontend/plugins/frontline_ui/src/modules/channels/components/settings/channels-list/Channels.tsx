@@ -5,8 +5,10 @@ import { useQueryState, Skeleton } from 'erxes-ui';
 import { IconBrandTrello } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { ChannelCard } from './ChannelCard';
+import { useTranslation } from 'react-i18next';
 
 export function Channels() {
+  const { t } = useTranslation('frontline');
   const [searchValue] = useQueryState<string | null>('searchValue');
   const { channels, loading } = useGetChannels({
     variables: { name: searchValue || undefined },
@@ -50,10 +52,10 @@ export function Channels() {
               className="text-muted-foreground"
             />
             <h2 className="text-lg font-semibold text-accent-foreground">
-              No channels found
+              {t('no-channels-found')}
             </h2>
             <p className="text-md text-muted-foreground mb-4">
-              Create a channel to start organizing your team.
+              {t('no-channels-description')}
             </p>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { cn, Combobox, Command, Filter, useFilterContext } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/inbox/types/Channel';
@@ -26,6 +27,7 @@ interface ReportFilterProps {
 }
 
 export const ReportFilter = ({ cardId }: ReportFilterProps) => {
+  const { t } = useTranslation('frontline');
   const [sourceFilter, setSourceFilter] = useAtom(
     getReportSourceFilterAtom(cardId),
   );
@@ -78,10 +80,10 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
           <Filter.View>
             <Command>
               <Command.List>
-                <Filter.Item value="source">Source</Filter.Item>
-                <Filter.Item value="channel">Channel</Filter.Item>
-                <Filter.Item value="member">Member</Filter.Item>
-                <Filter.Item value="date">Date</Filter.Item>
+                <Filter.Item value="source">{t('source')}</Filter.Item>
+                <Filter.Item value="channel">{t('channel-label')}</Filter.Item>
+                <Filter.Item value="member">{t('member-label')}</Filter.Item>
+                <Filter.Item value="date">{t('date')}</Filter.Item>
                 {hasFilters && (
                   <>
                     <Command.Separator />
@@ -90,7 +92,7 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
                       onSelect={handleClear}
                       className="text-destructive"
                     >
-                      Clear all
+                      {t('clear-all')}
                     </Command.Item>
                   </>
                 )}
@@ -153,6 +155,7 @@ const SourceFilterView = ({
   onCallStatusChange: (value: string) => void;
   cardId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       <BackButton />
@@ -165,7 +168,7 @@ const SourceFilterView = ({
           >
             <div className="flex items-center gap-2">
               {sourceValue === option.value && <IconCheck className="size-4" />}
-              <span>{option.label}</span>
+              <span>{t(option.label)}</span>
             </div>
           </Command.Item>,
         ];
@@ -184,7 +187,7 @@ const SourceFilterView = ({
                     <IconCheck className="size-4" />
                   )}
                   <span className="text-muted-foreground">
-                    {statusOption.label}
+                    {t(statusOption.label)}
                   </span>
                 </div>
               </Command.Item>
@@ -207,6 +210,7 @@ const ChannelFilterView = ({
   onValueChange: (value: string[]) => void;
   channels: IChannel[];
 }) => {
+  const { t } = useTranslation('frontline');
   const handleSelect = (selectedValue: string) => {
     let newValue: string[];
 
@@ -230,7 +234,7 @@ const ChannelFilterView = ({
       <Command.Item value="all" onSelect={() => handleSelect('all')}>
         <div className="flex items-center gap-2">
           {(!value || value.length === 0) && <IconCheck className="size-4" />}
-          <span>All Channels</span>
+          <span>{t('all-channels')}</span>
         </div>
       </Command.Item>
       {channels.map((channel) => (
@@ -301,6 +305,7 @@ export const DateFilterCommand = ({
   onSelect: (value: string | null) => void;
   focusOnMount?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const { setDialogView, setOpenDialog } = useFilterContext();
   return (
     <Command>
@@ -334,7 +339,7 @@ export const DateFilterCommand = ({
             setOpenDialog(true);
           }}
         >
-          Custom date
+          {t('custom-date')}
         </Command.Item>
       </Command.List>
     </Command>

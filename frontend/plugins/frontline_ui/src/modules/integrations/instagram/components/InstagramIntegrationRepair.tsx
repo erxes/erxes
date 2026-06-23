@@ -4,6 +4,7 @@ import { IIntegrationDetail } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import { Spinner, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useIgIntegrationsRepair } from '../hooks/useIgIntegrationsRepair';
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export const InstagramIntegrationRepair = ({ cell }: Props) => {
+  const { t } = useTranslation('frontline');
   const { _id, healthStatus } = cell.row.original;
   const { repairIntegration, loading: repairLoading } =
     useIgIntegrationsRepair();
@@ -23,7 +25,7 @@ export const InstagramIntegrationRepair = ({ cell }: Props) => {
       variables: { _id },
       refetchQueries: ['Integrations'],
       onCompleted: () => {
-        toast({ title: 'Repaired successfully' });
+        toast({ title: t('repaired-successfully') });
       },
       onError: (error) => {
         toast({ title: error.message, variant: 'destructive' });
@@ -55,7 +57,7 @@ export const InstagramIntegrationRepair = ({ cell }: Props) => {
       ) : (
         <IconTool size={16} />
       )}
-      Repair
+      {t('repair')}
     </div>
   );
 };

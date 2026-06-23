@@ -3,6 +3,7 @@ import { useCallFilters } from '../../hooks/useCallFilters';
 import { QueueCard } from './QueueCard';
 import { SectionCard } from '../SectionCard';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { SelectOption } from '../../types';
 
 interface QueuesSectionProps {
@@ -11,6 +12,7 @@ interface QueuesSectionProps {
 
 /** Queues tab: grid of QueueCards for all queue stats. */
 export function QueuesSection({ queueOptions }: QueuesSectionProps) {
+  const { t } = useTranslation('frontline');
   const { queueStats, loading } = useDashboard();
   const { queueId } = useCallFilters();
 
@@ -35,7 +37,7 @@ export function QueuesSection({ queueOptions }: QueuesSectionProps) {
   if (!queueStats.length) {
     return (
       <div className="rounded-xl border-2 border-dashed p-10 text-center text-sm text-muted-foreground">
-        No queue data for the selected range
+        {t('no-queue-data')}
       </div>
     );
   }

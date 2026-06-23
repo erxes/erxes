@@ -1,6 +1,7 @@
 import { cn, Combobox, Command, Filter, useFilterContext } from 'erxes-ui';
 import { IconCalendar, IconCheck } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/inbox/types/Channel';
@@ -57,6 +58,7 @@ interface TicketReportFilterProps {
 }
 
 export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
+  const { t } = useTranslation('frontline');
   const [channelFilter, setChannelFilter] = useAtom(
     getReportChannelFilterAtom(cardId),
   );
@@ -129,16 +131,16 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
           <Filter.View>
             <Command>
               <Command.List>
-                <Filter.Item value="channel">Channel</Filter.Item>
-                <Filter.Item value="member">Assigned User</Filter.Item>
-                <Filter.Item value="pipeline">Pipeline</Filter.Item>
-                <Filter.Item value="state">State</Filter.Item>
-                <Filter.Item value="priority">Priority</Filter.Item>
-                <Filter.Item value="customer">Customer</Filter.Item>
-                <Filter.Item value="company">Company</Filter.Item>
-                <Filter.Item value="properties">Properties</Filter.Item>
-                <Filter.Item value="frequency">Frequency</Filter.Item>
-                <Filter.Item value="date">Date</Filter.Item>
+                <Filter.Item value="channel">{t('channel-label')}</Filter.Item>
+                <Filter.Item value="member">{t('assigned-user')}</Filter.Item>
+                <Filter.Item value="pipeline">{t('pipelines')}</Filter.Item>
+                <Filter.Item value="state">{t('status')}</Filter.Item>
+                <Filter.Item value="priority">{t('priority-label')}</Filter.Item>
+                <Filter.Item value="customer">{t('customer-label')}</Filter.Item>
+                <Filter.Item value="company">{t('company-label')}</Filter.Item>
+                <Filter.Item value="properties">{t('properties-label')}</Filter.Item>
+                <Filter.Item value="frequency">{t('frequency-label')}</Filter.Item>
+                <Filter.Item value="date">{t('date')}</Filter.Item>
                 {hasFilters && (
                   <>
                     <Command.Separator />
@@ -147,7 +149,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                       onSelect={handleClear}
                       className="text-destructive"
                     >
-                      Clear all
+                      {t('clear-all')}
                     </Command.Item>
                   </>
                 )}
@@ -278,6 +280,7 @@ const ChannelFilterView = ({
   onValueChange: (value: string[]) => void;
   channels: IChannel[];
 }) => {
+  const { t } = useTranslation('frontline');
   const handleSelect = (id: string) => {
     if (id === 'all') {
       onValueChange([]);
@@ -293,7 +296,7 @@ const ChannelFilterView = ({
       <Command.Item value="all" onSelect={() => handleSelect('all')}>
         <div className="flex items-center gap-2">
           {(!value || value.length === 0) && <IconCheck className="size-4" />}
-          <span>All Channels</span>
+          <span>{t('all-channels')}</span>
         </div>
       </Command.Item>
       {channels.map((channel) => (
@@ -361,17 +364,18 @@ const PipelineFilterView = ({
     onValueChange(isSelected ? value.filter((v) => v !== id) : [...value, id]);
   };
 
+  const { t: tPipeline } = useTranslation('frontline');
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       <BackButton />
       {loading ? (
-        <Command.Empty>Loading...</Command.Empty>
+        <Command.Empty>{tPipeline('loading')}</Command.Empty>
       ) : (
         <>
           <Command.Item value="all" onSelect={() => handleSelect('all')}>
             <div className="flex items-center gap-2">
               {value.length === 0 && <IconCheck className="size-4" />}
-              <span>All Pipelines</span>
+              <span>{tPipeline('all-pipelines')}</span>
             </div>
           </Command.Item>
           {(pipelines as IPipeline[] | undefined)?.map((pipeline) => (
@@ -400,13 +404,15 @@ const StateFilterView = ({
 }: {
   value: string;
   onValueChange: (value: string) => void;
-}) => (
+}) => {
+  const { t } = useTranslation('frontline');
+  return (
   <Command.List className="max-h-[500px] overflow-y-auto">
     <BackButton />
     <Command.Item value="all" onSelect={() => onValueChange('')}>
       <div className="flex items-center gap-2">
         {!value && <IconCheck className="size-4" />}
-        <span>All States</span>
+        <span>{t('all-states')}</span>
       </div>
     </Command.Item>
     {TICKET_STATE_OPTIONS.map((option) => (
@@ -422,7 +428,8 @@ const StateFilterView = ({
       </Command.Item>
     ))}
   </Command.List>
-);
+  );
+};
 
 const PriorityFilterView = ({
   value,
@@ -431,6 +438,7 @@ const PriorityFilterView = ({
   value: number[];
   onValueChange: (value: number[]) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const handleSelect = (priority: number) => {
     const isSelected = value.includes(priority);
     onValueChange(
@@ -444,7 +452,7 @@ const PriorityFilterView = ({
       <Command.Item value="all" onSelect={() => onValueChange([])}>
         <div className="flex items-center gap-2">
           {value.length === 0 && <IconCheck className="size-4" />}
-          <span>All Priorities</span>
+          <span>{t('all-priorities')}</span>
         </div>
       </Command.Item>
       {PRIORITY_OPTIONS.map((option) => (
@@ -470,6 +478,7 @@ const PropertyFilterView = ({
   value: string[];
   onValueChange: (value: string[]) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const { fields, loading } = useFields({ contentType: 'frontline:ticket' });
 
   const handleSelect = (id: string) => {
@@ -485,7 +494,7 @@ const PropertyFilterView = ({
     <Command.List className="max-h-[500px] overflow-y-auto">
       <BackButton />
       {loading ? (
-        <Command.Empty>Loading...</Command.Empty>
+        <Command.Empty>{t('loading')}</Command.Empty>
       ) : (
         <>
           <Command.Item value="all" onSelect={() => handleSelect('all')}>
@@ -493,11 +502,11 @@ const PropertyFilterView = ({
               {(!value || value.length === 0) && (
                 <IconCheck className="size-4" />
               )}
-              <span>All Properties</span>
+              <span>{t('all-properties')}</span>
             </div>
           </Command.Item>
           {fields.length === 0 && (
-            <Command.Empty>No custom properties found.</Command.Empty>
+            <Command.Empty>{t('no-custom-properties-found')}</Command.Empty>
           )}
           {fields.map((field) => (
             <Command.Item
@@ -550,6 +559,7 @@ const DateView = ({
   selected?: string;
   onSelect?: (value: string) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const { setDialogView, setOpenDialog, setOpen } = useFilterContext();
 
   const isCustomDate = selected && !REPORT_FIXED_DATES.includes(selected);
@@ -591,7 +601,7 @@ const DateView = ({
           className={cn('h-8', isCustomDate && 'text-primary')}
         >
           <IconCalendar className="size-4" />
-          {isCustomDate ? getReportDisplayValue(selected) : 'Custom Range...'}
+          {isCustomDate ? getReportDisplayValue(selected) : t('custom-range')}
         </Command.Item>
       </Command.List>
     </Command>

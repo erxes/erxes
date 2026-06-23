@@ -4,6 +4,7 @@ import {
   IconPhone,
   IconSearch,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Breadcrumb,
@@ -41,6 +42,7 @@ export const CallDetailPage = ({
 }: {
   backPath?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const { id } = useParams();
   const [updatedAt, setUpdatedAt] = useState<Date | undefined>(undefined);
   const { callUserIntegrations, loading: loadingUserIntegrations } =
@@ -94,7 +96,7 @@ export const CallDetailPage = ({
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/dashboard">
                     <IconPhone />
-                    Calls dashboard
+                    {t('calls-dashboard')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -103,7 +105,7 @@ export const CallDetailPage = ({
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/statistics">
                     <IconPhone />
-                    Calls statistics
+                    {t('calls-statistics')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -125,20 +127,20 @@ export const CallDetailPage = ({
           <Button variant="ghost" asChild className="px-2 gap-1">
             <Link to={backPath}>
               <IconChevronLeft />
-              Go back to queues
+              {t('go-back-to-queues')}
             </Link>
           </Button>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           <CallDetailCard
-            title="total agents"
-            description="Total agents"
+            title={t('total-agents')}
+            description={t('total-agents')}
             value={membersList?.length}
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title="available agents"
-            description="available agents"
+            title={t('available-agents')}
+            description={t('available-agents')}
             value={
               membersList?.filter((extension) => extension.status === 'Idle')
                 .length
@@ -146,8 +148,8 @@ export const CallDetailPage = ({
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title="Active calls"
-            description="Active calls"
+            title={t('active-calls')}
+            description={t('active-calls')}
             value={
               callRealtimeUpdate?.talking?.length ||
               membersList?.filter((extension) => extension.status === 'InUse')
@@ -157,8 +159,8 @@ export const CallDetailPage = ({
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title="Waiting calls"
-            description="Waiting calls"
+            title={t('waiting-calls')}
+            description={t('waiting-calls')}
             value={
               callRealtimeUpdate?.waiting?.length ||
               membersList?.filter((extension) => extension.status === 'Waiting')
@@ -183,6 +185,7 @@ export const CallDetailAgents = ({
 }: {
   membersList: ICallQueueAgent[];
 }) => {
+  const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
 
   const filteredMembersList = membersList.filter((member) =>
@@ -194,11 +197,11 @@ export const CallDetailAgents = ({
 
   return (
     <div className="row-span-2 flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">Agents</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">{t('agents')}</h5>
       <div className="relative">
         <IconSearch className="size-4 absolute left-2 top-1/2 -translate-y-1/2 text-accent-foreground" />
         <Input
-          placeholder="Search"
+          placeholder={t('search')}
           value={search}
           className="pl-8 relative bg-transparent"
           onChange={(e) => setSearch(e.target.value)}
@@ -318,6 +321,7 @@ export const CallDetailCard = ({
   title: string;
   date?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="bg-accent rounded-xl p-1">
       <div className="flex items-center justify-between px-2 h-7">
@@ -339,7 +343,7 @@ export const CallDetailCard = ({
         <h3 className="font-semibold text-2xl leading-none">{value}</h3>
         <Separator />
         <div className="text-accent-foreground text-xs leading-none">
-          updated {date && <RelativeDateDisplay.Value value={date} />}
+          {t('updated')} {date && <RelativeDateDisplay.Value value={date} />}
         </div>
       </div>
     </div>
@@ -351,9 +355,10 @@ export const CallDetailWaiting = ({
 }: {
   waitingList: { callerid: string; callerchannel: string }[];
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">Waiting</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">{t('waiting')}</h5>
       <RecordTable.Provider
         columns={[
           {
@@ -401,9 +406,10 @@ export const CallDetailTalking = ({
     callerid: string;
   }[];
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">Talking</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">{t('talking')}</h5>
       <RecordTable.Provider
         columns={[
           {

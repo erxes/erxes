@@ -8,6 +8,7 @@ import {
   useFilterContext,
 } from 'erxes-ui';
 import { IconCircleCheck, IconArchive, IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   SelectTicketContent,
   SelectTriggerTicket,
@@ -104,10 +105,11 @@ const SelectStateCommandItem = ({
 };
 
 const SelectStateContent = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Command>
-      <Command.Input placeholder="Search state" />
-      <Command.Empty>No state found</Command.Empty>
+      <Command.Input placeholder={t('search-state')} />
+      <Command.Empty>{t('no-state-found')}</Command.Empty>
       <Command.List>
         {STATES.map((state) => (
           <SelectStateCommandItem key={state.value} state={state} />

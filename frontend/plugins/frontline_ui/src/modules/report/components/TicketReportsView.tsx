@@ -1,7 +1,9 @@
 import { IconTicket, IconCircleCheck } from '@tabler/icons-react';
 import { KpiCard } from '../call/components/KpiSection/KpiCard';
+import { useTranslation } from 'react-i18next';
 
 export const TicketReportsView = () => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="p-6 flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -23,7 +25,7 @@ export const TicketReportsView = () => {
         />
       </div>
       <div className="text-center text-sm text-muted-foreground">
-        Ticket reports coming soon...
+        {t('ticket-reports-coming-soon')}
       </div>
     </div>
   );
