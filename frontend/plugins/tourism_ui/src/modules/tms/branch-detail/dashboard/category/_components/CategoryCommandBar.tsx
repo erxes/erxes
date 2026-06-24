@@ -8,9 +8,11 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useDeleteCategory } from '../hooks/useDeleteCategory';
 
 export const CategoryCommandBar = () => {
+  const { t } = useTranslation('tourism');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'delete' };
@@ -22,7 +24,7 @@ export const CategoryCommandBar = () => {
 
   const onRemove = () => {
     confirm({
-      message: `Are you sure you want to delete the ${selectedCount} selected categories?`,
+      message: t('confirm-delete-categories', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       Promise.all(
@@ -31,14 +33,14 @@ export const CategoryCommandBar = () => {
         .then(() => {
           table.resetRowSelection();
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Categories deleted successfully',
+            description: t('categories-deleted-successfully'),
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -49,7 +51,7 @@ export const CategoryCommandBar = () => {
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedCount} selected</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         <Button
           variant="secondary"
@@ -57,7 +59,7 @@ export const CategoryCommandBar = () => {
           onClick={onRemove}
         >
           <IconTrash />
-          Delete
+          {t('delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

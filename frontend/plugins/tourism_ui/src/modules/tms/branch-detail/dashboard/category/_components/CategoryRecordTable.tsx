@@ -1,5 +1,6 @@
 import { IconLayoutGrid } from '@tabler/icons-react';
 import { RecordTable, RecordTableTree } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { CategoryCreateSheet } from './CategoryCreateSheet';
 import { categoryColumns } from './CategoryColumns';
@@ -20,6 +21,7 @@ export const CategoryRecordTable = ({
   branchLanguages,
   mainLanguage,
 }: CategoryRecordTableProps) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -56,7 +58,7 @@ export const CategoryRecordTable = ({
 
   return (
     <RecordTable.Provider
-      columns={categoryColumns(categoryObject, branchLanguages, mainLanguage)}
+      columns={categoryColumns(categoryObject, branchLanguages, mainLanguage, t)}
       data={categoriesWithChildren || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
@@ -86,6 +88,7 @@ function EmptyStateRow({
   branchLanguages?: string[];
   mainLanguage?: string;
 }>) {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconLayoutGrid
@@ -95,11 +98,11 @@ function EmptyStateRow({
       />
 
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No categories yet
+        {t('no-categories-yet')}
       </h2>
 
       <p className="max-w-sm text-sm text-muted-foreground">
-        Create your first category to get started.
+        {t('no-categories-yet-desc')}
       </p>
 
       <CategoryCreateSheet

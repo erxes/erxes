@@ -1,6 +1,7 @@
 import { IconSparkles, type TablerIcon } from '@tabler/icons-react';
 import { Combobox, Command, Popover, cn } from 'erxes-ui';
 import React, { forwardRef, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   AMENITY_ICON_OPTIONS,
@@ -18,6 +19,7 @@ export const AmenityIconPicker = forwardRef<
   HTMLButtonElement,
   AmenityIconPickerProps
 >(({ value, onValueChange, ...props }, ref) => {
+  const { t } = useTranslation('tourism');
   const [open, setOpen] = useState(false);
 
   const selectedOption = useMemo(() => getAmenityIconOption(value), [value]);
@@ -45,7 +47,7 @@ export const AmenityIconPicker = forwardRef<
 
       <Combobox.Content className="w-60 min-w-60">
         <Command>
-          <Command.Input placeholder="Search icon..." />
+          <Command.Input placeholder={t('search-icon')} />
           <Command.List className="max-h-[200px] overflow-y-auto hide-scroll [&>div]:flex [&>div]:flex-wrap [&>div]:gap-2 justify-center">
             <Command.Item
               value="No icon"
