@@ -12,7 +12,7 @@ export const CmsRecordCount = ({
       {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        `${totalCount} ${t('records-found')}`
+        t('records-found', { count: totalCount })
       )}
     </div>
   );

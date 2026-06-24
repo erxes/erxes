@@ -62,10 +62,10 @@ export const usePages = (options?: QueryHookOptions) => {
     fetchPolicy: 'network-only',
   });
 
-  const { pages = [], totalCount = 0, pageInfo } = data?.cmsPageList || {};
+  const { pages = [], totalCount, pageInfo } = data?.cmsPageList || {};
+  const safeTotalCount = totalCount ?? 0;
   useEffect(() => {
-    if (totalCount === undefined) return;
-    setPagesTotalCount(totalCount);
+    setPagesTotalCount(totalCount ?? null);
   }, [totalCount, setPagesTotalCount]);
 
   const handleFetchMore = ({
@@ -129,7 +129,7 @@ export const usePages = (options?: QueryHookOptions) => {
   return {
     loading,
     pages,
-    totalCount,
+    totalCount: safeTotalCount,
     handleFetchMore,
     pageInfo,
     refetch,

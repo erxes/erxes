@@ -60,12 +60,12 @@ export const useCategories = (options?: QueryHookOptions) => {
 
   const {
     list: categories = [],
-    totalCount = 0,
+    totalCount,
     pageInfo,
   } = data?.cmsCategories || {};
+  const safeTotalCount = totalCount ?? 0;
   useEffect(() => {
-    if (totalCount === undefined) return;
-    setCategoriesTotalCount(totalCount);
+    setCategoriesTotalCount(totalCount ?? null);
   }, [totalCount, setCategoriesTotalCount]);
 
   const handleFetchMore = ({
@@ -129,7 +129,7 @@ export const useCategories = (options?: QueryHookOptions) => {
   return {
     loading,
     categories,
-    totalCount,
+    totalCount: safeTotalCount,
     handleFetchMore,
     pageInfo,
     refetch,

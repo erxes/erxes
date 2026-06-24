@@ -240,8 +240,7 @@ export function useTags({
   const totalCount = data?.cmsTags?.totalCount || 0;
 
   useEffect(() => {
-    if (data?.cmsTags?.totalCount === undefined) return;
-    setTagsTotalCount(data.cmsTags.totalCount);
+    setTagsTotalCount(data?.cmsTags?.totalCount ?? null);
   }, [data?.cmsTags?.totalCount, setTagsTotalCount]);
 
   return {

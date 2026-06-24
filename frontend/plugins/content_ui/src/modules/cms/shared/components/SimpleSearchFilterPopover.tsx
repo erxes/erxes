@@ -15,8 +15,8 @@ export const SimpleSearchFilterPopover = ({
     ...extraQueryKeys,
   ]);
 
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
+  const hasFilters = Object.values(queries || {}).some((value) =>
+    typeof value === 'string' ? value.trim().length > 0 : value != null,
   );
 
   return (
