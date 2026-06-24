@@ -1,7 +1,7 @@
 import { Input, Popover } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
+import { GET_DEALS_SEARCH_DROPDOWN } from '@/deals/graphql/queries/DealsQueries';
 import { IDeal, IDealList } from '@/deals/types/deals';
 import { IconLoader2, IconSearch } from '@tabler/icons-react';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
@@ -17,16 +17,19 @@ export const CommonDealSearch = () => {
   const [focused, setFocused] = useState(false);
   const [debouncedSearch] = useDebounce(search.trim(), 350);
 
-  const { data, loading } = useQuery<{ deals: IDealList }>(GET_DEALS, {
-    variables: {
-      search: debouncedSearch,
-      noSkipArchive: true,
-      limit: 10,
-      orderBy: { modifiedAt: -1 },
+  const { data, loading } = useQuery<{ deals: IDealList }>(
+    GET_DEALS_SEARCH_DROPDOWN,
+    {
+      variables: {
+        search: debouncedSearch,
+        noSkipArchive: true,
+        limit: 10,
+        orderBy: { modifiedAt: -1 },
+      },
+      skip: debouncedSearch.length < 2,
+      fetchPolicy: 'cache-and-network',
     },
-    skip: debouncedSearch.length < 2,
-    fetchPolicy: 'cache-and-network',
-  });
+  );
 
   const deals = data?.deals?.list || [];
   const showDropdown = focused && debouncedSearch.length >= 2;
@@ -48,14 +51,7 @@ export const CommonDealSearch = () => {
   };
 
   return (
-    <Popover
-      open={showDropdown}
-      onOpenChange={(open) => {
-        if (!open) {
-          setFocused(false);
-        }
-      }}
-    >
+    <Popover open={showDropdown}>
       <Popover.Anchor asChild>
         <div className="relative w-72">
           <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -65,6 +61,7 @@ export const CommonDealSearch = () => {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
           />
         </div>
       </Popover.Anchor>
@@ -93,10 +90,7 @@ export const CommonDealSearch = () => {
               key={deal._id}
               type="button"
               className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm hover:bg-muted"
-              onMouseDown={(event) => {
-                event.preventDefault();
-                handleSelect(deal);
-              }}
+              onClick={() => handleSelect(deal)}
             >
               <span className="font-medium">
                 {[deal.number, deal.name].filter(Boolean).join(' - ')}

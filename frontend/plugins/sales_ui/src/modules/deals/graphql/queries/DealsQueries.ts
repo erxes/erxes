@@ -132,6 +132,32 @@ export const commonListFields = `
   departmentIds
 `;
 
+export const GET_DEALS_SEARCH_DROPDOWN = gql`
+  query Deals(
+    $limit: Int, 
+    $orderBy: JSON,
+    ${commonParams}
+  ) {
+    deals(
+      limit: $limit, 
+      orderBy: $orderBy, 
+      ${commonParamDefs}
+    ) {
+        list {
+          _id
+          name
+          number
+          pipeline {
+            _id
+            name
+            boardId
+          }
+          boardId
+        }
+      }
+  }
+`;
+
 export const GET_DEALS = gql`
   query Deals(
     $initialStageId: String,
