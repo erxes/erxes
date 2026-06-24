@@ -11,7 +11,8 @@ export type FieldType =
   | 'file'
   | 'image'
   | 'spreadsheet'
-  | 'richText';
+  | 'richText'
+  | 'products';
 
 export interface ICustomField {
   _id: string;
@@ -61,6 +62,7 @@ import {
   IconListDetails,
   IconNumbers,
   IconPhoto,
+  IconShoppingCart,
   IconSquareCheck,
   IconTable,
   IconTextScan2,
@@ -89,6 +91,7 @@ export const FIELD_TYPES: {
     icon: <IconTable />,
   },
   { value: 'richText', label: 'Rich Text (Editor)', icon: <IconListDetails /> },
+  { value: 'products', label: 'Products', icon: <IconShoppingCart /> },
 ];
 
 export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce(
