@@ -5,6 +5,7 @@ import {
   IconToggleRightFilled,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AccountsTotalCount } from './AccountsTotalCount';
 import {
   AccountsFilterCategory,
@@ -27,6 +28,7 @@ import {
 } from './filters/FilterHelpers';
 
 const AccountsFilterPopover = () => {
+  const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<{
     searchValue?: string;
     code?: string;
@@ -73,23 +75,23 @@ const AccountsFilterPopover = () => {
                 />
                 <Filter.Item value="category">
                   <IconLayoutGridAdd />
-                  Category
+                  {t('category')}
                 </Filter.Item>
                 <Filter.Item value="currency">
                   <IconCoins />
-                  Currency
+                  {t('currency')}
                 </Filter.Item>
                 <Filter.Item value="kind">
                   <IconToggleRightFilled />
-                  Kind
+                  {t('kind')}
                 </Filter.Item>
                 <Filter.Item value="journal">
                   <IconNotebook />
-                  Journal
+                  {t('journal')}
                 </Filter.Item>
                 <Filter.Item value="isTemp">
                   <IconToggleRightFilled />
-                  Is Temp
+                  {t('is-temp')}
                 </Filter.Item>
                 <Filter.Item value="isOutBalance">
                   <IconToggleRightFilled />
@@ -97,7 +99,7 @@ const AccountsFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconToggleRightFilled />
-                  Status
+                  {t('status')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
               </Command.List>
