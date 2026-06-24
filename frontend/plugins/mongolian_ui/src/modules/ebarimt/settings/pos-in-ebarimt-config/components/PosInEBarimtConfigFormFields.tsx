@@ -1,6 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { Form as ErxesForm } from 'erxes-ui';
 import { TPosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
+import { useTranslation } from 'react-i18next';
 import { SelectPos } from './selects/SelectPos';
 import { SelectBranchDistrict } from './selects/SelectBranchDistrict';
 import { SelectSubBranchDistrict } from './selects/SelectSubBranchDistrict';
@@ -27,6 +28,7 @@ export const PosInEBarimtConfigFormFields = ({
   onSubBranchChange: (value: string) => void;
   onSetValue: (name: string, value: any) => void;
 }) => {
+  const { t } = useTranslation('mongolian');
   const hasVat = form.watch('hasVat');
   const hasCitytax = form.watch('hasCitytax');
   const selectedBranchCode = form.watch('branchOfProvince');
@@ -43,8 +45,8 @@ export const PosInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormInput
             name="title"
-            label="Title"
-            placeholder="Title"
+            label={t('title')}
+            placeholder={t('title')}
             control={form.control}
           />
           <ErxesForm.Field
@@ -52,7 +54,7 @@ export const PosInEBarimtConfigFormFields = ({
             name="posId"
             render={({ field }) => (
               <ErxesForm.Item>
-                <ErxesForm.Label>Pos</ErxesForm.Label>
+                <ErxesForm.Label>{t('pos')}</ErxesForm.Label>
                 <SelectPos
                   variant="form"
                   value={field.value}
@@ -68,14 +70,14 @@ export const PosInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormInput
             name="companyName"
-            label="Company Name"
-            placeholder="Enter company name"
+            label={t('company-name')}
+            placeholder={t('enter-company-name')}
             control={form.control}
           />
           <FormInput
             name="posNo"
-            label="Pos No"
-            placeholder="Pos No"
+            label={t('pos-no')}
+            placeholder={t('pos-no')}
             control={form.control}
           />
         </div>
@@ -84,14 +86,14 @@ export const PosInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormInput
             name="companyRD"
-            label="Company RD"
-            placeholder="Company RD"
+            label={t('company-rd')}
+            placeholder={t('company-rd')}
             control={form.control}
           />
           <FormInput
             name="merchantTin"
-            label="MerchantTin"
-            placeholder="MerchantTin"
+            label={t('merchant-tin')}
+            placeholder={t('merchant-tin')}
             control={form.control}
           />
         </div>
@@ -103,7 +105,7 @@ export const PosInEBarimtConfigFormFields = ({
             name="branchOfProvince"
             render={({ field }) => (
               <ErxesForm.Item>
-                <ErxesForm.Label>Branch of Province / District</ErxesForm.Label>
+                <ErxesForm.Label>{t('branch-of-province-district')}</ErxesForm.Label>
                 <SelectBranchDistrict
                   value={field.value || ''}
                   onValueChange={onBranchChange}
@@ -117,7 +119,7 @@ export const PosInEBarimtConfigFormFields = ({
             name="subProvince"
             render={({ field }) => (
               <ErxesForm.Item>
-                <ErxesForm.Label>Sub Province / District</ErxesForm.Label>
+                <ErxesForm.Label>{t('sub-province-district')}</ErxesForm.Label>
                 <SelectSubBranchDistrict
                   value={field.value || ''}
                   branchCode={selectedBranchCode || ''}
@@ -129,8 +131,8 @@ export const PosInEBarimtConfigFormFields = ({
           />
           <FormDistrictCode
             name="districtCode"
-            label="District Code"
-            placeholder="District Code"
+            label={t('district-code')}
+            placeholder={t('district-code')}
             control={form.control}
             branchCode={selectedBranchCode || ''}
             subBranchCode={selectedSubBranchCode || ''}
@@ -142,14 +144,14 @@ export const PosInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormInput
             name="defaultUnitedCode"
-            label="Default United Code"
-            placeholder="Default United Code"
+            label={t('default-united-code')}
+            placeholder={t('default-united-code')}
             control={form.control}
           />
           <FormInput
             name="branchNo"
-            label="Branch No"
-            placeholder="Branch No"
+            label={t('branch-no')}
+            placeholder={t('branch-no')}
             control={form.control}
           />
         </div>
@@ -161,21 +163,21 @@ export const PosInEBarimtConfigFormFields = ({
               <div className="grid grid-cols-2 gap-4">
                 <FormCheckbox
                   name="hasVat"
-                  label="Has Vat"
+                  label={t('has-vat')}
                   control={form.control}
                   labelPosition="before"
                 />
                 <FormInput
                   name="vatPercent"
-                  label="Vat percent"
-                  placeholder="Enter vat percent"
+                  label={t('vat-percent')}
+                  placeholder={t('enter-vat-percent')}
                   control={form.control}
                   type="number"
                 />
               </div>
               <FormSelectEbarimtProductRules
                 name="reverseVatRules"
-                label="Another Rules of Products on VAT"
+                label={t('another-rules-of-products-on-vat')}
                 kind="vat"
                 control={form.control}
               />
@@ -183,7 +185,7 @@ export const PosInEBarimtConfigFormFields = ({
           ) : (
             <FormCheckbox
               name="hasVat"
-              label="Has Vat"
+              label={t('has-vat')}
               control={form.control}
               labelPosition="before"
             />
@@ -196,14 +198,14 @@ export const PosInEBarimtConfigFormFields = ({
             <div className="grid grid-cols-2 gap-4">
               <FormCheckbox
                 name="hasCitytax"
-                label="Has all Citytax"
+                label={t('has-all-citytax')}
                 control={form.control}
                 labelPosition="before"
               />
               <FormInput
                 name="citytaxPercent"
-                label="Citytax Percent"
-                placeholder="Enter citytax percent"
+                label={t('citytax-percent')}
+                placeholder={t('enter-citytax-percent')}
                 control={form.control}
                 type="number"
               />
@@ -212,13 +214,13 @@ export const PosInEBarimtConfigFormFields = ({
             <>
               <FormCheckbox
                 name="hasCitytax"
-                label="Has all Citytax"
+                label={t('has-all-citytax')}
                 control={form.control}
                 labelPosition="before"
               />
               <FormSelectEbarimtProductRules
                 name="reverseCtaxRules"
-                label="Another rules of products on citytax"
+                label={t('another-rules-of-products-on-citytax')}
                 kind="ctax"
                 control={form.control}
               />
@@ -230,14 +232,14 @@ export const PosInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4">
           <FormArea
             name="headerText"
-            label="Header text"
-            placeholder="Header text"
+            label={t('header-text')}
+            placeholder={t('header-text')}
             control={form.control}
           />
           <FormArea
             name="footerText"
-            label="Footer text"
-            placeholder="Footer text"
+            label={t('footer-text')}
+            placeholder={t('footer-text')}
             control={form.control}
           />
         </div>
@@ -246,21 +248,21 @@ export const PosInEBarimtConfigFormFields = ({
         <div className="grid grid-cols-2 gap-4 items-center">
           <FormCheckbox
             name="withDescription"
-            label="With Description"
+            label={t('with-description')}
             control={form.control}
             labelPosition="before"
           />
           <FormCheckbox
             name="skipEbarimt"
-            label="Skip Ebarimt"
+            label={t('skip-ebarimt')}
             control={form.control}
             labelPosition="before"
           />
           <div className="col-span-2">
             <FormInput
               name="ebarimtUrl"
-              label="Ebarimt URL"
-              placeholder="not must fill"
+              label={t('ebarimt-url')}
+              placeholder={t('not-must-fill')}
               control={form.control}
             />
           </div>

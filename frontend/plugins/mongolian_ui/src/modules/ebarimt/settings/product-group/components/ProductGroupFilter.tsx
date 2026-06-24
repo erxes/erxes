@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { SelectProduct } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { PRODUCT_GROUP_CURSOR_SESSION_KEY } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
 import { ProductGroupTotalCount } from '@/ebarimt/settings/product-group/components/ProductGroupTotalCount';
 
@@ -72,6 +73,7 @@ const StatusFilterView = () => {
 };
 
 const StatusFilterBar = () => {
+  const { t } = useTranslation('mongolian');
   const { sessionKey } = useFilterContext();
   const [status, setStatus] = useFilterQueryState<string>(
     'status',
@@ -90,7 +92,7 @@ const StatusFilterBar = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconToggleLeft />
-        Status
+        {t('status')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
@@ -111,6 +113,7 @@ const StatusFilterBar = () => {
 };
 
 const ProductGroupFilterPopover = () => {
+  const { t } = useTranslation('mongolian');
   const resetCursor = useResetProductGroupCursor();
   const [queries] = useMultiQueryState<{
     searchValue: string;
@@ -129,16 +132,16 @@ const ProductGroupFilterPopover = () => {
         <Filter.View>
           <Command>
             <Filter.CommandInput
-              placeholder="Filter"
+              placeholder={t('filter')}
               variant="secondary"
               className="bg-background"
             />
             <Command.List className="p-1">
               <Filter.SearchValueTrigger />
-              <SelectProduct.FilterItem value="productId" label="Product" />
+              <SelectProduct.FilterItem value="productId" label={t('product')} />
               <Filter.Item value="status">
                 <IconToggleLeft />
-                Status
+                {t('status')}
               </Filter.Item>
             </Command.List>
           </Command>
@@ -154,6 +157,7 @@ const ProductGroupFilterPopover = () => {
 };
 
 export const ProductGroupFilter = () => {
+  const { t } = useTranslation('mongolian');
   const resetCursor = useResetProductGroupCursor();
 
   return (
@@ -166,7 +170,7 @@ export const ProductGroupFilter = () => {
         <Filter.SearchValueBarItem />
         <SelectProduct.FilterBar
           filterKey="productId"
-          label="Product"
+          label={t('product')}
           onValueChange={resetCursor}
         />
         <StatusFilterBar />
@@ -174,7 +178,7 @@ export const ProductGroupFilter = () => {
       </Filter.Bar>
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>
-          <Filter.DialogStringView filterKey="searchValue" label="Search" />
+          <Filter.DialogStringView filterKey="searchValue" label={t('search')} />
         </Filter.View>
       </Filter.Dialog>
     </Filter>

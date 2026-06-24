@@ -15,6 +15,7 @@ import {
   useMultiQueryState,
 } from 'erxes-ui';
 
+import { useTranslation } from 'react-i18next';
 import { usePutResponseLeadSessionKey } from '~/modules/ebarimt/put-response/hooks/usePutResponseLeadSessionKey';
 import { PutResponseTotalCount } from '~/modules/ebarimt/put-response/components/PutResponseTotalCount';
 import { PutResponseHotKeyScope } from '~/modules/ebarimt/put-response/types/path/PutResponseHotKeyScope';
@@ -31,6 +32,7 @@ import { SelectSalesBoard } from './selects/SelectBoard';
 const PutResponseFilterPopover = () => {
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
+  const { t } = useTranslation('mongolian');
   const [queries] = useMultiQueryState<{
     billId: string[];
     contentType: string;
@@ -80,21 +82,21 @@ const PutResponseFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="billId" inDialog>
                   <IconSearch />
-                  Bill Id
+                  {t('bill-id')}
                 </Filter.Item>
                 <SelectContentType.FilterItem />
                 {showDealFields && (
                   <>
                     <Filter.Item value="dealName" inDialog>
                       <IconBuilding />
-                      Deal Name
+                      {t('deal-name')}
                     </Filter.Item>
                     <SelectSalesBoard.FilterItem />
                     <SelectPipeline.FilterItem />
@@ -105,7 +107,7 @@ const PutResponseFilterPopover = () => {
                 {showPosFields && (
                   <Filter.Item value="orderNumber" inDialog>
                     <IconReceipt />
-                    Order Number
+                    {t('order-number')}
                   </Filter.Item>
                 )}
 
@@ -113,11 +115,11 @@ const PutResponseFilterPopover = () => {
                   <>
                     <Filter.Item value="contractNumber" inDialog>
                       <IconFileText />
-                      Contract Number
+                      {t('contract-number')}
                     </Filter.Item>
                     <Filter.Item value="transactionNumber" inDialog>
                       <IconCreditCard />
-                      Transaction Number
+                      {t('transaction-number')}
                     </Filter.Item>
                   </>
                 )}
@@ -129,7 +131,7 @@ const PutResponseFilterPopover = () => {
                 <SelectOnLast.FilterItem />
                 <Filter.Item value="dateRange">
                   <IconCalendarPlus />
-                  Date Range
+                  {t('date-range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -208,6 +210,7 @@ export const PutResponseFilter = () => {
   const [transactionNumber] = useFilterQueryState<string>('transactionNumber');
   const [contentType] = useFilterQueryState<string>('contentType');
   const { sessionKey } = usePutResponseLeadSessionKey();
+  const { t } = useTranslation('mongolian');
 
   const showDealFields = contentType === 'deal';
   const showPosFields = contentType === 'pos';
@@ -221,7 +224,7 @@ export const PutResponseFilter = () => {
         <Filter.BarItem queryKey="billId">
           <Filter.BarName>
             <IconSearch />
-            billId
+            {t('bill-id')}
           </Filter.BarName>
           <Filter.BarButton filterKey="billId" inDialog>
             {billId}
@@ -233,7 +236,7 @@ export const PutResponseFilter = () => {
             <Filter.BarItem queryKey="dealName">
               <Filter.BarName>
                 <IconBuilding />
-                Deal Name
+                {t('deal-name')}
               </Filter.BarName>
               <Filter.BarButton filterKey="dealName" inDialog>
                 {dealName}
@@ -250,7 +253,7 @@ export const PutResponseFilter = () => {
           <Filter.BarItem queryKey="orderNumber">
             <Filter.BarName>
               <IconReceipt />
-              Order Number
+              {t('order-number')}
             </Filter.BarName>
             <Filter.BarButton filterKey="orderNumber" inDialog>
               {orderNumber}
@@ -263,7 +266,7 @@ export const PutResponseFilter = () => {
             <Filter.BarItem queryKey="contractNumber">
               <Filter.BarName>
                 <IconFileText />
-                Contract Number
+                {t('contract-number')}
               </Filter.BarName>
               <Filter.BarButton filterKey="contractNumber" inDialog>
                 {contractNumber}
@@ -272,7 +275,7 @@ export const PutResponseFilter = () => {
             <Filter.BarItem queryKey="transactionNumber">
               <Filter.BarName>
                 <IconCreditCard />
-                Transaction Number
+                {t('transaction-number')}
               </Filter.BarName>
               <Filter.BarButton filterKey="transactionNumber" inDialog>
                 {transactionNumber}
@@ -284,7 +287,7 @@ export const PutResponseFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendarPlus />
-            Date Range
+            {t('date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>

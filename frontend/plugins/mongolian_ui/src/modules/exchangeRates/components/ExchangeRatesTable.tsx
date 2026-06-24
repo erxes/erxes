@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   IconArrowsExchange,
@@ -62,6 +63,7 @@ const ExchangeRateMoreCell = ({
 }: {
   cell: Cell<IExchangeRate, unknown>;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [, setOpenId] = useQueryState(EXCHANGE_RATE_ID_QUERY_KEY);
   const setDetail = useSetAtom(exchangeRateDetailAtom);
   const { remove } = useRemoveExchangeRates();
@@ -85,10 +87,10 @@ const ExchangeRateMoreCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -107,37 +109,28 @@ const columns: ColumnDef<IExchangeRate>[] = [
   {
     id: 'date',
     accessorKey: 'date',
-    header: () => <RecordTable.InlineHead label="Date" icon={IconCalendar} />,
+    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('mongolian'); return <RecordTable.InlineHead label={t('date')} icon={IconCalendar} />; },
     cell: ({ cell }) => <ExchangeRateDateCell cell={cell} />,
     size: 200,
   },
   {
     id: 'mainCurrency',
     accessorKey: 'mainCurrency',
-    header: () => (
-      <RecordTable.InlineHead label="Main Currency" icon={IconCoin} />
-    ),
+    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('mongolian'); return <RecordTable.InlineHead label={t('main-currency')} icon={IconCoin} />; },
     cell: ({ cell }) => <CurrencyCell value={cell.getValue() as string} />,
     size: 200,
   },
   {
     id: 'rateCurrency',
     accessorKey: 'rateCurrency',
-    header: () => (
-      <RecordTable.InlineHead
-        label="Rate Currency"
-        icon={IconCurrencyDollar}
-      />
-    ),
+    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('mongolian'); return <RecordTable.InlineHead label={t('rate-currency')} icon={IconCurrencyDollar} />; },
     cell: ({ cell }) => <CurrencyCell value={cell.getValue() as string} />,
     size: 200,
   },
   {
     id: 'rate',
     accessorKey: 'rate',
-    header: () => (
-      <RecordTable.InlineHead label="Rate" icon={IconArrowsExchange} />
-    ),
+    header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('mongolian'); return <RecordTable.InlineHead label={t('rate')} icon={IconArrowsExchange} />; },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -148,6 +141,7 @@ const columns: ColumnDef<IExchangeRate>[] = [
 ];
 
 export const ExchangeRatesTable = () => {
+  const { t } = useTranslation('mongolian');
   const [searchValue] = useQueryState<string>('searchValue');
   const memoizedColumns = useMemo(() => columns, []);
 
@@ -176,7 +170,7 @@ export const ExchangeRatesTable = () => {
           {hasMore && !loading && (
             <div className="flex justify-center py-4">
               <Button variant="secondary" onClick={handleLoadMore}>
-                Load more ({totalCount - rows.length} remaining)
+                {t('load-more', { count: totalCount - rows.length })}
               </Button>
             </div>
           )}
@@ -196,13 +190,13 @@ export const ExchangeRatesTable = () => {
                 />
                 <h3 className="text-lg font-semibold text-foreground">
                   {searchValue
-                    ? 'No matching exchange rates'
-                    : 'No exchange rates yet'}
+                    ? t('no-matching-exchange-rates')
+                    : t('no-exchange-rates-yet')}
                 </h3>
                 <p className="mt-1 mb-4 text-sm text-muted-foreground">
                   {searchValue
-                    ? 'Try a different currency keyword.'
-                    : 'Get started by adding your first exchange rate.'}
+                    ? t('try-different-currency')
+                    : t('create-first-exchange-rate')}
                 </p>
                 {!searchValue && <AddExchangeRate />}
               </div>

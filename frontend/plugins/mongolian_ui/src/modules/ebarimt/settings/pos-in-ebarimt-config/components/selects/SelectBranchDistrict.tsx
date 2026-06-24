@@ -23,6 +23,7 @@ import {
   SelectContent,
 } from './SelectShared';
 import { IconBuilding } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface IBranchDistrict {
   branchCode: string;
@@ -98,6 +99,7 @@ const SelectBranchDistrictValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, branchDistricts } = useSelectBranchDistrictContext();
   const selectedBranchDistrict = branchDistricts?.find(
     (district) => district.branchCode === value,
@@ -106,7 +108,7 @@ const SelectBranchDistrictValue = ({
   if (!selectedBranchDistrict) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select branch district'}
+        {placeholder || t('select-branch-district')}
       </span>
     );
   }
@@ -142,13 +144,14 @@ const SelectBranchDistrictCommandItem = ({
 };
 
 const SelectBranchDistrictContent = () => {
+  const { t } = useTranslation('mongolian');
   const { branchDistricts } = useSelectBranchDistrictContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search branch district" />
+      <Command.Input placeholder={t('search-branch-district')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No branch districts found</span>
+        <span className="text-muted-foreground">{t('no-branch-districts-found')}</span>
       </Command.Empty>
       <Command.List>
         {branchDistricts?.map((branchDistrict) => (
@@ -163,10 +166,11 @@ const SelectBranchDistrictContent = () => {
 };
 
 export const SelectBranchDistrictFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="branchDistrict">
       <IconBuilding />
-      Branch District
+      {t('branch-district')}
     </Filter.Item>
   );
 };
@@ -211,6 +215,7 @@ export const SelectBranchDistrictFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('mongolian');
   const [branchDistrict, setBranchDistrict] = useQueryState<string[] | string>(
     'branchDistrict',
   );
@@ -220,7 +225,7 @@ export const SelectBranchDistrictFilterBar = ({
     <Filter.BarItem queryKey={'branchDistrict'}>
       <Filter.BarName>
         <IconBuilding />
-        Branch District
+        {t('branch-district')}
       </Filter.BarName>
       <SelectBranchDistrictProvider
         mode={mode}

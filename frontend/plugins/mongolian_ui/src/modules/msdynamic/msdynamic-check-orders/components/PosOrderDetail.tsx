@@ -1,6 +1,7 @@
 import { Sheet, useQueryState } from 'erxes-ui';
 import { IPosOrderDetail } from '../types/msDynamicCheckOrder';
 import { PosOrderDetailContent } from './PosOrderDetailContent';
+import { useTranslation } from 'react-i18next';
 
 const ORDER_DETAIL_ID_KEY = 'orderDetailId';
 
@@ -10,6 +11,7 @@ type Props = {
 
 /** Order detail sheet neej haruulna. */
 const PosOrderDetail = ({ orders }: Props) => {
+  const { t } = useTranslation('mongolian');
   const [orderDetailId, setOrderDetailId] =
     useQueryState<string>(ORDER_DETAIL_ID_KEY);
 
@@ -24,7 +26,7 @@ const PosOrderDetail = ({ orders }: Props) => {
     <Sheet open={open} onOpenChange={handleOpenChange} modal>
       <Sheet.View className="sm:max-w-3xl">
         <Sheet.Header className="border-b border-border/70">
-          <Sheet.Title>Order Detail</Sheet.Title>
+          <Sheet.Title>{t('order-detail')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex min-h-0 flex-1 flex-col overflow-hidden p-5">
@@ -32,7 +34,7 @@ const PosOrderDetail = ({ orders }: Props) => {
             <PosOrderDetailContent orders={orders} />
           ) : (
             <div className="text-sm text-muted-foreground">
-              Order not found.
+              {t('order-not-found')}
             </div>
           )}
         </Sheet.Content>
