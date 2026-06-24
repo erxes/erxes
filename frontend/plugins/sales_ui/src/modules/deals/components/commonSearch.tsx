@@ -90,7 +90,10 @@ export const CommonDealSearch = () => {
               key={deal._id}
               type="button"
               className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm hover:bg-muted"
-              onClick={() => handleSelect(deal)}
+              onMouseDown={(event) => {
+                event.preventDefault();
+                handleSelect(deal);
+              }}
             >
               <span className="font-medium">
                 {[deal.number, deal.name].filter(Boolean).join(' - ')}
