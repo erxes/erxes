@@ -187,31 +187,41 @@ export const SelectCommandList = ({
   emptyText?: string;
   errorText?: string;
   children?: React.ReactNode;
-}) => (
-  <Command>
-    <Command.Input placeholder={placeholder || 'Search...'} />
-    {loading ? (
+}) => {
+  let body: React.ReactNode;
+  if (loading) {
+    body = (
       <Command.List>
         <div className="flex items-center justify-center py-4 h-32">
           <span className="text-muted-foreground">{loadingText || 'Loading...'}</span>
         </div>
       </Command.List>
-    ) : error ? (
+    );
+  } else if (error) {
+    body = (
       <Command.List>
         <div className="flex items-center justify-center py-4 h-32">
           <span className="text-muted-foreground">{errorText || 'Failed to load'}</span>
         </div>
       </Command.List>
-    ) : (
+    );
+  } else {
+    body = (
       <>
         <Command.Empty>
           <span className="text-muted-foreground">{emptyText || 'No results found'}</span>
         </Command.Empty>
         <Command.List>{children}</Command.List>
       </>
-    )}
-  </Command>
-);
+    );
+  }
+  return (
+    <Command>
+      <Command.Input placeholder={placeholder || 'Search...'} />
+      {body}
+    </Command>
+  );
+};
 
 export const SelectFormPopover = ({
   open,

@@ -97,6 +97,11 @@ export const usePostsVariables = (
     dateTo = parsed?.to;
   }
 
+  let categoryIds: string[] | undefined;
+  if (categories) {
+    categoryIds = Array.isArray(categories) ? categories : [categories];
+  }
+
   return {
     limit: POSTS_PER_PAGE,
     cursor,
@@ -106,11 +111,7 @@ export const usePostsVariables = (
     status: status || undefined,
     type: type || undefined,
     tagIds: tags || undefined,
-    categoryIds: categories
-      ? Array.isArray(categories)
-        ? categories
-        : [categories]
-      : undefined,
+    categoryIds,
     dateField: dateField || undefined,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
