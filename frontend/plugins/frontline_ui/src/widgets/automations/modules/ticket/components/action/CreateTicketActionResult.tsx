@@ -1,5 +1,6 @@
 import { IconExternalLink } from '@tabler/icons-react';
 import { Badge, Button, Tooltip } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { AutomationExecutionActionResultProps } from 'ui-modules';
 
@@ -52,6 +53,7 @@ const getCreateTicketActionResult = (
 export const CreateTicketActionResult = ({
   result,
 }: AutomationExecutionActionResultProps) => {
+  const { t } = useTranslation('frontline');
   const ticketResult = getCreateTicketActionResult(result);
   const label =
     ticketResult.name ||
@@ -62,7 +64,7 @@ export const CreateTicketActionResult = ({
       <Tooltip.Provider>
         <Tooltip>
           <Tooltip.Trigger>
-            <Badge variant="destructive">Error</Badge>
+            <Badge variant="destructive">{t('error')}</Badge>
           </Tooltip.Trigger>
           <Tooltip.Content>{ticketResult.error}</Tooltip.Content>
         </Tooltip>
@@ -81,7 +83,7 @@ export const CreateTicketActionResult = ({
         target="_blank"
       >
         <Button variant="link" className="w-full">
-          {`Go to Ticket: ${label || ticketResult.ticketId}`}
+          {t('go-to-ticket', { label: label || ticketResult.ticketId })}
           <IconExternalLink />
         </Button>
       </Link>

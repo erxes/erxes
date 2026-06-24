@@ -19,8 +19,7 @@ const AttachmentUploader = ({ id, attachments }: Props) => {
   });
   const { updateTicket, loading } = useUpdateTicket();
 
-  // Keep a ref to attachments so the effect can always read the latest value
-  // without needing `attachments` as a dependency (which would cause a loop).
+
   const attachmentsRef = useRef(attachments);
   useEffect(() => {
     attachmentsRef.current = attachments;
@@ -55,8 +54,6 @@ const AttachmentUploader = ({ id, attachments }: Props) => {
         },
       });
 
-      // Reset progress immediately so that when Apollo refetches and
-      // `attachments` syncs via the provider, this effect does NOT re-fire.
       setUploadProgress({ uploaded: 0, total: 0 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,6 +69,7 @@ const AttachmentUploader = ({ id, attachments }: Props) => {
       <Attachments.Uploader onSave={handleSave} />
       <Attachments.Files />
       <Attachments.Preview />
+      <Attachments.Video />
     </Attachments.Root>
   );
 };

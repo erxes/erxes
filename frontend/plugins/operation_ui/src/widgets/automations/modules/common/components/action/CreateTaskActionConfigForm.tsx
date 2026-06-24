@@ -1,5 +1,6 @@
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectTriggerOperation } from '@/operation/components/SelectOperation';
+import { useTranslation } from 'react-i18next';
 import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
 import { SelectMilestone } from '@/task/components/task-selects/SelectMilestone';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
@@ -12,6 +13,8 @@ import { Control, useForm, useWatch } from 'react-hook-form';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
+  TPlaceholderInputSuggestion,
+  TPlaceholderInputSuggestionType,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
@@ -55,7 +58,7 @@ const PlaceholderFormField = ({
   propertyType: string;
   variant?: 'expression' | 'fixed';
   selectMode?: 'one' | 'many';
-  enabled?: Record<string, boolean>;
+  enabled?: readonly TPlaceholderInputSuggestionType[];
   selectionType?: ComponentProps<typeof PlaceholderInput>['selectionType'];
   suggestionsOptions?: ComponentProps<
     typeof PlaceholderInput
@@ -132,6 +135,7 @@ export const CreateTaskActionConfigForm = ({
 > & {
   onSaveActionConfig: (config: TTaskActionConfigForm) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const propertyType = targetType || OPERATION_TASK_TARGET_TYPE;
   const currentConfig = getTaskActionConfig(currentAction?.config);
   const form = useForm<TTaskActionConfigForm>({
@@ -164,7 +168,7 @@ export const CreateTaskActionConfigForm = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Name</Form.Label>
+            <Form.Label>{t('name')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -180,7 +184,7 @@ export const CreateTaskActionConfigForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -198,7 +202,7 @@ export const CreateTaskActionConfigForm = ({
           name="teamId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Team</Form.Label>
+              <Form.Label>{t('team')}</Form.Label>
               <SelectTeam.FormItem
                 mode="single"
                 value={field.value || ''}
@@ -219,7 +223,7 @@ export const CreateTaskActionConfigForm = ({
           name="status"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Status</Form.Label>
+              <Form.Label>{t('status')}</Form.Label>
               <TaskStatusFormItem
                 value={field.value || ''}
                 teamId={teamId}
@@ -237,7 +241,7 @@ export const CreateTaskActionConfigForm = ({
           name="priority"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Priority</Form.Label>
+              <Form.Label>{t('priority')}</Form.Label>
               <SelectPriority.FormItem
                 value={field.value || 0}
                 onValueChange={field.onChange}
@@ -252,7 +256,7 @@ export const CreateTaskActionConfigForm = ({
           name="assigneeId"
           label="Assignee"
           propertyType={propertyType}
-          enabled={{ call_user: true }}
+          enabled={[TPlaceholderInputSuggestion.CallUser]}
         />
       </div>
 
@@ -262,7 +266,7 @@ export const CreateTaskActionConfigForm = ({
           name="projectId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Project</Form.Label>
+              <Form.Label>{t('project')}</Form.Label>
               <SelectProject.FormItem
                 teamId={teamId}
                 value={field.value || ''}
@@ -281,7 +285,7 @@ export const CreateTaskActionConfigForm = ({
           name="milestoneId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Milestone</Form.Label>
+              <Form.Label>{t('milestone')}</Form.Label>
               <SelectMilestone.FormItem
                 projectId={projectId}
                 value={field.value || ''}
@@ -299,14 +303,14 @@ export const CreateTaskActionConfigForm = ({
           name="startDate"
           label="Start date"
           propertyType={propertyType}
-          enabled={{ date: true }}
+          enabled={[TPlaceholderInputSuggestion.Date]}
         />
         <PlaceholderFormField
           control={control}
           name="targetDate"
           label="Target date"
           propertyType={propertyType}
-          enabled={{ date: true }}
+          enabled={[TPlaceholderInputSuggestion.Date]}
         />
       </div>
 
@@ -316,7 +320,7 @@ export const CreateTaskActionConfigForm = ({
         label="Tags"
         propertyType={propertyType}
         selectMode="many"
-        enabled={{ call_tag: true }}
+        enabled={[TPlaceholderInputSuggestion.CallTag]}
       />
     </Form>
   );

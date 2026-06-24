@@ -14,6 +14,8 @@ export interface IFacebookCommentConversationReply {
   userId?: string;
   customerId?: string;
   postId: string;
+  integrationId?: string;
+  erxesApiId?: string;
 }
 
 export interface IFacebookCommentConversationReplyDocument

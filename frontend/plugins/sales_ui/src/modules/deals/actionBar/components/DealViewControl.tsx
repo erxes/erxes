@@ -10,6 +10,7 @@ import { Suspense, lazy, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { dealsViewAtom } from '@/deals/states/dealsViewState';
+import { useTranslation } from 'react-i18next';
 
 const DealsBoard = lazy(() =>
   import('@/deals/boards/components/DealsBoard').then((mod) => ({
@@ -26,13 +27,14 @@ const DealsRecordTable = lazy(() =>
 export const DealsViewControl = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useAtom(dealsViewAtom);
+  const { t } = useTranslation('sales');
 
   return (
     <PopoverScoped open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconAdjustmentsHorizontal />
-          Display
+          {t('display')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -53,7 +55,7 @@ export const DealsViewControl = () => {
               className="h-11 flex-col gap-0 border"
             >
               <IconList className="size-5!" />
-              <span className="text-xs font-normal">List</span>
+              <span className="text-xs font-normal">{t('list')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="board" asChild>
@@ -63,7 +65,7 @@ export const DealsViewControl = () => {
               className="h-11 flex-col gap-0 border"
             >
               <IconLayoutKanban className="size-5!" />
-              <span className="text-xs font-normal">Board</span>
+              <span className="text-xs font-normal">{t('board')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { VoucherHotKeyScope } from '../types/VoucherHotKeyScope';
 import { VoucherTabs } from '../add-voucher-campaign/components/VoucherTabs';
@@ -19,6 +20,7 @@ import {
 } from '../constants/voucherFormSchema';
 
 export const LoyaltyVoucherAddSheet = () => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -57,7 +59,7 @@ export const LoyaltyVoucherAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add voucher campaign
+          {t('add-voucher-campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -68,7 +70,7 @@ export const LoyaltyVoucherAddSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Add voucher campaign</Sheet.Title>
+          <Sheet.Title>{t('add-voucher-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

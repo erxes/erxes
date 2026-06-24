@@ -13,6 +13,7 @@ import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectSta
 import { useEffect, useState } from 'react';
 import { TicketBasicFields } from './TicketBasicFields';
 import { SelectTags } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   form: UseFormReturn<TPipelineConfig>;
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export const ConfigsForm = ({ form, defaultValues }: Props) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const { control } = form;
 
@@ -40,7 +42,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
               <Input
                 {...field}
                 className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                placeholder="Configuration Name"
+                placeholder={t('configuration-name')}
               />
             </Form.Control>
             <Form.Message />
@@ -86,7 +88,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
                     scope="configs"
                   >
                     <Combobox.Trigger className="w-full h-7 shadow-xs">
-                      <SelectTags.Value placeholder="Select tag group" />
+                      <SelectTags.Value placeholder={t('select-tag-group')} />
                     </Combobox.Trigger>
                     <Combobox.Content onClick={(e) => e.stopPropagation()}>
                       <SelectTags.GroupsCommand />

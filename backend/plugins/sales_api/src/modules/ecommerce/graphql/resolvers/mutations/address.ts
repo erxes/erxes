@@ -1,7 +1,8 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { IAddress } from '~/modules/ecommerce/@types/address';
 
-export const addressMutations = {
+export const addressMutations: Record<string, Resolver> = {
   addressAdd: async (_root, params: IAddress, { models }: IContext) => {
     const address = await models.Address.createAddress(params);
 
@@ -42,5 +43,8 @@ export const addressMutations = {
     return address;
   },
 };
+
+addressMutations.addressAdd.wrapperConfig = { forClientPortal: true }
+addressMutations.addressUpdate.wrapperConfig = { forClientPortal: true }
 
 export default addressMutations;

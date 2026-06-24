@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChartContainer } from 'erxes-ui';
 import { CartesianGrid, XAxis, AreaChart, Area, YAxis } from 'recharts';
 import { format, parseISO, subDays, startOfDay } from 'date-fns';
@@ -9,6 +10,7 @@ interface TasksProgressChartProps {
 }
 
 export const TasksProgressChart = ({ tasks }: TasksProgressChartProps) => {
+  const { t } = useTranslation('operation');
   const statusColors = {
     started: 'var(--warning)',
     completed: 'var(--success)',
@@ -65,7 +67,7 @@ export const TasksProgressChart = ({ tasks }: TasksProgressChartProps) => {
   if (chartData.length === 0) {
     return (
       <div className="flex items-center justify-center h-24 text-sm text-muted-foreground">
-        No data available
+{t('no-data-available')}
       </div>
     );
   }

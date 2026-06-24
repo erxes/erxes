@@ -6,6 +6,7 @@ import {
   IconFile,
   IconPaperclip,
   IconPhoto,
+  IconPlayerPlayFilled,
   IconX,
   IconZoomIn,
 } from '@tabler/icons-react';
@@ -331,6 +332,190 @@ const AttachmentPreview = ({
   );
 };
 
+
+
+const getCloudflareStreamBase = (url: string): string | null => {
+  const match = url.match(
+    /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/,
+  );
+  return match ? match[1] : null;
+};
+
+export type AttachmentVideoProps = {
+  heading?: string;
+};
+
+const AttachmentVideo = ({
+  heading = 'Video Attachments',
+}: AttachmentVideoProps) => {
+  const [open, setOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const { attachments, handleRemoveAttachment, removingUrl, isLoading } =
+    useAttachmentContext();
+
+  const videoAttachments = attachments.filter(
+    (a) => a?.type != null && a.type.startsWith('video/'),
+  );
+
+  const current = videoAttachments[currentIndex];
+
+  // Clamp index when list shrinks
+  useEffect(() => {
+    if (
+      currentIndex >= videoAttachments.length &&
+      videoAttachments.length > 0
+    ) {
+      setCurrentIndex(videoAttachments.length - 1);
+    }
+  }, [videoAttachments.length, currentIndex]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight')
+        setCurrentIndex((i) => (i + 1) % videoAttachments.length);
+      if (e.key === 'ArrowLeft')
+        setCurrentIndex((i) => (i === 0 ? videoAttachments.length - 1 : i - 1));
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, videoAttachments.length]);
+
+  if (videoAttachments.length === 0) return null;
+
+  const prev = () =>
+    setCurrentIndex((i) => (i === 0 ? videoAttachments.length - 1 : i - 1));
+  const next = () => setCurrentIndex((i) => (i + 1) % videoAttachments.length);
+
+  const currentBase = current ? getCloudflareStreamBase(current.url) : null;
+
+  return (
+    <div className="py-4 px-8">
+      <h4 className="uppercase text-sm text-muted-foreground pb-4">
+        {heading}
+      </h4>
+
+      <ScrollTrack label="Video attachments">
+        {videoAttachments.map((attachment, index) => {
+          const isRemoving = removingUrl === attachment.url;
+          const base = getCloudflareStreamBase(attachment.url);
+          return (
+            <div
+              key={attachment.url}
+              role="listitem"
+              className="group relative w-36 h-36 rounded-lg border border-border shadow-md shrink-0 cursor-pointer bg-black overflow-hidden"
+              onClick={() => {
+                setCurrentIndex(index);
+                setOpen(true);
+              }}
+            >
+              {base ? (
+                <img
+                  className="w-full h-full object-cover rounded-lg"
+                  src={`${base}/thumbnails/thumbnail.jpg`}
+                  alt={attachment.name}
+                  loading="lazy"
+                />
+              ) : (
+                <video
+                  className="w-full h-full object-cover rounded-lg"
+                  src={readImage(attachment.url)}
+                  preload="metadata"
+                  muted
+                />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center bg-background/30 group-hover:bg-background/40 transition-colors rounded-lg">
+                {isLoading && isRemoving ? (
+                  <Spinner />
+                ) : (
+                  <IconPlayerPlayFilled
+                    size={28}
+                    className="text-primary-foreground"
+                    aria-hidden
+                  />
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                disabled={isLoading && isRemoving}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveAttachment(e, attachment);
+                }}
+                className="absolute hidden group-hover:flex items-center justify-center top-1 right-1 bg-destructive/40 hover:bg-destructive/80 text-background rounded-full p-1 w-5 h-5 shadow-md z-10"
+                aria-label={`Remove ${attachment.name}`}
+              >
+                <IconX size={10} aria-hidden />
+              </Button>
+            </div>
+          );
+        })}
+      </ScrollTrack>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog.Content className="bg-transparent max-w-fit shadow-none border-0">
+          <Button
+            variant={'secondary'}
+            size={'icon'}
+            className="absolute top-6 -right-4 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
+            onClick={() => setOpen(false)}
+            aria-label="Close lightbox"
+          >
+            <IconX size={20} />
+          </Button>
+
+          <Button
+            variant={'secondary'}
+            size={'icon'}
+            className="absolute -left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
+            onClick={prev}
+            aria-label="Previous video"
+          >
+            <IconChevronLeft size={24} />
+          </Button>
+
+          {current &&
+            (currentBase ? (
+              <iframe
+                key={current.url}
+                className="w-[80vw] max-w-3xl aspect-video rounded shadow-2xl"
+                src={`${currentBase}/iframe`}
+                title={current.name}
+                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                key={current.url}
+                className="max-w-[90vw] max-h-[90vh] rounded shadow-2xl"
+                src={readImage(current.url)}
+                controls
+                autoPlay
+              />
+            ))}
+
+          <Button
+            variant={'secondary'}
+            size={'icon'}
+            className="absolute -right-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
+            onClick={next}
+            aria-label="Next video"
+          >
+            <IconChevronRight size={24} />
+          </Button>
+
+          {videoAttachments.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/70 text-foreground text-xs px-3 py-1 rounded-full">
+              {currentIndex + 1} / {videoAttachments.length}
+            </div>
+          )}
+        </Dialog.Content>
+      </Dialog>
+    </div>
+  );
+};
+
 // ---------------------------------------------------------------------------
 // Attachments.Uploader
 // ---------------------------------------------------------------------------
@@ -473,6 +658,7 @@ export const Attachments = {
   Root: AttachmentRoot,
   Files: AttachmentFiles,
   Preview: AttachmentPreview,
+  Video: AttachmentVideo,
   Uploader: AttachmentUploader,
   Inline: AttachmentsInline,
 } as const;

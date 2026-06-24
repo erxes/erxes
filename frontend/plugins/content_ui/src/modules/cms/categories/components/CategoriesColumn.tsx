@@ -19,6 +19,7 @@ import {
 import { ICategory } from '@/cms/categories/types/CategoriesType';
 import { useEditCategory } from '@/cms/categories/hooks/useEditCategory';
 import { useIsTranslationMissing } from '@/cms/shared/hooks/useIsTranslationMissing';
+import { CmsTranslatableBadge } from '@/cms/shared/components/CmsTranslatableBadge';
 import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { getTranslation } from '@/cms/shared/utils';
@@ -110,13 +111,14 @@ export const useCategoriesColumns = (
             }}
           >
             <RecordTableInlineCell.Trigger>
-              <Badge
-                variant={missing ? 'destructive' : 'secondary'}
-                className={missing ? 'border-red-300' : ''}
-              >
-                {prefix}
-                <TextOverflowTooltip value={cell.getValue() as string} />
-              </Badge>
+              <CmsTranslatableBadge
+                value={cell.getValue() as string}
+                missing={missing}
+                placeholder="Untitled category"
+                prefix={prefix}
+                missingVariant="destructive"
+                missingClassName="border-red-300"
+              />
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
               <Input
@@ -148,11 +150,21 @@ export const useCategoriesColumns = (
         const missing = isNonDefaultLanguage && !translation?.content?.trim();
         const value = cell.getValue() as string;
 
+        if (!value?.trim()) {
+          return (
+            <RecordTableInlineCell>
+              <span className="italic text-muted-foreground">
+                No description
+              </span>
+            </RecordTableInlineCell>
+          );
+        }
+
         if (missing) {
           return (
             <RecordTableInlineCell>
               <Badge variant="destructive" className="border-red-300">
-                <TextOverflowTooltip value={value} />
+                <TextOverflowTooltip value={value} className="leading-normal" />
               </Badge>
             </RecordTableInlineCell>
           );

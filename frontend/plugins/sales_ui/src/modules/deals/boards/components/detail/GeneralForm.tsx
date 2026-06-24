@@ -10,9 +10,11 @@ import { useRef, useState } from 'react';
 
 import PipelineConfig from '@/deals/pipelines/components/PipelineConfig';
 
+import { useTranslation } from 'react-i18next';
+
 const VISIBILITY_TYPES = [
-  { value: 'public', label: 'Public' },
-  { value: 'private', label: 'Private' },
+  { value: 'public', label: 'public' },
+  { value: 'private', label: 'private' },
 ];
 
 const GeneralForm = ({ form }: { form: any }) => {
@@ -24,6 +26,8 @@ const GeneralForm = ({ form }: { form: any }) => {
   const selectParentRef =
     useRef<React.ElementRef<typeof Combobox.Trigger>>(null);
 
+  const { t } = useTranslation('sales');
+
   return (
     <>
       <div className="grid grid-cols-2 gap-4 mb-4">
@@ -32,9 +36,9 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{field.name}</Form.Label>
+              <Form.Label>{t('name')}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Enter pipeline name" />
+                <Input {...field} placeholder={t('enter-pipeline-name')} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -45,18 +49,18 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="visibility"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Visibility</Form.Label>
+              <Form.Label>{t('visibility')}</Form.Label>
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
                     className={!field.value ? 'text-muted-foreground' : ''}
                   >
-                    {field.value || 'Select visibility'}
+                    {field.value ? t(field.value) : t('select-visibility')}
                   </Select.Trigger>
                   <Select.Content>
                     {VISIBILITY_TYPES.map((option) => (
                       <Select.Item key={option.value} value={option.value}>
-                        {option.label}
+                        {t(option.label)}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -71,7 +75,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="boardId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Board</Form.Label>
+              <Form.Label>{t('board')}</Form.Label>
               <SelectBoard.FormItem
                 mode="single"
                 onValueChange={field.onChange}
@@ -87,7 +91,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="tagId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Tag</Form.Label>
+              <Form.Label>{t('tag')}</Form.Label>
               <SelectTags.Provider
                 tagType="sales:deal"
                 value={field.value}
@@ -117,7 +121,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="branchIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Branches</Form.Label>
+              <Form.Label>{t('branches')}</Form.Label>
               <SelectBranches.FormItem
                 onValueChange={field.onChange}
                 value={field.value}
@@ -132,7 +136,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="departmentIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Departments</Form.Label>
+              <Form.Label>{t('departments')}</Form.Label>
               <SelectDepartments.FormItem
                 mode="multiple"
                 value={field.value}
@@ -149,7 +153,7 @@ const GeneralForm = ({ form }: { form: any }) => {
             control={control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Team members</Form.Label>
+                <Form.Label>{t('team-members')}</Form.Label>
                 <SelectMember.FormItem
                   value={field.value}
                   onValueChange={field.onChange}

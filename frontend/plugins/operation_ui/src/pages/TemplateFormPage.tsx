@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PageContainer, Button, Breadcrumb } from 'erxes-ui';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { TemplateForm } from '@/template/components/TemplateForm';
@@ -6,6 +7,7 @@ import { templateDetailQuery } from '@/template/graphql/queries';
 import { IconArrowLeft } from '@tabler/icons-react';
 
 export const TemplateFormPage = () => {
+  const { t } = useTranslation('operation');
   const { id: teamId, templateId } = useParams<{
     id: string;
     templateId?: string;
@@ -39,7 +41,7 @@ export const TemplateFormPage = () => {
                         size={16}
                         className="stroke-foreground mr-2"
                       />
-                      Template List
+                      {t('template-list')}
                     </Link>
                   </Button>
                 </Breadcrumb.Link>

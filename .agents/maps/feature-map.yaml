@@ -517,35 +517,6 @@ plugins:
     frontend: frontend/plugins/mongolian_ui/src/modules/productplaces
     backend: backend/plugins/mongolian_api/src/modules/productPlaces
 
-  # ── ERXES-AGENT (AI agent — formerly "mastra") ───────────────────────────────
-  - id: ai-agent
-    keywords: ai agent, agent, assistant, chatbot, llm, mastra, copilot, ai assistant
-    plugin: erxes-agent
-    scope: both
-    frontend: frontend/plugins/erxes-agent_ui/src/modules/assistants
-    backend: backend/plugins/erxes-agent_api/src/modules/agent
-    related: [ai-provider, ai-tool, ai-workflow]
-
-  - id: ai-provider
-    keywords: llm provider, model provider, openai key, anthropic key, kimi, api key provider
-    plugin: erxes-agent
-    scope: both
-    frontend: frontend/plugins/erxes-agent_ui/src/modules/assistants
-    backend: backend/plugins/erxes-agent_api/src/modules/provider
-
-  - id: ai-tool
-    keywords: agent tool, ai tool, function calling, tool definition
-    plugin: erxes-agent
-    scope: both
-    frontend: frontend/plugins/erxes-agent_ui/src/modules/assistants
-    backend: backend/plugins/erxes-agent_api/src/modules/tool
-
-  - id: ai-workflow
-    keywords: agent workflow, ai workflow, scheduled agent, agent run, agent memory
-    plugin: erxes-agent
-    scope: backend
-    backend: backend/plugins/erxes-agent_api/src/modules/workflow
-
 # ─────────────────────────────────────────────────────────────────────────────
 # SHARED LIBS — reusable code. Build here ONLY when a thing is used by 2+ plugins.
 # ─────────────────────────────────────────────────────────────────────────────

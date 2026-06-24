@@ -3,7 +3,6 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Badge,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -23,6 +22,7 @@ import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
 import { PostPublicUrlButton } from './PostPublicUrlButton';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { CmsTranslatableBadge } from '../../shared/components/CmsTranslatableBadge';
 import type { Posts } from '../types/postsType';
 import type { IWebsite } from '../../types';
 import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
@@ -118,12 +118,11 @@ export const usePostsColumns = (
               }}
               className="cursor-pointer "
             >
-              <Badge
-                variant={missing ? 'outline' : 'secondary'}
-                className={missing ? 'text-red-500 border-red-300' : ''}
-              >
-                <TextOverflowTooltip value={post.title} />
-              </Badge>
+              <CmsTranslatableBadge
+                value={post.title}
+                missing={missing}
+                placeholder="Untitled post"
+              />
             </div>
           </RecordTableInlineCell>
         );
@@ -154,6 +153,7 @@ export const usePostsColumns = (
                   ?.map((category) => category.name)
                   .join(', ') || ''
               }
+              className="leading-normal"
             />
           </RecordTableInlineCell>
         );
@@ -168,6 +168,7 @@ export const usePostsColumns = (
           <RecordTableInlineCell>
             <TextOverflowTooltip
               value={row.original.tags?.map((tag) => tag.name).join(', ') || ''}
+              className="leading-normal"
             />
           </RecordTableInlineCell>
         );
@@ -179,7 +180,10 @@ export const usePostsColumns = (
       header: () => <RecordTable.InlineHead icon={IconUser} label="Author" />,
       cell: ({ row }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={getPostAuthorName(row.original)} />
+          <TextOverflowTooltip
+            value={getPostAuthorName(row.original)}
+            className="leading-normal"
+          />
         </RecordTableInlineCell>
       ),
       size: 180,
@@ -206,7 +210,7 @@ export const usePostsColumns = (
           (post.type === 'post' ? 'Post' : post.type);
         return (
           <RecordTableInlineCell>
-            <TextOverflowTooltip value={typeLabel} />
+            <TextOverflowTooltip value={typeLabel} className="leading-normal" />
           </RecordTableInlineCell>
         );
       },

@@ -32,6 +32,15 @@ interface IDiscount {
   };
 }
 
+export type ProductDurationType =
+  | 'minute'
+  | 'hour'
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'year';
+
 export interface IProduct {
   name: string;
   shortName?: string;
@@ -61,6 +70,8 @@ export interface IProduct {
   sameMasks?: string[];
   sameDefault?: string[];
   currency?: string;
+  duration?: number;
+  durationType?: ProductDurationType;
 
   pdfAttachment?: IPdfAttachment;
 

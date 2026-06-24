@@ -1,5 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Control } from 'react-hook-form';
 import { DayForm } from './DayForm';
 import { IElement } from '../../../elements/types/element';
@@ -39,6 +40,7 @@ export const DayList = ({
   daysFieldPathPrefix,
   dayDescriptionKey,
 }: DayListProps) => {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col flex-1 min-h-0 p-3 space-y-4 overflow-y-auto">
       {days.map((_, index) => {
@@ -86,7 +88,7 @@ export const DayList = ({
           className="flex items-center w-full gap-2"
         >
           <IconPlus size={18} />
-          Add Day
+          {t('add-day')}
         </Button>
       </div>
     </div>

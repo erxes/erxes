@@ -5,6 +5,7 @@ import { IconTool } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import { Spinner, toast } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFbIntegrationsRepair } from '../hooks/useFbIntegrationsRepair';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export const FacebookIntegrationRepair = ({ cell }: Props) => {
+  const { t } = useTranslation('frontline');
   const { _id, healthStatus } = cell.row.original;
   const { integrationType } = useParams();
   const { repairIntegrations, loading: repairLoading } =
@@ -25,7 +27,7 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
       variables: { _id, kind: integrationType },
       refetchQueries: ['Integrations'],
       onCompleted: () => {
-        toast({ title: 'Repaired successfully' });
+        toast({ title: t('repaired-successfully') });
       },
       onError: (error) => {
         toast({ title: error.message, variant: 'destructive' });
@@ -57,7 +59,7 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
       ) : (
         <IconTool size={16} />
       )}
-      Repair
+      {t('repair')}
     </div>
   );
 };

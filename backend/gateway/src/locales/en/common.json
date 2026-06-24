@@ -60,5 +60,11 @@
     "exit-settings": "Exit Settings",
     "favorites": "Favorites",
     "my-inbox": "My inbox"
+  },
+  "plugin": {
+    "_": "Plugin",
+    "plugins": "Plugins",
+    "exit": "Exit {{name}}",
+    "modules": "{{name}} modules"
   }
 }

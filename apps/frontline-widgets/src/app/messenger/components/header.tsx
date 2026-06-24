@@ -186,12 +186,12 @@ export const HeaderHero = () => {
 
   // Find parent category for article breadcrumb
   const articleCategoryId = articleId
-    ? (details?.categories
+    ? details?.categories
         ?.flatMap((c) => c.articles || [])
         .find((a) => a._id === articleId)?.categoryId ??
       details?.parentCategories
         ?.flatMap((c) => c.articles || [])
-        .find((a) => a._id === articleId)?.categoryId)
+        .find((a) => a._id === articleId)?.categoryId
     : null;
   const articleParentCategory =
     details?.categories?.find((c) => c._id === articleCategoryId) ||

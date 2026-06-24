@@ -8,7 +8,7 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { ACCOUNTING_SYNC_ORDER_RULES_QUERY } from '../graphql/checkSyncedOrders';
 import { AccountingOrderRule } from '../types';
@@ -103,6 +103,25 @@ const AccountingCheckSyncedOrderRuleContent = ({
         ))}
       </Command.List>
     </Command>
+  );
+};
+
+export const AccountingCheckSyncedOrderRulePicker = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger asChild>{children}</Popover.Trigger>
+      <Combobox.Content>
+        <AccountingCheckSyncedOrderRuleContent
+          onSelect={() => setOpen(false)}
+        />
+      </Combobox.Content>
+    </Popover>
   );
 };
 

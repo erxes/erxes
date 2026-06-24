@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGetTeams } from '@/team/hooks/useGetTeams';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
@@ -48,6 +49,7 @@ interface TeamItemProps {
 }
 
 function TeamItem({ team }: TeamItemProps) {
+  const { t } = useTranslation('operation');
   return (
     <Collapsible className="group/collapsible">
       <Sidebar.Group className="p-0">
@@ -80,7 +82,7 @@ function TeamItem({ team }: TeamItemProps) {
             <Sidebar.Menu>
               {team.triageEnabled && (
                 <NavigationMenuLinkItem
-                  name="Triage"
+                  name={t('triage')}
                   pathPrefix="operation/team"
                   path={`${team._id}/triage`}
                   className="pl-6 font-medium"
@@ -88,14 +90,14 @@ function TeamItem({ team }: TeamItemProps) {
                 />
               )}
               <NavigationMenuLinkItem
-                name="Projects"
+                name={t('projects')}
                 pathPrefix="operation/team"
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`${team._id}/projects`}
               />
               <NavigationMenuLinkItem
-                name="Tasks"
+                name={t('tasks')}
                 pathPrefix="operation/team"
                 path={`${team._id}/tasks`}
                 className="pl-6 font-medium"
@@ -103,7 +105,7 @@ function TeamItem({ team }: TeamItemProps) {
               />
               {team.cycleEnabled && (
                 <NavigationMenuLinkItem
-                  name="Cycles"
+                  name={t('cycles')}
                   pathPrefix="operation/team"
                   path={`${team._id}/cycles`}
                   className="pl-6 font-medium"
@@ -119,13 +121,14 @@ function TeamItem({ team }: TeamItemProps) {
 }
 
 export function TeamsNavigation() {
+  const { t } = useTranslation('operation');
   const currentUser = useAtomValue(currentUserState);
   const { teams, loading } = useGetTeams({
     variables: { userId: currentUser?._id },
   });
 
   return (
-    <NavigationMenuGroup name="Your Teams">
+    <NavigationMenuGroup name={t('your-teams')}>
       {loading ? (
         <LoadingSkeleton />
       ) : (
@@ -136,6 +139,7 @@ export function TeamsNavigation() {
 }
 
 const TeamActionsMenu = ({ team }: { team: Team }) => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
 
   const { toast } = useToast();
@@ -146,12 +150,12 @@ const TeamActionsMenu = ({ team }: { team: Team }) => {
       await navigator.clipboard.writeText(teamLink);
       toast({
         variant: 'default',
-        title: 'Link copied to clipboard',
+        title: t('link-copied-to-clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy link',
+        title: t('failed-to-copy-link'),
         description: e as string,
       });
     }
@@ -179,7 +183,7 @@ const TeamActionsMenu = ({ team }: { team: Team }) => {
           }}
         >
           <IconSettings className="size-4" />
-          Go to team settings
+          {t('go-to-team-settings')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={(e) => {
@@ -188,7 +192,7 @@ const TeamActionsMenu = ({ team }: { team: Team }) => {
           className="cursor-pointer"
         >
           <IconLink className="size-4" />
-          Copy link
+          {t('copy-link')}
         </DropdownMenu.Item>
 
         {/* <DropdownMenu.Item className="cursor-pointer">

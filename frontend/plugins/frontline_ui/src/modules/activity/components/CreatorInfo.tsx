@@ -2,12 +2,14 @@ import { MembersInline } from 'ui-modules';
 import { ITicket } from '@/ticket/types';
 import { ActivityTimelineItem } from '@/activity/components/ActivityTimelineItem';
 import { IconUser } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface CreatorInfoProps {
   contentDetail: ITicket;
 }
 
 export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
+  const { t } = useTranslation('frontline');
   const memberIds = contentDetail.createdBy ? [contentDetail.createdBy] : [];
   const hasCreator = Boolean(contentDetail.createdBy);
 
@@ -27,13 +29,13 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
       createdAt={contentDetail.createdAt?.toLocaleString()}
       id={contentDetail._id}
     >
-      Created by{' '}
+      {t('created-by')}{' '}
       {hasCreator ? (
         <MembersInline.Provider memberIds={memberIds}>
           <MembersInline.Title className="font-semibold" />
         </MembersInline.Provider>
       ) : (
-        <span className="text-muted-foreground">Unknown</span>
+        <span className="text-muted-foreground">{t('unknown')}</span>
       )}
     </ActivityTimelineItem>
   );

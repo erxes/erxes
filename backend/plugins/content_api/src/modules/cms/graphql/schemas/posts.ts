@@ -195,6 +195,7 @@ export const mutations = `
       cmsPostsRemoveMany(_ids: [String]!): JSON
       cmsPostsChangeStatus(_id: String!, status: PostStatus!): Post
       cmsPostsToggleFeatured(_id: String!): Post
+      cmsPostsSendNotification(_id: String!): JSON
   
       cpPostsIncrementViewCount(_id: String!): Post
       cpPostsReact(_id: String!, reaction: PostReactionType!, action: ReactionModifyType!): Post

@@ -1,18 +1,36 @@
-import { Button, Sheet, Input, Select, Checkbox } from 'erxes-ui';
-import { useForm, Controller } from 'react-hook-form';
+import {
+  Button,
+  Sheet,
+  Input,
+  Select,
+  Switch,
+  Textarea,
+  Form,
+} from 'erxes-ui';
+import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
+import { IconPencil, IconPlus } from '@tabler/icons-react';
 import {
   ICustomField,
-  FieldType,
+  FieldFormValues,
   FIELD_TYPES,
 } from '../../types/customFieldTypes';
 
 interface FieldDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FieldFormValues) => void;
   editingField: ICustomField | null;
 }
+
+const DEFAULT_VALUES: FieldFormValues = {
+  label: '',
+  code: '',
+  type: 'text',
+  description: '',
+  isRequired: false,
+  options: '',
+};
 
 export function FieldDrawer({
   isOpen,
@@ -20,20 +38,13 @@ export function FieldDrawer({
   onSubmit,
   editingField,
 }: FieldDrawerProps) {
-  const fieldForm = useForm({
-    defaultValues: {
-      label: '',
-      code: '',
-      type: 'text' as FieldType,
-      description: '',
-      isRequired: false,
-      options: '',
-    },
+  const form = useForm<FieldFormValues>({
+    defaultValues: DEFAULT_VALUES,
   });
 
   useEffect(() => {
     if (editingField) {
-      fieldForm.reset({
+      form.reset({
         label: editingField.label,
         code: editingField.code,
         type: editingField.type,
@@ -42,18 +53,11 @@ export function FieldDrawer({
         options: editingField.options ? editingField.options.join(', ') : '',
       });
     } else {
-      fieldForm.reset({
-        label: '',
-        code: '',
-        type: 'text',
-        description: '',
-        isRequired: false,
-        options: '',
-      });
+      form.reset(DEFAULT_VALUES);
     }
-  }, [editingField, fieldForm, isOpen]);
+  }, [editingField, form, isOpen]);
 
-  const selectedFieldType = fieldForm.watch('type');
+  const selectedFieldType = form.watch('type');
   const needsOptions = ['select', 'radio'].includes(selectedFieldType);
 
   return (
@@ -68,134 +72,153 @@ export function FieldDrawer({
           <Sheet.Title>{editingField ? 'Edit Field' : 'Add Field'}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="overflow-y-auto">
+        <Form {...form}>
           <form
-            onSubmit={fieldForm.handleSubmit(onSubmit)}
-            className="space-y-4 p-6"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col flex-auto overflow-hidden"
           >
-            <div>
-              <label className="block text-sm font-medium mb-2">Label *</label>
-              <Input
-                {...fieldForm.register('label', {
-                  required: 'Label is required',
-                })}
-                placeholder="Enter field label"
-              />
-              {fieldForm.formState.errors.label && (
-                <p className="text-sm text-red-500 mt-1">
-                  {fieldForm.formState.errors.label.message as string}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Code</label>
-              <Input
-                {...fieldForm.register('code')}
-                placeholder="Enter code (e.g., product_price)"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Unique identifier for this field
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Field Type *
-              </label>
-              <Controller
-                name="type"
-                control={fieldForm.control}
-                rules={{ required: 'Type is required' }}
+            <Sheet.Content className="flex flex-col gap-5 p-6 overflow-y-auto flex-auto">
+              <Form.Field
+                name="label"
+                control={form.control}
+                rules={{ required: 'Label is required' }}
                 render={({ field }) => (
-                  <Select
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  >
-                    <Select.Trigger className="w-full">
-                      <Select.Value placeholder="Select field type" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {FIELD_TYPES.map((type) => (
-                        <Select.Item key={type.value} value={type.value}>
-                          {type.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
+                  <Form.Item>
+                    <Form.Label>Label</Form.Label>
+                    <Form.Control>
+                      <Input placeholder="Enter field label" {...field} />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
                 )}
               />
-              {fieldForm.formState.errors.type && (
-                <p className="text-sm text-red-500 mt-1">
-                  {fieldForm.formState.errors.type.message as string}
-                </p>
-              )}
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Description
-              </label>
-              <Input
-                {...fieldForm.register('description')}
-                placeholder="Optional description"
+              <Form.Field
+                name="code"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Code</Form.Label>
+                    <Form.Control>
+                      <Input
+                        placeholder="e.g., product_price"
+                        {...field}
+                      />
+                    </Form.Control>
+                    <Form.Description>
+                      Unique identifier for this field
+                    </Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
-            </div>
 
-            {needsOptions && (
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Options *
-                </label>
-                <Input
-                  {...fieldForm.register('options', {
+              <Form.Field
+                name="type"
+                control={form.control}
+                rules={{ required: 'Type is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Field Type</Form.Label>
+                    <Select
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                    >
+                      <Form.Control>
+                        <Select.Trigger className="w-full">
+                          <Select.Value placeholder="Select field type" />
+                        </Select.Trigger>
+                      </Form.Control>
+                      <Select.Content>
+                        {FIELD_TYPES.map((type) => (
+                          <Select.Item key={type.value} value={type.value}>
+                            <div className="flex items-center gap-2 [&_svg]:size-4">
+                              {type.icon}
+                              {type.label}
+                            </div>
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                name="description"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control>
+                      <Textarea
+                        placeholder="Optional description"
+                        {...field}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              {needsOptions && (
+                <Form.Field
+                  name="options"
+                  control={form.control}
+                  rules={{
                     required: needsOptions
                       ? 'Options are required for this field type'
                       : false,
-                  })}
-                  placeholder="Option 1, Option 2, Option 3"
+                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Options</Form.Label>
+                      <Form.Control>
+                        <Input
+                          placeholder="Option 1, Option 2, Option 3"
+                          {...field}
+                        />
+                      </Form.Control>
+                      <Form.Description>
+                        Comma-separated list of options
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Comma-separated list of options
-                </p>
-                {fieldForm.formState.errors.options && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {fieldForm.formState.errors.options.message as string}
-                  </p>
-                )}
-              </div>
-            )}
+              )}
 
-            <div className="flex items-center gap-2">
-              <Controller
+              <Form.Field
                 name="isRequired"
-                control={fieldForm.control}
+                control={form.control}
                 render={({ field }) => (
-                  <Checkbox
-                    id="isRequired"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Form.Item className="flex flex-row items-center justify-between gap-2">
+                    <Form.Label className="cursor-pointer">
+                      Required field
+                    </Form.Label>
+                    <Form.Control>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                  </Form.Item>
                 )}
               />
-              <label
-                htmlFor="isRequired"
-                className="text-sm font-medium cursor-pointer"
-              >
-                Required field
-              </label>
-            </div>
+            </Sheet.Content>
 
-            <div className="flex gap-2 justify-end pt-4">
+            <Sheet.Footer className="border-t p-4 gap-2">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
               <Button type="submit">
+                {editingField ? <IconPencil /> : <IconPlus />}
                 {editingField ? 'Update' : 'Create'}
               </Button>
-            </div>
+            </Sheet.Footer>
           </form>
-        </Sheet.Content>
+        </Form>
       </Sheet.View>
     </Sheet>
   );

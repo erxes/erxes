@@ -13,6 +13,7 @@ import {
   RelativeDateDisplay,
   Switch,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IVoucher } from '../types/voucherTypes';
 import { VoucherNameCell } from '../voucher-detail/components/VoucherNameCell';
 import { voucherMoreColumn } from './VoucherMoreColumn';
@@ -47,7 +48,10 @@ export const voucherColumns: (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconTag} label={t('title')} />;
+    },
     cell: ({ cell }: { cell: any }) => {
       return (
         <VoucherNameCell
@@ -61,9 +65,10 @@ export const voucherColumns: (
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />;
+    },
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -76,9 +81,10 @@ export const voucherColumns: (
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />;
+    },
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -91,7 +97,10 @@ export const voucherColumns: (
   {
     id: 'voucherType',
     accessorKey: 'voucherType',
-    header: () => <RecordTable.InlineHead icon={IconTicket} label="Type" />,
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconTicket} label={t('type')} />;
+    },
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
@@ -104,9 +113,10 @@ export const voucherColumns: (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => (
-      <RecordTable.InlineHead icon={IconToggleLeft} label="Status" />
-    ),
+    header: () => {
+      const { t } = useTranslation('loyalty');
+      return <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />;
+    },
     cell: ({ cell }) => {
       const { _id } = cell.row.original || {};
       const currentStatus = cell.getValue() as string;

@@ -1,6 +1,7 @@
 import { CommandBar, Separator } from 'erxes-ui/components';
 import { RecordTable } from 'erxes-ui';
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
+import { useTranslation } from 'react-i18next';
 
 export const DealsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -11,11 +12,12 @@ export const DealsCommandBar = () => {
 
   const selectedCount = selectedDeals.length;
   const isSelected = selectedCount > 0;
+  const { t } = useTranslation('sales');
 
   return (
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedCount} selected</CommandBar.Value>
+        <CommandBar.Value>{selectedCount} {t('selected')}</CommandBar.Value>
         <DealsActions deals={selectedDeals} selectedCount={selectedCount} />
         <Separator.Inline />
       </CommandBar.Bar>

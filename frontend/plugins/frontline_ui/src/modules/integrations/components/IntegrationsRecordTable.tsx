@@ -18,6 +18,7 @@ import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
 import { IconMessagesOff } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
+import { useTranslation } from 'react-i18next';
 
 export const IntegrationsRecordTable = () => {
   const params = useParams();
@@ -55,7 +56,7 @@ export const IntegrationsRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={integrationTypeColumns()}
+      columns={useIntegrationTypeColumns()}
       data={(integrations || []).filter((integration) => integration)}
       stickyColumns={['more', 'checkbox', 'name']}
     >
@@ -129,57 +130,60 @@ export const BrandField = ({
   return null;
 };
 
-export const integrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => [
-  integrationMoreColumn(),
-  {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
-    cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
-      <NameField cell={cell} />
-    ),
-    size: 300,
-  },
-  {
-    id: 'isActive',
-    accessorKey: 'isActive',
-    header: () => <RecordTable.InlineHead label="Status" />,
-    cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
-      const status = cell.getValue() as boolean;
-      return (
-        <RecordTableInlineCell>
-          <Badge
-            className="text-xs capitalize mx-auto"
-            variant={status ? 'success' : 'destructive'}
-          >
-            {status ? 'Active' : 'Inactive'}
-          </Badge>
-        </RecordTableInlineCell>
-      );
+export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => {
+  const { t } = useTranslation('frontline');
+  return [
+    integrationMoreColumn(),
+    {
+      id: 'name',
+      accessorKey: 'name',
+      header: () => <RecordTable.InlineHead label={t('name')} />,
+      cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
+        <NameField cell={cell} />
+      ),
+      size: 300,
     },
-    size: 100,
-  },
-  {
-    id: 'healthStatus',
-    accessorKey: 'healthStatus',
-    header: () => <RecordTable.InlineHead label="Health status" />,
-    cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
-      const healthStatus = cell.getValue() as IIntegrationDetail['healthStatus'];
-      const status = healthStatus?.status;
-
-      return (
-        <RecordTableInlineCell>
-          {status ? (
+    {
+      id: 'isActive',
+      accessorKey: 'isActive',
+      header: () => <RecordTable.InlineHead label={t('status')} />,
+      cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
+        const status = cell.getValue() as boolean;
+        return (
+          <RecordTableInlineCell>
             <Badge
               className="text-xs capitalize mx-auto"
-              variant={status === 'healthy' ? 'success' : 'destructive'}
+              variant={status ? 'success' : 'destructive'}
             >
-              {status}
+              {status ? 'Active' : 'Inactive'}
             </Badge>
-          ) : null}
-        </RecordTableInlineCell>
-      );
+          </RecordTableInlineCell>
+        );
+      },
+      size: 100,
     },
-    size: 120,
-  },
-];
+    {
+      id: 'healthStatus',
+      accessorKey: 'healthStatus',
+      header: () => <RecordTable.InlineHead label={t('health-status')} />,
+      cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
+        const healthStatus = cell.getValue() as IIntegrationDetail['healthStatus'];
+        const status = healthStatus?.status;
+
+        return (
+          <RecordTableInlineCell>
+            {status ? (
+              <Badge
+                className="text-xs capitalize mx-auto"
+                variant={status === 'healthy' ? 'success' : 'destructive'}
+              >
+                {status}
+              </Badge>
+            ) : null}
+          </RecordTableInlineCell>
+        );
+      },
+      size: 120,
+    },
+  ];
+};

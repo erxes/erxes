@@ -18,6 +18,7 @@ export interface IPersistentMenu {
   text: string;
   type: 'button' | 'link';
   link?: string;
+  contentType: string;
 }
 
 export interface IMessengerData {

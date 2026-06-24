@@ -1,6 +1,7 @@
 import { REACT_APP_API_URL, useToast, useUpload } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   IconPhotoScan,
   IconVideo,
@@ -25,6 +26,18 @@ const getFileTypeConst = (
 
 const checkIsImageType = (mimeType: string) => mimeType.startsWith('image/');
 
+const resolveUploadedFileUrl = (fileUrl?: string | null) => {
+  if (!fileUrl) {
+    return null;
+  }
+
+  try {
+    return readImage(decodeURIComponent(fileUrl));
+  } catch {
+    return readImage(fileUrl);
+  }
+};
+
 export const useFbBotFileUploadSection = ({
   url,
   mimeType,
@@ -36,9 +49,10 @@ export const useFbBotFileUploadSection = ({
   limit: number;
   onUpload?: (fileUrl: string | null) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(
-    url || null,
+    resolveUploadedFileUrl(url),
   );
   const [uploadedFileMimeType, setUploadedFileMimeType] =
     useState<string>(mimeType);
@@ -46,7 +60,12 @@ export const useFbBotFileUploadSection = ({
   const { toast } = useToast();
 
   const sizeLimit = limit * 1024 * 1024;
-  const isImageType = checkIsImageType(mimeType);
+  const isImageType = checkIsImageType(uploadedFileMimeType);
+
+  useEffect(() => {
+    setUploadedFileUrl(resolveUploadedFileUrl(url));
+    setUploadedFileMimeType(mimeType);
+  }, [mimeType, url]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -72,7 +91,7 @@ export const useFbBotFileUploadSection = ({
 
     navigator.clipboard.writeText(uploadedFileUrl);
     toast({
-      title: 'URL copied to clipboard',
+      title: t('url-copied-to-clipboard'),
       variant: 'default',
     });
   }, [uploadedFileUrl, toast]);
@@ -85,8 +104,8 @@ export const useFbBotFileUploadSection = ({
 
       if (file.size > sizeLimit) {
         toast({
-          title: 'File size exceeds limit',
-          description: `File size must be less than ${limit}MB`,
+          title: t('file-size-exceeds-limit'),
+          description: t('file-size-must-be-less-than', { limit }),
           variant: 'destructive',
         });
         return;
@@ -108,13 +127,13 @@ export const useFbBotFileUploadSection = ({
           onUpload?.(encodeURIComponent(response));
 
           toast({
-            title: 'File uploaded successfully',
+            title: t('file-upload-complete'),
             variant: 'default',
           });
         },
       });
     },
-    [upload, sizeLimit, limit, toast, onUpload, url],
+    [isImageType, upload, sizeLimit, limit, toast, onUpload, url],
   );
 
   const handleDrop = useCallback(

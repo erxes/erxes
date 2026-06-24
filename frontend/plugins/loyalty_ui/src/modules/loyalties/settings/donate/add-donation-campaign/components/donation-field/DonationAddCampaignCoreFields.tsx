@@ -2,6 +2,7 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input } from 'erxes-ui';
 import React from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SelectVoucherCampaign } from '../../../components/selects/SelectVoucherCampaign';
 import { DonationFormValues } from '../../../constants/donationFormSchema';
 
@@ -12,6 +13,7 @@ interface DonationAddCampaignCoreFieldsProps {
 export const DonationAddCampaignCoreFields: React.FC<
   DonationAddCampaignCoreFieldsProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   const { control } = form;
   const { fields, append, remove } = useFieldArray({
     control,
@@ -26,9 +28,9 @@ export const DonationAddCampaignCoreFields: React.FC<
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title')}</Form.Label>
               <Form.Control>
-                <Input placeholder="Enter donation title" {...field} />
+                <Input placeholder={t('enter-donation-title')} {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -39,11 +41,11 @@ export const DonationAddCampaignCoreFields: React.FC<
           name="maxScore"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Max Score</Form.Label>
+              <Form.Label>{t('max-score')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter max score"
+                  placeholder={t('enter-max-score')}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -64,7 +66,7 @@ export const DonationAddCampaignCoreFields: React.FC<
                   name={`awards.${index}.voucherCampaignId`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Voucher Campaign</Form.Label>
+                      <Form.Label>{t('voucher-campaign')}</Form.Label>
                       <Form.Control>
                         <SelectVoucherCampaign
                           value={field.value || undefined}
@@ -82,11 +84,11 @@ export const DonationAddCampaignCoreFields: React.FC<
                   name={`awards.${index}.minScore`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Min Score</Form.Label>
+                      <Form.Label>{t('min-score')}</Form.Label>
                       <Form.Control>
                         <Input
                           type="number"
-                          placeholder="Score"
+                          placeholder={t('score')}
                           {...field}
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
@@ -116,7 +118,7 @@ export const DonationAddCampaignCoreFields: React.FC<
           variant="secondary"
         >
           <IconPlus />
-          Add level
+          {t('add-level')}
         </Button>
       </div>
     </div>

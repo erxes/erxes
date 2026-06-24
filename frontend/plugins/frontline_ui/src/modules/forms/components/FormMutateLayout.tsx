@@ -8,6 +8,7 @@ import {
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { useNavigate, useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const FormMutateLayout = ({
   children,
@@ -24,6 +25,7 @@ export const FormMutateLayout = ({
   onSubmit?: (values: z.infer<any>) => void;
   isLoading?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [step, setStep] = useAtom(formSetupStepAtom);
   const { id } = useParams<{ id: string }>();
 
@@ -64,19 +66,19 @@ export const FormMutateLayout = ({
             className="mr-auto bg-border"
             onClick={handleCancel}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
               ? id
-                ? 'Updating form...'
-                : 'Creating form...'
+                ? t('updating-form')
+                : t('creating-form')
               : step === 3
               ? id
-                ? 'Update form'
-                : 'Create form'
-              : 'Next step'}
+                ? t('update-form')
+                : t('create-form')
+              : t('next-step')}
           </Button>
         </Sheet.Footer>
       </form>
@@ -85,6 +87,7 @@ export const FormMutateLayout = ({
 };
 
 export const FormMutateLayoutPreviousStepButton = () => {
+  const { t } = useTranslation('frontline');
   const [step, setStep] = useAtom(formSetupStepAtom);
   return (
     <Button
@@ -93,7 +96,7 @@ export const FormMutateLayoutPreviousStepButton = () => {
       onClick={() => setStep(step - 1)}
       disabled={step === 1}
     >
-      Previous step
+      {t('previous-step')}
     </Button>
   );
 };

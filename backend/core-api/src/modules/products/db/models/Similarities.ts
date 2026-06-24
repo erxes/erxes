@@ -234,7 +234,10 @@ export const loadProductSimilarityClass = (
       const similarity = await models.ProductSimilarities.getSimilarity(_id);
 
       if (similarity.productIds?.length) {
-        await models.Products.removeProducts(similarity.productIds);
+        await models.Products.updateMany(
+          { _id: { $in: similarity.productIds } },
+          { $unset: { similarityId: 1 } },
+        );
       }
 
       await models.ProductSimilarities.updateOne(

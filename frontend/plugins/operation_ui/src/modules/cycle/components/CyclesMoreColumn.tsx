@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconEdit } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
@@ -9,6 +10,7 @@ export const CyclesMoreColumnCell = ({
 }: {
   cell: Cell<ICycle, unknown>;
 }) => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
   const { _id, teamId } = cell.row.original;
 
@@ -25,7 +27,7 @@ export const CyclesMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
           </Command.List>
         </Command>
