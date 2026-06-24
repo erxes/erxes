@@ -1,9 +1,18 @@
 import { IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 
-export const SimpleSearchFilterPopover = () => {
-  const [queries] = useMultiQueryState<{ searchValue: string }>([
+export const SimpleSearchFilterPopover = ({
+  extraQueryKeys = [],
+  extraItems,
+  extraViews,
+}: {
+  extraQueryKeys?: string[];
+  extraItems?: React.ReactNode;
+  extraViews?: React.ReactNode;
+} = {}) => {
+  const [queries] = useMultiQueryState<Record<string, unknown>>([
     'searchValue',
+    ...extraQueryKeys,
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -27,9 +36,11 @@ export const SimpleSearchFilterPopover = () => {
                   <IconSearch />
                   Search
                 </Filter.Item>
+                {extraItems}
               </Command.List>
             </Command>
           </Filter.View>
+          {extraViews}
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>

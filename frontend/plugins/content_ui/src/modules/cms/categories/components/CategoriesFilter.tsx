@@ -7,9 +7,9 @@ import {
   Popover,
   useFilterContext,
   useFilterQueryState,
-  useMultiQueryState,
 } from 'erxes-ui';
 import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
+import { SimpleSearchFilterPopover } from '~/modules/cms/shared/components/SimpleSearchFilterPopover';
 import { CategoriesTotalCount } from './CategoriesTotalCount';
 
 const CATEGORY_STATUS_OPTIONS = [
@@ -111,49 +111,6 @@ const CategoryStatusFilterBar = () => {
   );
 };
 
-const CategoriesFilterPopover = () => {
-  const [queries] = useMultiQueryState<{
-    searchValue: string;
-    status: CategoryStatusFilterValue;
-  }>(['searchValue', 'status']);
-
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
-  );
-
-  return (
-    <>
-      <Filter.Popover>
-        <Filter.Trigger isFiltered={hasFilters} />
-        <Combobox.Content>
-          <Filter.View>
-            <Command>
-              <Filter.CommandInput
-                placeholder="Filter"
-                variant="secondary"
-                className="bg-background"
-              />
-              <Command.List className="p-1">
-                <Filter.Item value="searchValue" inDialog>
-                  <IconSearch />
-                  Search
-                </Filter.Item>
-                <CategoryStatusFilterItem />
-              </Command.List>
-            </Command>
-          </Filter.View>
-          <CategoryStatusFilterView />
-        </Combobox.Content>
-      </Filter.Popover>
-      <Filter.Dialog>
-        <Filter.View filterKey="searchValue" inDialog>
-          <Filter.DialogStringView filterKey="searchValue" />
-        </Filter.View>
-      </Filter.Dialog>
-    </>
-  );
-};
-
 export const CategoriesFilter = () => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
 
@@ -170,7 +127,11 @@ export const CategoriesFilter = () => {
           </Filter.BarButton>
         </Filter.BarItem>
         <CategoryStatusFilterBar />
-        <CategoriesFilterPopover />
+        <SimpleSearchFilterPopover
+          extraQueryKeys={['status']}
+          extraItems={<CategoryStatusFilterItem />}
+          extraViews={<CategoryStatusFilterView />}
+        />
         <CategoriesTotalCount />
       </Filter.Bar>
     </Filter>
