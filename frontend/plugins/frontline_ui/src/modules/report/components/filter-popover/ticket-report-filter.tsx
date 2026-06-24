@@ -64,7 +64,12 @@ const PRIORITY_OPTIONS = PROJECT_PRIORITIES_OPTIONS.map((label, index) => ({
   label,
 }));
 
-const PROPERTY_FILTER_FIELD_TYPES = ['select', 'multiSelect', 'radio', 'date'];
+const PROPERTY_FILTER_FIELD_TYPES = new Set([
+  'select',
+  'multiSelect',
+  'radio',
+  'date',
+]);
 
 interface TicketReportFilterProps {
   cardId: string;
@@ -109,7 +114,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
     contentType: 'frontline:ticket',
   });
   const filterablePropertyFields = fields.filter((field) =>
-    PROPERTY_FILTER_FIELD_TYPES.includes(field.type),
+    PROPERTY_FILTER_FIELD_TYPES.has(field.type),
   );
 
   const hasFilters = Boolean(
