@@ -23,6 +23,7 @@ import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const SelectChannelProvider = ({
   children,
@@ -94,6 +95,7 @@ export const SelectChannelsContent = ({
 }: {
   myChannelsOnly?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { onSelect, channels } = useSelectChannelContext();
@@ -116,7 +118,7 @@ export const SelectChannelsContent = ({
       <Command.Input
         variant="secondary"
         focusOnMount
-        placeholder="Search channels"
+        placeholder={t('search-channels')}
         value={search}
         onValueChange={setSearch}
       />
@@ -197,10 +199,11 @@ export const SelectChannelsFormItem = ({
 };
 
 export const SelectChannelFilterItem = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Filter.Item value="channelId">
       <IconTopologyStar3 />
-      By Channel
+      {t('by-channel')}
     </Filter.Item>
   );
 };
@@ -235,6 +238,7 @@ export const SelectChannelFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('frontline');
   const [channelId, setChannelId] = useQueryState<string | string[]>(
     queryKey || 'channelId',
   );
@@ -248,7 +252,7 @@ export const SelectChannelFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'channelId'}>
       <Filter.BarName>
         <IconTopologyStar3 />
-        {!iconOnly && 'Select Channel'}
+        {!iconOnly && t('select-channel')}
       </Filter.BarName>
       <SelectChannelProvider
         value={channelId || (mode === 'single' ? '' : [])}

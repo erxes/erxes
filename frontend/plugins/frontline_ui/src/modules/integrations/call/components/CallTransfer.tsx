@@ -4,8 +4,10 @@ import { inCallViewAtom } from '@/integrations/call/states/callStates';
 import { IconPhoneOutgoing } from '@tabler/icons-react';
 import { Button, Label, Select, Toggle } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const TransferTrigger = () => {
+  const { t } = useTranslation('frontline');
   const [inCallView, setInCallView] = useAtom(inCallViewAtom);
   return (
     <InCallActionButton
@@ -19,12 +21,13 @@ export const TransferTrigger = () => {
         }
       >
         <IconPhoneOutgoing />
-        Transfer
+        {t('transfer')}
       </Toggle>
     </InCallActionButton>
   );
 };
 export const Transfer = () => {
+  const { t } = useTranslation('frontline');
   const inCallView = useAtomValue(inCallViewAtom);
   const { callExtensionList, loading } = useExtentionList({
     skip: inCallView !== 'transfer',
@@ -37,10 +40,10 @@ export const Transfer = () => {
   return (
     <div className="space-y-3 px-3 pb-3">
       <div className="space-y-2">
-        <Label>Transfer to</Label>
+        <Label>{t('transfer-to')}</Label>
         <Select disabled={loading}>
           <Select.Trigger>
-            <Select.Value placeholder="Select an extension" />
+            <Select.Value placeholder={t('select-an-extension')} />
           </Select.Trigger>
           <Select.Content>
             {callExtensionList?.map((extension) => (
@@ -53,9 +56,9 @@ export const Transfer = () => {
         </Select>
       </div>
       <div className="flex flex-col gap-1">
-        <Button variant="secondary">Transfer</Button>
+        <Button variant="secondary">{t('transfer')}</Button>
         <Button variant="ghost" className="text-accent-foreground">
-          Cancel
+          {t('cancel')}
         </Button>
       </div>
     </div>

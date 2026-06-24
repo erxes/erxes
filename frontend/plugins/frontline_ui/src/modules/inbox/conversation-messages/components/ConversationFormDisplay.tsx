@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { IMessage } from '../../types/Conversation';
 import { IFormWidgetItem } from '../../types/FormWidget';
+import { useTranslation } from 'react-i18next';
 import {
   Avatar,
   Input,
@@ -91,6 +92,7 @@ export const ConversationFormDisplay = ({
   formWidgetData,
   createdAt,
 }: IMessage) => {
+  const { t } = useTranslation('frontline');
   const items = normalizeFormWidgetData(
     formWidgetData as IFormWidgetItem[] | Record<string, string> | null,
   );
@@ -145,7 +147,7 @@ export const ConversationFormDisplay = ({
                               type="button"
                               className="items-center gap-1 cursor-pointer text-sm w-full justify-center hidden"
                             >
-                              View attachments
+                              {t('view-attachments')}
                             </Upload.Button>
                           </Upload.Root>
                         );

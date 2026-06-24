@@ -2,6 +2,7 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { ticketDetailSheetState } from '../states/ticketDetailSheetState';
 import { ITicket } from '../types';
 
@@ -12,6 +13,7 @@ export const TicketsMoreColumnCell = ({
 }: {
   cell: Cell<ITicket, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
   const [, setActiveTicket] = useAtom(ticketDetailSheetState);
   const { _id } = cell.row.original;
   const { confirm } = useConfirm();
@@ -24,26 +26,26 @@ export const TicketsMoreColumnCell = ({
   const handleDelete = () => {
     if (!_id) {
       toast({
-        title: 'Error',
-        description: 'Ticket ID is missing',
+        title: t('error'),
+        description: t('ticket-id-missing'),
         variant: 'destructive',
       });
       return;
     }
 
     confirm({
-      message: 'Are you sure you want to delete this ticket?',
+      message: t('confirm-delete-ticket'),
     }).then(async () => {
       try {
         await removeTicket([_id]);
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: 'Ticket deleted successfully',
+          description: t('ticket-deleted-successfully'),
         });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -59,10 +61,10 @@ export const TicketsMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

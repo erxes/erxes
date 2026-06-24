@@ -14,6 +14,7 @@ import {
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TICKETS_PER_PAGE = 30;
 
@@ -74,6 +75,7 @@ export const useTicketsVariables = (
 export const useTickets = (
   options?: QueryHookOptions<ICursorListResponse<ITicket>>,
 ) => {
+  const { t } = useTranslation('frontline');
   const variables = useTicketsVariables(options?.variables);
   const { toast } = useToast();
   const { data, loading, fetchMore, subscribeToMore } = useQuery<
@@ -85,7 +87,7 @@ export const useTickets = (
     fetchPolicy: 'cache-and-network',
     onError: (e) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });

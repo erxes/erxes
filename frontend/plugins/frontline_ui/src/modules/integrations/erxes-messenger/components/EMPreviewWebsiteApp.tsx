@@ -1,4 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
   emPreviewTabAtom,
   emPreviewWebsiteAppHeaderTitle,
@@ -7,12 +8,13 @@ import {
 import { IconArrowLeft } from '@tabler/icons-react';
 
 export const EMPreviewWebsiteApp = () => {
+  const { t } = useTranslation('frontline');
   const url = useAtomValue(emPreviewWebsiteAppUrl);
   const title = useAtomValue(emPreviewWebsiteAppHeaderTitle);
   const setActiveTab = useSetAtom(emPreviewTabAtom);
 
   if (!url) {
-    return <div>Loading communication portal...</div>;
+    return <div>{t('loading-communication-portal')}</div>;
   }
 
   return (
@@ -26,7 +28,7 @@ export const EMPreviewWebsiteApp = () => {
             <IconArrowLeft size={24} />
           </button>
           <h1 className="text-primary-foreground text-2xl">
-            {title || 'Schedule a call'}
+            {title || t('schedule-a-call')}
           </h1>
         </div>
         <div className="relative flex-1 h-full overflow-y-auto hide-scroll p-0">

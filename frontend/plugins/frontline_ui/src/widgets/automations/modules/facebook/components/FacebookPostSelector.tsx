@@ -15,6 +15,7 @@ import {
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const FacebookPostSelector = ({
   botId,
@@ -25,6 +26,7 @@ export const FacebookPostSelector = ({
   selectedPostId?: string;
   onSelect: (id: string) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const [isOpen, setOpen] = useState(false);
 
   return (
@@ -34,10 +36,10 @@ export const FacebookPostSelector = ({
           <FacebookSelectedPost botId={botId} selectedPostId={selectedPostId} />
           <Button className="w-full mt-2">
             {isOpen
-              ? 'Hide posts'
+              ? t('hide-posts')
               : selectedPostId
-              ? 'Change selected post'
-              : 'Select post'}
+              ? t('change-selected-post')
+              : t('select-post')}
           </Button>
         </div>
       </Collapsible.Trigger>
@@ -61,6 +63,7 @@ const FacebookSelectedPost = ({
   botId: string;
   selectedPostId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const { data, loading } = useQuery<{
     facebookGetBotPost: {
       id: string;
@@ -97,7 +100,7 @@ const FacebookSelectedPost = ({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-accent-foreground bg-muted">
             <IconImageInPicture size={24} />
-            <span className="text-xs">No Image</span>
+            <span className="text-xs">{t('no-image')}</span>
           </div>
         )}
       </div>
@@ -108,7 +111,7 @@ const FacebookSelectedPost = ({
         </h5>
 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Created at</span>
+          <span>{t('created-at')}</span>
           <span>
             {facebookGetBotPost?.created_time
               ? format(facebookGetBotPost.created_time, 'MMM dd, yyyy HH:mm')
@@ -122,7 +125,7 @@ const FacebookSelectedPost = ({
           rel="noopener noreferrer"
           className="text-xs text-blue-600 hover:text-blue-800"
         >
-          See post in Facebook
+          {t('see-post-in-facebook')}
         </a>
       </div>
     </Card>
@@ -184,6 +187,7 @@ const FacebookPost = ({
     permalink_url: string;
   };
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <Card
       className={cn('overflow-hidden', {
@@ -200,7 +204,7 @@ const FacebookPost = ({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-accent-foreground">
             <IconImageInPicture size={36} />
-            <span>{'No Image'}</span>
+            <span>{t('no-image')}</span>
           </div>
         )}
       </div>
@@ -208,7 +212,7 @@ const FacebookPost = ({
       <div className="p-2">
         <h5 className="truncate text-sm font-medium">{post.message}</h5>
         <div className="flex flex-row justify-between items-center">
-          <p className="text-xs text-muted-foreground mb-2">Created at</p>
+          <p className="text-xs text-muted-foreground mb-2">{t('created-at')}</p>
           <p className="text-xs text-accent-foreground mb-3">
             {format(post?.created_time, 'MMM dd, yyyy HH:mm')}
           </p>
@@ -218,7 +222,7 @@ const FacebookPost = ({
           target="_blank"
           className="text-xs text-info hover:text-info/70"
         >
-          See post in Facebook
+          {t('see-post-in-facebook')}
         </a>
       </div>
     </Card>

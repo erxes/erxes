@@ -13,6 +13,7 @@ import {
 } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 function LoadingSkeleton() {
@@ -78,6 +79,7 @@ export function TicketNavigations() {
 }
 
 const Pipelines = () => {
+  const { t } = useTranslation('frontline');
   const [channelId] = useQueryState<string | null>('channelId');
   const [pipelineId, setPipelineId] = useQueryState<string | null>(
     'pipelineId',
@@ -116,7 +118,7 @@ const Pipelines = () => {
           {!loading && !pipelines?.length && (
             <Sidebar.MenuItem>
               <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">No pipelines</span>
+                <span className="capitalize text-foreground">{t('no-pipelines')}</span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}

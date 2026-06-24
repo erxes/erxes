@@ -3,6 +3,7 @@ import { ApolloError } from '@apollo/client';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { useChannelMembersRemove } from '@/channels/hooks/useChannelMembersRemove';
+import { useTranslation } from 'react-i18next';
 
 export const MemberRemoveButtonCommandBar = ({
   memberIds,
@@ -13,13 +14,14 @@ export const MemberRemoveButtonCommandBar = ({
   channelId: string;
   rows: Row<unknown>[];
 }) => {
+  const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const { removeMembers } = useChannelMembersRemove();
   const { toast } = useToast();
 
   const handleError = (e: ApolloError) => {
     toast({
-      title: 'Error',
+      title: t('error'),
       description: e.message,
       variant: 'destructive',
     });
@@ -28,9 +30,9 @@ export const MemberRemoveButtonCommandBar = ({
   const handleCompleted = () => {
     rows.forEach((row) => row.toggleSelected(false));
     toast({
-      title: 'Success',
+      title: t('success'),
       variant: 'success',
-      description: 'Channel members deleted successfully',
+      description: t('channel-members-deleted'),
     });
   };
 
@@ -43,7 +45,7 @@ export const MemberRemoveButtonCommandBar = ({
 
   const handleClick = () => {
     confirm({
-      message: `Are you sure you want to delete the ${memberIds.length} selected members?`,
+      message: t('confirm-delete-selected-members', { count: memberIds.length }),
     }).then(handleConfirmed);
   };
 
@@ -54,7 +56,7 @@ export const MemberRemoveButtonCommandBar = ({
       onClick={handleClick}
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

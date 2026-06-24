@@ -18,9 +18,11 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 export const CallConfigUpdateCollapse = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Collapsible className="w-full bg-muted rounded-lg">
       <Collapsible.Trigger asChild>
@@ -36,7 +38,7 @@ export const CallConfigUpdateCollapse = () => {
             )}
             name={INTEGRATIONS[IntegrationType.CALL].name}
           />
-          Call
+          {t('call')}
         </Button>
       </Collapsible.Trigger>
       <Collapsible.Content className="shadow-xs rounded-lg p-3 bg-background">
@@ -47,6 +49,7 @@ export const CallConfigUpdateCollapse = () => {
 };
 
 export const CallConfigUpdate = () => {
+  const { t } = useTranslation('frontline');
   const form = useForm<z.infer<typeof CALL_CONFIG_SCHEMA>>({
     resolver: zodResolver(CALL_CONFIG_SCHEMA),
     defaultValues: {
@@ -75,7 +78,7 @@ export const CallConfigUpdate = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Call configs updated successfully',
+          title: t('call-configs-updated'),
           variant: 'success',
         });
       },
@@ -103,7 +106,7 @@ export const CallConfigUpdate = () => {
           name="STUN_SERVER_URL"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>STUN Server URL</Form.Label>
+              <Form.Label>{t('stun-server-url')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -115,7 +118,7 @@ export const CallConfigUpdate = () => {
           name="TURN_SERVER_URL"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>TURN Server URL</Form.Label>
+              <Form.Label>{t('turn-server-url')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -127,7 +130,7 @@ export const CallConfigUpdate = () => {
           name="TURN_SERVER_USERNAME"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>TURN Server Username</Form.Label>
+              <Form.Label>{t('turn-server-username')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -139,7 +142,7 @@ export const CallConfigUpdate = () => {
           name="TURN_SERVER_CREDENTIAL"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>TURN Server Credential</Form.Label>
+              <Form.Label>{t('turn-server-credential')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -149,7 +152,7 @@ export const CallConfigUpdate = () => {
         />
         <Dialog.Footer className="col-span-2 items-center">
           <Button type="submit" disabled={loadingUpdate}>
-            {loadingUpdate ? <Spinner /> : 'Save'}
+            {loadingUpdate ? <Spinner /> : t('save')}
           </Button>
         </Dialog.Footer>
       </form>
