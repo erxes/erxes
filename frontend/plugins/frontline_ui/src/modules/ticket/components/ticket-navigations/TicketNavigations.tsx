@@ -5,10 +5,8 @@ import {
   Collapsible,
   IconComponent,
   NavigationMenuGroup,
-  NavigationMenuLinkItem,
   Sidebar,
   Skeleton,
-  TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
@@ -58,7 +56,17 @@ export function TicketNavigations() {
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
 
   useEffect(() => {
-    !channelId && channels?.[0]?._id && setChannelId(channels[0]._id);
+    if (!channels?.length || !channels[0]?._id) {
+      return;
+    }
+
+    const hasSelectedChannel = channels.some(
+      (channel) => channel._id === channelId,
+    );
+
+    if (!channelId || !hasSelectedChannel) {
+      setChannelId(channels[0]._id);
+    }
   }, [channels, setChannelId, channelId]);
   return (
     <>
@@ -90,11 +98,18 @@ const Pipelines = () => {
     },
   });
   useEffect(() => {
-    if (channelId && pipelines) {
-      setPipelineId(pipelines?.[0] ? pipelines?.[0]?._id : null);
+    if (!channelId || !pipelines) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId, pipelines]);
+
+    const hasSelectedPipeline = pipelines.some(
+      (pipeline) => pipeline._id === pipelineId,
+    );
+
+    if (!pipelineId || !hasSelectedPipeline) {
+      setPipelineId(pipelines[0]?._id || null);
+    }
+  }, [channelId, pipelines, pipelineId, setPipelineId]);
   return (
     <Collapsible.Content className="pt-1">
       <Sidebar.GroupContent>
@@ -110,7 +125,9 @@ const Pipelines = () => {
                     setPipelineId(pipeline._id);
                   }}
                 >
-                  <span className="capitalize min-w-0 truncate">{pipeline.name}</span>
+                  <span className="capitalize min-w-0 truncate">
+                    {pipeline.name}
+                  </span>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))
