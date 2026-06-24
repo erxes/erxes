@@ -1,12 +1,13 @@
 import { IconPlus } from '@tabler/icons-react';
-
 import { Button, useScopedHotkeys } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { useCustomTypes } from '../../custom-types/hooks/useCustomTypes';
 import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
 
 export const PostsAdd = ({ clientPortalId }: { clientPortalId: string }) => {
+  const { t } = useTranslation('content');
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -44,7 +45,7 @@ export const PostsAdd = ({ clientPortalId }: { clientPortalId: string }) => {
   return (
     <Button onClick={onOpen}>
       <IconPlus />
-      Add {typeLabel}
+      {t('add-type', { type: typeLabel })}
     </Button>
   );
 };

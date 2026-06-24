@@ -1,6 +1,7 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useMemo, type ClipboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SpreadsheetInputProps {
   value: string;
@@ -53,6 +54,7 @@ export const SpreadsheetInput = ({
   onChange,
   placeholder,
 }: SpreadsheetInputProps) => {
+  const { t } = useTranslation('content');
   const grid = useMemo(() => normalizeGrid(parseTsv(value)), [value]);
   const numCols = grid[0]?.length ?? 1;
 
@@ -104,7 +106,7 @@ export const SpreadsheetInput = ({
                     type="button"
                     onClick={() => removeCol(c)}
                     className="text-muted-foreground hover:text-destructive inline-flex"
-                    title="Remove column"
+                    title={t('remove-column')}
                   >
                     <IconTrash size={12} />
                   </button>
@@ -120,7 +122,7 @@ export const SpreadsheetInput = ({
                     type="button"
                     onClick={() => removeRow(r)}
                     className="text-muted-foreground hover:text-destructive inline-flex"
-                    title="Remove row"
+                    title={t('remove-row')}
                   >
                     <IconTrash size={12} />
                   </button>
@@ -144,13 +146,13 @@ export const SpreadsheetInput = ({
       </div>
       <div className="flex gap-2 p-2 border-t bg-muted items-center">
         <Button type="button" size="sm" variant="outline" onClick={addRow}>
-          <IconPlus size={14} /> Add row
+          <IconPlus size={14} /> {t('add-row')}
         </Button>
         <Button type="button" size="sm" variant="outline" onClick={addCol}>
-          <IconPlus size={14} /> Add column
+          <IconPlus size={14} /> {t('add-column')}
         </Button>
         <p className="text-xs text-muted-foreground ml-auto">
-          Paste Excel data into any cell
+          {t('paste-excel-data')}
         </p>
       </div>
     </div>
