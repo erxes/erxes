@@ -1,9 +1,19 @@
-import { cn, Combobox, Command, Filter, useFilterContext } from 'erxes-ui';
+import {
+  cn,
+  Combobox,
+  Command,
+  DatePicker,
+  Filter,
+  useFilterContext,
+} from 'erxes-ui';
 import { IconCalendar, IconCheck } from '@tabler/icons-react';
+import { format } from 'date-fns';
 import { useAtom } from 'jotai';
+import { type DateRange } from 'react-day-picker';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/inbox/types/Channel';
+import { type TicketPropertyFilter } from '@/report/types';
 import {
   getReportChannelFilterAtom,
   getReportDateFilterAtom,
@@ -24,6 +34,7 @@ import {
   SelectCompany,
   useFields,
 } from 'ui-modules';
+import { type IField } from 'ui-modules/modules/properties';
 import {
   getReportDisplayValue,
   REPORT_FIXED_DATES,
@@ -51,6 +62,8 @@ const PRIORITY_OPTIONS = PROJECT_PRIORITIES_OPTIONS.map((label, index) => ({
   value: index,
   label,
 }));
+
+const PROPERTY_FILTER_FIELD_TYPES = ['select', 'multiSelect', 'radio', 'date'];
 
 interface TicketReportFilterProps {
   cardId: string;
@@ -90,18 +103,24 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
   );
 
   const { channels } = useGetChannels();
+  const { fields, loading: fieldsLoading } = useFields({
+    contentType: 'frontline:ticket',
+  });
+  const filterablePropertyFields = fields.filter((field) =>
+    PROPERTY_FILTER_FIELD_TYPES.includes(field.type),
+  );
 
   const hasFilters = Boolean(
     (channelFilter && channelFilter.length > 0) ||
-    (memberFilter && memberFilter.length > 0) ||
-    (dateValue && dateValue.length > 0) ||
-    (pipelineFilter && pipelineFilter.length > 0) ||
-    (ticketTagFilter && ticketTagFilter.length > 0) ||
-    stateFilter ||
-    (priorityFilter && priorityFilter.length > 0) ||
-    (customerFilter && customerFilter.length > 0) ||
-    (companyFilter && companyFilter.length > 0) ||
-    (propertyFilter && propertyFilter.length > 0),
+      (memberFilter && memberFilter.length > 0) ||
+      (dateValue && dateValue.length > 0) ||
+      (pipelineFilter && pipelineFilter.length > 0) ||
+      (ticketTagFilter && ticketTagFilter.length > 0) ||
+      stateFilter ||
+      (priorityFilter && priorityFilter.length > 0) ||
+      (customerFilter && customerFilter.length > 0) ||
+      (companyFilter && companyFilter.length > 0) ||
+      (propertyFilter && propertyFilter.length > 0),
   );
 
   const handleClear = () => {
@@ -238,9 +257,23 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
               <PropertyFilterView
                 value={propertyFilter}
                 onValueChange={setPropertyFilter}
+                fields={filterablePropertyFields}
+                loading={fieldsLoading}
               />
             </Command>
           </Filter.View>
+
+          {filterablePropertyFields.map((field) => (
+            <Filter.View key={field._id} filterKey={`property:${field._id}`}>
+              <Command shouldFilter={false}>
+                <PropertyValueFilterView
+                  field={field}
+                  value={propertyFilter}
+                  onValueChange={setPropertyFilter}
+                />
+              </Command>
+            </Filter.View>
+          ))}
 
           <Filter.View filterKey="frequency">
             <Command shouldFilter={false}>
@@ -368,7 +401,7 @@ const PipelineFilterView = ({
         <Command.Empty>Loading...</Command.Empty>
       ) : (
         <>
-          <Command.Item value="all" onSelect={() => handleSelect('all')}>
+          <Command.Item value="all" onSelect={() => onValueChange([])}>
             <div className="flex items-center gap-2">
               {value.length === 0 && <IconCheck className="size-4" />}
               <span>All Pipelines</span>
@@ -466,21 +499,14 @@ const PriorityFilterView = ({
 const PropertyFilterView = ({
   value,
   onValueChange,
+  fields,
+  loading,
 }: {
-  value: string[];
-  onValueChange: (value: string[]) => void;
+  value: TicketPropertyFilter[];
+  onValueChange: (value: TicketPropertyFilter[]) => void;
+  fields: IField[];
+  loading: boolean;
 }) => {
-  const { fields, loading } = useFields({ contentType: 'frontline:ticket' });
-
-  const handleSelect = (id: string) => {
-    if (id === 'all') {
-      onValueChange([]);
-      return;
-    }
-    const isSelected = value.includes(id);
-    onValueChange(isSelected ? value.filter((v) => v !== id) : [...value, id]);
-  };
-
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       <BackButton />
@@ -488,7 +514,7 @@ const PropertyFilterView = ({
         <Command.Empty>Loading...</Command.Empty>
       ) : (
         <>
-          <Command.Item value="all" onSelect={() => handleSelect('all')}>
+          <Command.Item value="all" onSelect={() => onValueChange([])}>
             <div className="flex items-center gap-2">
               {(!value || value.length === 0) && (
                 <IconCheck className="size-4" />
@@ -497,22 +523,259 @@ const PropertyFilterView = ({
             </div>
           </Command.Item>
           {fields.length === 0 && (
-            <Command.Empty>No custom properties found.</Command.Empty>
+            <Command.Empty>
+              No filterable custom properties found.
+            </Command.Empty>
           )}
           {fields.map((field) => (
-            <Command.Item
-              key={field._id}
-              value={field._id}
-              onSelect={() => handleSelect(field._id)}
-            >
-              <div className="flex items-center gap-2">
-                {value.includes(field._id) && <IconCheck className="size-4" />}
-                <span>{field.name}</span>
+            <Filter.Item key={field._id} value={`property:${field._id}`}>
+              <div className="flex w-full items-center justify-between gap-3">
+                <span className="truncate">{field.name}</span>
+                <span className="text-muted-foreground shrink-0 text-xs">
+                  {getPropertyFilterLabel(value, field)}
+                </span>
               </div>
-            </Command.Item>
+            </Filter.Item>
           ))}
         </>
       )}
+    </Command.List>
+  );
+};
+
+const getPropertyFilterLabel = (
+  filters: TicketPropertyFilter[],
+  field: IField,
+) => {
+  const filter = filters.find((item) => item.propertyId === field._id);
+
+  if (!filter) {
+    return '';
+  }
+
+  if (field.type === 'date') {
+    if (filter.values.length > 1) {
+      return `${filter.values[0]} - ${filter.values[1]}`;
+    }
+
+    return filter.values[0] || 'Selected';
+  }
+
+  return `${filter.values.length} selected`;
+};
+
+const getPropertyFilterValues = (
+  filters: TicketPropertyFilter[],
+  fieldId: string,
+) => filters.find((item) => item.propertyId === fieldId)?.values || [];
+
+const setPropertyFilterValues = ({
+  filters,
+  field,
+  values,
+}: {
+  filters: TicketPropertyFilter[];
+  field: IField;
+  values: string[];
+}) => {
+  const otherFilters = filters.filter((item) => item.propertyId !== field._id);
+
+  return [
+    ...otherFilters,
+    {
+      propertyId: field._id,
+      type: field.type,
+      values,
+    },
+  ];
+};
+
+const clearPropertyFilter = (
+  filters: TicketPropertyFilter[],
+  fieldId: string,
+) => filters.filter((item) => item.propertyId !== fieldId);
+
+const PropertyValueFilterView = ({
+  field,
+  value,
+  onValueChange,
+}: {
+  field: IField;
+  value: TicketPropertyFilter[];
+  onValueChange: (value: TicketPropertyFilter[]) => void;
+}) => {
+  if (field.type === 'date') {
+    return (
+      <PropertyDateFilter
+        field={field}
+        value={value}
+        onValueChange={onValueChange}
+      />
+    );
+  }
+
+  const selectedValues = getPropertyFilterValues(value, field._id);
+  const options = field.options || [];
+
+  const handleValueSelect = (optionValue: string) => {
+    const isSelected = selectedValues.includes(optionValue);
+    const supportsMultipleValues =
+      field.type === 'select' || field.type === 'multiSelect';
+    const nextValues = supportsMultipleValues
+      ? isSelected
+        ? selectedValues.filter((item) => item !== optionValue)
+        : [...selectedValues, optionValue]
+      : isSelected
+      ? []
+      : [optionValue];
+
+    onValueChange(
+      nextValues.length
+        ? setPropertyFilterValues({ filters: value, field, values: nextValues })
+        : clearPropertyFilter(value, field._id),
+    );
+  };
+
+  return (
+    <Command.List className="max-h-[500px] overflow-y-auto">
+      <BackButton view="properties" />
+      {options.length === 0 && <Command.Empty>No options found.</Command.Empty>}
+      {options.map((option) => (
+        <Command.Item
+          key={option.value}
+          value={option.value}
+          onSelect={() => handleValueSelect(option.value)}
+        >
+          <div className="flex items-center gap-2">
+            {selectedValues.includes(option.value) && (
+              <IconCheck className="size-4" />
+            )}
+            <span>{option.label || option.value}</span>
+          </div>
+        </Command.Item>
+      ))}
+      <Command.Separator />
+      <Command.Item
+        value={`${field._id}:clear`}
+        onSelect={() => onValueChange(clearPropertyFilter(value, field._id))}
+        className="text-destructive"
+      >
+        Clear property
+      </Command.Item>
+    </Command.List>
+  );
+};
+
+const getLocalDateFromFilterValue = (value: string) => {
+  const [year, month, day] = value.split('-').map(Number);
+
+  if (!year || !month || !day) {
+    return undefined;
+  }
+
+  return new Date(year, month - 1, day);
+};
+
+const getLocalDateRangeFromFilterValues = (
+  values: string[],
+): DateRange | undefined => {
+  if (values.length < 2) {
+    return undefined;
+  }
+
+  const from = getLocalDateFromFilterValue(values[0]);
+  const to = getLocalDateFromFilterValue(values[1]);
+
+  if (!from || !to) {
+    return undefined;
+  }
+
+  return { from, to };
+};
+
+const PropertyDateFilter = ({
+  field,
+  value,
+  onValueChange,
+}: {
+  field: IField;
+  value: TicketPropertyFilter[];
+  onValueChange: (value: TicketPropertyFilter[]) => void;
+}) => {
+  const selectedValues = getPropertyFilterValues(value, field._id);
+  const selectedValue = selectedValues[0];
+  const selectedDate =
+    selectedValue && selectedValues.length === 1
+      ? getLocalDateFromFilterValue(selectedValue)
+      : undefined;
+  const selectedRange = getLocalDateRangeFromFilterValues(selectedValues);
+
+  return (
+    <Command.List className="max-h-[500px] overflow-y-auto">
+      <BackButton view="properties" />
+      <div className="space-y-3 px-2 py-2">
+        <div className="space-y-1.5">
+          <div className="text-muted-foreground px-1 text-xs font-medium">
+            Exact date
+          </div>
+          <DatePicker
+            value={selectedDate}
+            onChange={(date) => {
+              if (date instanceof Date) {
+                onValueChange(
+                  setPropertyFilterValues({
+                    filters: value,
+                    field,
+                    values: [format(date, 'yyyy-MM-dd')],
+                  }),
+                );
+              }
+            }}
+            mode="single"
+            format="MMM D, YYYY"
+            placeholder="Select exact date"
+            className="w-full"
+            defaultMonth={selectedDate || new Date()}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <div className="text-muted-foreground px-1 text-xs font-medium">
+            Date range
+          </div>
+          <DatePicker
+            value={selectedRange}
+            onChange={(date) => {
+              const range = date as DateRange | undefined;
+
+              if (range?.from && range?.to) {
+                onValueChange(
+                  setPropertyFilterValues({
+                    filters: value,
+                    field,
+                    values: [
+                      format(range.from, 'yyyy-MM-dd'),
+                      format(range.to, 'yyyy-MM-dd'),
+                    ],
+                  }),
+                );
+              }
+            }}
+            mode="range"
+            format="MMM D, YYYY"
+            placeholder="Select date range"
+            className="w-full"
+            defaultMonth={selectedRange?.from || selectedDate || new Date()}
+          />
+        </div>
+      </div>
+      <Command.Separator />
+      <Command.Item
+        value={`${field._id}:clear`}
+        onSelect={() => onValueChange(clearPropertyFilter(value, field._id))}
+        className="text-destructive"
+      >
+        Clear property
+      </Command.Item>
     </Command.List>
   );
 };

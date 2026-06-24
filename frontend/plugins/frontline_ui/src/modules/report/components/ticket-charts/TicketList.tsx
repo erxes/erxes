@@ -36,6 +36,7 @@ import { ColumnDef, Cell } from '@tanstack/react-table';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import { useTicketExport } from '@/report/hooks/useTicketExport';
 import { generateTicketExcel, downloadExcel } from '@/report/utils/exportCsv';
+import { getTicketPropertyFilterVariables } from '@/report/utils';
 
 const PER_PAGE = 10;
 
@@ -98,7 +99,7 @@ export const TicketList = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
-        propertyIds: propertyFilter.length ? propertyFilter : undefined,
+        ...getTicketPropertyFilterVariables(propertyFilter),
       },
     },
   });
@@ -120,7 +121,7 @@ export const TicketList = ({
           tagIds: tagFilter.length ? tagFilter : undefined,
           customerIds: customerFilter.length ? customerFilter : undefined,
           companyIds: companyFilter.length ? companyFilter : undefined,
-          propertyIds: propertyFilter.length ? propertyFilter : undefined,
+          ...getTicketPropertyFilterVariables(propertyFilter),
         },
       },
     });

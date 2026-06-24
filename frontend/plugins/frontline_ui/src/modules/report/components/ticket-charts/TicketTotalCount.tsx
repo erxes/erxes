@@ -4,6 +4,7 @@ import { useTicketTotalCount } from '@/report/hooks/useTicketTotalCount';
 import { useAtom } from 'jotai';
 import { useState, useEffect } from 'react';
 import { getFilters } from '@/report/utils/dateFilters';
+import { getTicketPropertyFilterVariables } from '@/report/utils';
 import {
   getReportDateFilterAtom,
   getReportChannelFilterAtom,
@@ -58,7 +59,7 @@ export const TicketTotalCount = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
-        propertyIds: propertyFilter.length ? propertyFilter : undefined,
+        ...getTicketPropertyFilterVariables(propertyFilter),
       },
     },
   });
