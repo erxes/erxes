@@ -18,8 +18,8 @@ import { ProductGroupTotalCount } from '@/ebarimt/settings/product-group/compone
 const PRODUCT_GROUP_FILTER_ID = 'product-group-filter';
 
 const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
+  { value: 'active', label: 'active' },
+  { value: 'inactive', label: 'inactive' },
 ];
 
 const useResetProductGroupCursor = () => {
@@ -35,7 +35,9 @@ const StatusFilterContent = ({
 }: {
   value?: string | null;
   onSelect: (value: string) => void;
-}) => (
+}) => {
+  const { t } = useTranslation('mongolian');
+  return (
   <Command>
     <Command.List>
       {STATUS_OPTIONS.map((option) => (
@@ -44,13 +46,14 @@ const StatusFilterContent = ({
           value={option.value}
           onSelect={() => onSelect(option.value)}
         >
-          <span className="font-medium">{option.label}</span>
+          <span className="font-medium">{t(option.label)}</span>
           <Combobox.Check checked={value === option.value} />
         </Command.Item>
       ))}
     </Command.List>
   </Command>
-);
+  );
+};
 
 const StatusFilterView = () => {
   const { sessionKey, resetFilterState } = useFilterContext();
@@ -96,7 +99,7 @@ const StatusFilterBar = () => {
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <Filter.BarButton filterKey="status">{label}</Filter.BarButton>
+          <Filter.BarButton filterKey="status">{t(label)}</Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
           <StatusFilterContent
