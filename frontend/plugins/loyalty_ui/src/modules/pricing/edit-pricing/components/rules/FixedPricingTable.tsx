@@ -98,10 +98,6 @@ export const FixedPricingTable = ({
     setCurrentPage(newPage);
   };
 
-  if (loading && !pageItems.length) return <div>Loading products...</div>;
-  if (!loading && !pageItems.length)
-    return <div>No products selected on this plan.</div>;
-
   const renderStatusBadge = (status: 'NEW' | 'SAVED' | 'STALE') => {
     let styles = {};
     if (status === 'NEW') {
@@ -242,30 +238,58 @@ export const FixedPricingTable = ({
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {filteredIndices.map((index) => {
-              const field = fields[index];
-              const item = pageItems[index];
-              const product: IProductRow = {
-                _id: item.productId,
-                name: item.productName,
-                uom: item.uom,
-                unitPrice: item.unitPrice,
-                code: item.sortField,
-              };
-              return (
-                <FixedPricingRow
-                  key={field.id}
-                  rowId={field.id}
-                  index={index}
-                  control={control}
-                  product={product}
-                  status={item.status}
-                  onSave={onSave}
-                  renderDiffPrice={renderDiffPrice}
-                  renderStatusBadge={renderStatusBadge}
-                />
-              );
-            })}
+            {loading && !pageItems.length ? (
+              <Table.Row>
+                <Table.Cell
+                  colSpan={7}
+                  style={{
+                    textAlign: 'center',
+                    padding: '24px',
+                    color: '#6b7280',
+                  }}
+                >
+                  Loading...
+                </Table.Cell>
+              </Table.Row>
+            ) : !loading && !pageItems.length ? (
+              <Table.Row>
+                <Table.Cell
+                  colSpan={7}
+                  style={{
+                    textAlign: 'center',
+                    padding: '24px',
+                    color: '#6b7280',
+                  }}
+                >
+                  No products found.
+                </Table.Cell>
+              </Table.Row>
+            ) : (
+              filteredIndices.map((index) => {
+                const field = fields[index];
+                const item = pageItems[index];
+                const product: IProductRow = {
+                  _id: item.productId,
+                  name: item.productName,
+                  uom: item.uom,
+                  unitPrice: item.unitPrice,
+                  code: item.sortField,
+                };
+                return (
+                  <FixedPricingRow
+                    key={field.id}
+                    rowId={field.id}
+                    index={index}
+                    control={control}
+                    product={product}
+                    status={item.status}
+                    onSave={onSave}
+                    renderDiffPrice={renderDiffPrice}
+                    renderStatusBadge={renderStatusBadge}
+                  />
+                );
+              })
+            )}
           </Table.Body>
         </Table>
       </RecordTableHotkeyProvider>

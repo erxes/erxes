@@ -284,13 +284,24 @@ export const pricingPlanQueries = {
     // Server-side search — filter by sortField (product code) from fixed values
     if (search) {
       const lower = search.toLowerCase();
-      const matchedProductIds = new Set(
+      const matchedByCode = new Set(
         allFixedValues
           .filter((fv) => fv.sortField?.toLowerCase().includes(lower))
           .map((fv) => fv.productId),
       );
-      candidateProductIds = candidateProductIds.filter((id) =>
-        matchedProductIds.has(id),
+      const nameMatches: any[] = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'find',
+        input: { query: { name: { $regex: search, $options: 'i' } } },
+        defaultValue: [],
+      });
+      const matchedByName = new Set(
+        nameMatches.map((p: any) => p._id.toString()),
+      );
+      candidateProductIds = candidateProductIds.filter(
+        (id) => matchedByCode.has(id) || matchedByName.has(id),
       );
     }
 
