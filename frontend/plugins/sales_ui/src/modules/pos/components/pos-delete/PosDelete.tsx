@@ -2,6 +2,7 @@ import { Button, useToast, useConfirm } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
 import { usePosRemove } from '@/pos/hooks/usePosRemove';
+import { useTranslation } from 'react-i18next';
 
 interface PosDeleteProps {
   posId?: string;
@@ -9,6 +10,7 @@ interface PosDeleteProps {
 }
 
 const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
+  const { t } = useTranslation('sales');
   const { posRemove, loading } = usePosRemove();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -19,7 +21,7 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
     if (!posId) return;
 
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t('confirm-remove-selected'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -29,15 +31,15 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
           onDelete();
         }
         toast({
-          title: 'Success',
-          description: 'POS has been deleted successfully.',
+          title: t('success'),
+          description: t('pos-delete-success'),
           variant: 'success',
         });
         navigate('/settings/sales/pos');
       } catch (e: any) {
         toast({
-          title: 'Error',
-          description: e.message || 'Failed to delete POS. Please try again.',
+          title: t('error'),
+          description: e.message || t('pos-delete-failed'),
           variant: 'destructive',
         });
       }
@@ -52,7 +54,7 @@ const PosDelete = ({ posId, onDelete }: PosDeleteProps) => {
       disabled={loading}
     >
       <IconTrash className="w-4 h-4 mr-2" />
-      {loading ? 'Deleting...' : 'Remove POS'}
+      {loading ? t('deleting') : t('remove-pos')}
     </Button>
   );
 };
