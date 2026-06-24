@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import {
   CMS_CUSTOM_FIELD_GROUP_ADD,
@@ -11,6 +12,7 @@ import { ICustomFieldGroup } from '../types/customFieldTypes';
 import { compareByOrder } from '../utils/comparators';
 
 export const useCustomFieldGroups = (websiteId?: string) => {
+  const { t } = useTranslation('content');
   const { data, loading, refetch } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
     variables: { clientPortalId: websiteId },
     skip: !websiteId,
@@ -27,12 +29,12 @@ export const useCustomFieldGroups = (websiteId?: string) => {
 
   const [addGroup] = useMutation(CMS_CUSTOM_FIELD_GROUP_ADD, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Field group created!' });
+      toast({ title: t('success'), description: t('field-group-created') });
       refetch();
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -41,12 +43,12 @@ export const useCustomFieldGroups = (websiteId?: string) => {
 
   const [editGroup] = useMutation(CMS_CUSTOM_FIELD_GROUP_EDIT, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Field group updated!' });
+      toast({ title: t('success'), description: t('field-group-updated') });
       refetch();
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -55,12 +57,12 @@ export const useCustomFieldGroups = (websiteId?: string) => {
 
   const [removeGroup] = useMutation(CMS_CUSTOM_FIELD_GROUP_REMOVE, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Field group deleted!' });
+      toast({ title: t('success'), description: t('field-group-deleted') });
       refetch();
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });

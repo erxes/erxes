@@ -1,5 +1,6 @@
 import { Button, Breadcrumb, Sidebar, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import {
   IconFileText,
   IconPlus,
@@ -37,6 +38,7 @@ export function CmsLayout({
   breadcrumbItems,
   headerActions,
 }: CmsLayoutProps) {
+  const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const location = useLocation();
 
@@ -171,7 +173,7 @@ export function CmsLayout({
                       <Button variant="ghost" asChild>
                         <Link to="/content/cms">
                           <IconFileText />
-                          CMS
+                          {t('cms')}
                         </Link>
                       </Button>
                     </Breadcrumb.Item>
@@ -181,7 +183,7 @@ export function CmsLayout({
                         <Breadcrumb.Item>
                           <Button variant="ghost" asChild>
                             <Link to="/content/cms">
-                              {websiteName || 'Website'}
+                              {websiteName || t('website')}
                             </Link>
                           </Button>
                         </Breadcrumb.Item>
@@ -190,7 +192,7 @@ export function CmsLayout({
                           <Button variant="ghost">
                             {navigationItems.find(
                               (item) => item.id === currentActiveNav,
-                            )?.label || 'Posts'}
+                            )?.label || t('posts')}
                           </Button>
                         </Breadcrumb.Item>
                       </>
@@ -208,7 +210,7 @@ export function CmsLayout({
                 <Button asChild>
                   <Link to={`/content/cms/${websiteId || ''}/posts/add`}>
                     <IconPlus className="mr-2 h-4 w-4" />
-                    Create Post
+                    {t('create-post')}
                   </Link>
                 </Button>
               </div>
@@ -220,7 +222,7 @@ export function CmsLayout({
           {showSidebar && (
             <Sidebar collapsible="none" className="border-r flex-none">
               <Sidebar.Group>
-                <Sidebar.GroupLabel>Content Management</Sidebar.GroupLabel>
+                <Sidebar.GroupLabel>{t('content-management')}</Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   {navigationItems.map((item) => (
                     <Sidebar.Menu key={item.id}>

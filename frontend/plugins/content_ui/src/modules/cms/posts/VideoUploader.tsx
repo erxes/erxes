@@ -1,6 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface VideoUploaderProps {
   value?: string | null;
@@ -8,6 +9,7 @@ interface VideoUploaderProps {
 }
 
 export const VideoUploader = ({ value, onChange }: VideoUploaderProps) => {
+  const { t } = useTranslation('content');
   const uploadProps = useErxesUpload({
     allowedMimeTypes: ['video/*'],
     maxFiles: 1,
@@ -52,7 +54,7 @@ export const VideoUploader = ({ value, onChange }: VideoUploaderProps) => {
           </div>
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
-              <div className="text-sm text-gray-500">Uploading...</div>
+              <div className="text-sm text-gray-500">{t('uploading')}</div>
             </div>
           )}
         </div>
@@ -67,7 +69,7 @@ export const VideoUploader = ({ value, onChange }: VideoUploaderProps) => {
             disabled={uploadProps.loading}
             type="button"
           >
-            {uploadProps.loading ? 'Uploading...' : 'Upload Video'}
+            {uploadProps.loading ? t('uploading') : t('upload-video')}
           </Button>
         </div>
       )}

@@ -1,5 +1,6 @@
 import { Form, Input, Editor } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { formatInitialContent } from '~/modules/cms/posts/formHelpers';
 import { IPage, IPageFormData } from '../types/pageTypes';
 
@@ -18,6 +19,7 @@ export const PageEditorColumn = ({
   page,
   handleEditorChange,
 }: PageEditorColumnProps) => {
+  const { t } = useTranslation('content');
   const isTranslationMode =
     Boolean(selectedLanguage) && selectedLanguage !== defaultLanguage;
 
@@ -29,7 +31,7 @@ export const PageEditorColumn = ({
         render={({ field }) => (
           <Form.Item className="mb-4">
             <Form.Label>
-              Page Name
+              {t('page-name')}
               {isTranslationMode && (
                 <span className="ml-2 text-xs text-blue-600">
                   ({selectedLanguage})
@@ -37,7 +39,7 @@ export const PageEditorColumn = ({
               )}
             </Form.Label>
             <Form.Control>
-              <Input {...field} placeholder="Enter page name" required />
+              <Input {...field} placeholder={t('enter-page-name')} required />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -51,7 +53,7 @@ export const PageEditorColumn = ({
             render={() => (
               <Form.Item>
                 <Form.Label>
-                  Content
+                  {t('content')}
                   {isTranslationMode && (
                     <span className="ml-2 text-xs text-blue-600">
                       ({selectedLanguage})

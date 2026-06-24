@@ -7,6 +7,7 @@ import {
   IconGripVertical,
 } from '@tabler/icons-react';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   PointerSensor,
@@ -52,6 +53,7 @@ function SortableFieldRow({
   onEditField: (field: ICustomField) => void;
   onDeleteField: (fieldId: string) => void;
 }>) {
+  const { t } = useTranslation('content');
   const {
     attributes,
     listeners,
@@ -118,14 +120,14 @@ function SortableFieldRow({
           <DropdownMenu.Content className="min-w-48">
             <DropdownMenu.Item onClick={() => onEditField(field)}>
               <IconEdit />
-              Edit
+              {t('edit')}
             </DropdownMenu.Item>
             <DropdownMenu.Item
               className="text-destructive"
               onClick={() => onDeleteField(field._id)}
             >
               <IconTrash />
-              Delete
+              {t('delete')}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu>
@@ -146,10 +148,9 @@ export function CustomFieldGroupItem({
   onReorderFields,
   dragHandleProps,
 }: CustomFieldGroupItemProps) {
+  const { t } = useTranslation('content');
   const groupFields = group.fields || [];
 
-  // Local order so a drop reflects immediately (no snap-back while the
-  // persisted order round-trips); re-synced whenever the stored order changes.
   const [fields, setFields] = useState(groupFields);
   const fieldsKey = groupFields.map((f) => f._id).join('|');
   useEffect(() => {
@@ -175,7 +176,6 @@ export function CustomFieldGroupItem({
     setFields(next);
     onReorderFields(group._id, next);
   };
-
   return (
     <Collapsible
       key={group._id}
@@ -211,14 +211,14 @@ export function CustomFieldGroupItem({
           <DropdownMenu.Content className="min-w-48">
             <DropdownMenu.Item onClick={() => onEditGroup(group)}>
               <IconEdit />
-              Edit
+              {t('edit')}
             </DropdownMenu.Item>
             <DropdownMenu.Item
               className="text-destructive"
               onClick={() => onDeleteGroup(group._id)}
             >
               <IconTrash />
-              Delete
+              {t('delete')}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu>
@@ -233,7 +233,7 @@ export function CustomFieldGroupItem({
                   colSpan={4}
                   className="h-auto py-12 text-center text-muted-foreground"
                 >
-                  No fields found
+                  {t('no-fields-in-this-group')}
                 </Table.Cell>
               </Table.Row>
             ) : (
@@ -262,7 +262,7 @@ export function CustomFieldGroupItem({
         <div className="flex items-center justify-end mt-2">
           <Button variant="secondary" onClick={onAddField}>
             <IconPlus />
-            Add field
+            {t('add-field')}
           </Button>
         </div>
       </Collapsible.Content>
