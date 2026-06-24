@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IEstimateChoice } from '@/task/types';
 import {
   Badge,
@@ -54,6 +55,7 @@ export const SelectEstimatedPointProvider = ({
   teamId: string;
   variant?: `${SelectTriggerVariant}`;
 }) => {
+  const { t } = useTranslation('operation');
   const { estimateChoices: teamEstimateChoices } = useGetEstimateChoiceByTeam({
     variables: { teamId },
     skip: !teamId,
@@ -79,13 +81,13 @@ export const SelectEstimatedPointProvider = ({
     if (variant === SelectTriggerVariant.CARD) {
       return (
         <Badge variant="secondary" className="opacity-50">
-          Estimate not enabled
+          {t('estimate-not-enabled')}
         </Badge>
       );
     }
     return (
       <Button variant="secondary" className="text-muted-foreground" disabled>
-        Estimate not enabled
+        {t('estimate-not-enabled')}
       </Button>
     );
   }
@@ -110,13 +112,14 @@ const SelectEstimatedPointValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('operation');
   const { value, estimateChoices } = useSelectEstimatedPointContext();
   if (!value) {
     return (
       <div className="flex items-center gap-2 text-accent-foreground">
         <IconTriangle className="size-4 shrink-0" />
         <span className="truncate font-medium">
-          {placeholder || 'Select estimate'}
+          {placeholder || t('select-estimate')}
         </span>
       </div>
     );
@@ -156,12 +159,13 @@ const SelectEstimatedPointCommandItem = ({
 };
 
 const SelectEstimatedPointContent = () => {
+  const { t } = useTranslation('operation');
   const { estimateChoices } = useSelectEstimatedPointContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search estimate" />
-      <Command.Empty>No estimate found</Command.Empty>
+      <Command.Input placeholder={t('search-estimate')} />
+      <Command.Empty>{t('no-estimate-found')}</Command.Empty>
       <Command.List>
         {(estimateChoices || []).map((estimate) => (
           <SelectEstimatedPointCommandItem

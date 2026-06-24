@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import {
   Combobox,
@@ -67,12 +68,13 @@ const SelectPriorityBadgeValue = ({
 }: {
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('operation');
   const { value } = useSelectPriorityContext();
 
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select priority'}
+        {placeholder || t('select-priority')}
       </span>
     );
   }
@@ -109,10 +111,11 @@ const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
 };
 
 const SelectPriorityContent = () => {
+  const { t } = useTranslation('operation');
   return (
     <Command>
-      <Command.Input placeholder="Search priority" />
-      <Command.Empty>No priority found</Command.Empty>
+      <Command.Input placeholder={t('search-priority')} />
+      <Command.Empty>{t('no-priority-found')}</Command.Empty>
       <Command.List>
         {PROJECT_PRIORITIES_OPTIONS.map((priority, index) => (
           <SelectPriorityCommandItem key={priority} priority={index} />

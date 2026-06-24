@@ -1,5 +1,6 @@
 import { tasksColumns } from '@/task/components/TasksColumn';
 import { isUndefinedOrNull, RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useTasks } from '@/task/hooks/useGetTasks';
 import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
 import { useGetTeams } from '@/team/hooks/useGetTeams';
@@ -17,6 +18,7 @@ interface TasksRecordTableProps {
 export const TasksRecordTable = ({
   isCreatedView = false,
 }: TasksRecordTableProps) => {
+  const { t } = useTranslation('operation');
   const { projectId, cycleId, teamId } = useParams();
   const currentUser = useAtomValue(currentUserState);
   const setTaskTotalCount = useSetAtom(taskTotalCountAtom);
@@ -55,7 +57,7 @@ export const TasksRecordTable = ({
   return (
     <div className="flex flex-col overflow-hidden h-full">
       <RecordTable.Provider
-        columns={tasksColumns(teams, team)}
+        columns={tasksColumns(teams, team, t)}
         data={tasks || (loading ? [{}] : [])}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}
