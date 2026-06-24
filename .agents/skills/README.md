@@ -50,8 +50,6 @@ Feature / task skills:
   features.
 - `create-backend-migration/SKILL.md` - add MongoDB migration or command
   scripts.
-- `add-dummy-data/SKILL.md` - add safe, idempotent dummy, seed, demo, sample,
-  or fixture data.
 - `add-translations/SKILL.md` - add frontend i18n strings and locale keys.
 - `module-federation-expose/SKILL.md` - add or change frontend plugin
   exposes/widgets.

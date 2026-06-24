@@ -173,12 +173,6 @@ skills:
     directory: ".agents/skills/create-backend-migration"
     type: "feature"
 
-  add-dummy-data:
-    name: "add-dummy-data"
-    description: "Add safe, idempotent dummy, seed, demo, fixture, or sample data"
-    directory: ".agents/skills/add-dummy-data"
-    type: "feature"
-
   create-provider-context:
     name: "create-provider-context"
     description: "Add scoped React providers or contexts using existing patterns"

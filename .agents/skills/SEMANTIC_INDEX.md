@@ -42,7 +42,6 @@ Use this index to find the correct skill or workflow for specific tasks, symptom
 |:---|:---|:---|
 | Add new data model | `create-backend-entity` | Put definitions in `db/definitions` and models in `db/models`. |
 | Fetch/Mutate data from UI | `create-query` | Operations MUST be named and prefixed (e.g., `salesDealList`). |
-| Add dummy, seed, demo, sample, or fixture data | `add-dummy-data` | Keep data idempotent, deterministic, clearly fake, and gated from production. |
 | Data needs cleanup/migration | `create-backend-migration` | Scripts must be idempotent and safe to run multiple times. |
 
 ## 5. Troubleshooting & Maintenance
