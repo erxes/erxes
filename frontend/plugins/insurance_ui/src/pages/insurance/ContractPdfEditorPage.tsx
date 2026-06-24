@@ -212,8 +212,7 @@ export const ContractPdfEditorPage = () => {
                       spellCheck={false}
                     />
                     <p className="text-xs text-muted-foreground mt-2">
-                      💡 Tip: You can edit HTML and CSS directly. Click Preview
-                      to see the result.
+                      💡 {t('tip-html-edit')}
                     </p>
                   </div>
                 ) : (
@@ -234,23 +233,23 @@ export const ContractPdfEditorPage = () => {
 
               <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <h3 className="font-semibold text-blue-800 mb-2">
-                  📝 Instructions:
+                  📝 {t('instructions')}:
                 </h3>
                 <ul className="text-sm text-blue-700 space-y-1">
                   <li>
-                    • <strong>Edit Mode:</strong> Edit HTML template directly
+                    • <strong>{t('edit-mode')}:</strong> {t('edit-html-template-directly')}
                   </li>
                   <li>
-                    • <strong>Preview:</strong> Opens in new window
+                    • <strong>{t('preview')}:</strong> {t('opens-in-new-window')}
                   </li>
                   <li>
-                    • <strong>Print:</strong> Opens print dialog for PDF
+                    • <strong>{t('print')}:</strong> {t('opens-print-dialog-for-pdf')}
                   </li>
                   <li>
-                    • <strong>Download HTML:</strong> Downloads HTML file
+                    • <strong>{t('download-html')}:</strong> {t('downloads-html-file')}
                   </li>
                   <li>
-                    • <strong>Reset:</strong> Reverts to original template
+                    • <strong>{t('reset')}:</strong> {t('reverts-to-original-template')}
                   </li>
                 </ul>
               </div>
