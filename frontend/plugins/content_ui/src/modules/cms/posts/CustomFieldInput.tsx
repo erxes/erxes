@@ -13,6 +13,7 @@ import {
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useEffect } from 'react';
 import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
+import { SelectProduct } from 'ui-modules';
 import { SpreadsheetInput } from './SpreadsheetInput';
 
 export interface FieldDefinition {
@@ -350,6 +351,27 @@ export const CustomFieldInput = ({
             onChange={(urls) => onChange(urls)}
           />
         );
+
+      case 'products': {
+        const selectedProductIds = Array.isArray(value)
+          ? value
+          : value
+            ? [value as string]
+            : [];
+        return (
+          <SelectProduct
+            mode="multiple"
+            value={selectedProductIds}
+            onValueChange={(val) =>
+              onChange(Array.isArray(val) ? val : val ? [val] : [])
+            }
+            placeholder={
+              field.placeholder || `Select ${field.label.toLowerCase()}`
+            }
+            className="w-full"
+          />
+        );
+      }
 
       case 'richText':
         return (

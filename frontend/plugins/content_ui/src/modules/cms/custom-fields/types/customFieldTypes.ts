@@ -11,7 +11,8 @@ export type FieldType =
   | 'file'
   | 'image'
   | 'spreadsheet'
-  | 'richText';
+  | 'richText'
+  | 'products';
 
 export interface ICustomField {
   _id: string;
@@ -55,4 +56,5 @@ export const FIELD_TYPES: { value: FieldType; label: string }[] = [
   { value: 'image', label: 'Image' },
   { value: 'spreadsheet', label: 'Spreadsheet (Excel paste)' },
   { value: 'richText', label: 'Rich Text (Editor)' },
+  { value: 'products', label: 'Products' },
 ];
