@@ -3,8 +3,10 @@ import { CheckCustomerRecordTable } from './CheckCustomerRecordTable';
 import { PageSubHeader, Button } from 'erxes-ui';
 import { useCheckCustomer } from '../hooks/useCheckCustomer';
 import { SelectBrand } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const InventoryCustomer = () => {
+  const { t } = useTranslation('mongolian');
   const { brandId, setSelectedBrandId, checkCustomers, checking } =
     useCheckCustomer();
   return (
@@ -16,10 +18,10 @@ export const InventoryCustomer = () => {
           <SelectBrand
             value={brandId === 'noBrand' ? '' : brandId}
             onValueChange={(val) => setSelectedBrandId(val as string)}
-            placeholder="Choose brand"
+            placeholder={t('choose-brand')}
           />
           <Button onClick={checkCustomers} disabled={checking}>
-            {checking ? 'Checking...' : 'Check'}
+            {checking ? t('checking') : t('check')}
           </Button>
         </div>
       </PageSubHeader>

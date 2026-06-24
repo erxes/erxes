@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   productGroupSchema,
   TProductGroupForm,
@@ -13,6 +14,7 @@ import { ProductGroupForm } from '@/ebarimt/settings/product-group/components/Pr
 const FORM_ID = 'add-product-group-form';
 
 export const AddProductGroup = () => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useState(false);
   const form = useForm<TProductGroupForm>({
     resolver: zodResolver(productGroupSchema),
@@ -37,16 +39,16 @@ export const AddProductGroup = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Product group created successfully',
+          title: t('success'),
+          description: t('product-group-created-successfully'),
         });
         setOpen(false);
         form.reset();
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
-          description: error.message || 'Failed to create product group',
+          title: t('error'),
+          description: error.message || t('failed-to-create-product-group'),
           variant: 'destructive',
         });
       },
@@ -58,12 +60,12 @@ export const AddProductGroup = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Group
+          {t('add-group')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View side="right" className="bg-background sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>Add Group</Sheet.Title>
+          <Sheet.Title>{t('add-group')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <div className="flex-1 overflow-y-auto px-5 py-4">
@@ -78,11 +80,11 @@ export const AddProductGroup = () => {
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              {t('cancel')}
             </Button>
           </Sheet.Close>
           <Button type="submit" form={FORM_ID} size="lg" disabled={loading}>
-            {loading ? <Spinner /> : 'Save'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>
@@ -95,6 +97,7 @@ export const AddProductGroupForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('mongolian');
   const form = useForm<TProductGroupForm>({
     resolver: zodResolver(productGroupSchema),
     defaultValues: {
@@ -118,16 +121,16 @@ export const AddProductGroupForm = ({
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Product group created successfully',
+          title: t('success'),
+          description: t('product-group-created-successfully'),
         });
         setOpen(false);
         form.reset();
       },
       onError: (error: any) => {
         toast({
-          title: 'Error',
-          description: error.message || 'Failed to create product group',
+          title: t('error'),
+          description: error.message || t('failed-to-create-product-group'),
           variant: 'destructive',
         });
       },

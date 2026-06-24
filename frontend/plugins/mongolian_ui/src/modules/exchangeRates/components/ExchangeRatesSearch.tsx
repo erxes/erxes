@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { IconSearch } from '@tabler/icons-react';
 import { Input, useQueryState } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
 
 export const ExchangeRatesSearch = () => {
+  const { t } = useTranslation('mongolian');
   const [searchValue, setSearchValue] = useQueryState<string>('searchValue');
   const [search, setSearch] = useState(searchValue ?? '');
 
@@ -21,7 +23,7 @@ export const ExchangeRatesSearch = () => {
   return (
     <div className="relative">
       <Input
-        placeholder="Search"
+        placeholder={t('search')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}
