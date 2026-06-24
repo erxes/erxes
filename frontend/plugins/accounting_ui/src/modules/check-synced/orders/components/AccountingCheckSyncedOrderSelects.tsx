@@ -70,12 +70,15 @@ const AccountingOrderPosContent = ({ onSelect }: { onSelect?: () => void }) => {
   );
 };
 
-export const AccountingOrderPosFilterItem = () => (
-  <Filter.Item value="pos">
-    <IconCashRegister />
-    POS
-  </Filter.Item>
-);
+export const AccountingOrderPosFilterItem = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Item value="pos">
+      <IconCashRegister />
+      {t('pos')}
+    </Filter.Item>
+  );
+};
 
 
 export const AccountingOrderPosFilterView = () => {
@@ -99,7 +102,7 @@ export const AccountingOrderPosFilterBar = () => {
     <Filter.BarItem queryKey="pos">
       <Filter.BarName>
         <IconCashRegister />
-        POS
+        {t('pos')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
