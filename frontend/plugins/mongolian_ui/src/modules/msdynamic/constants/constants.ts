@@ -35,6 +35,8 @@ export const KEY_LABELS: Record<string, string> = {
   syncType: 'Sync type',
   defaultUserCode: 'Default User Code',
   defaultCompanyCode: 'Default Company Code',
+  custCode: 'Cust Code',
+  userLocationCode: 'User Location Code',
   useBoard: 'Use deal board',
   boardId: 'Board',
   pipelineId: 'Pipeline',

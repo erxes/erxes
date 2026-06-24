@@ -28,6 +28,14 @@ export const addMSDynamicConfigSchema = z.object({
   syncType: z.string(),
   defaultUserCode: z.string(),
   defaultCompanyCode: z.string(),
+  custCode: z.object({
+    contentType: z.string(),
+    fieldId: z.string(),
+  }),
+  userLocationCode: z.object({
+    contentType: z.string(),
+    fieldId: z.string(),
+  }),
   useBoard: z.boolean(),
   boardId: z.string(),
   pipelineId: z.string(),

@@ -1,13 +1,20 @@
 import { UseFormReturn } from 'react-hook-form';
-import { Checkbox, Form, Input } from 'erxes-ui';
+import { Checkbox, Form, Input, Select } from 'erxes-ui';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { SelectBrand } from 'ui-modules/modules/brands';
+import { useFields } from 'ui-modules/modules/properties';
+import { CORE_RELATION_TYPES } from 'ui-modules/modules/properties/constants/coreRelationTypes';
 
 import { getMSDynamicFieldLabel, TMSDynamicConfig } from '../../types';
 
 type MSDynamicTextFieldName = Exclude<
   keyof TMSDynamicConfig,
-  'useBoard' | 'boardId' | 'pipelineId' | 'stageId'
+  | 'useBoard'
+  | 'boardId'
+  | 'pipelineId'
+  | 'stageId'
+  | 'custCode'
+  | 'userLocationCode'
 >;
 
 const CONNECTION_FIELDS: MSDynamicTextFieldName[] = [
@@ -172,6 +179,19 @@ export const MSDynamicConfigFormFields = ({
           ))}
         </MSDynamicFieldSection>
 
+        <MSDynamicFieldSection title="User field mapping">
+          <MSDynamicFieldMappingPicker
+            form={form}
+            name="custCode"
+            label={getMSDynamicFieldLabel('custCode')}
+          />
+          <MSDynamicFieldMappingPicker
+            form={form}
+            name="userLocationCode"
+            label={getMSDynamicFieldLabel('userLocationCode')}
+          />
+        </MSDynamicFieldSection>
+
         <section className="space-y-5 border-t pt-6">
           <Form.Field
             control={form.control}
@@ -308,3 +328,89 @@ const MSDynamicTextField = ({
     )}
   />
 );
+
+const MSDynamicFieldMappingPicker = ({
+  form,
+  name,
+  label,
+}: {
+  form: UseFormReturn<TMSDynamicConfig>;
+  name: 'custCode' | 'userLocationCode';
+  label: string;
+}) => {
+  const contentType = form.watch(`${name}.contentType`);
+
+  const { fields, loading } = useFields({
+    contentType,
+  });
+
+  const handleContentTypeChange = (value: string) => {
+    form.setValue(`${name}.contentType`, value);
+    form.setValue(`${name}.fieldId`, '');
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="text-sm font-medium text-foreground">{label}</div>
+      <div className="grid grid-cols-1 gap-2">
+        <Form.Field
+          control={form.control}
+          name={`${name}.contentType`}
+          render={({ field }) => (
+            <Form.Item className="space-y-0">
+              <Select
+                value={field.value}
+                onValueChange={handleContentTypeChange}
+              >
+                <Form.Control>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Select content type" />
+                  </Select.Trigger>
+                </Form.Control>
+                <Select.Content>
+                  {CORE_RELATION_TYPES.map((type) => (
+                    <Select.Item key={type.value} value={type.value}>
+                      {type.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          control={form.control}
+          name={`${name}.fieldId`}
+          render={({ field }) => (
+            <Form.Item className="space-y-0">
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={!contentType || loading}
+              >
+                <Form.Control>
+                  <Select.Trigger>
+                    <Select.Value
+                      placeholder={loading ? 'Loading fields...' : 'Select field'}
+                    />
+                  </Select.Trigger>
+                </Form.Control>
+                <Select.Content>
+                  {fields.map((f) => (
+                    <Select.Item key={f._id} value={f._id}>
+                      {f.name}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      </div>
+    </div>
+  );
+};
+

@@ -3,6 +3,11 @@ type QueryResponse = {
   refetch?: () => void;
 };
 
+export type IMSDynamicFieldMapping = {
+  contentType: string;
+  fieldId: string;
+};
+
 export type IMSDynamicConfig = {
   title: string;
   brandId: string;
@@ -31,6 +36,8 @@ export type IMSDynamicConfig = {
   syncType: string;
   defaultUserCode: string;
   defaultCompanyCode: string;
+  custCode: IMSDynamicFieldMapping;
+  userLocationCode: IMSDynamicFieldMapping;
   useBoard: boolean;
   boardId: string;
   pipelineId: string;
