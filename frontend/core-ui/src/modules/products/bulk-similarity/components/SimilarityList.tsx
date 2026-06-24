@@ -1,15 +1,19 @@
 import { Button, Empty, RecordTable } from 'erxes-ui';
 import { IconLayoutGrid } from '@tabler/icons-react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useProductSimilarities } from '../hooks/useProductSimilarities';
 import { SimilarityCommandBar } from './SimilarityCommandBar';
-import { similarityColumns } from './similarityColumns';
+import { createSimilarityColumns } from './similarityColumns';
 
 interface SimilarityListProps {
   onNew?: () => void;
 }
 
 export const SimilarityList = ({ onNew }: SimilarityListProps) => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { similarities, loading } = useProductSimilarities();
+  const similarityColumns = useMemo(() => createSimilarityColumns(t), [t]);
 
   if (!loading && !similarities.length) {
     return (
@@ -18,15 +22,19 @@ export const SimilarityList = ({ onNew }: SimilarityListProps) => {
           <Empty.Media variant="icon">
             <IconLayoutGrid />
           </Empty.Media>
-          <Empty.Title>No similarity groups yet</Empty.Title>
+          <Empty.Title>
+            {t('no-similarity-groups', 'No similarity groups yet')}
+          </Empty.Title>
           <Empty.Description>
-            Create a group to generate product variants in bulk from shared base
-            info and property fields.
+            {t(
+              'empty-description',
+              'Create a group to generate product variants in bulk from shared base info and property fields.',
+            )}
           </Empty.Description>
         </Empty.Header>
         {onNew && (
           <Empty.Content>
-            <Button onClick={onNew}>New similarity</Button>
+            <Button onClick={onNew}>{t('new-similarity', 'New similarity')}</Button>
           </Empty.Content>
         )}
       </Empty>

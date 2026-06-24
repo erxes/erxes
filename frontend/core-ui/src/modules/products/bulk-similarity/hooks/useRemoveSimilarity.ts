@@ -1,8 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { PRODUCT_SIMILARITY_REMOVE } from '../graphql/mutations';
 
 export const useRemoveSimilarity = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { toast } = useToast();
 
   const [removeMutation, { loading }] = useMutation(PRODUCT_SIMILARITY_REMOVE, {
@@ -12,9 +14,13 @@ export const useRemoveSimilarity = () => {
   const remove = async (_id: string) => {
     try {
       await removeMutation({ variables: { _id } });
-      toast({ title: 'Similarity removed' });
+      toast({ title: t('similarity-removed', 'Similarity removed') });
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      toast({
+        title: t('error', 'Error'),
+        description: e.message,
+        variant: 'destructive',
+      });
       throw e;
     }
   };
