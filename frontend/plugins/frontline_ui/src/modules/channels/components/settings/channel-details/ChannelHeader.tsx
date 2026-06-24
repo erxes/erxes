@@ -1,8 +1,10 @@
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelHeader = () => {
+  const { t } = useTranslation('frontline');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -22,7 +24,7 @@ export const ChannelHeader = () => {
                 onClick={() => navigate(`/settings/frontline/channels/${id}`)}
               >
                 <IconArrowLeft size={16} className="stroke-foreground" />
-                Channel Settings
+                {t('channel-settings')}
               </Button>
             </Breadcrumb.Link>
           </Breadcrumb.Item>

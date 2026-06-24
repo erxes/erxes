@@ -1,4 +1,5 @@
 import { Form, Textarea } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { FacebookMessageProps } from '~/widgets/automations/modules/facebook/components/action/types/messageActionForm';
 import { FacebookMessageButtonsGenerator } from '../FacebookMessageButtonsGenerator';
 import { InputTextCounter } from '../InputTextCounter';
@@ -8,6 +9,7 @@ export const FacebookTextMessage = ({
   index,
   message,
 }: FacebookMessageProps<{ type: 'text' }>) => {
+  const { t } = useTranslation('frontline');
   const { control } = useReplyMessageAction();
   const limit = (message.buttons || []).length ? 640 : 2000;
 
@@ -19,7 +21,7 @@ export const FacebookTextMessage = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label className="flex flex-row justify-between">
-              Text
+              {t('text')}
               <InputTextCounter
                 count={field.value?.length || 0}
                 limit={limit}
@@ -38,7 +40,7 @@ export const FacebookTextMessage = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label className="flex flex-row justify-between">
-              Buttons
+              {t('button')}
               <InputTextCounter count={field.value?.length || 0} limit={3} />
             </Form.Label>
             <Form.Control>

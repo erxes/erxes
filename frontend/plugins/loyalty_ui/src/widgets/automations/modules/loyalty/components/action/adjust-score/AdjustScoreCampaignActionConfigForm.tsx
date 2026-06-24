@@ -11,6 +11,7 @@ import {
 } from '../../../states/adjustScoreActionConfigFormDefinitions';
 import { Form, ToggleGroup } from 'erxes-ui';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 // import { SelectScoreCampaign } from '@/loyalties/score/components/selects/SelectScoreCampaign';
 import { SCORE_ACTION_OPTIONS } from '../../../constants/adjustScoreAction';
 import { useAdjustScoreActionForm } from '../../../hooks/useAdjustScoreActionForm';
@@ -23,6 +24,7 @@ export const AdjustScoreCampaignActionConfigForm = ({
   currentAction,
   targetType,
 }: AutomationActionFormProps<TAdjustScoreActionConfigForm>) => {
+  const { t } = useTranslation('loyalty');
   const form = useAdjustScoreActionForm({
     resolver: zodResolver(adjustScoreActionConfigFormSchema),
     currentConfig: currentAction?.config,
@@ -49,7 +51,7 @@ export const AdjustScoreCampaignActionConfigForm = ({
           name="attribution"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Recipient</Form.Label>
+              <Form.Label>{t('recipient')}</Form.Label>
               <PlaceholderInput
                 propertyType={targetType}
                 value={field.value}
@@ -74,11 +76,11 @@ export const AdjustScoreCampaignActionConfigForm = ({
           name="campaignId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Score campaign</Form.Label>
+              <Form.Label>{t('score-campaign')}</Form.Label>
               <SelectScoreCampaign.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder="Select score campaign"
+                placeholder={t('select-score-campaign')}
               />
               <Form.Message />
             </Form.Item>
@@ -90,7 +92,7 @@ export const AdjustScoreCampaignActionConfigForm = ({
           name="action"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Score change</Form.Label>
+              <Form.Label>{t('score-change')}</Form.Label>
               <Form.Control>
                 <ToggleGroup
                   type="single"

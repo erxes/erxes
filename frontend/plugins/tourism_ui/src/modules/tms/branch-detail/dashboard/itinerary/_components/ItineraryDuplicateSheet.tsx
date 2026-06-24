@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -84,6 +85,7 @@ export const ItineraryDuplicateSheet = ({
   open,
   onOpenChange,
 }: ItineraryDuplicateSheetProps) => {
+  const { t } = useTranslation('tourism');
   const { createItinerary, loading } = useCreateItinerary();
   const { toast } = useToast();
   const { itinerary: detailItinerary, loading: detailLoading } =
@@ -150,7 +152,7 @@ export const ItineraryDuplicateSheet = ({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <Sheet.View className="w-[400px] sm:max-w-[400px] p-0">
           <Sheet.Header>
-            <Sheet.Title>Duplicate itinerary</Sheet.Title>
+            <Sheet.Title>{t('duplicate-itinerary')}</Sheet.Title>
           </Sheet.Header>
           <Sheet.Content className="flex items-center justify-center py-12">
             <Spinner />
@@ -191,18 +193,18 @@ export const ItineraryDuplicateSheet = ({
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: 'Itinerary duplicated successfully',
+          description: t('itinerary-duplicated-successfully'),
         });
         onOpenChange(false);
         form.reset();
       },
       onError: (e: unknown) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
-            e instanceof Error ? e.message : 'Failed to duplicate itinerary',
+            e instanceof Error ? e.message : t('failed-to-duplicate-itinerary'),
           variant: 'destructive',
         });
       },
@@ -218,7 +220,7 @@ export const ItineraryDuplicateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Duplicate itinerary</Sheet.Title>
+              <Sheet.Title>{t('duplicate-itinerary')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -249,10 +251,10 @@ export const ItineraryDuplicateSheet = ({
                 disabled={loading}
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Duplicating...' : 'Duplicate'}
+                {loading ? t('duplicating') : t('duplicate')}
               </Button>
             </Sheet.Footer>
           </form>

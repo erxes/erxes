@@ -11,6 +11,7 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { IPosByItems } from '@/pos/pos-by-items/types/PosByItemType';
 
@@ -30,7 +31,10 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Code" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('code')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -41,7 +45,10 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('name')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -51,9 +58,10 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'category',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Category" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('category')} />;
+    },
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={row.original.category?.name || ''} />
@@ -64,9 +72,10 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMobiledata} label="Unit Price" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconMobiledata} label={t('unit-price')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number;
       return (
@@ -121,9 +130,10 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label="POS Sale" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconChartBar} label={t('pos-sale')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number;
       return (
@@ -139,9 +149,10 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconBuilding} label="POS Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('pos-amount')} />;
+    },
     cell: ({ cell }) => {
       const val = cell.getValue() as number;
       return (

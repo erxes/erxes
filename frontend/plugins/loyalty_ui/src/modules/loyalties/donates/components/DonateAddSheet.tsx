@@ -2,6 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Input, Sheet, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useAddDonate } from '../hooks/useAddDonate';
 import { SelectCustomer, SelectMember } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
@@ -47,6 +48,7 @@ interface DonateAddFormValues {
 export const DonateAddSheet = () => {
   const [open, setOpen] = useState(false);
   const { donateAdd, loading } = useAddDonate();
+  const { t } = useTranslation('loyalty');
 
   const form = useForm<DonateAddFormValues>({
     defaultValues: {
@@ -87,12 +89,12 @@ export const DonateAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Donation
+          {t('add-donation')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>Add Donation</Sheet.Title>
+          <Sheet.Title>{t('add-donation')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -104,14 +106,14 @@ export const DonateAddSheet = () => {
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: 'Campaign is required' }}
+                rules={{ required: t('campaign-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Campaign *</Form.Label>
+                    <Form.Label>{t('campaign-label')}</Form.Label>
                     <SelectDonateCampaign.FormItem
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
-                      placeholder="Select campaign..."
+                      placeholder={t('select-campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -123,7 +125,7 @@ export const DonateAddSheet = () => {
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner Type</Form.Label>
+                    <Form.Label>{t('owner-type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -136,9 +138,9 @@ export const DonateAddSheet = () => {
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">Customer</Select.Item>
-                          <Select.Item value="company">Company</Select.Item>
-                          <Select.Item value="user">User</Select.Item>
+                          <Select.Item value="customer">{t('customer')}</Select.Item>
+                          <Select.Item value="company">{t('company')}</Select.Item>
+                          <Select.Item value="user">{t('user')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -150,10 +152,10 @@ export const DonateAddSheet = () => {
               <Form.Field
                 control={form.control}
                 name="ownerId"
-                rules={{ required: 'Owner is required' }}
+                rules={{ required: t('owner-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner *</Form.Label>
+                    <Form.Label>{t('owner-label')}</Form.Label>
                     <Form.Control>
                       <DonateOwnerSelect
                         ownerType={ownerType}
@@ -171,12 +173,12 @@ export const DonateAddSheet = () => {
                 name="donateScore"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Donate Score</Form.Label>
+                    <Form.Label>{t('donate-score')}</Form.Label>
                     <Form.Control>
                       <Input
                         type="number"
                         min={0}
-                        placeholder="Enter donate score"
+                        placeholder={t('enter-donate-score')}
                         {...field}
                       />
                     </Form.Control>
@@ -191,10 +193,10 @@ export const DonateAddSheet = () => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Creating...' : 'Save'}
+                  {loading ? t('creating') : t('save')}
                 </Button>
               </div>
             </form>

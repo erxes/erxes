@@ -18,6 +18,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectChannelContextType {
   value: string;
@@ -133,10 +134,11 @@ const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
 };
 
 const SelectChannelContent = () => {
+  const { t } = useTranslation('frontline');
   const { loading, channels } = useSelectChannelContext();
   return (
     <Command>
-      <Command.Input placeholder="Search channels..." />
+      <Command.Input placeholder={t('search-channels')} />
       <Command.List>
         <Combobox.Empty loading={loading} />
         {channels?.map((channel) => (

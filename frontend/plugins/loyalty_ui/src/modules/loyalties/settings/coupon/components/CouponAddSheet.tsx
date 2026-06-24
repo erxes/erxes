@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CouponHotKeyScope } from '../types/CouponHotKeyScope';
 import { CouponTabs } from '../add-coupon-campaign/components/CouponTabs';
@@ -19,6 +20,7 @@ import {
 } from '../constants/couponFormSchema';
 
 export const LoyaltyCouponAddSheet = () => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -65,7 +67,7 @@ export const LoyaltyCouponAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add coupon campaign
+          {t('add-coupon-campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -76,7 +78,7 @@ export const LoyaltyCouponAddSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Add coupon campaign</Sheet.Title>
+          <Sheet.Title>{t('add-coupon-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

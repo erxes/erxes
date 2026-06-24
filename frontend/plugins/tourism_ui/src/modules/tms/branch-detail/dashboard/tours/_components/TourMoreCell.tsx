@@ -1,5 +1,6 @@
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
   Combobox,
@@ -21,6 +22,7 @@ export const TourMoreColumn = ({
   onDuplicate,
   ...props
 }: TourMoreCellProps) => {
+  const { t } = useTranslation('tourism');
   const tour = props.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -36,21 +38,21 @@ export const TourMoreColumn = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this tour?',
+      message: t('confirm-delete-tour'),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removeTours({
         variables: { ids: [tour._id] },
         onCompleted: () => {
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Tour deleted successfully',
+            description: t('tour-deleted-successfully'),
           });
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -69,15 +71,15 @@ export const TourMoreColumn = ({
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit className="w-4 h-4" />
-              Edit
+              {t('edit')}
             </Command.Item>
             <Command.Item value="duplicate" onSelect={handleDuplicate}>
               <IconCopy className="w-4 h-4" />
-              Duplicate
+              {t('duplicate')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
               <IconTrash className="w-4 h-4" />
-              Delete
+              {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

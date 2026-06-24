@@ -1,5 +1,6 @@
 import { IconRepeat } from '@tabler/icons-react';
 import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Command,
@@ -29,6 +30,7 @@ import {
 import { ProjectsDeleteContent, ProjectsDeleteTrigger } from './ProjectsRemove';
 
 export const ProjectsCommandBar = () => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -38,7 +40,7 @@ export const ProjectsCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{t('selected', { count: selectedRows.length })}</CommandBar.Value>
         <Can action="projectExportManage">
           <Separator.Inline />
           <Export
@@ -60,7 +62,7 @@ export const ProjectsCommandBar = () => {
           <Popover.Trigger asChild>
             <Button variant="secondary">
               <IconRepeat />
-              Actions
+              {t('actions')}
             </Button>
           </Popover.Trigger>
           <Popover.Content

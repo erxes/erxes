@@ -8,8 +8,10 @@ import {
 } from 'erxes-ui';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetProject } from '@/project/hooks/useGetProject';
+import { useTranslation } from 'react-i18next';
 
 export const ProjectDetailBreadCrumb = () => {
+  const { t } = useTranslation('operation');
   const { teamId, projectId } = useParams<{
     teamId?: string;
     projectId: string;
@@ -44,10 +46,10 @@ export const ProjectDetailBreadCrumb = () => {
         <Separator.Inline />
         <ToggleGroup type="single" value={pathname}>
           <ToggleGroup.Item value={`${basePath}/overview`} asChild>
-            <Link to={`${basePath}/overview`}>Overview</Link>
+            <Link to={`${basePath}/overview`}>{t('overview')}</Link>
           </ToggleGroup.Item>
           <ToggleGroup.Item value={`${basePath}/tasks`} asChild>
-            <Link to={`${basePath}/tasks`}>Tasks</Link>
+            <Link to={`${basePath}/tasks`}>{t('tasks')}</Link>
           </ToggleGroup.Item>
         </ToggleGroup>
       </Breadcrumb.List>

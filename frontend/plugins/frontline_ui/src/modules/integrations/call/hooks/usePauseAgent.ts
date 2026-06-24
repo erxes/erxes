@@ -4,8 +4,10 @@ import { CALL_PAUSE_AGENT } from '@/integrations/call/graphql/mutations/callMuta
 import { useAtomValue } from 'jotai';
 import { callConfigAtom } from '@/integrations/call/states/sipStates';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const usePauseAgent = () => {
+  const { t } = useTranslation('frontline');
   const { data, loading } = useQuery(CALL_GET_AGENT_STATUS);
   const callConfig = useAtomValue(callConfigAtom);
   const [changeAgentStatus, { loading: changeAgentStatusLoading }] =
@@ -13,7 +15,7 @@ export const usePauseAgent = () => {
       refetchQueries: [CALL_GET_AGENT_STATUS],
       onError(error) {
         toast({
-          title: 'Uh oh! Something went wrong while pausing agent',
+          title: t('something-went-wrong-pausing-agent'),
           description: error.message,
           variant: 'destructive',
         });

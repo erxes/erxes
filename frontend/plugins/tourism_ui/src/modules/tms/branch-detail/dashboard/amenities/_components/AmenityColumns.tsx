@@ -21,6 +21,7 @@ export const amenityColumns = (
   branchId?: string,
   branchLanguages?: string[],
   mainLanguage?: string,
+  t: (key: string) => string = (k) => k,
 ): ColumnDef<IAmenity>[] => [
   RecordTable.checkboxColumn as ColumnDef<IAmenity>,
   amenityMoreColumn(branchId, branchLanguages, mainLanguage),
@@ -28,7 +29,7 @@ export const amenityColumns = (
     id: 'icon',
     accessorKey: 'icon',
     header: () => (
-      <RecordTable.InlineHead icon={IconBrandTabler} label="Icon" />
+      <RecordTable.InlineHead icon={IconBrandTabler} label={t('icon')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       const iconName = cell.getValue() as string;
@@ -54,7 +55,7 @@ export const amenityColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
     cell: ({ cell, row }: { cell: any; row: any }) => {
       const amenity = row.original as IAmenity;
       return (
@@ -81,7 +82,7 @@ export const amenityColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />
+      <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
@@ -98,7 +99,7 @@ export const amenityColumns = (
     id: 'modifiedAt',
     accessorKey: 'modifiedAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarDot} label="Modified" />
+      <RecordTable.InlineHead icon={IconCalendarDot} label={t('modified')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (

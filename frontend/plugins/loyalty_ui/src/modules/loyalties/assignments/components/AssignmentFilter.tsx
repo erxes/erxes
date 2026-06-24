@@ -1,4 +1,5 @@
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AssignmentTotalCount } from './AssignmentTotalCount';
 import {
   SelectAssignmentCampaignFilterItem,
@@ -15,6 +16,7 @@ import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 import { SelectOwnerType } from '../../vouchers/components/selects/SelectOwnerType';
 
 const AssignmentFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     assignmentCampaignId: string | null;
     assignmentStatus: string | null;
@@ -37,7 +39,7 @@ const AssignmentFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />

@@ -1,10 +1,12 @@
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IDonate } from '../types/donate';
 import { DonateRemove } from './delete/DonateRemove';
 
 export const DonateCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
+  const { t } = useTranslation('loyalty');
 
   const selectedRows = table.getFilteredSelectedRowModel()
     .rows as Row<IDonate>[];
@@ -13,7 +15,7 @@ export const DonateCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{t('selected-count', { count: selectedRows.length })}</CommandBar.Value>
         <Separator.Inline />
         <DonateRemove donateIds={donateIds} rows={selectedRows} />
       </CommandBar.Bar>

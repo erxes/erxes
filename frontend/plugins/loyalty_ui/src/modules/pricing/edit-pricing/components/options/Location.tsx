@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Form, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
@@ -11,6 +12,7 @@ interface LocationProps {
 }
 
 export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
+  const { t } = useTranslation('loyalty');
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
 
@@ -52,13 +54,13 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
         branchIds: values.branchIds,
       });
       toast({
-        title: 'Location updated',
-        description: 'Changes have been saved successfully.',
+        title: t('location-updated'),
+        description: t('changes-saved'),
       });
     } catch {
       toast({
-        title: 'Failed to update location',
-        description: 'An unexpected error occurred.',
+        title: t('failed-to-update-location'),
+        description: t('unexpected-error'),
         variant: 'destructive',
       });
     }
@@ -77,7 +79,7 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
             name="branchIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Branches</Form.Label>
+                <Form.Label>{t('branches')}</Form.Label>
                 <Form.Control>
                   <SelectBranches.FormItem
                     mode="multiple"
@@ -93,7 +95,7 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
             name="departmentIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Departments</Form.Label>
+                <Form.Label>{t('departments')}</Form.Label>
                 <Form.Control>
                   <SelectDepartments.FormItem
                     mode="multiple"
@@ -109,7 +111,7 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
         {hasChanges && (
           <div className="flex justify-end pt-4 border-t">
             <Button type="submit" disabled={loading}>
-              Save Changes
+              {t('save-changes')}
             </Button>
           </div>
         )}

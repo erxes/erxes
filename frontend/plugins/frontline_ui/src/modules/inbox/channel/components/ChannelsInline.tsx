@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useChannelInline } from '../hooks/useChannelInline';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelsInline = ({
   channels,
@@ -53,6 +54,7 @@ export const ChannelsInlineProvider = ({
   updateChannels?: (channels: IChannel[]) => void;
   showIcon?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [_channels, _setChannels] = useState<IChannel[]>(channels || []);
 
   return (
@@ -61,7 +63,7 @@ export const ChannelsInlineProvider = ({
         channels: channels || _channels,
         loading: false,
         channelIds: channelIds || [],
-        placeholder: placeholder || 'Select channels',
+        placeholder: placeholder || t('select-channels'),
         updateChannels: updateChannels || _setChannels,
         showIcon: showIcon || false,
       }}

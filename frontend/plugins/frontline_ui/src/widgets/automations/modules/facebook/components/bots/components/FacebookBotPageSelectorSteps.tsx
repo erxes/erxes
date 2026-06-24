@@ -5,11 +5,13 @@ import {
 import { Badge, Button, cn, Sheet } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FacebookBotPageAccountsStep } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageAccountsStep';
 import { FacebookBotPagesStep } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPagesStep';
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
 
 const useActionButton = (accountId?: string) => {
+  const { t } = useTranslation('frontline');
   const [activeStep, setStep] = useState(1);
 
   const selectedAccountId =
@@ -30,7 +32,7 @@ const useActionButton = (accountId?: string) => {
   };
 
   return {
-    text: isLastStep ? 'Save' : 'Next step',
+    text: isLastStep ? t('save') : t('next-step'),
     disabled:
       activeStep === 2
         ? !selectedAccountId || !selectedPageId
@@ -48,6 +50,7 @@ export const FacebookBotPageSelectorSteps = ({
   step: number;
   accountId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const { onClick, disabled, text, activeStep, setStep } =
     useActionButton(accountId);
 
@@ -62,7 +65,7 @@ export const FacebookBotPageSelectorSteps = ({
           <Badge className="rounded-xl text-xs font-mono">
             STEP {activeStep}
           </Badge>
-          <h2 className="text-primary font-semibold text-base">Connect Page</h2>
+          <h2 className="text-primary font-semibold text-base">{t('connect-page')}</h2>
         </div>
 
         <Sheet.Close />
@@ -81,7 +84,7 @@ export const FacebookBotPageSelectorSteps = ({
             ))}
           </div>
           <div className="text-xs text-accent-foreground">
-            Select a page to link your bot to.
+            {t('select-page-to-link-bot')}
           </div>
         </div>
         {activeStep === 1 && (
@@ -96,7 +99,7 @@ export const FacebookBotPageSelectorSteps = ({
           onClick={() => setStep(1)}
           disabled={activeStep === 1}
         >
-          Previous step
+          {t('previous-step')}
         </Button>
         <Button onClick={onClick} disabled={disabled}>
           {text}

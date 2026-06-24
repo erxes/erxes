@@ -9,6 +9,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { useAtom } from 'jotai';
 import { configCreateModalAtom } from '../states';
@@ -22,6 +23,7 @@ function formatDate(dateValue: Date | string | null | undefined): string {
 }
 
 export const ConfigList = () => {
+  const { t } = useTranslation('frontline');
   const [, setOpen] = useAtom(configCreateModalAtom);
   const [, setConfigId] = useQueryState<string | undefined>('configId');
   const { ticketConfig, loading } = useGetTicketConfigByPipelineId();
@@ -48,24 +50,24 @@ export const ConfigList = () => {
   return (
     <div className="box-border flex-1 px-4 sm:px-8 lg:px-16">
       <InfoCard
-        title="Messenger Configuration"
-        description="Configure the messenger configuration"
+        title={t('messenger-configuration')}
+        description={t('configure-messenger-configuration')}
       >
         <InfoCard.Content>
           <Table className="border-none rounded-xl overflow-hidden *:border-none">
             <Table.Header className="border-none">
               <Table.Row className="[&>td]:font-mono [&>td]:uppercase [&>td]:font-semibold [&>td]:text-xs [&>td]:text-accent-foreground *:border-none">
                 <Table.Cell colSpan={3} className="ps-2">
-                  Name
+                  {t('name')}
                 </Table.Cell>
                 <Table.Cell colSpan={3} className="text-center">
-                  Contact Type
+                  {t('contact-type')}
                 </Table.Cell>
                 <Table.Cell colSpan={4} className="text-right">
-                  Created At
+                  {t('created-at')}
                 </Table.Cell>
                 <Table.Cell colSpan={2} className="text-right pe-2">
-                  Action
+                  {t('actions')}
                 </Table.Cell>
               </Table.Row>
             </Table.Header>
@@ -134,7 +136,7 @@ export const ConfigList = () => {
                         onClick={() => setOpen(true)}
                       >
                         <IconPlus />
-                        Add Configuration
+                        {t('add-configuration')}
                       </Button>
                     </div>
                   </Table.Cell>

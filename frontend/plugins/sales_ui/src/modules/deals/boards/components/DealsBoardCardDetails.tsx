@@ -1,4 +1,5 @@
 import { Badge, cn, renderFullName } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type DealCardDetailsProps = {
   items: any;
@@ -15,6 +16,7 @@ export const DealCardDetails = ({
   className,
   separated,
 }: DealCardDetailsProps) => {
+  const { t } = useTranslation('sales');
   if (!items || items.length === 0) return null;
 
   const visibleItems = items.slice(0, MAX_VISIBLE_ITEMS);
@@ -65,7 +67,7 @@ export const DealCardDetails = ({
         </div>
       ))}
       {remainingCount > 0 && (
-        <Badge variant="ghost">+{remainingCount} more</Badge>
+        <Badge variant="ghost">{t('more-items', { count: remainingCount })}</Badge>
       )}
     </div>
   );

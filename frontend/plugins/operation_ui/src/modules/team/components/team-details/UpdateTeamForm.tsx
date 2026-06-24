@@ -4,8 +4,10 @@ import { ITeam, TTeamForm } from '@/team/types';
 import { Button, Form, IconPicker, Input, Textarea, useToast } from 'erxes-ui';
 import React from 'react';
 import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const UpdateTeamForm = ({ team }: { team: ITeam }) => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const { updateTeam } = useTeamUpdate();
 
@@ -25,11 +27,11 @@ export const UpdateTeamForm = ({ team }: { team: ITeam }) => {
           ...data,
         },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({ title: t('success') });
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -51,8 +53,8 @@ export const UpdateTeamForm = ({ team }: { team: ITeam }) => {
               name="icon"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Icon</Form.Label>
-                  <Form.Description className="sr-only">Icon</Form.Description>
+                  <Form.Label>{t('icon')}</Form.Label>
+                  <Form.Description className="sr-only">{t('icon')}</Form.Description>
                   <Form.Control>
                     <IconPicker
                       onValueChange={field.onChange}
@@ -71,7 +73,7 @@ export const UpdateTeamForm = ({ team }: { team: ITeam }) => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} className="w-full" />
                   </Form.Control>
@@ -86,9 +88,9 @@ export const UpdateTeamForm = ({ team }: { team: ITeam }) => {
           name="description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>description</Form.Label>
+              <Form.Label>{t('description-label')}</Form.Label>
               <Form.Description className="sr-only">
-                description
+                {t('description-label')}
               </Form.Description>
               <Form.Control>
                 <Textarea {...field} />
@@ -98,7 +100,7 @@ export const UpdateTeamForm = ({ team }: { team: ITeam }) => {
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">Update</Button>
+          <Button type="submit">{t('update')}</Button>
         </div>
       </form>
     </Form>

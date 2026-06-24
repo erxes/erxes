@@ -21,6 +21,7 @@ import {
 } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelCard = ({
   channel,
@@ -29,6 +30,7 @@ export const ChannelCard = ({
   channel: IChannel;
   members?: IChannelMember[];
 }) => {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const {
     _id,
@@ -79,7 +81,7 @@ export const ChannelCard = ({
       </div>
 
       <div className="flex flex-col gap-2 text-sm">
-        <ChannelRow label="Members">
+        <ChannelRow label={t('members-title')}>
           {memberUsers.length > 0 ? (
             <MembersInline.Provider members={memberUsers} size="sm">
               <MembersInline.Avatar size="sm" />
@@ -91,35 +93,35 @@ export const ChannelCard = ({
           </span>
         </ChannelRow>
 
-        <ChannelRow label="Pipelines">
+        <ChannelRow label={t('pipelines')}>
           <span className="flex items-center gap-1">
             <IconLayoutKanban size={14} className="text-muted-foreground" />
             {pipelineCount ?? 0}
           </span>
         </ChannelRow>
 
-        <ChannelRow label="Forms">
+        <ChannelRow label={t('forms')}>
           <span className="flex items-center gap-1">
             <IconForms size={14} className="text-muted-foreground" />
             {formCount ?? 0}
           </span>
         </ChannelRow>
 
-        <ChannelRow label="Templates">
+        <ChannelRow label={t('templates')}>
           <span className="flex items-center gap-1">
             <IconMessageReply size={14} className="text-muted-foreground" />
             {responseTemplateCount ?? 0}
           </span>
         </ChannelRow>
 
-        <ChannelRow label="Status">
+        <ChannelRow label={t('status')}>
           <span className="flex items-center gap-1.5 text-foreground">
             <span className="size-1.5 rounded-full bg-success" />
             Active
           </span>
         </ChannelRow>
 
-        <ChannelRow label="Created">
+        <ChannelRow label={t('created')}>
           <DateDisplay date={createdAt} />
         </ChannelRow>
       </div>
