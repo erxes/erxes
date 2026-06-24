@@ -659,18 +659,23 @@ const PropertyValueFilterView = ({
       field.type === 'select' ||
       field.type === 'multiSelect' ||
       field.type === 'radio';
-    const nextValues = supportsMultipleValues
-      ? isSelected
+    let nextValues: string[];
+
+    if (supportsMultipleValues) {
+      nextValues = isSelected
         ? selectedValues.filter((item) => item !== optionValue)
-        : [...selectedValues, optionValue]
-      : isSelected
-      ? []
-      : [optionValue];
+        : [...selectedValues, optionValue];
+    } else {
+      nextValues = isSelected ? [] : [optionValue];
+    }
+
+    if (!nextValues.length) {
+      onValueChange(clearPropertyFilter(value, field._id));
+      return;
+    }
 
     onValueChange(
-      nextValues.length
-        ? setPropertyFilterValues({ filters: value, field, values: nextValues })
-        : clearPropertyFilter(value, field._id),
+      setPropertyFilterValues({ filters: value, field, values: nextValues }),
     );
   };
 
