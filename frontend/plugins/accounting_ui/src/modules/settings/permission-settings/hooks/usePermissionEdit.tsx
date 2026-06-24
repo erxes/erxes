@@ -1,5 +1,6 @@
 import { useApolloClient, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SET_ACCOUNT_PERMISSIONS } from '../graphql/mutations/permissions';
 import {
   IPermission,
@@ -15,6 +16,7 @@ type EditableFields = {
 };
 
 export const usePermissionEdit = () => {
+  const { t } = useTranslation('accounting');
   const client = useApolloClient();
   const [_setPermissions, { loading }] = useMutation(SET_ACCOUNT_PERMISSIONS);
 
@@ -64,7 +66,7 @@ export const usePermissionEdit = () => {
       variables,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -82,8 +84,8 @@ export const usePermissionEdit = () => {
     promise?.then(({ errors } = {} as any) => {
       if (errors?.length) return;
       toast({
-        title: 'Success',
-        description: 'Permission updated',
+        title: t('success'),
+        description: t('permission-updated'),
         variant: 'success',
       });
     });
@@ -113,8 +115,8 @@ export const usePermissionEdit = () => {
       const hasErrors = results.some((r) => r?.errors?.length);
       if (hasErrors) return;
       toast({
-        title: 'Success',
-        description: `${permissions.length} permissions updated`,
+        title: t('success'),
+        description: t('permissions-updated', { count: permissions.length }),
         variant: 'success',
       });
     });

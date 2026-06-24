@@ -1,6 +1,8 @@
 import { Button, RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import i18n from 'i18next';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   getAccountingCheckSyncedDealsColumns,
   isSyncableAccountingDeal,
@@ -20,15 +22,9 @@ const getSyncButtonLabel = ({
   syncing: boolean;
   toSyncCount: number;
 }) => {
-  if (syncing) {
-    return 'Syncing...';
-  }
-
-  if (!canSync) {
-    return 'Select rule to sync';
-  }
-
-  return `Sync Selected (${toSyncCount})`;
+  if (syncing) return i18n.t('accounting:syncing');
+  if (!canSync) return i18n.t('accounting:select-rule-to-sync');
+  return i18n.t('accounting:sync-selected', { count: toSyncCount });
 };
 
 const AccountingCheckSyncedDealsActions = ({
@@ -48,6 +44,7 @@ const AccountingCheckSyncedDealsActions = ({
   onCheck: (ids: string[]) => void;
   onSync: () => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const selectedIds = table
     .getSelectedRowModel()
@@ -57,14 +54,14 @@ const AccountingCheckSyncedDealsActions = ({
   return (
     <div className="flex items-center justify-between gap-3 px-3 pt-3">
       <div className="text-sm text-muted-foreground">
-        {selectedIds.length} selected / {dealsCount} deals
+        {selectedIds.length} {t('selected')} / {dealsCount} {t('deals')}
       </div>
       <div className="flex items-center gap-2">
         <Button
           onClick={() => onCheck(selectedIds)}
           disabled={checking || !selectedIds.length}
         >
-          {checking ? 'Checking...' : 'Check Deals'}
+          {checking ? t('checking') : t('check-deals')}
         </Button>
         {canSync ? (
           <Button
@@ -87,6 +84,7 @@ const AccountingCheckSyncedDealsActions = ({
 };
 
 export const AccountingCheckSyncedDealsRecordTable = () => {
+  const { t } = useTranslation('accounting');
   const {
     canSync,
     checking,
@@ -160,9 +158,11 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
               <div className="mb-6">
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">No deals</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {t('no-deals')}
+              </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Select a rule or adjust filters to find deals.
+                {t('select-rule-or-adjust-filters-deals')}
               </p>
             </div>
           </div>

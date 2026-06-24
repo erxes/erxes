@@ -9,6 +9,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_POS_LIST_QUERY } from '../graphql/checkSyncedOrders';
 
 type AccountingPos = {
@@ -32,22 +33,23 @@ const useAccountingPosList = () =>
   });
 
 const AccountingOrderPosContent = ({ onSelect }: { onSelect?: () => void }) => {
+  const { t } = useTranslation('accounting');
   const [posId, setPosId] = useQueryState<string>('pos');
   const { data, loading } = useAccountingPosList();
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">Loading...</span>
+        <span className="text-muted-foreground">{t('loading')}</span>
       </div>
     );
   }
 
   return (
     <Command>
-      <Command.Input placeholder="Search POS" />
+      <Command.Input placeholder={t('search-pos')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No POS found</span>
+        <span className="text-muted-foreground">{t('no-pos-found')}</span>
       </Command.Empty>
       <Command.List>
         {(data?.posList || []).map((pos) => (
@@ -68,12 +70,16 @@ const AccountingOrderPosContent = ({ onSelect }: { onSelect?: () => void }) => {
   );
 };
 
-export const AccountingOrderPosFilterItem = () => (
-  <Filter.Item value="pos">
-    <IconCashRegister />
-    POS
-  </Filter.Item>
-);
+export const AccountingOrderPosFilterItem = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Item value="pos">
+      <IconCashRegister />
+      {t('pos')}
+    </Filter.Item>
+  );
+};
+
 
 export const AccountingOrderPosFilterView = () => {
   const { resetFilterState } = useFilterContext();
@@ -86,6 +92,7 @@ export const AccountingOrderPosFilterView = () => {
 };
 
 export const AccountingOrderPosFilterBar = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   const [posId] = useQueryState<string>('pos');
   const { data } = useAccountingPosList();
@@ -95,7 +102,7 @@ export const AccountingOrderPosFilterBar = () => {
     <Filter.BarItem queryKey="pos">
       <Filter.BarName>
         <IconCashRegister />
-        POS
+        {t('pos')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>

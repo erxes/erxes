@@ -45,7 +45,10 @@ import { EditSafeRemainder } from './SafeRemainderEditForm';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import { useRef, useState } from 'react';
 import { useSafeRemainderItemsBulkEdit } from '../hooks/useSafeRemainderItemsBulkEdit';
+import { useTranslation } from 'react-i18next';
+
 export const SafeRemainderDetail = () => {
+  const { t } = useTranslation('accounting');
   const [id] = useQueryState<string>('id');
   const [activeTab, setActiveTab] = useAtom(activeTabState);
   const setHotkeyScope = useSetHotkeyScope();
@@ -88,11 +91,11 @@ export const SafeRemainderDetail = () => {
             <ImportFromFileButton safeRemainderId={id} />
             <Button onClick={() => reCalcSafeRemainder(id)}>
               <IconCrane />
-              ReCalc
+              {t('recalc')}
             </Button>
             <Button onClick={() => submitSafeRemainder(id)}>
               <IconAccessPoint />
-              Submit
+              {t('submit')}
             </Button>
             <Button
               variant="secondary"
@@ -100,7 +103,7 @@ export const SafeRemainderDetail = () => {
               onClick={() => removeSafeRemainder({ variables: { _id: id } })}
             >
               <IconTrashX />
-              Delete
+              {t('delete')}
             </Button>
           </>
         );
@@ -109,7 +112,7 @@ export const SafeRemainderDetail = () => {
           <>
             <Button onClick={() => doTrSafeRemainder(id)}>
               <IconCrane />
-              Do Transaction
+              {t('do-transaction')}
             </Button>
             <Button
               variant="secondary"
@@ -117,7 +120,7 @@ export const SafeRemainderDetail = () => {
               onClick={() => cancelSafeRemainder(id)}
             >
               <IconTrashX />
-              Cancel Submition
+              {t('cancel-submition')}
             </Button>
           </>
         );
@@ -127,7 +130,7 @@ export const SafeRemainderDetail = () => {
           <>
             <Button onClick={() => doTrSafeRemainder(id)}>
               <IconCrane />
-              ReDo Transaction
+              {t('redo-transaction')}
             </Button>
             <Button
               variant="secondary"
@@ -135,7 +138,7 @@ export const SafeRemainderDetail = () => {
               onClick={() => undoTrSafeRemainder(id)}
             >
               <IconTrashX />
-              Undo transaction
+              {t('undo-transaction')}
             </Button>
           </>
         );
@@ -148,13 +151,13 @@ export const SafeRemainderDetail = () => {
   return (
     <>
       <div className="m-3 mb-0">
-        <h3 className="text-lg font-bold">Inventory Census Detail</h3>
+        <h3 className="text-lg font-bold">{t('inventory-census-detail')}</h3>
         <div className="flex items-center col-span-2 xl:col-span-3 gap-6">
           <div>
             {safeRemainder && <StatusBar safeRemainder={safeRemainder} />}
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-accent-foreground">Status:</span>
+            <span className="text-accent-foreground">{t('status')}:</span>
             <span className="text-primary font-bold">
               {safeRemainder?.status}
             </span>
@@ -358,22 +361,23 @@ export const SafeRemainderDetail = () => {
 };
 
 const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
+  const { t } = useTranslation('accounting');
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
       <div className="flex items-center gap-2 text-sm">
-        <Label>Date:</Label>
+        <Label>{t('date')}:</Label>
         <span>{dayjs(safeRemainder.date).format('YYYY-MM-DD HH:mm:ss')}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Label>Branch:</Label>
+        <Label>{t('branch')}:</Label>
         <span>{`${safeRemainder.branch?.code ?? ''} - ${
           safeRemainder.branch?.title ?? ''
         }`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Label>Department:</Label>
+        <Label>{t('department')}:</Label>
         <span>{`${safeRemainder.department?.code ?? ''} - ${
           safeRemainder.department?.title ?? ''
         }`}</span>
@@ -381,7 +385,7 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
       </div>
       {safeRemainder.productCategoryId && (
         <div className="flex items-center gap-2 text-sm">
-          <Label>Product Category:</Label>
+          <Label>{t('product-category')}:</Label>
           <span>{`${safeRemainder.productCategory?.code ?? ''} - ${
             safeRemainder.productCategory?.name ?? ''
           }`}</span>
@@ -389,7 +393,7 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
         </div>
       )}
       <div className="flex items-center gap-2 text-sm">
-        <Label>Description:</Label>
+        <Label>{t('description')}:</Label>
         <span>{safeRemainder.description}</span>
       </div>
     </div>
@@ -403,6 +407,7 @@ const ImportFromFileButton = ({
 }: {
   safeRemainderId: string;
 }) => {
+  const { t } = useTranslation('accounting');
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [duplicateRule, setDuplicateRule] = useState<DuplicateRule>('last');
@@ -448,17 +453,17 @@ const ImportFromFileButton = ({
     [
       {
         value: 'last',
-        label: 'Last',
+        label: 'last',
         description: 'Давтагдсан бол сүүлийн утгыг авна',
       },
       {
         value: 'skip',
-        label: 'Skip',
+        label: 'skip',
         description: 'Давтагдсан бол анхны утгыг хадгална',
       },
       {
         value: 'add',
-        label: 'Add',
+        label: 'add',
         description: 'Давтагдсан бол утгуудыг нэмнэ',
       },
     ];
@@ -478,11 +483,11 @@ const ImportFromFileButton = ({
         onClick={() => inputRef.current?.click()}
       >
         <IconFileImport />
-        Import
+        {t('import')}
       </Button>
       <AccountingDialog
-        title="Import from file"
-        description="Choose duplicate rule"
+        title={t('import-from-file')}
+        description={t('choose-duplicate-rule')}
       >
         <div className="p-4 flex flex-col gap-4">
           <p className="text-sm text-muted-foreground">
@@ -503,7 +508,7 @@ const ImportFromFileButton = ({
                   className="mt-0.5"
                 />
                 <div>
-                  <p className="text-sm font-medium">{rule.label}</p>
+                  <p className="text-sm font-medium">{t(rule.label)}</p>
                   <p className="text-xs text-muted-foreground">
                     {rule.description}
                   </p>

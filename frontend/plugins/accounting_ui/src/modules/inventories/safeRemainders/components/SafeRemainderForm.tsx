@@ -11,24 +11,26 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useSafeRemainderAdd } from '../hooks/useSafeRemainderAdd';
 import { TSafeRemainderForm } from '../types/safeRemainderForm';
 import { safeRemainderSchema } from '../types/safeRemainderSchema';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
 export const AddSafeRemainder = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Safe Remainder
+          {t('add-safe-remainder')}
         </Button>
       </Dialog.Trigger>
       <AccountingDialog
-        title="Create Adjust Inventory"
-        description="Adjust inventory for a specific branch, department, and category"
+        title={t('create-adjust-inventory')}
+        description={t('adjust-inventory-description')}
       >
         <AddSafeRemainderForm setOpen={setOpen} />
       </AccountingDialog>
@@ -41,6 +43,7 @@ const AddSafeRemainderForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const form = useForm<TSafeRemainderForm>({
     resolver: zodResolver(safeRemainderSchema),
     defaultValues: {
@@ -74,7 +77,7 @@ const AddSafeRemainderForm = ({
             name="date"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Date</Form.Label>
+                <Form.Label>{t('date')}</Form.Label>
                 <Form.Control>
                   <DatePicker
                     value={field.value}
@@ -93,7 +96,7 @@ const AddSafeRemainderForm = ({
               name="branchId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Branch</Form.Label>
+                  <Form.Label>{t('branch')}</Form.Label>
                   <SelectBranches.FormItem
                     mode="single"
                     value={field.value}
@@ -108,7 +111,7 @@ const AddSafeRemainderForm = ({
               name="departmentId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Department</Form.Label>
+                  <Form.Label>{t('department')}</Form.Label>
                   <SelectDepartments.FormItem
                     mode="single"
                     value={field.value}
@@ -125,7 +128,7 @@ const AddSafeRemainderForm = ({
             name="productCategoryId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Product Category</Form.Label>
+                <Form.Label>{t('product-category')}</Form.Label>
                 <SelectCategory
                   selected={field.value}
                   onSelect={field.onChange}
@@ -140,10 +143,10 @@ const AddSafeRemainderForm = ({
             name="description"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Description</Form.Label>
+                <Form.Label>{t('description')}</Form.Label>
                 <Form.Control>
                   <Textarea
-                    placeholder="Enter description"
+                    placeholder={t('enter-description')}
                     rows={3}
                     {...field}
                   />
@@ -157,12 +160,12 @@ const AddSafeRemainderForm = ({
         <Dialog.Footer className="px-6 py-4 border-t bg-muted/30">
           <Dialog.Close asChild>
             <Button variant="outline" type="button" size="lg">
-              Cancel
+              {t('cancel')}
             </Button>
           </Dialog.Close>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            {t('save')}
           </Button>
         </Dialog.Footer>
       </form>
