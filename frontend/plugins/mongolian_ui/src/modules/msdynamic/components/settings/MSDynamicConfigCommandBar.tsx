@@ -7,12 +7,14 @@ import {
   toast,
   useConfirm,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { useMSDynamicConfigActions } from '../../hooks/useMSDynamicConfigActions';
 import { useMSDynamicConfigs } from '../../hooks/useMSDynamicConfigs';
 import { MSMDynamicConfigRow } from '../../types';
 
 export const MSDynamicConfigCommandBar = () => {
+  const { t } = useTranslation('mongolian');
   const { configsMap, loading: configsLoading, saveConfigs, saveLoading } =
     useMSDynamicConfigs();
   const { loading, removeConfigs } = useMSDynamicConfigActions({
@@ -29,7 +31,7 @@ export const MSDynamicConfigCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={clearSelection}>
-          {selectedRows.length} selected
+          {selectedRows.length} {t('selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <MSDynamicConfigBulkDelete
@@ -54,15 +56,16 @@ const MSDynamicConfigBulkDelete = ({
   onDeleteMany: (rows: MSMDynamicConfigRow[]) => Promise<void>;
   onCompleted: () => void;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { confirm } = useConfirm();
 
   const handleDelete = () => {
     confirm({
-      message: 'Delete selected MS Dynamics configs?',
+      message: t('delete-selected-ms-dynamics-configs'),
       options: {
-        description: 'This will delete the selected configs.',
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        description: t('this-will-delete-selected-configs'),
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(async () => {
       try {
@@ -70,11 +73,11 @@ const MSDynamicConfigBulkDelete = ({
         onCompleted();
       } catch (error) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
             error instanceof Error
               ? error.message
-              : 'Failed to delete selected configs',
+              : t('failed-to-delete-selected-configs'),
           variant: 'destructive',
         });
       }
@@ -84,7 +87,7 @@ const MSDynamicConfigBulkDelete = ({
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Checkbox, Form, Input, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -39,6 +40,7 @@ const normalizeRuleIds = (value?: string | string[]) => {
 };
 
 const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
+  const { t } = useTranslation('mongolian');
   const form = useForm<TErkhetConfig>({
     resolver: zodResolver(addStageInErkhetConfigSchema),
     defaultValues: {
@@ -75,7 +77,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
           <div className="flex justify-between items-center">
             <h1 className="text-lg font-semibold">Борлуулалт</h1>
             <Button type="button" onClick={onNewConfig}>
-              New Config
+              {t('new-config')}
             </Button>
           </div>
 
@@ -84,9 +86,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Title</Form.Label>
+                <Form.Label>{t('title')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder="Title" />
+                  <Input {...field} placeholder={t('title')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -113,7 +115,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   name="responseField"
                   render={({ field }) => (
                     <Form.Item className="w-full">
-                      <Form.Label>Choose Response Field</Form.Label>
+                      <Form.Label>{t('choose-response-field')}</Form.Label>
                       <Select
                         value={field.value}
                         onValueChange={(value) => {
@@ -121,7 +123,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                         }}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder="Choose Response Field" />
+                          <Select.Value placeholder={t('choose-response-field')} />
                         </Select.Trigger>
                         <Select.Content>
                           {CHOOSE_RESPONSE_FIELD_DATA.map(
@@ -144,9 +146,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   name="userEmail"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>User Email</Form.Label>
+                      <Form.Label>{t('user-email')}</Form.Label>
                       <Form.Control>
-                        <Input {...field} placeholder="User Email" />
+                        <Input {...field} placeholder={t('user-email')} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -157,7 +159,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   name="hasVat"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                      <Form.Label variant="peer">Has Vat</Form.Label>
+                      <Form.Label variant="peer">{t('has-vat')}</Form.Label>
                       <Form.Control>
                         <Checkbox
                           checked={field.value}
@@ -174,7 +176,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Another rules of products on vat
+                          {t('another-rules-of-products-on-vat')}
                         </Form.Label>
                         <SelectAnotherRulesOfProductsOnCityTax
                           value={field.value}
@@ -191,7 +193,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   name="hasCitytax"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                      <Form.Label variant="peer">Has City Tax</Form.Label>
+                      <Form.Label variant="peer">{t('has-citytax')}</Form.Label>
                       <Form.Control>
                         <Checkbox
                           checked={field.value}
@@ -210,7 +212,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Another rules of products on city tax
+                          {t('another-rules-of-products-on-citytax')}
                         </Form.Label>
                         <SelectAnotherRulesOfProductsOnCityTax
                           value={field.value}
@@ -228,7 +230,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
           </div>
           <div className="flex justify-end">
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
+              {loading ? t('saving') : t('save')}
             </Button>
           </div>
         </form>
@@ -246,6 +248,7 @@ const NewConfigForm = ({
   onSubmit: (data: TErkhetConfig) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const form = useForm<TErkhetConfig>({
     resolver: zodResolver(addStageInErkhetConfigSchema),
     defaultValues,
@@ -270,9 +273,9 @@ const NewConfigForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Title</Form.Label>
+                <Form.Label>{t('title')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder="Title" />
+                  <Input {...field} placeholder={t('title')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -298,7 +301,7 @@ const NewConfigForm = ({
                   name="responseField"
                   render={({ field }) => (
                     <Form.Item className="w-full">
-                      <Form.Label>Choose Response Field</Form.Label>
+                      <Form.Label>{t('choose-response-field')}</Form.Label>
                       <Select
                         value={field.value}
                         onValueChange={(value) => {
@@ -306,7 +309,7 @@ const NewConfigForm = ({
                         }}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder="Choose Response Field" />
+                          <Select.Value placeholder={t('choose-response-field')} />
                         </Select.Trigger>
                         <Select.Content>
                           {CHOOSE_RESPONSE_FIELD_DATA.map(
@@ -329,9 +332,9 @@ const NewConfigForm = ({
                   name="userEmail"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>User Email</Form.Label>
+                      <Form.Label>{t('user-email')}</Form.Label>
                       <Form.Control>
-                        <Input {...field} placeholder="User Email" />
+                        <Input {...field} placeholder={t('user-email')} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -342,7 +345,7 @@ const NewConfigForm = ({
                   name="hasVat"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                      <Form.Label variant="peer">Has Vat</Form.Label>
+                      <Form.Label variant="peer">{t('has-vat')}</Form.Label>
                       <Form.Control>
                         <Checkbox
                           checked={field.value}
@@ -359,7 +362,7 @@ const NewConfigForm = ({
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Another rules of products on vat
+                          {t('another-rules-of-products-on-vat')}
                         </Form.Label>
                         <SelectAnotherRulesOfProductsOnCityTax
                           value={field.value}
@@ -376,7 +379,7 @@ const NewConfigForm = ({
                   name="hasCitytax"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                      <Form.Label variant="peer">Has City Tax</Form.Label>
+                      <Form.Label variant="peer">{t('has-citytax')}</Form.Label>
                       <Form.Control>
                         <Checkbox
                           checked={field.value}
@@ -395,7 +398,7 @@ const NewConfigForm = ({
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Another rules of products on city tax
+                          {t('another-rules-of-products-on-citytax')}
                         </Form.Label>
                         <SelectAnotherRulesOfProductsOnCityTax
                           value={field.value}
@@ -414,10 +417,10 @@ const NewConfigForm = ({
 
           <div className="flex justify-end gap-2 mt-6">
             <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save'}
+              {loading ? t('saving') : t('save')}
             </Button>
           </div>
         </form>
@@ -427,6 +430,7 @@ const NewConfigForm = ({
 };
 
 export const SalesForm = () => {
+  const { t } = useTranslation('mongolian');
   const [showNewConfig, setShowNewConfig] = useState(false);
   const { createStageInErkhetConfig, loading: createLoading } =
     useCreateStageInErkhetConfig();
@@ -487,7 +491,7 @@ export const SalesForm = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t('loading')}</div>;
   }
 
   return (

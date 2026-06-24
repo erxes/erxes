@@ -1,18 +1,22 @@
 import { IOrderItem } from '../types/msDynamicCheckOrder';
 import { formatAmount } from './PosOrderDetailLayout';
+import { useTranslation } from 'react-i18next';
 
 /** Items table header gargana. */
-const PosOrderItemsTableHeader = () => (
-  <thead>
-    <tr className="border-b border-border/70 bg-muted/20 text-xs text-muted-foreground">
-      <th className="px-4 py-3 text-left font-medium">Product</th>
-      <th className="w-20 px-4 py-3 text-right font-medium">Qty</th>
-      <th className="w-32 px-4 py-3 text-right font-medium">Unit Price</th>
-      <th className="w-32 px-4 py-3 text-right font-medium">Amount</th>
-      <th className="w-28 px-4 py-3 text-right font-medium">Discount</th>
-    </tr>
-  </thead>
-);
+const PosOrderItemsTableHeader = () => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <thead>
+      <tr className="border-b border-border/70 bg-muted/20 text-xs text-muted-foreground">
+        <th className="px-4 py-3 text-left font-medium">{t('product')}</th>
+        <th className="w-20 px-4 py-3 text-right font-medium">{t('qty')}</th>
+        <th className="w-32 px-4 py-3 text-right font-medium">{t('unit-price')}</th>
+        <th className="w-32 px-4 py-3 text-right font-medium">{t('amount')}</th>
+        <th className="w-28 px-4 py-3 text-right font-medium">{t('discount')}</th>
+      </tr>
+    </thead>
+  );
+};
 
 /** Neg item row-iig gargana. */
 const PosOrderItemRow = ({ item }: { item: IOrderItem }) => (
@@ -34,13 +38,16 @@ const PosOrderItemRow = ({ item }: { item: IOrderItem }) => (
 );
 
 /** Items baihgui ued empty row gargana. */
-const PosOrderItemsEmptyRow = () => (
-  <tr>
-    <td className="px-4 py-10 text-center text-muted-foreground" colSpan={5}>
-      No items.
-    </td>
-  </tr>
-);
+const PosOrderItemsEmptyRow = () => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <tr>
+      <td className="px-4 py-10 text-center text-muted-foreground" colSpan={5}>
+        {t('no-items')}
+      </td>
+    </tr>
+  );
+};
 
 /** Items table body gargana. */
 const PosOrderItemsTableBody = ({ items }: { items: IOrderItem[] }) => (

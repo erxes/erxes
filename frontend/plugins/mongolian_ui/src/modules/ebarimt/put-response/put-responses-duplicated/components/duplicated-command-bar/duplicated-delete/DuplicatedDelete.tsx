@@ -2,12 +2,14 @@ import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useRemoveDuplicated } from '~/modules/ebarimt/put-response/put-responses-duplicated/detail/hooks/useRemoveDuplicated';
+import { useTranslation } from 'react-i18next';
 
 export const DuplicatedDelete = ({
   duplicatedIds,
 }: {
   duplicatedIds: string[];
 }) => {
+  const { t } = useTranslation('mongolian');
   const { confirm } = useConfirm();
   const { removeDuplicated } = useRemoveDuplicated();
   const { toast } = useToast();
@@ -17,14 +19,12 @@ export const DuplicatedDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${
-            duplicatedIds.length
-          } selected duplicated${duplicatedIds.length === 1 ? '' : 's'}?`,
+          message: t('delete-duplicated-confirm', { count: duplicatedIds.length }),
         }).then(() => {
           removeDuplicated(duplicatedIds, {
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -34,7 +34,7 @@ export const DuplicatedDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

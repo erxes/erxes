@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IPaidAmount, IPosOrderDetail } from '../types/msDynamicCheckOrder';
 import { DetailRow, DetailSection, formatAmount } from './PosOrderDetailLayout';
 
@@ -8,30 +9,32 @@ export const PosOrderPaymentSummary = ({
 }: {
   orders: IPosOrderDetail;
   paidAmounts: IPaidAmount[];
-}) => (
+}) => {
+  const { t } = useTranslation('mongolian');
+  return (
   <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.4fr]">
-    <DetailSection title="Totals">
+    <DetailSection title={t('totals')}>
       <div className="rounded-md border border-border/70 px-4">
         <DetailRow
-          label="Total Amount"
+          label={t('total-amount')}
           value={formatAmount(orders.totalAmount)}
           strong
         />
       </div>
     </DetailSection>
 
-    <DetailSection title="Payment Breakdown">
+    <DetailSection title={t('payment-breakdown')}>
       <div className="grid grid-cols-1 gap-x-6 rounded-md border border-border/70 px-4 md:grid-cols-2">
         {orders.cashAmount !== undefined && (
           <DetailRow
-            label="Cash Amount"
+            label={t('cash-amount')}
             value={formatAmount(orders.cashAmount)}
             strong
           />
         )}
         {orders.mobileAmount !== undefined && (
           <DetailRow
-            label="Mobile Amount"
+            label={t('mobile-amount')}
             value={formatAmount(orders.mobileAmount)}
           />
         )}
@@ -45,4 +48,5 @@ export const PosOrderPaymentSummary = ({
       </div>
     </DetailSection>
   </div>
-);
+  );
+};

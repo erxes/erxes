@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const PRODUCT_TAGS_QUERY = gql`
   query tagsQuery(
@@ -81,6 +82,7 @@ export const SelectProductTagsProvider = ({
 };
 
 const SelectProductTagsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('mongolian');
   const { value, productTags } = useSelectProductTagsContext();
   const selectedNames = useMemo(
     () =>
@@ -94,7 +96,7 @@ const SelectProductTagsValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedNames) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Choose product tags'}
+        {placeholder || t('choose-product-tags')}
       </span>
     );
   }
@@ -132,13 +134,14 @@ const SelectProductTagsItem = ({ tag }: { tag: ProductTag }) => {
 };
 
 const SelectProductTagsContent = () => {
+  const { t } = useTranslation('mongolian');
   const { productTags, loading, error } = useSelectProductTagsContext();
 
   const renderContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -146,21 +149,21 @@ const SelectProductTagsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error-colon', { message: error.message })}
         </div>
       );
     }
 
-    return productTags?.map((t) => (
-      <SelectProductTagsItem key={t._id} tag={t} />
+    return productTags?.map((tag) => (
+      <SelectProductTagsItem key={tag._id} tag={tag} />
     ));
   };
 
   return (
     <Command>
-      <Command.Input placeholder="Search product tag" />
+      <Command.Input placeholder={t('search-product-tag')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No product tags found</span>
+        <span className="text-muted-foreground">{t('no-product-tags-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

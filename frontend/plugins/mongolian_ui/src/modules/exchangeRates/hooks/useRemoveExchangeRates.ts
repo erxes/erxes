@@ -1,11 +1,13 @@
 import { useMutation } from '@apollo/client';
 import { useConfirm } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { EXCHANGE_RATES_QUERY_NAME } from '../constants';
 import { mutations } from '../graphql';
 import { notifyError, notifySuccess } from '../utils';
 
 export const useRemoveExchangeRates = () => {
   const { confirm } = useConfirm();
+  const { t } = useTranslation('mongolian');
 
   const [removeExchangeRates, { loading }] = useMutation(
     mutations.exchangeRatesRemove,
@@ -19,13 +21,13 @@ export const useRemoveExchangeRates = () => {
 
     confirm({
       message: many
-        ? 'Are you sure you want to delete the selected exchange rates?'
-        : 'Are you sure you want to delete this exchange rate?',
-      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+        ? t('delete-exchange-rates')
+        : t('delete-exchange-rate'),
+      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
     }).then(async () => {
       try {
         await removeExchangeRates({ variables: { rateIds } });
-        notifySuccess(many ? 'Exchange rates deleted' : 'Exchange rate deleted');
+        notifySuccess(many ? t('exchange-rates-deleted') : t('exchange-rate-deleted'));
         onSuccess?.();
       } catch (e) {
         notifyError(e);
