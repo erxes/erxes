@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 import { IconTag } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { QUERY_DONATE_CAMPAIGNS } from '../../graphql/queries/queries';
 
 interface DonateCampaignOption {
@@ -116,12 +117,13 @@ const SelectDonateCampaignValue = ({
   className?: string;
 }) => {
   const { value, options } = useSelectDonateCampaignContext();
+  const { t } = useTranslation('loyalty');
   const selectedOption = options.find((o) => o.value === value);
 
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select campaign'}
+        {placeholder || t('select-campaign')}
       </span>
     );
   }
@@ -159,12 +161,13 @@ const SelectDonateCampaignCommandItem = ({
 
 const SelectDonateCampaignContent = () => {
   const { options } = useSelectDonateCampaignContext();
+  const { t } = useTranslation('loyalty');
 
   return (
     <Command>
-      <Command.Input placeholder="Search campaigns..." />
+      <Command.Input placeholder={t('search-campaigns')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No campaigns found</span>
+        <span className="text-muted-foreground">{t('no-campaigns-found')}</span>
       </Command.Empty>
       <Command.List>
         {options.map((option) => (
@@ -176,10 +179,11 @@ const SelectDonateCampaignContent = () => {
 };
 
 export const SelectDonateCampaignFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="donateCampaign">
       <IconTag />
-      Campaign
+      {t('campaign')}
     </Filter.Item>
   );
 };
@@ -228,12 +232,13 @@ export const SelectDonateCampaignFilterBar = ({
     'donateCampaign',
   );
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('loyalty');
 
   return (
     <Filter.BarItem queryKey="donateCampaign">
       <Filter.BarName>
         <IconTag />
-        {!iconOnly && 'Campaign'}
+        {!iconOnly && t('campaign')}
       </Filter.BarName>
       <SelectDonateCampaignProvider
         mode={mode}

@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { DONATES_ADD_MUTATION } from '../graphql/mutations/mutations';
 
 export const useAddDonate = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   const [addDonate, { loading, error }] = useMutation(DONATES_ADD_MUTATION, {
     refetchQueries: ['DonatesMain'],
@@ -21,14 +23,14 @@ export const useAddDonate = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Donation created successfully',
+          title: t('success'),
+          description: t('donation-created'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

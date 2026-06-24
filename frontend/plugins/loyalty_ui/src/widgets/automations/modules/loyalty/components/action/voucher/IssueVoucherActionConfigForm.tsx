@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
@@ -20,6 +21,7 @@ export const IssueVoucherActionConfigForm = ({
   currentAction,
   targetType,
 }: AutomationActionFormProps<TIssueVoucherActionConfigForm>) => {
+  const { t } = useTranslation('loyalty');
   const form = useIssueVoucherActionForm({
     resolver: zodResolver(issueVoucherActionConfigFormSchema),
     currentConfig: currentAction?.config,
@@ -46,7 +48,7 @@ export const IssueVoucherActionConfigForm = ({
           name="attribution"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Recipient</Form.Label>
+              <Form.Label>{t('recipient')}</Form.Label>
               <PlaceholderInput
                 propertyType={targetType}
                 value={field.value}
@@ -71,11 +73,11 @@ export const IssueVoucherActionConfigForm = ({
           name="voucherCampaignId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Voucher campaign</Form.Label>
+              <Form.Label>{t('voucher-campaign')}</Form.Label>
               <SelectVoucherCampaign.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder="Select voucher campaign"
+                placeholder={t('select-voucher-campaign')}
               />
               <Form.Message />
             </Form.Item>
