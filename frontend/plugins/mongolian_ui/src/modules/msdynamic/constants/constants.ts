@@ -41,4 +41,6 @@ export const KEY_LABELS: Record<string, string> = {
   stageId: 'Stage',
   posConf: 'POS config',
   productUrl: 'Product URL',
+  custCode: 'Customer Code field',
+  userLocationCode: 'User Location Code field',
 };
