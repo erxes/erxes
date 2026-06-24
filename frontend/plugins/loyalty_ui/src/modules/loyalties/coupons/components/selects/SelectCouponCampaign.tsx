@@ -11,6 +11,7 @@ import {
 import { IconTag } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QUERY_COUPON_CAMPAIGNS } from '../../graphql/queries/queries';
 
 interface CouponCampaignOption {
@@ -37,12 +38,15 @@ const useCouponCampaignOptions = () => {
   return { options, loading };
 };
 
-export const SelectCouponCampaignFilterItem = () => (
-  <Filter.Item value="couponCampaignId">
-    <IconTag />
-    Campaign
-  </Filter.Item>
-);
+export const SelectCouponCampaignFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="couponCampaignId">
+      <IconTag />
+      {t('campaign')}
+    </Filter.Item>
+  );
+};
 
 export const SelectCouponCampaignFilterView = ({
   queryKey = 'couponCampaignId',
@@ -52,12 +56,13 @@ export const SelectCouponCampaignFilterView = ({
   const [value, setValue] = useQueryState<string>(queryKey);
   const { resetFilterState } = useFilterContext();
   const { options } = useCouponCampaignOptions();
+  const { t } = useTranslation('loyalty');
 
   return (
     <Filter.View filterKey={queryKey}>
       <Command>
-        <Command.Input placeholder="Search campaigns..." />
-        <Command.Empty>No campaigns found</Command.Empty>
+        <Command.Input placeholder={t('search-campaigns')} />
+        <Command.Empty>{t('no-campaigns-found')}</Command.Empty>
         <Command.List>
           {options.map((opt) => (
             <Command.Item
@@ -82,23 +87,24 @@ export const SelectCouponCampaignFilterBar = () => {
   const [value, setValue] = useQueryState<string>('couponCampaignId');
   const [open, setOpen] = useState(false);
   const { options } = useCouponCampaignOptions();
+  const { t } = useTranslation('loyalty');
   const selected = options.find((o) => o.value === value);
 
   return (
     <Filter.BarItem queryKey="couponCampaignId">
       <Filter.BarName>
         <IconTag />
-        Campaign
+        {t('campaign')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="couponCampaignId">
-            <span>{selected?.label || 'Campaign'}</span>
+            <span>{selected?.label || t('campaign')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
           <Command>
-            <Command.Input placeholder="Search..." />
+            <Command.Input placeholder={t('search')} />
             <Command.List>
               {options.map((opt) => (
                 <Command.Item
@@ -134,6 +140,7 @@ export const SelectCouponCampaignFormItem = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { options, loading } = useCouponCampaignOptions();
+  const { t } = useTranslation('loyalty');
   const selected = options.find((o) => o.value === value);
 
   return (
@@ -144,14 +151,14 @@ export const SelectCouponCampaignFormItem = ({
           disabled={loading}
         >
           <span className={selected ? '' : 'text-muted-foreground'}>
-            {selected?.label || placeholder || 'Choose coupon campaign'}
+            {selected?.label || placeholder || t('choose-coupon-campaign')}
           </span>
         </Combobox.Trigger>
       </Form.Control>
       <Combobox.Content>
         <Command>
-          <Command.Input placeholder="Search campaigns..." />
-          <Command.Empty>No campaigns found</Command.Empty>
+          <Command.Input placeholder={t('search-campaigns')} />
+          <Command.Empty>{t('no-campaigns-found')}</Command.Empty>
           <Command.List>
             {options.map((opt) => (
               <Command.Item

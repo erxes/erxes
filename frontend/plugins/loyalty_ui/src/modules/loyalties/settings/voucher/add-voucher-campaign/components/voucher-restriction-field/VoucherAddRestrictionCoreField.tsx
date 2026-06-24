@@ -1,6 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { VoucherFormValues } from '../../../constants/voucherFormSchema';
 import { SelectCategory } from 'ui-modules';
 
@@ -11,6 +12,7 @@ interface VoucherAddRestrictionCoreFieldProps {
 export const VoucherAddRestrictionCoreField: React.FC<
   VoucherAddRestrictionCoreFieldProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
@@ -19,11 +21,11 @@ export const VoucherAddRestrictionCoreField: React.FC<
           name="minimumSpend"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Minimum Spend</Form.Label>
+              <Form.Label>{t('minimum-spend')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter minimum spend"
+                  placeholder={t('enter-minimum-spend')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
@@ -43,7 +45,7 @@ export const VoucherAddRestrictionCoreField: React.FC<
           name="categoryIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Product Category</Form.Label>
+              <Form.Label>{t('product-category')}</Form.Label>
               <Form.Control>
                 <SelectCategory
                   mode="multiple"
@@ -64,11 +66,11 @@ export const VoucherAddRestrictionCoreField: React.FC<
           name="maximumSpend"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Maximum Spend</Form.Label>
+              <Form.Label>{t('maximum-spend')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter maximum spend"
+                  placeholder={t('enter-maximum-spend')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
@@ -88,7 +90,7 @@ export const VoucherAddRestrictionCoreField: React.FC<
           name="excludeCategoryIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Or Exclude Product Category</Form.Label>
+              <Form.Label>{t('or-exclude-product-category')}</Form.Label>
               <Form.Control>
                 <SelectCategory
                   mode="multiple"
