@@ -21,6 +21,7 @@ import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
 import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
+import { useTranslation } from 'react-i18next';
 
 const SalesItemDetailView = () => {
   const { isSidebarOpen } = useFocusSheet();
@@ -139,6 +140,7 @@ export const SalesItemDetail = () => {
 };
 
 const SalesItemDetailEmptyState = () => {
+  const { t } = useTranslation('sales');
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
@@ -146,9 +148,9 @@ const SalesItemDetailEmptyState = () => {
           <Empty.Media variant="icon">
             <IconCloudExclamation />
           </Empty.Media>
-          <Empty.Title>Deal not found</Empty.Title>
+          <Empty.Title>{t('deal-not-found')}</Empty.Title>
           <Empty.Description>
-            There seems to be no deal with this ID.
+            {t('no-deal-with-id')}
           </Empty.Description>
         </Empty.Header>
       </Empty>
@@ -157,6 +159,7 @@ const SalesItemDetailEmptyState = () => {
 };
 
 const SalesItemDetailErrorState = () => {
+  const { t } = useTranslation('sales');
   const { error } = useDealDetail();
 
   return (
@@ -166,7 +169,7 @@ const SalesItemDetailErrorState = () => {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>Error</Empty.Title>
+          <Empty.Title>{t('error')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
       </Empty>
