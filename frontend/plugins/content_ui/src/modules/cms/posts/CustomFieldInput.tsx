@@ -12,6 +12,7 @@ import {
 } from 'erxes-ui';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
+import { SelectProduct } from 'ui-modules';
 import { SpreadsheetInput } from './SpreadsheetInput';
 import { GalleryUploader } from './GalleryUploader';
 import { useAutoUpload } from './hooks/useAutoUpload';
@@ -260,6 +261,17 @@ export const CustomFieldInput = ({
       <GalleryUploader value={imageUrls} onChange={(urls) => onChange(urls)} />
     ),
     file: <FileFieldInput value={value} onChange={(urls) => onChange(urls)} />,
+    products: (
+      <SelectProduct
+        mode="multiple"
+        value={selectedValues}
+        onValueChange={(val) =>
+          onChange(Array.isArray(val) ? val : val ? [val] : [])
+        }
+        placeholder={selectPlaceholder}
+        className="w-full"
+      />
+    ),
     richText: (
       <Editor
         className="h-64 border"
