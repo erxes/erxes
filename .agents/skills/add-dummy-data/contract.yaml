@@ -1,0 +1,69 @@
+# Contract: add-dummy-data
+
+skill:
+  name: add-dummy-data
+  version: "1.0.0"
+  type: feature
+  description: Add safe, idempotent erxes dummy, seed, demo, fixture, or sample data
+
+inputs:
+  - name: owner_project
+    type: string
+    description: "Nx project that owns the data, such as content_api, operation_api, or core-api"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{owner_project}$'"
+
+  - name: target_module
+    type: string
+    description: "Feature/module that will receive the dummy data"
+    required: true
+
+  - name: data_purpose
+    type: enum
+    values: [local-dev, demo, qa, test-fixture, e2e, sample-import]
+    required: true
+
+  - name: dataset_summary
+    type: string
+    description: "Short description of records, relationships, and approximate counts"
+    required: true
+
+rules_required:
+  - architecture
+  - code-style
+  - typescript-guidelines
+  - server-migrations
+  - testing-guidelines
+
+preconditions:
+  - description: "Owner plugin/service/module is resolved and confirmed"
+    check: "user_confirmed == true"
+  - description: "Nearby command, migration, fixture, or model pattern has been searched"
+    check: "rg -l 'seed|dummy|fixture|migration|command' backend frontend apps | head -5"
+  - description: "Persistent writes are explicitly non-production or gated"
+    check: "data_purpose in ['local-dev', 'demo', 'qa', 'test-fixture', 'e2e', 'sample-import']"
+
+postconditions:
+  - description: "Owning project build or focused validation passes"
+    command: "pnpm nx build {owner_project}"
+    required: true
+  - description: "Script rerun is safe or dry-run behavior is documented"
+    required: true
+
+composes_with:
+  - create-backend-migration
+  - create-backend-entity
+  - create-query
+
+conventions:
+  - "Keep sample data small, deterministic, and clearly labeled"
+  - "Do not add faker or new dependencies only for dummy data"
+  - "Avoid real PII, credentials, tokens, tenant names, and customer-identifying values"
+  - "Resolve tenant and relationship IDs from env values or safe lookups"
+  - "Make writes idempotent with upsert, $setOnInsert, $addToSet, or skip-if-exists checks"
+  - "Use model/service APIs when they enforce business invariants"
+  - "Use raw Mongo bulkWrite only when nearby standalone scripts use that pattern"
+  - "Add DRY_RUN or an explicit write gate for scripts touching existing databases"
+  - "Keep frontend and test fixtures local unless a shared fixture pattern exists"
+  - "Do not expose temporary public GraphQL mutations or routes for seeding"

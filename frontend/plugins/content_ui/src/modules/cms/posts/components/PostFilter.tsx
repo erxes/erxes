@@ -146,29 +146,36 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
   const prevUpdated = useRef(updated);
   const prevPublishedDate = useRef(publishedDate);
 
+  // On mount: apply priority (created > updated > publishedDate) to clear conflicts from URL
   useEffect(() => {
-    if (created && created !== prevCreated.current) {
-      setUpdated(null);
+    if (created) {
+      if (updated) setUpdated(null);
+      if (publishedDate) setPublishedDate(null);
+    } else if (updated && publishedDate) {
       setPublishedDate(null);
     }
     prevCreated.current = created;
-  }, [created]);
+    prevUpdated.current = updated;
+    prevPublishedDate.current = publishedDate;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  // On change: enforce mutual exclusivity
   useEffect(() => {
-    if (updated && updated !== prevUpdated.current) {
+    if (created !== prevCreated.current && created) {
+      setUpdated(null);
+      setPublishedDate(null);
+    } else if (updated !== prevUpdated.current && updated) {
       setCreated(null);
       setPublishedDate(null);
-    }
-    prevUpdated.current = updated;
-  }, [updated]);
-
-  useEffect(() => {
-    if (publishedDate && publishedDate !== prevPublishedDate.current) {
+    } else if (publishedDate !== prevPublishedDate.current && publishedDate) {
       setCreated(null);
       setUpdated(null);
     }
+    prevCreated.current = created;
+    prevUpdated.current = updated;
     prevPublishedDate.current = publishedDate;
-  }, [publishedDate]);
+  }, [created, updated, publishedDate]);
 
   return (
     <Filter id="posts-filter" sessionKey={sessionKey}>

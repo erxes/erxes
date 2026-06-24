@@ -2,7 +2,6 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
-  parseDateRangeFromString,
   useMultiQueryState,
   validateFetchMore,
 } from 'erxes-ui';
@@ -11,25 +10,26 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { categoriesTotalCountAtom } from '../states/categoriesCounts';
 import { useEffect } from 'react';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
+import { ICategory } from '../types';
+
+interface CategoriesQueryResult {
+  cmsCategories?: {
+    list?: ICategory[];
+    totalCount?: number;
+    pageInfo?: IRecordTableCursorPageInfo;
+  };
+}
 
 export const CATEGORIES_PER_PAGE = 30;
 
 export const useCategoriesVariables = (
-  variables?: QueryHookOptions<{
-    cmsCategories: {
-      list: any[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>['variables'],
+  variables?: QueryHookOptions<CategoriesQueryResult>['variables'],
 ) => {
   const language = useAtomValue(cmsLanguageAtom);
-  const [{ searchValue, status, createdAt, updatedAt }] = useMultiQueryState<{
+  const [{ searchValue, status }] = useMultiQueryState<{
     searchValue: string;
     status: string;
-    createdAt: string;
-    updatedAt: string;
-  }>(['searchValue', 'status', 'createdAt', 'updatedAt']);
+  }>(['searchValue', 'status']);
 
   return {
     limit: CATEGORIES_PER_PAGE,
@@ -38,17 +38,7 @@ export const useCategoriesVariables = (
     sortDirection: 'asc',
     language,
     searchValue: searchValue || undefined,
-    status: status && status !== 'all' ? status : undefined,
-    dateFilters: {
-      createdAt: {
-        gte: parseDateRangeFromString(createdAt)?.from,
-        lte: parseDateRangeFromString(createdAt)?.to,
-      },
-      updatedAt: {
-        gte: parseDateRangeFromString(updatedAt)?.from,
-        lte: parseDateRangeFromString(updatedAt)?.to,
-      },
-    },
+    status: status || undefined,
     ...variables,
   };
 };
@@ -56,20 +46,17 @@ export const useCategoriesVariables = (
 export const useCategories = (options?: QueryHookOptions) => {
   const setCategoriesTotalCount = useSetAtom(categoriesTotalCountAtom);
   const variables = useCategoriesVariables(options?.variables);
-  const { data, loading, fetchMore, refetch } = useQuery<{
-    cmsCategories: {
-      list: any[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(CMS_CATEGORIES, {
-    ...options,
-    variables: {
-      ...options?.variables,
-      ...variables,
+  const { data, loading, fetchMore, refetch } = useQuery<CategoriesQueryResult>(
+    CMS_CATEGORIES,
+    {
+      ...options,
+      variables: {
+        ...options?.variables,
+        ...variables,
+      },
+      fetchPolicy: 'network-only',
     },
-    fetchPolicy: 'network-only',
-  });
+  );
 
   const {
     list: categories = [],
@@ -77,7 +64,7 @@ export const useCategories = (options?: QueryHookOptions) => {
     pageInfo,
   } = data?.cmsCategories || {};
   useEffect(() => {
-    if (!totalCount) return;
+    if (totalCount === undefined) return;
     setCategoriesTotalCount(totalCount);
   }, [totalCount, setCategoriesTotalCount]);
 

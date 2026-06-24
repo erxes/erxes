@@ -429,7 +429,7 @@ export function WebsiteDrawer({
                   : 'Create CMS'}
               </Button>
 
-              <Button ref={cancelButtonRef} onClick={onClose} variant="outline">
+              <Button ref={cancelButtonRef} type="button" onClick={onClose} variant="outline">
                 Cancel
               </Button>
             </div>

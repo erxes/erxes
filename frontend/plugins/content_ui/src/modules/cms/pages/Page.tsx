@@ -7,12 +7,13 @@ import { IPage } from './types/pageTypes';
 import { EmptyState } from '../shared/EmptyState';
 import { PagesHeader } from './components/PagesHeader';
 import { CmsSidebar } from '../shared/CmsSidebar';
+import { PagesFilter } from './components/PagesFilter';
 
 export function Page() {
   const { websiteId } = useParams();
   const navigate = useNavigate();
 
-  const { pages, totalCount, loading } = usePages({
+  const { pages, loading } = usePages({
     variables: {
       clientPortalId: websiteId || '',
     },
@@ -40,10 +41,8 @@ export function Page() {
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
         <div className="flex flex-col w-full overflow-hidden flex-auto">
-          <div className="flex pt-2 pl-4 justify-between items-center mb-2">
-            <div className="text-sm text-gray-600">
-              Found {totalCount} pages
-            </div>
+          <div className="px-4 pt-2">
+            <PagesFilter />
           </div>
           {!loading && (!pages || pages.length === 0) ? (
             <div className="rounded-lg overflow-hidden">

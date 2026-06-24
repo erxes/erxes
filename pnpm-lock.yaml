@@ -1348,6 +1348,8 @@ importers:
         specifier: ^0.5.48
         version: 0.5.48
 
+  backend/saas-migrations: {}
+
   backend/services/automations:
     dependencies:
       '@aws-sdk/client-s3':

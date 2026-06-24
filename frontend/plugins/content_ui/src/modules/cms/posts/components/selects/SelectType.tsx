@@ -6,13 +6,9 @@ import React, {
   useState,
 } from 'react';
 import {
-  cn,
   Combobox,
   Command,
   Filter,
-  Popover,
-  PopoverScoped,
-  Form,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
@@ -20,9 +16,12 @@ import {
 import { IconLabel } from '@tabler/icons-react';
 import { useCustomTypes } from '../../../custom-types/hooks/useCustomTypes';
 import {
-  SelectContent,
-  SelectTrigger,
   SelectTriggerVariantType,
+  SelectItemValueBase,
+  SelectCommandList,
+  SelectFormPopover,
+  SelectBarPopover,
+  SelectRootPopover,
 } from './SelectShared';
 
 interface IType {
@@ -35,6 +34,7 @@ interface SelectTypeContextType {
   onValueChange: (type: string) => void;
   types: IType[];
   loading: boolean;
+  error?: unknown;
 }
 
 const SelectTypeContext = createContext<SelectTypeContextType | null>(null);
@@ -60,7 +60,7 @@ export const SelectTypeProvider = ({
   children: React.ReactNode;
   clientPortalId?: string;
 }) => {
-  const { customTypes, loading } = useCustomTypes({ clientPortalId });
+  const { customTypes, loading, error } = useCustomTypes({ clientPortalId });
 
   const types = useMemo<IType[]>(
     () => [
@@ -75,7 +75,6 @@ export const SelectTypeProvider = ({
 
   const handleValueChange = useCallback(
     (type: string) => {
-      if (!type) return;
       onValueChange?.(type);
     },
     [onValueChange],
@@ -87,8 +86,9 @@ export const SelectTypeProvider = ({
       onValueChange: handleValueChange,
       types,
       loading,
+      error,
     }),
-    [value, handleValueChange, types, loading],
+    [value, handleValueChange, types, loading, error],
   );
 
   return (
@@ -107,19 +107,12 @@ const SelectTypeValue = ({
 }) => {
   const { value, types } = useSelectTypeContext();
   const selectedType = types.find((t) => t.value === value);
-
-  if (!selectedType) {
-    return (
-      <span className="text-accent-foreground/80">
-        {placeholder || 'Select type'}
-      </span>
-    );
-  }
-
   return (
-    <div className="flex items-center gap-2">
-      <p className={cn('font-medium text-sm', className)}>{selectedType.label}</p>
-    </div>
+    <SelectItemValueBase
+      label={selectedType?.label}
+      placeholder={placeholder || 'Select type'}
+      className={className}
+    />
   );
 };
 
@@ -141,33 +134,20 @@ const SelectTypeCommandItem = ({ type }: { type: IType }) => {
 };
 
 const SelectTypeContent = () => {
-  const { types, loading } = useSelectTypeContext();
-
-  if (loading) {
-    return (
-      <Command>
-        <Command.Input placeholder="Search type" />
-        <Command.List>
-          <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading types...</span>
-          </div>
-        </Command.List>
-      </Command>
-    );
-  }
-
+  const { types, loading, error } = useSelectTypeContext();
   return (
-    <Command>
-      <Command.Input placeholder="Search type" />
-      <Command.Empty>
-        <span className="text-muted-foreground">No types found</span>
-      </Command.Empty>
-      <Command.List>
-        {types.map((type) => (
-          <SelectTypeCommandItem key={type.value} type={type} />
-        ))}
-      </Command.List>
-    </Command>
+    <SelectCommandList
+      loading={loading}
+      error={error}
+      placeholder="Search type"
+      loadingText="Loading types..."
+      emptyText="No types found"
+      errorText="Failed to load types"
+    >
+      {types.map((type) => (
+        <SelectTypeCommandItem key={type.value} type={type} />
+      ))}
+    </SelectCommandList>
   );
 };
 
@@ -198,7 +178,7 @@ export const SelectTypeFilterView = ({
         value={type || ''}
         clientPortalId={clientPortalId}
         onValueChange={(value) => {
-          setType(value);
+          setType(value || null);
           resetFilterState();
           onValueChange?.(value);
         }}
@@ -229,25 +209,19 @@ export const SelectTypeFilterBar = ({
         value={type || ''}
         clientPortalId={clientPortalId}
         onValueChange={(value) => {
-          if (value) {
-            setType(value);
-          } else {
-            setType(null);
-          }
+          setType(value || null);
           setOpen(false);
           onValueChange?.(value);
         }}
       >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={'type'}>
-              <SelectTypeValue />
-            </Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <SelectTypeContent />
-          </Combobox.Content>
-        </Popover>
+        <SelectBarPopover
+          open={open}
+          onOpenChange={setOpen}
+          filterKey="type"
+          content={<SelectTypeContent />}
+        >
+          <SelectTypeValue />
+        </SelectBarPopover>
       </SelectTypeProvider>
     </Filter.BarItem>
   );
@@ -274,17 +248,14 @@ export const SelectTypeFormItem = ({
       }}
       {...props}
     >
-      <Popover open={open} onOpenChange={setOpen}>
-        <Form.Control>
-          <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
-            <SelectTypeValue placeholder={placeholder} />
-          </Combobox.Trigger>
-        </Form.Control>
-
-        <Combobox.Content>
-          <SelectTypeContent />
-        </Combobox.Content>
-      </Popover>
+      <SelectFormPopover
+        open={open}
+        onOpenChange={setOpen}
+        className={className}
+        content={<SelectTypeContent />}
+      >
+        <SelectTypeValue placeholder={placeholder} />
+      </SelectFormPopover>
     </SelectTypeProvider>
   );
 };
@@ -322,14 +293,16 @@ const SelectTypeRoot = ({
       clientPortalId={clientPortalId}
       onValueChange={handleValueChange}
     >
-      <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTrigger variant={variant} disabled={disabled}>
-          <SelectTypeValue />
-        </SelectTrigger>
-        <SelectContent variant={variant}>
-          <SelectTypeContent />
-        </SelectContent>
-      </PopoverScoped>
+      <SelectRootPopover
+        open={open}
+        onOpenChange={setOpen}
+        scope={scope}
+        variant={variant}
+        disabled={disabled}
+        content={<SelectTypeContent />}
+      >
+        <SelectTypeValue />
+      </SelectRootPopover>
     </SelectTypeProvider>
   );
 };

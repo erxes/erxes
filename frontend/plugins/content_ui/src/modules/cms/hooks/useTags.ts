@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client';
-import { useAtomValue } from 'jotai';
+import { ApolloError, useQuery } from '@apollo/client';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CMS_TAGS } from '../graphql/queries';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
@@ -10,6 +10,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { TAGS_CURSOR_SESSION_KEY } from '../tags/constants/tagsCursorSessionKey';
+import { tagsTotalCountAtom } from '../tags/states/tagsCounts';
 
 export interface CmsTag {
   _id: string;
@@ -41,12 +42,20 @@ interface UseTagsResult {
   totalCount: number;
   pageInfo?: IRecordTableCursorPageInfo;
   loading: boolean;
-  error?: any;
+  error?: ApolloError;
   refetch: () => void;
   handleFetchMore: ({ direction }: { direction: EnumCursorDirection }) => void;
 }
 
 export const TAGS_PER_PAGE = 30;
+
+interface CmsTagsQueryResult {
+  cmsTags?: {
+    tags?: CmsTag[];
+    totalCount?: number;
+    pageInfo?: IRecordTableCursorPageInfo;
+  };
+}
 
 export function useTags({
   clientPortalId,
@@ -62,6 +71,7 @@ export function useTags({
   sortDirection,
 }: UseTagsProps): UseTagsResult {
   const language = useAtomValue(cmsLanguageAtom);
+  const setTagsTotalCount = useSetAtom(tagsTotalCountAtom);
   const fetchedCursorsRef = useRef<Set<string>>(new Set());
   const fetchingMoreRef = useRef(false);
   const { cursor: tableCursor } = useRecordTableCursor({
@@ -99,12 +109,13 @@ export function useTags({
     ],
   );
 
-  const { data, loading, error, refetch, fetchMore } = useQuery(CMS_TAGS, {
-    variables,
-    errorPolicy: 'all',
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
-  });
+  const { data, loading, error, refetch, fetchMore } =
+    useQuery<CmsTagsQueryResult>(CMS_TAGS, {
+      variables,
+      errorPolicy: 'all',
+      fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
+    });
 
   useEffect(() => {
     fetchedCursorsRef.current.clear();
@@ -227,6 +238,11 @@ export function useTags({
 
   const tags = data?.cmsTags?.tags || [];
   const totalCount = data?.cmsTags?.totalCount || 0;
+
+  useEffect(() => {
+    if (data?.cmsTags?.totalCount === undefined) return;
+    setTagsTotalCount(data.cmsTags.totalCount);
+  }, [data?.cmsTags?.totalCount, setTagsTotalCount]);
 
   return {
     tags,
