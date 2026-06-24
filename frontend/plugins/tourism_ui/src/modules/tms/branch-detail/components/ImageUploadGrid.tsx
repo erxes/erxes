@@ -1,5 +1,6 @@
 import { readImage } from 'erxes-ui';
 import { IconUpload, IconTrash, IconGripVertical } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useImageUpload } from '../hooks';
 
 interface ImageUploadGridProps {
@@ -15,6 +16,7 @@ export const ImageUploadGrid = ({
   maxImages = 10,
   maxFileSize = 20 * 1024 * 1024,
 }: ImageUploadGridProps) => {
+  const { t } = useTranslation('tourism');
   const { urls, uploadProps, loading, handleRemove, handleDrag } =
     useImageUpload({
       value,
@@ -67,11 +69,11 @@ export const ImageUploadGrid = ({
             onClick={uploadProps.open}
           >
             {loading ? (
-              <span className="text-xs">Uploading...</span>
+              <span className="text-xs">{t('uploading')}</span>
             ) : (
               <>
                 <IconUpload size={18} />
-                <span className="text-[11px]">Add images</span>
+                <span className="text-[11px]">{t('add-images')}</span>
               </>
             )}
           </div>
@@ -80,7 +82,7 @@ export const ImageUploadGrid = ({
 
       {urls.length >= maxImages && (
         <p className="text-xs text-muted-foreground">
-          Maximum {maxImages} images allowed
+          {t('max-images-allowed', { count: maxImages })}
         </p>
       )}
 

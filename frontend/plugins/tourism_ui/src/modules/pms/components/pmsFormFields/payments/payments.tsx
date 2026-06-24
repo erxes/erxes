@@ -1,11 +1,13 @@
 import { Control, useFieldArray } from 'react-hook-form';
 import { Button, Form, Input, InfoCard } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 import { SelectPayment } from '@/pms/components/payment/SelectPayment';
 
 const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
+  const { t } = useTranslation('tourism');
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'otherPayments',
@@ -14,14 +16,14 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
   return (
     <PmsFormFieldsLayout>
       <div className="space-y-3">
-        <InfoCard title="Payments">
+        <InfoCard title={t('payments-title')}>
           <InfoCard.Content>
             <Form.Field
               control={control}
               name="paymentIds"
               render={({ field }) => (
                 <Form.Item className="flex flex-col">
-                  <Form.Label>Payments</Form.Label>
+                  <Form.Label>{t('payments-title')}</Form.Label>
 
                   <Form.Control>
                     <SelectPayment.FormItem
@@ -30,7 +32,7 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
                       onValueChange={(value) => {
                         field.onChange(Array.isArray(value) ? value : []);
                       }}
-                      placeholder="Choose payments"
+                      placeholder={t('choose-payments')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -43,10 +45,10 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name="erxesAppToken"
               render={({ field }) => (
                 <Form.Item className="flex flex-col">
-                  <Form.Label>Erxes App Token</Form.Label>
+                  <Form.Label>{t('erxes-app-token')}</Form.Label>
 
                   <Form.Control>
-                    <Input {...field} placeholder="Enter erxes app token" />
+                    <Input {...field} placeholder={t('enter-erxes-app-token')} />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -55,21 +57,14 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
           </InfoCard.Content>
         </InfoCard>
 
-        <InfoCard title="Other payments">
+        <InfoCard title={t('other-payments')}>
           <InfoCard.Content>
             <p className="text-sm text-muted-foreground">
-              type must use latin characters, some default types: golomtCard,
-              khaanCard, TDBCard
-              <br />
-              Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
-              Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
-              хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
-              (Татвар тооцсон) бол: "preTax: true" Хэрэв тухайн төлбөр дээр
-              бэлдэц нэхэмжлэх хэвлэх бол: "printInvoice: true"
+              {t('other-payments-desc')}
             </p>
 
             <Button className="w-fit" type="button" onClick={() => append({})}>
-              <IconPlus /> Add payments method
+              <IconPlus /> {t('add-payments-method')}
             </Button>
 
             {fields.map((field, index) => (
@@ -80,7 +75,7 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
                     name={`otherPayments.${index}.type`}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Type</Form.Label>
+                        <Form.Label>{t('type')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
@@ -93,7 +88,7 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
                     name={`otherPayments.${index}.title`}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Title</Form.Label>
+                        <Form.Label>{t('title')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
@@ -106,7 +101,7 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
                     name={`otherPayments.${index}.config`}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Config</Form.Label>
+                        <Form.Label>{t('config')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
@@ -121,7 +116,7 @@ const Payments = ({ control }: { control: Control<PmsBranchFormType> }) => {
                   type="button"
                   className="w-8 h-8"
                   aria-label={`Remove payment method ${index + 1}`}
-                  title="Remove payment method"
+                  title={t('remove-payment-method')}
                   onClick={() => remove(index)}
                 >
                   <IconTrash />

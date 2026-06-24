@@ -1,4 +1,5 @@
 import React, { useState, createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Combobox,
   Command,
@@ -104,6 +105,7 @@ const SelectCategoryProvider = ({
 };
 
 const SelectCategoryContent = () => {
+  const { t } = useTranslation('tourism');
   const { categoryIds, currentCategoryIds, categories } =
     useSelectCategoryContext();
   const { productCategories, loading, error } = useProductCategories();
@@ -170,9 +172,9 @@ const SelectCategoryContent = () => {
         ) : (
           <Command.Empty>
             <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
-              No categories found
+              {t('no-categories-found')}
               {/* <Button variant="secondary" size="sm" asChild>
-                <Link to="/settings/products/categories">Add Category</Link>
+                <Link to="/settings/products/categories">{t('add-category')}</Link>
               </Button> */}
             </div>
           </Command.Empty>
@@ -264,6 +266,7 @@ const SelectCategoryRoot = React.forwardRef<
 );
 
 const SelectCategoryValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('tourism');
   const { categoryIds, categories, setCategories } = useSelectCategoryContext();
   const { productCategories } = useProductCategories();
   const categoryIdKey = categoryIds.join('\u0000');
@@ -304,13 +307,13 @@ const SelectCategoryValue = ({ placeholder }: { placeholder?: string }) => {
   }, [selectedCategoryIds, productCategories, setCategories]);
 
   if (categories.length === 0) {
-    return <Combobox.Value placeholder={placeholder || 'Select category'} />;
+    return <Combobox.Value placeholder={placeholder || t('select-category')} />;
   }
 
   const displayText =
     categories.length === 1
       ? `${categories[0].code} ${categories[0].name}`
-      : `${categories[0].code}...${categories.length} categories`;
+      : `${categories[0].code}...${t('n-categories', { count: categories.length })}`;
 
   return <div className="overflow-hidden flex-1 text-sm">{displayText}</div>;
 };
