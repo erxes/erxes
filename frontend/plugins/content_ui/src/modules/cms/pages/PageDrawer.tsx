@@ -1,5 +1,6 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Form, ScrollArea, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
@@ -210,6 +211,7 @@ export function PageDrawer({
   clientPortalId,
   onFormReady,
 }: PageFormProps) {
+  const { t } = useTranslation('content');
   const isEditing = Boolean(page);
   const [hasPermissionError, setHasPermissionError] = useState(false);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
@@ -499,10 +501,10 @@ export function PageDrawer({
     onClose();
     form.reset();
     toast({
-      title: 'Success',
+      title: t('success'),
       description: isEditing
-        ? 'Page updated successfully.'
-        : 'Page created successfully.',
+        ? t('page-updated-successfully')
+        : t('page-created-successfully'),
       variant: 'default',
       duration: 3000,
     });
@@ -518,16 +520,15 @@ export function PageDrawer({
     if (permissionError) {
       setHasPermissionError(true);
       toast({
-        title: 'Permission Required',
-        description:
-          'You do not have permission to perform this action. Please contact your administrator.',
+        title: t('permission-required'),
+        description: t('permission-required-desc'),
         variant: 'destructive',
         duration: 8000,
       });
     } else {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to save page. Please try again.',
+        title: t('error'),
+        description: error.message || t('failed-to-save-page'),
         variant: 'destructive',
         duration: 5000,
       });
@@ -590,9 +591,8 @@ export function PageDrawer({
 
     if (!main) {
       toast({
-        title: 'Validation Error',
-        description:
-          'Please fill in the default language fields before creating a page in another language.',
+        title: t('validation-error'),
+        description: t('page-fill-default-lang-first'),
         variant: 'destructive',
         duration: 5000,
       });
@@ -741,11 +741,10 @@ export function PageDrawer({
                 <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-medium text-red-800">
-                    Permission Required
+                    {t('permission-required')}
                   </p>
                   <p className="text-red-700 mt-1">
-                    You need permission to create or edit pages. Please contact
-                    your administrator to grant this permission.
+                    {t('page-permission-required-desc')}
                   </p>
                 </div>
               </div>

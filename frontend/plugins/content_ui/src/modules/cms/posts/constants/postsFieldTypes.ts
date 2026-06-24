@@ -9,6 +9,7 @@ import {
   IconTag,
 } from '@tabler/icons-react';
 import { ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PostsPath } from '../types/path/PostsPath';
 
 export interface IPostsFieldType {
@@ -18,22 +19,23 @@ export interface IPostsFieldType {
 }
 
 export function usePostsFieldTypes(): IPostsFieldType[] {
+  const { t } = useTranslation('content');
   return [
-    { value: PostsPath.Posts, label: 'Posts', icon: IconFileText },
-    { value: PostsPath.Pages, label: 'Pages', icon: IconFile },
-    { value: PostsPath.Categories, label: 'Categories', icon: IconFolder },
-    { value: PostsPath.Tags, label: 'Tags', icon: IconTag },
-    { value: PostsPath.Menus, label: 'Menus', icon: IconMenu },
+    { value: PostsPath.Posts, label: t('posts'), icon: IconFileText },
+    { value: PostsPath.Pages, label: t('pages'), icon: IconFile },
+    { value: PostsPath.Categories, label: t('categories'), icon: IconFolder },
+    { value: PostsPath.Tags, label: t('tags'), icon: IconTag },
+    { value: PostsPath.Menus, label: t('menus'), icon: IconMenu },
     {
       value: PostsPath.CustomFields,
-      label: 'Custom Fields',
+      label: t('custom-fields'),
       icon: IconAlignJustified,
     },
     {
       value: PostsPath.CustomPostTypes,
-      label: 'Custom Post Types',
+      label: t('custom-post-types'),
       icon: IconLayout,
     },
-    { value: PostsPath.Settings, label: 'Settings', icon: IconSettings },
+    { value: PostsPath.Settings, label: t('settings'), icon: IconSettings },
   ];
 }

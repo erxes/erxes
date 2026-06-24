@@ -2,6 +2,7 @@ import { IconEdit, IconTrash, IconWorldPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { webDrawerState } from '../states/webBuilderState';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
@@ -13,6 +14,7 @@ interface WebListItemProps {
 }
 
 export const WebListItem = ({ web, index }: WebListItemProps) => {
+  const { t } = useTranslation('content');
   const setDrawer = useSetAtom(webDrawerState);
   const { removeWeb } = useRemoveWeb();
   const { confirm } = useConfirm();
@@ -24,7 +26,7 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
 
   const handleDelete = () =>
     confirm({
-      message: `Are you sure you want to delete "${web.name}"?`,
+      message: t('confirm-delete-web', { name: web.name }),
     }).then(() => removeWeb(web._id));
 
   return (
@@ -49,7 +51,7 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground truncate">{web.name}</h3>
           <p className="text-sm text-muted-foreground truncate">
-            {web.description || 'No description'}
+            {web.description || t('no-description')}
           </p>
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
             {web.domain && <span className="font-medium">{web.domain}</span>}
@@ -64,7 +66,7 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
             variant="ghost"
             size="icon-sm"
             onClick={handleEdit}
-            title="Edit"
+            title={t('edit')}
           >
             <IconEdit className="w-4 h-4" />
           </Button>
@@ -72,7 +74,7 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
             variant="ghost"
             size="icon-sm"
             onClick={handleDelete}
-            title="Delete"
+            title={t('delete')}
             className="text-destructive hover:text-destructive"
           >
             <IconTrash className="w-4 h-4" />
