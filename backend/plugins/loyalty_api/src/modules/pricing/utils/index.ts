@@ -102,7 +102,7 @@ const calculateDefaultDiscount = async (
       productId: item.productId,
     });
 
-    if (!fixedValue || fixedValue.newPrice == null) {
+    if (fixedValue?.newPrice == null) {
       return 0;
     }
 

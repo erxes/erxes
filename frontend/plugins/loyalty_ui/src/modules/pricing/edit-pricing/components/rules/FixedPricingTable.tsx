@@ -15,6 +15,8 @@ import { useRef, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
 
+type FixedPricingStatus = 'NEW' | 'SAVED' | 'STALE';
+
 interface IPageItem {
   _id: string | null;
   productId: string;
@@ -23,7 +25,7 @@ interface IPageItem {
   uom: string;
   unitPrice: number;
   newPrice: number;
-  status: 'NEW' | 'SAVED' | 'STALE';
+  status: FixedPricingStatus;
 }
 
 interface IProductRow {
@@ -98,7 +100,7 @@ export const FixedPricingTable = ({
     setCurrentPage(newPage);
   };
 
-  const renderStatusBadge = (status: 'NEW' | 'SAVED' | 'STALE') => {
+  const renderStatusBadge = (status: FixedPricingStatus) => {
     let styles = {};
     if (status === 'NEW') {
       styles = { background: '#e0f2fe', color: '#0369a1' };
@@ -162,6 +164,57 @@ export const FixedPricingTable = ({
 
     if (matchesStatus && matchesDiff) filteredIndices.push(index);
   });
+
+  const renderTableBody = () => {
+    if (loading && !pageItems.length) {
+      return (
+        <Table.Row>
+          <Table.Cell
+            colSpan={7}
+            style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}
+          >
+            Loading...
+          </Table.Cell>
+        </Table.Row>
+      );
+    }
+    if (!pageItems.length) {
+      return (
+        <Table.Row>
+          <Table.Cell
+            colSpan={7}
+            style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}
+          >
+            No products found.
+          </Table.Cell>
+        </Table.Row>
+      );
+    }
+    return filteredIndices.map((index) => {
+      const field = fields[index];
+      const item = pageItems[index];
+      const product: IProductRow = {
+        _id: item.productId,
+        name: item.productName,
+        uom: item.uom,
+        unitPrice: item.unitPrice,
+        code: item.sortField,
+      };
+      return (
+        <FixedPricingRow
+          key={field.id}
+          rowId={field.id}
+          index={index}
+          control={control}
+          product={product}
+          status={item.status}
+          onSave={onSave}
+          renderDiffPrice={renderDiffPrice}
+          renderStatusBadge={renderStatusBadge}
+        />
+      );
+    });
+  };
 
   return (
     <>
@@ -238,58 +291,7 @@ export const FixedPricingTable = ({
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {loading && !pageItems.length ? (
-              <Table.Row>
-                <Table.Cell
-                  colSpan={7}
-                  style={{
-                    textAlign: 'center',
-                    padding: '24px',
-                    color: '#6b7280',
-                  }}
-                >
-                  Loading...
-                </Table.Cell>
-              </Table.Row>
-            ) : !loading && !pageItems.length ? (
-              <Table.Row>
-                <Table.Cell
-                  colSpan={7}
-                  style={{
-                    textAlign: 'center',
-                    padding: '24px',
-                    color: '#6b7280',
-                  }}
-                >
-                  No products found.
-                </Table.Cell>
-              </Table.Row>
-            ) : (
-              filteredIndices.map((index) => {
-                const field = fields[index];
-                const item = pageItems[index];
-                const product: IProductRow = {
-                  _id: item.productId,
-                  name: item.productName,
-                  uom: item.uom,
-                  unitPrice: item.unitPrice,
-                  code: item.sortField,
-                };
-                return (
-                  <FixedPricingRow
-                    key={field.id}
-                    rowId={field.id}
-                    index={index}
-                    control={control}
-                    product={product}
-                    status={item.status}
-                    onSave={onSave}
-                    renderDiffPrice={renderDiffPrice}
-                    renderStatusBadge={renderStatusBadge}
-                  />
-                );
-              })
-            )}
+            {renderTableBody()}
           </Table.Body>
         </Table>
       </RecordTableHotkeyProvider>
@@ -351,10 +353,10 @@ const FixedPricingRow = ({
   index: number;
   control: Control<any>;
   product: IProductRow;
-  status: 'NEW' | 'SAVED' | 'STALE';
+  status: FixedPricingStatus;
   onSave: () => void;
   renderDiffPrice: (diff: number) => any;
-  renderStatusBadge: (status: 'NEW' | 'SAVED' | 'STALE') => any;
+  renderStatusBadge: (status: FixedPricingStatus) => any;
 }) => {
   const watchedValue = useWatch({
     control,
