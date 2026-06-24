@@ -7,17 +7,14 @@ export const useFields = ({
   groupId,
   contentType,
   limit,
-  skip,
 }: {
   groupId?: string;
   contentType: string;
   limit?: number;
-  skip?: boolean;
 }) => {
   const { data, loading, refetch } = useQuery<ICursorListResponse<IField>>(
     FIELDS_QUERY,
     {
-      skip,
       variables: {
         params: {
           groupId,

@@ -342,13 +342,7 @@ const MSDynamicFieldMappingPicker = ({
 
   const { fields, loading } = useFields({
     contentType,
-    skip: !contentType,
   });
-
-  const handleContentTypeChange = (value: string) => {
-    form.setValue(`${name}.contentType`, value);
-    form.setValue(`${name}.fieldId`, '');
-  };
 
   return (
     <div className="space-y-2">
@@ -361,7 +355,10 @@ const MSDynamicFieldMappingPicker = ({
             <Form.Item className="space-y-0">
               <Select
                 value={field.value}
-                onValueChange={handleContentTypeChange}
+                onValueChange={(value) => {
+                  form.setValue(`${name}.contentType`, value);
+                  form.setValue(`${name}.fieldId`, '');
+                }}
               >
                 <Form.Control>
                   <Select.Trigger>
