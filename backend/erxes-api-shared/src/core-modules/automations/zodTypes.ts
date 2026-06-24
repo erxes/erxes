@@ -123,6 +123,12 @@ export const GenerateAiContextInputData = z.object({
   target: z.record(z.any()),
 });
 
+export const LoadAiKnowledgeDocumentsInputData = z.object({
+  moduleName: z.string(),
+  sourceKey: z.string(),
+  sourceIds: z.array(z.string()).max(1000),
+});
+
 export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
@@ -147,6 +153,10 @@ export const GenerateAiContextInput = AutomationBaseInput.extend({
   data: GenerateAiContextInputData,
 });
 
+export const LoadAiKnowledgeDocumentsInput = AutomationBaseInput.extend({
+  data: LoadAiKnowledgeDocumentsInputData,
+});
+
 export type TAutomationProducersInput = {
   [TAutomationProducers.RECEIVE_ACTIONS]: z.infer<
     typeof ReceiveActionsInputData
@@ -165,5 +175,8 @@ export type TAutomationProducersInput = {
 
   [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
     typeof GenerateAiContextInputData
+  >;
+  [TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENTS]: z.infer<
+    typeof LoadAiKnowledgeDocumentsInputData
   >;
 };

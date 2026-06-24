@@ -105,10 +105,18 @@ export interface IAiAgentRetrieval {
   minScore?: number;
 }
 
+export interface IAiAgentKnowledgeSource {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  sourceIds: string[];
+}
+
 export interface IAiAgentContext {
   systemPrompt: string;
   retrieval?: IAiAgentRetrieval;
   files: IAiAgentFile[];
+  knowledgeSources?: IAiAgentKnowledgeSource[];
 }
 
 export interface IAiAgent {
@@ -192,6 +200,16 @@ const aiAgentRuntimeSchema = new Schema<IAiAgentRuntime>(
   { _id: false },
 );
 
+const aiAgentKnowledgeSourceSchema = new Schema<IAiAgentKnowledgeSource>(
+  {
+    pluginName: { type: String, required: true },
+    moduleName: { type: String, required: true },
+    key: { type: String, required: true },
+    sourceIds: { type: [String], default: () => [] },
+  },
+  { _id: false },
+);
+
 const aiAgentContextSchema = new Schema<IAiAgentContext>(
   {
     systemPrompt: { type: String, default: '' },
@@ -208,6 +226,10 @@ const aiAgentContextSchema = new Schema<IAiAgentContext>(
     },
     files: {
       type: [aiAgentFileSchema],
+      default: () => [],
+    },
+    knowledgeSources: {
+      type: [aiAgentKnowledgeSourceSchema],
       default: () => [],
     },
   },

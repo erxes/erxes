@@ -9,6 +9,7 @@ import {
   SetPropertiesInput,
 } from './zodTypes';
 import { IAutomationExecution } from './definitions';
+import type { TKnowledgeDocument } from '../../utils/knowledge';
 
 export type IAutomationContext = {
   subdomain: string;
@@ -131,6 +132,17 @@ export type IAutomationsBotsConfig = {
   totalCountQueryName: string;
 };
 
+export type TAiKnowledgeSourceConfig = {
+  key: string;
+  label: string;
+  moduleName: string;
+  sourceSelector: 'remote-module';
+};
+
+export type TAutomationAiConfig = {
+  knowledgeSources?: TAiKnowledgeSourceConfig[];
+};
+
 export type TAiContextHistoryItem = {
   type?: string;
   role?: 'customer' | 'agent' | 'bot' | 'system' | 'user' | 'assistant';
@@ -167,6 +179,7 @@ export type AutomationConstants = IAutomationTriggersActionsConfig & {
   bots?: IAutomationsBotsConfig[];
   findObjectTargets?: TAutomationFindObjectTargetDefinition[];
   setPropertyTargets?: TAutomationSetPropertyTarget[];
+  ai?: TAutomationAiConfig;
 };
 
 export type TAutomationFindObjectResult = {
@@ -217,6 +230,18 @@ export interface AutomationProducers {
     },
     context: IAutomationContext,
   ) => Promise<TAiContext | null>;
+
+  loadAiKnowledgeDocuments?: (
+    args: {
+      subdomain: string;
+      data: {
+        moduleName: string;
+        sourceKey: string;
+        sourceIds: string[];
+      };
+    },
+    context: IAutomationContext,
+  ) => Promise<TKnowledgeDocument[]>;
 
   resolveOutputPaths?: (
     args: z.infer<typeof ResolveOutputPathsInput>,
@@ -374,6 +399,7 @@ export enum TAutomationProducers {
   FIND_OBJECT = 'findObject',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',
+  LOAD_AI_KNOWLEDGE_DOCUMENTS = 'loadAiKnowledgeDocuments',
 }
 
 export enum TAutomationActionFolks {

@@ -29,6 +29,21 @@ export type TKnowledgeDocument = {
   metadata: TKnowledgeDocumentMetadata;
 };
 
+export type TAiKnowledgeSourceReference = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  sourceId: string;
+  updatedAt: string;
+};
+
+export const buildKnowledgeSourceType = ({
+  pluginName,
+  moduleName,
+  key,
+}: Pick<TAiKnowledgeSourceReference, 'pluginName' | 'moduleName' | 'key'>) =>
+  `${pluginName}:${moduleName}:${key}`;
+
 export type TKnowledgeIndexJob =
   | {
       operation: 'upsert';
@@ -60,6 +75,30 @@ export const enqueueKnowledgeIndexJob = async ({
     {
       attempts: 2,
       jobId: `knowledge:${source.type}:${source.id}:${source.updatedAt}`,
+      removeOnComplete: true,
+      removeOnFail: true,
+      ...jobOptions,
+    },
+  );
+};
+
+export const enqueueAiKnowledgeSourceRefreshJob = async ({
+  subdomain,
+  source,
+  jobOptions,
+}: {
+  subdomain: string;
+  source: TAiKnowledgeSourceReference;
+  jobOptions?: DefaultJobOptions;
+}) => {
+  const queue = sendWorkerQueue('automations', 'aiAgent');
+
+  return queue.add(
+    'refreshAiKnowledgeSource',
+    { subdomain, data: { source } },
+    {
+      attempts: 2,
+      jobId: `knowledge-source:${source.pluginName}:${source.moduleName}:${source.key}:${source.sourceId}:${source.updatedAt}`,
       removeOnComplete: true,
       removeOnFail: true,
       ...jobOptions,

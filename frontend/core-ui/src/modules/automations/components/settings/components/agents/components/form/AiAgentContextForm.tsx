@@ -1,4 +1,5 @@
 import { AiAgentContextFileEditorDialog } from '@/automations/components/settings/components/agents/components/AiAgentContextFileEditorDialog';
+import { AiAgentKnowledgeSourcesForm } from '@/automations/components/settings/components/agents/components/form/AiAgentKnowledgeSourcesForm';
 import { UploadDropzone } from '@/automations/components/settings/components/agents/components/DropFilesZone';
 import { AUTOMATIONS_AI_AGENT_REINDEX } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
@@ -58,6 +59,8 @@ export const AiAgentContextForm = () => {
           )}
         />
       </Card>
+
+      <AiAgentKnowledgeSourcesForm />
 
       <Card className="p-4">
         <div className="space-y-4">

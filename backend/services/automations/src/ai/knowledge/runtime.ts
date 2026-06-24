@@ -1,6 +1,8 @@
 import type { IModels } from '../../connectionResolver';
+import type { IAiAgentKnowledgeChunkDocument } from '../../mongo/aiAgentKnowledgeChunk';
 import type { IKnowledgeChunkDocument } from '../../mongo/knowledgeChunk';
-import type { TAiAgentInput } from '../aiAgent';
+import type { TAiAgentInput, TAiAgentKnowledgeSource } from '../aiAgent';
+import { buildKnowledgeSourceType } from 'erxes-api-shared/utils';
 import type { TAiAgentLoadedContextFile } from '../aiAgent/context';
 import { TAiAgentActionConfig } from '../aiAction/contract';
 import { extractKnowledgeTerms } from './normalize';
@@ -54,8 +56,9 @@ const buildRuntimeInputText = ({
   aiContext?: TAiContext | null;
 }) => {
   const explicitInput = stringifyRuntimeValue(inputData);
-  const currentInput =
-    explicitInput || stringifyRuntimeValue(aiContext?.input?.text);
+  const latestUserMessage = stringifyRuntimeValue(aiContext?.input?.text);
+  const actionInput =
+    explicitInput && explicitInput !== latestUserMessage ? explicitInput : '';
   const history = (aiContext?.history || [])
     .filter((item) => item.text?.trim())
     .slice(-5)
@@ -64,9 +67,10 @@ const buildRuntimeInputText = ({
   const facts = stringifyRuntimeValue(aiContext?.facts);
 
   return [
+    latestUserMessage ? `Latest user message:\n${latestUserMessage}` : '',
     history ? `Relevant history:\n${history}` : '',
     facts && facts !== '{}' ? `Known facts:\n${facts}` : '',
-    currentInput ? `Current input:\n${currentInput}` : '',
+    actionInput ? `Action input:\n${actionInput}` : '',
   ]
     .filter(Boolean)
     .join('\n\n');
@@ -96,7 +100,9 @@ const buildActionSearchText = (actionConfig: TAiAgentActionConfig) => {
     .join('\n');
 };
 
-const mapDocumentToChunk = (doc: any): TAiKnowledgeChunk => ({
+const mapDocumentToChunk = (
+  doc: IAiAgentKnowledgeChunkDocument,
+): TAiKnowledgeChunk => ({
   id: doc._id,
   agentId: doc.agentId,
   fileId: doc.fileId,
@@ -153,9 +159,9 @@ const getCandidateChunks = async ({
   searchText: string;
 }) => {
   const terms = extractKnowledgeTerms(searchText, 32);
-  const chunksById = new Map<string, any>();
+  const chunksById = new Map<string, IAiAgentKnowledgeChunkDocument>();
 
-  const collect = (docs: any[]) => {
+  const collect = (docs: IAiAgentKnowledgeChunkDocument[]) => {
     for (const doc of docs) {
       chunksById.set(String(doc._id), doc);
     }
@@ -167,7 +173,7 @@ const getCandidateChunks = async ({
       priority: 'always',
     })
       .limit(20)
-      .lean(),
+      .lean<IAiAgentKnowledgeChunkDocument[]>(),
   );
 
   if (terms.length) {
@@ -181,7 +187,7 @@ const getCandidateChunks = async ({
         ],
       })
         .limit(MAX_CANDIDATE_CHUNKS)
-        .lean(),
+        .lean<IAiAgentKnowledgeChunkDocument[]>(),
     );
 
     try {
@@ -195,7 +201,7 @@ const getCandidateChunks = async ({
         )
           .sort({ score: { $meta: 'textScore' } })
           .limit(MAX_CANDIDATE_CHUNKS)
-          .lean(),
+          .lean<IAiAgentKnowledgeChunkDocument[]>(),
       );
     } catch (error) {
       console.error('AI knowledge text search failed:', error);
@@ -206,7 +212,7 @@ const getCandidateChunks = async ({
     collect(
       await models.AiAgentKnowledgeChunks.find({ agentId })
         .limit(MAX_CANDIDATE_CHUNKS)
-        .lean(),
+        .lean<IAiAgentKnowledgeChunkDocument[]>(),
     );
   }
 
@@ -216,10 +222,28 @@ const getCandidateChunks = async ({
 const getSharedKnowledgeCandidateChunks = async ({
   models,
   searchText,
+  sources,
 }: {
   models: IModels;
   searchText: string;
+  sources: TAiAgentKnowledgeSource[];
 }) => {
+  const sourceFilters = sources
+    .filter((source) => source.sourceIds.length)
+    .map((source) => ({
+      sourceType: buildKnowledgeSourceType({
+        pluginName: source.pluginName,
+        moduleName: source.moduleName,
+        key: source.key,
+      }),
+      sourceId: { $in: source.sourceIds },
+    }));
+
+  if (!sourceFilters.length) {
+    return [];
+  }
+
+  const sourceFilter = { $or: sourceFilters };
   const terms = extractKnowledgeTerms(searchText, 32);
   const chunksById = new Map<string, TAiKnowledgeChunk>();
   const collect = (docs: TAiKnowledgeChunk[]) => {
@@ -233,8 +257,7 @@ const getSharedKnowledgeCandidateChunks = async ({
   collect(
     mapDocuments(
       await models.KnowledgeChunks.find({
-        priority: 'always',
-        visibility: 'public',
+        $and: [sourceFilter, { priority: 'always' }],
       })
         .limit(20)
         .lean<IKnowledgeChunkDocument[]>(),
@@ -250,11 +273,15 @@ const getSharedKnowledgeCandidateChunks = async ({
   collect(
     mapDocuments(
       await models.KnowledgeChunks.find({
-        visibility: 'public',
-        $or: [
-          { topics: { $in: terms } },
-          { keywords: { $in: terms } },
-          { title: titleMatcher },
+        $and: [
+          sourceFilter,
+          {
+            $or: [
+              { topics: { $in: terms } },
+              { keywords: { $in: terms } },
+              { title: titleMatcher },
+            ],
+          },
         ],
       })
         .limit(MAX_CANDIDATE_CHUNKS)
@@ -267,8 +294,7 @@ const getSharedKnowledgeCandidateChunks = async ({
       mapDocuments(
         await models.KnowledgeChunks.find(
           {
-            visibility: 'public',
-            $text: { $search: searchText },
+            $and: [sourceFilter, { $text: { $search: searchText } }],
           },
           { score: { $meta: 'textScore' } },
         )
@@ -318,6 +344,7 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
     getSharedKnowledgeCandidateChunks({
       models,
       searchText,
+      sources: agent.context.knowledgeSources || [],
     }),
   ]);
   const candidates = [...agentCandidates, ...sharedCandidates];

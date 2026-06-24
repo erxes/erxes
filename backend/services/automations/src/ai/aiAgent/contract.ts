@@ -1,8 +1,5 @@
 import { z } from 'zod';
-import {
-  AI_AGENT_LIMITS,
-  AI_AGENT_DEFAULTS,
-} from './constants';
+import { AI_AGENT_LIMITS, AI_AGENT_DEFAULTS } from './constants';
 import { aiAgentConnectionSchema } from './connection';
 
 const aiAgentFileVersionSchema = z.object({
@@ -27,6 +24,13 @@ const aiAgentFileSchema = z.object({
   contentHash: z.string().optional(),
   indexError: z.string().optional(),
   versions: z.array(aiAgentFileVersionSchema).default([]),
+});
+
+const aiAgentKnowledgeSourceSchema = z.object({
+  pluginName: z.string().trim().min(1),
+  moduleName: z.string().trim().min(1),
+  key: z.string().trim().min(1),
+  sourceIds: z.array(z.string().trim().min(1)).max(1000).default([]),
 });
 
 const aiAgentRuntimeSchema = z
@@ -67,6 +71,7 @@ const aiAgentContextSchema = z
       })
       .default({}),
     files: z.array(aiAgentFileSchema).max(AI_AGENT_LIMITS.maxFiles).default([]),
+    knowledgeSources: z.array(aiAgentKnowledgeSourceSchema).max(20).default([]),
   })
   .default({});
 
@@ -86,6 +91,9 @@ export type TAiAgentInput = z.infer<typeof aiAgentInputSchema>;
 export type TAiAgentFile = z.infer<
   typeof aiAgentInputSchema
 >['context']['files'][number];
+export type TAiAgentKnowledgeSource = z.infer<
+  typeof aiAgentInputSchema
+>['context']['knowledgeSources'][number];
 
 export const parseAiAgentInput = (input: unknown): TAiAgentInput => {
   return aiAgentInputSchema.parse(input);

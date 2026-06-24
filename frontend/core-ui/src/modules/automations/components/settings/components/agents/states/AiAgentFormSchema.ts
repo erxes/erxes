@@ -30,6 +30,13 @@ const aiAgentFileSchema = z.object({
   versions: z.array(aiAgentFileVersionSchema).default([]),
 });
 
+const aiAgentKnowledgeSourceSchema = z.object({
+  pluginName: z.string(),
+  moduleName: z.string(),
+  key: z.string(),
+  sourceIds: z.array(z.string()).max(1000).default([]),
+});
+
 const baseAiAgentFormSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().max(500).default(''),
@@ -51,6 +58,7 @@ const baseAiAgentFormSchema = z.object({
       })
       .default({}),
     files: z.array(aiAgentFileSchema).max(10).default([]),
+    knowledgeSources: z.array(aiAgentKnowledgeSourceSchema).max(20).default([]),
   }),
 });
 
@@ -115,6 +123,13 @@ type TAiAgentFormFileInput = TAiAgentFormFileVersionInput & {
   versions?: unknown;
 };
 
+type TAiAgentKnowledgeSourceInput = {
+  pluginName?: unknown;
+  moduleName?: unknown;
+  key?: unknown;
+  sourceIds?: unknown;
+};
+
 export type TAiAgentFormDetail = {
   _id?: string;
   name?: string;
@@ -139,6 +154,7 @@ export type TAiAgentFormDetail = {
       minScore?: number;
     };
     files?: unknown;
+    knowledgeSources?: unknown;
   };
 };
 
@@ -238,6 +254,31 @@ const normalizeAiAgentFiles = (files: unknown[] = []) =>
     })
     .filter((file) => file.key && file.name);
 
+const normalizeAiAgentKnowledgeSources = (sources: unknown[] = []) =>
+  sources
+    .map((source) => {
+      const current = isRecord(source)
+        ? (source as TAiAgentKnowledgeSourceInput)
+        : {};
+      const pluginName =
+        typeof current.pluginName === 'string' ? current.pluginName.trim() : '';
+      const moduleName =
+        typeof current.moduleName === 'string' ? current.moduleName.trim() : '';
+      const key = typeof current.key === 'string' ? current.key.trim() : '';
+      const sourceIds = Array.isArray(current.sourceIds)
+        ? [
+            ...new Set(
+              current.sourceIds.filter(
+                (id): id is string => typeof id === 'string' && !!id.trim(),
+              ),
+            ),
+          ]
+        : [];
+
+      return { pluginName, moduleName, key, sourceIds };
+    })
+    .filter((source) => source.pluginName && source.moduleName && source.key);
+
 export const normalizeAiAgentFormValues = (
   detail?: TAiAgentFormDetail,
   defaultProvider?: TAiAgentProvider,
@@ -276,6 +317,11 @@ export const normalizeAiAgentFormValues = (
     },
     files: normalizeAiAgentFiles(
       Array.isArray(detail?.context?.files) ? detail.context.files : [],
+    ),
+    knowledgeSources: normalizeAiAgentKnowledgeSources(
+      Array.isArray(detail?.context?.knowledgeSources)
+        ? detail.context.knowledgeSources
+        : [],
     ),
   },
 });

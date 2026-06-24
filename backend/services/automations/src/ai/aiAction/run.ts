@@ -89,17 +89,14 @@ const invokeAiProviderWithRealtimeFallback = async ({
     return await Promise.race([
       providerPromise,
       new Promise<Awaited<typeof providerPromise>>((resolve) => {
-        timeoutId = setTimeout(
-          () => {
-            const fallbackResponse =
-              createAiProviderFallbackResponse(actionConfig);
+        timeoutId = setTimeout(() => {
+          const fallbackResponse =
+            createAiProviderFallbackResponse(actionConfig);
 
-            if (fallbackResponse) {
-              resolve(fallbackResponse);
-            }
-          },
-          timeoutMs,
-        );
+          if (fallbackResponse) {
+            resolve(fallbackResponse);
+          }
+        }, timeoutMs);
       }),
     ]);
   } finally {
@@ -141,14 +138,18 @@ export const runAiAction = async ({
         })
       : [];
 
-  const loadedContext = retrievedContext.length
-    ? {
-        files: retrievedContext,
-        totalBytes: retrievedContext.reduce((sum, file) => sum + file.bytes, 0),
-        errors: [],
-        warnings: [],
-      }
-    : await loadAiAgentContextFiles(subdomain, agent.context.files);
+  const uploadedContext = await loadAiAgentContextFiles(
+    subdomain,
+    agent.context.files,
+  );
+  const loadedContext = {
+    files: [...uploadedContext.files, ...retrievedContext],
+    totalBytes:
+      uploadedContext.totalBytes +
+      retrievedContext.reduce((sum, file) => sum + file.bytes, 0),
+    errors: uploadedContext.errors,
+    warnings: uploadedContext.warnings,
+  };
 
   if (loadedContext.errors.length) {
     throw new Error(loadedContext.errors.join('\n'));
