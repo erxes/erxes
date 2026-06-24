@@ -2,13 +2,24 @@ import { Button, Form, Input } from 'erxes-ui';
 import { useLogin } from '@/auth/login/hooks/useLogin';
 import { useSignInUpForm } from '@/auth/login/hooks/useLoginForm';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
+
+const PASSWORD_REVEAL_TIMEOUT = 10000;
 
 export const CredentialLoginForm = () => {
   const { form } = useSignInUpForm();
   const { handleCrendentialsLogin } = useLogin();
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (!showPassword) return;
+    const timer = setTimeout(
+      () => setShowPassword(false),
+      PASSWORD_REVEAL_TIMEOUT,
+    );
+    return () => clearTimeout(timer);
+  }, [showPassword]);
 
   return (
     <Form {...form}>
