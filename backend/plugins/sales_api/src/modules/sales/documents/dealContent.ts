@@ -144,7 +144,7 @@ export const buildDealReplacer = async (
   }
 
   let customers: any[] = [];
-  if (customerIds?.length) { 
+  if (customerIds?.length) {
     customers = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -288,8 +288,6 @@ export const buildDealReplacer = async (
     }
   }
 
-  // allProductsInfo combines products and services for templates that use a
-  // single unified items table (productsInfo only contains non-service items).
   const allProductRows: string[][] = [
     ['#', 'Name', 'Quantity', 'Unit price', 'Amount', 'Currency'],
   ];
@@ -306,7 +304,6 @@ export const buildDealReplacer = async (
     ]);
   }
 
-  // Resolve category names for productCategoryInfo.
   const categoryIds = Object.keys(categoryMap).filter(
     (id) => id !== 'uncategorized',
   );
