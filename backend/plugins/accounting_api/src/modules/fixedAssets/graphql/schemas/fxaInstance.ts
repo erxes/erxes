@@ -37,6 +37,13 @@ export const types = `
   }
 `;
 
-export const queries = '';
+export const queries = `
+  fxaInstances(
+    fixedAssetIds: [String]
+    status: String
+    branchId: String
+    departmentId: String
+  ): [FxaInstance]
+`;
 
 export const mutations = '';

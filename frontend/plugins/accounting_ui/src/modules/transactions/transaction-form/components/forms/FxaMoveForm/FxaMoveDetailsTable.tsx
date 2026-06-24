@@ -1,7 +1,4 @@
 import { useQuery } from '@apollo/client';
-import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { JournalEnum } from '@/settings/account/types/Account';
-import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { Button, Checkbox, Form, InputNumber, Select, Table } from 'erxes-ui';
 import { useFieldArray, useWatch } from 'react-hook-form';
@@ -74,7 +71,7 @@ export const FxaMoveDetailsTable = ({
   const details = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
-  });
+  }) as TFxaDetail[];
 
   const removeChecked = () => {
     form.setValue(
@@ -89,7 +86,6 @@ export const FxaMoveDetailsTable = ({
         <Table.Header>
           <Table.Row>
             <Table.Head className="w-10" />
-            <Table.Head>Данс</Table.Head>
             <Table.Head>Үндсэн хөрөнгө</Table.Head>
             <Table.Head>Тоо</Table.Head>
             <Table.Head>Нэгж үнэ</Table.Head>
@@ -118,24 +114,6 @@ export const FxaMoveDetailsTable = ({
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                      />
-                    )}
-                  />
-                </Table.Cell>
-                <Table.Cell>
-                  <Form.Field
-                    control={form.control}
-                    name={fieldName('accountId')}
-                    render={({ field }) => (
-                      <SelectAccount
-                        value={field.value || ''}
-                        onValueChange={field.onChange}
-                        defaultFilter={{
-                          journals: [JournalEnum.FIXED_ASSET],
-                          permissionMode: 'write',
-                        }}
-                        variant="ghost"
-                        scope={AccountingHotkeyScope.TransactionFormPage}
                       />
                     )}
                   />
@@ -204,7 +182,9 @@ export const FxaMoveDetailsTable = ({
           type="button"
           variant="secondary"
           className="bg-border"
-          onClick={() => append(getFxaDetailDefaultValues())}
+          onClick={() =>
+            append(getFxaDetailDefaultValues({ accountId: details[0]?.accountId }))
+          }
         >
           <IconPlus />
           Шинэ мөр

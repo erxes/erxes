@@ -22,6 +22,56 @@ const getFxaInstanceInputs = (transaction: ITransactionDocument) =>
 
 const getDetailId = (detail: { _id?: string }) => detail._id?.toString() || '';
 
+const getCodeSequence = (code: string, fixedAssetCode: string) => {
+  const escapedCode = fixedAssetCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(`^${escapedCode}_(\\d+)$`).exec(code);
+  return match ? Number(match[1]) : 0;
+};
+
+const assignMissingInstanceCodes = async (
+  models: IModels,
+  inputs: TFxaInstanceInput[],
+) => {
+  const fixedAssetIds = Array.from(
+    new Set(inputs.map((input) => input.fixedAssetId).filter(Boolean)),
+  ) as string[];
+  const fixedAssets = await models.FixedAssets.find({
+    _id: { $in: fixedAssetIds },
+  }).lean();
+  const fixedAssetsById = new Map(
+    fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
+  );
+  const sequences = new Map<string, number>();
+
+  for (const fixedAssetId of fixedAssetIds) {
+    const fixedAssetCode = fixedAssetsById.get(fixedAssetId)?.code || fixedAssetId;
+    const instances = await models.FxaInstances.find({ fixedAssetId })
+      .select({ code: 1 })
+      .lean();
+    sequences.set(
+      fixedAssetId,
+      instances.reduce(
+        (max, instance) =>
+          Math.max(max, getCodeSequence(instance.code || '', fixedAssetCode)),
+        0,
+      ),
+    );
+  }
+
+  for (const input of inputs) {
+    if (input.code || !input.fixedAssetId) {
+      continue;
+    }
+
+    const nextSequence = (sequences.get(input.fixedAssetId) || 0) + 1;
+    const fixedAssetCode =
+      fixedAssetsById.get(input.fixedAssetId)?.code || input.fixedAssetId;
+
+    input.code = `${fixedAssetCode}_${String(nextSequence).padStart(3, '0')}`;
+    sequences.set(input.fixedAssetId, nextSequence);
+  }
+};
+
 const buildDefaultIncomeInputs = async (
   models: IModels,
   transaction: ITransactionDocument,
@@ -68,6 +118,7 @@ export const syncFxaIncomeInstances = async (
   transaction: ITransactionDocument,
 ) => {
   const inputs = await buildDefaultIncomeInputs(models, transaction);
+  await assignMissingInstanceCodes(models, inputs);
   const date = transaction.date || new Date();
 
   await models.FxaInstanceLogs.deleteMany({ transactionId: transaction._id });
@@ -141,34 +192,54 @@ const getSelectedInstanceIds = async (
   const selectedIds = ((transaction.extraData as any)?.fxaInstanceIds ||
     []) as string[];
 
-  if (selectedIds.length) {
-    return selectedIds;
-  }
-
-  const result: string[] = [];
+  const uniqueIds = Array.from(new Set(selectedIds));
+  const expectedByAsset = new Map<string, number>();
 
   for (const detail of transaction.details || []) {
-    const fixedAssetId = detail.fixedAssetId;
-    const count = Math.max(0, Math.trunc(detail.count || 0));
-
-    if (!fixedAssetId || !count) {
+    if (!detail.fixedAssetId) {
       continue;
     }
 
-    const instances = await models.FxaInstances.find({
-      fixedAssetId,
-      status: FXA_INSTANCE_STATUSES.ACTIVE,
-      branchId: detail.branchId || transaction.branchId,
-      departmentId: detail.departmentId || transaction.departmentId,
-    })
-      .sort({ acquisitionDate: 1, createdAt: 1 })
-      .limit(count)
-      .lean();
-
-    result.push(...instances.map((instance) => instance._id));
+    expectedByAsset.set(
+      detail.fixedAssetId,
+      (expectedByAsset.get(detail.fixedAssetId) || 0) +
+        Math.max(0, Math.trunc(detail.count || 0)),
+    );
   }
 
-  return result;
+  const expectedCount = Array.from(expectedByAsset.values()).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
+
+  if (expectedCount !== uniqueIds.length) {
+    throw new Error('Selected fixed asset instances must match detail counts');
+  }
+
+  const instances = await models.FxaInstances.find({
+    _id: { $in: uniqueIds },
+    status: FXA_INSTANCE_STATUSES.ACTIVE,
+  }).lean();
+
+  if (instances.length !== uniqueIds.length) {
+    throw new Error('Selected fixed asset instances are not active');
+  }
+
+  const selectedByAsset = new Map<string, number>();
+  for (const instance of instances) {
+    selectedByAsset.set(
+      instance.fixedAssetId,
+      (selectedByAsset.get(instance.fixedAssetId) || 0) + 1,
+    );
+  }
+
+  for (const [fixedAssetId, count] of expectedByAsset) {
+    if ((selectedByAsset.get(fixedAssetId) || 0) !== count) {
+      throw new Error('Selected instances must match each fixed asset detail');
+    }
+  }
+
+  return uniqueIds;
 };
 
 export const syncFxaDisposalInstances = async (

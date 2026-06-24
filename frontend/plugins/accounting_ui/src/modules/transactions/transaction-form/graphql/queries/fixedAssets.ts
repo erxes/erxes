@@ -16,3 +16,16 @@ export const FIXED_ASSETS_QUERY = gql`
     }
   }
 `;
+
+export const FXA_INSTANCES_QUERY = gql`
+  query FxaInstances($fixedAssetIds: [String], $status: String) {
+    fxaInstances(fixedAssetIds: $fixedAssetIds, status: $status) {
+      _id
+      fixedAssetId
+      code
+      branchId
+      departmentId
+      responsibleUserId
+    }
+  }
+`;

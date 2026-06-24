@@ -1,26 +1,37 @@
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
+  Button,
   Checkbox,
-  Label,
   RecordTableHotkeyProvider,
   ScrollArea,
-  Switch,
   Table,
   useSetHotkeyScope,
 } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { IconPlus, IconX } from '@tabler/icons-react';
 import { useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
-import { showAdvancedViewState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
-  TInvIncomeJournal,
+  TFxaDetail,
+  TFxaIncomeJournal,
 } from '../../../types/JournalForms';
-import { AddDetailRowButton } from './AddInventoryRow';
-import { InventoryRow } from './InventoryRow';
-import { RemoveButton } from './RemoveButton';
+import { getTempId } from '../../utils';
+import { FixedAssetRow } from './FixedAssetRow';
 
-export const InventoryForm = ({
+const getFxaDetailDefaultValues = (
+  detail?: Partial<TFxaDetail>,
+): TFxaDetail => ({
+  ...(detail || {}),
+  _id: getTempId(),
+  accountId: detail?.accountId || '',
+  fixedAssetId: detail?.fixedAssetId || '',
+  count: detail?.count ?? 0,
+  unitPrice: detail?.unitPrice ?? 0,
+  amount: detail?.amount ?? 0,
+  checked: false,
+});
+
+export const FixedAssetForm = ({
   form,
   journalIndex,
 }: {
@@ -31,16 +42,23 @@ export const InventoryForm = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
   });
+  const details = useWatch({
+    control: form.control,
+    name: `trDocs.${journalIndex}.details`,
+  }) as TFxaDetail[];
   const setHotkeyScope = useSetHotkeyScope();
-
   const tableRef = useRef<HTMLTableElement>(null);
-  const [showAdvancedView, setShowAdvancedView] = useAtom(
-    showAdvancedViewState,
-  );
-
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
-    5;
+    6;
+  const hasCheckedDetails = details.some((detail) => detail.checked);
+
+  const removeChecked = () => {
+    form.setValue(
+      `trDocs.${journalIndex}.details`,
+      details.filter((detail) => !detail.checked),
+    );
+  };
 
   return (
     <>
@@ -54,20 +72,24 @@ export const InventoryForm = ({
           className="h-full w-full pb-3 pr-3"
         >
           <Table
-            className="mt-5 p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar w-max min-w-full"
             ref={tableRef}
+            className="mt-5 p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar w-max min-w-full"
             onClickCapture={() =>
               setHotkeyScope(AccountingHotkeyScope.TransactionFormPage)
             }
           >
-            <InventoryTableHeader form={form} journalIndex={journalIndex} />
+            <FixedAssetTableHeader
+              form={form}
+              journalIndex={journalIndex}
+              details={details}
+            />
             <Table.Body className="overflow-hidden">
               {fields.map((detail, detailIndex) => (
-                <InventoryRow
+                <FixedAssetRow
                   key={detail.id}
-                  detailIndex={detailIndex}
-                  journalIndex={journalIndex}
                   form={form}
+                  journalIndex={journalIndex}
+                  detailIndex={detailIndex}
                 />
               ))}
             </Table.Body>
@@ -76,39 +98,51 @@ export const InventoryForm = ({
         </ScrollArea>
       </RecordTableHotkeyProvider>
 
-      <div className="flex w-full justify-center gap-4">
-        <AddDetailRowButton
-          append={append}
-          form={form}
-          journalIndex={journalIndex}
-        />
-        <RemoveButton form={form} journalIndex={journalIndex} />
-        <div>
-          <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
-          <Switch
-            checked={showAdvancedView}
-            onCheckedChange={(checked) => {
-              setShowAdvancedView(checked);
-            }}
-          />
-        </div>
+      <div className="flex justify-center gap-3">
+        <Button
+          type="button"
+          variant="secondary"
+          className="bg-border"
+          onClick={() =>
+            append(
+              getFxaDetailDefaultValues({ accountId: details[0]?.accountId }),
+            )
+          }
+        >
+          <IconPlus />
+          Шинэ мөр
+        </Button>
+        {hasCheckedDetails && (
+          <Button
+            type="button"
+            variant="secondary"
+            className="bg-destructive/10 text-destructive"
+            onClick={removeChecked}
+          >
+            <IconX />
+            Сонгосныг хасах
+          </Button>
+        )}
       </div>
     </>
   );
 };
 
-const InventoryTableHeader = ({
+const FixedAssetTableHeader = ({
   form,
   journalIndex,
+  details,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
+  details: TFxaDetail[];
 }) => {
-  const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  }) as TInvIncomeJournal;
+  }) as TFxaIncomeJournal;
+  const isAllChecked =
+    details.length > 0 && details.every((detail) => detail.checked);
 
   return (
     <Table.Header>
@@ -116,20 +150,19 @@ const InventoryTableHeader = ({
         <Table.Head className="w-10">
           <div className="flex items-center justify-center">
             <Checkbox
-              checked={!trDoc.details.filter((d) => !d.checked).length}
+              checked={isAllChecked}
               onCheckedChange={(checked) => {
-                trDoc.details.forEach((_d, ind) => {
+                details.forEach((_detail, detailIndex) => {
                   form.setValue(
-                    `trDocs.${journalIndex}.details.${ind}.checked`,
-                    !!checked,
+                    `trDocs.${journalIndex}.details.${detailIndex}.checked`,
+                    Boolean(checked),
                   );
                 });
               }}
             />
           </div>
         </Table.Head>
-        <Table.Head>Данс</Table.Head>
-        <Table.Head>Бараа материал</Table.Head>
+        <Table.Head>Үндсэн хөрөнгө</Table.Head>
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>
@@ -141,12 +174,7 @@ const InventoryTableHeader = ({
             <Table.Head>Татвартай дүн</Table.Head>
           </>
         )}
-        {showAdvancedView && (
-          <>
-            <Table.Head>Салбар</Table.Head>
-            <Table.Head>Хэлтэс</Table.Head>
-          </>
-        )}
+        <Table.Head className="w-10" />
       </Table.Row>
     </Table.Header>
   );

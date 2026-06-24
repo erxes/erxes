@@ -2,6 +2,44 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const fixedAssets = {
+  fxaInstances: async (
+    _root: undefined,
+    {
+      fixedAssetIds,
+      status,
+      branchId,
+      departmentId,
+    }: {
+      fixedAssetIds?: string[];
+      status?: string;
+      branchId?: string;
+      departmentId?: string;
+    },
+    { models }: IContext,
+  ) => {
+    const filter: Record<string, unknown> = {};
+
+    if (fixedAssetIds?.length) {
+      filter.fixedAssetId = { $in: fixedAssetIds };
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (branchId) {
+      filter.branchId = branchId;
+    }
+
+    if (departmentId) {
+      filter.departmentId = departmentId;
+    }
+
+    return models.FxaInstances.find(filter)
+      .sort({ fixedAssetId: 1, code: 1 })
+      .lean();
+  },
+
   fixedAssets: async (
     _root: undefined,
     {
