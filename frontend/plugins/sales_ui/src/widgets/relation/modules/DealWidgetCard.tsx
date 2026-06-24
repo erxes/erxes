@@ -1,5 +1,6 @@
 import { Badge, Card, Separator, Tooltip } from 'erxes-ui';
 import { IconBuildingSkyscraper, IconMapPin } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { PriorityBadge } from '@/deals/components/deal-selects/PriorityInline';
@@ -46,6 +47,7 @@ const OverflowItems = ({ items }: { items: { title: string }[] }) => {
 };
 
 export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const {
     startDate,
     closeDate,
@@ -85,14 +87,14 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
           id={_id}
           type="startDate"
           variant="card"
-          placeholder="Start Date"
+          placeholder={t('start-date')}
         />
         <DateSelectDeal
           value={closeDate}
           id={_id}
           type="closeDate"
           variant="card"
-          placeholder="Close Date"
+          placeholder={t('close-date')}
         />
       </div>
       <Separator />
@@ -112,7 +114,7 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
             <div className="mt-1.5 grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1.5 text-xs overflow-hidden">
               {stage?.name && (
                 <>
-                  <span className="text-muted-foreground">Stage</span>
+                  <span className="text-muted-foreground">{t('stage')}</span>
                   <span className="font-medium text-foreground truncate min-w-0">
                     {stage.name}
                   </span>
@@ -120,7 +122,7 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
               )}
               {priorityNum > 0 && (
                 <>
-                  <span className="text-muted-foreground">Priority</span>
+                  <span className="text-muted-foreground">{t('priority')}</span>
                   <PriorityBadge
                     priority={priorityNum}
                     className="text-xs py-0 h-5 w-fit"
@@ -131,7 +133,7 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
                 <>
                   <span className="flex items-center gap-1 text-muted-foreground shrink-0">
                     <IconBuildingSkyscraper className="size-3.5 shrink-0" />
-                    Dept.
+                    {t('dept')}
                   </span>
                   <OverflowItems items={departments} />
                 </>
@@ -140,16 +142,16 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
                 <>
                   <span className="flex items-center gap-1 text-muted-foreground shrink-0">
                     <IconMapPin className="size-3.5 shrink-0" />
-                    Branch
+                    {t('branch')}
                   </span>
                   <OverflowItems items={branches} />
                 </>
               )}
               {isArchived && (
                 <>
-                  <span className="text-muted-foreground">Status</span>
+                  <span className="text-muted-foreground">{t('status')}</span>
                   <Badge variant="secondary" className="text-xs py-0 h-5 w-fit">
-                    Archived
+                    {t('archived')}
                   </Badge>
                 </>
               )}

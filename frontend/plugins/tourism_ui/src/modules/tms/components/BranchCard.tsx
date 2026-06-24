@@ -5,6 +5,7 @@ import { readImage, Spinner } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
 import { ActionMenu } from '@/tms/components/ActionMenu';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 interface BranchCardProps {
@@ -54,12 +55,13 @@ export const BranchCard = ({
   onDelete,
   duplicateLoading,
 }: BranchCardProps) => {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col w-full rounded-sm shadow-sm bg-background">
       <div className="flex items-center justify-between px-3 py-2">
         <div className="min-w-0">
           <div className="text-sm font-semibold truncate">
-            {branch.name || 'Unnamed Branch'}
+            {branch.name || t('unnamed-branch')}
           </div>
         </div>
 
@@ -82,10 +84,10 @@ export const BranchCard = ({
         <div className="flex items-center min-w-0 gap-2">
           <IconCalendarPlus size={16} className="shrink-0" />
           <span className="text-xs font-medium truncate">
-            Created:{' '}
+            {t('created')}:{' '}
             {branch.createdAt
               ? format(new Date(branch.createdAt), 'dd MMM yyyy')
-              : 'N/A'}
+              : t('na')}
           </span>
         </div>
 

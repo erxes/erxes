@@ -21,6 +21,7 @@ import {
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { addTicketSchema } from '@/ticket/types';
 import { z } from 'zod';
 import { Link } from 'react-router';
@@ -153,26 +154,27 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 };
 
 const SelectPipelineContent = () => {
+  const { t } = useTranslation('frontline');
   const { pipelines, channelId } = useSelectPipelineContext();
   return (
     <Command>
-      <Command.Input placeholder="Search pipelines..." />
+      <Command.Input placeholder={t('search-pipelines')} />
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">
             {channelId ? (
               <div className="flex items-center flex-col gap-2">
-                No pipelines found
+                {t('no-pipelines-found')}
                 <Button asChild variant="secondary">
                   <Link
                     to={`/settings/frontline/channels/${channelId}/pipelines`}
                   >
-                    Add Pipeline
+                    {t('add-pipeline')}
                   </Link>
                 </Button>
               </div>
             ) : (
-              'Channel not selected'
+              t('channel-not-selected')
             )}
           </div>
         </Command.Empty>

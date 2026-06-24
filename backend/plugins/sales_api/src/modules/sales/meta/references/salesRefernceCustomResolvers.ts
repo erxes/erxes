@@ -44,7 +44,6 @@ export const salesReferenceCustomResolvers: TRecordReferencesConfig<
     }, 0);
   },
   excludeLoyaltyAmount: async ({ models, target, ...props }) => {
-    console.log({ target, ...props });
     const stage = await models.Stages.getStage(target.stageId);
 
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);

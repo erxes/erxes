@@ -1,23 +1,25 @@
 import { Table } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useTopNumbers } from '../../hooks/useTopNumbers';
 import { SectionCard } from '../SectionCard';
 import { CARRIER_COLOR_VAR, fmtDur, fmtNum } from '../../utils';
 
 /** Top Contact Numbers tab: ranked table of most active phone numbers. */
 export function TopNumbersSection() {
+  const { t } = useTranslation('frontline');
   const { numbers, loading } = useTopNumbers(20);
 
   return (
     <SectionCard
-      title="Top Contact Numbers"
-      description="Highest-volume phone numbers in the selected period"
+      title={t('top-contact-numbers')}
+      description={t('highest-volume-phone-numbers')}
       accentClass="bg-[var(--chart-5)]"
       loading={loading}
       skeletonHeight="h-48"
     >
       {!numbers.length ? (
         <div className="rounded-xl border-2 border-dashed p-8 text-center text-sm text-muted-foreground">
-          No top-number data for the selected period
+          {t('no-top-number-data')}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border">
@@ -25,19 +27,19 @@ export function TopNumbersSection() {
             <Table.Header>
               <Table.Row className="bg-muted/50">
                 <Table.Head className="font-semibold">#</Table.Head>
-                <Table.Head className="font-semibold">Number</Table.Head>
-                <Table.Head className="font-semibold">Carrier</Table.Head>
+                <Table.Head className="font-semibold">{t('number')}</Table.Head>
+                <Table.Head className="font-semibold">{t('carrier')}</Table.Head>
                 <Table.Head className="font-semibold text-right">
-                  Attempts
+                  {t('attempts')}
                 </Table.Head>
                 <Table.Head className="font-semibold text-right">
-                  Answered
+                  {t('answered')}
                 </Table.Head>
                 <Table.Head className="font-semibold text-right">
-                  Missed
+                  {t('missed')}
                 </Table.Head>
                 <Table.Head className="font-semibold text-right">
-                  Total Talk
+                  {t('total-talk')}
                 </Table.Head>
               </Table.Row>
             </Table.Header>

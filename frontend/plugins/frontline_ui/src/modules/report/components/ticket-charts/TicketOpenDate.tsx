@@ -11,6 +11,7 @@ import { useTicketDate } from '@/report/hooks/useTicketOpenDate';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ResponsesChartType } from '@/report/types';
 import { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import {
   Bar,
@@ -73,6 +74,7 @@ export const TicketOpenDate = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketOpenDateProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -166,7 +168,7 @@ export const TicketOpenDate = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>

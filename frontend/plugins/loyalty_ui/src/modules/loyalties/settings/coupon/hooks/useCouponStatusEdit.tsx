@@ -1,9 +1,11 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { UPDATE_COUPON_CAMPAIGN } from '../graphql/mutations/couponEditStatusMutations';
 import { QUERY_COUPON_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 
 export function useCouponStatusEdit() {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
   const [editCoupon, { loading, error }] = useMutation(UPDATE_COUPON_CAMPAIGN, {
@@ -24,15 +26,15 @@ export function useCouponStatusEdit() {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Coupon status updated successfully',
+          title: t('success'),
+          description: t('coupon-status-updated'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

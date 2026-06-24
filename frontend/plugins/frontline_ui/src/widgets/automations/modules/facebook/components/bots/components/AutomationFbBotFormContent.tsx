@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import {
   Button,
@@ -23,6 +24,7 @@ import { useFbBotFormContext } from '../context/FbBotFormContext';
 import { AutomationBotFormEffect } from './AutomationBotFormEffect';
 
 export const AutomationFbBotFormContent = () => {
+  const { t } = useTranslation('frontline');
   const { form } = useFbBotFormContext();
   const [isOptionalOpen, setOptionalOpen] = useState(false);
   const { onSave, onSaveloading } = useFacebookBotSave();
@@ -58,7 +60,7 @@ export const AutomationFbBotFormContent = () => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
 
                   <Input {...field} />
                   <Form.Message />
@@ -70,9 +72,9 @@ export const AutomationFbBotFormContent = () => {
               name="persistentMenus"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Persistent Menu</Form.Label>
+                  <Form.Label>{t('persistent-menu')}</Form.Label>
                   <Form.Description>
-                    Configure menu items that appear in your bot
+                    {t('persistent-menu-description')}
                   </Form.Description>
                   <FacebookPersistentMenuGenerator
                     menus={field.value}
@@ -87,7 +89,7 @@ export const AutomationFbBotFormContent = () => {
               <Collapsible.Trigger asChild>
                 <Button variant="secondary" className="w-full">
                   <Label className="flex items-center gap-2">
-                    {isOptionalOpen ? 'Hide' : 'Show'} Optional configuration{' '}
+                    {isOptionalOpen ? t('hide') : t('show')} {t('optional-configuration')}{' '}
                     {isOptionalOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </Label>
                 </Button>
@@ -98,23 +100,23 @@ export const AutomationFbBotFormContent = () => {
                   name="tag"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Tag</Form.Label>
+                      <Form.Label>{t('tag')}</Form.Label>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger id="messenger-tag" className="mt-1">
-                          <Select.Value placeholder="Select tag" />
+                          <Select.Value placeholder={t('select-tag')} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Item value="CONFIRMED_EVENT_UPDATE">
-                            Confirmed Event Update
+                            {t('confirmed-event-update')}
                           </Select.Item>
                           <Select.Item value="POST_PURCHASE_UPDATE">
-                            Post-Purchase Update
+                            {t('post-purchase-update')}
                           </Select.Item>
                           <Select.Item value="ACCOUNT_UPDATE">
-                            Account Update
+                            {t('account-update')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -142,7 +144,7 @@ export const AutomationFbBotFormContent = () => {
                   name="greetText"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Greet Message</Form.Label>
+                      <Form.Label>{t('greet-message')}</Form.Label>
                       <Input {...field} />
                       <Form.Message />
                     </Form.Item>
@@ -155,7 +157,7 @@ export const AutomationFbBotFormContent = () => {
                       name="handoffPauseMinutes"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Inactivity pause minutes</Form.Label>
+                          <Form.Label>{t('inactivity-pause-minutes')}</Form.Label>
                           <Input
                             type="number"
                             min={1}
@@ -173,7 +175,7 @@ export const AutomationFbBotFormContent = () => {
                       name="handoffMessage"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Human handoff message</Form.Label>
+                          <Form.Label>{t('human-handoff-message')}</Form.Label>
                           <Input {...field} />
                           <Form.Message />
                         </Form.Item>
@@ -184,7 +186,7 @@ export const AutomationFbBotFormContent = () => {
                       name="automationActiveMessage"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Automation active message</Form.Label>
+                          <Form.Label>{t('automation-active-message')}</Form.Label>
                           <Input {...field} />
                           <Form.Message />
                         </Form.Item>
@@ -202,12 +204,12 @@ export const AutomationFbBotFormContent = () => {
           disabled={onSaveloading}
           onClick={form.handleSubmit(onSave, (error) =>
             toast({
-              title: 'Something went wrong',
+              title: t('something-went-wrong'),
               description: JSON.stringify(error),
             }),
           )}
         >
-          {onSaveloading ? <Spinner /> : 'Save'}
+          {onSaveloading ? <Spinner /> : t('save')}
         </Button>
       </Sheet.Footer>
     </>
@@ -221,6 +223,7 @@ const FbBotFormSecondarySheet = ({
   accountId: string;
   pageId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [isOpenAccountSheet, setOpenAccountSheet] = useAtom(
     isOpenFacebookBotSecondarySheet,
   );
@@ -230,7 +233,7 @@ const FbBotFormSecondarySheet = ({
       <div className="flex justify-between items-center pb-2">
         <FacebookPageInfo accountId={accountId} pageId={pageId} />
         <Sheet.Trigger asChild>
-          <Button>Select Page</Button>
+          <Button>{t('select-page')}</Button>
         </Sheet.Trigger>
       </div>
       <Separator />

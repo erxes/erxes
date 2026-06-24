@@ -31,6 +31,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { useTranslation } from 'react-i18next';
 
 import { AssignMemberInEditor } from 'ui-modules';
 import { Block } from '@blocknote/core';
@@ -48,6 +49,7 @@ export const MessageInput = ({
 }: {
   conversationId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
@@ -108,13 +110,13 @@ export const MessageInput = ({
       upload({
         files,
         beforeUpload: () =>
-          toast({ title: 'Uploading file...', variant: 'default' }),
+          toast({ title: t('uploading-file'), variant: 'default' }),
         afterRead: ({ result, fileInfo }) =>
           setAttachmentPreview({ ...fileInfo, data: result }),
         afterUpload: ({ response, fileInfo }) => {
           setAttachments((prev) => [...prev, { ...fileInfo, url: response }]);
           setAttachmentPreview(null);
-          toast({ title: 'File uploaded successfully!', variant: 'default' });
+          toast({ title: t('file-uploaded-successfully'), variant: 'default' });
         },
       });
     },
@@ -135,7 +137,7 @@ export const MessageInput = ({
 
   const handleDeleteAttachment = (name: string) => {
     setAttachments((prev) => prev.filter((f) => f.name !== name));
-    toast({ title: 'Attachment removed', variant: 'default' });
+    toast({ title: t('attachment-removed'), variant: 'default' });
   };
 
   const stripHtml = (html: string): string => {
@@ -149,7 +151,7 @@ export const MessageInput = ({
     templateId?: string,
   ) => {
     if (!editor) {
-      return toast({ title: 'Editor not ready', variant: 'destructive' });
+      return toast({ title: t('editor-not-ready'), variant: 'destructive' });
     }
 
     const parseTemplateToBlocks = (content: string) => {
@@ -184,7 +186,7 @@ export const MessageInput = ({
       setResponseTemplateId(templateId || null);
     } catch (error) {
       console.error('Error inserting template:', error);
-      toast({ title: 'Failed to insert template', variant: 'destructive' });
+      toast({ title: t('failed-to-insert-template'), variant: 'destructive' });
     }
   };
 
@@ -278,7 +280,7 @@ export const MessageInput = ({
         responseTemplateId: responseTemplateId,
       },
       onCompleted: () => {
-        toast({ title: 'Message sent!', variant: 'default' });
+        toast({ title: t('message-sent'), variant: 'default' });
         if (content?.length) editor?.removeBlocks(content);
 
         setContent(undefined);
@@ -292,7 +294,7 @@ export const MessageInput = ({
       refetchQueries: ['Conversations'],
       onError: (err) =>
         toast({
-          title: `Failed to send: ${err.message}`,
+          title: t('failed-to-send', { message: err.message }),
           variant: 'destructive',
         }),
     });
@@ -397,7 +399,7 @@ export const MessageInput = ({
               !onlyInternal && setIsInternalNote(!isInternalNote)
             }
           >
-            Internal Note
+            {t('internal-note')}
           </Toggle>
 
           <ResponseTemplateSelector onSelect={handleTemplateSelect}>
@@ -437,7 +439,7 @@ export const MessageInput = ({
             onClick={handleSubmit}
           >
             {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
-            Send
+            {t('send')}
             <Kbd className="ml-1">
               <IconCommand size={12} />
               <IconCornerDownLeft size={12} />

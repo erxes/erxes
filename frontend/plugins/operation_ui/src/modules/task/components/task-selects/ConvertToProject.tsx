@@ -4,8 +4,10 @@ import { ITask } from '@/task/types';
 import { Button, Sheet, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const ConvertToProject = ({ task }: { task: ITask }) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -27,7 +29,7 @@ export const ConvertToProject = ({ task }: { task: ITask }) => {
         variant="outline"
         onClick={() => navigate(`/operation/projects/${project._id}/overview`)}
       >
-        {loading ? <Spinner /> : 'Go to Project'}
+        {loading ? <Spinner /> : t('go-to-project-btn')}
       </Button>
     );
   }
@@ -36,7 +38,7 @@ export const ConvertToProject = ({ task }: { task: ITask }) => {
     <>
       <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
         <Sheet.Trigger asChild>
-          <Button variant="outline">Convert to Project</Button>
+          <Button variant="outline">{t('convert-to-project')}</Button>
         </Sheet.Trigger>
         <Sheet.View
           className="sm:max-w-3xl w-full p-0"

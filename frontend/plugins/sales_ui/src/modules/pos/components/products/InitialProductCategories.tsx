@@ -1,4 +1,5 @@
 import { Form, Label } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
 import { type ProductsFormData } from '@/pos/components/products/Products';
 import { SelectCategory } from 'ui-modules/modules';
@@ -10,6 +11,7 @@ interface InitialProductCategoriesProps {
 export const InitialProductCategories: React.FC<
   InitialProductCategoriesProps
 > = ({ control }) => {
+  const { t } = useTranslation('sales');
   return (
     <Form.Field
       control={control}
@@ -17,7 +19,7 @@ export const InitialProductCategories: React.FC<
       render={({ field }) => (
         <Form.Item>
           <Label>
-            Product Categories <span className="text-destructive">*</span>
+            {t('product-categories')} <span className="text-destructive">*</span>
           </Label>
 
           <Form.Control>
@@ -25,7 +27,7 @@ export const InitialProductCategories: React.FC<
               mode="multiple"
               value={field.value}
               onValueChange={field.onChange}
-              placeholder="Select initial product categories"
+              placeholder={t('select-initial-product-categories')}
             />
           </Form.Control>
         </Form.Item>

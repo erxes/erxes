@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useBrandsAdd } from 'ui-modules/modules/brands/hooks/useBrandsAdd';
+import { useTranslation } from 'react-i18next';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -21,6 +22,7 @@ const schema = z.object({
 type TForm = z.infer<typeof schema>;
 
 export const CreateBrand = () => {
+  const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const { addBrand, loading } = useBrandsAdd();
 
@@ -33,11 +35,11 @@ export const CreateBrand = () => {
     addBrand({
       variables: data,
       onCompleted: () => {
-        toast({ variant: 'success', title: 'Brand created' });
+        toast({ variant: 'success', title: t('brand-created') });
         form.reset();
       },
       onError: (error) =>
-        toast({ title: 'Error', description: error.message, variant: 'destructive' }),
+        toast({ title: t('error'), description: error.message, variant: 'destructive' }),
     });
   });
 
@@ -52,7 +54,7 @@ export const CreateBrand = () => {
         <Form {...form}>
           <form className="flex flex-col size-full gap-0" onSubmit={onSubmit}>
             <Sheet.Header>
-              <Sheet.Title>Create brand</Sheet.Title>
+              <Sheet.Title>{t('create-brand')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow flex flex-col px-5 py-4 gap-4">
@@ -61,7 +63,7 @@ export const CreateBrand = () => {
                 name="name"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Name</Form.Label>
+                    <Form.Label>{t('name')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -74,7 +76,7 @@ export const CreateBrand = () => {
                 name="description"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Description</Form.Label>
+                    <Form.Label>{t('description')}</Form.Label>
                     <Form.Control>
                       <Textarea {...field} />
                     </Form.Control>
@@ -85,10 +87,10 @@ export const CreateBrand = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Sheet.Close asChild>
-                <Button variant="ghost">Cancel</Button>
+                <Button variant="ghost">{t('cancel')}</Button>
               </Sheet.Close>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create')}
               </Button>
             </Sheet.Footer>
           </form>

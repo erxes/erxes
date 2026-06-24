@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { MembersInline } from 'ui-modules';
 import { PriorityBadge } from '@/operation/components/PriorityInline';
 import { lazy, Suspense, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TriageContent = lazy(() =>
   import('@/triage/components/TriageContent').then((module) => ({
@@ -16,6 +17,7 @@ const TriageContent = lazy(() =>
 );
 
 export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
 
   return (
@@ -36,11 +38,11 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
             <div className="flex flex-col gap-1">
               <h5 className="font-semibold">{triage.name}</h5>
               <p className="text-sm text-accent-foreground uppercase">
-                Triage #{triage.number}
+                {t('triage-number', { number: triage.number })}
               </p>
               <div className="flex flex-wrap gap-1 pt-2 pb-1">
                 <Badge variant="secondary">
-                  <IconCaretLeftRight className="size-4" /> Triage
+                  <IconCaretLeftRight className="size-4" /> {t('triage')}
                 </Badge>
                 <PriorityBadge priority={triage.priority} />
               </div>
@@ -54,7 +56,7 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
               className="text-muted-foreground px-1 hover:bg-background pointer-events-none"
             >
               <IconCalendarEventFilled />
-              Created on:{' '}
+              {t('created-on')}{' '}
               {triage.createdAt &&
                 format(new Date(triage.createdAt), 'MMM dd, yyyy')}
             </Button>

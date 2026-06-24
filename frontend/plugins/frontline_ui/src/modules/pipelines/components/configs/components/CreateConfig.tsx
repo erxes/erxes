@@ -7,8 +7,10 @@ import { type TPipelineConfig } from '@/pipelines/types';
 import { useAtom } from 'jotai';
 import { configCreateModalAtom } from '../states';
 import { ConfigsForm } from './ConfigsForm';
+import { useTranslation } from 'react-i18next';
 
 export const CreateConfig = () => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useAtom(configCreateModalAtom);
   const { saveTicketsConfig, loading } = useSaveTicketsConfig();
   const { methods } = usePipelineConfigForm();
@@ -23,8 +25,8 @@ export const CreateConfig = () => {
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Tickets config saved successfully',
+            title: t('success'),
+            description: t('tickets-config-saved-successfully'),
             variant: 'success',
           });
           reset();
@@ -32,7 +34,7 @@ export const CreateConfig = () => {
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -55,7 +57,7 @@ export const CreateConfig = () => {
             className="flex flex-col gap-0 size-full box-border overflow-hidden"
           >
             <Sheet.Header>
-              <Sheet.Title>New Configuration</Sheet.Title>
+              <Sheet.Title>{t('new-configuration')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="flex-1 w-full flex flex-col px-5 py-4 space-y-4 overflow-y-auto hide-scroll styled-scroll">
@@ -63,10 +65,10 @@ export const CreateConfig = () => {
             </Sheet.Content>
             <Sheet.Footer className="shrink-0">
               <Button variant="ghost" onClick={() => setOpen(false)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Add'}
+                {loading ? <Spinner /> : t('add')}
               </Button>
             </Sheet.Footer>
           </form>

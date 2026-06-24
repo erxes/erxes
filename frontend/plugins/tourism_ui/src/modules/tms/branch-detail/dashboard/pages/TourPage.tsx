@@ -1,8 +1,10 @@
 import { IBranch } from '@/tms/types/branch';
 import { TourFilter, ToursView, ToursViewControl } from '../tours';
 import { PageSubHeader, ToggleGroup, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const TourPage = ({ branch }: { branch: IBranch }) => {
+  const { t } = useTranslation('tourism');
   const [view] = useQueryState<string | undefined>('view');
   const [isGroup, setIsGroup] = useQueryState<boolean>('isGroup');
   return (
@@ -21,8 +23,8 @@ export const TourPage = ({ branch }: { branch: IBranch }) => {
                 setIsGroup(value === 'grouped' ? true : null);
               }}
             >
-              <ToggleGroup.Item value="list">Tours</ToggleGroup.Item>
-              <ToggleGroup.Item value="grouped">Grouped</ToggleGroup.Item>
+              <ToggleGroup.Item value="list">{t('tours-list')}</ToggleGroup.Item>
+              <ToggleGroup.Item value="grouped">{t('grouped')}</ToggleGroup.Item>
             </ToggleGroup>
           )}
           <ToursViewControl />
