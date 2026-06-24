@@ -1,5 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Button, Resizable, Separator, Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 
@@ -24,6 +25,7 @@ export const ConversationDetailView = ({
 }: {
   conversationId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const activeConversationCandidate = useAtomValue(activeConversationState);
   const setExtraInfo = useSetAtom(messageExtraInfoState);
 
@@ -105,7 +107,7 @@ export const ConversationDetailView = ({
                   : undefined
               }
               className="text-sm text-foreground flex-none"
-              placeholder="Conversation with"
+              placeholder={t('conversation-with')}
             />
             <Button
               variant={'outline'}
@@ -113,7 +115,7 @@ export const ConversationDetailView = ({
                 navigate(`/frontline/inbox?conversationId=${conversationId}`)
               }
             >
-              Go to conversation
+              {t('go-to-conversation')}
               <IconMail />
             </Button>
           </div>

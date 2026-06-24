@@ -15,6 +15,7 @@ import {
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
+import { useTranslation } from 'react-i18next';
 
 type FormField = { tempFieldId?: string } & Record<string, unknown>;
 
@@ -37,6 +38,7 @@ const buildEditFieldsVariables = (
 });
 
 export const useFormMutate = () => {
+  const { t } = useTranslation('frontline');
   const { formId: id, id: _channelId } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
@@ -51,7 +53,7 @@ export const useFormMutate = () => {
       {
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -63,7 +65,7 @@ export const useFormMutate = () => {
     useMutation(FORM_BULK_ACTION, {
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -92,7 +94,7 @@ export const useFormMutate = () => {
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -102,7 +104,7 @@ export const useFormMutate = () => {
       if (!channelId) {
         toast({
           variant: 'destructive',
-          title: 'Channel ID is required to create a form',
+          title: t('channel-id-required'),
         });
         return;
       }
@@ -125,7 +127,7 @@ export const useFormMutate = () => {
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });

@@ -6,6 +6,7 @@ import { IconChevronLeft } from '@tabler/icons-react';
 import { Button, getPluginAssetsUrl } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const ErxesMessengerDetail = lazy(() =>
   import('@/integrations/erxes-messenger/components/ErxesMessengerDetail').then(
@@ -48,6 +49,7 @@ const InstagramIntegrationDetail = lazy(() =>
 );
 
 export const IntegrationDetailPage = () => {
+  const { t } = useTranslation('frontline');
   const { integrationType, id } = useParams<{
     integrationType: string;
     id: string;
@@ -72,7 +74,7 @@ export const IntegrationDetailPage = () => {
           }}
         >
           <IconChevronLeft />
-          Integrations
+          {t('integrations')}
         </Button>
       </div>
       <div className="flex gap-2">

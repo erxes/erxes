@@ -3,6 +3,7 @@ import { Button } from 'erxes-ui';
 import { IconDownload } from '@tabler/icons-react';
 import ExcelJS from 'exceljs';
 import { downloadExcel } from '@/report/utils/exportCsv';
+import { useTranslation } from 'react-i18next';
 
 export interface ChartExportColumn<T> {
   key: keyof T;
@@ -21,6 +22,7 @@ export function ChartExportButton<T>({
   columns,
   filename,
 }: ChartExportButtonProps<T>) {
+  const { t } = useTranslation('frontline');
   const [exporting, setExporting] = useState(false);
 
   const handleExport = useCallback(async () => {
@@ -74,7 +76,7 @@ export function ChartExportButton<T>({
       className="size-7"
       onClick={handleExport}
       disabled={!data.length || exporting}
-      title="Export Excel"
+      title={t('export-excel')}
     >
       <IconDownload className="size-3.5" />
     </Button>

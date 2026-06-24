@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 
 import {
   Avatar,
@@ -20,29 +20,38 @@ export const SelectCategory = React.forwardRef<
     open?: boolean;
     setOpen?: (open: boolean) => void;
     id?: string;
+    excludeCategoryId?: string;
   }
->(({ onSelect, selected, id, ...props }, ref) => {
-  const [selectedCategory, setSelectedCategory] = useState<IProductCategory>();
-  const { productCategories, error, loading } = useProductCategories({
-    onCompleted: ({
-      productCategories,
-    }: {
-      productCategories: IProductCategory[];
-    }) => {
-      setSelectedCategory(
-        productCategories?.find(
-          (category: IProductCategory) => category._id === selected,
-        ),
-      );
-    },
+>(({ onSelect, selected, id, excludeCategoryId, ...props }, ref) => {
+  const { productCategories, error, loading } = useProductCategories();
+
+  const selectedCategory = useMemo(
+    () =>
+      (productCategories || []).find(
+        (category: IProductCategory) => category._id === selected,
+      ),
+    [productCategories, selected],
+  );
+
+  const excludedCategory = excludeCategoryId
+    ? (productCategories || []).find(
+        (c: IProductCategory) => c._id === excludeCategoryId,
+      )
+    : undefined;
+
+  const availableCategories: IProductCategory[] = (
+    productCategories || []
+  ).filter((category: IProductCategory) => {
+    if (!excludeCategoryId) return true;
+    if (category._id === excludeCategoryId) return false;
+    return !(
+      excludedCategory?.order &&
+      category.order?.startsWith(excludedCategory.order)
+    );
   });
 
   const handleSelect = (categoryId: string) => {
-    const category = productCategories?.find(
-      (category: IProductCategory) => category._id === categoryId,
-    );
-    setSelectedCategory(category);
-    onSelect(categoryId);
+    onSelect(categoryId === selected ? '' : categoryId);
   };
 
   return (
@@ -58,17 +67,15 @@ export const SelectCategory = React.forwardRef<
           <Command.Input />
           <Command.List>
             <Combobox.Empty error={error} loading={loading} />
-            {productCategories?.map((category: IProductCategory) => (
+            {availableCategories.map((category: IProductCategory) => (
               <SelectCategoryItem
                 key={category._id}
                 category={category}
                 selected={selectedCategory?._id === category._id}
                 onSelect={handleSelect}
-                hasChildren={
-                  productCategories.find(
-                    (c: IProductCategory) => c.parentId === category._id,
-                  ) !== undefined
-                }
+                hasChildren={availableCategories.some(
+                  (c: IProductCategory) => c.parentId === category._id,
+                )}
               />
             ))}
           </Command.List>

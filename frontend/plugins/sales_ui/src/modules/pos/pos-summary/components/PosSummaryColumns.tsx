@@ -13,6 +13,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 
+import { useTranslation } from 'react-i18next';
 import { IPosSummary } from '@/pos/pos-summary/types/posSummary';
 
 interface PaymentRow {
@@ -58,7 +59,10 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Group" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('group')} />;
+    },
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
       return (
@@ -74,9 +78,10 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
   {
     id: 'count',
     accessorKey: 'amounts.count',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMobiledata} label="Count" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconMobiledata} label={t('count')} />;
+    },
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (
@@ -92,9 +97,10 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
   {
     id: 'amounts.cashAmount',
     accessorKey: 'amounts.cashAmount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconPhone} label="Cash Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconPhone} label={t('cash-amount')} />;
+    },
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (
@@ -110,9 +116,10 @@ export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
   {
     id: 'amounts.mobileAmount',
     accessorKey: 'amounts.mobileAmount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconBuilding} label="Mobile Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('mobile-amount')} />;
+    },
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (
@@ -130,7 +137,10 @@ export const secondPosSummaryColumns: ColumnDef<IPosSummary>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="Amount" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconChartBar} label={t('amount')} />;
+    },
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (

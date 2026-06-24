@@ -12,10 +12,19 @@ export const BranchBadge = React.forwardRef<
     renderClose?: (branch: IBranch) => React.ReactNode;
     onCompleted?: (branches: IBranch) => void;
     renderAsPlainText?: boolean;
+    showMissingId?: boolean;
   }
 >(
   (
-    { branch, branchId, renderClose, onCompleted, renderAsPlainText, ...props },
+    {
+      branch,
+      branchId,
+      renderClose,
+      onCompleted,
+      renderAsPlainText,
+      showMissingId,
+      ...props
+    },
     ref,
   ) => {
     const { branchDetail, loading } = useBranchById({
@@ -35,6 +44,22 @@ export const BranchBadge = React.forwardRef<
     }
 
     if (!branchValue) {
+      if (showMissingId && branchId) {
+        if (renderAsPlainText) {
+          return <TextOverflowTooltip value={branchId} />;
+        }
+        return (
+          <Badge
+            ref={ref}
+            variant="secondary"
+            className="font-mono"
+            title={`Unknown id: ${branchId}`}
+            onClose={props.onClose}
+          >
+            <span className="max-w-24 truncate">{branchId}</span>
+          </Badge>
+        );
+      }
       return null;
     }
 

@@ -15,12 +15,14 @@ import {
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MembersInline } from 'ui-modules';
 import { useVisitWebsite } from '~/hooks/useVisitWebsite';
 import CreatePmsForm from './CreatePmsForm';
 import { PmsCreateSheet } from './CreatePmsSheet';
 
 function PmsListEmpty() {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex justify-center items-center px-4 min-h-screen">
       <div className="p-5 w-full max-w-md text-center rounded-lg shadow-lg bg-background">
@@ -33,14 +35,11 @@ function PmsListEmpty() {
         </div>
 
         <h2 className="mb-3 text-xl font-semibold text-foreground">
-          Property management system
+          {t('property-management-system')}
         </h2>
 
         <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-          A property management system is software designed to organize and
-          manage property-related activities. It helps streamline trip planning,
-          booking, payment management, customer information, and travel
-          schedules.
+          {t('pms-empty-description')}
         </p>
 
         <PmsCreateSheet />
@@ -92,12 +91,13 @@ function PmsBranchCard({
   onDelete: (branchId: string) => void;
   onVisitWebsite?: (branchId: string) => void;
 }) {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col w-full rounded-sm shadow-sm bg-background">
       <div className="flex justify-between items-center px-3 py-2">
         <div className="min-w-0">
           <div className="text-sm font-semibold truncate">
-            {branch.name || 'Unnamed Branch'}
+            {branch.name || t('unnamed-branch')}
           </div>
         </div>
 
@@ -118,10 +118,10 @@ function PmsBranchCard({
         <div className="flex gap-2 items-center min-w-0">
           <IconCalendarPlus size={16} className="shrink-0" />
           <span className="text-xs font-medium truncate">
-            Created:{' '}
+            {t('created')}:{' '}
             {branch.createdAt
               ? format(new Date(branch.createdAt), 'dd MMM yyyy')
-              : 'N/A'}
+              : t('na')}
           </span>
         </div>
 
@@ -134,6 +134,7 @@ function PmsBranchCard({
 }
 
 export function PmsList() {
+  const { t } = useTranslation('tourism');
   const { list, loading, error } = usePmsBranchList({
     page: 1,
     perPage: 50,
@@ -166,22 +167,22 @@ export function PmsList() {
     const branchName = list?.find((b) => b._id === branchId)?.name || '';
 
     confirm({
-      message: `Are you sure you want to permanently delete "${branchName}"?`,
+      message: t('confirm-delete-branch', { name: branchName }),
       options: confirmOptions,
     }).then(() => {
       removeBranch({
         variables: { id: branchId },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Branch removed successfully',
+            title: t('success'),
+            description: t('branch-removed-successfully'),
           });
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description:
-              e instanceof Error ? e.message : 'Failed to remove branch',
+              e instanceof Error ? e.message : t('failed-to-remove-branch'),
             variant: 'destructive',
           });
         },

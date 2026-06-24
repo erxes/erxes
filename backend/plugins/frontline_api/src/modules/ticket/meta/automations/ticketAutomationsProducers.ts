@@ -30,7 +30,6 @@ export const ticketAutomationProducers = {
     context: TCoreModuleProducerContext<IModels>,
   ) => {
     const { moduleName, collectionType, targetId, selector } = input;
-    console.log({ moduleName, collectionType, targetId, selector });
 
     if (collectionType === 'tickets' && moduleName === 'tickets') {
       return Boolean(

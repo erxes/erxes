@@ -1,6 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CouponFormValues } from '../../../constants/couponFormSchema';
 import { COUPON_KIND_TYPES } from '../../constants/couponKindTypeData';
 
@@ -11,6 +12,7 @@ interface CouponAddCampaignCoreFieldsProps {
 export const CouponAddCampaignCoreFields: React.FC<
   CouponAddCampaignCoreFieldsProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-2">
@@ -19,9 +21,9 @@ export const CouponAddCampaignCoreFields: React.FC<
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title')}</Form.Label>
               <Form.Control>
-                <Input placeholder="Enter coupon title" {...field} />
+                <Input placeholder={t('enter-coupon-title')} {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -32,7 +34,7 @@ export const CouponAddCampaignCoreFields: React.FC<
           name="count"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Count</Form.Label>
+              <Form.Label>{t('count')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
@@ -54,11 +56,11 @@ export const CouponAddCampaignCoreFields: React.FC<
           name="buyScore"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Buy Score</Form.Label>
+              <Form.Label>{t('buy-score')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter coupon buy score"
+                  placeholder={t('enter-coupon-buy-score')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
@@ -79,7 +81,7 @@ export const CouponAddCampaignCoreFields: React.FC<
           name="kind"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Kind</Form.Label>
+              <Form.Label>{t('kind')}</Form.Label>
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
@@ -87,7 +89,7 @@ export const CouponAddCampaignCoreFields: React.FC<
                   >
                     {COUPON_KIND_TYPES.find(
                       (type) => type.value === field.value,
-                    )?.label || 'Select kind'}
+                    )?.label || t('select-kind')}
                   </Select.Trigger>
                   <Select.Content>
                     {COUPON_KIND_TYPES.map((option) => (

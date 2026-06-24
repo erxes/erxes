@@ -2,7 +2,9 @@ import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { MemberRemoveButtonCommandBar } from './MemberRemoveButton';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 export const MemberCommandBar = () => {
+  const { t } = useTranslation('frontline');
   const { table } = RecordTable.useRecordTable();
   const { id: channelId } = useParams<{ id: string }>();
 
@@ -15,7 +17,7 @@ export const MemberCommandBar = () => {
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('n-selected', { count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <MemberRemoveButtonCommandBar

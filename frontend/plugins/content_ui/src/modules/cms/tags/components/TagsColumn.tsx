@@ -4,7 +4,6 @@ import {
   Input,
   Popover,
   RelativeDateDisplay,
-  Badge,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
@@ -14,6 +13,7 @@ import { IconTag, IconCalendar } from '@tabler/icons-react';
 import { CmsTag } from '@/cms/tags/types/tagTypes';
 import { useEditTag } from '@/cms/tags/hooks/useEditTag';
 import { useIsTranslationMissing } from '@/cms/shared/hooks/useIsTranslationMissing';
+import { CmsTranslatableBadge } from '@/cms/shared/components/CmsTranslatableBadge';
 import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { getTranslation } from '@/cms/shared/utils';
@@ -96,15 +96,13 @@ export const useTagsColumns = (
             }}
           >
             <RecordTableInlineCell.Trigger>
-              <Badge
-                variant={missing ? 'destructive' : 'secondary'}
-                className={missing ? 'border-red-300' : ''}
-              >
-                <TextOverflowTooltip
-                  value={cell.getValue() as string}
-                  className="leading-normal"
-                />
-              </Badge>
+              <CmsTranslatableBadge
+                value={cell.getValue() as string}
+                missing={missing}
+                placeholder="Untitled tag"
+                missingVariant="destructive"
+                missingClassName="border-red-300"
+              />
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
               <Input

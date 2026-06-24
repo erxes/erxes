@@ -19,11 +19,11 @@ interface UsePlaceholderEnabledTypesParams {
 }
 
 export function usePlaceholderEnabledTypes({
-  enabled,
-  disabled,
+  enabled = [],
+  disabled = [],
   suggestionGroups,
   enableAll = false,
-  extraSuggestionConfigs,
+  extraSuggestionConfigs = [],
 }: UsePlaceholderEnabledTypesParams) {
   const { enabledTypes } = useMemo(() => {
     const base: Record<string, boolean> = {

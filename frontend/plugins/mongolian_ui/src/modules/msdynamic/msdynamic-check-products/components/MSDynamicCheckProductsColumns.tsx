@@ -1,6 +1,7 @@
 import { IconCircleCheck, IconCode, IconHash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Badge,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -65,8 +66,10 @@ export const msDynamicCheckProductColumns: ColumnDef<MSDynamicCheckProduct>[] =
       ),
       cell: ({ row }) => (
         <RecordTableInlineCell>
-          {row.original.isSynced && (
-            <span className="text-green-600 font-medium">Synced</span>
+          {row.original.isSynced ? (
+            <Badge variant="success">Synced</Badge>
+          ) : (
+            <Badge variant="warning">Pending</Badge>
           )}
         </RecordTableInlineCell>
       ),

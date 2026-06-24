@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useInstagramBot } from '@/integrations/instagram/hooks/useInstagramBots';
 import { IInstagramBot } from '@/integrations/instagram/types/InstagramBot';
 import { Avatar, Label, Separator, Spinner } from 'erxes-ui';
@@ -44,6 +45,7 @@ const BotProfile = ({
   bot?: IInstagramBot;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   if (loading) return <Spinner />;
   if (!bot) return null;
 
@@ -54,7 +56,7 @@ const BotProfile = ({
         <Avatar.Fallback>{(bot?.name || '').charAt(0)}</Avatar.Fallback>
       </Avatar>
       <Label className="text-muted-foreground">
-        {bot?.name || 'Not found bot'}
+        {bot?.name || t('not-found-bot')}
       </Label>
     </div>
   );
@@ -94,6 +96,7 @@ const Condition = ({
   bot?: IInstagramBot;
   totalCount: number;
 }) => {
+  const { t } = useTranslation('frontline');
   if (!condition?.isSelected) return null;
 
   const { label, description } =
@@ -102,7 +105,7 @@ const Condition = ({
 
   const renderORSeparator = () => {
     if (totalCount > 1 && index + 1 !== totalCount) {
-      return <span className="flex justify-center">OR</span>;
+      return <span className="flex justify-center">{t('or')}</span>;
     }
     return null;
   };

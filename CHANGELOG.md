@@ -1,3 +1,44 @@
+
+
+## [3.0.43](https://github.com/erxes/erxes/compare/3.0.42...3.0.43) (2026-06-23)
+
+
+### Bug Fixes
+
+*  cp notification ([#8259](https://github.com/erxes/erxes/issues/8259)) ([d2fabd9](https://github.com/erxes/erxes/commit/d2fabd9c8a5f2162fbf5b957fcbfdd757dd6075d))
+* accounting permission improve  ([#8263](https://github.com/erxes/erxes/issues/8263)) ([097b593](https://github.com/erxes/erxes/commit/097b5934df882c632ed0896300d9c28510386c7d))
+* **core-ui:** automation morecolumn edit button breaks navigation until refresh ([#8264](https://github.com/erxes/erxes/issues/8264)) ([41bf465](https://github.com/erxes/erxes/commit/41bf465d6a59f315c02154fea03ce854ccc085b8))
+* **core:** product category parent selection & order consistency ([#8269](https://github.com/erxes/erxes/issues/8269)) ([fa72d26](https://github.com/erxes/erxes/commit/fa72d2627e9e85bcf355f04f1971fc1b616ac3b5))
+
+
+### Features
+
+* add plugin form widgets to product add/detail sheets ([449efcd](https://github.com/erxes/erxes/commit/449efcd548c036c66b6f25aa2d4f203196dd7a9f))
+* **automations:** add customers and deals references to ticket output definition ([c790bcb](https://github.com/erxes/erxes/commit/c790bcb09ecd44b8ceb66414ca57ea4c2afb72e3))
+* **content:** CMS default-language, custom-field ordering, record-table placeholder & search fixes ([#8233](https://github.com/erxes/erxes/issues/8233)) ([9becb8b](https://github.com/erxes/erxes/commit/9becb8b893d998ef038ba988bf3a0dcba33d01ab))
+* enable address resolvers for client portal ([b371430](https://github.com/erxes/erxes/commit/b3714302a857dcc473dea9ac8ce77a9ee9e9244a))
+* **migrations:** add saas-migrations package and CI pipeline ([3960c1f](https://github.com/erxes/erxes/commit/3960c1fe5e1ef4b1f6eee661035e91ee0f3b11f4))
+* **references:** add frontline references and ticket reference types with fetchers ([bb3caae](https://github.com/erxes/erxes/commit/bb3caaecf2a2f24c1f04fd0f7217aa6ee815fb14))
+
+## [3.0.42](https://github.com/erxes/erxes/compare/3.0.41...3.0.42) (2026-06-23)
+
+
+### Bug Fixes
+
+* **content:** preserve CMS content on default-language change and force published order ([#8157](https://github.com/erxes/erxes/issues/8157)) ([0f4ad72](https://github.com/erxes/erxes/commit/0f4ad72f73f45b40088b227eedd32698d275c2b5))
+* **core:** support video MIME types in file upload and fix selected MIME type parsing ([f2a7d8e](https://github.com/erxes/erxes/commit/f2a7d8e619cd90cfdac498f7a6e12d9b99278490))
+* **frontline:** handle already-replied Facebook comment errors  ([673250e](https://github.com/erxes/erxes/commit/673250e17d2caaacc6fbf2031c5b5e95bb3ff4a7))
+* **ui-modules:** drop deleted-entity ids from select values on save ([#8149](https://github.com/erxes/erxes/issues/8149)) ([8d03a9e](https://github.com/erxes/erxes/commit/8d03a9ed9291b870723026f62d692f315f6c8bfd))
+
+
+### Features
+
+* **core:** render video attachments in core-ui with lightbox player ([daced50](https://github.com/erxes/erxes/commit/daced50718b0c238a333e3028d9dff64754b2417))
+* **frontline:** show video attachments in ticket detail ([351df38](https://github.com/erxes/erxes/commit/351df382124039d67ec2fae5d4dc8cafa4e2fa32))
+* **mongolian:** Improve check prices ui ([#8064](https://github.com/erxes/erxes/issues/8064)) ([41b9b7b](https://github.com/erxes/erxes/commit/41b9b7b0d2fb3d108dc42d81ecbabd982c943692))
+* **mongolian:** Improve customer page's ui  ([#8080](https://github.com/erxes/erxes/issues/8080)) ([5950c2b](https://github.com/erxes/erxes/commit/5950c2baf47fc61fc98fb96b6fcb32e502e577b8))
+* **mongolian:** improve msdynamic check category ui ([#8013](https://github.com/erxes/erxes/issues/8013)) ([ad3166e](https://github.com/erxes/erxes/commit/ad3166e4c6c1dd0a2ca40962ad0fc97d06b31756))
+
 # Changelog
 
 ## [3.0.41](https://github.com/erxes/erxes/compare/3.0.40...3.0.41) (2026-06-21)

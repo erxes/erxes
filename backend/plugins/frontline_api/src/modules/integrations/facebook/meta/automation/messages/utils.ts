@@ -377,6 +377,27 @@ export const sendMessage = async (
       integration.erxesApiId,
     );
   } catch (error) {
+    const isAlreadyRepliedComment =
+      !!commentId &&
+      (error.message.includes('Activity already replied to') ||
+        error.message.includes('#10900'));
+
+    if (isAlreadyRepliedComment) {
+      return await sendMessage(
+        models,
+        bot,
+        {
+          senderId,
+          recipientId,
+          integration,
+          message,
+          tag,
+          commentId: undefined,
+        },
+        isLoop,
+      );
+    }
+
     const shouldRetryWithTag =
       error.message.includes(
         'This message is sent outside of allowed window',

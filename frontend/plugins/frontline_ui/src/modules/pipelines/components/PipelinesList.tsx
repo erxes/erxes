@@ -16,6 +16,7 @@ import { MembersInline } from 'ui-modules';
 import { IconGitBranch, IconTrash } from '@tabler/icons-react';
 import { CreatePipeline } from '@/pipelines/components/CreatePipeline';
 import { usePipelineRemove } from '@/pipelines/hooks/usePipelineRemove';
+import { useTranslation } from 'react-i18next';
 
 export const DeletePipeline = ({ pipelineId }: { pipelineId: string }) => {
   const confirmationValue = 'delete';
@@ -44,6 +45,7 @@ export const DeletePipeline = ({ pipelineId }: { pipelineId: string }) => {
   );
 };
 export const PipelinesList = ({ channelId }: { channelId: string }) => {
+  const { t } = useTranslation('frontline');
   const { pipelines, loading } = useGetPipelines({
     variables: {
       filter: { channelId },
@@ -65,10 +67,9 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
               size={64}
               className="text-muted-foreground mx-auto mb-4"
             />
-            <h3 className="text-xl font-semibold mb-2">No pipelines yet</h3>
+            <h3 className="text-xl font-semibold mb-2">{t('no-pipelines-yet')}</h3>
             <p className="text-muted-foreground max-w-md">
-              Get started by creating your first pipeline to organize and manage
-              your workflow processes.
+              {t('no-pipelines-description')}
             </p>
           </div>
           <CreatePipeline />
@@ -82,12 +83,12 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
         <Table>
           <Table.Header>
             <Table.Row className="rounded-t-md">
-              <Table.Head className="pl-2">Title</Table.Head>
+              <Table.Head className="pl-2">{t('col-title')}</Table.Head>
               <Table.Head className="w-32 whitespace-nowrap">
-                Created By
+                {t('created-by')}
               </Table.Head>
-              <Table.Head className="w-32">Created At</Table.Head>
-              <Table.Head className="w-32">Updated At</Table.Head>
+              <Table.Head className="w-32">{t('created-at')}</Table.Head>
+              <Table.Head className="w-32">{t('col-updated-at')}</Table.Head>
               <Table.Head className="w-10"></Table.Head>
             </Table.Row>
           </Table.Header>

@@ -5,6 +5,7 @@ import {
   getAccountingCheckSyncedOrdersColumns,
   isSyncableAccountingOrder,
 } from './AccountingCheckSyncedOrdersColumns';
+import { AccountingCheckSyncedOrderRulePicker } from './AccountingCheckSyncedOrderRuleSelect';
 import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_SESSION_KEY,
   useAccountingCheckSyncedOrders,
@@ -65,13 +66,21 @@ const AccountingCheckSyncedOrdersActions = ({
         >
           {checking ? 'Checking...' : 'Check Orders'}
         </Button>
-        <Button
-          onClick={onSync}
-          disabled={syncing || !toSyncCount || !canSync}
-          variant="outline"
-        >
-          {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
-        </Button>
+        {canSync ? (
+          <Button
+            onClick={onSync}
+            disabled={syncing || !toSyncCount}
+            variant="outline"
+          >
+            {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
+          </Button>
+        ) : (
+          <AccountingCheckSyncedOrderRulePicker>
+            <Button variant="outline" disabled={syncing}>
+              {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
+            </Button>
+          </AccountingCheckSyncedOrderRulePicker>
+        )}
       </div>
     </div>
   );

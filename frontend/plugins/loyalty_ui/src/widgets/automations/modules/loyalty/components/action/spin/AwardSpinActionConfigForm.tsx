@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
@@ -20,6 +21,7 @@ export const AwardSpinActionConfigForm = ({
   currentAction,
   targetType,
 }: AutomationActionFormProps<TAwardSpinActionConfigForm>) => {
+  const { t } = useTranslation('loyalty');
   const form = useAwardSpinActionForm({
     resolver: zodResolver(awardSpinActionConfigFormSchema),
     currentConfig: currentAction?.config,
@@ -46,7 +48,7 @@ export const AwardSpinActionConfigForm = ({
           name="attribution"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Recipient</Form.Label>
+              <Form.Label>{t('recipient')}</Form.Label>
               <PlaceholderInput
                 propertyType={targetType}
                 value={field.value}
@@ -71,11 +73,11 @@ export const AwardSpinActionConfigForm = ({
           name="spinCampaignId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Spin campaign</Form.Label>
+              <Form.Label>{t('spin-campaign')}</Form.Label>
               <SelectSpinCampaign.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder="Select spin campaign"
+                placeholder={t('select-spin-campaign')}
               />
               <Form.Message />
             </Form.Item>

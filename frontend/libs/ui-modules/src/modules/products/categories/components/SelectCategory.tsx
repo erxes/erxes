@@ -1,5 +1,6 @@
 import { IconCategory } from '@tabler/icons-react';
 import {
+  Badge,
   Button,
   cn,
   Combobox,
@@ -42,6 +43,7 @@ interface SelectCategoryContextValue {
     React.SetStateAction<IProductCategory[]>
   >;
   mode: 'single' | 'multiple';
+  removeId: (id: string) => void;
 }
 
 const SelectCategoryContext = createContext<SelectCategoryContextValue | null>(
@@ -140,6 +142,18 @@ const SelectCategoryProvider = ({
     handleValueChange?.(newSelectedCategoryIds);
   };
 
+  const removeId = (id: string) => {
+    if (mode === 'single') {
+      setSelectedCategories([]);
+      handleValueChange?.('');
+      return;
+    }
+    setSelectedCategories((previousCategories) =>
+      previousCategories.filter((category) => category._id !== id),
+    );
+    handleValueChange?.(categoryIds.filter((categoryId) => categoryId !== id));
+  };
+
   return (
     <SelectCategoryContext.Provider
       value={{
@@ -148,6 +162,7 @@ const SelectCategoryProvider = ({
         selectedCategories,
         setSelectedCategories,
         mode,
+        removeId,
       }}
     >
       {children}
@@ -158,7 +173,7 @@ const SelectCategoryProvider = ({
 const SelectCategoryCommand = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedCategories } = useSelectCategoryContext();
+  const { categoryIds } = useSelectCategoryContext();
   const { productCategories, loading, error } = useProductCategories({
     variables: {
       searchValue: debouncedSearch,
@@ -177,7 +192,7 @@ const SelectCategoryCommand = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
-        {selectedCategories.length > 0 && (
+        {categoryIds.length > 0 && (
           <>
             <div className="flex flex-wrap gap-2 p-2">
               <SelectCategoryList />
@@ -252,7 +267,7 @@ const SelectCategoryList = ({
   placeholder?: string;
   renderAsPlainText?: boolean;
 }) => {
-  const { categoryIds, selectedCategories, onSelectCategory } =
+  const { categoryIds, selectedCategories, onSelectCategory, removeId } =
     useSelectCategoryContext();
 
   if (categoryIds.length === 0) {
@@ -269,7 +284,7 @@ const SelectCategoryList = ({
       <span className="truncate">
         {selectedCategory
           ? `${selectedCategory.code || ''} ${selectedCategory.name}`.trim()
-          : placeholder || 'Select category'}
+          : categoryIds[0] || placeholder || 'Select category'}
       </span>
     );
   }
@@ -278,6 +293,20 @@ const SelectCategoryList = ({
     <div className="flex flex-wrap gap-2 w-full">
       {categoryIds.map((categoryId) => {
         const category = categoryMap.get(categoryId);
+
+        if (!category) {
+          return (
+            <Badge
+              key={categoryId}
+              variant="secondary"
+              className="font-mono"
+              title={`Unknown id: ${categoryId}`}
+              onClose={() => removeId(categoryId)}
+            >
+              <span className="max-w-24 truncate">{categoryId}</span>
+            </Badge>
+          );
+        }
 
         return (
           <Button
@@ -288,15 +317,11 @@ const SelectCategoryList = ({
             className="h-7 max-w-full px-2 font-normal"
             onClick={(event) => {
               event.stopPropagation();
-              if (category) {
-                onSelectCategory(category);
-              }
+              onSelectCategory(category);
             }}
           >
             <span className="truncate">
-              {category
-                ? `${category.code || ''} ${category.name}`.trim()
-                : categoryId}
+              {`${category.code || ''} ${category.name}`.trim()}
             </span>
           </Button>
         );

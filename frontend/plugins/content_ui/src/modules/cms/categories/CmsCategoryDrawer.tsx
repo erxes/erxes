@@ -858,6 +858,7 @@ export function CmsCategoryDrawer({
               {fieldGroups.length > 0 && (
                 <CategoryCustomFieldsSection
                   fieldGroups={fieldGroups}
+                  websiteId={clientPortalId}
                   getCustomFieldValue={getCustomFieldValue}
                   updateCustomFieldValue={updateCustomFieldValue}
                   form={form}

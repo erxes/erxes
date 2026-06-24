@@ -10,16 +10,13 @@ import { integrationSchema } from '@/integrations/call/db/definitions/integratio
 export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
   getIntegrations(
     userId: string,
-    isAdmin?: boolean,
   ): Promise<ICallIntegrationDocument>;
   getIntegration(
     userId: string,
     integrationId: string,
-    isAdmin?: boolean,
   ): Promise<ICallIntegrationDocument>;
   getIntegrationQueuesByUser(
     userId: string,
-    isAdmin?: boolean,
   ): Promise<string[]>;
 }
 

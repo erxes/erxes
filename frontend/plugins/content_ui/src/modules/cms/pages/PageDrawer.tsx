@@ -242,6 +242,15 @@ export function PageDrawer({
     resetKey: clientPortalId,
   });
 
+  // Mirror the active language into the shared atom (one-way). The header
+  // language tabs read this atom for their active state, so this keeps the tab
+  // highlight in lockstep with the language the form is actually showing.
+  useEffect(() => {
+    if (selectedLanguage) {
+      setCmsLanguage(selectedLanguage);
+    }
+  }, [selectedLanguage, setCmsLanguage]);
+
   // Create dynamic validation schema with custom fields
   const createValidationSchema = useCallback((fieldGroups: FieldGroup[]) => {
     const baseSchema = pageFormSchema;
@@ -440,7 +449,15 @@ export function PageDrawer({
 
   // When page data loads, the form-reset effect above overwrites translatable
   // fields with default-lang data.  Re-apply for the current non-default lang.
-  const appliedForPageRef = useRef<IPage | null>(null);
+  // The guard tracks page, language AND translations: opening directly in a
+  // remembered non-default language runs this before translations have loaded,
+  // so it must re-apply once they arrive — otherwise the content stays empty
+  // until the user toggles languages.
+  const appliedForPageRef = useRef<{
+    page: IPage | null;
+    language: string;
+    translations: Record<string, TranslationData>;
+  } | null>(null);
   useEffect(() => {
     if (
       !selectedLanguage ||
@@ -450,16 +467,32 @@ export function PageDrawer({
       return;
     }
     if (isEditing && !page) return;
-    if (appliedForPageRef.current === (page ?? null)) return;
+
+    const curPage = page ?? null;
+    const applied = appliedForPageRef.current;
+
+    if (
+      applied !== null &&
+      applied.page === curPage &&
+      applied.language === selectedLanguage &&
+      applied.translations === translations
+    ) {
+      return;
+    }
 
     applyTranslationToForm(selectedLanguage);
-    appliedForPageRef.current = page ?? null;
+    appliedForPageRef.current = {
+      page: curPage,
+      language: selectedLanguage,
+      translations,
+    };
   }, [
     selectedLanguage,
     defaultLanguage,
     applyTranslationToForm,
     isEditing,
     page,
+    translations,
   ]);
 
   const onCompleted = () => {
@@ -628,7 +661,6 @@ export function PageDrawer({
   const onLanguageChange = useCallback(
     (lang: string) => {
       isSwitchingLanguageRef.current = true;
-      setCmsLanguage(lang);
 
       const curPage = pageRef.current;
       const curDefaultLanguage = defaultLanguageRef.current;
@@ -672,7 +704,7 @@ export function PageDrawer({
         isSwitchingLanguageRef.current = false;
       });
     },
-    [form, setCmsLanguage],
+    [form],
   );
 
   const handleEditorChange = useCallback(
@@ -732,6 +764,7 @@ export function PageDrawer({
               {fieldGroups.length > 0 && (
                 <PageCustomFieldsSection
                   fieldGroups={fieldGroups}
+                  websiteId={clientPortalId}
                   form={form}
                 />
               )}

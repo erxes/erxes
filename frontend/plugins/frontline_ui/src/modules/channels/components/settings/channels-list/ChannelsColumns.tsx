@@ -4,13 +4,18 @@ import { channelsMoreColumn } from './ChannelsMoreColumn';
 import { IconComponent, RecordTableInlineCell, Tooltip } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const channelsColumns: ColumnDef<IChannel>[] = [
   channelsMoreColumn,
   {
     id: 'name',
     accessorKey: 'name',
-    header: 'title',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return t('col-title');
+    },
     cell: ({ cell }) => {
       const { icon, _id } = cell.row.original;
 
@@ -30,7 +35,11 @@ export const channelsColumns: ColumnDef<IChannel>[] = [
   {
     id: 'memberCount',
     accessorKey: 'memberCount',
-    header: 'members',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return t('col-members');
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="justify-end">
@@ -43,7 +52,11 @@ export const channelsColumns: ColumnDef<IChannel>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: 'created at',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return t('col-created-at');
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="justify-center">
@@ -56,7 +69,11 @@ export const channelsColumns: ColumnDef<IChannel>[] = [
   {
     id: 'updatedAt',
     accessorKey: 'updatedAt',
-    header: 'updated at',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return t('col-updated-at');
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="justify-center">

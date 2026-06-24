@@ -1,8 +1,10 @@
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useGetFormSubmissions } from '../hooks/useGetFormSubmissions';
 import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const SubmissionsTotalCount = () => {
+  const { t } = useTranslation('frontline');
   const { formId } = useParams<{ formId: string }>();
   const { totalCount } = useGetFormSubmissions({
     variables: {
@@ -15,7 +17,7 @@ export const SubmissionsTotalCount = () => {
       {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        `${totalCount} records found`
+        t('records-found', { count: totalCount })
       )}
     </div>
   );
