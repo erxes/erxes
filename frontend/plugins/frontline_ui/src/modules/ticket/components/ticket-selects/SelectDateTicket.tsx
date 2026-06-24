@@ -10,6 +10,7 @@ import {
   Button,
   Form,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
 
@@ -62,6 +63,7 @@ export const DateSelectProvider = ({
 };
 
 const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('frontline');
   const { value } = useDateSelectContext();
 
   if (!value) {
@@ -69,7 +71,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
       <>
         <IconCalendarPlus className="text-accent-foreground" />
         <span className="text-accent-foreground font-medium">
-          {placeholder || 'Select date...'}
+          {placeholder || t('select-date')}
         </span>
       </>
     );
@@ -148,6 +150,7 @@ export const DateSelectTicketRoot = ({
   variant?: `${DateSelectVariant}`;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const { updateTicket, loading, error } = useUpdateTicket();
 
@@ -177,7 +180,7 @@ export const DateSelectTicketRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
-          <DateSelectValue placeholder="Not specified" />
+          <DateSelectValue placeholder={t('not-specified')} />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
           <DateSelectContent />

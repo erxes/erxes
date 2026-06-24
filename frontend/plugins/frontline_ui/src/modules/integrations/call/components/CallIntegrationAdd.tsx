@@ -2,6 +2,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { callAddSheetAtom } from '../states/callAddSheetAtom';
 import { Button, Sheet } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
@@ -12,6 +13,7 @@ import { IntegrationType } from '@/types/Integration';
 import { useParams } from 'react-router';
 
 export const CallIntegrationAddSheet = () => {
+  const { t } = useTranslation('frontline');
   const [callAddSheet, setCallAddSheet] = useAtom(callAddSheetAtom);
 
   return (
@@ -19,7 +21,7 @@ export const CallIntegrationAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Call
+          {t('add-call')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-3xl">

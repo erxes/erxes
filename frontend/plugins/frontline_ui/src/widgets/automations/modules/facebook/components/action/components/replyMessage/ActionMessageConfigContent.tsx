@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   TBotMessage,
   TMessageActionForm,
@@ -41,6 +42,7 @@ const ActionConfigMessage = ({
   message: TBotMessage;
   actionData: TAutomationAction<TMessageActionForm>;
 }) => {
+  const { t } = useTranslation('frontline');
   const { _id, type } = message;
   switch (type) {
     case 'text':
@@ -123,7 +125,7 @@ const ActionConfigMessage = ({
             _id={_id}
             type={type}
             actionData={actionData}
-            text="This action must be part of a chain that starts with a trigger"
+            text={t('action-requires-trigger')}
           />
         );
       }
@@ -137,8 +139,8 @@ const ActionConfigMessage = ({
             message.input?.type || ''
           }`}
           buttons={[
-            { _id: botId, text: 'If Reply' },
-            { _id: 'ifNotReply', text: 'If Not Reply' },
+            { _id: botId, text: t('if-reply') },
+            { _id: 'ifNotReply', text: t('if-not-reply') },
           ]}
         />
       );

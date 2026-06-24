@@ -10,8 +10,10 @@ import { ArticleList } from './ArticleList';
 import { TopicDrawer } from './TopicDrawer';
 import { CategoryDrawer } from './CategoryDrawer';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export function KnowledgeBase() {
+  const { t } = useTranslation('frontline');
   const [isTopicDrawerOpen, setIsTopicDrawerOpen] = useState(false);
   const [isArticleDrawerOpen, setIsArticleDrawerOpen] = useState(false);
   const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
@@ -138,14 +140,13 @@ export function KnowledgeBase() {
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
               <div className="text-lg font-semibold mb-2">
-                No categories found
+                {t('kb-no-categories-found')}
               </div>
               <div className="text-sm opacity-70 mb-4">
-                This topic doesn't have any categories yet. Create your first
-                category to start organizing articles.
+                {t('kb-no-categories-description')}
               </div>
               <Button onClick={() => setIsCategoryDrawerOpen(true)}>
-                Create Category
+                {t('kb-create-category')}
               </Button>
             </div>
           </div>
@@ -165,19 +166,19 @@ export function KnowledgeBase() {
         <>
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="text-sm opacity-70">Loading topics...</div>
+              <div className="text-sm opacity-70">{t('loading')}</div>
             </div>
           ) : topics.length === 0 ? (
             <div className="flex justify-center items-center h-64">
               <div className="text-center">
                 <div className="text-lg font-semibold mb-2">
-                  There are no topics yet
+                  {t('kb-no-topics-yet')}
                 </div>
                 <div className="text-sm opacity-70 mb-4">
-                  Create your first topic and start your knowledge base.
+                  {t('kb-no-topics-description')}
                 </div>
                 <Button onClick={() => setIsTopicDrawerOpen(true)}>
-                  Create Topic
+                  {t('kb-create-topic')}
                 </Button>
               </div>
             </div>
@@ -190,11 +191,11 @@ export function KnowledgeBase() {
                 >
                   <h3 className="text-lg font-semibold mb-2">{topic.title}</h3>
                   <p className="text-muted-foreground mb-4">
-                    {topic.description || 'No description available'}
+                    {topic.description || t('no-description-available')}
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
-                      {topic.categories?.length || 0} categories
+                      {topic.categories?.length || 0} {t('kb-categories-count')}
                     </span>
                     <Button
                       variant="outline"
@@ -207,7 +208,7 @@ export function KnowledgeBase() {
                         });
                       }}
                     >
-                      View Details
+                      {t('kb-view-details')}
                     </Button>
                   </div>
                 </div>

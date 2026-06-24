@@ -19,12 +19,14 @@ import {
   setSelectConversationsState,
 } from '../states/selectConversationsState';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
+import { useTranslation } from 'react-i18next';
 
 export const ConversationItem = ({
   onConversationSelect,
 }: {
   onConversationSelect: () => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const inboxLayout = useAtomValue(inboxLayoutState);
 
   const { createdAt, updatedAt, customer, integration } =
@@ -73,9 +75,9 @@ export const ConversationItem = ({
         <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
         <ConversationItemContent />
         <div className="w-auto text-right flex-none">
-          <span> to </span>
+          <span> {t('to')} </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
-          <span> via </span>
+          <span> {t('via')} </span>
           {integration && (
             <span title={integration.kind}>{integration.kind}</span>
           )}
@@ -93,6 +95,7 @@ export const ConversationItem = ({
 };
 
 export const ConversationItemContent = () => {
+  const { t } = useTranslation('frontline');
   const inboxLayout = useAtomValue(inboxLayoutState);
   const { content, assignedUserId, assignedUser } = useConversationContext();
   if (!content) return null;
@@ -103,7 +106,7 @@ export const ConversationItemContent = () => {
     return (
       <div className="flex items-center gap-2 w-full justify-between flex-nowrap">
         <div className="font-medium">
-          {callDirection === 'INCOMING' ? 'Incoming Call' : 'Outgoing Call'}
+          {callDirection === 'INCOMING' ? t('incoming-call') : t('outgoing-call')}
         </div>
         {assignedUserId && assignedUser && (
           <MembersInline.Provider memberIds={[assignedUserId]}>

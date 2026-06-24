@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TTriggerConditionSummaryItem } from '../../types/triggerSummary';
 
 export const TriggerConditionSummary = ({
@@ -5,6 +6,7 @@ export const TriggerConditionSummary = ({
 }: {
   conditionSummaries: TTriggerConditionSummaryItem[];
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <>
       {conditionSummaries.map((condition, index) => (
@@ -21,7 +23,7 @@ export const TriggerConditionSummary = ({
 
           {conditionSummaries.length > 1 &&
           index + 1 !== conditionSummaries.length ? (
-            <span className="flex justify-center">OR</span>
+            <span className="flex justify-center">{t('or')}</span>
           ) : null}
         </div>
       ))}

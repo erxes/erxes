@@ -6,6 +6,7 @@ import {
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { Button, readImage, toast, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCallConversationDetail } from '@/integrations/call/hooks/useCallConversationDetail';
 import { CustomersInline } from 'ui-modules';
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
@@ -18,6 +19,7 @@ import { formatSeconds } from '@/integrations/call/utils/callUtils';
 import { useCallSyncAudioRecord } from '@/integrations/call/hooks/useCallSyncAudioRecord';
 
 export function CallConversationDetail() {
+  const { t } = useTranslation('frontline');
   const [conversationId] = useQueryState<string>('conversationId');
   const { conversationDetail, loading } = useConversationDetail({
     variables: {
@@ -45,7 +47,7 @@ export function CallConversationDetail() {
         await callSyncRecordFile({ variables: { acctId, inboxId } });
     } catch (e: any) {
       toast({
-        title: 'Uh oh! Something went wrong.',
+        title: t('something-went-wrong'),
         description: e.message,
         variant: 'destructive',
       });
@@ -96,7 +98,7 @@ export function CallConversationDetail() {
                 <div className="flex items-center gap-2 justify-between mb-4">
                   <div className="flex flex-col gap-1">
                     <div className="text-sm text-accent-foreground">
-                      Duration
+                      {t('duration')}
                     </div>
                     <div className="font-medium">
                       {formatSeconds(callDuration)}
@@ -104,7 +106,7 @@ export function CallConversationDetail() {
                   </div>
                   <div className="flex flex-col gap-1 text-sm">
                     <div className="text-sm text-accent-foreground">
-                      Start Time
+                      {t('start-time')}
                     </div>
                     <div className="font-medium">
                       {formatCallTime(callStartTime)}
@@ -112,7 +114,7 @@ export function CallConversationDetail() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="text-sm text-accent-foreground">
-                      End Time
+                      {t('end-time')}
                     </div>
                     <div className="font-medium">
                       {formatCallTime(callEndTime)}
@@ -136,7 +138,7 @@ export function CallConversationDetail() {
                     className="flex top-2"
                   >
                     <IconRefresh />
-                    {'sync record file'}
+                    {t('sync-record-file')}
                   </Button>
                 </div>
               </div>
