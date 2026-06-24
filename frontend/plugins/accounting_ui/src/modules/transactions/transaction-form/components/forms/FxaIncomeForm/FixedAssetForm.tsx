@@ -147,6 +147,7 @@ const FixedAssetTableHeader = ({
   return (
     <Table.Header>
       <Table.Row>
+        <Table.Head className="w-10"/>
         <Table.Head className="w-10">
           <div className="flex items-center justify-center">
             <Checkbox
@@ -174,7 +175,6 @@ const FixedAssetTableHeader = ({
             <Table.Head>Татвартай дүн</Table.Head>
           </>
         )}
-        <Table.Head className="w-10" />
       </Table.Row>
     </Table.Header>
   );

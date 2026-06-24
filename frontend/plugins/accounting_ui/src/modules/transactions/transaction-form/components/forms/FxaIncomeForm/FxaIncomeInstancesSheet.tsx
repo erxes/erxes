@@ -195,6 +195,7 @@ export const FxaIncomeDetailInstancesSheet = ({
       <Sheet.Trigger asChild>
         <RecordTable.MoreButton
           type="button"
+          className="w-10 p-0"
           disabled={!detail?.fixedAssetId}
           aria-label="Instance мэдээлэл"
           title="Instance мэдээлэл"

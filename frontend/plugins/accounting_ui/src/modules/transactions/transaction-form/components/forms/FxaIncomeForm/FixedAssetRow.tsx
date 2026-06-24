@@ -199,7 +199,20 @@ export const FixedAssetRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell>
+        <Table.Cell className="w-10">
+          <FxaIncomeDetailInstancesSheet
+            form={form}
+            journalIndex={journalIndex}
+            detailIndex={detailIndex}
+          />
+        </Table.Cell>
+      </RecordTableHotKeyControl>
+      <RecordTableHotKeyControl
+        rowId={detail._id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell className="w-10">
           <RecordTableInlineCell className="justify-center">
             <Form.Field
               control={form.control}
@@ -420,19 +433,6 @@ export const FixedAssetRow = ({
           </RecordTableHotKeyControl>
         </>
       )}
-      <RecordTableHotKeyControl
-        rowId={detail._id}
-        rowIndex={detailIndex}
-        enableOnFormTags
-      >
-        <Table.Cell>
-          <FxaIncomeDetailInstancesSheet
-            form={form}
-            journalIndex={journalIndex}
-            detailIndex={detailIndex}
-          />
-        </Table.Cell>
-      </RecordTableHotKeyControl>
     </Table.Row>
   );
 };
