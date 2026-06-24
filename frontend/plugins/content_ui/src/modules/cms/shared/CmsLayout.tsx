@@ -75,38 +75,38 @@ export function CmsLayout({
   const navigationItems = [
     {
       id: 'posts',
-      label: 'Posts',
+      label: t('posts'),
       icon: <IconFileText className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/posts` : '/content/cms',
     },
     {
       id: 'pages',
-      label: 'Pages',
+      label: t('pages'),
       icon: <IconFile className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
     },
     {
       id: 'categories',
-      label: 'Categories',
+      label: t('categories'),
       icon: <IconFolder className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/categories` : '/content/cms',
     },
     {
       id: 'tags',
-      label: 'Tags',
+      label: t('tags'),
       icon: <IconTag className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/tags` : '/content/cms',
     },
 
     {
       id: 'menus',
-      label: 'Menus',
+      label: t('menus'),
       icon: <IconMenu className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
     },
     {
       id: 'custom-fields',
-      label: 'Custom Fields',
+      label: t('custom-fields'),
       icon: <IconAlignJustified className="w-4 h-4" />,
       href: websiteId
         ? `/content/cms/${websiteId}/custom-fields`
@@ -114,7 +114,7 @@ export function CmsLayout({
     },
     {
       id: 'custom-types',
-      label: 'Custom Post Types',
+      label: t('custom-post-types'),
       icon: <IconLayout className="w-4 h-4" />,
       href: websiteId
         ? `/content/cms/${websiteId}/custom-types`
@@ -122,7 +122,7 @@ export function CmsLayout({
     },
     {
       id: 'settings',
-      label: 'Settings',
+      label: t('settings'),
       icon: <IconSettings className="w-4 h-4" />,
       href: websiteId
         ? `/content/cms/${websiteId}/cmssettings`

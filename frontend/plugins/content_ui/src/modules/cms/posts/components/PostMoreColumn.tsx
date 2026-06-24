@@ -74,7 +74,7 @@ export const PostMoreColumnCell = ({
         })
         .catch((e: Error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });

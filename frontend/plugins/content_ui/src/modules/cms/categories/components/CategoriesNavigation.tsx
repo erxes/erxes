@@ -41,28 +41,28 @@ export const CategoriesNavigation = () => {
     if (lastSegment === 'posts' || pathname.endsWith('/posts')) {
       return {
         path: `${basePath}/posts`,
-        label: 'Posts',
+        label: t('posts'),
         icon: IconCategory,
       };
     }
     if (lastSegment === 'pages' || pathname.endsWith('/pages')) {
       return {
         path: `${basePath}/pages`,
-        label: 'Pages',
+        label: t('pages'),
         icon: IconRulerMeasure,
       };
     }
     if (lastSegment === 'categories' || pathname.endsWith('/categories')) {
       return {
         path: `${basePath}/categories`,
-        label: 'Categories',
+        label: t('categories'),
         icon: IconListDetails,
       };
     }
     if (lastSegment === 'tags' || pathname.endsWith('/tags')) {
       return {
         path: `${basePath}/tags`,
-        label: 'Tags',
+        label: t('tags'),
         icon: IconRulerMeasure,
       };
     }
@@ -72,21 +72,21 @@ export const CategoriesNavigation = () => {
     ) {
       return {
         path: `${basePath}/custom-fields`,
-        label: 'Custom Fields',
+        label: t('custom-fields'),
         icon: IconRulerMeasure,
       };
     }
     if (lastSegment === 'custom-types' || pathname.endsWith('/custom-types')) {
       return {
         path: `${basePath}/custom-types`,
-        label: 'Custom Post Types',
+        label: t('custom-post-types'),
         icon: IconRulerMeasure,
       };
     }
 
     return {
       path: `${basePath}/posts`,
-      label: 'Posts',
+      label: t('posts'),
       icon: IconCube,
     };
   }, [pathname, basePath]);

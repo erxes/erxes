@@ -41,14 +41,14 @@ export const TagsNavigation = () => {
     if (lastSegment === 'tags' || pathname.endsWith('/tags')) {
       return {
         path: `${basePath}/tags`,
-        label: 'Tags',
+        label: t('tags'),
         icon: IconTags,
       };
     }
     // Default fallback
     return {
       path: `${basePath}/tags`,
-      label: 'Tags',
+      label: t('tags'),
       icon: IconTags,
     };
   }, [pathname, basePath]);

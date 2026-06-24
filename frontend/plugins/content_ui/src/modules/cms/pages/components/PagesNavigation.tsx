@@ -43,28 +43,28 @@ export const PagesNavigation = () => {
     if (parentSection === 'posts' || pathname.endsWith('/posts')) {
       return {
         path: `${basePath}/posts`,
-        label: 'Posts',
+        label: t('posts'),
         icon: IconCategory,
       };
     }
     if (parentSection === 'pages' || pathname.endsWith('/pages')) {
       return {
         path: `${basePath}/pages`,
-        label: 'Pages',
+        label: t('pages'),
         icon: IconRulerMeasure,
       };
     }
     if (parentSection === 'categories' || pathname.endsWith('/categories')) {
       return {
         path: `${basePath}/categories`,
-        label: 'Categories',
+        label: t('categories'),
         icon: IconRulerMeasure,
       };
     }
     if (parentSection === 'tags' || pathname.endsWith('/tags')) {
       return {
         path: `${basePath}/tags`,
-        label: 'Tags',
+        label: t('tags'),
         icon: IconRulerMeasure,
       };
     }
@@ -74,7 +74,7 @@ export const PagesNavigation = () => {
     ) {
       return {
         path: `${basePath}/custom-fields`,
-        label: 'Custom Fields',
+        label: t('custom-fields'),
         icon: IconRulerMeasure,
       };
     }
@@ -84,14 +84,14 @@ export const PagesNavigation = () => {
     ) {
       return {
         path: `${basePath}/custom-types`,
-        label: 'Custom Post Types',
+        label: t('custom-post-types'),
         icon: IconRulerMeasure,
       };
     }
 
     return {
       path: `${basePath}/posts`,
-      label: 'Posts',
+      label: t('posts'),
       icon: IconCube,
     };
   }, [pathname, basePath]);

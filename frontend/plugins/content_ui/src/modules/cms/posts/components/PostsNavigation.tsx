@@ -39,56 +39,56 @@ export const PostsNavigation = () => {
     if (pathname.includes('/pages')) {
       return {
         path: `${basePath}/pages`,
-        label: 'Pages',
+        label: t('pages'),
         icon: IconRulerMeasure,
       };
     }
     if (pathname.includes('/categories')) {
       return {
         path: `${basePath}/categories`,
-        label: 'Categories',
+        label: t('categories'),
         icon: IconRulerMeasure,
       };
     }
     if (pathname.includes('/tags')) {
       return {
         path: `${basePath}/tags`,
-        label: 'Tags',
+        label: t('tags'),
         icon: IconRulerMeasure,
       };
     }
     if (pathname.includes('/custom-fields')) {
       return {
         path: `${basePath}/custom-fields`,
-        label: 'Custom Fields',
+        label: t('custom-fields'),
         icon: IconRulerMeasure,
       };
     }
     if (pathname.includes('/custom-types')) {
       return {
         path: `${basePath}/custom-types`,
-        label: 'Custom Post Types',
+        label: t('custom-post-types'),
         icon: IconRulerMeasure,
       };
     }
     if (pathname.includes('/cmssettings')) {
       return {
         path: `${basePath}/cmssettings`,
-        label: 'Settings',
+        label: t('settings'),
         icon: IconSettings,
       };
     }
     if (pathname.includes('/posts')) {
       return {
         path: `${basePath}/posts`,
-        label: 'Posts',
+        label: t('posts'),
         icon: IconCategory,
       };
     }
 
     return {
       path: `${basePath}/posts`,
-      label: 'Posts',
+      label: t('posts'),
       icon: IconCube,
     };
   }, [pathname, basePath]);

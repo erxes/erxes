@@ -240,7 +240,7 @@ export const GalleryUploader = ({
                     <div
                       className="absolute inset-0 bg-white/70"
                       aria-label={
-                        uploadProps.loading ? 'Uploading image' : 'Ready'
+                        uploadProps.loading ? t('uploading-image') : t('ready')
                       }
                     />
                   </div>
