@@ -12,9 +12,16 @@ const IGNORED_QUERY_VARIABLE_KEYS = [
 const DATE_RANGE_MAP: Record<string, [string, string]> = {
   createdStartDate: ['createdStartDate', 'createdEndDate'],
   startDateStartDate: ['startDateStartDate', 'startDateEndDate'],
+  closeDateStartDate: ['closeDateStartDate', 'closeDateEndDate'],
+  stageChangedStartDate: ['stageChangedStartDate', 'stageChangedEndDate'],
 };
 
-const DATE_UPPER_BOUND_KEYS = new Set(['startDateEndDate', 'createdEndDate']);
+const DATE_UPPER_BOUND_KEYS = new Set([
+  'startDateEndDate',
+  'createdEndDate',
+  'closeDateEndDate',
+  'stageChangedEndDate',
+]);
 
 const parseValidRange = (value: string) => {
   const range = parseDateRangeFromString(value);

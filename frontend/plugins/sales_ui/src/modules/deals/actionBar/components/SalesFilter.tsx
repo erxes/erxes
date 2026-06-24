@@ -1,6 +1,7 @@
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import {
   IconCalendarBolt,
+  IconCalendarClock,
   IconCalendarPlus,
   IconCalendarX,
 } from '@tabler/icons-react';
@@ -33,6 +34,10 @@ export const SalesFilter = () => {
     'createdEndDate',
     'startDateStartDate',
     'startDateEndDate',
+    'closeDateStartDate',
+    'closeDateEndDate',
+    'stageChangedStartDate',
+    'stageChangedEndDate',
     'priority',
     'labelIds',
     'tagIds',
@@ -47,7 +52,6 @@ export const SalesFilter = () => {
   return (
     <Filter id="sales-filter">
       <Filter.Bar className="overflow-auto styled-scroll">
-        <SalesFilterBar queries={queries} />
         <div className="flex flex-wrap items-center gap-2">
           <Filter.Popover scope={'sales-page'}>
             <Filter.Trigger isFiltered={hasFilters} />
@@ -68,14 +72,21 @@ export const SalesFilter = () => {
                 label="Start date"
               />
             </Filter.View>
-            <Filter.View filterKey="startDateEndDate" inDialog>
+            <Filter.View filterKey="closeDateStartDate" inDialog>
               <Filter.DialogDateView
-                filterKey="startDateEndDate"
-                label="End date"
+                filterKey="closeDateStartDate"
+                label="Close date"
+              />
+            </Filter.View>
+            <Filter.View filterKey="stageChangedStartDate" inDialog>
+              <Filter.DialogDateView
+                filterKey="stageChangedStartDate"
+                label="Stage changed date"
               />
             </Filter.View>
           </Filter.Dialog>
         </div>
+        <SalesFilterBar queries={queries} />
         <DealsTotalCount />
       </Filter.Bar>
     </Filter>
@@ -107,7 +118,6 @@ export const filterDeals = (deals: IDeal[], filters: SalesFilterState) => {
 };
 
 const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
-
   const { t } = useTranslation('sales');
   const {
     assignedUserIds,
@@ -137,12 +147,22 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
         </Filter.BarName>
         <Filter.Date filterKey="startDateStartDate" label="Start date" />
       </Filter.BarItem>
-      <Filter.BarItem queryKey="startDateEndDate">
+      <Filter.BarItem queryKey="closeDateStartDate">
         <Filter.BarName>
           <IconCalendarX />
-          {t('end-date')}
+          Close date
         </Filter.BarName>
-        <Filter.Date filterKey="startDateEndDate" label="End date" />
+        <Filter.Date filterKey="closeDateStartDate" label="Close date" />
+      </Filter.BarItem>
+      <Filter.BarItem queryKey="stageChangedStartDate">
+        <Filter.BarName>
+          <IconCalendarClock />
+          Stage changed
+        </Filter.BarName>
+        <Filter.Date
+          filterKey="stageChangedStartDate"
+          label="Stage changed date"
+        />
       </Filter.BarItem>
       {companyIds && (
         <SelectCompany.FilterBar
@@ -212,7 +232,10 @@ const SalesFilterView = () => {
       <Filter.View>
         <Command>
           <Command.List className="p-1">
-            <SelectCompany.FilterItem value="companyIds" label={t('by-company')} />
+            <SelectCompany.FilterItem
+              value="companyIds"
+              label={t('by-company')}
+            />
             <SelectCustomer.FilterItem
               value="customerIds"
               label={t('by-customer')}
@@ -222,15 +245,27 @@ const SalesFilterView = () => {
               value="assignedUserIds"
               label={t('by-assigned-user')}
             />
-            <SelectMember.FilterItem value="userIds" label={t('created-by-user')} />
+            <SelectMember.FilterItem
+              value="userIds"
+              label={t('created-by-user')}
+            />
             <Command.Separator className="my-1" />
-            <SelectBranches.FilterItem value="branchIds" label={t('by-branch')} />
+            <SelectBranches.FilterItem
+              value="branchIds"
+              label={t('by-branch')}
+            />
             <SelectDepartments.FilterItem
               value="departmentIds"
               label={t('by-department')}
             />
-            <SelectProduct.FilterItem value="productId" label={t('by-product')} />
-            <SelectPriority.FilterItem value="priority" label={t('by-priority')} />
+            <SelectProduct.FilterItem
+              value="productId"
+              label={t('by-product')}
+            />
+            <SelectPriority.FilterItem
+              value="priority"
+              label={t('by-priority')}
+            />
             <SelectLabels.FilterItem value="labelIds" label={t('by-label')} />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdStartDate">
@@ -241,9 +276,13 @@ const SalesFilterView = () => {
               <IconCalendarBolt />
               {t('start-date')}
             </Filter.Item>
-            <Filter.Item value="startDateEndDate">
+            <Filter.Item value="closeDateStartDate">
               <IconCalendarX />
-              {t('end-date')}
+              Close date
+            </Filter.Item>
+            <Filter.Item value="stageChangedStartDate">
+              <IconCalendarClock />
+              Stage changed
             </Filter.Item>
           </Command.List>
         </Command>
@@ -263,8 +302,14 @@ const SalesFilterView = () => {
       <Filter.View filterKey="startDateStartDate">
         <Filter.DateView filterKey="startDateStartDate" label="Start date" />
       </Filter.View>
-      <Filter.View filterKey="startDateEndDate">
-        <Filter.DateView filterKey="startDateEndDate" label="End date" />
+      <Filter.View filterKey="closeDateStartDate">
+        <Filter.DateView filterKey="closeDateStartDate" label="Close date" />
+      </Filter.View>
+      <Filter.View filterKey="stageChangedStartDate">
+        <Filter.DateView
+          filterKey="stageChangedStartDate"
+          label="Stage changed date"
+        />
       </Filter.View>
     </>
   );
