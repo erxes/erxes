@@ -50,6 +50,11 @@ const DEFAULT_FIELDS: MSDynamicTextFieldName[] = [
   'defaultCompanyCode',
 ];
 
+const CUSTOM_FIELDS: MSDynamicTextFieldName[] = [
+  'custCode',
+  'userLocationCode',
+];
+
 const getSingleSelectValue = (value: string | string[]) =>
   Array.isArray(value) ? value[0] || '' : value;
 
@@ -163,6 +168,16 @@ export const MSDynamicConfigFormFields = ({
 
         <MSDynamicFieldSection title="Defaults">
           {DEFAULT_FIELDS.map((name) => (
+            <MSDynamicTextField
+              key={name}
+              form={form}
+              name={name}
+              loading={loading}
+            />
+          ))}
+        </MSDynamicFieldSection>
+        <MSDynamicFieldSection title="Custom Fields">
+          {CUSTOM_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}
               form={form}
