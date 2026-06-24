@@ -342,6 +342,7 @@ const MSDynamicFieldMappingPicker = ({
 
   const { fields, loading } = useFields({
     contentType,
+    skip: !contentType,
   });
 
   const handleContentTypeChange = (value: string) => {
