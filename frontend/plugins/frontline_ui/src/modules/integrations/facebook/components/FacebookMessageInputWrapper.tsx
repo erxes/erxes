@@ -73,6 +73,7 @@ export const FacebookMessageInputWrapper = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const { facebookConversationMessages, loading } =
     useFacebookConversationMessages();
 
