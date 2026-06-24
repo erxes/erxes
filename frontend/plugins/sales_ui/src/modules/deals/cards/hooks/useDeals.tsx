@@ -14,6 +14,7 @@ import {
   toast,
   useQueryState,
   validateFetchMore,
+  isUndefinedOrNull,
 } from 'erxes-ui';
 import {
   GET_DEALS,
@@ -25,8 +26,10 @@ import {
   useMutation,
   useQuery,
 } from '@apollo/client';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
+import { dealTotalCountAtom } from '@/deals/states/dealsTotalCountState';
+import { dealsViewAtom } from '@/deals/states/dealsViewState';
 import {
   DealsBoardState,
   useAllDealsMap,
@@ -153,15 +156,15 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                  ? prev.deals.totalCount - 1
-                  : prev.deals.totalCount,
+                ? prev.deals.totalCount - 1
+                : prev.deals.totalCount,
           },
         };
       },
     });
 
     return unsubscribe;
-  }, [subscribeToMore, subscriptionVars]);
+  }, [currentUser?._id, subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
     direction,
@@ -194,6 +197,30 @@ export const useDeals = (
       },
     });
   };
+
+  const view = useAtomValue(dealsViewAtom);
+  const setTotalCount = useSetAtom(dealTotalCountAtom);
+
+  useEffect(() => {
+    if (view === 'list') {
+      if (loading) {
+        setTotalCount(null);
+      } else {
+        const finalCount = isUndefinedOrNull(totalCount)
+          ? deals?.length || 0
+          : totalCount;
+        setTotalCount(finalCount);
+      }
+    }
+  }, [view, totalCount, loading, deals?.length, setTotalCount]);
+
+  useEffect(() => {
+    return () => {
+      if (view === 'list') {
+        setTotalCount(null);
+      }
+    };
+  }, [view, setTotalCount]);
 
   return {
     loading,
