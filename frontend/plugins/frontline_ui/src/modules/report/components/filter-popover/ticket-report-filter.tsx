@@ -9,11 +9,11 @@ import {
 import { IconCalendar, IconCheck } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { useAtom } from 'jotai';
-import { type DateRange } from 'react-day-picker';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/inbox/types/Channel';
 import { type TicketPropertyFilter } from '@/report/types';
+import { getDateRange } from '@/report/utils/dateFilters';
 import {
   getReportChannelFilterAtom,
   getReportDateFilterAtom,
@@ -297,6 +297,21 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
         <Filter.View filterKey="date" inDialog>
           <ReportDateFilter value={dateValue} onChange={setDateValue} />
         </Filter.View>
+        {filterablePropertyFields
+          .filter((field) => field.type === 'date')
+          .map((field) => (
+            <Filter.View
+              key={field._id}
+              filterKey={`property-date-range:${field._id}`}
+              inDialog
+            >
+              <PropertyDateRangeFilter
+                field={field}
+                value={propertyFilter}
+                onValueChange={setPropertyFilter}
+              />
+            </Filter.View>
+          ))}
       </Filter.Dialog>
     </Filter>
   );
@@ -620,7 +635,9 @@ const PropertyValueFilterView = ({
   const handleValueSelect = (optionValue: string) => {
     const isSelected = selectedValues.includes(optionValue);
     const supportsMultipleValues =
-      field.type === 'select' || field.type === 'multiSelect';
+      field.type === 'select' ||
+      field.type === 'multiSelect' ||
+      field.type === 'radio';
     const nextValues = supportsMultipleValues
       ? isSelected
         ? selectedValues.filter((item) => item !== optionValue)
@@ -676,23 +693,6 @@ const getLocalDateFromFilterValue = (value: string) => {
   return new Date(year, month - 1, day);
 };
 
-const getLocalDateRangeFromFilterValues = (
-  values: string[],
-): DateRange | undefined => {
-  if (values.length < 2) {
-    return undefined;
-  }
-
-  const from = getLocalDateFromFilterValue(values[0]);
-  const to = getLocalDateFromFilterValue(values[1]);
-
-  if (!from || !to) {
-    return undefined;
-  }
-
-  return { from, to };
-};
-
 const PropertyDateFilter = ({
   field,
   value,
@@ -702,13 +702,23 @@ const PropertyDateFilter = ({
   value: TicketPropertyFilter[];
   onValueChange: (value: TicketPropertyFilter[]) => void;
 }) => {
+  const { setDialogView, setOpenDialog, setOpen } = useFilterContext();
   const selectedValues = getPropertyFilterValues(value, field._id);
   const selectedValue = selectedValues[0];
   const selectedDate =
     selectedValue && selectedValues.length === 1
       ? getLocalDateFromFilterValue(selectedValue)
       : undefined;
-  const selectedRange = getLocalDateRangeFromFilterValues(selectedValues);
+  const rangeLabel =
+    selectedValues.length > 1
+      ? `${selectedValues[0]} - ${selectedValues[1]}`
+      : 'Custom range...';
+
+  const openRangeDialog = () => {
+    setDialogView(`property-date-range:${field._id}`);
+    setOpenDialog(true);
+    setOpen(false);
+  };
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
@@ -738,35 +748,10 @@ const PropertyDateFilter = ({
             defaultMonth={selectedDate || new Date()}
           />
         </div>
-        <div className="space-y-1.5">
-          <div className="text-muted-foreground px-1 text-xs font-medium">
-            Date range
-          </div>
-          <DatePicker
-            value={selectedRange}
-            onChange={(date) => {
-              const range = date as DateRange | undefined;
-
-              if (range?.from && range?.to) {
-                onValueChange(
-                  setPropertyFilterValues({
-                    filters: value,
-                    field,
-                    values: [
-                      format(range.from, 'yyyy-MM-dd'),
-                      format(range.to, 'yyyy-MM-dd'),
-                    ],
-                  }),
-                );
-              }
-            }}
-            mode="range"
-            format="MMM D, YYYY"
-            placeholder="Select date range"
-            className="w-full"
-            defaultMonth={selectedRange?.from || selectedDate || new Date()}
-          />
-        </div>
+        <Command.Item value={`${field._id}:range`} onSelect={openRangeDialog}>
+          <IconCalendar className="size-4" />
+          {rangeLabel}
+        </Command.Item>
       </div>
       <Command.Separator />
       <Command.Item
@@ -777,6 +762,62 @@ const PropertyDateFilter = ({
         Clear property
       </Command.Item>
     </Command.List>
+  );
+};
+
+const getPropertyDateRangeValue = (values: string[]) => {
+  if (values.length < 2) {
+    const date = values[0] ? getLocalDateFromFilterValue(values[0]) : undefined;
+
+    if (!date) {
+      return '';
+    }
+
+    return `${date.toISOString()},${date.toISOString()}`;
+  }
+
+  const from = getLocalDateFromFilterValue(values[0]);
+  const to = getLocalDateFromFilterValue(values[1]);
+
+  if (!from || !to) {
+    return '';
+  }
+
+  return `${from.toISOString()},${to.toISOString()}`;
+};
+
+const PropertyDateRangeFilter = ({
+  field,
+  value,
+  onValueChange,
+}: {
+  field: IField;
+  value: TicketPropertyFilter[];
+  onValueChange: (value: TicketPropertyFilter[]) => void;
+}) => {
+  const selectedValues = getPropertyFilterValues(value, field._id);
+
+  const handleChange = (dateValue: string) => {
+    const { fromDate, toDate } = getDateRange(dateValue);
+
+    if (!fromDate || !toDate) {
+      return;
+    }
+
+    onValueChange(
+      setPropertyFilterValues({
+        filters: value,
+        field,
+        values: [format(fromDate, 'yyyy-MM-dd'), format(toDate, 'yyyy-MM-dd')],
+      }),
+    );
+  };
+
+  return (
+    <ReportDateFilter
+      value={getPropertyDateRangeValue(selectedValues)}
+      onChange={handleChange}
+    />
   );
 };
 

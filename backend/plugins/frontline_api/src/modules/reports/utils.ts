@@ -418,7 +418,9 @@ export function buildTicketMatch(filters: IReportFilters) {
       };
 
       if (dateValues.length > 1) {
-        const [fromDateKey, toDateKey] = dateValues.slice(0, 2).sort();
+        const [fromDateKey, toDateKey] = dateValues
+          .slice(0, 2)
+          .sort((a, b) => a.localeCompare(b));
 
         andConditions.push({
           $or: [
@@ -466,13 +468,12 @@ export function buildTicketMatch(filters: IReportFilters) {
       continue;
     }
 
-    if (propertyFilter.type === 'select') {
+    if (
+      propertyFilter.type === 'select' ||
+      propertyFilter.type === 'multiSelect' ||
+      propertyFilter.type === 'radio'
+    ) {
       andConditions.push({ [propertyPath]: { $in: values } });
-      continue;
-    }
-
-    if (propertyFilter.type === 'radio') {
-      andConditions.push({ [propertyPath]: values[0] });
       continue;
     }
 

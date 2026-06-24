@@ -26,7 +26,7 @@ export const types = `
     frequency: String
     branchIds: [String]
     propertyIds: [String]
-    propertyValueFilters: [TicketPropertyValueFilter]
+    propertyValueFilters: [TicketPropertyValueFilter!]
   }
 
   type ReportTicketMetric {

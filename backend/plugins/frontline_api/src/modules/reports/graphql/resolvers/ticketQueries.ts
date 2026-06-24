@@ -40,6 +40,18 @@ type ReportPropertyRow = {
 
 const OPTION_PROPERTY_TYPES = new Set(['select', 'multiSelect', 'radio']);
 
+const getPrimitivePropertyValue = (value: unknown) => {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+
+  return '';
+};
+
 export const reportTicketQueries = {
   async reportTicketSource(
     _parent: undefined,
@@ -321,7 +333,7 @@ export const reportTicketQueries = {
         }
 
         if (OPTION_PROPERTY_TYPES.has(field.type || '')) {
-          const optionValue = String(p._id.value || '');
+          const optionValue = getPrimitivePropertyValue(p._id.value);
           const option = field.options?.find(
             (fieldOption) => fieldOption.value === optionValue,
           );
@@ -329,14 +341,18 @@ export const reportTicketQueries = {
           if (!optionValue) {
             return null;
           }
+               const fieldLabel = field.name || field.text;
+          const valueLabel = option?.label || optionValue;
+
 
           return {
             _id: `${fieldId}:${optionValue}`,
-            name: option?.label || optionValue,
+            name: fieldLabel ? `${fieldLabel}: ${valueLabel}` : valueLabel,
             count: p.count,
           };
         }
 
+     
         return {
           _id: fieldId,
           name: field.name || field.text,
