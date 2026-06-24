@@ -103,19 +103,35 @@ export const types = `
    fixedValues: [PricingFixedValue]    
      
   }
-  type PricingFixedValue {
-    _id: String
-    pricingPlanId: String
-    productId: String
-    uom: String
-    unitPrice: Float
-    newPrice: Float
-    createdBy: String
-    updatedBy: String
-    createdAt: Date
-    updatedAt: Date
-  }
+     type PricingFixedValue {
+      _id: String
+      pricingPlanId: String
+      productId: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+      createdBy: String
+      updatedBy: String
+      createdAt: Date
+      updatedAt: Date
+    }
+  
+    type PricingFixedValuePageItem {
+      _id: String
+      productId: String
+      productName: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+      status: String
+    }
 
+    type PricingFixedValuePageResult {
+      list: [PricingFixedValuePageItem]
+      totalCount: Int
+    }
   input QuantityRuleInput {
     type: String,
     value: Float,
@@ -258,11 +274,12 @@ export const types = `
   }
 
   input PricingFixedValueInput {
-    productId: String
-    uom: String
-    unitPrice: Float
-    newPrice: Float
-  }
+      productId: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+    }
 
   input PricingCheckProduct {
     itemId: String
@@ -310,7 +327,13 @@ export const queries = `
   pricingPlans(${pricingQueryParams}): [PricingPlan]
   cpPricingPlans(${pricingQueryParams}): [PricingPlan]
   pricingPlansCount(${pricingQueryParams}): Int
-  pricingPlanDetail(id: String): PricingPlan
+     pricingPlanDetail(id: String): PricingPlan
+    pricingFixedValuesPage(
+      pricingPlanId: String!
+      page: Int
+      perPage: Int
+      search: String
+    ): PricingFixedValuePageResult
   pricingCheckDiscount(${checkDiscountParams}): JSON
 `;
 

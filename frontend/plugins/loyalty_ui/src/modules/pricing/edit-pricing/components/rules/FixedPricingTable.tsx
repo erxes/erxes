@@ -1,4 +1,4 @@
-import { useFieldArray, Control } from 'react-hook-form';
+import { useFieldArray, Control, useWatch } from 'react-hook-form';
 import {
   Table,
   Checkbox,
@@ -11,11 +11,20 @@ import {
   Input,
   Select,
 } from 'erxes-ui';
-import { useRef, useEffect, useMemo, useState } from 'react';
-import { useWatch } from 'react-hook-form';
-import { IPricingPlanDetail } from '@/pricing/types';
-import { GET_PRODUCTS_BY_IDS } from '~/modules/pricing/graphql/queries';
+import { useRef, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
+import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
+
+interface IPageItem {
+  _id: string | null;
+  productId: string;
+  productName: string;
+  sortField: string;
+  uom: string;
+  unitPrice: number;
+  newPrice: number;
+  status: 'NEW' | 'SAVED' | 'STALE';
+}
 
 interface IProductRow {
   _id: string;
@@ -24,109 +33,73 @@ interface IProductRow {
   unitPrice: number;
   code?: string;
 }
+
 export const FixedPricingTable = ({
   control,
-  pricingDetail,
-  savedFixedValues,
+  pricingId,
   onSave,
 }: {
   control: Control<any>;
-  pricingId?: string;
-  pricingDetail?: IPricingPlanDetail;
-  savedFixedValues: any[];
+  pricingId: string;
   onSave: () => void;
 }) => {
   const { fields, replace } = useFieldArray({ control, name: 'fixedValues' });
   const tableRef = useRef<HTMLTableElement>(null);
 
-  const { data, loading } = useQuery(GET_PRODUCTS_BY_IDS, {
+  const [searchText, setSearchText] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [diffFilter, setDiffFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
+
+  const watchedFixedValues = useWatch({ control, name: 'fixedValues' });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchText);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  const { data, loading } = useQuery(PRICING_FIXED_VALUES_PAGE, {
     variables: {
-      ids:
-        pricingDetail?.applyType === 'product'
-          ? pricingDetail?.products || []
-          : undefined,
-      categoryIds:
-        pricingDetail?.applyType === 'category'
-          ? pricingDetail?.categories || []
-          : undefined,
-      limit: 100,
+      pricingPlanId: pricingId,
+      page: currentPage,
+      perPage: PAGE_SIZE,
+      search: debouncedSearch,
     },
-    skip: !pricingDetail,
+    skip: !pricingId,
     fetchPolicy: 'cache-and-network',
   });
 
-  const [searchText, setSearchText] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [diffFilter, setDiffFilter] = useState('all');
-
-  const watchedFixedValues = useWatch({
-    control,
-    name: 'fixedValues',
-  });
-
-  const savedProductIds = useMemo(() => {
-    return (savedFixedValues || []).map((fv) => fv.productId);
-  }, [savedFixedValues]);
-
-  const { data: savedProductsData, loading: savedProductsLoading } = useQuery(
-    GET_PRODUCTS_BY_IDS,
-    {
-      variables: {
-        ids: savedProductIds,
-        limit: 100,
-      },
-      skip: !savedProductIds.length,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
-
-  const activeProducts: IProductRow[] = data?.productsMain?.list || [];
-  const savedProducts: IProductRow[] =
-    savedProductsData?.productsMain?.list || [];
-
-  const allProducts = useMemo(() => {
-    const map = new Map<string, IProductRow>();
-    activeProducts.forEach((p) => map.set(p._id, p));
-    savedProducts.forEach((p) => map.set(p._id, p));
-
-    savedFixedValues.forEach((fv) => {
-      if (!map.has(fv.productId)) {
-        map.set(fv.productId, {
-          _id: fv.productId,
-          name: `Unknown Product (${fv.productId})`,
-          uom: fv.uom || '',
-          unitPrice: fv.unitPrice || 0,
-        });
-      }
-    });
-
-    return Array.from(map.values());
-  }, [activeProducts, savedProducts, savedFixedValues]);
+  const pageResult = data?.pricingFixedValuesPage;
+  const pageItems: IPageItem[] = pageResult?.list || [];
+  const totalCount: number = pageResult?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   useEffect(() => {
-    if (!allProducts.length) return;
+    if (!pageItems.length) return;
+    replace(
+      pageItems.map((item) => ({
+        _id: item._id ?? undefined,
+        productId: item.productId,
+        sortField: item.sortField,
+        uom: item.uom,
+        unitPrice: item.unitPrice,
+        newPrice: item.newPrice,
+      })),
+    );
+  }, [JSON.stringify(pageItems)]);
 
-    const rows = allProducts.map((product) => {
-      const existing = savedFixedValues?.find(
-        (fv: any) => fv.productId === product._id,
-      );
-      return {
-        _id: existing?._id ?? undefined,
-        productId: product._id,
-        uom: product.uom || existing?.uom || '',
-        unitPrice: product.unitPrice ?? existing?.unitPrice ?? 0,
-        newPrice: existing?.newPrice ?? product.unitPrice ?? 0,
-      };
-    });
+  const handlePageChange = (newPage: number) => {
+    onSave();
+    setCurrentPage(newPage);
+  };
 
-    replace(rows);
-  }, [allProducts.length, savedFixedValues.length]);
-
-  const isLoading =
-    loading || (savedProductIds.length > 0 && savedProductsLoading);
-
-  if (isLoading) return <div>Loading products...</div>;
-  if (!allProducts.length && !isLoading)
+  if (loading && !pageItems.length) return <div>Loading products...</div>;
+  if (!loading && !pageItems.length)
     return <div>No products selected on this plan.</div>;
 
   const renderStatusBadge = (status: 'NEW' | 'SAVED' | 'STALE') => {
@@ -173,6 +146,27 @@ export const FixedPricingTable = ({
     return <span style={{ color, fontWeight }}>{text}</span>;
   };
 
+  const filteredIndices: number[] = [];
+  fields.forEach((field, index) => {
+    const item = pageItems[index];
+    if (!item) return;
+
+    const matchesStatus =
+      statusFilter === 'all' || item.status === statusFilter;
+
+    const watchedValue = watchedFixedValues?.[index];
+    const newPrice = watchedValue?.newPrice ?? item.unitPrice ?? 0;
+    const unitPrice = watchedValue?.unitPrice ?? item.unitPrice ?? 0;
+    const diffPrice = newPrice - unitPrice;
+
+    let matchesDiff = true;
+    if (diffFilter === 'increased') matchesDiff = diffPrice > 0;
+    else if (diffFilter === 'decreased') matchesDiff = diffPrice < 0;
+    else if (diffFilter === 'no_change') matchesDiff = diffPrice === 0;
+
+    if (matchesStatus && matchesDiff) filteredIndices.push(index);
+  });
+
   return (
     <>
       <div
@@ -185,13 +179,19 @@ export const FixedPricingTable = ({
       >
         <div style={{ flex: 1 }}>
           <Input
-            placeholder="Search by product name or code..."
+            placeholder="Search by product code..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
         </div>
         <div style={{ width: '200px' }}>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => {
+              setStatusFilter(v);
+              setCurrentPage(1);
+            }}
+          >
             <Select.Trigger>
               <Select.Value placeholder="Filter by status" />
             </Select.Trigger>
@@ -204,7 +204,13 @@ export const FixedPricingTable = ({
           </Select>
         </div>
         <div style={{ width: '200px' }}>
-          <Select value={diffFilter} onValueChange={setDiffFilter}>
+          <Select
+            value={diffFilter}
+            onValueChange={(v) => {
+              setDiffFilter(v);
+              setCurrentPage(1);
+            }}
+          >
             <Select.Trigger>
               <Select.Value placeholder="Filter by price diff" />
             </Select.Trigger>
@@ -220,7 +226,7 @@ export const FixedPricingTable = ({
 
       <RecordTableHotkeyProvider
         columnLength={1}
-        rowLength={fields.length}
+        rowLength={filteredIndices.length}
         scope="pricingFixedValues"
       >
         <Table ref={tableRef}>
@@ -236,58 +242,16 @@ export const FixedPricingTable = ({
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {fields.map((field, index) => {
-              const product = allProducts.find(
-                (p) => p._id === (field as any).productId,
-              );
-              if (!product) return null;
-
-              const isActive = activeProducts.some(
-                (ap) => ap._id === product._id,
-              );
-              const hasSaved = savedFixedValues.some(
-                (fv) => fv.productId === product._id,
-              );
-
-              let status: 'NEW' | 'SAVED' | 'STALE' = 'NEW';
-              if (isActive && !hasSaved) {
-                status = 'NEW';
-              } else if (isActive && hasSaved) {
-                status = 'SAVED';
-              } else if (!isActive && hasSaved) {
-                status = 'STALE';
-              }
-
-              const matchesSearch =
-                !searchText ||
-                product.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                (product.code &&
-                  product.code
-                    .toLowerCase()
-                    .includes(searchText.toLowerCase()));
-
-              const matchesStatus =
-                statusFilter === 'all' || status === statusFilter;
-
-              const watchedValue = watchedFixedValues?.[index];
-              const newPrice = watchedValue?.newPrice ?? product.unitPrice ?? 0;
-              const unitPrice =
-                watchedValue?.unitPrice ?? product.unitPrice ?? 0;
-              const diffPrice = newPrice - unitPrice;
-
-              let matchesDiff = true;
-              if (diffFilter === 'increased') {
-                matchesDiff = diffPrice > 0;
-              } else if (diffFilter === 'decreased') {
-                matchesDiff = diffPrice < 0;
-              } else if (diffFilter === 'no_change') {
-                matchesDiff = diffPrice === 0;
-              }
-
-              if (!matchesSearch || !matchesStatus || !matchesDiff) {
-                return null;
-              }
-
+            {filteredIndices.map((index) => {
+              const field = fields[index];
+              const item = pageItems[index];
+              const product: IProductRow = {
+                _id: item.productId,
+                name: item.productName,
+                uom: item.uom,
+                unitPrice: item.unitPrice,
+                code: item.sortField,
+              };
               return (
                 <FixedPricingRow
                   key={field.id}
@@ -295,7 +259,7 @@ export const FixedPricingTable = ({
                   index={index}
                   control={control}
                   product={product}
-                  status={status}
+                  status={item.status}
                   onSave={onSave}
                   renderDiffPrice={renderDiffPrice}
                   renderStatusBadge={renderStatusBadge}
@@ -305,6 +269,46 @@ export const FixedPricingTable = ({
           </Table.Body>
         </Table>
       </RecordTableHotkeyProvider>
+
+      {totalPages > 1 && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginTop: '12px',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <span style={{ fontSize: '13px', color: '#6b7280' }}>
+            {totalCount} results · Page {currentPage} of {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage <= 1}
+            style={{
+              padding: '4px 10px',
+              cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+              opacity: currentPage <= 1 ? 0.4 : 1,
+            }}
+          >
+            ‹ Prev
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+            style={{
+              padding: '4px 10px',
+              cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+              opacity: currentPage >= totalPages ? 0.4 : 1,
+            }}
+          >
+            Next ›
+          </button>
+        </div>
+      )}
     </>
   );
 };

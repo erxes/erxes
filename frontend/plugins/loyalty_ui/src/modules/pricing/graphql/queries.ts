@@ -182,14 +182,6 @@ export const PRICING_PLAN_DETAIL = gql`
         _id
       }
       productIds
-      fixedValues {
-        _id
-        pricingPlanId
-        productId
-        uom
-        unitPrice
-        newPrice
-      }
     }
   }
 `;
@@ -215,6 +207,34 @@ export const GET_PRODUCTS_BY_IDS = gql`
         uom
         unitPrice
         code
+      }
+    }
+  }
+`;
+
+export const PRICING_FIXED_VALUES_PAGE = gql`
+  query PricingFixedValuesPage(
+    $pricingPlanId: String!
+    $page: Int
+    $perPage: Int
+    $search: String
+  ) {
+    pricingFixedValuesPage(
+      pricingPlanId: $pricingPlanId
+      page: $page
+      perPage: $perPage
+      search: $search
+    ) {
+      totalCount
+      list {
+        _id
+        productId
+        productName
+        sortField
+        uom
+        unitPrice
+        newPrice
+        status
       }
     }
   }

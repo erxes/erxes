@@ -110,7 +110,6 @@ export interface IPricingPlanDetail {
   updatedUser?: { _id: string } | null;
 
   productIds?: string[];
-  fixedValues?: IPricingFixedValue[];
 }
 
 export interface IProductCategory {
@@ -127,6 +126,7 @@ export interface IPricingFixedValue {
   _id: string;
   pricingPlanId: string;
   productId: string;
+  sortField?: string;
   uom: string;
   unitPrice: number;
   newPrice: number;

@@ -277,7 +277,6 @@ export const CommonRuleInfo = ({
             )}
           </>
         )}
-
         {discountType === 'fixed' && pricingId && (
           <FixedPricingTable
             control={form.control}
