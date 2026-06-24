@@ -102,6 +102,7 @@ export const useConversations = (
         if (!subscriptionData.data || !prev) return prev;
         const newMessage =
           subscriptionData.data.conversationClientMessageInserted;
+        if (!prev.conversations) return prev;
         const index = prev.conversations.list.findIndex(
           (conversation) => conversation._id === newMessage?._id,
         );

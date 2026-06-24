@@ -104,6 +104,7 @@ export const useTickets = (
         if (!prev || !subscriptionData.data) return prev;
 
         const { type, ticket } = subscriptionData.data.ticketListChanged;
+        if (!prev.getTickets) return prev;
         const currentList = prev.getTickets.list;
 
         let updatedList = currentList;

@@ -39,6 +39,7 @@ export const useActivities = (contentId: string) => {
         if (!prev || !subscriptionData.data) return prev;
 
         const { type, activity } = subscriptionData.data.ticketActivityChanged;
+        if (!prev.getTicketActivities) return prev;
         const currentList = prev.getTicketActivities.list;
 
         let updatedList = currentList;
