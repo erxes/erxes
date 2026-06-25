@@ -12,5 +12,4 @@ export enum PaymentKind {
   TOKI = 'toki',
   TDB = 'tdb',
   KHANBANK = 'khanbank',
-
 }
