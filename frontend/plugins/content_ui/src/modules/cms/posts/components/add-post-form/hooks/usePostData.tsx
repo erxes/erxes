@@ -1,7 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
-import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
+import { CMS_CUSTOM_FIELD_GROUPS } from '@/cms/custom-fields/graphql';
 import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import type { FieldGroup } from '../CustomFieldsSection';
 import type { IWebsite } from '~/modules/cms/types';

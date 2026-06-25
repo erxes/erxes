@@ -41,7 +41,7 @@ import {
   ICustomField,
   ICustomFieldGroup,
 } from '@/cms/custom-fields/types/customFieldTypes';
-import { CMS_CUSTOM_POST_TYPES } from '@/cms/graphql/queries';
+import { CMS_CUSTOM_POST_TYPES } from '@/cms/custom-types/graphql';
 import { CmsSidebar } from '@/cms/shared/CmsSidebar';
 import { ICustomPostType } from '@/cms/custom-types/types/customTypeTypes';
 

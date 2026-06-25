@@ -76,17 +76,3 @@ export const REMOVE_ARTICLE = gql`
     }
   }
 `;
-
-// CMS: Custom Post Types
-export const CMS_CUSTOM_POST_TYPES_ADD = gql`
-  mutation CmsCustomPostTypesAdd($input: CustomPostTypeInput!) {
-    cmsCustomPostTypesAdd(input: $input) {
-      _id
-      clientPortalId
-      code
-      createdAt
-      label
-      __typename
-    }
-  }
-`;

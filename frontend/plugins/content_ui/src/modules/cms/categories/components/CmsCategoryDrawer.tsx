@@ -10,8 +10,8 @@ import {
   CMS_CATEGORIES_ADD,
   CMS_CATEGORIES_EDIT,
   CMS_CATEGORY_DETAIL,
-  CMS_CUSTOM_FIELD_GROUPS,
 } from '@/cms/categories/graphql';
+import { CMS_CUSTOM_FIELD_GROUPS } from '@/cms/custom-fields/graphql';
 import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import { createSlug } from '@/cms/utils/createSlug';
 import {

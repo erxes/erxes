@@ -16,7 +16,7 @@ import {
   IPageDrawerProps,
   IPageFormData,
 } from '@/cms/pages/types/pageTypes';
-import { CMS_CUSTOM_FIELD_GROUPS } from '@/cms/graphql/queries';
+import { CMS_CUSTOM_FIELD_GROUPS } from '@/cms/custom-fields/graphql';
 import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import {
   useCmsTranslation,
