@@ -5,7 +5,6 @@ import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
 import { LanguageSelector } from '@/cms/shared/LanguageSelector';
 import {
   TranslationData,
@@ -15,6 +14,7 @@ import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
 import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
 import { createSlug } from '@/cms/utils/createSlug';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import { CmsTag, TagFormData } from '@/cms/tags/types/tagTypes';
 
 interface TagDrawerProps {

@@ -1,72 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const CONTENT_CMS_LIST = gql`
-  query ContentCMSList {
-    contentCMSList {
-      _id
-      clientPortalId
-      content
-      createdAt
-      updatedAt
-      name
-      languages
-      language
-      postUrlField
-      postUrlPrefix
-      accessPolicy
-      assignedMemberIds
-      description
-      domain
-      publicUrl
-      metaTitle
-      metaDescription
-      metaKeywords
-      metaImage {
-        url
-        name
-        type
-        size
-        duration
-      }
-      googleTrackingId
-      googleTagManagerId
-      customScripts
-      defaultPostStatus
-      allowComments
-      siteLogo {
-        url
-        name
-        type
-        size
-        duration
-      }
-      favicon {
-        url
-        name
-        type
-        size
-        duration
-      }
-    }
-  }
-`;
-
-export const GET_WEBSITES = gql`
-  query getClientPortals {
-    getClientPortals(filter: {}) {
-      list {
-        _id
-        name
-        description
-        domain
-        createdAt
-        __typename
-      }
-      totalCount
-    }
-  }
-`;
-
 export const CMS_MENU_ADD = gql`
   mutation cmsAddMenu($input: MenuItemInput!) {
     cmsAddMenu(input: $input) {
@@ -821,28 +754,6 @@ export const CMS_MENU_LIST = gql`
       target
       translations {
         language
-      }
-      __typename
-    }
-  }
-`;
-
-export const GET_CLIENT_PORTALS = gql`
-  query getClientPortals($filter: IClientPortalFilter) {
-    getClientPortals(filter: $filter) {
-      list {
-        _id
-        name
-        domain
-        token
-        createdAt
-        updatedAt
-        __typename
-      }
-      totalCount
-      pageInfo {
-        hasNextPage
-        __typename
       }
       __typename
     }

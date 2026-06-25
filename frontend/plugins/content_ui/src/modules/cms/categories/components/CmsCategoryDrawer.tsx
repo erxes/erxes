@@ -12,7 +12,7 @@ import {
   CMS_CATEGORY_DETAIL,
   CMS_CUSTOM_FIELD_GROUPS,
 } from '@/cms/categories/graphql';
-import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import { createSlug } from '@/cms/utils/createSlug';
 import {
   CategoryCustomFieldsSection,

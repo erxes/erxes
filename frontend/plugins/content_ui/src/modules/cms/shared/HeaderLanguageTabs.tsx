@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Button } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
-import { CONTENT_CMS_LIST } from '../graphql/queries';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import { useParams } from 'react-router-dom';
 import { cmsLanguageAtom } from './states/cmsLanguageState';
 

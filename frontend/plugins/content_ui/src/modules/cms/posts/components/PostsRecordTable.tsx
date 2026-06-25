@@ -7,7 +7,7 @@ import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
 import { usePosts } from '../hooks/usePosts';
 import { PostsEmptyState } from './PostsEmptyState';
 import { Posts } from '../types/postsType';
-import { CONTENT_CMS_LIST } from '../../graphql/queries';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import type { IWebsite } from '../../types';
 
 interface PostsRecordTableProps {

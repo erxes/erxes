@@ -7,8 +7,9 @@ import {
   CONTENT_CREATE_CMS,
   CONTENT_DELETE_CMS,
   CONTENT_UPDATE_CMS,
-} from '../../graphql/mutations';
-import { CONTENT_CMS_LIST, GET_WEBSITES } from '../../graphql/queries';
+  CONTENT_CMS_LIST,
+  GET_WEBSITES,
+} from '@/cms/websites/graphql';
 import { DEFAULT_SETTINGS } from '../constants/defaultSettings';
 import {
   ClientPortalOption,

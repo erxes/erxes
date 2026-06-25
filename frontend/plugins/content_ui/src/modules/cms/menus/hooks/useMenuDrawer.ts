@@ -10,8 +10,8 @@ import {
   CMS_MENU_ADD,
   CMS_MENU_EDIT,
   CMS_MENU_LIST,
-  CONTENT_CMS_LIST,
 } from '../../graphql/queries';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import {
   buildFlatTree,
   getDepthPrefix,

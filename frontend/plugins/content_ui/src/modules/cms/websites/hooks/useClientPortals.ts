@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { GET_CLIENT_PORTALS } from '@/cms/graphql/queries';
+import { GET_CLIENT_PORTALS } from '@/cms/websites/graphql';
 
 type ClientPortalFilter = Record<string, unknown>;
 

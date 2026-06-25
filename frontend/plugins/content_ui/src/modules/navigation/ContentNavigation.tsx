@@ -10,8 +10,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
-import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
 import { WebsiteDrawer } from '@/cms/websites/components/WebsiteDrawer';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import { IWebsite } from '@/cms/websites/types';
 
 export const ContentNavigation = () => {

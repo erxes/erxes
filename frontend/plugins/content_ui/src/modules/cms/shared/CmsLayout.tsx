@@ -15,7 +15,7 @@ import {
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { ReactNode, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_WEBSITES, CONTENT_CMS_LIST } from '../graphql/queries';
+import { CONTENT_CMS_LIST, GET_WEBSITES } from '@/cms/websites/graphql';
 
 interface CmsLayoutProps {
   children: ReactNode;

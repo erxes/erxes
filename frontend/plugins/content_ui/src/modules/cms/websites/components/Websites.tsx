@@ -15,10 +15,10 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
 import { CmsLayout } from '@/cms/shared/CmsLayout';
 import { EmptyState } from '@/cms/shared/EmptyState';
 import { WebsiteDrawer } from '@/cms/websites/components/WebsiteDrawer';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import { IWebsite } from '@/cms/websites/types';
 
 const getThumbnailGradient = (color: string) => {

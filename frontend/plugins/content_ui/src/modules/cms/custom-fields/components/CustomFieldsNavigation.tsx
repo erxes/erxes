@@ -5,7 +5,10 @@ import { PageHeader } from 'ui-modules';
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
+import {
+  CONTENT_CMS_LIST,
+  GET_CLIENT_PORTALS,
+} from '@/cms/websites/graphql';
 
 export const CustomFieldsNavigation = () => {
   const { t } = useTranslation('content');

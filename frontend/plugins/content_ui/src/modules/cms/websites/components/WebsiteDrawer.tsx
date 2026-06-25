@@ -13,11 +13,11 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { GET_WEBSITES } from '@/cms/graphql/queries';
 import {
   CONTENT_CREATE_CMS,
   CONTENT_UPDATE_CMS,
-} from '@/cms/graphql/mutations';
+  GET_WEBSITES,
+} from '@/cms/websites/graphql';
 import { useClientPortals } from '@/cms/websites/hooks/useClientPortals';
 import { LANGUAGES } from '~/constants';
 import {
