@@ -1,6 +1,4 @@
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-
 import { CheckCategoryRecordTable } from '@/erkhet-sync/check-category/components/CheckCategoryRecordTable';
 import { CheckCategoryHeader } from '@/erkhet-sync/check-category/components/CheckCategoryHeader';
 import { CheckCategoryFilter } from '@/erkhet-sync/check-category/components/CheckCategoryFilter';

@@ -1,6 +1,4 @@
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-
 import { CheckProductRecordTable } from '@/erkhet-sync/check-products/components/CheckProductRecordTable';
 import { CheckProductHeader } from '@/erkhet-sync/check-products/components/CheckProductHeader';
 import { CheckProductFilter } from '@/erkhet-sync/check-products/components/CheckProductFilter';
