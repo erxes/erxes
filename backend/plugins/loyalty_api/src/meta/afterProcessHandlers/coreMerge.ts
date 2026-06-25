@@ -44,7 +44,6 @@ const ownerReferenceModels: Array<
   keyof Pick<
     IModels,
     | 'Assignments'
-    | 'Coupons'
     | 'Donates'
     | 'Lotteries'
     | 'ScoreCampaigns'
@@ -54,7 +53,6 @@ const ownerReferenceModels: Array<
   >
 > = [
   'Assignments',
-  'Coupons',
   'Donates',
   'Lotteries',
   'ScoreCampaigns',
@@ -68,6 +66,9 @@ const productArrayReferences: ArrayReference[] = [
   { model: 'PricingPlans', path: 'productsExcluded' },
   { model: 'VoucherCampaigns', path: 'productIds' },
 ];
+
+// Single-product references nested inside PricingPlans rule subdocuments.
+const pricingRuleProductPaths = ['priceRules', 'quantityRules', 'expiryRules'];
 
 const isMergeMutationName = (
   mutationName?: string,
@@ -124,6 +125,23 @@ const replaceArrayReferences = async (
   );
 };
 
+// Coupon owner references live only inside the `usageLogs` subdocument array,
+// not on the top-level document.
+const updateCouponUsageLogOwner = async (
+  models: IModels,
+  { ownerType, oldOwnerIds, newOwnerId }: OwnerMerge,
+) => {
+  await models.Coupons.updateMany(
+    { usageLogs: { $elemMatch: { ownerType, ownerId: { $in: oldOwnerIds } } } },
+    { $set: { 'usageLogs.$[log].ownerId': newOwnerId } },
+    {
+      arrayFilters: [
+        { 'log.ownerType': ownerType, 'log.ownerId': { $in: oldOwnerIds } },
+      ],
+    },
+  );
+};
+
 const updateOwnerReferences = async (
   models: IModels,
   { ownerType, oldOwnerIds, newOwnerId }: OwnerMerge,
@@ -136,6 +154,12 @@ const updateOwnerReferences = async (
       ),
     ),
   );
+
+  await updateCouponUsageLogOwner(models, {
+    ownerType,
+    oldOwnerIds,
+    newOwnerId,
+  });
 
   if (ownerType === OWNER_TYPES.CUSTOMER) {
     await replaceArrayReferences(
@@ -165,6 +189,44 @@ const updateOwnerReferences = async (
   await models.ScoreLogs.repairOwnerScore({ ownerType, ownerId: newOwnerId });
 };
 
+// `productsBundle` is a nested array of arrays of product ids, which cannot be
+// remapped with a single positional update, so it is rewritten in memory.
+const updatePricingPlanBundles = async (
+  models: IModels,
+  oldProductIds: string[],
+  newProductId: string,
+) => {
+  const oldIdSet = new Set(oldProductIds);
+
+  const plans = await models.PricingPlans.find({
+    'productsBundle.0': { $exists: true },
+  }).lean();
+
+  for (const plan of plans) {
+    const bundle: string[][] = (plan.productsBundle as string[][]) || [];
+    let changed = false;
+
+    const newBundle = bundle.map((group) => {
+      const mapped = (group || []).map((productId) => {
+        if (oldIdSet.has(productId)) {
+          changed = true;
+          return newProductId;
+        }
+        return productId;
+      });
+
+      return Array.from(new Set(mapped));
+    });
+
+    if (changed) {
+      await models.PricingPlans.updateOne(
+        { _id: plan._id },
+        { $set: { productsBundle: newBundle } },
+      );
+    }
+  }
+};
+
 const updateProductReferences = async (
   models: IModels,
   { oldProductIds, newProductId }: ProductMerge,
@@ -182,6 +244,16 @@ const updateProductReferences = async (
     { bonusProductId: { $in: oldProductIds } },
     { $set: { bonusProductId: newProductId } },
   );
+
+  for (const rulePath of pricingRuleProductPaths) {
+    await models.PricingPlans.updateMany(
+      { [`${rulePath}.discountBonusProduct`]: { $in: oldProductIds } },
+      { $set: { [`${rulePath}.$[rule].discountBonusProduct`]: newProductId } },
+      { arrayFilters: [{ 'rule.discountBonusProduct': { $in: oldProductIds } }] },
+    );
+  }
+
+  await updatePricingPlanBundles(models, oldProductIds, newProductId);
 };
 
 export const handleCoreMergeMutation = async (

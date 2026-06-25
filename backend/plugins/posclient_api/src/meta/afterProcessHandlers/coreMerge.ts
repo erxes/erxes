@@ -38,6 +38,17 @@ const updateOrderCustomer = async (
   );
 };
 
+const updateProductVendor = async (
+  models: IModels,
+  oldCompanyIds: string[],
+  newCompanyId: string,
+) => {
+  await models.Products.updateMany(
+    { vendorId: { $in: oldCompanyIds } },
+    { $set: { vendorId: newCompanyId } },
+  );
+};
+
 const updateOrderItemsProduct = async (
   models: IModels,
   oldProductIds: string[],
@@ -73,6 +84,7 @@ export const handleCoreMergeMutation = async (
 
     if (companyIds.length) {
       await updateOrderCustomer(models, companyIds, newId, 'company');
+      await updateProductVendor(models, companyIds, newId);
     }
   }
 

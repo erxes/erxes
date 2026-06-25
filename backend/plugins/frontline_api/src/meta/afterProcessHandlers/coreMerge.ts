@@ -89,9 +89,9 @@ const updateCustomerIdField = async (
       { customerId: { $in: oldIds } },
       { $set: { customerId: newId } },
     ),
-    models.FacebookConversations.updateMany(
-      { customerId: { $in: oldIds } },
-      { $set: { customerId: newId } },
+    models.FacebookCustomers.updateMany(
+      { erxesApiId: { $in: oldIds } },
+      { $set: { erxesApiId: newId } },
     ),
     models.FacebookConversationMessages.updateMany(
       { customerId: { $in: oldIds } },
@@ -109,9 +109,9 @@ const updateCustomerIdField = async (
       { customerId: { $in: oldIds } },
       { $set: { customerId: newId } },
     ),
-    models.InstagramConversations.updateMany(
-      { customerId: { $in: oldIds } },
-      { $set: { customerId: newId } },
+    models.InstagramCustomers.updateMany(
+      { erxesApiId: { $in: oldIds } },
+      { $set: { erxesApiId: newId } },
     ),
     models.InstagramConversationMessages.updateMany(
       { customerId: { $in: oldIds } },
