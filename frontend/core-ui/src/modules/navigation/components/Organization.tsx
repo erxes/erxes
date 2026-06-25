@@ -1,9 +1,15 @@
 import { currentOrganizationState } from 'ui-modules';
 
-import { Button, cn, DropdownMenu, TextOverflowTooltip } from 'erxes-ui';
+import {
+  activePluginState,
+  Button,
+  cn,
+  DropdownMenu,
+  TextOverflowTooltip,
+} from 'erxes-ui';
 
-import { useAtom } from 'jotai';
-import { IconSelector } from '@tabler/icons-react';
+import { useAtom, useSetAtom } from 'jotai';
+import { IconDotsVertical } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { User } from '@/navigation/components/User';
@@ -12,21 +18,25 @@ import { SelectLanguages } from '@/navigation/components/SelectLanguages';
 import { useTranslation } from 'react-i18next';
 import { OrgLogoIcon } from '@/auth/components/Logo';
 import { AppPath } from '@/types/paths/AppPath';
+import { useAppVersion } from '@/navigation/hooks/useAppVersion';
 
 export function Organization() {
   const [currentOrganization] = useAtom(currentOrganizationState);
+  const setActivePlugin = useSetAtom(activePluginState);
   const { handleLogout } = useAuth();
   const { t } = useTranslation('organization');
+  const version = useAppVersion();
 
   const hasOrgName =
     !!currentOrganization?.name || !!currentOrganization?.orgShortName;
 
   return (
-    <div className="flex w-full items-center gap-1 ">
+    <div className="flex w-full items-stretch gap-1">
       <Link
         to={AppPath.Index}
         aria-label={t('home')}
-        className="flex flex-1 basis-1/2 min-w-0 items-center gap-2 rounded p-2"
+        onClick={() => setActivePlugin('')}
+        className="flex flex-4 min-w-0 items-center gap-2 rounded p-1 transition-colors hover:bg-accent-foreground/10"
       >
         <div className="flex size-8 rounded-lg items-center justify-center overflow-hidden flex-none shadow-xs">
           <OrgLogoIcon className="size-7 text-primary flex-none" />
@@ -47,9 +57,9 @@ export function Organization() {
           <Button
             variant="ghost"
             type="button"
-            className="flex flex-1 basis-1/2 h-auto items-center justify-start gap-2 rounded p-2 font-medium text-sm text-foreground hover:bg-transparent outline-none focus-visible:outline-none data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            className="flex flex-1 h-auto items-center justify-center gap-2 rounded p-1 font-medium text-sm text-foreground transition-colors hover:bg-accent-foreground/10 outline-none focus-visible:outline-none data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
-            <IconSelector className="ml-auto text-accent-foreground" />
+            <IconDotsVertical className="text-foreground" stroke={2} />
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end" className="space-y-1 ml-2">
@@ -71,7 +81,7 @@ export function Organization() {
           <DropdownMenu.Label className="flex items-center gap-2">
             {t('version')}
             <span className="text-primary ml-auto tracking-wider">
-              3.0.0-beta.1
+              {version}
             </span>
           </DropdownMenu.Label>
         </DropdownMenu.Content>
