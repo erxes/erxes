@@ -1,6 +1,7 @@
 import { IconChevronDown, IconPlus } from '@tabler/icons-react';
 import { Button, Collapsible, Form, Sheet, useToast, Tabs } from 'erxes-ui';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -72,6 +73,7 @@ export const ItineraryCreateSheet = ({
   onOpenChange,
   showTrigger = true,
 }: ItineraryCreateSheetProps) => {
+  const { t } = useTranslation('tourism');
   const [internalOpen, setInternalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>('build');
   const [showMoreOptions, setShowMoreOptions] = useState(false);
@@ -185,9 +187,8 @@ export const ItineraryCreateSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: 'Error',
-        description:
-          'Please enter values for the main language before creating.',
+        title: t('error'),
+        description: t('enter-main-lang-before-creating'),
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
@@ -197,7 +198,7 @@ export const ItineraryCreateSheet = ({
     const firstError = extractFirstError(errors);
     if (firstError) {
       toast({
-        title: 'Validation Error',
+        title: t('validation-error'),
         description: firstError,
         variant: 'destructive',
       });
@@ -207,8 +208,8 @@ export const ItineraryCreateSheet = ({
   const handleSubmit = async (values: ItineraryCreateFormType) => {
     if (!branchId) {
       toast({
-        title: 'Error',
-        description: 'Branch is required to create an itinerary',
+        title: t('error'),
+        description: t('branch-required-for-itinerary'),
         variant: 'destructive',
       });
       return;
@@ -216,8 +217,8 @@ export const ItineraryCreateSheet = ({
 
     if (!values.groupDays || values.groupDays.length === 0) {
       toast({
-        title: 'Error',
-        description: 'At least one day is required',
+        title: t('error'),
+        description: t('at-least-one-day-required'),
         variant: 'destructive',
       });
       return;
@@ -284,8 +285,8 @@ export const ItineraryCreateSheet = ({
       });
 
       toast({
-        title: 'Success',
-        description: 'Itinerary created successfully',
+        title: t('success'),
+        description: t('itinerary-created-successfully'),
       });
 
       form.reset();
@@ -293,10 +294,10 @@ export const ItineraryCreateSheet = ({
       handleOpenChange(false);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to create itinerary';
+        error instanceof Error ? error.message : t('failed-to-create-itinerary');
 
       toast({
-        title: 'Error',
+        title: t('error'),
         description: message,
         variant: 'destructive',
       });
@@ -314,7 +315,7 @@ export const ItineraryCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Create itinerary
+            {t('create-itinerary')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -328,7 +329,7 @@ export const ItineraryCreateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Create itinerary</Sheet.Title>
+              <Sheet.Title>{t('create-itinerary')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -438,8 +439,8 @@ export const ItineraryCreateSheet = ({
                           size="sm"
                         >
                           {showMoreOptions
-                            ? 'Hide more options'
-                            : 'Show more options'}
+                            ? t('hide-more-options')
+                            : t('show-more-options')}
                           <IconChevronDown
                             size={12}
                             strokeWidth={2}
@@ -464,7 +465,7 @@ export const ItineraryCreateSheet = ({
                     onClick={() => handleOpenChange(false)}
                     disabled={loading}
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
 
                   <Button
@@ -472,7 +473,7 @@ export const ItineraryCreateSheet = ({
                     disabled={loading}
                     onClick={handleNextStep}
                   >
-                    Next
+                    {t('next')}
                   </Button>
                 </div>
               ) : (
@@ -486,11 +487,11 @@ export const ItineraryCreateSheet = ({
                     }}
                     disabled={loading}
                   >
-                    Back
+                    {t('back')}
                   </Button>
 
                   <Button type="submit" disabled={loading}>
-                    {loading ? 'Creating...' : 'Create'}
+                    {loading ? t('creating') : t('create')}
                   </Button>
                 </div>
               )}

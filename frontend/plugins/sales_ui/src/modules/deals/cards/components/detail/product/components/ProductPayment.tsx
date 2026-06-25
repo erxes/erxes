@@ -31,6 +31,7 @@ import { IDeal, IPaymentsData } from '@/deals/types/deals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useRefundScoreCampaign } from '../hooks/useRefundScoreCampaign';
 import { useCheckOwnerScore } from '../hooks/useCheckOwnerScore';
+import { useTranslation } from 'react-i18next';
 
 interface IPaymentType {
   type: string;
@@ -112,12 +113,13 @@ const OwnerScoreCampaignScore = ({
     }
   }, [checkOwnerScore, onScoreFetched]);
 
+  const { t } = useTranslation('sales');
+
   if (!paymentType?.scoreCampaignId || customers.length === 0) return null;
 
   const refundScore = () => {
     confirm({
-      message:
-        'This action will refund all loyalty scores used on this card and deduct any retrieved scores before processing the refund.\n Are you sure ?',
+      message: t('loyalty-score-refund-confirm'),
     }).then(() => {
       refundScoreCampaign({
         variables: {
@@ -129,20 +131,21 @@ const OwnerScoreCampaignScore = ({
         .then(() =>
           toast({
             variant: 'success',
-            title: 'Success',
-            description: 'Loyalty Score refunded successfully',
+            title: t('success'),
+            description: t('loyalty-score-refunded'),
           }),
         )
         .catch((error: any) =>
           toast({
             variant: 'destructive',
-            title: 'Error',
+            title: t('error'),
             description: error.message,
           }),
         );
       refetchCheckOwnerScore();
     });
   };
+
   return (
     <Popover>
       <Popover.Trigger asChild>
@@ -154,13 +157,13 @@ const OwnerScoreCampaignScore = ({
         <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b">
           <IconAward size={16} className="text-amber-500 shrink-0" />
           <span className="font-semibold text-sm text-foreground truncate">
-            Score Campaign
+            {t('score-campaign')}
           </span>
         </div>
         <div className="p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Customer
+              {t('customer')}
             </span>
             <span className="text-sm text-foreground truncate max-w-44">
               {customer.primaryEmail || customer._id}
@@ -168,11 +171,11 @@ const OwnerScoreCampaignScore = ({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Available Score
+              {t('available-score')}
             </span>
             <span className="text-xl font-bold text-foreground">
               {checkLoading ? (
-                <span className="text-sm text-muted-foreground">Loading…</span>
+                <span className="text-sm text-muted-foreground">{t('loading')}…</span>
               ) : (
                 checkOwnerScore.toLocaleString()
               )}
@@ -185,7 +188,7 @@ const OwnerScoreCampaignScore = ({
             size="sm"
             className="w-full mt-1"
           >
-            {refundLoading ? 'Refunding…' : 'Refund Score'}
+            {refundLoading ? t('refunding') : t('refund-score')}
           </Button>
         </div>
       </Popover.Content>
@@ -358,9 +361,8 @@ const ProductsPayment = ({
       if (!paymentIds.length) {
         toast({
           variant: 'destructive',
-          title: 'Payment methods missing',
-          description:
-            'Please select online payments in pipeline settings first.',
+          title: t('payment-methods-missing'),
+          description: t('please-select-online-payments'),
         });
         return;
       }
@@ -369,8 +371,8 @@ const ProductsPayment = ({
       if (!amount) {
         toast({
           variant: 'destructive',
-          title: 'Amount missing',
-          description: 'Please enter a mobile amount before creating payment.',
+          title: t('amount-missing'),
+          description: t('please-enter-mobile-amount'),
         });
         return;
       }
@@ -400,15 +402,15 @@ const ProductsPayment = ({
 
         toast({
           variant: 'destructive',
-          title: 'Payment URL missing',
-          description: 'Invoice was created but no payment URL was returned.',
+          title: t('payment-url-missing'),
+          description: t('invoice-created-no-url'),
         });
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: 'Failed to create payment',
+          title: t('failed-to-create-payment'),
           description:
-            error instanceof Error ? error.message : 'Please try again later.',
+            error instanceof Error ? error.message : t('please-try-again-later'),
         });
       }
     },
@@ -509,8 +511,8 @@ const ProductsPayment = ({
       setQrModal({ open: false, paymentType: null, password: '' });
       toast({
         variant: 'destructive',
-        title: 'Invalid QR Code',
-        description: 'The entered code does not match the customer ID.',
+        title: t('invalid-qr-code'),
+        description: t('qr-code-mismatch'),
       });
     }
   };
@@ -562,18 +564,21 @@ const ProductsPayment = ({
       },
     });
   };
+
+  const { t } = useTranslation('sales');
+
   return (
     <div className="flex flex-col gap-4 px-8">
       <div className="flex bg-muted/50 rounded-lg p-3 gap-12 justify-center">
         <div className="flex flex-col items-center">
           <span className="text-xs font-medium text-muted-foreground uppercase">
-            Total
+            {t('total')}
           </span>
           <div className="font-semibold text-lg">{renderTotals(total)}</div>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-xs font-medium text-muted-foreground uppercase">
-            Change
+            {t('change')}
           </span>
           <div
             className={`font-semibold text-lg flex ${
@@ -593,7 +598,7 @@ const ProductsPayment = ({
         <div className="flex items-center gap-2 py-2 w-full justify-center">
           <div className="flex w-full justify-between items-center">
             <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
-              CASH
+              {t('cash')}
             </p>
             <div className="flex flex-1 items-center">
               <Input
@@ -605,7 +610,7 @@ const ProductsPayment = ({
                 }
                 onClick={() => fillRemainingIfEmpty('cash')}
                 className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                placeholder="Type amount"
+                placeholder={t('type-amount')}
               />
             </div>
             <div className="flex flex-1 items-center">
@@ -634,7 +639,7 @@ const ProductsPayment = ({
           <div className="flex items-center gap-2 py-2 w-full justify-center">
             <div className="flex w-full justify-between items-center">
               <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
-                MOBILE
+                {t('mobile')}
               </p>
               <div className="flex flex-1 items-center">
                 <Input
@@ -646,7 +651,7 @@ const ProductsPayment = ({
                   }
                   onClick={fillMobileRemainingIfEmpty}
                   className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                  placeholder="Type amount"
+                  placeholder={t('type-amount')}
                 />
               </div>
               <div className="flex flex-1 items-center justify-end">
@@ -666,12 +671,12 @@ const ProductsPayment = ({
                   </Sheet.Trigger>
                   <Sheet.View className="p-0 sm:max-w-xl">
                     <Sheet.Header className="border-b">
-                      <Sheet.Title>QPay payment</Sheet.Title>
+                      <Sheet.Title>{t('qpay-payment')}</Sheet.Title>
                       <Sheet.Close />
                     </Sheet.Header>
                     <Sheet.Content className="flex flex-col gap-3 p-4">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Amount</span>
+                        <span className="text-muted-foreground">{t('amount')}</span>
                         <span className="font-medium">
                           {formatNumber(mobileAmount || mobileRemainingAmount)}{' '}
                           {defaultCurrency}
@@ -679,7 +684,7 @@ const ProductsPayment = ({
                       </div>
                       {generatingInvoice && (
                         <div className="flex h-96 items-center justify-center rounded-md border text-sm text-muted-foreground">
-                          Generating payment...
+                          {t('generating-payment')}
                         </div>
                       )}
                       {!generatingInvoice && invoiceUrl && (
@@ -698,7 +703,7 @@ const ProductsPayment = ({
                       )}
                       {!generatingInvoice && !invoiceUrl && (
                         <div className="flex h-96 items-center justify-center rounded-md border text-sm text-muted-foreground">
-                          Payment response will appear here.
+                          {t('payment-response')}
                         </div>
                       )}
                     </Sheet.Content>
@@ -722,7 +727,7 @@ const ProductsPayment = ({
           >
             <div className="flex w-full justify-between items-center">
               <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
-                MOBILE PAID
+                {t('mobile-paid')}
               </p>
               <div className="flex flex-1 items-center">
                 <Input
@@ -777,7 +782,7 @@ const ProductsPayment = ({
                       <Input
                         readOnly
                         className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-400 cursor-pointer"
-                        placeholder="Read QRCode"
+                        placeholder={t('read-qrcode')}
                         onClick={() => openQrModal(paymentType)}
                         value={
                           hasInitialAmount
@@ -805,7 +810,7 @@ const ProductsPayment = ({
                           fillRemainingIfEmpty(typeName, payInfo.maxVal)
                         }
                         className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                        placeholder="Type amount"
+                        placeholder={t('type-amount')}
                       />
                     )}
                   </div>
@@ -842,7 +847,7 @@ const ProductsPayment = ({
       <div className="flex items-center justify-end pt-2">
         <Button size="sm" onClick={handleSave}>
           <IconDeviceFloppy className="w-4 h-4 mr-1" />
-          Save
+          {t('save')}
         </Button>
       </div>
 
@@ -854,9 +859,9 @@ const ProductsPayment = ({
       >
         <Dialog.Content className="max-w-sm">
           <Dialog.Header className="gap-1">
-            <Dialog.Title>Read QR Code</Dialog.Title>
+            <Dialog.Title>{t('read-qrcode')}</Dialog.Title>
             <Dialog.Description>
-              Enter the customer QR code to unlock loyalty score payment.
+              {t('enter-customer-qrcode-to-loyalty-score')}
             </Dialog.Description>
           </Dialog.Header>
           {/* <div className="py-2"> */}
@@ -869,15 +874,15 @@ const ProductsPayment = ({
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
               e.key === 'Enter' && handleQrConfirm()
             }
-            placeholder="Enter customer QR code"
+            placeholder={t('enter-customer-qr-code')}
             autoFocus
           />
           {/* </div> */}
           <Dialog.Footer>
             <Button variant="outline" onClick={handleQrDismiss}>
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button onClick={handleQrConfirm}>Confirm</Button>
+            <Button onClick={handleQrConfirm}>{t('confirm')}</Button>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>

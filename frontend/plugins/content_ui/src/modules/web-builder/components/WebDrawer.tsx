@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { webDrawerState } from '../states/webBuilderState';
 import { useCreateWeb } from '../hooks/useCreateWeb';
@@ -71,6 +72,7 @@ const FormComboSelect = ({
 };
 
 export const WebDrawer = () => {
+  const { t } = useTranslation('content');
   const [drawer, setDrawer] = useAtom(webDrawerState);
   const { createWeb, loading: creating } = useCreateWeb();
   const { editWeb, loading: updating } = useEditWeb();
@@ -124,7 +126,7 @@ export const WebDrawer = () => {
       <Sheet.View className="sm:max-w-lg p-0 flex flex-col">
         <Sheet.Header className="border-b gap-3">
           <Sheet.Title>
-            {isEditing ? 'Edit Web Project' : 'New Web Project'}
+            {isEditing ? t('edit-web-project') : t('new-web-project')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -140,9 +142,9 @@ export const WebDrawer = () => {
                 name="name"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Name</Form.Label>
+                    <Form.Label>{t('name')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder="My Website" required />
+                      <Input {...field} placeholder={t('my-website')} required />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -156,13 +158,13 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      Client Portal <span className="text-destructive">*</span>
+                      {t('client-portal')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <FormComboSelect
                       options={portalOptions}
                       value={field.value || ''}
                       onChange={field.onChange}
-                      placeholder="Select a client portal"
+                      placeholder={t('select-a-client-portal')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -174,11 +176,11 @@ export const WebDrawer = () => {
                 name="description"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Description</Form.Label>
+                    <Form.Label>{t('description')}</Form.Label>
                     <Form.Control>
                       <Textarea
                         {...field}
-                        placeholder="Optional description"
+                        placeholder={t('optional-description')}
                         rows={3}
                       />
                     </Form.Control>
@@ -192,7 +194,7 @@ export const WebDrawer = () => {
                 name="domain"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Domain</Form.Label>
+                    <Form.Label>{t('domain')}</Form.Label>
                     <Form.Control>
                       <Input {...field} placeholder="example.com" />
                     </Form.Control>
@@ -208,7 +210,7 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      Template Type <span className="text-destructive">*</span>
+                      {t('template-type')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <FormComboSelect
                       options={TEMPLATE_TYPES}
@@ -217,7 +219,7 @@ export const WebDrawer = () => {
                         field.onChange(v);
                         form.setValue('templateId', '');
                       }}
-                      placeholder="Select a template type"
+                      placeholder={t('select-a-template-type')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -231,7 +233,7 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      Template <span className="text-destructive">*</span>
+                      {t('template')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <TemplateSelect
                       type={selectedType || ''}
@@ -246,16 +248,16 @@ export const WebDrawer = () => {
 
             <div className="flex justify-end gap-2 p-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={creating || updating}>
                 {creating || updating
                   ? isEditing
-                    ? 'Saving...'
-                    : 'Creating...'
+                    ? t('saving')
+                    : t('creating')
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create'}
+                    ? t('save-changes')
+                    : t('create')}
               </Button>
             </div>
           </form>

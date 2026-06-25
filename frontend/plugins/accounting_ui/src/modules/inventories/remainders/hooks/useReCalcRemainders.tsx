@@ -1,8 +1,10 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { RE_CALC_REMAINDERS } from '../graphql';
 
 export const useReCalcRemainders = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
   const [_addSafeRemainder, { loading }] = useMutation(
     RE_CALC_REMAINDERS,
     options,
@@ -13,7 +15,7 @@ export const useReCalcRemainders = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -21,8 +23,8 @@ export const useReCalcRemainders = (options?: OperationVariables) => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Re Calced successfully',
+          title: t('success'),
+          description: t('re-calced-successfully'),
         });
         options?.onCompleted();
       },

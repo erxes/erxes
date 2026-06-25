@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Combobox,
   Command,
@@ -76,16 +77,17 @@ const SelectBoardProvider = ({
 };
 
 const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('tourism');
   const { value, boards, loading } = useSelectBoardContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">Loading boards...</span>;
+    return <span className="text-accent-foreground/80">{t('loading-boards')}</span>;
   }
 
   if (!boards || boards.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select board'}
+        {placeholder || t('select-board')}
       </span>
     );
   }
@@ -95,7 +97,7 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedBoard) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select board'}
+        {placeholder || t('select-board')}
       </span>
     );
   }
@@ -121,6 +123,7 @@ const SelectBoardCommandItem = ({ board }: { board: IBoard }) => {
 };
 
 const SelectBoardContent = () => {
+  const { t } = useTranslation('tourism');
   const { boards, loading } = useSelectBoardContext();
 
   return (
@@ -128,7 +131,7 @@ const SelectBoardContent = () => {
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">
-            {loading ? 'Loading boards...' : 'No boards found'}
+            {loading ? t('loading-boards') : t('no-boards-found')}
           </div>
         </Command.Empty>
         {boards?.map((board) => (
@@ -236,18 +239,19 @@ const SelectPipelineProvider = ({
 };
 
 const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('tourism');
   const { value, pipelines, loading } = useSelectPipelineContext();
 
   if (loading) {
     return (
-      <span className="text-accent-foreground/80">Loading pipelines...</span>
+      <span className="text-accent-foreground/80">{t('loading-pipelines')}</span>
     );
   }
 
   if (!pipelines || pipelines.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -257,7 +261,7 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedPipeline) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -286,13 +290,14 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 };
 
 const SelectPipelineContent = () => {
+  const { t } = useTranslation('tourism');
   const { pipelines, boardId, loading } = useSelectPipelineContext();
 
   const emptyMessage = loading
-    ? 'Loading pipelines...'
+    ? t('loading-pipelines')
     : boardId
-      ? 'No pipelines found'
-      : 'Board not selected';
+      ? t('no-pipelines-found')
+      : t('board-not-selected');
 
   return (
     <Command>
@@ -409,16 +414,17 @@ const SelectStageProvider = ({
 };
 
 const SelectStageValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('tourism');
   const { value, stages, loading } = useSelectStageContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">Loading stages...</span>;
+    return <span className="text-accent-foreground/80">{t('loading-stages')}</span>;
   }
 
   if (!stages || stages.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select stage'}
+        {placeholder || t('select-stage')}
       </span>
     );
   }
@@ -428,7 +434,7 @@ const SelectStageValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedStage) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select stage'}
+        {placeholder || t('select-stage')}
       </span>
     );
   }
@@ -454,13 +460,14 @@ const SelectStageCommandItem = ({ stage }: { stage: IStage }) => {
 };
 
 const SelectStageContent = () => {
+  const { t } = useTranslation('tourism');
   const { stages, pipelineId, loading } = useSelectStageContext();
 
   const emptyMessage = loading
-    ? 'Loading stages...'
+    ? t('loading-stages')
     : pipelineId
-      ? 'No stages found'
-      : 'Pipeline not selected';
+      ? t('no-stages-found')
+      : t('pipeline-not-selected');
 
   return (
     <Command>

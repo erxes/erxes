@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { InfoCard, Tabs } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { CommonRuleInfo } from '@/pricing/edit-pricing/components/rules/CommonRuleInfo';
@@ -23,10 +24,10 @@ interface RulesInfoProps {
 }
 
 const RULE_TABS: { value: PricingRuleType; label: string }[] = [
-  { value: 'common', label: 'Common' },
-  { value: 'quantity', label: 'Quantity' },
-  { value: 'price', label: 'Price' },
-  { value: 'expiry', label: 'Expiry' },
+  { value: 'common', label: 'common' },
+  { value: 'quantity', label: 'quantity' },
+  { value: 'price', label: 'price' },
+  { value: 'expiry', label: 'expiry' },
 ];
 
 const isPricingRuleType = (value?: string): value is PricingRuleType =>
@@ -38,6 +39,7 @@ export const RulesInfo = ({
   activeStep,
   onSaveActionChange,
 }: RulesInfoProps) => {
+  const { t } = useTranslation('loyalty');
   const [searchParams, setSearchParams] = useSearchParams();
   const [saveActions, setSaveActions] = useState<
     Record<PricingRuleType, ReactNode | null>
@@ -100,13 +102,13 @@ export const RulesInfo = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Rules">
+      <InfoCard title={t('rules')}>
         <InfoCard.Content className="space-y-4">
           <Tabs value={currentRule} onValueChange={handleTabChange}>
             <Tabs.List className="w-fit">
               {RULE_TABS.map((tab) => (
                 <Tabs.Trigger key={tab.value} value={tab.value}>
-                  {tab.label}
+                  {t(tab.label)}
                 </Tabs.Trigger>
               ))}
             </Tabs.List>

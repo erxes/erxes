@@ -1,8 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SAFE_REMAINDER_ITEMS_BULK_EDIT } from '../graphql/safeRemainderChange';
 
 export const useSafeRemainderItemsBulkEdit = () => {
+  const { t } = useTranslation('accounting');
   const [bulkEdit, { loading }] = useMutation(SAFE_REMAINDER_ITEMS_BULK_EDIT);
 
   const bulkEditRemItems = (
@@ -14,14 +16,14 @@ export const useSafeRemainderItemsBulkEdit = () => {
       variables: { safeRemainderId, productsData, duplicateRule },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
+          title: t('success'),
           description: `${data.safeRemainderItemsBulkEdit} item(s) updated`,
           variant: 'success',
         });

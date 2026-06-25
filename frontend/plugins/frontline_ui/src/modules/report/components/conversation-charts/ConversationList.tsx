@@ -14,6 +14,7 @@ import { ConversationListItem } from '@/report/types';
 import { formatDate } from 'date-fns';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   IconMessageShare,
   IconDownload,
@@ -57,6 +58,7 @@ export const ConversationList = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationListProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
   const [sourceFilter, setSourceFilter] = useAtom(
@@ -190,7 +192,7 @@ export const ConversationList = ({
           className="size-7"
           onClick={handleExport}
           disabled={exporting}
-          title="Export Excel"
+          title={t('export-excel')}
         >
           <IconDownload className="size-3.5" />
         </Button>
@@ -227,7 +229,7 @@ export const ConversationList = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>
               {error.message || 'Failed to load conversation list'}
             </Alert.Description>
@@ -296,6 +298,7 @@ const Pagination = memo(function Pagination({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const { t } = useTranslation('frontline');
   if (totalPages <= 1) return null;
   const from = (page - 1) * PER_PAGE + 1;
   const to = Math.min(page * PER_PAGE, totalCount);
@@ -313,7 +316,7 @@ const Pagination = memo(function Pagination({
           disabled={page <= 1}
         >
           <IconChevronLeft className="size-4" />
-          Prev
+          {t('prev')}
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
@@ -324,7 +327,7 @@ const Pagination = memo(function Pagination({
           onClick={onNext}
           disabled={page >= totalPages}
         >
-          Next
+          {t('next')}
           <IconChevronRight className="size-4" />
         </Button>
       </div>

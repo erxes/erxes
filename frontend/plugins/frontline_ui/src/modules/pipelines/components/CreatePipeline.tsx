@@ -19,8 +19,10 @@ import { PipelineHotkeyScope } from '@/pipelines/types/PipelineHotkeyScope';
 import { useNavigate } from 'react-router';
 import { CreatePipelineForm } from './CreatePipelineForm';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const CreatePipeline = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string }>();
 
   const form = useForm<TCreatePipelineForm>({
@@ -73,14 +75,14 @@ export const CreatePipeline = () => {
         onCompleted: (data) => {
           form.reset();
           _setOpen(false);
-          toast({ title: 'Success!' });
+          toast({ title: t('success') });
           navigate(
             `/settings/frontline/channels/${channelId}/pipelines/${data.createPipeline._id}`,
           );
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -94,7 +96,7 @@ export const CreatePipeline = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Create pipeline
+          {t('create-pipeline')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -105,7 +107,7 @@ export const CreatePipeline = () => {
             onSubmit={form.handleSubmit(submitHandler)}
           >
             <Sheet.Header>
-              <Sheet.Title>Add pipeline</Sheet.Title>
+              <Sheet.Title>{t('add-pipeline')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -113,9 +115,9 @@ export const CreatePipeline = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'secondary'} onClick={onClose}>
-                Cancel
+                {t('cancel')}
               </Button>
-              <Button type="submit">Create</Button>
+              <Button type="submit">{t('create')}</Button>
             </Sheet.Footer>
           </form>
         </Form>

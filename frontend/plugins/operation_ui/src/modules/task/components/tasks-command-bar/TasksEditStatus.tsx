@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconChevronRight, IconProgressCheck } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
@@ -9,6 +10,7 @@ export const TasksEditStatusTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item
       className="flex justify-between"
@@ -18,7 +20,7 @@ export const TasksEditStatusTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconProgressCheck className="size-4" />
-        Change Status
+        {t('change-status')}
       </div>
       <IconChevronRight />
     </Command.Item>

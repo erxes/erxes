@@ -2,8 +2,10 @@ import { IconChevronRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { IChannel } from '@/channels/types';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { useTranslation } from 'react-i18next';
 
 export const ResponseSection = ({ channel }: { channel: IChannel }) => {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const { totalCount } = useGetResponses({
     variables: { filter: { channelId: channel._id, limit: 1 } },
@@ -20,11 +22,11 @@ export const ResponseSection = ({ channel }: { channel: IChannel }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>Manage channel response templates</p>
+          <p>{t('manage-channel-response-templates')}</p>
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              {count} {count === 1 ? 'response' : 'responses'}
+              {t('response', { count })}
             </p>
             <IconChevronRight className="w-4 h-4" />
           </div>

@@ -4,6 +4,7 @@ import { useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
 import { IconExternalLink, IconListDetails } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { IScoreLog } from '../types/score';
 import { scoreDetailRecordAtom } from '../states/scoreDetail';
 
@@ -33,6 +34,7 @@ export const ScoreMoreColumnCell = ({
   const record = cell.row.original;
   const { ownerId, ownerType } = record;
 
+  const { t } = useTranslation('loyalty');
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleSeeProfile = () => {
@@ -61,7 +63,7 @@ export const ScoreMoreColumnCell = ({
               disabled={!ownerId}
             >
               <IconListDetails size={14} />
-              Detail
+              {t('detail')}
             </Command.Item>
             <Command.Item
               value="see-profile"
@@ -69,7 +71,7 @@ export const ScoreMoreColumnCell = ({
               disabled={!ownerId}
             >
               <IconExternalLink size={14} />
-              See Profile
+              {t('see-profile')}
             </Command.Item>
           </Command.List>
         </Command>

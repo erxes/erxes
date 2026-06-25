@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
 import { useAtom, atom } from 'jotai';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { mutations } from '../../graphql';
 import {
@@ -27,6 +28,7 @@ export const useCheckCategory = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
   const { syncCategories: syncCategoriesAction, loading: syncLoading } =
     useSyncCategory();
@@ -91,14 +93,14 @@ export const useCheckCategory = () => {
         setItems(nextItems);
 
         toast({
-          title: 'Success',
-          description: 'MS Dynamic categories checked successfully',
+          title: t('success'),
+          description: t('categories-checked-successfully'),
         });
       }
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to check MS Dynamic categories',
+        title: t('error'),
+        description: t('failed-to-check-categories'),
         variant: 'destructive',
       });
     } finally {

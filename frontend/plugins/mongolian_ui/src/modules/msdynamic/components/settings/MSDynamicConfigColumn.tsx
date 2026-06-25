@@ -127,34 +127,36 @@ export const MSDynamicStageCell = ({
   );
 };
 
-export const msDynamicConfigColumns: ColumnDef<MSMDynamicConfigRow>[] = [
+export const getMsDynamicConfigColumns = (
+  t: (key: string) => string,
+): ColumnDef<MSMDynamicConfigRow>[] => [
   msDynamicMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<MSMDynamicConfigRow>,
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconSettings} label="Title" />,
+    header: () => <RecordTable.InlineHead icon={IconSettings} label={t('title')} />,
     cell: ({ cell }) => <MSDynamicConfigTitleCell cell={cell} />,
     size: 240,
   },
   {
     id: 'boardId',
     accessorKey: 'boardId',
-    header: () => <RecordTable.InlineHead icon={IconBuildingStore} label="Board" />,
+    header: () => <RecordTable.InlineHead icon={IconBuildingStore} label={t('board')} />,
     cell: ({ cell }) => <MSDynamicBoardCell cell={cell} />,
     size: 220,
   },
   {
     id: 'pipelineId',
     accessorKey: 'pipelineId',
-    header: () => <RecordTable.InlineHead icon={IconSitemap} label="Pipeline" />,
+    header: () => <RecordTable.InlineHead icon={IconSitemap} label={t('pipeline')} />,
     cell: ({ cell }) => <MSDynamicPipelineCell cell={cell} />,
     size: 220,
   },
   {
     id: 'stageId',
     accessorKey: 'stageId',
-    header: () => <RecordTable.InlineHead icon={IconSitemap} label="Stage" />,
+    header: () => <RecordTable.InlineHead icon={IconSitemap} label={t('stage')} />,
     cell: ({ cell }) => <MSDynamicStageCell cell={cell} />,
     size: 220,
   },

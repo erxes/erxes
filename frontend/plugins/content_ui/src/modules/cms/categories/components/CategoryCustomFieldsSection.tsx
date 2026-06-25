@@ -76,7 +76,6 @@ export const CategoryCustomFieldsSection = <
             value={getCustomFieldValue(field._id)}
             onChange={(value) => {
               updateCustomFieldValue(field._id, value);
-              // Clear error when user starts typing
               if (error) {
                 form.clearErrors(`customFieldsData.${field._id}` as any);
               }

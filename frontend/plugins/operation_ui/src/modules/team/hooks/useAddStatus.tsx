@@ -2,9 +2,11 @@ import { useMutation, MutationHookOptions } from '@apollo/client';
 import { ADD_STATUS } from '../graphql/mutations/addStatus';
 import { GET_STATUSES_BY_TYPE } from '../graphql/queries/getStatusesByType';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 
 export const useAddStatus = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [_addStatus, { loading, error }] = useMutation(ADD_STATUS);
   const addStatus = (options: MutationHookOptions) => {
@@ -36,7 +38,7 @@ export const useAddStatus = () => {
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });

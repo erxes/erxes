@@ -1,6 +1,7 @@
 import { IconCrane, IconTrashX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Button, Label, RecordTable, Spinner, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
@@ -19,6 +20,7 @@ import { SafeRemDetailCommandbar } from './SafeRemainderDetailCommandbar';
 import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 
 export const SafeRemainderDetailTr = () => {
+  const { t } = useTranslation('accounting');
   const [id] = useQueryState<string>('id');
 
   const { safeRemainder, loading } = useSafeRemainderDetail({
@@ -58,7 +60,7 @@ export const SafeRemainderDetailTr = () => {
           <>
             <Button onClick={() => submitSafeRemainder(id)}>
               <IconCrane />
-              Submit
+              {t('submit')}
             </Button>
             <Button
               variant="secondary"
@@ -66,7 +68,7 @@ export const SafeRemainderDetailTr = () => {
               onClick={() => removeSafeRemainder({ variables: { _id: id } })}
             >
               <IconTrashX />
-              Delete
+              {t('delete')}
             </Button>
           </>
         );
@@ -75,7 +77,7 @@ export const SafeRemainderDetailTr = () => {
           <>
             <Button onClick={() => doTrSafeRemainder(id)}>
               <IconCrane />
-              Do Transaction
+              {t('do-transaction')}
             </Button>
             <Button
               variant="secondary"
@@ -83,7 +85,7 @@ export const SafeRemainderDetailTr = () => {
               onClick={() => cancelSafeRemainder(id)}
             >
               <IconTrashX />
-              Cancel Submition
+              {t('cancel-submition')}
             </Button>
           </>
         );
@@ -93,7 +95,7 @@ export const SafeRemainderDetailTr = () => {
           <>
             <Button onClick={() => doTrSafeRemainder(id)}>
               <IconCrane />
-              ReDo Transaction
+              {t('redo-transaction')}
             </Button>
             <Button
               variant="secondary"
@@ -101,7 +103,7 @@ export const SafeRemainderDetailTr = () => {
               onClick={() => undoTrSafeRemainder(id)}
             >
               <IconTrashX />
-              Undo transaction
+              {t('undo-transaction')}
             </Button>
           </>
         );
@@ -113,13 +115,13 @@ export const SafeRemainderDetailTr = () => {
   return (
     <>
       <div className="m-3 flex-auto">
-        <h3 className="text-lg font-bold">Inventory Census Detail</h3>
+        <h3 className="text-lg font-bold">{t('inventory-census-detail')}</h3>
         <div className="flex items-center col-span-2 xl:col-span-3 gap-6">
           <div>
             {safeRemainder && <StatusBar safeRemainder={safeRemainder} />}
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-accent-foreground">Status:</span>
+            <span className="text-accent-foreground">{t('status')}:</span>
             <span className="text-primary font-bold">
               {safeRemainder?.status}
             </span>
@@ -158,22 +160,23 @@ export const SafeRemainderDetailTr = () => {
 };
 
 const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
+  const { t } = useTranslation('accounting');
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
       <div className="flex items-center gap-2 text-sm">
-        <Label>Date:</Label>
+        <Label>{t('date')}:</Label>
         <span>{dayjs(safeRemainder.date).format('YYYY-MM-DD HH:mm:ss')}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Label>Branch:</Label>
+        <Label>{t('branch')}:</Label>
         <span>{`${safeRemainder.branch?.code ?? ''} - ${
           safeRemainder.branch?.title ?? ''
         }`}</span>
         <span className="text-accent-foreground">{'|'}</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Label>Department:</Label>
+        <Label>{t('department')}:</Label>
         <span>{`${safeRemainder.department?.code ?? ''} - ${
           safeRemainder.department?.title ?? ''
         }`}</span>
@@ -181,7 +184,7 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
       </div>
       {safeRemainder.productCategoryId && (
         <div className="flex items-center gap-2 text-sm">
-          <Label>Product Category:</Label>
+          <Label>{t('product-category')}:</Label>
           <span>{`${safeRemainder.productCategory?.code ?? ''} - ${
             safeRemainder.productCategory?.name ?? ''
           }`}</span>
@@ -189,7 +192,7 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
         </div>
       )}
       <div className="flex items-center gap-2 text-sm">
-        <Label>Description:</Label>
+        <Label>{t('description')}:</Label>
         <span>{safeRemainder.description}</span>
       </div>
     </div>

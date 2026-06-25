@@ -1,6 +1,7 @@
 import { Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectBrand, SelectMember } from 'ui-modules';
 import { IconCalendar } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   CHECK_ORDER_FILTER_KEYS,
   ICheckOrderFilterField,
@@ -17,19 +18,20 @@ interface IMSDynamicCheckOrderTextFilterBarItemProps {
 
 /** Date range filter bar item-uud gargana. */
 const MSDynamicCheckOrderDateFilterBarItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <>
       <Filter.BarItem queryKey="paidDateRange">
         <Filter.BarName>
           <IconCalendar />
-          Paid Date Range
+          {t('paid-date-range')}
         </Filter.BarName>
         <Filter.Date filterKey="paidDateRange" />
       </Filter.BarItem>
       <Filter.BarItem queryKey="createdAtRange">
         <Filter.BarName>
           <IconCalendar />
-          Created Date Range
+          {t('created-date-range')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAtRange" />
       </Filter.BarItem>
@@ -42,13 +44,14 @@ export const MSDynamicCheckOrderTextFilterBarItem = ({
   field,
   value,
 }: IMSDynamicCheckOrderTextFilterBarItemProps) => {
+  const { t } = useTranslation('mongolian');
   const { Icon, key, label } = field;
 
   return (
     <Filter.BarItem queryKey={key}>
       <Filter.BarName>
         <Icon />
-        {label}
+        {t(label)}
       </Filter.BarName>
       <Filter.BarButton filterKey={key} inDialog>
         {value}

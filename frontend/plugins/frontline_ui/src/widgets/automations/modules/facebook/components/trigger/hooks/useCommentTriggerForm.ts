@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
 import { useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationTriggerFormProps,
   useFormValidationErrorHandler,
@@ -17,6 +18,7 @@ export const useCommentTriggerForm = ({
   AutomationTriggerFormProps<TCommentTriggerForm>,
   'formRef' | 'activeTrigger' | 'onSaveTriggerConfig'
 >) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<TCommentTriggerForm>({
     resolver: zodResolver(commentTriggerSchema),
     defaultValues: { postType: 'specific', ...(activeTrigger?.config || {}) },

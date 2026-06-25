@@ -13,6 +13,7 @@ import {
   Command,
   useConfirm,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { useAccountEdit } from '../hooks/useAccountEdit';
 import { useAccountsRemove } from '../hooks/useAccountsRemove';
@@ -90,6 +91,7 @@ export const AccountMoreColumnCell = ({
 }: {
   cell: Cell<IAccount, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState('accountId');
   const { confirm } = useConfirm();
   const { removeAccounts } = useAccountsRemove();
@@ -100,10 +102,10 @@ export const AccountMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete this account?',
+      message: t('are-you-sure-delete-this-account'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeAccounts({
@@ -120,10 +122,10 @@ export const AccountMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

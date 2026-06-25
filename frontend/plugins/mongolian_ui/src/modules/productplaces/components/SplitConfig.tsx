@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { Button, Input, Label, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectSalesBoard } from '../selects/SelectSalesBoard';
 import { SelectPipeline } from '../selects/SelectPipeline';
 import { SelectStage } from '../selects/SelectStage';
@@ -53,6 +54,7 @@ const emptyForm: SplitConfigData = {
 };
 
 const SplitConfig: React.FC = () => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
   const [savedConfigs, setSavedConfigs] = useState<SplitConfigData[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -100,8 +102,8 @@ const SplitConfig: React.FC = () => {
       if (_id) {
         await updateConfig({ variables: { _id, value: valueArray } });
         toast({
-          title: 'Success',
-          description: 'Configuration updated successfully',
+          title: t('success'),
+          description: t('configuration-updated'),
           variant: 'default',
         });
       } else {
@@ -113,8 +115,8 @@ const SplitConfig: React.FC = () => {
           },
         });
         toast({
-          title: 'Success',
-          description: 'Configuration created successfully',
+          title: t('success'),
+          description: t('configuration-created'),
           variant: 'default',
         });
       }
@@ -123,8 +125,8 @@ const SplitConfig: React.FC = () => {
       setFormData(emptyForm);
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error?.message || 'Failed to save configuration',
+        title: t('error'),
+        description: error?.message || t('failed-to-save-configuration'),
         variant: 'destructive',
       });
     } finally {
@@ -141,16 +143,16 @@ const SplitConfig: React.FC = () => {
     try {
       await deleteConfig({ variables: { _id: config._id } });
       toast({
-        title: 'Success',
-        description: 'Configuration deleted successfully',
+        title: t('success'),
+        description: t('configuration-deleted'),
         variant: 'default',
       });
       setActiveIndex(null);
       setFormData(emptyForm);
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error?.message || 'Failed to delete configuration',
+        title: t('error'),
+        description: error?.message || t('failed-to-delete-configuration'),
         variant: 'destructive',
       });
     } finally {
@@ -166,7 +168,7 @@ const SplitConfig: React.FC = () => {
   return (
     <div className="w-full h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
-        <ConfigHeader title="Split Configuration" onNew={handleNew} />
+        <ConfigHeader title={t('split-configuration')} onNew={handleNew} />
         <SavedConfigsList
           configs={savedConfigs}
           activeIndex={activeIndex}
@@ -174,9 +176,9 @@ const SplitConfig: React.FC = () => {
         />
         <div className="bg-white rounded-xl border p-6 space-y-6">
           <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium">Title</Label>
+            <Label className="text-sm font-medium">{t('title')}</Label>
             <Input
-              placeholder="Enter configuration title"
+              placeholder={t('enter-configuration-title')}
               value={formData.title}
               onChange={(e) => updateField('title', e.target.value)}
             />
@@ -184,7 +186,7 @@ const SplitConfig: React.FC = () => {
 
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium">Board</Label>
+              <Label className="text-sm font-medium">{t('board')}</Label>
               <SelectSalesBoard
                 variant="form"
                 value={formData.boardId || ''}
@@ -193,7 +195,7 @@ const SplitConfig: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium">Pipeline</Label>
+              <Label className="text-sm font-medium">{t('pipeline')}</Label>
               <SelectPipeline
                 variant="form"
                 boardId={formData.boardId || ''}
@@ -203,7 +205,7 @@ const SplitConfig: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium">Stage</Label>
+              <Label className="text-sm font-medium">{t('stage')}</Label>
               <SelectStage
                 id="split-stage"
                 variant="form"
@@ -217,7 +219,7 @@ const SplitConfig: React.FC = () => {
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
                 <Label className="text-sm font-medium">
-                  Include Categories
+                  {t('include-categories')}
                 </Label>
                 <SelectCategory
                   mode="multiple"
@@ -232,7 +234,7 @@ const SplitConfig: React.FC = () => {
               </div>
               <div className="flex flex-col gap-2">
                 <Label className="text-sm font-medium">
-                  Exclude Categories
+                  {t('exclude-categories')}
                 </Label>
                 <SelectCategory
                   mode="multiple"
@@ -246,7 +248,7 @@ const SplitConfig: React.FC = () => {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">Include Tags</Label>
+                <Label className="text-sm font-medium">{t('include-tags')}</Label>
                 <SelectProductTags
                   value={formData.productTagIds}
                   onValueChange={(v) => updateField('productTagIds', v)}
@@ -255,21 +257,21 @@ const SplitConfig: React.FC = () => {
             </div>
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">Exclude Tags</Label>
+                <Label className="text-sm font-medium">{t('exclude-tags')}</Label>
                 <SelectProductTags
                   value={formData.excludeTagIds}
                   onValueChange={(v) => updateField('excludeTagIds', v)}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">Exclude Products</Label>
+                <Label className="text-sm font-medium">{t('exclude-products')}</Label>
                 <SelectProducts
                   value={formData.excludeProductIds}
                   onValueChange={(v) => updateField('excludeProductIds', v)}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">Segment</Label>
+                <Label className="text-sm font-medium">{t('segment')}</Label>
                 <SelectSegments
                   contentTypes={['core:product']}
                   value={getSingle(formData.segmentIds)}
@@ -289,7 +291,7 @@ const SplitConfig: React.FC = () => {
               disabled={loading}
               className="text-xs"
             >
-              Delete Config
+              {t('delete-config')}
             </Button>
           )}
           <div className="flex gap-3 ml-auto">
@@ -299,10 +301,10 @@ const SplitConfig: React.FC = () => {
               disabled={loading}
               className="text-xs"
             >
-              Clear
+              {t('clear')}
             </Button>
             <Button onClick={handleSave} disabled={loading} className="text-xs">
-              {loading ? 'Saving...' : 'Save Config'}
+              {loading ? t('saving') : t('save-config')}
             </Button>
           </div>
         </div>

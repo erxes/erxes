@@ -3,13 +3,17 @@ import { Button, Tabs } from 'erxes-ui';
 import { ACTIVITY_TYPES } from './constants';
 import ActivityList from './AcitivityList';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ActivityLogs = () => {
+  const { t } = useTranslation('sales');
   const [activeType, setActiveType] = useState<string>('All');
+
+  const getTypeKey = (type: string) => type.toLowerCase().replace(/\s+/g, '-');
 
   return (
     <div className="px-8 py-4">
-      <h4 className="uppercase text-sm text-gray-500 pb-2">Activity</h4>
+      <h4 className="uppercase text-sm text-gray-500 pb-2">{t('activity')}</h4>
       <Tabs
         defaultValue={activeType}
         className="flex flex-col h-full shadow-none border-none items-start"
@@ -22,7 +26,7 @@ const ActivityLogs = () => {
                 className="data-[state=active]:bg-background"
                 onClick={() => setActiveType(type)}
               >
-                {type}
+                {t(getTypeKey(type))}
               </Button>
             </Tabs.Trigger>
           ))}

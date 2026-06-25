@@ -1,5 +1,6 @@
 import { IconList } from '@tabler/icons-react';
 import { Checkbox, cn, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePersistentMenus } from '../../hooks/usePersistentMenus';
 import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
 
@@ -17,6 +18,7 @@ export const PersistentMenuSelector = ({
   selectedPersistentMenuIds = [],
   onConditionChange,
 }: Props) => {
+  const { t } = useTranslation('frontline');
   const { persistentMenus, loading } = usePersistentMenus(botId);
   const selectablePersistentMenus = persistentMenus.filter(
     ({ type }) => type === 'button',
@@ -30,10 +32,9 @@ export const PersistentMenuSelector = ({
     return (
       <div className="flex justify-center text-muted-foreground">
         <IconList className="h-6 w-6" />
-        <p>No selectable persistent menus in selected bot</p>
+        <p>{t('no-persistent-menus')}</p>
         <span>
-          Link, Talk to human, and Back menu items can't be selected as
-          automation trigger conditions
+          {t('persistent-menu-link-note')}
         </span>
       </div>
     );

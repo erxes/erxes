@@ -1,14 +1,16 @@
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { PostsDelete } from './delete/RemovePosts';
 
 export const PostsCommandbar = ({ refetch }: { refetch?: () => void }) => {
+  const { t } = useTranslation('content');
   const { table } = RecordTable.useRecordTable();
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('x-selected', { count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <PostsDelete

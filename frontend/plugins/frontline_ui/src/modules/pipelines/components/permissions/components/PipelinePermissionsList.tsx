@@ -8,6 +8,7 @@ import {
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
@@ -23,6 +24,7 @@ import { PipelineVisibility } from './PipelineVisibility';
 import { VISIBILITY_RULES } from '../constant';
 
 export const PipelinePermissionsList = memo(() => {
+  const { t } = useTranslation('frontline');
   const { pipelineId } = useParams<{ pipelineId: string }>();
 
   const { pipeline, loading: pipelineLoading } = useGetPipeline(pipelineId);
@@ -173,8 +175,8 @@ export const PipelinePermissionsList = memo(() => {
       <div className="flex flex-col h-full min-h-0">
         <InfoCard
           className="flex flex-col flex-1 min-h-0"
-          title="Pipeline Permissions"
-          description="Configure who can view and manage tickets"
+          title={t('pipeline-permissions')}
+          description={t('pipeline-permissions-description')}
         >
           <InfoCard.Content
             className="flex-1 overflow-y-auto p-0 pb-24"
@@ -183,9 +185,9 @@ export const PipelinePermissionsList = memo(() => {
             <div className="divide-y">
               <section className="p-6 space-y-6">
                 <div>
-                  <h3 className="text-base font-semibold">Visibility Rules</h3>
+                  <h3 className="text-base font-semibold">{t('visibility-rules')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Control ticket visibility inside this pipeline
+                    {t('control-ticket-visibility')}
                   </p>
                 </div>
 
@@ -198,8 +200,8 @@ export const PipelinePermissionsList = memo(() => {
                       render={({ field }) => (
                         <PermissionCheckbox
                           field={field}
-                          title={rule.title}
-                          description={rule.description}
+                          title={t(rule.title)}
+                          description={t(rule.description)}
                         />
                       )}
                     />
@@ -207,7 +209,7 @@ export const PipelinePermissionsList = memo(() => {
                 </div>
                 {myTicketsOnly && (
                   <section className="p-6 bg-muted/20 space-y-4">
-                    <h3 className="text-base font-semibold">User Access</h3>
+                    <h3 className="text-base font-semibold">{t('user-access')}</h3>
 
                     <Form.Field
                       control={form.control}
@@ -222,7 +224,7 @@ export const PipelinePermissionsList = memo(() => {
                         >
                           <PopoverScoped>
                             <Combobox.Trigger className="w-full h-10 rounded-lg border bg-background">
-                              <SelectMember.Value placeholder="Select team members" />
+                              <SelectMember.Value placeholder={t('select-team-members')} />
                             </Combobox.Trigger>
                             <Combobox.Content>
                               <SelectMember.Content />
@@ -235,7 +237,7 @@ export const PipelinePermissionsList = memo(() => {
                 )}
                 <div className="pt-6 border-t">
                   <h4 className="text-sm font-medium mb-4">
-                    Pipeline Visibility
+                    {t('pipeline-visibility')}
                   </h4>
                   <PipelineVisibility control={form.control} />
                 </div>
@@ -244,7 +246,7 @@ export const PipelinePermissionsList = memo(() => {
               {statuses?.length > 0 && (
                 <section className="p-6 space-y-4">
                   <h3 className="text-base font-semibold">
-                    Status Permissions
+                    {t('status-permissions')}
                   </h3>
 
                   <div className="grid gap-4">
@@ -277,11 +279,8 @@ export const PipelinePermissionsList = memo(() => {
                         }}
                       >
                         {visibleStatusCount >= statuses.length
-                          ? 'Show Less'
-                          : `Show ${Math.min(
-                              5,
-                              statuses.length - visibleStatusCount,
-                            )} More`}
+                          ? t('show-less')
+                          : t('show-n-more', { count: Math.min(5, statuses.length - visibleStatusCount) })}
                       </Button>
                     </div>
                   )}

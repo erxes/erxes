@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { cn, Form, Select, Switch, toast } from 'erxes-ui';
 import { useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationTriggerFormProps,
   useFormValidationErrorHandler,
@@ -35,8 +36,8 @@ const formSchema = z.object({
 });
 
 const POST_TYPES = [
-  { label: 'Specific post', value: 'specific' },
-  { label: 'Any post', value: 'any' },
+  { label: 'specific-post', value: 'specific' },
+  { label: 'any-post', value: 'any' },
 ];
 
 export const CommentTriggerForm = ({
@@ -44,6 +45,7 @@ export const CommentTriggerForm = ({
   activeTrigger,
   onSaveTriggerConfig,
 }: AutomationTriggerFormProps) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { postType: 'specific', ...(activeTrigger.config || {}) },
@@ -82,7 +84,7 @@ export const CommentTriggerForm = ({
             name="postType"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Type</Form.Label>
+                <Form.Label>{t('type')}</Form.Label>
                 <Form.Control>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
@@ -91,7 +93,7 @@ export const CommentTriggerForm = ({
                     <Select.Content>
                       {POST_TYPES.map(({ label, value }) => (
                         <Select.Item key={value} value={value}>
-                          {label}
+                          {t(label)}
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -120,7 +122,7 @@ export const CommentTriggerForm = ({
             name="onlyFirstLevel"
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
-                <Form.Label>Track first level comments only</Form.Label>
+                <Form.Label>{t('track-first-level-comments')}</Form.Label>
                 <Form.Control>
                   <Switch
                     checked={field.value}
@@ -136,7 +138,7 @@ export const CommentTriggerForm = ({
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
                 <Form.Label>
-                  Check comment text contains with keywords
+                  {t('check-comment-text-keywords')}
                 </Form.Label>
                 <Form.Control>
                   <Switch

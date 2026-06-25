@@ -26,6 +26,7 @@ import {
 } from '@apollo/client';
 
 import { IPipeline } from '@/deals/types/pipelines';
+import { useTranslation } from 'react-i18next';
 
 const PIPELINES_PER_PAGE = 20;
 
@@ -78,6 +79,7 @@ export const usePipelines = (
 export const usePipelineRemove = (
   options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
 ) => {
+  const { t } = useTranslation('sales');
   const [removePipeline, { loading, error }] = useMutation(REMOVE_PIPELINE, {
     ...options,
     variables: {
@@ -87,15 +89,15 @@ export const usePipelineRemove = (
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: 'Successfully removed a pipeline',
+        title: t('pipeline-removed'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Remove failed',
+        title: t('error'),
+        description: err.message || t('remove-failed'),
         variant: 'destructive',
       });
     },
@@ -172,6 +174,7 @@ export const usePipelineEdit = () => {
 export const usePipelineArchive = (
   options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
 ) => {
+  const { t } = useTranslation('sales');
   const [archivePipeline, { loading, error }] = useMutation(ARCHIVE_PIPELINE, {
     ...options,
     variables: {
@@ -181,7 +184,7 @@ export const usePipelineArchive = (
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
-        title: 'Pipeline archived successfully',
+        title: t('pipeline-archived'),
       });
     },
     onError: (error) => {
@@ -202,6 +205,7 @@ export const usePipelineArchive = (
 export const usePipelineCopy = (
   options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
 ) => {
+  const { t } = useTranslation('sales');
   const [copyPipeline, { loading, error }] = useMutation(COPY_PIPELINE, {
     ...options,
     variables: {
@@ -211,7 +215,7 @@ export const usePipelineCopy = (
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({
-        title: 'Pipeline copied successfully',
+        title: t('pipeline-copied'),
       });
     },
     onError: (error) => {
@@ -232,6 +236,7 @@ export const usePipelineCopy = (
 export const usePipelineUpdateOrder = (
   options?: MutationHookOptions<{ salesPipelines: IPipeline[] }>,
 ) => {
+  const { t } = useTranslation('sales');
   const [updatePipelineOrder, { loading, error }] = useMutation(
     UPDATE_PIPELINE_ORDER,
     {
@@ -243,7 +248,7 @@ export const usePipelineUpdateOrder = (
       awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
-          title: 'Pipeline order updated successfully',
+          title: t('pipeline-order-updated'),
         });
       },
       onError: (error) => {
@@ -263,6 +268,7 @@ export const usePipelineUpdateOrder = (
 };
 
 export const usePipelinesBulkRemove = () => {
+  const { t } = useTranslation('sales');
   const [_removePipeline, { loading }] = useMutation(REMOVE_PIPELINE);
   const client = useApolloClient();
 
@@ -277,7 +283,7 @@ export const usePipelinesBulkRemove = () => {
             // Don't refetch individually, let bulk operation handle it
             onCompleted: () => {
               toast({
-                title: 'Pipelines removed successfully',
+                title: t('pipelines-removed'),
               });
             },
           }),
@@ -286,20 +292,20 @@ export const usePipelinesBulkRemove = () => {
 
       const failures = results.filter((result) => result.status === 'rejected');
       if (failures.length > 0) {
-        throw new Error(`Failed to delete ${failures.length} pipelines`);
+        throw new Error(t('failed-to-delete-pipelines', { count: failures.length }));
       }
 
       // Single refetch after all operations complete
       client.refetchQueries({ include: ['SalesPipelines'] });
 
       toast({
-        title: 'Success',
+        title: t('success'),
         variant: 'success',
-        description: 'Pipelines deleted successfully',
+        description: t('pipelines-deleted'),
       });
     } catch (e: any) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });

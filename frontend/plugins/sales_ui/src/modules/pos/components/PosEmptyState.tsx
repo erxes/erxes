@@ -1,6 +1,7 @@
 import { IconCashRegister, IconSettings } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface PosEmptyStateProps {
   isCreate?: boolean;
@@ -11,6 +12,7 @@ export const PosEmptyState = ({
   isCreate,
   onCreatePos,
 }: PosEmptyStateProps) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
       <IconCashRegister
@@ -19,20 +21,20 @@ export const PosEmptyState = ({
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No POS yet
+        {t('no-pos-yet')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">
-        Create a POS to start managing your sales.
+        {t('create-pos-description')}
       </p>
       {isCreate ? (
         <Button variant="default" onClick={onCreatePos}>
-          Create POS
+          {t('pos-create')}
         </Button>
       ) : (
         <Button variant="outline" asChild>
           <Link to="/settings/sales/pos">
             <IconSettings />
-            Go to settings
+            {t('go-to-settings')}
           </Link>
         </Button>
       )}

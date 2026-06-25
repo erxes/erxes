@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Form, Input, Sheet, Spinner, useToast } from 'erxes-ui';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -115,6 +116,7 @@ export const TourDuplicateSheet = ({
   open,
   onOpenChange,
 }: TourDuplicateSheetProps) => {
+  const { t } = useTranslation('tourism');
   const { tourDetail, loading: detailLoading } = useTourDetail({
     variables: { id: tourId },
     skip: !open,
@@ -127,7 +129,7 @@ export const TourDuplicateSheet = ({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <Sheet.View className="w-[400px] sm:max-w-[400px] p-0">
           <Sheet.Header>
-            <Sheet.Title>Duplicate tour</Sheet.Title>
+            <Sheet.Title>{t('duplicate-tour')}</Sheet.Title>
           </Sheet.Header>
           <Sheet.Content className="flex items-center justify-center py-12">
             <Spinner />
@@ -192,6 +194,7 @@ const FixedDuplicateSheet = ({
   open,
   onOpenChange,
 }: InnerSheetProps) => {
+  const { t } = useTranslation('tourism');
   const { createTour, loading } = useCreateTour();
   const { toast } = useToast();
   const today = useMemo(() => new Date(), []);
@@ -266,8 +269,8 @@ const FixedDuplicateSheet = ({
   const handleSubmit = async (values: FixedFormType) => {
     if (!branchId) {
       toast({
-        title: 'Error',
-        description: 'Branch not selected — cannot duplicate tour',
+        title: t('error'),
+        description: t('branch-not-selected'),
         variant: 'destructive',
       });
       return;
@@ -317,18 +320,18 @@ const FixedDuplicateSheet = ({
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: 'Tour duplicated successfully',
+          description: t('tour-duplicated-successfully'),
         });
         onOpenChange(false);
         form.reset();
       },
       onError: (e: unknown) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
-            e instanceof Error ? e.message : 'Failed to duplicate tour',
+            e instanceof Error ? e.message : t('failed-to-duplicate-tour'),
           variant: 'destructive',
         });
       },
@@ -344,7 +347,7 @@ const FixedDuplicateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Duplicate tour</Sheet.Title>
+              <Sheet.Title>{t('duplicate-tour')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -364,9 +367,9 @@ const FixedDuplicateSheet = ({
                   name={fieldPaths.name}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Name</Form.Label>
+                      <Form.Label>{t('name')}</Form.Label>
                       <Form.Control>
-                        <Input placeholder="Enter name" {...field} />
+                        <Input placeholder={t('enter-name')} {...field} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -379,9 +382,9 @@ const FixedDuplicateSheet = ({
                   name={fieldPaths.refNumber}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Ref number</Form.Label>
+                      <Form.Label>{t('ref-number-label')}</Form.Label>
                       <Form.Control>
-                        <Input placeholder="Enter ref number" {...field} />
+                        <Input placeholder={t('enter-ref-number')} {...field} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -393,7 +396,7 @@ const FixedDuplicateSheet = ({
                   name="startDate"
                   render={() => (
                     <Form.Item>
-                      <Form.Label>Start date</Form.Label>
+                      <Form.Label>{t('start-date')}</Form.Label>
                       <Form.Control>
                         <RHFDatePicker
                           control={form.control}
@@ -415,10 +418,10 @@ const FixedDuplicateSheet = ({
                 disabled={loading}
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Duplicating...' : 'Duplicate'}
+                {loading ? t('duplicating') : t('duplicate')}
               </Button>
             </Sheet.Footer>
           </form>
@@ -436,6 +439,7 @@ const FlexibleDuplicateSheet = ({
   open,
   onOpenChange,
 }: InnerSheetProps) => {
+  const { t } = useTranslation('tourism');
   const { createTour, loading } = useCreateTour();
   const { toast } = useToast();
   const today = useMemo(() => new Date(), []);
@@ -516,8 +520,8 @@ const FlexibleDuplicateSheet = ({
   const handleSubmit = async (values: FlexibleFormType) => {
     if (!branchId) {
       toast({
-        title: 'Error',
-        description: 'Branch not selected — cannot duplicate tour',
+        title: t('error'),
+        description: t('branch-not-selected'),
         variant: 'destructive',
       });
       return;
@@ -566,18 +570,18 @@ const FlexibleDuplicateSheet = ({
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: 'Tour duplicated successfully',
+          description: t('tour-duplicated-successfully'),
         });
         onOpenChange(false);
         form.reset();
       },
       onError: (e: unknown) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
-            e instanceof Error ? e.message : 'Failed to duplicate tour',
+            e instanceof Error ? e.message : t('failed-to-duplicate-tour'),
           variant: 'destructive',
         });
       },
@@ -593,7 +597,7 @@ const FlexibleDuplicateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Duplicate tour</Sheet.Title>
+              <Sheet.Title>{t('duplicate-tour')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -613,9 +617,9 @@ const FlexibleDuplicateSheet = ({
                   name={fieldPaths.name}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Name</Form.Label>
+                      <Form.Label>{t('name')}</Form.Label>
                       <Form.Control>
-                        <Input placeholder="Enter name" {...field} />
+                        <Input placeholder={t('enter-name')} {...field} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -628,9 +632,9 @@ const FlexibleDuplicateSheet = ({
                   name={fieldPaths.refNumber}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Ref number</Form.Label>
+                      <Form.Label>{t('ref-number-label')}</Form.Label>
                       <Form.Control>
-                        <Input placeholder="Enter ref number" {...field} />
+                        <Input placeholder={t('enter-ref-number')} {...field} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -642,7 +646,7 @@ const FlexibleDuplicateSheet = ({
                   name="availableFrom"
                   render={() => (
                     <Form.Item>
-                      <Form.Label>Available from</Form.Label>
+                      <Form.Label>{t('available-from-label')}</Form.Label>
                       <Form.Control>
                         <RHFDatePicker
                           control={form.control}
@@ -660,7 +664,7 @@ const FlexibleDuplicateSheet = ({
                   name="availableTo"
                   render={() => (
                     <Form.Item>
-                      <Form.Label>Available to</Form.Label>
+                      <Form.Label>{t('available-to')}</Form.Label>
                       <Form.Control>
                         <RHFDatePicker
                           control={form.control}
@@ -682,10 +686,10 @@ const FlexibleDuplicateSheet = ({
                 disabled={loading}
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Duplicating...' : 'Duplicate'}
+                {loading ? t('duplicating') : t('duplicate')}
               </Button>
             </Sheet.Footer>
           </form>
