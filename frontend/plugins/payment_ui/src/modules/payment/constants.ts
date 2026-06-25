@@ -232,6 +232,12 @@ export const PAYMENT_KINDS = {
     active: true,
     fields: [],
   },
+  [PaymentKind.TDB]: {
+    name: 'TDB',
+    description: 'Connect your TDB Corporate Gateway account.',
+    active: true,
+    fields: [],   
+  },
 };
 
 export const BANK_CODES = [

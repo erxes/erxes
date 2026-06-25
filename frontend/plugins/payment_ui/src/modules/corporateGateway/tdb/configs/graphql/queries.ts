@@ -2,8 +2,16 @@ import gql from 'graphql-tag';
 import { configFields } from './fragments';
 
 export const configs = gql`
-  query tdbConfigs($page: Int, $perPage: Int) {
-    tdbConfigs(page: $page, perPage: $perPage) {
+  query tdbConfigs {
+    tdbConfigs {
+      ${configFields}
+    }
+  }
+`;
+
+export const getConfig = gql`
+  query tdbConfigDetail($_id: String!) {
+    tdbConfigDetail(_id: $_id) {
       ${configFields}
     }
   }

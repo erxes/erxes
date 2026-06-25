@@ -11,4 +11,5 @@ export enum PaymentKind {
   STRIPE = 'stripe',
   TOKI = 'toki',
   KHANBANK = 'khanbank',
+  TDB = 'tdb',
 }
