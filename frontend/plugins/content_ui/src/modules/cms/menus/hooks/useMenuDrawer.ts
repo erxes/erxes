@@ -10,21 +10,19 @@ import {
   CMS_MENU_ADD,
   CMS_MENU_EDIT,
   CMS_MENU_LIST,
-} from '../../graphql/queries';
+  MENU_CATEGORIES_QUERY,
+  MENU_CUSTOM_TYPES_QUERY,
+  MENU_DETECT_QUERY,
+  MENU_PAGES_QUERY,
+  MENU_POSTS_QUERY,
+  MENU_TAGS_QUERY,
+} from '@/cms/menus/graphql';
 import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 import {
   buildFlatTree,
   getDepthPrefix,
   RawMenuItem,
 } from '@/cms/menus/utils/menuUtils';
-import {
-  MENU_PAGES_QUERY,
-  MENU_POSTS_QUERY,
-  MENU_CUSTOM_TYPES_QUERY,
-  MENU_CATEGORIES_QUERY,
-  MENU_TAGS_QUERY,
-  MENU_DETECT_QUERY,
-} from '../graphql/menuDrawerQueries';
 import {
   CmsConfig,
   GraphQLErrorEntry,

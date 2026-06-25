@@ -1,49 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const CMS_MENU_ADD = gql`
-  mutation cmsAddMenu($input: MenuItemInput!) {
-    cmsAddMenu(input: $input) {
-      _id
-      parentId
-      label
-      contentType
-      contentTypeId
-      linkType
-      kind
-      icon
-      url
-      order
-      target
-      __typename
-    }
-  }
-`;
-
-export const CMS_MENU_EDIT = gql`
-  mutation cmsEditMenu($_id: String!, $input: MenuItemInput!) {
-    cmsEditMenu(_id: $_id, input: $input) {
-      _id
-      parentId
-      label
-      contentType
-      contentTypeId
-      linkType
-      kind
-      icon
-      url
-      order
-      target
-      __typename
-    }
-  }
-`;
-
-export const CMS_MENU_REMOVE = gql`
-  mutation cmsRemoveMenu($_id: String!) {
-    cmsRemoveMenu(_id: $_id)
-  }
-`;
-
 export const CLIENT_PORTAL_REMOVE = gql`
   mutation ClientPortalRemove($_id: String!) {
     clientPortalRemove(_id: $_id)
@@ -719,44 +675,6 @@ export const PAGES_EDIT = gql`
 export const PAGES_REMOVE = gql`
   mutation PagesRemove($id: String!) {
     cmsPagesRemove(_id: $id)
-  }
-`;
-
-export const CMS_MENU_LIST = gql`
-  query cmsMenuList(
-    $clientPortalId: String
-    $kind: String
-    $language: String
-    $limit: Int
-    $cursor: String
-    $direction: CURSOR_DIRECTION
-    $orderBy: JSON
-  ) {
-    cmsMenuList(
-      clientPortalId: $clientPortalId
-      kind: $kind
-      language: $language
-      limit: $limit
-      cursor: $cursor
-      direction: $direction
-      orderBy: $orderBy
-    ) {
-      _id
-      parentId
-      label
-      contentType
-      contentTypeId
-      linkType
-      kind
-      icon
-      url
-      order
-      target
-      translations {
-        language
-      }
-      __typename
-    }
   }
 `;
 
