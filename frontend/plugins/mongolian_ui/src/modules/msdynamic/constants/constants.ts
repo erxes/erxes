@@ -39,6 +39,4 @@ export const KEY_LABELS: Record<string, string> = {
   boardId: 'Board',
   pipelineId: 'Pipeline',
   stageId: 'Stage',
-  posConf: 'POS config',
-  productUrl: 'Product URL',
 };
