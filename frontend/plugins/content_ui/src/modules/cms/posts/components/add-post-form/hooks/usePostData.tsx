@@ -1,5 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
+import type { MultiSelectOption } from 'erxes-ui';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CMS_CUSTOM_FIELD_GROUPS } from '@/cms/custom-fields/graphql';
 import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
@@ -47,10 +48,7 @@ interface IRawCategory {
   parentId?: string;
 }
 
-interface ICategoryOption {
-  label: string;
-  value: string;
-}
+type ICategoryOption = MultiSelectOption;
 
 interface IRawTag {
   _id: string;

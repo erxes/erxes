@@ -1,4 +1,4 @@
-import type { Posts } from './postsType';
+import type { UseFormReturn } from 'react-hook-form';
 
 export { Posts } from './postsType';
 export { PostsHotKeyScope } from './PostsHotKeyScope';
@@ -25,6 +25,92 @@ export interface AttachmentInput {
   duration?: number;
 }
 
+export interface PostFormThumbnail {
+  url: string;
+  name?: string;
+  type?: string;
+}
+
+export interface PostFormData {
+  title: string;
+  slug: string;
+  description?: string;
+  content?: string;
+  type?: string;
+  status?: PostStatus;
+  categoryIds?: string[];
+  tagIds?: string[];
+  featured?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  thumbnail?: string | PostFormThumbnail | null;
+  gallery?: string[];
+  video?: string | null;
+  videoUrl?: string;
+  audio?: string | null;
+  documents?: string[];
+  attachments?: string[];
+  pdf?: string | null;
+  publishDate?: Date | null;
+  scheduledDate?: Date | null;
+  autoArchiveDate?: Date | null;
+  enableAutoArchive?: boolean;
+  customFieldsData?: PostCustomFieldInput[];
+}
+
+export interface PostFormTranslation {
+  title: string;
+  content: string;
+  excerpt: string;
+  customFieldsData: PostCustomFieldInput[];
+}
+
+export type PostFormTranslations = Record<string, PostFormTranslation>;
+
+export interface PostFormPost {
+  _id: string;
+  count?: number;
+  clientPortalId?: string;
+  title?: string;
+  slug?: string;
+  content?: string;
+  description?: string;
+  excerpt?: string;
+  type?: string;
+  status?: PostStatus;
+  categoryIds?: string[];
+  tagIds?: string[];
+  categories?: { _id: string }[];
+  tags?: { _id: string }[];
+  featured?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  thumbnail?: PostFormThumbnail | null;
+  images?: AttachmentInput[];
+  video?: AttachmentInput;
+  audio?: AttachmentInput;
+  videoUrl?: string;
+  documents?: AttachmentInput[];
+  attachments?: AttachmentInput[];
+  pdf?: string | null;
+  pdfAttachment?: {
+    pdf?: AttachmentInput;
+    pages?: AttachmentInput[];
+  };
+  publishedDate?: string | Date | null;
+  scheduledDate?: string | Date | null;
+  autoArchiveDate?: string | Date | null;
+  customFieldsData?: PostCustomFieldInput[];
+}
+
+export interface PostFormReadyState {
+  form: UseFormReturn<PostFormData>;
+  onSubmit: (data: PostFormData) => void | Promise<void>;
+  creating: boolean;
+  saving: boolean;
+  handleLanguageChange: (language: string) => void;
+}
+
 export interface PostTranslationInput {
   objectId?: string;
   language: string;
@@ -36,7 +122,7 @@ export interface PostTranslationInput {
 }
 
 export interface PostDetailResponse {
-  cmsPost: Posts;
+  cmsPost: PostFormPost;
 }
 
 export interface PostInput {

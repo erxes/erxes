@@ -1,62 +1,35 @@
 import { useForm } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { CustomFieldValue } from '../../../CustomFieldInput';
 
 import { POST_DETAIL } from '@/cms/posts/graphql';
+import type {
+  PostCustomFieldValue,
+  PostDetailResponse,
+  PostFormData,
+  PostFormPost,
+  PostFormTranslation,
+  PostFormTranslations,
+} from '@/cms/posts/types';
 import {
   CMS_EDIT_TRANSLATION,
   CMS_TRANSLATIONS,
 } from '@/cms/shared/graphql';
 import { createSlug } from '../../../../utils/createSlug';
 
-// A single custom-field value as stored on the form and in translation snapshots.
-type CustomFieldEntry = { field: string; value: CustomFieldValue };
-
-interface PostFormData {
-  title: string;
-  slug: string;
-  description?: string;
-  content?: string;
-  type?: string;
-  status?: 'draft' | 'published' | 'scheduled' | 'archived';
-  categoryIds?: string[];
-  tagIds?: string[];
-  featured?: boolean;
-  seoTitle?: string;
-  seoDescription?: string;
-  thumbnail?: { url: string; name?: string; type?: string } | null;
-  gallery?: string[];
-  videoUrl?: string;
-  documents?: string[];
-  attachments?: string[];
-  pdf?: string | null;
-  publishDate?: Date | null;
-  scheduledDate?: Date | null;
-  autoArchiveDate?: Date | null;
-  enableAutoArchive?: boolean;
-  customFieldsData?: { field: string; value: CustomFieldValue }[];
+interface CmsTranslationQueryData {
+  cmsTranslations?: Array<
+    PostFormTranslation & {
+      language: string;
+    }
+  >;
 }
 
-export const usePostForm = (editingPost?: { _id: string }) => {
+export const usePostForm = (editingPost?: PostFormPost) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
-  const [translations, setTranslations] = useState<
-    Record<
-      string,
-      {
-        title: string;
-        content: string;
-        excerpt: string;
-        customFieldsData: CustomFieldEntry[];
-      }
-    >
-  >({});
-  const [defaultLangData, setDefaultLangData] = useState<{
-    title: string;
-    content: string;
-    excerpt: string;
-    customFieldsData: CustomFieldEntry[];
-  } | null>(null);
+  const [translations, setTranslations] = useState<PostFormTranslations>({});
+  const [defaultLangData, setDefaultLangData] =
+    useState<PostFormTranslation | null>(null);
   const previousTypeRef = useRef<string | undefined>();
 
   const form = useForm<PostFormData>({
@@ -90,51 +63,38 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     form.setValue('content', value, { shouldDirty: true, shouldTouch: true });
   };
 
-  const { data: fullPostData } = useQuery(POST_DETAIL, {
+  const { data: fullPostData } = useQuery<PostDetailResponse>(POST_DETAIL, {
     variables: { id: editingPost?._id },
     skip: !editingPost?._id,
     fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: false,
   });
 
-  const fullPost = (fullPostData?.cmsPost as any) || editingPost;
+  const fullPost = fullPostData?.cmsPost || editingPost;
 
-  const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
-    variables: { objectId: editingPost?._id, type: 'post' },
-    skip: !editingPost?._id,
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: false,
-  });
+  const { data: translationsData } = useQuery<CmsTranslationQueryData>(
+    CMS_TRANSLATIONS,
+    {
+      variables: { objectId: editingPost?._id, type: 'post' },
+      skip: !editingPost?._id,
+      fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: false,
+    },
+  );
 
   const [saveTranslation] = useMutation(CMS_EDIT_TRANSLATION);
 
   useEffect(() => {
     if (translationsData?.cmsTranslations) {
-      const translationsMap: Record<
-        string,
-        {
-          title: string;
-          content: string;
-          excerpt: string;
-          customFieldsData: CustomFieldEntry[];
-        }
-      > = {};
-      translationsData.cmsTranslations.forEach(
-        (t: {
-          language: string;
-          title: string;
-          content: string;
-          excerpt: string;
-          customFieldsData: CustomFieldEntry[];
-        }) => {
-          translationsMap[t.language] = {
-            title: t.title || '',
-            content: t.content || '',
-            excerpt: t.excerpt || '',
-            customFieldsData: t.customFieldsData || [],
-          };
-        },
-      );
+      const translationsMap: PostFormTranslations = {};
+      translationsData.cmsTranslations.forEach((translation) => {
+        translationsMap[translation.language] = {
+          title: translation.title || '',
+          content: translation.content || '',
+          excerpt: translation.excerpt || '',
+          customFieldsData: translation.customFieldsData || [],
+        };
+      });
       setTranslations(translationsMap);
     }
   }, [translationsData]);
@@ -172,7 +132,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
         attachments: (fullPost.attachments || [])
           .map((a: { url: string }) => a.url)
           .filter(Boolean),
-        pdf: fullPost.pdf || null,
+        pdf: fullPost.pdfAttachment?.pdf?.url || fullPost.pdf || null,
         publishDate: toDate(fullPost.publishedDate) || null,
         scheduledDate: toDate(fullPost.scheduledDate) || null,
         autoArchiveDate: toDate(fullPost.autoArchiveDate) || null,
@@ -188,7 +148,10 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullPost]);
 
-  const updateCustomFieldValue = (fieldId: string, value: CustomFieldValue) => {
+  const updateCustomFieldValue = (
+    fieldId: string,
+    value: PostCustomFieldValue,
+  ) => {
     const currentData = form.getValues('customFieldsData') || [];
     const existingIndex = currentData.findIndex(
       (item) => item.field === fieldId,

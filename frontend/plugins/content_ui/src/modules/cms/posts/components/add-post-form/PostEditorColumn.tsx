@@ -1,20 +1,24 @@
 import { Form, Input } from 'erxes-ui';
-import { UseFormReturn, FieldValues } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import type {
+  PostCustomFieldValue,
+  PostFormData,
+  PostFormPost,
+} from '@/cms/posts/types';
 import { PostPreview } from '../../PostPreview';
-import { CustomFieldValue } from '../../CustomFieldInput';
 import { CustomFieldsSection, FieldGroup } from './CustomFieldsSection';
 
 interface PostEditorColumnProps {
-  form: UseFormReturn<FieldValues>;
+  form: UseFormReturn<PostFormData>;
   selectedLanguage: string;
   defaultLanguage: string;
   selectedType: string | undefined;
   fieldGroups: FieldGroup[];
   websiteId?: string;
-  fullPost: { _id?: string } | null | undefined;
+  fullPost: PostFormPost | null | undefined;
   handleEditorChange: (content: string) => void;
-  getCustomFieldValue: (fieldId: string) => CustomFieldValue;
+  getCustomFieldValue: (fieldId: string) => PostCustomFieldValue;
   updateCustomFieldValue: (
     fieldId: string,
     value: string | boolean | string[],

@@ -1,6 +1,14 @@
-import { Form, Input, Select, Textarea, Switch } from 'erxes-ui';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
+import {
+  Form,
+  Input,
+  Select,
+  Textarea,
+  Switch,
+  type MultiSelectOption,
+} from 'erxes-ui';
+import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import type { PostFormData } from '@/cms/posts/types';
 import { CategoryField } from './CategoryField';
 import { TagField } from './TagField';
 import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
@@ -14,10 +22,7 @@ export interface PostUrlSource {
   count?: number | null;
 }
 
-export interface SelectOption {
-  label: string;
-  value: string;
-}
+export type SelectOption = MultiSelectOption;
 
 export interface CustomType {
   _id: string;
@@ -56,7 +61,7 @@ const getGeneratedPostUrlValue = (
 };
 
 interface ContentTabProps {
-  form: UseFormReturn<FieldValues>;
+  form: UseFormReturn<PostFormData>;
   categories: SelectOption[];
   tags: SelectOption[];
   customTypes: CustomType[];

@@ -1,15 +1,16 @@
 import { useLazyQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 import { Form, MultipleSelector, type MultiSelectOption } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { PostFormData } from '@/cms/posts/types';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { POST_CMS_TAGS } from '../../graphql/queries/postCmsTagsQuery';
 import { useInlineTag } from './hooks/useInlineTag';
 
 interface TagFieldProps {
-  form: UseFormReturn<FieldValues>;
+  form: UseFormReturn<PostFormData>;
   tags: MultiSelectOption[];
   websiteId: string;
 }

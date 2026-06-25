@@ -1,17 +1,25 @@
-import { Form, Input, MultipleSelector, Button } from 'erxes-ui';
+import {
+  Form,
+  Input,
+  MultipleSelector,
+  Button,
+  type MultiSelectOption,
+} from 'erxes-ui';
 import { IconPlus, IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import type { UseFormReturn } from 'react-hook-form';
+import type { PostFormData } from '@/cms/posts/types';
 import { useInlineCategory } from './hooks/useInlineCategory';
 
 interface CategoryFieldProps {
-  form: any;
-  categories: any[];
+  form: UseFormReturn<PostFormData>;
+  categories: MultiSelectOption[];
   websiteId: string;
 }
 
 const normalizeOptionText = (text: string) => text.toLowerCase().trim();
 
-const getSearchableCommandProps = (options: any[]) => ({
+const getSearchableCommandProps = (options: MultiSelectOption[]) => ({
   filter: (value: string, search: string) => {
     const option = options.find((item) => item.value === value);
     const text = normalizeOptionText(`${option?.label || ''} ${value}`);

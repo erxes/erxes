@@ -3,8 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { usePostMutations } from '@/cms/posts/hooks/usePostMutations';
 import type {
   PostCustomFieldInput,
+  PostFormData,
+  PostFormPost,
+  PostFormTranslation,
+  PostFormTranslations,
   PostInput,
-  PostStatus,
   PostTranslationInput,
 } from '@/cms/posts/types';
 import {
@@ -37,54 +40,13 @@ interface BlockContent {
   };
 }
 
-interface PostFormData {
-  title: string;
-  slug: string;
-  description?: string;
-  content?: string;
-  type?: string;
-  status?: PostStatus;
-  categoryIds?: string[];
-  tagIds?: string[];
-  featured?: boolean;
-  seoTitle?: string;
-  seoDescription?: string;
-  thumbnail?: string | null;
-  gallery?: string[];
-  video?: string | null;
-  videoUrl?: string;
-  audio?: string | null;
-  documents?: string[];
-  attachments?: string[];
-  pdf?: string | null;
-  publishDate?: Date | null;
-  scheduledDate?: Date | null;
-  autoArchiveDate?: Date | null;
-  enableAutoArchive?: boolean;
-  customFieldsData?: PostCustomFieldInput[];
-}
-
-interface TranslationEntry {
-  title?: string;
-  content?: string;
-  excerpt?: string;
-  customFieldsData?: PostCustomFieldInput[];
-}
-
-interface DefaultLangData {
-  title: string;
-  content: string;
-  excerpt: string;
-  customFieldsData: PostCustomFieldInput[];
-}
-
 interface UsePostSubmissionProps {
   websiteId: string;
-  editingPost?: { _id?: string };
+  editingPost?: PostFormPost;
   selectedLanguage?: string;
   defaultLanguage?: string;
-  defaultLangData?: DefaultLangData | null;
-  translations?: Record<string, TranslationEntry>;
+  defaultLangData?: PostFormTranslation | null;
+  translations?: PostFormTranslations;
   onClose?: () => void;
 }
 
@@ -223,7 +185,7 @@ const resolveMainFields = (
   contentHtml: string,
   isCreating: boolean,
   isNonDefaultLang: boolean,
-  curDefaultLangData: DefaultLangData | null | undefined,
+  curDefaultLangData: PostFormTranslation | null | undefined,
 ): MainFields => {
   if (isCreating && isNonDefaultLang && curDefaultLangData) {
     return {
@@ -288,7 +250,7 @@ const buildPostInput = (
 };
 
 const buildTranslations = (
-  curTranslations: Record<string, TranslationEntry>,
+  curTranslations: PostFormTranslations,
   curDefaultLanguage: string,
   isNonDefaultLang: boolean,
   currentLanguage: string | undefined,

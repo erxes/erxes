@@ -1,22 +1,27 @@
 import { Form, Upload, Button, Input } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconX } from '@tabler/icons-react';
-import { UseFormReturn, ControllerRenderProps } from 'react-hook-form';
+import type {
+  ControllerRenderProps,
+  FieldPath,
+  FieldValues,
+  UseFormReturn,
+} from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { GalleryUploader } from '../../GalleryUploader';
 import { DocumentsUploader } from '../../DocumentsUploader';
 import { AttachmentsUploader } from '../../AttachmentsUploader';
 
-type MediaFormData = {
-  thumbnail?: string | { url: string; name: string };
+interface MediaFormData extends FieldValues {
+  thumbnail?: string | { url: string; name?: string; type?: string } | null;
   gallery?: string[];
   videoUrl?: string;
   documents?: string[];
   attachments?: string[];
-};
+}
 
-interface MediaSectionProps {
-  form: UseFormReturn<MediaFormData>;
+interface MediaSectionProps<TFormData extends MediaFormData> {
+  form: UseFormReturn<TFormData>;
 }
 
 interface FileInfo {
@@ -31,13 +36,21 @@ interface UploadValue {
   fileInfo: FileInfo;
 }
 
-interface ThumbnailUploaderProps {
-  field: ControllerRenderProps<MediaFormData, 'thumbnail'>;
-  form: UseFormReturn<MediaFormData>;
+interface ThumbnailUploaderProps<TFormData extends MediaFormData> {
+  field: ControllerRenderProps<TFormData, FieldPath<TFormData>>;
+  form: UseFormReturn<TFormData>;
 }
 
-export const MediaSection = ({ form }: MediaSectionProps) => {
+export const MediaSection = <TFormData extends MediaFormData>({
+  form,
+}: MediaSectionProps<TFormData>) => {
   const { t } = useTranslation('content');
+  const thumbnailField = 'thumbnail' as FieldPath<TFormData>;
+  const galleryField = 'gallery' as FieldPath<TFormData>;
+  const videoUrlField = 'videoUrl' as FieldPath<TFormData>;
+  const documentsField = 'documents' as FieldPath<TFormData>;
+  const attachmentsField = 'attachments' as FieldPath<TFormData>;
+
   return (
   <div>
     <div className="mt-1 space-y-4">
@@ -45,7 +58,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => {
 
       <Form.Field
         control={form.control}
-        name="thumbnail"
+        name={thumbnailField}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('featured-image')}</Form.Label>
@@ -62,7 +75,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => {
 
       <Form.Field
         control={form.control}
-        name="gallery"
+        name={galleryField}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('image-gallery')}</Form.Label>
@@ -82,7 +95,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => {
 
       <Form.Field
         control={form.control}
-        name="videoUrl"
+        name={videoUrlField}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('video-url')}</Form.Label>
@@ -96,7 +109,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => {
 
       <Form.Field
         control={form.control}
-        name="documents"
+        name={documentsField}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('documents')}</Form.Label>
@@ -113,7 +126,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => {
 
       <Form.Field
         control={form.control}
-        name="attachments"
+        name={attachmentsField}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('attachments')}</Form.Label>
@@ -132,7 +145,10 @@ export const MediaSection = ({ form }: MediaSectionProps) => {
   );
 };
 
-const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
+const ThumbnailUploader = <TFormData extends MediaFormData>({
+  field,
+  form,
+}: ThumbnailUploaderProps<TFormData>) => {
   const { t } = useTranslation('content');
   const handleChange = (value: UploadValue) => {
     if (value?.url) {
@@ -178,13 +194,15 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
           </div>
         </Upload.Root>
       </div>
-      {form.watch('thumbnail') && (
+      {form.watch('thumbnail' as FieldPath<TFormData>) && (
         <div className="mt-2 relative">
           <div className="relative">
             <img
               src={readImage(
                 (() => {
-                  const thumbnail = form.watch('thumbnail');
+                  const thumbnail = form.watch(
+                    'thumbnail' as FieldPath<TFormData>,
+                  );
                   return typeof thumbnail === 'string'
                     ? thumbnail
                     : (thumbnail as { url: string })?.url || '';
