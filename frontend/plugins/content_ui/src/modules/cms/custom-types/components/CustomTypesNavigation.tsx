@@ -1,4 +1,4 @@
-import { IconCube, IconLayout, IconTags } from '@tabler/icons-react';
+import { IconCube, IconLayout } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
@@ -7,17 +7,43 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
 
+interface CmsWebsite {
+  clientPortalId: string;
+  name?: string;
+}
+
+interface ClientPortal {
+  _id: string;
+  name?: string;
+}
+
+interface CustomTypesNavigationData {
+  contentCMSList?: CmsWebsite[];
+}
+
+interface ClientPortalsData {
+  getClientPortals?: {
+    list?: ClientPortal[];
+  };
+}
+
 export const CustomTypesNavigation = () => {
   const { t } = useTranslation('content');
   const { pathname } = useLocation();
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const { data: cmsData } = useQuery<CustomTypesNavigationData>(
+    CONTENT_CMS_LIST,
+    {
     fetchPolicy: 'cache-first',
-  });
+    },
+  );
 
-  const { data: websitesData } = useQuery(GET_CLIENT_PORTALS, {
-    fetchPolicy: 'cache-first',
-  });
+  const { data: websitesData } = useQuery<ClientPortalsData>(
+    GET_CLIENT_PORTALS,
+    {
+      fetchPolicy: 'cache-first',
+    },
+  );
 
   const { basePath, websiteId } = useMemo(() => {
     const pathSegments = pathname.split('/');
@@ -31,9 +57,11 @@ export const CustomTypesNavigation = () => {
   }, [pathname]);
 
   const websiteName =
-    cmsData?.contentCMSList?.find((w: any) => w.clientPortalId === websiteId)
+    cmsData?.contentCMSList?.find((website) => website.clientPortalId === websiteId)
       ?.name ||
-    websitesData?.getClientPortals?.list?.find((w: any) => w._id === websiteId)
+    websitesData?.getClientPortals?.list?.find(
+      (website) => website._id === websiteId,
+    )
       ?.name ||
     '';
 

@@ -26,21 +26,21 @@ const PostsDetail = lazy(() =>
   })),
 );
 
-const Categories = lazy(() =>
-  import('~/modules/cms/categories/Categories').then((module) => ({
-    default: module.Categories,
+const CategoriesPage = lazy(() =>
+  import('~/pages/cms/CategoriesPage').then((module) => ({
+    default: module.CategoriesPage,
   })),
 );
 
-const Tags = lazy(() =>
-  import('~/modules/cms/tags/Tag').then((module) => ({
-    default: module.Tag,
+const TagsPage = lazy(() =>
+  import('~/pages/cms/TagsPage').then((module) => ({
+    default: module.TagsPage,
   })),
 );
 
-const Pages = lazy(() =>
-  import('~/modules/cms/pages/Page').then((module) => ({
-    default: module.Page,
+const PagesPage = lazy(() =>
+  import('~/pages/cms/PagesPage').then((module) => ({
+    default: module.PagesPage,
   })),
 );
 
@@ -50,15 +50,15 @@ const PagesDetail = lazy(() =>
   })),
 );
 
-const CustomTypes = lazy(() =>
-  import('~/modules/cms/custom-types/CustomTypes').then((module) => ({
-    default: module.CustomTypes,
+const CustomTypesPage = lazy(() =>
+  import('~/pages/cms/CustomTypesPage').then((module) => ({
+    default: module.CustomTypesPage,
   })),
 );
 
-const CustomFields = lazy(() =>
-  import('~/modules/cms/custom-fields/CustomFields').then((module) => ({
-    default: module.CustomFields,
+const CustomFieldsPage = lazy(() =>
+  import('~/pages/cms/CustomFieldsPage').then((module) => ({
+    default: module.CustomFieldsPage,
   })),
 );
 
@@ -68,15 +68,15 @@ const WebBuilderPage = lazy(() =>
   })),
 );
 
-const Menus = lazy(() =>
-  import('~/modules/cms/menus/Menus').then((module) => ({
-    default: module.Menus,
+const MenusPage = lazy(() =>
+  import('~/pages/cms/MenusPage').then((module) => ({
+    default: module.MenusPage,
   })),
 );
 
-const Settings = lazy(() =>
-  import('~/modules/cms/settings/Settings').then((module) => ({
-    default: module.Settings,
+const SettingsPage = lazy(() =>
+  import('~/pages/cms/SettingsPage').then((module) => ({
+    default: module.SettingsPage,
   })),
 );
 
@@ -100,7 +100,7 @@ const PagesDetailWrapper = () => {
   return <PagesDetail clientPortalId={websiteId || ''} pageId={pageId} />;
 };
 
-const CmsMain = () => {
+export const Content = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -110,20 +110,18 @@ const CmsMain = () => {
           <Route path="posts" element={<PostsWrapper />} />
           <Route path="posts/add" element={<PostsAddWrapper />} />
           <Route path="posts/detail/:postId" element={<PostsDetailWrapper />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="tags" element={<Tags />} />
-          <Route path="pages" element={<Pages />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="tags" element={<TagsPage />} />
+          <Route path="pages" element={<PagesPage />} />
           <Route path="pages/detail" element={<PagesDetailWrapper />} />
           <Route path="pages/detail/:pageId" element={<PagesDetailWrapper />} />
-          <Route path="menus" element={<Menus />} />
-          <Route path="custom-types" element={<CustomTypes />} />
-          <Route path="custom-fields" element={<CustomFields />} />
-          <Route path="cmssettings" element={<Settings />} />
+          <Route path="menus" element={<MenusPage />} />
+          <Route path="custom-types" element={<CustomTypesPage />} />
+          <Route path="custom-fields" element={<CustomFieldsPage />} />
+          <Route path="cmssettings" element={<SettingsPage />} />
         </Route>
         <Route path="web-builder/*" element={<WebBuilderPage />} />
       </Routes>
     </Suspense>
   );
 };
-
-export default CmsMain;

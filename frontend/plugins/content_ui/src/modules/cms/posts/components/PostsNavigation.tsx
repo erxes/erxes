@@ -91,7 +91,7 @@ export const PostsNavigation = () => {
       label: t('posts'),
       icon: IconCube,
     };
-  }, [pathname, basePath]);
+  }, [pathname, basePath, t]);
 
   const Icon = currentPage.icon;
   const websiteName =

@@ -1,23 +1,22 @@
 import { IconLayout, IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageContainer } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useParams } from 'react-router-dom';
-import { CustomTypeDrawer } from '../components/customTypes/CustomTypeDrawer';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { EmptyState } from '../shared/EmptyState';
-import { CustomTypesHeader } from './components/CustomTypesHeader';
-import { CustomTypesRecordTable } from './components/CustomTypesRecordTable';
-import { useCustomTypes } from './hooks/useCustomTypes';
-import { useRemoveCustomType } from './hooks/useRemoveCustomType';
-import { ICustomPostType } from './types/customTypeTypes';
+import { useParams } from 'react-router-dom';
+import { CustomTypeDrawer } from '@/cms/custom-types/components/CustomTypeDrawer';
+import { CustomTypesHeader } from '@/cms/custom-types/components/CustomTypesHeader';
+import { CustomTypesRecordTable } from '@/cms/custom-types/components/CustomTypesRecordTable';
+import { useCustomTypes } from '@/cms/custom-types/hooks/useCustomTypes';
+import { useRemoveCustomType } from '@/cms/custom-types/hooks/useRemoveCustomType';
+import { ICustomPostType } from '@/cms/custom-types/types/customTypeTypes';
+import { CmsSidebar } from '@/cms/shared/CmsSidebar';
+import { EmptyState } from '@/cms/shared/EmptyState';
 
-export function CustomTypes() {
+export function CustomTypesPage() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
-  const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingType, setEditingType] = useState<any>(null);
+  const [editingType, setEditingType] = useState<ICustomPostType>();
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   const { customTypes, loading } = useCustomTypes({
@@ -30,10 +29,8 @@ export function CustomTypes() {
 
   const { removeBulkTypes } = useRemoveCustomType(refetch);
 
-  useEffect(() => {}, [location]);
-
   const handleAddType = () => {
-    setEditingType(null);
+    setEditingType(undefined);
     setDrawerOpen(true);
   };
 
@@ -97,7 +94,7 @@ export function CustomTypes() {
         isOpen={drawerOpen}
         onClose={() => {
           setDrawerOpen(false);
-          setEditingType(null);
+          setEditingType(undefined);
         }}
         clientPortalId={websiteId || ''}
         customType={editingType}
@@ -106,7 +103,7 @@ export function CustomTypes() {
         }}
         onUpdate={() => {
           refetch();
-          setEditingType(null);
+          setEditingType(undefined);
         }}
       />
     </PageContainer>

@@ -3,7 +3,7 @@ import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
 
 const ContentNavigation = lazy(() =>
-  import('./modules/ContentNavigation').then((module) => ({
+  import('./modules/navigation/ContentNavigation').then((module) => ({
     default: module.ContentNavigation,
   })),
 );
@@ -20,7 +20,7 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
-  modules: [    
+  modules: [
     {
       name: 'cms',
       icon: IconBooks,

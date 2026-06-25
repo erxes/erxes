@@ -1,9 +1,7 @@
 import { useQuery } from '@apollo/client';
-import { GET_CLIENT_PORTALS } from '../graphql/queries';
+import { GET_CLIENT_PORTALS } from '@/cms/graphql/queries';
 
-interface IClientPortalFilter {
-  [key: string]: any;
-}
+type ClientPortalFilter = Record<string, unknown>;
 
 interface ClientPortal {
   _id: string;
@@ -28,8 +26,8 @@ interface ClientPortalsResponse {
 }
 
 export const useClientPortals = (
-  filter: IClientPortalFilter = {},
-  skip: boolean = false,
+  filter: ClientPortalFilter = {},
+  skip = false,
 ) => {
   const { data, loading, error, refetch } = useQuery<ClientPortalsResponse>(
     GET_CLIENT_PORTALS,

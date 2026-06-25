@@ -5,29 +5,36 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ApolloError, useQuery } from '@apollo/client';
 import { useSetAtom, useAtomValue } from 'jotai';
-import { CustomFieldValue } from '../posts/CustomFieldInput';
+import { CustomFieldValue } from '@/cms/posts/CustomFieldInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { pageFormSchema } from '../constants/pageFormSchema';
-import { useEditPage } from './hooks/useEditPage';
-import { useAddPage } from './hooks/useAddPage';
-import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
-import { CONTENT_CMS_LIST, CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
+import { pageFormSchema } from '@/cms/constants/pageFormSchema';
+import { useEditPage } from '@/cms/pages/hooks/useEditPage';
+import { useAddPage } from '@/cms/pages/hooks/useAddPage';
+import {
+  IPage,
+  IPageDrawerProps,
+  IPageFormData,
+} from '@/cms/pages/types/pageTypes';
+import {
+  CONTENT_CMS_LIST,
+  CMS_CUSTOM_FIELD_GROUPS,
+} from '@/cms/graphql/queries';
 import {
   useCmsTranslation,
   TranslationData,
-} from '../shared/hooks/useCmsTranslation';
-import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
-import { PageEditorColumn } from './components/PageEditorColumn';
-import { PageSidebarPanel } from './components/PageSidebarPanel';
+} from '@/cms/shared/hooks/useCmsTranslation';
+import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
+import { PageEditorColumn } from '@/cms/pages/components/PageEditorColumn';
+import { PageSidebarPanel } from '@/cms/pages/components/PageSidebarPanel';
 import {
   PageCustomFieldsSection,
   FieldGroup,
-} from './components/PageCustomFieldsSection';
+} from '@/cms/pages/components/PageCustomFieldsSection';
 import {
   normalizeAttachment,
   makeAttachmentArrayFromUrls,
-} from '../posts/formHelpers';
+} from '@/cms/posts/formHelpers';
 
 interface InlineContent {
   text?: string;

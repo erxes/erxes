@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Button } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
@@ -24,7 +24,10 @@ export const HeaderLanguageTabs = ({
     (cms: { clientPortalId?: string }) => cms.clientPortalId === websiteId,
   );
 
-  const availableLanguages: string[] = cmsConfig?.languages || [];
+  const availableLanguages = useMemo<string[]>(
+    () => cmsConfig?.languages || [],
+    [cmsConfig?.languages],
+  );
   const defaultLanguage: string = cmsConfig?.language || 'en';
 
   // In editor mode (onLanguageChange provided) the form owns the active

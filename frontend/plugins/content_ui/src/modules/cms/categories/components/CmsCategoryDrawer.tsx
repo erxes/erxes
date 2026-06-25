@@ -11,24 +11,24 @@ import {
   CMS_CATEGORIES_EDIT,
   CMS_CATEGORY_DETAIL,
   CMS_CUSTOM_FIELD_GROUPS,
-} from './graphql';
-import { CONTENT_CMS_LIST } from '../graphql/queries';
-import { createSlug } from '../utils/createSlug';
+} from '@/cms/categories/graphql';
+import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
+import { createSlug } from '@/cms/utils/createSlug';
 import {
   CategoryCustomFieldsSection,
   FieldGroup,
-} from './components/CategoryCustomFieldsSection';
-import { CustomFieldValue } from '../posts/CustomFieldInput';
+} from '@/cms/categories/components/CategoryCustomFieldsSection';
+import { CustomFieldValue } from '@/cms/posts/CustomFieldInput';
 import {
   createCategoryFormSchema,
   CategoryFormType,
-} from '../constants/categoryFormSchema';
-import { LanguageSelector } from '../shared/LanguageSelector';
+} from '@/cms/constants/categoryFormSchema';
+import { LanguageSelector } from '@/cms/shared/LanguageSelector';
 import {
   TranslationData,
   useCmsTranslation,
-} from '../shared/hooks/useCmsTranslation';
-import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+} from '@/cms/shared/hooks/useCmsTranslation';
+import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 
 interface ITreeOption {
   _id: string;

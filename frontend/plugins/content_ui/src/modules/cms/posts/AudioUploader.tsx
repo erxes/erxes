@@ -1,7 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
 import { IconX, IconHeadphones } from '@tabler/icons-react';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAutoUpload } from './hooks/useAutoUpload';
 
 interface AudioUploaderProps {
   value?: string | null;
@@ -22,11 +22,7 @@ export const AudioUploader = ({ value, onChange }: AudioUploaderProps) => {
     },
   });
 
-  useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload();
-    }
-  }, [uploadProps.files.length]);
+  useAutoUpload(uploadProps);
 
   const handleRemove = () => {
     onChange(null);

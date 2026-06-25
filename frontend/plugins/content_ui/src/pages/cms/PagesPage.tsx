@@ -2,14 +2,14 @@ import { Button, PageContainer, Kbd } from 'erxes-ui';
 import { IconArticle, IconPlus } from '@tabler/icons-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { usePages } from './hooks/usePages';
-import { PagesRecordTable } from './components/PagesRecordTable';
-import { IPage } from './types/pageTypes';
-import { EmptyState } from '../shared/EmptyState';
-import { PagesHeader } from './components/PagesHeader';
-import { CmsSidebar } from '../shared/CmsSidebar';
+import { PagesHeader } from '@/cms/pages/components/PagesHeader';
+import { PagesRecordTable } from '@/cms/pages/components/PagesRecordTable';
+import { usePages } from '@/cms/pages/hooks/usePages';
+import { IPage } from '@/cms/pages/types/pageTypes';
+import { CmsSidebar } from '@/cms/shared/CmsSidebar';
+import { EmptyState } from '@/cms/shared/EmptyState';
 
-export function Page() {
+export function PagesPage() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const navigate = useNavigate();

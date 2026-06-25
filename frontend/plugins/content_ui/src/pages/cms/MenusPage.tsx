@@ -3,24 +3,25 @@ import { useParams } from 'react-router-dom';
 import { Button, PageContainer, Kbd } from 'erxes-ui';
 import { IconMenu, IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
-import { EmptyState } from '../shared/EmptyState';
-import { MenuDrawer } from './MenuDrawer';
-import { MenusHeader } from './components/MenusHeader';
-import { MenusRecordTable } from './components/MenusRecordTable';
-import { useMenus } from './hooks/useMenus';
+import { MenuDrawer } from '@/cms/menus/components/MenuDrawer';
+import { MenusHeader } from '@/cms/menus/components/MenusHeader';
+import { MenusRecordTable } from '@/cms/menus/components/MenusRecordTable';
+import { useMenus } from '@/cms/menus/hooks/useMenus';
+import { MenuItem, MenuRecord } from '@/cms/menus/types/menuDrawerTypes';
+import { CmsSidebar } from '@/cms/shared/CmsSidebar';
+import { EmptyState } from '@/cms/shared/EmptyState';
+import { HeaderLanguageTabs } from '@/cms/shared/HeaderLanguageTabs';
 
-export function Menus() {
+export function MenusPage() {
   const { t } = useTranslation('content');
-  const KIND_OPTIONS = [
+  const kindOptions = [
     { label: t('all'), value: undefined },
     { label: t('header'), value: 'header' },
     { label: t('footer'), value: 'footer' },
-  ];
+  ] as const;
   const { websiteId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editingMenu, setEditingMenu] = useState<any>(null);
+  const [editingMenu, setEditingMenu] = useState<MenuRecord>();
   const [kindFilter, setKindFilter] = useState<string | undefined>(undefined);
 
   const { menus, totalCount, loading, refetch } = useMenus({
@@ -29,11 +30,11 @@ export function Menus() {
   });
 
   const handleAddMenu = () => {
-    setEditingMenu(null);
+    setEditingMenu(undefined);
     setIsDrawerOpen(true);
   };
 
-  const handleEditMenu = (menu: any) => {
+  const handleEditMenu = (menu: MenuItem) => {
     setEditingMenu(menu);
     setIsDrawerOpen(true);
   };
@@ -60,7 +61,7 @@ export function Menus() {
           <div className="flex pt-2 pl-3 justify-between items-center mb-0">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1 rounded-md border p-0.5 bg-muted">
-                {KIND_OPTIONS.map((opt) => (
+                {kindOptions.map((opt) => (
                   <Button
                     key={opt.label}
                     size="sm"
@@ -107,7 +108,7 @@ export function Menus() {
         isOpen={isDrawerOpen}
         onClose={() => {
           setIsDrawerOpen(false);
-          setEditingMenu(null);
+          setEditingMenu(undefined);
         }}
         onSuccess={refetch}
         clientPortalId={websiteId || ''}

@@ -13,18 +13,18 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { GET_WEBSITES } from '../../graphql/queries';
+import { GET_WEBSITES } from '@/cms/graphql/queries';
 import {
   CONTENT_CREATE_CMS,
   CONTENT_UPDATE_CMS,
-} from '../../graphql/mutations';
-import { useClientPortals } from '../../hooks/useClientPortals';
-import { LANGUAGES } from '../../../../constants';
+} from '@/cms/graphql/mutations';
+import { useClientPortals } from '@/cms/websites/hooks/useClientPortals';
+import { LANGUAGES } from '~/constants';
 import {
   websiteFormSchema,
   WebsiteFormType,
-} from '../../constants/websiteFormSchema';
-import { IWebsite } from '../../types';
+} from '@/cms/websites/constants/websiteFormSchema';
+import { IWebsite } from '@/cms/websites/types';
 
 interface WebsiteDrawerProps {
   website?: IWebsite;

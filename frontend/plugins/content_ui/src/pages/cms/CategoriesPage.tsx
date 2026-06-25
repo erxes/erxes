@@ -3,14 +3,14 @@ import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { CmsCategoryDrawer } from './CmsCategoryDrawer';
-import { CategoriesHeader } from './components/CategoriesHeader';
-import { CategoriesRecordTable } from './components/CategoriesRecordTable';
-import { useRemoveCategories } from './hooks/useRemoveCategories';
-import { ICategory } from './types';
+import { CmsCategoryDrawer } from '@/cms/categories/components/CmsCategoryDrawer';
+import { CategoriesHeader } from '@/cms/categories/components/CategoriesHeader';
+import { CategoriesRecordTable } from '@/cms/categories/components/CategoriesRecordTable';
+import { useRemoveCategories } from '@/cms/categories/hooks/useRemoveCategories';
+import { ICategory } from '@/cms/categories/types';
+import { CmsSidebar } from '@/cms/shared/CmsSidebar';
 
-export function Categories() {
+export function CategoriesPage() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const [drawerOpen, setDrawerOpen] = useState(false);

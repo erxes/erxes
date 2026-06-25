@@ -42,7 +42,7 @@ function sortCategoriesAsTree(
 interface CategoriesRecordTableProps {
   clientPortalId: string;
   onAdd?: () => void;
-  onEdit?: (category: any) => void;
+  onEdit?: (category: ICategory) => void;
   onBulkDelete?: (ids: string[]) => Promise<void>;
 }
 
@@ -72,62 +72,62 @@ export const CategoriesRecordTable = ({
     refetch,
   );
 
+  if (!loading && categories.length === 0) {
+    return (
+      <div className="rounded-lg overflow-hidden">
+        <EmptyState
+          icon={IconArticle}
+          title={t('no-categories-yet')}
+          description={t('no-categories-yet-desc')}
+          actionLabel={t('add-category')}
+          onAction={onAdd}
+        />
+      </div>
+    );
+  }
+
   return (
     <>
-      {!loading && categories.length === 0 ? (
-        <div className="rounded-lg overflow-hidden">
-          <EmptyState
-            icon={IconArticle}
-            title={t('no-categories-yet')}
-            description={t('no-categories-yet-desc')}
-            actionLabel={t('add-category')}
-            onAction={onAdd}
-          />
-        </div>
-      ) : (
-        <>
-          {!loading && categories.length > 0 && (
-            <div className="flex pt-2 pl-4 justify-between items-center mb-2">
-              <div className="text-sm text-gray-600">
-                {t('found-x-categories', { count: totalCount })}
-              </div>
-            </div>
-          )}
-          <div className="overflow-hidden flex-auto p-3">
-            <div className="h-full">
-              <RecordTable.Provider
-                columns={columns}
-                data={treeCategories}
-                className="h-full"
-                stickyColumns={['more', 'checkbox', 'name']}
-              >
-                <RecordTable.CursorProvider
-                  hasPreviousPage={hasPreviousPage}
-                  hasNextPage={hasNextPage}
-                  dataLength={categories?.length}
-                >
-                  <RecordTable>
-                    <RecordTable.Header />
-                    <RecordTable.Body>
-                      <RecordTable.CursorBackwardSkeleton
-                        handleFetchMore={handleFetchMore}
-                      />
-                      {loading && <RecordTable.RowSkeleton rows={40} />}
-                      <RecordTable.RowList />
-                      <RecordTable.CursorForwardSkeleton
-                        handleFetchMore={handleFetchMore}
-                      />
-                    </RecordTable.Body>
-                  </RecordTable>
-                </RecordTable.CursorProvider>
-                {onBulkDelete && (
-                  <CategoriesCommandBar onBulkDelete={onBulkDelete} />
-                )}
-              </RecordTable.Provider>
-            </div>
+      {!loading && categories.length > 0 && (
+        <div className="flex pt-2 pl-4 justify-between items-center mb-2">
+          <div className="text-sm text-gray-600">
+            {t('found-x-categories', { count: totalCount })}
           </div>
-        </>
+        </div>
       )}
+      <div className="overflow-hidden flex-auto p-3">
+        <div className="h-full">
+          <RecordTable.Provider
+            columns={columns}
+            data={treeCategories}
+            className="h-full"
+            stickyColumns={['more', 'checkbox', 'name']}
+          >
+            <RecordTable.CursorProvider
+              hasPreviousPage={hasPreviousPage}
+              hasNextPage={hasNextPage}
+              dataLength={categories?.length}
+            >
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.CursorBackwardSkeleton
+                    handleFetchMore={handleFetchMore}
+                  />
+                  {loading && <RecordTable.RowSkeleton rows={40} />}
+                  <RecordTable.RowList />
+                  <RecordTable.CursorForwardSkeleton
+                    handleFetchMore={handleFetchMore}
+                  />
+                </RecordTable.Body>
+              </RecordTable>
+            </RecordTable.CursorProvider>
+            {onBulkDelete && (
+              <CategoriesCommandBar onBulkDelete={onBulkDelete} />
+            )}
+          </RecordTable.Provider>
+        </div>
+      </div>
     </>
   );
 };

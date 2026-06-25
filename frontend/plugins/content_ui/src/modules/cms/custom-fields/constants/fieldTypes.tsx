@@ -1,57 +1,3 @@
-export type FieldType =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'email'
-  | 'url'
-  | 'date'
-  | 'checkbox'
-  | 'select'
-  | 'radio'
-  | 'file'
-  | 'image'
-  | 'spreadsheet'
-  | 'richText'
-  | 'products';
-
-export interface ICustomField {
-  _id: string;
-  label: string;
-  code: string;
-  type: FieldType;
-  description?: string;
-  isRequired?: boolean;
-  options?: string[];
-}
-
-export interface FieldFormValues {
-  label: string;
-  code: string;
-  type: FieldType;
-  description: string;
-  isRequired: boolean;
-  options: string;
-}
-
-export interface ICustomFieldGroup {
-  _id: string;
-  label: string;
-  code: string;
-  order?: number;
-  clientPortalId: string;
-  customPostTypeIds: string[];
-  customPostTypes?: Array<{
-    _id: string;
-    code: string;
-    label: string;
-    pluralLabel: string;
-  }>;
-  fields: ICustomField[];
-  enabledPageIds?: string[];
-  enabledCategoryIds?: string[];
-  enabledPostIds?: string[];
-}
-
 import {
   IconAt,
   IconCalendarEvent,
@@ -68,12 +14,17 @@ import {
   IconTextScan2,
   IconTextSize,
 } from '@tabler/icons-react';
+import { ReactNode } from 'react';
 
-export const FIELD_TYPES: {
+import { FieldType } from '@/cms/custom-fields/types/customFieldTypes';
+
+interface FieldTypeOption {
   value: FieldType;
   label: string;
-  icon: React.ReactNode;
-}[] = [
+  icon: ReactNode;
+}
+
+export const FIELD_TYPES: FieldTypeOption[] = [
   { value: 'text', label: 'Text', icon: <IconTextSize /> },
   { value: 'textarea', label: 'Textarea', icon: <IconTextScan2 /> },
   { value: 'number', label: 'Number', icon: <IconNumbers /> },
@@ -94,10 +45,9 @@ export const FIELD_TYPES: {
   { value: 'products', label: 'Products', icon: <IconShoppingCart /> },
 ];
 
-export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce(
-  (acc, type) => {
-    acc[type.value] = type;
-    return acc;
-  },
-  {} as Record<FieldType, { value: FieldType; label: string; icon: React.ReactNode }>,
-);
+export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce<
+  Record<FieldType, FieldTypeOption>
+>((fieldTypes, fieldType) => {
+  fieldTypes[fieldType.value] = fieldType;
+  return fieldTypes;
+}, {} as Record<FieldType, FieldTypeOption>);

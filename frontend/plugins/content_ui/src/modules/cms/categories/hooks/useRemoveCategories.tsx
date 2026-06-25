@@ -1,22 +1,38 @@
 import { useMutation, useApolloClient } from '@apollo/client';
 import { CMS_CATEGORIES, CMS_CATEGORIES_REMOVE } from '../graphql';
+import { ICategory } from '../types';
+
+interface CategoriesQueryData {
+  cmsCategories: {
+    list: ICategory[];
+  };
+}
+
+interface RemoveCategoryVariables {
+  id: string;
+}
 
 export const useRemoveCategories = (
   clientPortalId: string,
-  refetch: () => void,
+  refetch?: () => void,
 ) => {
   const client = useApolloClient();
 
-  const [removeCategory, { loading }] = useMutation(CMS_CATEGORIES_REMOVE, {
+  const [removeCategory, { loading }] = useMutation<
+    { cmsCategoriesRemove: boolean },
+    RemoveCategoryVariables
+  >(CMS_CATEGORIES_REMOVE, {
     onCompleted: (data, clientOptions) => {
-      const existingCategories = client.readQuery({
+      const existingCategories = client.readQuery<CategoriesQueryData>({
         query: CMS_CATEGORIES,
         variables: { clientPortalId, limit: 100 },
       });
 
-      if (existingCategories && clientOptions?.variables?.id) {
+      const removedCategoryId = clientOptions?.variables?.id;
+
+      if (existingCategories && removedCategoryId) {
         const updatedList = existingCategories.cmsCategories.list.filter(
-          (cat: any) => cat._id !== (clientOptions.variables as any).id,
+          (category) => category._id !== removedCategoryId,
         );
 
         client.writeQuery({
@@ -32,7 +48,7 @@ export const useRemoveCategories = (
         });
       }
 
-      refetch();
+      refetch?.();
     },
   });
 

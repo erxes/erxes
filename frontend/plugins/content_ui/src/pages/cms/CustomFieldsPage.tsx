@@ -30,15 +30,24 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 
-import { CustomFieldsHeader } from './components/CustomFieldsHeader';
-import { CmsSidebar } from '../shared/CmsSidebar';
+import { CustomFieldGroupItem } from '@/cms/custom-fields/components/CustomFieldGroupItem';
+import { CustomFieldsHeader } from '@/cms/custom-fields/components/CustomFieldsHeader';
+import { FieldDrawer } from '@/cms/custom-fields/components/field-drawer/FieldDrawer';
+import { FieldGroupDrawer } from '@/cms/custom-fields/components/field-group-drawer/FieldGroupDrawer';
+import { useCustomFieldGroups } from '@/cms/custom-fields/hooks/useCustomFieldGroups';
+import {
+  FieldFormValues,
+  FieldGroupFormValues,
+  ICustomField,
+  ICustomFieldGroup,
+} from '@/cms/custom-fields/types/customFieldTypes';
+import { CMS_CUSTOM_POST_TYPES } from '@/cms/graphql/queries';
+import { CmsSidebar } from '@/cms/shared/CmsSidebar';
+import { ICustomPostType } from '@/cms/custom-types/types/customTypeTypes';
 
-import { ICustomFieldGroup, ICustomField } from './types/customFieldTypes';
-import { useCustomFieldGroups } from './hooks/useCustomFieldGroups';
-import { FieldGroupDrawer } from './components/field-group-drawer/FieldGroupDrawer';
-import { FieldDrawer } from './components/field-drawer/FieldDrawer';
-import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
-import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
+interface CustomPostTypesResponse {
+  cmsCustomPostTypes: ICustomPostType[];
+}
 
 function SortableGroup({
   group,
@@ -67,7 +76,7 @@ function SortableGroup({
   );
 }
 
-export function CustomFields() {
+export function CustomFieldsPage() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const [isGroupDrawerOpen, setIsGroupDrawerOpen] = useState(false);
@@ -95,10 +104,9 @@ export function CustomFields() {
   // Local order so a drop reflects immediately (no snap-back while the
   // persisted order round-trips); re-synced whenever the stored order changes.
   const [orderedGroups, setOrderedGroups] = useState(groups);
-  const groupsKey = groups.map((g) => g._id).join('|');
   useEffect(() => {
     setOrderedGroups(groups);
-  }, [groupsKey]);
+  }, [groups]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -120,14 +128,17 @@ export function CustomFields() {
     reorderGroups(next);
   };
 
-  const { data: customTypesData } = useQuery(CMS_CUSTOM_POST_TYPES, {
-    variables: { clientPortalId: websiteId },
-    skip: !websiteId,
-  });
+  const { data: customTypesData } = useQuery<CustomPostTypesResponse>(
+    CMS_CUSTOM_POST_TYPES,
+    {
+      variables: { clientPortalId: websiteId },
+      skip: !websiteId,
+    },
+  );
 
   const customTypes = customTypesData?.cmsCustomPostTypes || [];
 
-  const handleGroupSubmit = (data: any) => {
+  const handleGroupSubmit = (data: FieldGroupFormValues) => {
     const input = {
       label: data.label,
       code: data.code,
@@ -157,7 +168,7 @@ export function CustomFields() {
     setEditingGroup(null);
   };
 
-  const handleFieldSubmit = async (data: any) => {
+  const handleFieldSubmit = async (data: FieldFormValues) => {
     if (!selectedGroup) return;
 
     const latestGroup =
@@ -178,11 +189,11 @@ export function CustomFields() {
     const currentFields = Array.isArray(latestGroup.fields)
       ? latestGroup.fields
       : [];
-    let updatedFields;
+    let updatedFields: ICustomField[];
 
     if (editingField) {
-      updatedFields = currentFields.map((f: any) =>
-        f._id === editingField._id ? newField : f,
+      updatedFields = currentFields.map((field) =>
+        field._id === editingField._id ? newField : field,
       );
     } else {
       updatedFields = [...currentFields, newField];
@@ -246,7 +257,9 @@ export function CustomFields() {
       const currentFields = Array.isArray(latestGroup.fields)
         ? latestGroup.fields
         : [];
-      const updatedFields = currentFields.filter((f: any) => f._id !== fieldId);
+      const updatedFields = currentFields.filter(
+        (field) => field._id !== fieldId,
+      );
 
       editGroup({
         variables: {

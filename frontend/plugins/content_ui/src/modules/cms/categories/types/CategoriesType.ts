@@ -17,6 +17,10 @@ export interface ICategory {
   __typename?: string;
 }
 
+export type CategoryTableRow = ICategory & {
+  _depth?: number;
+};
+
 export interface IUser {
   _id: string;
   details: {

@@ -1,10 +1,10 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Checkbox, Form, Input, Select, Sheet } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from '../shared/LanguageSelector';
-import { MenuLinkField } from './components/MenuLinkField';
-import { useMenuDrawer } from './hooks/useMenuDrawer';
-import { MenuDrawerProps } from './types/menuDrawerTypes';
+import { LanguageSelector } from '@/cms/shared/LanguageSelector';
+import { MenuLinkField } from '@/cms/menus/components/MenuLinkField';
+import { useMenuDrawer } from '@/cms/menus/hooks/useMenuDrawer';
+import { MenuDrawerProps } from '@/cms/menus/types/menuDrawerTypes';
 
 export function MenuDrawer(props: MenuDrawerProps) {
   const { t } = useTranslation('content');

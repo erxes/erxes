@@ -1,5 +1,5 @@
-import { Cms } from '~/modules/cms/shared/Cms';
+import { Websites } from '@/cms/websites/components/Websites';
 
 export const IndexPage = () => {
-  return <Cms />;
+  return <Websites />;
 };

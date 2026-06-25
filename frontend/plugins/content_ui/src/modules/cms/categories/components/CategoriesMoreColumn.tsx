@@ -1,4 +1,4 @@
-import { CellContext } from '@tanstack/react-table';
+import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
   Button,
@@ -13,11 +13,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useRemoveCategories } from '../hooks/useRemoveCategories';
 import { ApolloError } from '@apollo/client';
+import { CategoryTableRow } from '../types';
 
 interface CategoryMoreColumnCellProps {
-  cell: CellContext<any, unknown>;
+  cell: CellContext<CategoryTableRow, unknown>;
   clientPortalId: string;
-  onEdit?: (category: any) => void;
+  onEdit?: (category: CategoryTableRow) => void;
   onDelete?: (categoryId: string) => void;
   onRefetch?: () => void;
 }
@@ -34,8 +35,10 @@ export const CategoryMoreColumnCell = ({
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { removeSingleCategory, removeBulkCategories, loading } =
-    useRemoveCategories(clientPortalId, onRefetch || (() => {}));
+  const { removeSingleCategory, loading } = useRemoveCategories(
+    clientPortalId,
+    onRefetch,
+  );
 
   const handleEdit = () => {
     const category = cell.row.original;
@@ -117,12 +120,12 @@ export const CategoryMoreColumnCell = ({
 
 export const categoryMoreColumn = (
   clientPortalId: string,
-  onEdit?: (category: any) => void,
+  onEdit?: (category: CategoryTableRow) => void,
   onDelete?: (categoryId: string) => void,
   onRefetch?: () => void,
-) => ({
+): ColumnDef<CategoryTableRow> => ({
   id: 'more',
-  cell: (cell: CellContext<any, unknown>) => (
+  cell: (cell: CellContext<CategoryTableRow, unknown>) => (
     <CategoryMoreColumnCell
       cell={cell}
       clientPortalId={clientPortalId}

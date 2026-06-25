@@ -6,13 +6,14 @@ import { useTranslation } from 'react-i18next';
 import {
   CMS_CUSTOM_POST_TYPE_ADD,
   CMS_CUSTOM_POST_TYPE_EDIT,
-} from '../../graphql/queries';
+} from '@/cms/custom-types/graphql/mutations';
+import { ICustomPostType } from '@/cms/custom-types/types/customTypeTypes';
 
 interface CustomTypeDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   clientPortalId?: string;
-  customType?: any;
+  customType?: ICustomPostType;
   onCreate?: (data: CustomTypeFormData) => Promise<void> | void;
   onUpdate?: () => Promise<void> | void;
 }
@@ -121,8 +122,8 @@ export function CustomTypeDrawer({
         toast({ title: t('custom-type-created') });
       }
       onClose();
-    } catch (e: any) {
-      const msg: string = e?.message || '';
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : '';
       let pretty = msg || t('failed-to-create');
       if (/duplicate key/i.test(msg) || /already exists/i.test(msg)) {
         pretty = t('custom-type-code-already-exists');

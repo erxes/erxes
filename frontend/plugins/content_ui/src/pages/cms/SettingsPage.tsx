@@ -1,10 +1,10 @@
 import { PageContainer } from 'erxes-ui';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { SettingsForm } from './components/SettingsForm';
-import { SettingsHeader } from './components/SettingsHeader';
-import { useSettingsForm } from './hooks/useSettingsForm';
+import { SettingsForm } from '@/cms/settings/components/SettingsForm';
+import { SettingsHeader } from '@/cms/settings/components/SettingsHeader';
+import { useSettingsForm } from '@/cms/settings/hooks/useSettingsForm';
+import { CmsSidebar } from '@/cms/shared/CmsSidebar';
 
-export const Settings = () => {
+export const SettingsPage = () => {
   const {
     canSave,
     clientPortals,
@@ -42,5 +42,3 @@ export const Settings = () => {
     </PageContainer>
   );
 };
-
-export default Settings;

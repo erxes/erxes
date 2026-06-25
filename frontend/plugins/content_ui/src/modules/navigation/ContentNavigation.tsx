@@ -10,9 +10,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
-import { WebsiteDrawer } from './cms/components/websites/WebsiteDrawer';
-import { CONTENT_CMS_LIST } from './cms/graphql/queries';
-import { IWebsite } from './cms/types';
+import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
+import { WebsiteDrawer } from '@/cms/websites/components/WebsiteDrawer';
+import { IWebsite } from '@/cms/websites/types';
 
 export const ContentNavigation = () => {
   const { t } = useTranslation('content');

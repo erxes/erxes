@@ -15,11 +15,11 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { WebsiteDrawer } from '../components/websites/WebsiteDrawer';
-import { CONTENT_CMS_LIST } from '../graphql/queries';
-import { IWebsite } from '../types';
-import { CmsLayout } from './CmsLayout';
-import { EmptyState } from './EmptyState';
+import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
+import { CmsLayout } from '@/cms/shared/CmsLayout';
+import { EmptyState } from '@/cms/shared/EmptyState';
+import { WebsiteDrawer } from '@/cms/websites/components/WebsiteDrawer';
+import { IWebsite } from '@/cms/websites/types';
 
 const getThumbnailGradient = (color: string) => {
   const gradients = {
@@ -36,7 +36,7 @@ const getThumbnailGradient = (color: string) => {
   return gradients[color as keyof typeof gradients] || gradients.orange;
 };
 
-export function Cms() {
+export function Websites() {
   const { t } = useTranslation('content');
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
@@ -239,16 +239,19 @@ export function Cms() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEditWebsite(website);
                           }}
-                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                          className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent hover:text-foreground"
                         >
                           <IconEdit className="w-3 h-3" />
                           <span>{t('manage')}</span>
-                        </button>
+                        </Button>
                         {website.url && (
                           <a
                             href={website.url}
@@ -330,16 +333,19 @@ export function Cms() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEditWebsite(website);
                         }}
-                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                        className="h-auto p-0 text-xs text-muted-foreground hover:bg-transparent hover:text-foreground"
                       >
                         <IconEdit className="w-3 h-3" />
                         <span>{t('manage')}</span>
-                      </button>
+                      </Button>
                       {website.url && (
                         <a
                           href={website.url}

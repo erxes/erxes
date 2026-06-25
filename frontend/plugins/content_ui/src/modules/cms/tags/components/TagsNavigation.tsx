@@ -1,9 +1,4 @@
-import {
-  IconCategory,
-  IconCube,
-  IconRulerMeasure,
-  IconTags,
-} from '@tabler/icons-react';
+import { IconCube, IconTags } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
@@ -51,7 +46,7 @@ export const TagsNavigation = () => {
       label: t('tags'),
       icon: IconTags,
     };
-  }, [pathname, basePath]);
+  }, [pathname, basePath, t]);
 
   const Icon = currentPage.icon;
   const websiteName =

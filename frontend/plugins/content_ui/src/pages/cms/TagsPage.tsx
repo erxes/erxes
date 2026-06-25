@@ -3,17 +3,17 @@ import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { useTags } from '../hooks/useTags';
-import { CmsSidebar } from '../shared/CmsSidebar';
-import { EmptyState } from '../shared/EmptyState';
-import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
-import { TagsHeader } from './components/TagsHeader';
-import { TagsRecordTable } from './components/TagsRecordTable';
-import { useRemoveTag } from './hooks/useRemoveTag';
-import { TagDrawer } from './TagDrawer';
-import { CmsTag } from './types/tagTypes';
+import { useTags } from '@/cms/hooks/useTags';
+import { CmsSidebar } from '@/cms/shared/CmsSidebar';
+import { EmptyState } from '@/cms/shared/EmptyState';
+import { HeaderLanguageTabs } from '@/cms/shared/HeaderLanguageTabs';
+import { TagDrawer } from '@/cms/tags/components/TagDrawer';
+import { TagsHeader } from '@/cms/tags/components/TagsHeader';
+import { TagsRecordTable } from '@/cms/tags/components/TagsRecordTable';
+import { useRemoveTag } from '@/cms/tags/hooks/useRemoveTag';
+import { CmsTag } from '@/cms/tags/types/tagTypes';
 
-export function Tag() {
+export function TagsPage() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const [drawerOpen, setDrawerOpen] = useState(false);

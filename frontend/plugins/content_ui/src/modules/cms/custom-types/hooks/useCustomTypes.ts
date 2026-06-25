@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { ApolloError, useQuery } from '@apollo/client';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
 import { ICustomPostType } from '../types/customTypeTypes';
 
@@ -9,7 +9,7 @@ interface UseCustomTypesProps {
 interface UseCustomTypesResult {
   customTypes: ICustomPostType[];
   loading: boolean;
-  error?: any;
+  error?: ApolloError;
   refetch: () => void;
 }
 

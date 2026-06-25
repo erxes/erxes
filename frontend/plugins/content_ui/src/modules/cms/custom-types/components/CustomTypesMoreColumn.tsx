@@ -1,4 +1,4 @@
-import { CellContext } from '@tanstack/react-table';
+import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
   Button,
@@ -11,10 +11,11 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useRemoveCustomType } from '../hooks/useRemoveCustomType';
+import { ICustomPostType } from '../types/customTypeTypes';
 
 interface CustomTypeMoreColumnCellProps {
-  cell: CellContext<any, unknown>;
-  onEdit?: (customType: any) => void;
+  cell: CellContext<ICustomPostType, unknown>;
+  onEdit?: (customType: ICustomPostType) => void;
   onRefetch?: () => void;
 }
 
@@ -48,10 +49,13 @@ export const CustomTypeMoreColumnCell = ({
             description: t('custom-type-deleted-successfully'),
           });
         })
-        .catch((e: any) => {
+        .catch((error: unknown) => {
           toast({
             title: t('error'),
-            description: e.message,
+            description:
+              error instanceof Error
+                ? error.message
+                : t('failed-to-delete-custom-types'),
             variant: 'destructive',
           });
         });
@@ -101,11 +105,11 @@ export const CustomTypeMoreColumnCell = ({
 };
 
 export const customTypeMoreColumn = (
-  onEdit?: (customType: any) => void,
+  onEdit?: (customType: ICustomPostType) => void,
   onRefetch?: () => void,
-) => ({
+): ColumnDef<ICustomPostType> => ({
   id: 'more',
-  cell: (cell: CellContext<any, unknown>) => (
+  cell: (cell: CellContext<ICustomPostType, unknown>) => (
     <CustomTypeMoreColumnCell
       cell={cell}
       onEdit={onEdit}
