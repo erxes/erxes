@@ -1,6 +1,8 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 export function ProductSettingsSidebar() {
+  const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
   const { pathname } = useLocation();
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
@@ -29,7 +31,7 @@ export function ProductSettingsSidebar() {
                 asChild
               >
                 <Link to="/settings/products/similarity-configs">
-                  Similarity configs
+                  {t('similarity-configs', 'Similarity configs')}
                 </Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>

@@ -1,4 +1,5 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useDirectMessageEditor } from '../../hooks/useDirectMessageEditor';
 import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
 import { DirectMessageConditionCard } from './DirectMessageConditionCard';
@@ -16,6 +17,7 @@ export const DirectMessageEditor = ({
   conditions,
   onConditionChange,
 }: Props) => {
+  const { t } = useTranslation('frontline');
   const { hasConditions, addCondition, removeCondition, updateCondition } =
     useDirectMessageEditor({
       conditions,
@@ -29,13 +31,12 @@ export const DirectMessageEditor = ({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        When no conditions are added, this trigger will run for any incoming
-        direct text message.
+        {t('no-conditions-description')}
       </p>
 
       <div className="flex justify-end">
         <Button variant="ghost" onClick={addCondition}>
-          + Add optional condition
+          {t('add-optional-condition')}
         </Button>
       </div>
 

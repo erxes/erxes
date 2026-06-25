@@ -157,12 +157,12 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Brands,
     },
     {
-      name: 'Properties',
+      name: t('properties', 'Properties'),
       icon: IconHierarchy2,
       path: SettingsWorkspacePath.Properties,
     },
     {
-      name: 'Products',
+      name: t('products', 'Products'),
       icon: IconShoppingCart,
       path: SettingsWorkspacePath.Products,
     },

@@ -9,6 +9,7 @@ import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, PopoverScoped } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import {
   AutomationActionFormProps,
@@ -128,6 +129,7 @@ export const CreateTicketActionConfigForm = ({
   currentAction,
   targetType,
 }: AutomationActionFormProps<TTicketActionConfigForm>) => {
+  const { t } = useTranslation('frontline');
   const propertyType = targetType || TICKET_PROPERTY_TYPE;
   const form = useForm<TTicketActionConfigForm>({
     resolver: zodResolver(ticketActionConfigFormSchema),
@@ -160,7 +162,7 @@ export const CreateTicketActionConfigForm = ({
           name="channelId"
           render={({ field }) => (
             <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>Channel</Form.Label>
+              <Form.Label>{t('channel-label')}</Form.Label>
               <SelectChannel.FormItem
                 value={field.value || ''}
                 onValueChange={(value) => {
@@ -178,7 +180,7 @@ export const CreateTicketActionConfigForm = ({
           name="pipelineId"
           render={({ field }) => (
             <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>Pipeline</Form.Label>
+              <Form.Label>{t('pipeline-label')}</Form.Label>
               <SelectPipeline
                 variant="form"
                 value={field.value || ''}
@@ -197,7 +199,7 @@ export const CreateTicketActionConfigForm = ({
           name="statusId"
           render={({ field }) => (
             <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>Status</Form.Label>
+              <Form.Label>{t('status')}</Form.Label>
               <TicketStatusConfigSelect
                 value={field.value || ''}
                 pipelineId={pipelineId}
@@ -214,7 +216,7 @@ export const CreateTicketActionConfigForm = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Name</Form.Label>
+            <Form.Label>{t('name')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -230,7 +232,7 @@ export const CreateTicketActionConfigForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -246,7 +248,7 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="priority"
-          label="Priority"
+          label={t('priority-label')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.Option]}
           selectionType={TPlaceholderInputSuggestion.Option}
@@ -262,7 +264,7 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="assigneeId"
-          label="Assignee"
+          label={t('assignee')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.CallUser]}
         />
@@ -272,14 +274,14 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="startDate"
-          label="Start date"
+          label={t('start-date')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.Date]}
         />
         <PlaceholderFormField
           control={control}
           name="targetDate"
-          label="Target date"
+          label={t('target-date')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.Date]}
         />
@@ -289,21 +291,21 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="tagIds"
-          label="Tags"
+          label={t('tags')}
           propertyType={propertyType}
           selectMode="many"
         />
         <PlaceholderFormField
           control={control}
           name="labelIds"
-          label="Labels"
+          label={t('labels')}
           propertyType={propertyType}
           selectMode="many"
         />
         <PlaceholderFormField
           control={control}
           name="companyIds"
-          label="Companies"
+          label={t('companies')}
           propertyType={propertyType}
           selectMode="many"
           enabled={[TPlaceholderInputSuggestion.CallCompany]}

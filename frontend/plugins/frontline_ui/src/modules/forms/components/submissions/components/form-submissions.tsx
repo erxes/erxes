@@ -6,6 +6,7 @@ import { IconCheck, IconLink, IconListDetails } from '@tabler/icons-react';
 import { useFormDetail } from '@/forms/hooks/useFormDetail';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CopyLink = ({
   channelId,
@@ -16,6 +17,7 @@ const CopyLink = ({
   formId: string;
   label: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [copied, setCopied] = useState(false);
   const link = `${REACT_APP_WIDGETS_URL}/live/${channelId}/${formId}`;
 
@@ -28,8 +30,8 @@ const CopyLink = ({
       })
       .catch(() => {
         toast({
-          title: `Failed to copy ${label.toLowerCase()}`,
-          description: 'Please try again',
+          title: t('failed-to-copy', { label: label.toLowerCase() }),
+          description: t('please-try-again'),
           variant: 'destructive',
         });
       });
@@ -39,7 +41,7 @@ const CopyLink = ({
       {copied ? (
         <>
           <IconCheck className="w-4 h-4 mr-2" />
-          Copied!
+          {t('copied')}
         </>
       ) : (
         <>
@@ -52,6 +54,7 @@ const CopyLink = ({
 };
 
 export const FormSubmissions = () => {
+  const { t } = useTranslation('frontline');
   const { formId } = useParams<{ formId: string }>();
   const { submissions, loading, pageInfo, handleFetchMore } =
     useGetFormSubmissions({
@@ -73,9 +76,9 @@ export const FormSubmissions = () => {
           <Empty.Media>
             <IconListDetails />
           </Empty.Media>
-          <Empty.Title>No submissions found</Empty.Title>
+          <Empty.Title>{t('no-submissions-found')}</Empty.Title>
           <Empty.Description>
-            Share link below to gather form submissions
+            {t('share-link-description')}
           </Empty.Description>
         </Empty.Header>
         <Empty.Content>

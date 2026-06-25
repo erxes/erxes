@@ -6,6 +6,7 @@ import {
   useMultiQueryState,
   useFilterQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   IconCalendarEvent,
   IconCheck,
@@ -34,49 +35,54 @@ const DATE_STATUS_OPTIONS = [
 ] as const;
 
 function SelectStatusFilterItem() {
+  const { t } = useTranslation('tourism');
   return (
     <Filter.Item value="status">
       <IconProgressCheck />
-      Status
+      {t('status')}
     </Filter.Item>
   );
 }
 
 function SelectDateStatusFilterItem() {
+  const { t } = useTranslation('tourism');
   return (
     <Filter.Item value="date_status">
       <IconCalendarEvent />
-      Date status
+      {t('date-status')}
     </Filter.Item>
   );
 }
 
 function SelectCategoryFilterItem() {
+  const { t } = useTranslation('tourism');
   return (
     <Filter.Item value="categoryIds">
       <IconListTree />
-      Category
+      {t('category')}
     </Filter.Item>
   );
 }
 
 function SelectTourSearchFilterItem() {
+  const { t } = useTranslation('tourism');
   return (
     <Filter.Item value="tourSearchValue" inDialog>
       <IconSearch />
-      Search
+      {t('search')}
     </Filter.Item>
   );
 }
 
 function TourSearchValueBarItem() {
+  const { t } = useTranslation('tourism');
   const [tourSearchValue] = useFilterQueryState<string>('tourSearchValue');
 
   return (
     <Filter.BarItem queryKey="tourSearchValue">
       <Filter.BarName>
         <IconSearch />
-        Search
+        {t('search')}
       </Filter.BarName>
       <Filter.BarButton filterKey="tourSearchValue" inDialog>
         {tourSearchValue}
@@ -86,12 +92,13 @@ function TourSearchValueBarItem() {
 }
 
 function SelectStatusFilterView() {
+  const { t } = useTranslation('tourism');
   const [status, setStatus] = useQueryState<string | undefined>('status');
 
   return (
     <Filter.View filterKey="status">
       <Command>
-        <Command.Input placeholder="Search status" />
+        <Command.Input placeholder={t('search-status')} />
         <Command.List>
           {STATUS_OPTIONS.map((item) => (
             <Command.Item
@@ -110,6 +117,7 @@ function SelectStatusFilterView() {
 }
 
 function SelectCategoryFilterView({ branchId }: { branchId: string }) {
+  const { t } = useTranslation('tourism');
   const [categoryIds, setCategoryIds] = useQueryState<string | undefined>(
     'categoryIds',
   );
@@ -135,11 +143,11 @@ function SelectCategoryFilterView({ branchId }: { branchId: string }) {
   return (
     <Filter.View filterKey="categoryIds">
       <Command>
-        <Command.Input placeholder="Search categories..." />
+        <Command.Input placeholder={t('search-categories')} />
         <Command.List>
-          <Command.Empty>No categories found.</Command.Empty>
+          <Command.Empty>{t('no-categories-found')}</Command.Empty>
           {loading ? (
-            <Command.Item disabled>Loading...</Command.Item>
+            <Command.Item disabled>{t('loading')}</Command.Item>
           ) : (
             categories.map((category: ICategory) => {
               const isSelected = value.includes(category._id);
@@ -163,6 +171,7 @@ function SelectCategoryFilterView({ branchId }: { branchId: string }) {
 }
 
 function SelectDateStatusFilterView() {
+  const { t } = useTranslation('tourism');
   const [dateStatus, setDateStatus] = useQueryState<string | undefined>(
     'date_status',
   );
@@ -170,7 +179,7 @@ function SelectDateStatusFilterView() {
   return (
     <Filter.View filterKey="date_status">
       <Command>
-        <Command.Input placeholder="Search date status" />
+        <Command.Input placeholder={t('search-date-status')} />
         <Command.List>
           {DATE_STATUS_OPTIONS.map((item) => (
             <Command.Item
@@ -189,6 +198,7 @@ function SelectDateStatusFilterView() {
 }
 
 const TourFilterPopover = ({ branchId }: { branchId: string }) => {
+  const { t } = useTranslation('tourism');
   return (
     <>
       <Filter.Popover>
@@ -196,7 +206,7 @@ const TourFilterPopover = ({ branchId }: { branchId: string }) => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
               <Command.List className="p-1">
                 <SelectTourSearchFilterItem />
                 <Command.Separator className="my-1" />
@@ -213,7 +223,7 @@ const TourFilterPopover = ({ branchId }: { branchId: string }) => {
       </Filter.Popover>
       <Filter.Dialog>
         <Filter.View filterKey="tourSearchValue" inDialog>
-          <Filter.DialogStringView filterKey="tourSearchValue" label="Search" />
+          <Filter.DialogStringView filterKey="tourSearchValue" label={t('search')} />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -221,6 +231,7 @@ const TourFilterPopover = ({ branchId }: { branchId: string }) => {
 };
 
 export const TourFilter = ({ branchId }: { branchId: string }) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const [queries] = useMultiQueryState<{
     status: string;
@@ -255,7 +266,7 @@ export const TourFilter = ({ branchId }: { branchId: string }) => {
     selectedCategoryNames.length > 0
       ? selectedCategoryNames.join(', ')
       : selectedCategoryIds.length > 0
-        ? `${selectedCategoryIds.length} selected`
+        ? t('x-selected', { count: selectedCategoryIds.length })
         : undefined;
 
   return (
@@ -267,30 +278,30 @@ export const TourFilter = ({ branchId }: { branchId: string }) => {
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgressCheck />
-            Status
+            {t('status')}
           </Filter.BarName>
           <Filter.BarButton filterKey="status">
-            {selectedStatusLabel || 'Select status'}
+            {selectedStatusLabel || t('select-status')}
           </Filter.BarButton>
         </Filter.BarItem>
 
         <Filter.BarItem queryKey="date_status">
           <Filter.BarName>
             <IconCalendarEvent />
-            Date status
+            {t('date-status')}
           </Filter.BarName>
           <Filter.BarButton filterKey="date_status">
-            {selectedDateStatusLabel || 'Select date status'}
+            {selectedDateStatusLabel || t('select-date-status')}
           </Filter.BarButton>
         </Filter.BarItem>
 
         <Filter.BarItem queryKey="categoryIds">
           <Filter.BarName>
             <IconListTree />
-            Category
+            {t('category')}
           </Filter.BarName>
           <Filter.BarButton filterKey="categoryIds">
-            {selectedCategoryLabel || 'Select category'}
+            {selectedCategoryLabel || t('select-category')}
           </Filter.BarButton>
         </Filter.BarItem>
 

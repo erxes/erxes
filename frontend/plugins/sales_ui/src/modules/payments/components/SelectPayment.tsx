@@ -3,6 +3,7 @@ import {
   useSelectPaymentContext,
 } from '@/payments/components/contexts/SelectPaymentContext';
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   Badge,
   Button,
@@ -133,14 +134,16 @@ const PaymentInline = ({
     }
   }, [paymentIds, fetchedPayments, payments, updatePayments]);
 
+  const { t } = useTranslation('sales');
+
   if (loading && paymentIds?.length && !payments?.length) {
-    return <span className="text-sm text-muted-foreground">Loading...</span>;
+    return <span className="text-sm text-muted-foreground">{t('loading-inline')}</span>;
   }
 
   if (!payments?.length) {
     return (
       <span className="text-sm text-muted-foreground">
-        {placeholder || 'Select payment'}
+        {placeholder || t('select-payment')}
       </span>
     );
   }
@@ -231,6 +234,7 @@ const SelectPaymentCommandItem = ({ payment }: { payment: Payment }) => {
 };
 
 const SelectPaymentContent = () => {
+  const { t } = useTranslation('sales');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
   const { paymentIds, payments: selectedPayments } = useSelectPaymentContext();
@@ -251,7 +255,7 @@ const SelectPaymentContent = () => {
         variant="secondary"
         wrapperClassName="flex-auto"
         focusOnMount
-        placeholder="Search payments..."
+        placeholder={t('search-payments')}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />

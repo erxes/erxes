@@ -1,6 +1,7 @@
 import { Button, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 
 const LoyaltyRemoteEntry = lazy(() =>
   import('../modules/loyalty/components/LoyaltyRemoteEntry').then((module) => ({
@@ -21,12 +22,13 @@ const AutomationRemoteErrorFallback = ({
   resetErrorBoundary,
   error,
 }: FallbackProps) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="flex size-full flex-col items-center justify-center gap-3 p-4 text-center">
-      <p className="text-sm font-medium">Unable to load loyalty automation</p>
+      <p className="text-sm font-medium">{t('unable-to-load-loyalty-automation')}</p>
       <p className="text-xs text-accent-foreground">{error?.message}</p>
       <Button size="sm" variant="secondary" onClick={resetErrorBoundary}>
-        Try again
+        {t('try-again')}
       </Button>
     </div>
   );

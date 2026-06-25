@@ -37,6 +37,8 @@ export type IMSDynamicConfig = {
   stageId: string;
   posConf: string;
   productUrl: string;
+  custCode: string;               
+  userLocationCode: string; 
 };
 
 export type IMSDynamicConfigMap = Record<string, IMSDynamicConfig>;

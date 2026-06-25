@@ -2,21 +2,13 @@ import {
   AutomationActionNodeConfigProps,
   AutomationNodeMetaInfoRow,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import {
   POS_CUSTOMER_TYPE_OPTIONS,
   POS_ORDER_STATUS_OPTIONS,
   POS_ORDER_TYPE_OPTIONS,
 } from '../../constants/configForm';
 import { TPosOrderActionConfigForm } from '../../states/posOrderActionConfigFormDefinitions';
-
-const LABELS: Partial<Record<keyof TPosOrderActionConfigForm, string>> = {
-  posId: 'POS ID',
-  status: 'Status',
-  type: 'Order type',
-  customerId: 'Customer',
-  customerType: 'Customer type',
-  productIds: 'Products',
-};
 
 const OPTION_GROUPS: Partial<
   Record<
@@ -41,6 +33,17 @@ const getContent = (
 export const PosActionNodeContent = ({
   config,
 }: AutomationActionNodeConfigProps<TPosOrderActionConfigForm>) => {
+  const { t } = useTranslation('sales');
+
+  const LABELS: Partial<Record<keyof TPosOrderActionConfigForm, string>> = {
+    posId: t('pos-id'),
+    status: t('status'),
+    type: t('order-type'),
+    customerId: t('customer'),
+    customerType: t('customer-type'),
+    productIds: t('products'),
+  };
+
   return (
     <div>
       {Object.entries(config || {})

@@ -47,6 +47,8 @@
     "structure" : "Structure",
     "tags" : "Tags",
     "brands" : "Brands",
+    "properties" : "Properties",
+    "products" : "Products",
     "file-upload" : "File upload",
     "broadcast-config": "Broadcast config",
     "mail-config" : "Mail config",

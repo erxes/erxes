@@ -8,7 +8,9 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
+import i18n from 'i18next';
+import { ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { ACCOUNTING_SYNC_ORDER_RULES_QUERY } from '../graphql/checkSyncedOrders';
 import { AccountingOrderRule } from '../types';
@@ -30,8 +32,8 @@ const getRuleTypeLabel = (rule: AccountingOrderRule) => {
   const returnType = rule.value?.returnType;
 
   return returnType
-    ? `Sale / Return / ${ORDER_RETURN_TYPE_LABELS[returnType]}`
-    : 'Sale / Return';
+    ? `${i18n.t('accounting:sale-return')} / ${ORDER_RETURN_TYPE_LABELS[returnType]}`
+    : i18n.t('accounting:sale-return');
 };
 
 const useAccountingCheckSyncedOrderRules = () =>
@@ -64,6 +66,7 @@ const AccountingCheckSyncedOrderRuleContent = ({
 }: {
   onSelect?: () => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const { data, loading } = useAccountingCheckSyncedOrderRules();
   const { ruleId, applyRule } = useApplyOrderRuleFilter();
   const rules = data?.accountingsConfigs || [];
@@ -71,16 +74,16 @@ const AccountingCheckSyncedOrderRuleContent = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">Loading...</span>
+        <span className="text-muted-foreground">{t('loading')}</span>
       </div>
     );
   }
 
   return (
     <Command>
-      <Command.Input placeholder="Search rule" />
+      <Command.Input placeholder={t('search-rule')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No rules found</span>
+        <span className="text-muted-foreground">{t('no-rules-found')}</span>
       </Command.Empty>
       <Command.List>
         {rules.map((rule) => (
@@ -106,12 +109,34 @@ const AccountingCheckSyncedOrderRuleContent = ({
   );
 };
 
-export const AccountingCheckSyncedOrderRuleFilterItem = () => (
-  <Filter.Item value="orderRuleId">
-    <IconSettings />
-    Rule
-  </Filter.Item>
-);
+export const AccountingCheckSyncedOrderRulePicker = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger asChild>{children}</Popover.Trigger>
+      <Combobox.Content>
+        <AccountingCheckSyncedOrderRuleContent
+          onSelect={() => setOpen(false)}
+        />
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+export const AccountingCheckSyncedOrderRuleFilterItem = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Item value="orderRuleId">
+      <IconSettings />
+      {t('rule')}
+    </Filter.Item>
+  );
+};
 
 export const AccountingCheckSyncedOrderRuleFilterView = () => {
   const { resetFilterState } = useFilterContext();
@@ -124,6 +149,7 @@ export const AccountingCheckSyncedOrderRuleFilterView = () => {
 };
 
 export const AccountingCheckSyncedOrderRuleFilterBar = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   const { data } = useAccountingCheckSyncedOrderRules();
   const { ruleId } = useApplyOrderRuleFilter();
@@ -133,7 +159,7 @@ export const AccountingCheckSyncedOrderRuleFilterBar = () => {
     <Filter.BarItem queryKey="orderRuleId">
       <Filter.BarName>
         <IconSettings />
-        Rule
+        {t('rule')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>

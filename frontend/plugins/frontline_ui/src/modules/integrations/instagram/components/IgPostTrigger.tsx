@@ -3,8 +3,10 @@ import { useIgPost } from '../hooks/useIgPost';
 import DOMPurify from 'dompurify';
 import { IconBrowserShare, IconExternalLink } from '@tabler/icons-react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const IgPostTrigger = ({ erxesApiId }: { erxesApiId: string }) => {
+  const { t } = useTranslation('frontline');
   const { post, loading } = useIgPost({ erxesApiId });
   const { content, attachments, permalink_url } = post || {};
 
@@ -52,7 +54,7 @@ export const IgPostTrigger = ({ erxesApiId }: { erxesApiId: string }) => {
           asChild
         >
           <a href={permalink_url} target="_blank" rel="noopener noreferrer">
-            View post <IconExternalLink />
+            {t('view-post')} <IconExternalLink />
           </a>
         </Button>
       </Popover.Content>

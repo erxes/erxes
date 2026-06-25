@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDeleteAgent } from '../hooks/useDeleteAgent';
 import { IAgent } from '../types/agent';
 import { AgentEditSheet } from './AgentEditSheet';
@@ -24,18 +25,19 @@ export const AgentMoreColumnCell = ({
   const { deleteAgent, loading } = useDeleteAgent();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
   const confirmationValue = 'delete';
   const handleDelete = () => {
     if (!agent._id) return;
 
     confirm({
       options: { confirmationValue },
-      message: 'Are you sure you want to delete this agent?',
+      message: t('delete-agent-confirm', { count: 1 }),
     }).then(() => {
       deleteAgent(agent._id).catch(() => {
         toast({
-          title: 'Error',
-          description: 'Failed to delete agent',
+          title: t('error'),
+          description: t('failed-to-delete-agent'),
           variant: 'destructive',
         });
       });
@@ -56,7 +58,7 @@ export const AgentMoreColumnCell = ({
           <Command>
             <Command.List>
               <Command.Item value="edit" onSelect={() => setEditOpen(true)}>
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit')}
               </Command.Item>
               <Command.Item asChild>
                 <Button
@@ -67,7 +69,7 @@ export const AgentMoreColumnCell = ({
                   disabled={loading}
                 >
                   <IconTrash className="size-4" />
-                  Delete
+                  {t('delete')}
                 </Button>
               </Command.Item>
             </Command.List>

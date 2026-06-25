@@ -8,8 +8,10 @@ import {
   useMultiQueryState,
 } from 'erxes-ui';
 import { useGetResponses } from '../hooks/useGetResponses';
+import { useTranslation } from 'react-i18next';
 
 export const ResponseSubHeader = ({ channelId }: { channelId: string }) => {
+  const { t } = useTranslation('frontline');
   const [queries] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',
   ]);
@@ -32,7 +34,7 @@ export const ResponseSubHeader = ({ channelId }: { channelId: string }) => {
             <Filter.View>
               <Command>
                 <Filter.CommandInput
-                  placeholder="Filter..."
+                  placeholder={t('filter')}
                   variant="secondary"
                   className="bg-background"
                 />
@@ -51,7 +53,7 @@ export const ResponseSubHeader = ({ channelId }: { channelId: string }) => {
           {isUndefinedOrNull(totalCount) || isInitialLoad || isRefetching ? (
             <Skeleton className="w-20 h-4 inline-block mt-1.5" />
           ) : (
-            `${totalCount} records found`
+            t('records-found', { count: totalCount })
           )}
         </div>
       </Filter>

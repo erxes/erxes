@@ -1,10 +1,12 @@
 import { IconArchive } from '@tabler/icons-react';
 import { Label, RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AutomationBotSheetForm } from '~/widgets/automations/modules/instagram/components/bots/components/AutomationBotSheetForm';
 import { automationInstagramBotsColumns } from '~/widgets/automations/modules/instagram/components/bots/components/automationInstagramBotsColumns';
 import { useAutomationBotsRecordTable } from '~/widgets/automations/modules/instagram/components/bots/hooks/useAutomationBotsRecordTable';
 
 export const AutomationBotsRecordTable = () => {
+  const { t } = useTranslation('frontline');
   const { instagramMessengerBots, loading } = useAutomationBotsRecordTable();
 
   return (
@@ -26,7 +28,7 @@ export const AutomationBotsRecordTable = () => {
                   <td colSpan={4} className="py-10 text-center">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
                       <IconArchive className="w-8 h-8 mb-2" />
-                      <Label>No results</Label>
+                      <Label>{t('no-results')}</Label>
                     </div>
                   </td>
                 </tr>

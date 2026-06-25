@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Popover, PopoverScoped, ToggleGroup } from 'erxes-ui';
 import {
   IconAdjustmentsHorizontal,
@@ -23,6 +24,7 @@ const TasksBoard = lazy(() =>
 );
 
 export const TasksViewControl = () => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams();
   const [view, setView] = useAtom(tasksViewAtom);
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +38,7 @@ export const TasksViewControl = () => {
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconAdjustmentsHorizontal />
-          View
+          {t('view')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -57,7 +59,7 @@ export const TasksViewControl = () => {
               className="h-11 flex-col gap-0"
             >
               <IconTable className="size-5!" />
-              <span className="text-xs font-normal">List</span>
+              <span className="text-xs font-normal">{t('list')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="grid" asChild>
@@ -67,7 +69,7 @@ export const TasksViewControl = () => {
               className="h-11 flex-col gap-0"
             >
               <IconLayoutKanban className="size-5!" />
-              <span className="text-xs font-normal">Board</span>
+              <span className="text-xs font-normal">{t('board')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

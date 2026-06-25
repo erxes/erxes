@@ -2,8 +2,10 @@ import { IChannel } from '@/channels/types';
 import { useFormsTotalCount } from '@/forms/hooks/useFormsTotalCount';
 import { IconChevronRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const FormsSection = ({ channel }: { channel: IChannel }) => {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const { total } = useFormsTotalCount({
     variables: {
@@ -20,11 +22,11 @@ export const FormsSection = ({ channel }: { channel: IChannel }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>Manage channel forms</p>
+          <p>{t('manage-channel-forms')}</p>
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              {total} {total === 1 ? 'form' : 'forms'}
+              {t('form', { count: total })}
             </p>
             <IconChevronRight className="w-4 h-4" />
           </div>

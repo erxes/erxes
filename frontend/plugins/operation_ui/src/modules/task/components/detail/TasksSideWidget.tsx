@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCaretRightFilled, IconChartHistogram } from '@tabler/icons-react';
 import {
   Button,
@@ -29,6 +30,7 @@ interface TasksSideWidgetProps {
 }
 
 export const TasksSideWidget = ({ userId, children }: TasksSideWidgetProps) => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams();
 
   const {
@@ -53,7 +55,7 @@ export const TasksSideWidget = ({ userId, children }: TasksSideWidgetProps) => {
     <SideMenu defaultValue="">
       {children}
       <SideMenu.Content value="task-report">
-        <SideMenu.Header Icon={IconChartHistogram} label="Task Report" />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('task-report')} />
         <>
           <div className="p-4 border-b">
             <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -64,7 +66,7 @@ export const TasksSideWidget = ({ userId, children }: TasksSideWidgetProps) => {
                   size="sm"
                 >
                   <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                  Progress
+                  {t('progress')}
                 </Button>
               </Collapsible.Trigger>
               <Collapsible.Content>
@@ -93,7 +95,7 @@ export const TasksSideWidget = ({ userId, children }: TasksSideWidgetProps) => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="task-report"
-          label="Task Report"
+          label={t('task-report')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>
@@ -106,6 +108,7 @@ export const TasksSideWidgetTabs = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('operation');
   const [value, setValue] = useState<TasksSideWidgetTabsEnum>(
     TasksSideWidgetTabsEnum.Priorities,
   );
@@ -129,19 +132,19 @@ export const TasksSideWidgetTabs = ({
             value={TasksSideWidgetTabsEnum.Priorities}
             className="flex-auto"
           >
-            Priorities
+            {t('priorities')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={TasksSideWidgetTabsEnum.Projects}
             className="flex-auto"
           >
-            Projects
+            {t('projects')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={TasksSideWidgetTabsEnum.Tags}
             className="flex-auto"
           >
-            Tags
+            {t('tags')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

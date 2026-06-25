@@ -1,6 +1,7 @@
 import { Button, RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   getCheckSyncedDealsColumns,
   isSyncableDeal,
@@ -25,6 +26,7 @@ const CheckDealsButton = ({
   onCheck: (ids: string[]) => void;
   onSyncUnchecked: () => void;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getSelectedRowModel().rows;
   const ids = selectedRows.map((row) => row.original._id).filter(Boolean);
@@ -32,23 +34,24 @@ const CheckDealsButton = ({
   return (
     <div className="flex items-center justify-between gap-3 px-3 pt-3">
       <div className="text-sm text-muted-foreground">
-        {selectedRows.length} selected / {deals.length} deals
+        {t('selected-of-deals', { selected: selectedRows.length, total: deals.length })}
       </div>
       <Button onClick={() => onCheck(ids)} disabled={checking || !ids.length}>
-        {checking ? 'Checking...' : 'Check Deals'}
+        {checking ? t('checking') : t('check-deals')}
       </Button>
       <Button
         onClick={onSyncUnchecked}
         disabled={syncing || !toSyncCount}
         variant="outline"
       >
-        {syncing ? 'Syncing...' : `Sync Selected (${toSyncCount})`}
+        {syncing ? t('syncing') : t('sync-selected', { count: toSyncCount })}
       </Button>
     </div>
   );
 };
 
 export const CheckSyncedDealsRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const {
     Deals,
     checkDeals,
@@ -76,8 +79,9 @@ export const CheckSyncedDealsRecordTable = () => {
         syncableDealIds,
         onToggleToSync: setDealToSync,
         onToggleAllToSync: setAllDealsToSync,
+        t,
       }),
-    [setAllDealsToSync, setDealToSync, syncableDealIds, toSyncDealIds],
+    [setAllDealsToSync, setDealToSync, syncableDealIds, toSyncDealIds, t],
   );
 
   return (
@@ -121,10 +125,10 @@ export const CheckSyncedDealsRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No sync yet
+                {t('no-sync-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first sync.
+                {t('create-first-sync')}
               </p>
             </div>
           </div>

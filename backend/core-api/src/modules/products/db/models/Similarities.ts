@@ -154,6 +154,7 @@ export const loadProductSimilarityClass = (
       const productDoc = {
         ...info,
         code: row.code,
+        name: row.name || info.name,
         unitPrice: row.unitPrice ?? info.unitPrice,
         propertiesData: row.propertiesData,
         similarityId: similarity._id,

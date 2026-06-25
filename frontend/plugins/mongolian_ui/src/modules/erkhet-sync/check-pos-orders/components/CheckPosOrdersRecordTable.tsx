@@ -1,6 +1,7 @@
 import { Button, RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   getCheckPosOrdersColumns,
   isSyncableOrder,
@@ -25,6 +26,7 @@ const CheckOrdersButton = ({
   onSyncUnchecked: () => void;
   orders: ICheckPosOrders[];
 }) => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getSelectedRowModel().rows;
   const ids = selectedRows.map((row) => row.original._id).filter(Boolean);
@@ -32,23 +34,24 @@ const CheckOrdersButton = ({
   return (
     <div className="flex items-center justify-between gap-3 px-3 pt-3">
       <div className="text-sm text-muted-foreground">
-        {selectedRows.length} selected / {orders.length} orders
+        {t('selected-of-orders', { selected: selectedRows.length, total: orders.length })}
       </div>
       <Button onClick={() => onCheck(ids)} disabled={checking || !ids.length}>
-        {checking ? 'Checking...' : 'Check Orders'}
+        {checking ? t('checking') : t('check-orders')}
       </Button>
       <Button
         onClick={onSyncUnchecked}
         disabled={syncing || !toSyncCount}
         variant="outline"
       >
-        {syncing ? 'Syncing...' : `Sync Selected (${toSyncCount})`}
+        {syncing ? t('syncing') : t('sync-selected', { count: toSyncCount })}
       </Button>
     </div>
   );
 };
 
 export const CheckPosOrdersRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const {
     checkOrders,
     checkPosOrders,
@@ -77,8 +80,9 @@ export const CheckPosOrdersRecordTable = () => {
         syncableOrderIds,
         onToggleToSync: setOrderToSync,
         onToggleAllToSync: setAllOrdersToSync,
+        t,
       }),
-    [setAllOrdersToSync, setOrderToSync, syncableOrderIds, toSyncOrderIds],
+    [setAllOrdersToSync, setOrderToSync, syncableOrderIds, toSyncOrderIds, t],
   );
 
   return (
@@ -124,9 +128,9 @@ export const CheckPosOrdersRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No orders yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-orders-yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first order.
+                    {t('create-first-order')}
                   </p>
                 </div>
               </div>

@@ -3,8 +3,10 @@ import { CREATE_CYCLE } from '@/cycle/graphql/mutations/createCycle';
 import { useToast } from 'erxes-ui';
 import { GET_CYCLES } from '@/cycle/graphql/queries/getCycles';
 import { useCyclesVariables } from '@/cycle/hooks/useGetCycles';
+import { useTranslation } from 'react-i18next';
 
 export const useCreateCycle = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [_createCycle, { loading, error }] = useMutation(CREATE_CYCLE);
   const variables = useCyclesVariables({ cursor: '' });
@@ -14,14 +16,14 @@ export const useCreateCycle = () => {
       onCompleted: (data) => {
         toast({
           variant: 'default',
-          title: 'Cycle created successfully',
+          title: t('cycle-created-successfully'),
         });
         options.onCompleted?.(data);
       },
       onError: (e) => {
         toast({
           variant: 'destructive',
-          title: 'Failed to create cycle',
+          title: t('failed-to-create-cycle'),
           description: e.message,
         });
         options.onError?.(e);

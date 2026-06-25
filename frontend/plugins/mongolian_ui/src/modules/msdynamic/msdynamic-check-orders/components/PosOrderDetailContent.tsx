@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { IOrderCustomer, IPosOrderDetail } from '../types/msDynamicCheckOrder';
 import {
   DetailSection,
@@ -34,6 +35,7 @@ const generateCustomerLabel = (customer?: IOrderCustomer) => {
 
 /** Order detail body heseg gargana. */
 export const PosOrderDetailContent = ({ orders }: Props) => {
+  const { t } = useTranslation('mongolian');
   const items = orders.items || [];
   const paidAmounts = orders.paidAmounts || [];
   const responses = orders.putResponses || [];
@@ -43,22 +45,22 @@ export const PosOrderDetailContent = ({ orders }: Props) => {
     <div className="flex min-h-0 flex-1 flex-col gap-5">
       <div className="rounded-md border border-border/70 bg-muted/10 p-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
-          <SummaryMetric label="Bill Number" value={orders.number} />
+          <SummaryMetric label={t('bill-number')} value={orders.number} />
           <SummaryMetric
-            label="Total Amount"
+            label={t('total-amount')}
             value={formatAmount(orders.totalAmount)}
             align="right"
           />
         </div>
         <div className="mt-4 grid grid-cols-1 gap-4 border-t border-border/70 pt-4 sm:grid-cols-2">
           <SummaryMetric
-            label={(orders.customerType || 'Customer').toUpperCase()}
+            label={(orders.customerType || t('customer')).toUpperCase()}
             value={
               orders.customer ? generateCustomerLabel(orders.customer) : '-'
             }
           />
           <SummaryMetric
-            label="Date"
+            label={t('date')}
             value={paidDate ? dayjs(paidDate).format('YYYY-MM-DD HH:mm') : '-'}
             align="right"
           />
@@ -68,7 +70,7 @@ export const PosOrderDetailContent = ({ orders }: Props) => {
       <PosOrderExtraInfo orders={orders} responses={responses} />
 
       <DetailSection
-        title={`Items (${items.length})`}
+        title={t('items-count', { count: items.length })}
         className="flex min-h-[220px] flex-1 flex-col space-y-3"
       >
         <PosOrderItemsTable items={items} />

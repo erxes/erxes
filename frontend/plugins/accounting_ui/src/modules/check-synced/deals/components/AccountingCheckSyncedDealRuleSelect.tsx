@@ -8,7 +8,9 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
+import i18n from 'i18next';
+import { ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { ACCOUNTING_SYNC_DEAL_RULES_QUERY } from '../graphql/checkSyncedDeals';
 import { AccountingDealRule } from '../types';
@@ -29,14 +31,14 @@ const getRuleLabel = (rule?: AccountingDealRule) =>
 
 const getRuleTypeLabel = (rule: AccountingDealRule) => {
   if (rule.code !== ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN) {
-    return 'Sale';
+    return i18n.t('accounting:sale');
   }
 
   const returnType = rule.value?.returnType;
 
   return returnType
-    ? `Return / ${DEAL_RETURN_TYPE_LABELS[returnType]}`
-    : 'Return';
+    ? `${i18n.t('accounting:return')} / ${DEAL_RETURN_TYPE_LABELS[returnType]}`
+    : i18n.t('accounting:return');
 };
 
 const useAccountingCheckSyncedDealRules = () =>
@@ -77,6 +79,7 @@ const AccountingCheckSyncedDealRuleContent = ({
 }: {
   onSelect?: () => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const { data, loading } = useAccountingCheckSyncedDealRules();
   const { ruleId, applyRule } = useApplyDealRuleFilter();
 
@@ -85,16 +88,16 @@ const AccountingCheckSyncedDealRuleContent = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">Loading...</span>
+        <span className="text-muted-foreground">{t('loading')}</span>
       </div>
     );
   }
 
   return (
     <Command>
-      <Command.Input placeholder="Search rule" />
+      <Command.Input placeholder={t('search-rule')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No rules found</span>
+        <span className="text-muted-foreground">{t('no-rules-found')}</span>
       </Command.Empty>
       <Command.List>
         {rules.map((rule) => (
@@ -120,12 +123,32 @@ const AccountingCheckSyncedDealRuleContent = ({
   );
 };
 
-export const AccountingCheckSyncedDealRuleFilterItem = () => (
-  <Filter.Item value="ruleId">
-    <IconSettings />
-    Rule
-  </Filter.Item>
-);
+export const AccountingCheckSyncedDealRulePicker = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger asChild>{children}</Popover.Trigger>
+      <Combobox.Content>
+        <AccountingCheckSyncedDealRuleContent onSelect={() => setOpen(false)} />
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+export const AccountingCheckSyncedDealRuleFilterItem = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Item value="ruleId">
+      <IconSettings />
+      {t('rule')}
+    </Filter.Item>
+  );
+};
 
 export const AccountingCheckSyncedDealRuleFilterView = () => {
   const { resetFilterState } = useFilterContext();
@@ -138,6 +161,7 @@ export const AccountingCheckSyncedDealRuleFilterView = () => {
 };
 
 export const AccountingCheckSyncedDealRuleFilterBar = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   const { data } = useAccountingCheckSyncedDealRules();
   const { ruleId } = useApplyDealRuleFilter();
@@ -148,7 +172,7 @@ export const AccountingCheckSyncedDealRuleFilterBar = () => {
     <Filter.BarItem queryKey="ruleId">
       <Filter.BarName>
         <IconSettings />
-        Rule
+        {t('rule')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>

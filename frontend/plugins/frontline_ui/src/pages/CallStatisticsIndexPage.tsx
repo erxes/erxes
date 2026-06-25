@@ -3,8 +3,10 @@ import { IconPhone } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CallIndexPage = () => {
+  const { t } = useTranslation('frontline');
   return (
     <PageContainer>
       <PageHeader>
@@ -15,7 +17,7 @@ export const CallIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/dashboard">
                     <IconPhone />
-                    Queue Switchboard
+                    {t('queue-switchboard')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -24,7 +26,7 @@ export const CallIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/statistics">
                     <IconPhone />
-                    Queue Statistics
+                    {t('queue-statistics')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

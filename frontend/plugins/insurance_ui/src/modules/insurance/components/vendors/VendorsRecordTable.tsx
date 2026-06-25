@@ -2,8 +2,10 @@ import { IconBuilding } from '@tabler/icons-react';
 import { vendorsColumns } from './VendorsColumns';
 import { useVendors } from '~/modules/insurance/hooks';
 import { GenericRecordTable } from '../shared';
+import { useTranslation } from 'react-i18next';
 
 export const VendorsRecordTable = () => {
+  const { t } = useTranslation('insurance');
   const { vendors, loading } = useVendors();
 
   return (
@@ -15,8 +17,8 @@ export const VendorsRecordTable = () => {
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconBuilding size={64} />,
-        title: 'No vendors yet',
-        description: 'Get started by creating your first insurance vendor.',
+        title: t('no-vendors-yet'),
+        description: t('no-vendors-description'),
       }}
     />
   );

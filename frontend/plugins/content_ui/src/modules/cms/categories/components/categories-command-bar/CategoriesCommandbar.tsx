@@ -1,4 +1,5 @@
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CategoriesDelete } from './delete/CategoriesDelete';
 
 interface CategoriesCommandBarProps {
@@ -8,6 +9,7 @@ interface CategoriesCommandBarProps {
 export const CategoriesCommandBar = ({
   onBulkDelete,
 }: CategoriesCommandBarProps) => {
+  const { t } = useTranslation('content');
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const selectedIds = selectedRows.map(
@@ -17,7 +19,7 @@ export const CategoriesCommandBar = ({
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', { count: selectedRows.length })}</CommandBar.Value>
         <Separator.Inline />
         <CategoriesDelete
           selectedIds={selectedIds}

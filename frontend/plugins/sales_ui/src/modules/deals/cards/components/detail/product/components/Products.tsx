@@ -7,9 +7,12 @@ import ProductsList from './ProductsList';
 import ProductsPayment from './ProductPayment';
 import { Tabs } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 
 const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
+  const { t } = useTranslation('sales');
 
   return (
     <div className="relative">
@@ -19,14 +22,14 @@ const Products = ({ deal, refetch }: { deal: IDeal; refetch: () => void }) => {
             className="w-20 cursor-pointer font-normal data-[state=active]:bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
             value="product"
           >
-            Products
+            {t('products')}
           </Tabs.Trigger>
 
           <Tabs.Trigger
             className="w-20 cursor-pointer font-normal data-[state=active]:bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
             value="payment"
           >
-            Payments
+            {t('payments')}
           </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="product">
