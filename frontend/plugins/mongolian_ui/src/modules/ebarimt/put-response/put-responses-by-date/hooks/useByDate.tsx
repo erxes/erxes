@@ -109,7 +109,10 @@ export const useByDate = (options?: QueryHookOptions) => {
     byDateQueries.putResponsesByDate,
     {
       ...options,
-      skip: options?.skip || isUndefinedOrNull(variables.cursor),
+      skip:
+        options?.skip ||
+        isUndefinedOrNull(variables.cursor) ||
+        (!variables.createdStartDate && !variables.createdEndDate),
       variables: {
         ...variables,
       },

@@ -14,16 +14,18 @@ import {
 import { useTranslation } from 'react-i18next';
 import { duplicatedMoreColumn } from '~/modules/ebarimt/put-response/put-responses-duplicated/components/DuplicatedMoreColumn';
 import { IDuplicated } from '~/modules/ebarimt/put-response/put-responses-duplicated/types/DuplicatedType';
+
+const HeaderCell = ({ icon, label }: { icon: any; label: string }) => {
+  const { t } = useTranslation('mongolian');
+  return <RecordTable.InlineHead icon={icon} label={t(label)} />;
+};
+
 export const DuplicatedColumns: ColumnDef<IDuplicated>[] = [
   duplicatedMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IDuplicated>,
   {
     id: 'date',
     accessorKey: 'date',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconHash} label={t('date')} />;
-    },
+    header: () => <HeaderCell icon={IconHash} label="date" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -35,10 +37,7 @@ export const DuplicatedColumns: ColumnDef<IDuplicated>[] = [
   {
     id: 'values.counter',
     accessorKey: 'values.counter',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('count')} />;
-    },
+    header: () => <HeaderCell icon={IconLabel} label="count" />,
     cell: ({ row }) => {
       const counter = row.original.values?.counter || 0;
       return (
@@ -52,10 +51,7 @@ export const DuplicatedColumns: ColumnDef<IDuplicated>[] = [
   {
     id: 'values.cityTax',
     accessorKey: 'values.cityTax',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('city-tax')} />;
-    },
+    header: () => <HeaderCell icon={IconCurrencyDollar} label="city-tax" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -67,10 +63,7 @@ export const DuplicatedColumns: ColumnDef<IDuplicated>[] = [
   {
     id: 'values.vat',
     accessorKey: 'values.vat',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconUser} label={t('vat')} />;
-    },
+    header: () => <HeaderCell icon={IconUser} label="vat" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -82,10 +75,7 @@ export const DuplicatedColumns: ColumnDef<IDuplicated>[] = [
   {
     id: 'values.amount',
     accessorKey: 'values.amount',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('amount')} />;
-    },
+    header: () => <HeaderCell icon={IconCategory} label="amount" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

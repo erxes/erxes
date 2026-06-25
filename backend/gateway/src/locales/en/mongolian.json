@@ -532,6 +532,8 @@
   "no-stage-found": "No stage found",
   "pipeline-not-selected": "Pipeline not selected",
   "no-statuses-found": "No statuses found",
+  "no-put-response": "No put response",
+  "create-first-put-response": "Get started by creating your first put response.",
   "no-by-date": "No by date",
   "create-first-by-date": "Get started by creating your first by date.",
   "no-duplicated": "No duplicated",
