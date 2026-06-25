@@ -84,7 +84,9 @@ export const useByDateVariables = (
     createdStartDate: parseDateRangeFromString(dateRange)?.from,
     createdEndDate: parseDateRangeFromString(dateRange)?.to,
     search: Array.isArray(billId)
-      ? String(billId[0])
+      ? billId[0]
+        ? String(billId[0])
+        : undefined
       : billId
       ? String(billId)
       : undefined,
