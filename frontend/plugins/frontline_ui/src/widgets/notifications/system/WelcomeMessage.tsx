@@ -8,6 +8,7 @@ import {
   IconAffiliate,
   IconInfoCircle,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   WelcomeNotificationContentLayout,
   TOnboardingStepItem,
@@ -104,10 +105,11 @@ const TabItems: TVideoTabItem[] = [
 ];
 
 export const WelcomeMessageContent = () => {
+  const { t } = useTranslation('frontline');
   return (
     <WelcomeNotificationContentLayout
       title="erxes Frontline"
-      description="Engage customers, respond quickly, improve satisfaction"
+      description={t('engage-customers-description')}
       tabItems={TabItems}
       videoSrc="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/frontline-web.mp4"
       videoPoster="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/erxes-frontline-thumbnail.png"

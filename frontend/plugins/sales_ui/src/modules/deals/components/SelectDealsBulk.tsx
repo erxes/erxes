@@ -16,6 +16,7 @@ import { IDeal } from '@/deals/types/deals';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { useDebounce } from 'use-debounce';
 import { useInView } from 'react-intersection-observer';
+import { useTranslation } from 'react-i18next';
 
 interface SelectDealsProps {
   onSelect: (dealIds: string[], deals?: IDeal[]) => void;
@@ -35,6 +36,7 @@ export const SelectDealsBulk = ({
   children,
   dealIds,
 }: SelectDealsProps) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (
@@ -43,7 +45,7 @@ export const SelectDealsBulk = ({
       <Sheet.View className="sm:max-w-5xl">
         <Sheet.Header>
           <div>
-            <Sheet.Title>Select Deals</Sheet.Title>
+            <Sheet.Title>{t('select-deals')}</Sheet.Title>
           </div>
           <Sheet.Close />
         </Sheet.Header>
@@ -66,6 +68,7 @@ const SelectDealsBulkContent = ({
   onSelect: (dealIds: string[], deals?: IDeal[]) => void;
   dealIds?: string[];
 }) => {
+  const { t } = useTranslation('sales');
   const [selectedDealIds, setSelectedDealIds] = useState<string[]>([]);
   const [selectedDeals, setSelectedDeals] = useState<IDeal[]>([]);
 
@@ -109,10 +112,10 @@ const SelectDealsBulkContent = ({
         <div className="flex items-center gap-2">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">
-              Cancel
+              {t('cancel')}
             </Button>
           </Sheet.Close>
-          <Button onClick={handleSelect}>Add Many Deals</Button>
+          <Button onClick={handleSelect}>{t('add-many-deals')}</Button>
         </div>
       </Sheet.Footer>
     </>
@@ -124,6 +127,7 @@ const DealsList = ({
   selectedDealIds,
   setSelectedDealIds,
 }: DealsListProps) => {
+  const { t } = useTranslation('sales');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
 
@@ -148,13 +152,13 @@ const DealsList = ({
       <div className="p-4">
         <div className="flex items-center gap-4">
           <Input
-            placeholder="Search deals"
+            placeholder={t('search-deals')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="text-accent-foreground text-xs mt-4">
-          {totalCount} results
+          {totalCount} {t('results')}
         </div>
       </div>
       <Separator />
@@ -174,7 +178,9 @@ const DealsList = ({
                       )}
                       onClick={() => handleDealSelect(deal)}
                     >
-                      <div>{deal.name}</div>
+                      <div className={cn(!deal.name && 'text-accent-foreground italic')}>
+                        {deal.name || t('untitled-deal')}
+                      </div>
                       {isSelected ? (
                         <IconCheck className="ml-auto" />
                       ) : (
@@ -193,7 +199,7 @@ const DealsList = ({
               <div className="flex items-center gap-2 px-2 h-8" ref={bottomRef}>
                 <Spinner containerClassName="flex-none" />
                 <span className="text-accent-foreground animate-pulse">
-                  Loading more deals...
+                  {t('loading-more-deals')}
                 </span>
               </div>
             )}
@@ -210,6 +216,7 @@ const SelectedDealsList = ({
   setSelectedDeals,
   setSelectedDealIds,
 }: DealsListProps) => {
+  const { t } = useTranslation('sales');
   const handleRemoveDeal = (dealId: string) => {
     setSelectedDeals((prev) => prev.filter((p) => p._id !== dealId));
     setSelectedDealIds((prev) => prev.filter((id) => id !== dealId));
@@ -218,7 +225,7 @@ const SelectedDealsList = ({
   return (
     <ScrollArea className="h-full">
       <div className="p-4 flex flex-col gap-1">
-        <div className="text-accent-foreground text-xs px-3 mb-1">Added</div>
+        <div className="text-accent-foreground text-xs px-3 mb-1">{t('added')}</div>
         {selectedDealIds.map((dealId) => {
           return (
             <Button
@@ -227,13 +234,9 @@ const SelectedDealsList = ({
               className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
               onClick={() => handleRemoveDeal(dealId)}
             >
-              {/* <ProductsInline
-                productIds={[dealId]}
-                products={deal ? [deal] : []}
-                updateProducts={(products) =>
-                  setSelectedDeals((prev) => [...prev, ...products])
-                }
-              /> */}
+              <div className={cn(!deal?.name && 'text-accent-foreground italic')}>
+                {deal?.name || t('untitled-deal')}
+              </div>
               <IconX className="ml-auto" />
             </Button>
           );

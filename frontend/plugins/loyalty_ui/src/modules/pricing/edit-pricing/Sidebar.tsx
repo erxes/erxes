@@ -1,5 +1,6 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { PRICING_STEPS } from '@/pricing/edit-pricing/components';
 
 interface PricingEditSidebarProps {
@@ -9,6 +10,7 @@ interface PricingEditSidebarProps {
 const RULE_TABS = new Set(['rules', 'common', 'quantity', 'price', 'expiry']);
 
 export const PricingEditSidebar = ({ activeTab }: PricingEditSidebarProps) => {
+  const { t } = useTranslation('loyalty');
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
@@ -24,7 +26,7 @@ export const PricingEditSidebar = ({ activeTab }: PricingEditSidebarProps) => {
                     : activeTab === step.value
                 }
               >
-                {step.title}
+                {t(step.title)}
               </PricingEditSidebarItem>
             ))}
           </Sidebar.Menu>

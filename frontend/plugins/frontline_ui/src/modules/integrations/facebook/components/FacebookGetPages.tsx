@@ -1,4 +1,5 @@
 import { Button, cn, Command, Input, RadioGroup } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
@@ -11,6 +12,7 @@ import {
 import { useFacebookPages } from '../hooks/useFacebookPages';
 
 export const FacebookGetPages = () => {
+  const { t } = useTranslation('frontline');
   const [selectedPage, setSelectedPage] = useAtom(selectedFacebookPageAtom);
   const { facebookGetPages } = useFacebookPages();
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
@@ -27,29 +29,29 @@ export const FacebookGetPages = () => {
               setSelectedPage(undefined);
             }}
           >
-            Previous step
+            {t('previous-step')}
           </Button>
           <Button disabled={!selectedPage} onClick={() => setActiveStep(3)}>
-            Next step
+            {t('next-step')}
           </Button>
         </>
       }
     >
       <FacebookIntegrationFormSteps
-        title="Connect pages"
+        title={t('connect-pages')}
         step={2}
-        description="Select the pages where you want to integrate its pages with."
+        description={t('fb-select-pages-description')}
       />
       <div className="flex-1 overflow-hidden p-4 pt-0">
         <Command>
           <div className="p-1">
             <Command.Primitive.Input asChild>
-              <Input placeholder="Search for a page" />
+              <Input placeholder={t('search-for-a-page')} />
             </Command.Primitive.Input>
           </div>
           <div className="flex justify-between items-center px-1 py-2">
             <div className="text-sm text-muted-foreground">
-              {facebookGetPages.length} pages found
+              {t('pages-found', { count: facebookGetPages.length })}
             </div>
           </div>
           <RadioGroup

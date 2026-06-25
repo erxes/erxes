@@ -76,7 +76,7 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
   ) => {
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounce(search, 250);
-    const { suggestionTypeMap, inputRef } = usePlaceholderInputContext();
+    const { inputRef } = usePlaceholderInputContext();
 
     const {
       type: suggestionType,
@@ -162,9 +162,17 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
       );
     }
 
+    const isServerFilteredSuggestion =
+      suggestionType === 'call_user' ||
+      suggestionType === 'call_customer' ||
+      suggestionType === 'call_company' ||
+      suggestionType === 'call_product' ||
+      suggestionType === 'call_tag';
+
     return (
       <Command
         ref={internalRef}
+        shouldFilter={!isServerFilteredSuggestion}
         className="z-50 w-80 max-h-80 overflow-hidden rounded-lg border bg-background shadow-lg"
         style={positionStyle}
       >
@@ -180,7 +188,9 @@ export const PlaceholderInputSuggestionPopover = forwardRef<
           placeholder={`Search ${title.toLowerCase()}...`}
         />
         <Command.List className="max-h-80 overflow-auto">
-          <Command.Empty>No results found.</Command.Empty>
+          {!isServerFilteredSuggestion && (
+            <Command.Empty>No results found.</Command.Empty>
+          )}
           {suggestionType === 'attribute' && (
             <AttributesCommandList
               contentType={contentType}

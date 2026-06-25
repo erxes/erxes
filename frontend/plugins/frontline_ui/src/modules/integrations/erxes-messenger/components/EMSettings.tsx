@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Collapsible,
@@ -25,6 +26,7 @@ import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/compo
 type EMSettingsFormValues = z.infer<typeof EM_SETTINGS_SCHEMA>;
 
 export const EMSettings = () => {
+  const { t } = useTranslation('frontline');
   const atomValue = useAtomValue(erxesMessengerSetupSettingsAtom);
   const form = useForm<EMSettingsFormValues>({
     resolver: zodResolver(EM_SETTINGS_SCHEMA),
@@ -65,11 +67,11 @@ export const EMSettings = () => {
         className="flex-auto flex flex-col overflow-hidden"
       >
         <EMLayout
-          title="Settings"
+          title={t('settings')}
           actions={
             <>
               <EMLayoutPreviousStepButton />
-              <Button type="submit">Next step</Button>
+              <Button type="submit">{t('next-step')}</Button>
             </>
           }
         >
@@ -78,7 +80,7 @@ export const EMSettings = () => {
               name="languageCode"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Default language</Form.Label>
+                  <Form.Label>{t('default-language')}</Form.Label>
                   <Form.Control>
                     <LanguageSelect
                       value={field.value}
@@ -103,11 +105,11 @@ export const EMSettings = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Require Authentication
+                      {t('require-authentication')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    It will require email and phone in widget
+                    {t('require-authentication-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -126,11 +128,11 @@ export const EMSettings = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Show chat
+                      {t('show-chat')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    Hide chat section and show only knowledgebase and form
+                    {t('show-chat-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -149,12 +151,11 @@ export const EMSettings = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Show launcher
+                      {t('show-launcher')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    The widget section will invisible but you can still get
-                    messenger data
+                    {t('show-launcher-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -173,12 +174,11 @@ export const EMSettings = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Force logout
+                      {t('force-logout')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    If an operator resolve the conversation from inbox then
-                    client session will end automatically
+                    {t('force-logout-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -197,12 +197,11 @@ export const EMSettings = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Notify customer
+                      {t('notify-customer')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    If customer is offline and inserted email, it will send
-                    email when operator respond
+                    {t('notify-customer-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -221,7 +220,7 @@ export const EMSettings = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Show video call request
+                      {t('show-video-call-request')}
                     </Form.Label>
                   </div>
                   <Form.Message />
@@ -231,7 +230,7 @@ export const EMSettings = () => {
             <Collapsible>
               <Collapsible.TriggerButton>
                 <Collapsible.TriggerIcon />
-                Website apps
+                {t('website-apps')}
               </Collapsible.TriggerButton>
               <Collapsible.Content>
                 <Form.Item>
@@ -243,7 +242,7 @@ export const EMSettings = () => {
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium">
-                            App {index + 1}
+                            {t('app-index', { index: index + 1 })}
                           </span>
                           <Button
                             variant="secondary"
@@ -257,7 +256,7 @@ export const EMSettings = () => {
                           name={`websiteApps.${index}.credentials.url`}
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>URL</Form.Label>
+                              <Form.Label>{t('url')}</Form.Label>
                               <Form.Control>
                                 <Input
                                   placeholder="https://example.com"
@@ -272,10 +271,10 @@ export const EMSettings = () => {
                           name={`websiteApps.${index}.credentials.description`}
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>Description</Form.Label>
+                              <Form.Label>{t('description')}</Form.Label>
                               <Form.Control>
                                 <Input
-                                  placeholder="Optional description"
+                                  placeholder={t('optional-description')}
                                   {...field}
                                 />
                               </Form.Control>
@@ -287,10 +286,10 @@ export const EMSettings = () => {
                           name={`websiteApps.${index}.credentials.buttonText`}
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>Button text</Form.Label>
+                              <Form.Label>{t('button-text')}</Form.Label>
                               <Form.Control>
                                 <Input
-                                  placeholder="Optional button label"
+                                  placeholder={t('optional-button-label')}
                                   {...field}
                                 />
                               </Form.Control>
@@ -313,7 +312,7 @@ export const EMSettings = () => {
                                   variant="peer"
                                   className="leading-6"
                                 >
-                                  Show in inbox
+                                  {t('show-in-inbox')}
                                 </Form.Label>
                               </div>
                               <Form.Message />
@@ -339,7 +338,7 @@ export const EMSettings = () => {
                       }
                     >
                       <IconPlus />
-                      Add website app
+                      {t('add-website-app')}
                     </Button>
                   </div>
                 </Form.Item>

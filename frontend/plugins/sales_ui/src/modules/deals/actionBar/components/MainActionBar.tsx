@@ -7,6 +7,7 @@ import {
 } from '~/modules/import-export/components/SalesImportExportActions';
 import { SalesSearch } from './SalesSearch';
 import { useSearchParams } from 'react-router-dom';
+import { Can } from 'ui-modules';
 
 const ignoredExportFilterKeys = new Set(['salesItemId', 'tab']);
 
@@ -66,21 +67,22 @@ const MainActionBar = () => {
       <SalesFilter />
       <div className="flex items-center gap-1">
         <SalesSearch />
-        <SalesImport
-          pluginName="sales"
-          moduleName="deal"
-          collectionName="deals"
-          title="Import Deals"
-          singularLabel="deal"
-          pluralLabel="deals"
-        />
-        <SalesExport
-          pluginName="sales"
-          moduleName="deal"
-          collectionName="deals"
-          entityDisplayName="Deals"
-          getFilters={getFilters}
-        />
+        <Can action="dealsAdd">
+          <SalesImport
+            pluginName="sales"
+            moduleName="deal"
+            collectionName="deals"
+            title="Import Deals"
+          />
+        </Can>
+        <Can action="showDeals">
+          <SalesExport
+            pluginName="sales"
+            moduleName="deal"
+            collectionName="deals"
+            getFilters={getFilters}
+          />
+        </Can>
         <ArchivedDeals />
         <DealsViewControl />
       </div>

@@ -1,4 +1,4 @@
-import { Model, FilterQuery } from 'mongoose';
+import { Model } from 'mongoose';
 import { callHistorySchema } from '../definitions/histories';
 import { IUser, IUserDocument } from 'erxes-api-shared/core-types';
 import {
@@ -6,7 +6,6 @@ import {
   ICallHistoryDocument,
   ICallHistoryFilterOptions,
 } from '@/integrations/call/@types/histories';
-import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { IModels } from '~/connectionResolvers';
 
 /**
@@ -89,15 +88,26 @@ export const loadCallHistoryClass = (models: IModels) => {
       user: IUserDocument,
     ): Promise<number> {
       try {
-        const { operator } = await this.validateUserIntegration(
+        const { integration, operator } = await this.validateUserIntegration(
           models,
           user,
           filterOptions.integrationId,
         );
 
-        const filter = this.buildSessionFilter(filterOptions, user, operator);
+        const pipeline = this.buildCdrPipeline(
+          operator,
+          integration,
+          filterOptions,
+          {
+            forCount: true,
+          },
+        );
 
-        return models.CallSessions.countDocuments(filter);
+        const [row] = await models.CallCdrs.aggregate(pipeline).allowDiskUse(
+          true,
+        );
+
+        return row?.n || 0;
       } catch (error) {
         console.error('Error counting call histories:', error);
         throw error;
@@ -129,36 +139,103 @@ export const loadCallHistoryClass = (models: IModels) => {
       return { integration, operator };
     }
 
-    private static buildSessionFilter(
-      filterOptions: ICallHistoryFilterOptions,
-      user: IUserDocument,
+    private static buildCdrPipeline(
       operator: any,
-    ): FilterQuery<ICallSessionDocument> {
-      const filter: FilterQuery<ICallSessionDocument> = {
-        inboxIntegrationId: filterOptions.integrationId,
-      };
+      integration: any,
+      filterOptions: ICallHistoryFilterOptions,
+      { forCount }: { forCount?: boolean } = {},
+    ): any[] {
+      const ext = operator?.gsUsername ? String(operator.gsUsername) : '';
+      const integrationId = filterOptions.integrationId;
 
-      const ownership: FilterQuery<ICallSessionDocument>[] = [];
-      if (user?._id) {
-        ownership.push({ 'ringingOperators.userId': user._id });
-        ownership.push({ answeredBy: user._id });
+      const extVals: (string | number)[] = /^\d+$/.test(ext)
+        ? [ext, Number(ext)]
+        : [ext];
+
+      const involvement: any[] = ext
+        ? [
+            { dstchannelExt: { $in: extVals } },
+            { dstanswer: { $in: extVals } },
+            { userfield: 'Outbound', src: { $in: extVals } },
+          ]
+        : [];
+
+      const match: any = involvement.length
+        ? { $or: involvement }
+        : { _id: null };
+      if (integrationId && involvement.length) {
+        match.inboxIntegrationId = integrationId;
       }
-      if (operator?.gsUsername) {
-        ownership.push({
-          ringingOperators: {
-            $elemMatch: {
-              extensionNumber: operator.gsUsername,
-              userId: { $in: [null, undefined] },
+
+      const pipeline: any[] = [
+        { $match: match },
+        {
+          $addFields: {
+            _answeredByMe: {
+              $and: [
+                {
+                  $eq: [
+                    { $toUpper: { $ifNull: ['$disposition', ''] } },
+                    'ANSWERED',
+                  ],
+                },
+                { $gt: [{ $ifNull: ['$billsec', 0] }, 0] },
+                { $in: ['$lastapp', ['Queue', 'Dial']] },
+                {
+                  $or: [
+                    { $in: ['$dstanswer', extVals] },
+                    {
+                      $and: [
+                        { $eq: ['$userfield', 'Outbound'] },
+                        { $in: ['$src', extVals] },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            _customerPhone: {
+              $toString: {
+                $cond: [{ $eq: ['$userfield', 'Inbound'] }, '$src', '$dst'],
+              },
             },
           },
-        });
-        ownership.push({
-          answeredExtension: operator.gsUsername,
-          answeredBy: { $in: [null, undefined] },
-        });
-      }
-      // Without an owner we must not fall back to "all calls" — scope to none.
-      filter.$or = ownership.length > 0 ? ownership : [{ _id: null }];
+        },
+        { $sort: { uniqueid: 1, _answeredByMe: -1, billsec: -1, start: 1 } },
+        {
+          $group: {
+            _id: '$uniqueid',
+            userfield: { $first: '$userfield' },
+            customerPhone: { $first: '$_customerPhone' },
+            conversationId: { $first: '$conversationId' },
+            recordUrl: { $max: { $ifNull: ['$recordUrl', ''] } },
+            billsec: { $max: { $ifNull: ['$billsec', 0] } },
+            anyAnswered: { $max: { $cond: ['$_answeredByMe', 1, 0] } },
+            start: { $min: '$start' },
+            end: { $max: '$end' },
+            createdAt: { $min: '$createdAt' },
+            modifiedAt: { $max: '$updatedAt' },
+            inboxIntegrationId: { $first: '$inboxIntegrationId' },
+          },
+        },
+        {
+          $addFields: {
+            isAnswered: { $gt: ['$anyAnswered', 0] },
+            callType: {
+              $cond: [
+                { $eq: ['$userfield', 'Inbound'] },
+                'incoming',
+                'outgoing',
+              ],
+            },
+          },
+        },
+        {
+          $addFields: {
+            callStatus: { $cond: ['$isAnswered', 'connected', 'cancelled'] },
+          },
+        },
+      ];
 
       const { callStatus, callType, searchValue } = filterOptions;
 
@@ -166,55 +243,58 @@ export const loadCallHistoryClass = (models: IModels) => {
         callStatus === CALL_HISTORY_CONSTANTS.CALL_STATUS.CANCELLED ||
         callStatus === CALL_HISTORY_CONSTANTS.CALL_STATUS.MISSED
       ) {
-        // Missed tab — the call ended without anyone answering it.
-        filter.status = 'missed';
+        pipeline.push({ $match: { isAnswered: false } });
       } else if (callStatus === CALL_HISTORY_CONSTANTS.CALL_STATUS.CONNECTED) {
-        filter.status = { $in: ['active', 'ended'] };
+        pipeline.push({ $match: { isAnswered: true } });
       }
 
       if (callType) {
-        filter.callType = callType;
+        pipeline.push({ $match: { callType } });
       }
 
       if (searchValue) {
         const escaped = searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        filter.customerPhone = { $regex: new RegExp(escaped, 'i') };
+        pipeline.push({
+          $match: { customerPhone: { $regex: escaped, $options: 'i' } },
+        });
       }
 
-      return filter;
-    }
+      if (forCount) {
+        pipeline.push({ $count: 'n' });
+        return pipeline;
+      }
 
-    private static mapSessionToHistory(
-      session: ICallSessionDocument,
-      operator: any,
-    ): Partial<ICallHistory> & { _id: string } {
-      const isMissed = session.status === 'missed';
+      const operatorPhone = integration?.phone || '';
+      pipeline.push(
+        { $sort: { start: -1 } },
+        { $skip: filterOptions.skip || CALL_HISTORY_CONSTANTS.DEFAULT_SKIP },
+        { $limit: filterOptions.limit || CALL_HISTORY_CONSTANTS.DEFAULT_LIMIT },
+        {
+          $project: {
+            _id: 1,
+            uniqueid: '$_id',
+            operatorPhone: { $literal: operatorPhone },
+            customerPhone: 1,
+            // Missed calls have no talk time, even if an IVR leg reported billsec.
+            callDuration: { $cond: ['$isAnswered', '$billsec', 0] },
+            callStartTime: '$start',
+            callEndTime: '$end',
+            callType: 1,
+            callStatus: 1,
+            timeStamp: {
+              $cond: ['$start', { $divide: [{ $toLong: '$start' }, 1000] }, 0],
+            },
+            modifiedAt: 1,
+            createdAt: 1,
+            extensionNumber: { $literal: ext },
+            conversationId: 1,
+            recordUrl: 1,
+            inboxIntegrationId: 1,
+          },
+        },
+      );
 
-      return {
-        _id: session._id,
-        operatorPhone: session.operatorPhone || '',
-        customerPhone: session.customerPhone || '',
-        callDuration: session.durationSec || 0,
-        callStartTime: session.startedAt,
-        callEndTime: session.endedAt as Date,
-        callType: session.callType,
-        callStatus: isMissed
-          ? CALL_HISTORY_CONSTANTS.CALL_STATUS.CANCELLED
-          : CALL_HISTORY_CONSTANTS.CALL_STATUS.CONNECTED,
-        timeStamp: session.startedAt
-          ? new Date(session.startedAt).getTime() / 1000
-          : 0,
-        modifiedAt: session.updatedAt,
-        createdAt: session.createdAt,
-        createdBy: '',
-        modifiedBy: '',
-        extensionNumber:
-          session.answeredExtension || operator?.gsUsername || '',
-        conversationId: session.conversationId || '',
-        recordUrl: session.recordUrl || '',
-        inboxIntegrationId: session.inboxIntegrationId,
-        uniqueid: session.uniqueid,
-      };
+      return pipeline;
     }
 
     public static async getCallHistories(
@@ -222,23 +302,19 @@ export const loadCallHistoryClass = (models: IModels) => {
       user: IUserDocument,
     ): Promise<(Partial<ICallHistory> & { _id: string })[]> {
       try {
-        const { operator } = await this.validateUserIntegration(
+        const { integration, operator } = await this.validateUserIntegration(
           models,
           user,
           filterOptions.integrationId,
         );
 
-        const filter = this.buildSessionFilter(filterOptions, user, operator);
-
-        const sessions = await models.CallSessions.find(filter)
-          .sort({ startedAt: -1 })
-          .skip(filterOptions.skip || CALL_HISTORY_CONSTANTS.DEFAULT_SKIP)
-          .limit(filterOptions.limit || CALL_HISTORY_CONSTANTS.DEFAULT_LIMIT)
-          .lean();
-
-        return sessions.map((session) =>
-          this.mapSessionToHistory(session as ICallSessionDocument, operator),
+        const pipeline = this.buildCdrPipeline(
+          operator,
+          integration,
+          filterOptions,
         );
+
+        return models.CallCdrs.aggregate(pipeline).allowDiskUse(true);
       } catch (error) {
         console.error('Error retrieving call histories:', error);
         throw error;

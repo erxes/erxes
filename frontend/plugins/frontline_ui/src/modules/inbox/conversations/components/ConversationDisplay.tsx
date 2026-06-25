@@ -2,8 +2,10 @@ import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 import { IconLayoutColumns, IconList } from '@tabler/icons-react';
 import { Button, Tooltip } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const ConversationDisplay = () => {
+  const { t } = useTranslation('frontline');
   const [view, setView] = useAtom(inboxLayoutState);
 
   const Icon = view === 'split' ? IconLayoutColumns : IconList;
@@ -21,7 +23,7 @@ export const ConversationDisplay = () => {
           </Button>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          {view === 'split' ? 'List view' : 'Split view'}
+          {view === 'split' ? t('list-view') : t('split-view')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

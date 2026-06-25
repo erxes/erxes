@@ -4,6 +4,7 @@ import { IconX } from '@tabler/icons-react';
 import { TProductGroupForm } from '@/ebarimt/settings/product-group/constants/productGroupSchema';
 import { useCallback } from 'react';
 import { SelectProduct } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ProductGroupForm = ({
   form,
@@ -18,6 +19,7 @@ export const ProductGroupForm = ({
   isSheet?: boolean;
   formId?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const handleNumberChange = useCallback(
     (value: string, onChange: (value: number) => void) => {
       let cleanedValue = '';
@@ -58,7 +60,7 @@ export const ProductGroupForm = ({
             name="mainProductId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Main Product</Form.Label>
+                <Form.Label>{t('main-product')}</Form.Label>
                 <SelectProduct
                   value={field.value}
                   onValueChange={(value) => field.onChange(value)}
@@ -73,7 +75,7 @@ export const ProductGroupForm = ({
             name="subProductId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Sub Product</Form.Label>
+                <Form.Label>{t('sub-product')}</Form.Label>
                 <SelectProduct
                   value={field.value}
                   onValueChange={(value) => field.onChange(value)}
@@ -90,7 +92,7 @@ export const ProductGroupForm = ({
             name="sortNum"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Sort Number</Form.Label>
+                <Form.Label>{t('sort-number')}</Form.Label>
                 <Form.Control>
                   <Input
                     type="text"
@@ -99,7 +101,7 @@ export const ProductGroupForm = ({
                     onChange={(e) =>
                       handleNumberChange(e.target.value, field.onChange)
                     }
-                    placeholder="Enter sort number"
+                    placeholder={t('enter-sort-number')}
                     disabled={loading}
                   />
                 </Form.Control>
@@ -112,7 +114,7 @@ export const ProductGroupForm = ({
             name="ratio"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Ratio</Form.Label>
+                <Form.Label>{t('ratio')}</Form.Label>
                 <Form.Control>
                   <Input
                     type="text"
@@ -121,7 +123,7 @@ export const ProductGroupForm = ({
                     onChange={(e) =>
                       handleNumberChange(e.target.value, field.onChange)
                     }
-                    placeholder="Enter ratio"
+                    placeholder={t('enter-ratio')}
                     disabled={loading}
                   />
                 </Form.Control>
@@ -143,7 +145,7 @@ export const ProductGroupForm = ({
                   disabled={loading}
                 />
               </Form.Control>
-              <Form.Label variant="peer">Is Active</Form.Label>
+              <Form.Label variant="peer">{t('is-active')}</Form.Label>
             </Form.Item>
           )}
         />
@@ -151,11 +153,11 @@ export const ProductGroupForm = ({
           <Dialog.Footer className="col-span-2 mt-3 gap-2">
             <Dialog.Close asChild>
               <Button variant="outline" size="lg" disabled={loading}>
-                Cancel
+                {t('cancel')}
               </Button>
             </Dialog.Close>
             <Button type="submit" disabled={loading} size="lg">
-              {loading ? <Spinner /> : 'Save'}
+              {loading ? <Spinner /> : t('save')}
             </Button>
           </Dialog.Footer>
         )}

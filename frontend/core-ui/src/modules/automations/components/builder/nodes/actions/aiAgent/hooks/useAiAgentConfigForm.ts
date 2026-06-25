@@ -9,6 +9,35 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { TAutomationAction, useFormValidationErrorHandler } from 'ui-modules';
+
+type TAiAgentInputMapping = NonNullable<TAiAgentConfigForm['inputMapping']>;
+
+const getInputFromLegacyMapping = (inputMapping?: TAiAgentInputMapping) => {
+  if (!inputMapping) {
+    return '';
+  }
+
+  if (inputMapping.source === 'custom') {
+    return inputMapping.customValue || '';
+  }
+
+  const path = inputMapping.path?.trim();
+
+  if (!path) {
+    return '';
+  }
+
+  if (inputMapping.source === 'previousAction') {
+    const actionPath = path.startsWith('actions.') ? path : `actions.${path}`;
+
+    return `{{ ${actionPath} }}`;
+  }
+
+  const triggerPath = path.startsWith('trigger.') ? path : `trigger.${path}`;
+
+  return `{{ ${triggerPath} }}`;
+};
+
 export const useAiAgentConfigForm = ({
   currentAction,
 }: {
@@ -20,13 +49,13 @@ export const useAiAgentConfigForm = ({
   const form = useForm<TAiAgentConfigForm>({
     resolver: zodResolver(aiAgentConfigFormSchema),
     defaultValues: {
-      inputMapping: {
-        source: 'trigger',
-        path: '',
-        customValue: '',
-      },
-      memory: getDefaultAiAgentMemoryConfig(currentAction?.config?.goalType),
       ...(currentAction?.config || {}),
+      input:
+        currentAction?.config?.input ??
+        getInputFromLegacyMapping(currentAction?.config?.inputMapping),
+      memory:
+        currentAction?.config?.memory ??
+        getDefaultAiAgentMemoryConfig(currentAction?.config?.goalType),
     },
   });
   const { automationsAiAgents } = useAiAgents();

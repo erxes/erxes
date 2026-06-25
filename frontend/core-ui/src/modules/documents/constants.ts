@@ -1,6 +1,7 @@
 import {
   IconBroadcast,
   IconBuilding,
+  IconCurrencyDollar,
   IconShoppingCart,
   IconUser,
   IconUsersGroup,
@@ -31,5 +32,9 @@ export const DOCUMENTS_TYPES_SET: Record<string, DocumentTypeConfig> = {
   'core:broadcast': {
     icon: IconBroadcast,
     label: 'Broadcast',
+  },
+  'sales:deal': {
+    icon: IconCurrencyDollar,
+    label: 'Sales',
   },
 };

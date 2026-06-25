@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const SEGMENTS_QUERY = gql`
   query segments($contentTypes: [String]!, $config: JSON) {
@@ -77,13 +78,14 @@ export const SelectSegmentsProvider = ({
 };
 
 const SelectSegmentsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('mongolian');
   const { value, segments } = useSelectSegmentsContext();
   const selectedSegment = segments?.find((s) => s._id === value);
 
   if (!selectedSegment) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Choose segment'}
+        {placeholder || t('choose-segment')}
       </span>
     );
   }
@@ -112,13 +114,14 @@ const SelectSegmentsItem = ({ segment }: { segment: Segment }) => {
 };
 
 const SelectSegmentsContent = () => {
+  const { t } = useTranslation('mongolian');
   const { segments, loading, error, contentTypes } = useSelectSegmentsContext();
 
   const renderContent = () => {
     if (!contentTypes?.length) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">No content types</span>
+          <span className="text-muted-foreground">{t('no-content-types')}</span>
         </div>
       );
     }
@@ -126,7 +129,7 @@ const SelectSegmentsContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -134,7 +137,7 @@ const SelectSegmentsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error-colon', { message: error.message })}
         </div>
       );
     }
@@ -146,9 +149,9 @@ const SelectSegmentsContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search segment" />
+      <Command.Input placeholder={t('search-segment')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No segments found</span>
+        <span className="text-muted-foreground">{t('no-segments-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

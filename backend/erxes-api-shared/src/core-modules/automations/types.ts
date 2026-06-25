@@ -116,6 +116,7 @@ export type IAutomationsActionConfig = {
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
+  allowedMultiTriggerTypes?: string[];
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
   setPropertyTargets?: TAutomationSetPropertyTarget[];

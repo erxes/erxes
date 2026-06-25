@@ -25,6 +25,7 @@ type CheckPosOrdersColumnsOptions = {
   syncableOrderIds: string[];
   onToggleToSync: (id: string, checked: boolean) => void;
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
+  t: (key: string) => string;
 };
 
 const syncableStatuses = new Set<CheckPosOrderStatus>([
@@ -46,13 +47,14 @@ export const getCheckPosOrdersColumns = ({
   syncableOrderIds,
   onToggleToSync,
   onToggleAllToSync,
+  t,
 }: CheckPosOrdersColumnsOptions): ColumnDef<ICheckPosOrders>[] => [
   CheckPosOrdersMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICheckPosOrders>,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Number" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('number')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -66,7 +68,7 @@ export const getCheckPosOrdersColumns = ({
     id: 'totalAmount',
     accessorKey: 'totalAmount',
     header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Total Amount" />
+      <RecordTable.InlineHead icon={IconHash} label={t('total-amount')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -80,7 +82,7 @@ export const getCheckPosOrdersColumns = ({
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
+      <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
     ),
     cell: ({ cell }) => {
       return (
@@ -96,7 +98,7 @@ export const getCheckPosOrdersColumns = ({
     id: 'paidDate',
     accessorKey: 'paidDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Paid At" />
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('paid-at')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -112,7 +114,7 @@ export const getCheckPosOrdersColumns = ({
     id: 'unSynced',
     accessorKey: 'syncStatus',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Sync status" />
+      <RecordTable.InlineHead icon={IconClock} label={t('sync-status')} />
     ),
     cell: ({ cell }) => {
       const status = (cell.getValue() || 'skipped') as string;
@@ -173,7 +175,7 @@ export const getCheckPosOrdersColumns = ({
     id: 'syncedDate',
     accessorKey: 'syncedDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Synced Date" />
+      <RecordTable.InlineHead icon={IconClock} label={t('synced-date')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -187,7 +189,7 @@ export const getCheckPosOrdersColumns = ({
     id: 'syncedBillNumber',
     accessorKey: 'syncedBillNumber',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Synced Bill" />
+      <RecordTable.InlineHead icon={IconClock} label={t('synced-bill')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -201,7 +203,7 @@ export const getCheckPosOrdersColumns = ({
     id: 'syncedCustomer',
     accessorKey: 'syncedCustomer',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Synced Customer" />
+      <RecordTable.InlineHead icon={IconClock} label={t('synced-customer')} />
     ),
     cell: ({ cell }) => {
       return (

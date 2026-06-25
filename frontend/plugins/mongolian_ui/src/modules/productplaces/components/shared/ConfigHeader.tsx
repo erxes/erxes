@@ -1,4 +1,5 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   title: string;
@@ -7,12 +8,13 @@ type Props = {
 };
 
 const ConfigHeader: React.FC<Props> = ({ title, onNew, disabled }) => {
+  const { t } = useTranslation('mongolian');
   return (
     <div className="flex items-center justify-between">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
         <p className="text-xs text-muted-foreground mt-1">
-          Manage product placement configurations for different stages
+          {t('manage-product-placement')}
         </p>
       </div>
       <Button
@@ -20,7 +22,7 @@ const ConfigHeader: React.FC<Props> = ({ title, onNew, disabled }) => {
         disabled={disabled}
         className="text-sm"
       >
-        + New Config
+        + {t('new-config')}
       </Button>
     </div>
   );

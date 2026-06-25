@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import {
@@ -34,6 +35,7 @@ export const CategoryMoreColumn = (
     mainLanguage?: string;
   },
 ) => {
+  const { t } = useTranslation('tourism');
   const { branchLanguages, mainLanguage } = props;
   const category = props.row.original;
   const [editOpen, setEditOpen] = useState(false);
@@ -47,21 +49,21 @@ export const CategoryMoreColumn = (
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this category?',
+      message: t('confirm-delete-category'),
       options: { confirmationValue: 'delete' },
     })
       .then(() => {
         deleteCategory({ variables: { id: category._id } })
           .then(() => {
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Category deleted successfully',
+              description: t('category-deleted-successfully'),
             });
           })
           .catch((e: any) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -70,7 +72,7 @@ export const CategoryMoreColumn = (
       .catch((e: unknown) => {
         if (e instanceof Error) {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -89,11 +91,11 @@ export const CategoryMoreColumn = (
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit')}
               </Command.Item>
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete')}
               </Command.Item>
             </Command.List>
           </Command>

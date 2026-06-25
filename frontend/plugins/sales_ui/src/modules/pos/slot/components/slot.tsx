@@ -8,6 +8,7 @@ import {
   type ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { useTranslation } from 'react-i18next';
 import { Button, cn, Sheet, Spinner, Tabs, useIsMobile } from 'erxes-ui';
 import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -75,6 +76,7 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
     handleSaveAllChanges,
   } = useSlotManager(posId, initialNodes);
 
+  const { t } = useTranslation('sales');
   const [isDragging, setIsDragging] = useState(false);
   const [activeTab, setActiveTab] = useState('slots');
   const [slotsSheetOpen, setSlotsSheetOpen] = useState(false);
@@ -235,10 +237,10 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
           >
             <Sheet.Header className="justify-between shrink-0">
               <Sheet.Title>
-                {activeTab === 'details' ? 'Slot Detail' : 'Slots'}
+                {activeTab === 'details' ? t('slot-detail') : t('slots')}
               </Sheet.Title>
               <Sheet.Description className="sr-only">
-                Manage the slots available on this POS floor plan.
+                {t('manage-slots-description')}
               </Sheet.Description>
               <Sheet.Close />
             </Sheet.Header>
@@ -280,10 +282,10 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
             {activeTab === 'details' && selectedNode && (
               <Sheet.Footer className="border-t shrink-0">
                 <Button variant="outline" onClick={handleSidebarCancel}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button variant="default" onClick={handleSidebarSave}>
-                  Save
+                  {t('save')}
                 </Button>
               </Sheet.Footer>
             )}

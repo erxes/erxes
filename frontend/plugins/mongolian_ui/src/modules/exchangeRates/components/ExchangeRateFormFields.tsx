@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { DatePicker, Form, Input, Select } from 'erxes-ui';
 import { useEffect } from 'react';
 import { FieldPath, UseFormReturn } from 'react-hook-form';
@@ -52,6 +53,7 @@ const CurrencyField = ({
 );
 
 export const ExchangeRateFormFields = ({ form, formId, onSubmit }: Props) => {
+  const { t } = useTranslation('mongolian');
   const { currencies, mainCurrency } = useCurrencies();
   const { setValue, getValues } = form;
 
@@ -74,7 +76,7 @@ export const ExchangeRateFormFields = ({ form, formId, onSubmit }: Props) => {
           name="date"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Start Date</Form.Label>
+              <Form.Label>{t('start-date')}</Form.Label>
               <Form.Control>
                 <DatePicker
                   value={field.value}
@@ -91,15 +93,15 @@ export const ExchangeRateFormFields = ({ form, formId, onSubmit }: Props) => {
           <CurrencyField
             form={form}
             name="mainCurrency"
-            label="Main Currency"
-            placeholder="Choose a main currency"
+            label={t('main-currency')}
+            placeholder={t('choose-main-currency')}
             currencies={currencies}
           />
           <CurrencyField
             form={form}
             name="rateCurrency"
-            label="Rate Currency"
-            placeholder="Choose a rate currency"
+            label={t('rate-currency')}
+            placeholder={t('choose-rate-currency')}
             currencies={currencies}
           />
         </div>
@@ -109,7 +111,7 @@ export const ExchangeRateFormFields = ({ form, formId, onSubmit }: Props) => {
           name="rate"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Rate</Form.Label>
+              <Form.Label>{t('rate')}</Form.Label>
               <Form.Control>
                 <Input.Number
                   value={field.value}

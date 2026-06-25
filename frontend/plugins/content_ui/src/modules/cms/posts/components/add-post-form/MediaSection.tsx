@@ -2,6 +2,7 @@ import { Form, Upload, Button, Input } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconX } from '@tabler/icons-react';
 import { UseFormReturn, ControllerRenderProps } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { GalleryUploader } from '../../GalleryUploader';
 import { DocumentsUploader } from '../../DocumentsUploader';
 import { AttachmentsUploader } from '../../AttachmentsUploader';
@@ -35,19 +36,21 @@ interface ThumbnailUploaderProps {
   form: UseFormReturn<MediaFormData>;
 }
 
-export const MediaSection = ({ form }: MediaSectionProps) => (
+export const MediaSection = ({ form }: MediaSectionProps) => {
+  const { t } = useTranslation('content');
+  return (
   <div>
     <div className="mt-1 space-y-4">
-      <div className="text-sm font-medium">Media</div>
+      <div className="text-sm font-medium">{t('media')}</div>
 
       <Form.Field
         control={form.control}
         name="thumbnail"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Featured image</Form.Label>
+            <Form.Label>{t('featured-image')}</Form.Label>
             <Form.Description>
-              Image can be shown on top of the post also in the list view
+              {t('featured-image-desc')}
             </Form.Description>
             <Form.Control>
               <ThumbnailUploader field={field} form={form} />
@@ -62,9 +65,9 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
         name="gallery"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Image gallery</Form.Label>
+            <Form.Label>{t('image-gallery')}</Form.Label>
             <Form.Description>
-              Image gallery with maximum of 100 images
+              {t('image-gallery-desc')}
             </Form.Description>
             <Form.Control>
               <GalleryUploader
@@ -82,7 +85,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
         name="videoUrl"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Video URL</Form.Label>
+            <Form.Label>{t('video-url')}</Form.Label>
             <Form.Control>
               <Input value={field.value} onChange={field.onChange} />
             </Form.Control>
@@ -96,7 +99,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
         name="documents"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Documents</Form.Label>
+            <Form.Label>{t('documents')}</Form.Label>
             <Form.Control>
               <DocumentsUploader
                 value={(field.value as string[]) || []}
@@ -113,7 +116,7 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
         name="attachments"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Attachments</Form.Label>
+            <Form.Label>{t('attachments')}</Form.Label>
             <Form.Control>
               <AttachmentsUploader
                 value={(field.value as string[]) || []}
@@ -126,9 +129,11 @@ export const MediaSection = ({ form }: MediaSectionProps) => (
       />
     </div>
   </div>
-);
+  );
+};
 
 const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
+  const { t } = useTranslation('content');
   const handleChange = (value: UploadValue) => {
     if (value?.url) {
       field.onChange({
@@ -167,7 +172,7 @@ const ThumbnailUploader = ({ field, form }: ThumbnailUploaderProps) => {
             >
               <IconUpload size={16} />
               <span className="text-sm font-medium">
-                {field.value ? 'Change image' : 'Upload featured image'}
+                {field.value ? t('change-image') : t('upload-featured-image')}
               </span>
             </Upload.Button>
           </div>

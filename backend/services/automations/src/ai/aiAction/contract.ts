@@ -79,11 +79,8 @@ const aiActionMemorySchema = z.object({
 
 const commonAiAgentConfigFormSchema = z.object({
   aiAgentId: z.string().min(1),
-  inputMapping: aiActionInputMappingSchema.default({
-    source: 'trigger',
-    path: '',
-    customValue: '',
-  }),
+  input: z.string().optional(),
+  inputMapping: aiActionInputMappingSchema.optional(),
   optionalConnects: z.array(optionalConnectSchema).optional().default([]),
   memory: aiActionMemorySchema.default({
     read: {

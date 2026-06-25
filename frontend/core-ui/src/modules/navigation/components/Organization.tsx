@@ -1,6 +1,6 @@
 import { currentOrganizationState } from 'ui-modules';
 
-import { cn, DropdownMenu, Sidebar, TextOverflowTooltip } from 'erxes-ui';
+import { Button, cn, DropdownMenu, TextOverflowTooltip } from 'erxes-ui';
 
 import { useAtom } from 'jotai';
 import { IconSelector } from '@tabler/icons-react';
@@ -11,61 +11,72 @@ import { ThemeSelector } from '@/navigation/components/ThemeSelector';
 import { SelectLanguages } from '@/navigation/components/SelectLanguages';
 import { useTranslation } from 'react-i18next';
 import { OrgLogoIcon } from '@/auth/components/Logo';
+import { AppPath } from '@/types/paths/AppPath';
 
 export function Organization() {
   const [currentOrganization] = useAtom(currentOrganizationState);
   const { handleLogout } = useAuth();
   const { t } = useTranslation('organization');
 
+  const hasOrgName =
+    !!currentOrganization?.name || !!currentOrganization?.orgShortName;
+
   return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Sidebar.MenuButton
-          size="lg"
-          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground h-auto p-2"
-        >
-          <div className="flex size-8 rounded-lg  items-center justify-center overflow-hidden flex-none shadow-xs">
-            <OrgLogoIcon className="size-7 text-primary flex-none" />
-          </div>
-          <TextOverflowTooltip
-            value={
-              currentOrganization?.name
-                ? currentOrganization.name
-                : currentOrganization?.orgShortName || 'erxes'
-            }
-            className={cn('font-medium text-sm', {
-              'text-accent-foreground font-normal':
-                !currentOrganization?.name &&
-                !currentOrganization?.orgShortName,
-            })}
-          />
-          <IconSelector className="ml-auto size-4 text-accent-foreground" />
-        </Sidebar.MenuButton>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="start" className="space-y-1">
-        <User />
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item asChild>
-          <Link to="/settings" className="text-sm">
-            {t('settings')}
-          </Link>
-        </DropdownMenu.Item>
-        <DropdownMenu.Separator />
-        <ThemeSelector />
-        <SelectLanguages />
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item className="text-sm" onClick={() => handleLogout()}>
-          {t('logout')}
-        </DropdownMenu.Item>
-        <DropdownMenu.Separator />
-        <DropdownMenu.Label className="flex items-center gap-2">
-          {t('version')}
-          <span className="text-primary ml-auto tracking-wider">
-            3.0.0-beta.1
-          </span>
-        </DropdownMenu.Label>
-      </DropdownMenu.Content>
-    </DropdownMenu>
+    <div className="flex w-full items-center gap-1 ">
+      <Link
+        to={AppPath.Index}
+        aria-label={t('home')}
+        className="flex flex-1 basis-1/2 min-w-0 items-center gap-2 rounded p-2"
+      >
+        <div className="flex size-8 rounded-lg items-center justify-center overflow-hidden flex-none shadow-xs">
+          <OrgLogoIcon className="size-7 text-primary flex-none" />
+        </div>
+        <TextOverflowTooltip
+          value={
+            currentOrganization?.name
+              ? currentOrganization.name
+              : currentOrganization?.orgShortName || 'erxes'
+          }
+          className={cn('font-medium text-sm', {
+            'text-accent-foreground font-normal': !hasOrgName,
+          })}
+        />
+      </Link>
+      <DropdownMenu>
+        <DropdownMenu.Trigger asChild>
+          <Button
+            variant="ghost"
+            type="button"
+            className="flex flex-1 basis-1/2 h-auto items-center justify-start gap-2 rounded p-2 font-medium text-sm text-foreground hover:bg-transparent outline-none focus-visible:outline-none data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          >
+            <IconSelector className="ml-auto text-accent-foreground" />
+          </Button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="end" className="space-y-1 ml-2">
+          <User />
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item asChild>
+            <Link to="/settings" className="text-sm">
+              {t('settings')}
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <ThemeSelector />
+          <SelectLanguages />
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item className="text-sm" onClick={() => handleLogout()}>
+            {t('logout')}
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Label className="flex items-center gap-2">
+            {t('version')}
+            <span className="text-primary ml-auto tracking-wider">
+              3.0.0-beta.1
+            </span>
+          </DropdownMenu.Label>
+        </DropdownMenu.Content>
+      </DropdownMenu>
+    </div>
   );
 }
 

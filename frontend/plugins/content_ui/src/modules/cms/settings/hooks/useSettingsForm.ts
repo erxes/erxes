@@ -1,6 +1,7 @@
 import { NetworkStatus, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   CONTENT_CREATE_CMS,
@@ -18,6 +19,7 @@ import {
 import { buildPublicUrl } from '../utils/settingsHelpers';
 
 export const useSettingsForm = () => {
+  const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const navigate = useNavigate();
   const [hydratedSettingsKey, setHydratedSettingsKey] = useState<string>();
@@ -87,8 +89,8 @@ export const useSettingsForm = () => {
   const hydrationKey = cms?._id
     ? `${websiteId}:cms:${cms._id}`
     : clientPortal?._id
-    ? `${websiteId}:clientPortal:${clientPortal._id}`
-    : undefined;
+      ? `${websiteId}:clientPortal:${clientPortal._id}`
+      : undefined;
 
   useEffect(() => {
     if (
@@ -140,6 +142,8 @@ export const useSettingsForm = () => {
         cms?.language || languages[0] || DEFAULT_SETTINGS.defaultLanguage,
       siteLogo: cms?.siteLogo || DEFAULT_SETTINGS.siteLogo,
       favicon: cms?.favicon || DEFAULT_SETTINGS.favicon,
+      accessPolicy: cms?.accessPolicy === 'assigned' ? 'assigned' : 'open',
+      assignedMemberIds: cms?.assignedMemberIds || [],
     });
     setHydratedSettingsKey(hydrationKey);
   }, [
@@ -186,6 +190,9 @@ export const useSettingsForm = () => {
       postUrlPrefix: settings.postUrlPrefix,
       siteLogo: settings.siteLogo,
       favicon: settings.favicon,
+      accessPolicy: settings.accessPolicy,
+      assignedMemberIds:
+        settings.accessPolicy === 'assigned' ? settings.assignedMemberIds : [],
     };
 
     return includeContent
@@ -199,8 +206,8 @@ export const useSettingsForm = () => {
   const handleSave = async () => {
     if (!websiteId) {
       toast({
-        title: 'Settings not saved',
-        description: 'Select a CMS website before saving settings.',
+        title: t('settings-not-saved'),
+        description: t('select-cms-before-saving'),
         variant: 'destructive',
       });
       return;
@@ -208,8 +215,8 @@ export const useSettingsForm = () => {
 
     if (!settingsQueriesFetched) {
       toast({
-        title: 'Settings not saved',
-        description: 'Settings are still loading. Try again in a moment.',
+        title: t('settings-not-saved'),
+        description: t('settings-still-loading'),
         variant: 'destructive',
       });
       return;
@@ -217,8 +224,8 @@ export const useSettingsForm = () => {
 
     if (!settings.websiteName.trim() || !settings.shortDescription.trim()) {
       toast({
-        title: 'Settings not saved',
-        description: 'Website name and short description are required.',
+        title: t('settings-not-saved'),
+        description: t('website-name-and-desc-required'),
         variant: 'destructive',
       });
       return;
@@ -234,8 +241,8 @@ export const useSettingsForm = () => {
         });
 
         toast({
-          title: 'Success',
-          description: 'CMS settings updated successfully.',
+          title: t('success'),
+          description: t('cms-settings-updated-successfully'),
         });
         return;
       }
@@ -247,16 +254,16 @@ export const useSettingsForm = () => {
       });
 
       toast({
-        title: 'Success',
-        description: 'CMS settings created successfully.',
+        title: t('success'),
+        description: t('cms-settings-created-successfully'),
       });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
           error instanceof Error
             ? error.message
-            : 'Failed to save CMS settings. Please try again.',
+            : t('failed-to-save-cms-settings'),
         variant: 'destructive',
       });
     }
@@ -265,8 +272,8 @@ export const useSettingsForm = () => {
   const handleDelete = async () => {
     if (!cms?._id) {
       toast({
-        title: 'CMS not deleted',
-        description: 'Save this CMS before trying to delete it.',
+        title: t('cms-not-deleted'),
+        description: t('save-cms-before-deleting'),
         variant: 'destructive',
       });
       return;
@@ -282,17 +289,17 @@ export const useSettingsForm = () => {
       });
 
       toast({
-        title: 'Success',
-        description: 'CMS deleted successfully.',
+        title: t('success'),
+        description: t('cms-deleted-successfully'),
       });
       navigate('/content/cms');
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
           error instanceof Error
             ? error.message
-            : 'Failed to delete CMS. Please try again.',
+            : t('failed-to-delete-cms'),
         variant: 'destructive',
       });
     }

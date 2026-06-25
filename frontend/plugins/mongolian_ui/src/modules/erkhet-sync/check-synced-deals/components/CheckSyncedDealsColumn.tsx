@@ -26,6 +26,7 @@ type CheckSyncedDealsColumnsOptions = {
   syncableDealIds: string[];
   onToggleToSync: (id: string, checked: boolean) => void;
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
+  t: (key: string) => string;
 };
 
 const syncableStatuses = new Set<CheckSyncedDealStatus>([
@@ -59,13 +60,14 @@ export const getCheckSyncedDealsColumns = ({
   syncableDealIds,
   onToggleToSync,
   onToggleAllToSync,
+  t,
 }: CheckSyncedDealsColumnsOptions): ColumnDef<ICheckSyncedDeals>[] => [
   CheckSyncedDealsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICheckSyncedDeals>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Deal name" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('deal-name')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -78,7 +80,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'number',
     accessorKey: 'number',
     header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Deal number" />
+      <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -92,7 +94,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'amount',
     accessorKey: 'amount',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -106,7 +108,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
+      <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
     ),
     cell: ({ cell }) => {
       return (
@@ -122,7 +124,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'modifiedAt',
     accessorKey: 'modifiedAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Modified At" />
+      <RecordTable.InlineHead icon={IconCategory} label={t('modified-at')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -138,7 +140,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'stageChangedDate',
     accessorKey: 'stageChangedDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Stage Changed Date" />
+      <RecordTable.InlineHead icon={IconCategory} label={t('stage-changed-date')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -154,7 +156,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'unSynced',
     accessorKey: 'syncStatus',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Sync status" />
+      <RecordTable.InlineHead icon={IconCategory} label={t('sync-status')} />
     ),
     cell: ({ cell }) => {
       const status = (cell.getValue() || 'skipped') as string;
@@ -214,7 +216,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'syncedDate',
     accessorKey: 'syncedDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced Date" />
+      <RecordTable.InlineHead icon={IconCategory} label={t('synced-date')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -228,7 +230,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'syncedBillNumber',
     accessorKey: 'syncedBillNumber',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced bill number" />
+      <RecordTable.InlineHead icon={IconCategory} label={t('synced-bill-number')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -242,7 +244,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'syncedCustomer',
     accessorKey: 'syncedCustomer',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced customer" />
+      <RecordTable.InlineHead icon={IconCategory} label={t('synced-customer')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -256,7 +258,7 @@ export const getCheckSyncedDealsColumns = ({
     id: 'syncAction',
     accessorKey: 'syncAction',
     header: () => (
-      <RecordTable.InlineHead icon={IconRefresh} label="Sync action" />
+      <RecordTable.InlineHead icon={IconRefresh} label={t('sync-action')} />
     ),
     cell: ({ cell }) => {
       return (

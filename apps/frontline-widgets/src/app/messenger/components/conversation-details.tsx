@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'motion/react';
-import { useMemo, useRef, useState } from 'react';
-import { useAtomValue } from 'jotai';
+import { useMemo, useRef, useState, useEffect, useCallback } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   BotMessage,
   OperatorMessage,
@@ -11,8 +11,12 @@ import { useConversationDetail } from '../hooks/useConversationDetail';
 import {
   connectionAtom,
   conversationIdAtom,
+  isBotTypingAtom,
   messengerDataAtom,
+  operatorStatusAtom,
+  setConversationIdAtom,
 } from '../states';
+import { useChangeOperatorStatus } from '../hooks/useChangeOperatorStatus';
 import { Avatar, Button, readImage, Skeleton, cn } from 'erxes-ui';
 import { formatMessageDate, getDateKey } from '@libs/formatDate';
 import { DateSeparator } from './date-separator';
@@ -26,6 +30,9 @@ import {
 } from '@tabler/icons-react';
 import { useMessenger } from '../hooks/useMessenger';
 import { CloseButton } from './CloseButton';
+import { useInsertMessage } from '../hooks/useInsertMessage';
+import { useCustomerData } from '../hooks/useCustomerData';
+import { CustomerFormInline } from './customer-form-inline';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
@@ -80,10 +87,56 @@ export const ConversationDetails = () => {
   const {
     botGreetMessage,
     botShowInitialMessage,
+    getStarted,
     messages: messagesConfig,
     responseRate,
     isOnline,
+    requireAuth,
   } = messengerData || {};
+
+  console.log('getStarted', getStarted);
+
+  const { insertMessage } = useInsertMessage();
+  const setConversationId = useSetAtom(setConversationIdAtom);
+  const setIsBotTyping = useSetAtom(isBotTypingAtom);
+
+  const handleGetStarted = useCallback(() => {
+    setIsBotTyping(true);
+    insertMessage({
+      variables: { message: 'Get Started', contentType: 'getStarted' },
+      onCompleted: (data) => {
+        const newConversationId = data?.widgetsInsertMessage?.conversationId;
+        if (newConversationId && !conversationId) {
+          setConversationId(newConversationId);
+        }
+      },
+    });
+  }, [insertMessage, conversationId, setConversationId, setIsBotTyping]);
+
+  const handleQuickReply = useCallback(
+    (title: string) => {
+      insertMessage({
+        variables: { message: title, contentType: 'quickReply' },
+      });
+    },
+    [insertMessage],
+  );
+
+  const handleTicketFormSubmit = useCallback(
+    (payload: Record<string, string>) => {
+      insertMessage({
+        variables: {
+          message: 'Ticket form submitted',
+          contentType: 'ticketFormSubmission',
+          payload: JSON.stringify(payload),
+        },
+      });
+    },
+    [insertMessage],
+  );
+  const { hasEmailOrPhone } = useCustomerData();
+  const showAuthForm = requireAuth === true && !hasEmailOrPhone;
+
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
       _id: conversationId,
@@ -92,7 +145,25 @@ export const ConversationDetails = () => {
     skip: !conversationId || !messengerConnectData?.integrationId,
   });
   const { messages } = conversationDetail || {};
-  console.log(messages, '[messages]');
+
+  const hasGetStartedMessage = messages?.some(
+    (m) => m.contentType === 'getStarted',
+  );
+
+  const [operatorStatus, setOperatorStatus] = useAtom(operatorStatusAtom);
+  const { toggle: toggleOperator } = useChangeOperatorStatus();
+
+  useEffect(() => {
+    if (conversationDetail?.operatorStatus) {
+      setOperatorStatus(conversationDetail.operatorStatus);
+    }
+  }, [conversationDetail?.operatorStatus, setOperatorStatus]);
+
+  const handleToggleOperator = () => {
+    if (!conversationId) return;
+    const next = operatorStatus === 'operator' ? 'bot' : 'operator';
+    toggleOperator(conversationId, next);
+  };
 
   const lastAgentUser = useMemo(() => {
     if (!messages) return null;
@@ -105,6 +176,32 @@ export const ConversationDetails = () => {
   const isLastMessageFromBot = useMemo(() => {
     if (!messages || messages.length === 0) return false;
     return isBotMessage(messages[messages.length - 1]);
+  }, [messages]);
+
+  const lastBotMessageId = useMemo(() => {
+    if (!messages) return null;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (isBotMessage(messages[i])) return messages[i]._id;
+    }
+    return null;
+  }, [messages]);
+
+  const isTicketFormAlreadySubmitted = useMemo(() => {
+    if (!messages) return false;
+    // Find the last requestCreateTicket message
+    let lastRequestIndex = -1;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if ((messages[i] as any).contentType === 'requestCreateTicket') {
+        lastRequestIndex = i;
+        break;
+      }
+    }
+    // No ticket request in this conversation — hide any form
+    if (lastRequestIndex === -1) return true;
+    // Check if the last request was already answered by a ticketFormSubmission
+    return messages
+      .slice(lastRequestIndex + 1)
+      .some((m) => (m as any).contentType === 'ticketFormSubmission');
   }, [messages]);
 
   const messagesByDate = useMemo(() => {
@@ -232,7 +329,7 @@ export const ConversationDetails = () => {
           <div className="text-primary-foreground font-semibold text-sm flex items-center gap-1.5 truncate">
             {isLastMessageFromBot ? (
               <>
-                AI agent
+                Ai bot
                 <span className="inline-flex items-center rounded-sm px-1.5 text-xs font-medium h-5 bg-primary/20 text-primary-foreground border border-primary/30 shrink-0">
                   AI
                 </span>
@@ -292,12 +389,24 @@ export const ConversationDetails = () => {
                     };
 
                     if (isBotMessage(message)) {
+                      const isLastBot = message._id === lastBotMessageId;
                       return (
                         <BotMessage
                           key={message._id}
                           botData={message.botData}
                           createdAt={new Date(message.createdAt)}
                           showAvatar={message.showAvatar}
+                          showOperatorToggle={isLastBot}
+                          operatorStatus={operatorStatus ?? 'bot'}
+                          onToggleOperator={handleToggleOperator}
+                          onQuickReply={
+                            isLastBot ? handleQuickReply : undefined
+                          }
+                          onTicketFormSubmit={
+                            isLastBot && !isTicketFormAlreadySubmitted
+                              ? handleTicketFormSubmit
+                              : undefined
+                          }
                           {...messagePositionProps}
                         />
                       );
@@ -338,11 +447,21 @@ export const ConversationDetails = () => {
             </div>
           );
         })}
-        {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
+        {botShowInitialMessage && (
+          <BotMessage
+            content={botGreetMessage}
+            onGetStarted={
+              getStarted && !hasGetStartedMessage ? handleGetStarted : undefined
+            }
+          />
+        )}
         <WelcomeMessage
           content={messagesConfig?.welcome || InitialMessage.WELCOME}
         />
       </div>
+      <AnimatePresence>
+        {showAuthForm && <CustomerFormInline key="auth-form" />}
+      </AnimatePresence>
     </div>
   );
 };

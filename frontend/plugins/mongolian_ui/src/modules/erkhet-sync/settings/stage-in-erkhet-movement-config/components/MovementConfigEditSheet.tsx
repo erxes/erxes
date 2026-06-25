@@ -1,5 +1,6 @@
 import { Button, Form, Input, Select, Sheet } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
@@ -8,7 +9,7 @@ import { IMovementDetail, TMovementErkhetConfig } from '../types';
 import { MovementDetailRows } from './MovementDetailRows';
 
 const RESPONSE_FIELD_OPTIONS = [
-  { label: 'Erkhet Response', value: 'propertiesData.erkhetResponse' },
+  { label: 'erkhet-response', value: 'propertiesData.erkhetResponse' },
 ];
 
 interface Props {
@@ -26,6 +27,7 @@ export const MovementConfigEditSheet = ({
   onSubmit,
   loading,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const form = useForm<TMovementErkhetConfig>({
     resolver: zodResolver(addStageInMovementErkhetConfigSchema),
     defaultValues: {
@@ -65,7 +67,7 @@ export const MovementConfigEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>Edit Erkhet Move Config</Sheet.Title>
+          <Sheet.Title>{t('edit-erkhet-move-config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -81,9 +83,9 @@ export const MovementConfigEditSheet = ({
                     control={form.control}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Title</Form.Label>
+                        <Form.Label>{t('title')}</Form.Label>
                         <Form.Control>
-                          <Input {...field} placeholder="Title" />
+                          <Input {...field} placeholder={t('title')} />
                         </Form.Control>
                         <Form.Message />
                       </Form.Item>
@@ -94,7 +96,7 @@ export const MovementConfigEditSheet = ({
                     name="boardId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Board</Form.Label>
+                        <Form.Label>{t('board')}</Form.Label>
                         <SelectBoard
                           mode="single"
                           value={field.value}
@@ -103,7 +105,7 @@ export const MovementConfigEditSheet = ({
                             form.setValue('pipelineId', '');
                             form.setValue('stageId', '');
                           }}
-                          placeholder="Select board"
+                          placeholder={t('select-board')}
                         />
                         <Form.Message />
                       </Form.Item>
@@ -114,9 +116,9 @@ export const MovementConfigEditSheet = ({
                     control={form.control}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>User Email</Form.Label>
+                        <Form.Label>{t('user-email')}</Form.Label>
                         <Form.Control>
-                          <Input {...field} placeholder="User Email" />
+                          <Input {...field} placeholder={t('user-email')} />
                         </Form.Control>
                         <Form.Message />
                       </Form.Item>
@@ -127,7 +129,7 @@ export const MovementConfigEditSheet = ({
                     name="pipelineId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Pipeline</Form.Label>
+                        <Form.Label>{t('pipeline')}</Form.Label>
                         <SelectPipeline
                           mode="single"
                           value={field.value}
@@ -136,7 +138,7 @@ export const MovementConfigEditSheet = ({
                             form.setValue('stageId', '');
                           }}
                           boardId={selectedBoardId || undefined}
-                          placeholder="Select pipeline"
+                          placeholder={t('select-pipeline')}
                         />
                         <Form.Message />
                       </Form.Item>
@@ -147,9 +149,9 @@ export const MovementConfigEditSheet = ({
                     name="defaultCustomer"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Default Customer</Form.Label>
+                        <Form.Label>{t('default-customer')}</Form.Label>
                         <Form.Control>
-                          <Input {...field} placeholder="Default Customer" />
+                          <Input {...field} placeholder={t('default-customer')} />
                         </Form.Control>
                         <Form.Message />
                       </Form.Item>
@@ -160,7 +162,7 @@ export const MovementConfigEditSheet = ({
                     name="stageId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Stage</Form.Label>
+                        <Form.Label>{t('stage')}</Form.Label>
                         <SelectStage
                           mode="single"
                           value={field.value}
@@ -168,7 +170,7 @@ export const MovementConfigEditSheet = ({
                             field.onChange(value as string)
                           }
                           pipelineId={selectedPipelineId || undefined}
-                          placeholder="Select stage"
+                          placeholder={t('select-stage')}
                         />
                         <Form.Message />
                       </Form.Item>
@@ -180,18 +182,18 @@ export const MovementConfigEditSheet = ({
                   name="responseField"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Response Field</Form.Label>
+                      <Form.Label>{t('response-field')}</Form.Label>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder="Response Field" />
+                          <Select.Value placeholder={t('response-field')} />
                         </Select.Trigger>
                         <Select.Content>
                           {RESPONSE_FIELD_OPTIONS.map((type) => (
                             <Select.Item key={type.value} value={type.value}>
-                              {type.label}
+                              {t(type.label)}
                             </Select.Item>
                           ))}
                         </Select.Content>
@@ -211,10 +213,10 @@ export const MovementConfigEditSheet = ({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? t('saving') : t('save')}
                 </Button>
               </div>
             </form>

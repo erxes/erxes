@@ -4,6 +4,7 @@ import { IconRefresh } from '@tabler/icons-react';
 import { Button, Dialog, Form, Spinner, useMultiQueryState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { selectedProductIdsAtom } from '../states/productCounts';
 import { useForm } from 'react-hook-form';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
@@ -12,6 +13,7 @@ import { TReCalcRemainderForm } from '../types/reCalcRemainderForm';
 import { reCalcRemainderSchema } from '../types/reCalcRemainderSchema';
 
 export const ReCalcRemainderForm = () => {
+  const { t } = useTranslation('accounting');
   const selectedProductIds = useAtomValue(selectedProductIdsAtom);
   const [open, setOpen] = useState(false);
   const [frozenProductIds, setFrozenProductIds] = useState<string[]>([]);
@@ -26,7 +28,7 @@ export const ReCalcRemainderForm = () => {
       <Dialog.Trigger asChild>
         <Button variant="outline">
           <IconRefresh size={16} />
-          ReCalc Remainder
+          {t('recalc-remainder')}
           {selectedProductIds.length > 0 && (
             <span className="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-1.5 py-0.5 leading-none">
               {selectedProductIds.length}
@@ -35,8 +37,8 @@ export const ReCalcRemainderForm = () => {
         </Button>
       </Dialog.Trigger>
       <AccountingDialog
-        title="Recalculate Remainders"
-        description="Recalculate live inventory remainders"
+        title={t('recalculate-remainders')}
+        description={t('recalculate-live-inventory-remainders')}
       >
         <ReCalcRemaindersForm setOpen={setOpen} productIds={frozenProductIds} />
       </AccountingDialog>
@@ -51,6 +53,7 @@ const ReCalcRemaindersForm = ({
   setOpen: (open: boolean) => void;
   productIds?: string[];
 }) => {
+  const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<{
     branchId?: string;
     departmentId?: string;
@@ -85,8 +88,7 @@ const ReCalcRemaindersForm = ({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="px-6 py-4 space-y-4">
           <p className="text-sm text-muted-foreground">
-            Select filters to recalculate live inventory remainders. Leave
-            fields empty to recalculate all.
+            {t('select-filters-to-recalculate')}
           </p>
           <hr className="border-border" />
           <div className="grid grid-cols-1 gap-4">
@@ -95,7 +97,7 @@ const ReCalcRemaindersForm = ({
               name="branchId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Branch</Form.Label>
+                  <Form.Label>{t('branch')}</Form.Label>
                   <SelectBranches.FormItem
                     mode="single"
                     value={field.value}
@@ -110,7 +112,7 @@ const ReCalcRemaindersForm = ({
               name="departmentId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Department</Form.Label>
+                  <Form.Label>{t('department')}</Form.Label>
                   <SelectDepartments.FormItem
                     mode="single"
                     value={field.value}
@@ -125,7 +127,7 @@ const ReCalcRemaindersForm = ({
               name="productCategoryId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Product Category</Form.Label>
+                  <Form.Label>{t('product-category')}</Form.Label>
                   <SelectCategory
                     selected={field.value}
                     onSelect={field.onChange}
@@ -140,19 +142,19 @@ const ReCalcRemaindersForm = ({
         <Dialog.Footer className="px-6 py-4">
           <Dialog.Close asChild>
             <Button variant="outline" type="button">
-              Cancel
+              {t('cancel')}
             </Button>
           </Dialog.Close>
           <Button type="submit" disabled={loading}>
             {loading ? (
               <>
                 <Spinner />
-                Running...
+                {t('running')}
               </>
             ) : (
               <>
                 <IconRefresh size={16} />
-                Run
+                {t('run')}
               </>
             )}
           </Button>

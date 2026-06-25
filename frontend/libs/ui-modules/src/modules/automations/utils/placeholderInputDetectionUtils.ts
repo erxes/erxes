@@ -1,6 +1,6 @@
 import {
   SuggestionConfig,
-  SuggestionType,
+  TPlaceholderInputSuggestionType,
 } from '../types/placeholderInputTypes';
 
 export function isInsideLockedExpression(value: string, cursorPos: number) {
@@ -139,7 +139,7 @@ export function isAllowedDateNowEditKey(key: string) {
 export function shouldEnableDateSuggestions(
   value: string,
   cursorPos: number,
-  enabledTypes?: Record<SuggestionType, boolean>,
+  enabledTypes?: Record<TPlaceholderInputSuggestionType, boolean>,
 ) {
   const { inside } = getDateNowContext(value, cursorPos);
   const isEnabled = !enabledTypes || enabledTypes['date'];

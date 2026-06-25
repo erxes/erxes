@@ -1,4 +1,5 @@
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePostMutations } from '../../../../hooks/usePostMutations';
 import {
   makeAttachmentArrayFromUrls,
@@ -343,6 +344,7 @@ export const usePostSubmission = ({
   translations,
   onClose,
 }: UsePostSubmissionProps) => {
+  const { t } = useTranslation('content');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -375,10 +377,10 @@ export const usePostSubmission = ({
     try {
       if (editingPost?._id) {
         await editPost(editingPost._id, input);
-        toast({ title: 'Saved', description: 'Post saved successfully' });
+        toast({ title: t('saved'), description: t('post-saved-successfully') });
       } else {
         await createPost(input);
-        toast({ title: 'Saved', description: 'Post created successfully' });
+        toast({ title: t('saved'), description: t('post-created-successfully') });
       }
 
       if (onClose) {
@@ -389,10 +391,10 @@ export const usePostSubmission = ({
       redirectToPosts(websiteId, searchParams, navigate);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to save post';
+        error instanceof Error ? error.message : t('failed-to-save-post');
 
       toast({
-        title: 'Error',
+        title: t('error'),
         description: message,
         variant: 'destructive',
       });
@@ -411,8 +413,8 @@ export const usePostSubmission = ({
   onSubmitRef.current = async (data: PostFormData) => {
     if (!data.type) {
       toast({
-        title: 'Validation Error',
-        description: 'Please select a post type',
+        title: t('validation-error'),
+        description: t('please-select-a-post-type'),
         variant: 'destructive',
       });
       return;

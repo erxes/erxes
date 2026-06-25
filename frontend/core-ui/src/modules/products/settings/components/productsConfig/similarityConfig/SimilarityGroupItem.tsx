@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Collapsible, Input, Label, useToast } from 'erxes-ui';
 import {
   IconSettings,
@@ -36,6 +37,7 @@ export const SimilarityGroupItem = ({
   onSave,
   onDelete,
 }: ISimilarityGroupItemProps) => {
+  const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
   const { toast } = useToast();
   const [title, setTitle] = useState(initialConfig.title || '');
   const [filterField, setFilterField] = useState(
@@ -74,8 +76,8 @@ export const SimilarityGroupItem = ({
   const handleSave = useCallback(async () => {
     if (!title.trim()) {
       toast({
-        title: 'Error',
-        description: 'Title is required',
+        title: t('error', 'Error'),
+        description: t('title-required', 'Title is required'),
         variant: 'destructive',
       });
       return;
@@ -93,8 +95,8 @@ export const SimilarityGroupItem = ({
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       toast({
-        title: 'Save failed',
-        description: msg || 'Unknown error',
+        title: t('save-failed', 'Save failed'),
+        description: msg || t('unknown-error', 'Unknown error'),
         variant: 'destructive',
       });
     } finally {
@@ -109,6 +111,7 @@ export const SimilarityGroupItem = ({
     initialCodeGroup,
     onSave,
     toast,
+    t,
   ]);
 
   const handleDelete = useCallback(async () => {
@@ -118,21 +121,21 @@ export const SimilarityGroupItem = ({
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       toast({
-        title: 'Delete failed',
-        description: msg || 'Unknown error',
+        title: t('delete-failed', 'Delete failed'),
+        description: msg || t('unknown-error', 'Unknown error'),
         variant: 'destructive',
       });
     } finally {
       setIsDeleting(false);
     }
-  }, [initialCodeGroup, onDelete, toast]);
+  }, [initialCodeGroup, onDelete, toast, t]);
 
   return (
     <Collapsible open={isOpen} onOpenChange={() => onToggle?.()}>
       <Collapsible.Trigger className="flex gap-3 items-center px-4 py-3 w-full border-b">
         <IconSettings size={20} className="text-muted-foreground" />
         <span className="flex-1 font-medium text-left">
-          {title || 'New similarity group'}
+          {title || t('new-similarity-group', 'New similarity group')}
         </span>
         <IconChevronDown
           size={18}
@@ -145,29 +148,29 @@ export const SimilarityGroupItem = ({
         <div className="p-4 space-y-4 border-b">
           <div className="grid grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label>Title</Label>
+              <Label>{t('title', 'Title')}</Label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="New similarity group"
+                placeholder={t('new-similarity-group', 'New similarity group')}
               />
             </div>
             <div className="space-y-2">
-              <Label>Filter Field</Label>
+              <Label>{t('filter-field', 'Filter Field')}</Label>
               <FilterFieldSelect
                 value={filterField}
                 onValueChange={setFilterField}
               />
             </div>
             <div className="space-y-2">
-              <Label>Code Mask</Label>
+              <Label>{t('code-mask', 'Code Mask')}</Label>
               <Input
                 value={codeGroupKey}
                 onChange={(e) => setCodeGroupKey(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label>Default Product</Label>
+              <Label>{t('default-product', 'Default Product')}</Label>
               <SelectProduct
                 value={defaultProduct || ''}
                 defaultSearchValue={codeGroupKey}
@@ -185,18 +188,18 @@ export const SimilarityGroupItem = ({
               {rules.map((rule, index) => (
                 <div key={rule.id} className="flex gap-2 items-end w-full">
                   <div className="space-y-2 w-full">
-                    <Label>Title</Label>
+                    <Label>{t('title', 'Title')}</Label>
                     <Input
                       value={rule.title}
                       onChange={(e) =>
                         handleRuleChange(index, 'title', e.target.value)
                       }
-                      placeholder="Enter title"
+                      placeholder={t('enter-title', 'Enter title')}
                     />
                   </div>
 
                   <div className="space-y-2 w-full">
-                    <Label>Field Group</Label>
+                    <Label>{t('field-group', 'Field Group')}</Label>
                     <RuleGroupSelect
                       value={rule.groupId}
                       onValueChange={(value) =>
@@ -206,7 +209,7 @@ export const SimilarityGroupItem = ({
                   </div>
 
                   <div className="space-y-2 w-full">
-                    <Label>Field</Label>
+                    <Label>{t('field', 'Field')}</Label>
                     <RuleFieldSelect
                       groupId={rule.groupId}
                       value={rule.fieldId}
@@ -233,7 +236,7 @@ export const SimilarityGroupItem = ({
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="secondary" onClick={handleAddRule}>
               <IconPlus size={16} />
-              Add Rule
+              {t('add-rule', 'Add Rule')}
             </Button>
             <Button
               type="button"
@@ -246,7 +249,7 @@ export const SimilarityGroupItem = ({
               ) : (
                 <IconTrash size={16} />
               )}
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? t('deleting', 'Deleting...') : t('delete', 'Delete')}
             </Button>
             <Button
               type="button"
@@ -258,7 +261,7 @@ export const SimilarityGroupItem = ({
               ) : (
                 <IconCheck size={16} />
               )}
-              {isSaving ? 'Saving...' : 'Save'}
+              {isSaving ? t('saving', 'Saving...') : t('save', 'Save')}
             </Button>
           </div>
         </div>

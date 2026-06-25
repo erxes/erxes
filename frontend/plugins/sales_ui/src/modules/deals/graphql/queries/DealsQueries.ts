@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const commonParams = `
-  $_ids: [String]
+  $_ids: [String],
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
@@ -15,23 +15,23 @@ const commonParams = `
   $closeDateType: String,
   $userIds: [String],
   $segment: String,
-  $segmentData:String,
+  $segmentData: String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
   $tagIds: [String],
-  $noSkipArchive: Boolean
+  $noSkipArchive: Boolean,
   $boardIds: [String],
-  $branchIds:[String]
-  $departmentIds:[String]
+  $branchIds: [String],
+  $departmentIds: [String],
   $createdStartDate: Date,
   $createdEndDate: Date,
-  $stateChangedStartDate: Date
-  $stateChangedEndDate: Date
-  $startDateStartDate: Date
-  $startDateEndDate: Date
-  $closeDateStartDate: Date
-  $closeDateEndDate: Date
+  $stageChangedStartDate: Date,
+  $stageChangedEndDate: Date,
+  $startDateStartDate: Date,
+  $startDateEndDate: Date,
+  $closeDateStartDate: Date,
+  $closeDateEndDate: Date,
 `;
 
 const commonParamDefs = `
@@ -54,18 +54,18 @@ const commonParamDefs = `
   startDate: $startDate,
   endDate: $endDate,
   tagIds: $tagIds,
-  noSkipArchive: $noSkipArchive
+  noSkipArchive: $noSkipArchive,
   boardIds: $boardIds,
   branchIds: $branchIds,
   departmentIds: $departmentIds,
   createdStartDate: $createdStartDate,
   createdEndDate: $createdEndDate,
-  stateChangedStartDate: $stateChangedStartDate
-  stateChangedEndDate: $stateChangedEndDate
-  startDateStartDate: $startDateStartDate
-  startDateEndDate: $startDateEndDate
-  closeDateStartDate: $closeDateStartDate
-  closeDateEndDate: $closeDateEndDate
+  stageChangedStartDate: $stageChangedStartDate,
+  stageChangedEndDate: $stageChangedEndDate,
+  startDateStartDate: $startDateStartDate,
+  startDateEndDate: $startDateEndDate,
+  closeDateStartDate: $closeDateStartDate,
+  closeDateEndDate: $closeDateEndDate,
 `;
 
 export const commonListFields = `
@@ -132,6 +132,32 @@ export const commonListFields = `
   }
   branchIds
   departmentIds
+`;
+
+export const GET_DEALS_SEARCH_DROPDOWN = gql`
+  query Deals(
+    $limit: Int, 
+    $orderBy: JSON,
+    ${commonParams}
+  ) {
+    deals(
+      limit: $limit, 
+      orderBy: $orderBy, 
+      ${commonParamDefs}
+    ) {
+        list {
+          _id
+          name
+          number
+          pipeline {
+            _id
+            name
+            boardId
+          }
+          boardId
+        }
+      }
+  }
 `;
 
 export const GET_DEALS = gql`

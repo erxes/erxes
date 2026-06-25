@@ -3,6 +3,7 @@ import { IconChevronLeft } from '@tabler/icons-react';
 import { Button, cn, Form, Label, toast } from 'erxes-ui';
 import { useState } from 'react';
 import { FormProvider, useForm, UseFormSetValue } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationTriggerFormProps,
   generateAutomationElementId,
@@ -155,6 +156,7 @@ export const MessageTriggerForm = ({
   onSaveTriggerConfig,
   formRef,
 }: AutomationTriggerFormProps<TMessageTriggerForm>) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<TMessageTriggerForm>({
     resolver: zodResolver(triggerFormSchema),
     values: { ...((activeTrigger?.config || {}) as TMessageTriggerForm) },
@@ -168,7 +170,7 @@ export const MessageTriggerForm = ({
     callback: () => {
       handleSubmit(onSaveTriggerConfig, () =>
         toast({
-          title: 'There is some error in the form',
+          title: t('form-error'),
           variant: 'destructive',
         }),
       )();
@@ -188,7 +190,7 @@ export const MessageTriggerForm = ({
             />
           )}
         />
-        <Label className="ml-4 mt-2">Triggers</Label>
+        <Label className="ml-4 mt-2">{t('triggers-label')}</Label>
         <div
           className={cn('flex-1 flex flex-col relative', {
             blur: !formState.botId,

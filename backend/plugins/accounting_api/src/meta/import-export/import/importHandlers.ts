@@ -8,6 +8,7 @@ import { IModels } from '~/connectionResolvers';
 import { processAccountCategoryRows } from './processAccountCategoryRows';
 import { processAccountRows } from './processAccountRows';
 import { processTransactionRows } from './processAccountTransactions';
+import { processVatRows } from './processVatRows';
 
 const accountImportMap = {
   accountCategories: {
@@ -80,10 +81,43 @@ const accountImportMap = {
       { label: 'НӨАТ орхих', key: 'excludeVat' },
       { label: 'НХАТ орхих', key: 'excludeCtax' },
     ],
-    processRows: (subdomain: string, models: IModels, rows: any[], userId: string) =>
-      processTransactionRows(subdomain, models, rows, userId),
+    processRows: (
+      subdomain: string,
+      models: IModels,
+      rows: any[],
+      userId: string,
+    ) => processTransactionRows(subdomain, models, rows, userId),
     batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) => {
       return !rowData?.date;
+    },
+  },
+  vatRows: {
+    headers: [
+      { label: 'Name', key: 'name' },
+      { label: 'Number', key: 'number' },
+      { label: 'Kind', key: 'kind' },
+      { label: 'Formula', key: 'formula' },
+      { label: 'Formula text', key: 'formula_text' },
+      { label: 'Tab count', key: 'tab_count' },
+      { label: 'Is bold', key: 'is_b' },
+      { label: 'Percent', key: 'percent' },
+      { label: 'Status', key: 'status' },
+    ],
+    processRows: (
+      subdomain: string,
+      models: IModels,
+      rows: Record<string, unknown>[],
+    ) => processVatRows(subdomain, models, rows),
+    batchSkipRow: (
+      _subdomain: string,
+      _models: IModels,
+      rowData: Record<string, unknown>,
+    ) => {
+      return (
+        rowData.number === undefined ||
+        rowData.number === null ||
+        String(rowData.number).trim() === ''
+      );
     },
   },
 };
@@ -112,8 +146,7 @@ export const accountImportHandlers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = accountImportMap[collectionName];
-    if (!handler?.batchSkipRow)
-      return false;
+    if (!handler?.batchSkipRow) return false;
     return handler.batchSkipRow(subdomain, models, rowData);
   },
 };

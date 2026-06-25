@@ -2,6 +2,7 @@ import { Label, RadioGroup } from 'erxes-ui';
 import { cn } from 'erxes-ui/lib';
 import { cva } from 'class-variance-authority';
 import { IconCheck } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 type HeroStyleVariant = 'glossy' | 'aurora' | 'mesh' | 'flat';
 type NavigationVariant = 'pill' | 'fluid';
@@ -25,10 +26,10 @@ const heroBackgroundVariants = cva('h-full w-full', {
 });
 
 const HERO_STYLE_OPTIONS: { value: HeroStyleVariant; label: string }[] = [
-  { value: 'glossy', label: 'Glossy' },
-  { value: 'aurora', label: 'Aurora' },
-  { value: 'mesh', label: 'Mesh' },
-  { value: 'flat', label: 'Flat' },
+  { value: 'glossy', label: 'glossy' },
+  { value: 'aurora', label: 'aurora' },
+  { value: 'mesh', label: 'mesh' },
+  { value: 'flat', label: 'flat' },
 ];
 
 interface HeroStyleRadioGroupProps {
@@ -39,7 +40,9 @@ interface HeroStyleRadioGroupProps {
 export const HeroStyleRadioGroup = ({
   value,
   onChange,
-}: HeroStyleRadioGroupProps) => (
+}: HeroStyleRadioGroupProps) => {
+  const { t } = useTranslation('frontline');
+  return (
   <RadioGroup
     value={value}
     onValueChange={onChange}
@@ -72,7 +75,7 @@ export const HeroStyleRadioGroup = ({
                 : 'text-muted-foreground',
             )}
           >
-            {label}
+            {t(label)}
           </span>
           {selected && (
             <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
@@ -87,7 +90,8 @@ export const HeroStyleRadioGroup = ({
       );
     })}
   </RadioGroup>
-);
+  );
+};
 
 // ── Navigation variant previews ──────────────────────────────────────────────
 
@@ -121,14 +125,14 @@ const NAV_VARIANT_OPTIONS: {
 }[] = [
   {
     value: 'pill',
-    label: 'Pill',
-    description: 'Floating glass group',
+    label: 'pill',
+    description: 'nav-floating-glass-group',
     Preview: PillPreview,
   },
   {
     value: 'fluid',
-    label: 'Fluid',
-    description: 'Full-width bar',
+    label: 'fluid',
+    description: 'nav-full-width-bar',
     Preview: FluidPreview,
   },
 ];
@@ -141,53 +145,56 @@ interface NavigationVariantRadioGroupProps {
 export const NavigationVariantRadioGroup = ({
   value,
   onChange,
-}: NavigationVariantRadioGroupProps) => (
-  <RadioGroup
-    value={value}
-    onValueChange={onChange}
-    className="grid grid-cols-2 gap-3"
-  >
-    {NAV_VARIANT_OPTIONS.map(({ value: opt, label, description, Preview }) => {
-      const selected = value === opt;
-      return (
-        <Label
-          key={opt}
-          htmlFor={`nav-variant-${opt}`}
-          className={cn(
-            'relative flex cursor-pointer flex-col gap-2 rounded-xl border-2 p-3',
-            selected
-              ? 'border-primary bg-primary/5'
-              : 'border-border bg-background',
-          )}
-        >
-          <RadioGroup.Item
-            value={opt}
-            id={`nav-variant-${opt}`}
-            className="sr-only"
-          />
-          <Preview />
-          <div>
-            <p
-              className={cn(
-                'text-sm font-semibold',
-                selected ? 'text-foreground' : 'text-muted-foreground',
-              )}
-            >
-              {label}
-            </p>
-            <p className="text-xs text-muted-foreground">{description}</p>
-          </div>
-          {selected && (
-            <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-              <IconCheck
-                size={11}
-                stroke={3}
-                className="text-primary-foreground"
-              />
-            </span>
-          )}
-        </Label>
-      );
-    })}
-  </RadioGroup>
-);
+}: NavigationVariantRadioGroupProps) => {
+  const { t } = useTranslation('frontline');
+  return (
+    <RadioGroup
+      value={value}
+      onValueChange={onChange}
+      className="grid grid-cols-2 gap-3"
+    >
+      {NAV_VARIANT_OPTIONS.map(({ value: opt, label, description, Preview }) => {
+        const selected = value === opt;
+        return (
+          <Label
+            key={opt}
+            htmlFor={`nav-variant-${opt}`}
+            className={cn(
+              'relative flex cursor-pointer flex-col gap-2 rounded-xl border-2 p-3',
+              selected
+                ? 'border-primary bg-primary/5'
+                : 'border-border bg-background',
+            )}
+          >
+            <RadioGroup.Item
+              value={opt}
+              id={`nav-variant-${opt}`}
+              className="sr-only"
+            />
+            <Preview />
+            <div>
+              <p
+                className={cn(
+                  'text-sm font-semibold',
+                  selected ? 'text-foreground' : 'text-muted-foreground',
+                )}
+              >
+                {t(label)}
+              </p>
+              <p className="text-xs text-muted-foreground">{t(description)}</p>
+            </div>
+            {selected && (
+              <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                <IconCheck
+                  size={11}
+                  stroke={3}
+                  className="text-primary-foreground"
+                />
+              </span>
+            )}
+          </Label>
+        );
+      })}
+    </RadioGroup>
+  );
+};

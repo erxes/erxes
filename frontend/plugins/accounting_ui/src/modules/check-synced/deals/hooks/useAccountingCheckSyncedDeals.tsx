@@ -9,6 +9,7 @@ import {
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
@@ -63,28 +64,43 @@ const chunkIds = (ids: string[], size: number) => {
 export const useAccountingCheckSyncedDealsVariables = (
   variables?: QueryHookOptions<AccountingDealsQueryResult>['variables'],
 ) => {
-  const [{ user, ruleId, stageId, dealSearch, number, dateType, dateRange }] =
-    useMultiQueryState<{
-      user: string;
-      ruleId: string;
-      boardId: string;
-      pipelineId: string;
-      stageId: string;
-      dealSearch: string;
-      number: string;
-      dateType: string;
-      dateRange: string;
-    }>([
-      'user',
-      'ruleId',
-      'boardId',
-      'pipelineId',
-      'stageId',
-      'dealSearch',
-      'number',
-      'dateType',
-      'dateRange',
-    ]);
+  const [
+    {
+      user,
+      ruleId,
+      stageId,
+      dealSearch,
+      number,
+      dateType,
+      dateRange,
+      createdDateRange,
+      stageChangedDateRange,
+    },
+  ] = useMultiQueryState<{
+    user: string;
+    ruleId: string;
+    boardId: string;
+    pipelineId: string;
+    stageId: string;
+    dealSearch: string;
+    number: string;
+    dateType: string;
+    dateRange: string;
+    createdDateRange: string;
+    stageChangedDateRange: string;
+  }>([
+    'user',
+    'ruleId',
+    'boardId',
+    'pipelineId',
+    'stageId',
+    'dealSearch',
+    'number',
+    'dateType',
+    'dateRange',
+    'createdDateRange',
+    'stageChangedDateRange',
+  ]);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
@@ -103,6 +119,11 @@ export const useAccountingCheckSyncedDealsVariables = (
     number: String(number ?? '') || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
+    createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
+    createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
+    stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
+      ?.from,
+    stageChangedEndDate: parseDateRangeFromString(stageChangedDateRange)?.to,
     dateType: dateType || undefined,
     ruleId: ruleId || undefined,
     ...variables,
@@ -112,6 +133,7 @@ export const useAccountingCheckSyncedDealsVariables = (
 export const useAccountingCheckSyncedDeals = (
   options?: QueryHookOptions<AccountingDealsQueryResult>,
 ) => {
+  const { t } = useTranslation('accounting');
   const { toast } = useToast();
   const [checkedDeals, setCheckedDeals] = useAtom(checkedDealsAtom);
   const [toSyncDealIds, setToSyncDealIds] = useAtom(toSyncDealIdsAtom);
@@ -203,8 +225,8 @@ export const useAccountingCheckSyncedDeals = (
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
-          title: 'Warning',
-          description: 'No deals selected',
+          title: t('warning'),
+          description: t('no-deals-selected'),
           variant: 'destructive',
         });
       }
@@ -215,7 +237,7 @@ export const useAccountingCheckSyncedDeals = (
       variables: { ids, contentType: 'sales:deal' },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -264,8 +286,8 @@ export const useAccountingCheckSyncedDeals = (
 
     if (!checkOptions?.silent) {
       toast({
-        title: 'Success',
-        description: `${checked.length} deals checked`,
+        title: t('success'),
+        description: t('deals-checked', { count: checked.length }),
       });
     }
   };
@@ -273,8 +295,8 @@ export const useAccountingCheckSyncedDeals = (
   const syncDeals = async (ids: string[]) => {
     if (!variables.ruleId) {
       toast({
-        title: 'Warning',
-        description: 'Select a rule before syncing deals',
+        title: t('warning'),
+        description: t('select-rule-before-syncing-deals'),
         variant: 'destructive',
       });
       return;
@@ -286,8 +308,8 @@ export const useAccountingCheckSyncedDeals = (
 
     if (!syncableIds.length) {
       toast({
-        title: 'Warning',
-        description: 'No checked deals selected',
+        title: t('warning'),
+        description: t('no-checked-deals-selected'),
         variant: 'destructive',
       });
       return;
@@ -334,7 +356,7 @@ export const useAccountingCheckSyncedDeals = (
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -419,8 +441,13 @@ export const useAccountingCheckSyncedDeals = (
     const syncedCount = summary.success - summary.resynced;
 
     toast({
-      title: 'Sync complete',
-      description: `${syncedCount} synced, ${summary.resynced} resynced, ${summary.error} failed, ${summary.skipped} skipped`,
+      title: t('sync-complete'),
+      description: t('sync-summary', {
+        synced: syncedCount,
+        resynced: summary.resynced,
+        failed: summary.error,
+        skipped: summary.skipped,
+      }),
     });
   };
 

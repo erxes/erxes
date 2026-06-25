@@ -19,7 +19,9 @@ import {
 } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import { useConversations } from './inbox/conversations/hooks/useConversations';
+import { useTranslation } from 'react-i18next';
 export const FrontlineNavigation = () => {
+  const { t } = useTranslation('frontline');
   const navigate = (path: string) => {
     window.history.pushState(null, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
@@ -28,30 +30,30 @@ export const FrontlineNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name="Inbox"
+        name={t('inbox')}
         icon={IconMail}
         path="frontline/inbox"
         children={<NotificationCount />}
       />
       <NavigationMenuLinkItem
-        name="Tickets"
+        name={t('tickets')}
         icon={IconTicket}
         path="frontline/tickets"
       />
       <NavigationMenuLinkItem
-        name="Reports"
+        name={t('reports')}
         icon={IconChartHistogram}
         path="frontline/reports"
       />
       <IntegrationNavigation />
       <NavigationMenuLinkItem
-        name="Forms"
+        name={t('forms')}
         icon={IconForms}
         path="frontline/forms"
       />
       <div className="relative group/knowledgebase">
         <NavigationMenuLinkItem
-          name="Knowledge Base"
+          name={t('knowledge-base')}
           icon={IconBook}
           path="frontline/knowledgebase"
         />
@@ -64,8 +66,8 @@ export const FrontlineNavigation = () => {
             e.stopPropagation();
             navigate('/frontline/knowledgebase?createTopic=true');
           }}
-          aria-label="Create new topic"
-          title="Create new topic"
+          aria-label={t('create-new-topic')}
+          title={t('create-new-topic')}
         >
           <IconPlus className="size-4" />
         </Button>

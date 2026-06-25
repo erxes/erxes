@@ -1,4 +1,5 @@
 import { useState, useMemo, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   closestCenter,
@@ -76,6 +77,7 @@ function PriorityIcon({ priority }: { priority: number }) {
 }
 
 export const TicketReportsList = () => {
+  const { t } = useTranslation('frontline');
   const { priorityData, loading: priorityLoading } = useTicketPriority();
 
   const [cards, setCards] = useState<CardConfig[]>(
@@ -145,7 +147,7 @@ export const TicketReportsList = () => {
     if (!cardConfig) return null;
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: cardConfig.title,
+      title: t(cardConfig.title),
       colSpan: overrideColSpan ?? colSpan,
       onColSpanChange: (span: 6 | 12) => handleColSpanChange(id, span),
     };
@@ -169,9 +171,9 @@ export const TicketReportsList = () => {
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
         <KpiCard
-          title="Total Tickets"
+          title={t('total-tickets')}
           value={String(totalCount)}
-          subtitle="All priorities"
+          subtitle={t('all-priorities')}
           icon={<IconTicket className="h-5 w-5" />}
           valueClass="text-foreground"
           iconClass="bg-muted text-muted-foreground"
@@ -181,7 +183,7 @@ export const TicketReportsList = () => {
             key={p.priority}
             title={p.name}
             value={String(p.count)}
-            subtitle={`${p.percentage}% of total`}
+            subtitle={t('percent-of-total', { percent: p.percentage })}
             icon={<PriorityIcon priority={p.priority} />}
             valueStyle={{ color: p.color }}
             iconStyle={{ backgroundColor: `${p.color}1a`, color: p.color }}

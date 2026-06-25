@@ -1,31 +1,29 @@
 import {
   SuggestionConfig,
   SuggestionItem,
-  SuggestionType,
+  TPlaceholderInputSuggestionType,
+  TPlaceholderInputSuggestion,
 } from '../types/placeholderInputTypes';
 
 // Group definitions to toggle multiple types at once
-export const SUGGESTION_GROUPS: Record<string, SuggestionType[]> = {
-  common: ['attribute', 'emoji', 'date'],
-  options: ['option'],
+export const SUGGESTION_GROUPS: Record<
+  string,
+  TPlaceholderInputSuggestionType[]
+> = {
+  common: [
+    TPlaceholderInputSuggestion.Attribute,
+    TPlaceholderInputSuggestion.Emoji,
+    TPlaceholderInputSuggestion.Date,
+  ],
+  options: [TPlaceholderInputSuggestion.Option],
   calls: [
-    'call_user',
-    'call_tag',
-    'call_product',
-    'call_company',
-    'call_customer',
+    TPlaceholderInputSuggestion.CallUser,
+    TPlaceholderInputSuggestion.CallTag,
+    TPlaceholderInputSuggestion.CallProduct,
+    TPlaceholderInputSuggestion.CallCompany,
+    TPlaceholderInputSuggestion.CallCustomer,
   ],
-  all: [
-    'attribute',
-    'emoji',
-    'date',
-    'option',
-    'call_user',
-    'call_tag',
-    'call_product',
-    'call_company',
-    'call_customer',
-  ],
+  all: Object.values(TPlaceholderInputSuggestion),
   none: [],
 };
 
@@ -51,7 +49,7 @@ export const DATE_OPTIONS: SuggestionItem[] = [
 // Single source of truth for suggestion config
 export const DEFAULT_SUGGESTION_CONFIGS: SuggestionConfig[] = [
   {
-    type: 'attribute',
+    type: TPlaceholderInputSuggestion.Attribute,
     trigger: '{',
     title: 'Attributes',
     options: {
@@ -60,7 +58,7 @@ export const DEFAULT_SUGGESTION_CONFIGS: SuggestionConfig[] = [
     mode: 'command',
   },
   {
-    type: 'option',
+    type: TPlaceholderInputSuggestion.Option,
     trigger: '[',
     title: 'Options',
     options: {
@@ -69,19 +67,19 @@ export const DEFAULT_SUGGESTION_CONFIGS: SuggestionConfig[] = [
     mode: 'command',
   },
   {
-    type: 'date',
+    type: TPlaceholderInputSuggestion.Date,
     trigger: '/',
     title: 'Date',
     mode: 'command',
   },
   {
-    type: 'emoji',
+    type: TPlaceholderInputSuggestion.Emoji,
     trigger: ':',
     title: 'Emoji',
     mode: 'custom',
   },
   {
-    type: 'call_user',
+    type: TPlaceholderInputSuggestion.CallUser,
     trigger: '@',
     title: 'User Mention',
     options: {
@@ -90,7 +88,7 @@ export const DEFAULT_SUGGESTION_CONFIGS: SuggestionConfig[] = [
     mode: 'command',
   },
   {
-    type: 'call_tag',
+    type: TPlaceholderInputSuggestion.CallTag,
     trigger: '#',
     title: 'Tag Mention',
     options: {
@@ -99,7 +97,7 @@ export const DEFAULT_SUGGESTION_CONFIGS: SuggestionConfig[] = [
     mode: 'command',
   },
   {
-    type: 'call_product',
+    type: TPlaceholderInputSuggestion.CallProduct,
     trigger: '$',
     title: 'Product Mention',
     options: {
@@ -108,7 +106,7 @@ export const DEFAULT_SUGGESTION_CONFIGS: SuggestionConfig[] = [
     mode: 'command',
   },
   {
-    type: 'call_company',
+    type: TPlaceholderInputSuggestion.CallCompany,
     trigger: '%',
     title: 'Company Mention',
     options: {
@@ -117,7 +115,7 @@ export const DEFAULT_SUGGESTION_CONFIGS: SuggestionConfig[] = [
     mode: 'command',
   },
   {
-    type: 'call_customer',
+    type: TPlaceholderInputSuggestion.CallCustomer,
     trigger: '&',
     title: 'Customer Mention',
     options: {

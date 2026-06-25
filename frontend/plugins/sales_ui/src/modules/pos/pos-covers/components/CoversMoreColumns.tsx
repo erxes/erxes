@@ -5,6 +5,7 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { useRemovePosCover } from '../hooks/usePosCoverRemove';
 
@@ -16,6 +17,7 @@ export const useCoverMoreColumnCell = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const setRenderingCoverDetail = useSetAtom(renderingCoverDetailAtom);
   const { _id } = cell.row.original;
+  const { t } = useTranslation('sales');
   const { removePosCover } = useRemovePosCover();
   const { toast } = useToast();
   const { confirm } = useConfirm();
@@ -35,18 +37,18 @@ export const useCoverMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: 'Are you sure you want to delete this pos cover?',
+      message: t('delete-pos-cover-single-confirm'),
     }).then(() => {
       removePosCover([_id], {
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: '1 pos cover deleted successfully.',
+            title: t('success'),
+            description: t('pos-cover-deleted', { count: 1 }),
           });
         },
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -67,14 +69,14 @@ export const useCoverMoreColumnCell = ({
               onSelect={() => setOpen(_id)}
               disabled={!_id}
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item
               value="delete"
               onSelect={handleDelete}
               disabled={!_id}
             >
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

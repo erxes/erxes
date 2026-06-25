@@ -1,11 +1,13 @@
 import { useSubscription } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { PRODUCT_PLACES_RESPONDED } from '~/modules/productplaces/graphql/subscriptions';
 import { PerResponse } from '~/modules/productplaces/components/PerResponse';
 import { Response } from '~/modules/productplaces/components/Response';
 
 export const ProductPlacesRespondedPage = () => {
+  const { t } = useTranslation('mongolian');
   const currentUser = useAtomValue(currentUserState);
 
   useSubscription(PRODUCT_PLACES_RESPONDED, {
@@ -31,7 +33,7 @@ export const ProductPlacesRespondedPage = () => {
         myWindow.document.write(printMainContent);
         myWindow.document.close();
       } else {
-        alert('Please allow pop-ups and redirects in site settings!');
+        alert(t('please-allow-popups'));
       }
     },
     onError: (error) => {

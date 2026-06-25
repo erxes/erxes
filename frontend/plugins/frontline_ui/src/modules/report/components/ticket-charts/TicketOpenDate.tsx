@@ -11,6 +11,7 @@ import { useTicketDate } from '@/report/hooks/useTicketOpenDate';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ResponsesChartType } from '@/report/types';
 import { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import {
   Bar,
@@ -48,6 +49,7 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import {
@@ -71,6 +73,7 @@ export const TicketOpenDate = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketOpenDateProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -83,6 +86,7 @@ export const TicketOpenDate = ({
   const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
   const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
+  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -101,6 +105,7 @@ export const TicketOpenDate = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
+        propertyIds: propertyFilter.length ? propertyFilter : undefined,
         frequency,
       },
     },
@@ -162,7 +167,7 @@ export const TicketOpenDate = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>

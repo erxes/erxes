@@ -302,6 +302,7 @@ export const generateFilter = async (
     Object.assign(filter, {
       $or: [
         regexSearchText(search),
+        { name: { $regex: new RegExp(`.*${escapeRegExp(search)}.*`, 'i') } },
         { number: { $regex: new RegExp(`.*${escapeRegExp(search)}.*`, 'i') } },
       ],
     });

@@ -9,6 +9,7 @@ import {
   Combobox,
   Command,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   IconClipboardList,
   IconCode,
@@ -78,6 +79,7 @@ const StageInEBarimtConfigMoreCell = ({
 }: {
   cell: Cell<IStageInEbarimtConfigRow, unknown>;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [, setOpen] = useQueryState('stage_in_ebarimt_id');
   const setDetail = useSetAtom(stageInEbarimtDetailAtom);
   const { removeStageInEbarimtConfig } = useRemoveStageInEbarimtConfig();
@@ -90,8 +92,8 @@ const StageInEBarimtConfigMoreCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this config?',
-      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+      message: t('delete-this-config-confirm'),
+      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
     }).then(() => removeStageInEbarimtConfig(cell.row.original._id));
   };
 
@@ -104,10 +106,10 @@ const StageInEBarimtConfigMoreCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -122,70 +124,75 @@ const moreColumn = {
   size: 33,
 };
 
-const columns: ColumnDef<IStageInEbarimtConfigRow>[] = [
-  moreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IStageInEbarimtConfigRow>,
-  {
-    id: 'title',
-    accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Title" icon={IconCode} />,
-    cell: ({ cell }) => <StageInEBarimtConfigTitleCell cell={cell} />,
-    size: 200,
-  },
-  {
-    id: 'companyName',
-    accessorKey: 'companyName',
-    header: () => (
-      <RecordTable.InlineHead label="Company Name" icon={IconCode} />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
-      </RecordTableInlineCell>
-    ),
-    size: 200,
-  },
-  {
-    id: 'posNo',
-    accessorKey: 'posNo',
-    header: () => <RecordTable.InlineHead label="Pos No" icon={IconCode} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
-      </RecordTableInlineCell>
-    ),
-    size: 120,
-  },
-  {
-    id: 'hasVat',
-    accessorKey: 'hasVat',
-    header: () => (
-      <RecordTable.InlineHead label="Has VAT" icon={IconToggleLeft} />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() ? 'Yes' : 'No'} />
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    id: 'hasCitytax',
-    accessorKey: 'hasCitytax',
-    header: () => (
-      <RecordTable.InlineHead label="Has Citytax" icon={IconToggleLeft} />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() ? 'Yes' : 'No'} />
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-];
+const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
+  const { t } = useTranslation('mongolian');
+  return [
+    moreColumn,
+    RecordTable.checkboxColumn as ColumnDef<IStageInEbarimtConfigRow>,
+    {
+      id: 'title',
+      accessorKey: 'title',
+      header: () => <RecordTable.InlineHead label={t('title')} icon={IconCode} />,
+      cell: ({ cell }) => <StageInEBarimtConfigTitleCell cell={cell} />,
+      size: 200,
+    },
+    {
+      id: 'companyName',
+      accessorKey: 'companyName',
+      header: () => (
+        <RecordTable.InlineHead label={t('company-name')} icon={IconCode} />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      ),
+      size: 200,
+    },
+    {
+      id: 'posNo',
+      accessorKey: 'posNo',
+      header: () => <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      ),
+      size: 120,
+    },
+    {
+      id: 'hasVat',
+      accessorKey: 'hasVat',
+      header: () => (
+        <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+    {
+      id: 'hasCitytax',
+      accessorKey: 'hasCitytax',
+      header: () => (
+        <RecordTable.InlineHead label={t('has-citytax')} icon={IconToggleLeft} />
+      ),
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+  ];
+};
 
 export const StageInEBarimtConfigTable = () => {
+  const { t } = useTranslation('mongolian');
   const { rows, loading } = useStageInEbarimtConfigRows();
+  const columns = useStageInEbarimtColumns();
 
   return (
     <RecordTable.Provider columns={columns} data={rows}>
@@ -202,10 +209,10 @@ export const StageInEBarimtConfigTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconClipboardList size={48} className="text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900">
-                No Stage In Ebarimt config yet
+                {t('no-stage-in-ebarimt-config-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 mb-4">
-                Get started by creating your first Stage In Ebarimt config.
+                {t('create-first-stage-in-ebarimt-config')}
               </p>
               <AddStageInEBarimtConfig />
             </div>

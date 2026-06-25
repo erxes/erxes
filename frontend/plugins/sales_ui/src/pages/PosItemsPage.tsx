@@ -41,7 +41,7 @@ export const PosItemsPage = () => {
         <div className="flex flex-col overflow-hidden w-full h-full">
           <PageSubHeader>
             <PosItemsFilter />
-            <Can action="posItemsExportManage">
+            <Can action="posOrderChangePayments">
               <SalesImport
                 pluginName="sales"
                 moduleName="pos"
@@ -49,20 +49,13 @@ export const PosItemsPage = () => {
                 title={t('sales.importExport.importPosItems', {
                   defaultValue: 'Import POS Items',
                 })}
-                singularLabel={t('sales.importExport.posItem', {
-                  defaultValue: 'POS item',
-                })}
-                pluralLabel={t('sales.importExport.posItems', {
-                  defaultValue: 'POS items',
-                })}
               />
+            </Can>
+            <Can action="posItemsExportManage">
               <SalesExport
                 pluginName="sales"
                 moduleName="pos"
                 collectionName="posItems"
-                entityDisplayName={t('sales.importExport.posItems', {
-                  defaultValue: 'POS Items',
-                })}
                 getFilters={getFilters}
               />
             </Can>

@@ -24,6 +24,8 @@ import { dealExportHandlers } from './modules/sales/meta/import-export/export/ex
 import { dealImportHandlers } from './modules/sales/meta/import-export/import/importHandlers';
 import { permissions } from '~/meta/permissions';
 import { salesReferences } from './meta/references';
+import { documents } from './meta/documents';
+
 import { beforeResolvers } from '~/meta/beforeResolvers';
 
 const handleDealPaymentCallback = async (subdomain: string, data: any) => {
@@ -118,6 +120,7 @@ startPlugin({
   meta: {
     automations,
     segments,
+    documents,
     references: salesReferences,
     tags: { types: [{ type: 'deal', description: 'Sales' }] },
     properties: {
