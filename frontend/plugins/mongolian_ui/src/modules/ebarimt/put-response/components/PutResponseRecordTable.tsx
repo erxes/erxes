@@ -37,14 +37,14 @@ export const PutResponseRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && putResponses?.length === 0 && (
+        {!loading && !putResponses?.length && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex flex-col items-center justify-center text-center">
               <div className="mb-6">
-                <IconShoppingCartX size={48} className="text-gray-400" />
+                <IconShoppingCartX size={48} className="text-muted-foreground" />
               </div>
               <h3 className="text-lg font-semibold">{t('no-put-response')}</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {t('create-first-put-response')}
               </p>
             </div>

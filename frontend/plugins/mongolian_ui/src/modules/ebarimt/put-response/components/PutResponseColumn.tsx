@@ -7,19 +7,13 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { putResponseMoreColumn } from '~/modules/ebarimt/put-response/components/PutResponseMoreColumn';
-
-const HeaderCell = ({ icon, label }: { icon: any; label: string }) => {
-  const { t } = useTranslation('mongolian');
-  return <RecordTable.InlineHead icon={icon} label={t(label)} />;
-};
+import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 
 export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   putResponseMoreColumn,
