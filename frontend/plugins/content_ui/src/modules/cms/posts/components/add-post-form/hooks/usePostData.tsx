@@ -9,7 +9,7 @@ import type { IWebsite } from '~/modules/cms/types';
 export type PostUrlField = '_id' | 'count' | 'slug';
 
 const COMBINED_CMS_DATA = gql`
-  query CombinedCmsData(
+  query cmsPostFormData(
     $clientPortalId: String!
     $limit: Int
     $language: String

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const POSTS_LIST = gql`
-  query CmsPostList(
+  query cmsPostList(
     $clientPortalId: String
     $limit: Int
     $cursor: String

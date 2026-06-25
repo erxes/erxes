@@ -7,7 +7,7 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { POSTS_LIST } from '../graphql/queries/postsListQueries';
+import { POSTS_LIST } from '@/cms/posts/graphql';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
 import { Posts } from '../types/postsType';
 import { useSetAtom, useAtomValue } from 'jotai';

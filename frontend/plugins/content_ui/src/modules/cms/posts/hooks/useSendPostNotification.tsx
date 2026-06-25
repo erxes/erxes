@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { CMS_POSTS_SEND_NOTIFICATION } from '../graphql/mutations/postsSendNotificationMutation';
+import { CMS_POSTS_SEND_NOTIFICATION } from '@/cms/posts/graphql';
 
 type SendPostNotificationResult = {
   success: boolean;

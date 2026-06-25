@@ -1,6 +1,6 @@
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { usePostMutations } from '../../../../hooks/usePostMutations';
+import { usePostMutations } from '@/cms/posts/hooks/usePostMutations';
 import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,

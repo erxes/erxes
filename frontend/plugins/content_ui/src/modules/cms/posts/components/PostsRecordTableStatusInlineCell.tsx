@@ -12,7 +12,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
-import { POSTS_EDIT } from '../graphql/mutations/postsEditMutation';
+import { CMS_POSTS_EDIT } from '@/cms/posts/graphql';
 export const PostsRecordTableStatusInlineCell = ({
   cell,
 }: {
@@ -21,7 +21,7 @@ export const PostsRecordTableStatusInlineCell = ({
   const { t } = useTranslation('content');
   const [open, setOpen] = useState(false);
   const status = cell.getValue() as string;
-  const [edit, { loading }] = useMutation(POSTS_EDIT);
+  const [edit, { loading }] = useMutation(CMS_POSTS_EDIT);
   const onSave = (isChecked: boolean) => {
     edit({
       variables: {

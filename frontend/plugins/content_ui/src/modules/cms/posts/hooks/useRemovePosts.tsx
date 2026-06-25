@@ -2,11 +2,11 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import {
   CMS_POSTS_REMOVE,
   CMS_POSTS_REMOVE_MANY,
-} from '../graphql/mutations/postsRemoveMutations';
-import { POSTS_LIST } from '../graphql/queries/postsListQueries';
+  POSTS_LIST,
+} from '@/cms/posts/graphql';
 
 interface PostListData {
-  cmsPostsList: {
+  cmsPostList: {
     posts: Array<{ _id: string }>;
     totalCount: number;
   };
@@ -29,12 +29,12 @@ export const useRemovePosts = () => {
             variables: options?.variables,
           });
 
-          if (!existingData?.cmsPostsList) {
+          if (!existingData?.cmsPostList) {
             return;
           }
 
-          const updatedPosts = existingData.cmsPostsList.posts.filter(
-            (post: PostListData['cmsPostsList']['posts'][number]) =>
+          const updatedPosts = existingData.cmsPostList.posts.filter(
+            (post: PostListData['cmsPostList']['posts'][number]) =>
               post._id !== postsId,
           );
 
@@ -42,10 +42,10 @@ export const useRemovePosts = () => {
             query: POSTS_LIST,
             variables: options?.variables,
             data: {
-              cmsPostsList: {
-                ...existingData.cmsPostsList,
+              cmsPostList: {
+                ...existingData.cmsPostList,
                 posts: updatedPosts,
-                totalCount: existingData.cmsPostsList.totalCount - 1,
+                totalCount: existingData.cmsPostList.totalCount - 1,
               },
             },
           });
@@ -70,12 +70,12 @@ export const useRemovePosts = () => {
             variables: options?.variables,
           });
 
-          if (!existingData?.cmsPostsList) {
+          if (!existingData?.cmsPostList) {
             return;
           }
 
-          const updatedPosts = existingData.cmsPostsList.posts.filter(
-            (post: PostListData['cmsPostsList']['posts'][number]) =>
+          const updatedPosts = existingData.cmsPostList.posts.filter(
+            (post: PostListData['cmsPostList']['posts'][number]) =>
               !postsIds.includes(post._id),
           );
 
@@ -83,11 +83,11 @@ export const useRemovePosts = () => {
             query: POSTS_LIST,
             variables: options?.variables,
             data: {
-              cmsPostsList: {
-                ...existingData.cmsPostsList,
+              cmsPostList: {
+                ...existingData.cmsPostList,
                 posts: updatedPosts,
                 totalCount:
-                  existingData.cmsPostsList.totalCount - postsIds.length,
+                  existingData.cmsPostList.totalCount - postsIds.length,
               },
             },
           });

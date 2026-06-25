@@ -1,9 +1,9 @@
 import { useMutation } from '@apollo/client';
 import {
-  POSTS_ADD,
+  CMS_POSTS_ADD,
   CMS_POSTS_EDIT,
   CMS_POSTS_REMOVE,
-} from '../graphql/queries';
+} from '@/cms/posts/graphql';
 
 interface PostInput {
   [key: string]: any;
@@ -14,7 +14,7 @@ interface UsePostMutationsOptions {
 }
 
 export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
-  const [createPostMutation, createState] = useMutation(POSTS_ADD, {
+  const [createPostMutation, createState] = useMutation(CMS_POSTS_ADD, {
     update(cache) {
       cache.evict({ fieldName: 'cmsPostList' });
       cache.gc();

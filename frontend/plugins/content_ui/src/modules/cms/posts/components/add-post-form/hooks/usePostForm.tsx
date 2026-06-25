@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { CustomFieldValue } from '../../../CustomFieldInput';
 
-import { CMS_POST } from '../../../../graphql/queries';
+import { POST_DETAIL } from '@/cms/posts/graphql';
 import {
   CMS_EDIT_TRANSLATION,
   CMS_TRANSLATIONS,
@@ -90,7 +90,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     form.setValue('content', value, { shouldDirty: true, shouldTouch: true });
   };
 
-  const { data: fullPostData } = useQuery(CMS_POST, {
+  const { data: fullPostData } = useQuery(POST_DETAIL, {
     variables: { id: editingPost?._id },
     skip: !editingPost?._id,
     fetchPolicy: 'cache-first',

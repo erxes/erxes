@@ -1,6 +1,5 @@
 import { useQuery, useMutation } from '@apollo/client';
-import { POST_DETAIL } from '../graphql/queries/postDetailQuery';
-import { POST_CMS_EDIT } from '../graphql/queries/postCmsEditQuery';
+import { CMS_POSTS_EDIT, POST_DETAIL } from '@/cms/posts/graphql';
 import { PostDetailResponse, PostEditVariables } from '../types';
 
 export const usePostDetail = (postId: string) => {
@@ -13,7 +12,7 @@ export const usePostDetail = (postId: string) => {
   );
 
   const [editPost, { loading: editLoading, error: editError }] = useMutation(
-    POST_CMS_EDIT,
+    CMS_POSTS_EDIT,
     {
       onCompleted: () => {
         refetch();
