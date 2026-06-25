@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const CMS_CATEGORIES = gql`
-  query CmsCategories(
+  query cmsCategoryList(
     $clientPortalId: String!
     $searchValue: String
     $status: CategoryStatus

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const CMS_CATEGORY_DETAIL = gql`
-  query CmsCategoryDetail($_id: String!, $clientPortalId: String) {
+  query cmsCategoryDetail($_id: String!, $clientPortalId: String) {
     cmsCategory(_id: $_id, clientPortalId: $clientPortalId) {
       _id
       clientPortalId
