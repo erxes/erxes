@@ -5,9 +5,11 @@ import {
   IconTypeface,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
 
 const SafeRemainderDetailFilterPopover = () => {
+  const { t } = useTranslation('accounting');
   const queryParams = useSafeRemainderQueryParams();
   const hasFilters = Object.values(queryParams || {}).some(
     (value) => value !== null,
@@ -21,26 +23,26 @@ const SafeRemainderDetailFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <Filter.Item value="diffType" inDialog>
                   <IconTypeface />
-                  DiffType
+                  {t('diff-type')}
                 </Filter.Item>
                 <Filter.Item value="category">
                   <IconLayoutGridAdd />
-                  Category
+                  {t('category')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconToggleRightFilled />
-                  Status
+                  {t('status')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -61,6 +63,7 @@ export const SafeRemainderDetailFilter = ({
 }: {
   afterBar?: React.ReactNode;
 }) => {
+  const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<{
     status: string;
     searchValue: string;
@@ -76,7 +79,7 @@ export const SafeRemainderDetailFilter = ({
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -85,7 +88,7 @@ export const SafeRemainderDetailFilter = ({
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconToggleRightFilled />
-            Status
+            {t('status')}
           </Filter.BarName>
           <Filter.BarButton filterKey="status" inDialog>
             {status}
@@ -94,7 +97,7 @@ export const SafeRemainderDetailFilter = ({
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconToggleRightFilled />
-            Diff Type
+            {t('diff-type-label')}
           </Filter.BarName>
           <Filter.BarButton filterKey="diffType" inDialog>
             {diffType}

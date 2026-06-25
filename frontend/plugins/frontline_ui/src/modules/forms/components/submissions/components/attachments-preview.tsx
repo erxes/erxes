@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { Dialog } from 'erxes-ui';
 import React, { createContext, useContext, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type FileVariant =
   | 'image'
@@ -189,13 +190,14 @@ const InlineCell = ({
 };
 
 const Details = () => {
+  const { t } = useTranslation('frontline');
   const { files, readImage } = useAttachments();
 
   if (files.length === 0) {
     return (
       <div className="flex items-center justify-center p-6 border border-dashed rounded-lg bg-muted/30">
         <span className="text-sm text-muted-foreground">
-          No attachments available
+          {t('no-attachments-available')}
         </span>
       </div>
     );

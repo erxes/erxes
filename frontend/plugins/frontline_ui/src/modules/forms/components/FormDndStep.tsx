@@ -10,8 +10,10 @@ import { Button, InfoCard, Input, Label, Textarea } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconPlus, IconTrash } from '@tabler/icons-react';
 import { AddField, FormDndField } from './FormDndField';
+import { useTranslation } from 'react-i18next';
 
 export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
+  const { t } = useTranslation('frontline');
   const { fields, steps, handleChangeStepValue, getStepValue } = useFormDnd();
   const stepFields = fields[step];
   const { attributes, listeners, setNodeRef, transition, transform } =
@@ -60,7 +62,7 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
       </div>
       {isMultipleSteps && (
         <div className="mx-4 mt-4 w-auto space-y-2">
-          <Label>Description</Label>
+          <Label>{t('description')}</Label>
           <Textarea
             value={getStepValue(step).description}
             onChange={(e) =>
@@ -84,6 +86,7 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
 };
 
 export const AddStep = () => {
+  const { t } = useTranslation('frontline');
   const { steps, setSteps, fields } = useFormDnd();
 
   function getNextStepId() {
@@ -100,7 +103,7 @@ export const AddStep = () => {
       className="h-12 w-full rounded-lg shadow-none border-dashed border"
       onClick={handleAddStep}
     >
-      <IconPlus /> Add Step
+      <IconPlus /> {t('add-step')}
     </Button>
   );
 };

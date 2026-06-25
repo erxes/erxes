@@ -20,6 +20,7 @@ import {
 } from 'ui-modules';
 
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useDebounce } from 'use-debounce';
 import { useGetTeamMembers } from '@/deals/boards/hooks/useGetTeamMembers';
@@ -34,6 +35,7 @@ const SelectAssigneeValue = ({
   placeholder?: string;
   variant?: `${SelectTriggerVariant}`;
 }) => {
+  const { t } = useTranslation('sales');
   const { memberIds, members, setMembers } = useSelectMemberContext();
 
   if (variant === SelectTriggerVariant.CARD) {
@@ -49,7 +51,7 @@ const SelectAssigneeValue = ({
     );
   }
 
-  return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
+  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
 };
 
 const SelectTeamMemberContent = ({

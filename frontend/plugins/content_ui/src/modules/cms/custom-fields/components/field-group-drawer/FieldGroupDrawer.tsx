@@ -3,6 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { gql } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { ICustomFieldGroup } from '../../types/customFieldTypes';
 
 const PAGES_FOR_RULES = gql`
@@ -74,6 +75,7 @@ export function FieldGroupDrawer({
   customTypes,
   websiteId,
 }: FieldGroupDrawerProps) {
+  const { t } = useTranslation('content');
   const groupForm = useForm({
     defaultValues: {
       label: '',
@@ -171,7 +173,7 @@ export function FieldGroupDrawer({
       <Sheet.View className="sm:max-w-lg p-0">
         <Sheet.Header>
           <Sheet.Title>
-            {editingGroup ? 'Edit Field Group' : 'Add Field Group'}
+            {editingGroup ? t('edit-field-group') : t('add-field-group')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -181,12 +183,12 @@ export function FieldGroupDrawer({
             className="space-y-4 p-6"
           >
             <div>
-              <label className="block text-sm font-medium mb-2">Label *</label>
+              <label className="block text-sm font-medium mb-2">{t('label')} *</label>
               <Input
                 {...groupForm.register('label', {
                   required: 'Label is required',
                 })}
-                placeholder="Enter label"
+                placeholder={t('enter-label')}
               />
               {groupForm.formState.errors.label && (
                 <p className="text-sm text-red-500 mt-1">
@@ -196,22 +198,21 @@ export function FieldGroupDrawer({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Code</label>
+              <label className="block text-sm font-medium mb-2">{t('code')}</label>
               <Input
                 {...groupForm.register('code')}
-                placeholder="Enter code (e.g., product_info)"
+                placeholder={t('enter-code-group-eg')}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Unique identifier for programmatic access
+                {t('unique-identifier-for-programmatic-access')}
               </p>
             </div>
 
             {/* Show On */}
             <div className="space-y-3 pt-2 border-t">
-              <label className="block text-sm font-medium">Show on</label>
+              <label className="block text-sm font-medium">{t('show-on')}</label>
               <p className="text-xs text-muted-foreground -mt-2">
-                Leave empty to show on all content. Select specific surfaces to
-                restrict where this group appears.
+                {t('show-on-desc')}
               </p>
 
               <Controller
@@ -225,8 +226,8 @@ export function FieldGroupDrawer({
                     <MultipleSelector
                       value={selected as any}
                       options={allShowOnOptions as any}
-                      placeholder="Pages, Categories, Posts, Post types…"
-                      emptyIndicator="No options"
+                      placeholder={t('show-on-placeholder')}
+                      emptyIndicator={t('no-options')}
                       commandProps={getSearchableCommandProps(
                         allShowOnOptions,
                       )}
@@ -242,7 +243,7 @@ export function FieldGroupDrawer({
               {showsOnPages && (
                 <div className="pl-3 border-l-2 border-muted space-y-1">
                   <label className="block text-xs font-medium text-muted-foreground">
-                    Specific page (leave empty = all pages)
+                    {t('specific-page-desc')}
                   </label>
                   <Controller
                     name="enabledPageId"
@@ -256,8 +257,8 @@ export function FieldGroupDrawer({
                         <MultipleSelector
                           value={selected as any}
                           options={pages as any}
-                          placeholder="All pages"
-                          emptyIndicator="No pages found"
+                          placeholder={t('all-pages')}
+                          emptyIndicator={t('no-pages-found')}
                           hidePlaceholderWhenSelected
                           commandProps={getSearchableCommandProps(pages)}
                           onChange={(selected: any[]) =>
@@ -276,7 +277,7 @@ export function FieldGroupDrawer({
               {showsOnCategories && (
                 <div className="pl-3 border-l-2 border-muted space-y-1">
                   <label className="block text-xs font-medium text-muted-foreground">
-                    Specific categories (leave empty = all categories)
+                    {t('specific-categories-desc')}
                   </label>
                   <Controller
                     name="enabledCategoryIds"
@@ -289,8 +290,8 @@ export function FieldGroupDrawer({
                         <MultipleSelector
                           value={selected as any}
                           options={categories as any}
-                          placeholder="All categories"
-                          emptyIndicator="No categories found"
+                          placeholder={t('all-categories')}
+                          emptyIndicator={t('no-categories-found')}
                           commandProps={getSearchableCommandProps(categories)}
                           onChange={(selected: any[]) =>
                             field.onChange(selected.map((s) => s.value))
@@ -306,7 +307,7 @@ export function FieldGroupDrawer({
               {showsOnPosts && (
                 <div className="pl-3 border-l-2 border-muted space-y-1">
                   <label className="block text-xs font-medium text-muted-foreground">
-                    Specific posts (leave empty = all posts)
+                    {t('specific-posts-desc')}
                   </label>
                   <Controller
                     name="enabledPostIds"
@@ -319,8 +320,8 @@ export function FieldGroupDrawer({
                         <MultipleSelector
                           value={selected as any}
                           options={posts as any}
-                          placeholder="All posts"
-                          emptyIndicator="No posts found"
+                          placeholder={t('all-posts')}
+                          emptyIndicator={t('no-posts-found')}
                           commandProps={getSearchableCommandProps(posts)}
                           onChange={(selected: any[]) =>
                             field.onChange(selected.map((s) => s.value))
@@ -335,10 +336,10 @@ export function FieldGroupDrawer({
 
             <div className="flex gap-2 justify-end pt-4">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit">
-                {editingGroup ? 'Update' : 'Create'}
+                {editingGroup ? t('update') : t('create')}
               </Button>
             </div>
           </form>

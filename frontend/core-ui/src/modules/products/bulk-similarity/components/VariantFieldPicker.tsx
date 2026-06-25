@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { IconArrowLeft, IconPlus, IconX } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFields, useFieldGroups } from 'ui-modules';
 import { PropertyForm } from '@/properties/components/PropertyForm';
 import { FIELD_TYPES_OBJECT } from '@/properties/constants/fieldTypes';
@@ -43,6 +44,7 @@ export const VariantFieldAddButton = () => {
 };
 
 export const VariantFieldPicker = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { properties, fieldIds, handleToggleFieldValue, handleRemoveField } =
     useVariantFields();
 
@@ -57,7 +59,7 @@ export const VariantFieldPicker = () => {
     <div className="flex flex-col gap-3">
       {fieldIds.length === 0 && (
         <div className="flex justify-center items-center px-4 py-6 border border-dashed rounded-lg text-muted-foreground text-sm">
-          No fields added yet.
+          {t('no-fields-added', 'No fields added yet.')}
         </div>
       )}
 
@@ -107,7 +109,7 @@ export const VariantFieldPicker = () => {
                     <IconX size={14} />
                   </Button>
                 </Tooltip.Trigger>
-                <Tooltip.Content>Remove field</Tooltip.Content>
+                <Tooltip.Content>{t('remove-field', 'Remove field')}</Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
           </div>
@@ -130,6 +132,7 @@ const AddFieldSheet = ({
   refetchFields: () => Promise<unknown>;
   onPick: (fieldId: string, value: string) => void;
 }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const [open, setOpen] = useState(false);
   const [createGroup, setCreateGroup] = useState<string | null>(null);
   const { fieldGroups, loading: groupsLoading } = useFieldGroups({
@@ -162,11 +165,15 @@ const AddFieldSheet = ({
       .flatMap(([, list]) => list);
 
     if (ungrouped.length) {
-      ordered.push({ _id: '', name: 'Ungrouped', fields: ungrouped });
+      ordered.push({
+        _id: '',
+        name: t('ungrouped', 'Ungrouped'),
+        fields: ungrouped,
+      });
     }
 
     return ordered;
-  }, [available, fieldGroups]);
+  }, [available, fieldGroups, t]);
 
   const handlePick = (field: VariantField) => {
     const first = field.options?.[0];
@@ -210,11 +217,16 @@ const AddFieldSheet = ({
             </Button>
           )}
           <Sheet.Title>
-            {createGroup ? 'New property' : 'Add variant field'}
+            {createGroup
+              ? t('new-property', 'New property')
+              : t('add-variant-field', 'Add variant field')}
           </Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
-            Pick a property to use as a variant axis, or create a new one.
+            {t(
+              'add-field-description',
+              'Pick a property to use as a variant axis, or create a new one.',
+            )}
           </Sheet.Description>
         </Sheet.Header>
 
@@ -319,6 +331,7 @@ const CreatePropertyForm = ({
   refetchFields: () => Promise<unknown>;
   onCreated: (fieldId: string, value: string) => void;
 }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { addProperty, loading } = useAddProperty();
 
   const handleSubmit = (data: IPropertyForm) => {
@@ -333,11 +346,11 @@ const CreatePropertyForm = ({
         const newId = res?.fieldAdd?._id;
         const firstValue = data.options?.[0]?.value;
         if (newId && firstValue) onCreated(newId, firstValue);
-        toast({ title: 'Property created', variant: 'success' });
+        toast({ title: t('property-created', 'Property created'), variant: 'success' });
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         }),

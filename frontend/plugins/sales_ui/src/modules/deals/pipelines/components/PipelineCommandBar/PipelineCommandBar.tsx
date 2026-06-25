@@ -1,6 +1,7 @@
 import React from 'react';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { PipelineDelete } from './PipelineDelete';
+import { useTranslation } from 'react-i18next';
 
 export const PipelineCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -11,11 +12,13 @@ export const PipelineCommandBar = () => {
 
   const isSelected = table.getFilteredSelectedRowModel().rows.length > 0;
 
+  const { t } = useTranslation('sales');
+
   return (
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <PipelineDelete

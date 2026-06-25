@@ -19,6 +19,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
 import { useSearchParams } from 'react-router-dom';
@@ -75,13 +76,14 @@ export const FacebookIntegrationActions = ({
 };
 
 export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <div className="flex items-center gap-2 w-full">
           <IconEdit size={16} />
-          Edit
+          {t('edit')}
         </div>
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
@@ -98,6 +100,7 @@ export const FacebookIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const { loading, integrationDetail } = useIntegrationDetail({
     integrationId: id,
   });
@@ -126,7 +129,7 @@ export const FacebookIntegrationEditForm = ({
       },
       onCompleted: () => {
         setOpen(false);
-        toast({ title: 'Integration updated' });
+        toast({ title: t('integration-updated') });
       },
       onError: (error) => {
         toast({ title: error.message, variant: 'destructive' });
@@ -148,7 +151,7 @@ export const FacebookIntegrationEditForm = ({
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="p-6 pb-8 space-y-6">
             <div>
-              <Label htmlFor="pageName">Page Name</Label>
+              <Label htmlFor="pageName">{t('page-name')}</Label>
               <Input
                 id="pageName"
                 value={integrationDetail?.facebookPage?.[0]?.name}
@@ -160,7 +163,7 @@ export const FacebookIntegrationEditForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -172,7 +175,7 @@ export const FacebookIntegrationEditForm = ({
               name="brandId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Brand</Form.Label>
+                  <Form.Label>{t('brand')}</Form.Label>
                   <SelectBrands.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -186,11 +189,11 @@ export const FacebookIntegrationEditForm = ({
           <Dialog.Footer className="flex justify-end py-4 px-6">
             <Dialog.Close asChild>
               <Button disabled={loading || editLoading} variant="ghost">
-                Close
+                {t('close')}
               </Button>
             </Dialog.Close>
             <Button type="submit" disabled={loading || editLoading}>
-              Save
+              {t('save')}
             </Button>
           </Dialog.Footer>
         </form>

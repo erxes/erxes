@@ -12,6 +12,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { putResponseMoreColumn } from '~/modules/ebarimt/put-response/components/PutResponseMoreColumn';
 export const putResponseColumns: ColumnDef<IPutResponse>[] = [
@@ -20,7 +21,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'id',
     accessorKey: 'id',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Bill ID" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconHash} label={t('bill-id')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -32,9 +36,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'billId',
     accessorKey: 'billId',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Subbillids" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('sub-bill-ids')} />;
+    },
     cell: ({ row }) => {
       const receipts = row.original.receipts;
       const receiptId = receipts?.[0]?.id || '-';
@@ -49,9 +54,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Number" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('number')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -63,7 +69,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'date',
     accessorKey: 'date',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Date" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconUser} label={t('date')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -77,7 +86,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Status" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('status')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -89,9 +101,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Bill Type" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('bill-type')} />;
+    },
     cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
@@ -103,9 +116,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'receipts',
     accessorKey: 'receipts',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Receipts" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('receipts')} />;
+    },
     cell: ({ row }) => {
       const receipts = row.original.receipts;
       if (!receipts || !Array.isArray(receipts) || receipts.length === 0) {
@@ -138,7 +152,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Amount" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('amount')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -150,9 +167,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'message',
     accessorKey: 'message',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Message" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('message')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -164,9 +182,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'inactiveId',
     accessorKey: 'inactiveId',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Inactive Id" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('inactive-id')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -179,7 +198,10 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'user',
     accessorKey: 'user',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="User" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('user')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

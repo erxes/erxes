@@ -1,6 +1,7 @@
 import { IconArticle } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EmptyState } from '../../shared/EmptyState';
 import { useCategoriesColumns } from './CategoriesColumn';
 
@@ -53,6 +54,7 @@ export const CategoriesRecordTable = ({
   onEdit,
   onBulkDelete,
 }: CategoriesRecordTableProps) => {
+  const { t } = useTranslation('content');
   const { categories, loading, refetch, pageInfo, handleFetchMore } =
     useCategories({
       variables: {
@@ -81,9 +83,9 @@ export const CategoriesRecordTable = ({
         <div className="rounded-lg overflow-hidden">
           <EmptyState
             icon={IconArticle}
-            title="No categories yet"
-            description="Get started by creating your first category."
-            actionLabel="Add Category"
+            title={t('no-categories-yet')}
+            description={t('no-categories-yet-desc')}
+            actionLabel={t('add-category')}
             onAction={onAdd}
           />
         </div>

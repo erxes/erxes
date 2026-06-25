@@ -10,8 +10,10 @@ import {
   readImage,
   Editor,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
+import { SelectProduct } from 'ui-modules';
 import { SpreadsheetInput } from './SpreadsheetInput';
 import { GalleryUploader } from './GalleryUploader';
 import { useAutoUpload } from './hooks/useAutoUpload';
@@ -44,6 +46,7 @@ function FileFieldInput({
   buttonLabel?: string;
   buttonClassName?: string;
 }) {
+  const { t } = useTranslation('content');
   const urls = Array.isArray(value) ? value : [];
 
   const uploadProps = useErxesUpload({
@@ -87,7 +90,7 @@ function FileFieldInput({
           ))}
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded">
-              <span className="text-sm text-gray-500">Uploading...</span>
+              <span className="text-sm text-gray-500">{t('uploading')}</span>
             </div>
           )}
         </div>
@@ -102,13 +105,13 @@ function FileFieldInput({
           disabled={uploadProps.loading}
         >
           <IconUpload size={16} className="mr-2" />
-          {uploadProps.loading ? 'Uploading...' : buttonLabel}
+          {uploadProps.loading ? t('uploading') : buttonLabel}
         </Button>
-        <p className="text-xs text-muted-foreground mt-1">Max 20MB</p>
+        <p className="text-xs text-muted-foreground mt-1">{t('max-20mb')}</p>
       </div>
       {Boolean(uploadProps.errors.length) && (
         <p className="text-xs text-destructive">
-          {uploadProps.errors[0]?.message || 'Upload failed'}
+          {uploadProps.errors[0]?.message || t('upload-failed')}
         </p>
       )}
     </div>
@@ -120,6 +123,7 @@ export const CustomFieldInput = ({
   value,
   onChange,
 }: CustomFieldInputProps) => {
+  const { t } = useTranslation('content');
   const enterPlaceholder =
     field.placeholder || `Enter ${field.label.toLowerCase()}`;
   const selectPlaceholder =
@@ -186,7 +190,7 @@ export const CustomFieldInput = ({
       <DatePicker
         value={value ? new Date(value) : undefined}
         onChange={(date) => onChange(date ? (date as Date).toISOString() : '')}
-        placeholder={field.placeholder || 'Select date'}
+        placeholder={field.placeholder || t('select-date')}
       />
     ),
     checkbox: (
@@ -250,7 +254,7 @@ export const CustomFieldInput = ({
         options={multiOptions}
         placeholder={selectPlaceholder}
         hidePlaceholderWhenSelected
-        emptyIndicator="No options"
+        emptyIndicator={t('no-options')}
         onChange={(selectedOptions: { value: string }[]) =>
           onChange(selectedOptions.map((option) => option.value))
         }
@@ -260,6 +264,17 @@ export const CustomFieldInput = ({
       <GalleryUploader value={imageUrls} onChange={(urls) => onChange(urls)} />
     ),
     file: <FileFieldInput value={value} onChange={(urls) => onChange(urls)} />,
+    products: (
+      <SelectProduct
+        mode="multiple"
+        value={selectedValues}
+        onValueChange={(val) =>
+          onChange(Array.isArray(val) ? val : val ? [val] : [])
+        }
+        placeholder={selectPlaceholder}
+        className="w-full"
+      />
+    ),
     richText: (
       <Editor
         className="h-64 border"

@@ -11,6 +11,7 @@ import { getFilters } from '@/report/utils/dateFilters';
 import { formatDate } from 'date-fns';
 import { MembersInline } from 'ui-modules';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   IconTicket,
   IconChevronLeft,
@@ -36,6 +37,7 @@ import { ColumnDef, Cell } from '@tanstack/react-table';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import { useTicketExport } from '@/report/hooks/useTicketExport';
 import { generateTicketExcel, downloadExcel } from '@/report/utils/exportCsv';
+import { getTicketPropertyFilterVariables } from '@/report/utils';
 
 const PER_PAGE = 10;
 
@@ -50,6 +52,7 @@ export const TicketList = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketListProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
   const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
@@ -98,7 +101,7 @@ export const TicketList = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
-        propertyIds: propertyFilter.length ? propertyFilter : undefined,
+        ...getTicketPropertyFilterVariables(propertyFilter),
       },
     },
   });
@@ -120,7 +123,7 @@ export const TicketList = ({
           tagIds: tagFilter.length ? tagFilter : undefined,
           customerIds: customerFilter.length ? customerFilter : undefined,
           companyIds: companyFilter.length ? companyFilter : undefined,
-          propertyIds: propertyFilter.length ? propertyFilter : undefined,
+          ...getTicketPropertyFilterVariables(propertyFilter),
         },
       },
     });
@@ -154,7 +157,7 @@ export const TicketList = ({
           className="size-7"
           onClick={handleExport}
           disabled={exportLoading}
-          title="Export Excel"
+          title={t('export-excel')}
         >
           <IconDownload className="size-3.5" />
         </Button>
@@ -168,7 +171,7 @@ export const TicketList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Ticket list"
+        description={t('ticket-list')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -185,13 +188,13 @@ export const TicketList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Ticket list"
+        description={t('ticket-list')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -204,7 +207,7 @@ export const TicketList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="No tickets found."
+        description={t('no-tickets-found')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -222,7 +225,7 @@ export const TicketList = ({
     <FrontlineCard
       id={id}
       title={title}
-      description={`${totalCount} tickets`}
+      description={t('ticket-count', { count: totalCount })}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -258,13 +261,14 @@ const Pagination = memo(function Pagination({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const { t } = useTranslation('frontline');
   const from = (page - 1) * PER_PAGE + 1;
   const to = Math.min(page * PER_PAGE, totalCount);
 
   return (
     <div className="flex items-center justify-between px-4 py-3 border-t">
       <span className="text-xs text-muted-foreground">
-        {from}–{to} of {totalCount}
+        {t('pagination-range', { from, to, total: totalCount })}
       </span>
       <div className="flex items-center gap-1">
         <Button
@@ -274,7 +278,7 @@ const Pagination = memo(function Pagination({
           disabled={page <= 1}
         >
           <IconChevronLeft className="size-4" />
-          Prev
+          {t('prev')}
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
@@ -285,7 +289,7 @@ const Pagination = memo(function Pagination({
           onClick={onNext}
           disabled={page >= totalPages}
         >
-          Next
+          {t('next')}
           <IconChevronRight className="size-4" />
         </Button>
       </div>

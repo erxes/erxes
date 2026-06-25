@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Form, Button, Popover, Command } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
 import { IAmenity } from '../../../amenities/types/amenity';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export const DayAmenitiesSelect = ({ field, availableAmenities }: Props) => {
+  const { t } = useTranslation('tourism');
   const [open, setOpen] = useState(false);
 
   const amenities = useMemo(
@@ -28,7 +30,7 @@ export const DayAmenitiesSelect = ({ field, availableAmenities }: Props) => {
 
   return (
     <Form.Item>
-      <Form.Label>Amenities</Form.Label>
+      <Form.Label>{t('amenities')}</Form.Label>
 
       <Form.Control>
         <Popover open={open} onOpenChange={setOpen}>
@@ -42,10 +44,8 @@ export const DayAmenitiesSelect = ({ field, availableAmenities }: Props) => {
             >
               <span className="truncate">
                 {selectedIds.length > 0
-                  ? `${selectedIds.length} amenit${
-                      selectedIds.length === 1 ? 'y' : 'ies'
-                    } selected`
-                  : 'Select amenities'}
+                  ? t('amenities-selected', { count: selectedIds.length })
+                  : t('select-amenities')}
               </span>
             </Button>
           </Popover.Trigger>
@@ -53,11 +53,11 @@ export const DayAmenitiesSelect = ({ field, availableAmenities }: Props) => {
           <Popover.Content className="w-[320px] p-0" align="start">
             <Command>
               <Command.Input
-                placeholder="Search amenities..."
+                placeholder={t('search-amenities')}
                 className="h-9"
               />
 
-              <Command.Empty>No amenities found.</Command.Empty>
+              <Command.Empty>{t('no-amenities-found')}</Command.Empty>
 
               <Command.Group className="max-h-[300px] overflow-auto">
                 {amenities.map((amenity) => {

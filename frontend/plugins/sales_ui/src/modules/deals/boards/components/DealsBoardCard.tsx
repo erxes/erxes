@@ -18,6 +18,7 @@ import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
 import { useManageRelations } from 'ui-modules';
 import type { IProductData } from 'ui-modules';
 import { DealCardDetails } from './DealsBoardCardDetails';
+import { useTranslation } from 'react-i18next';
 
 interface DealsBoardCardProps {
   deal: IDeal;
@@ -32,6 +33,7 @@ const normalizeSelectedIds = (value?: string | string[]) => {
 };
 
 const CardDetails = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const { companies, customers, tags, customProperties } = deal;
 
   const productMap = new Map(deal.products?.map((p) => [p._id, p]));
@@ -104,7 +106,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
               key={currency}
               className="flex justify-between text-xs font-semibold"
             >
-              <span className="text-muted-foreground">Total</span>
+              <span className="text-muted-foreground">{t('total')}</span>
               <span>
                 {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 {currency && (
@@ -120,7 +122,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
               key={currency}
               className="flex justify-between text-xs opacity-60"
             >
-              <span className="text-muted-foreground">Unused</span>
+              <span className="text-muted-foreground">{t('unused')}</span>
               <span>
                 {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 {currency && (
@@ -175,6 +177,8 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const archivedOnly = searchParams === 'true';
   const isArchived = status === 'archived';
   const showArchivedBadge = archivedOnly || isArchived;
+  const { t } = useTranslation('sales');
+
 
   return (
     <div
@@ -183,14 +187,14 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     >
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
-          placeholder="Start Date"
+          placeholder={t('start-date')}
           value={startDate}
           id={_id}
           type="startDate"
           variant="card"
         />
         <DateSelectDeal
-          placeholder="Close Date"
+          placeholder={t('close-date')}
           value={closeDate}
           id={_id}
           type="closeDate"
@@ -214,9 +218,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
               <IconAlertCircleFilled className="size-6 pt-2" />
               <h5 className="text-sm py-2">
-                Ready to move this card to the next column? (
-                {Math.abs(stage.age)}{' '}
-                {Math.abs(stage.age) === 1 ? 'day' : 'days'} elapsed)
+                {t('ready-to-move-card', { count: Math.abs(stage.age) })}
               </h5>
             </span>
           )}
@@ -230,7 +232,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectLabels.FilterBar
             filterKey=""
             mode="multiple"
-            label="By Label"
+            label={t('by-label')}
             variant="card"
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
@@ -239,7 +241,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectTagsFilterBar
             filterKey=""
             mode="multiple"
-            label="By Tag"
+            label={t('by-tag')}
             variant="card"
             targetId={_id}
             tagType="sales:deal"
@@ -257,7 +259,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCustomerFilterBar
             filterKey=""
             mode="multiple"
-            label="By Customer"
+            label={t('by-customer')}
             variant="card"
             targetId={_id}
             initialValue={
@@ -289,7 +291,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCompanyFilterBar
             filterKey=""
             mode="multiple"
-            label="By Company"
+            label={t('by-company')}
             variant="card"
             targetId={_id}
             initialValue={
@@ -329,7 +331,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
       {showArchivedBadge && (
         <div className="pointer-events-none select-none absolute bottom-6 -right-10 -rotate-45 w-40">
           <span className="block w-full text-center px-8 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 border-t border-b border-yellow-200 ">
-            Archived
+            {t('archived')}
           </span>
         </div>
       )}

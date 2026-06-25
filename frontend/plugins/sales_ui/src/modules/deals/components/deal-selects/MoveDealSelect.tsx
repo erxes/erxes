@@ -3,8 +3,10 @@ import { RecordTableInlineCell, useQueryState } from 'erxes-ui';
 import { IDeal } from '@/deals/types/deals';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const NameCell = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
 
@@ -19,7 +21,7 @@ export const NameCell = ({ deal }: { deal: IDeal }) => {
         <span>{deal.name}</span>
         {deal.status === 'archived' && (
           <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/50 rounded-sm">
-            Archived
+            {t('archived')}
           </span>
         )}
       </div>
@@ -28,6 +30,7 @@ export const NameCell = ({ deal }: { deal: IDeal }) => {
 };
 
 export const NumberCell = ({ deal }: { deal: IDeal }) => {
+  const { t } = useTranslation('sales');
   const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [, setSalesItemId] = useQueryState<string>('salesItemId');
 
@@ -42,7 +45,7 @@ export const NumberCell = ({ deal }: { deal: IDeal }) => {
         <span>{deal.number ?? '-'}</span>
         {deal.status === 'archived' && (
           <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/50 rounded-sm">
-            Archived
+            {t('archived')}
           </span>
         )}
       </div>

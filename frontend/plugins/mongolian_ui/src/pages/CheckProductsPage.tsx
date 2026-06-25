@@ -1,4 +1,5 @@
 import { PageContainer, PageSubHeader } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { CheckProductRecordTable } from '@/erkhet-sync/check-products/components/CheckProductRecordTable';
 import { CheckProductHeader } from '@/erkhet-sync/check-products/components/CheckProductHeader';
@@ -7,6 +8,7 @@ import { useCheckProduct } from '~/modules/erkhet-sync/check-products/hooks/useC
 import CheckButton from '~/modules/erkhet-sync/check-products/components/useCheckButton';
 
 export const CheckProductsPage = () => {
+  const { t } = useTranslation('mongolian');
   const { loading, toCheckProducts, setSelectedFilter } = useCheckProduct();
 
   const handleFilterClick = (filter: 'create' | 'update' | 'delete') => {
@@ -26,7 +28,7 @@ export const CheckProductsPage = () => {
 
       {!toCheckProducts?.length && (
         <div className="m-3 text-center text-muted-foreground">
-          {loading ? 'Checking...' : 'No data found'}
+          {loading ? t('checking') : t('no-data-found')}
         </div>
       )}
     </PageContainer>

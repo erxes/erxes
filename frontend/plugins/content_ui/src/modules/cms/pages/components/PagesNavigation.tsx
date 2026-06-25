@@ -4,9 +4,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
 
 export const PagesNavigation = () => {
+  const { t } = useTranslation('content');
   const { pathname } = useLocation();
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
@@ -41,28 +43,28 @@ export const PagesNavigation = () => {
     if (parentSection === 'posts' || pathname.endsWith('/posts')) {
       return {
         path: `${basePath}/posts`,
-        label: 'Posts',
+        label: t('posts'),
         icon: IconCategory,
       };
     }
     if (parentSection === 'pages' || pathname.endsWith('/pages')) {
       return {
         path: `${basePath}/pages`,
-        label: 'Pages',
+        label: t('pages'),
         icon: IconRulerMeasure,
       };
     }
     if (parentSection === 'categories' || pathname.endsWith('/categories')) {
       return {
         path: `${basePath}/categories`,
-        label: 'Categories',
+        label: t('categories'),
         icon: IconRulerMeasure,
       };
     }
     if (parentSection === 'tags' || pathname.endsWith('/tags')) {
       return {
         path: `${basePath}/tags`,
-        label: 'Tags',
+        label: t('tags'),
         icon: IconRulerMeasure,
       };
     }
@@ -72,7 +74,7 @@ export const PagesNavigation = () => {
     ) {
       return {
         path: `${basePath}/custom-fields`,
-        label: 'Custom Fields',
+        label: t('custom-fields'),
         icon: IconRulerMeasure,
       };
     }
@@ -82,14 +84,14 @@ export const PagesNavigation = () => {
     ) {
       return {
         path: `${basePath}/custom-types`,
-        label: 'Custom Post Types',
+        label: t('custom-post-types'),
         icon: IconRulerMeasure,
       };
     }
 
     return {
       path: `${basePath}/posts`,
-      label: 'Posts',
+      label: t('posts'),
       icon: IconCube,
     };
   }, [pathname, basePath]);
@@ -109,14 +111,14 @@ export const PagesNavigation = () => {
             <Button variant="ghost" asChild>
               <Link to={'/content/cms'}>
                 <IconCube />
-                CMS
+                {t('cms')}
               </Link>
             </Button>
           </Breadcrumb.Item>
           <Breadcrumb.Separator />
           <Breadcrumb.Item>
             <Button variant="ghost" asChild>
-              <Link to="/content/cms">{websiteName || 'Website'}</Link>
+              <Link to="/content/cms">{websiteName || t('website')}</Link>
             </Button>
           </Breadcrumb.Item>
           <Breadcrumb.Separator />

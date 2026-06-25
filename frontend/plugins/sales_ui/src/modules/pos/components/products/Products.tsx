@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useMutation } from '@apollo/client';
 import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { ProductGroupsList } from '@/pos/components/products/ProductGroupsList';
 import { InitialProductCategories } from '@/pos/components/products/InitialProductCategories';
@@ -78,6 +79,7 @@ const Products: React.FC<ProductsProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const [showMore, setShowMore] = useState(false);
   const [productGroupSaveState, setProductGroupSaveState] =
     useState<ProductGroupSaveState | null>(null);
@@ -148,8 +150,8 @@ const Products: React.FC<ProductsProps> = ({
     async (data: ProductsFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -180,14 +182,14 @@ const Products: React.FC<ProductsProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Product settings saved successfully',
+          title: t('success'),
+          description: t('product-settings-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save product settings',
+          title: t('error'),
+          description: t('product-settings-save-failed'),
           variant: 'destructive',
         });
       }
@@ -222,7 +224,7 @@ const Products: React.FC<ProductsProps> = ({
           disabled={isSaving}
           onClick={handleHeaderSaveChanges}
         >
-          {isSaving ? 'Saving...' : 'Save Changes'}
+          {isSaving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -248,7 +250,7 @@ const Products: React.FC<ProductsProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details')}: {error.message}
           </p>
         </div>
       );
@@ -262,7 +264,7 @@ const Products: React.FC<ProductsProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>Initial product categories</Label>
+            <Label>{t('initial-product-categories')}</Label>
             <InitialProductCategories control={control} />
           </section>
 
@@ -273,12 +275,12 @@ const Products: React.FC<ProductsProps> = ({
           {(!isRestaurant || showMore) && (
             <>
               <section className="pt-6 space-y-4 border-t">
-                <Label>Kiosk exclude products</Label>
+                <Label>{t('kiosk-exclude-products')}</Label>
                 <KioskExcludeProducts control={control} />
               </section>
 
               <section className="pt-6 space-y-4 border-t">
-                <Label>Product & category mapping</Label>
+                <Label>{t('product-category-mapping')}</Label>
                 <ProductAndCategoryMapping
                   mappings={catProdMappings}
                   onMappingAdded={handleMappingAdded}
@@ -288,12 +290,12 @@ const Products: React.FC<ProductsProps> = ({
               </section>
 
               <section className="pt-6 space-y-4 border-t">
-                <Label>Remainder configs</Label>
+                <Label>{t('remainder-configs')}</Label>
                 <RemainderConfigs control={control} />
               </section>
 
               <section className="pt-6 space-y-4 border-t">
-                <Label>Service charge</Label>
+                <Label>{t('service-charge')}</Label>
                 <ServiceCharge control={control} />
               </section>
             </>
@@ -305,11 +307,11 @@ const Products: React.FC<ProductsProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Product configuration">
+      <InfoCard title={t('product-config')}>
         <InfoCard.Content>
           <div className="space-y-8">
             <section className="space-y-4">
-              <Label>Product Groups</Label>
+              <Label>{t('product-groups')}</Label>
               <ProductGroupsList
                 posId={posId}
                 onSaveStateChange={setProductGroupSaveState}

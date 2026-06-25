@@ -1,17 +1,19 @@
 import { Control, Controller } from 'react-hook-form';
 import { Label, ColorPicker } from 'erxes-ui';
 import type { AppearanceFormData } from './Appearance';
+import { useTranslation } from 'react-i18next';
 
 interface MainColorsProps {
   control: Control<AppearanceFormData>;
 }
 
 export const MainColors: React.FC<MainColorsProps> = ({ control }) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="space-y-6">
       <div className="flex gap-6">
         <div className="space-y-2">
-          <Label>PRIMARY</Label>
+          <Label>{t('primary')}</Label>
           <Controller
             name="bodyColor"
             control={control}
@@ -26,7 +28,7 @@ export const MainColors: React.FC<MainColorsProps> = ({ control }) => {
         </div>
 
         <div className="space-y-2">
-          <Label>SECONDARY</Label>
+          <Label>{t('secondary')}</Label>
           <Controller
             name="headerColor"
             control={control}
@@ -41,7 +43,7 @@ export const MainColors: React.FC<MainColorsProps> = ({ control }) => {
         </div>
 
         <div className="space-y-2">
-          <Label>THIRD</Label>
+          <Label>{t('third')}</Label>
           <Controller
             name="footerColor"
             control={control}

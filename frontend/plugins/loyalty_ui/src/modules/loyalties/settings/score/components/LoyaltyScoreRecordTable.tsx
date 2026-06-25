@@ -1,4 +1,5 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { scoreColumns } from './ScoreColumns';
 
@@ -12,6 +13,7 @@ import { LoyaltyScoreAddSheet } from './LoyaltyScoreAddSheet';
 import { LoyaltyScoreEditSheet } from '../score-detail/components/LoyaltyScoreEditSheet';
 
 export const ScoreRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { campaigns, handleFetchMore, loading, pageInfo } = useLoyaltyScore();
   const { editStatus } = useLoyaltyScoreEdit();
 
@@ -52,10 +54,10 @@ export const ScoreRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    No score campaign yet
+                    {t('no-score-campaigns-yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first score campaign.
+                    {t('get-started-score-campaign')}
                   </p>
                 </div>
                 <LoyaltyScoreAddSheet />

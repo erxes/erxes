@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Checkbox, Form } from 'erxes-ui';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
@@ -35,6 +36,7 @@ export const CreateChecklistActionConfigForm = ({
   currentAction,
   targetType,
 }: AutomationActionFormProps<TSalesAutomationActionConfigForm>) => {
+  const { t } = useTranslation('sales');
   const form = useForm<TChecklistActionConfigForm>({
     resolver: zodResolver(checklistActionConfigFormSchema),
     defaultValues: getDefaultValues(currentAction?.config),
@@ -64,7 +66,7 @@ export const CreateChecklistActionConfigForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Checklist name</Form.Label>
+              <Form.Label>{t('checklist-name')}</Form.Label>
               <PlaceholderInput
                 propertyType={targetType}
                 value={field.value}
@@ -77,7 +79,7 @@ export const CreateChecklistActionConfigForm = ({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <Form.Label>Checklist items</Form.Label>
+            <Form.Label>{t('checklist-items')}</Form.Label>
             <Button
               type="button"
               variant="outline"
@@ -91,7 +93,7 @@ export const CreateChecklistActionConfigForm = ({
               }
             >
               <IconPlus />
-              Add item
+              {t('add-item')}
             </Button>
           </div>
 

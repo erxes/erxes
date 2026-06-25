@@ -9,6 +9,7 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 import { tagMoreColumn } from './TagsMoreColumn';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconTag, IconCalendar } from '@tabler/icons-react';
 import { CmsTag } from '@/cms/tags/types/tagTypes';
 import { useEditTag } from '@/cms/tags/hooks/useEditTag';
@@ -30,6 +31,7 @@ export const useTagsColumns = (
   onEdit?: (tag: any) => void,
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
+  const { t } = useTranslation('content');
   const { editTag } = useEditTag();
   const { isNonDefaultLanguage } = useIsTranslationMissing();
   const selectedLanguage = useAtomValue(cmsLanguageAtom);
@@ -43,7 +45,7 @@ export const useTagsColumns = (
     RecordTable.checkboxColumn as ColumnDef<any>,
     {
       id: 'name',
-      header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
+      header: () => <RecordTable.InlineHead icon={IconTag} label={t('name')} />,
       accessorKey: 'name',
       cell: ({ cell }) => {
         const original = cell.row.original as CmsTag;
@@ -99,7 +101,7 @@ export const useTagsColumns = (
               <CmsTranslatableBadge
                 value={cell.getValue() as string}
                 missing={missing}
-                placeholder="Untitled tag"
+                placeholder={t('untitled-tag')}
                 missingVariant="destructive"
                 missingClassName="border-red-300"
               />
@@ -121,7 +123,7 @@ export const useTagsColumns = (
     },
     {
       id: 'slug',
-      header: () => <RecordTable.InlineHead icon={IconTag} label="Slug" />,
+      header: () => <RecordTable.InlineHead icon={IconTag} label={t('slug')} />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-muted-foreground">
@@ -135,7 +137,7 @@ export const useTagsColumns = (
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('created')} />
       ),
       accessorKey: 'createdAt',
       size: 120,

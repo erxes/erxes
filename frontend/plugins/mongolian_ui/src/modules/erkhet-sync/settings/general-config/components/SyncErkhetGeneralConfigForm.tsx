@@ -1,8 +1,10 @@
 import { Button, Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSyncErkhetGeneralConfig } from '@/erkhet-sync/settings/general-config/hooks/useSyncErkhetGeneralConfig';
 
 export const SyncErkhetGeneralConfigForm = () => {
   const { form, handleUpdate, isUpdating } = useSyncErkhetGeneralConfig();
+  const { t } = useTranslation('mongolian');
 
   const onSubmit = async (formData: any) => {
     await handleUpdate(formData);
@@ -15,17 +17,17 @@ export const SyncErkhetGeneralConfigForm = () => {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <div className="flex flex-col gap-4">
-          <h1 className="text-xl font-semibold mb-2">General settings</h1>
+          <h1 className="text-xl font-semibold mb-2">{t('general-settings')}</h1>
           <Form.Field
             name="apiKey"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Api key</Form.Label>
+                <Form.Label>{t('api-key')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter api key"
+                    placeholder={t('enter-api-key')}
                     className="h-8"
                     {...field}
                   />
@@ -38,11 +40,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Api secret</Form.Label>
+                <Form.Label>{t('api-secret')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter api secret"
+                    placeholder={t('enter-api-secret')}
                     className="h-8"
                     {...field}
                   />
@@ -55,11 +57,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Api token</Form.Label>
+                <Form.Label>{t('api-token')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter api token"
+                    placeholder={t('enter-api-token')}
                     className="h-8"
                     {...field}
                   />
@@ -69,17 +71,17 @@ export const SyncErkhetGeneralConfigForm = () => {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <h1 className="text-xl font-semibold mb-2">Product to erkhet</h1>
+          <h1 className="text-xl font-semibold mb-2">{t('product-to-erkhet')}</h1>
           <Form.Field
             name="costAccount"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Cost account</Form.Label>
+                <Form.Label>{t('cost-account')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter cost account"
+                    placeholder={t('enter-cost-account')}
                     className="h-8"
                     {...field}
                   />
@@ -92,11 +94,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Sales account</Form.Label>
+                <Form.Label>{t('sales-account')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter sales account"
+                    placeholder={t('enter-sales-account')}
                     className="h-8"
                     {...field}
                   />
@@ -109,11 +111,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Product category code</Form.Label>
+                <Form.Label>{t('product-category-code')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter product category code"
+                    placeholder={t('enter-product-category-code')}
                     className="h-8"
                     {...field}
                   />
@@ -126,11 +128,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Consume products description</Form.Label>
+                <Form.Label>{t('consume-products-description')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter consume products description"
+                    placeholder={t('enter-consume-products-description')}
                     className="h-8"
                     {...field}
                   />
@@ -140,17 +142,17 @@ export const SyncErkhetGeneralConfigForm = () => {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <h1 className="text-xl font-semibold mb-2">Customer to erkhet</h1>
+          <h1 className="text-xl font-semibold mb-2">{t('customer-to-erkhet')}</h1>
           <Form.Field
             name="checkCompanyUrl"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Check company url</Form.Label>
+                <Form.Label>{t('check-company-url')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter check company url"
+                    placeholder={t('enter-check-company-url')}
                     className="h-8"
                     {...field}
                   />
@@ -163,11 +165,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Customer default name</Form.Label>
+                <Form.Label>{t('customer-default-name')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter customer default name"
+                    placeholder={t('enter-customer-default-name')}
                     className="h-8"
                     {...field}
                   />
@@ -180,11 +182,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Customer category code</Form.Label>
+                <Form.Label>{t('customer-category-code')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter customer category code"
+                    placeholder={t('enter-customer-category-code')}
                     className="h-8"
                     {...field}
                   />
@@ -197,11 +199,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Company category code</Form.Label>
+                <Form.Label>{t('company-category-code')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter company category code"
+                    placeholder={t('enter-company-category-code')}
                     className="h-8"
                     {...field}
                   />
@@ -214,11 +216,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Debt accounts</Form.Label>
+                <Form.Label>{t('debt-accounts')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter debt accounts"
+                    placeholder={t('enter-debt-accounts')}
                     className="h-8"
                     {...field}
                   />
@@ -229,18 +231,18 @@ export const SyncErkhetGeneralConfigForm = () => {
         </div>
         <div className="flex flex-col gap-4">
           <h1 className="text-xl font-semibold mb-2">
-            Loan transaction to erkhet
+            {t('loan-transaction-to-erkhet')}
           </h1>
           <Form.Field
             name="userEmail"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>User email</Form.Label>
+                <Form.Label>{t('user-email')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter user email"
+                    placeholder={t('enter-user-email')}
                     className="h-8"
                     {...field}
                   />
@@ -253,11 +255,11 @@ export const SyncErkhetGeneralConfigForm = () => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Default customer</Form.Label>
+                <Form.Label>{t('default-customer')}</Form.Label>
                 <Form.Message />
                 <Form.Control>
                   <Input
-                    placeholder="Enter default customer"
+                    placeholder={t('enter-default-customer')}
                     className="h-8"
                     {...field}
                   />
@@ -273,7 +275,7 @@ export const SyncErkhetGeneralConfigForm = () => {
             type="submit"
             disabled={isUpdating}
           >
-            {isUpdating ? 'Saving...' : 'Save'}
+            {isUpdating ? t('saving') : t('save')}
           </Button>
         </div>
       </form>

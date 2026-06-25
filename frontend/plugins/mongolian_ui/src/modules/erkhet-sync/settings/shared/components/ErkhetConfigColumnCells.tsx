@@ -2,6 +2,7 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import { Button, Combobox, Command, Popover, RecordTable, RecordTableInlineCell, useConfirm } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface TitleCellProps<TRow extends { _id: string; title?: string }> {
   config: TRow;
@@ -40,9 +41,10 @@ export const ErkhetConfigMoreCell = <TRow extends { _id: string }>({
   const [editOpen, setEditOpen] = useState(false);
   const config = cell.row.original;
   const { confirm } = useConfirm();
+  const { t } = useTranslation('mongolian');
 
   const handleDelete = () => {
-    confirm({ message: 'Are you sure you want to delete this config?' }).then(
+    confirm({ message: t('delete-this-config-confirm') }).then(
       () => onDelete(config._id),
     );
   };
@@ -68,7 +70,7 @@ export const ErkhetConfigMoreCell = <TRow extends { _id: string }>({
                   onClick={() => setEditOpen(true)}
                 >
                   <IconEdit className="size-4" />
-                  Edit
+                  {t('edit')}
                 </Button>
               </Command.Item>
               <Command.Item asChild>
@@ -80,7 +82,7 @@ export const ErkhetConfigMoreCell = <TRow extends { _id: string }>({
                   disabled={editLoading}
                 >
                   <IconTrash className="size-4" />
-                  Delete
+                  {t('delete')}
                 </Button>
               </Command.Item>
             </Command.List>

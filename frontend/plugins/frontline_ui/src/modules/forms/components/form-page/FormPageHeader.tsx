@@ -3,6 +3,7 @@ import { IconForms } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Skeleton } from 'erxes-ui';
 import { Link, useParams } from 'react-router';
 import { PageHeader } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const FormDetailsBreadcrumbItem = ({ formId }: { formId: string }) => {
   const { loading, formDetail } = useFormDetail({ formId });
@@ -19,6 +20,7 @@ export const FormDetailsBreadcrumbItem = ({ formId }: { formId: string }) => {
 };
 
 export const FormPageHeader = () => {
+  const { t } = useTranslation('frontline');
   const { formId } = useParams<{ formId: string }>();
   return (
     <PageHeader>
@@ -29,7 +31,7 @@ export const FormPageHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to="/frontline/forms">
                   <IconForms />
-                  Forms
+                  {t('forms')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

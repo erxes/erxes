@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import { CARRIER_CSS_VARS, CARRIER_COLOR_VAR, fmtPct } from '../../utils';
 import type { CarrierSlice } from '../../types';
 
@@ -11,12 +12,13 @@ interface CarrierDonutProps {
 export const CarrierDonut = memo(function CarrierDonut({
   data,
 }: CarrierDonutProps) {
+  const { t } = useTranslation('frontline');
   const total = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data]);
 
   if (!data.length) {
     return (
       <div className="flex h-56 items-center justify-center text-sm text-muted-foreground">
-        No carrier data
+        {t('no-carrier-data')}
       </div>
     );
   }

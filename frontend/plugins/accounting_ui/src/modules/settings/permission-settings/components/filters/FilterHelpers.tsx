@@ -1,4 +1,5 @@
 import { IconEdit, IconEye, IconStairs, IconUser } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   Avatar,
   Combobox,
@@ -130,6 +131,7 @@ export const PermissionsFilterUser = () => {
 };
 
 export const FilterBarUser = () => {
+  const { t } = useTranslation('accounting');
   const [userId, setUserId] = useQueryState<string>('userId');
   const [open, setOpen] = useState(false);
 
@@ -139,7 +141,7 @@ export const FilterBarUser = () => {
     <Filter.BarItem queryKey="userId">
       <Filter.BarName>
         <IconUser />
-        User
+        {t('user')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
@@ -171,11 +173,12 @@ const ScopeMultiCommand = ({
   selected: string[];
   onPick: (next: string[]) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   return (
     <Command>
-      <Command.Input placeholder="Search" variant="secondary" focusOnMount />
+      <Command.Input placeholder={t('search')} variant="secondary" focusOnMount />
       <Command.List className="p-1">
-        <Command.Empty>No results found</Command.Empty>
+        <Command.Empty>{t('no-results-found')}</Command.Empty>
         {options.map((option) => {
           const Icon = option.icon;
           return (
@@ -228,6 +231,7 @@ export const PermissionsFilterReads = () => {
 };
 
 export const FilterBarReads = () => {
+  const { t } = useTranslation('accounting');
   const [reads, setReads] = useQueryState<string>('reads');
   const [open, setOpen] = useState(false);
   if (!reads) return null;
@@ -237,7 +241,7 @@ export const FilterBarReads = () => {
     <Filter.BarItem queryKey="reads">
       <Filter.BarName>
         <IconEye />
-        Read
+        {t('read')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
@@ -282,6 +286,7 @@ export const PermissionsFilterWrites = () => {
 };
 
 export const FilterBarWrites = () => {
+  const { t } = useTranslation('accounting');
   const [writes, setWrites] = useQueryState<string>('writes');
   const [open, setOpen] = useState(false);
   if (!writes) return null;
@@ -291,7 +296,7 @@ export const FilterBarWrites = () => {
     <Filter.BarItem queryKey="writes">
       <Filter.BarName>
         <IconEdit />
-        Write
+        {t('write')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>

@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectTriggerVariantType,
 } from './SelectShared';
+import { useTranslation } from 'react-i18next';
 
 interface ITag {
   _id: string;
@@ -183,13 +184,14 @@ const SelectTagsValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('content');
   const { value, tags } = useSelectTagsContext();
   const selectedTag = tags?.find((tag) => tag._id === value);
 
   if (!selectedTag) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select tag'}
+        {placeholder || t('select-tag')}
       </span>
     );
   }
@@ -234,15 +236,16 @@ const SelectTagsCommandItem = ({ tag }: { tag: ITag }) => {
 };
 
 const SelectTagsContent = () => {
+  const { t } = useTranslation('content');
   const { tags, loading } = useSelectTagsContext();
 
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search tags" />
+        <Command.Input placeholder={t('search-tags')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading tags...</span>
+            <span className="text-muted-foreground">{t('loading-tags')}</span>
           </div>
         </Command.List>
       </Command>
@@ -251,9 +254,9 @@ const SelectTagsContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search tags" />
+      <Command.Input placeholder={t('search-tags')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No tags found</span>
+        <span className="text-muted-foreground">{t('no-tags-found')}</span>
       </Command.Empty>
       <Command.List>
         {tags?.map((tag) => (
@@ -265,10 +268,11 @@ const SelectTagsContent = () => {
 };
 
 export const SelectTagsFilterItem = () => {
+  const { t } = useTranslation('content');
   return (
     <Filter.Item value="tags">
       <IconTag />
-      Tags
+      {t('tags')}
     </Filter.Item>
   );
 };
@@ -314,6 +318,7 @@ export const SelectTagsFilterBar = ({
   mode?: 'single' | 'multiple';
   clientPortalId?: string;
 }) => {
+  const { t } = useTranslation('content');
   const [tags, setTags] = useQueryState<string[] | string>('tags');
   const [open, setOpen] = useState(false);
 
@@ -321,7 +326,7 @@ export const SelectTagsFilterBar = ({
     <Filter.BarItem queryKey={'tags'}>
       <Filter.BarName>
         <IconTag />
-        Tags
+        {t('tags')}
       </Filter.BarName>
       <SelectTagsProvider
         mode={mode}

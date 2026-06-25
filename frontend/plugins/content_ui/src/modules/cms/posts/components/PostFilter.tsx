@@ -14,6 +14,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { PostsTotalCount } from './PostsTotalCount';
 import { useIsPostsLeadSessionKey } from '../hooks/usePostsLeadSessionKey';
@@ -27,6 +28,7 @@ interface PostsFilterPopoverProps {
 }
 
 const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
+  const { t } = useTranslation('content');
   const [queries] = useMultiQueryState<{
     tags: string[];
     searchValue: string;
@@ -59,14 +61,14 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <SelectStatus.FilterItem />
                 <SelectType.FilterItem />
@@ -75,15 +77,15 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
                 <Command.Separator className="my-1" />
                 <Filter.Item value="created">
                   <IconCalendarPlus />
-                  Created At
+                  {t('created-at')}
                 </Filter.Item>
                 <Filter.Item value="updated">
                   <IconCalendarUp />
-                  Updated At
+                  {t('updated-at')}
                 </Filter.Item>
                 <Filter.Item value="publishedDate">
                   <IconCalendarCheck />
-                  Publish Date
+                  {t('publish-date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -134,6 +136,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
 };
 
 export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
+  const { t } = useTranslation('content');
   const [searchValue] = useFilterQueryState<string>('searchValue');
   const { sessionKey } = useIsPostsLeadSessionKey();
 
@@ -183,7 +186,7 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -196,21 +199,21 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
-            Created At
+            {t('created-at')}
           </Filter.BarName>
           <Filter.Date filterKey="created" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updated">
           <Filter.BarName>
             <IconCalendarUp />
-            Updated At
+            {t('updated-at')}
           </Filter.BarName>
           <Filter.Date filterKey="updated" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="publishedDate">
           <Filter.BarName>
             <IconCalendarCheck />
-            Publish Date
+            {t('publish-date')}
           </Filter.BarName>
           <Filter.Date filterKey="publishedDate" />
         </Filter.BarItem>

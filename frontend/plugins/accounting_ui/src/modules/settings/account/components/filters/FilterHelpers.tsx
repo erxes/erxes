@@ -15,6 +15,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   SelectAccountCatCommand,
   SelectAccountCategory,
@@ -69,6 +70,7 @@ export const AccountsFilterCategory = () => {
 };
 
 export const FilterBarCategory = () => {
+  const { t } = useTranslation('accounting');
   const [categoryId, setCategoryId] = useQueryState<string | null>(
     'categoryId',
   );
@@ -77,7 +79,7 @@ export const FilterBarCategory = () => {
     <Filter.BarItem queryKey="categoryId">
       <Filter.BarName>
         <IconLayoutGridAdd />
-        Category
+        {t('category')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountCategory
@@ -111,13 +113,14 @@ export const AccountsFilterCurrency = () => {
 };
 
 export const FilterBarCurrency = () => {
+  const { t } = useTranslation('accounting');
   const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
 
   return (
     <Filter.BarItem queryKey="currency">
       <Filter.BarName>
         <IconCoins />
-        Currency
+        {t('currency')}
       </Filter.BarName>
       <Filter.BarButton>
         <CurrencyField.SelectCurrency
@@ -147,13 +150,14 @@ export const AccountsFilterKind = () => {
 };
 
 export const FilterBarKind = () => {
+  const { t } = useTranslation('accounting');
   const [kind, setKind] = useQueryState<string | null>('kind');
 
   return (
     <Filter.BarItem queryKey="kind">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Kind
+        {t('kind')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountKindCommand
@@ -187,13 +191,14 @@ export const AccountsFilterJournal = () => {
 };
 
 export const FilterBarJournal = () => {
+  const { t } = useTranslation('accounting');
   const [journal, setJournal] = useQueryState<string | null>('journal');
 
   return (
     <Filter.BarItem queryKey="journal">
       <Filter.BarName>
         <IconNotebook />
-        Journal
+        {t('journal')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountJournalCommand
@@ -227,13 +232,14 @@ export const AccountsFilterIsTemp = () => {
 };
 
 export const FilterBarIsTemp = () => {
+  const { t } = useTranslation('accounting');
   const [isTemp, setIsTemp] = useQueryState<string | null>('isTemp');
 
   return (
     <Filter.BarItem queryKey="isTemp">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Is Temp
+        {t('is-temp')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountIsTempCommand
@@ -351,13 +357,14 @@ export const AccountsFilterTrJournal = () => {
 };
 
 export const FilterBarTrJournal = () => {
+  const { t } = useTranslation('accounting');
   const [journal, setJournal] = useQueryState<string | null>('journal');
 
   return (
     <Filter.BarItem queryKey="journal">
       <Filter.BarName>
         <IconNotebook />
-        TrJournal
+        {t('tr-journal')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountTrJournalCommand
@@ -389,13 +396,14 @@ export const AccountsFilterTrStatus = () => {
 };
 
 export const FilterBarTrStatus = () => {
+  const { t } = useTranslation('accounting');
   const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
 
   return (
     <Filter.BarItem queryKey="statuses">
       <Filter.BarName>
         <IconNotebook />
-        TrStatus
+        {t('tr-status')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountTrStatusCommand
@@ -415,10 +423,10 @@ const FILTER_BAR_STRING_ICONS = {
   name: IconLabelFilled,
 } as const;
 
-const FILTER_BAR_STRING_LABELS = {
-  searchValue: 'Search',
-  code: 'Code',
-  name: 'Name',
+const FILTER_BAR_STRING_LABEL_KEYS = {
+  searchValue: 'search',
+  code: 'code',
+  name: 'name',
 } as const;
 
 type FilterBarStringKey = keyof typeof FILTER_BAR_STRING_ICONS;
@@ -430,12 +438,13 @@ export const FilterBarStringItem = ({
   queryKey: FilterBarStringKey;
   value?: string | null;
 }) => {
+  const { t } = useTranslation('accounting');
   const Icon = FILTER_BAR_STRING_ICONS[queryKey];
   return (
     <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
         <Icon />
-        {FILTER_BAR_STRING_LABELS[queryKey]}
+        {t(FILTER_BAR_STRING_LABEL_KEYS[queryKey])}
       </Filter.BarName>
       <Filter.BarButton filterKey={queryKey} inDialog>
         {value}
@@ -462,16 +471,19 @@ export const FilterPopoverStringItems = ({
   filterKeys,
 }: {
   filterKeys: FilterBarStringKey[];
-}) => (
-  <>
-    {filterKeys.map((filterKey) => {
-      const Icon = FILTER_BAR_STRING_ICONS[filterKey];
-      return (
-        <Filter.Item key={filterKey} value={filterKey} inDialog>
-          <Icon />
-          {FILTER_BAR_STRING_LABELS[filterKey]}
-        </Filter.Item>
-      );
-    })}
-  </>
-);
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <>
+      {filterKeys.map((filterKey) => {
+        const Icon = FILTER_BAR_STRING_ICONS[filterKey];
+        return (
+          <Filter.Item key={filterKey} value={filterKey} inDialog>
+            <Icon />
+            {t(FILTER_BAR_STRING_LABEL_KEYS[filterKey])}
+          </Filter.Item>
+        );
+      })}
+    </>
+  );
+};

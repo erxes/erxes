@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconClipboard } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
 import { Suspense } from 'react';
@@ -7,6 +8,7 @@ import { SettingsHeader, TagProvider, TagsGroupsAddButtons } from 'ui-modules';
 import { ProjectsTagsPage } from '~/pages/ProjectsTagsPage';
 
 const ProjectsSettings = () => {
+  const { t } = useTranslation('operation');
   return (
     <Suspense fallback={<div />}>
       <TagProvider>
@@ -18,7 +20,7 @@ const ProjectsSettings = () => {
                   breadcrumbs={
                     <Button variant="ghost" className="font-semibold">
                       <IconClipboard className="w-4 h-4 text-accent-foreground" />
-                      Projects
+                      {t('projects')}
                     </Button>
                   }
                 >

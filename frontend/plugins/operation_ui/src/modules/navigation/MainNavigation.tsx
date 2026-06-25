@@ -1,8 +1,10 @@
 import { IconClipboard, IconUserFilled } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePermissionCheck } from 'ui-modules';
 
 export const MainNavigation = () => {
+  const { t } = useTranslation('operation');
   const { isLoaded, hasModulePermission, isWildcard } = usePermissionCheck();
 
   const showProjects =
@@ -13,7 +15,7 @@ export const MainNavigation = () => {
     <>
       {showProjects && (
         <NavigationMenuLinkItem
-          name="Projects"
+          name={t('projects')}
           icon={IconClipboard}
           pathPrefix="operation"
           path="projects"
@@ -21,7 +23,7 @@ export const MainNavigation = () => {
       )}
       {showTasks && (
         <NavigationMenuLinkItem
-          name="My tasks"
+          name={t('my-tasks')}
           icon={IconUserFilled}
           pathPrefix="operation"
           path="tasks"

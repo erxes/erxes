@@ -12,6 +12,7 @@ import { IProductData } from 'ui-modules';
 import { IconTrash } from '@tabler/icons-react';
 import { atom } from 'jotai';
 import { useRemoveProducts } from '../hooks/useRemoveProduct';
+import { useTranslation } from 'react-i18next';
 
 export const renderingProductDetailAtom = atom(false);
 
@@ -24,10 +25,12 @@ export const ProductMoreColumnCell = ({
   const { confirm } = useConfirm();
   const { removeProducts, loading: removeLoading } = useRemoveProducts();
   const { toast } = useToast();
+  const { t } = useTranslation('sales');
 
   const onRemove = () => {
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t('confirm-remove-selected'),
+      options: confirmOptions,
     }).then(async () => {
       try {
         removeProducts({
@@ -37,7 +40,7 @@ export const ProductMoreColumnCell = ({
         });
       } catch (e) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -59,7 +62,7 @@ export const ProductMoreColumnCell = ({
               className="text-destructive"
               onSelect={onRemove}
             >
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

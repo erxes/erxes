@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   IconSandbox,
   IconBuilding,
@@ -36,6 +37,7 @@ import { VendorUser } from '~/modules/insurance/types';
 import { VendorUserForm } from '~/modules/insurance/components';
 
 export const VendorDetailPage = () => {
+  const { t } = useTranslation('insurance');
   const { id } = useParams<{ id: string }>();
   const { vendor, loading: vendorLoading } = useVendor(id!);
   const { vendorUsers, loading: usersLoading, refetch } = useVendorUsers(id);
@@ -79,14 +81,14 @@ export const VendorDetailPage = () => {
   };
 
   const handleDelete = async (userId: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
+    if (confirm(t('confirm-delete-user'))) {
       await deleteVendorUser(userId);
       refetch();
     }
   };
 
   const handleRemoveProduct = async (productId: string) => {
-    if (confirm('Remove this product?')) {
+    if (confirm(t('remove-product-confirm'))) {
       try {
         await removeProductFromVendor({
           variables: {
@@ -224,7 +226,7 @@ export const VendorDetailPage = () => {
   }
 
   if (!vendor) {
-    return <div className="p-6">Vendor not found</div>;
+    return <div className="p-6">{t('vendor-not-found')}</div>;
   }
 
   return (
@@ -237,7 +239,7 @@ export const VendorDetailPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/products">
                     <IconSandbox />
-                    Insurance
+                    {t('insurance')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -246,7 +248,7 @@ export const VendorDetailPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/vendors">
                     <IconBuilding />
-                    Vendors
+                    {t('vendors')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -262,7 +264,7 @@ export const VendorDetailPage = () => {
         <PageHeader.End>
           <Button onClick={handleCreate}>
             <IconPlus size={16} />
-            New User
+            {t('new-user')}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -277,17 +279,17 @@ export const VendorDetailPage = () => {
               <div>
                 <h2 className="text-2xl font-bold">{vendor.name}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {vendor.offeredProducts.length} products offered
+                  {vendor.offeredProducts.length} {t('products-offered')}
                 </p>
               </div>
             </div>
 
             <div className="mt-4 pt-4 border-t">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">Offered Products</h3>
+                <h3 className="font-semibold">{t('offered-products')}</h3>
                 <Button size="sm" onClick={() => setIsProductDialogOpen(true)}>
                   <IconPlus size={16} />
-                  Add Product
+                  {t('add-product')}
                 </Button>
               </div>
               {vendor.offeredProducts.length > 0 ? (
@@ -342,7 +344,7 @@ export const VendorDetailPage = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground">No products added yet</p>
+                <p className="text-muted-foreground">{t('no-products-added-yet')}</p>
               )}
             </div>
           </Card>
@@ -350,7 +352,7 @@ export const VendorDetailPage = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <IconUsers size={24} />
-              <h3 className="text-xl font-semibold">Vendor Users</h3>
+              <h3 className="text-xl font-semibold">{t('vendor-users')}</h3>
               <Badge variant="secondary">{vendorUsers.length}</Badge>
             </div>
 
@@ -380,13 +382,13 @@ export const VendorDetailPage = () => {
             ) : vendorUsers.length === 0 ? (
               <Card className="p-12 text-center">
                 <IconUsers size={64} className="mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No users yet</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('no-users-yet')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Add users to manage this vendor
+                  {t('add-users-to-manage-vendor')}
                 </p>
                 <Button onClick={handleCreate}>
                   <IconPlus size={16} />
-                  Add First User
+                  {t('add-first-user')}
                 </Button>
               </Card>
             ) : (
@@ -399,7 +401,7 @@ export const VendorDetailPage = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h4 className="font-semibold text-lg">
-                          {user.name || 'No name'}
+                          {user.name || t('no-name')}
                         </h4>
                         <Badge variant="secondary" className="mt-1">
                           {user.role}
@@ -436,7 +438,7 @@ export const VendorDetailPage = () => {
                         onClick={() => handleEdit(user)}
                       >
                         <IconEdit size={16} />
-                        Edit
+                        {t('edit')}
                       </Button>
                       <Button
                         variant="outline"
@@ -466,13 +468,13 @@ export const VendorDetailPage = () => {
         <Dialog.Content className="max-w-md">
           <Dialog.Header>
             <Dialog.Title>
-              {editingProduct ? 'Edit Product' : 'Add Product'}
+              {editingProduct ? t('edit-product') : t('add-product')}
             </Dialog.Title>
           </Dialog.Header>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="product">Select Product *</Label>
+              <Label htmlFor="product">{t('select-product-required')}</Label>
               {editingProduct ? (
                 <Input
                   id="product"
@@ -485,7 +487,7 @@ export const VendorDetailPage = () => {
                   onValueChange={setSelectedProductId}
                 >
                   <Select.Trigger id="product">
-                    <Select.Value placeholder="Select a product" />
+                    <Select.Value placeholder={t('select-a-product')} />
                   </Select.Trigger>
                   <Select.Content>
                     {availableProducts.map((product) => (
@@ -499,7 +501,7 @@ export const VendorDetailPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="vendorPercentage">Base Rate (%) - Optional</Label>
+              <Label htmlFor="vendorPercentage">{t('base-rate-optional')}</Label>
               <Input
                 id="vendorPercentage"
                 type="number"
@@ -512,16 +514,16 @@ export const VendorDetailPage = () => {
                     value ? Number.parseFloat(value) : undefined,
                   );
                 }}
-                placeholder="Uses product's rate"
+                placeholder={t('uses-product-rate')}
               />
               <p className="text-xs text-muted-foreground">
-                Leave empty to use the product's base rate.
+                {t('leave-empty-product-base-rate')}
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm">Rate by Duration (optional)</Label>
+                <Label className="text-sm">{t('rate-by-duration')}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -533,21 +535,20 @@ export const VendorDetailPage = () => {
                     ]);
                   }}
                 >
-                  Add Duration
+                  {t('add-duration')}
                 </Button>
               </div>
 
               {vendorDurationFields.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Click "Add Duration" to set different rates by duration for
-                  this vendor
+                  {t('click-add-duration-hint')}
                 </p>
               ) : (
                 <div className="space-y-2">
                   {vendorDurationFields.map((field) => (
                     <div key={field.key} className="flex gap-2 items-end">
                       <div className="flex-1">
-                        <Label className="text-xs">Duration</Label>
+                        <Label className="text-xs">{t('duration')}</Label>
                         <Input
                           value={field.duration}
                           onChange={(e) => {
@@ -562,7 +563,7 @@ export const VendorDetailPage = () => {
                         />
                       </div>
                       <div className="w-32">
-                        <Label className="text-xs">Rate (%)</Label>
+                        <Label className="text-xs">{t('rate-label')}</Label>
                         <Input
                           type="number"
                           min="0"
@@ -590,15 +591,14 @@ export const VendorDetailPage = () => {
                           );
                         }}
                       >
-                        Remove
+                        {t('remove')}
                       </Button>
                     </div>
                   ))}
                 </div>
               )}
               <p className="text-xs text-muted-foreground">
-                Example: "12months", "24months", etc. Duration-specific rates
-                for this vendor.
+                {t('duration-example-hint')}
               </p>
             </div>
 
@@ -618,7 +618,7 @@ export const VendorDetailPage = () => {
                     ]);
                   }}
                 >
-                  Add Tier
+                  {t('add-tier')}
                 </Button>
               </div>
 
@@ -680,7 +680,7 @@ export const VendorDetailPage = () => {
                           );
                         }}
                       >
-                        Remove
+                        {t('remove')}
                       </Button>
                     </div>
                   ))}
@@ -698,14 +698,14 @@ export const VendorDetailPage = () => {
               variant="outline"
               onClick={closeProductDialog}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               type="button"
               onClick={handleSaveProduct}
               disabled={!selectedProductId}
             >
-              {editingProduct ? 'Save' : 'Add'}
+              {editingProduct ? t('save') : t('add-product')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

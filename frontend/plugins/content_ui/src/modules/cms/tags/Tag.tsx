@@ -1,6 +1,7 @@
 import { IconPlus, IconTags } from '@tabler/icons-react';
 import { Button, Kbd, PageContainer, useFilterQueryState } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useTags } from '../hooks/useTags';
 import { CmsSidebar } from '../shared/CmsSidebar';
@@ -14,6 +15,7 @@ import { TagDrawer } from './TagDrawer';
 import { CmsTag } from './types/tagTypes';
 
 export function Tag() {
+  const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const [searchValue] = useFilterQueryState<string>('searchValue');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -49,7 +51,7 @@ export function Tag() {
     <div>
       <Button onClick={handleAddTag}>
         <IconPlus />
-        Add Tag
+        {t('add-tag')}
         <Kbd>T</Kbd>
       </Button>
     </div>
@@ -71,9 +73,9 @@ export function Tag() {
             <div className="rounded-lg overflow-hidden">
               <EmptyState
                 icon={IconTags}
-                title="No tags yet"
-                description="Get started by creating your first tag."
-                actionLabel="Add tag"
+                title={t('no-tags-yet')}
+                description={t('no-tags-yet-desc')}
+                actionLabel={t('add-tag')}
                 onAction={handleAddTag}
               />
             </div>

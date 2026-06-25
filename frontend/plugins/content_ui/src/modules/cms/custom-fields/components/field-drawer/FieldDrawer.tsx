@@ -10,6 +10,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   ICustomField,
   FieldFormValues,
@@ -38,6 +39,7 @@ export function FieldDrawer({
   onSubmit,
   editingField,
 }: FieldDrawerProps) {
+  const { t } = useTranslation('content');
   const form = useForm<FieldFormValues>({
     defaultValues: DEFAULT_VALUES,
   });
@@ -69,7 +71,7 @@ export function FieldDrawer({
     >
       <Sheet.View className="sm:max-w-lg p-0">
         <Sheet.Header>
-          <Sheet.Title>{editingField ? 'Edit Field' : 'Add Field'}</Sheet.Title>
+          <Sheet.Title>{editingField ? t('edit-field') : t('add-field')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Form {...form}>
@@ -84,9 +86,9 @@ export function FieldDrawer({
                 rules={{ required: 'Label is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Label</Form.Label>
+                    <Form.Label>{t('label')}</Form.Label>
                     <Form.Control>
-                      <Input placeholder="Enter field label" {...field} />
+                      <Input placeholder={t('enter-field-label')} {...field} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -98,15 +100,15 @@ export function FieldDrawer({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Code</Form.Label>
+                    <Form.Label>{t('code')}</Form.Label>
                     <Form.Control>
                       <Input
-                        placeholder="e.g., product_price"
+                        placeholder={t('enter-code-field-eg')}
                         {...field}
                       />
                     </Form.Control>
                     <Form.Description>
-                      Unique identifier for this field
+                      {t('unique-identifier-for-this-field')}
                     </Form.Description>
                     <Form.Message />
                   </Form.Item>
@@ -119,14 +121,14 @@ export function FieldDrawer({
                 rules={{ required: 'Type is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Field Type</Form.Label>
+                    <Form.Label>{t('field-type')}</Form.Label>
                     <Select
                       value={field.value || ''}
                       onValueChange={field.onChange}
                     >
                       <Form.Control>
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder="Select field type" />
+                          <Select.Value placeholder={t('select-field-type')} />
                         </Select.Trigger>
                       </Form.Control>
                       <Select.Content>
@@ -150,10 +152,10 @@ export function FieldDrawer({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Description</Form.Label>
+                    <Form.Label>{t('description')}</Form.Label>
                     <Form.Control>
                       <Textarea
-                        placeholder="Optional description"
+                        placeholder={t('optional-description')}
                         {...field}
                       />
                     </Form.Control>
@@ -173,15 +175,15 @@ export function FieldDrawer({
                   }}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Options</Form.Label>
+                      <Form.Label>{t('options')}</Form.Label>
                       <Form.Control>
                         <Input
-                          placeholder="Option 1, Option 2, Option 3"
+                          placeholder={t('options-placeholder')}
                           {...field}
                         />
                       </Form.Control>
                       <Form.Description>
-                        Comma-separated list of options
+                        {t('comma-separated-options')}
                       </Form.Description>
                       <Form.Message />
                     </Form.Item>
@@ -195,7 +197,7 @@ export function FieldDrawer({
                 render={({ field }) => (
                   <Form.Item className="flex flex-row items-center justify-between gap-2">
                     <Form.Label className="cursor-pointer">
-                      Required field
+                      {t('required-field')}
                     </Form.Label>
                     <Form.Control>
                       <Switch
@@ -210,11 +212,11 @@ export function FieldDrawer({
 
             <Sheet.Footer className="border-t p-4 gap-2">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit">
                 {editingField ? <IconPencil /> : <IconPlus />}
-                {editingField ? 'Update' : 'Create'}
+                {editingField ? t('update') : t('create')}
               </Button>
             </Sheet.Footer>
           </form>

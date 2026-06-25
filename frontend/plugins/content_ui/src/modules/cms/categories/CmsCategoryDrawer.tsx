@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useApolloClient } from '@apollo/client';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -228,6 +229,7 @@ export function CmsCategoryDrawer({
   clientPortalId,
   onRefetch,
 }: CmsCategoryDrawerProps) {
+  const { t } = useTranslation('content');
   const isEditing = !!category?._id;
   const client = useApolloClient();
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
@@ -551,13 +553,13 @@ export function CmsCategoryDrawer({
       }
 
       onRefetch?.();
-      toast({ title: 'Success', description: 'Category created' });
+      toast({ title: t('success'), description: t('category-created') });
       onClose();
       form.reset();
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -604,13 +606,13 @@ export function CmsCategoryDrawer({
         }
 
         onRefetch?.();
-        toast({ title: 'Success', description: 'Category updated' });
+        toast({ title: t('success'), description: t('category-updated') });
         onClose();
         form.reset();
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -634,9 +636,8 @@ export function CmsCategoryDrawer({
     if (!isEditing && isNonDefaultLang) {
       if (!defaultLangData?.title) {
         toast({
-          title: 'Validation Error',
-          description:
-            'Please fill in the default language fields before creating a category in another language.',
+          title: t('validation-error'),
+          description: t('category-fill-default-lang-first'),
           variant: 'destructive',
         });
         return;
@@ -690,7 +691,7 @@ export function CmsCategoryDrawer({
       <Sheet.View className="sm:max-w-lg p-0">
         <Sheet.Header className="border-b gap-3">
           <Sheet.Title>
-            {isEditing ? 'Edit Category' : 'New Category'}
+            {isEditing ? t('edit-category') : t('new-category')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -715,7 +716,7 @@ export function CmsCategoryDrawer({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      Name
+                      {t('name')}
                       {isTranslationMode && (
                         <span className="ml-2 text-xs text-blue-600">
                           ({selectedLanguage})
@@ -725,7 +726,7 @@ export function CmsCategoryDrawer({
                     <Form.Control>
                       <Input
                         {...field}
-                        placeholder="Enter category name"
+                        placeholder={t('enter-category-name')}
                         required
                       />
                     </Form.Control>
@@ -740,10 +741,10 @@ export function CmsCategoryDrawer({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      Slug
+                      {t('slug')}
                       {isTranslationMode && (
                         <span className="ml-2 text-xs text-gray-500">
-                          (shared across languages)
+                          ({t('shared-across-languages')})
                         </span>
                       )}
                     </Form.Label>
@@ -769,7 +770,7 @@ export function CmsCategoryDrawer({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      Description
+                      {t('description')}
                       {isTranslationMode && (
                         <span className="ml-2 text-xs text-blue-600">
                           ({selectedLanguage})
@@ -779,7 +780,7 @@ export function CmsCategoryDrawer({
                     <Form.Control>
                       <Textarea
                         {...field}
-                        placeholder="Enter description"
+                        placeholder={t('enter-description')}
                         rows={3}
                       />
                     </Form.Control>
@@ -794,10 +795,10 @@ export function CmsCategoryDrawer({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      Parent Category
+                      {t('parent-category')}
                       {isTranslationMode && (
                         <span className="ml-2 text-xs text-gray-500">
-                          (shared across languages)
+                          ({t('shared-across-languages')})
                         </span>
                       )}
                     </Form.Label>
@@ -807,7 +808,7 @@ export function CmsCategoryDrawer({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select..." />
+                          <Select.Value placeholder={t('select')} />
                         </Select.Trigger>
                         <Select.Content>
                           {parentOptions.map((opt) => (
@@ -829,10 +830,10 @@ export function CmsCategoryDrawer({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      Status
+                      {t('status')}
                       {isTranslationMode && (
                         <span className="ml-2 text-xs text-gray-500">
-                          (shared across languages)
+                          ({t('shared-across-languages')})
                         </span>
                       )}
                     </Form.Label>
@@ -842,11 +843,11 @@ export function CmsCategoryDrawer({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select status" />
+                          <Select.Value placeholder={t('select-status')} />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="active">active</Select.Item>
-                          <Select.Item value="inactive">inactive</Select.Item>
+                          <Select.Item value="active">{t('active')}</Select.Item>
+                          <Select.Item value="inactive">{t('inactive')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -867,16 +868,16 @@ export function CmsCategoryDrawer({
 
               <div className="flex justify-end space-x-2">
                 <Button onClick={() => onClose()} variant="outline">
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={adding || editing}>
                   {adding || editing
                     ? isEditing
-                      ? 'Saving...'
-                      : 'Creating...'
+                      ? t('saving')
+                      : t('creating')
                     : isEditing
-                      ? 'Save Changes'
-                      : 'Create Category'}
+                      ? t('save-changes')
+                      : t('create-category')}
                 </Button>
               </div>
             </form>

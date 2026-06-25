@@ -26,6 +26,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
 import { ConversationActions } from './ConversationActions';
+import { useTranslation } from 'react-i18next';
 
 export const ConversationHeader = () => {
   const { customerId, loading, customer } = useConversationContext();
@@ -141,6 +142,7 @@ const AutomatedReplyStatusBadge = () => {
 };
 
 const AssignConversation = () => {
+  const { t } = useTranslation('frontline');
   const { assignedUserId, _id } = useConversationContext();
   const { assignConversations } = useAssignConversations();
 
@@ -154,7 +156,7 @@ const AssignConversation = () => {
       },
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -177,6 +179,7 @@ const AssignConversation = () => {
 };
 
 export const ConversationTags = () => {
+  const { t } = useTranslation('frontline');
   const { _id, tagIds, setTagIds } = useConversationContext();
 
   if (!_id) return null;
@@ -198,13 +201,13 @@ export const ConversationTags = () => {
         options={(newTagIds: string[]) => ({
           onCompleted: () => {
             toast({
-              title: 'Tag updated',
+              title: t('tag-updated'),
               variant: 'default',
             });
           },
           onError: (error: Error) => {
             toast({
-              title: 'Failed to update tags',
+              title: t('failed-to-update-tags'),
               description: error.message,
               variant: 'destructive',
             });
@@ -216,6 +219,7 @@ export const ConversationTags = () => {
 };
 
 const ConversationActionsDropdown = () => {
+  const { t } = useTranslation('frontline');
   const { _id, status } = useConversationContext();
   const { changeConversationStatus, loading } = useChangeConversationStatus();
   const refetchConversations = useAtomValue(refetchConversationsAtom);
@@ -252,7 +256,7 @@ const ConversationActionsDropdown = () => {
         </div>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onSelect={handleStatusChange} disabled={loading}>
-          {status === ConversationStatus.CLOSED ? 'Open' : 'Resolve'}
+          {status === ConversationStatus.CLOSED ? t('open-label') : t('resolve')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { IconUsers } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { POS_USERS_QUERY } from '../../graphql/queries/posUsersQuery';
 import { useQuery } from '@apollo/client';
 import {
@@ -126,13 +127,14 @@ const SelectUsersValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value, users } = useSelectUsersContext();
   const selectedUser = users?.find((user) => user._id === value);
 
   if (!selectedUser) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select user'}
+        {placeholder || t('select-user')}
       </span>
     );
   }
@@ -175,15 +177,16 @@ const SelectUsersCommandItem = ({ user }: { user: IUser }) => {
 };
 
 const SelectUsersContent = () => {
+  const { t } = useTranslation('sales');
   const { users, loading } = useSelectUsersContext();
 
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search users" />
+        <Command.Input placeholder={t('search-users')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading users...</span>
+            <span className="text-muted-foreground">{t('loading-users')}</span>
           </div>
         </Command.List>
       </Command>
@@ -192,9 +195,9 @@ const SelectUsersContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search users" />
+      <Command.Input placeholder={t('search-users')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No users found</span>
+        <span className="text-muted-foreground">{t('no-users-found')}</span>
       </Command.Empty>
       <Command.List>
         {users?.map((user) => (
@@ -206,10 +209,11 @@ const SelectUsersContent = () => {
 };
 
 export const SelectUsersFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="users">
       <IconUsers />
-      Users
+      {t('users')}
     </Filter.Item>
   );
 };
@@ -261,12 +265,13 @@ export const SelectUsersFilterBar = ({
 }) => {
   const [users, setUsers] = useQueryState<string[] | string>('users');
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('sales');
 
   return (
     <Filter.BarItem queryKey={'users'}>
       <Filter.BarName>
         <IconUsers />
-        Users
+        {t('users')}
       </Filter.BarName>
       <SelectUsersProvider
         mode={mode}

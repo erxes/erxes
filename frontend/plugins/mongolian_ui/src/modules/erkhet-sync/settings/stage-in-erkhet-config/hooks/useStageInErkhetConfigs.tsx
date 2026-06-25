@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/useStageInErkhetConfigQuery';
 import {
   CREATE_STAGE_IN_ERKHET_CONFIG,
@@ -67,6 +68,7 @@ const writeConfig = (data: TErkhetConfig) => {
 };
 
 export const useStageInErkhetConfigs = () => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const { data, loading, refetch } = useQuery(GET_CONFIGS_GET_VALUE, {
@@ -84,7 +86,7 @@ export const useStageInErkhetConfigs = () => {
 
   const mutationOptions = {
     onError: (e: Error) => {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      toast({ title: t('error'), description: e.message, variant: 'destructive' });
     },
   };
 
@@ -107,7 +109,7 @@ export const useStageInErkhetConfigs = () => {
       variables: { code: CONFIG_CODE, subId: value.stageId, value },
     });
     await refetch();
-    toast({ title: 'Success', description: 'Config created successfully' });
+    toast({ title: t('success'), description: t('config-created-successfully') });
   };
 
   const editConfig = async (id: string, data: TErkhetConfig) => {
@@ -116,19 +118,19 @@ export const useStageInErkhetConfigs = () => {
       variables: { id, subId: value.stageId, value },
     });
     await refetch();
-    toast({ title: 'Success', description: 'Config updated successfully' });
+    toast({ title: t('success'), description: t('config-updated-successfully') });
   };
 
   const deleteConfig = async (id: string) => {
     await removeConfig({ variables: { id } });
     await refetch();
-    toast({ title: 'Success', description: 'Config deleted successfully' });
+    toast({ title: t('success'), description: t('config-deleted-successfully') });
   };
 
   const deleteManyConfigs = async (ids: string[]) => {
     await Promise.all(ids.map((id) => removeConfig({ variables: { id } })));
     await refetch();
-    toast({ title: 'Success', description: `${ids.length} config(s) deleted` });
+    toast({ title: t('success'), description: t('configs-deleted', { count: ids.length }) });
   };
 
   return {

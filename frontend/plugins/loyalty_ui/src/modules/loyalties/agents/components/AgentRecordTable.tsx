@@ -2,9 +2,11 @@ import { RecordTable, Spinner } from 'erxes-ui';
 import { agentColumns } from './AgentColumns';
 import { useAgentList } from '../hooks/useAgentList';
 import { IconUsers } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { AgentCommandBar } from './AgentCommandBar';
 
 export const AgentRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { agentList, handleFetchMore, loading, pageInfo } = useAgentList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -46,10 +48,10 @@ export const AgentRecordTable = () => {
                 <IconUsers size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No agents yet
+                {t('no-agents-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first agent.
+                {t('get-started-agent')}
               </p>
             </div>
           </div>

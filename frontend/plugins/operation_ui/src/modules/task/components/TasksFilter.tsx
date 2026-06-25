@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectStatus } from '@/operation/components/SelectStatus';
 import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
@@ -47,6 +48,7 @@ import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstim
 import { TeamEstimateTypes } from '@/team/types';
 
 const TasksFilterPopover = () => {
+  const { t } = useTranslation('operation');
   const { teamId, projectId } = useParams();
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
   const { project } = useGetProject({
@@ -112,42 +114,42 @@ const TasksFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="assignee">
                   <IconUser />
-                  Assignee
+                  {t('assignee')}
                 </Filter.Item>
                 <Filter.Item value="createdBy">
                   <IconUserPlus />
-                  Creator
+                  {t('creator')}
                 </Filter.Item>
                 {!teamId && (
                   <Filter.Item value="team">
                     <IconUsers />
-                    Team
+                    {t('team')}
                   </Filter.Item>
                 )}
                 <Filter.Item value="priority">
                   <IconAlertSquareRounded />
-                  Priority
+                  {t('priority')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconProgressCheck />
-                  Status
+                  {t('status')}
                 </Filter.Item>
                 {(!teamId || (teamId && team?.cycleEnabled)) && (
                   <Filter.Item value="cycleFilter">
                     <IconRestore />
-                    Cycle
+                    {t('cycle')}
                   </Filter.Item>
                 )}
                 {(!teamId ||
@@ -157,60 +159,60 @@ const TasksFilterPopover = () => {
                       TeamEstimateTypes.NOT_IN_USE)) && (
                   <Filter.Item value="estimatePoint">
                     <IconTriangle />
-                    Estimate
+                    {t('estimate')}
                   </Filter.Item>
                 )}
                 <TagsFilter />
                 {projectId && !queries?.milestone && (
                   <Filter.Item value="milestone">
                     <IconSquareRotated />
-                    Milestone
+                    {t('milestone')}
                   </Filter.Item>
                 )}
                 <Command.Separator className="my-1" />
-                <Command.Group heading="DATES">
+                <Command.Group heading={t('dates')}>
                   <Filter.Item value="targetDate">
                     <IconCalendarEvent />
-                    Due date
+                    {t('due-date')}
                   </Filter.Item>
                   <Filter.Item value="createdDate">
                     <IconCalendarPlus />
-                    Created date
+                    {t('created-date')}
                   </Filter.Item>
                   <Filter.Item value="updatedDate">
                     <IconCalendar />
-                    Updated date
+                    {t('updated-date')}
                   </Filter.Item>
                   <Filter.Item value="startDate">
                     <IconCalendarTime />
-                    Started date
+                    {t('started-date')}
                   </Filter.Item>
                   <Filter.Item value="completedDate">
                     <IconCalendarX />
-                    Completed date
+                    {t('completed-date')}
                   </Filter.Item>
                 </Command.Group>
                 <Command.Separator className="my-1" />
-                <Command.Group heading="PROJECTS">
+                <Command.Group heading={t('projects')}>
                   <Filter.Item value="project">
                     <IconClipboard />
-                    Project
+                    {t('project')}
                   </Filter.Item>
                   <Filter.Item value="projectStatus">
                     <IconProgressCheck />
-                    Project Status
+                    {t('project-status')}
                   </Filter.Item>
                   <Filter.Item value="projectPriority">
                     <IconFlag />
-                    Project Priority
+                    {t('project-priority')}
                   </Filter.Item>
                   <Filter.Item value="projectLeadId">
                     <IconUser />
-                    Project Lead
+                    {t('project-lead')}
                   </Filter.Item>
                   <Filter.Item value="projectMilestoneName" inDialog>
                     <IconSquareRotated />
-                    Project Milestone Name
+                    {t('project-milestone-name')}
                   </Filter.Item>
                 </Command.Group>
               </Command.List>
@@ -260,6 +262,7 @@ const TasksFilterPopover = () => {
 };
 
 export const TasksFilter = () => {
+  const { t } = useTranslation('operation');
   const { teamId, projectId } = useParams();
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
   const { project } = useGetProject({
@@ -323,7 +326,7 @@ export const TasksFilter = () => {
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
               <IconSearch />
-              Search
+              {t('search')}
             </Filter.BarName>
             <Filter.BarButton filterKey="searchValue" inDialog>
               {searchValue}
@@ -333,35 +336,35 @@ export const TasksFilter = () => {
         <Filter.BarItem queryKey="project">
           <Filter.BarName>
             <IconClipboard />
-            Project
+            {t('project')}
           </Filter.BarName>
           <SelectProject.FilterBar queryKey="project" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="projectStatus">
           <Filter.BarName>
             <IconProgressCheck />
-            Project Status
+            {t('project-status')}
           </Filter.BarName>
           <SelectStatus.FilterBar queryKey="projectStatus" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="projectPriority">
           <Filter.BarName>
             <IconFlag />
-            Project Priority
+            {t('project-priority')}
           </Filter.BarName>
           <SelectPriority.FilterBar queryKey="projectPriority" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="projectLeadId">
           <Filter.BarName>
             <IconUser />
-            Project Lead
+            {t('project-lead')}
           </Filter.BarName>
           <SelectLead.FilterBar queryKey="projectLeadId" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="projectMilestoneName">
           <Filter.BarName>
             <IconSquareRotated />
-            Project Milestone Name
+            {t('project-milestone-name')}
           </Filter.BarName>
           <ProjectMilestoneNameFilter.Bar queryKey="projectMilestoneName" />
         </Filter.BarItem>
@@ -369,7 +372,7 @@ export const TasksFilter = () => {
           <Filter.BarItem queryKey="team">
             <Filter.BarName>
               <IconUsers />
-              Team
+              {t('team')}
             </Filter.BarName>
             <SelectTeam.FilterBar />
           </Filter.BarItem>
@@ -377,14 +380,14 @@ export const TasksFilter = () => {
         <Filter.BarItem queryKey="priority">
           <Filter.BarName>
             <IconAlertSquareRounded />
-            Priority
+            {t('priority')}
           </Filter.BarName>
           <SelectPriority.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgressCheck />
-            Status
+            {t('status')}
           </Filter.BarName>
           {teamId ? (
             <SelectStatusTask.FilterBar
@@ -398,7 +401,7 @@ export const TasksFilter = () => {
         <Filter.BarItem queryKey="assignee">
           <Filter.BarName>
             <IconUser />
-            Assignee
+            {t('assignee')}
           </Filter.BarName>
           <SelectAssigneeTask.FilterBar teamIds={resolvedTeamIds} />
         </Filter.BarItem>
@@ -406,7 +409,7 @@ export const TasksFilter = () => {
           <Filter.BarItem queryKey="cycleFilter">
             <Filter.BarName>
               <IconRestore />
-              Cycle
+              {t('cycle')}
             </Filter.BarName>
             <SelectCycle.FilterBar />
           </Filter.BarItem>
@@ -419,7 +422,7 @@ export const TasksFilter = () => {
             <Filter.BarItem queryKey="estimatePoint">
               <Filter.BarName>
                 <IconTriangle />
-                Estimate
+                {t('estimate')}
               </Filter.BarName>
               <SelectEstimatedPoint.FilterBar />
             </Filter.BarItem>
@@ -429,7 +432,7 @@ export const TasksFilter = () => {
           <Filter.BarItem queryKey="milestone">
             <Filter.BarName>
               <IconSquareRotated />
-              Milestone
+              {t('milestone')}
             </Filter.BarName>
             <SelectMilestone.FilterBar projectId={projectId} />
           </Filter.BarItem>
@@ -437,42 +440,42 @@ export const TasksFilter = () => {
         <Filter.BarItem queryKey="createdBy">
           <Filter.BarName>
             <IconUserPlus />
-            Creator
+            {t('creator')}
           </Filter.BarName>
           <SelectCreatorTask.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="targetDate">
           <Filter.BarName>
             <IconCalendarEvent />
-            Due date
+            {t('due-date')}
           </Filter.BarName>
           <SelectDueDateFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendarPlus />
-            Created
+            {t('created')}
           </Filter.BarName>
           <SelectCreatedDateFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updatedDate">
           <Filter.BarName>
             <IconCalendar />
-            Updated
+            {t('updated')}
           </Filter.BarName>
           <SelectUpdatedDateFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="startDate">
           <Filter.BarName>
             <IconCalendarTime />
-            Started
+            {t('started')}
           </Filter.BarName>
           <SelectStartedDateFilter.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="completedDate">
           <Filter.BarName>
             <IconCalendarX />
-            Completed
+            {t('completed')}
           </Filter.BarName>
           <SelectCompletedDateFilter.FilterBar />
         </Filter.BarItem>
