@@ -48,11 +48,6 @@ export const ContentNavigation = () => {
 
   return (
     <div>
-      {/* <NavigationMenuLinkItem
-        name="Knowledge Base"
-        path="/content/knowledgebase"
-        icon={IconLibraryPhoto}
-      /> */}
       {onlyCms?.clientPortalId ? (
         <>
           <Sidebar.MenuItem className="group/cms-menu">
