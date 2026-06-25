@@ -95,7 +95,7 @@ export const exportMutations = {
       { $set: { jobId: String(job.id) } },
     );
 
-    return { ...exportDoc, jobId: String(job.id) };
+    return { ...exportDoc.toObject(), jobId: String(job.id) };
   },
 
   async exportCancel(

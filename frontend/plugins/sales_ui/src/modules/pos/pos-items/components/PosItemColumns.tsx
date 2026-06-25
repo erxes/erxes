@@ -23,6 +23,7 @@ const fmt = (val: number | null | undefined) =>
 
 export const PosItemColumns: ColumnDef<IPosItem>[] = [
   PosItemMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<IPosItem>,
   {
     id: 'number',
     accessorKey: 'number',

@@ -26,6 +26,16 @@ const uniq = (values: Array<string | undefined>) => [
   ...new Set(values.filter(Boolean) as string[]),
 ];
 
+const chunkValues = <T>(values: T[], size: number): T[][] => {
+  const chunks: T[][] = [];
+
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+
+  return chunks;
+};
+
 const includesAnyField = (
   selectedFields: string[] | undefined,
   fields: string[],
@@ -71,6 +81,50 @@ const fetchCoreArray = async ({
   });
 
   return asArray(response, label);
+};
+
+const fetchCoreArrayByChunks = async ({
+  subdomain,
+  module,
+  action = 'find',
+  input,
+  chunkKey,
+  values,
+  label,
+  chunkSize = 500,
+}: {
+  subdomain: string;
+  module: string;
+  action?: string;
+  input: any;
+  chunkKey: string;
+  values: string[];
+  label: string;
+  chunkSize?: number;
+}) => {
+  if (!values.length) {
+    return [];
+  }
+
+  const results: any[] = [];
+  const chunks = chunkValues(values, chunkSize);
+
+  for (const [index, chunk] of chunks.entries()) {
+    const chunkResults = await fetchCoreArray({
+      subdomain,
+      module,
+      action,
+      input: {
+        ...input,
+        [chunkKey]: chunk,
+      },
+      label: `${label} (${index + 1}/${chunks.length})`,
+    });
+
+    results.push(...chunkResults);
+  }
+
+  return results;
 };
 
 const getUserName = (user: any) => {
@@ -326,28 +380,30 @@ export async function getDealExportData(
     products,
   ] = await Promise.all([
     needsRelations
-      ? fetchCoreArray({
+      ? fetchCoreArrayByChunks({
           subdomain,
           module: 'relation',
           action: 'filterRelations',
           input: {
             contentType: 'sales:deal',
-            contentIds: dealIds,
             relatedContentType: 'core:customer',
           },
+          chunkKey: 'contentIds',
+          values: dealIds,
           label: 'Customer relation',
         })
       : [],
     needsRelations
-      ? fetchCoreArray({
+      ? fetchCoreArrayByChunks({
           subdomain,
           module: 'relation',
           action: 'filterRelations',
           input: {
             contentType: 'sales:deal',
-            contentIds: dealIds,
             relatedContentType: 'core:company',
           },
+          chunkKey: 'contentIds',
+          values: dealIds,
           label: 'Company relation',
         })
       : [],

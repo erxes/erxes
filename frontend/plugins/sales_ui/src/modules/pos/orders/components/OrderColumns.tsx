@@ -82,6 +82,7 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
 };
 export const firstOrderColumns: ColumnDef<IOrder>[] = [
   ordersMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<IOrder>,
   {
     id: 'number',
     accessorKey: 'number',
