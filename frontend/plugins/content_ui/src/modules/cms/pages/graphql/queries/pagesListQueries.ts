@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const PAGE_LIST = gql`
-  query PageList(
+  query cmsPageList(
     $clientPortalId: String!
     $searchValue: String
     $language: String

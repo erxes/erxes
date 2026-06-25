@@ -12,7 +12,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PagesHotKeyScope } from '../types/PagesHotKeyScope';
-import { PAGES_EDIT } from '../graphql/mutations/pagesMutations';
+import { PAGES_EDIT } from '@/cms/pages/graphql';
 export const PagesRecordTableStatusInlineCell = ({
   cell,
 }: {
