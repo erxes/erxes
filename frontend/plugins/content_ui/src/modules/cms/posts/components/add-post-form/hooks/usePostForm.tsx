@@ -3,11 +3,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { CustomFieldValue } from '../../../CustomFieldInput';
 
+import { CMS_POST } from '../../../../graphql/queries';
 import {
-  CMS_POST,
-  CMS_TRANSLATIONS,
   CMS_EDIT_TRANSLATION,
-} from '../../../../graphql/queries';
+  CMS_TRANSLATIONS,
+} from '@/cms/shared/graphql';
 import { createSlug } from '../../../../utils/createSlug';
 
 // A single custom-field value as stored on the form and in translation snapshots.

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@apollo/client';
-import { CMS_TRANSLATIONS } from '../../graphql/queries';
+import { CMS_TRANSLATIONS } from '@/cms/shared/graphql';
 
 interface CmsTranslationRecord {
   language: string;
