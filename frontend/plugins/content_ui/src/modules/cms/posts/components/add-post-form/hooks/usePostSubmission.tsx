@@ -1,6 +1,12 @@
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { usePostMutations } from '@/cms/posts/hooks/usePostMutations';
+import type {
+  PostCustomFieldInput,
+  PostInput,
+  PostStatus,
+  PostTranslationInput,
+} from '@/cms/posts/types';
 import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
@@ -31,18 +37,13 @@ interface BlockContent {
   };
 }
 
-interface CustomField {
-  field: string;
-  value: unknown;
-}
-
 interface PostFormData {
   title: string;
   slug: string;
   description?: string;
   content?: string;
   type?: string;
-  status?: 'draft' | 'published' | 'scheduled' | 'archived';
+  status?: PostStatus;
   categoryIds?: string[];
   tagIds?: string[];
   featured?: boolean;
@@ -60,26 +61,21 @@ interface PostFormData {
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
-  customFieldsData?: CustomField[];
+  customFieldsData?: PostCustomFieldInput[];
 }
 
 interface TranslationEntry {
   title?: string;
   content?: string;
   excerpt?: string;
-  customFieldsData?: CustomField[];
-}
-
-interface TranslationInput extends TranslationEntry {
-  language: string;
-  type: string;
+  customFieldsData?: PostCustomFieldInput[];
 }
 
 interface DefaultLangData {
   title: string;
   content: string;
   excerpt: string;
-  customFieldsData: CustomField[];
+  customFieldsData: PostCustomFieldInput[];
 }
 
 interface UsePostSubmissionProps {
@@ -96,7 +92,7 @@ interface MainFields {
   title: string;
   content: string;
   excerpt: string | null | undefined;
-  customFields: CustomField[] | undefined;
+  customFields: PostCustomFieldInput[] | undefined;
 }
 
 const escapeHtml = (str: string): string =>
@@ -212,8 +208,8 @@ const normalizeContent = (raw: string): string => {
 };
 
 const filterCustomFields = (
-  fields: CustomField[] | undefined,
-): CustomField[] | undefined => {
+  fields: PostCustomFieldInput[] | undefined,
+): PostCustomFieldInput[] | undefined => {
   const filtered = fields?.filter(
     (item) =>
       item.value !== '' && item.value !== null && item.value !== undefined,
@@ -251,7 +247,7 @@ const buildPostInput = (
   main: MainFields,
   websiteId: string,
   editingPostId: string | undefined,
-): Record<string, unknown> => {
+): PostInput => {
   const imagesPayload = makeAttachmentArrayFromUrls(data.gallery ?? []);
   const documentsPayload = makeAttachmentArrayFromUrls(data.documents ?? []);
   const attachmentsPayload = makeAttachmentArrayFromUrls(
@@ -299,8 +295,8 @@ const buildTranslations = (
   computedTitle: string,
   contentHtml: string,
   data: PostFormData,
-): TranslationInput[] => {
-  const entries: TranslationInput[] = [];
+): PostTranslationInput[] => {
+  const entries: PostTranslationInput[] = [];
 
   for (const [lang, tData] of Object.entries(curTranslations)) {
     if (lang === curDefaultLanguage || lang === currentLanguage) continue;
@@ -348,9 +344,7 @@ export const usePostSubmission = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { createPost, editPost, creating, saving } = usePostMutations({
-    websiteId,
-  });
+  const { createPost, editPost, creating, saving } = usePostMutations();
 
   // Keep refs so the stable onSubmit always reads the latest values
   const selectedLanguageRef = useRef(selectedLanguage);
@@ -373,7 +367,7 @@ export const usePostSubmission = ({
     translationsRef.current = translations;
   }, [translations]);
 
-  const savePost = async (input: Record<string, unknown>) => {
+  const savePost = async (input: PostInput) => {
     try {
       if (editingPost?._id) {
         await editPost(editingPost._id, input);

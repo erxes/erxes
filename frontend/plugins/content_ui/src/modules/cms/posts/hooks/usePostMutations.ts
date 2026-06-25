@@ -4,17 +4,33 @@ import {
   CMS_POSTS_EDIT,
   CMS_POSTS_REMOVE,
 } from '@/cms/posts/graphql';
+import type { PostEditVariables, PostInput } from '@/cms/posts/types';
 
-interface PostInput {
-  [key: string]: any;
+interface PostMutationResult {
+  _id: string;
 }
 
-interface UsePostMutationsOptions {
-  websiteId?: string;
+interface CreatePostMutationResponse {
+  cmsPostsAdd?: PostMutationResult | null;
 }
 
-export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
-  const [createPostMutation, createState] = useMutation(CMS_POSTS_ADD, {
+interface EditPostMutationResponse {
+  cmsPostsEdit?: PostMutationResult | null;
+}
+
+interface CreatePostMutationVariables {
+  input: PostInput;
+}
+
+interface RemovePostMutationVariables {
+  id: string;
+}
+
+export function usePostMutations() {
+  const [createPostMutation, createState] = useMutation<
+    CreatePostMutationResponse,
+    CreatePostMutationVariables
+  >(CMS_POSTS_ADD, {
     update(cache) {
       cache.evict({ fieldName: 'cmsPostList' });
       cache.gc();
@@ -22,7 +38,10 @@ export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
     awaitRefetchQueries: true,
   });
 
-  const [editPostMutation, editState] = useMutation(CMS_POSTS_EDIT, {
+  const [editPostMutation, editState] = useMutation<
+    EditPostMutationResponse,
+    PostEditVariables
+  >(CMS_POSTS_EDIT, {
     refetchQueries: 'all',
     awaitRefetchQueries: true,
     update(cache, { data }) {
@@ -38,7 +57,10 @@ export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
     },
   });
 
-  const [removePostMutation, removeState] = useMutation(CMS_POSTS_REMOVE);
+  const [removePostMutation, removeState] = useMutation<
+    { cmsPostsRemove?: unknown },
+    RemovePostMutationVariables
+  >(CMS_POSTS_REMOVE);
 
   const createPost = (input: PostInput) =>
     createPostMutation({ variables: { input } });
