@@ -83,7 +83,11 @@ export const useByDateVariables = (
     cursor,
     createdStartDate: parseDateRangeFromString(dateRange)?.from,
     createdEndDate: parseDateRangeFromString(dateRange)?.to,
-    search: Array.isArray(billId) ? billId[0] : billId,
+    search: Array.isArray(billId)
+      ? String(billId[0])
+      : billId
+      ? String(billId)
+      : undefined,
     contentType: contentType && contentType !== 'all' ? contentType : undefined,
     boardId: boardId || undefined,
     pipelineId: pipelineId || undefined,
@@ -109,10 +113,7 @@ export const useByDate = (options?: QueryHookOptions) => {
     byDateQueries.putResponsesByDate,
     {
       ...options,
-      skip:
-        options?.skip ||
-        isUndefinedOrNull(variables.cursor) ||
-        (!variables.createdStartDate && !variables.createdEndDate),
+      skip: options?.skip || isUndefinedOrNull(variables.cursor),
       variables: {
         ...variables,
       },
