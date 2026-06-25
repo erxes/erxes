@@ -32,12 +32,18 @@ const CustomTypeNameCell = ({
   const currentValue = editingValue ?? String(cell.getValue() || '');
 
   const onSave = async () => {
-    if (currentValue !== (original.label || '')) {
+    const trimmedValue = currentValue.trim();
+    if (!trimmedValue) {
+      setEditingValue(undefined);
+      return;
+    }
+
+    if (trimmedValue !== (original.label || '')) {
       await editType({
         variables: {
           _id: original._id,
           input: {
-            label: currentValue,
+            label: trimmedValue,
             pluralLabel: original.pluralLabel,
             code: original.code,
             description: original.description,

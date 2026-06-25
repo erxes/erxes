@@ -20,7 +20,9 @@ export const AttachmentsUploader = ({
     maxFiles: 10,
     maxFileSize: 20 * 1024 * 1024,
     onFilesAdded: (addedFiles) => {
-      const addedUrls = addedFiles.map((file) => file.url).filter(Boolean);
+      const addedUrls = addedFiles
+        .map((file) => file.url)
+        .filter((url): url is string => Boolean(url));
       const next = [...urls, ...addedUrls].slice(0, 10);
       onChange(next);
     },

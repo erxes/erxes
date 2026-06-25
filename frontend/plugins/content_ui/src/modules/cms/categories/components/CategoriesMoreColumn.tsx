@@ -63,7 +63,6 @@ export const CategoryMoreColumnCell = ({
               variant: 'success',
               description: t('category-deleted-successfully'),
             });
-            onRefetch?.();
           })
           .catch((e: ApolloError) => {
             toast({

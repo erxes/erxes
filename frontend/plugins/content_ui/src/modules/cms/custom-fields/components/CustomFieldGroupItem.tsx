@@ -153,10 +153,9 @@ export function CustomFieldGroupItem({
 
   // Keep a local order so drag-and-drop does not snap back while persisting.
   const [fields, setFields] = useState(groupFields);
-  const fieldsKey = groupFields.map((f) => f._id).join('|');
   useEffect(() => {
     setFields(group.fields || []);
-  }, [fieldsKey, group.fields]);
+  }, [group.fields]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
