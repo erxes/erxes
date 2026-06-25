@@ -3,7 +3,6 @@ import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { useTags } from '@/cms/hooks/useTags';
 import { CmsSidebar } from '@/cms/shared/CmsSidebar';
 import { EmptyState } from '@/cms/shared/EmptyState';
 import { HeaderLanguageTabs } from '@/cms/shared/HeaderLanguageTabs';
@@ -11,6 +10,7 @@ import { TagDrawer } from '@/cms/tags/components/TagDrawer';
 import { TagsHeader } from '@/cms/tags/components/TagsHeader';
 import { TagsRecordTable } from '@/cms/tags/components/TagsRecordTable';
 import { useRemoveTag } from '@/cms/tags/hooks/useRemoveTag';
+import { useTags } from '@/cms/tags/hooks/useTags';
 import { CmsTag } from '@/cms/tags/types/tagTypes';
 
 export function TagsPage() {

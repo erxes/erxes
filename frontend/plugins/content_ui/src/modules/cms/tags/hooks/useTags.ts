@@ -1,15 +1,15 @@
 import { useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { CMS_TAGS } from '../graphql/queries';
-import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import { CMS_TAGS } from '@/cms/tags/graphql';
+import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { TAGS_CURSOR_SESSION_KEY } from '../tags/constants/tagsCursorSessionKey';
+import { TAGS_CURSOR_SESSION_KEY } from '@/cms/tags/constants/tagsCursorSessionKey';
 
 export interface CmsTag {
   _id: string;

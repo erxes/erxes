@@ -142,59 +142,6 @@ export const POST_LIST = gql`
   }
 `;
 
-export const CMS_TAGS = gql`
-  query CmsTags(
-    $clientPortalId: String
-    $cursor: String
-    $limit: Int
-    $cursorMode: CURSOR_MODE
-    $direction: CURSOR_DIRECTION
-    $orderBy: JSON
-    $sortMode: String
-    $sortField: String
-    $searchValue: String
-    $language: String
-    $aggregationPipeline: [JSON]
-    $sortDirection: String
-  ) {
-    cmsTags(
-      clientPortalId: $clientPortalId
-      cursor: $cursor
-      limit: $limit
-      cursorMode: $cursorMode
-      direction: $direction
-      orderBy: $orderBy
-      sortMode: $sortMode
-      sortField: $sortField
-      searchValue: $searchValue
-      language: $language
-      aggregationPipeline: $aggregationPipeline
-      sortDirection: $sortDirection
-    ) {
-      tags {
-        _id
-        colorCode
-        clientPortalId
-        createdAt
-        name
-        slug
-        updatedAt
-        translations {
-          language
-          title
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-      totalCount
-    }
-  }
-`;
-
 export const POSTS_ADD = gql`
   mutation PostsAdd($input: PostInput!) {
     cmsPostsAdd(input: $input) {
@@ -431,48 +378,6 @@ export const CMS_POSTS_REMOVE = gql`
   }
 `;
 
-export const CMS_TAGS_ADD = gql`
-  mutation CmsTagsAdd($input: PostTagInput!) {
-    cmsTagsAdd(input: $input) {
-      _id
-      clientPortalId
-      name
-      slug
-      colorCode
-      createdAt
-      updatedAt
-      translations {
-        language
-        title
-      }
-      __typename
-    }
-  }
-`;
-
-export const CMS_TAGS_EDIT = gql`
-  mutation CmsTagsEdit($_id: String!, $input: PostTagInput!) {
-    cmsTagsEdit(_id: $_id, input: $input) {
-      _id
-      clientPortalId
-      name
-      slug
-      colorCode
-      createdAt
-      updatedAt
-      translations {
-        language
-        title
-      }
-    }
-  }
-`;
-
-export const CMS_TAGS_REMOVE = gql`
-  mutation CmsTagsRemove($id: String!) {
-    cmsTagsRemove(_id: $id)
-  }
-`;
 export const CMS_CATEGORIES = gql`
   query CmsCategories(
     $clientPortalId: String!

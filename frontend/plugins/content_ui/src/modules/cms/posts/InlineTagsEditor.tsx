@@ -3,7 +3,7 @@ import { MultipleSelector, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CMS_POSTS_EDIT } from '../graphql/queries';
-import { useTags } from '../hooks/useTags';
+import { useTags } from '@/cms/tags/hooks/useTags';
 
 type InlineTagsEditorProps = {
   postId: string;
