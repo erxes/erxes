@@ -8,7 +8,7 @@ import { usePosts } from '../hooks/usePosts';
 import { PostsEmptyState } from './PostsEmptyState';
 import { Posts } from '../types/postsType';
 import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
-import type { IWebsite } from '../../types';
+import type { IWebsite } from '@/cms/websites/types';
 
 interface PostsRecordTableProps {
   clientPortalId: string;

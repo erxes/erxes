@@ -5,7 +5,7 @@ import { CategoryField } from './CategoryField';
 import { TagField } from './TagField';
 import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
 import { PostPublicUrlButton } from '../PostPublicUrlButton';
-import type { IWebsite } from '~/modules/cms/types';
+import type { IWebsite } from '@/cms/websites/types';
 
 export type PostUrlField = '_id' | 'count' | 'slug';
 

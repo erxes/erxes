@@ -3,8 +3,8 @@ import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CMS_CUSTOM_FIELD_GROUPS } from '@/cms/custom-fields/graphql';
 import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
+import type { IWebsite } from '@/cms/websites/types';
 import type { FieldGroup } from '../CustomFieldsSection';
-import type { IWebsite } from '~/modules/cms/types';
 
 export type PostUrlField = '_id' | 'count' | 'slug';
 

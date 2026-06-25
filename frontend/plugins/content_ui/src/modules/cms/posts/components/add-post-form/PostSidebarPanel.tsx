@@ -11,7 +11,7 @@ import type {
   SelectOption,
 } from './ContentTab';
 import { MediaSection } from './MediaSection';
-import type { IWebsite } from '~/modules/cms/types';
+import type { IWebsite } from '@/cms/websites/types';
 
 interface PostSidebarPanelProps {
   form: UseFormReturn<FieldValues>;

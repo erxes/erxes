@@ -25,7 +25,7 @@ import { PostPublicUrlButton } from './PostPublicUrlButton';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 import { CmsTranslatableBadge } from '../../shared/components/CmsTranslatableBadge';
 import type { Posts } from '../types/postsType';
-import type { IWebsite } from '../../types';
+import type { IWebsite } from '@/cms/websites/types';
 import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
 
 const getPostAuthorName = (post: Posts) => {

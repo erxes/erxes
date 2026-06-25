@@ -18,8 +18,8 @@ import {
   CONTENT_UPDATE_CMS,
   GET_WEBSITES,
 } from '@/cms/websites/graphql';
+import { LANGUAGES } from '@/cms/shared/constants/languages';
 import { useClientPortals } from '@/cms/websites/hooks/useClientPortals';
-import { LANGUAGES } from '~/constants';
 import {
   websiteFormSchema,
   WebsiteFormType,

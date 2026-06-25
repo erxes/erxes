@@ -2,7 +2,7 @@ import { Button, Tooltip, useToast } from 'erxes-ui';
 import { IconExternalLink } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { buildPostPublicUrl, type PostUrlSource } from '../../shared/utils';
-import type { IWebsite } from '../../types';
+import type { IWebsite } from '@/cms/websites/types';
 import type { MouseEvent } from 'react';
 
 interface PublicPostUrlButtonPost extends PostUrlSource {
