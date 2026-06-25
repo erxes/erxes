@@ -7,18 +7,12 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { byDateMoreColumn } from '~/modules/ebarimt/put-response/put-responses-by-date/components/ByDateMoreColumn';
 import { IByDate } from '~/modules/ebarimt/put-response/put-responses-by-date/types/ByDateType';
-
-const HeaderCell = ({ icon, label }: { icon: any; label: string }) => {
-  const { t } = useTranslation('mongolian');
-  return <RecordTable.InlineHead icon={icon} label={t(label)} />;
-};
+import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 export const ByDateColumns: ColumnDef<IByDate>[] = [
   byDateMoreColumn,
   {

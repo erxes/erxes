@@ -7,18 +7,12 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { duplicatedMoreColumn } from '~/modules/ebarimt/put-response/put-responses-duplicated/components/DuplicatedMoreColumn';
 import { IDuplicated } from '~/modules/ebarimt/put-response/put-responses-duplicated/types/DuplicatedType';
-
-const HeaderCell = ({ icon, label }: { icon: any; label: string }) => {
-  const { t } = useTranslation('mongolian');
-  return <RecordTable.InlineHead icon={icon} label={t(label)} />;
-};
+import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 
 export const DuplicatedColumns: ColumnDef<IDuplicated>[] = [
   duplicatedMoreColumn,
