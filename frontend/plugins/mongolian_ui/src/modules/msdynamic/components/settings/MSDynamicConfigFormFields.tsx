@@ -13,8 +13,6 @@ type MSDynamicTextFieldName = Exclude<
 
 const CONNECTION_FIELDS: MSDynamicTextFieldName[] = [
   'title',
-  'posConf',
-  'productUrl',
   'username',
   'password',
 ];
