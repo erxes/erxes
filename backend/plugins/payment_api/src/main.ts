@@ -78,8 +78,8 @@ startPlugin({
 
       res.type('application/javascript');
       res.send(`window.WIDGET_CONFIG = {
-        API_URL: ${JSON.stringify(apiUrl)}
-      };`);
+      API_URL: ${JSON.stringify(apiUrl)}
+    };`);
     });
 
     const sendWidgetIndex = (req: express.Request, res: express.Response) => {
@@ -91,7 +91,6 @@ startPlugin({
       res.type('html').send(html);
     };
 
-    app.use('/static', express.static(path.join(__dirname, '/public')));
     app.use('/static', express.static(path.join(__dirname, '/public')));
     app.use('/images', express.static(path.join(__dirname, '/public/images')));
 

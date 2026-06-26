@@ -23,6 +23,11 @@ export const PaymentSettingsNavigation = () => {
             path="corporate-gateway"
             name="Corporate Gateway"
           />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix="payment"
+            path="corporate-gateway"
+            name="Corporate Gateway"
+          />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
