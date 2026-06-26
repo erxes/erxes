@@ -35,10 +35,8 @@ export type IMSDynamicConfig = {
   boardId: string;
   pipelineId: string;
   stageId: string;
-  posConf: string;
-  productUrl: string;
-  custCode: string;               
-  userLocationCode: string; 
+  custCode: string;
+  userLocationCode: string;
 };
 
 export type IMSDynamicConfigMap = Record<string, IMSDynamicConfig>;
