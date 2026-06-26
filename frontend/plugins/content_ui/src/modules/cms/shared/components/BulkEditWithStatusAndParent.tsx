@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Command, RecordTable, toast } from 'erxes-ui';
 import {
   IconChevronRight,
@@ -43,6 +43,7 @@ export const BulkEditWithStatusAndParent = ({
   const { t } = useTranslation('content');
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState('main');
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { table } = RecordTable.useRecordTable();
   const selectedIds = getRecordTableSelectedIds(
@@ -81,8 +82,18 @@ export const BulkEditWithStatusAndParent = ({
       open={open}
       loading={loading}
       onOpenChange={(v) => {
+        if (resetTimerRef.current) {
+          clearTimeout(resetTimerRef.current);
+          resetTimerRef.current = null;
+        }
+
         setOpen(v);
-        if (!v) setTimeout(() => changeContent('main'), 100);
+        if (!v) {
+          resetTimerRef.current = setTimeout(() => {
+            changeContent('main');
+            resetTimerRef.current = null;
+          }, 100);
+        }
       }}
     >
       {currentContent === 'main' && (

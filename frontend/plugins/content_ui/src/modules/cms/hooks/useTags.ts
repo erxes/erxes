@@ -113,6 +113,13 @@ export function useTags({
     fetchedCursorsRef.current.clear();
   }, [variables]);
 
+  useEffect(() => {
+    if (!skip) return;
+
+    fetchedCursorsRef.current.clear();
+    fetchingMoreRef.current = false;
+  }, [skip]);
+
   const pageInfo = data?.cmsTags?.pageInfo;
 
   const fetchRemainingTags = useCallback(async () => {

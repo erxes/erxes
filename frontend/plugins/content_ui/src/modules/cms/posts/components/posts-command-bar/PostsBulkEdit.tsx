@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, Calendar, Command, RecordTable, toast } from 'erxes-ui';
 import {
   IconCalendarEvent,
@@ -39,6 +39,7 @@ export const PostsBulkEdit = ({
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState('main');
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { table } = RecordTable.useRecordTable();
   const { bulkEditPosts, loading } = useBulkEditPosts();
@@ -90,11 +91,17 @@ export const PostsBulkEdit = ({
       open={open}
       loading={loading}
       onOpenChange={(v) => {
+        if (resetTimerRef.current) {
+          clearTimeout(resetTimerRef.current);
+          resetTimerRef.current = null;
+        }
+
         setOpen(v);
         if (!v) {
-          setTimeout(() => {
+          resetTimerRef.current = setTimeout(() => {
             setCurrentContent('main');
             setSelectedTagIds([]);
+            resetTimerRef.current = null;
           }, 100);
         }
       }}
