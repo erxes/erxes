@@ -78,13 +78,12 @@ export const useByDateVariables = (
     sessionKey: BY_DATE_CURSOR_SESSION_KEY,
   });
 
-  const search = Array.isArray(billId)
-    ? billId[0]
-      ? String(billId[0])
-      : undefined
-    : billId
-    ? String(billId)
-    : undefined
+  let search: string | undefined
+  if (Array.isArray(billId)) {
+    search = billId[0] ? String(billId[0]) : undefined
+  } else if (billId) {
+    search = String(billId)
+  }
 
   const result = {
     limit: BY_DATE_PER_PAGE,

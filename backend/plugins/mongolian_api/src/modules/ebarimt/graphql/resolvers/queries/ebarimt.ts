@@ -507,11 +507,14 @@ export const putResponseQueries = {
       { $group: { _id: null, count: { $sum: 1 } } },
     ]);
 
+    const totalCount =
+      (totalCountResult.length && totalCountResult[0].count) || 0;
+
     return {
       list,
-      totalCount: (totalCountResult.length && totalCountResult[0].count) || 0,
+      totalCount,
       pageInfo: {
-        hasNextPage: list.length >= perPage,
+        hasNextPage: page * perPage < totalCount,
         hasPreviousPage: page > 1,
         startCursor: null,
         endCursor: null,
