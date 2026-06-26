@@ -12,7 +12,11 @@ export const types = `
         createdAt: Date
         updatedAt: Date
         memberCount: Int
-        pipelineCount:Int
+        pipelineCount: Int
+        responseTemplateCount: Int
+        formCount: Int
+        integrationCount: Int
+        integrationKinds: [String]
     }
 
     type ChannelMember {

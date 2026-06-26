@@ -3,6 +3,7 @@ import { Button, Command } from 'erxes-ui';
 import { Popover } from 'erxes-ui/components/popover';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface IconPickerProps {
   value?: string;
@@ -10,6 +11,7 @@ interface IconPickerProps {
 }
 
 export function IconPicker({ value, onChange }: IconPickerProps) {
+  const { t } = useTranslation('content');
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,13 +29,13 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               <span className="capitalize">{value}</span>
             </div>
           ) : (
-            <span>Select icon...</span>
+            <span>{t('select-icon')}</span>
           )}
         </Button>
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Content className="w-[250px] p-0 max-h-64 overflow-auto">
         <Command>
-          <Command.Input placeholder="Search icons..." className="h-9" />
+          <Command.Input placeholder={t('search-icons')} className="h-9" />
           <div className="max-h-52 overflow-y-auto">
             <Command.Group>
               {/* {ICONS.map((item) => (

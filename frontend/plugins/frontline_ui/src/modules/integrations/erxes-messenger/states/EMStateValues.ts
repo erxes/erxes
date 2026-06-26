@@ -39,7 +39,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       messengerData: {
         notifyCustomer: settings?.notifyCustomer ?? false,
         botEndpointUrl: '',
-        botShowInitialMessage: false,
+        botShowInitialMessage: config?.botSetup?.botShowInitialMessage ?? false,
         botCheck: config?.botSetup?.botCheck ?? false,
         botGreetMessage: config?.botSetup?.greetingMessage ?? '',
         automationId: config?.botSetup?.automationId ?? '',
@@ -48,6 +48,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
             text: item.text,
             type: item.type,
             link: item.link,
+            contentType: item.contentType,
           })) ?? [],
         availabilityMethod: hours?.availabilityMethod || 'manual',
         isOnline: hours?.isOnline ?? false,

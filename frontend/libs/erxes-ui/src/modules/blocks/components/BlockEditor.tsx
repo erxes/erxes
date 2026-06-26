@@ -30,6 +30,7 @@ export const BlockEditor = ({
   disabled,
   variant = 'default',
   sideMenu = false,
+  additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
@@ -80,6 +81,15 @@ export const BlockEditor = ({
           );
         },
       } satisfies DefaultReactSuggestionItem);
+    }
+
+    const customItems =
+      typeof additionalSlashMenuItems === 'function'
+        ? additionalSlashMenuItems(editor)
+        : additionalSlashMenuItems;
+
+    if (customItems?.length) {
+      items.push(...customItems);
     }
 
     return Promise.resolve(filterSuggestionItems(items, query));

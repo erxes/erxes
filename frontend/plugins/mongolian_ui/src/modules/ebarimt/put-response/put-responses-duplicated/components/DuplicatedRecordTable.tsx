@@ -3,8 +3,10 @@ import { DuplicatedColumns } from '~/modules/ebarimt/put-response/put-responses-
 import { useDuplicated } from '~/modules/ebarimt/put-response/put-responses-duplicated/hooks/useDuplicated';
 import { DUPLICATED_CURSOR_SESSION_KEY } from '~/modules/ebarimt/put-response/put-responses-duplicated/constants/DuplicatedCursorSessionKey';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const DuplicatedRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { putResponsesDuplicated, handleFetchMore, loading, pageInfo } =
     useDuplicated();
 
@@ -43,10 +45,10 @@ export const DuplicatedRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No duplicated
+                {t('no-duplicated')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first duplicated.
+                {t('create-first-duplicated')}
               </p>
             </div>
           </div>

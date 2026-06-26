@@ -1,6 +1,7 @@
 import {
   closestCenter,
   DndContext,
+  DragEndEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -10,16 +11,16 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { FieldPath } from 'react-hook-form';
 import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
-import { TBotMessage } from '../../states/replyMessageActionForm';
 import { FacebookBotMessage } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookBotMessage';
+import { FieldPath } from 'react-hook-form';
+import { TBotMessage } from '../../states/replyMessageActionForm';
 
 export const FacebookMessages = () => {
   const { setValue, messages } = useReplyMessageAction();
   const sensors = useSensors(useSensor(PointerSensor));
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {

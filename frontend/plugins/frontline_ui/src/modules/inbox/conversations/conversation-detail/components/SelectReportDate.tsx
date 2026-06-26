@@ -1,51 +1,53 @@
 import { IconChevronDown } from '@tabler/icons-react';
 import { Button, cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const REPORT_DATE_OPTIONS = [
   {
-    label: 'All Time',
+    label: 'all-time',
     value: 'all-time',
   },
   {
-    label: 'Today',
+    label: 'today',
     value: 'today',
   },
   {
-    label: 'Yesterday',
+    label: 'yesterday',
     value: 'yesterday',
   },
   {
-    label: 'This Week',
+    label: 'this-week',
     value: 'this-week',
   },
   {
-    label: 'Last Week',
+    label: 'last-week',
     value: 'last-week',
   },
   {
-    label: 'This Month',
+    label: 'this-month',
     value: 'this-month',
   },
   {
-    label: 'Last Month',
+    label: 'last-month',
     value: 'last-month',
   },
   {
-    label: 'This Year',
+    label: 'this-year',
     value: 'this-year',
   },
   {
-    label: 'Last Year',
+    label: 'last-year',
     value: 'last-year',
   },
   {
-    label: 'Custom Date',
+    label: 'custom-date',
     value: 'custom-date',
   },
 ];
 
 export const SelectReportDate = () => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState<boolean>(false);
   const optionRefs = useRef<HTMLDivElement[]>([]);
   const [selected, setSelected] = useState<string>(
@@ -93,7 +95,7 @@ export const SelectReportDate = () => {
                 onSelect={handleSelect}
                 className={cn(selected === option.value && 'text-primary')}
               >
-                {option.label}
+                {t(option.label)}
                 <Combobox.Check checked={selected === option.value} />
               </Command.Item>
             ))}
@@ -105,6 +107,7 @@ export const SelectReportDate = () => {
 };
 
 export const SelectReportDateValue = ({ selected }: { selected: string }) => {
+  const { t } = useTranslation('frontline');
   return (
     <Combobox.TriggerBase
       asChild
@@ -116,7 +119,7 @@ export const SelectReportDateValue = ({ selected }: { selected: string }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <IconChevronDown />
-        {REPORT_DATE_OPTIONS.find((option) => option.value === selected)?.label}
+        {t(REPORT_DATE_OPTIONS.find((option) => option.value === selected)?.label ?? '')}
       </Button>
     </Combobox.TriggerBase>
   );

@@ -1,7 +1,9 @@
 import { useAutomationEmailTemplateDetail } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplateDetail';
+import { useEmailDocumentPlaceholder } from '@/automations/components/common/EmailDocumentPlaceholderPicker';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { BlockEditor, Button, Input, Label, useBlockEditor } from 'erxes-ui';
+import { REACT_APP_API_URL, readImage } from 'erxes-ui/utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
@@ -25,6 +27,29 @@ interface EmailTemplateFormProps {
   templateId?: string;
 }
 
+const uploadEmailTemplateImage = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('Only image files can be uploaded');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
+    method: 'post',
+    body: formData,
+    credentials: 'include',
+  });
+
+  const fileKey = await response.text();
+
+  if (!response.ok || !fileKey) {
+    throw new Error(fileKey || 'Failed to upload image');
+  }
+
+  return readImage(fileKey);
+};
+
 export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
   const navigate = useNavigate();
   const isEditing = !!templateId;
@@ -37,7 +62,11 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
   const { updateEmailTemplate, loading: updating } =
     useUpdateAutomationEmailTemplate();
 
-  const editor = useBlockEditor({});
+  const editor = useBlockEditor({
+    uploadFile: uploadEmailTemplateImage,
+  });
+  const { additionalSlashMenuItems, documentPlaceholderPicker } =
+    useEmailDocumentPlaceholder({ editor });
 
   const form = useForm<EmailTemplateFormData>({
     resolver: zodResolver(emailTemplateSchema),
@@ -129,7 +158,7 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
   }
 
   return (
-    <div className="h-full w-full flex flex-col">
+    <div className="h-full w-full flex flex-col overflow-hidden">
       <AutomationSettingsDetailHeader
         title={isEditing ? 'Edit Email Template' : 'Create Email Template'}
         description={
@@ -153,9 +182,9 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
       <form
         id="email-template-form"
         onSubmit={handleSubmit(onSubmit)}
-        className="flex-1 flex flex-col"
+        className="min-h-0 flex-1 flex flex-col"
       >
-        <div className="flex-1 p-6 space-y-6">
+        <div className="min-h-0 flex-1 overflow-y-auto p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name">Template Name *</Label>
@@ -184,8 +213,12 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
 
           <div className="space-y-2">
             <Label>Content *</Label>
-            <div className="border rounded-lg overflow-hidden">
-              <BlockEditor editor={editor} className="min-h-[400px] p-4" />
+            <div className="border rounded-lg max-h-[calc(100vh-360px)] min-h-[400px] overflow-y-auto overflow-x-hidden">
+              <BlockEditor
+                editor={editor}
+                className="min-h-[400px] p-4"
+                additionalSlashMenuItems={additionalSlashMenuItems}
+              />
             </div>
             {errors.content && (
               <p className="text-sm text-destructive">
@@ -195,6 +228,7 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
           </div>
         </div>
       </form>
+      {documentPlaceholderPicker}
     </div>
   );
 }

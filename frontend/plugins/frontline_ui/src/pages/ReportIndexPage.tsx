@@ -8,6 +8,7 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
 import { CallReportsView } from '@/report/components/CallReportsView';
 import { TicketReportsList } from '@/report/components/TicketReportsList';
@@ -21,6 +22,7 @@ const ROUTES = {
 type Section = keyof typeof ROUTES;
 
 export default function ReportIndexPage() {
+  const { t } = useTranslation('frontline');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -40,7 +42,7 @@ export default function ReportIndexPage() {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/reports">
                     <IconChartHistogram />
-                    Reports
+                    {t('reports')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -56,10 +58,10 @@ export default function ReportIndexPage() {
             }}
           >
             <ToggleGroup.Item value="overview">
-              Frontline Overview
+              {t('frontline-overview')}
             </ToggleGroup.Item>
-            <ToggleGroup.Item value="ticket">Ticket</ToggleGroup.Item>
-            <ToggleGroup.Item value="call">Call Center</ToggleGroup.Item>
+            <ToggleGroup.Item value="ticket">{t('ticket')}</ToggleGroup.Item>
+            <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton />

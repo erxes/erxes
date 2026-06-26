@@ -1,9 +1,11 @@
 import { Alert, InfoCard } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketTotalCount } from '@/report/hooks/useTicketTotalCount';
 import { useAtom } from 'jotai';
 import { useState, useEffect } from 'react';
 import { getFilters } from '@/report/utils/dateFilters';
+import { getTicketPropertyFilterVariables } from '@/report/utils';
 import {
   getReportDateFilterAtom,
   getReportChannelFilterAtom,
@@ -29,6 +31,7 @@ export const TicketTotalCount = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketTotalCountProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
   const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
@@ -58,7 +61,7 @@ export const TicketTotalCount = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
-        propertyIds: propertyFilter.length ? propertyFilter : undefined,
+        ...getTicketPropertyFilterVariables(propertyFilter),
       },
     },
   });
@@ -74,7 +77,7 @@ export const TicketTotalCount = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -92,10 +95,10 @@ export const TicketTotalCount = ({
     >
       <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
       <FrontlineCard.Content>
-        <InfoCard title="Total Tickets">
+        <InfoCard title={t('total-tickets')}>
           <InfoCard.Content className="text-center">
             {loading ? (
-              <span className="text-muted-foreground text-sm">Loading...</span>
+              <span className="text-muted-foreground text-sm">{t('loading')}</span>
             ) : (
               <span className="text-2xl font-bold">{totalCount}</span>
             )}

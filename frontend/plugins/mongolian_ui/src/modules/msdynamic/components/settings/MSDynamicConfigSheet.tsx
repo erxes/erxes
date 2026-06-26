@@ -1,5 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { Button, Sheet, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { TMSDynamicConfig } from '../../types';
 import { MSDynamicConfigFormFields } from './MSDynamicConfigFormFields';
@@ -25,6 +26,7 @@ export const MSDynamicConfigSheet = ({
   title,
   trigger,
 }: MSDynamicConfigSheetProps) => {
+  const { t } = useTranslation('mongolian');
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
@@ -44,11 +46,11 @@ export const MSDynamicConfigSheet = ({
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg" disabled={loading}>
-              Cancel
+              {t('cancel')}
             </Button>
           </Sheet.Close>
           <Button type="submit" form={formId} size="lg" disabled={loading}>
-            {loading ? <Spinner /> : 'Save'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

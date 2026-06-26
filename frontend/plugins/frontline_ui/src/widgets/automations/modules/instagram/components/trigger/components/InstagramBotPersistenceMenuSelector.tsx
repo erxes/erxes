@@ -2,6 +2,7 @@ import { INSTAGRAM_BOT_DETAIL } from '@/integrations/instagram/graphql/queries/i
 import { useQuery } from '@apollo/client';
 import { IconList } from '@tabler/icons-react';
 import { Checkbox, cn, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   TMessageTriggerFormDirectMessage,
   TMessageTriggerFormPersistentMenu,
@@ -34,6 +35,7 @@ export const InstagramBotPersistenceMenuSelector = ({
   selectedPersistentMenuIds = [],
   onConditionChange,
 }: Props) => {
+  const { t } = useTranslation('frontline');
   const { instagramMessengerBot, loading } = useInstagramBotDetail(botId);
 
   if (loading) return <Spinner />;
@@ -44,9 +46,9 @@ export const InstagramBotPersistenceMenuSelector = ({
     return (
       <div className="text-muted-foreground flex justify-center">
         <IconList className="w-6 h-6" />
-        <p>No persistent menus in selected bot</p>
+        <p>{t('no-persistent-menus')}</p>
         <span>
-          Persistent menu with link can't display as selectable condition
+          {t('persistent-menu-link-note')}
         </span>
       </div>
     );

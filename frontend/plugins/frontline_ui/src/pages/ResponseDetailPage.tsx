@@ -2,8 +2,10 @@ import { Breadcrumb, Button } from 'erxes-ui';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Link, useParams } from 'react-router-dom';
 import { ResponseDetail } from '@/responseTemplate/components/ResponseDetail';
+import { useTranslation } from 'react-i18next';
 
 export const ResponseDetailPage = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string; responseId: string }>();
 
   return (
@@ -16,7 +18,7 @@ export const ResponseDetailPage = () => {
                 <Link to={`/settings/frontline/channels/${channelId}/response`}>
                   <Button variant="ghost">
                     <IconArrowLeft size={16} className="stroke-foreground" />
-                    Response Template
+                    {t('response-template')}
                   </Button>
                 </Link>
               </Breadcrumb.Link>

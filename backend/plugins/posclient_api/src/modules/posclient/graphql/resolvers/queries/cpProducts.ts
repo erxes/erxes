@@ -72,7 +72,7 @@ export interface IProductParams extends ICommonParams {
   groupedSimilarity?: string;
   categoryMeta?: string;
   image?: string;
-
+  isSimilarity?: boolean;
   minRemainder?: number;
   maxRemainder?: number;
   minPrice?: number;
@@ -112,6 +112,7 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
@@ -126,6 +127,26 @@ const generateFilter = async (
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] },
   };
+
+  if (isSimilarity) {
+    const similarityGroups = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.find',
+      input: { query: { status: { $ne: 'deleted' } } },
+      defaultValue: [],
+    });
+
+    const starProductIds = (similarityGroups || [])
+      .map((group) => group.starProductId)
+      .filter(Boolean);
+
+    $and.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
+  
 
   if (type) {
     filter.type = type;

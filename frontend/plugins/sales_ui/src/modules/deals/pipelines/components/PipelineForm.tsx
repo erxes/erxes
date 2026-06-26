@@ -4,6 +4,8 @@ import GeneralForm from '@/deals/boards/components/detail/GeneralForm';
 import PipelineStages from './PipelineStages';
 import ProductConfig from '@/deals/cards/components/detail/product/components/ProductConfig';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
 
 type Props = {
   form: any;
@@ -11,6 +13,7 @@ type Props = {
 };
 
 export const PipelineForm = ({ form, stagesLoading }: Props) => {
+  const { t } = useTranslation('sales');
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const defaultTab = searchParams.get('tab') || 'general';
@@ -26,7 +29,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            General
+            {t('general')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="stages">
@@ -34,7 +37,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            Stages
+            {t('stages')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="productConfig">
@@ -42,7 +45,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            Product config
+            {t('product-config')}
           </Button>
         </Tabs.Trigger>
       </Tabs.List>

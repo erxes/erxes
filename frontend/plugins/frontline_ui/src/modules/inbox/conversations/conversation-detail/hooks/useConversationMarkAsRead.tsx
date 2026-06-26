@@ -4,8 +4,10 @@ import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useConversationMarkAsRead = () => {
+  const { t } = useTranslation('frontline');
   const [markAsRead] = useMutation(MARK_AS_READ_CONVERSATION);
   const currentUser = useAtomValue(currentUserState);
   const { readUserIds, _id } = useConversationContext();
@@ -24,7 +26,7 @@ export const useConversationMarkAsRead = () => {
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

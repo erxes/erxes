@@ -3,7 +3,9 @@ import {
   useSelectPaymentContext,
 } from '@/payments/components/contexts/SelectPaymentContext';
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
+  Badge,
   Button,
   Combobox,
   Command,
@@ -71,6 +73,20 @@ const SelectPaymentProvider = ({
     [isSingleMode, mode, onValueChange, setOpen, value],
   );
 
+  const removeId = React.useCallback(
+    (id: string) => {
+      if (isSingleMode) {
+        setCurrentPayments([]);
+        onValueChange?.(null);
+        return;
+      }
+      const arrayValue = Array.isArray(value) ? value : [];
+      setCurrentPayments((prev) => prev.filter((p) => p._id !== id));
+      onValueChange?.(arrayValue.filter((v) => v !== id));
+    },
+    [isSingleMode, onValueChange, value],
+  );
+
   const contextValue = React.useMemo(
     () => ({
       paymentIds: selectedIds,
@@ -78,8 +94,10 @@ const SelectPaymentProvider = ({
       payments: currentPayments,
       setPayments: setCurrentPayments,
       loading: currentPayments.length !== selectedIds.length,
+      mode,
+      removeId,
     }),
-    [currentPayments, onSelect, selectedIds],
+    [currentPayments, onSelect, selectedIds, mode, removeId],
   );
 
   return (
@@ -116,14 +134,16 @@ const PaymentInline = ({
     }
   }, [paymentIds, fetchedPayments, payments, updatePayments]);
 
+  const { t } = useTranslation('sales');
+
   if (loading && paymentIds?.length && !payments?.length) {
-    return <span className="text-sm text-muted-foreground">Loading...</span>;
+    return <span className="text-sm text-muted-foreground">{t('loading-inline')}</span>;
   }
 
   if (!payments?.length) {
     return (
       <span className="text-sm text-muted-foreground">
-        {placeholder || 'Select payment'}
+        {placeholder || t('select-payment')}
       </span>
     );
   }
@@ -144,6 +164,7 @@ const PaymentInline = ({
 
 const SelectPaymentValue = ({ placeholder }: { placeholder?: string }) => {
   const { paymentIds, payments, setPayments } = useSelectPaymentContext();
+
   return (
     <PaymentInline
       paymentIds={paymentIds}
@@ -151,6 +172,41 @@ const SelectPaymentValue = ({ placeholder }: { placeholder?: string }) => {
       updatePayments={setPayments}
       placeholder={placeholder}
     />
+  );
+};
+
+const SelectPaymentMissingBadges = () => {
+  const { paymentIds, removeId } = useSelectPaymentContext();
+  const { payments: fetchedPayments, loading } = usePayments({
+    status: 'active',
+  });
+
+  const missingIds = React.useMemo(() => {
+    if (loading || !paymentIds.length || !fetchedPayments.length) return [];
+    return paymentIds.filter(
+      (id) => !fetchedPayments.some((p) => p._id === id),
+    );
+  }, [loading, paymentIds, fetchedPayments]);
+
+  if (missingIds.length === 0) return null;
+
+  return (
+    <>
+      <div className="flex flex-wrap gap-2 p-2">
+        {missingIds.map((id) => (
+          <Badge
+            key={id}
+            variant="secondary"
+            className="font-mono"
+            title={`Unknown id: ${id}`}
+            onClose={removeId ? () => removeId(id) : undefined}
+          >
+            <span className="max-w-24 truncate">{id}</span>
+          </Badge>
+        ))}
+      </div>
+      <Command.Separator className="my-1" />
+    </>
   );
 };
 
@@ -178,6 +234,7 @@ const SelectPaymentCommandItem = ({ payment }: { payment: Payment }) => {
 };
 
 const SelectPaymentContent = () => {
+  const { t } = useTranslation('sales');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
   const { paymentIds, payments: selectedPayments } = useSelectPaymentContext();
@@ -198,10 +255,11 @@ const SelectPaymentContent = () => {
         variant="secondary"
         wrapperClassName="flex-auto"
         focusOnMount
-        placeholder="Search payments..."
+        placeholder={t('search-payments')}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
+        <SelectPaymentMissingBadges />
         {selectedPayments.length > 0 && (
           <>
             {selectedPayments.map((payment) => (

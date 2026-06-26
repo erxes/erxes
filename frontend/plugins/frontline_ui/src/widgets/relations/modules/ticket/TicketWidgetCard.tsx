@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { Button, Card, Separator } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TicketDetailSheet = lazy(() =>
   import('@/ticket/components/ticket-detail/TicketDetailSheet').then(
@@ -19,6 +20,7 @@ const TicketDetailSheet = lazy(() =>
 );
 
 export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
+  const { t } = useTranslation('frontline');
   const {
     startDate,
     targetDate,
@@ -55,7 +57,7 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
           <div className="flex flex-col gap-1">
             <h5 className="font-semibold">{name}</h5>
             <div className="text-accent-foreground uppercase">
-              Ticket #{number}
+              {t('ticket-number', { number })}
             </div>
           </div>
           <div className="flex flex-wrap gap-1">

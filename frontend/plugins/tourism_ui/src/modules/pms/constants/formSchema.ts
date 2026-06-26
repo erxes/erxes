@@ -54,6 +54,7 @@ export const PmsBranchFormSchema = z.object({
   pipelineConfig: z.any().optional(),
   extraProductCategories: z.array(z.any()).optional(),
   roomCategories: z.array(z.any()).optional(),
+  appointmentCategories: z.array(z.string()).optional(),
   logo: z.string().optional(),
   primaryColor: z.string().optional(),
   secondaryColor: z.string().optional(),
@@ -64,6 +65,14 @@ export const PmsBranchFormSchema = z.object({
   stageId: z.string().optional(),
   roomsCategoryIds: z.array(z.string()).optional(),
   extrasCategoryIds: z.array(z.string()).optional(),
+  excludeExtraProductCategoryIds: z.array(z.string()).optional(),
+  excludeExtraProductIds: z.array(z.string()).optional(),
+  excludeRoomCategoryIds: z.array(z.string()).optional(),
+  excludeRoomIds: z.array(z.string()).optional(),
+  hasAppointment: z.boolean().optional(),
+  appointmentCategoryIds: z.array(z.string()).optional(),
+  excludeAppointmentCategoryIds: z.array(z.string()).optional(),
+  excludeAppointmentIds: z.array(z.string()).optional(),
 });
 
 export type PmsBranchFormType = z.infer<typeof PmsBranchFormSchema>;

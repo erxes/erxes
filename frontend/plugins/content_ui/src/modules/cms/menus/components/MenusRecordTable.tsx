@@ -1,4 +1,5 @@
 import { RecordTable, cn, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
 import {
   DndContext,
@@ -34,16 +35,7 @@ import { useMenus } from '../hooks/useMenus';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
 import { buildFlatTree, getDepthPrefix } from '@/cms/menus/menuUtils';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
-
-interface MenuItem {
-  _id: string;
-  label: string;
-  parentId?: string;
-  order?: number;
-  depth?: number;
-  path?: string[];
-  [key: string]: unknown;
-}
+import { MenuItem } from '../types/menuDrawerTypes';
 
 interface MenusRecordTableProps {
   clientPortalId: string;
@@ -223,6 +215,7 @@ export const MenusRecordTable = ({
   kind,
   onEdit,
 }: MenusRecordTableProps) => {
+  const { t } = useTranslation('content');
   const { menus, loading, refetch } = useMenus({ clientPortalId, kind });
   const language = useAtomValue(cmsLanguageAtom);
   const [orderedMenus, setOrderedMenus] = useState<MenuItem[]>(menus);
@@ -312,7 +305,7 @@ export const MenusRecordTable = ({
 
       if (pId !== (getParentKey(oMenu) || 'root')) {
         toast({
-          description: 'Menus can only be reordered within the same level.',
+          description: t('menus-same-level-only'),
         });
         return;
       }
@@ -368,7 +361,7 @@ export const MenusRecordTable = ({
                 description:
                   error instanceof Error
                     ? error.message
-                    : 'Failed to reorder menus.',
+                    : t('failed-to-reorder-menus'),
               });
               // Use ref value to check if this was the last pending operation
               if (reorderingCountRef.current === 1) {

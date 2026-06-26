@@ -2,12 +2,14 @@ import { RecordTable, Spinner } from 'erxes-ui';
 import { firstDonateColumns, secondDonateColumns } from './DonateColumns';
 import { useDonateList } from '../hooks/UseDonateList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { DonateCommandBar } from './DonateCommandBar';
 
 export const DonateRecordTable = ({ posId }: { posId?: string }) => {
   const { donateList, handleFetchMore, loading, pageInfo } = useDonateList({
     posId,
   });
+  const { t } = useTranslation('loyalty');
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const allColumns = [...firstDonateColumns, ...secondDonateColumns];
@@ -52,10 +54,10 @@ export const DonateRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No donations yet
+                {t('no-donations-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first donation.
+                {t('get-started-donation')}
               </p>
             </div>
           </div>

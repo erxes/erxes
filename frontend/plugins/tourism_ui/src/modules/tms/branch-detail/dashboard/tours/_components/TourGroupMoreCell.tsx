@@ -1,5 +1,6 @@
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { TourGroupRow } from './TourGroupColumns';
 
@@ -11,6 +12,7 @@ export const TourGroupMoreColumn = ({
   onAddTour,
   ...props
 }: TourGroupMoreColumnProps) => {
+  const { t } = useTranslation('tourism');
   const row = props.row.original;
   const canAddTour = row.isGroup || row.isSingleGroupRow;
 
@@ -28,7 +30,7 @@ export const TourGroupMoreColumn = ({
           <Command.List>
             <Command.Item value="add-tour" onSelect={() => onAddTour?.(row)}>
               <IconPlus className="w-4 h-4" />
-              Add tour
+              {t('add-tour')}
             </Command.Item>
           </Command.List>
         </Command>

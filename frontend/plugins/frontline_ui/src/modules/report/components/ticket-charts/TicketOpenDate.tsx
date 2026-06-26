@@ -11,6 +11,7 @@ import { useTicketDate } from '@/report/hooks/useTicketOpenDate';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ResponsesChartType } from '@/report/types';
 import { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import {
   Bar,
@@ -34,6 +35,7 @@ import {
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
+import { getTicketPropertyFilterVariables } from '@/report/utils';
 import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
 import {
@@ -72,6 +74,7 @@ export const TicketOpenDate = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketOpenDateProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -103,7 +106,7 @@ export const TicketOpenDate = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
-        propertyIds: propertyFilter.length ? propertyFilter : undefined,
+        ...getTicketPropertyFilterVariables(propertyFilter),
         frequency,
       },
     },
@@ -165,7 +168,7 @@ export const TicketOpenDate = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>

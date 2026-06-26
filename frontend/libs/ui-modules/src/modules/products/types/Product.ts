@@ -15,6 +15,15 @@ export interface IProduct {
   departmentId?: string;
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
+  duration?: number;
+  durationType?:
+    | 'minute'
+    | 'hour'
+    | 'day'
+    | 'week'
+    | 'month'
+    | 'quarter'
+    | 'year';
   currency: CurrencyCode;
   remainder: any;
 }

@@ -18,7 +18,12 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
     return acc;
   }, {});
 
-  const config = map[brandId || 'noBrand'];
+  const key = brandId || 'noBrand';
+  let config = map[key];
+
+  if (!config && map['noBrand'] && typeof map['noBrand'] === 'object') {
+    config = map['noBrand'][key];
+  }
 
   if (!config) {
     throw new Error('MS Dynamic config not found.');

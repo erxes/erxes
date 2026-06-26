@@ -448,7 +448,7 @@ export const sendReply = async (
     debugError(
       `Error occurred while trying to get page access token with ${e.message}`,
     );
-    return e;
+    throw new Error(e.message);
   }
 
   try {
@@ -464,12 +464,15 @@ export const sendReply = async (
       } data: ${JSON.stringify(data)}`,
     );
 
+
+    const messageLevelErrorCodes = [10, 10900];
+
     if (e.message.includes('access token')) {
       await models.FacebookIntegrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'page-token', error: `${e.message}` } },
       );
-    } else if (e.code !== 10) {
+    } else if (!messageLevelErrorCodes.includes(e.code)) {
       await models.FacebookIntegrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'account-token', error: `${e.message}` } },

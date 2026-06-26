@@ -35,8 +35,8 @@ export type IMSDynamicConfig = {
   boardId: string;
   pipelineId: string;
   stageId: string;
-  posConf: string;
-  productUrl: string;
+  custCode: string;
+  userLocationCode: string;
 };
 
 export type IMSDynamicConfigMap = Record<string, IMSDynamicConfig>;
@@ -45,14 +45,15 @@ export type IConfigsMap = {
   DYNAMIC: IMSDynamicConfigMap;
 };
 
-export type IConfig = {
+export type IMnConfig = {
   _id: string;
   code: string;
-  value: IMSDynamicConfigMap;
+  subId?: string;
+  value: IMSDynamicConfig;
 };
 
 export type ConfigsQueryResponse = {
-  configsGetValue: IConfig;
+  mnConfigs: IMnConfig[];
   loading: boolean;
   refetch: () => void;
 };

@@ -23,6 +23,7 @@ export const elementColumns = (
   branchId?: string,
   branchLanguages?: string[],
   mainLanguage?: string,
+  t: (key: string) => string = (k) => k,
 ): ColumnDef<IElement>[] => {
   return [
     RecordTable.checkboxColumn as ColumnDef<IElement>,
@@ -30,7 +31,7 @@ export const elementColumns = (
     {
       id: 'name',
       accessorKey: 'name',
-      header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
+      header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
       cell: ({ cell, row }: { cell: any; row: any }) => {
         const element = row.original as IElement;
         return (
@@ -59,7 +60,7 @@ export const elementColumns = (
       id: 'duration',
       accessorKey: 'duration',
       header: () => (
-        <RecordTable.InlineHead icon={IconClock} label="Duration (min)" />
+        <RecordTable.InlineHead icon={IconClock} label={t('duration-min')} />
       ),
       cell: ({ cell }: { cell: any }) => (
         <RecordTableInlineCell>
@@ -73,7 +74,7 @@ export const elementColumns = (
     {
       id: 'cost',
       accessorKey: 'cost',
-      header: () => <RecordTable.InlineHead icon={IconCoin} label="Cost" />,
+      header: () => <RecordTable.InlineHead icon={IconCoin} label={t('cost')} />,
       cell: ({ cell }: { cell: any }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip
@@ -87,7 +88,7 @@ export const elementColumns = (
       id: 'categories',
       accessorKey: 'categories',
       header: () => (
-        <RecordTable.InlineHead icon={IconTags} label="Categories" />
+        <RecordTable.InlineHead icon={IconTags} label={t('categories')} />
       ),
       cell: ({ cell }: { cell: any }) => {
         const categoryIds = cell.getValue() as string[];
@@ -117,7 +118,7 @@ export const elementColumns = (
       id: 'createdAt',
       accessorKey: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />
+        <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created')} />
       ),
       cell: ({ cell }: { cell: any }) => {
         return (
@@ -134,7 +135,7 @@ export const elementColumns = (
       id: 'modifiedAt',
       accessorKey: 'modifiedAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendarDot} label="Modified" />
+        <RecordTable.InlineHead icon={IconCalendarDot} label={t('modified')} />
       ),
       cell: ({ cell }: { cell: any }) => {
         return (

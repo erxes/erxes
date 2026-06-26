@@ -13,6 +13,7 @@ import { IconCategory, IconTag, IconX } from '@tabler/icons-react';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { useProductCategories } from 'ui-modules/modules/products/categories/hooks/useCategories';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   filters: ProductFilterState;
@@ -130,14 +131,16 @@ export const ProductFilterBar = ({
     departmentIds,
   } = filters;
 
+  const { t } = useTranslation('sales');
+
   const getCategoryName = (id: string) => {
     const category = categories.find((cat) => cat._id === id);
     return category?.name || id;
   };
 
   const getTagNames = (tagIds: string[]): string => {
-    const tagNames = tagIds.map((id) => tags?.find((t) => t._id === id)?.name);
-    return tagNames.length > 0 ? tagNames.join(', ') : 'None';
+    const tagNames = tagIds.map((id) => tags?.find((tag) => tag._id === id)?.name);
+    return tagNames.length > 0 ? tagNames.join(', ') : t('none');
   };
 
   const updateFilter = (key: keyof ProductFilterState, value: any) => {
@@ -152,7 +155,7 @@ export const ProductFilterBar = ({
         >
           <Filter.BarName>
             <IconCategory />
-            Category
+            {t('category')}
           </Filter.BarName>
           <Filter.BarButton>
             {productCategoryIds && (
@@ -168,7 +171,7 @@ export const ProductFilterBar = ({
         >
           <Filter.BarName>
             <IconTag />
-            Tags
+            {t('tags')}
           </Filter.BarName>
           <Filter.BarButton>
             {productTagIds && productTagIds.length > 0 && (
@@ -192,7 +195,7 @@ export const ProductFilterBar = ({
           <CustomFilterItem
             onClear={() => updateFilter('productVendorIds', undefined)}
           >
-            <Filter.BarName>Vendor</Filter.BarName>
+            <Filter.BarName>{t('vendor')}</Filter.BarName>
             <Filter.BarButton>
               <SelectCompany.Value />
             </Filter.BarButton>
@@ -214,7 +217,7 @@ export const ProductFilterBar = ({
           <CustomFilterItem
             onClear={() => updateFilter('branchIds', undefined)}
           >
-            <Filter.BarName>Branch</Filter.BarName>
+            <Filter.BarName>{t('branch')}</Filter.BarName>
             <Filter.BarButton>
               <SelectBranches.Value />
             </Filter.BarButton>
@@ -236,7 +239,7 @@ export const ProductFilterBar = ({
           <CustomFilterItem
             onClear={() => updateFilter('departmentIds', undefined)}
           >
-            <Filter.BarName>Department</Filter.BarName>
+            <Filter.BarName>{t('department')}</Filter.BarName>
             <Filter.BarButton>
               <SelectDepartments.Value />
             </Filter.BarButton>
@@ -263,6 +266,8 @@ const ProductFilterView = ({
     [filters.productVendorIds],
   );
 
+  const { t } = useTranslation('sales');
+
   return (
     <>
       <Filter.View>
@@ -270,20 +275,20 @@ const ProductFilterView = ({
           <Command.List className="p-1">
             <Filter.Item value="productCategoryIds">
               <IconCategory />
-              By Category
+              {t('by-category')}
             </Filter.Item>
             <SelectCompany.FilterItem
               value="productVendorIds"
-              label="By Vendor"
+              label={t('by-vendor')}
             />
             <Filter.Item value="productTagIds">
               <IconTag />
-              By Tag
+              {t('by-tag')}
             </Filter.Item>
-            <SelectBranches.FilterItem value="branchIds" label="By Branch" />
+            <SelectBranches.FilterItem value="branchIds" label={t('by-branch')} />
             <SelectDepartments.FilterItem
               value="departmentIds"
-              label="By Department"
+              label={t('by-department')}
             />
           </Command.List>
         </Command>

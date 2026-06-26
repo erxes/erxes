@@ -4,9 +4,11 @@ import {
 } from '@/integrations/instagram/states/instagramStates';
 import { cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPages';
 
 export const InstagramBotPagesStep = () => {
+  const { t } = useTranslation('frontline');
   const [selectedPage, setSelectedPage] = useAtom(selectedInstagramPageAtom);
   const selectedAccountId = useAtomValue(selectedInstagramAccountAtom);
 
@@ -20,12 +22,12 @@ export const InstagramBotPagesStep = () => {
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
-            <Input placeholder="Search for a page" />
+            <Input placeholder={t('search-for-a-page')} />
           </Command.Primitive.Input>
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {instagramGetPages.length} pages found
+            {t('pages-found', { count: instagramGetPages.length })}
           </div>
         </div>
         <RadioGroup

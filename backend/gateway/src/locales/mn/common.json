@@ -53,6 +53,7 @@
     "broadcast-config": "Броадкаст тохиргоо",
     "client-portal": "Харилцагчийн портал",
     "products": "Бүтээгдэхүүнүүд",
+    "properties": "Талбарууд",
     "automations": "Автоматжуулалтууд",
     "account": "Бүртгэл",
     "developer": "Хөгжүүлэгч",
@@ -62,5 +63,11 @@
     "exit-settings": "Тохиргооноос гарах",
     "favorites": "Дуртай",
     "my-inbox": "Миний инбокс"
+  },
+  "plugin": {
+    "_": "Плагин",
+    "plugins": "Плагинууд",
+    "exit": "{{name}}-ээс гарах",
+    "modules": "{{name}} модулиуд"
   }
 }

@@ -9,6 +9,7 @@ import { IconCopy } from '@tabler/icons-react';
 import { Command, useToast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type MakeACopyTriggerProps = {
   setOpen: (open: boolean) => void;
@@ -60,6 +61,7 @@ export const MakeACopyTrigger = ({
   task: taskProp,
   setOpen,
 }: MakeACopyTriggerProps) => {
+  const { t } = useTranslation('operation');
   const { task: fetchedTask, loading } = useGetTask({
     variables: { _id: taskId || '' },
     skip: !taskId,
@@ -71,8 +73,8 @@ export const MakeACopyTrigger = ({
   const handleMakeACopy = () => {
     if (!task) {
       toast({
-        title: 'Error',
-        description: 'Task not found',
+        title: t('error'),
+        description: t('task-not-found'),
         variant: 'destructive',
       });
       return;
@@ -88,7 +90,7 @@ export const MakeACopyTrigger = ({
       disabled={taskId ? loading || !task : !task}
     >
       <IconCopy className="size-4" />
-      <div className="flex items-center">Make a copy</div>
+      <div className="flex items-center">{t('make-a-copy')}</div>
     </Command.Item>
   );
 };

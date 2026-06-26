@@ -2,6 +2,7 @@ import { ApolloError } from '@apollo/client';
 import { IconTrash } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   CommandBar,
@@ -27,6 +28,7 @@ export const ItineraryCommandBar = ({
   branchLanguages,
   mainLanguage,
 }: ItineraryCommandBarProps) => {
+  const { t } = useTranslation('tourism');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const confirmOptions = useMemo(() => ({ confirmationValue: 'delete' }), []);
@@ -53,21 +55,21 @@ export const ItineraryCommandBar = ({
     }
 
     confirm({
-      message: `Are you sure you want to delete the ${selectedCount} selected itineraries?`,
+      message: t('confirm-delete-itineraries', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       removeItineraries(itineraryIds)
         .then(() => {
           table.resetRowSelection();
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Itineraries deleted successfully',
+            description: t('itineraries-deleted-successfully'),
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -86,7 +88,7 @@ export const ItineraryCommandBar = ({
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedCount} selected</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         {selectedCount === 1 && (
           <>
@@ -110,7 +112,7 @@ export const ItineraryCommandBar = ({
           onClick={handleRemove}
         >
           {loading ? <Spinner /> : <IconTrash />}
-          Delete
+          {t('delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>
