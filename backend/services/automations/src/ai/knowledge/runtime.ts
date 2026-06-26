@@ -23,6 +23,15 @@ type TAiKnowledgeRuntimeParams = {
 };
 
 const MAX_CANDIDATE_CHUNKS = 300;
+const MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS = 50;
+const PRODUCT_KNOWLEDGE_SOURCE = {
+  pluginName: 'core',
+  moduleName: 'products',
+  key: 'product.knowledge',
+};
+const PRODUCT_KNOWLEDGE_SOURCE_TYPE = buildKnowledgeSourceType(
+  PRODUCT_KNOWLEDGE_SOURCE,
+);
 
 const stringifyRuntimeValue = (value: unknown) => {
   if (typeof value === 'string') {
@@ -75,6 +84,16 @@ const buildRuntimeInputText = ({
     .filter(Boolean)
     .join('\n\n');
 };
+
+const buildLatestUserText = ({
+  inputData,
+  aiContext,
+}: {
+  inputData: unknown;
+  aiContext?: TAiContext | null;
+}) =>
+  stringifyRuntimeValue(aiContext?.input?.text) ||
+  stringifyRuntimeValue(inputData);
 
 const buildActionSearchText = (actionConfig: TAiAgentActionConfig) => {
   if (actionConfig.goalType === 'generateText') {
@@ -310,6 +329,160 @@ const getSharedKnowledgeCandidateChunks = async ({
   return Array.from(chunksById.values());
 };
 
+const isProductKnowledgeSource = (source: TAiAgentKnowledgeSource) =>
+  buildKnowledgeSourceType({
+    pluginName: source.pluginName,
+    moduleName: source.moduleName,
+    key: source.key,
+  }) === PRODUCT_KNOWLEDGE_SOURCE_TYPE;
+
+const getSelectedProductSourceIds = (sources: TAiAgentKnowledgeSource[]) => [
+  ...new Set(
+    sources
+      .filter(isProductKnowledgeSource)
+      .flatMap((source) => source.sourceIds)
+      .filter(Boolean),
+  ),
+];
+
+const getSearchableKnowledgeSources = ({
+  sources,
+  alwaysIncludedProductSourceIds,
+}: {
+  sources: TAiAgentKnowledgeSource[];
+  alwaysIncludedProductSourceIds: string[];
+}) => {
+  if (!alwaysIncludedProductSourceIds.length) {
+    return sources;
+  }
+
+  return sources.filter((source) => !isProductKnowledgeSource(source));
+};
+
+const getAlwaysIncludedProductCatalogChunks = async ({
+  models,
+  sources,
+}: {
+  models: IModels;
+  sources: TAiAgentKnowledgeSource[];
+}) => {
+  const productSourceIds = getSelectedProductSourceIds(sources);
+
+  if (
+    !productSourceIds.length ||
+    productSourceIds.length > MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS
+  ) {
+    return [];
+  }
+
+  return (
+    await models.KnowledgeChunks.find({
+      sourceType: PRODUCT_KNOWLEDGE_SOURCE_TYPE,
+      sourceId: { $in: productSourceIds },
+    })
+      .sort({ title: 1, chunkIndex: 1 })
+      .limit(MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS)
+      .lean<IKnowledgeChunkDocument[]>()
+  ).map(mapSharedKnowledgeDocumentToChunk);
+};
+
+const normalizeProductMatchText = (value: string) =>
+  value.toLowerCase().replace(/\s+/g, ' ').trim();
+
+const extractProductFact = (content: string, field: string) => {
+  const match = content.match(new RegExp(`(?:^|\\n)${field}:\\s*([^\\n]+)`));
+
+  return match?.[1]?.trim();
+};
+
+const getMatchedProductCatalogChunks = ({
+  chunks,
+  latestUserText,
+}: {
+  chunks: TAiKnowledgeChunk[];
+  latestUserText: string;
+}) => {
+  const normalizedUserText = normalizeProductMatchText(latestUserText);
+
+  if (!normalizedUserText) {
+    return [];
+  }
+
+  return chunks.filter((chunk) => {
+    const name = extractProductFact(chunk.content, 'Name');
+    const shortName = extractProductFact(chunk.content, 'Short name');
+    const code = extractProductFact(chunk.content, 'Code');
+
+    return [name, shortName, code]
+      .filter(Boolean)
+      .some((value) =>
+        normalizedUserText.includes(normalizeProductMatchText(value || '')),
+      );
+  });
+};
+
+const formatProductMatchSummary = (chunks: TAiKnowledgeChunk[]) => {
+  if (!chunks.length) {
+    return '';
+  }
+
+  return [
+    'Current product catalog match for the latest user message:',
+    ...chunks.map((chunk) => {
+      const name = extractProductFact(chunk.content, 'Name') || chunk.title;
+      const code = extractProductFact(chunk.content, 'Code');
+      const price = extractProductFact(chunk.content, 'Price');
+      const status = extractProductFact(chunk.content, 'Status');
+
+      return [
+        `- ${name}`,
+        code ? `  Code: ${code}` : '',
+        price ? `  Price: ${price}` : '',
+        status ? `  Status: ${status}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
+    }),
+    'Instruction: if the customer asks whether they can buy or order one of these matched products, do not say it is unavailable. Say it is listed in the live product catalog and use only the explicit facts above.',
+    '',
+  ].join('\n');
+};
+
+const buildProductCatalogContextFile = ({
+  chunks,
+  latestUserText,
+}: {
+  chunks: TAiKnowledgeChunk[];
+  latestUserText: string;
+}): TAiAgentLoadedContextFile | null => {
+  if (!chunks.length) {
+    return null;
+  }
+
+  const matchedChunks = getMatchedProductCatalogChunks({
+    chunks,
+    latestUserText,
+  });
+  const content = [
+    'Authority: live product catalog.',
+    'These are selected active products from the live product catalog.',
+    'For product existence and explicit product facts, this catalog context has priority over uploaded files and knowledge base articles.',
+    'Absence from uploaded files or knowledge base articles does not mean these products are unavailable.',
+    'Do not deny products listed here unless this catalog context explicitly says they are deleted or inactive.',
+    '',
+    formatProductMatchSummary(matchedChunks),
+    formatAiKnowledgeChunksForPrompt(chunks),
+  ].join('\n');
+
+  return {
+    id: 'selected-product-catalog',
+    key: 'selected-product-catalog',
+    name: 'Product catalog',
+    bytes: Buffer.byteLength(content, 'utf8'),
+    content,
+  };
+};
+
 export const retrieveAiAgentKnowledgeContextFiles = async ({
   models,
   agentId,
@@ -325,14 +498,30 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
   }
 
   const inputText = buildRuntimeInputText({ inputData, aiContext });
+  const latestUserText = buildLatestUserText({ inputData, aiContext });
   const actionText = buildActionSearchText(actionConfig);
   const searchText =
     actionConfig.goalType === 'generateText'
       ? inputText
       : [actionText, inputText].filter(Boolean).join('\n\n');
+  const knowledgeSources = agent.context.knowledgeSources || [];
+  const productCatalogChunks = await getAlwaysIncludedProductCatalogChunks({
+    models,
+    sources: knowledgeSources,
+  });
+  const productCatalogContext = buildProductCatalogContextFile({
+    chunks: productCatalogChunks,
+    latestUserText,
+  });
+  const searchableKnowledgeSources = getSearchableKnowledgeSources({
+    sources: knowledgeSources,
+    alwaysIncludedProductSourceIds: productCatalogChunks
+      .map((chunk) => chunk.sourceId)
+      .filter((sourceId): sourceId is string => !!sourceId),
+  });
 
   if (!searchText.trim()) {
-    return [];
+    return productCatalogContext ? [productCatalogContext] : [];
   }
 
   const [agentCandidates, sharedCandidates] = await Promise.all([
@@ -344,13 +533,13 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
     getSharedKnowledgeCandidateChunks({
       models,
       searchText,
-      sources: agent.context.knowledgeSources || [],
+      sources: searchableKnowledgeSources,
     }),
   ]);
   const candidates = [...agentCandidates, ...sharedCandidates];
 
   if (!candidates.length) {
-    return [];
+    return productCatalogContext ? [productCatalogContext] : [];
   }
 
   const result = retrieveAiKnowledgeChunks({
@@ -364,10 +553,11 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
   });
 
   if (!result.chunks.length) {
-    return [];
+    return productCatalogContext ? [productCatalogContext] : [];
   }
 
   return [
+    ...(productCatalogContext ? [productCatalogContext] : []),
     {
       id: `retrieved-knowledge:${agentId}`,
       key: `retrieved-knowledge:${agentId}`,

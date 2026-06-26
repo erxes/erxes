@@ -1,5 +1,6 @@
 import { IProduct } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import { refreshProductKnowledge } from '~/modules/products/meta/automations';
 
 export const productMutations = {
   /**
@@ -9,11 +10,15 @@ export const productMutations = {
   async productsAdd(
     _root: undefined,
     doc: IProduct,
-    { models, __, checkPermission }: IContext,
+    { models, subdomain, __, checkPermission }: IContext,
   ) {
     await checkPermission('productsCreate');
 
-    return await models.Products.createProduct(__(doc));
+    const product = await models.Products.createProduct(__(doc));
+
+    await refreshProductKnowledge({ subdomain, productIds: [product._id] });
+
+    return product;
   },
 
   /**
@@ -24,17 +29,21 @@ export const productMutations = {
   async productsEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & IProduct,
-    { models, __, checkPermission }: IContext,
+    { models, subdomain, __, checkPermission }: IContext,
   ) {
     await checkPermission('productsUpdate');
 
-    return await models.Products.updateProduct(
+    const product = await models.Products.updateProduct(
       _id,
       __({
         ...doc,
         status: 'active',
       }),
     );
+
+    await refreshProductKnowledge({ subdomain, productIds: [_id] });
+
+    return product;
   },
 
   /**
@@ -44,11 +53,15 @@ export const productMutations = {
   async productsRemove(
     _parent: undefined,
     { productIds }: { productIds: string[] },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('productsDelete');
 
-    return await models.Products.removeProducts(productIds);
+    const result = await models.Products.removeProducts(productIds);
+
+    await refreshProductKnowledge({ subdomain, productIds });
+
+    return result;
   },
 
   /**
@@ -60,11 +73,20 @@ export const productMutations = {
       productIds,
       productFields,
     }: { productIds: string[]; productFields: IProduct },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('productsMerge');
 
-    return models.Products.mergeProducts(productIds, { ...productFields });
+    const product = await models.Products.mergeProducts(productIds, {
+      ...productFields,
+    });
+
+    await refreshProductKnowledge({
+      subdomain,
+      productIds: [...productIds, product._id],
+    });
+
+    return product;
   },
 
   /**
@@ -73,10 +95,14 @@ export const productMutations = {
   async productsDuplicate(
     _parent: undefined,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('productsCreate');
 
-    return await models.Products.duplicateProduct(_id);
+    const product = await models.Products.duplicateProduct(_id);
+
+    await refreshProductKnowledge({ subdomain, productIds: [product._id] });
+
+    return product;
   },
 };

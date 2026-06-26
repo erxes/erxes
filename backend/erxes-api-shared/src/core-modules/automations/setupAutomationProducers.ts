@@ -17,6 +17,7 @@ import {
   CheckTargetMatchInput,
   GenerateAiContextInput,
   LoadAiKnowledgeDocumentsInput,
+  LookupAiToolInput,
   ReceiveActionsInput,
   TAutomationProducersInput,
   ResolveOutputPathsInput,
@@ -54,6 +55,7 @@ export const startAutomations = async (
     resolveOutputPaths,
     generateAiContext,
     loadAiKnowledgeDocuments,
+    lookupAiTool,
   } = config || {};
 
   const automationProcedures: Partial<
@@ -93,6 +95,12 @@ export const startAutomations = async (
             ctx,
           ),
         );
+  }
+
+  if (lookupAiTool) {
+    automationProcedures[TAutomationProducers.LOOKUP_AI_TOOL] = t.procedure
+      .input(LookupAiToolInput)
+      .mutation(async ({ ctx, input }) => lookupAiTool(input, ctx));
   }
 
   const runtimeResolveOutputPaths =

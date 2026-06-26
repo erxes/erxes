@@ -166,7 +166,16 @@ export type TAiKnowledgeSourceConfig = {
   moduleName: string;
   key: string;
   label: string;
-  sourceSelector: 'remote-module';
+  sourceSelector: 'remote-module' | 'local';
+};
+
+export type TAiToolConfig = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  label: string;
+  input: string;
+  output: string;
 };
 
 export type TAiKnowledgeSourceSelection = {
@@ -174,6 +183,14 @@ export type TAiKnowledgeSourceSelection = {
   moduleName: string;
   key: string;
   sourceIds: string[];
+};
+
+export type TAiToolSelection = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  enabled?: boolean;
+  config?: Record<string, unknown>;
 };
 
 export type TAiKnowledgeSourceIndexStatus = {

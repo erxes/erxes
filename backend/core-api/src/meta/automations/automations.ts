@@ -8,6 +8,7 @@ import { generateModels, IModels } from '~/connectionResolvers';
 import { checkTargetMatch } from './checkTargetMatch';
 import { CORE_AUTOMATION_CONSTANTS } from './constants';
 import { findObject } from './findObject';
+import { coreProductAiKnowledgeProvider } from '~/modules/products/meta/automations';
 
 type TSetPropertyModel = {
   find: (selector: Record<string, unknown>) => {
@@ -50,6 +51,20 @@ export const initAutomation = (app: Express) =>
       const models = await generateModels(subdomain);
 
       return findObject(models, data);
+    },
+    loadAiKnowledgeDocuments: async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      if (data.moduleName === 'products') {
+        return coreProductAiKnowledgeProvider.loadAiKnowledgeDocuments(
+          models,
+          data,
+        );
+      }
+
+      throw new Error(
+        `Unsupported core AI knowledge module: ${data.moduleName}`,
+      );
     },
     setProperties: async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);

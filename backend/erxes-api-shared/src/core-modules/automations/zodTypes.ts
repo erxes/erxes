@@ -129,6 +129,14 @@ export const LoadAiKnowledgeDocumentsInputData = z.object({
   sourceIds: z.array(z.string()).max(1000),
 });
 
+export const LookupAiToolInputData = z.object({
+  moduleName: z.string(),
+  toolKey: z.string(),
+  query: z.string().default(''),
+  limit: z.number().int().min(1).max(20).optional(),
+  filters: z.record(z.unknown()).optional(),
+});
+
 export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
@@ -157,6 +165,10 @@ export const LoadAiKnowledgeDocumentsInput = AutomationBaseInput.extend({
   data: LoadAiKnowledgeDocumentsInputData,
 });
 
+export const LookupAiToolInput = AutomationBaseInput.extend({
+  data: LookupAiToolInputData,
+});
+
 export type TAutomationProducersInput = {
   [TAutomationProducers.RECEIVE_ACTIONS]: z.infer<
     typeof ReceiveActionsInputData
@@ -179,4 +191,5 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENTS]: z.infer<
     typeof LoadAiKnowledgeDocumentsInputData
   >;
+  [TAutomationProducers.LOOKUP_AI_TOOL]: z.infer<typeof LookupAiToolInputData>;
 };

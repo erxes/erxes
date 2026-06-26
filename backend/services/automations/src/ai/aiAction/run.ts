@@ -2,6 +2,12 @@ import { TAiContext } from 'erxes-api-shared/core-modules';
 import { TAiAgentInput, loadAiAgentContextFiles } from '../aiAgent';
 import { invokeAiProvider } from '../bridge';
 import { retrieveAiAgentKnowledgeContextFiles } from '../knowledge';
+import {
+  buildAiConversationStateUpdateMessages,
+  mergeAiConversationStateIntoMemory,
+  parseAiConversationStateUpdate,
+  TAiConversationState,
+} from '../memory';
 import type { IModels } from '../../connectionResolver';
 import { buildAiActionMessages } from './messages';
 import {
@@ -106,6 +112,60 @@ const invokeAiProviderWithRealtimeFallback = async ({
   }
 };
 
+const updateConversationStateWithAi = async ({
+  agent,
+  subdomain,
+  currentState,
+  inputData,
+  aiContext,
+  contextFiles,
+}: {
+  agent: TAiAgentInput;
+  subdomain: string;
+  currentState?: TAiConversationState | null;
+  inputData: unknown;
+  aiContext?: TAiContext | null;
+  contextFiles: Parameters<
+    typeof buildAiConversationStateUpdateMessages
+  >[0]['contextFiles'];
+}) => {
+  if (!currentState) {
+    return null;
+  }
+
+  const messages = buildAiConversationStateUpdateMessages({
+    currentState,
+    inputData,
+    aiContext,
+    contextFiles,
+  });
+
+  if (!messages) {
+    return currentState;
+  }
+
+  try {
+    const response = await invokeAiProvider(
+      {
+        ...agent,
+        runtime: {
+          ...agent.runtime,
+          maxTokens: Math.max(agent.runtime.maxTokens || 0, 400),
+        },
+      },
+      messages,
+      subdomain,
+    );
+
+    return parseAiConversationStateUpdate({
+      text: response.text,
+      fallbackState: currentState,
+    });
+  } catch (_error) {
+    return currentState;
+  }
+};
+
 export const runAiAction = async ({
   subdomain,
   agent,
@@ -115,6 +175,7 @@ export const runAiAction = async ({
   inputData,
   aiContext,
   memory,
+  conversationState,
 }: {
   subdomain: string;
   agent: TAiAgentInput;
@@ -124,6 +185,7 @@ export const runAiAction = async ({
   inputData: unknown;
   aiContext?: TAiContext | null;
   memory?: Record<string, unknown>;
+  conversationState?: TAiConversationState | null;
 }) => {
   const parsedActionConfig = parseAiAgentActionConfig(actionConfig);
   const retrievedContext =
@@ -143,7 +205,7 @@ export const runAiAction = async ({
     agent.context.files,
   );
   const loadedContext = {
-    files: [...uploadedContext.files, ...retrievedContext],
+    files: [...retrievedContext, ...uploadedContext.files],
     totalBytes:
       uploadedContext.totalBytes +
       retrievedContext.reduce((sum, file) => sum + file.bytes, 0),
@@ -155,13 +217,26 @@ export const runAiAction = async ({
     throw new Error(loadedContext.errors.join('\n'));
   }
 
+  const stateBeforeReply = await updateConversationStateWithAi({
+    agent,
+    subdomain,
+    currentState: conversationState || undefined,
+    inputData,
+    aiContext,
+    contextFiles: loadedContext.files,
+  });
+  const memoryWithConversationState = mergeAiConversationStateIntoMemory({
+    memory,
+    conversationState: stateBeforeReply,
+  });
+
   const messages = buildAiActionMessages({
     systemPrompt: agent.context.systemPrompt,
     files: loadedContext.files,
     actionConfig: parsedActionConfig,
     inputData,
     aiContext,
-    memory,
+    memory: memoryWithConversationState,
   });
 
   const providerResponse = await invokeAiProviderWithRealtimeFallback({
@@ -180,5 +255,6 @@ export const runAiAction = async ({
   return {
     result,
     nextActionId: resolveNextActionId(parsedActionConfig, result),
+    conversationState: stateBeforeReply || conversationState || null,
   };
 };

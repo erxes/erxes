@@ -4,6 +4,7 @@ import {
   CheckCustomTriggerInput,
   FindObjectInput,
   CheckTargetMatchInput,
+  LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
   SetPropertiesInput,
@@ -136,11 +137,27 @@ export type TAiKnowledgeSourceConfig = {
   key: string;
   label: string;
   moduleName: string;
-  sourceSelector: 'remote-module';
+  sourceSelector: 'remote-module' | 'local';
+};
+
+export type TAiToolConfig = {
+  key: string;
+  label: string;
+  moduleName: string;
+  input: string;
+  output: string;
 };
 
 export type TAutomationAiConfig = {
   knowledgeSources?: TAiKnowledgeSourceConfig[];
+  tools?: TAiToolConfig[];
+};
+
+export type TAiToolLookupResult = {
+  toolKey: string;
+  title: string;
+  items: Record<string, unknown>[];
+  summary?: string;
 };
 
 export type TAiContextHistoryItem = {
@@ -242,6 +259,11 @@ export interface AutomationProducers {
     },
     context: IAutomationContext,
   ) => Promise<TKnowledgeDocument[]>;
+
+  lookupAiTool?: (
+    args: z.infer<typeof LookupAiToolInput>,
+    context: IAutomationContext,
+  ) => Promise<TAiToolLookupResult>;
 
   resolveOutputPaths?: (
     args: z.infer<typeof ResolveOutputPathsInput>,
@@ -400,6 +422,7 @@ export enum TAutomationProducers {
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',
   LOAD_AI_KNOWLEDGE_DOCUMENTS = 'loadAiKnowledgeDocuments',
+  LOOKUP_AI_TOOL = 'lookupAiTool',
 }
 
 export enum TAutomationActionFolks {

@@ -7,6 +7,7 @@ import {
   TAutomationOutputVariable,
   TAutomationFindObjectTargetDefinition,
   TAiKnowledgeSourceConfig,
+  TAiToolConfig,
   TAutomationSetPropertyTarget,
   TRecordReferencesConfig,
   normalizeAutomationConstantsForTransport,
@@ -38,6 +39,7 @@ type TAutomationConstantsResponse = {
   findObjectTargetsConst: TAutomationFindObjectTargetDefinition[];
   setPropertyTargetsConst: TWithPluginName<TAutomationSetPropertyTarget>[];
   aiKnowledgeSourcesConst: TWithPluginName<TAiKnowledgeSourceConfig>[];
+  aiToolsConst: TWithPluginName<TAiToolConfig>[];
 };
 
 type TRecordReferenceType = TRecordReferencesConfig['types'][number];
@@ -181,7 +183,16 @@ export const getAutomationConstants =
       setPropertyTargetsConst: [
         ...(normalizedCoreConstants.setPropertyTargets || []),
       ],
-      aiKnowledgeSourcesConst: [],
+      aiKnowledgeSourcesConst: (
+        normalizedCoreConstants.ai?.knowledgeSources || []
+      ).map((source) => ({
+        ...source,
+        pluginName: 'core',
+      })),
+      aiToolsConst: (normalizedCoreConstants.ai?.tools || []).map((tool) => ({
+        ...tool,
+        pluginName: 'core',
+      })),
     };
 
     for (const pluginName of plugins) {
@@ -214,6 +225,12 @@ export const getAutomationConstants =
       constants.aiKnowledgeSourcesConst.push(
         ...(ai?.knowledgeSources || []).map((source) => ({
           ...source,
+          pluginName,
+        })),
+      );
+      constants.aiToolsConst.push(
+        ...(ai?.tools || []).map((tool) => ({
+          ...tool,
           pluginName,
         })),
       );
