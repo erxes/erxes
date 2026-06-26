@@ -120,9 +120,10 @@ export const CategoriesRecordTable = ({
                     </RecordTable.Body>
                   </RecordTable>
                 </RecordTable.CursorProvider>
-                {onBulkDelete && (
-                  <CategoriesCommandBar onBulkDelete={onBulkDelete} />
-                )}
+                <CategoriesCommandBar
+                  clientPortalId={clientPortalId}
+                  onBulkDelete={onBulkDelete}
+                />
               </RecordTable.Provider>
             </div>
           </div>

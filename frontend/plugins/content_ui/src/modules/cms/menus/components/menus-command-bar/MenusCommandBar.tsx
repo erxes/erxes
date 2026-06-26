@@ -1,6 +1,7 @@
 import { CommandBar, Separator, Button, RecordTable, toast } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useTranslation } from 'react-i18next';
+import { MenusBulkKind } from './bulk-kind/MenusBulkKind';
 
 interface MenusCommandBarProps {
   onBulkDelete: (ids: string[]) => Promise<void>;
@@ -44,6 +45,8 @@ export const MenusCommandBar = ({ onBulkDelete }: MenusCommandBarProps) => {
         >
           {t('delete')}
         </Button>
+        <Separator.Inline />
+        <MenusBulkKind />
       </CommandBar.Bar>
     </CommandBar>
   );
