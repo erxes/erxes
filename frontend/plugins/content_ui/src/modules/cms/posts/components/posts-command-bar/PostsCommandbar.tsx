@@ -27,7 +27,7 @@ export const PostsCommandbar = ({ clientPortalId, refetch }: PostsCommandbarProp
           onRefetch={refetch}
         />
         <Separator.Inline />
-        <PostsBulkEdit clientPortalId={clientPortalId} />
+        <PostsBulkEdit clientPortalId={clientPortalId} onRefetch={refetch} />
       </CommandBar.Bar>
     </CommandBar>
   );

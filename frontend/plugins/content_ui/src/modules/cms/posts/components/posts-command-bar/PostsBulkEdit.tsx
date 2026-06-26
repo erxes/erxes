@@ -18,8 +18,23 @@ import { useCategories } from '@/cms/categories/hooks/useCategoriesEnhanced';
 import { useTags } from '@/cms/hooks/useTags';
 import { useCustomTypes } from '@/cms/custom-types/hooks/useCustomTypes';
 import { STATUS_DATA } from '../../constants/statusData';
+import {
+  getErrorMessage,
+  getRecordTableSelectedIds,
+} from '@/cms/shared/utils';
 
-export const PostsBulkEdit = ({ clientPortalId }: { clientPortalId: string }) => {
+const toggleSelectedId = (ids: string[], id: string) =>
+  ids.includes(id)
+    ? ids.filter((selectedId) => selectedId !== id)
+    : [...ids, id];
+
+export const PostsBulkEdit = ({
+  clientPortalId,
+  onRefetch,
+}: {
+  clientPortalId: string;
+  onRefetch?: () => void;
+}) => {
   const { t } = useTranslation('content');
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState('main');
@@ -27,15 +42,23 @@ export const PostsBulkEdit = ({ clientPortalId }: { clientPortalId: string }) =>
 
   const { table } = RecordTable.useRecordTable();
   const { bulkEditPosts, loading } = useBulkEditPosts();
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((r: any) => r.original._id as string);
+  const selectedIds = getRecordTableSelectedIds(
+    table.getFilteredSelectedRowModel().rows,
+  );
 
   const { categories, loading: catsLoading } = useCategories({
-    variables: { clientPortalId },
+    variables: { clientPortalId, status: undefined },
     skip: currentContent !== 'category',
   });
-  const { tags, loading: tagsLoading } = useTags({ clientPortalId, fetchAll: true });
-  const { customTypes } = useCustomTypes({ clientPortalId });
+  const { tags, loading: tagsLoading } = useTags({
+    clientPortalId,
+    fetchAll: true,
+    skip: currentContent !== 'tags',
+  });
+  const { customTypes } = useCustomTypes({
+    clientPortalId,
+    skip: currentContent !== 'type',
+  });
 
   const closePopover = () => {
     setOpen(false);
@@ -47,10 +70,19 @@ export const PostsBulkEdit = ({ clientPortalId }: { clientPortalId: string }) =>
     try {
       await bulkEditPosts(selectedIds, input);
       closePopover();
+      onRefetch?.();
       toast({ title: t('success'), variant: 'default' });
-    } catch (e: any) {
-      toast({ title: t('error'), description: e.message, variant: 'destructive' });
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: getErrorMessage(error),
+        variant: 'destructive',
+      });
     }
+  };
+
+  const handleTagToggle = (tagId: string) => {
+    setSelectedTagIds((ids) => toggleSelectedId(ids, tagId));
   };
 
   return (
@@ -118,18 +150,16 @@ export const PostsBulkEdit = ({ clientPortalId }: { clientPortalId: string }) =>
                   </div>
                   <IconChevronRight />
                 </Command.Item>
-                {customTypes.length > 0 && (
-                  <Command.Item
-                    className="w-full justify-between"
-                    onSelect={() => setCurrentContent('type')}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <IconTemplate className="size-4" />
-                      {t('type')}
-                    </div>
-                    <IconChevronRight />
-                  </Command.Item>
-                )}
+                <Command.Item
+                  className="w-full justify-between"
+                  onSelect={() => setCurrentContent('type')}
+                >
+                  <div className="flex gap-2 items-center">
+                    <IconTemplate className="size-4" />
+                    {t('post-type')}
+                  </div>
+                  <IconChevronRight />
+                </Command.Item>
               </Command.Group>
               <Command.Separator />
               <Command.Group className="p-1">
@@ -170,7 +200,7 @@ export const PostsBulkEdit = ({ clientPortalId }: { clientPortalId: string }) =>
             <Command.List>
               <Command.Group className="p-1">
                 {catsLoading && <Command.Item disabled>{t('loading')}</Command.Item>}
-                {categories.map((cat: any) => (
+                {categories.map((cat) => (
                   <Command.Item
                     key={cat._id}
                     onSelect={() => handleEdit({ categoryIds: [cat._id] })}
@@ -190,16 +220,10 @@ export const PostsBulkEdit = ({ clientPortalId }: { clientPortalId: string }) =>
               <Command.List>
                 <Command.Group className="p-1">
                   {tagsLoading && <Command.Item disabled>{t('loading')}</Command.Item>}
-                  {tags.map((tag: any) => (
+                  {tags.map((tag) => (
                     <Command.Item
                       key={tag._id}
-                      onSelect={() =>
-                        setSelectedTagIds((prev) =>
-                          prev.includes(tag._id)
-                            ? prev.filter((id) => id !== tag._id)
-                            : [...prev, tag._id],
-                        )
-                      }
+                      onSelect={() => handleTagToggle(tag._id)}
                     >
                       <IconCheck
                         className="size-3.5 mr-1"
@@ -232,7 +256,13 @@ export const PostsBulkEdit = ({ clientPortalId }: { clientPortalId: string }) =>
           <Command>
             <Command.List>
               <Command.Group className="p-1">
-                {customTypes.map((type: any) => (
+                <Command.Item onSelect={() => handleEdit({ type: 'post' })}>
+                  {t('remove-post-type')}
+                </Command.Item>
+              </Command.Group>
+              <Command.Separator />
+              <Command.Group className="p-1">
+                {customTypes.map((type) => (
                   <Command.Item
                     key={type._id}
                     onSelect={() => handleEdit({ type: type._id })}

@@ -1,8 +1,8 @@
 {
   "access-control": "Access Control",
-  "actions": "Actions",
   "access-restricted": "Access Restricted",
   "access-restricted-desc": "You don't have permission to access this CMS.",
+  "actions": "Actions",
   "active": "Active",
   "apply": "Apply",
   "color": "Color",
@@ -322,6 +322,8 @@
   "ready": "Ready",
   "records-found": "records found",
   "remove": "Remove",
+  "remove-parent": "Remove parent",
+  "remove-post-type": "Remove post type",
   "add-column": "Add column",
   "add-row": "Add row",
   "remove-column": "Remove column",

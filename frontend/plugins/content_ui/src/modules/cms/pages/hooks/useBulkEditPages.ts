@@ -10,9 +10,13 @@ export const useBulkEditPages = () => {
     ids: string[],
     input: Record<string, unknown>,
   ) => {
-    await Promise.all(
+    const results = await Promise.allSettled(
       ids.map((_id) => editPageMutation({ variables: { _id, input } })),
     );
+    const rejected = results.filter(
+      (r): r is PromiseRejectedResult => r.status === 'rejected',
+    );
+    if (rejected.length) throw rejected[0].reason;
   };
 
   return { bulkEditPages, loading };

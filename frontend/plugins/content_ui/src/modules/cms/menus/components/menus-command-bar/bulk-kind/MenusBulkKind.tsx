@@ -2,6 +2,10 @@ import { Button, DropdownMenu, RecordTable, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
 import { CMS_MENU_EDIT } from '@/cms/graphql/queries';
+import {
+  getErrorMessage,
+  getRecordTableSelectedIds,
+} from '@/cms/shared/utils';
 
 const MENU_KINDS = [
   { value: 'header', labelKey: 'header' },
@@ -11,19 +15,28 @@ const MENU_KINDS = [
 export const MenusBulkKind = () => {
   const { t } = useTranslation('content');
   const { table } = RecordTable.useRecordTable();
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((r: any) => r.original._id as string);
+  const selectedIds = getRecordTableSelectedIds(
+    table.getFilteredSelectedRowModel().rows,
+  );
 
   const [editMenu, { loading }] = useMutation(CMS_MENU_EDIT);
 
   const handleApply = async (kind: string) => {
     try {
-      await Promise.all(
+      const results = await Promise.allSettled(
         selectedIds.map((_id) => editMenu({ variables: { _id, input: { kind } } })),
       );
+      const rejected = results.filter(
+        (r): r is PromiseRejectedResult => r.status === 'rejected',
+      );
+      if (rejected.length) throw rejected[0].reason;
       toast({ title: t('success'), variant: 'default' });
-    } catch (e: any) {
-      toast({ title: t('error'), description: e.message, variant: 'destructive' });
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: getErrorMessage(error),
+        variant: 'destructive',
+      });
     }
   };
 

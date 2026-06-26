@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { Button, Popover, RecordTable, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useBulkEditTags } from '../../../hooks/useBulkEditTags';
+import {
+  getErrorMessage,
+  getRecordTableSelectedIds,
+} from '@/cms/shared/utils';
 
 const PRESET_COLORS = [
   '#3B82F6',
@@ -22,16 +26,25 @@ export const TagsBulkColor = () => {
   const [colorValue, setColorValue] = useState('#3B82F6');
   const { table } = RecordTable.useRecordTable();
   const { bulkEditTags, loading } = useBulkEditTags();
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((r: any) => r.original._id as string);
+  const selectedIds = getRecordTableSelectedIds(
+    table.getFilteredSelectedRowModel().rows,
+  );
 
   const handleApply = async (color: string) => {
+    if (loading) {
+      return;
+    }
+
     try {
       await bulkEditTags(selectedIds, { colorCode: color });
       setOpen(false);
       toast({ title: t('success'), variant: 'default' });
-    } catch (e: any) {
-      toast({ title: t('error'), description: e.message, variant: 'destructive' });
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: getErrorMessage(error),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -56,7 +69,10 @@ export const TagsBulkColor = () => {
               <button
                 key={c}
                 type="button"
-                className="size-6 rounded-full border-2 transition-transform hover:scale-110"
+                aria-label={c}
+                title={c}
+                disabled={loading}
+                className="size-6 rounded-full border-2 transition-transform hover:scale-110 disabled:cursor-not-allowed disabled:opacity-50"
                 style={{
                   backgroundColor: c,
                   borderColor: colorValue === c ? 'hsl(var(--foreground))' : 'transparent',

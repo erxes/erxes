@@ -1,8 +1,8 @@
 {
   "access-control": "Хандалтын хяналт",
-  "actions": "Үйлдлүүд",
   "access-restricted": "Хандалт хязгаарлагдсан",
   "access-restricted-desc": "Та энэ CMS-д хандах эрхгүй байна.",
+  "actions": "Үйлдлүүд",
   "active": "Идэвхтэй",
   "apply": "Хэрэглэх",
   "color": "Өнгө",
@@ -322,6 +322,8 @@
   "ready": "Бэлэн",
   "records-found": "үр дүн олдлоо",
   "remove": "Хасах",
+  "remove-parent": "Эцэг категори хасах",
+  "remove-post-type": "Нийтлэлийн төрөл хасах",
   "add-column": "Багана нэмэх",
   "add-row": "Мөр нэмэх",
   "remove-column": "Багана устгах",

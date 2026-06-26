@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { ApolloError, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CMS_TAGS } from '../graphql/queries';
@@ -34,6 +34,7 @@ export interface UseTagsProps {
   sortField?: string;
   sortMode?: string;
   sortDirection?: string;
+  skip?: boolean;
 }
 
 interface UseTagsResult {
@@ -41,7 +42,7 @@ interface UseTagsResult {
   totalCount: number;
   pageInfo?: IRecordTableCursorPageInfo;
   loading: boolean;
-  error?: any;
+  error?: ApolloError;
   refetch: () => void;
   handleFetchMore: ({ direction }: { direction: EnumCursorDirection }) => void;
 }
@@ -60,6 +61,7 @@ export function useTags({
   sortField,
   sortMode,
   sortDirection,
+  skip = false,
 }: UseTagsProps): UseTagsResult {
   const language = useAtomValue(cmsLanguageAtom);
   const fetchedCursorsRef = useRef<Set<string>>(new Set());
@@ -101,6 +103,7 @@ export function useTags({
 
   const { data, loading, error, refetch, fetchMore } = useQuery(CMS_TAGS, {
     variables,
+    skip,
     errorPolicy: 'all',
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
@@ -156,9 +159,9 @@ export function useTags({
   }, [fetchMore, pageInfo?.endCursor, pageInfo?.hasNextPage, variables]);
 
   useEffect(() => {
-    if (!fetchAll) return;
+    if (!fetchAll || skip) return;
     fetchRemainingTags();
-  }, [fetchAll, fetchRemainingTags]);
+  }, [fetchAll, fetchRemainingTags, skip]);
 
   const handleFetchMore = useCallback(
     ({ direction }: { direction: EnumCursorDirection }) => {
