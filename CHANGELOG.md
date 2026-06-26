@@ -1,5 +1,22 @@
 
 
+## [3.0.45](https://github.com/erxes/erxes/compare/3.0.44...3.0.45) (2026-06-26)
+
+
+### Bug Fixes
+
+* **erkhet-sync:** history totalcount never 0 and filter doesnt accept number ([#8152](https://github.com/erxes/erxes/issues/8152)) ([6a14e8c](https://github.com/erxes/erxes/commit/6a14e8cce00e62a170b5f9c05beae21ed6cf0347))
+* **frontline:** core block editor file upload fix and inbox subscription fix  ([22dfea8](https://github.com/erxes/erxes/commit/22dfea8dc73d034f881a98eec3a1c32199cea765))
+* **frontline:** fix ticket property filter in reports ([223be41](https://github.com/erxes/erxes/commit/223be41cc1baa208ed44ede9f86f3562db8498ea))
+* **navigation:** reset active plugin on home click and refine switche… ([#8366](https://github.com/erxes/erxes/issues/8366)) ([f635b04](https://github.com/erxes/erxes/commit/f635b04bdfe65c5fe8f0ed0976d766b81b89d1e7))
+* **payment:** reduce GET requests with caching and early exit  ([e9f6851](https://github.com/erxes/erxes/commit/e9f68515ddc64a2350839ac379ed186faabd9512))
+
+
+### Features
+
+* enable product sheet form widget side tabs ([700258f](https://github.com/erxes/erxes/commit/700258f35ca8e385dc84446512c0ccf71629e749))
+* **mongolian_api:** integrate MSDynamics ([#8357](https://github.com/erxes/erxes/issues/8357)) ([d677ea7](https://github.com/erxes/erxes/commit/d677ea7231cb571c0340568637303423cd332037))
+
 ## [3.0.44](https://github.com/erxes/erxes/compare/3.0.43...3.0.44) (2026-06-24)
 
 
