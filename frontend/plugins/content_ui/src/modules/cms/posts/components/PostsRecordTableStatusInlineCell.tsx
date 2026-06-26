@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { Cell } from '@tanstack/table-core';
+import type { Cell } from '@tanstack/react-table';
 import {
   Badge,
   cn,
@@ -13,15 +13,26 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { CMS_POSTS_EDIT } from '@/cms/posts/graphql';
+import type { PostEditVariables } from '@/cms/posts/types';
+import type { Posts } from '@/cms/posts/types/postsType';
+
+interface EditPostStatusResponse {
+  cmsPostsEdit?: Pick<Posts, '_id' | 'status'> | null;
+}
+
 export const PostsRecordTableStatusInlineCell = ({
   cell,
 }: {
-  cell: Cell<any, any>;
+  cell: Cell<Posts, unknown>;
 }) => {
   const { t } = useTranslation('content');
   const [open, setOpen] = useState(false);
-  const status = cell.getValue() as string;
-  const [edit, { loading }] = useMutation(CMS_POSTS_EDIT);
+  const status = cell.getValue<Posts['status']>();
+  const [edit, { loading }] = useMutation<
+    EditPostStatusResponse,
+    PostEditVariables
+  >(CMS_POSTS_EDIT);
+
   const onSave = (isChecked: boolean) => {
     edit({
       variables: {
