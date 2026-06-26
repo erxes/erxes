@@ -23,6 +23,8 @@ export interface IChannel {
   pipelineCount: number;
   responseTemplateCount: number;
   formCount: number;
+  integrationCount?: number;
+  integrationKinds?: string[];
 }
 
 export interface IChannelMember {

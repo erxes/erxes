@@ -26,6 +26,8 @@ export const useConversations = (
   const { data, fetchMore, subscribeToMore, loading, refetch } = useQuery<
     ICursorListResponse<IConversation>
   >(GET_CONVERSATIONS, options);
+  const refetchRef = useRef(refetch);
+  refetchRef.current = refetch;
   const { _id: userId } = useAtomValue(currentUserState) || {};
 
   const { conversations } = data || {};
@@ -84,7 +86,7 @@ export const useConversations = (
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
-      conversationClientMessageInserted: IConversation;
+      conversationClientMessageInserted: { _id: string; conversationId: string; content: string };
     }>({
       document: CONVERSATION_CLIENT_MESSAGE_INSERTED,
       variables: {
@@ -93,21 +95,24 @@ export const useConversations = (
       updateQuery: (prev, { subscriptionData }) => {
         if (subscriptionData.data) {
           setNewMessagesCount((prev) => prev + 1);
-          const incomingId =
-            subscriptionData.data.conversationClientMessageInserted._id;
-          if (incomingId !== activeConversationRef.current?._id) {
+          const incomingConversationId =
+            subscriptionData.data.conversationClientMessageInserted.conversationId;
+          if (incomingConversationId !== activeConversationRef.current?._id) {
             playNotificationSound();
           }
         }
         if (!subscriptionData.data || !prev) return prev;
         const newMessage =
           subscriptionData.data.conversationClientMessageInserted;
+        const conversationId = newMessage?.conversationId;
         const index = prev.conversations.list.findIndex(
-          (conversation) => conversation._id === newMessage?._id,
+          (conversation) => conversation._id === conversationId,
         );
         const list = [...prev.conversations.list];
         if (index === -1) {
-          list.unshift(newMessage);
+          // New conversation not yet in list — refetch to load the full entry
+          setTimeout(() => refetchRef.current(), 0);
+          return prev;
         } else {
           list.splice(index, 1, {
             ...list[index],
