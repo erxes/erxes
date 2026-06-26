@@ -41,19 +41,6 @@ export const VOUCHERS_QUERY = gql`
   }
 `;
 
-export const VOUCHER_CP_USER_QUERY = gql`
-  query VoucherOwnerCpUser($_id: String!) {
-    getClientPortalUser(_id: $_id) {
-      _id
-      firstName
-      lastName
-      email
-      phone
-      erxesCustomerId
-    }
-  }
-`;
-
 export const VOUCHER_COMPANIES_QUERY = gql`
   query VoucherCompanies($limit: Int, $searchValue: String) {
     companies(limit: $limit, searchValue: $searchValue) {

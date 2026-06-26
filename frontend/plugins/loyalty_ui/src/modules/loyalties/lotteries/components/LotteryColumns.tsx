@@ -11,8 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ILottery } from '@/loyalties/lotteries/types/lottery';
-import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
-import { CompaniesInline } from 'ui-modules/modules/contacts/components/CompaniesInline';
+import { LoyaltyOwner } from '@/loyalties/components/LoyaltyOwner';
 import { LotteryEditSheet } from './LotteryEditSheet';
 
 const CreatedAtCell = ({ lottery }: { lottery: ILottery }) => {
@@ -63,19 +62,11 @@ const OwnerCell = ({
 }: {
   ownerId?: string;
   ownerType?: string;
-}) => {
-  if (!ownerId) return <RecordTableInlineCell>—</RecordTableInlineCell>;
-
-  return (
-    <RecordTableInlineCell>
-      {ownerType === 'company' ? (
-        <CompaniesInline companyIds={[ownerId]} placeholder="—" />
-      ) : (
-        <CustomersInline customerIds={[ownerId]} placeholder="—" />
-      )}
-    </RecordTableInlineCell>
-  );
-};
+}) => (
+  <RecordTableInlineCell>
+    <LoyaltyOwner ownerId={ownerId} ownerType={ownerType} />
+  </RecordTableInlineCell>
+);
 
 export const firstLotteryColumns: ColumnDef<ILottery>[] = [
   {

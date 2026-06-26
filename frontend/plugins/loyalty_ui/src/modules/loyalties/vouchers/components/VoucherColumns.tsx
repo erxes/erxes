@@ -1,6 +1,5 @@
 import { IconUser, IconTag, IconClock } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { useQuery } from '@apollo/client';
 import {
   RecordTable,
   RecordTableInlineCell,
@@ -11,10 +10,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { IVoucher } from '@/loyalties/vouchers/types/voucher';
-import { VOUCHER_CP_USER_QUERY } from '@/loyalties/vouchers/graphql/queries/queries';
-import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
-import { CompaniesInline } from 'ui-modules/modules/contacts/components/CompaniesInline';
-import { MembersInline } from 'ui-modules';
+import { LoyaltyOwner } from '@/loyalties/components/LoyaltyOwner';
 import { VoucherEditSheet } from './VoucherEditSheet';
 
 const CreatedAtCell = ({ voucher }: { voucher: IVoucher }) => {
@@ -43,57 +39,17 @@ const CreatedAtCell = ({ voucher }: { voucher: IVoucher }) => {
 
 export const generateOtherPaymentColumns = (_summary?: any) => [];
 
-// Client portal users have no inline component in `ui-modules`, so resolve them
-// here: prefer the linked erxes customer (matching the backend `getLoyaltyOwner`
-// behaviour) and otherwise fall back to the client portal user's own name.
-const CpUserOwner = ({ ownerId }: { ownerId: string }) => {
-  const { data, loading } = useQuery(VOUCHER_CP_USER_QUERY, {
-    variables: { _id: ownerId },
-    skip: !ownerId,
-  });
-
-  const cpUser = data?.getClientPortalUser;
-
-  if (cpUser?.erxesCustomerId) {
-    return (
-      <CustomersInline customerIds={[cpUser.erxesCustomerId]} placeholder="—" />
-    );
-  }
-
-  if (loading) return <>—</>;
-
-  const name =
-    [cpUser?.firstName, cpUser?.lastName].filter(Boolean).join(' ') ||
-    cpUser?.email ||
-    cpUser?.phone;
-
-  return <>{name || '—'}</>;
-};
-
-const renderOwnerContent = (ownerId: string, ownerType?: string) => {
-  if (ownerType === 'company')
-    return <CompaniesInline companyIds={[ownerId]} placeholder="—" />;
-  if (ownerType === 'user')
-    return <MembersInline memberIds={[ownerId]} placeholder="—" />;
-  if (ownerType === 'cpUser') return <CpUserOwner ownerId={ownerId} />;
-  return <CustomersInline customerIds={[ownerId]} placeholder="—" />;
-};
-
 const OwnerCell = ({
   ownerId,
   ownerType,
 }: {
   ownerId?: string;
   ownerType?: string;
-}) => {
-  if (!ownerId) return <RecordTableInlineCell>—</RecordTableInlineCell>;
-
-  return (
-    <RecordTableInlineCell>
-      {renderOwnerContent(ownerId, ownerType)}
-    </RecordTableInlineCell>
-  );
-};
+}) => (
+  <RecordTableInlineCell>
+    <LoyaltyOwner ownerId={ownerId} ownerType={ownerType} />
+  </RecordTableInlineCell>
+);
 
 export const firstVoucherColumns: ColumnDef<IVoucher>[] = [
   {

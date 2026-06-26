@@ -11,9 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { IDonate } from '../types/donate';
-import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
-import { CompaniesInline } from 'ui-modules/modules/contacts/components/CompaniesInline';
-import { MembersInline } from 'ui-modules';
+import { LoyaltyOwner } from '@/loyalties/components/LoyaltyOwner';
 import { DonateEditSheet } from './DonateEditSheet';
 
 const CreatedAtCell = ({ donate }: { donate: IDonate }) => {
@@ -41,29 +39,17 @@ const CreatedAtCell = ({ donate }: { donate: IDonate }) => {
   );
 };
 
-const renderOwnerContent = (ownerId: string, ownerType?: string) => {
-  if (ownerType === 'company')
-    return <CompaniesInline companyIds={[ownerId]} placeholder="—" />;
-  if (ownerType === 'user')
-    return <MembersInline memberIds={[ownerId]} placeholder="—" />;
-  return <CustomersInline customerIds={[ownerId]} placeholder="—" />;
-};
-
 const OwnerCell = ({
   ownerId,
   ownerType,
 }: {
   ownerId?: string;
   ownerType?: string;
-}) => {
-  if (!ownerId) return <RecordTableInlineCell>—</RecordTableInlineCell>;
-
-  return (
-    <RecordTableInlineCell>
-      {renderOwnerContent(ownerId, ownerType)}
-    </RecordTableInlineCell>
-  );
-};
+}) => (
+  <RecordTableInlineCell>
+    <LoyaltyOwner ownerId={ownerId} ownerType={ownerType} />
+  </RecordTableInlineCell>
+);
 
 export const firstDonateColumns: ColumnDef<IDonate>[] = [
   {
