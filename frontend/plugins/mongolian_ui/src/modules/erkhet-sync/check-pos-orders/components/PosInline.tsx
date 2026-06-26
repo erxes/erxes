@@ -5,6 +5,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PosInlineProps, IPos } from '../types/pos';
 import { usePosInline } from '../hooks/usePosInline';
 import {
@@ -28,16 +29,17 @@ const PosInlineProvider = ({
   updatePos,
 }: PosInlineProps & { children?: React.ReactNode }) => {
   const [_pos, _setPos] = useState<IPos[]>(pos || []);
+  const { t } = useTranslation('mongolian');
 
   const contextValue = useMemo(() => {
     return {
       pos: pos || _pos,
       loading: false,
       posIds: posIds || [],
-      placeholder: isUndefinedOrNull(placeholder) ? 'Select pos' : placeholder,
+      placeholder: isUndefinedOrNull(placeholder) ? t('select-pos') : placeholder,
       updatePos: updatePos || _setPos,
     };
-  }, [pos, _pos, posIds, placeholder, updatePos]);
+  }, [pos, _pos, posIds, placeholder, updatePos, t]);
 
   return (
     <PosInlineContext.Provider value={contextValue}>
@@ -71,6 +73,7 @@ const PosInlineEffectComponent = ({ posId }: { posId: string }) => {
 
 const PosInlineTitle = () => {
   const { pos, loading, placeholder } = usePosInlineContext();
+  const { t } = useTranslation('mongolian');
 
   if (loading) {
     return <Skeleton className="w-full flex-1 h-4" />;
@@ -88,7 +91,7 @@ const PosInlineTitle = () => {
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <span>{`${pos.length} pos`}</span>
+          <span>{`${pos.length} ${t('pos')}`}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>{pos.map((p) => p.name).join(', ')}</Tooltip.Content>
       </Tooltip>

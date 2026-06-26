@@ -5,9 +5,11 @@ import {
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
 
 const SafeRemainderFilterPopover = () => {
+  const { t } = useTranslation('accounting');
   const queryParams = useSafeRemainderQueryParams();
   const hasFilters = Object.values(queryParams || {}).some(
     (value) => value !== null && value !== undefined && value !== '',
@@ -21,18 +23,18 @@ const SafeRemainderFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <Filter.Item value="date" inDialog>
                   <IconCalendar />
-                  Date
+                  {t('date')}
                 </Filter.Item>
                 <SelectBranches.FilterItem value="branchId" label="Салбар" />
                 <SelectDepartments.FilterItem
@@ -41,7 +43,7 @@ const SafeRemainderFilterPopover = () => {
                 />
                 <Filter.Item value="statuses" disabled={true}>
                   <IconToggleRightFilled />
-                  Statuses
+                  {t('statuses')}
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />
@@ -55,11 +57,11 @@ const SafeRemainderFilterPopover = () => {
                 />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
-                  Updated
+                  {t('updated-date')}
                 </Filter.Item>
                 <Filter.Item value="createdDate" inDialog>
                   <IconCalendar />
-                  Created
+                  {t('created-date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -106,6 +108,7 @@ export const SafeRemainderFilter = ({
 }: {
   afterBar?: React.ReactNode;
 }) => {
+  const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<{
     number: string;
     searchValue: string;
@@ -120,7 +123,7 @@ export const SafeRemainderFilter = ({
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -129,7 +132,7 @@ export const SafeRemainderFilter = ({
         <Filter.BarItem queryKey="date">
           <Filter.BarName>
             <IconCalendar />
-            Date
+            {t('date')}
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
@@ -157,14 +160,14 @@ export const SafeRemainderFilter = ({
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendar />
-            Created date
+            {t('created-date')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDate" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updatedDate">
           <Filter.BarName>
             <IconCalendar />
-            Updated date
+            {t('updated-date')}
           </Filter.BarName>
           <Filter.Date filterKey="updatedDate" />
         </Filter.BarItem>

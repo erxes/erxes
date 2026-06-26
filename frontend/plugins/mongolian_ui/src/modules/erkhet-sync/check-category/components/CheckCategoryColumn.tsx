@@ -5,6 +5,7 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { CheckCategoryMoreColumn } from './CheckCategoryMoreColumn';
 import { CategoryItem } from '../types/categoryItem';
@@ -15,7 +16,10 @@ export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" icon={IconCode} />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('code')} icon={IconCode} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -27,7 +31,10 @@ export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Name" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconHash} label={t('name')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -39,16 +46,18 @@ export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
   {
     id: 'status',
     accessorKey: 'isSynced',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconCircleCheck} />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />;
+    },
     cell: ({ row }) => {
+      const { t } = useTranslation('mongolian');
       const isSynced = row.original.isSynced;
 
       return (
         <RecordTableInlineCell>
           {isSynced ? (
-            <span className="text-green-600 font-medium">Synced</span>
+            <span className="text-green-600 font-medium">{t('synced')}</span>
           ) : (
             <span className="text-gray-400"></span>
           )}

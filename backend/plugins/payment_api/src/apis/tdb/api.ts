@@ -89,12 +89,19 @@ export const tdbCallbackHandler = async (
     throw new Error(`Transaction not found for TDB order ID: ${ID}`);
   }
 
+  // Early exit: already paid → no need to call TDB again
+  if (transaction.status === PAYMENT_STATUS.PAID) {
+    return transaction;
+  }
+
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
   if (payment.kind !== 'tdb') {
     throw new Error('Payment method kind is not tdb');
   }
 
   const api = new TDBAPI(payment.config, process.env.DOMAIN || '');
+  
+  // checkInvoice uses caching – will avoid GET if recent data exists
   const orderDetail = await api.checkInvoice(transaction);
 
   if (!orderDetail) {
@@ -121,6 +128,7 @@ export const tdbCallbackHandler = async (
     transaction.details = {
       ...transaction.details,
       tdbOrderDetail: orderDetail,
+      tdbLastChecked: new Date(),
     };
     await transaction.save();
 
@@ -199,12 +207,14 @@ export class TDBAPI extends BaseAPI {
   private username: string;
   private password: string;
   private domain: string;
+  private cacheTTL: number; // in seconds
 
   constructor(config: ITDBConfig, domain: string = '') {
     super({ apiUrl: config.apiUrl || PAYMENTS.tdb?.apiUrl || 'https://acsmc.tdbmlabs.mn:8000' });
     this.username = config.username;
     this.password = config.password;
     this.domain = domain;
+    this.cacheTTL = 300; // 5 minutes – adjust as needed
   }
 
   async createInvoice(transaction: ITransactionDocument): Promise<ITDBCreateOrderResponse> {
@@ -240,59 +250,86 @@ export class TDBAPI extends BaseAPI {
       throw new Error('Invalid TDB create order response: missing id, password, or hppUrl');
     }
 
-    // IMPORTANT: Do NOT call transaction.save() here.
-    // The caller (ErxesPayment or the GraphQL resolver) will save the response.
-    // Just return the JSON response.
+    // Return the response – caller will save the transaction
     return json as ITDBCreateOrderResponse;
   }
 
+  /**
+   * Fetches order detail with caching.
+   * Returns cached data if it is recent (< cacheTTL) and the status is terminal.
+   * Otherwise makes a fresh GET request.
+   */
+  async checkInvoice(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
+    const details = transaction.details || {};
+    const cached = details.tdbOrderDetail;
+    const lastChecked = details.tdbLastChecked;
+
+    // Terminal statuses that don't need further updates
+    const terminalStatuses = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID', 'CANCELLED', 'REFUNDED'];
+
+    if (cached && lastChecked) {
+      const elapsed = (Date.now() - new Date(lastChecked).getTime()) / 1000;
+      const status = cached.status?.toUpperCase() || '';
+      if (elapsed < this.cacheTTL && terminalStatuses.includes(status)) {
+        // Cache is fresh and status is terminal – reuse it
+        return cached;
+      }
+    }
+
+    // No valid cache – fetch fresh
+    const orderDetail = await this.fetchOrderDetail(transaction);
+    if (orderDetail && typeof transaction.save === 'function') {
+      transaction.details = {
+        ...details,
+        tdbOrderDetail: orderDetail,
+        tdbLastChecked: new Date(),
+      };
+      await transaction.save();
+    }
+    return orderDetail;
+  }
+
+  /**
+   * Performs the actual GET request to TDB.
+   * Returns null if credentials are missing or the API returns an error.
+   */
   private async fetchOrderDetail(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
-    // The credentials should be found in transaction.response (saved by the caller)
     const tdbResponse = transaction.response as any;
     let orderId = tdbResponse?.order?.id;
     let password = tdbResponse?.order?.password;
 
-    // Fallback to details (if caller stored them differently)
     if (!orderId && transaction.details?.tdbOrderId) {
       orderId = transaction.details.tdbOrderId;
       password = transaction.details.tdbPassword;
     }
 
     if (!orderId || !password) {
-      throw new Error('Missing TDB order ID or password in transaction response or details');
-    }
-
-    const response = await this.request({
-      method: 'GET',
-      path: `order/${orderId}?password=${encodeURIComponent(password)}`,
-    });
-
-    const json = await response.json();
-    if (json.errorCode) {
-      console.error(`TDB getOrderDetail error: ${json.errorCode} - ${json.errorDescription}`);
+      console.warn(`Missing TDB order ID or password for transaction ${transaction._id}`);
       return null;
     }
-    return (json as ITDBGetOrderDetailResponse).order || null;
-  }
 
-  async checkInvoice(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
-    const orderDetail = await this.fetchOrderDetail(transaction);
-    if (!orderDetail) return null;
+    try {
+      const response = await this.request({
+        method: 'GET',
+        path: `order/${orderId}?password=${encodeURIComponent(password)}`,
+      });
 
-    // Store the fetched detail in details (optional, for audit)
-    // Note: transaction may be a plain object in some calls; we need to check if it has a 'save' method.
-    if (typeof transaction.save === 'function') {
-      transaction.details = {
-        ...transaction.details,
-        tdbOrderDetail: orderDetail,
-        tdbLastChecked: new Date(),
-      };
-      await transaction.save();
+      const json = await response.json();
+      if (json.errorCode) {
+        console.error(`TDB getOrderDetail error: ${json.errorCode} - ${json.errorDescription}`);
+        return null;
+      }
+      return (json as ITDBGetOrderDetailResponse).order || null;
+    } catch (err) {
+      console.error(`Failed to fetch order detail for ${orderId}:`, err);
+      return null;
     }
-
-    return orderDetail;
   }
 
+  /**
+   * Alias for checkInvoice – used by external polling jobs.
+   * Caching is already applied inside checkInvoice.
+   */
   async manualCheck(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
     return this.checkInvoice(transaction);
   }

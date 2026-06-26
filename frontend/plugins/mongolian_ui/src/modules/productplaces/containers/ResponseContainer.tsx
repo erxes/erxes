@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Response as ResponseComponent } from '../components/Response';
 import { PerResponse } from '../components/PerResponse';
 import { subscriptions } from '../graphql';
+import { useTranslation } from 'react-i18next';
 
 interface ContentData {
   date: string;
@@ -46,6 +47,7 @@ const withCurrentUser = (Component: React.ComponentType<Props>) => {
 };
 
 const ReturnResponseBody = ({ currentUser }: Props) => {
+  const { t } = useTranslation('mongolian');
   const { data: response, loading } = useSubscription<SubscriptionResponse>(
     gql(subscriptions.productPlacesSubscription),
     {
@@ -71,7 +73,7 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
 
   const myWindow = window.open('', '_blank', 'width=800,height=800');
   if (!myWindow) {
-    alert('Please allow Pop-ups and redirects in site settings!');
+    alert(t('please-allow-popups'));
     return;
   }
 
@@ -84,7 +86,7 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
   myWindow.document.close();
   }, [response]);
 
-  return loading ? <div>Loading...</div> : <></>;
+  return loading ? <div>{t('loading')}</div> : <></>;
 };
 
 export default withCurrentUser(ReturnResponseBody);

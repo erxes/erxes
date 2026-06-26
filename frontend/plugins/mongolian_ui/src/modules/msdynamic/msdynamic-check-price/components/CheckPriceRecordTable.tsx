@@ -1,11 +1,13 @@
 import { IconCurrencyDollar } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { MS_DYNAMIC_SESSION_KEYS } from '../../constants/msDynamicSessionKey';
 import { checkPriceColumns } from './CheckPriceColumns';
 import { CheckPriceCommandBar } from './CheckPriceCommandBar';
 import { useCheckPrice } from '../hooks/useCheckPrice';
 
 export const CheckPriceRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { filteredItems, checking, checkPrice, pageInfo } = useCheckPrice();
 
   return (
@@ -38,9 +40,9 @@ export const CheckPriceRecordTable = () => {
                   size={64}
                   className="text-muted-foreground mx-auto mb-4"
                 />
-                <h3 className="text-xl font-semibold mb-2">No prices yet</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('no-prices-yet')}</h3>
                 <p className="text-muted-foreground max-w-md">
-                  Select a brand and check prices to get started.
+                  {t('select-brand-check-prices')}
                 </p>
               </div>
             </div>

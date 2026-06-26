@@ -1,14 +1,16 @@
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import PaymentForm from './PaymentForm';
 
 export const PaymentAddSheet = () => {
+  const { t } = useTranslation('payment');
   const [open, setOpen] = useState<boolean>(false);
 
   return (
     <Sheet onOpenChange={setOpen} open={open}>
       <Sheet.Trigger asChild>
-        <Button variant="outline">Add Payment</Button>
+        <Button variant="outline">{t('add-payment')}</Button>
       </Sheet.Trigger>
       <Sheet.View
         className="p-0"

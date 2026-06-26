@@ -1,4 +1,10 @@
 export const types = `
+  input TicketPropertyValueFilter {
+    propertyId: String
+    type: String
+    values: [String]
+  }
+
   input TicketReportFilter {
     date: String
     fromDate: String
@@ -20,6 +26,7 @@ export const types = `
     frequency: String
     branchIds: [String]
     propertyIds: [String]
+    propertyValueFilters: [TicketPropertyValueFilter!]
   }
 
   type ReportTicketMetric {

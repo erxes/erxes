@@ -17,8 +17,10 @@ import {
   generateContractPDF,
   downloadContractHTML,
 } from '~/utils/contractPdfGenerator';
+import { useTranslation } from 'react-i18next';
 
 export const ContractDetailPage = () => {
+  const { t } = useTranslation('insurance');
   const { id } = useParams<{ id: string }>();
   const { contract, loading } = useContract(id!);
 
@@ -79,7 +81,7 @@ export const ContractDetailPage = () => {
   if (!contract) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p>Contract not found</p>
+        <p>{t('contract-not-found')}</p>
       </div>
     );
   }
@@ -87,13 +89,13 @@ export const ContractDetailPage = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+        return <Badge className="bg-green-100 text-green-800">{t('active')}</Badge>;
       case 'expired':
-        return <Badge className="bg-red-100 text-red-800">Expired</Badge>;
+        return <Badge className="bg-red-100 text-red-800">{t('expired')}</Badge>;
       case 'cancelled':
-        return <Badge className="bg-gray-100 text-gray-800">Cancelled</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800">{t('cancelled-label')}</Badge>;
       default:
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800">{t('pending-label')}</Badge>;
     }
   };
 
@@ -107,14 +109,14 @@ export const ContractDetailPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/products">
                     <IconFileText />
-                    Insurance
+                    {t('insurance')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/insurance/contracts">Contracts</Link>
+                  <Link to="/insurance/contracts">{t('contracts')}</Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
@@ -130,16 +132,16 @@ export const ContractDetailPage = () => {
           <Button variant="outline" asChild>
             <Link to={`/insurance/contracts/${id}/pdf`}>
               <IconEdit size={16} />
-              Edit PDF
+              {t('edit-pdf')}
             </Link>
           </Button>
           <Button onClick={handlePrintPDF} variant="outline">
             <IconPrinter size={16} />
-            Print PDF
+            {t('print-pdf')}
           </Button>
           <Button onClick={handleDownloadHTML}>
             <IconDownload size={16} />
-            Download HTML
+            {t('download-html')}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -169,7 +171,7 @@ export const ContractDetailPage = () => {
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <IconUser className="text-blue-600" size={20} />
                   </div>
-                  <h3 className="font-semibold">Customer</h3>
+                  <h3 className="font-semibold">{t('customer')}</h3>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">
@@ -189,7 +191,7 @@ export const ContractDetailPage = () => {
                   <div className="p-2 bg-green-100 rounded-lg">
                     <IconBuilding className="text-green-600" size={20} />
                   </div>
-                  <h3 className="font-semibold">Insurance Company</h3>
+                  <h3 className="font-semibold">{t('insurance-company')}</h3>
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium">{contract.vendor?.name}</p>
@@ -203,7 +205,7 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <IconPackage className="text-purple-600" size={20} />
                 </div>
-                <h3 className="font-semibold">Product</h3>
+                <h3 className="font-semibold">{t('product')}</h3>
               </div>
               <p className="font-medium">{contract.insuranceProduct?.name}</p>
             </Card>
@@ -214,17 +216,17 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-orange-100 rounded-lg">
                   <IconCalendar className="text-orange-600" size={20} />
                 </div>
-                <h3 className="font-semibold">Insurance Period</h3>
+                <h3 className="font-semibold">{t('insurance-period')}</h3>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Start Date</p>
+                  <p className="text-sm text-muted-foreground">{t('start-date')}</p>
                   <p className="font-medium">
                     {new Date(contract.startDate).toLocaleDateString('mn-MN')}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">End Date</p>
+                  <p className="text-sm text-muted-foreground">{t('end-date')}</p>
                   <p className="font-medium">
                     {new Date(contract.endDate).toLocaleDateString('mn-MN')}
                   </p>
@@ -238,23 +240,23 @@ export const ContractDetailPage = () => {
                 <div className="p-2 bg-cyan-100 rounded-lg">
                   <IconCurrencyTugrik className="text-cyan-600" size={20} />
                 </div>
-                <h3 className="font-semibold">Payment Information</h3>
+                <h3 className="font-semibold">{t('payment-information')}</h3>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Premium:</span>
+                  <span className="text-muted-foreground">{t('premium')}:</span>
                   <span className="font-medium">
                     {contract.chargedAmount?.toLocaleString()} ₮
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Payment Method:</span>
+                  <span className="text-muted-foreground">{t('payment-method')}:</span>
                   <span className="font-medium">
-                    {contract.paymentKind === 'cash' ? 'Cash' : 'QPay'}
+                    {contract.paymentKind === 'cash' ? t('cash') : t('qpay')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Status:</span>
+                  <span className="text-muted-foreground">{t('status')}:</span>
                   {getStatusBadge(contract.paymentStatus)}
                 </div>
               </div>
@@ -263,7 +265,7 @@ export const ContractDetailPage = () => {
             {/* Insured Object */}
             {contract.insuredObject && (
               <Card className="p-6">
-                <h3 className="font-semibold mb-4">Insured Object</h3>
+                <h3 className="font-semibold mb-4">{t('insured-object')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {Object.entries(contract.insuredObject).map(
                     ([key, value]) => (
@@ -274,8 +276,8 @@ export const ContractDetailPage = () => {
                         <p className="font-medium">
                           {typeof value === 'boolean'
                             ? value
-                              ? 'Yes'
-                              : 'No'
+                              ? t('yes')
+                              : t('no')
                             : String(value)}
                         </p>
                       </div>

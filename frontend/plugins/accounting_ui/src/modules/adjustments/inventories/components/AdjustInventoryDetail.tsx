@@ -24,6 +24,7 @@ import {
   Tooltip,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAdjustInventoryRemove } from '~/modules/adjustments/inventories/hooks/useAdjustInventoryRemove';
 import { useAdjustInventoryCancel } from '../hooks/useAdjustInventoryCancel';
 import { useAdjustInventoryDetail } from '../hooks/useAdjustInventoryDetail';
@@ -34,6 +35,7 @@ import { ADJ_INV_STATUSES, IAdjustInventory } from '../types/AdjustInventory';
 import { adjustDetailTableColumns } from './AdjustInventoryDetailColumns';
 
 export const AdjustInventoryDetail = () => {
+  const { t } = useTranslation('accounting');
   // const parentId = useParams().parentId;
   const [id] = useQueryState<string>('id');
 
@@ -96,7 +98,7 @@ export const AdjustInventoryDetail = () => {
           <>
             <Button onClick={handleRun}>
               <IconCrane />
-              RUN
+              {t('run')}
             </Button>
             <Button
               variant="secondary"
@@ -104,7 +106,7 @@ export const AdjustInventoryDetail = () => {
               onClick={handleDelete}
             >
               <IconTrashX />
-              Delete
+              {t('delete')}
             </Button>
           </>
         );
@@ -116,14 +118,14 @@ export const AdjustInventoryDetail = () => {
             onClick={handleCancel}
           >
             <IconTrashX />
-            Draft
+            {t('draft')}
           </Button>
         );
       case ADJ_INV_STATUSES.COMPLETE:
         return (
           <Button onClick={handlePublish}>
             <IconGavel />
-            PUBLISH
+            {t('publish')}
           </Button>
         );
       case ADJ_INV_STATUSES.RUNNING:
@@ -133,7 +135,7 @@ export const AdjustInventoryDetail = () => {
             onClick={handleRun}
           >
             <IconStopwatch />
-            Stop
+            {t('stop')}
           </Button>
         );
 
@@ -145,13 +147,13 @@ export const AdjustInventoryDetail = () => {
   return (
     <>
       <div className="m-3 flex-auto">
-        <h3 className="text-lg font-bold">Inventory Adjustment Detail</h3>
+        <h3 className="text-lg font-bold">{t('inventory-adjustment-detail')}</h3>
         <div>
           {adjustInventory && <StatusBar adjustInventory={adjustInventory} />}
         </div>
         <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-accent-foreground">Status:</span>
+            <span className="text-accent-foreground">{t('status')}:</span>
             <span className="text-primary font-bold">
               {adjustInventory?.status}
             </span>

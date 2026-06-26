@@ -1,4 +1,5 @@
 import { Button, Card, Input, Label, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectPipeline } from '../selects/SelectPipeline';
 import { SelectSalesBoard } from '../selects/SelectSalesBoard';
 import { SelectStage } from '../selects/SelectStage';
@@ -30,6 +31,7 @@ const emptyForm: PrintConfigData = {
 };
 
 const PrintConfig: React.FC = () => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const {
@@ -56,22 +58,22 @@ const PrintConfig: React.FC = () => {
 
   const onSave = () =>
     handleSave(
-      () => toast({ title: 'Success', description: 'Configuration saved successfully' }),
+      () => toast({ title: t('success'), description: t('configuration-saved') }),
       (e) =>
         toast({
-          title: 'Error',
-          description: e?.message || 'Failed to save configuration',
+          title: t('error'),
+          description: e?.message || t('failed-to-save-configuration'),
           variant: 'destructive',
         }),
     );
 
   const onDelete = () =>
     handleDelete(
-      () => toast({ title: 'Success', description: 'Configuration deleted successfully' }),
+      () => toast({ title: t('success'), description: t('configuration-deleted') }),
       (e) =>
         toast({
-          title: 'Error',
-          description: e?.message || 'Failed to delete configuration',
+          title: t('error'),
+          description: e?.message || t('failed-to-delete-configuration'),
           variant: 'destructive',
         }),
     );
@@ -80,7 +82,7 @@ const PrintConfig: React.FC = () => {
     <div className="w-full h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-6xl px-6 py-8 space-y-8">
         <ConfigHeader
-          title="Print Configuration"
+          title={t('print-configuration')}
           onNew={reset}
           disabled={loading}
         />
@@ -95,10 +97,10 @@ const PrintConfig: React.FC = () => {
           <Card.Content className="space-y-6 pt-4">
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                Title
+                {t('title')}
               </Label>
               <Input
-                placeholder="Enter configuration title"
+                placeholder={t('enter-configuration-title')}
                 value={formData.title}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, title: e.target.value }))
@@ -109,7 +111,7 @@ const PrintConfig: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  Board
+                  {t('board')}
                 </Label>
                 <SelectSalesBoard
                   variant="form"
@@ -120,7 +122,7 @@ const PrintConfig: React.FC = () => {
 
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  Pipeline
+                  {t('pipeline')}
                 </Label>
                 <SelectPipeline
                   variant="form"
@@ -133,7 +135,7 @@ const PrintConfig: React.FC = () => {
 
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  Stage
+                  {t('stage')}
                 </Label>
                 <SelectStage
                   id="print-stage"
@@ -153,9 +155,9 @@ const PrintConfig: React.FC = () => {
         <Card>
           <Card.Header>
             <div className="flex items-center justify-between">
-              <Card.Title>Conditions ({formData.conditions.length})</Card.Title>
+              <Card.Title>{t('conditions', { count: formData.conditions.length })}</Card.Title>
               <Button onClick={addCondition} variant="outline" className="text-xs">
-                + Add Condition
+                + {t('add-condition')}
               </Button>
             </div>
           </Card.Header>
@@ -164,7 +166,7 @@ const PrintConfig: React.FC = () => {
             {formData.conditions.length === 0 ? (
               <div className="flex items-center justify-center py-8 text-muted-foreground">
                 <p className="text-sm">
-                  No conditions added yet. Click "Add Condition" to get started.
+                  {t('no-conditions-yet')}
                 </p>
               </div>
             ) : (
