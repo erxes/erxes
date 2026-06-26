@@ -23,6 +23,7 @@ export const FXA_INSTANCES_QUERY = gql`
       _id
       fixedAssetId
       code
+      sequence
       branchId
       departmentId
       responsibleUserId

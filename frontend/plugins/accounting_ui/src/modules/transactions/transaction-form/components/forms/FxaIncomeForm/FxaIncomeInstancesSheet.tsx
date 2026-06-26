@@ -21,6 +21,7 @@ type TFixedAsset = {
 type TExistingInstance = {
   fixedAssetId: string;
   code: string;
+  sequence?: number;
 };
 
 type TFxaIncomeInstance = {
@@ -28,6 +29,7 @@ type TFxaIncomeInstance = {
   transactionDetailId?: string;
   fixedAssetId: string;
   code: string;
+  sequence?: number;
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
@@ -95,7 +97,9 @@ export const FxaIncomeInstancesSync = ({
         instance.fixedAssetId,
         Math.max(
           nextSequenceByAsset.get(instance.fixedAssetId) || 0,
+          instance.sequence || 0,
           getCodeSequence(instance.code || '', assetCode),
+          getCodeSequence(instance.code || '', instance.fixedAssetId),
         ),
       );
     }
@@ -109,17 +113,25 @@ export const FxaIncomeInstancesSync = ({
               instance.fixedAssetId === detail.fixedAssetId &&
               instance.tempId?.endsWith(`-${index}`),
           );
-          const assetCode =
-            fixedAssetsById.get(detail.fixedAssetId)?.code ||
-            detail.fixedAssetId;
+          const assetCode = fixedAssetsById.get(detail.fixedAssetId)?.code;
+
+          if (!assetCode) {
+            return [];
+          }
+
           const sequence = nextSequenceByAsset.get(detail.fixedAssetId) || 0;
+          const instanceSequence = existing?.sequence || sequence + 1;
           const code =
             existing?.code ||
-            `${assetCode}_${String(sequence + 1).padStart(3, '0')}`;
+            `${assetCode}_${String(instanceSequence).padStart(3, '0')}`;
 
           nextSequenceByAsset.set(
             detail.fixedAssetId,
-            Math.max(sequence, getCodeSequence(code, assetCode)),
+            Math.max(
+              sequence,
+              instanceSequence,
+              getCodeSequence(code, assetCode),
+            ),
           );
 
           return {
@@ -128,6 +140,7 @@ export const FxaIncomeInstancesSync = ({
             transactionDetailId: detail._id,
             fixedAssetId: detail.fixedAssetId,
             code,
+            sequence: instanceSequence,
             branchId: existing?.branchId || detail.branchId || trDoc.branchId,
             departmentId:
               existing?.departmentId ||
@@ -142,7 +155,6 @@ export const FxaIncomeInstancesSync = ({
     );
 
     form.setValue(`trDocs.${journalIndex}.extraData.fxaInstances`, next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     fixedAssetsData,
     form,
@@ -217,6 +229,7 @@ export const FxaIncomeDetailInstancesSheet = ({
           <Table>
             <Table.Header>
               <Table.Row>
+                <Table.Head>Үндсэн хөрөнгийн дугаар</Table.Head>
                 <Table.Head>Код</Table.Head>
                 <Table.Head>Эд хариуцагч</Table.Head>
                 <Table.Head>Өртөг</Table.Head>
@@ -229,6 +242,13 @@ export const FxaIncomeDetailInstancesSheet = ({
 
                 return (
                   <Table.Row key={instance.tempId || instanceIndex}>
+                    <Table.Cell>
+                      {fixedAsset?.code && instance.sequence
+                        ? `${fixedAsset.code}_${String(
+                            instance.sequence,
+                          ).padStart(3, '0')}`
+                        : '-'}
+                    </Table.Cell>
                     <Table.Cell>
                       <Form.Field
                         control={form.control}

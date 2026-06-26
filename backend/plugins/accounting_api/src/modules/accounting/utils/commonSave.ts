@@ -8,6 +8,7 @@ import { createOrUpdateTr, syncProductsInventory } from './utils';
 import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
+import { commonRemove } from './commonRemove';
 import {
   syncFxaDisposalInstances,
   syncFxaIncomeInstances,
@@ -81,6 +82,25 @@ function getJournalHandler(journal: string) {
 
   return handlers[journal];
 }
+
+const isNonEmptyString = (value?: string): value is string => !!value;
+
+const getRemovedFxaDetailIds = (
+  oldTr: ITransactionDocument,
+  doc: ITransaction,
+) => {
+  const newDetailIds = new Set(
+    (doc.details || []).map((detail) => detail._id).filter(isNonEmptyString),
+  );
+
+  return (oldTr.details || [])
+    .filter(
+      (detail) =>
+        detail.fixedAssetId && detail._id && !newDetailIds.has(detail._id),
+    )
+    .map((detail) => detail._id)
+    .filter(isNonEmptyString);
+};
 
 async function handleMain(
   _subdomain: string,
@@ -188,8 +208,9 @@ async function handleInvMove(
     { ...doc, side: TR_SIDES.CREDIT },
     oldTr,
   );
-  const { invMoveInTr, oldFollowInTr } =
-    await invMoveInTrsClass.doTrs(transaction);
+  const { invMoveInTr, oldFollowInTr } = await invMoveInTrsClass.doTrs(
+    transaction,
+  );
 
   await syncProductsInventory(subdomain, transaction, oldTr, -1);
   await syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1);
@@ -262,7 +283,7 @@ async function handleInvSaleReturn(
 }
 
 async function handleFxaIncome(
-  _subdomain: string,
+  subdomain: string,
   models: IModels,
   userId: string,
   doc: ITransaction,
@@ -270,6 +291,17 @@ async function handleFxaIncome(
 ) {
   const taxTrsClass = new TaxTrs(models, userId, doc, 'dt', false);
   await taxTrsClass.checkTaxValidation();
+
+  if (oldTr) {
+    const removedDetailIds = getRemovedFxaDetailIds(oldTr, doc);
+
+    if (removedDetailIds.length) {
+      await commonRemove(subdomain, models, oldTr, undefined, {
+        detailIds: removedDetailIds,
+        validateOnly: true,
+      });
+    }
+  }
 
   const transaction = await createOrUpdateTr(
     models,

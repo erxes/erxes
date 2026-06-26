@@ -374,9 +374,7 @@ export const fxaMoveFollowInfosSchema =
 
 export const fxaFollowExtrasSchema = z.object({
   fixedAssetAccount: undefed(z.object({ ...accountSchema.shape })),
-  accumulatedDepreciationAccount: undefed(
-    z.object({ ...accountSchema.shape }),
-  ),
+  accumulatedDepreciationAccount: undefed(z.object({ ...accountSchema.shape })),
   depreciationExpenseAccount: undefed(z.object({ ...accountSchema.shape })),
   gainAccount: undefed(z.object({ ...accountSchema.shape })),
   lossAccount: undefed(z.object({ ...accountSchema.shape })),
@@ -392,6 +390,7 @@ export const fxaInstanceInputSchema = z.object({
   transactionDetailId: z.string(),
   fixedAssetId: z.string(),
   code: undefed(z.string()),
+  sequence: undefed(z.number()),
   branchId: undefed(z.string()),
   departmentId: undefed(z.string()),
   responsibleUserId: undefed(z.string()),

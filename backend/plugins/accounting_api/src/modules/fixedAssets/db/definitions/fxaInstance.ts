@@ -13,6 +13,8 @@ export const fxaInstanceSchema = new Schema({
   categoryId: { type: String, optional: true, label: 'Category', index: true },
   // Тухайн нэгж хөрөнгийн дотоод код
   code: { type: String, label: 'Code', index: true },
+  // Fixed asset master code-той хамт харуулах, засварлагдахгүй дарааллын дугаар
+  sequence: { type: Number, optional: true, label: 'Sequence', index: true },
   // Тухайн нэгж хөрөнгийн одоогийн төлөв
   status: {
     type: String,
@@ -126,5 +128,12 @@ export const fxaInstanceSchema = new Schema({
 });
 
 fxaInstanceSchema.index({ fixedAssetId: 1, status: 1 });
+fxaInstanceSchema.index(
+  { fixedAssetId: 1, sequence: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { sequence: { $exists: true } },
+  },
+);
 fxaInstanceSchema.index({ branchId: 1, departmentId: 1, status: 1 });
 fxaInstanceSchema.index({ transactionId: 1, transactionDetailId: 1 });

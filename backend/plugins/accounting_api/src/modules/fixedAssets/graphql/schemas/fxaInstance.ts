@@ -4,6 +4,7 @@ export const types = `
     fixedAssetId: String
     categoryId: String
     code: String
+    sequence: Int
     status: String
 
     originalCost: Float

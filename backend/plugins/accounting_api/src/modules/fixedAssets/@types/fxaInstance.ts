@@ -4,6 +4,7 @@ export interface IFxaInstance {
   fixedAssetId: string;
   categoryId?: string;
   code: string;
+  sequence?: number;
   status: string;
 
   originalCost: number;
