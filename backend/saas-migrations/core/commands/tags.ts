@@ -51,6 +51,29 @@ const command = async () => {
   Tags = db.collection('tags');
 
   try {
+    // Copy tags from CORE_MONGO_URL into the target org's database
+    const sourceTags = await coreDb.collection('tags').find({}).toArray();
+
+    if (sourceTags.length > 0) {
+      const insertOps = sourceTags.map((tag) => ({
+        updateOne: {
+          filter: { _id: tag._id },
+          update: { $setOnInsert: tag },
+          upsert: true,
+        },
+      }));
+      const insertResult = await Tags.bulkWrite(insertOps);
+      console.log(
+        `Inserted ${insertResult.upsertedCount} new tag(s) from CORE_MONGO_URL (${insertResult.matchedCount} already existed).`,
+      );
+    } else {
+      console.log('No tags found in CORE_MONGO_URL to insert.');
+    }
+  } catch (e) {
+    console.log(`Error occurred while inserting tags: ${e.message}`);
+  }
+
+  try {
     const allTags = await Tags.find({}).toArray();
 
     const parentIdSet = new Set<string>(
