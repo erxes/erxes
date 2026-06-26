@@ -48,17 +48,77 @@ const command = async () => {
   console.log(`Target: ${TARGET_SUBDOMAIN} → ${targetDbName}`);
 
   db = client.db(targetDbName) as Db;
-
   Tags = db.collection('tags');
 
   try {
-    await Tags.updateMany(
-      {},
-      {
-        $unset: { scopeBrandIds: '' },
-        $set: { isGroup: false, parentId: '', order: '' }, // flatten parentId: no nested parent tags allowed
-      },
+    const allTags = await Tags.find({}).toArray();
+
+    const parentIdSet = new Set<string>(
+      allTags
+        .map((t) => String(t.parentId))
+        .filter((id) => id && id !== ''),
     );
+
+
+    const nestedGroupIds = new Set<string>(
+      allTags
+        .filter((t) => parentIdSet.has(String(t._id)) && t.parentId && String(t.parentId) !== '')
+        .map((t) => String(t._id)),
+    );
+
+    if (nestedGroupIds.size > 0) {
+      console.log(
+        `Promoting ${nestedGroupIds.size} nested group(s) to root level: ${[...nestedGroupIds].join(', ')}`,
+      );
+    }
+
+    const tagMap = new Map<string, any>(allTags.map((t) => [String(t._id), t]));
+
+
+    function computeOrder(tagId: string, visited = new Set<string>()): string {
+      if (visited.has(tagId)) return '';
+      visited.add(tagId);
+
+      const tag = tagMap.get(tagId);
+      if (!tag) return '';
+
+      const effectiveParentId =
+        nestedGroupIds.has(tagId) ? '' : (tag.parentId ? String(tag.parentId) : '');
+
+      if (!effectiveParentId) {
+        return `${tag.name}/`;
+      }
+
+      const parentOrder = computeOrder(String(effectiveParentId), visited);
+      return `${parentOrder}${tag.name}/`;
+    }
+
+    const bulkOps: any[] = [];
+
+    for (const tag of allTags) {
+      const isGroup = parentIdSet.has(String(tag._id));
+      const effectiveParentId = nestedGroupIds.has(String(tag._id)) ? '' : (tag.parentId ? String(tag.parentId) : '');
+      const order = computeOrder(String(tag._id));
+
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: tag._id },
+          update: {
+            $set: {
+              isGroup,
+              parentId: effectiveParentId,
+              order,
+            },
+            $unset: { scopeBrandIds: '' },
+          },
+        },
+      });
+    }
+
+    if (bulkOps.length > 0) {
+      await Tags.bulkWrite(bulkOps);
+      console.log(`Updated ${bulkOps.length} tag(s).`);
+    }
   } catch (e) {
     console.log(`Error occurred: ${e.message}`);
   }
