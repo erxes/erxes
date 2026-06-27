@@ -28,8 +28,8 @@ import { CSS } from '@dnd-kit/utilities';
 import {
   ICustomFieldGroup,
   ICustomField,
-  FIELD_TYPES_OBJECT,
 } from '../types/customFieldTypes';
+import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 
 interface CustomFieldGroupItemProps {
   group: ICustomFieldGroup;
@@ -151,11 +151,11 @@ export function CustomFieldGroupItem({
   const { t } = useTranslation('content');
   const groupFields = group.fields || [];
 
+  // Keep a local order so drag-and-drop does not snap back while persisting.
   const [fields, setFields] = useState(groupFields);
-  const fieldsKey = groupFields.map((f) => f._id).join('|');
   useEffect(() => {
     setFields(group.fields || []);
-  }, [fieldsKey]);
+  }, [group.fields]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),

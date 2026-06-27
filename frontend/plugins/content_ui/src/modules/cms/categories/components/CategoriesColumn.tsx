@@ -17,7 +17,10 @@ import {
   IconFolder,
   IconCalendarPlus,
 } from '@tabler/icons-react';
-import { ICategory } from '@/cms/categories/types/CategoriesType';
+import {
+  CategoryTableRow,
+  ICategory,
+} from '@/cms/categories/types/CategoriesType';
 import { useEditCategory } from '@/cms/categories/hooks/useEditCategory';
 import { useIsTranslationMissing } from '@/cms/shared/hooks/useIsTranslationMissing';
 import { CmsTranslatableBadge } from '@/cms/shared/components/CmsTranslatableBadge';
@@ -39,9 +42,9 @@ function getDepthPrefix(depth: number): string {
  */
 export const useCategoriesColumns = (
   clientPortalId: string,
-  onEdit?: (category: any) => void,
+  onEdit?: (category: CategoryTableRow) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+): ColumnDef<CategoryTableRow>[] => {
   const { t } = useTranslation('content');
   const { editCategory } = useEditCategory();
   const { isMissing, isNonDefaultLanguage } = useIsTranslationMissing();
@@ -53,13 +56,13 @@ export const useCategoriesColumns = (
 
   return [
     categoryMoreColumn(clientPortalId, onEdit, undefined, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<CategoryTableRow>,
     {
       id: 'name',
       header: () => <RecordTable.InlineHead icon={IconUser} label={t('name')} />,
       accessorKey: 'name',
       cell: ({ cell }) => {
-        const original = cell.row.original as ICategory & { _depth?: number };
+        const original = cell.row.original;
         const translation = getTranslation(
           original.translations,
           selectedLanguage,
@@ -180,7 +183,7 @@ export const useCategoriesColumns = (
       header: () => <RecordTable.InlineHead icon={IconFolder} label={t('parent')} />,
       accessorKey: 'parentId',
       cell: ({ row }) => {
-        const getParentName = (parent: any): string => {
+        const getParentName = (parent?: ICategory): string => {
           if (!parent) return '';
           // If there's a parent with a name, return it
           if (parent.name) return parent.name;
@@ -211,4 +214,3 @@ export const useCategoriesColumns = (
     },
   ];
 };
-

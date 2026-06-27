@@ -1,12 +1,21 @@
 # content_ui Rules
 
+## Refactoring Standard
+
+- Structural cleanup and refactoring work MUST follow
+  `REFACTORING_STANDARD.md`.
+- `operation_ui` is a reference for feature-oriented structure and erxes
+  integration patterns, not a file-for-file template. Do not copy its legacy
+  `any`, default exports, unprefixed GraphQL operations, lint suppressions, or
+  Rules-of-Hooks violations.
+
 ## Architecture
 
 - This plugin is the Module Federation remote `content_ui`.
 - Dev server port is `3003` from `project.json`.
 - Public exposes are `./config` and `./content` in
   `module-federation.config.ts`.
-- `./content` points to `src/modules/cms/Main.tsx`; routes are mounted under
+- `./content` points to `src/modules/ContentMain.tsx`; routes are mounted under
   `/content`.
 - CMS routes live under `/content/cms`; Web Builder routes live under
   `/content/web-builder`.
@@ -51,7 +60,7 @@
 
 ## State and Routing
 
-- Add routes in `src/modules/cms/Main.tsx` using lazy imports and `Suspense`.
+- Add routes in `src/modules/ContentMain.tsx` using lazy imports and `Suspense`.
 - Preserve existing route params such as `websiteId`, `postId`, and `pageId`.
 - Use React Router links/navigation consistently with nearby pages.
 - Use Jotai only for state shared across sibling components or table/page state
@@ -63,7 +72,7 @@
 ## Good References
 
 - Route entry:
-  `src/modules/cms/Main.tsx`
+  `src/modules/ContentMain.tsx`
 
 - CMS shell:
   `src/modules/cms/shared/CmsLayout.tsx`
@@ -72,10 +81,10 @@
   `src/modules/cms/posts/components/PostsRecordTable.tsx`
 
 - Drawer-based CRUD page:
-  `src/modules/cms/categories/Categories.tsx`
+  `src/pages/cms/CategoriesPage.tsx`
 
 - Custom fields management:
-  `src/modules/cms/custom-fields/CustomFields.tsx`
+  `src/pages/cms/CustomFieldsPage.tsx`
 
 - Web Builder entry:
   `src/modules/web-builder/WebBuilderPage.tsx`

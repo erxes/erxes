@@ -2,13 +2,14 @@ import { Form, Editor } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { readImage } from 'erxes-ui/utils/core';
-import { UseFormReturn, FieldValues } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
+import type { PostFormData, PostFormPost } from '@/cms/posts/types';
 
 interface PostPreviewProps {
-  form: UseFormReturn<FieldValues>;
+  form: UseFormReturn<PostFormData>;
   selectedLanguage: string;
   defaultLanguage: string;
-  fullPost: { _id?: string } | null | undefined;
+  fullPost: PostFormPost | null | undefined;
   handleEditorChange: (value: string) => void;
 }
 

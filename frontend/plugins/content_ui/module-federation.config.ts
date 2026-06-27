@@ -16,8 +16,7 @@ const config: ModuleFederationConfig = {
   name: 'content_ui',
   exposes: {
     './config': './src/config.tsx',
-    './content': './src/modules/cms/Main.tsx',
-    // './contentFirstSettings': './src/modules/knowledgebase/Settings.tsx',
+    './content': './src/modules/ContentMain.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

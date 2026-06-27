@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@apollo/client';
-import { CMS_TRANSLATIONS } from '../../graphql/queries';
+import { CMS_TRANSLATIONS } from '@/cms/shared/graphql';
 
 interface CmsTranslationRecord {
   language: string;
@@ -50,10 +50,20 @@ export const useCmsTranslation = ({
   const [defaultLangData, setDefaultLangData] =
     useState<TranslationData | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const selectedLanguageRef = useRef(selectedLanguage);
+  const defaultLanguageRef = useRef(defaultLanguage);
 
   // Ref to the caller's setFormData so the hydration effect can push
   // late-arriving data into the form.
   const setFormDataRef = useRef<((data: TranslationData) => void) | null>(null);
+
+  useEffect(() => {
+    selectedLanguageRef.current = selectedLanguage;
+  }, [selectedLanguage]);
+
+  useEffect(() => {
+    defaultLanguageRef.current = defaultLanguage;
+  }, [defaultLanguage]);
 
   // Reset state when switching to a different object or starting a new session
   useEffect(() => {
@@ -62,11 +72,13 @@ export const useCmsTranslation = ({
     setIsHydrated(false);
     setFormDataRef.current = null;
     if (defaultLanguage) {
+      selectedLanguageRef.current = defaultLanguage;
       setSelectedLanguage(defaultLanguage);
     } else {
+      selectedLanguageRef.current = '';
       setSelectedLanguage('');
     }
-  }, [objectId, resetKey]);
+  }, [defaultLanguage, objectId, resetKey]);
 
   // Fetch existing translations
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
@@ -94,13 +106,16 @@ export const useCmsTranslation = ({
 
     // If the user switched language before the query returned, the form is
     // showing empty data.  Push the fetched translation into the form now.
+    const activeLanguage = selectedLanguageRef.current;
+    const activeDefaultLanguage = defaultLanguageRef.current;
+
     if (
-      selectedLanguage &&
-      selectedLanguage !== defaultLanguage &&
-      map[selectedLanguage] &&
+      activeLanguage &&
+      activeLanguage !== activeDefaultLanguage &&
+      map[activeLanguage] &&
       setFormDataRef.current
     ) {
-      setFormDataRef.current(map[selectedLanguage]);
+      setFormDataRef.current(map[activeLanguage]);
     }
   }, [translationsData]);
 

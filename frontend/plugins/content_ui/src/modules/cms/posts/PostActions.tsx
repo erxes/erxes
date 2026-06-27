@@ -3,10 +3,11 @@ import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { Posts } from './types/postsType';
 
 type PostActionsProps = {
-  post: any;
-  onDelete: () => void;
+  post: Posts;
+  onDelete: () => void | Promise<void>;
 };
 
 export function PostActions({ post, onDelete }: PostActionsProps) {
@@ -37,8 +38,8 @@ export function PostActions({ post, onDelete }: PostActionsProps) {
               value="remove"
               onSelect={() =>
                 confirm({ message: t('confirm-delete-this-post') })
-                  .then(onDelete)
-                  .catch(console.error)
+                  .then(() => onDelete())
+                  .catch(() => undefined)
               }
             >
               <IconTrash /> {t('delete')}

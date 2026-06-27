@@ -7,7 +7,7 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { PAGE_LIST } from '../graphql/queries/pagesListQueries';
+import { PAGE_LIST } from '@/cms/pages/graphql';
 import { PAGES_CURSOR_SESSION_KEY } from '../constants/pagesCursorSessionKey';
 import { IPage } from '../types/pageTypes';
 import { useSetAtom, useAtomValue } from 'jotai';

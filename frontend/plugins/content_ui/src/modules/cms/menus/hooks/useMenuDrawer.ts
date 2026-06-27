@@ -1,7 +1,7 @@
 import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
@@ -10,17 +10,19 @@ import {
   CMS_MENU_ADD,
   CMS_MENU_EDIT,
   CMS_MENU_LIST,
-  CONTENT_CMS_LIST,
-} from '../../graphql/queries';
-import { buildFlatTree, getDepthPrefix, RawMenuItem } from '../menuUtils';
-import {
+  MENU_CATEGORIES_QUERY,
+  MENU_CUSTOM_TYPES_QUERY,
+  MENU_DETECT_QUERY,
   MENU_PAGES_QUERY,
   MENU_POSTS_QUERY,
-  MENU_CUSTOM_TYPES_QUERY,
-  MENU_CATEGORIES_QUERY,
   MENU_TAGS_QUERY,
-  MENU_DETECT_QUERY,
-} from '../graphql/menuDrawerQueries';
+} from '@/cms/menus/graphql';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
+import {
+  buildFlatTree,
+  getDepthPrefix,
+  RawMenuItem,
+} from '@/cms/menus/utils/menuUtils';
 import {
   CmsConfig,
   GraphQLErrorEntry,
@@ -145,7 +147,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
       });
       setHasPermissionError(false);
     }
-  }, [isOpen, clientPortalId, menu]);
+  }, [clientPortalId, form, isOpen, menu]);
 
   const { data: menusData } = useQuery(CMS_MENU_LIST, {
     variables: { clientPortalId, limit: 100 },
@@ -226,7 +228,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     if (matchedPost) {
       form.setValue('linkType', matchedPost.customPostType?._id || 'post');
     }
-  }, [detectData, isEditing, menu?.url]);
+  }, [detectData, form, isEditing, menu?.url]);
 
   const customTypes: MenuCustomType[] = customTypesData?.cmsCustomPostTypes || [];
   const pages: MenuContentItem[] = pagesData?.cmsPageList?.pages || [];
@@ -313,22 +315,27 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
       }
     }
 
-    if (isEditing) {
-      editMenu({ variables: { _id: menu!._id, input } });
+    if (menu?._id) {
+      editMenu({ variables: { _id: menu._id, input } });
     } else {
       addMenu({ variables: { input } });
     }
   };
 
-  const onLanguageChange = (lang: string) => {
-    handleLanguageChange(
-      lang,
-      () => ({ title: form.getValues('label') || '' }),
-      (data) => { form.setValue('label', data.title || ''); },
-      menu ? { title: menu.label || '' } : undefined,
-    );
-    setCmsLanguage(lang);
-  };
+  const onLanguageChange = useCallback(
+    (lang: string) => {
+      handleLanguageChange(
+        lang,
+        () => ({ title: form.getValues('label') || '' }),
+        (data) => {
+          form.setValue('label', data.title || '');
+        },
+        menu ? { title: menu.label || '' } : undefined,
+      );
+      setCmsLanguage(lang);
+    },
+    [form, handleLanguageChange, menu, setCmsLanguage],
+  );
 
   const appliedInitialLangRef = useRef(false);
   useEffect(() => {
@@ -342,8 +349,13 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
 
     appliedInitialLangRef.current = true;
     onLanguageChange(cmsLanguage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, defaultLanguage, cmsLanguage, selectedLanguage]);
+  }, [
+    cmsLanguage,
+    defaultLanguage,
+    isOpen,
+    onLanguageChange,
+    selectedLanguage,
+  ]);
 
   return {
     form,

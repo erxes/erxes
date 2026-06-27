@@ -1,8 +1,11 @@
 import { Form, ScrollArea } from 'erxes-ui';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from 'jotai';
+import type {
+  PostFormPost,
+  PostFormReadyState,
+} from '@/cms/posts/types';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
 import { usePostSubmission } from './hooks/usePostSubmission';
@@ -12,15 +15,13 @@ import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 
 interface AddPostFormProps {
   websiteId: string;
-  editingPost?: any;
+  editingPost?: PostFormPost;
   onClose?: () => void;
-  onFormReady?: (formState: {
-    form: any;
-    onSubmit: (data?: any) => Promise<void>;
-    creating: boolean;
-    saving: boolean;
-    handleLanguageChange: (lang: string) => void;
-  }) => void;
+  onFormReady?: (formState: PostFormReadyState) => void;
+}
+
+interface PostLocationState {
+  post?: PostFormPost;
 }
 
 export const AddPostForm = ({
@@ -29,11 +30,12 @@ export const AddPostForm = ({
   onClose,
   onFormReady,
 }: AddPostFormProps) => {
-  const location = useLocation() as any;
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
-  const currentEditingPost = editingPost || (location?.state?.post as any);
+  const locationState = location.state as PostLocationState | null;
+  const currentEditingPost = editingPost || locationState?.post;
 
   const {
     form,
@@ -240,7 +242,9 @@ export const AddPostForm = ({
     if (currentEditingPost || !customTypes.length) return;
     const typeCode = searchParams.get('type');
     if (!typeCode || typeCode === 'post') return;
-    const matched = customTypes.find((t: any) => t.code === typeCode);
+    const matched = customTypes.find(
+      (customType) => customType.code === typeCode,
+    );
     if (matched) form.setValue('type', matched._id);
   }, [customTypes, currentEditingPost, form, searchParams]);
 
@@ -306,18 +310,13 @@ export const AddPostForm = ({
   // Keep ref in sync so the stable callback always delegates to latest logic
   handleLanguageChangeRef.current = handleLanguageChange;
 
-  // The child columns type `form` loosely as UseFormReturn<FieldValues>; our form
-  // is the more specific UseFormReturn<PostFormData>, which RHF treats as
-  // incompatible. They only read/write known fields, so the widening is safe.
-  const formForColumns = form as unknown as UseFormReturn<FieldValues>;
-
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
       <Form {...form}>
         <div className="flex flex-col w-full mb-4 px-4 pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <PostEditorColumn
-              form={formForColumns}
+              form={form}
               selectedLanguage={selectedLanguage}
               defaultLanguage={defaultLanguage}
               selectedType={selectedType}
@@ -329,7 +328,7 @@ export const AddPostForm = ({
               updateCustomFieldValue={updateCustomFieldValue}
             />
             <PostSidebarPanel
-              form={formForColumns}
+              form={form}
               categories={categories}
               tags={tags}
               customTypes={customTypes}

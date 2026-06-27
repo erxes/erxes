@@ -75,15 +75,12 @@ function FieldList({
   renderField: ReorderableCustomFieldsProps['renderField'];
   onReorderFields: (groupId: string, fields: FieldDefinition[]) => void;
 }>) {
-  const groupFields = group.fields || [];
-
   // Local order so a drop reflects immediately (no snap-back while the
   // persisted order round-trips); re-synced whenever the stored order changes.
-  const [fields, setFields] = useState(groupFields);
-  const fieldsKey = groupFields.map((f) => f._id).join('|');
+  const [fields, setFields] = useState(group.fields || []);
   useEffect(() => {
     setFields(group.fields || []);
-  }, [fieldsKey]);
+  }, [group.fields]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -159,10 +156,9 @@ export const ReorderableCustomFields = ({
   // Local order so a drop reflects immediately (no snap-back while the
   // persisted order round-trips); re-synced whenever the stored order changes.
   const [groups, setGroups] = useState(fieldGroups);
-  const groupsKey = fieldGroups.map((g) => g._id).join('|');
   useEffect(() => {
     setGroups(fieldGroups);
-  }, [groupsKey]);
+  }, [fieldGroups]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),

@@ -1,43 +1,13 @@
 import { Button, Form, Spinner, Switch } from 'erxes-ui';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import type { PostFormData } from '@/cms/posts/types';
 import { DateTimeInput } from './DateTimeInput';
-
-interface PostThumbnail {
-  url: string;
-  name?: string;
-  type?: string;
-}
-
-export interface PostFormData {
-  title: string;
-  slug: string;
-  description?: string;
-  content?: string;
-  type?: string;
-  status?: 'draft' | 'published' | 'scheduled' | 'archived';
-  categoryIds?: string[];
-  tagIds?: string[];
-  featured?: boolean;
-  seoTitle?: string;
-  seoDescription?: string;
-  thumbnail?: PostThumbnail | null;
-  gallery?: string[];
-  video?: string | null;
-  audio?: string | null;
-  documents?: string[];
-  attachments?: string[];
-  pdf?: string | null;
-  publishDate?: Date | null;
-  scheduledDate?: Date | null;
-  autoArchiveDate?: Date | null;
-  enableAutoArchive?: boolean;
-  customFieldsData?: { field: string; value: unknown }[];
-}
 
 interface AddPostHeaderActionsProps {
   form: UseFormReturn<PostFormData>;
-  onSubmit: (data?: PostFormData) => void | Promise<void>;
+  onSubmit: (data: PostFormData) => void | Promise<void>;
   creating: boolean;
   saving: boolean;
 }

@@ -1,15 +1,16 @@
 import { gql, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
+import type { MultiSelectOption } from 'erxes-ui';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
-import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
-import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
+import { CMS_CUSTOM_FIELD_GROUPS } from '@/cms/custom-fields/graphql';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
+import type { IWebsite } from '@/cms/websites/types';
 import type { FieldGroup } from '../CustomFieldsSection';
-import type { IWebsite } from '~/modules/cms/types';
 
 export type PostUrlField = '_id' | 'count' | 'slug';
 
 const COMBINED_CMS_DATA = gql`
-  query CombinedCmsData(
+  query cmsPostFormData(
     $clientPortalId: String!
     $limit: Int
     $language: String
@@ -47,10 +48,7 @@ interface IRawCategory {
   parentId?: string;
 }
 
-interface ICategoryOption {
-  label: string;
-  value: string;
-}
+type ICategoryOption = MultiSelectOption;
 
 interface IRawTag {
   _id: string;

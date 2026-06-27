@@ -16,7 +16,7 @@ import {
   CMS_TRANSLATIONS,
   CMS_ADD_TRANSLATION,
   CMS_EDIT_TRANSLATION,
-} from '../graphql/queries';
+} from '@/cms/shared/graphql';
 import { formatInitialContent } from './formHelpers';
 import { Block } from '@blocknote/core';
 

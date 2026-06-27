@@ -1,7 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
 import { IconX, IconPaperclip } from '@tabler/icons-react';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAutoUpload } from './hooks/useAutoUpload';
 
 interface AttachmentsUploaderProps {
   value?: string[];
@@ -13,30 +13,25 @@ export const AttachmentsUploader = ({
   onChange,
 }: AttachmentsUploaderProps) => {
   const { t } = useTranslation('content');
-  const urls = value || [];
+  const urls = value;
 
   const uploadProps = useErxesUpload({
     allowedMimeTypes: [],
     maxFiles: 10,
     maxFileSize: 20 * 1024 * 1024,
     onFilesAdded: (addedFiles) => {
-      const existing = urls || [];
-      const addedUrls = (addedFiles || [])
-        .map((file: any) => file.url)
-        .filter(Boolean);
-      const next = [...existing, ...addedUrls].slice(0, 10);
+      const addedUrls = addedFiles
+        .map((file) => file.url)
+        .filter((url): url is string => Boolean(url));
+      const next = [...urls, ...addedUrls].slice(0, 10);
       onChange(next);
     },
   });
 
-  useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload();
-    }
-  }, [uploadProps.files.length]);
+  useAutoUpload(uploadProps);
 
   const handleRemove = (url: string) => {
-    const next = (urls || []).filter((u) => u !== url);
+    const next = urls.filter((u) => u !== url);
     onChange(next);
   };
 

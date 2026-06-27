@@ -6,7 +6,7 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { ColumnDef } from '@tanstack/react-table';
+import { Cell, ColumnDef } from '@tanstack/react-table';
 import { customTypeMoreColumn } from './CustomTypesMoreColumn';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,86 +14,94 @@ import { IconLayout, IconCalendar, IconArticle } from '@tabler/icons-react';
 import { ICustomPostType } from '../types/customTypeTypes';
 import { useEditCustomType } from '../hooks/useEditCustomType';
 
-export const createCustomTypesColumns = (
-  websiteId: string,
-  onEdit?: (customType: any) => void,
-  onRefetch?: () => void,
-): ColumnDef<any>[] => {
-  const { t } = useTranslation('content');
+interface CustomTypeNameCellProps {
+  cell: Cell<ICustomPostType, unknown>;
+  websiteId: string;
+  onRefetch?: () => void;
+}
+
+const CustomTypeNameCell = ({
+  cell,
+  websiteId,
+  onRefetch,
+}: CustomTypeNameCellProps) => {
+  const original = cell.row.original;
+  const [editingValue, setEditingValue] = useState<string>();
   const { editType } = useEditCustomType(onRefetch);
+  const isOpen = editingValue !== undefined;
+  const currentValue = editingValue ?? String(cell.getValue() || '');
+
+  const onSave = async () => {
+    const trimmedValue = currentValue.trim();
+    if (!trimmedValue) {
+      setEditingValue(undefined);
+      return;
+    }
+
+    if (trimmedValue !== (original.label || '')) {
+      await editType({
+        variables: {
+          _id: original._id,
+          input: {
+            label: trimmedValue,
+            pluralLabel: original.pluralLabel,
+            code: original.code,
+            description: original.description,
+            clientPortalId: websiteId,
+          },
+        },
+      });
+    }
+    setEditingValue(undefined);
+  };
+
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (open) {
+          setEditingValue(String(cell.getValue() || ''));
+        } else {
+          void onSave();
+        }
+      }}
+    >
+      <RecordTableInlineCell.Trigger>
+        <span className="leading-normal">{String(cell.getValue() || '')}</span>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content>
+        <Input
+          value={currentValue}
+          onChange={(event) => setEditingValue(event.currentTarget.value)}
+        />
+      </RecordTableInlineCell.Content>
+    </Popover>
+  );
+};
+
+export const useCustomTypesColumns = (
+  websiteId: string,
+  onEdit?: (customType: ICustomPostType) => void,
+  onRefetch?: () => void,
+): ColumnDef<ICustomPostType>[] => {
+  const { t } = useTranslation('content');
 
   return [
     customTypeMoreColumn(onEdit, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<ICustomPostType>,
     {
       id: 'name',
       header: () => (
         <RecordTable.InlineHead icon={IconLayout} label={t('type-name')} />
       ),
       accessorKey: 'label',
-      cell: ({ cell }) => {
-        const original = cell.row.original as ICustomPostType;
-        const [editingCell, setEditingCell] = useState<{
-          rowId: string;
-          value: string;
-        } | null>(null);
-        const isOpen = editingCell?.rowId === original._id;
-        const currentValue =
-          editingCell?.rowId === original._id && editingCell
-            ? editingCell.value
-            : (cell.getValue() as string);
-
-        const onSave = async () => {
-          if (currentValue !== (original.label || '')) {
-            await editType({
-              variables: {
-                _id: original._id,
-                input: {
-                  label: currentValue,
-                  pluralLabel: original.pluralLabel,
-                  code: original.code,
-                  description: original.description,
-                  clientPortalId: websiteId,
-                },
-              },
-            });
-          }
-          setEditingCell(null);
-        };
-
-        return (
-          <Popover
-            open={isOpen}
-            onOpenChange={(v) => {
-              if (v) {
-                setEditingCell({
-                  rowId: original._id,
-                  value: cell.getValue() as string,
-                });
-              } else {
-                onSave();
-              }
-            }}
-          >
-            <RecordTableInlineCell.Trigger>
-              <span className="leading-normal">
-                {cell.getValue() as string}
-              </span>
-            </RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Content>
-              <Input
-                value={currentValue}
-                onChange={(e) =>
-                  setEditingCell({
-                    rowId: original._id,
-                    value: e.currentTarget.value,
-                  })
-                }
-              />
-            </RecordTableInlineCell.Content>
-          </Popover>
-        );
-      },
+      cell: ({ cell }) => (
+        <CustomTypeNameCell
+          cell={cell}
+          websiteId={websiteId}
+          onRefetch={onRefetch}
+        />
+      ),
     },
     {
       id: 'description',

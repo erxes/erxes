@@ -1,6 +1,5 @@
 import { OperationVariables, useMutation } from '@apollo/client';
-import { PAGES_REMOVE } from '../graphql/mutations/pagesMutations';
-import { PAGE_LIST } from '../graphql/queries/pagesListQueries';
+import { PAGE_LIST, PAGES_REMOVE } from '@/cms/pages/graphql';
 import { IPage } from '../types/pageTypes';
 
 interface PageListData {

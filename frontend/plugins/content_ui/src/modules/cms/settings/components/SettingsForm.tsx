@@ -22,7 +22,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LANGUAGES } from '../../../../constants';
+import { LANGUAGES } from '@/cms/shared/constants/languages';
 import {
   CmsSettingsData,
   ClientPortalOption,

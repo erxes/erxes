@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { PAGES_EDIT } from '../graphql/mutations/pagesMutations';
+import { PAGES_EDIT } from '@/cms/pages/graphql';
 
 export const useEditPage = () => {
   const [editPageMutation, { loading }] = useMutation(PAGES_EDIT);

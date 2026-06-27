@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import { cmsLanguageAtom } from '../states/cmsLanguageState';
-import { CONTENT_CMS_LIST } from '../../graphql/queries';
+import { CONTENT_CMS_LIST } from '@/cms/websites/graphql';
 
 export const useIsTranslationMissing = () => {
   const { websiteId } = useParams();

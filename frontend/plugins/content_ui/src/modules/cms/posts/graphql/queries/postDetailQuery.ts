@@ -1,15 +1,9 @@
 import { gql } from '@apollo/client';
 
 export const POST_DETAIL = gql`
-  query PostDetail($id: String!) {
+  query cmsPostDetail($id: String!) {
     cmsPost(_id: $id) {
       _id
-      clientPortalId
-      title
-      count
-      slug
-      content
-      status
       type
       customPostType {
         _id
@@ -17,9 +11,20 @@ export const POST_DETAIL = gql`
         label
         __typename
       }
+      clientPortalId
+      title
+      count
+      slug
+      content
+      excerpt
+      categoryIds
+      status
+      tagIds
+      authorId
       authorKind
       author {
         ... on User {
+          userId: _id
           username
           email
           details {
@@ -36,51 +41,90 @@ export const POST_DETAIL = gql`
         __typename
       }
       featured
-      status
-      tagIds
-      categoryIds
-      authorId
-      createdAt
-      updatedAt
+      featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
-      excerpt
+      reactions
+      reactionCounts
       thumbnail {
         url
+        type
         name
         __typename
       }
       images {
         url
         name
+        type
+        size
+        duration
         __typename
       }
       video {
         url
         name
+        type
+        size
+        duration
         __typename
       }
       audio {
         url
         name
+        type
+        size
+        duration
         __typename
       }
       documents {
         url
         name
+        type
+        size
+        duration
         __typename
       }
       attachments {
         url
         name
+        type
+        size
+        duration
         __typename
       }
       pdfAttachment {
         pdf {
           url
           name
+          type
+          size
+          duration
           __typename
         }
+        pages {
+          url
+          name
+          type
+          size
+          duration
+          __typename
+        }
+        __typename
+      }
+      videoUrl
+      createdAt
+      updatedAt
+      categories {
+        _id
+        name
+        slug
+        __typename
+      }
+      tags {
+        _id
+        name
+        slug
         __typename
       }
       customFieldsData

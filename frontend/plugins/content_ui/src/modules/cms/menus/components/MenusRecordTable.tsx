@@ -32,15 +32,15 @@ import { useAtomValue } from 'jotai';
 import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
 import { useMenus } from '../hooks/useMenus';
-import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
-import { buildFlatTree, getDepthPrefix } from '@/cms/menus/menuUtils';
+import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '@/cms/menus/graphql';
+import { buildFlatTree, getDepthPrefix } from '@/cms/menus/utils/menuUtils';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { MenuItem } from '../types/menuDrawerTypes';
 
 interface MenusRecordTableProps {
   clientPortalId: string;
   kind?: string;
-  onEdit: (menu: any) => void;
+  onEdit: (menu: MenuItem) => void;
 }
 
 const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
@@ -84,7 +84,7 @@ const StaticMenuRow = ({
   isOverlay = false,
 }: {
   menu: MenuItem;
-  columns: any[];
+  columns: ReturnType<typeof useMenusColumns>;
   isOverlay?: boolean;
 }) => {
   return (
@@ -126,7 +126,6 @@ const SortableMenuRow = React.memo(
     React.ComponentProps<typeof RecordTable.Row> & {
       activeId: string | null;
       activeParentId: string | null;
-      isDraggingAny: boolean;
     }
   >(
     (
@@ -136,7 +135,6 @@ const SortableMenuRow = React.memo(
         style,
         activeId,
         activeParentId,
-        isDraggingAny,
         ...props
       },
       ref,
@@ -228,7 +226,7 @@ export const MenusRecordTable = ({
   const isMountedRef = useRef(true);
 
   // Queue to serialize mutations per parent to prevent race conditions
-  const mutationQueueRef = useRef<Record<string, Promise<any>>>({});
+  const mutationQueueRef = useRef<Record<string, Promise<unknown>>>({});
   // Ref to avoid stale closure issues in async handlers
   const reorderingCountRef = useRef(reorderingCount);
 
@@ -383,19 +381,18 @@ export const MenusRecordTable = ({
 
       mutationQueueRef.current[pId] = nextMutation;
     },
-    [orderedMenus, language, editMenu, refetch, menus],
+    [orderedMenus, language, editMenu, refetch, menus, t],
   );
 
   const columns = useMenusColumns(onEdit, refetch);
 
   // Custom Row component for RecordTable to pass extra props
   const CustomRow = useCallback(
-    (props: any) => (
+    (props: React.ComponentProps<typeof RecordTable.Row>) => (
       <SortableMenuRow
         {...props}
         activeId={activeId}
         activeParentId={activeParentId}
-        isDraggingAny={!!activeId}
       />
     ),
     [activeId, activeParentId],

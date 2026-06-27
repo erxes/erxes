@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import type { AttachmentInput } from './types';
 
 /**
  * Represents the manual inline content of a block.
@@ -49,17 +50,6 @@ export type BlockProps =
   | ParagraphBlockProps
   | HeadingBlockProps
   | ImageBlockProps;
-
-/**
- * Represents an attachment input with metadata.
- */
-export interface AttachmentInput {
-  url: string;
-  name: string;
-  type?: string;
-  size?: number;
-  duration?: number;
-}
 
 /**
  * Represents a structured block of content.

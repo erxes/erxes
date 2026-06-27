@@ -19,7 +19,7 @@ import React, {
 } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useQuery } from '@apollo/client';
-import { PAGE_LIST } from '../graphql/queries/pagesListQueries';
+import { PAGE_LIST } from '@/cms/pages/graphql';
 
 // --- Types ---
 

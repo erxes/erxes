@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Tabs } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
+import type { PostFormData } from '@/cms/posts/types';
 import { ContentTab } from './ContentTab';
 import type {
   CustomType,
@@ -11,10 +12,10 @@ import type {
   SelectOption,
 } from './ContentTab';
 import { MediaSection } from './MediaSection';
-import type { IWebsite } from '~/modules/cms/types';
+import type { IWebsite } from '@/cms/websites/types';
 
 interface PostSidebarPanelProps {
-  form: UseFormReturn<FieldValues>;
+  form: UseFormReturn<PostFormData>;
   categories: SelectOption[];
   tags: SelectOption[];
   customTypes: CustomType[];

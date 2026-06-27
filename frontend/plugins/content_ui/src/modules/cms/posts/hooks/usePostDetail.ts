@@ -1,7 +1,15 @@
 import { useQuery, useMutation } from '@apollo/client';
-import { POST_DETAIL } from '../graphql/queries/postDetailQuery';
-import { POST_CMS_EDIT } from '../graphql/queries/postCmsEditQuery';
-import { PostDetailResponse, PostEditVariables } from '../types';
+import { CMS_POSTS_EDIT, POST_DETAIL } from '@/cms/posts/graphql';
+import type {
+  PostDetailResponse,
+  PostEditVariables,
+  PostInput,
+  Posts,
+} from '../types';
+
+interface PostEditResponse {
+  cmsPostsEdit?: Posts | null;
+}
 
 export const usePostDetail = (postId: string) => {
   const { data, loading, error, refetch } = useQuery<PostDetailResponse>(
@@ -12,32 +20,28 @@ export const usePostDetail = (postId: string) => {
     },
   );
 
-  const [editPost, { loading: editLoading, error: editError }] = useMutation(
-    POST_CMS_EDIT,
-    {
-      onCompleted: () => {
-        refetch();
-      },
+  const [editPost, { loading: editLoading, error: editError }] = useMutation<
+    PostEditResponse,
+    PostEditVariables
+  >(CMS_POSTS_EDIT, {
+    onCompleted: () => {
+      refetch();
     },
-  );
+  });
 
-  const handleEditPost = async (input: PostEditVariables['input']) => {
+  const handleEditPost = async (input: PostInput) => {
     if (!postId) {
       throw new Error('Post ID is required for editing');
     }
 
-    try {
-      const result = await editPost({
-        variables: {
-          id: postId,
-          input,
-        },
-      });
-      return result.data;
-    } catch (err) {
-      console.error('Error editing post:', err);
-      throw err;
-    }
+    const result = await editPost({
+      variables: {
+        id: postId,
+        input,
+      },
+    });
+
+    return result.data;
   };
 
   return {

@@ -1,21 +1,36 @@
 import { gql } from '@apollo/client';
 
-export const POSTS_EDIT = gql`
-  mutation CmsPostsEdit($id: String!, $input: PostInput!) {
+export const CMS_POSTS_EDIT = gql`
+  mutation cmsPostEdit($id: String!, $input: PostInput!) {
     cmsPostsEdit(_id: $id, input: $input) {
       _id
       type
       customPostType {
         _id
-        clientPortalId
         code
         label
-        pluralLabel
-        description
-        createdAt
+        __typename
       }
       authorKind
       authorId
+      author {
+        ... on User {
+          userId: _id
+          username
+          email
+          details {
+            fullName
+            shortName
+            avatar
+            firstName
+            lastName
+            middleName
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
       clientPortalId
       title
       count
@@ -32,6 +47,12 @@ export const POSTS_EDIT = gql`
       autoArchiveDate
       reactions
       reactionCounts
+      thumbnail {
+        url
+        type
+        name
+        __typename
+      }
       images {
         url
         name
@@ -46,24 +67,55 @@ export const POSTS_EDIT = gql`
         size
         duration
       }
+      audio {
+        url
+        name
+        type
+        size
+        duration
+      }
+      documents {
+        url
+        name
+        type
+        size
+        duration
+      }
+      attachments {
+        url
+        name
+        type
+        size
+        duration
+      }
+      pdfAttachment {
+        pdf {
+          url
+          name
+          type
+          size
+          duration
+        }
+        pages {
+          url
+          name
+          type
+          size
+          duration
+        }
+      }
       videoUrl
       createdAt
       updatedAt
       categories {
         _id
-        clientPortalId
         name
         slug
-        description
-        parentId
-        status
-        createdAt
-        updatedAt
-        customFieldsData
-        customFieldsMap
+        __typename
       }
       customFieldsData
       customFieldsMap
+      __typename
     }
   }
 `;

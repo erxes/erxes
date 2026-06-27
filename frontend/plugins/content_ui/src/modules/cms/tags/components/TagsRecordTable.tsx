@@ -1,7 +1,7 @@
 import { RecordTable } from 'erxes-ui';
 import { useTagsColumns } from './TagsColumn';
 import { TagsCommandBar } from './tags-command-bar/TagsCommandBar';
-import { useTags } from '../../hooks/useTags';
+import { useTags } from '../hooks/useTags';
 import { TAGS_CURSOR_SESSION_KEY } from '../constants/tagsCursorSessionKey';
 
 interface TagsRecordTableProps {

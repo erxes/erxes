@@ -1,9 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { CMS_MENU_LIST } from '../../graphql/queries';
+import { CMS_MENU_LIST } from '@/cms/menus/graphql';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
-import { buildFlatTree } from '../menuUtils';
+import { buildFlatTree } from '@/cms/menus/utils/menuUtils';
 
 export const useMenus = ({
   clientPortalId,

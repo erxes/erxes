@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const PAGE_DETAIL = gql`
-  query PageDetail($id: String!) {
+  query cmsPageDetail($id: String!) {
     cmsPage(_id: $id) {
       _id
       name

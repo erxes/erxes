@@ -10,7 +10,10 @@ import { PageHeader } from 'ui-modules';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
-import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
+import {
+  CONTENT_CMS_LIST,
+  GET_CLIENT_PORTALS,
+} from '@/cms/websites/graphql';
 
 export const PostsNavigation = () => {
   const { t } = useTranslation('content');
@@ -91,7 +94,7 @@ export const PostsNavigation = () => {
       label: t('posts'),
       icon: IconCube,
     };
-  }, [pathname, basePath]);
+  }, [pathname, basePath, t]);
 
   const Icon = currentPage.icon;
   const websiteName =

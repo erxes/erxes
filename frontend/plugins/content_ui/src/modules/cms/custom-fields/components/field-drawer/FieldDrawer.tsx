@@ -14,8 +14,8 @@ import { useTranslation } from 'react-i18next';
 import {
   ICustomField,
   FieldFormValues,
-  FIELD_TYPES,
 } from '../../types/customFieldTypes';
+import { FIELD_TYPES } from '../../constants/fieldTypes';
 
 interface FieldDrawerProps {
   isOpen: boolean;

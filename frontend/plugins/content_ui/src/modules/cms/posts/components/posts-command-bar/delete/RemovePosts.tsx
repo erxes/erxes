@@ -1,9 +1,10 @@
 import { IconTrash } from '@tabler/icons-react';
+import type { ApolloError } from '@apollo/client';
+import type { Row } from '@tanstack/react-table';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useRemovePosts } from '../../../hooks/useRemovePosts';
-import { ApolloError } from '@apollo/client';
-import { Row } from '@tanstack/table-core';
+import type { Posts } from '@/cms/posts/types';
 
 export const PostsDelete = ({
   postsIds,
@@ -11,7 +12,7 @@ export const PostsDelete = ({
   onRefetch,
 }: {
   postsIds: string[];
-  rows: Row<any>[];
+  rows: Row<Posts>[];
   onRefetch?: () => void;
 }) => {
   const { t } = useTranslation('content');

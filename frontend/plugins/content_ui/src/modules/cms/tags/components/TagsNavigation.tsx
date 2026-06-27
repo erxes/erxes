@@ -1,16 +1,14 @@
-import {
-  IconCategory,
-  IconCube,
-  IconRulerMeasure,
-  IconTags,
-} from '@tabler/icons-react';
+import { IconCube, IconTags } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
-import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
+import {
+  CONTENT_CMS_LIST,
+  GET_CLIENT_PORTALS,
+} from '@/cms/websites/graphql';
 
 export const TagsNavigation = () => {
   const { t } = useTranslation('content');
@@ -51,7 +49,7 @@ export const TagsNavigation = () => {
       label: t('tags'),
       icon: IconTags,
     };
-  }, [pathname, basePath]);
+  }, [pathname, basePath, t]);
 
   const Icon = currentPage.icon;
   const websiteName =
