@@ -24,9 +24,15 @@ export type BeforeResolverBlockedResult = {
   details?: Record<string, unknown>;
 };
 
+export type BeforeResolverResolvedResult = {
+  status: 'resolved';
+  data: unknown;
+};
+
 export type BeforeResolverResult =
   | BeforeResolverOkResult
   | BeforeResolverBlockedResult
+  | BeforeResolverResolvedResult
   | Record<string, unknown>
   | null
   | undefined;

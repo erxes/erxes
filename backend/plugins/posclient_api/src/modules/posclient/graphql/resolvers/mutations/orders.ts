@@ -275,7 +275,7 @@ export const ordersAdd = async (
   }
 };
 
-const ordersEdit = async (
+export const ordersEdit = async (
   doc: IOrderEditParams,
   {
     posUser,
@@ -480,7 +480,7 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
   return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
 }
 
-async function cancelPosOrder(models: IModels, _id: string) {
+export async function cancelPosOrder(models: IModels, _id: string): Promise<any> {
   const order = await models.Orders.getOrder(_id);
 
   checkOrderStatus(order);
