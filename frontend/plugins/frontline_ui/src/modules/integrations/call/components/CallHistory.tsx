@@ -8,7 +8,7 @@ import {
   IconPhoneOutgoing,
   IconPhoneX,
 } from '@tabler/icons-react';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import {
   Tabs,
   Command,
@@ -96,7 +96,7 @@ export const CallHistoryList = ({
             </span>
             <span className="ml-auto text-accent-foreground">
               {callHistory.callStartTime
-                ? format(new Date(callHistory.callStartTime), 'MMM, dd, HH:mm')
+                ? formatInTimeZone(new Date(callHistory.callStartTime), 'UTC', 'MMM, dd, HH:mm')
                 : ''}
             </span>
             <Tooltip.Provider>
