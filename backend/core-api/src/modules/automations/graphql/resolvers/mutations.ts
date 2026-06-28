@@ -166,7 +166,7 @@ export const automationMutations = {
   async automationsAiAgentRemove(
     _root,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsAiAgentRemove');
 
@@ -177,6 +177,7 @@ export const automationMutations = {
     }
 
     await models.AiAgents.deleteOne({ _id });
+    await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: _id });
 
     return { success: true };
   },

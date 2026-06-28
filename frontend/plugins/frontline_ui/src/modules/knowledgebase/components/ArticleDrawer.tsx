@@ -18,17 +18,14 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { REACTIONS } from '../constants';
 import { ADD_ARTICLE, EDIT_ARTICLE } from '../graphql/mutations';
 import { useArticles } from '../hooks/useArticles';
-import type {
-  ArticleFormData,
-  ArticleInput,
-  IKnowledgeBaseArticle,
-} from '../types';
+import { useArticleDetail } from '../hooks/useArticleDetail';
+import type { ArticleFormData, ArticleInput } from '../types';
 import { useTranslation } from 'react-i18next';
 
 interface ArticleDrawerProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  readonly article?: IKnowledgeBaseArticle;
+  readonly articleId?: string | null;
   readonly categoryId: string;
   readonly onSaved?: () => void;
   readonly refetch?: () => void;
@@ -49,14 +46,15 @@ const toArticleInput = (data: ArticleFormData): ArticleInput => {
 export function ArticleDrawer({
   isOpen,
   onClose,
-  article,
+  articleId,
   categoryId,
   onSaved,
   refetch: externalRefetch,
 }: ArticleDrawerProps) {
   const { t } = useTranslation('frontline');
-  const isEditing = !!article;
+  const isEditing = !!articleId;
   const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const { article } = useArticleDetail(articleId);
   const { refetch: internalRefetch } = useArticles({
     categoryIds: [categoryId],
   });
@@ -76,7 +74,7 @@ export function ArticleDrawer({
       fileDuration: 0,
       fileName: '',
       fileType: '',
-      customForms: [],
+      // customForms: [],
     },
   });
 
@@ -97,7 +95,7 @@ export function ArticleDrawer({
         fileDuration: article.fileDuration || 0,
         fileName: article.fileName || '',
         fileType: article.fileType || '',
-        customForms: article.customForms || [],
+        // customForms: article.customForms || [],
       });
     } else {
       form.reset({
@@ -115,15 +113,15 @@ export function ArticleDrawer({
         fileDuration: 0,
         fileName: '',
         fileType: '',
-        customForms: [],
+        // customForms: [],
       });
     }
   }, [article, form]);
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'customForms',
-  });
+  // const { fields, append, remove } = useFieldArray({
+  //   control: form.control,
+  //   name: 'customForms',
+  // });
 
   const [addArticle, { loading: adding }] = useMutation(ADD_ARTICLE, {
     onCompleted: () => {
@@ -151,10 +149,10 @@ export function ArticleDrawer({
       categoryId,
     };
 
-    if (isEditing && article) {
+    if (isEditing && articleId) {
       editArticle({
         variables: {
-          _id: article._id,
+          _id: articleId,
           doc,
         },
       });
@@ -169,7 +167,7 @@ export function ArticleDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <Sheet.View className="sm:max-w-lg">
+      <Sheet.View className="sm:max-w-2xl">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -193,7 +191,10 @@ export function ArticleDrawer({
                       <Form.Item>
                         <Form.Label>{t('title-label')}</Form.Label>
                         <Form.Control>
-                          <Input {...field} placeholder={t('kb-enter-article-title')} />
+                          <Input
+                            {...field}
+                            placeholder={t('kb-enter-article-title')}
+                          />
                         </Form.Control>
                         <Form.Message />
                       </Form.Item>
@@ -229,12 +230,20 @@ export function ArticleDrawer({
                             initialContent={field.value}
                             onChange={field.onChange}
                             scope={'ArticleDrawerContentField'}
+                            isHTML
+                            className="min-h-64"
                           />
                         </Form.Control>
                         <Form.Message />
                       </Form.Item>
                     )}
                   />
+
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium text-sm">
+                      {t('kb-publishing')}
+                    </h4>
+                  </div>
 
                   <Form.Field
                     control={form.control}
@@ -248,10 +257,14 @@ export function ArticleDrawer({
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger>
-                              <Select.Value placeholder={t('kb-select-status')} />
+                              <Select.Value
+                                placeholder={t('kb-select-status')}
+                              />
                             </Select.Trigger>
                             <Select.Content>
-                              <Select.Item value="draft">{t('kb-draft')}</Select.Item>
+                              <Select.Item value="draft">
+                                {t('kb-draft')}
+                              </Select.Item>
                               <Select.Item value="publish">
                                 {t('kb-published')}
                               </Select.Item>
@@ -270,8 +283,10 @@ export function ArticleDrawer({
                     control={form.control}
                     name="isPrivate"
                     render={({ field }) => (
-                      <Form.Item className="flex items-center gap-2">
-                        <Form.Label>{t('kb-is-private')}</Form.Label>
+                      <Form.Item className="flex flex-row items-center justify-between gap-2">
+                        <Form.Label className="mb-0">
+                          {t('kb-is-private')}
+                        </Form.Label>
                         <Form.Control>
                           <Switch
                             id="isPrivate"
@@ -279,7 +294,6 @@ export function ArticleDrawer({
                             onCheckedChange={field.onChange}
                           />
                         </Form.Control>
-                        <Form.Message />
                       </Form.Item>
                     )}
                   />
@@ -311,6 +325,10 @@ export function ArticleDrawer({
                       </Form.Item>
                     )}
                   />
+
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium text-sm">{t('kb-media')}</h4>
+                  </div>
 
                   <Form.Field
                     control={form.control}
@@ -448,7 +466,9 @@ export function ArticleDrawer({
 
                   {showMoreInfo && (
                     <div className="space-y-4 border-t pt-4">
-                      <h4 className="font-medium text-sm">{t('kb-file-details')}</h4>
+                      <h4 className="font-medium text-sm">
+                        {t('kb-file-details')}
+                      </h4>
 
                       <Form.Field
                         control={form.control}
@@ -457,7 +477,10 @@ export function ArticleDrawer({
                           <Form.Item>
                             <Form.Label>{t('kb-file-url')}</Form.Label>
                             <Form.Control>
-                              <Input {...field} placeholder={t('kb-enter-file-url')} />
+                              <Input
+                                {...field}
+                                placeholder={t('kb-enter-file-url')}
+                              />
                             </Form.Control>
                             <Form.Message />
                           </Form.Item>
@@ -519,7 +542,10 @@ export function ArticleDrawer({
                           <Form.Item>
                             <Form.Label>{t('kb-file-name')}</Form.Label>
                             <Form.Control>
-                              <Input {...field} placeholder={t('kb-enter-file-name')} />
+                              <Input
+                                {...field}
+                                placeholder={t('kb-enter-file-name')}
+                              />
                             </Form.Control>
                             <Form.Message />
                           </Form.Item>
@@ -538,16 +564,26 @@ export function ArticleDrawer({
                                 value={field.value}
                               >
                                 <Select.Trigger>
-                                  <Select.Value placeholder={t('kb-select-type')} />
+                                  <Select.Value
+                                    placeholder={t('kb-select-type')}
+                                  />
                                 </Select.Trigger>
                                 <Select.Content>
-                                  <Select.Item value="image">{t('kb-file-type-image')}</Select.Item>
-                                  <Select.Item value="video">{t('kb-file-type-video')}</Select.Item>
-                                  <Select.Item value="audio">{t('kb-file-type-audio')}</Select.Item>
+                                  <Select.Item value="image">
+                                    {t('kb-file-type-image')}
+                                  </Select.Item>
+                                  <Select.Item value="video">
+                                    {t('kb-file-type-video')}
+                                  </Select.Item>
+                                  <Select.Item value="audio">
+                                    {t('kb-file-type-audio')}
+                                  </Select.Item>
                                   <Select.Item value="document">
                                     {t('kb-file-type-document')}
                                   </Select.Item>
-                                  <Select.Item value="other">{t('kb-file-type-other')}</Select.Item>
+                                  <Select.Item value="other">
+                                    {t('kb-file-type-other')}
+                                  </Select.Item>
                                 </Select.Content>
                               </Select>
                             </Form.Control>
@@ -558,9 +594,11 @@ export function ArticleDrawer({
                     </div>
                   )}
 
-                  <div className="space-y-4 border-t pt-4">
+                  {/* <div className="space-y-4 border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-sm">{t('kb-custom-forms')}</h4>
+                      <h4 className="font-medium text-sm">
+                        {t('kb-custom-forms')}
+                      </h4>
                       <Button
                         type="button"
                         variant="outline"
@@ -590,7 +628,10 @@ export function ArticleDrawer({
                               <Form.Item>
                                 <Form.Label>{t('field-label')}</Form.Label>
                                 <Form.Control>
-                                  <Input {...field} placeholder={t('kb-form-label-placeholder')} />
+                                  <Input
+                                    {...field}
+                                    placeholder={t('kb-form-label-placeholder')}
+                                  />
                                 </Form.Control>
                                 <Form.Message />
                               </Form.Item>
@@ -624,7 +665,7 @@ export function ArticleDrawer({
                         </Button>
                       </div>
                     ))}
-                  </div>
+                  </div> */}
                 </div>
               </ScrollArea>
             </Sheet.Content>
@@ -633,6 +674,7 @@ export function ArticleDrawer({
               <Button
                 type="button"
                 variant="ghost"
+                onClick={onClose}
                 className="bg-background hover:bg-background/90"
               >
                 {t('cancel')}

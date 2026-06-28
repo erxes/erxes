@@ -13,6 +13,7 @@ import {
   PRODUCT_TYPES,
 } from '@/products/constants';
 import { productSchema } from '@/products/db/definitions/products';
+import { refreshProductKnowledge } from '@/products/meta/automations';
 import {
   checkCodeMask,
   checkSameMaskConfig,
@@ -80,6 +81,16 @@ export const loadProductClass = (
       }
 
       return true;
+    }
+
+    private static async refreshKnowledge(productIds: string[]) {
+      try {
+        await refreshProductKnowledge({ subdomain, productIds });
+      } catch (error) {
+        console.error(
+          `Failed to refresh product knowledge: ${(error as Error).message}`,
+        );
+      }
     }
 
     /**
@@ -169,6 +180,9 @@ export const loadProductClass = (
         },
         changes: {},
       });
+
+      await this.refreshKnowledge([product._id]);
+
       return product;
     }
 
@@ -246,7 +260,10 @@ export const loadProductClass = (
           models,
           createActivityLog,
         );
+
+        await this.refreshKnowledge([updatedProduct._id]);
       }
+
       return updatedProduct;
     }
 
@@ -300,6 +317,8 @@ export const loadProductClass = (
           });
         }
       }
+
+      await this.refreshKnowledge(_ids);
 
       return response;
     }
@@ -382,6 +401,8 @@ export const loadProductClass = (
         categoryId,
         vendorId,
       });
+
+      await this.refreshKnowledge(productIds);
 
       return product;
     }

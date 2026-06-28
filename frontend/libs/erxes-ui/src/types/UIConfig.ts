@@ -1,3 +1,13 @@
+export type TPropertyInputMeta = Record<string, unknown>;
+
+export type TPropertyInputProps = {
+  value: string;
+  onValueChange: (value: string) => void;
+  meta?: TPropertyInputMeta;
+  onMetaChange: (meta: TPropertyInputMeta) => void;
+  disabled?: boolean;
+};
+
 export type IUIConfig = {
   name: string;
   path: string;
@@ -25,6 +35,7 @@ export type IUIConfig = {
       contentType: string;
       icon?: React.ElementType;
     }[];
+    propertyInputs?: Record<string, React.ComponentType<TPropertyInputProps>>;
   };
   modules?: {
     name: string;
