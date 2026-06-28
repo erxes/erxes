@@ -114,9 +114,8 @@ export const msdynamicQueries = {
       brandId: string;
       posToken?: string;
     },
-    { subdomain, checkPermission }: IContext,
+    { subdomain }: IContext,
   ) {
-    await checkPermission('showMsd');
 
     const models = await generateModels(subdomain);
 
@@ -178,9 +177,8 @@ export const msdynamicQueries = {
   async msdCustomerRelations(
     _root,
     { customerId }: { customerId: string },
-    { models, subdomain, checkPermission }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    await checkPermission('showMsd');
 
     const relations = await models.CustomerRelations.find({
       customerId,

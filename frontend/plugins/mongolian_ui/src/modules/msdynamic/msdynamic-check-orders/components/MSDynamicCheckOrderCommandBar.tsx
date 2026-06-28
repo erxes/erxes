@@ -1,4 +1,5 @@
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 /** Songogdson orders deer check action gargana. */
 export const MSDynamicCheckOrderCommandBar = ({
@@ -8,6 +9,7 @@ export const MSDynamicCheckOrderCommandBar = ({
   checking: boolean;
   onCheck: (orderIds: string[]) => Promise<void>;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
 
@@ -23,10 +25,10 @@ export const MSDynamicCheckOrderCommandBar = ({
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} {t('selected')}</CommandBar.Value>
         <Separator.Inline />
         <Button variant="secondary" onClick={handleCheck} disabled={checking}>
-          {checking ? 'Checking...' : 'Check'}
+          {checking ? t('checking') : t('check')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

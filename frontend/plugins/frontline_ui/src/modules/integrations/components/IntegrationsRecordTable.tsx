@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 
 export const IntegrationsRecordTable = () => {
   const params = useParams();
+  const columns = useIntegrationTypeColumns();
 
   const { integrations, loading, handleFetchMore } = useIntegrations({
     variables: {
@@ -42,12 +43,12 @@ export const IntegrationsRecordTable = () => {
             </div>
           </Empty.Media>
           <Empty.Title>
-            No {INTEGRATIONS[params?.integrationType as IntegrationType]?.name}{' '}
+            No {INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name}{' '}
             found
           </Empty.Title>
           <Empty.Description>
             Get started by adding your first{' '}
-            {INTEGRATIONS[params?.integrationType as IntegrationType]?.name}.
+            {INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name}.
           </Empty.Description>
         </Empty.Header>
       </Empty>
@@ -56,7 +57,7 @@ export const IntegrationsRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={useIntegrationTypeColumns()}
+      columns={columns}
       data={(integrations || []).filter((integration) => integration)}
       stickyColumns={['more', 'checkbox', 'name']}
     >

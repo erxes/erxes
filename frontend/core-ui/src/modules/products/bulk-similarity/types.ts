@@ -40,11 +40,10 @@ export interface IProductSimilarity {
 export interface IBulkRow {
   productId?: string;
   code: string;
+  name: string;
   unitPrice?: number;
   isExcluded?: boolean;
-  // present and true only on the row the user starred
   isDefault?: boolean;
-  // selection for this product: { [fieldId]: [value] }
   propertiesData: Record<string, string[]>;
 }
 

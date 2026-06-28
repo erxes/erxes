@@ -6,6 +6,7 @@ import {
   Spinner,
   Toggle,
   cn,
+  getBlockAttachments,
   getMentionedUserIds,
   toast,
   useBlockEditor,
@@ -269,6 +270,13 @@ export const MessageInput = ({
       ? JSON.stringify(content)
       : await editor?.blocksToHTMLLossy(content);
 
+    const blockAttachments = getBlockAttachments(content || []);
+    const paperclipUrls = new Set(attachments.map((a) => a.url));
+    const allAttachments = [
+      ...attachments,
+      ...blockAttachments.filter((a) => !paperclipUrls.has(a.url)),
+    ];
+
     addConversationMessage({
       variables: {
         conversationId,
@@ -276,7 +284,7 @@ export const MessageInput = ({
         mentionedUserIds,
         internal: isInternalNote,
         extraInfo: messageExtraInfo,
-        attachments,
+        attachments: allAttachments,
         responseTemplateId: responseTemplateId,
       },
       onCompleted: () => {

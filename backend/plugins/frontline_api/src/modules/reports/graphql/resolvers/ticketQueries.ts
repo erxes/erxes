@@ -13,6 +13,45 @@ import {
   TICKET_PRIORITY_TYPES,
 } from '@/ticket/constants/types';
 
+type ReportPropertyCount = {
+  _id: {
+    fieldId: string;
+    value: unknown;
+  };
+  count: number;
+};
+
+type ReportPropertyField = {
+  _id: string;
+  name?: string;
+  text?: string;
+  type?: string;
+  options?: Array<{
+    label?: string;
+    value?: string;
+  }>;
+};
+
+type ReportPropertyRow = {
+  _id: string;
+  name: string;
+  count: number;
+};
+
+const OPTION_PROPERTY_TYPES = new Set(['select', 'multiSelect', 'radio']);
+
+const getPrimitivePropertyValue = (value: unknown) => {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+
+  return '';
+};
+
 export const reportTicketQueries = {
   async reportTicketSource(
     _parent: undefined,
@@ -232,45 +271,120 @@ export const reportTicketQueries = {
       ...(filters.propertyIds?.length
         ? [{ $match: { '__properties.k': { $in: filters.propertyIds } } }]
         : []),
-      { $group: { _id: '$__properties.k', count: { $sum: 1 } } },
+      {
+        $addFields: {
+          __propertyValues: {
+            $cond: [
+              { $isArray: '$__properties.v' },
+              '$__properties.v',
+              ['$__properties.v'],
+            ],
+          },
+        },
+      },
+      { $unwind: '$__propertyValues' },
+      {
+        $group: {
+          _id: {
+            fieldId: '$__properties.k',
+            value: '$__propertyValues',
+          },
+          count: { $sum: 1 },
+        },
+      },
       { $sort: { count: -1 } },
-      { $limit: filters.limit ?? 100 },
     ];
 
-    const propertyCounts: Array<{ _id: string; count: number }> =
-      await models.Ticket.aggregate(pipeline);
+    const propertyCounts: ReportPropertyCount[] = await models.Ticket.aggregate(
+      pipeline,
+    );
 
     if (!propertyCounts.length) {
       return [];
     }
 
-    const fieldIds = propertyCounts.map((p) => p._id);
-
-    const fields: Array<{ _id: any; name?: string; text?: string }> =
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'fields',
-        action: 'find',
-        input: {
-          query: { _id: { $in: fieldIds } },
-        },
-        defaultValue: [],
-      });
-
-    const fieldMap = new Map(
-      fields.map((f) => [f._id.toString(), f.name || f.text]),
+    const fieldIds = Array.from(
+      new Set(propertyCounts.map((p) => p._id.fieldId)),
     );
 
-    const resolvedCounts = propertyCounts.filter((p) =>
-      fieldMap.has(p._id?.toString()),
+    const fields: ReportPropertyField[] = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'find',
+      input: {
+        query: { _id: { $in: fieldIds } },
+      },
+      defaultValue: [],
+    });
+
+    const fieldMap = new Map<string, ReportPropertyField>(
+      fields.map((f) => [f._id.toString(), f]),
     );
+
+    const propertyRows = propertyCounts
+      .map((p) => {
+        const fieldId = p._id.fieldId?.toString();
+        const field = fieldMap.get(fieldId);
+
+        if (!field) {
+          return null;
+        }
+
+        if (OPTION_PROPERTY_TYPES.has(field.type || '')) {
+          const optionValue = getPrimitivePropertyValue(p._id.value);
+          const option = field.options?.find(
+            (fieldOption) => fieldOption.value === optionValue,
+          );
+
+          if (!optionValue) {
+            return null;
+          }
+               const fieldLabel = field.name || field.text;
+          const valueLabel = option?.label || optionValue;
+
+
+          return {
+            _id: `${fieldId}:${optionValue}`,
+            name: fieldLabel ? `${fieldLabel}: ${valueLabel}` : valueLabel,
+            count: p.count,
+          };
+        }
+
+     
+        return {
+          _id: fieldId,
+          name: field.name || field.text,
+          count: p.count,
+        };
+      })
+      .filter((property): property is ReportPropertyRow =>
+        Boolean(property?.name),
+      );
+
+    const resolvedCounts = Array.from(
+      propertyRows
+        .reduce<Map<string, ReportPropertyRow>>((rows, row) => {
+          const existingRow = rows.get(row._id);
+
+          rows.set(row._id, {
+            ...row,
+            count: (existingRow?.count || 0) + row.count,
+          });
+
+          return rows;
+        }, new Map())
+        .values(),
+    )
+      .sort((a, b) => b.count - a.count)
+      .slice(0, filters.limit ?? 100);
+
     const total = resolvedCounts.reduce((s, p) => s + p.count, 0);
 
     return resolvedCounts.map((p) => ({
       _id: p._id,
-      name: fieldMap.get(p._id?.toString()),
+      name: p.name,
       count: p.count,
       percentage: calculatePercentage(p.count, total),
     }));

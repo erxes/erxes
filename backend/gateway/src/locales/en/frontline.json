@@ -521,6 +521,8 @@
   "integration-updated-successfully": "Integration updated successfully",
   "transfer": "Transfer",
   "transfer-to": "Transfer to",
+  "transfer-success": "Call transferred successfully",
+  "transfer-failed": "Transfer failed, please try again",
   "select-an-extension": "Select an extension",
   "call-history": "Call history",
   "contact": "Contact",

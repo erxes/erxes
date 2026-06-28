@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Alert } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 // Default template that will be used for all contracts
 const DEFAULT_TEMPLATE = `<!DOCTYPE html>
@@ -193,6 +194,7 @@ const DEFAULT_TEMPLATE = `<!DOCTYPE html>
 const TEMPLATE_STORAGE_KEY = 'insurance_contract_template';
 
 export const ContractTemplateEditorPage = () => {
+  const { t } = useTranslation('insurance');
   const [template, setTemplate] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -289,7 +291,7 @@ export const ContractTemplateEditorPage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconFileText />
-                  Contract Template Editor
+                  {t('contract-template-editor')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -299,23 +301,23 @@ export const ContractTemplateEditorPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleReset} variant="outline">
-            Reset to Default
+            {t('reset-to-default')}
           </Button>
           <Button onClick={handlePreview} variant="outline">
             <IconEye size={16} />
-            Preview
+            {t('preview')}
           </Button>
           <Button onClick={handlePrint} variant="outline">
             <IconPrinter size={16} />
-            Print
+            {t('print')}
           </Button>
           <Button onClick={handleDownload} variant="outline">
             <IconDownload size={16} />
-            Download
+            {t('download')}
           </Button>
           <Button onClick={handleSave}>
             <IconDeviceFloppy size={16} />
-            Save Template
+            {t('save-template')}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -338,7 +340,7 @@ export const ContractTemplateEditorPage = () => {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold">
-                      Contract Template Editor
+                      {t('contract-template-editor')}
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       Бүх гэрээнд ашиглагдах нэг template
@@ -349,7 +351,7 @@ export const ContractTemplateEditorPage = () => {
                   onClick={() => setIsEditing(!isEditing)}
                   variant={isEditing ? 'default' : 'outline'}
                 >
-                  {isEditing ? 'View Mode' : 'Edit Mode'}
+                  {isEditing ? t('view-mode') : t('edit-mode')}
                 </Button>
               </div>
 
@@ -357,7 +359,7 @@ export const ContractTemplateEditorPage = () => {
                 {isEditing ? (
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      HTML Template
+                      {t('html-template')}
                     </label>
                     <textarea
                       value={template}
@@ -374,7 +376,7 @@ export const ContractTemplateEditorPage = () => {
                 ) : (
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Template Preview
+                      {t('template-preview')}
                     </label>
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe

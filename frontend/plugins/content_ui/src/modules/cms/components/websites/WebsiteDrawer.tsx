@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GET_WEBSITES } from '../../graphql/queries';
 import {
@@ -38,6 +39,7 @@ export function WebsiteDrawer({
   onClose,
   onSuccess,
 }: WebsiteDrawerProps) {
+  const { t } = useTranslation('content');
   const isEditing = !!website;
 
   const {
@@ -118,15 +120,15 @@ export function WebsiteDrawer({
         onSuccess();
       }
       toast({
-        title: 'Success',
-        description: 'CMS created successfully',
+        title: t('success'),
+        description: t('cms-created-successfully'),
         variant: 'default',
       });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create CMS. Please try again.',
+        title: t('error'),
+        description: error.message || t('failed-to-create-cms'),
         variant: 'destructive',
         duration: 5000,
       });
@@ -145,16 +147,16 @@ export function WebsiteDrawer({
           onSuccess();
         }
         toast({
-          title: 'Success',
-          description: 'CMS updated successfully',
+          title: t('success'),
+          description: t('cms-updated-successfully'),
           variant: 'default',
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
-            error.message || 'Failed to update CMS. Please try again.',
+            error.message || t('failed-to-update-cms'),
           variant: 'destructive',
           duration: 5000,
         });
@@ -199,7 +201,7 @@ export function WebsiteDrawer({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <Sheet.View className="sm:max-w-lg p-0 bg-background">
         <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>{isEditing ? 'Edit CMS' : 'New CMS'}</Sheet.Title>
+          <Sheet.Title>{isEditing ? t('edit-cms') : t('new-cms')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -213,9 +215,9 @@ export function WebsiteDrawer({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Cms Name</Form.Label>
+                  <Form.Label>{t('cms-name')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Enter website name" />
+                    <Input {...field} placeholder={t('enter-website-name')} />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -227,11 +229,11 @@ export function WebsiteDrawer({
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>{t('description')}</Form.Label>
                   <Form.Control>
                     <Textarea
                       {...field}
-                      placeholder="Enter website description"
+                      placeholder={t('enter-website-description')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -245,7 +247,7 @@ export function WebsiteDrawer({
               render={({ field }) => {
                 return (
                   <Form.Item>
-                    <Form.Label>Client Portal</Form.Label>
+                    <Form.Label>{t('client-portal')}</Form.Label>
                     <Form.Control>
                       <Select
                         {...field}
@@ -257,8 +259,8 @@ export function WebsiteDrawer({
                           <Select.Value
                             placeholder={
                               clientPortalsLoading
-                                ? 'Loading...'
-                                : 'Select client portal'
+                                ? t('loading')
+                                : t('select-client-portal')
                             }
                           />
                         </Select.Trigger>
@@ -282,7 +284,7 @@ export function WebsiteDrawer({
               name="languages"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Languages</Form.Label>
+                  <Form.Label>{t('languages')}</Form.Label>
                   <Form.Control>
                     <MultipleSelector
                       defaultOptions={LANGUAGES}
@@ -304,7 +306,7 @@ export function WebsiteDrawer({
                       onChange={(val) =>
                         field.onChange(val.map((v) => v.value))
                       }
-                      placeholder="Select languages"
+                      placeholder={t('select-languages')}
                       commandProps={{ shouldFilter: false }}
                     />
                   </Form.Control>
@@ -323,7 +325,7 @@ export function WebsiteDrawer({
                 );
                 return (
                   <Form.Item>
-                    <Form.Label>Default Language</Form.Label>
+                    <Form.Label>{t('default-language')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -331,7 +333,7 @@ export function WebsiteDrawer({
                         disabled={available.length === 0}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select default language" />
+                          <Select.Value placeholder={t('select-default-language')} />
                         </Select.Trigger>
                         <Select.Content>
                           {available.map((opt) => (
@@ -352,15 +354,15 @@ export function WebsiteDrawer({
               <Button type="submit" disabled={saving || savingUpdate}>
                 {saving || savingUpdate
                   ? isEditing
-                    ? 'Saving...'
-                    : 'Creating...'
+                    ? t('saving')
+                    : t('creating')
                   : isEditing
-                  ? 'Save Changes'
-                  : 'Create CMS'}
+                  ? t('save-changes')
+                  : t('create-cms')}
               </Button>
 
               <Button onClick={onClose} variant="outline">
-                Cancel
+                {t('cancel')}
               </Button>
             </div>
           </form>

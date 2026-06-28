@@ -2,9 +2,11 @@ import { PageHeader } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { IconHierarchy2 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { AddPropertyGroup } from './PropertyGroupAdd';
 
 export function PropertiesHeader() {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
   return (
     <PageHeader>
@@ -15,7 +17,7 @@ export function PropertiesHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/properties">
                   <IconHierarchy2 />
-                  Properties
+                  {t('properties', 'Properties')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -24,7 +26,8 @@ export function PropertiesHeader() {
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild className="capitalize">
                   <Link to={`/settings/properties?type=${type}`}>
-                    {type.replace(':', ' ')} properties
+                    {t(`content-type.${type.replace(':', '-')}`, type.replace(':', ' '))}{' '}
+                    {t('properties-suffix', 'properties')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

@@ -5,6 +5,7 @@ import {
   GET_MN_CONFIGS,
 } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const refetchOptions = [{ query: GET_MN_CONFIGS, variables: { code: 'returnStageInEbarimt' } }];
 
@@ -13,6 +14,7 @@ export const useEbarimtReturnConfigSave = () => {
   const [updateConfig, { loading: updateLoading }] = useMutation(UPDATE_MN_CONFIG, { refetchQueries: refetchOptions });
   const loading = createLoading || updateLoading;
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const saveConfigsToServer = async (
     config: any,
@@ -41,8 +43,8 @@ export const useEbarimtReturnConfigSave = () => {
       }
 
       toast({
-        title: 'Success',
-        description: 'Configuration saved successfully',
+        title: t('success'),
+        description: t('config-saved-successfully'),
         variant: 'default',
       });
 
@@ -53,8 +55,8 @@ export const useEbarimtReturnConfigSave = () => {
       );
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to save configuration',
+        title: t('error'),
+        description: t('failed-to-save-config'),
         variant: 'destructive',
       });
       throw error;

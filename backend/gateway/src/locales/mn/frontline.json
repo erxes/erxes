@@ -521,6 +521,8 @@
   "integration-updated-successfully": "Холболт амжилттай шинэчлэгдлээ",
   "transfer": "Шилжүүлэх",
   "transfer-to": "Руу шилжүүлэх",
+  "transfer-success": "Дуудлага амжилттай шилжлээ",
+  "transfer-failed": "Шилжүүлэлт амжилтгүй боллоо, дахин оролдоно уу",
   "select-an-extension": "Дотуур дугаар сонгох",
   "call-history": "Дуудлагын түүх",
   "contact": "Харилцагч",

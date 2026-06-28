@@ -1,5 +1,56 @@
 
 
+## [3.0.45](https://github.com/erxes/erxes/compare/3.0.44...3.0.45) (2026-06-26)
+
+
+### Bug Fixes
+
+* **erkhet-sync:** history totalcount never 0 and filter doesnt accept number ([#8152](https://github.com/erxes/erxes/issues/8152)) ([6a14e8c](https://github.com/erxes/erxes/commit/6a14e8cce00e62a170b5f9c05beae21ed6cf0347))
+* **frontline:** core block editor file upload fix and inbox subscription fix  ([22dfea8](https://github.com/erxes/erxes/commit/22dfea8dc73d034f881a98eec3a1c32199cea765))
+* **frontline:** fix ticket property filter in reports ([223be41](https://github.com/erxes/erxes/commit/223be41cc1baa208ed44ede9f86f3562db8498ea))
+* **navigation:** reset active plugin on home click and refine switche… ([#8366](https://github.com/erxes/erxes/issues/8366)) ([f635b04](https://github.com/erxes/erxes/commit/f635b04bdfe65c5fe8f0ed0976d766b81b89d1e7))
+* **payment:** reduce GET requests with caching and early exit  ([e9f6851](https://github.com/erxes/erxes/commit/e9f68515ddc64a2350839ac379ed186faabd9512))
+
+
+### Features
+
+* enable product sheet form widget side tabs ([700258f](https://github.com/erxes/erxes/commit/700258f35ca8e385dc84446512c0ccf71629e749))
+* **mongolian_api:** integrate MSDynamics ([#8357](https://github.com/erxes/erxes/issues/8357)) ([d677ea7](https://github.com/erxes/erxes/commit/d677ea7231cb571c0340568637303423cd332037))
+
+## [3.0.44](https://github.com/erxes/erxes/compare/3.0.43...3.0.44) (2026-06-24)
+
+
+### Bug Fixes
+
+* **frontline:** fix pipeline refresh jump issue ([4651186](https://github.com/erxes/erxes/commit/46511861ee642586857f23d49ea2870a67b481bf))
+* **frontline:** fix t is not defined and hooks violations in inbox ([9128650](https://github.com/erxes/erxes/commit/91286507aff328fcbb5a002f07cae5ed4de6fc7e))
+* **frontline:** remove isAdmin param from call integration queries; fix document editor remount on selection change ([62342ce](https://github.com/erxes/erxes/commit/62342ce19e381ecdeadc6ab3ffd590b5751c2cae))
+* **payment:** correct widget base path, runtime basename, and currency filter ([#8153](https://github.com/erxes/erxes/issues/8153)) ([3f866b2](https://github.com/erxes/erxes/commit/3f866b2c84f25d0c30cc35691938e2ecb1762c30))
+* products form ([b1fad23](https://github.com/erxes/erxes/commit/b1fad2344b9aeda4071f214c1b121df45c9040a9))
+* **sales:** fix document template rendering for deal-triggered automation emails ([ae0b3db](https://github.com/erxes/erxes/commit/ae0b3dbfb6f3a211bece87497c36d4880fa41500))
+
+
+### Features
+
+* **accounting:** add i18n translations for accounting_ui plugin ([#8307](https://github.com/erxes/erxes/issues/8307)) ([abc94f3](https://github.com/erxes/erxes/commit/abc94f3464f64ac7a2052a5bd018780dc0fad6d4))
+* add products on cms custom fields -> field types. It gets products from core products (main products). ([#8346](https://github.com/erxes/erxes/issues/8346)) ([2bbb980](https://github.com/erxes/erxes/commit/2bbb98007c360b0edfc0ca360fe13b8bd5389f29))
+* **content:** add i18n translations for content plugin (EN + MN) ([#8274](https://github.com/erxes/erxes/issues/8274)) ([01d8e8b](https://github.com/erxes/erxes/commit/01d8e8b78890bac75bb7c94a38e69fedf9ad9fa5))
+* **core:** add cpUser verification field resolvers and product data migration script ([420378d](https://github.com/erxes/erxes/commit/420378def2f197a1fc6bf73c92912d4c7552fa10))
+* **deals:** implement search dropdown query and update common search… ([#8349](https://github.com/erxes/erxes/issues/8349)) ([1207340](https://github.com/erxes/erxes/commit/1207340b85d950732cd4f6d959b7e5239e9160c4))
+* enhance product similarity, packages, and properties with improved UI and translations ([e386c20](https://github.com/erxes/erxes/commit/e386c20380d09379fcd1c734adf60564c73b486d))
+* **frontline:** add i18n support with EN/MN translations ([#8281](https://github.com/erxes/erxes/issues/8281)) ([7a489d6](https://github.com/erxes/erxes/commit/7a489d6641fe9a34e63bc9c298f5e2465bde1112))
+* **insurance:** add i18n translations and MN locale strings ([#8311](https://github.com/erxes/erxes/issues/8311)) ([3e8556a](https://github.com/erxes/erxes/commit/3e8556a28b453022d073758def6932e71ff5beca))
+* **loyalty:** add i18n support for loyalty plugin ([#7796](https://github.com/erxes/erxes/issues/7796)) ([1c7b494](https://github.com/erxes/erxes/commit/1c7b494d1812348ca07b2c0f60e8f1322d824593))
+* **mastra:** add i18n support for mastra plugin ([#8350](https://github.com/erxes/erxes/issues/8350)) ([1db776c](https://github.com/erxes/erxes/commit/1db776c91201f5654e5e6458e19198bfc581c422))
+* **mongolian:** add i18n translations and MN locale strings ([#7773](https://github.com/erxes/erxes/issues/7773)) ([72ebdb6](https://github.com/erxes/erxes/commit/72ebdb6a0083534716de90516e0042a7e4fb8e66))
+* msdynamic_ui add user custom fields for customer code and location code ([#8321](https://github.com/erxes/erxes/issues/8321)) ([3736e7a](https://github.com/erxes/erxes/commit/3736e7aa2972231ed8016431b00e58cecbef8b23))
+* **operation:** add i18n translations for operation plugin ([#8238](https://github.com/erxes/erxes/issues/8238)) ([9176b11](https://github.com/erxes/erxes/commit/9176b11d2f4562fdbee8a3bd7bb8d35b4188a4af))
+* **payment:** add i18n translations with EN/MN locale support ([#8351](https://github.com/erxes/erxes/issues/8351)) ([94cfcd9](https://github.com/erxes/erxes/commit/94cfcd94c342db465fa5fb8dd75e6ede874f963b))
+* **sales:** add i18n support for sales plugin ([#7756](https://github.com/erxes/erxes/issues/7756)) ([b19296d](https://github.com/erxes/erxes/commit/b19296d2a5ff768c14d75bbfb9afc7dc8415e36c))
+* **sales:** Added stageChanged date range fixed enddate bug and fixed infinite loading totalcount ([#8294](https://github.com/erxes/erxes/issues/8294)) ([eaac538](https://github.com/erxes/erxes/commit/eaac5380c91e79fdf6f697184267eed5c20f16a4))
+* **tourism:** add i18n translations for tourism plugin (EN + MN) ([#8250](https://github.com/erxes/erxes/issues/8250)) ([ffb4c45](https://github.com/erxes/erxes/commit/ffb4c456c2306e65fd67a038861474172be147a5))
+* **ui:** add login password toggle and split org switcher ([#8330](https://github.com/erxes/erxes/issues/8330)) ([3f71ef2](https://github.com/erxes/erxes/commit/3f71ef229e6d43ae5906e09d92abbe80f8d66b76))
+
 ## [3.0.43](https://github.com/erxes/erxes/compare/3.0.42...3.0.43) (2026-06-23)
 
 

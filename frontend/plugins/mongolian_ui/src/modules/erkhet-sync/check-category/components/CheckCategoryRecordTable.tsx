@@ -1,10 +1,12 @@
 import { RecordTable, Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { CHECK_CATEGORY_CURSOR_SESSION_KEY } from '../constants/checkCategoryCursorSessionKey';
 import { useCheckCategory } from '../hooks/useCheckCategory';
 import { checkCategoryColumns } from './CheckCategoryColumn';
 
 export const CheckCategoryRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const {
     filteredCategories,
     loading,
@@ -23,7 +25,7 @@ export const CheckCategoryRecordTable = () => {
   return (
     <div className="m-3 h-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Categories</h2>
+        <h2 className="text-lg font-semibold">{t('categories')}</h2>
         <Button
           onClick={syncCategories}
           disabled={
@@ -32,7 +34,7 @@ export const CheckCategoryRecordTable = () => {
             filteredCategories.length === 0
           }
         >
-          {syncLoading ? 'Syncing...' : 'Sync'}
+          {syncLoading ? t('syncing') : t('sync')}
         </Button>
       </div>
 
@@ -73,10 +75,10 @@ export const CheckCategoryRecordTable = () => {
                         className="text-muted-foreground mx-auto mb-4"
                       />
                       <h3 className="text-xl font-semibold mb-2">
-                        No category yet
+                        {t('no-category-yet')}
                       </h3>
                       <p className="text-muted-foreground max-w-md">
-                        Get started by creating your first category.
+                        {t('create-first-category')}
                       </p>
                     </div>
                   </div>

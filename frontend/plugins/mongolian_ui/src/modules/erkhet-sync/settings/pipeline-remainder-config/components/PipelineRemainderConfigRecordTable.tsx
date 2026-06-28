@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AddPipelineRemainderConfig } from '../types';
 import { TRemainderConfigRow } from '../hooks/usePipelineRemainderConfigs';
 import { buildRemainderConfigColumns } from './PipelineRemainderConfigColumns';
@@ -18,11 +19,14 @@ export const PipelineRemainderConfigRecordTable = ({
   onDelete,
   onDeleteMany,
   editLoading,
-}: Props) => (
-  <ErkhetConfigRecordTable
-    configs={configs}
-    columns={buildRemainderConfigColumns(onEdit, onDelete, editLoading)}
-    emptyDescription="Create your first remainder config using the button above."
-    commandBar={<PipelineRemainderConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
-  />
-);
+}: Props) => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <ErkhetConfigRecordTable
+      configs={configs}
+      columns={buildRemainderConfigColumns(onEdit, onDelete, editLoading)}
+      emptyDescription={t('create-first-remainder-config')}
+      commandBar={<PipelineRemainderConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+    />
+  );
+};

@@ -1,6 +1,7 @@
 import { IconPlus, IconTags } from '@tabler/icons-react';
 import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useTags } from '../hooks/useTags';
 import { CmsSidebar } from '../shared/CmsSidebar';
@@ -13,6 +14,7 @@ import { TagDrawer } from './TagDrawer';
 import { CmsTag } from './types/tagTypes';
 
 export function Tag() {
+  const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<CmsTag | undefined>(undefined);
@@ -46,7 +48,7 @@ export function Tag() {
     <div>
       <Button onClick={handleAddTag}>
         <IconPlus />
-        Add Tag
+        {t('add-tag')}
         <Kbd>T</Kbd>
       </Button>
     </div>
@@ -63,16 +65,16 @@ export function Tag() {
         <div className="flex flex-col w-full overflow-hidden flex-auto">
           <div className="flex pt-2 pl-4 justify-between items-center mb-2">
             <div className="text-sm text-gray-600">
-              Found {totalCount} tags
+              {t('found-x-tags', { count: totalCount })}
             </div>
           </div>
           {!loading && (!tags || tags.length === 0) ? (
             <div className="rounded-lg overflow-hidden">
               <EmptyState
                 icon={IconTags}
-                title="No tags yet"
-                description="Get started by creating your first tag."
-                actionLabel="Add tag"
+                title={t('no-tags-yet')}
+                description={t('no-tags-yet-desc')}
+                actionLabel={t('add-tag')}
                 onAction={handleAddTag}
               />
             </div>

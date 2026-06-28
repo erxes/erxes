@@ -11,6 +11,7 @@ import {
   RecordTableInlineCell,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import {
   InventoryCategoryAction,
@@ -51,7 +52,10 @@ export const getInventoryCategoryColumns = (
   RecordTable.checkboxColumn as ColumnDef<InventoryCategoryItem>,
   {
     id: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Code" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconHash} label={t('code')} />;
+    },
     cell: ({ row }) => (
       <RecordTableInlineCell className="font-mono text-xs">
         <TextOverflowTooltip value={getCategoryCode(row.original, action)} />
@@ -60,7 +64,10 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'name',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Name" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('name')} />;
+    },
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={getCategoryName(row.original, action)} />
@@ -69,9 +76,10 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFileDescription} label="Description" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconFileDescription} label={t('description')} />;
+    },
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-muted-foreground">
         <TextOverflowTooltip
@@ -82,17 +90,21 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'status',
-    header: () => (
-      <RecordTable.InlineHead icon={IconStatusChange} label="Status" />
-    ),
-    cell: ({ row }) => (
-      <RecordTableInlineCell>
-        {row.original.syncStatus === true ? (
-          <Badge variant={getStatusBadgeVariant(action)}>Synced</Badge>
-        ) : (
-          <Badge variant="warning">Pending</Badge>
-        )}
-      </RecordTableInlineCell>
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconStatusChange} label={t('status')} />;
+    },
+    cell: ({ row }) => {
+      const { t } = useTranslation('mongolian');
+      return (
+        <RecordTableInlineCell>
+          {row.original.syncStatus === true ? (
+            <Badge variant={getStatusBadgeVariant(action)}>{t('synced')}</Badge>
+          ) : (
+            <Badge variant="warning">{t('pending')}</Badge>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
   },
 ];

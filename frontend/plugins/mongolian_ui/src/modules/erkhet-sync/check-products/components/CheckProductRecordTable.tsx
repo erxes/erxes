@@ -1,5 +1,6 @@
 import { RecordTable, Button } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { CHECK_PRODUCTS_CURSOR_SESSION_KEY } from '../constants/checkProductsCursorSessionKey';
 import { useCheckProduct } from '../hooks/useCheckProduct';
 import { checkProductColumns } from './CheckProductColumn';
@@ -15,6 +16,7 @@ export const CheckProductRecordTable = () => {
     toCheckProducts,
   } = useCheckProduct();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { t } = useTranslation('mongolian');
 
   const handleFetchMore = () => {
     checkProduct();
@@ -23,14 +25,14 @@ export const CheckProductRecordTable = () => {
   return (
     <div className="m-3 h-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Products</h2>
+        <h2 className="text-lg font-semibold">{t('products')}</h2>
         <Button
           onClick={syncProducts}
           disabled={
             syncLoading || !filteredProducts || filteredProducts.length === 0
           }
         >
-          {syncLoading ? 'Syncing...' : 'Sync'}
+          {syncLoading ? t('syncing') : t('sync')}
         </Button>
       </div>
 
@@ -69,10 +71,10 @@ export const CheckProductRecordTable = () => {
                       className="text-muted-foreground mx-auto mb-4"
                     />
                     <h3 className="text-xl font-semibold mb-2">
-                      No product yet
+                      {t('no-product-yet')}
                     </h3>
                     <p className="text-muted-foreground max-w-md">
-                      Get started by creating your first product.
+                      {t('create-first-product')}
                     </p>
                   </div>
                 </div>
