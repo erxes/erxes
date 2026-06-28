@@ -6,6 +6,7 @@ const managePropertyRuleSchema = z.object({
   operator: z.string().min(1, 'Operator is required'),
   value: z.any().optional(),
   isExpression: z.boolean().optional(),
+  meta: z.record(z.any()).optional(),
 });
 
 const setPropertyTargetSchema = z.object({

@@ -6,6 +6,7 @@ import type { TAiAgentLoadedContextFile } from '../aiAgent/context';
 import { TAiAgentActionConfig } from '../aiAction/contract';
 import { extractKnowledgeTerms } from './normalize';
 import {
+  fitChunksWithinBytes,
   formatAiKnowledgeChunksForPrompt,
   retrieveAiKnowledgeChunks,
 } from './retrieve';
@@ -422,20 +423,19 @@ const getAlwaysIncludedProductCatalogChunks = async ({
   }
 
   const selectedProductSourceIds = getSelectedProductSourceIds(sources);
-  const materializedBindings =
-    await models.AiAgentKnowledgeSourceBindings.find(
-      {
-        agentId,
-        pluginName: PRODUCT_KNOWLEDGE_SOURCE.pluginName,
-        moduleName: PRODUCT_KNOWLEDGE_SOURCE.moduleName,
-        sourceKey: PRODUCT_KNOWLEDGE_SOURCE.key,
-        materialized: true,
-        status: 'indexed',
-      },
-      { sourceId: 1 },
-    )
-      .limit(MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS + 1)
-      .lean<Array<{ sourceId: string }>>();
+  const materializedBindings = await models.AiAgentKnowledgeSourceBindings.find(
+    {
+      agentId,
+      pluginName: PRODUCT_KNOWLEDGE_SOURCE.pluginName,
+      moduleName: PRODUCT_KNOWLEDGE_SOURCE.moduleName,
+      sourceKey: PRODUCT_KNOWLEDGE_SOURCE.key,
+      materialized: true,
+      status: 'indexed',
+    },
+    { sourceId: 1 },
+  )
+    .limit(MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS + 1)
+    .lean<Array<{ sourceId: string }>>();
   const productSourceIds = [
     ...new Set([
       ...selectedProductSourceIds,
@@ -531,16 +531,20 @@ const formatProductMatchSummary = (chunks: TAiKnowledgeChunk[]) => {
 const buildProductCatalogContextFile = ({
   chunks,
   latestUserText,
+  maxContextBytes,
 }: {
   chunks: TAiKnowledgeChunk[];
   latestUserText: string;
+  maxContextBytes: number;
 }): TAiAgentLoadedContextFile | null => {
   if (!chunks.length) {
     return null;
   }
 
+  const cappedChunks = fitChunksWithinBytes(chunks, maxContextBytes).chunks;
+
   const matchedChunks = getMatchedProductCatalogChunks({
-    chunks,
+    chunks: cappedChunks,
     latestUserText,
   });
   const content = [
@@ -551,7 +555,7 @@ const buildProductCatalogContextFile = ({
     'Do not deny products listed here unless this catalog context explicitly says they are deleted or inactive.',
     '',
     formatProductMatchSummary(matchedChunks),
-    formatAiKnowledgeChunksForPrompt(chunks),
+    formatAiKnowledgeChunksForPrompt(cappedChunks),
   ].join('\n');
 
   return {
@@ -593,6 +597,7 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
   const productCatalogContext = buildProductCatalogContextFile({
     chunks: productCatalogChunks,
     latestUserText,
+    maxContextBytes: retrieval.maxContextBytes,
   });
   const searchableKnowledgeSources = getSearchableKnowledgeSources({
     sources: knowledgeSources,

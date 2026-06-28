@@ -84,7 +84,13 @@ export const loadProductClass = (
     }
 
     private static async refreshKnowledge(productIds: string[]) {
-      await refreshProductKnowledge({ subdomain, productIds });
+      try {
+        await refreshProductKnowledge({ subdomain, productIds });
+      } catch (error) {
+        console.error(
+          `Failed to refresh product knowledge: ${(error as Error).message}`,
+        );
+      }
     }
 
     /**

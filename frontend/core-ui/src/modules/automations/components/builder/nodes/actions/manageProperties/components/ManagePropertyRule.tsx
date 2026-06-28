@@ -20,6 +20,7 @@ export const ManagePropertyRule = ({
 }: LocalRuleProps) => {
   const {
     control,
+    setValue,
     groups,
     operators,
     handleFieldChange,
@@ -116,6 +117,12 @@ export const ManagePropertyRule = ({
                   CustomInput={CustomInput}
                   value={field.value ?? ''}
                   onChange={field.onChange}
+                  meta={rule?.meta}
+                  onMetaChange={(meta) =>
+                    setValue(`rules.${index}.meta`, meta, {
+                      shouldDirty: true,
+                    })
+                  }
                   disabled={placeholderInputProps.isDisabled}
                 />
               ) : (

@@ -47,6 +47,7 @@ export const indexAiAgentKnowledgeWorker = async (job: Job) => {
       });
 
   if (!parsedAgent) {
+    await models.KnowledgeChunks.deleteMany({ agentId });
     return { sourceSyncResult, status: 'removed' as const };
   }
 

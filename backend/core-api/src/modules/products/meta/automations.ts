@@ -67,14 +67,19 @@ const toStringArray = (value: unknown) =>
     ? value.filter((item): item is string => typeof item === 'string' && !!item)
     : [];
 
-const uniqueStrings = (values: string[]) => [...new Set(values.filter(Boolean))];
+const uniqueStrings = (values: string[]) => [
+  ...new Set(values.filter(Boolean)),
+];
 
 const normalizeBatchLimit = (limit?: number) => {
   if (!Number.isFinite(limit)) {
     return DEFAULT_BATCH_LIMIT;
   }
 
-  return Math.min(Math.max(Math.floor(limit || DEFAULT_BATCH_LIMIT), 1), MAX_BATCH_LIMIT);
+  return Math.min(
+    Math.max(Math.floor(limit || DEFAULT_BATCH_LIMIT), 1),
+    MAX_BATCH_LIMIT,
+  );
 };
 
 const normalizeProductKnowledgeConfig = (
@@ -128,7 +133,11 @@ const buildProductKnowledgeSelector = async ({
     models,
     normalizedConfig.excludeCategoryIds,
   );
-  const hasScope = !!includedProductIds.length || !!includedCategoryIds.length;
+  const hasScope =
+    !!includedProductIds.length ||
+    !!includedCategoryIds.length ||
+    !!normalizedConfig.excludeProductIds.length ||
+    !!excludedCategoryIds.length;
   const baseSelector: FilterQuery<IProductDocument> = {
     status: { $ne: PRODUCT_STATUSES.DELETED },
   };
@@ -170,8 +179,11 @@ const buildProductKnowledgeSelector = async ({
     });
   }
 
+  // When only exclusions are configured ("all products minus exclusions"),
+  // includeFilters is empty — omit the `$or` so MongoDB does not reject an
+  // empty `$or` array, and let exclusionFilters apply against the full catalog.
   const totalAndFilters: FilterQuery<IProductDocument>[] = [
-    { $or: includeFilters },
+    ...(includeFilters.length ? [{ $or: includeFilters }] : []),
     ...exclusionFilters,
   ];
   const cursorFilters: FilterQuery<IProductDocument>[] = cursor
@@ -193,8 +205,7 @@ const buildProductKnowledgeSelector = async ({
 
 const getProductUpdatedAt = (
   product: Pick<TProductKnowledgeRecord, 'updatedAt' | 'createdAt'>,
-) =>
-  (product.updatedAt || product.createdAt || new Date()).toISOString();
+) => (product.updatedAt || product.createdAt || new Date()).toISOString();
 
 const formatProductPrice = ({
   unitPrice,
@@ -240,7 +251,8 @@ const toKnowledgeDocument = (
     version: getProductUpdatedAt(product),
     updatedAt: getProductUpdatedAt(product),
   },
-  title: product.name || product.shortName || product.code || 'Untitled product',
+  title:
+    product.name || product.shortName || product.code || 'Untitled product',
   content: formatProductContent(product),
   contentFormat: 'text',
   metadata: {

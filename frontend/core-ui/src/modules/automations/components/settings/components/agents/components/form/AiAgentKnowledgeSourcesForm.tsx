@@ -190,7 +190,9 @@ export const AiAgentKnowledgeSourcesForm = () => {
     );
     const nextKnowledgeSources = [...knowledgeSources];
 
-    if (sourceIds.length || config !== undefined) {
+    const hasMeaningfulConfig = !!config && Object.keys(config).length > 0;
+
+    if (sourceIds.length || hasMeaningfulConfig) {
       const selection = {
         pluginName: source.pluginName,
         moduleName: source.moduleName,

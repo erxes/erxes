@@ -16,7 +16,7 @@ import {
 const DEFAULT_TOP_K = 5;
 const DEFAULT_MAX_CONTEXT_BYTES = 8000;
 
-const fitChunksWithinBytes = (
+export const fitChunksWithinBytes = (
   chunks: TAiKnowledgeChunk[],
   maxContextBytes: number,
 ) => {

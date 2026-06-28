@@ -166,6 +166,10 @@ export const indexAiAgentKnowledgeFile = async ({
       sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
       sourceId,
       chunkIndex: { $gte: chunks.length },
+      $or: [
+        { sourceUpdatedAt: { $lte: sourceUpdatedAt } },
+        { sourceUpdatedAt: { $exists: false } },
+      ],
     });
 
     await updateAgentFileIndexState({
@@ -190,14 +194,6 @@ export const indexAiAgentKnowledgeFile = async ({
     };
   } catch (error) {
     const message = (error as Error).message;
-
-    await models.KnowledgeChunks.deleteMany({
-      sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
-      sourceId: buildAiAgentFileKnowledgeSourceId({
-        agentId,
-        fileId: file.id,
-      }),
-    });
 
     await updateAgentFileIndexState({
       models,

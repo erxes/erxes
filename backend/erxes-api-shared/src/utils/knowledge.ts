@@ -74,7 +74,7 @@ export const enqueueKnowledgeIndexJob = async ({
     },
     {
       attempts: 2,
-      jobId: `knowledge:${source.type}:${source.id}:${source.updatedAt}`,
+      jobId: `knowledge:${source.type}:${source.id}:${job.operation}:${source.version}:${source.updatedAt}`,
       removeOnComplete: true,
       removeOnFail: true,
       ...jobOptions,

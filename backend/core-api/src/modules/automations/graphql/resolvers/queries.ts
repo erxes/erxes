@@ -312,15 +312,19 @@ export const automationQueries = {
     { agentId }: { agentId: string },
     { subdomain }: IContext,
   ) {
-    return await sendWorkerMessage({
-      pluginName: 'automations',
-      queueName: 'aiAgent',
-      jobName: 'getAiAgentKnowledgeSourceStatuses',
-      subdomain,
-      data: { agentId },
-      defaultValue: [],
-      timeout: 10000,
-    });
+    try {
+      return await sendWorkerMessage({
+        pluginName: 'automations',
+        queueName: 'aiAgent',
+        jobName: 'getAiAgentKnowledgeSourceStatuses',
+        subdomain,
+        data: { agentId },
+        defaultValue: [],
+        timeout: 10000,
+      });
+    } catch {
+      return [];
+    }
   },
 
   /**

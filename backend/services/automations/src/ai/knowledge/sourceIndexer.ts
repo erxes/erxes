@@ -56,7 +56,9 @@ const toStringArray = (value: unknown) =>
     ? value.filter((item): item is string => typeof item === 'string' && !!item)
     : [];
 
-const uniqueStrings = (values: string[]) => [...new Set(values.filter(Boolean))];
+const uniqueStrings = (values: string[]) => [
+  ...new Set(values.filter(Boolean)),
+];
 
 const buildMaterializedSourceConfig = (source: TAiAgentKnowledgeSource) => {
   if (!isProductKnowledgeSource(source)) {
@@ -425,7 +427,9 @@ const indexBoundKnowledgeDocument = async ({
         $set: {
           status: 'failed',
           indexError:
-            error instanceof Error ? error.message : 'Knowledge indexing failed.',
+            error instanceof Error
+              ? error.message
+              : 'Knowledge indexing failed.',
         },
       },
     );
@@ -577,7 +581,10 @@ const cleanupRemovedBindings = async ({
       return true;
     }
 
-    return !binding.materialized && !nextDirectBindingKeys.has(getBindingKey(binding));
+    return (
+      !binding.materialized &&
+      !nextDirectBindingKeys.has(getBindingKey(binding))
+    );
   });
   const removedChunks = await Promise.all(
     removedBindings.map((binding) =>
@@ -661,7 +668,8 @@ const cleanupEmptyMaterializedSources = async ({
   sources: TAiAgentKnowledgeSource[];
 }) => {
   const emptyProductSources = sources.filter(
-    (source) => isProductKnowledgeSource(source) && !hasProductScopeSelection(source),
+    (source) =>
+      isProductKnowledgeSource(source) && !hasProductScopeSelection(source),
   );
   const removedCounts = await Promise.all(
     emptyProductSources.map(async (source) => {
@@ -672,9 +680,7 @@ const cleanupEmptyMaterializedSources = async ({
         materialized: true,
       }).lean<IAiAgentKnowledgeSourceBindingDocument[]>();
       const removed = await Promise.all(
-        bindings.map((binding) =>
-          removeBindingAndCleanup({ models, binding }),
-        ),
+        bindings.map((binding) => removeBindingAndCleanup({ models, binding })),
       );
 
       return removed.filter(Boolean).length;
@@ -859,7 +865,9 @@ export const syncAiKnowledgeSourceScope = async ({
       }
 
       if (batch.hasMore && !batch.nextCursor) {
-        throw new Error('Knowledge source batch returned hasMore without cursor.');
+        throw new Error(
+          'Knowledge source batch returned hasMore without cursor.',
+        );
       }
 
       cursor = batch.nextCursor;
@@ -882,10 +890,25 @@ export const syncAiKnowledgeSourceScope = async ({
       }
     }
 
-    const removedCount = await removeStaleMaterializedBindings({
-      models,
-      run,
+    // Only the latest run for this agent/source/configHash may prune stale
+    // bindings. An older concurrent run must not delete bindings just written
+    // by a newer run (whose lastSyncedRunId differs from this older run's id).
+    const hasNewerRun = await models.AiAgentKnowledgeIndexRuns.exists({
+      agentId: run.agentId,
+      pluginName: run.pluginName,
+      moduleName: run.moduleName,
+      sourceKey: run.sourceKey,
+      configHash: run.configHash,
+      _id: { $ne: run._id },
+      createdAt: { $gt: run.createdAt },
     });
+
+    const removedCount = hasNewerRun
+      ? 0
+      : await removeStaleMaterializedBindings({
+          models,
+          run,
+        });
 
     await models.AiAgentKnowledgeIndexRuns.updateOne(
       { _id: run._id },
@@ -1028,12 +1051,14 @@ const refreshMaterializedProductSource = async ({
   };
 
   if (!document) {
-    const existingBinding = await models.AiAgentKnowledgeSourceBindings.findOne({
-      agentId: target.agentId,
-      ...identity,
-      sourceId,
-      materialized: true,
-    }).lean<IAiAgentKnowledgeSourceBindingDocument | null>();
+    const existingBinding = await models.AiAgentKnowledgeSourceBindings.findOne(
+      {
+        agentId: target.agentId,
+        ...identity,
+        sourceId,
+        materialized: true,
+      },
+    ).lean<IAiAgentKnowledgeSourceBindingDocument | null>();
 
     if (!existingBinding) {
       return false;

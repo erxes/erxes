@@ -164,6 +164,7 @@ export const removeKnowledgeDocument = async ({
   await models.KnowledgeChunks.deleteMany({
     sourceType: source.type,
     sourceId: source.id,
+    ...getSameOrOlderSourceVersionSelector(getSourceUpdatedAt(source)),
   });
 
   return {

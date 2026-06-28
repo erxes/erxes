@@ -1,6 +1,6 @@
 import { TPropertyInputMeta, TPropertyInputProps } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { ComponentType, useState } from 'react';
+import { ComponentType } from 'react';
 import { IField, pluginsConfigState } from 'ui-modules';
 
 const TOKEN_REGEX = /^\[\[\s*([\s\S]*?)\s*\]\]$/;
@@ -43,21 +43,23 @@ export const ManagePropertyCustomInput = ({
   CustomInput,
   value,
   onChange,
+  meta,
+  onMetaChange,
   disabled,
 }: {
   CustomInput: ComponentType<TPropertyInputProps>;
   value?: string;
   onChange: (value: string) => void;
+  meta?: TPropertyInputMeta;
+  onMetaChange: (meta: TPropertyInputMeta) => void;
   disabled?: boolean;
 }) => {
-  const [meta, setMeta] = useState<TPropertyInputMeta>({});
-
   return (
     <CustomInput
       value={unwrapToken(value)}
       onValueChange={(next) => onChange(wrapToken(next))}
       meta={meta}
-      onMetaChange={setMeta}
+      onMetaChange={onMetaChange}
       disabled={disabled}
     />
   );
