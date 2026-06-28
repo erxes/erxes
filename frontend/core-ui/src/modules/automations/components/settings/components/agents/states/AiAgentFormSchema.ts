@@ -35,6 +35,7 @@ const aiAgentKnowledgeSourceSchema = z.object({
   moduleName: z.string(),
   key: z.string(),
   sourceIds: z.array(z.string()).max(1000).default([]),
+  config: z.record(z.unknown()).default({}),
 });
 
 const aiAgentToolSchema = z.object({
@@ -143,6 +144,7 @@ type TAiAgentKnowledgeSourceInput = {
   moduleName?: unknown;
   key?: unknown;
   sourceIds?: unknown;
+  config?: unknown;
 };
 
 type TAiAgentToolInput = {
@@ -321,7 +323,13 @@ const normalizeAiAgentKnowledgeSources = (sources: unknown[] = []) =>
           ]
         : [];
 
-      return { pluginName, moduleName, key, sourceIds };
+      return {
+        pluginName,
+        moduleName,
+        key,
+        sourceIds,
+        config: isRecord(current.config) ? { ...current.config } : {},
+      };
     })
     .filter((source) => source.pluginName && source.moduleName && source.key);
 

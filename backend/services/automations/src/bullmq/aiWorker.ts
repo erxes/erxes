@@ -7,6 +7,7 @@ import {
   refreshAiKnowledgeSource,
   removeKnowledgeDocument,
   syncAiAgentKnowledgeSources,
+  syncAiKnowledgeSourceScope,
 } from '../ai';
 import type {
   TAiKnowledgeSourceReference,
@@ -36,12 +37,14 @@ export const indexAiAgentKnowledgeWorker = async (job: Job) => {
   const agent = await models.AiAgents.findById({ _id: agentId }).lean();
 
   const parsedAgent = agent ? parseAiAgentInput(agent) : null;
-  const sourceSyncResult = await syncAiAgentKnowledgeSources({
-    models,
-    subdomain,
-    agentId,
-    sources: parsedAgent?.context.knowledgeSources || [],
-  });
+  const sourceSyncResult = fileId
+    ? { status: 'skipped' as const, reason: 'file-only reindex' }
+    : await syncAiAgentKnowledgeSources({
+        models,
+        subdomain,
+        agentId,
+        sources: parsedAgent?.context.knowledgeSources || [],
+      });
 
   if (!parsedAgent) {
     return { sourceSyncResult, status: 'removed' as const };
@@ -106,6 +109,19 @@ export const getAiAgentKnowledgeSourceStatusesWorker = async (
   });
 };
 
+export const syncAiKnowledgeSourceScopeWorker = async (
+  job: Job<{ subdomain: string; data: { runId: string } }>,
+) => {
+  const { data, subdomain } = job.data;
+  const models = await generateModels(subdomain);
+
+  return syncAiKnowledgeSourceScope({
+    models,
+    subdomain,
+    runId: data.runId,
+  });
+};
+
 export const aiWorker = async (job: Job) => {
   const name = job.name;
   switch (name) {
@@ -117,6 +133,8 @@ export const aiWorker = async (job: Job) => {
       return indexKnowledgeDocumentWorker(job);
     case 'refreshAiKnowledgeSource':
       return refreshAiKnowledgeSourceWorker(job);
+    case 'syncAiKnowledgeSourceScope':
+      return syncAiKnowledgeSourceScopeWorker(job);
     case 'getAiAgentKnowledgeSourceStatuses':
       return getAiAgentKnowledgeSourceStatusesWorker(job);
     default:

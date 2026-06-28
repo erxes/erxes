@@ -16,7 +16,7 @@ import {
   FindObjectInput,
   CheckTargetMatchInput,
   GenerateAiContextInput,
-  LoadAiKnowledgeDocumentsInput,
+  LoadAiKnowledgeDocumentBatchInput,
   LookupAiToolInput,
   ReceiveActionsInput,
   TAutomationProducersInput,
@@ -54,7 +54,7 @@ export const startAutomations = async (
     findObject,
     resolveOutputPaths,
     generateAiContext,
-    loadAiKnowledgeDocuments,
+    loadAiKnowledgeDocumentBatch,
     lookupAiTool,
   } = config || {};
 
@@ -85,16 +85,14 @@ export const startAutomations = async (
       );
   }
 
-  if (loadAiKnowledgeDocuments) {
-    automationProcedures[TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENTS] =
-      t.procedure
-        .input(LoadAiKnowledgeDocumentsInput)
-        .mutation(async ({ ctx, input }) =>
-          loadAiKnowledgeDocuments(
-            { subdomain: input.subdomain, data: input.data },
-            ctx,
-          ),
-        );
+  if (loadAiKnowledgeDocumentBatch) {
+    automationProcedures[
+      TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH
+    ] = t.procedure
+      .input(LoadAiKnowledgeDocumentBatchInput)
+      .mutation(async ({ ctx, input }) =>
+        loadAiKnowledgeDocumentBatch(input, ctx),
+      );
   }
 
   if (lookupAiTool) {

@@ -31,6 +31,7 @@ const aiAgentKnowledgeSourceSchema = z.object({
   moduleName: z.string().trim().min(1),
   key: z.string().trim().min(1),
   sourceIds: z.array(z.string().trim().min(1)).max(1000).default([]),
+  config: z.record(z.unknown()).default({}),
 });
 
 const aiAgentToolSchema = z.object({

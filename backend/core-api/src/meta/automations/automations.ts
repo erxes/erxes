@@ -52,11 +52,11 @@ export const initAutomation = (app: Express) =>
 
       return findObject(models, data);
     },
-    loadAiKnowledgeDocuments: async ({ subdomain, data }) => {
+    loadAiKnowledgeDocumentBatch: async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       if (data.moduleName === 'products') {
-        return coreProductAiKnowledgeProvider.loadAiKnowledgeDocuments(
+        return coreProductAiKnowledgeProvider.loadAiKnowledgeDocumentBatch(
           models,
           data,
         );

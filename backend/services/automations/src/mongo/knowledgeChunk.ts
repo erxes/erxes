@@ -13,6 +13,9 @@ export interface IKnowledgeChunkDocument {
   sourceVersion: string;
   sourceUpdatedAt: Date;
   sourceUrl?: string;
+  agentId?: string;
+  fileId?: string;
+  fileName?: string;
   visibility: 'public' | 'internal';
   title: string;
   chunkIndex: number;
@@ -40,6 +43,9 @@ export const knowledgeChunkSchema = new Schema<IKnowledgeChunkDocument>(
     sourceVersion: { type: String, required: true },
     sourceUpdatedAt: { type: Date, required: true },
     sourceUrl: { type: String },
+    agentId: { type: String, index: true },
+    fileId: { type: String, index: true },
+    fileName: { type: String },
     visibility: {
       type: String,
       enum: ['public', 'internal'],
@@ -82,6 +88,27 @@ knowledgeChunkSchema.index({
   sourceType: 1,
   sourceId: 1,
   sourceUpdatedAt: -1,
+});
+
+knowledgeChunkSchema.index({
+  agentId: 1,
+  sourceType: 1,
+  fileId: 1,
+});
+
+knowledgeChunkSchema.index({
+  agentId: 1,
+  priority: 1,
+});
+
+knowledgeChunkSchema.index({
+  agentId: 1,
+  topics: 1,
+});
+
+knowledgeChunkSchema.index({
+  agentId: 1,
+  keywords: 1,
 });
 
 knowledgeChunkSchema.index({

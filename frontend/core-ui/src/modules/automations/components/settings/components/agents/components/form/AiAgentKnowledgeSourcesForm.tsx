@@ -45,6 +45,44 @@ const getSourceIds = ({
       selection.key === source.key,
   )?.sourceIds || [];
 
+const getSourceSelection = ({
+  sources,
+  source,
+}: {
+  sources: TAiAgentForm['context']['knowledgeSources'];
+  source: TAiKnowledgeSourceConfig;
+}) =>
+  sources.find(
+    (selection) =>
+      selection.pluginName === source.pluginName &&
+      selection.moduleName === source.moduleName &&
+      selection.key === source.key,
+  );
+
+const getSourceConfig = ({
+  sources,
+  source,
+}: {
+  sources: TAiAgentForm['context']['knowledgeSources'];
+  source: TAiKnowledgeSourceConfig;
+}) =>
+  sources.find(
+    (selection) =>
+      selection.pluginName === source.pluginName &&
+      selection.moduleName === source.moduleName &&
+      selection.key === source.key,
+  )?.config || {};
+
+const getArrayConfigCount = (
+  config: Record<string, unknown> | undefined,
+  keys: string[],
+) =>
+  keys.reduce((sum, key) => {
+    const value = config?.[key];
+
+    return sum + (Array.isArray(value) ? value.length : 0);
+  }, 0);
+
 export const AiAgentKnowledgeSourcesForm = () => {
   const { t } = useTranslation('automations');
   const { id: agentId } = useParams();
@@ -70,7 +108,9 @@ export const AiAgentKnowledgeSourcesForm = () => {
     (status) => status.status === 'queued' || status.status === 'indexing',
   );
   const indexedCount = statuses.filter(
-    (status) => status.status === 'indexed',
+    (status) =>
+      status.status === 'indexed' &&
+      !status.sourceId.startsWith('__scope_run__:'),
   ).length;
   const indexingCount = statuses.filter(
     (status) => status.status === 'queued' || status.status === 'indexing',
@@ -91,11 +131,35 @@ export const AiAgentKnowledgeSourcesForm = () => {
     return stopPolling;
   }, [agentId, hasActiveIndexing, startPolling, stopPolling]);
 
+  const getSourceCount = (source: TAiKnowledgeSourceConfig) => {
+    const selection = getSourceSelection({
+      sources: knowledgeSources,
+      source,
+    });
+
+    if (!selection) {
+      return 0;
+    }
+
+    if (source.pluginName === 'core' && source.key === 'product.knowledge') {
+      return (
+        getArrayConfigCount(selection.config, [
+          'includeCategoryIds',
+          'includeProductIds',
+          'categoryIds',
+          'productIds',
+        ]) || selection.sourceIds.length
+      );
+    }
+
+    return selection.sourceIds.length || 1;
+  };
+
   const railItems = [
     ...sources.map((source) => ({
       key: getSourceKey(source),
       label: source.label,
-      count: getSourceIds({ sources: knowledgeSources, source }).length,
+      count: getSourceCount(source),
       icon: IconFileText,
     })),
     {
@@ -116,6 +180,7 @@ export const AiAgentKnowledgeSourcesForm = () => {
   const handleSourceIdsChange = (
     source: TAiKnowledgeSourceConfig,
     sourceIds: string[],
+    config?: Record<string, unknown>,
   ) => {
     const sourceIndex = knowledgeSources.findIndex(
       (selection) =>
@@ -125,12 +190,13 @@ export const AiAgentKnowledgeSourcesForm = () => {
     );
     const nextKnowledgeSources = [...knowledgeSources];
 
-    if (sourceIds.length) {
+    if (sourceIds.length || config !== undefined) {
       const selection = {
         pluginName: source.pluginName,
         moduleName: source.moduleName,
         key: source.key,
         sourceIds,
+        config: config || {},
       };
 
       if (sourceIndex === -1) {
@@ -146,6 +212,34 @@ export const AiAgentKnowledgeSourcesForm = () => {
       shouldDirty: true,
       shouldValidate: true,
     });
+  };
+
+  const handleSourceEnabledChange = (
+    source: TAiKnowledgeSourceConfig,
+    enabled: boolean,
+  ) => {
+    if (enabled) {
+      handleSourceIdsChange(
+        source,
+        getSourceIds({ sources: knowledgeSources, source }),
+        getSourceConfig({ sources: knowledgeSources, source }),
+      );
+      return;
+    }
+
+    setValue(
+      'context.knowledgeSources',
+      knowledgeSources.filter(
+        (selection) =>
+          selection.pluginName !== source.pluginName ||
+          selection.moduleName !== source.moduleName ||
+          selection.key !== source.key,
+      ),
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      },
+    );
   };
 
   return (
@@ -196,7 +290,17 @@ export const AiAgentKnowledgeSourcesForm = () => {
           ) : activeSource ? (
             activeSource.sourceSelector === 'local' ? (
               <AiAgentProductKnowledgeForm
+                enabled={
+                  !!getSourceSelection({
+                    sources: knowledgeSources,
+                    source: activeSource,
+                  })
+                }
                 value={getSourceIds({
+                  sources: knowledgeSources,
+                  source: activeSource,
+                })}
+                config={getSourceConfig({
                   sources: knowledgeSources,
                   source: activeSource,
                 })}
@@ -206,8 +310,11 @@ export const AiAgentKnowledgeSourcesForm = () => {
                     status.moduleName === activeSource.moduleName &&
                     status.sourceKey === activeSource.key,
                 )}
-                onChange={(sourceIds) =>
-                  handleSourceIdsChange(activeSource, sourceIds)
+                onEnabledChange={(enabled) =>
+                  handleSourceEnabledChange(activeSource, enabled)
+                }
+                onChange={(sourceIds, config) =>
+                  handleSourceIdsChange(activeSource, sourceIds, config)
                 }
               />
             ) : (
@@ -221,14 +328,20 @@ export const AiAgentKnowledgeSourcesForm = () => {
                     sources: knowledgeSources,
                     source: activeSource,
                   }),
+                  config: getSourceConfig({
+                    sources: knowledgeSources,
+                    source: activeSource,
+                  }),
                   statuses: statuses.filter(
                     (status) =>
                       status.pluginName === activeSource.pluginName &&
                       status.moduleName === activeSource.moduleName &&
                       status.sourceKey === activeSource.key,
                   ),
-                  onChange: (sourceIds: string[]) =>
-                    handleSourceIdsChange(activeSource, sourceIds),
+                  onChange: (
+                    sourceIds: string[],
+                    config?: Record<string, unknown>,
+                  ) => handleSourceIdsChange(activeSource, sourceIds, config),
                 }}
               />
             )

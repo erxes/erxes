@@ -191,6 +191,7 @@ export const runAiAction = async ({
   const retrievedContext =
     models && agentId
       ? await retrieveAiAgentKnowledgeContextFiles({
+          subdomain,
           models,
           agentId,
           agent,

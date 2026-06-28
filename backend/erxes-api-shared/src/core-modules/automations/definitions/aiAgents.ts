@@ -110,6 +110,7 @@ export interface IAiAgentKnowledgeSource {
   moduleName: string;
   key: string;
   sourceIds: string[];
+  config?: Record<string, unknown>;
 }
 
 export interface IAiAgentTool {
@@ -215,6 +216,10 @@ const aiAgentKnowledgeSourceSchema = new Schema<IAiAgentKnowledgeSource>(
     moduleName: { type: String, required: true },
     key: { type: String, required: true },
     sourceIds: { type: [String], default: () => [] },
+    config: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   { _id: false },
 );
@@ -285,4 +290,13 @@ export const aiAgentSchema = new Schema<AiAgentDocument>(
     },
   },
   { timestamps: true },
+);
+
+aiAgentSchema.index(
+  {
+    'context.knowledgeSources.pluginName': 1,
+    'context.knowledgeSources.moduleName': 1,
+    'context.knowledgeSources.key': 1,
+  },
+  { name: 'ai_agent_knowledge_source_config_lookup' },
 );

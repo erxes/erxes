@@ -15,6 +15,9 @@ export interface IAiAgentKnowledgeSourceBindingDocument {
   moduleName: string;
   sourceKey: string;
   sourceId: string;
+  materialized?: boolean;
+  configHash?: string;
+  lastSyncedRunId?: string;
   status: TAiKnowledgeSourceIndexStatus;
   chunkCount?: number;
   indexedAt?: Date;
@@ -32,6 +35,9 @@ export const aiAgentKnowledgeSourceBindingSchema =
       moduleName: { type: String, required: true },
       sourceKey: { type: String, required: true },
       sourceId: { type: String, required: true },
+      materialized: { type: Boolean, default: false, index: true },
+      configHash: { type: String },
+      lastSyncedRunId: { type: String },
       status: {
         type: String,
         enum: ['queued', 'indexing', 'indexed', 'failed', 'skipped'],
@@ -64,4 +70,16 @@ aiAgentKnowledgeSourceBindingSchema.index(
     sourceId: 1,
   },
   { name: 'ai_agent_knowledge_source_lookup' },
+);
+
+aiAgentKnowledgeSourceBindingSchema.index(
+  {
+    agentId: 1,
+    pluginName: 1,
+    moduleName: 1,
+    sourceKey: 1,
+    materialized: 1,
+    configHash: 1,
+  },
+  { name: 'ai_agent_knowledge_source_materialized' },
 );

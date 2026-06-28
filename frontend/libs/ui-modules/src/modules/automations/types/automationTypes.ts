@@ -183,6 +183,7 @@ export type TAiKnowledgeSourceSelection = {
   moduleName: string;
   key: string;
   sourceIds: string[];
+  config?: Record<string, unknown>;
 };
 
 export type TAiToolSelection = {
@@ -202,13 +203,20 @@ export type TAiKnowledgeSourceIndexStatus = {
   chunkCount?: number;
   indexedAt?: string;
   indexError?: string;
+  runId?: string;
+  totalCount?: number;
+  processedCount?: number;
+  indexedCount?: number;
+  failedCount?: number;
+  removedCount?: number;
 };
 
 export type AutomationAiKnowledgeSourceSelectorProps = {
   componentType: 'aiKnowledgeSourceSelector';
   source: TAiKnowledgeSourceConfig;
   value: string[];
-  onChange: (sourceIds: string[]) => void;
+  config?: Record<string, unknown>;
+  onChange: (sourceIds: string[], config?: Record<string, unknown>) => void;
   statuses?: TAiKnowledgeSourceIndexStatus[];
 };
 

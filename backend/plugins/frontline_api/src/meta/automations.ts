@@ -82,10 +82,10 @@ export const automations = {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
-  loadAiKnowledgeDocuments: createCoreModuleProducerHandler({
+  loadAiKnowledgeDocumentBatch: createCoreModuleProducerHandler({
     moduleName: 'automations',
     modules,
-    methodName: TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENTS,
+    methodName: TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH,
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),

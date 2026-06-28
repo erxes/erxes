@@ -4,6 +4,7 @@ import {
   CheckCustomTriggerInput,
   FindObjectInput,
   CheckTargetMatchInput,
+  LoadAiKnowledgeDocumentBatchInput,
   LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
@@ -160,6 +161,13 @@ export type TAiToolLookupResult = {
   summary?: string;
 };
 
+export type TAiKnowledgeDocumentBatchResult = {
+  documents: TKnowledgeDocument[];
+  totalCount: number;
+  nextCursor?: string;
+  hasMore: boolean;
+};
+
 export type TAiContextHistoryItem = {
   type?: string;
   role?: 'customer' | 'agent' | 'bot' | 'system' | 'user' | 'assistant';
@@ -248,17 +256,10 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<TAiContext | null>;
 
-  loadAiKnowledgeDocuments?: (
-    args: {
-      subdomain: string;
-      data: {
-        moduleName: string;
-        sourceKey: string;
-        sourceIds: string[];
-      };
-    },
+  loadAiKnowledgeDocumentBatch?: (
+    args: z.infer<typeof LoadAiKnowledgeDocumentBatchInput>,
     context: IAutomationContext,
-  ) => Promise<TKnowledgeDocument[]>;
+  ) => Promise<TAiKnowledgeDocumentBatchResult>;
 
   lookupAiTool?: (
     args: z.infer<typeof LookupAiToolInput>,
@@ -421,7 +422,7 @@ export enum TAutomationProducers {
   FIND_OBJECT = 'findObject',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',
-  LOAD_AI_KNOWLEDGE_DOCUMENTS = 'loadAiKnowledgeDocuments',
+  LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH = 'loadAiKnowledgeDocumentBatch',
   LOOKUP_AI_TOOL = 'lookupAiTool',
 }
 

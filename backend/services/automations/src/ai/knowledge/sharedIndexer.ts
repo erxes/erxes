@@ -37,6 +37,13 @@ const hasNewerSourceVersion = async ({
   return latestChunk.sourceUpdatedAt > getSourceUpdatedAt(source);
 };
 
+const getSameOrOlderSourceVersionSelector = (sourceUpdatedAt: Date) => ({
+  $or: [
+    { sourceUpdatedAt: { $lte: sourceUpdatedAt } },
+    { sourceUpdatedAt: { $exists: false } },
+  ],
+});
+
 export const indexKnowledgeDocument = async ({
   models,
   document,
@@ -80,35 +87,55 @@ export const indexKnowledgeDocument = async ({
     },
   });
 
-  await models.KnowledgeChunks.deleteMany({
-    sourceType: document.source.type,
-    sourceId: document.source.id,
-  });
-
-  if (chunks.length) {
-    await models.KnowledgeChunks.insertMany(
+  if (!chunks.length) {
+    await models.KnowledgeChunks.deleteMany({
+      sourceType: document.source.type,
+      sourceId: document.source.id,
+      ...getSameOrOlderSourceVersionSelector(sourceUpdatedAt),
+    });
+  } else {
+    await models.KnowledgeChunks.bulkWrite(
       chunks.map((chunk) => ({
-        sourceType: document.source.type,
-        sourceId: document.source.id,
-        sourceVersion: document.source.version,
-        sourceUpdatedAt,
-        sourceUrl: document.source.url,
-        visibility: document.metadata.visibility,
-        title: chunk.title || document.title,
-        chunkIndex: chunk.chunkIndex,
-        headingPath: chunk.headingPath,
-        content: chunk.content,
-        contentHash: chunk.contentHash,
-        byteSize: chunk.byteSize,
-        tokenCount: chunk.tokenCount,
-        topics: chunk.topics,
-        keywords: chunk.keywords,
-        priority: chunk.priority,
-        language: chunk.language,
-        metadata: chunk.metadata,
+        updateOne: {
+          filter: {
+            sourceType: document.source.type,
+            sourceId: document.source.id,
+            chunkIndex: chunk.chunkIndex,
+          },
+          update: {
+            $set: {
+              sourceType: document.source.type,
+              sourceId: document.source.id,
+              sourceVersion: document.source.version,
+              sourceUpdatedAt,
+              sourceUrl: document.source.url,
+              visibility: document.metadata.visibility,
+              title: chunk.title || document.title,
+              chunkIndex: chunk.chunkIndex,
+              headingPath: chunk.headingPath,
+              content: chunk.content,
+              contentHash: chunk.contentHash,
+              byteSize: chunk.byteSize,
+              tokenCount: chunk.tokenCount,
+              topics: chunk.topics,
+              keywords: chunk.keywords,
+              priority: chunk.priority,
+              language: chunk.language,
+              metadata: chunk.metadata,
+            },
+          },
+          upsert: true,
+        },
       })),
-      { ordered: true },
+      { ordered: false },
     );
+
+    await models.KnowledgeChunks.deleteMany({
+      sourceType: document.source.type,
+      sourceId: document.source.id,
+      chunkIndex: { $gte: chunks.length },
+      ...getSameOrOlderSourceVersionSelector(sourceUpdatedAt),
+    });
   }
 
   return {

@@ -41,24 +41,48 @@ const toKnowledgeDocument = (article: {
 });
 
 export const frontlineAiKnowledgeProvider = {
-  async loadAiKnowledgeDocuments(
+  async loadAiKnowledgeDocumentBatch(
     {
       sourceKey,
-      sourceIds,
-    }: TAutomationProducersInput['loadAiKnowledgeDocuments'],
+      sourceIds = [],
+      cursor,
+      limit,
+    }: TAutomationProducersInput['loadAiKnowledgeDocumentBatch'],
     { models }: { models: IModels },
   ) {
     if (sourceKey !== FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY) {
       throw new Error(`Unsupported AI knowledge source: ${sourceKey}`);
     }
 
+    if (!sourceIds.length) {
+      return {
+        documents: [],
+        totalCount: 0,
+        hasMore: false,
+      };
+    }
+
+    const startIndex = Math.max(Number(cursor || 0) || 0, 0);
+    const batchLimit = Math.min(
+      Math.max(Math.floor(limit || sourceIds.length), 1),
+      5000,
+    );
+    const batchSourceIds = sourceIds.slice(startIndex, startIndex + batchLimit);
+
     const articles = await models.Article.find({
-      _id: { $in: sourceIds },
+      _id: { $in: batchSourceIds },
       status: 'publish',
     }).lean();
-
-    return articles
+    const nextIndex = startIndex + batchLimit;
+    const documents = articles
       .map(toKnowledgeDocument)
       .filter((article) => article.content.trim().length > 0);
+
+    return {
+      documents,
+      totalCount: sourceIds.length,
+      nextCursor: nextIndex < sourceIds.length ? String(nextIndex) : undefined,
+      hasMore: nextIndex < sourceIds.length,
+    };
   },
 };

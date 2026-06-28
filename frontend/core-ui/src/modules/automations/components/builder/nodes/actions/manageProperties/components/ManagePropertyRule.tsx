@@ -1,4 +1,8 @@
 import { useManagePropertyRule } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRule';
+import {
+  ManagePropertyCustomInput,
+  useManagePropertyCustomInput,
+} from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertyCustomInput';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
 import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';
@@ -23,7 +27,9 @@ export const ManagePropertyRule = ({
     handleUpdate,
     placeholderInputProps,
     rule,
+    selectedField,
   } = useManagePropertyRule({ propertyType, sourceType, index });
+  const CustomInput = useManagePropertyCustomInput(propertyType, selectedField);
   return (
     <div className="border rounded p-4  mb-2 relative group">
       <div className="flex flex-row gap-4 mb-4  items-end">
@@ -105,19 +111,28 @@ export const ManagePropertyRule = ({
             <Form.Item>
               <Form.Label>Value</Form.Label>
 
-              <PlaceholderInput
-                propertyType={propertyType}
-                value={field.value ?? ''}
-                onChange={field.onChange}
-                disabled={[TPlaceholderInputSuggestion.Attribute]}
-                isExpression={rule.isExpression}
-                onChangeInputMode={(mode) =>
-                  handleUpdate({ isExpression: mode === 'expression' })
-                }
-                {...placeholderInputProps}
-              >
-                <PlaceholderInput.Header />
-              </PlaceholderInput>
+              {CustomInput ? (
+                <ManagePropertyCustomInput
+                  CustomInput={CustomInput}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  disabled={placeholderInputProps.isDisabled}
+                />
+              ) : (
+                <PlaceholderInput
+                  propertyType={propertyType}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  disabled={[TPlaceholderInputSuggestion.Attribute]}
+                  isExpression={rule.isExpression}
+                  onChangeInputMode={(mode) =>
+                    handleUpdate({ isExpression: mode === 'expression' })
+                  }
+                  {...placeholderInputProps}
+                >
+                  <PlaceholderInput.Header />
+                </PlaceholderInput>
+              )}
 
               <Form.Message />
             </Form.Item>
