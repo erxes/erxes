@@ -17,6 +17,7 @@ export const transactionSchema = schemaWrapper(
     details: { type: Object },
     description: { type: String },
     response: { type: Object },
+    error: { type: String },
   }),
 );
 
