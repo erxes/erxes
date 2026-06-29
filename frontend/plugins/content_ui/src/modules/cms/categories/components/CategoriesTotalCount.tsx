@@ -1,8 +1,8 @@
 import { useAtomValue } from 'jotai';
 import { CmsRecordCount } from '~/modules/cms/shared/components/CmsRecordCount';
-import { postsTotalCountAtom } from '../states/postsCounts';
+import { categoriesTotalCountAtom } from '../states/categoriesCounts';
 
-export const PostsTotalCount = () => {
-  const totalCount = useAtomValue(postsTotalCountAtom);
+export const CategoriesTotalCount = () => {
+  const totalCount = useAtomValue(categoriesTotalCountAtom);
   return <CmsRecordCount totalCount={totalCount} />;
 };

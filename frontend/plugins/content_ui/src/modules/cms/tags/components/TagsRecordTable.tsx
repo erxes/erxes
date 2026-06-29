@@ -3,20 +3,24 @@ import { useTagsColumns } from './TagsColumn';
 import { TagsCommandBar } from './tags-command-bar/TagsCommandBar';
 import { useTags } from '../../hooks/useTags';
 import { TAGS_CURSOR_SESSION_KEY } from '../constants/tagsCursorSessionKey';
+import { CmsTag } from '../types/tagTypes';
 
 interface TagsRecordTableProps {
   clientPortalId: string;
-  onEdit?: (tag: any) => void;
+  searchValue?: string;
+  onEdit?: (tag: CmsTag) => void;
   onBulkDelete?: (ids: string[]) => Promise<void> | void;
 }
 
 export const TagsRecordTable = ({
   clientPortalId,
+  searchValue,
   onEdit,
   onBulkDelete,
 }: TagsRecordTableProps) => {
   const { tags, loading, refetch, pageInfo, handleFetchMore } = useTags({
     clientPortalId,
+    searchValue,
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 

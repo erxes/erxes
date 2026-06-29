@@ -1,5 +1,5 @@
 import { IconArticle } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '../../shared/EmptyState';
@@ -8,6 +8,8 @@ import { useCategoriesColumns } from './CategoriesColumn';
 import { useCategories } from '../hooks/useCategoriesEnhanced';
 import { CategoriesCommandBar } from './categories-command-bar/CategoriesCommandbar';
 import { ICategory } from '@/cms/categories/types';
+import { CategoriesFilter } from './CategoriesFilter';
+import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
 
 const naturalSort = (a: string, b: string) =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
@@ -42,7 +44,7 @@ function sortCategoriesAsTree(
 interface CategoriesRecordTableProps {
   clientPortalId: string;
   onAdd?: () => void;
-  onEdit?: (category: any) => void;
+  onEdit?: (category: ICategory) => void;
   onBulkDelete?: (ids: string[]) => Promise<void>;
 }
 
@@ -53,7 +55,12 @@ export const CategoriesRecordTable = ({
   onBulkDelete,
 }: CategoriesRecordTableProps) => {
   const { t } = useTranslation('content');
-  const { categories, totalCount, loading, refetch, pageInfo, handleFetchMore } =
+  const [{ searchValue, status }] = useMultiQueryState<{
+    searchValue: string;
+    status: string;
+  }>(['searchValue', 'status']);
+  const isFiltered = !!searchValue || !!status;
+  const { categories, loading, refetch, pageInfo, handleFetchMore } =
     useCategories({
       variables: {
         clientPortalId,
@@ -74,60 +81,62 @@ export const CategoriesRecordTable = ({
 
   return (
     <>
+      <div className="px-4 pt-2">
+        <CategoriesFilter />
+      </div>
       {!loading && categories.length === 0 ? (
         <div className="rounded-lg overflow-hidden">
-          <EmptyState
-            icon={IconArticle}
-            title={t('no-categories-yet')}
-            description={t('no-categories-yet-desc')}
-            actionLabel={t('add-category')}
-            onAction={onAdd}
-          />
+          {isFiltered ? (
+            <EmptyState
+              icon={IconArticle}
+              title={t('no-categories-found')}
+            />
+          ) : (
+            <EmptyState
+              icon={IconArticle}
+              title={t('no-categories-yet')}
+              description={t('no-categories-yet-desc')}
+              actionLabel={t('add-category')}
+              onAction={onAdd}
+            />
+          )}
         </div>
       ) : (
-        <>
-          {!loading && categories.length > 0 && (
-            <div className="flex pt-2 pl-4 justify-between items-center mb-2">
-              <div className="text-sm text-gray-600">
-                {t('found-x-categories', { count: totalCount })}
-              </div>
-            </div>
-          )}
-          <div className="overflow-hidden flex-auto p-3">
-            <div className="h-full">
-              <RecordTable.Provider
-                columns={columns}
-                data={treeCategories}
-                className="h-full"
-                stickyColumns={['more', 'checkbox', 'name']}
+        <div className="overflow-hidden flex-auto p-3">
+          <div className="h-full">
+            <RecordTable.Provider
+              columns={columns}
+              data={treeCategories}
+              className="h-full"
+              stickyColumns={['more', 'checkbox', 'name']}
+            >
+              <RecordTable.CursorProvider
+                hasPreviousPage={hasPreviousPage}
+                hasNextPage={hasNextPage}
+                dataLength={categories?.length}
+                sessionKey={CATEGORIES_CURSOR_SESSION_KEY}
               >
-                <RecordTable.CursorProvider
-                  hasPreviousPage={hasPreviousPage}
-                  hasNextPage={hasNextPage}
-                  dataLength={categories?.length}
-                >
-                  <RecordTable>
-                    <RecordTable.Header />
-                    <RecordTable.Body>
-                      <RecordTable.CursorBackwardSkeleton
-                        handleFetchMore={handleFetchMore}
-                      />
-                      {loading && <RecordTable.RowSkeleton rows={40} />}
-                      <RecordTable.RowList />
-                      <RecordTable.CursorForwardSkeleton
-                        handleFetchMore={handleFetchMore}
-                      />
-                    </RecordTable.Body>
-                  </RecordTable>
-                </RecordTable.CursorProvider>
-                <CategoriesCommandBar
-                  clientPortalId={clientPortalId}
-                  onBulkDelete={onBulkDelete}
-                />
-              </RecordTable.Provider>
-            </div>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.CursorBackwardSkeleton
+                      handleFetchMore={handleFetchMore}
+                    />
+                    {loading && <RecordTable.RowSkeleton rows={40} />}
+                    <RecordTable.RowList />
+                    <RecordTable.CursorForwardSkeleton
+                      handleFetchMore={handleFetchMore}
+                    />
+                  </RecordTable.Body>
+                </RecordTable>
+              </RecordTable.CursorProvider>
+              <CategoriesCommandBar
+                clientPortalId={clientPortalId}
+                onBulkDelete={onBulkDelete}
+              />
+            </RecordTable.Provider>
           </div>
-        </>
+        </div>
       )}
     </>
   );
