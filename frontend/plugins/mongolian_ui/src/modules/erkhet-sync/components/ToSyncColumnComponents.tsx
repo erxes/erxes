@@ -1,5 +1,5 @@
-import { PrimitiveAtom } from 'jotai';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useAtomValue, useSetAtom, PrimitiveAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Checkbox, RecordTable } from 'erxes-ui';
 
@@ -24,7 +24,8 @@ export const ToSyncHeaderCell = <T extends { _id: string }>({
     .filter(isSyncable)
     .map((item) => item._id);
   const selectedCount = syncableIds.filter((id) => toSyncIds[id]).length;
-  const isAllSelected = syncableIds.length > 0 && selectedCount === syncableIds.length;
+  const isAllSelected =
+    syncableIds.length > 0 && selectedCount === syncableIds.length;
   const isSomeSelected = selectedCount > 0 && !isAllSelected;
   const nextChecked = !(isAllSelected || isSomeSelected);
 
@@ -67,6 +68,19 @@ export const ToSyncCell = <T extends { _id: string }>({
   const toSyncIds = useAtomValue(toSyncIdsAtom);
   const setToSyncIds = useSetAtom(toSyncIdsAtom);
   const disabled = !isSyncable(item);
+
+  useEffect(() => {
+    if (disabled) {
+      setToSyncIds((current) => {
+        if (current[item._id]) {
+          const next = { ...current };
+          delete next[item._id];
+          return next;
+        }
+        return current;
+      });
+    }
+  }, [disabled, item._id, setToSyncIds]);
 
   return (
     <div className="flex items-center justify-center">
