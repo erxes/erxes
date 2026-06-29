@@ -1,5 +1,6 @@
 import { IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const SimpleSearchFilterPopover = ({
   extraQueryKeys = [],
@@ -10,6 +11,7 @@ export const SimpleSearchFilterPopover = ({
   extraItems?: React.ReactNode;
   extraViews?: React.ReactNode;
 } = {}) => {
+  const { t } = useTranslation('content');
   const [queries] = useMultiQueryState<Record<string, unknown>>([
     'searchValue',
     ...extraQueryKeys,
@@ -27,14 +29,14 @@ export const SimpleSearchFilterPopover = ({
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 {extraItems}
               </Command.List>
@@ -47,6 +49,7 @@ export const SimpleSearchFilterPopover = ({
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.View>
+        {extraViews}
       </Filter.Dialog>
     </>
   );

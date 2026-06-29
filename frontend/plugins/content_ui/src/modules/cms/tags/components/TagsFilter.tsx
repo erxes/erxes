@@ -1,10 +1,12 @@
 import { IconSearch } from '@tabler/icons-react';
 import { Filter, useFilterQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { TAGS_CURSOR_SESSION_KEY } from '../constants/tagsCursorSessionKey';
 import { SimpleSearchFilterPopover } from '~/modules/cms/shared/components/SimpleSearchFilterPopover';
 import { TagsTotalCount } from './TagsTotalCount';
 
 export const TagsFilter = () => {
+  const { t } = useTranslation('content');
   const [searchValue] = useFilterQueryState<string>('searchValue');
 
   return (
@@ -13,7 +15,7 @@ export const TagsFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}

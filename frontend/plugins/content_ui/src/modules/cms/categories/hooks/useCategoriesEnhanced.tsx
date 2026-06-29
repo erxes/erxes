@@ -66,6 +66,9 @@ export const useCategories = (options?: QueryHookOptions) => {
   const safeTotalCount = totalCount ?? 0;
   useEffect(() => {
     setCategoriesTotalCount(totalCount ?? null);
+    return () => {
+      setCategoriesTotalCount(null);
+    };
   }, [totalCount, setCategoriesTotalCount]);
 
   const handleFetchMore = ({

@@ -6,7 +6,7 @@ export const CmsRecordCount = ({
 }: {
   totalCount: number | null | undefined;
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('content');
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
       {isUndefinedOrNull(totalCount) ? (

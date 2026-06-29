@@ -250,8 +250,13 @@ export function useTags({
   const totalCount = data?.cmsTags?.totalCount || 0;
 
   useEffect(() => {
+    setTagsTotalCount(null);
+  }, [variables, setTagsTotalCount]);
+
+  useEffect(() => {
+    if (skip) return;
     setTagsTotalCount(data?.cmsTags?.totalCount ?? null);
-  }, [data?.cmsTags?.totalCount, setTagsTotalCount]);
+  }, [skip, data?.cmsTags?.totalCount, setTagsTotalCount]);
 
   return {
     tags,

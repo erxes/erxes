@@ -108,7 +108,7 @@ export const usePostsVariables = (
     sortField: sortField || 'createdAt',
     sortDirection: parsedSortDirection ?? '-1',
     searchValue: searchValue || undefined,
-    status: status || undefined,
+    status: status === 'all' ? undefined : status || undefined,
     type: type || undefined,
     tagIds: tags || undefined,
     categoryIds,

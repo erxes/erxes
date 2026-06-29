@@ -8,24 +8,28 @@ import {
   useFilterContext,
   useFilterQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
 import { SimpleSearchFilterPopover } from '~/modules/cms/shared/components/SimpleSearchFilterPopover';
 import { CategoriesTotalCount } from './CategoriesTotalCount';
 
 const CATEGORY_STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
+  { value: 'active', labelKey: 'active' },
+  { value: 'inactive', labelKey: 'inactive' },
 ] as const;
 
 type CategoryStatusFilterValue =
   (typeof CATEGORY_STATUS_OPTIONS)[number]['value'];
 
-const CategoryStatusFilterItem = () => (
-  <Filter.Item value="status">
-    <IconHash />
-    Status
-  </Filter.Item>
-);
+const CategoryStatusFilterItem = () => {
+  const { t } = useTranslation('content');
+  return (
+    <Filter.Item value="status">
+      <IconHash />
+      {t('status')}
+    </Filter.Item>
+  );
+};
 
 const CategoryStatusCommand = ({
   value,
@@ -33,26 +37,29 @@ const CategoryStatusCommand = ({
 }: {
   value: CategoryStatusFilterValue | null;
   onValueChange: (value: CategoryStatusFilterValue) => void;
-}) => (
-  <Command>
-    <Command.Input placeholder="Search status" />
-    <Command.Empty>
-      <span className="text-muted-foreground">No statuses found</span>
-    </Command.Empty>
-    <Command.List>
-      {CATEGORY_STATUS_OPTIONS.map((status) => (
-        <Command.Item
-          key={status.value}
-          value={status.value}
-          onSelect={() => onValueChange(status.value)}
-        >
-          <span className="font-medium">{status.label}</span>
-          <Combobox.Check checked={status.value === value} />
-        </Command.Item>
-      ))}
-    </Command.List>
-  </Command>
-);
+}) => {
+  const { t } = useTranslation('content');
+  return (
+    <Command>
+      <Command.Input placeholder={t('search-status')} />
+      <Command.Empty>
+        <span className="text-muted-foreground">{t('no-statuses-found')}</span>
+      </Command.Empty>
+      <Command.List>
+        {CATEGORY_STATUS_OPTIONS.map((status) => (
+          <Command.Item
+            key={status.value}
+            value={status.value}
+            onSelect={() => onValueChange(status.value)}
+          >
+            <span className="font-medium">{t(status.labelKey)}</span>
+            <Combobox.Check checked={status.value === value} />
+          </Command.Item>
+        ))}
+      </Command.List>
+    </Command>
+  );
+};
 
 const CategoryStatusFilterView = () => {
   const { resetFilterState, sessionKey } = useFilterContext();
@@ -75,6 +82,7 @@ const CategoryStatusFilterView = () => {
 };
 
 const CategoryStatusFilterBar = () => {
+  const { t } = useTranslation('content');
   const { sessionKey } = useFilterContext();
   const [status, setStatus] = useFilterQueryState<CategoryStatusFilterValue>(
     'status',
@@ -89,12 +97,12 @@ const CategoryStatusFilterBar = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconHash />
-        Status
+        {t('status')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="status">
-            {selectedStatus?.label || 'Select status'}
+            {selectedStatus ? t(selectedStatus.labelKey) : t('select-status')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -112,6 +120,7 @@ const CategoryStatusFilterBar = () => {
 };
 
 export const CategoriesFilter = () => {
+  const { t } = useTranslation('content');
   const [searchValue] = useFilterQueryState<string>('searchValue');
 
   return (
@@ -120,7 +129,7 @@ export const CategoriesFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}

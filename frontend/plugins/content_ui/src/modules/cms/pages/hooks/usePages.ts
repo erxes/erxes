@@ -66,6 +66,9 @@ export const usePages = (options?: QueryHookOptions) => {
   const safeTotalCount = totalCount ?? 0;
   useEffect(() => {
     setPagesTotalCount(totalCount ?? null);
+    return () => {
+      setPagesTotalCount(null);
+    };
   }, [totalCount, setPagesTotalCount]);
 
   const handleFetchMore = ({

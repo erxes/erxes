@@ -71,13 +71,20 @@ export function Tag() {
           </div>
           {!loading && (!tags || tags.length === 0) ? (
             <div className="rounded-lg overflow-hidden">
-              <EmptyState
-                icon={IconTags}
-                title={t('no-tags-yet')}
-                description={t('no-tags-yet-desc')}
-                actionLabel={t('add-tag')}
-                onAction={handleAddTag}
-              />
+              {searchValue ? (
+                <EmptyState
+                  icon={IconTags}
+                  title={t('no-tags-found')}
+                />
+              ) : (
+                <EmptyState
+                  icon={IconTags}
+                  title={t('no-tags-yet')}
+                  description={t('no-tags-yet-desc')}
+                  actionLabel={t('add-tag')}
+                  onAction={handleAddTag}
+                />
+              )}
             </div>
           ) : (
             <div className="overflow-hidden flex-auto p-3">
