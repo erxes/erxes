@@ -30,6 +30,10 @@ export interface IProductModel extends Model<IProductDocument> {
     _id: string,
     doc: IProduct,
   ): Promise<IProductDocument | null>;
+  updateProducts(
+    query: any,
+    doc: IProduct,
+  ): Promise<{ n: number; nModified: number; ok: number }>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
     productIds: string[],
@@ -265,6 +269,63 @@ export const loadProductClass = (
       }
 
       return updatedProduct;
+    }
+
+    public static async updateProducts(query: any, doc: IProduct) {
+      const products = await models.Products.find(query).lean();
+
+      const result = await models.Products.updateMany(query, { $set: doc });
+
+      const updatedProducts = await models.Products.find({
+        _id: { $in: products.map((product) => product._id) },
+      }).lean();
+      const updatedById = new Map(
+        updatedProducts.map((product) => [product._id, product]),
+      );
+
+      const isDeleting = doc.status === PRODUCT_STATUSES.DELETED;
+
+      sendDbEventLog({
+        action: 'updateMany',
+        docIds: products.map((product) => product._id),
+        updateDescription: doc,
+      });
+
+      for (const product of products) {
+        const updatedProduct = updatedById.get(product._id);
+
+        if (!updatedProduct) {
+          continue;
+        }
+
+        if (isDeleting) {
+          if (product.status !== PRODUCT_STATUSES.DELETED) {
+            createActivityLog({
+              activityType: 'delete',
+              target: {
+                _id: product._id,
+              },
+              action: {
+                type: 'delete',
+                description: 'Product deleted',
+              },
+              changes: {},
+            });
+          }
+          continue;
+        }
+
+        generateProductUpdateActivityLogs(
+          product,
+          updatedProduct,
+          models,
+          createActivityLog,
+        );
+      }
+
+      await this.refreshKnowledge(products.map((product) => product._id));
+
+      return result;
     }
 
     public static async removeProducts(_ids: string[]) {

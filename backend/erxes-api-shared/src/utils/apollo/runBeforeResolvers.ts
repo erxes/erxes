@@ -97,6 +97,24 @@ export const runBeforeResolvers = async (
       continue;
     }
 
+    const blockResult: unknown = await sendCoreModuleProducer({
+      subdomain: context.subdomain,
+      pluginName,
+      moduleName: 'beforeResolvers',
+      producerName: TBeforeResolversProducers.BLOCKER,
+      method: 'query',
+      input: {
+        resolver: resolverName,
+        args: mergedArgs,
+        user: context.user,
+        headers: context.headers,
+      },
+    });
+
+    if (isBlockedResult(blockResult)) {
+      throw createExpectedError(blockResult.message, blockResult.code);
+    }
+
     const result: unknown = await sendCoreModuleProducer({
       subdomain: context.subdomain,
       pluginName,
@@ -144,6 +162,25 @@ export const checkBeforeResolvers = async (
       plugin?.config?.meta?.beforeResolvers;
 
     if (!pluginHandlesResolver(config, resolverName)) {
+      continue;
+    }
+
+    const blockResult: unknown = await sendCoreModuleProducer({
+      subdomain: context.subdomain,
+      pluginName,
+      moduleName: 'beforeResolvers',
+      producerName: TBeforeResolversProducers.BLOCKER,
+      method: 'query',
+      input: {
+        resolver: resolverName,
+        args: mergedArgs,
+        user: context.user,
+        headers: context.headers,
+      },
+    });
+
+    if (isBlockedResult(blockResult)) {
+      blocked.push({ ...blockResult, pluginName });
       continue;
     }
 
