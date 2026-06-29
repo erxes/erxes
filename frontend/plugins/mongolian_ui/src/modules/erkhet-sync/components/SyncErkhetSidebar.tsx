@@ -28,10 +28,11 @@ const SidebarItem = ({
 };
 
 export const SyncErkhetSidebar = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>ERKHET SYNC</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('erkhet-sync')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {SYNC_ERKHET_ROUTES.map((route) => (

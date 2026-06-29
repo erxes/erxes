@@ -1,59 +1,16 @@
 import { IconCurrencyDollar, IconHash, IconLabel, IconClock, IconCalendarPlus } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  Checkbox,
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
 
 import { CheckPosOrderStatus, ICheckPosOrders } from '../types/checkPosOrders';
-import { useCheckPosOrders, toSyncOrderIdsAtom } from '../hooks/useCheckPosOrders';
+import { toSyncOrderIdsAtom } from '../hooks/useCheckPosOrders';
 import { HeaderCell } from '../../components/HeaderCell';
-
-const ToSyncOrderHeader = () => {
-  const { t } = useTranslation('mongolian');
-  const [toSyncOrderIds] = useAtom(toSyncOrderIdsAtom);
-  const { checkPosOrders, setAllOrdersToSync } = useCheckPosOrders();
-  const syncableOrderIds = (checkPosOrders || []).filter(isSyncableOrder).map((o) => o._id);
-  const selectedCount = syncableOrderIds.filter((id) => toSyncOrderIds[id]).length;
-  const isAllSelected = syncableOrderIds.length > 0 && selectedCount === syncableOrderIds.length;
-  const isSomeSelected = selectedCount > 0 && !isAllSelected;
-  const nextChecked = !(isAllSelected || isSomeSelected);
-
-  return (
-    <div className="relative z-20 flex items-center justify-center h-8">
-      <Checkbox
-        key={`${syncableOrderIds.length}-${selectedCount}`}
-        checked={isAllSelected || (isSomeSelected && 'indeterminate')}
-        disabled={!syncableOrderIds.length}
-        onCheckedChange={() => setAllOrdersToSync(syncableOrderIds, nextChecked)}
-        aria-label={t('select-all-orders-to-sync')}
-      />
-    </div>
-  );
-};
-
-const ToSyncOrderCell = ({ order }: { order: ICheckPosOrders }) => {
-  const { t } = useTranslation('mongolian');
-  const [toSyncOrderIds] = useAtom(toSyncOrderIdsAtom);
-  const { setOrderToSync } = useCheckPosOrders();
-  const disabled = !isSyncableOrder(order);
-
-  return (
-    <div className="flex items-center justify-center">
-      <Checkbox
-        checked={!disabled && Boolean(toSyncOrderIds[order._id])}
-        disabled={disabled}
-        onCheckedChange={(value) => setOrderToSync(order._id, Boolean(value))}
-        aria-label={t('select-order-to-sync')}
-      />
-    </div>
-  );
-};
+import { ToSyncHeaderCell, ToSyncCell } from '../../components/ToSyncColumnComponents';
 
 const syncableStatuses = new Set<CheckPosOrderStatus>([
   'checked',
@@ -141,9 +98,22 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   {
     id: 'toSync',
     accessorKey: 'toSync',
-    header: () => <ToSyncOrderHeader />,
+    header: () => (
+      <ToSyncHeaderCell
+        toSyncIdsAtom={toSyncOrderIdsAtom}
+        isSyncable={isSyncableOrder}
+        ariaLabel="select-all-orders-to-sync"
+      />
+    ),
     size: 33,
-    cell: ({ row }) => <ToSyncOrderCell order={row.original} />,
+    cell: ({ row }) => (
+      <ToSyncCell
+        toSyncIdsAtom={toSyncOrderIdsAtom}
+        isSyncable={isSyncableOrder}
+        item={row.original}
+        ariaLabel="select-order-to-sync"
+      />
+    ),
   },
   {
     id: 'syncedDate',

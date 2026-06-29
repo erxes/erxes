@@ -17,8 +17,8 @@ import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
 import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
 import { HeaderCell } from '../../components/HeaderCell';
 
-const stringify = (value: any) => {
-  if (!value) {
+const stringify = (value: unknown) => {
+  if (value == null) {
     return '';
   }
 

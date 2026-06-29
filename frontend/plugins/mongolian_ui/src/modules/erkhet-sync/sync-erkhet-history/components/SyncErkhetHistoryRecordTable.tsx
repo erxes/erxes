@@ -1,7 +1,7 @@
 import { RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { SYNC_HISTORIES_CURSOR_SESSION_KEY } from '../constants/syncErkhetHistoryCursorSessoinKey';
+import { SYNC_HISTORIES_CURSOR_SESSION_KEY } from '../constants/syncErkhetHistoryCursorSessionKey';
 import { syncErkhetHistoryColumns } from './SyncErkhetHistoryColumns';
 import { useSyncErkhetHistory } from '../hooks/useSyncErkhetHistory';
 import { SyncErkhetHistoryDetailSheet } from './SyncErkhetHistoryDetailSheet';

@@ -2,7 +2,7 @@ import { CHECK_SYNCED_DEALS_CURSOR_SESSION_KEY } from '@/erkhet-sync/check-synce
 import { CHECK_POS_ORDERS_CURSOR_SESSION_KEY } from '@/erkhet-sync/check-pos-orders/constants/checkPosOrdersCursorSessionKey';
 import { CHECK_CATEGORY_CURSOR_SESSION_KEY } from '@/erkhet-sync/check-category/constants/checkCategoryCursorSessionKey';
 import { CHECK_PRODUCTS_CURSOR_SESSION_KEY } from '@/erkhet-sync/check-products/constants/checkProductsCursorSessionKey';
-import { SYNC_HISTORIES_CURSOR_SESSION_KEY } from '@/erkhet-sync/sync-erkhet-history/constants/syncErkhetHistoryCursorSessoinKey';
+import { SYNC_HISTORIES_CURSOR_SESSION_KEY } from '@/erkhet-sync/sync-erkhet-history/constants/syncErkhetHistoryCursorSessionKey';
 
 export const SYNC_ERKHET_ROUTES = [
   {
