@@ -237,6 +237,7 @@ export const mutations = `
   dealsWatch(_id: String, isAdd: Boolean): Deal
   dealsCopy(_id: String!, processId: String): Deal
   dealsArchive(stageId: String!, processId: String): String
+  dealsLogConversationForm(dealId: String!, conversationId: String!): JSON
   dealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON

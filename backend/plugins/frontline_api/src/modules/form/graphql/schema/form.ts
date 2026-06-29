@@ -62,6 +62,7 @@ export const types = `
     _id: String!
     contentTypeId: String
     formId: String
+    conversationId: String
     channelId: String
     customerId: String
     customer: Customer

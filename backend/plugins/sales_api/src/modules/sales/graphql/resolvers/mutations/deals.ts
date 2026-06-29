@@ -14,7 +14,7 @@ import {
   subscriptionWrapper,
 } from '../utils';
 import { addDeal, changeDeal, createProductsData, editDeal } from './utils';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IUserDocument, Resolver } from 'erxes-api-shared/core-types';
 
 export const dealMutations: Record<string, Resolver> = {
@@ -28,6 +28,47 @@ export const dealMutations: Record<string, Resolver> = {
   ) {
     await checkPermission('dealsAdd');
     return await addDeal({ models, subdomain, user, doc });
+  },
+
+  async dealsLogConversationForm(
+    _root,
+    { dealId, conversationId }: { dealId: string; conversationId: string },
+    { models, subdomain }: IContext,
+  ) {
+    const deal = await models.Deals.findOne({ _id: dealId });
+    console.log('[form-activity] dealsLogConversationForm', {
+      dealId,
+      conversationId,
+      dealFound: !!deal,
+    });
+
+    if (!deal) {
+      return { logged: false };
+    }
+
+    const formData = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'frontline',
+      method: 'query',
+      module: 'form',
+      action: 'submissionsByConversation',
+      input: { conversationId },
+      defaultValue: null,
+    });
+    console.log('[form-activity] formData from frontline', formData);
+
+    if (!formData?.submissions?.length) {
+      return { logged: false };
+    }
+
+    await models.Deals.logFormSubmission(deal, {
+      conversationId,
+      formId: formData.formId,
+      formTitle: formData.formTitle,
+      submissions: formData.submissions,
+    });
+
+    return { logged: true };
   },
 
   /**
@@ -45,12 +86,10 @@ export const dealMutations: Record<string, Resolver> = {
   async cpDealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
-    {  models, subdomain ,cpUser}: IContext,
+    { models, subdomain, cpUser }: IContext,
   ) {
-    const userId =
-    cpUser?.erxesCustomerId ||
-    cpUser?._id || null;
-    
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || null;
+
     if (!userId) {
       throw new Error('ClientPortal User not found');
     }
@@ -90,12 +129,9 @@ export const dealMutations: Record<string, Resolver> = {
     },
     { cpUser, models, subdomain }: IContext,
   ) {
-    const userId =
-      cpUser?.erxesCustomerId ||
-      cpUser?._id ||
-      null;
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || null;
     if (!userId) {
-        throw new Error('ClientPortal User not found');
+      throw new Error('ClientPortal User not found');
     }
     return changeDeal(subdomain, models, `cp:${userId}`, { ...doc });
   },
@@ -304,8 +340,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map(
-      (data) => (data._id === dataId ? { ...doc } : data),
+    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
+      data._id === dataId ? { ...doc } : data,
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -402,8 +438,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map(
-      (data) => (data._id === dataId ? { ...doc } : data),
+    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
+      data._id === dataId ? { ...doc } : data,
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
