@@ -11,13 +11,14 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { categoriesTotalCountAtom } from '../states/categoriesCounts';
 import { useEffect } from 'react';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
+import { ICategory } from '../types/CategoriesType';
 
 export const CATEGORIES_PER_PAGE = 30;
 
 export const useCategoriesVariables = (
   variables?: QueryHookOptions<{
     cmsCategories: {
-      list: any[];
+      list: ICategory[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
@@ -58,7 +59,7 @@ export const useCategories = (options?: QueryHookOptions) => {
   const variables = useCategoriesVariables(options?.variables);
   const { data, loading, fetchMore, refetch } = useQuery<{
     cmsCategories: {
-      list: any[];
+      list: ICategory[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };
