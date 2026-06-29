@@ -19,11 +19,15 @@ const ClientIdCell = ({ clientId }: { clientId: string }) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const handleCopy = () => {
-    setCopied(true);
-    navigator.clipboard.writeText(clientId);
-    toast({ variant: 'success', title: 'Client ID copied to clipboard' });
-    setTimeout(() => setCopied(false), 1000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(clientId);
+      setCopied(true);
+      toast({ variant: 'success', title: 'Client ID copied to clipboard' });
+      setTimeout(() => setCopied(false), 1000);
+    } catch {
+      toast({ variant: 'destructive', title: 'Failed to copy client ID' });
+    }
   };
 
   return (

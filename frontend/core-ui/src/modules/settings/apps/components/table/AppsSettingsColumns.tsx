@@ -16,11 +16,15 @@ const TokenCell = ({ token }: { token: string }) => {
   const { toast } = useToast();
   const masked = token.slice(0, 6) + '••••••••••••••••••••';
 
-  const handleCopy = () => {
-    setCopied(true);
-    navigator.clipboard.writeText(token);
-    toast({ variant: 'success', title: 'Token copied to clipboard' });
-    setTimeout(() => setCopied(false), 1000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(token);
+      setCopied(true);
+      toast({ variant: 'success', title: 'Token copied to clipboard' });
+      setTimeout(() => setCopied(false), 1000);
+    } catch {
+      toast({ variant: 'destructive', title: 'Failed to copy token' });
+    }
   };
 
   return (

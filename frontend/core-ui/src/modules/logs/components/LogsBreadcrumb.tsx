@@ -1,5 +1,5 @@
 import { IconChartPie } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { Breadcrumb, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 
 export const LogsBreadcrumb = () => {
@@ -8,11 +8,11 @@ export const LogsBreadcrumb = () => {
       <PageHeader.Start>
         <Breadcrumb>
           <Breadcrumb.List className="gap-1">
-            <Breadcrumb.Item>
-              <Button variant="ghost">
+            <Breadcrumb.Item aria-current="page">
+              <span className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium">
                 <IconChartPie className="w-5 h-5" />
                 System Logs
-              </Button>
+              </span>
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>
@@ -21,3 +21,4 @@ export const LogsBreadcrumb = () => {
     </PageHeader>
   );
 };
+
