@@ -27,7 +27,10 @@ export const checkTriggerDealStageProbality = async ({
     return false;
   }
 
-  const stageChange = eventUpdateDescription?.updated?.stageId;
+
+  const stageChange = eventUpdateDescription?.updated?.stageId as
+    | EventFieldChange
+    | undefined;
   if (eventUpdateDescription) {
     if (!stageChange || stageChange.prev === stageChange.current) {
       return false;
@@ -45,7 +48,7 @@ export const checkTriggerDealStageProbality = async ({
       probability,
     }).distinct('_id');
 
-    if (!stageIds.find((stageId) => target.stageId === stageId)) {
+    if (!stageIds.find((id) => target.stageId === String(id))) {
       return false;
     }
   }
@@ -60,7 +63,7 @@ export const checkTriggerDealStageProbality = async ({
       probability,
     }).distinct('_id');
 
-    if (!stageIds.find((stageId) => target.stageId === stageId)) {
+    if (!stageIds.find((id) => target.stageId === String(id))) {
       return false;
     }
   }
