@@ -18,7 +18,7 @@ export const CheckSyncedDealsRecordTable = () => {
       columns={checkSyncedDealsColumns}
       data={Deals || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'toSync', 'createdAt']}
+      stickyColumns={['checkbox', 'toSync', 'createdAt']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

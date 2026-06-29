@@ -17,7 +17,7 @@ export const SyncErkhetHistoryRecordTable = () => {
       columns={syncErkhetHistoryColumns}
       data={SyncHistories || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'createdAt']}
+      stickyColumns={['more', 'createdAt']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -47,7 +47,9 @@ export const SyncErkhetHistoryRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-sync-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-sync-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
                     {t('create-first-sync')}
                   </p>

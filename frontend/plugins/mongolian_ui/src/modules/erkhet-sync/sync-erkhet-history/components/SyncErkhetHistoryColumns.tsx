@@ -7,16 +7,15 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
-  RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
 
-import { useTranslation } from 'react-i18next';
 import { ISyncHistory } from '../types/syncHistory';
 import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
 import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
+import { HeaderCell } from '../../components/HeaderCell';
 
 const stringify = (value: any) => {
   if (!value) {
@@ -32,14 +31,10 @@ const stringify = (value: any) => {
 
 export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   SyncErkhetHistoryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<ISyncHistory>,
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />;
-    },
+    header: () => <HeaderCell icon={IconCalendarPlus} label="created-at" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -53,10 +48,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconHash} label={t('user')} />;
-    },
+    header: () => <HeaderCell icon={IconHash} label="user" />,
     cell: ({ row }) => {
       const user = row.original.createdUser;
       const value =
@@ -72,10 +64,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'contentType',
     accessorKey: 'contentType',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('content-type')} />;
-    },
+    header: () => <HeaderCell icon={IconCurrencyDollar} label="content-type" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -87,10 +76,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconUser} label={t('content')} />;
-    },
+    header: () => <HeaderCell icon={IconUser} label="content" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -102,10 +88,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'response',
     accessorKey: 'responseStr',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('response')} />;
-    },
+    header: () => <HeaderCell icon={IconCategory} label="response" />,
     cell: ({ row }) => {
       return (
         <SyncHistoryClickableColumnCell
@@ -120,10 +103,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'error',
     accessorKey: 'error',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('error')} />;
-    },
+    header: () => <HeaderCell icon={IconCategory} label="error" />,
     cell: ({ row }) => {
       return (
         <SyncHistoryClickableColumnCell

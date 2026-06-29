@@ -1,1 +1,1 @@
-export const SYNC_HISTORIES_CURSOR_SESSION_KEY = 'erkhet-sync-cursor';
+export const SYNC_HISTORIES_CURSOR_SESSION_KEY = 'sync-histories-cursor';
