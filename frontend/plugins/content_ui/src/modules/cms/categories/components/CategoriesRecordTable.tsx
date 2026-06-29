@@ -1,5 +1,5 @@
 import { IconArticle } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '../../shared/EmptyState';
@@ -55,6 +55,11 @@ export const CategoriesRecordTable = ({
   onBulkDelete,
 }: CategoriesRecordTableProps) => {
   const { t } = useTranslation('content');
+  const [{ searchValue, status }] = useMultiQueryState<{
+    searchValue: string;
+    status: string;
+  }>(['searchValue', 'status']);
+  const isFiltered = !!searchValue || !!status;
   const { categories, loading, refetch, pageInfo, handleFetchMore } =
     useCategories({
       variables: {
@@ -81,13 +86,20 @@ export const CategoriesRecordTable = ({
       </div>
       {!loading && categories.length === 0 ? (
         <div className="rounded-lg overflow-hidden">
-          <EmptyState
-            icon={IconArticle}
-            title={t('no-categories-yet')}
-            description={t('no-categories-yet-desc')}
-            actionLabel={t('add-category')}
-            onAction={onAdd}
-          />
+          {isFiltered ? (
+            <EmptyState
+              icon={IconArticle}
+              title={t('no-categories-found')}
+            />
+          ) : (
+            <EmptyState
+              icon={IconArticle}
+              title={t('no-categories-yet')}
+              description={t('no-categories-yet-desc')}
+              actionLabel={t('add-category')}
+              onAction={onAdd}
+            />
+          )}
         </div>
       ) : (
         <div className="overflow-hidden flex-auto p-3">

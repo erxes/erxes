@@ -20,10 +20,21 @@ interface CategoriesQueryResult {
   };
 }
 
+interface CategoriesQueryVariables {
+  clientPortalId?: string;
+  language?: string;
+  searchValue?: string;
+  status?: string;
+  limit?: number;
+  cursor?: string;
+  sortField?: string;
+  sortDirection?: string;
+}
+
 export const CATEGORIES_PER_PAGE = 30;
 
 export const useCategoriesVariables = (
-  variables?: QueryHookOptions<CategoriesQueryResult>['variables'],
+  variables?: CategoriesQueryVariables,
 ) => {
   const language = useAtomValue(cmsLanguageAtom);
   const [{ searchValue, status }] = useMultiQueryState<{
@@ -43,7 +54,9 @@ export const useCategoriesVariables = (
   };
 };
 
-export const useCategories = (options?: QueryHookOptions) => {
+export const useCategories = (
+  options?: QueryHookOptions<CategoriesQueryResult, CategoriesQueryVariables>,
+) => {
   const setCategoriesTotalCount = useSetAtom(categoriesTotalCountAtom);
   const variables = useCategoriesVariables(options?.variables);
   const { data, loading, fetchMore, refetch } = useQuery<CategoriesQueryResult>(

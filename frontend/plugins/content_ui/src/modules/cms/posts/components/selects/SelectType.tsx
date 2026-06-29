@@ -173,19 +173,17 @@ export const SelectTypeFilterView = ({
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey={queryKey || 'type'}>
-      <SelectTypeProvider
-        value={type || ''}
-        clientPortalId={clientPortalId}
-        onValueChange={(value) => {
-          setType(value || null);
-          resetFilterState();
-          onValueChange?.(value);
-        }}
-      >
-        <SelectTypeContent />
-      </SelectTypeProvider>
-    </Filter.View>
+    <SelectTypeProvider
+      value={type || ''}
+      clientPortalId={clientPortalId}
+      onValueChange={(value) => {
+        setType(value || null);
+        resetFilterState();
+        onValueChange?.(value);
+      }}
+    >
+      <SelectTypeContent />
+    </SelectTypeProvider>
   );
 };
 

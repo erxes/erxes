@@ -1,11 +1,9 @@
 import { Button, PageContainer, Kbd } from 'erxes-ui';
-import { IconArticle, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { usePages } from './hooks/usePages';
 import { PagesRecordTable } from './components/PagesRecordTable';
 import { IPage } from './types/pageTypes';
-import { EmptyState } from '../shared/EmptyState';
 import { PagesHeader } from './components/PagesHeader';
 import { CmsSidebar } from '../shared/CmsSidebar';
 import { PagesFilter } from './components/PagesFilter';
@@ -14,12 +12,6 @@ export function Page() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const navigate = useNavigate();
-
-  const { pages, loading } = usePages({
-    variables: {
-      clientPortalId: websiteId || '',
-    },
-  });
 
   const headerActions = (
     <div>
@@ -46,28 +38,11 @@ export function Page() {
           <div className="px-4 pt-2">
             <PagesFilter />
           </div>
-          {!loading && (!pages || pages.length === 0) ? (
-            <div className="rounded-lg overflow-hidden">
-              <EmptyState
-                icon={IconArticle}
-                title={t('no-pages-yet')}
-                description={t('no-pages-yet-desc')}
-                actionLabel={t('add-page')}
-                onAction={() =>
-                  navigate(`/content/cms/${websiteId}/pages/detail`)
-                }
-              />
-            </div>
-          ) : (
-            <div className="overflow-hidden flex-auto p-3">
-              <div className="h-full">
-                <PagesRecordTable
-                  clientPortalId={websiteId || ''}
-                  onEditPage={handleEditPage}
-                />
-              </div>
-            </div>
-          )}
+          <PagesRecordTable
+            clientPortalId={websiteId || ''}
+            onEditPage={handleEditPage}
+            onAdd={() => navigate(`/content/cms/${websiteId}/pages/detail`)}
+          />
         </div>
       </div>
     </PageContainer>

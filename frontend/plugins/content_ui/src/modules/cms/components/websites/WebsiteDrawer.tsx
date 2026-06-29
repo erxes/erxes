@@ -209,7 +209,7 @@ export function WebsiteDrawer({
     const target = event.target;
 
     if (
-      target instanceof HTMLInputElement &&
+      target instanceof HTMLElement &&
       languagesSelectorRef.current?.contains(target)
     ) {
       event.preventDefault();
@@ -241,12 +241,17 @@ export function WebsiteDrawer({
       return;
     }
 
-    const target = event.target;
+    const selectorEl = languagesSelectorRef.current;
+    if (!selectorEl) return;
 
-    if (
-      target instanceof HTMLElement &&
-      languagesSelectorRef.current?.contains(target)
-    ) {
+    const focusable = Array.from(
+      selectorEl.querySelectorAll<HTMLElement>(
+        'a[href]:not([disabled]), button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+    const lastFocusable = focusable[focusable.length - 1];
+
+    if (event.target instanceof HTMLElement && event.target === lastFocusable) {
       event.preventDefault();
       focusAfterLanguagesSelector();
     }

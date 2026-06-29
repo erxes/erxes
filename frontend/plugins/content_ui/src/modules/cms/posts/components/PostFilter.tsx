@@ -93,7 +93,9 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
           <SelectTags.FilterView clientPortalId={clientPortalId || ''} />
           <SelectCategories.FilterView clientPortalId={clientPortalId} />
           <SelectStatus.FilterView />
-          <SelectType.FilterView clientPortalId={clientPortalId} />
+          <Filter.View filterKey="type">
+            <SelectType.FilterView clientPortalId={clientPortalId} />
+          </Filter.View>
           <Filter.View filterKey="created">
             <Filter.DateView filterKey="created" />
           </Filter.View>
