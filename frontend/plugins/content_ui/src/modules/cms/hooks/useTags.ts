@@ -35,6 +35,7 @@ export interface UseTagsProps {
   sortField?: string;
   sortMode?: string;
   sortDirection?: string;
+  skip?: boolean;
 }
 
 interface UseTagsResult {
@@ -69,6 +70,7 @@ export function useTags({
   sortField,
   sortMode,
   sortDirection,
+  skip = false,
 }: UseTagsProps): UseTagsResult {
   const language = useAtomValue(cmsLanguageAtom);
   const setTagsTotalCount = useSetAtom(tagsTotalCountAtom);
@@ -112,6 +114,7 @@ export function useTags({
   const { data, loading, error, refetch, fetchMore } =
     useQuery<CmsTagsQueryResult>(CMS_TAGS, {
       variables,
+      skip,
       errorPolicy: 'all',
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
@@ -120,6 +123,13 @@ export function useTags({
   useEffect(() => {
     fetchedCursorsRef.current.clear();
   }, [variables]);
+
+  useEffect(() => {
+    if (!skip) return;
+
+    fetchedCursorsRef.current.clear();
+    fetchingMoreRef.current = false;
+  }, [skip]);
 
   const pageInfo = data?.cmsTags?.pageInfo;
 
@@ -167,9 +177,9 @@ export function useTags({
   }, [fetchMore, pageInfo?.endCursor, pageInfo?.hasNextPage, variables]);
 
   useEffect(() => {
-    if (!fetchAll) return;
+    if (!fetchAll || skip) return;
     fetchRemainingTags();
-  }, [fetchAll, fetchRemainingTags]);
+  }, [fetchAll, fetchRemainingTags, skip]);
 
   const handleFetchMore = useCallback(
     ({ direction }: { direction: EnumCursorDirection }) => {

@@ -123,6 +123,25 @@ export const GenerateAiContextInputData = z.object({
   target: z.record(z.any()),
 });
 
+export const LoadAiKnowledgeDocumentBatchInputData = z.object({
+  moduleName: z.string(),
+  sourceKey: z.string(),
+  sourceIds: z.array(z.string()).max(1000).optional(),
+  candidateSourceIds: z.array(z.string()).max(1000).optional(),
+  config: z.record(z.unknown()).optional(),
+  cursor: z.string().optional(),
+  limit: z.number().int().min(1).max(5000).optional(),
+  skipTotalCount: z.boolean().optional(),
+});
+
+export const LookupAiToolInputData = z.object({
+  moduleName: z.string(),
+  toolKey: z.string(),
+  query: z.string().default(''),
+  limit: z.number().int().min(1).max(20).optional(),
+  filters: z.record(z.unknown()).optional(),
+});
+
 export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
@@ -147,6 +166,14 @@ export const GenerateAiContextInput = AutomationBaseInput.extend({
   data: GenerateAiContextInputData,
 });
 
+export const LoadAiKnowledgeDocumentBatchInput = AutomationBaseInput.extend({
+  data: LoadAiKnowledgeDocumentBatchInputData,
+});
+
+export const LookupAiToolInput = AutomationBaseInput.extend({
+  data: LookupAiToolInputData,
+});
+
 export type TAutomationProducersInput = {
   [TAutomationProducers.RECEIVE_ACTIONS]: z.infer<
     typeof ReceiveActionsInputData
@@ -166,4 +193,8 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
     typeof GenerateAiContextInputData
   >;
+  [TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH]: z.infer<
+    typeof LoadAiKnowledgeDocumentBatchInputData
+  >;
+  [TAutomationProducers.LOOKUP_AI_TOOL]: z.infer<typeof LookupAiToolInputData>;
 };

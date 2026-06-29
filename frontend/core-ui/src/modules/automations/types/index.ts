@@ -17,6 +17,7 @@ import {
   IAutomationHistoryAction,
   IAutomationsActionConfigConstants,
   IAutomationsTriggerConfigConstants,
+  TAiKnowledgeSourceConfig,
   TAutomationAction,
   TAutomationActionProps,
   TAutomationTrigger,
@@ -44,6 +45,7 @@ export interface AutomationConstants {
       resolverKeys?: string[];
     };
   }>;
+  aiKnowledgeSourcesConst: TAiKnowledgeSourceConfig[];
 }
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;
@@ -194,9 +196,8 @@ interface BaseComponentConfig<TConfig = any> {
 }
 
 // Generic action component configuration with config type parameter
-interface ActionComponentConfig<
-  TConfig = any,
-> extends BaseComponentConfig<TConfig> {
+interface ActionComponentConfig<TConfig = any>
+  extends BaseComponentConfig<TConfig> {
   sidebar?: LazyAutomationComponent<TAutomationActionProps>;
   actionResult?: LazyAutomationComponent<{
     componentType: 'historyActionResult';

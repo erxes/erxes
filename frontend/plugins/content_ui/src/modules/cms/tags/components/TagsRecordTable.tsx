@@ -53,7 +53,7 @@ export const TagsRecordTable = ({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      {onBulkDelete && <TagsCommandBar onBulkDelete={onBulkDelete} />}
+      <TagsCommandBar onBulkDelete={onBulkDelete} />
     </RecordTable.Provider>
   );
 };

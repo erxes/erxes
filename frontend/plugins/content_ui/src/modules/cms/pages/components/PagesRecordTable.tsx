@@ -50,7 +50,7 @@ export const PagesRecordTable = ({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      <PagesCommandbar refetch={refetch} />
+      <PagesCommandbar clientPortalId={clientPortalId} refetch={refetch} />
     </RecordTable.Provider>
   );
 };

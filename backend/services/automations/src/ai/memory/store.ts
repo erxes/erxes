@@ -63,7 +63,7 @@ const stringifyScopeValue = (value: unknown): string | null => {
   return null;
 };
 
-const resolveScopeKey = (
+export const resolveAiMemoryScopeKey = (
   execution: IAutomationExecutionDocument,
   aiContext?: TAiContext | null,
 ) => {
@@ -100,7 +100,7 @@ export const loadAiActionMemory = async ({
     return {};
   }
 
-  const scopeKey = resolveScopeKey(execution, aiContext);
+  const scopeKey = resolveAiMemoryScopeKey(execution, aiContext);
 
   if (!scopeKey) {
     return {};
@@ -134,7 +134,7 @@ export const persistAiActionMemory = async ({
     return null;
   }
 
-  const scopeKey = resolveScopeKey(execution, aiContext);
+  const scopeKey = resolveAiMemoryScopeKey(execution, aiContext);
 
   if (!scopeKey) {
     return null;
