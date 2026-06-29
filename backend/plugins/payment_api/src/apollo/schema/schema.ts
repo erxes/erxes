@@ -18,6 +18,11 @@ import {
   queries as TransactionQueries,
   mutations as TransactionMutations,
 } from '@/payment/graphql/schemas/transactions';
+import {
+  types as GolomtBankTypes,
+  queries as GolomtBankQueries,
+  mutations as GolomtBankMutations,
+} from '@/corporateGateway/golomtbank/graphql/schema';
 
 export const types = `
   ${PaymentTypes}
@@ -26,18 +31,21 @@ export const types = `
   ${PaymentInputs}
   ${TransactionTypes}
   ${TransactionInputs}
+  ${GolomtBankTypes}
 `;
 
 export const queries = `
   ${PaymentQueries}
   ${InvoiceQueries}
   ${TransactionQueries}
+  ${GolomtBankQueries}
 `;
 
 export const mutations = `
   ${PaymentMutations}
   ${InvoiceMutations}
   ${TransactionMutations}
+  ${GolomtBankMutations}
 `;
 
 export default { types, queries, mutations };
