@@ -54,7 +54,7 @@ type CheckDealsOptions = {
 
 const checkedDealsAtom = atom<Record<string, Partial<ICheckSyncedDeals>>>({});
 
-const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
+export const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
 
 const getDealStatus = (
   deal?: Partial<ICheckSyncedDeals>,
@@ -474,8 +474,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
   };
 
   useEffect(() => {
-    if (!totalCount) return;
-    setCheckSyncedDealsTotalCount(totalCount);
+    if (totalCount !== undefined) setCheckSyncedDealsTotalCount(totalCount);
   }, [totalCount, setCheckSyncedDealsTotalCount]);
 
   useEffect(() => {
