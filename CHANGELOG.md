@@ -1,4 +1,42 @@
+# Changelog
 
+## [3.0.46](https://github.com/erxes/erxes/compare/3.0.45...3.0.46) (2026-06-29)
+
+
+### Bug Fixes
+
+* **calls:** timezone of history ([f94adc7](https://github.com/erxes/erxes/commit/f94adc7f68346b8e9e20150939fc2630f6fd9ccd))
+* **calls:** transfer call fixed ([9eaee35](https://github.com/erxes/erxes/commit/9eaee35160224a834780db5efe87ee46c11d68eb))
+* **loyalty:** resolve voucher owner column for client portal users  ([2c3e007](https://github.com/erxes/erxes/commit/2c3e007285da60c918c650a863d6d8e7d8041bad))
+* **payment:** find TDB transactions by response.order.id ([a005a05](https://github.com/erxes/erxes/commit/a005a052a675a62e1d11b244c1a00de7657ad761))
+* **saas-migrations:** correctly migrate tags with isGroup flag and order recalculation ([76f23b2](https://github.com/erxes/erxes/commit/76f23b21f2fbcd6c8737dbdd018199c31ebd5d14))
+* **saas-migrations:** correctly migrate tags with isGroup flag and order recalculation ([1d54bde](https://github.com/erxes/erxes/commit/1d54bde97263872a7d34a6d8caf1ae0294a28e68))
+* **saas-migrations:** tags ([d2840cc](https://github.com/erxes/erxes/commit/d2840ccc461977727be25bc1f88065cbf4795b8a))
+* **saas-migrations:** tags command ([8dab9cd](https://github.com/erxes/erxes/commit/8dab9cd6b686e967eaea891e27c28252042ebef4))
+
+
+### Features
+
+* **beforeResolvers:** add blocker handler and enhance product ID processing ([561a2f9](https://github.com/erxes/erxes/commit/561a2f969aa2cef840d59f64c52fc501c9a7118a))
+* enable before-resolvers to short-circuit with resolved data ([098a29f](https://github.com/erxes/erxes/commit/098a29f97aa94720298fdeb98ce1cf04d5a5ec00))
+* introduce AI knowledge indexing, memory management, and automation enhancements ([#8435](https://github.com/erxes/erxes/issues/8435)) ([9a0ff36](https://github.com/erxes/erxes/commit/9a0ff36dbe41dd2eea5ba9fcf18e0acabb3e4391))
+
+## [3.0.45](https://github.com/erxes/erxes/compare/3.0.44...3.0.45) (2026-06-26)
+
+
+### Bug Fixes
+
+* **erkhet-sync:** history totalcount never 0 and filter doesnt accept number ([#8152](https://github.com/erxes/erxes/issues/8152)) ([6a14e8c](https://github.com/erxes/erxes/commit/6a14e8cce00e62a170b5f9c05beae21ed6cf0347))
+* **frontline:** core block editor file upload fix and inbox subscription fix  ([22dfea8](https://github.com/erxes/erxes/commit/22dfea8dc73d034f881a98eec3a1c32199cea765))
+* **frontline:** fix ticket property filter in reports ([223be41](https://github.com/erxes/erxes/commit/223be41cc1baa208ed44ede9f86f3562db8498ea))
+* **navigation:** reset active plugin on home click and refine switche… ([#8366](https://github.com/erxes/erxes/issues/8366)) ([f635b04](https://github.com/erxes/erxes/commit/f635b04bdfe65c5fe8f0ed0976d766b81b89d1e7))
+* **payment:** reduce GET requests with caching and early exit  ([e9f6851](https://github.com/erxes/erxes/commit/e9f68515ddc64a2350839ac379ed186faabd9512))
+
+
+### Features
+
+* enable product sheet form widget side tabs ([700258f](https://github.com/erxes/erxes/commit/700258f35ca8e385dc84446512c0ccf71629e749))
+* **mongolian_api:** integrate MSDynamics ([#8357](https://github.com/erxes/erxes/issues/8357)) ([d677ea7](https://github.com/erxes/erxes/commit/d677ea7231cb571c0340568637303423cd332037))
 
 ## [3.0.44](https://github.com/erxes/erxes/compare/3.0.43...3.0.44) (2026-06-24)
 
@@ -73,7 +111,7 @@
 * **mongolian:** Improve customer page's ui  ([#8080](https://github.com/erxes/erxes/issues/8080)) ([5950c2b](https://github.com/erxes/erxes/commit/5950c2baf47fc61fc98fb96b6fcb32e502e577b8))
 * **mongolian:** improve msdynamic check category ui ([#8013](https://github.com/erxes/erxes/issues/8013)) ([ad3166e](https://github.com/erxes/erxes/commit/ad3166e4c6c1dd0a2ca40962ad0fc97d06b31756))
 
-# Changelog
+
 
 ## [3.0.41](https://github.com/erxes/erxes/compare/3.0.40...3.0.41) (2026-06-21)
 

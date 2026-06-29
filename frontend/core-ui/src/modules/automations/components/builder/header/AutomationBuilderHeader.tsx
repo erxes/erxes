@@ -10,9 +10,10 @@ import {
 } from '@tabler/icons-react';
 import { Badge, Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { Can, PageHeader } from 'ui-modules';
 import { AutomationButtonPermissionFallback } from '../../common/AutomationButtonPermissionFallback';
+import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 
 export const AutomationBuilderHeader = () => {
   const {
@@ -24,6 +25,7 @@ export const AutomationBuilderHeader = () => {
     toggleTabs,
   } = useAutomationHeader();
   const { t } = useTranslation('automations');
+  const { pathname } = useLocation();
 
   return (
     <div>
@@ -44,7 +46,10 @@ export const AutomationBuilderHeader = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
-            <Link to="/settings/automations">
+            <Link
+              to="/settings/automations"
+              onClick={() => setAutomationSettingsReturnPath(pathname)}
+            >
               <IconSettings />
               {t('go-to-settings')}
             </Link>

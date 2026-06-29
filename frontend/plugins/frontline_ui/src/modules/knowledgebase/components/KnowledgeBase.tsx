@@ -20,7 +20,9 @@ export function KnowledgeBase() {
   const [editingTopic, setEditingTopic] = useState<ITopic | undefined>(
     undefined,
   );
-  const [editingArticle, setEditingArticle] = useState<any>(null);
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(
+    null,
+  );
   const [editingCategory, setEditingCategory] = useState<ICategory | undefined>(
     undefined,
   );
@@ -116,7 +118,7 @@ export function KnowledgeBase() {
 
   const handleCloseArticleDrawer = () => {
     setIsArticleDrawerOpen(false);
-    setEditingArticle(null);
+    setEditingArticleId(null);
   };
 
   const handleCloseCategoryDrawer = () => {
@@ -154,9 +156,12 @@ export function KnowledgeBase() {
 
       {selectedCategoryId && !isArticleDrawerOpen && (
         <ArticleList
-          onCreateArticle={() => setIsArticleDrawerOpen(true)}
+          onCreateArticle={() => {
+            setEditingArticleId(null);
+            setIsArticleDrawerOpen(true);
+          }}
           onEditArticle={(article) => {
-            setEditingArticle(article);
+            setEditingArticleId(article?._id ?? null);
             setIsArticleDrawerOpen(true);
           }}
         />
@@ -234,7 +239,7 @@ export function KnowledgeBase() {
       />
 
       <ArticleDrawer
-        article={editingArticle}
+        articleId={editingArticleId}
         categoryId={selectedCategoryId || ''}
         isOpen={isArticleDrawerOpen}
         onClose={handleCloseArticleDrawer}
