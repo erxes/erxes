@@ -30,7 +30,7 @@ interface Config {
 
 const DEFAULTS = {
   baseFont:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
   baseFontSize: '16px',
   baseLineHeight: '1.6',
   baseColor: '#000000',
@@ -126,6 +126,10 @@ const renderInlineContent = (content: any[], config?: Config): string => {
         return `<a href="${escapeHtml(
           href || '#',
         )}" style="${linkStyles}">${children}</a>`;
+      }
+
+      if (type === 'rawHtml') {
+        return item.props?.html || '';
       }
 
       const escapedText = escapeHtml(text || '').replace(/\n/g, '<br />');
@@ -250,9 +254,14 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
 
     case 'image': {
       const { url, caption, name, previewWidth } = props || {};
-      const width = Math.min(previewWidth, 600);
+
+      if (!url) {
+        return '';
+      }
+
+      const width = Math.min(previewWidth || 600, 600);
       const imgStyle = `max-width: 100%; height: auto; display: block; margin: 0`;
-      const src = resolveSrc(url || '', config);
+      const src = resolveSrc(url, config);
 
       let html = `<div style="margin: 16px 0;">
         <img src="${escapeHtml(src)}" alt="${escapeHtml(
@@ -356,6 +365,10 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
         baseStyles.blockquote,
         customStyle,
       )}">${html}</blockquote>`;
+    }
+
+    case 'rawHtml': {
+      return props?.html || '';
     }
 
     default: {
