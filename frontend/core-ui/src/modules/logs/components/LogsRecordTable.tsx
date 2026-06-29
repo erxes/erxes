@@ -1,5 +1,5 @@
 import { IconArchive } from '@tabler/icons-react';
-import { Label, RecordTable } from 'erxes-ui';
+import { RecordTable } from 'erxes-ui';
 
 import { LOGS_CURSOR_SESSION_KEY } from '../constants/logFilter';
 import { useLogs } from '../hooks/useLogs';
@@ -21,7 +21,7 @@ export const LogsRecordTable = () => {
       columns={logColumns}
       data={list}
       stickyColumns={['detail']}
-      className="m-3"
+      className="m-2"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -36,16 +36,6 @@ export const LogsRecordTable = () => {
               handleFetchMore={handleFetchMore}
             />
             {loading && <RecordTable.RowSkeleton rows={40} />}
-            {!totalCount && !loading && (
-              <tr className="h-[80vh]">
-                <td colSpan={6} className="py-10 text-center">
-                  <div className="flex flex-col items-center justify-center text-muted-foreground">
-                    <IconArchive className="w-8 h-8 mb-2" />
-                    <Label>No results</Label>
-                  </div>
-                </td>
-              </tr>
-            )}
 
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
@@ -53,6 +43,25 @@ export const LogsRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
+        {!totalCount && !loading && (
+          <div className="absolute inset-0">
+            <div className="flex h-full w-full justify-center px-8">
+              <div className="flex h-full min-h-[360px] flex-col items-center justify-center text-center">
+                <IconArchive
+                  size={64}
+                  className="mx-auto mb-4 text-muted-foreground"
+                />
+
+                <h3 className="mb-2 text-xl font-semibold">No results found</h3>
+
+                <p className="max-w-md text-muted-foreground">
+                  We couldn't find anything matching your search. Try adjusting
+                  your filters or search query.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <LogDetailSheet />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
