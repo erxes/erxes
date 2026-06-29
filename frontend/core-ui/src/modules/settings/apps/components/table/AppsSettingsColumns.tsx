@@ -1,43 +1,43 @@
 import { IApp } from '@/settings/apps/types';
 import { ColumnDef } from '@tanstack/table-core';
 import { format } from 'date-fns';
-import { Badge, RecordTableInlineCell, useToast } from 'erxes-ui';
-import { IconCopy } from '@tabler/icons-react';
+import {
+  Badge,
+  Button,
+  RecordTable,
+  RecordTableInlineCell,
+  useToast,
+} from 'erxes-ui';
+import { IconCopy, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
 
 const TokenCell = ({ token }: { token: string }) => {
-  const [hovered, setHovered] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const masked = token.slice(0, 6) + '••••••••••••••••••••';
 
   const handleCopy = () => {
+    setCopied(true);
     navigator.clipboard.writeText(token);
     toast({ variant: 'success', title: 'Token copied to clipboard' });
+    setTimeout(() => setCopied(false), 1000);
   };
 
   return (
-    <RecordTableInlineCell>
-      <div
-        className="flex items-center gap-1 group"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        <span className="font-mono text-xs">{masked}</span>
-        {hovered && (
-          <button
-            onClick={handleCopy}
-            className="p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            title="Copy token"
-          >
-            <IconCopy size={14} />
-          </button>
-        )}
-      </div>
+    <RecordTableInlineCell
+      className="group justify-between"
+      onClick={handleCopy}
+    >
+      <span className="font-mono text-xs">{masked}</span>
+      <Button variant="ghost" size="icon" className="hidden group-hover:flex">
+        {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+      </Button>
     </RecordTableInlineCell>
   );
 };
 
 export const appsSettingsColumns: ColumnDef<IApp>[] = [
+  { ...RecordTable.checkboxColumn, size: 20 } as ColumnDef<IApp>,
   {
     id: 'name',
     accessorKey: 'name',
