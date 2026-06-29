@@ -4,10 +4,11 @@ import { usePagesColumns } from './PagesColumn';
 import { PagesCommandbar } from './pages-command-bar/PagesCommandBar';
 import { PAGES_CURSOR_SESSION_KEY } from '../constants/pagesCursorSessionKey';
 import { usePages } from '../hooks/usePages';
+import { IPage } from '../types/pageTypes';
 
 interface PagesRecordTableProps {
   clientPortalId: string;
-  onEditPage?: (page: any) => void;
+  onEditPage?: (page: IPage) => void;
 }
 
 export const PagesRecordTable = ({

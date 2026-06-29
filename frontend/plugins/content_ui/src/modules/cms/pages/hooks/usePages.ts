@@ -2,7 +2,6 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
-  parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
@@ -26,14 +25,9 @@ export const usePagesVariables = (
     };
   }>['variables'],
 ) => {
-  const [{ name, path, createdAt, updatedAt, publishedDate }] =
-    useMultiQueryState<{
-      name: string[];
-      path: string;
-      createdAt: string;
-      updatedAt: string;
-      publishedDate: string;
-    }>(['name', 'path', 'createdAt', 'updatedAt', 'publishedDate']);
+  const [{ searchValue }] = useMultiQueryState<{ searchValue: string }>([
+    'searchValue',
+  ]);
 
   const language = useAtomValue(cmsLanguageAtom);
 
@@ -45,22 +39,7 @@ export const usePagesVariables = (
     limit: PAGES_PER_PAGE,
     cursor,
     language,
-    name: name || undefined,
-    path: path || undefined,
-    dateFilters: {
-      createdAt: {
-        gte: parseDateRangeFromString(createdAt)?.from,
-        lte: parseDateRangeFromString(createdAt)?.to,
-      },
-      updatedAt: {
-        gte: parseDateRangeFromString(updatedAt)?.from,
-        lte: parseDateRangeFromString(updatedAt)?.to,
-      },
-      publishedDate: {
-        gte: parseDateRangeFromString(publishedDate)?.from,
-        lte: parseDateRangeFromString(publishedDate)?.to,
-      },
-    },
+    searchValue: searchValue || undefined,
     ...variables,
   };
 };
@@ -83,10 +62,10 @@ export const usePages = (options?: QueryHookOptions) => {
     fetchPolicy: 'network-only',
   });
 
-  const { pages = [], totalCount = 0, pageInfo } = data?.cmsPageList || {};
+  const { pages = [], totalCount, pageInfo } = data?.cmsPageList || {};
+  const safeTotalCount = totalCount ?? 0;
   useEffect(() => {
-    if (!totalCount) return;
-    setPagesTotalCount(totalCount);
+    setPagesTotalCount(totalCount ?? null);
   }, [totalCount, setPagesTotalCount]);
 
   const handleFetchMore = ({
@@ -150,7 +129,7 @@ export const usePages = (options?: QueryHookOptions) => {
   return {
     loading,
     pages,
-    totalCount,
+    totalCount: safeTotalCount,
     handleFetchMore,
     pageInfo,
     refetch,

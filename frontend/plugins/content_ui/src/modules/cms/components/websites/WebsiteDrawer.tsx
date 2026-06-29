@@ -9,7 +9,11 @@ import {
   toast,
   MultipleSelector,
 } from 'erxes-ui';
-import { useEffect } from 'react';
+import {
+  useEffect,
+  useRef,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,6 +45,10 @@ export function WebsiteDrawer({
 }: WebsiteDrawerProps) {
   const { t } = useTranslation('content');
   const isEditing = !!website;
+  const languagesSelectorRef = useRef<HTMLDivElement>(null);
+  const defaultLanguageTriggerRef = useRef<HTMLButtonElement>(null);
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   const {
     clientPortals,
@@ -197,9 +205,59 @@ export function WebsiteDrawer({
     });
   };
 
+  const handleSheetEscapeKeyDown = (event: KeyboardEvent) => {
+    const target = event.target;
+
+    if (
+      target instanceof HTMLInputElement &&
+      languagesSelectorRef.current?.contains(target)
+    ) {
+      event.preventDefault();
+    }
+  };
+
+  const focusAfterLanguagesSelector = () => {
+    const defaultLanguageTrigger = defaultLanguageTriggerRef.current;
+
+    if (defaultLanguageTrigger && !defaultLanguageTrigger.disabled) {
+      defaultLanguageTrigger.focus();
+      return;
+    }
+
+    const saveButton = saveButtonRef.current;
+
+    if (saveButton && !saveButton.disabled) {
+      saveButton.focus();
+      return;
+    }
+
+    cancelButtonRef.current?.focus();
+  };
+
+  const handleLanguagesSelectorKeyDownCapture = (
+    event: ReactKeyboardEvent<HTMLDivElement>,
+  ) => {
+    if (event.key !== 'Tab' || event.shiftKey) {
+      return;
+    }
+
+    const target = event.target;
+
+    if (
+      target instanceof HTMLElement &&
+      languagesSelectorRef.current?.contains(target)
+    ) {
+      event.preventDefault();
+      focusAfterLanguagesSelector();
+    }
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <Sheet.View className="sm:max-w-lg p-0 bg-background">
+      <Sheet.View
+        className="sm:max-w-lg p-0 bg-background"
+        onEscapeKeyDown={handleSheetEscapeKeyDown}
+      >
         <Sheet.Header className="border-b gap-3">
           <Sheet.Title>{isEditing ? t('edit-cms') : t('new-cms')}</Sheet.Title>
           <Sheet.Close />
@@ -286,29 +344,37 @@ export function WebsiteDrawer({
                 <Form.Item>
                   <Form.Label>{t('languages')}</Form.Label>
                   <Form.Control>
-                    <MultipleSelector
-                      defaultOptions={LANGUAGES}
-                      onSearchSync={(term) =>
-                        LANGUAGES.filter(
-                          (o) =>
-                            o.label
-                              .toLowerCase()
-                              .includes(term.toLowerCase()) ||
-                            o.value.toLowerCase().includes(term.toLowerCase()),
-                        )
-                      }
-                      triggerSearchOnFocus
-                      value={(field.value || []).map((lng) => ({
-                        value: lng,
-                        label:
-                          LANGUAGES.find((l) => l.value === lng)?.label || lng,
-                      }))}
-                      onChange={(val) =>
-                        field.onChange(val.map((v) => v.value))
-                      }
-                      placeholder={t('select-languages')}
-                      commandProps={{ shouldFilter: false }}
-                    />
+                    <div
+                      ref={languagesSelectorRef}
+                      onKeyDownCapture={handleLanguagesSelectorKeyDownCapture}
+                    >
+                      <MultipleSelector
+                        defaultOptions={LANGUAGES}
+                        onSearchSync={(term) =>
+                          LANGUAGES.filter(
+                            (o) =>
+                              o.label
+                                .toLowerCase()
+                                .includes(term.toLowerCase()) ||
+                              o.value
+                                .toLowerCase()
+                                .includes(term.toLowerCase()),
+                          )
+                        }
+                        triggerSearchOnFocus
+                        value={(field.value || []).map((lng) => ({
+                          value: lng,
+                          label:
+                            LANGUAGES.find((l) => l.value === lng)?.label ||
+                            lng,
+                        }))}
+                        onChange={(val) =>
+                          field.onChange(val.map((v) => v.value))
+                        }
+                        placeholder={t('select-languages')}
+                        commandProps={{ shouldFilter: false }}
+                      />
+                    </div>
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -332,7 +398,7 @@ export function WebsiteDrawer({
                         onValueChange={field.onChange}
                         disabled={available.length === 0}
                       >
-                        <Select.Trigger>
+                        <Select.Trigger ref={defaultLanguageTriggerRef}>
                           <Select.Value placeholder={t('select-default-language')} />
                         </Select.Trigger>
                         <Select.Content>
@@ -351,7 +417,11 @@ export function WebsiteDrawer({
             />
 
             <div className="flex justify-end space-x-2">
-              <Button type="submit" disabled={saving || savingUpdate}>
+              <Button
+                ref={saveButtonRef}
+                type="submit"
+                disabled={saving || savingUpdate}
+              >
                 {saving || savingUpdate
                   ? isEditing
                     ? t('saving')
@@ -361,7 +431,7 @@ export function WebsiteDrawer({
                   : t('create-cms')}
               </Button>
 
-              <Button onClick={onClose} variant="outline">
+              <Button ref={cancelButtonRef} type="button" onClick={onClose} variant="outline">
                 {t('cancel')}
               </Button>
             </div>
