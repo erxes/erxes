@@ -37,5 +37,5 @@ export const CheckCategoryMoreColumnCell = ({
 export const CheckCategoryMoreColumn: ColumnDef<CategoryItem> = {
   id: 'more',
   cell: CheckCategoryMoreColumnCell,
-  size: 33,
+  size: 24,
 };

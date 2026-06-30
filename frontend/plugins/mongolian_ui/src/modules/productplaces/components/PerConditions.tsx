@@ -1,4 +1,4 @@
-import { Button, Input, Label, Select, } from 'erxes-ui';
+import { Button, Input, Label, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import SelectDepartments from '../selects/SelectDepartments';
@@ -17,7 +17,12 @@ type Props = {
 
 const CLEAR_VALUE = '__clear__';
 
-const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props) => {
+const PerConditions = ({
+  condition,
+  onChange,
+  onRemove,
+  onAddCondition,
+}: Props) => {
   const { t } = useTranslation('mongolian');
   const onChangeConfig = (key: string, value: any) => {
     onChange(condition.id, { ...condition, [key]: value });
@@ -28,7 +33,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
   };
 
   return (
-    <div className="rounded border p-4 space-y-6 bg-white">
+    <div className="rounded border p-4 space-y-6">
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
           <div className="space-y-2">
@@ -88,7 +93,9 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
             <SelectSegments
               contentTypes={['core:product']}
               value={condition.segmentId || ''}
-              onValueChange={(segmentId) => onChangeConfig('segmentId', segmentId)}
+              onValueChange={(segmentId) =>
+                onChangeConfig('segmentId', segmentId)
+              }
             />
           </div>
         </div>
