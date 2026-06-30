@@ -11,9 +11,11 @@ export const syncedInfoColumn = <T extends { syncedDate?: string; syncedBillNumb
   accessorKey,
   header: () => <HeaderCell icon={IconClock} label={label} />,
   cell: ({ cell }) => {
+    const value = cell.getValue() as string | undefined;
+
     return (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={value ?? ''} />
       </RecordTableInlineCell>
     );
   },
