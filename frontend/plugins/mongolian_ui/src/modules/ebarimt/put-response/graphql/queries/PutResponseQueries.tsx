@@ -4,7 +4,8 @@ const putResponses = gql`
     $search: String
     $contentType: String
     $contentId: String
-    $billType: String
+    $success: String
+    $billType: String 
     $billIdRule: String
     $isLast: String
     $orderNumber: String
@@ -28,6 +29,7 @@ const putResponses = gql`
       search: $search
       contentType: $contentType
       contentId: $contentId
+      success: $success
       billType: $billType
       billIdRule: $billIdRule
       isLast: $isLast

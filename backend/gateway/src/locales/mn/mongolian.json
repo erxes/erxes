@@ -533,6 +533,8 @@
   "no-stage-found": "Шат олдсонгүй",
   "pipeline-not-selected": "Дамжлага сонгогдоогүй",
   "no-statuses-found": "Статус олдсонгүй",
+  "no-put-response": "Хариу илгээх бичлэг байхгүй",
+  "create-first-put-response": "Эхний хариу илгээх бичлэгээ үүсгэж эхлэнэ үү.",
   "no-by-date": "Огнооны бичлэг байхгүй",
   "create-first-by-date": "Эхний огнооны бичлэгээ үүсгэж эхлэнэ үү.",
   "no-duplicated": "Давхардсан бичлэг байхгүй",
