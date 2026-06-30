@@ -7,6 +7,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '@/products/constants/productsCursorSessionKey';
 import { ProductsTotalCount } from '@/products/components/ProductsTotalCount';
 import {
@@ -122,6 +123,7 @@ function OptionFilterBar({ config }: OptionFilterProps) {
 }
 
 function VendorFilterBar() {
+  const { t } = useTranslation('product');
   const [vendorId] = useQueryState<string>('vendorId');
 
   if (!vendorId) {
@@ -132,12 +134,13 @@ function VendorFilterBar() {
     <SelectCompany.FilterBar
       mode="single"
       filterKey="vendorId"
-      label="Vendor"
+      label={t('vendor', 'Vendor')}
     />
   );
 }
 
 function BrandsFilterBar() {
+  const { t } = useTranslation('product');
   const [brandIds] = useQueryState<string[]>('brandIds');
 
   if (!brandIds?.length) {
@@ -148,12 +151,13 @@ function BrandsFilterBar() {
     <SelectBrands.FilterBar
       mode="multiple"
       filterKey="brandIds"
-      label="Brands"
+      label={t('brands', 'Brands')}
     />
   );
 }
 
 function TagsFilterBar() {
+  const { t } = useTranslation('product');
   const [tags] = useQueryState<string[]>('tags');
 
   if (!tags?.length) {
@@ -164,13 +168,14 @@ function TagsFilterBar() {
     <SelectTags.FilterBar
       mode="multiple"
       filterKey="tags"
-      label="Tags"
+      label={t('tags', 'Tags')}
       tagType="core:product"
     />
   );
 }
 
 export const ProductsFilter = () => {
+  const { t } = useTranslation('product');
   return (
     <Filter id="products-filter" sessionKey={PRODUCTS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
@@ -183,7 +188,7 @@ export const ProductsFilter = () => {
         <Filter.SearchValueBarItem />
         <SelectCategory.FilterBar
           filterKey="categoryIds"
-          label="Category"
+          label={t('category', 'Category')}
           mode="multiple"
         />
         <OptionFilterBar config={PRODUCT_TYPE_FILTER} />
@@ -198,6 +203,7 @@ export const ProductsFilter = () => {
 };
 
 export const ProductsFilterPopover = () => {
+  const { t } = useTranslation('product');
   return (
     <>
       <Filter.Popover scope={ProductHotKeyScope.ProductsPage}>
@@ -205,18 +211,18 @@ export const ProductsFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
 
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
                 <SelectCategory.FilterItem
                   value="categoryIds"
-                  label="Category"
+                  label={t('category', 'Category')}
                 />
                 <OptionFilterItem config={PRODUCT_TYPE_FILTER} />
-                <SelectCompany.FilterItem value="vendorId" label="Vendor" />
-                <SelectBrands.FilterItem value="brandIds" label="Brands" />
-                <SelectTags.FilterItem value="tags" label="Tags" />
+                <SelectCompany.FilterItem value="vendorId" label={t('vendor', 'Vendor')} />
+                <SelectBrands.FilterItem value="brandIds" label={t('brands', 'Brands')} />
+                <SelectTags.FilterItem value="tags" label={t('tags', 'Tags')} />
                 <OptionFilterItem config={PRODUCT_STATUS_FILTER} />
               </Command.List>
             </Command>

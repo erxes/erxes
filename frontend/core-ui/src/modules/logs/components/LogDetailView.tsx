@@ -1,5 +1,6 @@
 import { useLogDetail } from '@/logs/hooks/useLogDetail';
 import React, { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ILogDoc, ILogSourceType, ILogStatusType } from '../types';
 import { Badge, RelativeDateDisplay, Spinner, cn } from 'erxes-ui';
 import { LogUserInfo } from '@/logs/components/LogUser';
@@ -106,6 +107,7 @@ const getStatusBadgeVariant = (
 };
 
 export const LogDetailView = ({ logId }: { logId: string }) => {
+  const { t } = useTranslation('common');
   const { detail, error, loading } = useLogDetail(logId);
 
   if (loading) {
@@ -140,7 +142,7 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
             <div className="flex flex-col gap-4 border-b px-6 py-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <h2 className="text-xl font-semibold text-foreground">
-                  Log Details
+                  {t('logs.log-details', 'Log Details')}
                 </h2>
                 <p className="mt-1 truncate font-mono text-xs text-muted-foreground">
                   {_id || logId}

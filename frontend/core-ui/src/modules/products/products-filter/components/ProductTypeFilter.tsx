@@ -1,4 +1,5 @@
 import { Filter, DropdownMenu, Select, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const options = [
   { label: 'Product', value: 'product' },
@@ -31,12 +32,13 @@ export const ProductTypeFilterDropdown = ({ onOpenChange }: any) => {
 };
 
 export const ProductTypeFilterBar = () => {
+  const { t } = useTranslation('product');
   const [filter, setFilter] = useQueryState<string>('type');
 
   return (
     <Select value={filter || ''} onValueChange={setFilter}>
       <Filter.BarButton>
-        <Select.Value placeholder="Select type" />
+        <Select.Value placeholder={t('select-type', 'Select type')} />
       </Filter.BarButton>
       <Select.Content>
         {options.map((option) => (

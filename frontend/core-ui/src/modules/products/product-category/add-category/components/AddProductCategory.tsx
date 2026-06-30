@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, ScrollArea, Sheet, Form, useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import {
   type ProductAttachmentItem,
   useFieldGroups,
@@ -39,6 +40,7 @@ export function AddCategoryForm({
       similarities: [],
     },
   });
+  const { t } = useTranslation('product');
   const { toast } = useToast();
 
   const { fieldGroups } = useFieldGroups({ contentType: 'core:product' });
@@ -66,15 +68,15 @@ export function AddCategoryForm({
       },
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('category.error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Category added successfully',
+          title: t('category.success', 'Success'),
+          description: t('category.category-added', 'Category added successfully'),
         });
         form.reset();
         setAttachment(null);
@@ -118,14 +120,14 @@ export function AddCategoryForm({
             className="bg-background hover:bg-background/90"
             onClick={handleCancel}
           >
-            Cancel
+            {t('category.cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={editLoading}
           >
-            {editLoading ? 'Saving...' : 'Save'}
+            {editLoading ? t('category.saving', 'Saving...') : t('category.save', 'Save')}
           </Button>
         </Sheet.Footer>
       </form>

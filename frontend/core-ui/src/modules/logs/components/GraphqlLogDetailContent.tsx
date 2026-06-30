@@ -1,9 +1,11 @@
 import { IconBolt } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ILogDoc } from '../types';
 import { maskFields } from '../utils/logFormUtils';
 import { LogDetailJsonPanel, LogDetailSection } from './LogDetailPrimitives';
 
 export const GraphqlLogDetailContent = ({ payload }: ILogDoc) => {
+  const { t } = useTranslation('common');
   const { mutationName, args, result, error } = payload || {};
 
   const res = error || result;
@@ -14,7 +16,7 @@ export const GraphqlLogDetailContent = ({ payload }: ILogDoc) => {
       description={
         mutationName
           ? `Captured arguments and response for ${mutationName}.`
-          : 'Captured arguments and response for this GraphQL operation.'
+          : t('logs.graphql-captured-description', 'Captured arguments and response for this GraphQL operation.')
       }
       icon={IconBolt}
     >
@@ -26,11 +28,11 @@ export const GraphqlLogDetailContent = ({ payload }: ILogDoc) => {
           emptyMessage="No arguments were captured for this request."
         />
         <LogDetailJsonPanel
-          title={error ? 'Error' : 'Result'}
+          title={error ? t('logs.error', 'Error') : t('logs.result', 'Result')}
           description={
             error
-              ? 'The resolver returned an error payload.'
-              : 'Resolved response returned by the API.'
+              ? t('logs.resolver-error-description', 'The resolver returned an error payload.')
+              : t('logs.resolver-result-description', 'Resolved response returned by the API.')
           }
           src={
             typeof res === 'string'

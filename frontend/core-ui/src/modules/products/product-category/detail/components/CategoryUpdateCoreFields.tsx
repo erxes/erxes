@@ -4,6 +4,7 @@ import { Form, Input, Select } from 'erxes-ui';
 import { SelectCategory } from '../../components/SelectCategory';
 import { ProductFormValues } from '../../add-category/components/formSchema';
 import { ACCOUNT_CATEGORY_MASK_TYPES } from '../../add-category/components/CategoryAddMoreFields';
+import { useTranslation } from 'react-i18next';
 
 interface CategoryDetail extends ProductFormValues {
   _id: string;
@@ -17,6 +18,7 @@ interface CategoriesUpdateCoreFieldsProps {
 export const CategoriesUpdateCoreFields: React.FC<
   CategoriesUpdateCoreFieldsProps
 > = ({ form, categoryDetail }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'category' });
   useEffect(() => {
     if (categoryDetail) {
       form.reset((prevValues) => ({
@@ -43,10 +45,10 @@ export const CategoriesUpdateCoreFields: React.FC<
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  NAME <span className="text-destructive">*</span>
+                  {t('name', 'NAME')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder="Enter name" />
+                  <Input {...field} placeholder={t('enter-name', 'Enter name')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -61,10 +63,10 @@ export const CategoriesUpdateCoreFields: React.FC<
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  CODE <span className="text-destructive">*</span>
+                  {t('code', 'CODE')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder="Enter code" />
+                  <Input {...field} placeholder={t('enter-code', 'Enter code')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -78,7 +80,7 @@ export const CategoriesUpdateCoreFields: React.FC<
         name="parentId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Parent Category</Form.Label>
+            <Form.Label>{t('parent-category', 'Parent Category')}</Form.Label>
             <Form.Control>
               <SelectCategory
                 selected={field.value}
@@ -96,11 +98,11 @@ export const CategoriesUpdateCoreFields: React.FC<
         name="maskType"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Mask Type</Form.Label>
+            <Form.Label>{t('mask-type', 'Mask Type')}</Form.Label>
             <Select onValueChange={field.onChange} value={field.value}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Choose type">
+                  <Select.Value placeholder={t('choose-type', 'Choose type')}>
                     {
                       ACCOUNT_CATEGORY_MASK_TYPES.find(
                         (type) => type.value === field.value,

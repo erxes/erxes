@@ -7,9 +7,11 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useBundleConditionRemove } from '@/products/settings/hooks/useBundleConditionRemove';
 
 export const BundleConditionCommandBar = () => {
+  const { t } = useTranslation('product');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeBundleConditions } = useBundleConditionRemove();
@@ -21,9 +23,11 @@ export const BundleConditionCommandBar = () => {
       .rows.map((row) => row.original._id);
 
     confirm({
-      message: `Are you sure you want to delete the ${
-        selectedIds.length
-      } selected bundle condition${selectedIds.length === 1 ? '' : 's'}?`,
+      message: t('confirm-delete-bundle-conditions', {
+        defaultValue:
+          'Are you sure you want to delete the {{count}} selected bundle condition(s)?',
+        count: selectedIds.length,
+      }),
       options: confirmOptions,
     }).then(() => {
       removeBundleConditions({
@@ -39,7 +43,7 @@ export const BundleConditionCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected', { defaultValue: '{{count}} selected', count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <Can action="bundleConditionsManage">
@@ -49,7 +53,7 @@ export const BundleConditionCommandBar = () => {
             onClick={handleDelete}
           >
             <IconTrash />
-            Delete
+            {t('delete', 'Delete')}
           </Button>
         </Can>
       </CommandBar.Bar>

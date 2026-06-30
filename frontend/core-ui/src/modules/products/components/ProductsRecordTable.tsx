@@ -49,6 +49,7 @@ export const ProductsRecordTable = () => {
 };
 
 function EmptyStateRow() {
+  const { t } = useTranslation('product');
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
       <IconShoppingCartX
@@ -57,10 +58,10 @@ function EmptyStateRow() {
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No product yet
+        {t('no-product-yet', 'No product yet')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">
-        Get started by creating your first product.
+        {t('get-started-product', 'Get started by creating your first product.')}
       </p>
       <ProductAddSheet />
     </div>
