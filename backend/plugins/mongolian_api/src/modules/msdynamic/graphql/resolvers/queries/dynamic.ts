@@ -204,3 +204,6 @@ export const msdynamicQueries = {
     }));
   },
 };
+(msdynamicQueries.msdProductsRemainder as any).wrapperConfig = {
+  skipPermission: true,
+};
