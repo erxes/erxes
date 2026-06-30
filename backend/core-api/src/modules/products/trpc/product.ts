@@ -100,10 +100,10 @@ export const productsTrpcRouter = t.router({
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { query, doc } = input;
-        const { models } = ctx;
+        const { models, subdomain } = ctx;
 
         console.log(
-          `[trpc:updateProducts] called`,
+          `[${subdomain}][trpc:updateProducts] called`,
           JSON.stringify({ query, doc }),
         );
 
@@ -114,10 +114,10 @@ export const productsTrpcRouter = t.router({
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { _ids } = input;
-        const { models } = ctx;
+        const { models, subdomain } = ctx;
 
         console.log(
-          `[trpc:removeProducts] called with ${_ids?.length ?? 0} id(s)`,
+          `[${subdomain}][trpc:removeProducts] called with ${_ids?.length ?? 0} id(s)`,
         );
 
         return models.Products.removeProducts(_ids);

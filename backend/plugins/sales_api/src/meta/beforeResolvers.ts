@@ -44,7 +44,7 @@ export const beforeResolvers: BeforeResolversConfig = {
 
     // Soft-delete the products that are referenced by sales deals.
     console.log(
-      `[sales:beforeResolvers:${resolver}] core updateProducts status=deleted for ${usedProductIds.length} product(s)`,
+      `[${subdomain}][sales:beforeResolvers:${resolver}] core updateProducts status=deleted for ${usedProductIds.length} product(s)`,
     );
     await sendTRPCMessage({
       subdomain,

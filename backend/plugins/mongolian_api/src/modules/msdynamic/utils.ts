@@ -142,7 +142,7 @@ export const consumeInventory = async (
       });
     } else {
       console.log(
-        `[msdynamic:consumeProduct] core removeProducts 1 product`,
+        `[${subdomain}][msdynamic:consumeInventory] core removeProducts 1 product`,
         product._id,
       );
       await sendTRPCMessage({

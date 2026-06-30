@@ -287,7 +287,7 @@ export const loadProductClass = (
 
       if (isDeleting) {
         console.log(
-          `[updateProducts] soft-deleting ${products.length} product(s) via status=deleted`,
+          `[${subdomain}][updateProducts] soft-deleting ${products.length} product(s) via status=deleted`,
           new Error('updateProducts delete call site').stack,
         );
       }
@@ -337,7 +337,7 @@ export const loadProductClass = (
 
     public static async removeProducts(_ids: string[]) {
       console.log(
-        `[removeProducts] deleting ${_ids.length} product(s)`,
+        `[${subdomain}][removeProducts] deleting ${_ids.length} product(s)`,
         new Error('removeProducts call site').stack,
       );
 
