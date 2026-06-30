@@ -153,13 +153,13 @@ export const CONFIG: IUIConfig = {
       favoriteName: getFrontlineFavoriteName,
     },
     {
-      name: 'Forms',
+      name: 'forms',
       path: 'frontline/forms',
       icon: IconForms,
       favoriteName: getFrontlineFavoriteName,
     },
     {
-      name: 'knowledge base',
+      name: 'knowledgeBase',
       icon: IconBook,
       path: 'frontline/knowledgebase',
       favoriteName: getFrontlineFavoriteName,
