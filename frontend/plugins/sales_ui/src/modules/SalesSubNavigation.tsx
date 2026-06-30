@@ -77,6 +77,7 @@ function PipelineItem({
   const isActive = searchParams.get('pipelineId') === pipeline._id;
 
   const handleClick = () => {
+    localStorage.setItem('erxesCurrentBoardId', boardId);
     localStorage.setItem('erxesCurrentPipelineId', pipeline._id);
     // Preserve any existing query params (filters/search) and only update the
     // board/pipeline selection.
@@ -100,32 +101,24 @@ function PipelineItem({
 }
 
 function BoardItem({ board }: { board: IBoard }) {
-  const [boardId, setBoardId] = useQueryState<string | null>('boardId');
-  const [open, setOpen] = useState(boardId === board._id);
-
-  useEffect(() => {
-    setOpen(boardId === board._id);
-  }, [boardId, board._id]);
+  const [boardId] = useQueryState<string | null>('boardId');
+  const isBoardActive = boardId === board._id;
+  // Track the collapsible's open state only to lazily load pipelines once the
+  // board is expanded. Clicking a board just toggles the dropdown — it does not
+  // change the URL (like the POS navigation); the URL is only updated when a
+  // pipeline is selected.
+  const [open, setOpen] = useState(isBoardActive);
 
   const { pipelines, loading: pipelinesLoading } = usePipelines({
     variables: { boardId: board._id },
     skip: !open,
   });
 
-  const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (isOpen) {
-      localStorage.setItem('erxesCurrentBoardId', board._id);
-      setBoardId(board._id);
-      localStorage.removeItem('erxesCurrentPipelineId');
-    }
-  };
-
   return (
     <Collapsible
       className="group/collapsible"
-      open={open}
-      onOpenChange={handleOpenChange}
+      defaultOpen={isBoardActive}
+      onOpenChange={setOpen}
     >
       <Sidebar.Group className="p-0">
         <div className="w-full relative group/trigger hover:cursor-pointer">
