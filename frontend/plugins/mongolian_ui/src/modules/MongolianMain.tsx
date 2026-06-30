@@ -7,6 +7,7 @@ import { CheckSyncedDealsPage } from '~/pages/CheckSyncedDealsPage';
 import { ByDatePage } from '~/pages/PutResponseByDatePage';
 import { DuplicatedPage } from '~/pages/PutResponseDuplicatedPage';
 import { PutResponseIndexPage } from '~/pages/PutResponsePage';
+import { PutResponseLayout } from '~/pages/PutResponseLayout';
 import { SyncErkhetHistoryPage } from '~/pages/SyncErkhetHistoryPage';
 import { CustomersPage } from '~/pages/msdynamic/CustomersPage';
 import { InventoryProductsPage } from '~/pages/msdynamic/InventoryProductsPage';
@@ -22,7 +23,7 @@ const MongolianMain = () => {
     <Suspense fallback={<div />}>
       <Routes>
         {/* PUT RESPONSE */}
-        <Route path="put-response">
+        <Route path="put-response" element={<PutResponseLayout />}>
           <Route index element={<Navigate to="put-response" replace />} />
           <Route path="put-response" element={<PutResponseIndexPage />} />
           <Route path="by-date" element={<ByDatePage />} />

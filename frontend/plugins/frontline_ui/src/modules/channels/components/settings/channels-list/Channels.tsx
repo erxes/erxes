@@ -1,11 +1,18 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
-import { IChannelMember } from '@/channels/types';
-import { useQueryState, Skeleton } from 'erxes-ui';
-import { IconBrandTrello } from '@tabler/icons-react';
-import { useMemo } from 'react';
+import { IChannelMember, ChannelHotKeyScope } from '@/channels/types';
+import { Input, Kbd, Skeleton, useScopedHotkeys, useQueryState } from 'erxes-ui';
+import {
+  IconBrandTrello,
+  IconSearch,
+  IconSearchOff,
+  IconX,
+} from '@tabler/icons-react';
+import { useMemo, useState, useRef } from 'react';
 import { ChannelCard } from './ChannelCard';
 import { useTranslation } from 'react-i18next';
+import { useDebounce } from 'use-debounce';
+
 
 export function Channels() {
   const { t } = useTranslation('frontline');
@@ -13,6 +20,16 @@ export function Channels() {
   const { channels, loading } = useGetChannels({
     variables: { name: searchValue || undefined },
   });
+
+  const [query, setQuery] = useState('');
+  const [debouncedQuery] = useDebounce(query, 150);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useScopedHotkeys(
+    'mod+k',
+    () => inputRef.current?.focus(),
+    ChannelHotKeyScope.ChannelSettingsPage,
+  );
 
   const channelIds = useMemo(
     () => (channels ?? []).map((channel) => channel._id),
@@ -28,6 +45,16 @@ export function Channels() {
     }
     return map;
   }, [members]);
+
+  const filteredChannels = useMemo(() => {
+    const q = debouncedQuery.trim().toLowerCase();
+    if (!q) return channels ?? [];
+    return (channels ?? []).filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        (c.description?.toLowerCase().includes(q) ?? false),
+    );
+  }, [channels, debouncedQuery]);
 
   if (loading && (!channels || channels.length === 0)) {
     return (
@@ -64,25 +91,94 @@ export function Channels() {
   }
 
   const channelCount = channels?.length ?? 0;
+  const isFiltering = debouncedQuery.trim().length > 0;
 
   return (
     <div className="overflow-auto h-full">
       <div className="mx-auto w-full max-w-7xl px-6 py-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-foreground">
+        <div className="mb-4 flex items-center gap-3">
+          <h2 className="text-sm font-medium text-foreground shrink-0">
             All channels
             <span className="ml-1.5 text-muted-foreground">{channelCount}</span>
           </h2>
+
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <IconSearch
+                size={13}
+                className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search channels…"
+                className="h-[34px] w-52 rounded-[7px] pl-7 text-[13px]"
+                style={{ paddingRight: query ? 28 : 56 }}
+              />
+
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery('');
+                    inputRef.current?.focus();
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <IconX size={12} />
+                </button>
+              ) : (
+                <div className="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-0.5">
+                  <Kbd variant="foreground">⌘K</Kbd>
+                </div>
+              )}
+            </div>
+
+            {isFiltering && (
+              <span className="text-xs text-muted-foreground shrink-0">
+                {filteredChannels.length} found
+              </span>
+            )}
+          </div>
         </div>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
-          {(channels ?? []).map((channel) => (
-            <ChannelCard
-              key={channel._id}
-              channel={channel}
-              members={membersByChannel[channel._id]}
+
+        {isFiltering && filteredChannels.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+            <IconSearchOff
+              size={48}
+              stroke={1.5}
+              className="text-muted-foreground"
             />
-          ))}
-        </div>
+            <p className="text-sm font-medium text-accent-foreground">
+              No channels match &ldquo;{debouncedQuery}&rdquo;
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Try a different term or{' '}
+              <button
+                type="button"
+                className="text-primary underline-offset-4 hover:underline"
+                onClick={() => {
+                  setQuery('');
+                  inputRef.current?.focus();
+                }}
+              >
+                clear the search
+              </button>
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+            {filteredChannels.map((channel) => (
+              <ChannelCard
+                key={channel._id}
+                channel={channel}
+                members={membersByChannel[channel._id]}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

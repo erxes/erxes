@@ -1,5 +1,5 @@
 import { IconPlus, IconTags } from '@tabler/icons-react';
-import { Button, Kbd, PageContainer } from 'erxes-ui';
+import { Button, Kbd, PageContainer, useFilterQueryState } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { CmsSidebar } from '../shared/CmsSidebar';
 import { EmptyState } from '../shared/EmptyState';
 import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
 import { TagsHeader } from './components/TagsHeader';
+import { TagsFilter } from './components/TagsFilter';
 import { TagsRecordTable } from './components/TagsRecordTable';
 import { useRemoveTag } from './hooks/useRemoveTag';
 import { TagDrawer } from './TagDrawer';
@@ -16,12 +17,14 @@ import { CmsTag } from './types/tagTypes';
 export function Tag() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
+  const [searchValue] = useFilterQueryState<string>('searchValue');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<CmsTag | undefined>(undefined);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
-  const { tags, totalCount, loading } = useTags({
+  const { tags, loading } = useTags({
     clientPortalId: websiteId || '',
+    searchValue: searchValue || undefined,
   });
   const { removeTag } = useRemoveTag();
 
@@ -63,20 +66,25 @@ export function Tag() {
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
         <div className="flex flex-col w-full overflow-hidden flex-auto">
-          <div className="flex pt-2 pl-4 justify-between items-center mb-2">
-            <div className="text-sm text-gray-600">
-              {t('found-x-tags', { count: totalCount })}
-            </div>
+          <div className="px-4 pt-2">
+            <TagsFilter />
           </div>
           {!loading && (!tags || tags.length === 0) ? (
             <div className="rounded-lg overflow-hidden">
-              <EmptyState
-                icon={IconTags}
-                title={t('no-tags-yet')}
-                description={t('no-tags-yet-desc')}
-                actionLabel={t('add-tag')}
-                onAction={handleAddTag}
-              />
+              {searchValue ? (
+                <EmptyState
+                  icon={IconTags}
+                  title={t('no-tags-found')}
+                />
+              ) : (
+                <EmptyState
+                  icon={IconTags}
+                  title={t('no-tags-yet')}
+                  description={t('no-tags-yet-desc')}
+                  actionLabel={t('add-tag')}
+                  onAction={handleAddTag}
+                />
+              )}
             </div>
           ) : (
             <div className="overflow-hidden flex-auto p-3">
@@ -84,6 +92,7 @@ export function Tag() {
                 <TagsRecordTable
                   key={refetchTrigger}
                   clientPortalId={websiteId || ''}
+                  searchValue={searchValue || undefined}
                   onEdit={handleEditTag}
                   onBulkDelete={handleBulkDelete}
                 />

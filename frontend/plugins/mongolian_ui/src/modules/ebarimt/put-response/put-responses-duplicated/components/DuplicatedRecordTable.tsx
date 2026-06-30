@@ -17,7 +17,7 @@ export const DuplicatedRecordTable = () => {
       columns={DuplicatedColumns}
       data={putResponsesDuplicated || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', '']}
+      stickyColumns={['more']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -44,9 +44,7 @@ export const DuplicatedRecordTable = () => {
               <div className="mb-6">
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-duplicated')}
-              </h3>
+              <h3 className="text-lg font-semibold">{t('no-duplicated')}</h3>
               <p className="mt-1 text-sm text-gray-500">
                 {t('create-first-duplicated')}
               </p>
