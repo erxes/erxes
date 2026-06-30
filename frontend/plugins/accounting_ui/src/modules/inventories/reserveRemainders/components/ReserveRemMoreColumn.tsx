@@ -1,16 +1,11 @@
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import {
-  Button,
   Combobox,
   Command,
   Form,
-  Input,
   Popover,
   RecordTable,
-  ScrollArea,
-  Sheet,
-  Spinner,
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -19,6 +14,11 @@ import { useTranslation } from 'react-i18next';
 import { useReserveRemEdit } from '../hooks/useReserveRemEdit';
 import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
 import { IReserveRem } from '../types/ReserveRem';
+import {
+  RemainderFormField,
+  ReserveRemFormFooter,
+  ReserveRemSheet,
+} from './ReserveRemFormParts';
 
 const ReserveRemMoreColumnCell = ({
   cell,
@@ -97,90 +97,48 @@ const EditReserveRemSheet = ({
     });
   };
 
-  const productLabel = [reserveRem.product?.code, reserveRem.product?.name]
-    .filter(Boolean)
-    .join(' - ');
-  const branchLabel = [reserveRem.branch?.code, reserveRem.branch?.title]
-    .filter(Boolean)
-    .join(' - ');
-  const departmentLabel = [
-    reserveRem.department?.code,
-    reserveRem.department?.title,
-  ]
-    .filter(Boolean)
-    .join(' - ');
+  const labelOf = (parts: (string | undefined)[]) =>
+    parts.filter(Boolean).join(' - ');
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>{t('edit-reserve-remainder')}</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            {t('edit-reserve-remainder')}
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <Form {...form}>
-              <form
-                className="flex flex-col flex-auto overflow-auto"
-                onSubmit={form.handleSubmit(onSubmit)}
-              >
-                <div className="p-5 space-y-4">
-                  <ReadOnlyField label={t('product')} value={productLabel} />
-                  <div className="grid grid-cols-2 gap-4">
-                    <ReadOnlyField label={t('branch')} value={branchLabel} />
-                    <ReadOnlyField
-                      label={t('department')}
-                      value={departmentLabel}
-                    />
-                  </div>
-                  <ReadOnlyField
-                    label={t('uom')}
-                    value={reserveRem.uom ?? ''}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="remainder"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('reserve-remainder')}</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ''
-                                  ? 0
-                                  : Number(e.target.value),
-                              )
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-                <Sheet.Footer className="p-5 border-t bg-muted/30">
-                  <Sheet.Close asChild>
-                    <Button variant="outline" type="button" size="lg">
-                      {t('cancel')}
-                    </Button>
-                  </Sheet.Close>
-                  <Button type="submit" size="lg" disabled={loading}>
-                    {loading && <Spinner />}
-                    {t('save')}
-                  </Button>
-                </Sheet.Footer>
-              </form>
-            </Form>
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+    <ReserveRemSheet
+      open={open}
+      onOpenChange={setOpen}
+      title={t('edit-reserve-remainder')}
+    >
+      <Form {...form}>
+        <form
+          className="flex flex-col flex-auto overflow-auto"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <div className="p-5 space-y-4">
+            <ReadOnlyField
+              label={t('product')}
+              value={labelOf([reserveRem.product?.code, reserveRem.product?.name])}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <ReadOnlyField
+                label={t('branch')}
+                value={labelOf([
+                  reserveRem.branch?.code,
+                  reserveRem.branch?.title,
+                ])}
+              />
+              <ReadOnlyField
+                label={t('department')}
+                value={labelOf([
+                  reserveRem.department?.code,
+                  reserveRem.department?.title,
+                ])}
+              />
+            </div>
+            <ReadOnlyField label={t('uom')} value={reserveRem.uom ?? ''} />
+            <RemainderFormField control={form.control} />
+          </div>
+          <ReserveRemFormFooter loading={loading} />
+        </form>
+      </Form>
+    </ReserveRemSheet>
   );
 };
 

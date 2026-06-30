@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Form, Input, ScrollArea, Sheet, Spinner } from 'erxes-ui';
+import { Button, Form, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -12,33 +12,31 @@ import {
 } from 'ui-modules';
 import { useReserveRemAdd } from '../hooks/useReserveRemAdd';
 import { reserveRemSchema, TReserveRemForm } from '../types/reserveRemForm';
+import {
+  RemainderFormField,
+  ReserveRemFormFooter,
+  ReserveRemSheet,
+} from './ReserveRemFormParts';
 
 export const AddReserveRem = () => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-reserve-remainder')}
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>{t('add-reserve-remainder')}</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            {t('set-reserve-remainder-for-products')}
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <AddReserveRemForm setOpen={setOpen} />
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+    <ReserveRemSheet
+      open={open}
+      onOpenChange={setOpen}
+      title={t('add-reserve-remainder')}
+      trigger={
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus />
+            {t('add-reserve-remainder')}
+          </Button>
+        </Sheet.Trigger>
+      }
+    >
+      <AddReserveRemForm setOpen={setOpen} />
+    </ReserveRemSheet>
   );
 };
 
@@ -140,42 +138,10 @@ const AddReserveRemForm = ({
             )}
           />
 
-          <Form.Field
-            control={form.control}
-            name="remainder"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('reserve-remainder')}</Form.Label>
-                <Form.Control>
-                  <Input
-                    type="number"
-                    value={field.value ?? ''}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === ''
-                          ? undefined
-                          : Number(e.target.value),
-                      )
-                    }
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          <RemainderFormField control={form.control} />
         </div>
 
-        <Sheet.Footer className="p-5 border-t bg-muted/30">
-          <Sheet.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              {t('cancel')}
-            </Button>
-          </Sheet.Close>
-          <Button type="submit" size="lg" disabled={loading}>
-            {loading && <Spinner />}
-            {t('save')}
-          </Button>
-        </Sheet.Footer>
+        <ReserveRemFormFooter loading={loading} />
       </form>
     </Form>
   );
