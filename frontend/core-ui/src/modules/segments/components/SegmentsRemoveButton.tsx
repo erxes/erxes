@@ -4,6 +4,7 @@ import { Button, useConfirm, useToast } from 'erxes-ui';
 import { Can, ISegment } from 'ui-modules';
 import { Row } from '@tanstack/table-core';
 import { useRemoveSegments } from '../hooks/useRemoveSegments';
+import { useTranslation } from 'react-i18next';
 
 export const SegmentRemoveButtonCommandBar = ({
   segmentIds,
@@ -12,6 +13,7 @@ export const SegmentRemoveButtonCommandBar = ({
   segmentIds: string[];
   rows: Row<ISegment>[];
 }) => {
+  const { t } = useTranslation('segment');
   const { confirm } = useConfirm();
   const { removeSegments } = useRemoveSegments();
   const { toast } = useToast();
@@ -27,7 +29,7 @@ export const SegmentRemoveButtonCommandBar = ({
             removeSegments(segmentIds, {
               onError: (e: ApolloError) => {
                 toast({
-                  title: 'Error',
+                  title: t('error', 'Error'),
                   description: e.message,
                   variant: 'destructive',
                 });
@@ -37,9 +39,9 @@ export const SegmentRemoveButtonCommandBar = ({
                   row.toggleSelected(false);
                 });
                 toast({
-                  title: 'Success',
+                  title: t('success', 'Success'),
                   variant: 'success',
-                  description: 'Segments deleted successfully',
+                  description: t('segments-deleted', 'Segments deleted successfully'),
                 });
               },
             });
@@ -47,7 +49,7 @@ export const SegmentRemoveButtonCommandBar = ({
         }
       >
         <IconTrash />
-        Delete
+        {t('delete', 'Delete')}
       </Button>
     </Can>
   );

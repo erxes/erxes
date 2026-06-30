@@ -1,6 +1,7 @@
 import { TEMPLATE_CATEGORY_CREATE } from '@/templates/graphql/mutations';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { QUERY_TEMPLATE_CATEGORIES } from 'ui-modules';
 
 export interface ITemplateCategoryAdd {
@@ -30,6 +31,7 @@ export interface ITemplateCategoryAddResponse {
 }
 
 export const useTemplateCategoryAdd = () => {
+  const { t } = useTranslation('templates');
   const [mutate, { loading }] = useMutation<
     ITemplateCategoryAddResponse,
     ITemplateCategoryAdd
@@ -54,8 +56,8 @@ export const useTemplateCategoryAdd = () => {
           onCompleted(data);
         }
         toast({
-          title: 'Success',
-          description: 'Category added successfully',
+          title: t('success', 'Success'),
+          description: t('category.add-success', 'Category added successfully'),
           variant: 'default',
         });
       },
@@ -64,7 +66,7 @@ export const useTemplateCategoryAdd = () => {
           onError(error);
         }
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

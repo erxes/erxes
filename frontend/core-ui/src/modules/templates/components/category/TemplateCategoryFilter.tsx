@@ -121,7 +121,7 @@ const TemplateCategoryFilterView = () => {
       <Filter.View>
         <Command>
           <Filter.CommandInput
-            placeholder="Filter"
+            placeholder={t('filter', 'Filter')}
             variant="secondary"
             className="bg-background"
           />
