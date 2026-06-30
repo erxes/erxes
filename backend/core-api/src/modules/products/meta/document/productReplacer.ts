@@ -4,15 +4,17 @@ import { IModels } from '~/connectionResolvers';
 import { generateBarcodeSvg } from '~/modules/documents/barcode';
 import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 
-const readFileUrl = (key: string) => {
+const readFileUrl = (key: string, subdomain: string) => {
+
+  if (key.startsWith('http://') || key.startsWith('https://')) {
+    return key;
+  }
+
   const DOMAIN = getEnv({
     name: 'DOMAIN',
+    subdomain,
     defaultValue: 'http://localhost:4000',
   });
-
-  if (DOMAIN.includes('localhost')) {
-    return `http://localhost:4000/read-file?key=${encodeURIComponent(key)}`;
-  }
 
   return `${DOMAIN}/gateway/read-file?key=${encodeURIComponent(key)}`;
 };
@@ -45,10 +47,12 @@ const isBlocksJson = (value?: string) => {
 
 export const buildProductReplacer = async ({
   models,
+  subdomain,
   product,
   config,
 }: {
   models: IModels;
+  subdomain: string;
   product: any;
   config: Record<string, any>;
 }) => {
@@ -128,17 +132,17 @@ export const buildProductReplacer = async ({
       isBlocksJson(product.barcodeDescription)
     ) {
       const descriptionHtml = blocksToHtml(product.barcodeDescription, {
-        resolveImageUrl: (url: string) => readFileUrl(url),
+        resolveImageUrl: (url: string) => readFileUrl(url, subdomain),
       });
 
       const inlineHtml = descriptionHtml
+        .replace(/>\s+</g, '><')
         .replace(/<(p|div)[^>]*>(\s|&nbsp;)*<\/(p|div)>/gi, '')
         .replace(/<\/(p|div)>/gi, '<br />')
         .replace(/<(p|div)([^>]*)>/gi, '<span$2>')
         .replace(/display:\s*block/gi, 'display: inline-block')
         .replace(/margin:\s*16px 0/gi, 'margin: 0')
-        .replace(/(<br\s*\/?>\s*)+/gi, '<br />')
-        .replace(/^(\s|<br\s*\/?>)+|(\s|<br\s*\/?>)+$/gi, '');
+        .replace(/^(<br\s*\/?>\s*)+|(<br\s*\/?>\s*)+$/gi, '');
 
       return {
         ...block,

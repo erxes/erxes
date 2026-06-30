@@ -116,6 +116,7 @@ export const documents = {
       if (moduleName === 'product') {
         const { replacement, transform } = await buildProductReplacer({
           models,
+          subdomain,
           product: document,
           config: config || {},
         });

@@ -60,7 +60,6 @@ export const layout = (
     img {
       max-width: 100%;
       height: auto;
-      display: block;
     }
 
     table {

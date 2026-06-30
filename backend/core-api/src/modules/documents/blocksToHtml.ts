@@ -132,7 +132,9 @@ const renderInlineContent = (content: any[], config?: Config): string => {
         return item.props?.html || '';
       }
 
-      const escapedText = escapeHtml(text || '').replace(/\n/g, '<br />');
+      const escapedText = escapeHtml(text || '')
+        .replace(/\n/g, '<br />')
+        .replace(/ {2,}/g, (spaces) => '&nbsp;'.repeat(spaces.length));
       const cssStyle = stylesToCss(styles, config);
 
       if (cssStyle) {
