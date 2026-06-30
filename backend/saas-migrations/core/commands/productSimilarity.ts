@@ -8,7 +8,6 @@ const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
   CORE_MONGO_URL,
   TARGET_SUBDOMAIN,
-  DRY_RUN,
 } = process.env;
 
 if (!MONGO_URL) {
@@ -18,10 +17,6 @@ if (!MONGO_URL) {
 if (!TARGET_SUBDOMAIN) {
   throw new Error('Environment variable TARGET_SUBDOMAIN must be set.');
 }
-
-// Defaults to a dry run so this destructive script can't delete data by accident.
-// Set DRY_RUN=false to actually delete.
-const isDryRun = DRY_RUN !== 'false';
 
 function extractDbName(url: string): string {
   const withoutQuery = url.split('?')[0];
@@ -64,9 +59,6 @@ const command = async () => {
 
   const targetDbName = `erxes_${targetOrg._id}`;
   console.log(`Target: ${TARGET_SUBDOMAIN} → ${targetDbName}`);
-  console.log(
-    `Mode: ${isDryRun ? 'DRY RUN (no writes; set DRY_RUN=false to apply)' : 'APPLY'}`,
-  );
 
   db = client.db(targetDbName) as Db;
   Products = db.collection('products');
@@ -119,13 +111,13 @@ const command = async () => {
         deletedDocs += duplicateIds.length;
       }
 
-      if (deleteIds.length && !isDryRun) {
+      if (deleteIds.length) {
         await Products.deleteMany({ _id: { $in: deleteIds } });
       }
     }
 
     console.log(
-      `${isDryRun ? '[DRY RUN] Would dedupe' : 'Deduped'} ${groupsProcessed} group(s), ${isDryRun ? 'would delete' : 'deleted'} ${deletedDocs} duplicate document(s).`,
+      `Deduped ${groupsProcessed} group(s), deleted ${deletedDocs} duplicate document(s).`,
     );
   } catch (e) {
     console.log(`Error occurred: ${e.message}`);
