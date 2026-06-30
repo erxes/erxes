@@ -19,7 +19,8 @@ if (!TARGET_SUBDOMAIN) {
   throw new Error('Environment variable TARGET_SUBDOMAIN must be set.');
 }
 
-
+// Defaults to a dry run so this destructive script can't delete data by accident.
+// Set DRY_RUN=false to actually delete.
 const isDryRun = DRY_RUN !== 'false';
 
 function extractDbName(url: string): string {
@@ -32,132 +33,18 @@ const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 let db: Db;
 let Products: Collection;
 
-const RICHNESS_FIELDS = [
-  'attachment',
-  'barcodes',
-  'barcodeDescription',
-  'variants',
-  'propertiesData',
-  'customFieldsData',
-  'scopeBrandIds',
-  'sameDefault',
-];
-
-function isNonEmpty(value: any): boolean {
-  if (value === undefined || value === null) return false;
-  if (Array.isArray(value)) return value.length > 0;
-  if (value instanceof Date) return true;
-  if (typeof value === 'object') return Object.keys(value).length > 0;
-  if (typeof value === 'string') return value.trim().length > 0;
-  return true;
-}
-
-function completeness(doc: any): number {
-  return RICHNESS_FIELDS.reduce(
-    (score, field) => score + (isNonEmpty(doc[field]) ? 1 : 0),
-    0,
-  );
-}
-
-function pickMaster(docs: any[]): any {
-  const active = docs.filter((doc) => doc.status !== 'deleted');
+function pickKeeper(docs: any[]): any {
+  const active = docs.filter((doc) => doc.status === 'active');
   const candidates = active.length > 0 ? active : docs;
 
-  return candidates.reduce((best, doc) => {
-    if (!best) return doc;
+  return candidates.reduce((latest, doc) => {
+    if (!latest) return doc;
 
-    const bestScore = completeness(best);
-    const docScore = completeness(doc);
-
-    if (docScore !== bestScore) {
-      return docScore > bestScore ? doc : best;
-    }
-
-    const bestUpdatedAt = new Date(best.updatedAt || 0).getTime();
+    const latestUpdatedAt = new Date(latest.updatedAt || 0).getTime();
     const docUpdatedAt = new Date(doc.updatedAt || 0).getTime();
 
-    return docUpdatedAt > bestUpdatedAt ? doc : best;
+    return docUpdatedAt > latestUpdatedAt ? doc : latest;
   }, undefined);
-}
-
-function unique(values: any[]): any[] {
-  return [...new Set(values.filter((v) => v !== undefined && v !== null))];
-}
-
-function mergeGroup(docs: any[]): {
-  master: any;
-  update: Record<string, any>;
-  deleteIds: any[];
-} {
-  const master = pickMaster(docs);
-  const duplicates = docs.filter(
-    (doc) => String(doc._id) !== String(master._id),
-  );
-
-  const update: Record<string, any> = {};
-
-  const barcodes = unique(docs.flatMap((doc) => doc.barcodes || []));
-  if (barcodes.length) update.barcodes = barcodes;
-
-  const variants = Object.assign(
-    {},
-    ...duplicates.map((doc) => doc.variants || {}),
-    master.variants || {},
-  );
-  if (Object.keys(variants).length) update.variants = variants;
-
-  const propertiesData = Object.assign(
-    {},
-    ...duplicates.map((doc) => doc.propertiesData || {}),
-    master.propertiesData || {},
-  );
-  if (Object.keys(propertiesData).length) update.propertiesData = propertiesData;
-
-  const customFieldsByField = new Map<string, any>();
-  for (const doc of duplicates) {
-    for (const cf of doc.customFieldsData || []) {
-      customFieldsByField.set(String(cf.field), cf);
-    }
-  }
-  for (const cf of master.customFieldsData || []) {
-    customFieldsByField.set(String(cf.field), cf);
-  }
-  if (customFieldsByField.size) {
-    update.customFieldsData = [...customFieldsByField.values()];
-  }
-
-  if (!isNonEmpty(master.attachment)) {
-    const withAttachment = duplicates.find((doc) => isNonEmpty(doc.attachment));
-    if (withAttachment) update.attachment = withAttachment.attachment;
-  }
-
-  if (!isNonEmpty(master.barcodeDescription)) {
-    const withDescription = duplicates.find((doc) =>
-      isNonEmpty(doc.barcodeDescription),
-    );
-    if (withDescription) update.barcodeDescription = withDescription.barcodeDescription;
-  }
-
-  const scopeBrandIds = unique(docs.flatMap((doc) => doc.scopeBrandIds || []));
-  if (scopeBrandIds.length) update.scopeBrandIds = scopeBrandIds;
-
-  const sameDefault = unique(docs.flatMap((doc) => doc.sameDefault || []));
-  if (sameDefault.length) update.sameDefault = sameDefault;
-
-  for (const doc of duplicates) {
-    for (const key of Object.keys(doc)) {
-      if (key === '_id') continue;
-      if (master[key] === undefined && update[key] === undefined) {
-        update[key] = doc[key];
-      }
-    }
-  }
-
-  if (master.status === 'deleted' && docs.some((doc) => doc.status !== 'deleted')) {
-    update.status = 'active';
-  }
-
-  return { master, update, deleteIds: duplicates.map((doc) => doc._id) };
 }
 
 const BATCH_SIZE = 500;
@@ -196,14 +83,17 @@ const command = async () => {
 
     console.log(`Found ${duplicateGroups.length} duplicate name group(s).`);
 
-    let mergedGroups = 0;
+    let groupsProcessed = 0;
     let deletedDocs = 0;
 
     for (let i = 0; i < duplicateGroups.length; i += BATCH_SIZE) {
       const batch = duplicateGroups.slice(i, i + BATCH_SIZE);
       const ids = batch.flatMap((group) => group.ids);
 
-      const docs = await Products.find({ _id: { $in: ids } }).toArray();
+      const docs = await Products.find(
+        { _id: { $in: ids } },
+        { projection: { name: 1, status: 1, updatedAt: 1 } },
+      ).toArray();
 
       const docsByName = new Map<string, any[]>();
       for (const doc of docs) {
@@ -212,39 +102,33 @@ const command = async () => {
         docsByName.set(doc.name, list);
       }
 
-      const bulkOps: any[] = [];
+      const deleteIds: any[] = [];
 
       for (const group of batch) {
         const groupDocs = docsByName.get(group._id) || [];
         if (groupDocs.length < 2) continue;
 
-        const { master, update, deleteIds } = mergeGroup(groupDocs);
+        const keeper = pickKeeper(groupDocs);
+        const duplicateIds = groupDocs
+          .filter((doc) => String(doc._id) !== String(keeper._id))
+          .map((doc) => doc._id);
 
         console.log(
-          `"${group._id}": master=${master._id}, merging ${deleteIds.length} duplicate(s) [${deleteIds.join(', ')}]`,
+          `"${group._id}": keeping ${keeper._id}, deleting ${duplicateIds.length} duplicate(s) [${duplicateIds.join(', ')}]`,
         );
 
-        if (Object.keys(update).length) {
-          bulkOps.push({
-            updateOne: { filter: { _id: master._id }, update: { $set: update } },
-          });
-        }
-
-        bulkOps.push({
-          deleteMany: { filter: { _id: { $in: deleteIds } } },
-        });
-
-        mergedGroups += 1;
-        deletedDocs += deleteIds.length;
+        deleteIds.push(...duplicateIds);
+        groupsProcessed += 1;
+        deletedDocs += duplicateIds.length;
       }
 
-      if (bulkOps.length && !isDryRun) {
-        await Products.bulkWrite(bulkOps, { ordered: false });
+      if (deleteIds.length && !isDryRun) {
+        await Products.deleteMany({ _id: { $in: deleteIds } });
       }
     }
 
     console.log(
-      `${isDryRun ? '[DRY RUN] Would merge' : 'Merged'} ${mergedGroups} group(s), ${isDryRun ? 'would delete' : 'deleted'} ${deletedDocs} duplicate document(s).`,
+      `${isDryRun ? '[DRY RUN] Would dedupe' : 'Deduped'} ${groupsProcessed} group(s), ${isDryRun ? 'would delete' : 'deleted'} ${deletedDocs} duplicate document(s).`,
     );
   } catch (e) {
     console.log(`Error occurred: ${e.message}`);
