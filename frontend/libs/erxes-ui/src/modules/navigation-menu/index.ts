@@ -1,3 +1,9 @@
 export * from './components/NavigationMenu';
-export * from './components/NavigationMenuHover';
+export {
+  NavigationMenuGroupHover,
+  NavigationMenuGroupStaticHover,
+  NavigationMenuItemHover,
+  NavigationMenuLinkItem as NavigationMenuLinkItemHover,
+  SettingsNavigationMenuLinkItemHover,
+} from './components/NavigationMenuHover';
 export * from './states/activePluginState';

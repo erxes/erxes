@@ -35,13 +35,16 @@ export const NavigationMenuLinkItem = forwardRef<
     const normalizedPath = path.replace(/^\//, '');
     const fullPath =
       `/${normalizedPathPrefix}${normalizedPath}`.replace(/\/$/, '') || '/';
-    const isActive = pathname.startsWith(fullPath);
+    const isActive =
+      fullPath === '/'
+        ? pathname === '/'
+        : pathname === fullPath || pathname.startsWith(`${fullPath}/`);
 
     return (
       <Sidebar.MenuItem>
         <Sidebar.MenuButton
           asChild
-          isActive={isActiveProp ? isActiveProp : isActive}
+          isActive={isActiveProp ?? isActive}
           ref={ref}
           className={className}
           {...props}
@@ -70,7 +73,7 @@ export const SettingsNavigationMenuLinkItemHover = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
   React.ComponentProps<typeof NavigationMenuLinkItem>
 >(({ pathPrefix, ...props }, ref) => {
-  const settingsPathPrefix = `settings/${pathPrefix}`;
+  const settingsPathPrefix = pathPrefix ? `settings/${pathPrefix}` : 'settings';
   return (
     <NavigationMenuLinkItem
       {...props}
