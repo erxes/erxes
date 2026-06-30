@@ -5,25 +5,9 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-
 import { ProductItem } from '../types/productItem';
 import { HeaderCell } from '../../components/HeaderCell';
-
-const StatusProductCell = ({ item }: { item: ProductItem }) => {
-  const { t } = useTranslation('mongolian');
-  const isSynced = item.isSynced;
-
-  return (
-    <RecordTableInlineCell>
-      {isSynced ? (
-        <span className="text-green-600 font-medium">{t('synced')}</span>
-      ) : (
-        <span className="text-gray-400"></span>
-      )}
-    </RecordTableInlineCell>
-  );
-};
+import { SyncedStatusCell } from '../../shared/components/SyncedStatusCell';
 
 export const checkProductColumns: ColumnDef<ProductItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ProductItem>,
@@ -79,6 +63,6 @@ export const checkProductColumns: ColumnDef<ProductItem>[] = [
     id: 'status',
     accessorKey: 'isSynced',
     header: () => <HeaderCell icon={IconCircleCheck} label="status" />,
-    cell: ({ row }) => <StatusProductCell item={row.original} />,
+    cell: ({ row }) => <SyncedStatusCell isSynced={row.original.isSynced} />,
   },
 ];

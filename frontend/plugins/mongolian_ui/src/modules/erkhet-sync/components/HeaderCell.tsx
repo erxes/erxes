@@ -1,13 +1,14 @@
+import { Icon } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const HeaderCell = ({
-  icon,
+  icon: IconComponent,
   label,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: Icon;
   label: string;
 }) => {
   const { t } = useTranslation('mongolian');
-  return <RecordTable.InlineHead icon={icon} label={t(label)} />;
+  return <RecordTable.InlineHead icon={IconComponent} label={t(label)} />;
 };

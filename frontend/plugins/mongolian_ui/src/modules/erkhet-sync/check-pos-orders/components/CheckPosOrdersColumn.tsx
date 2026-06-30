@@ -1,4 +1,10 @@
-import { IconCurrencyDollar, IconHash, IconLabel, IconClock, IconCalendarPlus } from '@tabler/icons-react';
+import {
+  IconCurrencyDollar,
+  IconHash,
+  IconLabel,
+  IconClock,
+  IconCalendarPlus,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
@@ -10,7 +16,11 @@ import {
 import { CheckPosOrderStatus, ICheckPosOrders } from '../types/checkPosOrders';
 import { toSyncOrderIdsAtom } from '../hooks/useCheckPosOrders';
 import { HeaderCell } from '../../components/HeaderCell';
-import { ToSyncHeaderCell, ToSyncCell } from '../../components/ToSyncColumnComponents';
+import {
+  ToSyncHeaderCell,
+  ToSyncCell,
+} from '../../shared/components/ToSyncColumnComponents';
+import { syncedInfoColumn } from '../../shared/components/SyncedInfoColumns';
 
 const syncableStatuses = new Set<CheckPosOrderStatus>([
   'checked',
@@ -115,40 +125,7 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
       />
     ),
   },
-  {
-    id: 'syncedDate',
-    accessorKey: 'syncedDate',
-    header: () => <HeaderCell icon={IconClock} label="synced-date" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'syncedBillNumber',
-    accessorKey: 'syncedBillNumber',
-    header: () => <HeaderCell icon={IconClock} label="synced-bill" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'syncedCustomer',
-    accessorKey: 'syncedCustomer',
-    header: () => <HeaderCell icon={IconClock} label="synced-customer" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  syncedInfoColumn('syncedDate', 'synced-date'),
+  syncedInfoColumn('syncedBillNumber', 'synced-bill'),
+  syncedInfoColumn('syncedCustomer', 'synced-customer'),
 ];

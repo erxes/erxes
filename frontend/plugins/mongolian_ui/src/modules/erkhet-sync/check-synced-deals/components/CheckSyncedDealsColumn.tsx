@@ -1,4 +1,11 @@
-import { IconCalendarPlus, IconCategory, IconCurrencyDollar, IconHash, IconLabel, IconRefresh } from '@tabler/icons-react';
+import {
+  IconCalendarPlus,
+  IconCategory,
+  IconCurrencyDollar,
+  IconHash,
+  IconLabel,
+  IconRefresh,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
@@ -6,10 +13,17 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { CheckSyncedDealStatus, ICheckSyncedDeals } from '../types/checkSyncedDeals';
+import {
+  CheckSyncedDealStatus,
+  ICheckSyncedDeals,
+} from '../types/checkSyncedDeals';
 import { toSyncDealIdsAtom } from '../hooks/useCheckSyncedDeals';
 import { HeaderCell } from '../../components/HeaderCell';
-import { ToSyncHeaderCell, ToSyncCell } from '../../components/ToSyncColumnComponents';
+import {
+  ToSyncHeaderCell,
+  ToSyncCell,
+} from '../../shared/components/ToSyncColumnComponents';
+import { syncedInfoColumn } from '../../shared/components/SyncedInfoColumns';
 
 const syncableStatuses = new Set<CheckSyncedDealStatus>([
   'checked',
@@ -151,42 +165,9 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
       />
     ),
   },
-  {
-    id: 'syncedDate',
-    accessorKey: 'syncedDate',
-    header: () => <HeaderCell icon={IconCategory} label="synced-date" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'syncedBillNumber',
-    accessorKey: 'syncedBillNumber',
-    header: () => <HeaderCell icon={IconCategory} label="synced-bill-number" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'syncedCustomer',
-    accessorKey: 'syncedCustomer',
-    header: () => <HeaderCell icon={IconCategory} label="synced-customer" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  syncedInfoColumn('syncedDate', 'synced-date'),
+  syncedInfoColumn('syncedBillNumber', 'synced-bill-number'),
+  syncedInfoColumn('syncedCustomer', 'synced-customer'),
   {
     id: 'syncAction',
     accessorKey: 'syncAction',

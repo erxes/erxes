@@ -5,25 +5,9 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-
 import { CategoryItem } from '../types/categoryItem';
 import { HeaderCell } from '../../components/HeaderCell';
-
-const StatusCategoryCell = ({ item }: { item: CategoryItem }) => {
-  const { t } = useTranslation('mongolian');
-  const isSynced = item.isSynced;
-
-  return (
-    <RecordTableInlineCell>
-      {isSynced ? (
-        <span className="text-green-600 font-medium">{t('synced')}</span>
-      ) : (
-        <span className="text-gray-400"></span>
-      )}
-    </RecordTableInlineCell>
-  );
-};
+import { SyncedStatusCell } from '../../shared/components/SyncedStatusCell';
 
 export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<CategoryItem>,
@@ -55,6 +39,6 @@ export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
     id: 'status',
     accessorKey: 'isSynced',
     header: () => <HeaderCell icon={IconCircleCheck} label="status" />,
-    cell: ({ row }) => <StatusCategoryCell item={row.original} />,
+    cell: ({ row }) => <SyncedStatusCell isSynced={row.original.isSynced} />,
   },
 ];

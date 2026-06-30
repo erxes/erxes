@@ -28,17 +28,13 @@ import {
   ICheckSyncedDeals,
 } from '../types/checkSyncedDeals';
 import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSessionKey';
+import {
+  CheckSyncedResponse,
+  chunkIds,
+} from '../../shared/utils/syncUtils';
 
 export const CHECK_SYNCED_DEALS_PER_PAGE = 50;
 const SYNC_DEALS_BATCH_SIZE = 1;
-
-type CheckSyncedResponse = {
-  _id: string;
-  isSynced?: boolean;
-  syncedDate?: string;
-  syncedBillNumber?: string;
-  syncedCustomer?: string;
-};
 
 type SyncDealsResult = {
   skipped?: string[];
@@ -64,16 +60,6 @@ const getDealStatus = (
   }
 
   return 'skipped';
-};
-
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
 };
 
 export const useCheckSyncedDealsVariables = (

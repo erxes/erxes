@@ -19,17 +19,13 @@ import {
   checkSyncedMutation,
   syncOrdersMutation,
 } from '../../shared/graphql/mutations/checkSyncedMutations';
+import {
+  CheckSyncedResponse,
+  chunkIds,
+} from '../../shared/utils/syncUtils';
 
 export const CHECK_POS_ORDERS_PER_PAGE = 30;
 const SYNC_POS_ORDERS_BATCH_SIZE = 1;
-
-type CheckSyncedResponse = {
-  _id: string;
-  isSynced?: boolean;
-  syncedDate?: string;
-  syncedBillNumber?: string;
-  syncedCustomer?: string;
-};
 
 type SyncOrdersResult = {
   skipped?: string[];
@@ -60,16 +56,6 @@ const getOrderStatus = (
   }
 
   return 'skipped';
-};
-
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
 };
 
 export const useCheckPosOrdersVariables = (
