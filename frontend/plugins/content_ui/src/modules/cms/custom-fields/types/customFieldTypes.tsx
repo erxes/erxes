@@ -7,6 +7,7 @@ export type FieldType =
   | 'date'
   | 'checkbox'
   | 'select'
+  | 'multiSelect'
   | 'radio'
   | 'file'
   | 'image'
@@ -55,6 +56,7 @@ export interface ICustomFieldGroup {
 import {
   IconAt,
   IconCalendarEvent,
+  IconChecks,
   IconChevronDown,
   IconCircleCheck,
   IconFile,
@@ -82,6 +84,7 @@ export const FIELD_TYPES: {
   { value: 'date', label: 'Date', icon: <IconCalendarEvent /> },
   { value: 'checkbox', label: 'Checkbox', icon: <IconSquareCheck /> },
   { value: 'select', label: 'Select', icon: <IconChevronDown /> },
+  { value: 'multiSelect', label: 'Multi-Select', icon: <IconChecks /> },
   { value: 'radio', label: 'Radio', icon: <IconCircleCheck /> },
   { value: 'file', label: 'File', icon: <IconFile /> },
   { value: 'image', label: 'Image', icon: <IconPhoto /> },
