@@ -18,6 +18,7 @@ import {
   type MultiSelectOption,
   MultipleSelector,
   Select,
+  Switch,
   Textarea,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -463,6 +464,25 @@ export const SettingsForm = ({
           <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
             <IconLink className="size-4 shrink-0" />
             <span className="min-w-0 truncate">{t('preview-url', { url: previewUrl })}</span>
+          </div>
+        </Field>
+
+        <Field
+          id="allowComments"
+          label="Allow comments"
+          hint="Let visitors leave comments on published posts"
+        >
+          <div className="flex items-center gap-3 pt-1">
+            <Switch
+              id="allowComments"
+              checked={settings.allowComments}
+              onCheckedChange={(checked) =>
+                updateSetting('allowComments', checked)
+              }
+            />
+            <label htmlFor="allowComments" className="text-sm cursor-pointer">
+              {settings.allowComments ? 'Enabled' : 'Disabled'}
+            </label>
           </div>
         </Field>
       </SettingsSection>

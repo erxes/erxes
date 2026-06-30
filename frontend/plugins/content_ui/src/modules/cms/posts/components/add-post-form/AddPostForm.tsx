@@ -8,6 +8,7 @@ import { usePostData } from './hooks/usePostData';
 import { usePostSubmission } from './hooks/usePostSubmission';
 import { PostEditorColumn } from './PostEditorColumn';
 import { PostSidebarPanel } from './PostSidebarPanel';
+import { PostComments } from '../PostComments';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 
 interface AddPostFormProps {
@@ -346,6 +347,13 @@ export const AddPostForm = ({
           </div>
         </div>
       </Form>
+      {currentEditingPost?._id && (
+        <PostComments
+          postId={currentEditingPost._id}
+          clientPortalId={websiteId}
+          allowComments={cmsConfig?.allowComments}
+        />
+      )}
     </ScrollArea>
   );
 };

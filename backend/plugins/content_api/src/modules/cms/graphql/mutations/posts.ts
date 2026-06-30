@@ -297,6 +297,7 @@ export const postMutations: Record<string, Resolver> = {
     await models.Translations.deleteMany({
       $or: [{ objectId: _id }, { postId: _id }],
     });
+    await models.PostComments.deleteMany({ postId: _id });
     return models.Posts.deleteOne({ _id });
   },
 
@@ -327,6 +328,7 @@ export const postMutations: Record<string, Resolver> = {
     await models.Translations.deleteMany({
       $or: [{ objectId: { $in: uniqueIds } }, { postId: { $in: uniqueIds } }],
     });
+    await models.PostComments.deleteMany({ postId: { $in: uniqueIds } });
     const result = await models.Posts.deleteMany({ _id: { $in: uniqueIds } });
     return { deletedCount: result.deletedCount };
   },
