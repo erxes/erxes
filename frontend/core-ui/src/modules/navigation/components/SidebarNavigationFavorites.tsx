@@ -11,7 +11,7 @@ export function SidebarNavigationFavorites() {
     <NavigationMenuGroup name={t('favorites')} separate={false}>
       <MyInboxNavigationItem />
       {favorites.map((item) => {
-        return <SidebarNavigationFavoritesItem key={item.name} {...item} />;
+        return <SidebarNavigationFavoritesItem key={item.path} {...item} />;
       })}
     </NavigationMenuGroup>
   );
@@ -21,15 +21,25 @@ export function SidebarNavigationFavoritesItem({
   name,
   icon,
   path,
+  favoriteNameComponent: FavoriteNameComponent,
 }: {
   name: string;
   icon?: React.ElementType;
   path: string;
+  favoriteNameComponent?: React.ComponentType<{
+    path: string;
+    fallbackName: string;
+  }>;
 }) {
   const Icon = icon || (() => <span />);
   const pathWithoutUi = path.replace('_ui', '');
+  const label = FavoriteNameComponent ? (
+    <FavoriteNameComponent path={path} fallbackName={name} />
+  ) : (
+    name
+  );
 
   return (
-    <NavigationMenuLinkItem name={name} icon={Icon} path={pathWithoutUi} />
+    <NavigationMenuLinkItem name={label} icon={Icon} path={pathWithoutUi} />
   );
 }

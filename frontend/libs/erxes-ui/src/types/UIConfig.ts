@@ -8,6 +8,16 @@ export type TPropertyInputProps = {
   disabled?: boolean;
 };
 
+export type TFavoriteNameProps = {
+  path: string;
+  fallbackName: string;
+};
+
+export type TFavoritePathProps = {
+  pathname: string;
+  search: string;
+};
+
 export type IUIConfig = {
   name: string;
   path: string;
@@ -41,10 +51,21 @@ export type IUIConfig = {
     name: string;
     icon?: React.ElementType;
     path: string;
+    favoriteName?: string | ((path: string) => string);
+    favoriteNameComponent?: React.ComponentType<TFavoriteNameProps>;
+    favoritePath?: string | ((location: TFavoritePathProps) => string);
     hasAutomation?: boolean;
     hasRelationWidget?: boolean;
     hasFloatingWidget?: boolean;
     hasSegmentConfigWidget?: boolean;
+    submenus?: {
+      name: string;
+      path: string;
+      icon?: React.ElementType;
+      favoriteName?: string | ((path: string) => string);
+      favoriteNameComponent?: React.ComponentType<TFavoriteNameProps>;
+      favoritePath?: string | ((location: TFavoritePathProps) => string);
+    }[];
   }[];
 };
 
@@ -52,11 +73,17 @@ export type ICoreModule = {
   name: string;
   icon?: React.ElementType;
   path: string;
+  favoriteName?: string | ((path: string) => string);
+  favoriteNameComponent?: React.ComponentType<TFavoriteNameProps>;
+  favoritePath?: string | ((location: TFavoritePathProps) => string);
   hasSettings?: boolean;
   settingsOnly?: boolean;
   submenus?: {
     name: string;
     path: string;
     icon?: React.ElementType;
+    favoriteName?: string | ((path: string) => string);
+    favoriteNameComponent?: React.ComponentType<TFavoriteNameProps>;
+    favoritePath?: string | ((location: TFavoritePathProps) => string);
   }[];
 };

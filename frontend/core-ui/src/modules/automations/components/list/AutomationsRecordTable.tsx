@@ -17,7 +17,12 @@ import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 import { Link, useNavigate } from 'react-router-dom';
-import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
+import {
+  Can,
+  FavoriteToggleIconButton,
+  PageHeader,
+  usePermissionCheck,
+} from 'ui-modules';
 
 export const AutomationsRecordTable = () => {
   const {
@@ -63,7 +68,7 @@ export const AutomationsRecordTable = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
+          <Separator.Inline /> <FavoriteToggleIconButton />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>

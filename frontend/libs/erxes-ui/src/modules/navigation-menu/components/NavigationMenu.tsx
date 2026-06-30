@@ -8,7 +8,7 @@ import { forwardRef } from 'react';
 export const NavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
   React.ComponentProps<typeof Sidebar.MenuButton> & {
-    name: string;
+    name: React.ReactNode;
     icon?: React.ElementType;
     path: string;
     pathPrefix?: string;

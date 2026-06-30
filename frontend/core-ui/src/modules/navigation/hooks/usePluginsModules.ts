@@ -15,24 +15,33 @@ export const usePluginsModules = () => {
   const CORE_MODULES = GET_CORE_MODULES(t, version);
 
   const modules = useMemo(() => {
-    if (pluginsMetaData) {
-      const pluginsModules = Object.values(pluginsMetaData || {}).flatMap(
-        (plugin) => {
-          if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
-            return [];
-          }
+    const flattenModules = (moduleList: IUIConfig['modules']) => {
+      return (moduleList || []).flatMap((module) => {
+        const flattened = [module];
+        if (Array.isArray(module.submenus)) {
+          flattened.push(...(flattenModules(module.submenus) || []));
+        }
+        return flattened;
+      });
+    };
 
-          return (plugin.modules || []).map((module) => ({
-            ...module,
-            pluginName: plugin.name,
-          }));
-        },
-      );
+    const pluginsModules = Object.values(pluginsMetaData || {}).flatMap(
+      (plugin) => {
+        if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
+          return [];
+        }
 
-      return [...CORE_MODULES, ...pluginsModules] as IUIConfig['modules'];
-    }
-    return CORE_MODULES;
-  }, [pluginsMetaData, isLoaded, isWildcard, hasPluginPermission]);
+        return (plugin.modules || []).map((module) => ({
+          ...module,
+          pluginName: plugin.name,
+        }));
+      },
+    );
+
+    const allModules = [...(CORE_MODULES || []), ...pluginsModules];
+
+    return flattenModules(allModules) as IUIConfig['modules'];
+  }, [pluginsMetaData, CORE_MODULES, isLoaded, isWildcard, hasPluginPermission]);
 
   return modules;
 };
