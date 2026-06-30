@@ -16,6 +16,7 @@ export const types = `
     customScripts: [String]
     defaultPostStatus: String
     allowComments: Boolean
+    autoApproveComments: Boolean
     siteLogo: Attachment
     favicon: Attachment
     language: String
@@ -47,6 +48,7 @@ export const inputs = `
     customScripts: [String]
     defaultPostStatus: String
     allowComments: Boolean
+    autoApproveComments: Boolean
     siteLogo: AttachmentInput
     favicon: AttachmentInput
     language: String

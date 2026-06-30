@@ -102,7 +102,7 @@ export const postCommentMutations: Record<string, Resolver> = {
       clientPortalId,
       authorKind: 'portalUser',
       authorId,
-      status: 'pending',
+      status: cms.autoApproveComments ? 'approved' : 'pending',
     });
   },
 

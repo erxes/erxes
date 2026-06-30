@@ -39,6 +39,7 @@ export interface IContentCMS {
   customScripts?: string[];
   defaultPostStatus?: string;
   allowComments?: boolean;
+  autoApproveComments?: boolean;
   siteLogo?: IAttachment;
   favicon?: IAttachment;
   language?: string;
@@ -71,6 +72,7 @@ export interface IContentCMSInput {
   customScripts?: string[];
   defaultPostStatus?: string;
   allowComments?: boolean;
+  autoApproveComments?: boolean;
   siteLogo?: IAttachment;
   favicon?: IAttachment;
   language?: string;

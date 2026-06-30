@@ -485,6 +485,29 @@ export const SettingsForm = ({
             </label>
           </div>
         </Field>
+
+        <Field
+          id="autoApproveComments"
+          label="Auto-approve comments"
+          hint="Publish visitor comments immediately instead of holding them for moderation"
+        >
+          <div className="flex items-center gap-3 pt-1">
+            <Switch
+              id="autoApproveComments"
+              checked={Boolean(settings.autoApproveComments)}
+              disabled={!settings.allowComments}
+              onCheckedChange={(checked) =>
+                updateSetting('autoApproveComments', checked)
+              }
+            />
+            <label
+              htmlFor="autoApproveComments"
+              className="text-sm cursor-pointer"
+            >
+              {settings.autoApproveComments ? 'Enabled' : 'Disabled'}
+            </label>
+          </div>
+        </Field>
       </SettingsSection>
 
       <SettingsSection id="languages" title={t('languages')}>
