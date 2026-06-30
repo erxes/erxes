@@ -7,10 +7,6 @@ import {
 } from '~/modules/erkhet/afterMutations';
 import { syncPosOrderToErkhet } from '~/modules/erkhet/afterMutPosOrder';
 import { afterMutationHandlers as productPlacesAfterMutation } from '~/modules/productPlaces/afterMutations';
-import {
-  handleCoreMergeMutation,
-  mergeMutationNames,
-} from './afterProcessHandlers/coreMerge';
 import { afterMutationHandlers as msdynamicAfterMutation } from '~/modules/msdynamic/afterMutation';
 
 // Existing mutation name lists
@@ -36,7 +32,6 @@ const allRules: IAfterProcessRule[] = [
         ...ebarimtMutationNames,
         ...erkhetMutationNames,
         ...productPlacesMutationNames,
-        ...mergeMutationNames,
         ...Array.from(msdynamicMutationNames), // spread Set as array
       ]),
     ],
@@ -68,11 +63,6 @@ export const afterProcess: AfterProcessConfigs = {
 
     const { itemId, destinationStageId, sourceStageId } = args || {};
     const models = await generateModels(ctx.subdomain);
-
-    if (mergeMutationNames.includes(mutationName)) {
-      await handleCoreMergeMutation(models, input?.data);
-      return;
-    }
 
     // ---- Ebarimt ----
     if (ebarimtMutationNames.includes(mutationName)) {
