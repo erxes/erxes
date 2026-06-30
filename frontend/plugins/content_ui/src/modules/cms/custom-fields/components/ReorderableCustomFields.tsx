@@ -78,12 +78,13 @@ function FieldList({
   const groupFields = group.fields || [];
 
   // Local order so a drop reflects immediately (no snap-back while the
-  // persisted order round-trips); re-synced whenever the stored order changes.
+  // persisted order round-trips); re-synced whenever the stored fields change.
+  // Depend on the `group.fields` reference rather than just the set of ids so
+  // edits to a field (label/type/options) show without a page refresh.
   const [fields, setFields] = useState(groupFields);
-  const fieldsKey = groupFields.map((f) => f._id).join('|');
   useEffect(() => {
     setFields(group.fields || []);
-  }, [fieldsKey]);
+  }, [group.fields]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -157,12 +158,13 @@ export const ReorderableCustomFields = ({
     useCustomFieldOrdering(websiteId);
 
   // Local order so a drop reflects immediately (no snap-back while the
-  // persisted order round-trips); re-synced whenever the stored order changes.
+  // persisted order round-trips); re-synced whenever the stored groups change.
+  // Depend on the `fieldGroups` reference rather than just the set of ids so
+  // edits to a group (label/fields) show without a page refresh.
   const [groups, setGroups] = useState(fieldGroups);
-  const groupsKey = fieldGroups.map((g) => g._id).join('|');
   useEffect(() => {
     setGroups(fieldGroups);
-  }, [groupsKey]);
+  }, [fieldGroups]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
