@@ -1,9 +1,11 @@
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { BroadcastAttachment } from '../BroadcastAttachment';
 import { SelectBroadcastMember } from '../select/BroadcastSelectMember';
 
 export const BroadcastEmailMethod = () => {
+  const { t } = useTranslation('broadcasts');
   const { control } = useFormContext();
 
   return (
@@ -15,12 +17,12 @@ export const BroadcastEmailMethod = () => {
           rules={{ required: 'From user is required' }}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>From User</Form.Label>
+              <Form.Label>{t('from-user', 'From User')}</Form.Label>
               <Form.Control>
                 <SelectBroadcastMember.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
-                  placeholder="Select team members"
+                  placeholder={t('select-team-members', 'Select team members')}
                   variables={{ isVerified: true }}
                 />
               </Form.Control>
@@ -34,9 +36,9 @@ export const BroadcastEmailMethod = () => {
           rules={{ required: 'Email subject is required' }}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Email Subject</Form.Label>
+              <Form.Label>{t('email-subject', 'Email Subject')}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Subject" />
+                <Input {...field} placeholder={t('subject', 'Subject')} />
               </Form.Control>
             </Form.Item>
           )}
@@ -49,9 +51,9 @@ export const BroadcastEmailMethod = () => {
           control={control}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Sender</Form.Label>
+              <Form.Label>{t('sender', 'Sender')}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Sender" />
+                <Input {...field} placeholder={t('sender', 'Sender')} />
               </Form.Control>
             </Form.Item>
           )}
@@ -61,9 +63,9 @@ export const BroadcastEmailMethod = () => {
           control={control}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Reply To</Form.Label>
+              <Form.Label>{t('reply-to', 'Reply To')}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Reply To" />
+                <Input {...field} placeholder={t('reply-to', 'Reply To')} />
               </Form.Control>
             </Form.Item>
           )}
@@ -75,7 +77,7 @@ export const BroadcastEmailMethod = () => {
         control={control}
         render={({ field }) => (
           <Form.Item className='h-full overflow-hidden'>
-            <Form.Label>Attachments</Form.Label>
+            <Form.Label>{t('attachments', 'Attachments')}</Form.Label>
             <Form.Control>
               <BroadcastAttachment {...field} />
             </Form.Control>

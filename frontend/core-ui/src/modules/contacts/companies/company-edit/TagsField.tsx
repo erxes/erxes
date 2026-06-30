@@ -1,6 +1,7 @@
 import { TagsSelect, useCompaniesEdit } from 'ui-modules';
 import { toast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 export const TagsField = ({
   _id,
@@ -11,6 +12,7 @@ export const TagsField = ({
   tagType: string;
   selected: string[];
 }) => {
+  const { t } = useTranslation('contact');
   const { companiesEdit } = useCompaniesEdit();
   return (
     <TagsSelect
@@ -22,7 +24,7 @@ export const TagsField = ({
           variables: { _id, tagIds },
           onError: (e: ApolloError) => {
             toast({
-              title: 'Error',
+              title: t('error', 'Error'),
               description: e.message,
               variant: 'destructive',
             });

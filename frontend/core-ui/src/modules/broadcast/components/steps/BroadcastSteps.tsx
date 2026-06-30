@@ -14,6 +14,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { prepareBroadcastVariables } from '../../utils/prepareBroadcastVariables';
 import { BroadcastPreview } from '../BroadcastPreview';
 import { BroadcastConfigStep } from './BroadcastConfigStep';
@@ -57,6 +58,7 @@ export const BroadcastSteps = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('broadcasts');
   const [method] = useQueryState<IBroadcastMethodEnum>('method');
   const removeQueryStateByKey = useRemoveQueryStateByKey();
   const { toast } = useToast();
@@ -85,8 +87,8 @@ export const BroadcastSteps = ({
           variant: 'default',
           title:
             action === 'draft'
-              ? 'Broadcast saved as draft'
-              : 'Broadcast created',
+              ? t('step.toast-draft', 'Broadcast saved as draft')
+              : t('step.toast-created', 'Broadcast created'),
         });
       },
     });
@@ -137,7 +139,7 @@ export const BroadcastSteps = ({
   return (
     <FormProvider {...form}>
       <Sheet.Header>
-        <Sheet.Title>New Broadcast</Sheet.Title>
+        <Sheet.Title>{t('step.new', 'New Broadcast')}</Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
 
@@ -169,8 +171,12 @@ export const BroadcastSteps = ({
   );
 };
 
+const BROADCAST_STEP_KEYS = ['broadcast-recipients', 'broadcast-config'];
+
 export const BroadcastStep = ({ step }: { step: number }) => {
+  const { t } = useTranslation('broadcasts');
   const BROADCAST_STEP = BROADCAST_STEPS[step];
+  const stepKey = BROADCAST_STEP_KEYS[step];
 
   const { title, description, content: StepContent } = BROADCAST_STEP;
 
@@ -182,7 +188,9 @@ export const BroadcastStep = ({ step }: { step: number }) => {
             <Badge className="rounded-xl text-xs font-mono">
               STEP {step + 1}/{BROADCAST_STEPS.length}
             </Badge>
-            <h2 className="text-primary font-semibold text-base">{title}</h2>
+            <h2 className="text-primary font-semibold text-base">
+              {t(`step.${stepKey}`, title)}
+            </h2>
           </div>
           <div className="flex items-center gap-1">
             {Array.from({ length: BROADCAST_STEPS.length }).map((_, index) => (
@@ -195,7 +203,9 @@ export const BroadcastStep = ({ step }: { step: number }) => {
               />
             ))}
           </div>
-          <div className="text-xs text-accent-foreground">{description}</div>
+          <div className="text-xs text-accent-foreground">
+            {t(`step.${stepKey}-description`, description)}
+          </div>
         </div>
         <Separator />
         <StepContent />
@@ -211,18 +221,21 @@ export const BroadcastStepActions = ({
   step: number;
   handleAction: (step: number, action?: 'draft' | 'live') => void;
 }) => {
+  const { t } = useTranslation('broadcasts');
   return (
     <Sheet.Footer>
       <Button onClick={() => handleAction(step - 1)} variant="secondary">
-        {step === 0 ? 'Cancel' : 'Previous step'}
+        {step === 0 ? t('step.cancel', 'Cancel') : t('step.previous', 'Previous step')}
       </Button>
       {step + 1 === BROADCAST_STEPS.length && (
         <Button onClick={() => handleAction(step + 1, 'draft')}>
-          Save & Draft
+          {t('step.save-draft', 'Save & Draft')}
         </Button>
       )}
       <Button onClick={() => handleAction(step + 1, 'live')}>
-        {step + 1 === BROADCAST_STEPS.length ? 'Save & Live' : 'Next step'}
+        {step + 1 === BROADCAST_STEPS.length
+          ? t('step.save-live', 'Save & Live')
+          : t('step.next', 'Next step')}
       </Button>
     </Sheet.Footer>
   );

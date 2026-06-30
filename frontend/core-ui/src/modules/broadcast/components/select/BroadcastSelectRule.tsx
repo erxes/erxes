@@ -1,5 +1,6 @@
 import { BROADCAST_RULES } from '@/broadcast/constants';
 import { Form, Select, Tooltip } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const BroadcastSelectRule = ({
   values,
@@ -8,6 +9,7 @@ export const BroadcastSelectRule = ({
   values: Record<string, string>[];
   onValueChange: (value: string, title: string) => void;
 }) => {
+  const { t } = useTranslation('broadcasts');
   const AVAILABLE_RULES = Object.keys(BROADCAST_RULES).filter(
     (key) => !values.some((field) => field.rule === key),
   );
@@ -27,10 +29,10 @@ export const BroadcastSelectRule = ({
       <Form.Control>
         <Select.Trigger>
           <Select.Value
-            placeholder="Select rule"
+            placeholder={t('select-rule', 'Select rule')}
             className="text-muted-foreground"
           >
-            Select rule
+            {t('select-rule', 'Select rule')}
           </Select.Value>
         </Select.Trigger>
       </Form.Control>

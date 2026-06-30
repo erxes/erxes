@@ -1,5 +1,6 @@
 import { BROADCAST_TARGET_TYPE } from '@/broadcast/constants';
 import { Form, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const BroadcastSelectTargetType = ({
   value,
@@ -8,12 +9,13 @@ export const BroadcastSelectTargetType = ({
   value: string;
   onValueChange: (value: string) => void;
 }) => {
+  const { t } = useTranslation('broadcasts');
   return (
     <Select onValueChange={onValueChange} value={value}>
       <Form.Control>
         <Select.Trigger>
-          <Select.Value placeholder={'Select target type'}>
-            {BROADCAST_TARGET_TYPE[value] || 'Select target type'}
+          <Select.Value placeholder={t('select-target-type', 'Select target type')}>
+            {BROADCAST_TARGET_TYPE[value] || t('select-target-type', 'Select target type')}
           </Select.Value>
         </Select.Trigger>
       </Form.Control>

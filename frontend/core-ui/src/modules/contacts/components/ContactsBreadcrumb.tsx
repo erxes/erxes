@@ -69,7 +69,7 @@ export const ContactsBreadcrumb = () => {
               onClick={handleClientPortalUsersClick}
             >
               <Link to={`${ContactsPath.Index}${ContactsPath.ClientPortalUsers}`}>
-                Client Portal Users
+                {t('clientPortalUser._', 'Client Portal Users')}
               </Link>
             </ToggleGroup.Item>
             {/* <ToggleGroup.Item

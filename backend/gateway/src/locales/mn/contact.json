@@ -1,7 +1,7 @@
 {
   "customers": "Харилцагчид",
   "companies": "Компаниуд",
-  "leads": "Потенциал харилцагчид",
+  "leads": "Leads",
   "customer": {
     "_": "Харилцагч",
     "add": {
@@ -34,11 +34,18 @@
       "emails": "И-мэйлүүд",
       "description": "Тайлбар",
       "subscribed": "Бүртгэлтэй",
-      "score": "Оноо"
+      "score": "Оноо",
+      "not-found": "Харилцагч олдсонгүй",
+      "not-found-description": "Энэ ID-тай харилцагч олдсонгүй."
     },
     "edit": "Засах",
     "delete": "Устгах",
     "confirm-delete": "Та энэ харилцагчийг устгахдаа итгэлтэй байна уу?",
+    "delete-confirm": "Та сонгосон {{count}} харилцагчийг устгахдаа итгэлтэй байна уу?",
+    "delete-success": "Харилцагчид амжилттай устгагдлаа",
+    "merge-success": "Харилцагчид амжилттай нэгтгэгдлээ",
+    "merge-customers": "Харилцагчдыг нэгтгэх",
+    "merge-only-two-contacts": "Зөвхөн 2 харилцагч нэгтгэх боломжтой",
     "name": "Нэр",
     "emails": "И-мэйлүүд",
     "phones": "Утаснууд",
@@ -50,6 +57,7 @@
     "created-at": "Үүсгэсэн огноо"
   },
   "company": {
+    "_": "Компани",
     "name": "Нэр",
     "emails": "И-мэйлүүд",
     "phones": "Утаснууд",
@@ -57,6 +65,163 @@
     "plan": "Төлөвлөгөө",
     "owner": "Хариуцагч",
     "last-seen": "Сүүлд харсан",
-    "profile-score": "Профайлын оноо"
-  }
+    "profile-score": "Профайлын оноо",
+    "field": {
+      "primaryName": "Нэр",
+      "code": "Код",
+      "owner": "Хариуцагч",
+      "parentCompanyId": "Эх компани",
+      "email": "И-мэйл",
+      "phone": "Утас",
+      "website": "Вэбсайт",
+      "industry": "Салбар",
+      "location": "Байршил (улс)",
+      "businessType": "Бизнесийн төрөл",
+      "size": "Хэмжээ",
+      "plan": "Төлөвлөгөө",
+      "description": "Тайлбар",
+      "owner-placeholder": "Хариуцагч сонгох",
+      "industry-placeholder": "Салбар сонгох",
+      "select-country": "Улс сонгоно уу"
+    },
+    "add": {
+      "_": "Компани нэмэх",
+      "add-new-company": "Шинэ компани нэмэх",
+      "success-message": "Компани амжилттай нэмэгдлээ"
+    },
+    "detail": {
+      "_": "Компанийн дэлгэрэнгүй",
+      "not-found": "Компани олдсонгүй",
+      "not-found-description": "Энэ ID-тай компани олдсонгүй."
+    },
+    "delete-confirm": "Та сонгосон {{count}} компанийг устгахдаа итгэлтэй байна уу?",
+    "delete-success": "Компаниуд амжилттай устгагдлаа",
+    "merge": "Компаниудыг нэгтгэх",
+    "merge-only-two": "Зөвхөн 2 компани нэгтгэх боломжтой",
+    "update-success": "Компанийн мэдээлэл амжилттай шинэчлэгдлаа.",
+    "update-failed": "Шинэчлэлт амжилтгүй боллоо"
+  },
+  "lead": {
+    "add": {
+      "_": "Lead нэмэх",
+      "success-message": "Lead амжилттай нэмэгдлээ"
+    },
+    "detail": {
+      "lead-detail": "Lead-н дэлгэрэнгүй"
+    }
+  },
+  "clientPortalUser": {
+    "_": "Клиент портал хэрэглэгчид",
+    "add": {
+      "_": "Клиент портал хэрэглэгч нэмэх",
+      "description": "Шинэ клиент портал хэрэглэгч үүсгэх",
+      "success": "Клиент портал хэрэглэгч үүсгэгдлээ"
+    },
+    "delete": {
+      "confirm": "Та энэ клиент портал хэрэглэгчийг устгахдаа итгэлтэй байна уу?",
+      "success": "Хэрэглэгч устгагдлаа"
+    },
+    "pushDevices": "Push: {{count}} төхөөрөмж",
+    "pushNoDevices": "Push: Төхөөрөмж байхгүй",
+    "setPassword": {
+      "title": "Нууц үг тохируулах",
+      "description": "Клиент портал хэрэглэгчийн шинэ нууц үг тохируулах",
+      "success": "Энэ хэрэглэгчийн нууц үг өөрчлөгдлөө",
+      "newPassword": "Шинэ нууц үг",
+      "newPasswordPlaceholder": "Шинэ нууц үг",
+      "repeatPassword": "Нууц үг давтах",
+      "repeatPasswordPlaceholder": "Нууц үг давтах",
+      "save": "Хадгалах"
+    },
+    "noUsers": "Клиент портал хэрэглэгч байхгүй",
+    "detail": {
+      "title": "Клиент портал хэрэглэгч",
+      "general": "Ерөнхий",
+      "overview": "Тойм",
+      "activity-log": "Үйл ажиллагааны түүх",
+      "notifications": "Мэдэгдлүүд",
+      "firstName": "Нэр",
+      "lastName": "Овог",
+      "email": "И-мэйл",
+      "phone": "Утас",
+      "type": "Төрөл",
+      "username": "Хэрэглэгчийн нэр",
+      "company": "Компани",
+      "companyRegistrationNumber": "Компанийн регистрийн дугаар",
+      "customer": "Харилцагч",
+      "openCustomerInContacts": "Харилцагчийг харилцагч хэсэгт нээх",
+      "lastLogin": "Сүүлд нэвтэрсэн",
+      "created": "Үүсгэсэн",
+      "addFirstName": "Нэр нэмэх",
+      "addLastName": "Овог нэмэх",
+      "addEmail": "И-мэйл нэмэх",
+      "addPhone": "Утас нэмэх",
+      "addUsername": "Хэрэглэгчийн нэр нэмэх",
+      "addCompanyRegNumber": "Регистрийн дугаар нэмэх",
+      "not-found": "Клиент портал хэрэглэгч олдсонгүй",
+      "not-found-description": "Энэ ID-тай клиент портал хэрэглэгч олдсонгүй.",
+      "noNotifications": "Мэдэгдэл байхгүй",
+      "noNotificationsDescription": "Энэ хэрэглэгчид одоогоор мэдэгдэл байхгүй.",
+      "sendNotification": {
+        "title": "Мэдэгдэл илгээх",
+        "description": "Клиент портал хэрэглэгчид мэдэгдэл илгээх",
+        "success": "Мэдэгдэл илгээгдлээ",
+        "titleLabel": "Гарчиг",
+        "titlePlaceholder": "Мэдэгдлийн гарчиг",
+        "messageLabel": "Мессеж",
+        "messagePlaceholder": "Мэдэгдлийн мессеж",
+        "typeLabel": "Төрөл",
+        "priorityLabel": "Ач холбогдол",
+        "send": "Мэдэгдэл илгээх"
+      },
+      "read": "Уншсан",
+      "unread": "Уншаагүй",
+      "sentToPlatforms": "Платформд илгээсэн"
+    }
+  },
+  "filter": {
+    "filter": "Шүүлтүүр",
+    "search": "Хайх",
+    "created-at": "Үүсгэсэн огноо",
+    "updated-at": "Шинэчлэгдсэн огноо",
+    "last-seen-at": "Сүүлд харсан"
+  },
+  "upload": "Байршуулах",
+  "upload-description": "1:1 харьцаатай, хамгийн ихдээ 2MB",
+  "save": "Хадгалах",
+  "cancel": "Цуцлах",
+  "success": "Амжилттай",
+  "error": "Алдаа",
+  "delete": "Устгах",
+  "discard": "Татгалзах",
+  "merge": "Нэгтгэх",
+  "edit": "Засах",
+  "search": "Хайх",
+  "selected": "{{count}} сонгосон",
+  "subscribed": "Бүртгэлтэй",
+  "lifecycle-state": "Амьдралын мөчлөгийн төлөв",
+  "lifecycle-state-lead": "Lead",
+  "lifecycle-state-customer": "Харилцагч",
+  "choose-state": "Төлөв сонгох",
+  "unknown": "Тодорхойгүй",
+  "change-state": "Төлөв өөрчлөх",
+  "state-changed-success": "Төлөв амжилттай \"{{label}}\" болж өөрчлөгдлөө",
+  "verification-status-updated": "Баталгаажуулалтын төлөв амжилттай шинэчлэгдлээ",
+  "verify": "Баталгаажуулах",
+  "verified": "Баталгаажсан",
+  "unverified": "Баталгаажаагүй",
+  "emailVerified": "И-мэйл баталгаажсан",
+  "phoneVerified": "Утас баталгаажсан",
+  "yes": "Тийм",
+  "no": "Үгүй",
+  "clientPortal": "Клиент портал",
+  "type": "Төрөл",
+  "firstName": "Нэр",
+  "lastName": "Овог",
+  "username": "Хэрэглэгчийн нэр",
+  "password": "Нууц үг",
+  "phone": "Утас",
+  "select": "Сонгох...",
+  "general": "Ерөнхий",
+  "contacts": "Харилцагчид"
 }

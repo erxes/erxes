@@ -72,15 +72,15 @@ export const CompanyDetailFields = () => {
       },
       onCompleted: () => {
         toast({
-          title: t('saved', 'Company details updated successfully.'),
+          title: t('company.update-success', 'Company details updated successfully.'),
           variant: 'success',
         });
       },
       onError: (e) => {
         toast({
-          title: t('error', 'Update Failed'),
+          title: t('company.update-failed', 'Update Failed'),
           description:
-            e.message || t('error', 'Failed to save company details.'),
+            e.message || t('company.update-failed', 'Update Failed'),
           variant: 'destructive',
         });
       },
@@ -94,7 +94,7 @@ export const CompanyDetailFields = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-8">
           <CompanyAddGeneralInformationFields form={form} />
 
-          <DataListItem label={t('subscribed') || 'Subscribed'}>
+          <DataListItem label={t('subscribed', 'Subscribed')}>
             <Switch
               checked={isSubscribed === 'Yes'}
               onCheckedChange={(checked) => {

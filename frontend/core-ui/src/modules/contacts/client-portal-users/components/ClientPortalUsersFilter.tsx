@@ -34,7 +34,7 @@ const ClientPortalUsersFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -58,6 +58,7 @@ const ClientPortalUsersFilterPopover = () => {
 };
 
 export const ClientPortalUsersFilter = () => {
+  const { t } = useTranslation('contact');
   const [searchValue] = useFilterQueryState<string>(
     'searchValue',
     CP_USERS_CURSOR_SESSION_KEY,
@@ -72,7 +73,7 @@ export const ClientPortalUsersFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('search', { defaultValue: 'Search' })}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}

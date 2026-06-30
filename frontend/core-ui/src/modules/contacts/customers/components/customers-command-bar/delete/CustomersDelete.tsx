@@ -2,8 +2,10 @@ import { IconTrash } from '@tabler/icons-react';
 import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useRemoveCustomers } from '@/contacts/customers/hooks/useRemoveCustomers';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
+  const { t } = useTranslation('contact');
   const { confirm } = useConfirm();
   const { removeCustomers } = useRemoveCustomers();
   const { table } = RecordTable.useRecordTable();
@@ -14,12 +16,12 @@ export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${customerIds.length} selected customers?`,
+          message: t('customer.delete-confirm', { count: customerIds.length }, 'Are you sure you want to delete the {{count}} selected customers?'),
         }).then(() => {
           removeCustomers(customerIds, {
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -27,9 +29,9 @@ export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
             onCompleted: () => {
               table.setRowSelection({});
               toast({
-                title: 'Success',
+                title: t('success', 'Success'),
                 variant: 'success',
-                description: 'Customers deleted successfully',
+                description: t('customer.delete-success', 'Customers deleted successfully'),
               });
             },
           });
@@ -37,7 +39,7 @@ export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
       }
     >
       <IconTrash />
-      Delete
+      {t('delete', 'Delete')}
     </Button>
   );
 };
