@@ -94,6 +94,7 @@ export interface IAutomationDoc {
   actions: TAutomationAction[];
   updatedAt?: string;
   createdAt?: string;
+  createdBy?: string;
   updatedBy?: string;
   createdByIds?: string;
   updatedUser?: any;

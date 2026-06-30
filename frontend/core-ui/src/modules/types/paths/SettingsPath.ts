@@ -15,6 +15,7 @@ export enum SettingsWorkspacePath {
   MailConfig = 'mail-config',
   ImportExport = 'import-export',
   ImportExportCatchAll = `${ImportExport}/*`,
+  ApprovalRequests = 'approval-requests',
   Permissions = 'permissions',
   TeamMember = 'team',
   TeamMemberCatchAll = `${TeamMember}/*`,

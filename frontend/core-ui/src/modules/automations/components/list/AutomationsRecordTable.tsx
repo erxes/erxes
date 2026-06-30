@@ -27,10 +27,14 @@ export const AutomationsRecordTable = () => {
     hasNextPage,
     handleFetchMore,
     hasPreviousPage,
+    approvalLockStatesById,
   } = useAutomationsRecordTable();
 
   const { t } = useTranslation('automations');
-  const columns = useMemo(() => getAutomationColumns(t), [t]);
+  const columns = useMemo(
+    () => getAutomationColumns(t, approvalLockStatesById),
+    [t, approvalLockStatesById],
+  );
   const navigate = useNavigate();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canCreateAutomation =
