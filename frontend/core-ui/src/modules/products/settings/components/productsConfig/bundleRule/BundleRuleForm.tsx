@@ -206,7 +206,7 @@ export const BundleRuleForm = ({
               onClick={handleOpenDialog}
             >
               <IconPlus />
-              Add Row
+              {t('add-row', 'Add Row')}
             </Button>
 
             {rules.length > 0 && (
@@ -214,8 +214,8 @@ export const BundleRuleForm = ({
                 <table className="w-full text-xs">
                   <thead className="bg-muted">
                     <tr>
-                      <th className="px-4 py-2 text-left">Code</th>
-                      <th className="px-4 py-2 text-right">Actions</th>
+                      <th className="px-4 py-2 text-left">{t('code', 'Code')}</th>
+                      <th className="px-4 py-2 text-right">{t('actions', 'Actions')}</th>
                     </tr>
                   </thead>
                   <tbody>

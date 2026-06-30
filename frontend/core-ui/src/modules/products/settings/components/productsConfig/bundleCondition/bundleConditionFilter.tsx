@@ -1,5 +1,6 @@
 import { IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { BundleConditionHotKeyScope } from '../../../types/BundleConditionHotKeyScope';
 import { BUNDLE_CONDITION_CURSOR_SESSION_KEY } from '../../../constants/bundleConditionCursorSessionKey';
 
@@ -17,6 +18,7 @@ export const BundleConditionFilter = () => {
 };
 
 export const BundleConditionFilterPopover = () => {
+  const { t } = useTranslation('product');
   return (
     <>
       <Filter.Popover scope={BundleConditionHotKeyScope.BundleConditionsPage}>
@@ -24,12 +26,12 @@ export const BundleConditionFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
 
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search', 'Search')}
                 </Filter.Item>
               </Command.List>
             </Command>

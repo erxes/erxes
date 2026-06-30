@@ -1,5 +1,6 @@
 import { IconCheck } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const NotificationPriorityCommandBar = ({
   priority,
@@ -12,9 +13,10 @@ export const NotificationPriorityCommandBar = ({
     }>,
   ) => void;
 }) => {
+  const { t } = useTranslation('notification');
   return (
     <Command>
-      <Command.Input placeholder="Search" />
+      <Command.Input placeholder={t('search', 'Search')} />
       <Command.List>
         <Command.Empty />
         {['low', 'medium', 'high', 'urgent'].map((value) => (

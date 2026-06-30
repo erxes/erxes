@@ -9,11 +9,13 @@ import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { Can, IProduct } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { renderingProductDetailAtom } from '../states/productDetailStates';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import { ProductsDelete } from './product-command-bar/delete/productDelete';
 
 export const ProductMoreColumn = (props: CellContext<IProduct, unknown>) => {
+  const { t } = useTranslation('product');
   const product = props.row.original;
   const [, setProductId] = useQueryState<string>(PRODUCT_QUERY_KEY);
   const setRenderingProductDetail = useSetAtom(renderingProductDetailAtom);
@@ -36,7 +38,7 @@ export const ProductMoreColumn = (props: CellContext<IProduct, unknown>) => {
             <Can action="productsUpdate">
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit', 'Edit')}
               </Command.Item>
             </Can>
             <ProductsDelete productIds={[product._id]}>
@@ -47,7 +49,7 @@ export const ProductMoreColumn = (props: CellContext<IProduct, unknown>) => {
                   disabled={disabled}
                 >
                   <IconTrash className="w-4 h-4" />
-                  Delete
+                  {t('delete', 'Delete')}
                   {trailing}
                 </Command.Item>
               )}

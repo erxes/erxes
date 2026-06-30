@@ -14,10 +14,12 @@ import { IBundleCondition } from './types';
 import { useBundleConditionRemove } from '@/products/settings/hooks/useBundleConditionRemove';
 import { BundleConditionForm } from './BundleConditionForm';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const BundleConditionMoreColumn = (
   props: CellContext<IBundleCondition, unknown>,
 ) => {
+  const { t } = useTranslation('product');
   const bundleCondition = props.row.original;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { confirm } = useConfirm();
@@ -31,14 +33,17 @@ export const BundleConditionMoreColumn = (
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${bundleCondition.name}"?`,
+      message: t('confirm-delete-bundle-condition', {
+        defaultValue: 'Are you sure you want to delete "{{name}}"?',
+        name: bundleCondition.name,
+      }),
       options: confirmOptions,
     }).then(() => {
       removeBundleConditions({
         variables: { _ids: [bundleCondition._id] },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -60,7 +65,7 @@ export const BundleConditionMoreColumn = (
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit', 'Edit')}
               </Command.Item>
               <Command.Item
                 value="delete"
@@ -68,7 +73,7 @@ export const BundleConditionMoreColumn = (
                 disabled={loading}
               >
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>

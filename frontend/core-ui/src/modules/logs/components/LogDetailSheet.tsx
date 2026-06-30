@@ -1,14 +1,16 @@
 import { LogDetailView } from '@/logs/components/LogDetailView';
 import { Sheet, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export function LogDetailSheet() {
+  const { t } = useTranslation('common');
   const [logId, setLogId] = useQueryState<string>('logId');
 
   return (
     <Sheet open={!!logId} onOpenChange={() => logId && setLogId(null)}>
       <Sheet.View className="md:w-[calc(100vw-1rem)] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>Log Details</Sheet.Title>
+          <Sheet.Title>{t('logs.log-details', 'Log Details')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex-1 min-h-0 overflow-hidden">

@@ -5,12 +5,14 @@ import {
 } from '@tabler/icons-react';
 import { BlockEditor, Button, cn, Kbd, useBlockEditor } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DescriptionInputProps } from '../types/descriptionTypes';
 
 export const DescriptionInput = ({
   initialContent,
   onSave,
 }: DescriptionInputProps) => {
+  const { t } = useTranslation('product');
   const editor = useBlockEditor();
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export const DescriptionInput = ({
       <div className="flex px-6 gap-4">
         <Button size="lg" className="ml-auto" onClick={handleSave}>
           <IconArrowUp />
-          Send
+          {t('send', 'Send')}
           <Kbd className="ml-1">
             <IconCommand size={12} />
             <IconCornerDownLeft size={12} />

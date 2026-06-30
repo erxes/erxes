@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Button, Spinner, useToast } from 'erxes-ui';
 import {
   IconHistory,
@@ -31,6 +32,7 @@ import {
 // exclusive display states (checking / already-undone / entry / preview /
 // conflict / done); the branching is presentational, not tangled logic.
 export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
+  const { t } = useTranslation('common');
   const { processId, source, action } = detail;
   const { preview, apply, loading } = useRevertProcess();
   const { toast } = useToast();
@@ -89,7 +91,7 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
   /** Toast a friendly, non-technical failure message. */
   const showError = (e: unknown) =>
     toast({
-      title: "Couldn't undo",
+      title: t('logs.couldnt-undo', "Couldn't undo"),
       description: (e as Error)?.message || 'Something went wrong.',
       variant: 'destructive',
     });
@@ -139,15 +141,14 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
       setResult(res);
       if (res.conflicts.length) {
         toast({
-          title: 'One more choice needed',
-          description:
-            'Pick a version for the highlighted items, then undo again.',
+          title: t('logs.one-more-choice-needed', 'One more choice needed'),
+          description: t('logs.one-more-choice-description', 'Pick a version for the highlighted items, then undo again.'),
           variant: 'destructive',
         });
       } else {
         setDone(true);
         toast({
-          title: 'Done',
+          title: t('logs.done', 'Done'),
           description: `${res.reverted.length} thing${
             res.reverted.length === 1 ? '' : 's'
           } put back.`,
@@ -182,10 +183,10 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
         </div>
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
-            Undo this change
+            {t('logs.undo-this-change', 'Undo this change')}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Put everything back the way it was right before this happened.
+            {t('logs.put-everything-back', 'Put everything back the way it was right before this happened.')}
           </p>
         </div>
       </div>
@@ -195,7 +196,7 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
         {checking && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Spinner size="sm" />
-            Checking if this can be undone…
+            {t('logs.checking-if-undone', 'Checking if this can be undone…')}
           </div>
         )}
 
@@ -208,10 +209,10 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
             />
             <div>
               <p className="text-sm font-medium text-foreground">
-                Already undone
+                {t('logs.already-undone', 'Already undone')}
               </p>
               <p className="text-sm text-muted-foreground">
-                This change was reverted earlier — there’s nothing left to undo.
+                {t('logs.already-undone-description', "This change was reverted earlier — there's nothing left to undo.")}
               </p>
             </div>
           </div>
@@ -221,7 +222,7 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
         {!checking && !alreadyUndone && !result && (
           <Button onClick={onPreview} disabled={loading} variant="secondary">
             <IconArrowBackUp />
-            {loading ? 'Working…' : 'Undo this change'}
+            {loading ? t('logs.working', 'Working…') : t('logs.undo-this-change', 'Undo this change')}
           </Button>
         )}
 
@@ -230,7 +231,7 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
             {result.reverted.length > 0 && (
               <div>
                 <p className="mb-2 text-sm font-medium text-foreground">
-                  {done ? 'Here’s what was put back:' : 'This will put back:'}
+                  {done ? t('logs.here-what-was-put-back', "Here's what was put back:") : t('logs.this-will-put-back', 'This will put back:')}
                 </p>
                 <div className="flex flex-col gap-1.5">
                   {result.reverted.map((it) => {
@@ -262,7 +263,7 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
             {result.unrevertable.length > 0 && (
               <div>
                 <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                  <IconAlertTriangle size={15} /> These can’t be undone
+                  <IconAlertTriangle size={15} /> {t('logs.these-cant-be-undone', "These can't be undone")}
                 </p>
                 <div className="flex flex-col gap-1.5">
                   {result.unrevertable.map((it) => (
@@ -291,7 +292,7 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
             {done && (
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <Badge variant="success">
-                  <IconCircleCheck size={14} /> Done — change undone
+                  <IconCircleCheck size={14} /> {t('logs.done-change-undone', 'Done — change undone')}
                 </Badge>
               </div>
             )}
@@ -301,17 +302,17 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
                 <div className="flex gap-2">
                   <Button onClick={onApply} disabled={loading}>
                     {loading
-                      ? 'Working…'
+                      ? t('logs.working', 'Working…')
                       : result.conflicts.length
-                        ? 'Undo with these choices'
-                        : 'Yes, undo this'}
+                        ? t('logs.undo-with-choices', 'Undo with these choices')
+                        : t('logs.yes-undo-this', 'Yes, undo this')}
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => setResult(null)}
                     disabled={loading}
                   >
-                    Cancel
+                    {t('core-modules.cancel', 'Cancel')}
                   </Button>
                 </div>
               )}
@@ -321,7 +322,7 @@ export const LogRevertPanel = ({ detail }: { detail: ILogDoc }) => {
               result.reverted.length === 0 &&
               result.conflicts.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  There’s nothing to put back for this action.
+                  {t('logs.nothing-to-put-back', "There's nothing to put back for this action.")}
                 </p>
               )}
           </div>
