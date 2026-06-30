@@ -198,17 +198,30 @@ const command = async () => {
 
     // core:modules: collection
 
-    // 'core:customer': db.collection('customers'),
-    // 'core:company': db.collection('companies'),
-    // 'core:product': db.collection('products'),
-    // 'core:user': db.collection('users'),
+    'core:customer': db.collection('customers'),
+    'core:company': db.collection('companies'),
+    'core:product': db.collection('products'),
+    'core:user': db.collection('users'),
+    'core:cpUser': db.collection('client_portal_users'),
 
     // plugin:modules: collection
 
-    // 'frontline:ticket': db.collection('frontline_tickets'),
-    // 'frontline:conversation': db.collection('conversations'),
+    'frontline:ticket': db.collection('frontline_tickets'),
+    // 'frontline:conversation': db.collection('conversations'), // no customFieldsData field on this schema, omit
 
     'sales:deal': db.collection('deals'),
+
+    'content:post': db.collection('cms_posts'),
+    'content:cms': db.collection('content_cms'),
+    'content:translation': db.collection('cms_translations'),
+    'content:webPage': db.collection('web_pages'),
+
+    // Below have a `customFieldsData` field but no confirmed contentType registration in
+    // properties_fields/properties_groups anywhere in the codebase. Verify the contentType
+    // key against real data before enabling — a wrong/unmatched key will overwrite
+    // propertiesData with {} for every document that has customFieldsData.
+    // 'posclient:product': db.collection('posclient_products'),
+    // 'tourism:tour': db.collection('bm_tours'),
   };
 
   try {
