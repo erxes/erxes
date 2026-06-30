@@ -14,7 +14,7 @@ import {
   IconDotsVertical,
   IconSettings,
 } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
@@ -103,23 +103,17 @@ function PipelineItem({
 function BoardItem({ board }: { board: IBoard }) {
   const [boardId] = useQueryState<string | null>('boardId');
   const isBoardActive = boardId === board._id;
-  // Track the collapsible's open state only to lazily load pipelines once the
-  // board is expanded. Clicking a board just toggles the dropdown — it does not
-  // change the URL (like the POS navigation); the URL is only updated when a
-  // pipeline is selected.
-  const [open, setOpen] = useState(isBoardActive);
 
+  // Fetch pipelines eagerly so they are ready before the board is expanded —
+  // expanding then shows them instantly (like the POS navigation), with no
+  // load delay. Clicking a board just toggles the dropdown; it does not change
+  // the URL, which is only updated when a pipeline is selected.
   const { pipelines, loading: pipelinesLoading } = usePipelines({
     variables: { boardId: board._id },
-    skip: !open,
   });
 
   return (
-    <Collapsible
-      className="group/collapsible"
-      defaultOpen={isBoardActive}
-      onOpenChange={setOpen}
-    >
+    <Collapsible className="group/collapsible" defaultOpen={isBoardActive}>
       <Sidebar.Group className="p-0">
         <div className="w-full relative group/trigger hover:cursor-pointer">
           <Collapsible.Trigger asChild>
