@@ -23,7 +23,13 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
-import { TagsSelect, TAutomationAction, TAutomationTrigger } from 'ui-modules';
+import {
+  ApprovalLockedBadge,
+  ApprovalLockState,
+  TagsSelect,
+  TAutomationAction,
+  TAutomationTrigger,
+} from 'ui-modules';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
@@ -35,7 +41,11 @@ const checkBoxColumn =
 
 export const getAutomationColumns: (
   t: (key: string) => string,
-) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
+  approvalLockStatesById?: Record<string, ApprovalLockState>,
+) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (
+  t,
+  approvalLockStatesById = {},
+) => [
   {
     id: 'more',
     cell: ({ cell }) => {
@@ -44,6 +54,8 @@ export const getAutomationColumns: (
       const { removeAutomations, loading } = useRemoveAutomations();
       const { t } = useTranslation('automations');
       const { toast } = useToast();
+      const lockState = approvalLockStatesById[cell.row.original._id];
+      const canWrite = !lockState?.locked || lockState.hasAccess;
 
       const onRemove = () => {
         confirm({
@@ -97,6 +109,7 @@ export const getAutomationColumns: (
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start text-destructive"
+                disabled={!canWrite}
                 onClick={() => onRemove()}
               >
                 <IconTrash className="size-4" />
@@ -121,7 +134,13 @@ export const getAutomationColumns: (
       const navigate = useNavigate();
       const [edit] = useMutation(AUTOMATION_EDIT);
       const { toast } = useToast();
+      const lockState = approvalLockStatesById[cell.row.original._id];
+      const canWrite = !lockState?.locked || lockState.hasAccess;
       const handleEnter = () => {
+        if (!canWrite) {
+          return;
+        }
+
         if (
           editingName === (cell.getValue() as string) ||
           editingName.trim() === ''
@@ -149,6 +168,20 @@ export const getAutomationColumns: (
           },
         });
       };
+
+      if (!canWrite) {
+        return (
+          <RecordTableInlineCell.Anchor
+            onClick={() => {
+              navigate(`/automations/edit/${cell.row.original._id}`);
+            }}
+          >
+            <span className="truncate">{cell.getValue() as string}</span>
+            <ApprovalLockedBadge state={lockState} />
+          </RecordTableInlineCell.Anchor>
+        );
+      }
+
       return (
         <PopoverScoped closeOnEnter onEnter={handleEnter}>
           <RecordTableInlineCell.Trigger>
@@ -157,7 +190,8 @@ export const getAutomationColumns: (
                 navigate(`/automations/edit/${cell.row.original._id}`);
               }}
             >
-              {cell.getValue() as string}
+              <span className="truncate">{cell.getValue() as string}</span>
+              <ApprovalLockedBadge state={lockState} />
             </RecordTableInlineCell.Anchor>
           </RecordTableInlineCell.Trigger>
           <RecordTableInlineCell.Content>

@@ -43,12 +43,12 @@ export interface AiAgentInput {
   };
 }
 
-export function useAiAgentDetail() {
+export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
   const { id } = useParams();
 
   const { data, loading } = useQuery(AUTOMATIONS_AI_AGENT_DETAIL, {
     variables: { id },
-    skip: !id,
+    skip: !id || skip,
   });
 
   const [addMutation, { loading: adding }] = useMutation(

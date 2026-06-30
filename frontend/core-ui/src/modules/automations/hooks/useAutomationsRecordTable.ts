@@ -1,13 +1,14 @@
+import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { AUTOMATIONS_MAIN_LIST } from '@/automations/graphql/automationQueries';
 import { IAutomation } from '@/automations/types';
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { IPageInfo } from 'ui-modules';
-import { useAutomationRecordTableFilters } from './useAutomationRecordTableFilters';
 import {
   EnumCursorDirection,
-  validateFetchMore,
   mergeCursorData,
+  validateFetchMore,
 } from 'erxes-ui';
+import { IPageInfo, useApprovalLockStates } from 'ui-modules';
+import { useAutomationRecordTableFilters } from './useAutomationRecordTableFilters';
 
 type QueryResponse = {
   automationsMain: {
@@ -33,6 +34,26 @@ export const useAutomationsRecordTable = (
 
   const { list = [], totalCount = 0, pageInfo } = data?.automationsMain || {};
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { statesByContentId: approvalLockStatesById } = useApprovalLockStates(
+    {
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
+      contentIds: list.map((automation) => automation._id),
+      ownerIdsByContentId: list.reduce<Record<string, string>>(
+        (ownerIds, automation) => {
+          if (automation.createdBy) {
+            ownerIds[automation._id] = automation.createdBy;
+          }
+
+          return ownerIds;
+        },
+        {},
+      ),
+      action: 'edit',
+    },
+    {
+      skip: list.length === 0,
+    },
+  );
 
   const handleFetchMore = ({
     direction,
@@ -78,5 +99,6 @@ export const useAutomationsRecordTable = (
     handleFetchMore,
     hasNextPage,
     hasPreviousPage,
+    approvalLockStatesById,
   };
 };
