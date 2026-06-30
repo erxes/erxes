@@ -2,10 +2,12 @@ import { DocumentSheet } from '@/documents/components/DocumentSheet';
 import { IconCube } from '@tabler/icons-react';
 
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Can, PageHeader } from 'ui-modules';
 
 export const DocumentsHeader = () => {
+  const { t } = useTranslation('documents');
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -15,7 +17,7 @@ export const DocumentsHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to="/documents">
                   <IconCube />
-                  Documents
+                  {t('documents', 'Documents')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

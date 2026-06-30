@@ -12,6 +12,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectProjectStatusContextType {
   value?: string;
@@ -66,12 +67,13 @@ const SelectProjectStatusValue = ({
 }: {
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('broadcasts');
   const { value } = useSelectProjectStatusContext();
 
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select method...'}
+        {placeholder || t('select-method-placeholder', 'Select method...')}
       </span>
     );
   }
@@ -107,11 +109,12 @@ const SelectProjectStatusCommandItem = ({
 };
 
 const SelectProjectStatusContent = () => {
+  const { t } = useTranslation('broadcasts');
   return (
     <Command id="status-command-menu">
-      <Command.Input placeholder="Select method" />
+      <Command.Input placeholder={t('select-method', 'Select method')} />
       <Command.List>
-        <Command.Empty>No method found</Command.Empty>
+        <Command.Empty>{t('no-method-found', 'No method found')}</Command.Empty>
         {BROADCAST_MESSAGE_METHODS.map((item) => (
           <SelectProjectStatusCommandItem
             key={item.value}

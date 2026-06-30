@@ -18,7 +18,7 @@ export function CPUserDetailSidebar() {
   return (
     <Sidebar.Content>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('general', 'General')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
             {CP_USER_DETAIL_TABS.map((tab) => (

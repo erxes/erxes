@@ -1,8 +1,10 @@
 import { IconBellRinging, IconDeviceMobile } from '@tabler/icons-react';
 import { cn, Form, Input, Label, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const BroadcastNotificationMethod = () => {
+  const { t } = useTranslation('broadcasts');
   const { control } = useFormContext();
 
   return (
@@ -24,7 +26,7 @@ export const BroadcastNotificationMethod = () => {
                 >
                   <IconBellRinging className="text-muted-foreground" />
                   <Label className="cursor-pointer">
-                    In-app push notification
+                    {t('in-app-notification', 'In-app push notification')}
                   </Label>
                 </div>
               </Form.Control>
@@ -51,7 +53,7 @@ export const BroadcastNotificationMethod = () => {
                 >
                   <IconDeviceMobile className="text-muted-foreground" />
                   <Label className="cursor-pointer">
-                    Mobile & Web push notification
+                    {t('mobile-web-notification', 'Mobile & Web push notification')}
                   </Label>
                 </div>
               </Form.Control>
@@ -65,11 +67,11 @@ export const BroadcastNotificationMethod = () => {
         render={({ field }) => (
           <Form.Item>
             <div className="flex items-center justify-between">
-              <Form.Label>Notification title</Form.Label>
+              <Form.Label>{t('notification-title', 'Notification title')}</Form.Label>
               <Form.Label>15</Form.Label>
             </div>
             <Form.Control>
-              <Input {...field} placeholder="Title" maxLength={15} />
+              <Input {...field} placeholder={t('title', 'Title')} maxLength={15} />
             </Form.Control>
           </Form.Item>
         )}
@@ -80,13 +82,13 @@ export const BroadcastNotificationMethod = () => {
         render={({ field }) => (
           <Form.Item>
             <div className="flex items-center justify-between">
-              <Form.Label>Notification content</Form.Label>
+              <Form.Label>{t('notification-content', 'Notification content')}</Form.Label>
               <Form.Label>160</Form.Label>
             </div>
             <Form.Control>
               <Textarea
                 {...field}
-                placeholder="Content"
+                placeholder={t('content', 'Content')}
                 maxLength={160}
                 rows={10}
               />

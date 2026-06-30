@@ -42,7 +42,7 @@ const CompaniesFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -99,6 +99,7 @@ const CompaniesFilterPopover = () => {
 };
 
 export const CompaniesFilter = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'filter' });
   const [searchValue] = useFilterQueryState<string>('searchValue');
   return (
     <Filter id="companies-filter" sessionKey={COMPANIES_CURSOR_SESSION_KEY}>
@@ -106,7 +107,7 @@ export const CompaniesFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('search', 'Search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -117,21 +118,21 @@ export const CompaniesFilter = () => {
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
-            Created At
+            {t('created-at', 'Created At')}
           </Filter.BarName>
           <Filter.Date filterKey="created" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updated">
           <Filter.BarName>
             <IconCalendarUp />
-            Updated At
+            {t('updated-at', 'Updated At')}
           </Filter.BarName>
           <Filter.Date filterKey="updated" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="lastSeen">
           <Filter.BarName>
             <IconCalendarTime />
-            Last Seen At
+            {t('last-seen-at', 'Last Seen At')}
           </Filter.BarName>
           <Filter.Date filterKey="lastSeen" />
         </Filter.BarItem>

@@ -6,8 +6,10 @@ import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { Can, Export, ICustomer, TagsSelect, useVersion } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CustomersCommandBar = () => {
+  const { t } = useTranslation('contact');
   const { table } = RecordTable.useRecordTable();
   const isOs = useVersion();
   const intersection = (arrays: string[][]): string[] => {
@@ -26,7 +28,7 @@ export const CustomersCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{t('selected', '{{count}} selected', { count: selectedRows.length })}</CommandBar.Value>
         <Can action="tagsTag">
           <>
             <Separator.Inline />
@@ -57,7 +59,7 @@ export const CustomersCommandBar = () => {
                 },
                 onError: (e: ApolloError) => {
                   toast({
-                    title: 'Error',
+                    title: t('error', 'Error'),
                     description: e.message,
                     variant: 'destructive',
                   });

@@ -361,30 +361,30 @@ export const PrimaryPhoneField = ({
   );
 };
 
-const lifecycleStates = [
-  { label: 'Lead', value: 'lead' },
-  { label: 'Customer', value: 'customer' },
-];
-
 export const StateField = ({
   control,
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact');
+  const lifecycleStates = [
+    { label: t('lifecycle-state-lead', 'Lead'), value: 'lead' },
+    { label: t('lifecycle-state-customer', 'Customer'), value: 'customer' },
+  ];
   return (
     <Form.Field
       control={control}
       name="state"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Lifecycle State</Form.Label>
+          <Form.Label>{t('lifecycle-state', 'Lifecycle State')}</Form.Label>
           <Select onValueChange={field.onChange} value={field.value ?? ''}>
             <Form.Control>
               <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
-                <Select.Value placeholder="Choose state">
+                <Select.Value placeholder={t('choose-state', 'Choose state')}>
                   <span className="text-foreground font-medium text-sm">
                     {lifecycleStates.find((s) => s.value === field.value)
-                      ?.label ?? 'Unknown'}
+                      ?.label ?? t('unknown', 'Unknown')}
                   </span>
                 </Select.Value>
               </Select.Trigger>
