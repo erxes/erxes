@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   Button,
+  Collapsible,
   DropdownMenu,
-  HoverCollapsible,
   NavigationMenuGroup,
   Sidebar,
   Skeleton,
@@ -41,20 +41,6 @@ const BoardActionsMenu = ({ board }: { board: IBoard }) => {
 
   const { t } = useTranslation('sales');
 
-  const handleCopyLink = async () => {
-    const link = `${window.location.origin}/settings/deals`;
-    try {
-      await navigator.clipboard.writeText(link);
-      toast({ variant: 'default', title: t('link-copied-to-clipboard') });
-    } catch (e) {
-      toast({
-        variant: 'destructive',
-        title: t('failed-to-copy-link'),
-        description: e instanceof Error ? e.message : 'Unknown error',
-      });
-    }
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -70,17 +56,12 @@ const BoardActionsMenu = ({ board }: { board: IBoard }) => {
       <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
         <DropdownMenu.Item
           className="cursor-pointer"
-          onSelect={() => navigate(`/settings/deals`)}
+          onSelect={() =>
+            navigate(`/settings/sales/deals?activeBoardId=${board._id}`)
+          }
         >
           <IconSettings className="size-4" />
           {t('manage-board-pipelines')}
-        </DropdownMenu.Item>
-        <DropdownMenu.Item
-          className="cursor-pointer"
-          onSelect={() => handleCopyLink()}
-        >
-          <IconLink className="size-4" />
-          {t('copy-link')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -99,7 +80,6 @@ function PipelineItem({
   const isActive = searchParams.get('pipelineId') === pipeline._id;
 
   const handleClick = () => {
-    localStorage.setItem('erxesCurrentBoardId', boardId);
     localStorage.setItem('erxesCurrentPipelineId', pipeline._id);
     navigate(`/sales/deals?boardId=${boardId}&pipelineId=${pipeline._id}`);
   };
@@ -118,25 +98,36 @@ function PipelineItem({
 }
 
 function BoardItem({ board }: { board: IBoard }) {
-  const [boardId] = useQueryState<string | null>('boardId');
-  // Mirror the collapsible's open state so pipelines are only fetched once the
-  // board has been expanded (on hover). Start expanded for the active board.
+  const [boardId, setBoardId] = useQueryState<string | null>('boardId');
   const [open, setOpen] = useState(boardId === board._id);
+
+  useEffect(() => {
+    setOpen(boardId === board._id);
+  }, [boardId, board._id]);
 
   const { pipelines, loading: pipelinesLoading } = usePipelines({
     variables: { boardId: board._id },
     skip: !open,
   });
 
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      localStorage.setItem('erxesCurrentBoardId', board._id);
+      setBoardId(board._id);
+      localStorage.removeItem('erxesCurrentPipelineId');
+    }
+  };
+
   return (
-    <HoverCollapsible
+    <Collapsible
       className="group/collapsible"
-      defaultOpen={boardId === board._id}
-      onOpenChange={setOpen}
+      open={open}
+      onOpenChange={handleOpenChange}
     >
       <Sidebar.Group className="p-0">
         <div className="w-full relative group/trigger hover:cursor-pointer">
-          <HoverCollapsible.Trigger asChild>
+          <Collapsible.Trigger asChild>
             <div className="w-full flex items-center justify-between">
               <Button
                 variant="ghost"
@@ -152,10 +143,10 @@ function BoardItem({ board }: { board: IBoard }) {
               </Button>
               <div className="size-5 min-w-5 mr-2"></div>
             </div>
-          </HoverCollapsible.Trigger>
+          </Collapsible.Trigger>
           <BoardActionsMenu board={board} />
         </div>
-        <HoverCollapsible.Content className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pt-1">
+        <Collapsible.Content className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pt-1">
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {pipelinesLoading ? (
@@ -171,9 +162,9 @@ function BoardItem({ board }: { board: IBoard }) {
               )}
             </Sidebar.Menu>
           </Sidebar.GroupContent>
-        </HoverCollapsible.Content>
+        </Collapsible.Content>
       </Sidebar.Group>
-    </HoverCollapsible>
+    </Collapsible>
   );
 }
 
@@ -202,7 +193,11 @@ const DealsNavigation = () => {
       {loading ? (
         <LoadingSkeleton />
       ) : (
-        boards?.map((board) => <BoardItem key={board._id} board={board} />)
+        <div>
+          {boards?.map((board) => (
+            <BoardItem key={board._id} board={board} />
+          ))}
+        </div>
       )}
     </NavigationMenuGroup>
   );
