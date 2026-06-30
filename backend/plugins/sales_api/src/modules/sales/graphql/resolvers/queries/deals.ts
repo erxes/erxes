@@ -685,14 +685,7 @@ const fetchDeals = async (
   const { search, noSkipArchive } = args;
 
   if (noSkipArchive && search) {
-    return fetchDealsActiveFirst(
-      models,
-      subdomain,
-      userId,
-      args,
-      user,
-      forClientPortal,
-    );
+    args.orderBy = { status: 1, ...args.orderBy }
   }
 
   const filter = await generateFilter(
@@ -717,74 +710,6 @@ const fetchDeals = async (
   await enrichDealsWithProducts(subdomain, deals);
 
   return { list: deals, pageInfo, totalCount };
-};
-
-const fetchDealsActiveFirst = async (
-  models: IModels,
-  subdomain: string,
-  userId: string,
-  args: IDealQueryParams,
-  user: IContext['user'],
-  forClientPortal = false,
-) => {
-  const limit = args.limit ?? 10;
-
-  const activeFilter = await generateFilter(
-    models,
-    subdomain,
-    userId,
-    { ...args, noSkipArchive: false }, // forces status: { $ne: ARCHIVED }
-    forClientPortal,
-  );
-
-  const activeDeals = await models.Deals.find(activeFilter)
-    .sort({ modifiedAt: -1 })
-    .limit(limit)
-    .lean();
-
-  const remaining = limit - activeDeals.length;
-
-  let archivedDeals: any[] = [];
-  if (remaining > 0) {
-    const archivedFilter = await generateFilter(
-      models,
-      subdomain,
-      userId,
-      { ...args, noSkipArchive: true },
-      forClientPortal,
-    );
-
-    archivedFilter.status = SALES_STATUSES.ARCHIVED;
-
-    archivedDeals = await models.Deals.find(archivedFilter)
-      .sort({ modifiedAt: -1 })
-      .limit(remaining)
-      .lean();
-  }
-
-  const combinedList = [...activeDeals, ...archivedDeals];
-
-  const getExtraFields = async (item: any) => ({
-    amount: await dealResolvers.amount(item),
-    unUsedAmount: await dealResolvers.unusedAmount(item),
-  });
-
-  const updatedList: any[] = [];
-  for (const item of combinedList) {
-    updatedList.push({
-      ...item,
-      isWatched: (item.watchedUserIds || []).includes(user?._id),
-      ...(getExtraFields ? await getExtraFields(item) : {}),
-    });
-  }
-
-  await enrichDealsWithProducts(subdomain, updatedList);
-
-  return {
-    list: updatedList,
-    totalCount: activeDeals.length + archivedDeals.length,
-    pageInfo: null,
-  };
 };
 
 // #region Queries
