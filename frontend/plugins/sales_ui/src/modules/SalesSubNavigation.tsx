@@ -8,12 +8,10 @@ import {
   Skeleton,
   TextOverflowTooltip,
   useQueryState,
-  useToast,
 } from 'erxes-ui';
 import {
   IconCaretRightFilled,
   IconDotsVertical,
-  IconLink,
   IconSettings,
 } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
@@ -37,7 +35,6 @@ function LoadingSkeleton() {
 
 const BoardActionsMenu = ({ board }: { board: IBoard }) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const { t } = useTranslation('sales');
 
@@ -81,7 +78,12 @@ function PipelineItem({
 
   const handleClick = () => {
     localStorage.setItem('erxesCurrentPipelineId', pipeline._id);
-    navigate(`/sales/deals?boardId=${boardId}&pipelineId=${pipeline._id}`);
+    // Preserve any existing query params (filters/search) and only update the
+    // board/pipeline selection.
+    const params = new URLSearchParams(searchParams);
+    params.set('boardId', boardId);
+    params.set('pipelineId', pipeline._id);
+    navigate(`/sales/deals?${params.toString()}`);
   };
 
   return (
