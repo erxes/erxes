@@ -9,6 +9,7 @@ import { DuplicatedPage } from '~/pages/PutResponseDuplicatedPage';
 import { PutResponseIndexPage } from '~/pages/PutResponsePage';
 import { PutResponseLayout } from '~/pages/PutResponseLayout';
 import { SyncErkhetHistoryPage } from '~/pages/SyncErkhetHistoryPage';
+import { SyncErkhetLayout } from '~/pages/SyncErkhetLayout';
 import { CustomersPage } from '~/pages/msdynamic/CustomersPage';
 import { InventoryProductsPage } from '~/pages/msdynamic/InventoryProductsPage';
 import { InventoryCategoryPage } from '~/pages/msdynamic/InventoryCategoryPage';
@@ -31,7 +32,7 @@ const MongolianMain = () => {
         </Route>
 
         {/* ERKHET */}
-        <Route path="sync-erkhet">
+        <Route path="sync-erkhet" element={<SyncErkhetLayout />}>
           <Route index element={<Navigate to="history" replace />} />
           <Route path="history" element={<SyncErkhetHistoryPage />} />
           <Route path="deals" element={<CheckSyncedDealsPage />} />
