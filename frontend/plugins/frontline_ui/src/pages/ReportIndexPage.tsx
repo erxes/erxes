@@ -6,12 +6,13 @@ import {
   ToggleGroup,
 } from 'erxes-ui';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
 import { CallReportsView } from '@/report/components/CallReportsView';
 import { TicketReportsList } from '@/report/components/TicketReportsList';
+import { ReportPageEffect } from '@/report/components/ReportPageEffect';
 
 const ROUTES = {
   overview: '/frontline/reports',
@@ -64,7 +65,7 @@ export default function ReportIndexPage() {
             <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <FavoriteToggleIconButton />
         </PageHeader.Start>
       </PageHeader>
 
@@ -75,6 +76,7 @@ export default function ReportIndexPage() {
       ) : (
         <ReportsView />
       )}
+      <ReportPageEffect />
     </PageContainer>
   );
 }

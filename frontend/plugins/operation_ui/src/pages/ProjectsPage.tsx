@@ -1,4 +1,4 @@
-import { PageHeader } from 'ui-modules';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { AddProjectSheet } from '@/project/components/add-project/AddProjectSheet';
 import { useParams } from 'react-router-dom';
@@ -28,6 +28,7 @@ export const ProjectsPage = () => {
                     : `/operation/projects`
                 }
               />
+              <FavoriteToggleIconButton />
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>

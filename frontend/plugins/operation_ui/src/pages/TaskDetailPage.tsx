@@ -27,13 +27,13 @@ export const TaskDetailPage = () => {
                   <TaskBreadCrump link={`/operation/team/${teamId}/tasks`} />
                 </>
               ) : (
-                <TaskBreadCrump link={`/operation/tasks`} />
+                <>
+                  <TaskBreadCrump link={`/operation/tasks`} />
+                </>
               )}
               <Separator.Inline />
               <TaskDetailBreadCrump />
-              <TaskDetailActions
-                taskId={taskId}
-              />
+              <TaskDetailActions taskId={taskId} />
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>

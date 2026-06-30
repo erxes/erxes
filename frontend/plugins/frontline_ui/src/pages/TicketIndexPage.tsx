@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { Can, PageHeader, Import } from 'ui-modules';
+import { Can, FavoriteToggleIconButton, PageHeader, Import } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { IconTicket } from '@tabler/icons-react';
@@ -19,7 +19,11 @@ const TicketsIndexPage = () => {
   const variables = useTicketsVariables();
 
   const getFilters = () => {
-    const { cursor, limit, orderBy, ...filters } = variables;
+    const filters = { ...variables };
+    for (const key of ['cursor', 'limit', 'orderBy']) {
+      Reflect.deleteProperty(filters, key);
+    }
+
     return filters;
   };
 
@@ -36,6 +40,7 @@ const TicketsIndexPage = () => {
                     {t('tickets')}
                   </Link>
                 </Button>
+                <FavoriteToggleIconButton />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>

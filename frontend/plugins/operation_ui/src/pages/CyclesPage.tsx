@@ -4,7 +4,7 @@ import { AddCycleSheet } from '@/cycle/components/add-cycle/AddCycle';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 
 export const CyclesPage = () => {
   const { teamId } = useParams();
@@ -18,6 +18,8 @@ export const CyclesPage = () => {
               <TeamBreadCrumb />
               <Separator.Inline />
               <CyclesBreadcrumb link={link} />
+              <Separator.Inline />
+              <FavoriteToggleIconButton />
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>

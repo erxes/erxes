@@ -7,7 +7,7 @@ import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { TasksExportButton, TasksImportButton } from '@/task/components/TasksLayout';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useLocation, useParams } from 'react-router-dom';
-import { Can, PageHeader } from 'ui-modules';
+import { Can, FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
@@ -32,6 +32,8 @@ export const TasksPage = () => {
                 </>
               )}
               <TaskBreadCrump link={basePath} />
+              <Separator.Inline />
+              <FavoriteToggleIconButton />
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
@@ -54,4 +56,3 @@ export const TasksPage = () => {
     </>
   );
 };
-
