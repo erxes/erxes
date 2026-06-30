@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router';
 import { Breadcrumb, Button } from 'erxes-ui';
-import { IconMinusVertical, IconSettings } from '@tabler/icons-react';
 import { GET_SETTINGS_PATH_DATA } from '../constants/data';
 import { PageHeader, PageHeaderStart, useVersion } from 'ui-modules';
 import { useTranslation } from 'react-i18next';

@@ -142,6 +142,10 @@ export const loadProductSimilarityClass = (
     for (const row of rows) {
       if (row.isExcluded) {
         if (row.productId) {
+          console.log(
+            `[${_subdomain}][similarities:saveSimilarity] removeProducts 1 product`,
+            row.productId,
+          );
           await models.Products.removeProducts([row.productId]);
         }
         continue;

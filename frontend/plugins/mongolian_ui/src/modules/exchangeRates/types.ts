@@ -9,7 +9,16 @@ export interface IExchangeRate {
 }
 
 export type MainQueryResponse = {
-  exchangeRatesMain: { list: IExchangeRate[]; totalCount: number };
+  exchangeRatesMain: {
+    list: IExchangeRate[];
+    totalCount: number;
+    pageInfo: {
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      startCursor: string | null;
+      endCursor: string | null;
+    };
+  };
 };
 
 export type CurrencyConfigResponse = {

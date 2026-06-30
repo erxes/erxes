@@ -7,26 +7,20 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  Checkbox,
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
 
+import { CheckPosOrderStatus, ICheckPosOrders } from '../types/checkPosOrders';
+import { toSyncOrderIdsAtom } from '../hooks/useCheckPosOrders';
+import { HeaderCell } from '../../components/HeaderCell';
 import {
-  CheckPosOrderStatus,
-  ICheckPosOrders,
-} from '../types/checkPosOrders';
-import { CheckPosOrdersMoreColumn } from './CheckPosOrdersMoreColumn';
-
-type CheckPosOrdersColumnsOptions = {
-  toSyncOrderIds: Record<string, boolean>;
-  syncableOrderIds: string[];
-  onToggleToSync: (id: string, checked: boolean) => void;
-  onToggleAllToSync: (ids: string[], checked: boolean) => void;
-  t: (key: string) => string;
-};
+  ToSyncHeaderCell,
+  ToSyncCell,
+} from '../../shared/components/ToSyncColumnComponents';
+import { syncedInfoColumn } from '../../shared/components/SyncedInfoColumns';
 
 const syncableStatuses = new Set<CheckPosOrderStatus>([
   'checked',
@@ -42,19 +36,12 @@ const getSyncStatus = (order: ICheckPosOrders): CheckPosOrderStatus =>
 export const isSyncableOrder = (order: ICheckPosOrders) =>
   syncableStatuses.has(getSyncStatus(order));
 
-export const getCheckPosOrdersColumns = ({
-  toSyncOrderIds,
-  syncableOrderIds,
-  onToggleToSync,
-  onToggleAllToSync,
-  t,
-}: CheckPosOrdersColumnsOptions): ColumnDef<ICheckPosOrders>[] => [
-  CheckPosOrdersMoreColumn,
+export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   RecordTable.checkboxColumn as ColumnDef<ICheckPosOrders>,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('number')} />,
+    header: () => <HeaderCell icon={IconLabel} label="number" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -67,9 +54,7 @@ export const getCheckPosOrdersColumns = ({
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label={t('total-amount')} />
-    ),
+    header: () => <HeaderCell icon={IconHash} label="total-amount" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -81,9 +66,7 @@ export const getCheckPosOrdersColumns = ({
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
-    ),
+    header: () => <HeaderCell icon={IconCalendarPlus} label="created-at" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -97,9 +80,7 @@ export const getCheckPosOrdersColumns = ({
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('paid-at')} />
-    ),
+    header: () => <HeaderCell icon={IconCurrencyDollar} label="paid-at" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -113,9 +94,7 @@ export const getCheckPosOrdersColumns = ({
   {
     id: 'unSynced',
     accessorKey: 'syncStatus',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label={t('sync-status')} />
-    ),
+    header: () => <HeaderCell icon={IconClock} label="sync-status" />,
     cell: ({ cell }) => {
       const status = (cell.getValue() || 'skipped') as string;
 
@@ -129,88 +108,24 @@ export const getCheckPosOrdersColumns = ({
   {
     id: 'toSync',
     accessorKey: 'toSync',
-    header: () => {
-      const selectedCount = syncableOrderIds.filter((id) => toSyncOrderIds[id])
-        .length;
-      const isAllSelected =
-        syncableOrderIds.length > 0 &&
-        selectedCount === syncableOrderIds.length;
-      const isSomeSelected = selectedCount > 0 && !isAllSelected;
-      const nextChecked = !(isAllSelected || isSomeSelected);
-
-      return (
-        <div className="relative z-20 flex items-center justify-center h-8">
-          <Checkbox
-            key={`${syncableOrderIds.length}-${selectedCount}`}
-            checked={isAllSelected || (isSomeSelected && 'indeterminate')}
-            disabled={!syncableOrderIds.length}
-            onCheckedChange={() =>
-              onToggleAllToSync(syncableOrderIds, nextChecked)
-            }
-            aria-label="Select all orders to sync"
-          />
-        </div>
-      );
-    },
+    header: () => (
+      <ToSyncHeaderCell
+        toSyncIdsAtom={toSyncOrderIdsAtom}
+        isSyncable={isSyncableOrder}
+        ariaLabel="select-all-orders-to-sync"
+      />
+    ),
     size: 33,
-    cell: ({ row }) => {
-      const order = row.original;
-      const disabled = !isSyncableOrder(order);
-
-      return (
-        <div className="flex items-center justify-center">
-          <Checkbox
-            checked={!disabled && Boolean(toSyncOrderIds[order._id])}
-            disabled={disabled}
-            onCheckedChange={(value) =>
-              onToggleToSync(order._id, Boolean(value))
-            }
-            aria-label="Select order to sync"
-          />
-        </div>
-      );
-    },
-  },
-  {
-    id: 'syncedDate',
-    accessorKey: 'syncedDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label={t('synced-date')} />
+    cell: ({ row }) => (
+      <ToSyncCell
+        toSyncIdsAtom={toSyncOrderIdsAtom}
+        isSyncable={isSyncableOrder}
+        item={row.original}
+        ariaLabel="select-order-to-sync"
+      />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
   },
-  {
-    id: 'syncedBillNumber',
-    accessorKey: 'syncedBillNumber',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label={t('synced-bill')} />
-    ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'syncedCustomer',
-    accessorKey: 'syncedCustomer',
-    header: () => (
-      <RecordTable.InlineHead icon={IconClock} label={t('synced-customer')} />
-    ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  syncedInfoColumn('syncedDate', 'synced-date'),
+  syncedInfoColumn('syncedBillNumber', 'synced-bill'),
+  syncedInfoColumn('syncedCustomer', 'synced-customer'),
 ];

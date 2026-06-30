@@ -7,10 +7,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { checkPosOrdersQuery } from '../graphql/queries/checkPosOrdersQuery';
-import {
-  CheckPosOrderStatus,
-  ICheckPosOrders,
-} from '../types/checkPosOrders';
+import { CheckPosOrderStatus, ICheckPosOrders } from '../types/checkPosOrders';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
@@ -22,17 +19,13 @@ import {
   checkSyncedMutation,
   syncOrdersMutation,
 } from '../../shared/graphql/mutations/checkSyncedMutations';
+import {
+  CheckSyncedResponse,
+  chunkIds,
+} from '../../shared/utils/syncUtils';
 
 export const CHECK_POS_ORDERS_PER_PAGE = 30;
 const SYNC_POS_ORDERS_BATCH_SIZE = 1;
-
-type CheckSyncedResponse = {
-  _id: string;
-  isSynced?: boolean;
-  syncedDate?: string;
-  syncedBillNumber?: string;
-  syncedCustomer?: string;
-};
 
 type SyncOrdersResult = {
   skipped?: string[];
@@ -53,7 +46,7 @@ type CheckPosOrdersQueryResult = {
 
 const checkedOrdersAtom = atom<Record<string, Partial<ICheckPosOrders>>>({});
 
-const toSyncOrderIdsAtom = atom<Record<string, boolean>>({});
+export const toSyncOrderIdsAtom = atom<Record<string, boolean>>({});
 
 const getOrderStatus = (
   order?: Partial<ICheckPosOrders>,
@@ -63,16 +56,6 @@ const getOrderStatus = (
   }
 
   return 'skipped';
-};
-
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
 };
 
 export const useCheckPosOrdersVariables = (
@@ -166,7 +149,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
       })),
     [checkedOrders, data?.posOrders],
   );
-  const totalCount = data?.posOrdersTotalCount || 0;
+  const totalCount = data?.posOrdersTotalCount;
 
   const syncSelectedOrderIds = useMemo(
     () =>
@@ -176,35 +159,41 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     [toSyncOrderIds],
   );
 
-  const setOrderToSync = useCallback((id: string, checked: boolean) => {
-    setToSyncOrderIds((current) => {
-      const next = { ...current };
+  const setOrderToSync = useCallback(
+    (id: string, checked: boolean) => {
+      setToSyncOrderIds((current) => {
+        const next = { ...current };
 
-      if (checked) {
-        next[id] = true;
-      } else {
-        delete next[id];
-      }
-
-      return next;
-    });
-  }, [setToSyncOrderIds]);
-
-  const setAllOrdersToSync = useCallback((ids: string[], checked: boolean) => {
-    setToSyncOrderIds((current) => {
-      const next = { ...current };
-
-      for (const id of ids) {
         if (checked) {
           next[id] = true;
         } else {
           delete next[id];
         }
-      }
 
-      return next;
-    });
-  }, [setToSyncOrderIds]);
+        return next;
+      });
+    },
+    [setToSyncOrderIds],
+  );
+
+  const setAllOrdersToSync = useCallback(
+    (ids: string[], checked: boolean) => {
+      setToSyncOrderIds((current) => {
+        const next = { ...current };
+
+        for (const id of ids) {
+          if (checked) {
+            next[id] = true;
+          } else {
+            delete next[id];
+          }
+        }
+
+        return next;
+      });
+    },
+    [setToSyncOrderIds],
+  );
 
   const checkOrders = async (
     ids: string[],
@@ -440,8 +429,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
   };
 
   useEffect(() => {
-    if (!totalCount) return;
-    setCheckPosOrdersTotalCount(totalCount);
+    if (totalCount !== undefined) setCheckPosOrdersTotalCount(totalCount);
   }, [totalCount, setCheckPosOrdersTotalCount]);
 
   useEffect(() => {
@@ -506,7 +494,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     syncSelectedOrderIds,
     handleFetchMore,
     pageInfo: {
-      hasNextPage: checkPosOrders.length < totalCount,
+      hasNextPage: checkPosOrders.length < (totalCount ?? 0),
       hasPreviousPage: false,
     },
   };

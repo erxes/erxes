@@ -93,6 +93,7 @@ export const useDocument = () => {
 
   return {
     document,
+    documentId: cleanDocumentId,
     documentSave,
     loading,
     saving,
