@@ -2,19 +2,18 @@ import { IModels } from '~/connectionResolvers';
 import {
   IPostComment,
   IPostCommentDocument,
-  IPostCommentModel,
 } from '@/cms/@types/comments';
 import { postCommentSchema } from '@/cms/db/definitions/comments';
 
-export { IPostCommentModel };
+export { IPostCommentModel } from '@/cms/@types/comments';
 
 export const loadPostCommentClass = (models: IModels) => {
   class PostComments {
-    public static createComment = async (
+    public static readonly createComment = async (
       doc: IPostComment,
     ): Promise<IPostCommentDocument> => models.PostComments.create(doc);
 
-    public static updateComment = async (
+    public static readonly updateComment = async (
       _id: string,
       content: string,
     ): Promise<IPostCommentDocument> => {
@@ -27,7 +26,7 @@ export const loadPostCommentClass = (models: IModels) => {
       return comment;
     };
 
-    public static deleteComment = async (
+    public static readonly deleteComment = async (
       _id: string,
     ): Promise<{ deletedCount?: number }> =>
       models.PostComments.deleteOne({ _id });

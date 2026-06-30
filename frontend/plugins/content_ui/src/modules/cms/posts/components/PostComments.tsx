@@ -19,7 +19,11 @@ import {
   IconTrash,
   IconX,
 } from '@tabler/icons-react';
-import { usePostComments } from '../hooks/usePostComments';
+import {
+  usePostComments,
+  IPostComment,
+  PostCommentStatus,
+} from '../hooks/usePostComments';
 
 interface PostCommentsProps {
   postId: string;
@@ -27,18 +31,8 @@ interface PostCommentsProps {
   allowComments?: boolean;
 }
 
-type CommentStatus = 'approved' | 'pending' | 'rejected';
-
-interface IComment {
-  _id: string;
-  content: string;
-  authorId: string;
-  authorKind: 'user' | 'portalUser';
-  parentId?: string | null;
-  status: CommentStatus;
-  createdAt?: string;
-  updatedAt?: string;
-}
+type CommentStatus = PostCommentStatus;
+type IComment = IPostComment;
 
 const STATUS_VARIANT: Record<CommentStatus, 'success' | 'warning' | 'destructive'> =
   {
@@ -256,9 +250,11 @@ export const PostComments = ({
   const { topLevel, repliesByParent } = useMemo(() => {
     const top: IComment[] = [];
     const byParent: Record<string, IComment[]> = {};
-    (comments as IComment[]).forEach((c) => {
+    comments.forEach((c) => {
       if (c.parentId) {
-        (byParent[c.parentId] ??= []).push(c);
+        const siblings = byParent[c.parentId] ?? [];
+        siblings.push(c);
+        byParent[c.parentId] = siblings;
       } else {
         top.push(c);
       }
@@ -303,6 +299,50 @@ export const PostComments = ({
     onChangeStatus: (id: string, status: CommentStatus) =>
       changeStatus(id, status),
     busy,
+  };
+
+  // Render a comment and all of its descendants recursively so replies to
+  // replies still show up in moderation.
+  const renderThread = (comment: IComment, depth: number): React.ReactNode => (
+    <div key={comment._id} className="space-y-3">
+      <CommentItem comment={comment} isReply={depth > 0} {...itemProps} />
+      {repliesByParent[comment._id]?.map((reply) =>
+        renderThread(reply, depth + 1),
+      )}
+    </div>
+  );
+
+  const renderBody = () => {
+    if (loading) {
+      return (
+        <div className="space-y-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded-lg border bg-card p-3">
+              <div className="flex items-center gap-2">
+                <Skeleton className="size-6 rounded-full" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="mt-3 h-4 w-3/4" />
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (topLevel.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-10 text-muted-foreground">
+          <IconMoodSmile className="size-8 opacity-50" />
+          <p className="text-sm">No comments yet. Be the first to comment.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {topLevel.map((comment) => renderThread(comment, 0))}
+      </div>
+    );
   };
 
   return (
@@ -350,40 +390,7 @@ export const PostComments = ({
         </div>
       )}
 
-      {loading ? (
-        <div className="space-y-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="rounded-lg border bg-card p-3">
-              <div className="flex items-center gap-2">
-                <Skeleton className="size-6 rounded-full" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-              <Skeleton className="mt-3 h-4 w-3/4" />
-            </div>
-          ))}
-        </div>
-      ) : topLevel.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-10 text-muted-foreground">
-          <IconMoodSmile className="size-8 opacity-50" />
-          <p className="text-sm">No comments yet. Be the first to comment.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {topLevel.map((comment) => (
-            <div key={comment._id} className="space-y-3">
-              <CommentItem comment={comment} {...itemProps} />
-              {repliesByParent[comment._id]?.map((reply) => (
-                <CommentItem
-                  key={reply._id}
-                  comment={reply}
-                  isReply
-                  {...itemProps}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+      {renderBody()}
     </div>
   );
 };

@@ -7,6 +7,28 @@ import {
   CMS_POST_COMMENT_UPDATE,
 } from '../graphql/mutations/postCommentsMutations';
 
+export type PostCommentStatus = 'pending' | 'approved' | 'rejected';
+
+export interface IPostComment {
+  _id: string;
+  postId: string;
+  clientPortalId: string;
+  content: string;
+  authorKind: 'user' | 'portalUser';
+  authorId: string;
+  parentId?: string | null;
+  status: PostCommentStatus;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface PostCommentsData {
+  cmsPostComments?: {
+    comments: IPostComment[];
+    totalCount: number;
+  };
+}
+
 interface UsePostCommentsOptions {
   postId: string;
   clientPortalId: string;
@@ -16,7 +38,7 @@ export function usePostComments({ postId, clientPortalId }: UsePostCommentsOptio
   const queryVars = { postId, clientPortalId, limit: 50 };
   const skip = !postId || !clientPortalId;
 
-  const { data, loading, refetch } = useQuery(POST_COMMENTS, {
+  const { data, loading, refetch } = useQuery<PostCommentsData>(POST_COMMENTS, {
     variables: queryVars,
     skip,
     fetchPolicy: 'network-only',
@@ -51,14 +73,12 @@ export function usePostComments({ postId, clientPortalId }: UsePostCommentsOptio
   const deleteComment = (_id: string) =>
     deleteMutation({ variables: { _id } });
 
-  const changeStatus = (
-    _id: string,
-    status: 'pending' | 'approved' | 'rejected',
-  ) => changeStatusMutation({ variables: { _id, status } });
+  const changeStatus = (_id: string, status: PostCommentStatus) =>
+    changeStatusMutation({ variables: { _id, status } });
 
   return {
-    comments: (data?.cmsPostComments?.comments ?? []) as any[],
-    totalCount: (data?.cmsPostComments?.totalCount ?? 0) as number,
+    comments: data?.cmsPostComments?.comments ?? [],
+    totalCount: data?.cmsPostComments?.totalCount ?? 0,
     loading,
     adding,
     updating,

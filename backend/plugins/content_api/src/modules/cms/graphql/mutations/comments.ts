@@ -15,7 +15,7 @@ export const postCommentMutations: Record<string, Resolver> = {
     const { models, user } = context;
     const { input } = args;
 
-    await requireCmsPermission(context, CMS_POST_ACTIONS.read);
+    await requireCmsPermission(context, CMS_POST_ACTIONS.update);
 
     return models.PostComments.createComment({
       ...input,
@@ -29,13 +29,13 @@ export const postCommentMutations: Record<string, Resolver> = {
     const { models, user } = context;
     const { _id, content } = args;
 
-    await requireCmsPermission(context, CMS_POST_ACTIONS.read);
+    await requireCmsPermission(context, CMS_POST_ACTIONS.update);
 
     const comment = await models.PostComments.findOne({ _id }).lean();
     if (!comment) throw new Error('Comment not found');
 
-    const isOwner = await hasCmsPermission(context, CMS_POST_ACTIONS.remove);
-    if (comment.authorId !== user._id && !isOwner) {
+    const canModerate = await hasCmsPermission(context, CMS_POST_ACTIONS.remove);
+    if (comment.authorId !== user._id && !canModerate) {
       throw new Error('Not authorized to edit this comment');
     }
 
@@ -46,7 +46,7 @@ export const postCommentMutations: Record<string, Resolver> = {
     const { models, user } = context;
     const { _id } = args;
 
-    await requireCmsPermission(context, CMS_POST_ACTIONS.read);
+    await requireCmsPermission(context, CMS_POST_ACTIONS.update);
 
     const comment = await models.PostComments.findOne({ _id }).lean();
     if (!comment) throw new Error('Comment not found');
@@ -109,11 +109,15 @@ export const postCommentMutations: Record<string, Resolver> = {
   cpPostCommentUpdate: async (_parent: any, args: any, context: IContext) => {
     const { models } = context;
     const { _id, content } = args;
+    const clientPortalId = requireClientPortalId(context);
     const authorId = getClientPortalUserId(context);
 
     if (!authorId) throw new Error('Authentication required');
 
-    const comment = await models.PostComments.findOne({ _id }).lean();
+    const comment = await models.PostComments.findOne({
+      _id,
+      clientPortalId,
+    }).lean();
     if (!comment) throw new Error('Comment not found');
     if (comment.authorId !== authorId) {
       throw new Error('Not authorized to edit this comment');
@@ -125,11 +129,15 @@ export const postCommentMutations: Record<string, Resolver> = {
   cpPostCommentDelete: async (_parent: any, args: any, context: IContext) => {
     const { models } = context;
     const { _id } = args;
+    const clientPortalId = requireClientPortalId(context);
     const authorId = getClientPortalUserId(context);
 
     if (!authorId) throw new Error('Authentication required');
 
-    const comment = await models.PostComments.findOne({ _id }).lean();
+    const comment = await models.PostComments.findOne({
+      _id,
+      clientPortalId,
+    }).lean();
     if (!comment) throw new Error('Comment not found');
     if (comment.authorId !== authorId) {
       throw new Error('Not authorized to delete this comment');

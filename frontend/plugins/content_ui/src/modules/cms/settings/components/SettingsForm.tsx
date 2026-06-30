@@ -475,7 +475,7 @@ export const SettingsForm = ({
           <div className="flex items-center gap-3 pt-1">
             <Switch
               id="allowComments"
-              checked={settings.allowComments}
+              checked={Boolean(settings.allowComments)}
               onCheckedChange={(checked) =>
                 updateSetting('allowComments', checked)
               }
