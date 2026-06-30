@@ -25,6 +25,7 @@ export const useReserveRemEdit = () => {
         });
         options?.onCompleted?.(data);
       },
+      refetchQueries: ['ReserveRems'],
     });
   };
 

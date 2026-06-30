@@ -4,6 +4,7 @@ import {
   Combobox,
   Command,
   Form,
+  Input,
   Popover,
   RecordTable,
   useConfirm,
@@ -11,6 +12,7 @@ import {
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import { useReserveRemEdit } from '../hooks/useReserveRemEdit';
 import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
 import { IReserveRem } from '../types/ReserveRem';
@@ -73,7 +75,13 @@ const ReserveRemMoreColumnCell = ({
   );
 };
 
-type TEditForm = { remainder: number };
+type TEditForm = {
+  branchId?: string;
+  departmentId?: string;
+  productId?: string;
+  uom?: string;
+  remainder: number;
+};
 
 const EditReserveRemSheet = ({
   open,
@@ -87,18 +95,21 @@ const EditReserveRemSheet = ({
   const { t } = useTranslation('accounting');
   const { editReserveRem, loading } = useReserveRemEdit();
   const form = useForm<TEditForm>({
-    values: { remainder: reserveRem.remainder ?? 0 },
+    values: {
+      branchId: reserveRem.branchId,
+      departmentId: reserveRem.departmentId,
+      productId: reserveRem.productId,
+      uom: reserveRem.uom,
+      remainder: reserveRem.remainder ?? 0,
+    },
   });
 
   const onSubmit = (data: TEditForm) => {
     editReserveRem({
-      variables: { _id: reserveRem._id, remainder: data.remainder },
+      variables: { _id: reserveRem._id, ...data },
       onCompleted: () => setOpen(false),
     });
   };
-
-  const labelOf = (parts: (string | undefined)[]) =>
-    parts.filter(Boolean).join(' - ');
 
   return (
     <ReserveRemSheet
@@ -112,27 +123,66 @@ const EditReserveRemSheet = ({
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="p-5 space-y-4">
-            <ReadOnlyField
-              label={t('product')}
-              value={labelOf([reserveRem.product?.code, reserveRem.product?.name])}
+            <Form.Field
+              control={form.control}
+              name="productId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('product')}</Form.Label>
+                  <SelectProduct.FormItem
+                    mode="single"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
             />
             <div className="grid grid-cols-2 gap-4">
-              <ReadOnlyField
-                label={t('branch')}
-                value={labelOf([
-                  reserveRem.branch?.code,
-                  reserveRem.branch?.title,
-                ])}
+              <Form.Field
+                control={form.control}
+                name="branchId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('branch')}</Form.Label>
+                    <SelectBranches.FormItem
+                      mode="single"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
-              <ReadOnlyField
-                label={t('department')}
-                value={labelOf([
-                  reserveRem.department?.code,
-                  reserveRem.department?.title,
-                ])}
+              <Form.Field
+                control={form.control}
+                name="departmentId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('department')}</Form.Label>
+                    <SelectDepartments.FormItem
+                      mode="single"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
               />
             </div>
-            <ReadOnlyField label={t('uom')} value={reserveRem.uom ?? ''} />
+            <Form.Field
+              control={form.control}
+              name="uom"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('uom')}</Form.Label>
+                  <Form.Control>
+                    <Input {...field} value={field.value ?? ''} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
             <RemainderFormField control={form.control} />
           </div>
           <ReserveRemFormFooter loading={loading} />
@@ -141,19 +191,6 @@ const EditReserveRemSheet = ({
     </ReserveRemSheet>
   );
 };
-
-const ReadOnlyField = ({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) => (
-  <div className="space-y-1">
-    <p className="text-sm font-medium">{label}</p>
-    <p className="text-sm text-muted-foreground break-all">{value || '-'}</p>
-  </div>
-);
 
 export const reserveRemMoreColumn = {
   id: 'more',

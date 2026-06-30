@@ -22,8 +22,22 @@ export const RESERVE_REMS_ADD = gql`
 `;
 
 export const RESERVE_REM_EDIT = gql`
-  mutation ReserveRemEdit($_id: String!, $remainder: Float) {
-    reserveRemEdit(_id: $_id, remainder: $remainder) {
+  mutation ReserveRemEdit(
+    $_id: String!
+    $branchId: String
+    $departmentId: String
+    $productId: String
+    $uom: String
+    $remainder: Float
+  ) {
+    reserveRemEdit(
+      _id: $_id
+      branchId: $branchId
+      departmentId: $departmentId
+      productId: $productId
+      uom: $uom
+      remainder: $remainder
+    ) {
       ${reserveRemFields}
     }
   }
