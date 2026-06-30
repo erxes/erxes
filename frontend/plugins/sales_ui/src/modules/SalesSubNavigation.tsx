@@ -14,7 +14,6 @@ import {
   IconDotsVertical,
   IconSettings,
 } from '@tabler/icons-react';
-import { useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
@@ -44,7 +43,7 @@ const BoardActionsMenu = ({ board }: { board: IBoard }) => {
         <Button
           variant="ghost"
           size="icon"
-          className="invisible group-hover/trigger:visible absolute top-1/2 -translate-y-1/2 right-1 text-muted-foreground"
+          className="absolute top-1/2 -translate-y-1/2 right-1 text-muted-foreground"
           onClick={(e) => e.stopPropagation()}
         >
           <IconDotsVertical className="size-4" />
@@ -159,23 +158,7 @@ function BoardItem({ board }: { board: IBoard }) {
 
 const DealsNavigation = () => {
   const { boards, loading } = useBoards();
-  const [boardId, setBoardId] = useQueryState<string | null>('boardId');
   const { t } = useTranslation('sales');
-
-  useEffect(() => {
-    if (!boards || boards.length === 0) return;
-
-    const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
-
-    if (!boardId && storedBoardId) {
-      setBoardId(storedBoardId);
-      return;
-    }
-
-    if (!boardId && boards[0]?._id) {
-      setBoardId(boards[0]._id);
-    }
-  }, [boards, setBoardId, boardId]);
 
   return (
     <NavigationMenuGroup name={t('boards')}>

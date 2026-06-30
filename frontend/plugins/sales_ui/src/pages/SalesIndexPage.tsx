@@ -5,8 +5,9 @@ import {
   PageSubHeader,
   Separator,
 } from 'erxes-ui';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { CommonDealSearch } from '@/deals/components/commonSearch';
@@ -16,12 +17,40 @@ import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
+import { usePipelines } from '@/deals/boards/hooks/usePipelines';
 
 export const SalesIndexPage = () => {
   const { t } = useTranslation('sales');
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
+
+  const { boards } = useBoards();
+  const firstBoardId = boards?.[0]?._id;
+
+  // Use the same pipelines source/order as the sidebar so the default matches
+  // the first pipeline shown there (not salesBoards.pipelines, which is ordered
+  // differently).
+  const { pipelines } = usePipelines({
+    variables: { boardId: firstBoardId },
+    skip: !firstBoardId || !!boardId || !!pipelineId,
+  });
+
+  // Landing on the deals page with nothing selected (e.g. clicking the
+  // "Sales pipeline" menu) defaults to the first board and its first pipeline,
+  // mirroring how the POS index page redirects to the first POS.
+  useEffect(() => {
+    if (boardId || pipelineId) return;
+    if (!firstBoardId || !pipelines || pipelines.length === 0) return;
+
+    const params = new URLSearchParams();
+    params.set('boardId', firstBoardId);
+    params.set('pipelineId', pipelines[0]._id);
+
+    navigate(`/sales/deals?${params.toString()}`, { replace: true });
+  }, [firstBoardId, pipelines, boardId, pipelineId, navigate]);
 
   return (
     <div className="flex h-full overflow-hidden w-full">
