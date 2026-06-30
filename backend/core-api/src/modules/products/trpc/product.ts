@@ -102,7 +102,12 @@ export const productsTrpcRouter = t.router({
         const { query, doc } = input;
         const { models } = ctx;
 
-        return models.Products.updateMany(query, doc);
+        console.log(
+          `[trpc:updateProducts] called`,
+          JSON.stringify({ query, doc }),
+        );
+
+        return models.Products.updateProducts(query, doc);
       }),
 
     removeProducts: t.procedure
@@ -110,6 +115,10 @@ export const productsTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { _ids } = input;
         const { models } = ctx;
+
+        console.log(
+          `[trpc:removeProducts] called with ${_ids?.length ?? 0} id(s)`,
+        );
 
         return models.Products.removeProducts(_ids);
       }),

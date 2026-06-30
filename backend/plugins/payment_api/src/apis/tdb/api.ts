@@ -80,8 +80,8 @@ export const tdbCallbackHandler = async (
     $or: [
       { code: ID },
       { code: Number(ID) },
-      { 'details.tdbOrderId': ID },
-      { 'details.tdbOrderId': Number(ID) },
+      { 'response.order.id': ID },
+      { 'response.order.id': Number(ID) },
     ],
   });
 
@@ -210,7 +210,7 @@ export class TDBAPI extends BaseAPI {
   private cacheTTL: number; // in seconds
 
   constructor(config: ITDBConfig, domain: string = '') {
-    super({ apiUrl: config.apiUrl || PAYMENTS.tdb?.apiUrl || 'https://acsmc.tdbmlabs.mn:8000' });
+    super({ apiUrl: config.apiUrl || PAYMENTS.tdb.apiUrl || 'https://acsmc.tdbmlabs.mn:8000' });
     this.username = config.username;
     this.password = config.password;
     this.domain = domain;

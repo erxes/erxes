@@ -3,7 +3,7 @@ import { Checkbox, Form, Input } from 'erxes-ui';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { SelectBrand } from 'ui-modules/modules/brands';
 import { useTranslation } from 'react-i18next';
-
+import { MSDynamicPropertyField } from './MSDynamicPropertyField';
 import { getMSDynamicFieldLabel, TMSDynamicConfig } from '../../types';
 
 type MSDynamicTextFieldName = Exclude<
@@ -49,7 +49,9 @@ const DEFAULT_FIELDS: MSDynamicTextFieldName[] = [
   'defaultCompanyCode',
 ];
 
-const CUSTOM_FIELDS: MSDynamicTextFieldName[] = [
+type MSDynamicCustomFieldName = 'custCode' | 'userLocationCode';
+
+const CUSTOM_FIELDS: MSDynamicCustomFieldName[] = [
   'custCode',
   'userLocationCode',
 ];
@@ -178,7 +180,7 @@ export const MSDynamicConfigFormFields = ({
         </MSDynamicFieldSection>
         <MSDynamicFieldSection title="Custom Fields">
           {CUSTOM_FIELDS.map((name) => (
-            <MSDynamicTextField
+            <MSDynamicPropertyField
               key={name}
               form={form}
               name={name}
@@ -213,7 +215,9 @@ export const MSDynamicConfigFormFields = ({
                 name="boardId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t(getMSDynamicFieldLabel('boardId'))}</Form.Label>
+                    <Form.Label>
+                      {t(getMSDynamicFieldLabel('boardId'))}
+                    </Form.Label>
                     <SelectBoard.FormItem
                       mode="single"
                       value={field.value}
@@ -254,7 +258,9 @@ export const MSDynamicConfigFormFields = ({
                 name="stageId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t(getMSDynamicFieldLabel('stageId'))}</Form.Label>
+                    <Form.Label>
+                      {t(getMSDynamicFieldLabel('stageId'))}
+                    </Form.Label>
                     <SelectStage.FormItem
                       mode="single"
                       value={field.value}

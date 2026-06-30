@@ -1,8 +1,14 @@
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PostsDelete } from './delete/RemovePosts';
+import { PostsBulkEdit } from './PostsBulkEdit';
 
-export const PostsCommandbar = ({ refetch }: { refetch?: () => void }) => {
+interface PostsCommandbarProps {
+  clientPortalId: string;
+  refetch?: () => void;
+}
+
+export const PostsCommandbar = ({ clientPortalId, refetch }: PostsCommandbarProps) => {
   const { t } = useTranslation('content');
   const { table } = RecordTable.useRecordTable();
 
@@ -20,6 +26,8 @@ export const PostsCommandbar = ({ refetch }: { refetch?: () => void }) => {
           rows={table.getFilteredSelectedRowModel().rows}
           onRefetch={refetch}
         />
+        <Separator.Inline />
+        <PostsBulkEdit clientPortalId={clientPortalId} onRefetch={refetch} />
       </CommandBar.Bar>
     </CommandBar>
   );

@@ -231,8 +231,9 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution =
-      await models.AutomationExecutions.findById(executionId).lean();
+    const execution = await models.AutomationExecutions.findById(
+      executionId,
+    ).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }
@@ -304,6 +305,26 @@ export const automationQueries = {
       data: { agentId },
       timeout: 10000,
     });
+  },
+
+  async automationsAiAgentKnowledgeSourceStatuses(
+    _root,
+    { agentId }: { agentId: string },
+    { subdomain }: IContext,
+  ) {
+    try {
+      return await sendWorkerMessage({
+        pluginName: 'automations',
+        queueName: 'aiAgent',
+        jobName: 'getAiAgentKnowledgeSourceStatuses',
+        subdomain,
+        data: { agentId },
+        defaultValue: [],
+        timeout: 10000,
+      });
+    } catch {
+      return [];
+    }
   },
 
   /**
