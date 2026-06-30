@@ -1,11 +1,13 @@
 import {
   type ChangeEvent,
   type KeyboardEvent,
+  type MouseEvent,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from 'react';
+import { gql, useMutation } from '@apollo/client';
 import {
   IconAward,
   IconCircleCheck,
@@ -20,6 +22,7 @@ import {
   Dialog,
   Input,
   Popover,
+  Sheet,
   useConfirm,
   useToast,
 } from 'erxes-ui';
@@ -28,6 +31,7 @@ import { IDeal, IPaymentsData } from '@/deals/types/deals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useRefundScoreCampaign } from '../hooks/useRefundScoreCampaign';
 import { useCheckOwnerScore } from '../hooks/useCheckOwnerScore';
+import { useTranslation } from 'react-i18next';
 
 interface IPaymentType {
   type: string;
@@ -51,6 +55,12 @@ type PayInfo = {
   hasPopup: boolean;
   validQr: boolean;
 };
+
+const GENERATE_INVOICE_URL = gql`
+  mutation SalesDealGenerateInvoiceUrl($input: InvoiceInput!) {
+    generateInvoiceUrl(input: $input)
+  }
+`;
 
 const parsePaymentConfig = (config: IPaymentType['config']) => {
   if (!config) {
@@ -101,15 +111,15 @@ const OwnerScoreCampaignScore = ({
     if (checkOwnerScore && onScoreFetched) {
       onScoreFetched(checkOwnerScore);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkOwnerScore]);
+  }, [checkOwnerScore, onScoreFetched]);
+
+  const { t } = useTranslation('sales');
 
   if (!paymentType?.scoreCampaignId || customers.length === 0) return null;
 
   const refundScore = () => {
     confirm({
-      message:
-        'This action will refund all loyalty scores used on this card and deduct any retrieved scores before processing the refund.\n Are you sure ?',
+      message: t('loyalty-score-refund-confirm'),
     }).then(() => {
       refundScoreCampaign({
         variables: {
@@ -121,20 +131,21 @@ const OwnerScoreCampaignScore = ({
         .then(() =>
           toast({
             variant: 'success',
-            title: 'Success',
-            description: 'Loyalty Score refunded successfully',
+            title: t('success'),
+            description: t('loyalty-score-refunded'),
           }),
         )
         .catch((error: any) =>
           toast({
             variant: 'destructive',
-            title: 'Error',
+            title: t('error'),
             description: error.message,
           }),
         );
       refetchCheckOwnerScore();
     });
   };
+
   return (
     <Popover>
       <Popover.Trigger asChild>
@@ -146,13 +157,13 @@ const OwnerScoreCampaignScore = ({
         <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b">
           <IconAward size={16} className="text-amber-500 shrink-0" />
           <span className="font-semibold text-sm text-foreground truncate">
-            Score Campaign
+            {t('score-campaign')}
           </span>
         </div>
         <div className="p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Customer
+              {t('customer')}
             </span>
             <span className="text-sm text-foreground truncate max-w-44">
               {customer.primaryEmail || customer._id}
@@ -160,11 +171,11 @@ const OwnerScoreCampaignScore = ({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Available Score
+              {t('available-score')}
             </span>
             <span className="text-xl font-bold text-foreground">
               {checkLoading ? (
-                <span className="text-sm text-muted-foreground">Loading…</span>
+                <span className="text-sm text-muted-foreground">{t('loading')}…</span>
               ) : (
                 checkOwnerScore.toLocaleString()
               )}
@@ -177,7 +188,7 @@ const OwnerScoreCampaignScore = ({
             size="sm"
             className="w-full mt-1"
           >
-            {refundLoading ? 'Refunding…' : 'Refund Score'}
+            {refundLoading ? t('refunding') : t('refund-score')}
           </Button>
         </div>
       </Popover.Content>
@@ -189,16 +200,15 @@ const ProductsPayment = ({
   deal,
   paymentsData: initialPaymentsData,
   onChangePaymentsData,
-  refetch,
 }: {
   deal: IDeal;
   paymentsData?: IPaymentsData;
   onChangePaymentsData?: (data: IPaymentsData) => void;
-  refetch: () => void;
 }) => {
   const [paymentsData, setPaymentsData] = useState<IPaymentsData>(
     initialPaymentsData || deal.paymentsData || {},
   );
+  const [mobileAmount, setMobileAmount] = useState<number>(0);
   const [payInfoByType, setPayInfoByType] = useState<Record<string, PayInfo>>(
     {},
   );
@@ -207,9 +217,18 @@ const ProductsPayment = ({
     paymentType: any;
     password: string;
   }>({ open: false, paymentType: null, password: '' });
+  const [invoiceSheetOpen, setInvoiceSheetOpen] = useState(false);
+  const [invoiceUrl, setInvoiceUrl] = useState('');
 
   const { editDeals } = useDealsEdit();
+  const [generateInvoiceUrl, { loading: generatingInvoice }] =
+    useMutation(GENERATE_INVOICE_URL);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setMobileAmount(0);
+    setInvoiceUrl('');
+  }, [deal.mobileAmount]);
 
   const total = useMemo(() => {
     const amounts: { [currency: string]: number } = {};
@@ -222,15 +241,26 @@ const ProductsPayment = ({
     return amounts;
   }, [deal.productsData]);
 
+  const defaultCurrency = Object.keys(total)[0] || 'MNT';
+  const paidMobileAmount = Number(deal.mobileAmount || 0);
+  const hasMobilePayments = !!deal.pipeline?.paymentIds?.length;
+
   const paidAmounts = useMemo(() => {
     const paid: { [currency: string]: number } = {};
-    Object.values(paymentsData).forEach((payment: any) => {
+    Object.entries(paymentsData).forEach(([type, payment]: [string, any]) => {
+      if (type === 'mobile') {
+        return;
+      }
+
       if (payment.amount && payment.currency) {
         paid[payment.currency] = (paid[payment.currency] || 0) + payment.amount;
       }
     });
+    if (paidMobileAmount) {
+      paid[defaultCurrency] = (paid[defaultCurrency] || 0) + paidMobileAmount;
+    }
     return paid;
-  }, [paymentsData]);
+  }, [defaultCurrency, paidMobileAmount, paymentsData]);
 
   const changeAmounts = useMemo(() => {
     const change: { [currency: string]: number } = {};
@@ -243,8 +273,10 @@ const ProductsPayment = ({
     });
     return change;
   }, [total, paidAmounts]);
-
-  const defaultCurrency = Object.keys(total)[0] || 'MNT';
+  const mobileRemainingAmount = Math.max(
+    (total[defaultCurrency] || 0) - (paidAmounts[defaultCurrency] || 0),
+    0,
+  );
 
   const getInitialPaymentAmount = useCallback(
     (type: string) => {
@@ -303,12 +335,102 @@ const ProductsPayment = ({
     [fillRemaining, paymentsData],
   );
 
+  const updateMobileAmount = useCallback((amount: number) => {
+    setMobileAmount(amount);
+  }, []);
+
+  const fillMobileRemaining = useCallback(() => {
+    if (mobileRemainingAmount > 0) {
+      updateMobileAmount(mobileRemainingAmount);
+    }
+  }, [mobileRemainingAmount, updateMobileAmount]);
+
+  const fillMobileRemainingIfEmpty = useCallback(() => {
+    if (mobileAmount) {
+      return;
+    }
+
+    fillMobileRemaining();
+  }, [fillMobileRemaining, mobileAmount]);
+
+  const handleCreateMobileInvoice = useCallback(
+    async (event?: MouseEvent<HTMLButtonElement>) => {
+      event?.preventDefault();
+
+      const paymentIds = deal.pipeline?.paymentIds || [];
+      if (!paymentIds.length) {
+        toast({
+          variant: 'destructive',
+          title: t('payment-methods-missing'),
+          description: t('please-select-online-payments'),
+        });
+        return;
+      }
+
+      const amount = mobileAmount || mobileRemainingAmount;
+      if (!amount) {
+        toast({
+          variant: 'destructive',
+          title: t('amount-missing'),
+          description: t('please-enter-mobile-amount'),
+        });
+        return;
+      }
+
+      setInvoiceUrl('');
+      setInvoiceSheetOpen(true);
+
+      try {
+        const { data } = await generateInvoiceUrl({
+          variables: {
+            input: {
+              amount,
+              currency: defaultCurrency,
+              description: deal.name,
+              contentType: 'sales:deal',
+              contentTypeId: deal._id,
+              paymentIds,
+            },
+          },
+        });
+
+        const url = data?.generateInvoiceUrl;
+        if (url) {
+          setInvoiceUrl(url);
+          return;
+        }
+
+        toast({
+          variant: 'destructive',
+          title: t('payment-url-missing'),
+          description: t('invoice-created-no-url'),
+        });
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: t('failed-to-create-payment'),
+          description:
+            error instanceof Error ? error.message : t('please-try-again-later'),
+        });
+      }
+    },
+    [
+      deal._id,
+      deal.name,
+      deal.pipeline?.paymentIds,
+      defaultCurrency,
+      generateInvoiceUrl,
+      mobileAmount,
+      mobileRemainingAmount,
+      toast,
+    ],
+  );
+
   const handleScoreFetched = useCallback(
     (score: number, paymentType: any) => {
       const typeName = paymentType.type;
       const paymentConfig = parsePaymentConfig(paymentType.config);
-      const requiresQr =
-        paymentConfig?.require?.toLowerCase() === 'qrcode';
+      const requiresQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
       const initialAmount = getInitialPaymentAmount(typeName);
       const availableAmount = score + initialAmount;
 
@@ -389,8 +511,8 @@ const ProductsPayment = ({
       setQrModal({ open: false, paymentType: null, password: '' });
       toast({
         variant: 'destructive',
-        title: 'Invalid QR Code',
-        description: 'The entered code does not match the customer ID.',
+        title: t('invalid-qr-code'),
+        description: t('qr-code-mismatch'),
       });
     }
   };
@@ -422,7 +544,7 @@ const ProductsPayment = ({
   };
 
   const renderTotals = (amounts: { [currency: string]: number }) => {
-    const entries = Object.entries(amounts).filter(([_, val]) => val !== 0);
+    const entries = Object.entries(amounts).filter(([, val]) => val !== 0);
     if (entries.length === 0) {
       return <span>0 {defaultCurrency}</span>;
     }
@@ -442,26 +564,29 @@ const ProductsPayment = ({
       },
     });
   };
+
+  const { t } = useTranslation('sales');
+
   return (
     <div className="flex flex-col gap-4 px-8">
       <div className="flex bg-muted/50 rounded-lg p-3 gap-12 justify-center">
         <div className="flex flex-col items-center">
           <span className="text-xs font-medium text-muted-foreground uppercase">
-            Total
+            {t('total')}
           </span>
           <div className="font-semibold text-lg">{renderTotals(total)}</div>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-xs font-medium text-muted-foreground uppercase">
-            Change
+            {t('change')}
           </span>
           <div
             className={`font-semibold text-lg flex ${
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-green-500'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                ? 'text-red-500'
-                : ''
+                  ? 'text-red-500'
+                  : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
@@ -473,7 +598,7 @@ const ProductsPayment = ({
         <div className="flex items-center gap-2 py-2 w-full justify-center">
           <div className="flex w-full justify-between items-center">
             <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
-              CASH
+              {t('cash')}
             </p>
             <div className="flex flex-1 items-center">
               <Input
@@ -485,7 +610,7 @@ const ProductsPayment = ({
                 }
                 onClick={() => fillRemainingIfEmpty('cash')}
                 className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                placeholder="Type amount"
+                placeholder={t('type-amount')}
               />
             </div>
             <div className="flex flex-1 items-center">
@@ -510,12 +635,119 @@ const ProductsPayment = ({
             </div>
           </div>
         </div>
-        {deal.pipeline?.paymentTypes?.map(
-          (paymentType: IPaymentType, index: number) => {
+        {hasMobilePayments && (
+          <div className="flex items-center gap-2 py-2 w-full justify-center">
+            <div className="flex w-full justify-between items-center">
+              <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
+                {t('mobile')}
+              </p>
+              <div className="flex flex-1 items-center">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={formatNumber(mobileAmount || '')}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    updateMobileAmount(parseNumber(e.target.value))
+                  }
+                  onClick={fillMobileRemainingIfEmpty}
+                  className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
+                  placeholder={t('type-amount')}
+                />
+              </div>
+              <div className="flex flex-1 items-center justify-end">
+                <Sheet
+                  open={invoiceSheetOpen}
+                  onOpenChange={setInvoiceSheetOpen}
+                >
+                  <Sheet.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCreateMobileInvoice}
+                      disabled={generatingInvoice}
+                    >
+                      QPay
+                    </Button>
+                  </Sheet.Trigger>
+                  <Sheet.View className="p-0 sm:max-w-xl">
+                    <Sheet.Header className="border-b">
+                      <Sheet.Title>{t('qpay-payment')}</Sheet.Title>
+                      <Sheet.Close />
+                    </Sheet.Header>
+                    <Sheet.Content className="flex flex-col gap-3 p-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{t('amount')}</span>
+                        <span className="font-medium">
+                          {formatNumber(mobileAmount || mobileRemainingAmount)}{' '}
+                          {defaultCurrency}
+                        </span>
+                      </div>
+                      {generatingInvoice && (
+                        <div className="flex h-96 items-center justify-center rounded-md border text-sm text-muted-foreground">
+                          {t('generating-payment')}
+                        </div>
+                      )}
+                      {!generatingInvoice && invoiceUrl && (
+                        <>
+                          <Input
+                            readOnly
+                            value={invoiceUrl}
+                            className="font-mono text-xs"
+                          />
+                          <iframe
+                            title="QPay payment"
+                            src={invoiceUrl}
+                            className="h-[70vh] w-full rounded-md border"
+                          />
+                        </>
+                      )}
+                      {!generatingInvoice && !invoiceUrl && (
+                        <div className="flex h-96 items-center justify-center rounded-md border text-sm text-muted-foreground">
+                          {t('payment-response')}
+                        </div>
+                      )}
+                    </Sheet.Content>
+                  </Sheet.View>
+                </Sheet>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={fillMobileRemaining}
+                >
+                  <IconCircleCheck className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        {(deal.mobileAmounts || []).map((mobilePayment, index) => (
+          <div
+            key={mobilePayment._id || index}
+            className="flex items-center gap-2 py-2 w-full justify-center"
+          >
+            <div className="flex w-full justify-between items-center">
+              <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase">
+                {t('mobile-paid')}
+              </p>
+              <div className="flex flex-1 items-center">
+                <Input
+                  readOnly
+                  value={formatNumber(mobilePayment.amount || 0)}
+                  className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
+                />
+              </div>
+              <div className="flex flex-1 items-center justify-end text-sm text-muted-foreground">
+                {mobilePayment._id}
+              </div>
+            </div>
+          </div>
+        ))}
+        {deal.pipeline?.paymentTypes
+          ?.filter((paymentType: IPaymentType) => paymentType.type !== 'mobile')
+          .map((paymentType: IPaymentType, index: number) => {
             const typeName = paymentType.type;
             const paymentConfig = parsePaymentConfig(paymentType.config);
-            const isQr =
-              paymentConfig?.require?.toLowerCase() === 'qrcode';
+            const isQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
             const hasInitialAmount = getInitialPaymentAmount(typeName) > 0;
             const payInfo = payInfoByType[typeName] || {
               hasPopup: false,
@@ -550,7 +782,7 @@ const ProductsPayment = ({
                       <Input
                         readOnly
                         className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-400 cursor-pointer"
-                        placeholder="Read QRCode"
+                        placeholder={t('read-qrcode')}
                         onClick={() => openQrModal(paymentType)}
                         value={
                           hasInitialAmount
@@ -578,7 +810,7 @@ const ProductsPayment = ({
                           fillRemainingIfEmpty(typeName, payInfo.maxVal)
                         }
                         className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                        placeholder="Type amount"
+                        placeholder={t('type-amount')}
                       />
                     )}
                   </div>
@@ -609,14 +841,13 @@ const ProductsPayment = ({
                 </div>
               </div>
             );
-          },
-        )}
+          })}
       </div>
 
       <div className="flex items-center justify-end pt-2">
         <Button size="sm" onClick={handleSave}>
           <IconDeviceFloppy className="w-4 h-4 mr-1" />
-          Save
+          {t('save')}
         </Button>
       </div>
 
@@ -628,9 +859,9 @@ const ProductsPayment = ({
       >
         <Dialog.Content className="max-w-sm">
           <Dialog.Header className="gap-1">
-            <Dialog.Title>Read QR Code</Dialog.Title>
+            <Dialog.Title>{t('read-qrcode')}</Dialog.Title>
             <Dialog.Description>
-              Enter the customer QR code to unlock loyalty score payment.
+              {t('enter-customer-qrcode-to-loyalty-score')}
             </Dialog.Description>
           </Dialog.Header>
           {/* <div className="py-2"> */}
@@ -643,15 +874,15 @@ const ProductsPayment = ({
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
               e.key === 'Enter' && handleQrConfirm()
             }
-            placeholder="Enter customer QR code"
+            placeholder={t('enter-customer-qr-code')}
             autoFocus
           />
           {/* </div> */}
           <Dialog.Footer>
             <Button variant="outline" onClick={handleQrDismiss}>
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button onClick={handleQrConfirm}>Confirm</Button>
+            <Button onClick={handleQrConfirm}>{t('confirm')}</Button>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>

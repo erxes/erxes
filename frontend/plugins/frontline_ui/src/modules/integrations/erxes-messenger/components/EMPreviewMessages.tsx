@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   IconArrowLeft,
   IconArrowsDiagonal2,
@@ -24,6 +25,7 @@ import {
 } from '../states/emPreviewStates';
 
 export const EMPreviewMessages = () => {
+  const { t } = useTranslation('frontline');
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
@@ -76,7 +78,7 @@ export const EMPreviewMessages = () => {
                       <IconPhone className="size-4" />
                     </Button>
                   </Tooltip.Trigger>
-                  <Tooltip.Content>Audio call</Tooltip.Content>
+                  <Tooltip.Content>{t('audio-call')}</Tooltip.Content>
                 </Tooltip>
                 <Tooltip delayDuration={100}>
                   <Tooltip.Trigger asChild>
@@ -88,7 +90,7 @@ export const EMPreviewMessages = () => {
                       <IconVideo className="size-4" />
                     </Button>
                   </Tooltip.Trigger>
-                  <Tooltip.Content>Video call</Tooltip.Content>
+                  <Tooltip.Content>{t('video-call')}</Tooltip.Content>
                 </Tooltip>
               </>
             )}
@@ -105,7 +107,7 @@ export const EMPreviewMessages = () => {
                   )) || <IconArrowsDiagonal2 size={16} />}
                 </Button>
               </Tooltip.Trigger>
-              <Tooltip.Content>Expand the messenger</Tooltip.Content>
+              <Tooltip.Content>{t('expand-the-messenger')}</Tooltip.Content>
             </Tooltip>
           </div>
         </Tooltip.Provider>
@@ -126,11 +128,11 @@ export const EMPreviewMessages = () => {
               className="h-auto font-normal rounded-bl-lg rounded-t-2xl rounded-br-2xl flex flex-col justify-start items-start text-left gap-1 p-3 bg-background shadow-xs"
             >
               <p className="wrap-break-word">
-                {config?.botSetup?.greetingMessage || 'Hi, any questions?'}
+                {config?.botSetup?.greetingMessage || t('hi-any-questions')}
               </p>
             </Button>
             <div className="text-accent-foreground text-xs ps-1">
-              few minutes ago
+              {t('few-minutes-ago')}
             </div>
           </div>
         </div>
@@ -142,7 +144,7 @@ export const EMPreviewMessages = () => {
                   variant="secondary"
                   className="h-auto font-normal flex flex-col justify-start hover:bg-primary/80 items-start rounded-bl-2xl rounded-br-lg rounded-t-2xl text-left gap-1 p-3 bg-primary text-primary-foreground"
                 >
-                  <p>We need your help!</p>
+                  <p>{t('we-need-your-help')}</p>
                 </Button>
                 <div className="text-accent-foreground text-xs flex justify-end items-end pe-1">
                   few minutes ago
@@ -166,8 +168,7 @@ export const EMPreviewMessages = () => {
                     className="h-auto font-normal rounded-b-sm rounded-t-2xl flex flex-col justify-start items-start text-left gap-1 p-3 bg-background shadow-xs"
                   >
                     <p className="wrap-break-word text-wrap">
-                      {intro?.away ||
-                        "We've received your message and will contact you shortly."}
+                      {intro?.away || t('received-your-message')}
                     </p>
                   </Button>
                   <Button
@@ -175,8 +176,7 @@ export const EMPreviewMessages = () => {
                     className="h-auto font-normal rounded-bl-lg rounded-t-sm rounded-br-2xl flex flex-col justify-start items-start text-left gap-1 p-3 bg-background shadow-xs"
                   >
                     <p className="wrap-break-word text-wrap">
-                      {intro?.thank ||
-                        'Thank you for contacting us. We will get back to you as soon as possible.'}
+                      {intro?.thank || t('thank-you-for-contacting-us')}
                     </p>
                   </Button>
                 </div>

@@ -10,6 +10,8 @@ import { GET_CHECKLIST_DETAIL } from '~/modules/deals/graphql/queries/ChecklistQ
 import { GET_STAGE_DETAIL } from '~/modules/deals/graphql/queries/StagesQueries';
 import { IChecklistItem } from '@/deals/types/checklists';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
+import { useTranslation } from 'react-i18next';
+
 
 const ChecklistItemContent = ({
   item,
@@ -26,12 +28,13 @@ const ChecklistItemContent = ({
 }) => {
   const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
   const { confirm } = useConfirm();
+  const { t } = useTranslation('sales');
   const { salesChecklistItemsEdit } = useChecklistItemsEdit();
   const { salesChecklistItemsRemove } = useChecklistItemsRemove({
     onError: (error) => {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to remove item',
+        title: t('error'),
+        description: error.message || t('failed-to-remove-item'),
         variant: 'destructive',
       });
     },
@@ -69,7 +72,7 @@ const ChecklistItemContent = ({
 
   const handleRemove = (id: string) => {
     confirm({
-      message: `Are you sure?`,
+      message: t('are-you-sure'),
     }).then(() => {
       salesChecklistItemsRemove({
         variables: {
@@ -122,16 +125,16 @@ const ChecklistItemContent = ({
 
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Checklist item converted to deal successfully',
+          title: t('success'),
+          description: t('checklist-item-converted'),
           variant: 'default',
         });
         handleRemove(item._id);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
-          description: error.message || 'Failed to convert to deal',
+          title: t('error'),
+          description: error.message || t('failed-to-convert-to-deal'),
           variant: 'destructive',
         });
       },
@@ -177,7 +180,7 @@ const ChecklistItemContent = ({
           onPointerDown={(e) => e.stopPropagation()}
           onPointerUp={(e) => e.stopPropagation()}
           className="opacity-0 group-hover:opacity-100 transition"
-          aria-label="More actions"
+          aria-label={t('more-actions')}
         >
           <IconDotsVertical size={18} />
         </button>
@@ -189,7 +192,7 @@ const ChecklistItemContent = ({
               className="flex items-center gap-2 px- py-2 hover:bg-gray-100 w-full text-sm"
             >
               <IconRefresh size={16} className="ml-3" />
-              Convert to deal
+              {t('convert-to-deal')}
             </button>
             <button
               onClick={() => {
@@ -198,7 +201,7 @@ const ChecklistItemContent = ({
               className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 w-full text-sm"
             >
               <IconTrash size={16} />
-              Delete
+              {t('delete')}
             </button>
           </div>
         )}

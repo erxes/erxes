@@ -1,4 +1,4 @@
-import { ErrorState } from '@/automations/components/common/ErrorState';
+import { AutomationErrorState } from '@/automations/components/common/AutomationErrorState';
 import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
 import { IconInfoTriangle } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui';
@@ -37,7 +37,7 @@ export const RenderPluginsComponentWrapper = ({
     <Suspense fallback={<Spinner />}>
       <ErrorBoundary
         FallbackComponent={({ resetErrorBoundary }) => (
-          <ErrorState onRetry={resetErrorBoundary} />
+          <AutomationErrorState onRetry={resetErrorBoundary} />
         )}
       >
         <RenderPluginsComponent

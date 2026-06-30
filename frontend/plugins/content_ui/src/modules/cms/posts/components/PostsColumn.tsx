@@ -3,7 +3,6 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Badge,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -15,29 +14,85 @@ import {
   IconTag,
   IconFolder,
   IconHash,
+  IconUser,
+  IconEye,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
+import { PostPublicUrlButton } from './PostPublicUrlButton';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { CmsTranslatableBadge } from '../../shared/components/CmsTranslatableBadge';
+import type { Posts } from '../types/postsType';
+import type { IWebsite } from '../../types';
+import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
+
+const getPostAuthorName = (post: Posts) => {
+  const details = post.author?.details;
+  const nameFromDetails = [
+    details?.firstName,
+    details?.middleName,
+    details?.lastName,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    details?.fullName ||
+    details?.shortName ||
+    nameFromDetails ||
+    post.author?.username ||
+    post.author?.email ||
+    post.authorId ||
+    ''
+  );
+};
+
+const PublicPostLinkCell = ({
+  post,
+  cmsConfig,
+}: {
+  post: Posts;
+  cmsConfig?: IWebsite;
+}) => {
+  return (
+    <RecordTableInlineCell>
+      <span className="inline-flex h-full w-full items-center justify-center">
+        <PostPublicUrlButton post={post} cmsConfig={cmsConfig} iconOnly />
+      </span>
+    </RecordTableInlineCell>
+  );
+};
 
 export const usePostsColumns = (
-  onEditPost?: (post: any) => void,
+  onEditPost?: (post: Posts) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+  cmsConfig?: IWebsite,
+): ColumnDef<Posts>[] => {
+  const { t } = useTranslation('content');
   const navigate = useNavigate();
+  const location = useLocation();
   const { isMissing } = useIsTranslationMissing();
 
   return [
+    {
+      id: 'openPublicUrl',
+      header: () => <span className="sr-only">{t('open-on-site')}</span>,
+      cell: ({ row }) => (
+        <PublicPostLinkCell post={row.original} cmsConfig={cmsConfig} />
+      ),
+      size: 40,
+    },
     postMoreColumn(onEditPost, undefined, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<Posts>,
     {
       id: 'title',
       header: () => (
-        <RecordTable.InlineHead label="Post Name" icon={IconFile} />
+        <RecordTable.InlineHead label={t('post-name')} icon={IconFile} />
       ),
       accessorKey: 'title',
-      cell: ({ cell, row }) => {
+      cell: ({ row }) => {
         const post = row.original;
         const missing = isMissing(post.translations);
         return (
@@ -45,18 +100,31 @@ export const usePostsColumns = (
             <div
               onClick={(e) => {
                 e.stopPropagation();
+                if (onEditPost) {
+                  onEditPost(post);
+                  return;
+                }
+
                 navigate(
                   `/content/cms/${post.clientPortalId}/posts/detail/${post._id}`,
+                  {
+                    state: {
+                      returnTo: buildCurrentPostsReturnPath(
+                        location.pathname,
+                        location.search,
+                        post._id,
+                      ),
+                    },
+                  },
                 );
               }}
               className="cursor-pointer "
             >
-              <Badge
-                variant={missing ? 'outline' : 'secondary'}
-                className={missing ? 'text-red-500 border-red-300' : ''}
-              >
-                <TextOverflowTooltip value={post.title || post.name} />
-              </Badge>
+              <CmsTranslatableBadge
+                value={post.title}
+                missing={missing}
+                placeholder={t('untitled-post')}
+              />
             </div>
           </RecordTableInlineCell>
         );
@@ -66,7 +134,7 @@ export const usePostsColumns = (
     {
       id: 'status',
       accessorKey: 'status',
-      header: () => <RecordTable.InlineHead label="Status" icon={IconClock} />,
+      header: () => <RecordTable.InlineHead label={t('status')} icon={IconClock} />,
       cell: ({ cell }) => {
         return <PostsRecordTableStatusInlineCell cell={cell} />;
       },
@@ -76,16 +144,18 @@ export const usePostsColumns = (
       id: 'categories',
       accessorKey: 'categories',
       header: () => (
-        <RecordTable.InlineHead icon={IconFolder} label="Categories" />
+        <RecordTable.InlineHead icon={IconFolder} label={t('categories')} />
       ),
       cell: ({ row }) => {
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip
               value={
-                row.original.categories?.map((c: any) => c.name).join(', ') ||
-                ''
+                row.original.categories
+                  ?.map((category) => category.name)
+                  .join(', ') || ''
               }
+              className="leading-normal"
             />
           </RecordTableInlineCell>
         );
@@ -94,24 +164,47 @@ export const usePostsColumns = (
     {
       id: 'tags',
       accessorKey: 'tags',
-      header: () => <RecordTable.InlineHead icon={IconHash} label="Tags" />,
+      header: () => <RecordTable.InlineHead icon={IconHash} label={t('tags')} />,
       cell: ({ row }) => {
         return (
           <RecordTableInlineCell>
             <TextOverflowTooltip
-              value={
-                row.original.tags?.map((c: any) => c.name).join(', ') || ''
-              }
+              value={row.original.tags?.map((tag) => tag.name).join(', ') || ''}
+              className="leading-normal"
             />
           </RecordTableInlineCell>
         );
       },
     },
-
+    {
+      id: 'author',
+      accessorFn: (post) => getPostAuthorName(post),
+      header: () => <RecordTable.InlineHead icon={IconUser} label={t('author')} />,
+      cell: ({ row }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={getPostAuthorName(row.original)}
+            className="leading-normal"
+          />
+        </RecordTableInlineCell>
+      ),
+      size: 180,
+    },
+    {
+      id: 'views',
+      accessorKey: 'viewCount',
+      header: () => <RecordTable.InlineHead icon={IconEye} label={t('views')} />,
+      cell: ({ row }) => (
+        <RecordTableInlineCell className="text-muted-foreground">
+          {row.original.viewCount ?? 0}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
     {
       id: 'type',
       accessorKey: 'type',
-      header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+      header: () => <RecordTable.InlineHead icon={IconTag} label={t('type')} />,
       cell: ({ row }) => {
         const post = row.original;
         const typeLabel =
@@ -119,7 +212,7 @@ export const usePostsColumns = (
           (post.type === 'post' ? 'Post' : post.type);
         return (
           <RecordTableInlineCell>
-            <TextOverflowTooltip value={typeLabel} />
+            <TextOverflowTooltip value={typeLabel} className="leading-normal" />
           </RecordTableInlineCell>
         );
       },
@@ -129,12 +222,12 @@ export const usePostsColumns = (
       header: () => (
         <div className="flex items-center gap-1 cursor-pointer select-none">
           <RecordTable.InlineHead
-            label="Publish Date"
+            label={t('publish-date')}
             icon={IconCalendarEvent}
           />
         </div>
       ),
-      accessorFn: (row: any) =>
+      accessorFn: (row) =>
         row.scheduledDate || row.publishedDate || row.createdAt,
       cell: ({ row }) => {
         const date =
@@ -150,7 +243,7 @@ export const usePostsColumns = (
                   month: 'short',
                   day: 'numeric',
                 })
-              : 'Date not selected'}
+              : t('date-not-selected')}
           </div>
         );
       },
@@ -158,7 +251,7 @@ export const usePostsColumns = (
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
+        <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
       ),
       accessorKey: 'createdAt',
       cell: ({ cell }) => (
@@ -173,7 +266,7 @@ export const usePostsColumns = (
     {
       id: 'updatedAt',
       header: () => (
-        <RecordTable.InlineHead label="Updated At" icon={IconCalendarUp} />
+        <RecordTable.InlineHead label={t('updated-at')} icon={IconCalendarUp} />
       ),
       accessorKey: 'updatedAt',
       cell: ({ cell }) => (

@@ -1,6 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -40,6 +41,7 @@ export const CategoryCreateSheet = ({
   onOpenChange,
   showTrigger = true,
 }: CategoryCreateSheetProps) => {
+  const { t } = useTranslation('tourism');
   const [internalOpen, setInternalOpen] = useState(false);
 
   const isControlled = typeof open === 'boolean';
@@ -97,9 +99,8 @@ export const CategoryCreateSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: 'Error',
-        description:
-          'Please enter values for the main language before creating.',
+        title: t('error'),
+        description: t('enter-main-lang-before-creating'),
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
@@ -122,8 +123,8 @@ export const CategoryCreateSheet = ({
       });
 
       toast({
-        title: 'Success',
-        description: 'Category created successfully',
+        title: t('success'),
+        description: t('category-created-successfully'),
       });
 
       form.reset({
@@ -136,9 +137,9 @@ export const CategoryCreateSheet = ({
       handleOpenChange(false);
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
-          error instanceof Error ? error.message : 'Failed to create category',
+          error instanceof Error ? error.message : t('failed-to-create-category'),
         variant: 'destructive',
       });
     }
@@ -150,7 +151,7 @@ export const CategoryCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Create category
+            {t('create-category')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -162,7 +163,7 @@ export const CategoryCreateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Create category</Sheet.Title>
+              <Sheet.Title>{t('create-category')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex gap-2 items-center ml-auto">
                   <TourFieldLanguageSwitch
@@ -201,11 +202,11 @@ export const CategoryCreateSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
 
               <Button type="submit" disabled={loading}>
-                {loading ? 'Creating...' : 'Create'}
+                {loading ? t('creating') : t('create')}
               </Button>
             </Sheet.Footer>
           </form>

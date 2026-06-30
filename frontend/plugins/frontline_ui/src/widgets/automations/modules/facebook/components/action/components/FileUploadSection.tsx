@@ -2,15 +2,16 @@ import {
   IconCopy,
   IconPhotoScan,
   IconTrash,
-  IconUpload,
 } from '@tabler/icons-react';
-import { Avatar, Button, cn, Dialog, Label } from 'erxes-ui';
+import { Button, cn, Dialog, Label } from 'erxes-ui';
+import { useId } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFbBotFileUploadSection } from '../hooks/useFbBotFileUploadSection';
 
 type FileUploadSectionProps = {
   onUpload?: (file: string | null) => void;
-  limit?: number; // in MB, default 25MB
-  url?: string; // Optional URL prop
+  limit?: number;
+  url?: string;
   mimeType?: string;
 };
 
@@ -20,6 +21,8 @@ export const FileUploadSection = ({
   url: urlProp,
   mimeType = 'image/*',
 }: FileUploadSectionProps) => {
+  const inputId = useId();
+  const { t } = useTranslation('frontline');
   const {
     uploadedFileUrl,
     isImageType,
@@ -107,48 +110,29 @@ export const FileUploadSection = ({
         type="file"
         onChange={handleFileSelect}
         className="hidden"
-        id="file-upload-input"
-        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
+        id={inputId}
+        accept={mimeType}
       />
       <label
-        htmlFor="file-upload-input"
+        htmlFor={inputId}
         className="flex flex-col gap-2 items-center justify-center cursor-pointer w-full h-full"
       >
         {isLoading ? (
           <div className="flex flex-col gap-2 items-center">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             <Label className="text-sm text-muted-foreground">
-              Uploading...
+              {t('uploading')}
             </Label>
           </div>
         ) : (
           <>
             <IconPhotoScan className="w-24 h-24 text-accent-foreground" />
             <Label>
-              Drag and Drop, choose from your Media library or upload
+              {t('drag-drop-or-upload')}
             </Label>
           </>
         )}
       </label>
-    </div>
-  );
-};
-
-export const QuickReplyImageUploader = ({
-  image_url,
-  onUpload,
-}: {
-  image_url: string;
-  onUpload: (image_url: string | null) => void;
-}) => {
-  return (
-    <div className="p-2 mr-2 rounded-full border border-dashed ">
-      <Avatar>
-        <Avatar.Image src={image_url} />
-        <Avatar.Fallback>
-          <IconUpload />
-        </Avatar.Fallback>
-      </Avatar>
     </div>
   );
 };

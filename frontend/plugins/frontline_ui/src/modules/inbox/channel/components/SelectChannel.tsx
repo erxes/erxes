@@ -21,7 +21,9 @@ import { IChannel } from '@/inbox/types/Channel';
 import { IconTopologyStar3 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const SelectChannelProvider = ({
   children,
@@ -88,17 +90,26 @@ const SelectChannelsValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-export const SelectChannelsContent = () => {
+export const SelectChannelsContent = ({
+  myChannelsOnly = false,
+}: {
+  myChannelsOnly?: boolean;
+}) => {
+  const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { onSelect, channels } = useSelectChannelContext();
-  const { channels: channelsData, loading } = useGetChannels({
-    variables: {
-      searchValue: debouncedSearch,
-    },
+
+  const { channels: allChannels, loading: allLoading } = useGetChannels({
+    variables: { searchValue: debouncedSearch },
+    skip: myChannelsOnly,
+  });
+  const { channels: myChannels, loading: myLoading } = useGetMyChannels({
+    variables: { name: debouncedSearch },
+    skip: !myChannelsOnly,
   });
 
-  // Mock the missing properties for now
+  const channelsData = myChannelsOnly ? myChannels : allChannels;
 
   const channelsTotalCount = channelsData?.length || 0;
 
@@ -107,7 +118,7 @@ export const SelectChannelsContent = () => {
       <Command.Input
         variant="secondary"
         focusOnMount
-        placeholder="Search channels"
+        placeholder={t('search-channels')}
         value={search}
         onValueChange={setSearch}
       />
@@ -188,10 +199,11 @@ export const SelectChannelsFormItem = ({
 };
 
 export const SelectChannelFilterItem = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Filter.Item value="channelId">
       <IconTopologyStar3 />
-      By Channel
+      {t('by-channel')}
     </Filter.Item>
   );
 };
@@ -209,7 +221,7 @@ export const SelectChannelFilterView = () => {
           resetFilterState();
         }}
       >
-        <SelectChannelsContent />
+        <SelectChannelsContent myChannelsOnly />
       </SelectChannelProvider>
     </Filter.View>
   );
@@ -226,6 +238,7 @@ export const SelectChannelFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('frontline');
   const [channelId, setChannelId] = useQueryState<string | string[]>(
     queryKey || 'channelId',
   );
@@ -239,7 +252,7 @@ export const SelectChannelFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'channelId'}>
       <Filter.BarName>
         <IconTopologyStar3 />
-        {!iconOnly && 'Select Channel'}
+        {!iconOnly && t('select-channel')}
       </Filter.BarName>
       <SelectChannelProvider
         value={channelId || (mode === 'single' ? '' : [])}
@@ -261,7 +274,7 @@ export const SelectChannelFilterBar = ({
             </Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
-            <SelectChannelsContent />
+            <SelectChannelsContent myChannelsOnly />
           </Combobox.Content>
         </Popover>
       </SelectChannelProvider>

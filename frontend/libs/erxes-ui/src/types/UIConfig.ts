@@ -1,7 +1,18 @@
+export type TPropertyInputMeta = Record<string, unknown>;
+
+export type TPropertyInputProps = {
+  value: string;
+  onValueChange: (value: string) => void;
+  meta?: TPropertyInputMeta;
+  onMetaChange: (meta: TPropertyInputMeta) => void;
+  disabled?: boolean;
+};
+
 export type IUIConfig = {
   name: string;
   path: string;
   icon?: React.ElementType;
+  i18n?: boolean;
   hasFloatingWidget?: boolean;
   settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {
@@ -19,6 +30,12 @@ export type IUIConfig = {
     customerDetailWidgets?: {
       name: string;
     }[];
+    formWidgets?: {
+      name: string;
+      contentType: string;
+      icon?: React.ElementType;
+    }[];
+    propertyInputs?: Record<string, React.ComponentType<TPropertyInputProps>>;
   };
   modules?: {
     name: string;

@@ -1,5 +1,6 @@
 import FileAttachments from './FileAttachments';
 import MediaAttachments from './MediaAttachments';
+import VideoAttachments from './VideoAttachments';
 import { useAttachmentContext } from './AttachmentContext';
 
 const fileTypes = [
@@ -34,11 +35,11 @@ const Attachments = () => {
   const fileAttachments = safeAttachments.filter((attachment) =>
     fileTypes.includes(attachment.type ?? ''),
   );
+  const videoAttachments = safeAttachments.filter((attachment) =>
+    attachment.type?.startsWith('video'),
+  );
   // const audioAttachments = attachments.filter((attachment) =>
   //   audioTypes.includes(attachment.type),
-  // );
-  // const videoAttachments = attachments.filter((attachment) =>
-  //   videoTypes.includes(attachment.type),
   // );
 
   return (
@@ -49,6 +50,9 @@ const Attachments = () => {
         )}
         {mediaAttachments.length > 0 && (
           <MediaAttachments attachments={mediaAttachments} />
+        )}
+        {videoAttachments.length > 0 && (
+          <VideoAttachments attachments={videoAttachments} />
         )}
       </div>
     </div>

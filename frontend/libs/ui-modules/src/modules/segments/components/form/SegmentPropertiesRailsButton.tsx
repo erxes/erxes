@@ -2,7 +2,7 @@ import { cn } from 'erxes-ui';
 import { useSegment } from '../../context/SegmentProvider';
 import { useWatch } from 'react-hook-form';
 import { createFieldNameSafe } from '../../utils/segmentFormUtils';
-import { TConditionsConjunction } from '../../types';
+import { SegmentFormMode, TConditionsConjunction } from '../../types';
 import { useSegmentGroup } from '../../context/SegmentGroupProvider';
 
 export const SegmentPropertiesRailsButton = ({ index }: { index: number }) => {
@@ -33,7 +33,7 @@ type TConditionConjunctionField =
   | 'conditionsConjunction';
 
 const useSegmentPropertiesRailsButton = ({ index }: { index: number }) => {
-  const { form } = useSegment();
+  const { form, mode } = useSegment();
   const { totalFields, fieldPath } = useSegmentGroup();
   const { setValue } = form;
   const hasTwoElement = totalFields === 2;
@@ -42,21 +42,20 @@ const useSegmentPropertiesRailsButton = ({ index }: { index: number }) => {
   const isAbleToShow =
     middleIndex === index + 1 || (hasTwoElement && index === 1);
   const fieldName = createFieldNameSafe<TConditionConjunctionField>(
-    fieldPath,
+    mode === SegmentFormMode.SINGLE ? '' : fieldPath.replace('.conditions', ''),
     'conditionsConjunction',
   );
   const conditionsConjunction = useWatch({
     control: form.control,
     name: fieldName,
   });
-  const handleClick = () => {
+  const handleClick = () =>
     setValue(
       fieldName,
       conditionsConjunction === TConditionsConjunction.AND
         ? TConditionsConjunction.OR
         : TConditionsConjunction.AND,
     );
-  };
   return {
     hasTwoElement,
     isOdd,

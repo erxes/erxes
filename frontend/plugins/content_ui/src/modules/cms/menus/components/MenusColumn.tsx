@@ -7,6 +7,7 @@ import {
   Combobox,
   Command,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   IconList,
   IconLink,
@@ -21,18 +22,7 @@ import { useMutation } from '@apollo/client';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
 import { getDepthPrefix } from '../menuUtils';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
-
-interface MenuItem {
-  _id: string;
-  label: string;
-  parentId?: string;
-  kind?: string;
-  url?: string;
-  order?: number;
-  depth?: number;
-  translations?: { language: string }[];
-  [key: string]: unknown;
-}
+import { MenuItem } from '../types/menuDrawerTypes';
 
 const BADGE_CLASS =
   'mx-2 my-1 p-1 inline-flex items-center rounded-sm px-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1 bg-accent';
@@ -44,13 +34,14 @@ interface MoreCellProps {
 }
 
 const MoreCell = ({ row, onEdit, refetch }: MoreCellProps) => {
+  const { t } = useTranslation('content');
   const { confirm } = useConfirm();
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
 
   const handleEdit = () => onEdit(row.original);
   const handleRemove = () => {
     confirm({
-      message: 'Are you sure you want to delete this menu?',
+      message: t('confirm-delete-menu'),
     }).then(async () => {
       await removeMenu({ variables: { _id: row.original._id } });
       refetch();
@@ -66,10 +57,10 @@ const MoreCell = ({ row, onEdit, refetch }: MoreCellProps) => {
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="remove" onSelect={handleRemove}>
-              <IconTrash /> Remove
+              <IconTrash /> {t('remove')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -109,7 +100,7 @@ const LabelCell = ({ cell, refetch, isMissing }: LabelCellProps) => {
       }}
     >
       <RecordTableInlineCell.Trigger>
-        <span className={missing ? 'text-red-500' : ''}>
+        <span className={`leading-normal ${missing ? 'text-red-500' : ''}`}>
           {getDepthPrefix(original.depth || 0) + (cell.getValue() as string)}
         </span>
       </RecordTableInlineCell.Trigger>
@@ -127,12 +118,13 @@ export const useMenusColumns = (
   onEdit: (menu: MenuItem) => void,
   refetch: () => void,
 ): ColumnDef<MenuItem>[] => {
+  const { t } = useTranslation('content');
   const { isMissing } = useIsTranslationMissing();
 
   return [
     {
       id: 'drag',
-      header: () => <span className="sr-only">Reorder</span>,
+      header: () => <span className="sr-only">{t('reorder')}</span>,
       cell: () => (
         <div className="flex h-full items-center justify-center text-muted-foreground">
           <IconGripVertical size={16} />
@@ -142,7 +134,7 @@ export const useMenusColumns = (
     },
     {
       id: 'more',
-      header: () => <span className="sr-only">More</span>,
+      header: () => <span className="sr-only">{t('more')}</span>,
       cell: ({ row }) => (
         <MoreCell row={row} onEdit={onEdit} refetch={refetch} />
       ),
@@ -151,7 +143,7 @@ export const useMenusColumns = (
     RecordTable.checkboxColumn as ColumnDef<MenuItem>,
     {
       id: 'label',
-      header: () => <RecordTable.InlineHead icon={IconList} label="Label" />,
+      header: () => <RecordTable.InlineHead icon={IconList} label={t('label')} />,
       accessorKey: 'label',
       cell: ({ cell }) => (
         <LabelCell cell={cell} refetch={refetch} isMissing={isMissing} />
@@ -160,7 +152,7 @@ export const useMenusColumns = (
     },
     {
       id: 'url',
-      header: () => <RecordTable.InlineHead icon={IconLink} label="URL" />,
+      header: () => <RecordTable.InlineHead icon={IconLink} label={t('url')} />,
       accessorKey: 'url',
       cell: ({ cell }) => (
         <div className={BADGE_CLASS}>
@@ -173,7 +165,7 @@ export const useMenusColumns = (
     },
     {
       id: 'kind',
-      header: () => <RecordTable.InlineHead icon={IconArticle} label="Kind" />,
+      header: () => <RecordTable.InlineHead icon={IconArticle} label={t('kind')} />,
       accessorKey: 'kind',
       cell: ({ cell }) => (
         <div className={BADGE_CLASS}>

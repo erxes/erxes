@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card, AlertDialog, Accordion, Form, Input } from 'erxes-ui';
@@ -21,6 +22,7 @@ const ReturnEbarimtConfigCard = ({
   onSave: (key: string, data: ReturnEbarimtConfig) => void;
   onDelete: (key: string) => void;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(addEBarimtReturnConfigSchema),
@@ -62,7 +64,7 @@ const ReturnEbarimtConfigCard = ({
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-md font-medium">
-          {config.title || 'Untitled Config'}
+          {config.title || t('untitled-config')}
         </h3>
       </div>
 
@@ -74,9 +76,9 @@ const ReturnEbarimtConfigCard = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Title</Form.Label>
+                  <Form.Label>{t('title')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Title" />
+                    <Input {...field} placeholder={t('title')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -87,7 +89,7 @@ const ReturnEbarimtConfigCard = ({
               name="destinationStageBoard"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Destination Stage Board</Form.Label>
+                  <Form.Label>{t('destination-stage-board')}</Form.Label>
                   <SelectBoard.FormItem
                     value={field.value}
                     onValueChange={handleBoardChange}
@@ -102,7 +104,7 @@ const ReturnEbarimtConfigCard = ({
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Pipeline</Form.Label>
+                  <Form.Label>{t('pipeline')}</Form.Label>
                   <SelectPipeline.FormItem
                     value={field.value}
                     boardId={form.watch('destinationStageBoard')}
@@ -118,7 +120,7 @@ const ReturnEbarimtConfigCard = ({
               name="stageId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Stage</Form.Label>
+                  <Form.Label>{t('stage')}</Form.Label>
                   <SelectStage.FormItem
                     value={field.value}
                     pipelineId={selectedPipelineId}
@@ -137,33 +139,31 @@ const ReturnEbarimtConfigCard = ({
             >
               <AlertDialog.Trigger asChild>
                 <Button variant="ghost" size="sm">
-                  <p className="text-black">Delete</p>
+                  <p className="text-black">{t('delete')}</p>
                 </Button>
               </AlertDialog.Trigger>
               <AlertDialog.Content>
                 <AlertDialog.Header>
-                  <AlertDialog.Title>Delete Configuration</AlertDialog.Title>
+                  <AlertDialog.Title>{t('delete-configuration')}</AlertDialog.Title>
                   <AlertDialog.Description>
-                    Are you sure you want to delete "
-                    {config.title || 'Untitled Config'}"? This action cannot be
-                    undone.
+                    {t('delete-config-confirm', { title: config.title || t('untitled-config') })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>
                 <AlertDialog.Footer>
-                  <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
                   <AlertDialog.Action
                     onClick={() => {
                       onDelete(configKey);
                       setIsDeleteDialogOpen(false);
                     }}
                   >
-                    Delete
+                    {t('delete')}
                   </AlertDialog.Action>
                 </AlertDialog.Footer>
               </AlertDialog.Content>
             </AlertDialog>
             <Button type="submit" size="sm">
-              Save
+              {t('save')}
             </Button>
           </div>
         </form>
@@ -173,6 +173,7 @@ const ReturnEbarimtConfigCard = ({
 };
 
 export const ReturnEBarimtConfigForm = () => {
+  const { t } = useTranslation('mongolian');
   const [openItems, setOpenItems] = useState<string[]>([]);
 
   const {
@@ -213,7 +214,7 @@ export const ReturnEBarimtConfigForm = () => {
     <div className="h-full w-full p-6 overflow-y-auto">
       <div className="space-y-6">
         <div className="border-b pb-4">
-          <h1 className="text-xl font-semibold">Return Ebarimt</h1>
+          <h1 className="text-xl font-semibold">{t('return-ebarimt')}</h1>
         </div>
 
         <div className="flex justify-end">
@@ -223,14 +224,14 @@ export const ReturnEBarimtConfigForm = () => {
             className="flex items-center gap-2"
           >
             <IconPlus className="h-4 w-4" />
-            New Config
+            {t('new-config')}
           </Button>
         </div>
 
         <div className="space-y-4">
           {Object.keys(localConfigsMap).length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No configurations found. Click "New Config" to create one.
+              {t('no-configurations-found')}
             </div>
           ) : (
             <Accordion
@@ -244,7 +245,7 @@ export const ReturnEBarimtConfigForm = () => {
                   <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
                     <div className="flex justify-between items-center w-full">
                       <span>
-                        {localConfigsMap[configKey].title || 'Untitled Config'}
+                        {localConfigsMap[configKey].title || t('untitled-config')}
                       </span>
                     </div>
                   </Accordion.Trigger>

@@ -6,9 +6,11 @@ import { IField } from '../types/fieldsTypes';
 export const useFields = ({
   groupId,
   contentType,
+  limit,
 }: {
   groupId?: string;
   contentType: string;
+  limit?: number;
 }) => {
   const { data, loading, refetch } = useQuery<ICursorListResponse<IField>>(
     FIELDS_QUERY,
@@ -17,13 +19,14 @@ export const useFields = ({
         params: {
           groupId,
           contentType,
+          limit,
         },
       },
     },
   );
 
   const fields = (data?.fields?.list || []).map((field) => {
-    const type = field.type?.startsWith('relation') ? 'relation' : field.type;
+    const type = field.type?.startsWith('relation:') ? 'relation' : field.type;
     const relationType =
       type === 'relation' ? field.type?.replace('relation:', '') : undefined;
 

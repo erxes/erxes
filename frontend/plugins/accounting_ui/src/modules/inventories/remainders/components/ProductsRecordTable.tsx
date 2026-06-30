@@ -10,7 +10,7 @@ import { ReCalcRemainderForm } from './ReCalcRemainderForm';
 
 export const ProductsRecordTable = () => {
   const { productsMain, handleFetchMore, loading, pageInfo } = useProducts();
-  const { t } = useTranslation('product');
+  const { t } = useTranslation('accounting');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -47,6 +47,7 @@ export const ProductsRecordTable = () => {
 };
 
 const ProductsCommandBar = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const setSelectedProductIds = useSetAtom(selectedProductIdsAtom);
@@ -61,7 +62,7 @@ const ProductsCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {selectedRows.length} selected
+          {selectedRows.length} {t('selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ReCalcRemainderForm />

@@ -68,7 +68,10 @@ export function App() {
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data.action === 'closeMessenger' && isMessengerVisible) {
-        postMessage('fromMessenger', 'messenger', { isVisible: false, isSmallContainer });
+        postMessage('fromMessenger', 'messenger', {
+          isVisible: false,
+          isSmallContainer,
+        });
         setIsMessengerVisible(false);
         return;
       }
@@ -123,21 +126,22 @@ export function App() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-full">
+    <div className="flex flex-col h-full min-h-full bg-background">
       <div
         className={cn({
           'flex-1 overflow-y-auto hide-scroll min-h-0 flex flex-col bg-muted':
             (activeTab !== 'default' && activeTab !== 'faq') || isFaqArticle,
-          'flex-1 overflow-y-auto hide-scroll min-h-0 bg-muted': activeTab === 'default',
-          'flex-1  overflow-y-auto hide-scroll min-h-0 flex flex-col':
+          'flex-1 overflow-y-auto hide-scroll min-h-0 bg-muted':
+            activeTab === 'default',
+          'flex-1 overflow-y-auto hide-scroll min-h-0 flex flex-col':
             isFaqNonArticle,
         })}
       >
         {activeTab !== 'chat' && <HeaderHero />}
         <div
           className={cn({
-            'bg-muted relative z-20 px-2 pb-2 -mt-14': activeTab === 'default',
-            'bg-muted relative z-20 px-2 pb-2 -mt-14 flex-1': isFaqNonArticle,
+            'bg-muted relative z-20 px-2 pb-2': activeTab === 'default',
+            'bg-muted relative z-20 px-2 pb-2 flex-1': isFaqNonArticle,
 
             'bg-muted relative z-20 flex-1 h-full overflow-y-hidden':
               activeTab === 'chat',

@@ -78,12 +78,19 @@ export const useByDateVariables = (
     sessionKey: BY_DATE_CURSOR_SESSION_KEY,
   });
 
+  let search: string | undefined
+  if (Array.isArray(billId)) {
+    search = billId[0] ? String(billId[0]) : undefined
+  } else if (billId) {
+    search = String(billId)
+  }
+
   const result = {
     limit: BY_DATE_PER_PAGE,
     cursor,
     createdStartDate: parseDateRangeFromString(dateRange)?.from,
     createdEndDate: parseDateRangeFromString(dateRange)?.to,
-    search: Array.isArray(billId) ? billId[0] : billId,
+    search,
     contentType: contentType && contentType !== 'all' ? contentType : undefined,
     boardId: boardId || undefined,
     pipelineId: pipelineId || undefined,

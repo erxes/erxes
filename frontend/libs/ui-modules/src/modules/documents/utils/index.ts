@@ -50,7 +50,7 @@ export const layout = (
     }
 
     .scaled-content {
-      display: inline-block;      
+      display: ${SCALE_TO_FIT ? 'inline-block' : 'block'};
       transform: scale(${SCALE_FACTOR});
       transform-origin: ${SCALE_TO_FIT ? 'top center' : 'top left'};
       width: calc(100% / ${SCALE_FACTOR});

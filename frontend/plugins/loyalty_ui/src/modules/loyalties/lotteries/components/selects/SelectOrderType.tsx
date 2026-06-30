@@ -17,6 +17,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconArrowsSort } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface OrderTypeOption {
   value: string;
@@ -93,6 +94,7 @@ const SelectOrderTypeValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = useSelectOrderTypeContext();
   const selectedOption = ORDER_TYPE_OPTIONS.find(
     (option) => option.value === value,
@@ -101,7 +103,7 @@ const SelectOrderTypeValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select order type'}
+        {placeholder || t('select-order-type')}
       </span>
     );
   }
@@ -109,7 +111,7 @@ const SelectOrderTypeValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>
-        {selectedOption.label}
+        {t(selectedOption.value)}
       </p>
     </div>
   );
@@ -121,7 +123,8 @@ const SelectOrderTypeCommandItem = ({
   option: OrderTypeOption;
 }) => {
   const { onValueChange, value } = useSelectOrderTypeContext();
-  const { value: optionValue, label } = option;
+  const { t } = useTranslation('loyalty');
+  const { value: optionValue } = option;
   const isChecked = value.split(',').includes(optionValue);
 
   return (
@@ -130,7 +133,7 @@ const SelectOrderTypeCommandItem = ({
       onSelect={() => onValueChange(optionValue)}
     >
       <div className="flex items-center gap-2">
-        <span className="font-medium">{label}</span>
+        <span className="font-medium">{t(optionValue)}</span>
       </div>
       <Combobox.Check checked={isChecked} />
     </Command.Item>
@@ -138,11 +141,12 @@ const SelectOrderTypeCommandItem = ({
 };
 
 const SelectOrderTypeContent = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Command>
-      <Command.Input placeholder="Search order types..." />
+      <Command.Input placeholder={t('search-order-types')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No order types found</span>
+        <span className="text-muted-foreground">{t('no-order-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {ORDER_TYPE_OPTIONS.map((option) => (
@@ -154,10 +158,11 @@ const SelectOrderTypeContent = () => {
 };
 
 export const SelectOrderTypeFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="orderType">
       <IconArrowsSort />
-      Sort Order
+      {t('sort-order')}
     </Filter.Item>
   );
 };
@@ -202,6 +207,7 @@ export const SelectOrderTypeFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [orderType, setOrderType] = useQueryState<string[] | string>(
     'orderType',
   );
@@ -211,7 +217,7 @@ export const SelectOrderTypeFilterBar = ({
     <Filter.BarItem queryKey="orderType">
       <Filter.BarName>
         <IconArrowsSort />
-        {!iconOnly && 'Sort Order'}
+        {!iconOnly && t('sort-order')}
       </Filter.BarName>
       <SelectOrderTypeProvider
         mode={mode}

@@ -1,17 +1,37 @@
-import { Breadcrumb, Button, PageContainer, Separator } from 'erxes-ui';
-import { Link, useLocation } from 'react-router-dom';
+import {
+  Breadcrumb,
+  Button,
+  PageContainer,
+  Separator,
+  ToggleGroup,
+} from 'erxes-ui';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
-import { ReportsBreadcrumbs } from '@/report/components/report-navigations/ReportsBreadcrumbs';
 import { CallReportsView } from '@/report/components/CallReportsView';
-import { TicketReportsView } from '@/report/components/TicketReportsView';
+import { TicketReportsList } from '@/report/components/TicketReportsList';
+
+const ROUTES = {
+  overview: '/frontline/reports',
+  call: '/frontline/reports/call',
+  ticket: '/frontline/reports/ticket',
+} as const;
+
+type Section = keyof typeof ROUTES;
 
 export default function ReportIndexPage() {
+  const { t } = useTranslation('frontline');
   const location = useLocation();
-  const isCallReport = location.pathname.includes('/call');
-  const isTicketReport = location.pathname.includes('/ticket');
-  const isOverviewReport = !isCallReport && !isTicketReport;
+  const navigate = useNavigate();
+
+  const activeSection: Section = location.pathname.includes('/call')
+    ? 'call'
+    : location.pathname.includes('/ticket')
+      ? 'ticket'
+      : 'overview';
+
   return (
     <PageContainer>
       <PageHeader>
@@ -22,53 +42,35 @@ export default function ReportIndexPage() {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/reports">
                     <IconChartHistogram />
-                    Reports
+                    {t('reports')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
-
-              {/* Submenu Breadcrumbs */}
-              {location.pathname.includes('/inbox') && (
-                <>
-                  <Separator.Inline />
-                  <Breadcrumb.Item>
-                    <span className="font-medium">Inbox</span>
-                  </Breadcrumb.Item>
-                </>
-              )}
-              {location.pathname.includes('/ticket') && (
-                <>
-                  <Separator.Inline />
-                  <Breadcrumb.Item>
-                    <span className="font-medium">Ticket</span>
-                  </Breadcrumb.Item>
-                </>
-              )}
-              {location.pathname.includes('/call') && (
-                <>
-                  <Separator.Inline />
-                  <Breadcrumb.Item>
-                    <span className="font-medium">Call</span>
-                  </Breadcrumb.Item>
-                </>
-              )}
-
-              <ReportsBreadcrumbs />
             </Breadcrumb.List>
           </Breadcrumb>
+          <Separator.Inline />
+          <ToggleGroup
+            type="single"
+            value={activeSection}
+            onValueChange={(v) => {
+              if (!v) return;
+              navigate(ROUTES[v as Section]);
+            }}
+          >
+            <ToggleGroup.Item value="overview">
+              {t('frontline-overview')}
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value="ticket">{t('ticket')}</ToggleGroup.Item>
+            <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
+          </ToggleGroup>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
       </PageHeader>
-      <div className="mx-auto flex w-full max-w-[1600px] flex-wrap gap-2 px-8 pb-2 pt-6">
-        <Button variant={isOverviewReport ? 'default' : 'outline'} asChild>
-          <Link to="/frontline/reports">Frontline Overview</Link>
-        </Button>
-        <Button variant={isCallReport ? 'default' : 'outline'} asChild>
-          <Link to="/frontline/reports/call">Call Center</Link>
-        </Button>
-      </div>
-      {isTicketReport ? (
-        <TicketReportsView />
-      ) : isCallReport ? (
+
+      {activeSection === 'ticket' ? (
+        <TicketReportsList />
+      ) : activeSection === 'call' ? (
         <CallReportsView />
       ) : (
         <ReportsView />

@@ -4,15 +4,15 @@ import { IKnowledgeBaseTopic } from '../types/knowledgeBase';
 
 export const useGetKnowledgeBaseTopicDetails = (options: QueryHookOptions) => {
   const { data, loading, error } = useQuery<{
-    knowledgeBaseTopicDetail: IKnowledgeBaseTopic;
+    cpKnowledgeBaseTopicDetail: IKnowledgeBaseTopic;
   }>(GET_KNOWLEDGE_BASE_TOPIC_DETAILS, options);
 
-  const { knowledgeBaseTopicDetail } = data || {};
+  const { cpKnowledgeBaseTopicDetail } = data || {};
   const { parentCategories, categories, title } =
-    knowledgeBaseTopicDetail || {};
+    cpKnowledgeBaseTopicDetail || {};
 
   return {
-    details: knowledgeBaseTopicDetail,
+    details: cpKnowledgeBaseTopicDetail,
     parentCategories: parentCategories,
     categories: categories,
     title: title || 'Articles',

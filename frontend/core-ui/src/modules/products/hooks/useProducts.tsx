@@ -23,6 +23,7 @@ type ProductsQueryVariables = {
   direction?: EnumCursorDirection;
 
   type?: string;
+  status?: string;
   categoryIds?: string[];
   searchValue?: string;
   vendorId?: string;
@@ -41,6 +42,7 @@ export const useProductsVariables = (
   const [
     {
       type,
+      status,
       categoryIds,
       searchValue,
       vendorId,
@@ -53,6 +55,7 @@ export const useProductsVariables = (
     },
   ] = useMultiQueryState<{
     type: string;
+    status: string;
     categoryIds: string[];
     searchValue: string;
     vendorId: string;
@@ -64,6 +67,7 @@ export const useProductsVariables = (
     sortDirection: string; // stored in URL as string (ex: "-1")
   }>([
     'type',
+    'status',
     'categoryIds',
     'searchValue',
     'vendorId',
@@ -90,6 +94,7 @@ export const useProductsVariables = (
 
     // filters from URL/query-state
     type: type || undefined,
+    status: status || undefined,
     categoryIds: categoryIds?.length ? categoryIds : undefined,
     searchValue: searchValue || undefined,
     vendorId: vendorId || undefined,

@@ -7,19 +7,18 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
-  RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  cn,
 } from 'erxes-ui';
-import { useSearchParams } from 'react-router-dom';
 
 import { ISyncHistory } from '../types/syncHistory';
 import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
+import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
+import { HeaderCell } from '../../components/HeaderCell';
 
-const stringify = (value: any) => {
-  if (!value) {
+const stringify = (value: unknown) => {
+  if (value == null) {
     return '';
   }
 
@@ -30,53 +29,12 @@ const stringify = (value: any) => {
   return JSON.stringify(value);
 };
 
-const SyncErkhetHistoryClickableCell = ({
-  row,
-  value,
-  isError,
-}: {
-  row: { original: ISyncHistory };
-  value: string;
-  isError?: boolean;
-}) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const handleOpen = () => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('syncHistory_id', row.original._id);
-    setSearchParams(newSearchParams);
-  };
-
-  return (
-    <RecordTableInlineCell
-      role="button"
-      tabIndex={0}
-      onClick={handleOpen}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleOpen();
-        }
-      }}
-      className={cn(
-        'cursor-pointer rounded px-2 hover:bg-muted',
-        isError && value ? 'text-destructive' : 'text-muted-foreground',
-      )}
-    >
-      <TextOverflowTooltip value={String(value || '-')} />
-    </RecordTableInlineCell>
-  );
-};
-
 export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   SyncErkhetHistoryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<ISyncHistory>,
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
-    ),
+    header: () => <HeaderCell icon={IconCalendarPlus} label="created-at" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -90,7 +48,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="User" />,
+    header: () => <HeaderCell icon={IconHash} label="user" />,
     cell: ({ row }) => {
       const user = row.original.createdUser;
       const value =
@@ -106,9 +64,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'contentType',
     accessorKey: 'contentType',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Content Type" />
-    ),
+    header: () => <HeaderCell icon={IconCurrencyDollar} label="content-type" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -120,7 +76,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Content" />,
+    header: () => <HeaderCell icon={IconUser} label="content" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -132,12 +88,10 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'response',
     accessorKey: 'responseStr',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Response" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} label="response" />,
     cell: ({ row }) => {
       return (
-        <SyncErkhetHistoryClickableCell
+        <SyncHistoryClickableColumnCell
           row={row}
           value={stringify(
             row.original.responseData || row.original.responseStr,
@@ -149,10 +103,10 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'error',
     accessorKey: 'error',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
+    header: () => <HeaderCell icon={IconCategory} label="error" />,
     cell: ({ row }) => {
       return (
-        <SyncErkhetHistoryClickableCell
+        <SyncHistoryClickableColumnCell
           row={row}
           value={row.original.error || ''}
           isError

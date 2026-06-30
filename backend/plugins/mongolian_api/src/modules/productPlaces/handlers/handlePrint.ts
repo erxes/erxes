@@ -20,7 +20,7 @@ export const handlePrint = async (
       module: 'branches',
       action: 'find',
       method: 'query',
-      input: { _id: { $in: branchIds } },
+      input: { query: { _id: { $in: branchIds } } },
       context: { userId: user },
     });
     for (const branch of branches) {
@@ -39,7 +39,7 @@ export const handlePrint = async (
       module: 'departments',
       action: 'find',
       method: 'query',
-      input: { _id: { $in: departmentIds } },
+      input: { query: { _id: { $in: departmentIds } } },
       context: { userId: user },
     });
     for (const department of departments) {

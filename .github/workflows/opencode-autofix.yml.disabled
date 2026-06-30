@@ -1,0 +1,107 @@
+# DISABLED: This workflow has been replaced by issue-webhook-dispatcher.yml
+# which sends issues to the erxes-auto-issue-fix webhook listener.
+# Re-enable only if you are NOT using the webhook listener.
+name: OpenCode Auto-Fix
+
+on:
+  issues:
+    types: [opened, labeled]
+
+concurrency:
+  group: opencode-autofix-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  autofix:
+    name: Auto-fix issue with OpenCode
+    # Only run for real issues (not PRs) that have 'bug' or 'sentry' label
+    if: |
+      github.event.issue.pull_request == null &&
+      (
+        contains(github.event.issue.labels.*.name, 'bug') ||
+        contains(github.event.issue.labels.*.name, 'sentry')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@f4851e3bd9982be95bd1fb4b69514b4ef5a9e239
+        env:
+          KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
+        with:
+          model: kimi-for-coding/k2p6
+          agent: erxes-bug-fixer
+          share: false
+          prompt: |
+            This GitHub issue needs to be analyzed and fixed automatically.
+
+            Issue labels: ${{ join(github.event.issue.labels.*.name, ', ') }}
+
+            === CLASSIFICATION ===
+
+            Determine the issue type from labels:
+            - If labeled `sentry`: This is a Sentry error. Focus on stack trace
+              analysis, error type identification, and defensive coding fixes.
+            - If labeled `bug`: This is a user-reported bug. Focus on reproducing
+              the described behavior and fixing the root cause.
+            - If both labels present: Treat as Sentry issue (richer error context).
+
+            === NOISE FILTER (CRITICAL) ===
+
+            Before doing ANY work, check if this issue is actually fixable via code.
+            If the issue matches any of these patterns, do NOT create a branch or PR.
+            Only post a triage comment on the issue:
+
+            - Invalid password / login failure / expected authentication error
+            - Bot traffic or web crawler noise
+            - Bad user input / missing required fields from the user
+            - Missing user permission (authorization policy, not a code bug)
+            - Expired token / session timeout (expected behavior)
+            - Rate limiting / throttling (infrastructure, not code)
+            - External service outage (third-party API down)
+            - Infrastructure / deployment misconfiguration
+            - Cannot determine root cause from available information
+
+            === IF ACTIONABLE ===
+
+            Follow the erxes Agent Manifest Protocol:
+            1. Read `.agents/manifest.yaml` first
+            2. Identify the affected plugin/service from the error or description
+            3. Read `.agents/rules/non-negotiable.md` — follow ALL rules
+            4. Read `.agents/rules/code-style.md` — follow naming and style
+            5. Make the smallest safe fix possible
+            6. Run `pnpm nx lint <plugin>` and `pnpm nx build <plugin>` if possible
+
+            Branch naming: `sentry-fix/issue-${{ github.event.issue.number }}-<short-desc>`
+            PR base: `main`
+            PR mode: draft
+
+            === SAFETY RULES ===
+
+            - Do NOT expose secrets or read `.env` files
+            - Do NOT modify `pnpm-lock.yaml` unless absolutely necessary
+            - Do NOT make broad refactors — fix only the reported issue
+            - Do NOT use `any` types or `default` exports
+            - Do NOT push to `main` directly — always use a branch + PR
+
+            === REQUIRED OUTPUT ===
+
+            Always comment on the issue with:
+            1. What error is happening (or what bug was reported)
+            2. Likely affected erxes plugin/service/file
+            3. Root cause analysis
+            4. Whether a PR was created (with link) or why not
+            5. Suggested follow-up if any

@@ -1,13 +1,17 @@
+import { useTranslation } from 'react-i18next';
 import {
   erxesMessengerSetupAppearanceAtom,
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupHoursAtom,
+  erxesMessengerSetupIntroAtom,
   erxesMessengerSetupSettingsAtom,
   erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import { cva } from 'class-variance-authority';
 import {
   Avatar,
+  Badge,
   Button,
   cn,
   Empty,
@@ -30,7 +34,7 @@ import { EMPreviewChatInput } from './EMPreviewChatInput';
 import { Weekday } from '../types/Weekday';
 import { ScheduleDay } from '../constants/emHoursSchema';
 import { format, parse } from 'date-fns';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
   IconArrowRight,
@@ -57,6 +61,22 @@ import { GET_KNOWLEDGE_BASE_TOPIC_DETAILS } from '@/knowledgebase/graphql/querie
 import { IKnowledgeBaseTopic } from '@/knowledgebase/types';
 import { EMPreviewWebsiteApp } from './EMPreviewWebsiteApp';
 import { EMPreviewMessages } from './EMPreviewMessages';
+
+const heroBackgroundVariants = cva('', {
+  variants: {
+    variant: {
+      glossy:
+        'bg-[radial-gradient(120%_80%_at_88%_-10%,color-mix(in_oklch,var(--color-primary-foreground)_18%,transparent)_0%,transparent_55%),radial-gradient(80%_60%_at_10%_110%,color-mix(in_oklch,var(--color-primary)_22%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_75%,black)_70%,color-mix(in_oklch,var(--color-hero)_60%,black)_100%)]',
+      aurora:
+        'bg-[radial-gradient(60%_50%_at_80%_20%,color-mix(in_oklch,var(--color-primary)_55%,transparent)_0%,transparent_60%),radial-gradient(60%_60%_at_15%_110%,color-mix(in_oklch,var(--color-destructive)_45%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+      mesh: 'bg-[radial-gradient(50%_40%_at_30%_30%,color-mix(in_oklch,var(--color-primary)_35%,transparent)_0%,transparent_60%),radial-gradient(40%_30%_at_80%_60%,color-mix(in_oklch,var(--color-info)_25%,transparent)_0%,transparent_60%),radial-gradient(40%_40%_at_70%_10%,color-mix(in_oklch,var(--color-warning)_18%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+      flat: 'bg-[linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+    },
+  },
+  defaultVariants: {
+    variant: 'glossy',
+  },
+});
 
 const MAX_COUNT = 2;
 
@@ -158,11 +178,13 @@ export const EMPreviewMain = () => {
 };
 
 export const EMPreviewIntro = () => {
+  const { t } = useTranslation('frontline');
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const hours = useAtomValue(erxesMessengerSetupHoursAtom);
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
   const appearance = useAtomValue(erxesMessengerSetupAppearanceAtom);
   const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
+  const intro = useAtomValue(erxesMessengerSetupIntroAtom);
   const setActiveTab = useSetAtom(emPreviewTabAtom);
   const setWebsiteAppUrl = useSetAtom(emPreviewWebsiteAppUrl);
   const setWebsiteAppHeaderTitle = useSetAtom(emPreviewWebsiteAppHeaderTitle);
@@ -196,9 +218,9 @@ export const EMPreviewIntro = () => {
       set.every((d) => activeDays.includes(d)) &&
       activeDays.length === set.length;
 
-    if (hasAll(allDays)) return 'Everyday';
-    if (hasAll(allWeekdays)) return 'Monday – Friday';
-    if (hasAll(weekend)) return 'Weekends';
+    if (hasAll(allDays)) return t('everyday');
+    if (hasAll(allWeekdays)) return t('monday-friday');
+    if (hasAll(weekend)) return t('weekends');
 
     return activeDays
       .map((d) => d.charAt(0).toUpperCase() + d.slice(1))
@@ -234,17 +256,27 @@ export const EMPreviewIntro = () => {
 
   const hasLinks = greeting?.links?.some(Boolean);
 
+  const heroStyle = appearance?.backgroundColor
+    ? ({ '--color-hero': appearance.backgroundColor } as React.CSSProperties)
+    : undefined;
+
   return (
     <div className="flex-1 overflow-y-auto min-h-0 bg-muted hide-scroll">
       {/* Hero header — matches HeaderHero "default" tab */}
-      <div className="min-h-40 bg-transparent px-5 pt-[18px] pb-12 relative flex-auto bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_55%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_100%)]">
+      <div
+        className={cn(
+          heroBackgroundVariants({ variant: appearance?.heroStyleVariant }),
+          'min-h-40 px-5 pt-[18px] pb-12 relative flex-auto',
+        )}
+        style={heroStyle}
+      >
         <div className="flex items-center justify-between">
           <div className="bg-background size-8 rounded flex items-center justify-center p-1">
             {appearance?.logo ? (
               <img
                 alt="logo"
                 src={readImage(appearance.logo)}
-                className="object-center object-scale-down invert dark:invert-0"
+                className="object-center object-scale-down"
               />
             ) : (
               <ErxesLogoIcon className="size-5" />
@@ -254,13 +286,23 @@ export const EMPreviewIntro = () => {
             <ActiveUsers />
           </MembersInline.Provider>
         </div>
-        <div className="mt-11">
-          <h1 className="text-primary-foreground/60 text-[28px] leading-none font-light">
-            Hello there.
+        <div className="mt-11 flex flex-col gap-0.5">
+          <h1 className="text-primary-foreground text-[30px] leading-none">
+            {greeting?.title ?? t('hello-there')}
           </h1>
-          <h2 className="text-primary-foreground text-[30px] leading-none">
-            How can we help?
+          <h2 className="text-primary-foreground/60 text-2xl leading-none font-light">
+            {greeting?.message ?? t('how-can-we-help')}
           </h2>
+          {intro?.welcome && (
+            <div className="mt-3 rounded-2xl py-1.75 ps-2.5 pe-3 flex-none w-auto bg-success/16 flex items-center gap-1.5 border border-success/30">
+              <div className="rounded-full bg-success size-1.5 flex-none" />
+              <span className="flex-1 overflow-x-hidden">
+                <span className="flex tracking-tight text-xs font-medium leading-snug text-primary-foreground text-justify">
+                  {intro?.welcome ?? t('got-any-problems')}
+                </span>
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -277,10 +319,10 @@ export const EMPreviewIntro = () => {
           <div className="bg-background rounded-2xl shadow-sm p-4 flex items-center justify-between">
             <div>
               <div className="font-semibold text-sm text-foreground">
-                Ask a question
+                {t('ask-a-question')}
               </div>
               <div className="text-muted-foreground text-xs font-normal mt-0.5">
-                AI Agent and team can help
+                {t('ai-agent-and-team-can-help')}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -298,12 +340,10 @@ export const EMPreviewIntro = () => {
           <div className="flex flex-col gap-4 w-full p-4 rounded-2xl shadow-xs bg-background">
             <div className="gap-2 flex flex-col">
               <div className="font-semibold text-foreground text-base">
-                {greeting?.title || 'Need help?'}
+                {t('need-help')}
               </div>
               <div className="text-muted-foreground font-normal text-xs">
-                {greeting?.message || 'Get help using erxes.'}
-                {'. '}
-                We're available between{' '}
+                {t('were-available-between')}{' '}
                 <b className="text-foreground">{availabilityText}</b>
                 {hours?.availabilityMethod !== 'manual' && scheduleDays && (
                   <>, {scheduleDays}</>
@@ -311,14 +351,14 @@ export const EMPreviewIntro = () => {
                 {hours?.displayOperatorTimezone && (
                   <b className="text-foreground">
                     {' '}
-                    ({formatTimeZoneLabel(hours?.timezone as string) || 'UTC'})
+                    ({formatTimeZoneLabel(hours?.timezone as string) || t('utc')})
                   </b>
                 )}
               </div>
               {hasLinks && (
                 <div className="flex flex-col gap-1">
                   <span className="text-muted-foreground font-medium text-xs">
-                    Contact us for any questions or concerns.
+                    {t('contact-us-for-questions')}
                   </span>
                   <div className="flex gap-1">
                     {greeting?.links?.map(
@@ -386,10 +426,10 @@ export const EMPreviewIntro = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-semibold text-foreground uppercase tracking-wide">
-                  Popular Article
+                  {t('popular-article')}
                 </div>
                 <div className="text-sm font-normal text-accent-foreground truncate">
-                  Browse our help center
+                  {t('browse-our-help-center')}
                 </div>
               </div>
               <IconArrowRight
@@ -398,7 +438,7 @@ export const EMPreviewIntro = () => {
               />
             </div>
           )}
-          {settings?.websiteApps && (
+          {settings?.websiteApps && settings?.websiteApps?.length > 0 && (
             <div className="flex flex-col gap-4 my-2">
               <span className="font-mono uppercase ps-2 text-muted-foreground font-semibold text-sm">
                 Web apps
@@ -446,10 +486,10 @@ export const EMPreviewIntro = () => {
 };
 
 const NAV_ITEMS = [
-  { label: 'Home', Icon: IconHome, value: 'default' },
-  { label: 'Messages', Icon: IconMessageCircle, value: 'messages' },
-  { label: 'Help', Icon: IconHelpCircle, value: 'faq' },
-  { label: 'Tickets', Icon: IconTicket, value: 'ticket' },
+  { label: 'home', Icon: IconHome, value: 'default' },
+  { label: 'messages', Icon: IconMessageCircle, value: 'messages' },
+  { label: 'help', Icon: IconHelpCircle, value: 'faq' },
+  { label: 'tickets', Icon: IconTicket, value: 'ticket' },
 ] as const;
 
 export const EMPreviewNavigation = ({
@@ -457,6 +497,7 @@ export const EMPreviewNavigation = ({
 }: {
   variant?: 'pill' | 'fluid';
 }) => {
+  const { t } = useTranslation('frontline');
   const [activeTab, setActiveTab] = useAtom(emPreviewTabAtom);
 
   if (!variant || variant === 'fluid') {
@@ -484,7 +525,7 @@ export const EMPreviewNavigation = ({
                         : 'text-muted-foreground',
                     )}
                   >
-                    {item.label}
+                    {t(item.label)}
                   </span>
                 </button>
               </li>
@@ -533,9 +574,10 @@ export const EMPreviewNavigation = ({
 };
 
 export const EMPreviewAuthForm = () => {
+  const { t } = useTranslation('frontline');
   const [value, setValue] = useState<string>('email');
   return (
-    <InfoCard title="Enter your email or phone number" className="w-full">
+    <InfoCard title={t('enter-email-or-phone')} className="w-full">
       <InfoCard.Content>
         <Tabs
           value={value}
@@ -544,33 +586,33 @@ export const EMPreviewAuthForm = () => {
         >
           <Tabs.List className="w-full">
             <Tabs.Trigger value="email" className="flex-1">
-              Email
+              {t('email')}
             </Tabs.Trigger>
             <Tabs.Trigger value="phone" className="flex-1">
-              Phone
+              {t('phone')}
             </Tabs.Trigger>
           </Tabs.List>
-          <Input placeholder="First name" />
-          <Input placeholder="Last name" />
+          <Input placeholder={t('first-name')} />
+          <Input placeholder={t('last-name')} />
           <AnimatePresence mode="popLayout">
             {value === 'email' && (
               <>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Email" />
+                <Label htmlFor="email">{t('email')}</Label>
+                <Input id="email" type="email" placeholder={t('email')} />
               </>
             )}
           </AnimatePresence>
           <AnimatePresence mode="popLayout">
             {value === 'phone' && (
               <>
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">{t('phone')}</Label>
                 <PhoneInput defaultCountry="MN" className="bg-background" />
               </>
             )}
           </AnimatePresence>
         </Tabs>
         <Button type="submit" className="w-full self-end mt-auto">
-          Save
+          {t('save')}
         </Button>
       </InfoCard.Content>
     </InfoCard>
@@ -678,6 +720,7 @@ export const EMPreviewMessagesIntro = () => {
 };
 
 export const EMPreviewTickets = () => {
+  const { t } = useTranslation('frontline');
   const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
   const step = useAtomValue(erxesMessengerSetupStepAtom);
@@ -698,7 +741,7 @@ export const EMPreviewTickets = () => {
               <Empty.Media>
                 <IconTicket size={64} className="stroke-1 text-scroll" />
               </Empty.Media>
-              <Empty.Title>Ticket not configured</Empty.Title>
+              <Empty.Title>{t('ticket-not-configured')}</Empty.Title>
               <Empty.Description>
                 Select a Ticket config in your config to display articles here.
               </Empty.Description>
@@ -728,7 +771,7 @@ export const EMPreviewTickets = () => {
                 <Empty.Media>
                   <IconCircleMinus size={64} className="text-scroll stroke-1" />
                 </Empty.Media>
-                <Empty.Title>No tickets found</Empty.Title>
+                <Empty.Title>{t('no-tickets-found')}</Empty.Title>
                 <Empty.Description>
                   Please create a ticket to get started.
                 </Empty.Description>
@@ -748,7 +791,12 @@ export const EMPreviewTickets = () => {
 };
 
 export const EMPreviewFaq = () => {
+  const { t } = useTranslation('frontline');
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
+  const appearance = useAtomValue(erxesMessengerSetupAppearanceAtom);
+  const heroStyle = appearance?.backgroundColor
+    ? ({ '--color-hero': appearance.backgroundColor } as React.CSSProperties)
+    : undefined;
   const { data, loading } = useQuery<{
     knowledgeBaseTopicDetail: IKnowledgeBaseTopic;
   }>(GET_KNOWLEDGE_BASE_TOPIC_DETAILS, {
@@ -771,11 +819,17 @@ export const EMPreviewFaq = () => {
   ) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex-none pb-5.5 px-5 pt-4.5 relative bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_55%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_100%)]">
+        <div
+          className={cn(
+            heroBackgroundVariants({ variant: appearance?.heroStyleVariant }),
+            'flex-none pb-5.5 px-5 pt-4.5 relative',
+          )}
+          style={heroStyle}
+        >
           <span className="text-primary-foreground/60 text-xs font-light">
-            Browse
+            {t('browse')}
           </span>
-          <h1 className="text-primary-foreground text-2xl">Help center</h1>
+          <h1 className="text-primary-foreground text-2xl">{t('help-center')}</h1>
         </div>
 
         <div className="flex-1 px-2 pb-2 flex flex-col bg-muted relative h-full overflow-y-hidden">
@@ -784,10 +838,9 @@ export const EMPreviewFaq = () => {
               <Empty.Media>
                 <IconBook size={64} className="stroke-1 text-scroll" />
               </Empty.Media>
-              <Empty.Title>Help Center not configured</Empty.Title>
+              <Empty.Title>{t('help-center-not-configured')}</Empty.Title>
               <Empty.Description>
-                Select a Knowledge Base topic in your config to display articles
-                here.
+                {t('select-knowledge-base-topic-description')}
               </Empty.Description>
             </Empty.Header>
           </Empty>
@@ -797,10 +850,16 @@ export const EMPreviewFaq = () => {
   }
   return (
     <div className="flex-1 overflow-y-auto hide-scroll min-h-0 bg-muted">
-      <div className="min-h-40 pb-28 flex-auto px-5 pt-4.5 bg-transparent relative bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_55%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_100%)]">
-        <h1 className="text-primary-foreground text-2xl">Help center</h1>
+      <div
+        className={cn(
+          heroBackgroundVariants({ variant: appearance?.heroStyleVariant }),
+          'min-h-40 pb-28 flex-auto px-5 pt-4.5 relative',
+        )}
+        style={heroStyle}
+      >
+        <h1 className="text-primary-foreground text-2xl">{t('help-center')}</h1>
         <span className="text-primary-foreground/60 text-xs font-light">
-          Browse {title}
+          {t('browse')} {title}
         </span>
         <label
           htmlFor="search-faq"
@@ -809,7 +868,7 @@ export const EMPreviewFaq = () => {
           <IconSearch size={18} className="flex-none" />
           <input
             id="search-faq"
-            placeholder="Search for help"
+            placeholder={t('search-for-help')}
             className="bg-transparent p-0 m-0 text-xs flex-1 leading-none focus-visible:outline-none focus-visible:border-none focus-visible:ring-0 ps-4"
           />
         </label>

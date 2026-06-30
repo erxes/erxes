@@ -12,9 +12,10 @@ import {
   Collapsible,
   Label,
   Separator,
-  Spinner,
+  Skeleton,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 type Props = {
@@ -23,14 +24,17 @@ type Props = {
 };
 
 export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
+  const { t } = useTranslation('frontline');
   const [selectedBotId, setBotId] = useState(botId || '');
   const [isOpen, setOpen] = useState(!botId || false);
 
   const { bots, loading } = useFacebookBots();
-  const selectedBot = bots.find((bot: any) => bot._id === selectedBotId);
+  const selectedBot = bots.find(
+    (bot: IFacebookBot) => bot._id === selectedBotId,
+  );
 
   if (loading) {
-    return <Spinner />;
+    return <MessengerBotSelectorSkeleton />;
   }
 
   const handleSelect = (_id: string) => {
@@ -53,7 +57,7 @@ export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
               </Avatar.Fallback>
             </Avatar>
             <Label className="text-lg text-muted-foreground">
-              {selectedBot?.name || 'Select a bot'}
+              {selectedBot?.name || t('select-a-bot')}
             </Label>
           </div>
           <IconChevronDown className="w-4 h-4" />
@@ -71,6 +75,35 @@ export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
   );
 };
 
+export const MessengerBotSelectorSkeleton = () => {
+  return (
+    <div>
+      <div className="w-full flex flex-row justify-between items-center px-4 py-6">
+        <div className="flex flex-row items-center gap-4">
+          <Skeleton className="w-8 h-8 rounded-full" />
+          <Skeleton className="h-6 w-40" />
+        </div>
+        <Skeleton className="w-4 h-4" />
+      </div>
+      <Separator />
+      <div className="p-4 flex flex-col gap-2">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            className="border rounded-sm px-4 py-2 flex flex-row justify-between items-center"
+            key={index}
+          >
+            <div className="flex flex-row gap-2 items-center">
+              <Skeleton className="w-6 h-6 rounded-full" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+            <Skeleton className="w-4 h-4" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const MessengerBotList = ({
   selectedBotId,
   bots,
@@ -80,21 +113,22 @@ const MessengerBotList = ({
   selectedBotId: string;
   handleSelect: (_id: string) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   if (!bots?.length) {
     return (
       <div className="flex flex-col gap-2 items-center text-accent-foreground">
         <IconRobotFace />
-        <p>There's no bots configured</p>
+        <p>{t('no-bots-configured')}</p>
         <Button variant="secondary" asChild>
           <Link to={`/settings/automations/bots/facebook-messenger-bots`}>
-            <Label>Create first facebook messenger bot</Label>
+            <Label>{t('create-first-bot')}</Label>
           </Link>
         </Button>
       </div>
     );
   }
 
-  return bots.map(({ _id, profileUrl, name }: any) => (
+  return bots.map(({ _id, profileUrl, name }: IFacebookBot) => (
     <div
       className="border rounded-sm px-4 py-2 flex flex-row justify-between items-center"
       key={_id}

@@ -18,6 +18,7 @@ export const POSTS_EDIT = gql`
       authorId
       clientPortalId
       title
+      count
       slug
       content
       excerpt

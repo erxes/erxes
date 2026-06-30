@@ -4,12 +4,14 @@ import { Link, useParams } from 'react-router-dom';
 import { IntegrationLogo } from './IntegrationLogo';
 import { IntegrationType } from '@/types/Integration';
 import { gql, useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 export const IntegrationList = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Command>
       <Command.Group
-        heading="Integrations"
+        heading={t('integrations')}
         className="**:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:mb-1.5 pb-8"
       >
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -62,6 +64,7 @@ export const IntegrationIntro = ({
   integrationType: IntegrationType;
   channelId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   if (!integration) {
     return null;
   }
@@ -84,7 +87,7 @@ export const IntegrationIntro = ({
         </div>
       </div>
       <div className="text-sm text-muted-foreground font-medium">
-        {integration.description}
+        {t(integration.descriptionKey)}
       </div>
     </>
   );

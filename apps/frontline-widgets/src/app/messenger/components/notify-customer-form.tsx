@@ -19,12 +19,14 @@ import { useEditCustomer } from '../hooks/useEditCustomer';
 import { messengerDataAtom } from '../states';
 import { useAtom } from 'jotai';
 import { useConnect } from '../hooks/useConnect';
+import { useInsertMessage } from '../hooks/useInsertMessage';
 
 export const NotifyCustomerForm = () => {
   const { form } = useCreateCustomerForm();
   const { control, handleSubmit, reset } = form;
   const { editCustomer, loading } = useEditCustomer();
   const [messengerData] = useAtom(messengerDataAtom);
+  const { insertMessage } = useInsertMessage();
 
   const customerId = getLocalStorageItem('customerId');
 
@@ -56,6 +58,14 @@ export const NotifyCustomerForm = () => {
               },
             });
           }
+
+          insertMessage({
+            variables: {
+              customerId: customer._id,
+              message: 'Customer registered',
+              contentType: 'customerRegistration',
+            },
+          });
 
           reset();
           toast({

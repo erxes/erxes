@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   EMLayout,
   EMLayoutPreviousStepButton,
@@ -9,7 +10,7 @@ import { EMGREETING_SCHEMA } from '@/integrations/erxes-messenger/constants/emGr
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectMember } from 'ui-modules';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupStepAtom,
@@ -17,9 +18,11 @@ import {
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 
 export const EMGreeting = () => {
+  const { t } = useTranslation('frontline');
+  const atomValue = useAtomValue(erxesMessengerSetupGreetingAtom);
   const form = useForm<z.infer<typeof EMGREETING_SCHEMA>>({
     resolver: zodResolver(EMGREETING_SCHEMA),
-    defaultValues: {
+    defaultValues: atomValue ?? {
       title: '',
       message: '',
     },
@@ -42,24 +45,24 @@ export const EMGreeting = () => {
         atom={erxesMessengerSetupGreetingAtom}
       />
       <form
-        className="flex-auto flex flex-col"
+        className="flex-auto h-full flex flex-col"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <EMLayout
-          title="Greeting"
+          title={t('greeting')}
           actions={
             <>
               <EMLayoutPreviousStepButton />
-              <Button type="submit">Next step</Button>
+              <Button type="submit">{t('next-step')}</Button>
             </>
           }
         >
-          <div className="space-y-6 p-4 pt-0">
+          <div className="space-y-6 p-4 pt-0 overflow-y-auto hide-scroll styled-scroll">
             <Form.Field
               name="title"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Greeting Title</Form.Label>
+                  <Form.Label>{t('greeting-title')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -71,7 +74,7 @@ export const EMGreeting = () => {
               name="message"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Greeting Message</Form.Label>
+                  <Form.Label>{t('greeting-message')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -83,9 +86,9 @@ export const EMGreeting = () => {
               name="supporterIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Supporters</Form.Label>
+                  <Form.Label>{t('supporters')}</Form.Label>
                   <SelectMember.FormItem
-                    placeholder="Select supporters"
+                    placeholder={t('select-supporters')}
                     value={field.value}
                     mode="multiple"
                     onValueChange={field.onChange}
@@ -95,7 +98,7 @@ export const EMGreeting = () => {
               )}
             />
             <Form.Item>
-              <Form.Label>Social Links</Form.Label>
+              <Form.Label>{t('social-links')}</Form.Label>
               {fields.map((field, index) => {
                 return (
                   <div className="flex gap-2 items-center" key={field.id}>
@@ -134,7 +137,7 @@ export const EMGreeting = () => {
                   variant="secondary"
                 >
                   <IconPlus />
-                  Add social link
+                  {t('add-social-link')}
                 </Button>
               </div>
             </Form.Item>

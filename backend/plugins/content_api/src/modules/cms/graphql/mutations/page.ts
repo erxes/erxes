@@ -5,6 +5,7 @@ import {
   assertOwnedDocument,
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -39,11 +40,13 @@ const savePageTranslations = async (
   );
 };
 
-const mutations : Record<string, Resolver> = {
+const mutations: Record<string, Resolver> = {
   async cmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {
     const { user, models, subdomain } = context;
     const { input } = args;
     const { translations, language, ...pageInput } = input;
+
+    await assertCmsAccessByClientPortal(context, pageInput.clientPortalId);
 
     pageInput.createdUserId = user._id;
 
@@ -83,12 +86,20 @@ const mutations : Record<string, Resolver> = {
     return page;
   },
 
-  async cpCmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {
+  async cpCmsPagesAdd(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
     const { models, subdomain } = context;
     const clientPortalId = requireClientPortalId(context);
     const { input } = args;
-    const { translations, language, clientPortalId: _ignored, ...pageInput } =
-      input;
+    const {
+      translations,
+      language,
+      clientPortalId: _ignored,
+      ...pageInput
+    } = input;
 
     pageInput.clientPortalId = clientPortalId;
 
@@ -107,10 +118,7 @@ const mutations : Record<string, Resolver> = {
       Array.isArray(translations) &&
       translations.length > 0
     ) {
-      const defaultLanguage = await getDefaultLanguage(
-        models,
-        clientPortalId,
-      );
+      const defaultLanguage = await getDefaultLanguage(models, clientPortalId);
 
       const fallback =
         (defaultLanguage &&
@@ -146,6 +154,11 @@ const mutations : Record<string, Resolver> = {
     if (!existingPage) {
       throw new Error('Page not found');
     }
+
+    await assertCmsAccessByClientPortal(
+      context,
+      pageInput.clientPortalId || existingPage.clientPortalId,
+    );
 
     if (language && pageInput.clientPortalId) {
       const defaultLanguage = await getDefaultLanguage(
@@ -209,6 +222,14 @@ const mutations : Record<string, Resolver> = {
     const { models } = context;
     const { _id } = args;
 
+    const existingPage = await models.Pages.findOne({ _id }).lean();
+
+    if (!existingPage) {
+      throw new Error('Page not found');
+    }
+
+    await assertCmsAccessByClientPortal(context, existingPage.clientPortalId);
+
     await models.Translations.deleteMany({ objectId: _id, type: 'page' });
 
     return models.Pages.deletePage(_id);
@@ -217,6 +238,6 @@ const mutations : Record<string, Resolver> = {
 
 export default mutations;
 
-mutations.cpCmsPagesAdd.wrapperConfig={
-  forClientPortal:true,
-}
+mutations.cpCmsPagesAdd.wrapperConfig = {
+  forClientPortal: true,
+};

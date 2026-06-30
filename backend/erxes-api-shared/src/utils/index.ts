@@ -4,6 +4,7 @@ export * from './elasticsearch';
 export * from './graphqlPubSub';
 export * from './headers';
 export * from './logs';
+export * from './knowledge';
 export * from './mongo';
 export * from './mq-worker';
 export * from './random';

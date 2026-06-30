@@ -72,7 +72,7 @@ export interface IProductParams extends ICommonParams {
   groupedSimilarity?: string;
   categoryMeta?: string;
   image?: string;
-
+  isSimilarity?: boolean;
   minRemainder?: number;
   maxRemainder?: number;
   minPrice?: number;
@@ -112,6 +112,7 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
@@ -126,6 +127,26 @@ const generateFilter = async (
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] },
   };
+
+  if (isSimilarity) {
+    const similarityGroups = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.find',
+      input: { query: { status: { $ne: 'deleted' } } },
+      defaultValue: [],
+    });
+
+    const starProductIds = (similarityGroups || [])
+      .map((group) => group.starProductId)
+      .filter(Boolean);
+
+    $and.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
+  
 
   if (type) {
     filter.type = type;
@@ -147,13 +168,6 @@ const generateFilter = async (
     let tagIds: string[] = tags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
 
@@ -174,13 +188,6 @@ const generateFilter = async (
     let tagIds: string[] = excludeTags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
 
@@ -397,7 +404,7 @@ const cpProductQueries: Record<string, Resolver> = {
       page: params?.page ?? 1,
     };
 
-    let filter = await generateFilter(subdomain, models, config, params);
+    const filter = await generateFilter(subdomain, models, config, params);
 
     let sortParams: any = { code: 1 };
 

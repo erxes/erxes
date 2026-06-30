@@ -12,6 +12,7 @@ import {
   SelectTriggerVariant,
 } from './SelectShared';
 import { useGetPoslist } from '~/modules/ebarimt/settings/pos-in-ebarimt-config/hooks/useGetPosList';
+import { useTranslation } from 'react-i18next';
 
 interface IPos {
   _id: string;
@@ -83,13 +84,14 @@ const SelectPosValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, poss } = useSelectPosContext();
   const selectedPos = poss?.find((pos) => pos._id === value);
 
   if (!selectedPos) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pos'}
+        {placeholder || t('select-pos')}
       </span>
     );
   }
@@ -121,13 +123,14 @@ const SelectPosCommandItem = ({ pos }: { pos: IPos }) => {
 };
 
 const SelectPosContent = () => {
+  const { t } = useTranslation('mongolian');
   const { poss, loading, error } = useSelectPosContext();
 
   const renderContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -135,7 +138,7 @@ const SelectPosContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error')}: {error.message}
         </div>
       );
     }
@@ -147,7 +150,7 @@ const SelectPosContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search pos" />
+      <Command.Input placeholder={t('search-pos')} />
       <Command.List>{renderContent()}</Command.List>
     </Command>
   );

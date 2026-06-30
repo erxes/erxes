@@ -15,11 +15,10 @@ export const useCurrencies = () => {
     },
   );
 
-  // Both currency fields are sourced from the "mainCurrency" config.
-  // It is usually a single code, so normalise it to a list for the
-  // <Select> options (guarding against unexpected shapes).
-  const currencies = toCurrencyList(data?.configsGetValue?.value);
-  const mainCurrency = currencies[0] ?? '';
+  const currencies = toCurrencyList(data?.dealCurrencies?.value);
+
+  const configuredMain = toCurrencyList(data?.mainCurrencyConfig?.value)[0];
+  const mainCurrency = configuredMain ?? currencies[0] ?? '';
 
   return { currencies, mainCurrency, loading };
 };

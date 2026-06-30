@@ -20,10 +20,12 @@ import {
 
 import { PipelineForm } from './PipelineForm';
 import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
 import { useStages } from '@/deals/stage/hooks/useStages';
 
 export function PipelineFormBar() {
+  const { t } = useTranslation('sales');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -75,12 +77,12 @@ export function PipelineFormBar() {
     }
   }, [initialStages, methods]);
 
-  const onOpen = () => {
+  const onOpen = useCallback(() => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       PipelineHotKeyScope.PipelineAddSheet,
     );
-  };
+  }, [setHotkeyScopeAndMemorizePreviousScope]);
 
   const onClose = useCallback(() => {
     setHotkeyScope(PipelineHotKeyScope.PipelineSettingsPage);
@@ -103,21 +105,20 @@ export function PipelineFormBar() {
     async (data) => {
       const managePipeline = pipelineId ? pipelineEdit : addPipeline;
       const successTitle = pipelineId
-        ? 'Pipeline updated successfully'
-        : 'Pipeline added successfully';
+        ? t('pipeline-updated')
+        : t('pipeline-added');
 
-      const { paymentTypes, erxesAppToken, paymentIds, ...rest } = data;
+      const { paymentTypes, paymentIds, ...rest } = data;
 
       const variables = {
         ...(pipelineId && { _id: pipelineId }),
         ...rest,
         paymentTypes: paymentTypes || [],
-        erxesAppToken: erxesAppToken || '',
         paymentIds: paymentIds || [],
       };
 
       confirm({
-        message: `Are you absolutely sure to continue?`,
+        message: t('are-you-absolutely-sure-to-continue'),
       }).then(() => {
         managePipeline({
           variables,
@@ -128,16 +129,14 @@ export function PipelineFormBar() {
         });
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [addPipeline, pipelineEdit, pipelineId, toast, onClose],
+    [addPipeline, confirm, pipelineEdit, pipelineId, toast, onClose],
   );
 
   useEffect(() => {
     if (pipelineId) {
       onOpen();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search, pipelineId]);
+  }, [location.search, onOpen, pipelineId]);
 
   useScopedHotkeys(
     `c`,
@@ -150,7 +149,7 @@ export function PipelineFormBar() {
     PipelineHotKeyScope.PipelineAddSheet,
   );
 
-  const title = pipelineId ? 'Edit Pipeline' : 'Add Pipeline';
+  const title = pipelineId ? t('edit-pipeline') : t('add-pipeline');
 
   useEffect(() => {
     if (pipelineId && pipelineDetail) {
@@ -173,7 +172,6 @@ export function PipelineFormBar() {
         excludeCategoryIds: pipelineDetail?.excludeCategoryIds || [],
         excludeProductIds: pipelineDetail?.excludeProductIds || [],
         excludeCheckUserIds: pipelineDetail?.excludeCheckUserIds || [],
-        erxesAppToken: pipelineDetail?.erxesAppToken || '',
         paymentIds: pipelineDetail?.paymentIds || [],
         paymentTypes: (pipelineDetail?.paymentTypes || []).map((pt: any) => ({
           ...pt,
@@ -203,7 +201,6 @@ export function PipelineFormBar() {
         excludeCategoryIds: [],
         excludeProductIds: [],
         excludeCheckUserIds: [],
-        erxesAppToken: '',
         paymentIds: [],
         paymentTypes: [],
       });
@@ -241,10 +238,10 @@ export function PipelineFormBar() {
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant={'ghost'} onClick={onClose}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={addLoading || editLoading}>
-                  {pipelineId ? 'Update' : 'Create'}
+                  {pipelineId ? t('update') : t('create')}
                 </Button>
               </Sheet.Footer>
             </form>

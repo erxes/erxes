@@ -1,8 +1,15 @@
 import { Button, Form, Spinner, Switch } from 'erxes-ui';
 import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { DateTimeInput } from './DateTimeInput';
 
-interface PostFormData {
+interface PostThumbnail {
+  url: string;
+  name?: string;
+  type?: string;
+}
+
+export interface PostFormData {
   title: string;
   slug: string;
   description?: string;
@@ -14,7 +21,7 @@ interface PostFormData {
   featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
-  thumbnail?: any | null;
+  thumbnail?: PostThumbnail | null;
   gallery?: string[];
   video?: string | null;
   audio?: string | null;
@@ -25,12 +32,12 @@ interface PostFormData {
   scheduledDate?: Date | null;
   autoArchiveDate?: Date | null;
   enableAutoArchive?: boolean;
-  customFieldsData?: { field: string; value: any }[];
+  customFieldsData?: { field: string; value: unknown }[];
 }
 
 interface AddPostHeaderActionsProps {
   form: UseFormReturn<PostFormData>;
-  onSubmit: () => void;
+  onSubmit: (data?: PostFormData) => void | Promise<void>;
   creating: boolean;
   saving: boolean;
 }
@@ -41,6 +48,7 @@ export const AddPostHeaderActions = ({
   creating,
   saving,
 }: AddPostHeaderActionsProps) => {
+  const { t } = useTranslation('content');
   const status = useWatch({
     control: form.control,
     name: 'status',
@@ -100,7 +108,7 @@ export const AddPostHeaderActions = ({
                   <Form.Control>
                     <div className="flex items-center gap-1">
                       <span className="text-sm text-muted-foreground whitespace-nowrap">
-                        Auto archive
+                        {t('auto-archive')}
                       </span>
                       <Switch
                         checked={!!field.value}
@@ -124,7 +132,7 @@ export const AddPostHeaderActions = ({
                       <DateTimeInput
                         value={field.value || undefined}
                         onChange={field.onChange}
-                        placeholder="Archive date"
+                        placeholder={t('archive-date')}
                       />
                     </Form.Control>
                   </Form.Item>
@@ -153,7 +161,7 @@ export const AddPostHeaderActions = ({
                       }}
                       className="h-8"
                     >
-                      Publish
+                      {t('publish')}
                     </Button>
                     <Button
                       type="button"
@@ -162,7 +170,7 @@ export const AddPostHeaderActions = ({
                       onClick={() => field.onChange('draft')}
                       className="h-8"
                     >
-                      Draft
+                      {t('draft')}
                     </Button>
                     <Button
                       type="button"
@@ -173,7 +181,7 @@ export const AddPostHeaderActions = ({
                       onClick={() => field.onChange('scheduled')}
                       className="h-8"
                     >
-                      Scheduled
+                      {t('scheduled')}
                     </Button>
                   </div>
                 </Form.Control>
@@ -190,22 +198,22 @@ export const AddPostHeaderActions = ({
           <>
             <Spinner size="sm" className="mr-2" />
             {status === 'published'
-              ? 'Publishing...'
+              ? t('publishing')
               : status === 'draft'
-                ? 'Saving...'
+                ? t('saving')
                 : status === 'scheduled'
-                  ? 'Scheduling...'
-                  : 'Saving...'}
+                  ? t('scheduling')
+                  : t('saving')}
           </>
         ) : (
           <div>
             {status === 'published'
-              ? 'Publish'
+              ? t('publish')
               : status === 'draft'
-                ? 'Save Draft'
+                ? t('save-draft')
                 : status === 'scheduled'
-                  ? 'Schedule'
-                  : 'Save'}
+                  ? t('schedule')
+                  : t('save')}
           </div>
         )}
       </Button>

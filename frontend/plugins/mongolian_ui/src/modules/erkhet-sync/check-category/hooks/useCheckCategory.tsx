@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { checkCategoriesMutation } from '../graphql/mutations/checkCategoriesMutations';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtom, atom } from 'jotai';
 import { CategoryItem, CategoryStatus } from '../types/categoryItem';
 import { ICheckCategory } from '../types/checkCategory';
@@ -37,13 +38,14 @@ export const useCheckCategory = () => {
   } = useSyncCategory();
 
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const checkCategory = async () => {
     try {
       const response = await mutate({
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -79,15 +81,15 @@ export const useCheckCategory = () => {
         setToCheckCategories(allCategories);
 
         toast({
-          title: 'Success',
-          description: `${allCategories.length} categories found`,
+          title: t('success'),
+          description: t('categories-found', { count: allCategories.length }),
         });
       }
     } catch (err) {
       console.error('Check category error:', err);
       toast({
-        title: 'Error',
-        description: 'Failed to check categories',
+        title: t('error'),
+        description: t('failed-to-check-categories'),
         variant: 'destructive',
       });
     }
@@ -96,8 +98,8 @@ export const useCheckCategory = () => {
   const syncCategories = async () => {
     if (!toCheckCategories || toCheckCategories.length === 0) {
       toast({
-        title: 'Warning',
-        description: 'No categories to sync',
+        title: t('warning'),
+        description: t('no-categories-to-sync'),
         variant: 'destructive',
       });
       return;

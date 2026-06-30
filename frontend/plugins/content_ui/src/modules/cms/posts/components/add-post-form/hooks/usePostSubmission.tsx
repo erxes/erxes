@@ -1,9 +1,11 @@
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePostMutations } from '../../../../hooks/usePostMutations';
 import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
+import { createSlug } from '../../../../utils/createSlug';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRef, useEffect, useCallback } from 'react';
 
@@ -195,17 +197,6 @@ const computeTitle = (data: PostFormData, contentHtml: string): string => {
   );
 };
 
-const generateSlug = (title: string): string => {
-  const baseSlug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-  const timestamp = Date.now().toString(36).slice(-6);
-
-  return `${baseSlug || 'post'}-${timestamp}`;
-};
-
 const redirectToPosts = (
   websiteId: string,
   searchParams: URLSearchParams,
@@ -269,8 +260,10 @@ const buildPostInput = (
   const videoPayload = normalizeAttachment(data.video ?? undefined);
   const audioPayload = normalizeAttachment(data.audio ?? undefined);
   const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
-  const slug =
-    data.slug?.trim() || (!editingPostId ? generateSlug(main.title) : '');
+  const isEditing = Boolean(editingPostId);
+  const generatedSlug = isEditing ? '' : createSlug(main.title);
+  const shouldSetImages = isEditing || imagesPayload.length > 0;
+  const slug = data.slug?.trim() || generatedSlug;
 
   return {
     clientPortalId: websiteId,
@@ -287,7 +280,7 @@ const buildPostInput = (
     autoArchiveDate: data.enableAutoArchive ? data.autoArchiveDate : undefined,
     excerpt: main.excerpt,
     thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
-    images: imagesPayload.length ? imagesPayload : undefined,
+    images: shouldSetImages ? imagesPayload : undefined,
     video: videoPayload,
     videoUrl: data.videoUrl,
     audio: audioPayload,
@@ -351,6 +344,7 @@ export const usePostSubmission = ({
   translations,
   onClose,
 }: UsePostSubmissionProps) => {
+  const { t } = useTranslation('content');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -383,10 +377,10 @@ export const usePostSubmission = ({
     try {
       if (editingPost?._id) {
         await editPost(editingPost._id, input);
-        toast({ title: 'Saved', description: 'Post saved successfully' });
+        toast({ title: t('saved'), description: t('post-saved-successfully') });
       } else {
         await createPost(input);
-        toast({ title: 'Saved', description: 'Post created successfully' });
+        toast({ title: t('saved'), description: t('post-created-successfully') });
       }
 
       if (onClose) {
@@ -397,10 +391,10 @@ export const usePostSubmission = ({
       redirectToPosts(websiteId, searchParams, navigate);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to save post';
+        error instanceof Error ? error.message : t('failed-to-save-post');
 
       toast({
-        title: 'Error',
+        title: t('error'),
         description: message,
         variant: 'destructive',
       });
@@ -419,8 +413,8 @@ export const usePostSubmission = ({
   onSubmitRef.current = async (data: PostFormData) => {
     if (!data.type) {
       toast({
-        title: 'Validation Error',
-        description: 'Please select a post type',
+        title: t('validation-error'),
+        description: t('please-select-a-post-type'),
         variant: 'destructive',
       });
       return;
@@ -452,7 +446,7 @@ export const usePostSubmission = ({
       input.language = currentLanguage;
     }
 
-    if (isCreating && curDefaultLanguage) {
+    if (curDefaultLanguage) {
       const translationEntries = buildTranslations(
         translationsRef.current || {},
         curDefaultLanguage,

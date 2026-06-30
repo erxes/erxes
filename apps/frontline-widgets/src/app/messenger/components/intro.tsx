@@ -148,7 +148,7 @@ export const Intro = () => {
           </div>
         )}
 
-        {websiteApps && (
+        {websiteApps && websiteApps?.length > 0 && (
           <div>
             <span className="font-mono uppercase ps-2 mb-4 text-muted-foreground font-semibold text-sm">
               Web apps
@@ -213,14 +213,14 @@ export const Messages = () => {
     <div className="flex relative flex-col h-full hide-scroll overflow-y-auto flex-1 font-medium text-sm ">
       <div className="sticky top-0 bg-muted backdrop-blur-2xl z-30 flex-none p-4 pb-2">
         <button
-          className="rounded-2xl group p-4 bg-background flex text-left items-center gap-3 hover:shadow-sm hover:-translate-y-px shadow-xs transition-all ease-in-out cursor-pointer"
+          className="rounded-2xl w-full group p-4 bg-background flex text-left items-center gap-3 hover:shadow-sm hover:-translate-y-px shadow-xs transition-all ease-in-out cursor-pointer"
           onClick={() => switchToTab('chat')}
           tabIndex={0}
         >
           <span className="size-9 bg-primary flex justify-center items-center rounded-full">
             <IconPlus size={20} className="text-primary-foreground" />
           </span>
-          <span>
+          <span className="flex-1">
             <div className="text-foreground text-[14px]">
               Start a new conversation
             </div>

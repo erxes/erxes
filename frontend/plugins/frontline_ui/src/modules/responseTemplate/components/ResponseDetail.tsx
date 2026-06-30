@@ -2,10 +2,12 @@ import { useParams } from 'react-router-dom';
 import { useGetResponse } from '@/responseTemplate/hooks/useGetRespone';
 import { CreateResponseForm } from '@/responseTemplate/components/CreateResponseForm';
 import { Skeleton, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useUpdateResponse } from '@/responseTemplate/hooks/useUpdateResponses';
 import { TUpdateResponseForm } from '@/responseTemplate/types';
 
 export const ResponseDetail = () => {
+  const { t } = useTranslation('frontline');
   const { responseId } = useParams<{
     responseId: string;
   }>();
@@ -16,11 +18,11 @@ export const ResponseDetail = () => {
     updateResponse({
       variables: { ...data, id: responseId },
       onCompleted: (res) => {
-        toast({ title: 'Success!' });
+        toast({ title: t('success') });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

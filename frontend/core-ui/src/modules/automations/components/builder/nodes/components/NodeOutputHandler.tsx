@@ -1,12 +1,8 @@
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationNodeType } from '@/automations/types';
 import { IconGripVertical, IconLinkPlus, IconPlus } from '@tabler/icons-react';
-import {
-  ConnectionState,
-  Handle,
-  Position,
-  useConnection,
-} from '@xyflow/react';
+import { Handle, Position, useConnection } from '@xyflow/react';
 import { Button, cn } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { memo, useCallback } from 'react';
@@ -16,21 +12,15 @@ interface NodeOutputHandlerProps extends React.HTMLAttributes<HTMLDivElement> {
   nodeType: AutomationNodeType;
   showAddButton: boolean;
   addButtonClassName?: string;
+  flowDirection?: TAutomationFlowDirection;
 }
 
-type NodeOutputAwaitConnectionHandleProps = {
+type AwaitToConnectButtonProps = {
   nodeType: AutomationNodeType;
   addButtonClassName?: string;
   nodeHandleId: string;
   showButton: boolean;
-  props: any;
-};
-const selector = (
-  { inProgress, fromHandle }: ConnectionState,
-  handleId: string,
-) => {
-  const [nodeId] = handleId.split('__');
-  return fromHandle?.nodeId === nodeId && inProgress;
+  isVertical: boolean;
 };
 
 const AwaitToConnectButtonIcon = ({
@@ -62,89 +52,89 @@ const AwaitToConnectButtonIcon = ({
   return (
     <motion.div
       key="plus"
+      className="relative size-4"
       initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
       animate={{ opacity: 1, rotate: 0, scale: 1 }}
       exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
       transition={{ duration: 0.2 }}
     >
-      <IconPlus className="size-4 text-accent-foreground" />
+      <IconPlus className="absolute inset-0 size-4 text-accent-foreground transition-opacity group-hover:opacity-0" />
+      <IconGripVertical className="absolute inset-0 size-4 text-accent-foreground opacity-0 transition-opacity group-hover:opacity-100" />
     </motion.div>
   );
 };
 
+// React Flow 12.8.3+: children of a Handle positioned outside it still act as
+// connection drag sources natively — no pointer forwarding needed.
 const AwaitToConnectButton = memo(
-  React.forwardRef<HTMLDivElement, NodeOutputAwaitConnectionHandleProps>(
-    (
-      { showButton, nodeType, addButtonClassName, nodeHandleId, props },
-      ref,
-    ) => {
-      const {
-        awaitingToConnectNodeId,
-        setAwaitingToConnectNodeId,
-        setQueryParams,
-      } = useAutomation();
+  ({
+    showButton,
+    nodeType,
+    addButtonClassName,
+    nodeHandleId,
+    isVertical,
+  }: AwaitToConnectButtonProps) => {
+    const {
+      awaitingToConnectNodeId,
+      setAwaitingToConnectNodeId,
+      setQueryParams,
+    } = useAutomation();
+    const isConnectionDragging = useConnection(
+      (connection) => connection.inProgress,
+    );
 
-      const handleClick = useCallback(
-        (e: React.MouseEvent<HTMLButtonElement>) => {
-          e.stopPropagation();
-          e.preventDefault();
-          if (!awaitingToConnectNodeId) {
-            setQueryParams({ activeNodeId: null });
-          }
-          setAwaitingToConnectNodeId(
-            awaitingToConnectNodeId === nodeHandleId ? '' : nodeHandleId,
-          );
-        },
-        [awaitingToConnectNodeId, nodeHandleId],
-      );
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!awaitingToConnectNodeId) {
+          setQueryParams({ activeNodeId: null });
+        }
+        setAwaitingToConnectNodeId(
+          awaitingToConnectNodeId === nodeHandleId ? '' : nodeHandleId,
+        );
+      },
+      [awaitingToConnectNodeId, nodeHandleId],
+    );
 
-      const isSelected = awaitingToConnectNodeId === nodeHandleId;
+    const isSelected = awaitingToConnectNodeId === nodeHandleId;
 
-      if (!showButton) {
-        return null;
-      }
+    if (!showButton || isConnectionDragging) return null;
 
-      return (
-        <div className="absolute flex items-center top-1/2 -translate-y-1/2 translate-x-3 pointer-events-none ml-0.5">
-          <div className="bg-accent-foreground h-px w-10 -z-1" />
-          <div className="nodrag nopan pointer-events-auto relative group">
-            {!isSelected && (
-              <Handle
-                key="right"
-                id="right"
-                type="source"
-                ref={ref}
-                position={Position.Right}
-                {...props}
-                className={cn(
-                  '!h-6 !w-0 !shadow-sm !bg-background flex justify-end items-center opacity-0',
-                  '!shadow-button-outline !hover:bg-accent !rounded absolute inset-0 z-0',
-                  '!cursor-grab group-hover:!h-7 group-hover:!w-8 group-hover:opacity-100 transition-all duration-100 ease-in-out',
-                )}
-              >
-                <IconGripVertical className="size-2 text-accent-foreground pointer-events-none" />
-              </Handle>
-            )}
-
-            <Button
-              onClick={handleClick}
-              size="sm"
-              variant="outline"
-              {...props}
-              className={cn('relative z-10', addButtonClassName)}
-            >
-              <AnimatePresence mode="wait">
-                <AwaitToConnectButtonIcon
-                  isSelected={isSelected}
-                  nodeType={nodeType}
-                />
-              </AnimatePresence>
-            </Button>
-          </div>
-        </div>
-      );
-    },
-  ),
+    return (
+      <div
+        className={cn(
+          'absolute flex pointer-events-none',
+          isVertical
+            ? 'left-1/2 top-1/2 -translate-x-1/2 flex-col items-center'
+            : 'top-1/2 -translate-y-1/2 left-full items-center',
+        )}
+      >
+        <div
+          className={cn('bg-accent-foreground ', {
+            'h-5 w-px mt-[7px]': isVertical,
+            'h-px w-4': !isVertical,
+          })}
+        />
+        <Button
+          onClick={handleClick}
+          size="sm"
+          variant="outline"
+          className={cn(
+            'group nodrag pointer-events-auto cursor-grab',
+            addButtonClassName,
+          )}
+        >
+          <AnimatePresence mode="wait">
+            <AwaitToConnectButtonIcon
+              isSelected={isSelected}
+              nodeType={nodeType}
+            />
+          </AnimatePresence>
+        </Button>
+      </div>
+    );
+  },
 );
 
 export const NodeOutputHandler = memo(
@@ -156,15 +146,13 @@ export const NodeOutputHandler = memo(
         showAddButton,
         nodeType,
         handlerId,
-        onClick,
+        flowDirection = 'horizontal',
         children,
         ...props
       },
       ref,
     ) => {
-      const connectionInProgress = useConnection((connection) =>
-        selector(connection, handlerId),
-      );
+      const isVertical = flowDirection === 'vertical';
 
       const nodeHandleId = `${nodeType}__${handlerId}`;
 
@@ -174,7 +162,7 @@ export const NodeOutputHandler = memo(
           id="right"
           type="source"
           ref={ref}
-          position={Position.Right}
+          position={isVertical ? Position.Bottom : Position.Right}
           {...props}
           className={cn('!size-4 -z-10', className)}
         >
@@ -182,9 +170,8 @@ export const NodeOutputHandler = memo(
             addButtonClassName={addButtonClassName}
             nodeType={nodeType}
             nodeHandleId={nodeHandleId}
-            showButton={!connectionInProgress && showAddButton}
-            ref={ref}
-            props={props}
+            showButton={showAddButton}
+            isVertical={isVertical}
           />
           {children}
         </Handle>

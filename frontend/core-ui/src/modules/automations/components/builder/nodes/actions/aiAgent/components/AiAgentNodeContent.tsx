@@ -67,6 +67,7 @@ const AiAgentClassifyTopic = ({
 }: NodeContentComponentProps<TAiAgentConfigForm>) => {
   const OptionConnectHandle = useAutomationOptionalConnect({
     id: nodeData.id,
+    flowDirection: nodeData.flowDirection,
   });
   const { topics = [] } = (config || {}) as Extract<
     TAiAgentConfigForm,

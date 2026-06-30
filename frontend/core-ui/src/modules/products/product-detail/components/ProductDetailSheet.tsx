@@ -1,12 +1,15 @@
 import {
+  cn,
   Empty,
   FocusSheet,
   Form,
   ScrollArea,
   Tabs,
-  useQueryState,
+  useFocusSheet,
+  useMultiQueryState,
   useToast,
 } from 'erxes-ui';
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,7 +24,9 @@ import {
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { ProductDetailSidebar } from '@/products/product-detail/components/ProductDetailSidebar';
 import { ProductDetailFooter } from '@/products/product-detail/components/ProductDetailFooter';
+import { FormWidgetSideTabs } from '@/widgets/components/FormWidgets';
 import { ProductDetailFields } from '@/products/product-detail/components/ProductDetailFields';
+import { ProductDetailSimilarity } from '@/products/product-detail/components/ProductDetailSimilarity';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import {
   EMPTY_PRODUCT_FORM_VALUES,
@@ -29,19 +34,28 @@ import {
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
-import { useUom } from '@/products/hooks/useUom';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const { toast } = useToast();
-  const [open, setOpen] = useQueryState<string>(PRODUCT_QUERY_KEY);
-  const { productDetail, productId, loading, error } =
-    useProductDetailWithQuery();
-  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  
+  const [queries, setQueries] = useMultiQueryState<{
+    [PRODUCT_QUERY_KEY]: string;
+    tab: string;
+  }>([PRODUCT_QUERY_KEY, 'tab']);
+
+  const { 
+    [PRODUCT_QUERY_KEY]: open, 
+    tab: selectedTab = 'overview' 
+  } = queries || {}
+  
+  const setSelectedTab = (tab: string | null) => setQueries({ tab });
+  
+  const { productDetail, productId, loading, error, refetch } = useProductDetailWithQuery();
+  
   const { productsEdit, loading: editLoading } = useProductsEdit();
-  const { uoms } = useUom({});
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema),
@@ -85,15 +99,12 @@ export const ProductDetailSheet = () => {
     const subUoms = Array.isArray(data.subUoms)
       ? data.subUoms.map((item) => ({
           ...item,
+          uom: item?.uom,
           ratio: normalizeSubUomRatio(item?.ratio),
         }))
       : data.subUoms;
 
-    const uomName = data.uom
-      ? uoms.find((u) => u._id === data.uom)?.name || data.uom
-      : data.uom;
-
-    return { ...data, attachment, attachmentMore, subUoms, uom: uomName };
+    return { ...data, attachment, attachmentMore, subUoms };
   };
 
   const handleSave = (data: ProductFormValues) => {
@@ -140,14 +151,18 @@ export const ProductDetailSheet = () => {
   };
 
   return (
-    <FocusSheet open={!!open} onOpenChange={() => setOpen(null)}>
-      <FocusSheet.View
+    <FocusSheet
+      open={!!open}
+      onOpenChange={() =>
+        setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })
+      }
+    >
+      <ProductDetailSheetView
         loading={loading}
         error={!!error}
         notFound={!productDetail}
         notFoundState={<ProductDetailEmptyState />}
         errorState={<ProductDetailErrorState />}
-        className="w-[70%] md:w-[70%]"
       >
         <FocusSheet.Header title={productDetail?.name || t('product-detail')} />
         <FocusSheet.Content className="flex overflow-hidden flex-row flex-1 min-w-0 min-h-0">
@@ -160,57 +175,65 @@ export const ProductDetailSheet = () => {
                 onSubmit={form.handleSubmit(handleSave, handleInvalid)}
                 className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0"
               >
-                <ScrollArea
-                  className="flex-1 min-h-0"
-                  viewportClassName="h-full min-h-[200px]"
-                >
-                  <Tabs
-                    value={selectedTab ?? 'overview'}
-                    onValueChange={setSelectedTab}
-                    className="h-full"
+                {selectedTab === 'similarity' ? (
+                  <ProductDetailSimilarity
+                    key={`similarity-${productDetail?._id || productId || 'empty'}`}
+                    product={productDetail}
+                    callBack={refetch}
+                  />
+                ) : (
+                  <ScrollArea
+                    className="flex-1 min-h-0"
+                    viewportClassName="h-full min-h-[200px]"
                   >
-                    <Tabs.Content
-                      value="overview"
-                      className="data-[state=active]:min-h-0"
+                    <Tabs
+                      value={selectedTab ?? 'overview'}
+                      onValueChange={setSelectedTab}
+                      className="h-full"
                     >
-                      <ProductDetailFields
-                        key={`${productDetail?._id || productId || 'empty'}-${formVersion}`}
-                        productDetail={productDetail}
-                      />
-                    </Tabs.Content>
-                    <Tabs.Content
-                      value="properties"
-                      className="p-4 data-[state=active]:min-h-0"
-                    >
-                      <FieldsInDetail
-                        key={productDetail?._id || productId || 'empty'}
-                        fieldContentType="core:product"
-                        propertiesData={productDetail?.propertiesData || {}}
-                        mutateHook={useProductCustomFieldEdit}
-                        id={productDetail?._id || ''}
-                      />
-                    </Tabs.Content>
-                    <Tabs.Content
-                      value="activity"
-                      className="data-[state=active]:min-h-0"
-                    >
-                      <div className="flex flex-col mb-12">
-                        {!!productDetail?._id && (
-                          <AddInternalNote
-                            key={`note-${productDetail._id}`}
-                            contentTypeId={productDetail._id}
-                            contentType="core:product"
-                          />
-                        )}
-                        <ActivityLogs
-                          key={`activity-${productDetail?._id || productId || 'empty'}`}
-                          targetId={productDetail?._id || ''}
-                          customActivities={productCustomActivities}
+                      <Tabs.Content
+                        value="overview"
+                        className="data-[state=active]:min-h-0"
+                      >
+                        <ProductDetailFields
+                          key={`${productDetail?._id || productId || 'empty'}-${formVersion}`}
+                          productDetail={productDetail}
                         />
-                      </div>
-                    </Tabs.Content>
-                  </Tabs>
-                </ScrollArea>
+                      </Tabs.Content>
+                      <Tabs.Content
+                        value="properties"
+                        className="p-4 data-[state=active]:min-h-0"
+                      >
+                        <FieldsInDetail
+                          key={productDetail?._id || productId || 'empty'}
+                          fieldContentType="core:product"
+                          propertiesData={productDetail?.propertiesData || {}}
+                          mutateHook={useProductCustomFieldEdit}
+                          id={productDetail?._id || ''}
+                        />
+                      </Tabs.Content>
+                      <Tabs.Content
+                        value="activity"
+                        className="data-[state=active]:min-h-0"
+                      >
+                        <div className="flex flex-col mb-12">
+                          {!!productDetail?._id && (
+                            <AddInternalNote
+                              key={`note-${productDetail._id}`}
+                              contentTypeId={productDetail._id}
+                              contentType="core:product"
+                            />
+                          )}
+                          <ActivityLogs
+                            key={`activity-${productDetail?._id || productId || 'empty'}`}
+                            targetId={productDetail?._id || ''}
+                            customActivities={productCustomActivities}
+                          />
+                        </div>
+                      </Tabs.Content>
+                    </Tabs>
+                  </ScrollArea>
+                )}
                 <ProductDetailFooter
                   form={form}
                   activeTab={selectedTab ?? 'overview'}
@@ -221,9 +244,44 @@ export const ProductDetailSheet = () => {
               </form>
             </Form>
           </div>
+          <FormWidgetSideTabs
+            contentType="core:product"
+            contentId={productDetail?._id}
+            form={form}
+          />
         </FocusSheet.Content>
-      </FocusSheet.View>
+      </ProductDetailSheetView>
     </FocusSheet>
+  );
+};
+
+const ProductDetailSheetView = ({
+  children,
+  ...props
+}: {
+  children: ReactNode;
+  loading?: boolean;
+  error?: boolean;
+  notFound?: boolean;
+  notFoundState?: ReactNode;
+  errorState?: ReactNode;
+}) => {
+  const { activeSideTab } = useFocusSheet();
+
+  const widthClass = activeSideTab
+    ? 'w-[90%] md:w-[90%] lg:w-[90%]'
+    : 'w-[70%] md:w-[70%] lg:w-[70%]';
+
+  return (
+    <FocusSheet.View
+      className={cn(
+        'transition-[width] duration-300 ease-in-out',
+        widthClass,
+      )}
+      {...props}
+    >
+      {children}
+    </FocusSheet.View>
   );
 };
 

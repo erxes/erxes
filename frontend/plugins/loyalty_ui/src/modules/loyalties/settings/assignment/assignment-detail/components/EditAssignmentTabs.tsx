@@ -1,6 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AddAssignmentCampaignForm } from '../../add-assignment-campaign/components/AddAssignmentCampaignForm';
 import { AssignmentFormValues } from '../../constants/assignmentFormSchema';
 import { useAssignmentDetailWithQuery } from '../hooks/useAssignmentDetailWithQuery';
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export const EditAssignmentTabs = ({ onOpenChange, form }: Props) => {
+  const { t } = useTranslation('loyalty');
   const { assignmentEdit, loading: editLoading } = useAssignmentEdit();
   const { assignmentDetail } = useAssignmentDetailWithQuery();
   const { toast } = useToast();
@@ -43,7 +45,7 @@ export const EditAssignmentTabs = ({ onOpenChange, form }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -62,7 +64,7 @@ export const EditAssignmentTabs = ({ onOpenChange, form }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        Cancel
+        {t('cancel')}
       </Button>
       <Button
         type="button"
@@ -70,7 +72,7 @@ export const EditAssignmentTabs = ({ onOpenChange, form }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? 'Updating...' : 'Update'}
+        {editLoading ? t('updating') : t('update')}
       </Button>
     </Sheet.Footer>
   );

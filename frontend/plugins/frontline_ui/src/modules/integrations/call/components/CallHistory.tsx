@@ -1,12 +1,14 @@
 import { useCallHistories } from '@/integrations/call/hooks/useCallHistories';
 import { callUiAtom } from '@/integrations/call/states/callUiAtom';
 import { callNumberState } from '@/integrations/call/states/callWidgetStates';
+import { useTranslation } from 'react-i18next';
 import {
   IconArrowUpRight,
+  IconPhoneIncoming,
   IconPhoneOutgoing,
   IconPhoneX,
 } from '@tabler/icons-react';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import {
   Tabs,
   Command,
@@ -22,12 +24,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const CallHistory = () => {
+  const { t } = useTranslation('frontline');
   const [totalCalls, setTotalCalls] = useState(0);
   return (
     <Tabs defaultValue="all">
       <Tabs.List className="grid grid-cols-2 px-2">
-        <Tabs.Trigger value="all">All calls ({totalCalls})</Tabs.Trigger>
-        <Tabs.Trigger value="missed">Missed calls</Tabs.Trigger>
+        <Tabs.Trigger value="all">{t('all-calls', { count: totalCalls })}</Tabs.Trigger>
+        <Tabs.Trigger value="missed">{t('missed-calls')}</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="all" className="h-96">
         <CallHistoryList missed={false} setTotalCalls={setTotalCalls} />
@@ -46,6 +49,7 @@ export const CallHistoryList = ({
   missed?: boolean;
   setTotalCalls?: (totalCalls: number) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const { callHistoriesTotalCount, callHistories } = useCallHistories(missed);
   const setCallUi = useSetAtom(callUiAtom);
   const setPhone = useSetAtom(callNumberState);
@@ -78,6 +82,8 @@ export const CallHistoryList = ({
           >
             {callHistory.callStatus === 'cancelled' ? (
               <IconPhoneX className="text-destructive" />
+            ) : callHistory.callType === 'incoming' ? (
+              <IconPhoneIncoming className="text-accent-foreground" />
             ) : (
               <IconPhoneOutgoing className="text-accent-foreground" />
             )}
@@ -89,7 +95,9 @@ export const CallHistoryList = ({
               {formatPhoneNumber({ value: callHistory.customerPhone })}
             </span>
             <span className="ml-auto text-accent-foreground">
-              {format(new Date(callHistory.callStartTime), 'MMM, dd, HH:mm')}
+              {callHistory.callStartTime
+                ? formatInTimeZone(new Date(callHistory.callStartTime), 'UTC', 'MMM, dd, HH:mm')
+                : ''}
             </span>
             <Tooltip.Provider>
               <Tooltip>
@@ -108,7 +116,7 @@ export const CallHistoryList = ({
                     <IconArrowUpRight />
                   </Button>
                 </Tooltip.Trigger>
-                <Tooltip.Content>Go to conversation</Tooltip.Content>
+                <Tooltip.Content>{t('go-to-conversation')}</Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
           </Command.Item>

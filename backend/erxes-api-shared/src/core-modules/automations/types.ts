@@ -4,11 +4,14 @@ import {
   CheckCustomTriggerInput,
   FindObjectInput,
   CheckTargetMatchInput,
+  LoadAiKnowledgeDocumentBatchInput,
+  LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
-  ReplacePlaceholdersInput,
   SetPropertiesInput,
 } from './zodTypes';
+import { IAutomationExecution } from './definitions';
+import type { TKnowledgeDocument } from '../../utils/knowledge';
 
 export type IAutomationContext = {
   subdomain: string;
@@ -19,6 +22,11 @@ export type TAutomationOutputVariable = {
   key: string;
   label: string;
   exposure?: 'placeholder' | 'reference';
+  field?: string;
+  referenceFields?: TAutomationOutputVariable[];
+  referenceType?: string;
+  sourceType?: string;
+  type?: string;
 };
 
 export type TAutomationOutputPropertySource = {
@@ -29,20 +37,35 @@ export type TAutomationOutputPropertySource = {
 
 export type TAutomationOutputDefinition = {
   variables: TAutomationOutputVariable[];
-  propertySources?: TAutomationOutputPropertySource[];
+  propertySource?: TAutomationOutputPropertySource;
   resolverKeys?: string[];
 };
 
-export type TAutomationRuntimeOutputResolver<TModels = any> = (args: {
-  subdomain: string;
-  source: Record<string, any>;
-  path: string;
-  defaultValue?: any;
-}) => Promise<any>;
+export type TAutomationSetPropertyTarget = {
+  label: string;
+  description?: string;
+  type: string;
+  source: 'target' | 'relation' | 'resolver';
+  cardinality: 'one' | 'many';
+  sourceType?: string;
+  relation?: {
+    contentType: string;
+    relatedContentType: string;
+  };
+  resolverKey?: string;
+};
 
-export type TAutomationRuntimeOutputDefinition<TModels = any> =
+export type TAutomationRuntimeOutputResolver<TTarget = Record<string, any>> =
+  (args: {
+    subdomain: string;
+    source: TTarget;
+    path: string;
+    defaultValue?: any;
+  }) => any | Promise<any>;
+
+export type TAutomationRuntimeOutputDefinition<TTarget = any> =
   TAutomationOutputDefinition & {
-    resolvers?: Record<string, TAutomationRuntimeOutputResolver<TModels>>;
+    resolvers?: Record<string, TAutomationRuntimeOutputResolver<TTarget>>;
   };
 
 export type TAutomationFindObjectLookupFieldDefinition = {
@@ -73,6 +96,7 @@ export type IAutomationsTriggerConfig = {
     label: string;
     description: string;
   }[];
+  setPropertyTargets?: TAutomationSetPropertyTarget[];
 };
 
 export type IAutomationsActionConfigFolkConfig = {
@@ -89,13 +113,16 @@ export type IAutomationsActionConfig = {
   icon: string;
   label: string;
   description: string;
+  group?: string;
   isAvailableOptionalConnect?: boolean;
   emailRecipientsConst?: any;
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
+  allowedMultiTriggerTypes?: string[];
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
+  setPropertyTargets?: TAutomationSetPropertyTarget[];
 };
 
 export type IAutomationsBotsConfig = {
@@ -105,6 +132,40 @@ export type IAutomationsBotsConfig = {
   description: string;
   logo: string;
   totalCountQueryName: string;
+};
+
+export type TAiKnowledgeSourceConfig = {
+  key: string;
+  label: string;
+  moduleName: string;
+  sourceSelector: 'remote-module' | 'local';
+};
+
+export type TAiToolConfig = {
+  key: string;
+  label: string;
+  moduleName: string;
+  input: string;
+  output: string;
+};
+
+export type TAutomationAiConfig = {
+  knowledgeSources?: TAiKnowledgeSourceConfig[];
+  tools?: TAiToolConfig[];
+};
+
+export type TAiToolLookupResult = {
+  toolKey: string;
+  title: string;
+  items: Record<string, unknown>[];
+  summary?: string;
+};
+
+export type TAiKnowledgeDocumentBatchResult = {
+  documents: TKnowledgeDocument[];
+  totalCount: number;
+  nextCursor?: string;
+  hasMore: boolean;
 };
 
 export type TAiContextHistoryItem = {
@@ -142,6 +203,8 @@ type IAutomationTriggersActionsConfig =
 export type AutomationConstants = IAutomationTriggersActionsConfig & {
   bots?: IAutomationsBotsConfig[];
   findObjectTargets?: TAutomationFindObjectTargetDefinition[];
+  setPropertyTargets?: TAutomationSetPropertyTarget[];
+  ai?: TAutomationAiConfig;
 };
 
 export type TAutomationFindObjectResult = {
@@ -180,11 +243,6 @@ export interface AutomationProducers {
     };
   }>;
 
-  getAdditionalAttributes?: (
-    args: z.infer<typeof AutomationBaseInput>,
-    context: IAutomationContext,
-  ) => Promise<Array<TAutomationAdditionalAttribute>>;
-
   generateAiContext?: (
     args: {
       subdomain: string;
@@ -198,15 +256,21 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<TAiContext | null>;
 
-  replacePlaceHolders?: (
-    args: z.infer<typeof ReplacePlaceholdersInput>,
+  loadAiKnowledgeDocumentBatch?: (
+    args: z.infer<typeof LoadAiKnowledgeDocumentBatchInput>,
     context: IAutomationContext,
-  ) => Promise<any>;
+  ) => Promise<TAiKnowledgeDocumentBatchResult>;
+
+  lookupAiTool?: (
+    args: z.infer<typeof LookupAiToolInput>,
+    context: IAutomationContext,
+  ) => Promise<TAiToolLookupResult>;
+
   resolveOutputPaths?: (
     args: z.infer<typeof ResolveOutputPathsInput>,
     context: IAutomationContext,
   ) => Promise<Record<string, any>>;
-  checkCustomTrigger?: <TTarget = any, TConfig = any>(
+  checkCustomTrigger?: (
     args: z.infer<typeof CheckCustomTriggerInput>,
     context: IAutomationContext,
   ) => Promise<boolean>;
@@ -224,60 +288,80 @@ export interface AutomationProducers {
   setProperties?: (
     args: z.infer<typeof SetPropertiesInput>,
     context: IAutomationContext,
-  ) => Promise<{ module: string; fields: string; result: any[] }>;
+  ) => Promise<TAutomationSetPropertyResult>;
 }
 
 export interface AutomationConfigs extends AutomationProducers {
   constants?: AutomationConstants;
 }
 
-export interface IReplacePlaceholdersProps<TModels> {
-  models: TModels;
-  subdomain: string;
-  actionData: Record<string, any>;
-  target: Record<string, any>;
-  customResolver?: {
-    isRelated?: boolean;
-    resolver?: (
-      models: TModels,
-      subdomain: string,
-      referenceObject: any,
-      placeholderKey: string,
-      props: any,
-    ) => Promise<any>;
-    props?: any;
-  };
-  complexFields?: string[];
-}
-
 export interface IPerValueProps<TModels> {
   models: TModels;
   subdomain: string;
-  relatedItem: any;
-  rule: any;
-  target: any;
-  getRelatedValue: any;
+  relatedItem: Record<string, unknown>;
+  rule: TAutomationSetPropertyRule;
+  target: Record<string, unknown>;
   triggerType?: string;
   targetType?: string;
   serviceName?: string;
-  execution: any;
+  execution: Record<string, unknown>;
 }
 
-type IPRopertyRule = {
+export type TAutomationSetPropertyRule = {
   field: string;
+  fieldLabel?: string;
   operator: string;
-  value: any;
-  forwardTo: any;
+  value?: unknown;
+  forwardTo?: unknown;
+  isExpression?: boolean;
+};
+
+export type TAutomationSetPropertyChange = {
+  field: string;
+  fieldLabel: string;
+  operator: string;
+  placeholder?: string;
+  value?: unknown;
+  status: 'updated' | 'cleared' | 'skipped' | 'failed';
+};
+
+export type TAutomationSetPropertyResult = {
+  target: {
+    label: string;
+    type: string;
+    count: number;
+  };
+  changes: TAutomationSetPropertyChange[];
+  summary: string;
+};
+
+export type TAutomationSetPropertyModifier = {
+  $set?: Record<string, unknown>;
+  $unset?: Record<string, unknown>;
+  $push?: Record<string, unknown>;
+  $addToSet?: Record<string, unknown>;
+  $pull?: Record<string, unknown>;
+};
+
+export type TAutomationSetPropertyUpdateArgs = {
+  selector: Record<string, unknown>;
+  modifier: TAutomationSetPropertyModifier;
+  item?: Record<string, unknown>;
 };
 
 export interface IPropertyProps<TModels> {
   models: TModels;
   subdomain: string;
   module: string;
-  rules: IPRopertyRule[];
-  execution: any;
-  getRelatedValue: any;
-  relatedItems: any[];
+  rules: TAutomationSetPropertyRule[];
+  execution: IAutomationExecution;
+  setPropertyTarget?: TAutomationSetPropertyTarget;
+  relatedItems?: Record<string, unknown>[];
+  selector?: Record<string, unknown>;
+  fetchItems?: (
+    selector: Record<string, unknown>,
+  ) => Promise<Record<string, unknown>[]>;
+  update?: (args: TAutomationSetPropertyUpdateArgs) => Promise<unknown>;
   triggerType?: string;
   targetType?: string;
 }
@@ -332,14 +416,14 @@ export type AutomationExecutionSetWaitCondition =
 
 export enum TAutomationProducers {
   RECEIVE_ACTIONS = 'receiveActions',
-  REPLACE_PLACEHOLDERS = 'replacePlaceHolders',
   RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   CHECK_TARGET_MATCH = 'checkTargetMatch',
   FIND_OBJECT = 'findObject',
-  GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',
+  LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH = 'loadAiKnowledgeDocumentBatch',
+  LOOKUP_AI_TOOL = 'lookupAiTool',
 }
 
 export enum TAutomationActionFolks {

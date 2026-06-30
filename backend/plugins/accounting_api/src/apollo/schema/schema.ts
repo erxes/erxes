@@ -9,6 +9,11 @@ import {
   types as accountingsConfigTypes,
 } from '@/accounting/graphql/schemas/config';
 import {
+  mutations as checkSyncedMutations,
+  queries as checkSyncedQueries,
+  types as checkSyncedTypes,
+} from '@/accounting/graphql/schemas/checkSynced';
+import {
   mutations as ctaxRowMutations,
   queries as ctaxRowQueries,
   types as ctaxRowTypes,
@@ -80,6 +85,7 @@ export const types = `
   ${vatRowTypes()}
   ${ctaxRowTypes()}
   ${accountingsConfigTypes}
+  ${checkSyncedTypes}
   ${transactionTypes()}
   ${accInventoryTypes}
   ${adjustInventoryTypes}
@@ -94,6 +100,7 @@ export const types = `
 export const queries = `
   ${accountQueries}
   ${accountingsConfigQueries}
+  ${checkSyncedQueries}
   ${vatRowQueries}
   ${ctaxRowQueries}
   ${transactionQueries}
@@ -109,6 +116,7 @@ export const queries = `
 export const mutations = `
   ${accountMutations}
   ${accountingsConfigMutations}
+  ${checkSyncedMutations}
   ${vatRowMutations}
   ${ctaxRowMutations}
   ${transactionMutations}

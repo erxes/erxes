@@ -4,6 +4,7 @@ import {
   IconPhone,
   IconSearch,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Breadcrumb,
@@ -23,9 +24,9 @@ import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import {
-  CallQueueMemberList,
-  useCallQueueMemberList,
-} from '@/integrations/call/hooks/useCallQueueMemberList';
+  ICallQueueAgent,
+  ICallQueueRealtimeSnapshot,
+} from '@/integrations/call/types/callTypes';
 import { useState } from 'react';
 import {
   formatSeconds,
@@ -36,7 +37,12 @@ import { useSubscription } from '@apollo/client';
 import { useCallDurationFromDate } from '@/integrations/call/hooks/useCallDuration';
 import { useCallQueueInitialList } from '@/integrations/call/hooks/useCallQueueInitialList';
 
-export const CallDetailPage = () => {
+export const CallDetailPage = ({
+  backPath = '/frontline/calls/dashboard',
+}: {
+  backPath?: string;
+}) => {
+  const { t } = useTranslation('frontline');
   const { id } = useParams();
   const [updatedAt, setUpdatedAt] = useState<Date | undefined>(undefined);
   const { callUserIntegrations, loading: loadingUserIntegrations } =
@@ -46,13 +52,6 @@ export const CallDetailPage = () => {
     callUserIntegrations?.find((integration) =>
       integration.queues?.includes(id || ''),
     ) || {};
-
-  const { callQueueMemberList, loading: loadingQueueMemberList } =
-    useCallQueueMemberList({
-      integrationId: inboxId || '',
-      queue: id || '',
-      setUpdatedAt,
-    });
 
   const { callQueueInitialList, loading: loadingQueueInitialCallList } =
     useCallQueueInitialList({
@@ -66,41 +65,24 @@ export const CallDetailPage = () => {
       extension: id,
     },
     skip: !id,
-    onData: ({ data }) => {
-      const { queueRealtimeUpdate } = data?.data || {};
+    onData: () => {
       setUpdatedAt(new Date());
-      JSON.parse(queueRealtimeUpdate);
     },
   });
 
-  const callRealtimeUpdate = JSON.parse(data?.queueRealtimeUpdate || '{}');
+  const callRealtimeUpdate: Partial<ICallQueueRealtimeSnapshot> = JSON.parse(
+    data?.queueRealtimeUpdate || '{}',
+  );
 
-  const membersList = callQueueMemberList?.member?.map((member) => {
-    const memberRealTimeUpdate =
-      callRealtimeUpdate.agents?.find(
-        (agent: any) => agent.member_extension === member.member_extension,
-      ) || {};
-    return {
-      ...member,
-      status: memberRealTimeUpdate.status || member.status,
-      answer: memberRealTimeUpdate.answer || member.answer,
-      abandon: memberRealTimeUpdate.abandon || member.abandon,
-      talktime: memberRealTimeUpdate.talktime || member.talktime,
-      pausetime: memberRealTimeUpdate.pausetime || member.pausetime,
-      queue_action: memberRealTimeUpdate.queue_action,
-    };
-  });
+  const membersList =
+    callRealtimeUpdate.agents || callQueueInitialList?.agents || [];
 
   const waitingCallList =
     callRealtimeUpdate.waiting || callQueueInitialList?.waiting || [];
   const talkingCallList =
     callRealtimeUpdate.talking || callQueueInitialList?.talking || [];
 
-  if (
-    loadingUserIntegrations ||
-    loadingQueueMemberList ||
-    loadingQueueInitialCallList
-  ) {
+  if (loadingUserIntegrations || loadingQueueInitialCallList) {
     return <Spinner size="md" />;
   }
 
@@ -114,7 +96,7 @@ export const CallDetailPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/dashboard">
                     <IconPhone />
-                    Calls dashboard
+                    {t('calls-dashboard')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -123,7 +105,7 @@ export const CallDetailPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/statistics">
                     <IconPhone />
-                    Calls statistics
+                    {t('calls-statistics')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -143,22 +125,22 @@ export const CallDetailPage = () => {
       <div className="flex flex-col flex-auto overflow-hidden p-5 gap-5">
         <div>
           <Button variant="ghost" asChild className="px-2 gap-1">
-            <Link to="/frontline/calls/dashboard">
+            <Link to={backPath}>
               <IconChevronLeft />
-              Go back to queues
+              {t('go-back-to-queues')}
             </Link>
           </Button>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           <CallDetailCard
-            title="total agents"
-            description="Total agents"
+            title={t('total-agents')}
+            description={t('total-agents')}
             value={membersList?.length}
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title="available agents"
-            description="available agents"
+            title={t('available-agents')}
+            description={t('available-agents')}
             value={
               membersList?.filter((extension) => extension.status === 'Idle')
                 .length
@@ -166,8 +148,8 @@ export const CallDetailPage = () => {
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title="Active calls"
-            description="Active calls"
+            title={t('active-calls')}
+            description={t('active-calls')}
             value={
               callRealtimeUpdate?.talking?.length ||
               membersList?.filter((extension) => extension.status === 'InUse')
@@ -177,8 +159,8 @@ export const CallDetailPage = () => {
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title="Waiting calls"
-            description="Waiting calls"
+            title={t('waiting-calls')}
+            description={t('waiting-calls')}
             value={
               callRealtimeUpdate?.waiting?.length ||
               membersList?.filter((extension) => extension.status === 'Waiting')
@@ -201,8 +183,9 @@ export const CallDetailPage = () => {
 export const CallDetailAgents = ({
   membersList,
 }: {
-  membersList: CallQueueMemberList['member'];
+  membersList: ICallQueueAgent[];
 }) => {
+  const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
 
   const filteredMembersList = membersList.filter((member) =>
@@ -214,17 +197,17 @@ export const CallDetailAgents = ({
 
   return (
     <div className="row-span-2 flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">Agents</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">{t('agents')}</h5>
       <div className="relative">
         <IconSearch className="size-4 absolute left-2 top-1/2 -translate-y-1/2 text-accent-foreground" />
         <Input
-          placeholder="Search"
+          placeholder={t('search')}
           value={search}
           className="pl-8 relative bg-transparent"
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <RecordTable.Provider columns={agentColumns} data={filteredMembersList}>
+      <RecordTable.Provider columns={useAgentColumns()} data={filteredMembersList}>
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
@@ -238,95 +221,97 @@ export const CallDetailAgents = ({
   );
 };
 
-export const agentColumns: ColumnDef<CallQueueMemberList['member'][number]>[] =
-  [
-    {
-      accessorKey: 'status',
-      header: () => <RecordTable.InlineHead label="Status" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell>
-          <Badge
-            variant={
-              cell.getValue() === 'Idle'
-                ? 'success'
-                : ['Ringing', 'InUse'].includes(cell.getValue() as string)
-                  ? 'warning'
-                  : cell.getValue() === 'Paused'
-                    ? 'destructive'
-                    : 'secondary'
-            }
-          >
-            {cell.getValue() as string}
-          </Badge>
-        </RecordTableInlineCell>
-      ),
-      size: 100,
-    },
-    {
-      accessorKey: 'member_extension',
-      header: () => <RecordTable.InlineHead label="Extention" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-mono">
-          <Badge variant="secondary">{cell.getValue() as string}</Badge>
-        </RecordTableInlineCell>
-      ),
-      size: 100,
-    },
+export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
+  const { t } = useTranslation('frontline');
+  return [
+  {
+    accessorKey: 'status',
+    header: () => <RecordTable.InlineHead label={t('status')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Badge
+          variant={
+            cell.getValue() === 'Idle'
+              ? 'success'
+              : ['Ringing', 'InUse'].includes(cell.getValue() as string)
+                ? 'warning'
+                : cell.getValue() === 'Paused'
+                  ? 'destructive'
+                  : 'secondary'
+          }
+        >
+          {cell.getValue() as string}
+        </Badge>
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'member_extension',
+    header: () => <RecordTable.InlineHead label={t('extension')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-mono">
+        <Badge variant="secondary">{cell.getValue() as string}</Badge>
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
 
-    {
-      accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label="Name" />,
-      cell: ({ cell }) => {
-        const { first_name, last_name } = cell.row.original;
-        return (
-          <RecordTableInlineCell className="font-medium">
-            {first_name} {last_name}
-          </RecordTableInlineCell>
-        );
-      },
-      size: 200,
-    },
-    {
-      accessorKey: 'answer',
-      header: () => <RecordTable.InlineHead label="Answered" />,
-      cell: ({ cell }) => (
+  {
+    accessorKey: 'name',
+    header: () => <RecordTable.InlineHead label={t('name')} />,
+    cell: ({ cell }) => {
+      const { first_name, last_name } = cell.row.original;
+      return (
         <RecordTableInlineCell className="font-medium">
-          {cell.getValue() as number}
+          {first_name} {last_name}
         </RecordTableInlineCell>
-      ),
-      size: 100,
+      );
     },
-    {
-      accessorKey: 'abandon',
-      header: () => <RecordTable.InlineHead label="Abandoned" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-medium">
-          {cell.getValue() as number}
-        </RecordTableInlineCell>
-      ),
-      size: 100,
-    },
-    {
-      accessorKey: 'talktime',
-      header: () => <RecordTable.InlineHead label="Talk Time" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-medium">
-          {formatSeconds(cell.getValue() as number)}
-        </RecordTableInlineCell>
-      ),
-      size: 100,
-    },
-    {
-      accessorKey: 'pausetime',
-      header: () => <RecordTable.InlineHead label="Pause Time" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="font-medium">
-          {safeFormatDate(cell?.getValue())}
-        </RecordTableInlineCell>
-      ),
-      size: 200,
-    },
+    size: 200,
+  },
+  {
+    accessorKey: 'answer',
+    header: () => <RecordTable.InlineHead label={t('answered')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-medium">
+        {cell.getValue() as number}
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'abandon',
+    header: () => <RecordTable.InlineHead label={t('abandoned')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-medium">
+        {cell.getValue() as number}
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'talktime',
+    header: () => <RecordTable.InlineHead label={t('talk-time')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-medium">
+        {formatSeconds(cell.getValue() as number)}
+      </RecordTableInlineCell>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'pausetime',
+    header: () => <RecordTable.InlineHead label={t('pause-time')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="font-medium">
+        {safeFormatDate(cell?.getValue())}
+      </RecordTableInlineCell>
+    ),
+    size: 200,
+  },
   ];
+};
 
 export const CallDetailCard = ({
   description,
@@ -339,6 +324,7 @@ export const CallDetailCard = ({
   title: string;
   date?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="bg-accent rounded-xl p-1">
       <div className="flex items-center justify-between px-2 h-7">
@@ -360,7 +346,7 @@ export const CallDetailCard = ({
         <h3 className="font-semibold text-2xl leading-none">{value}</h3>
         <Separator />
         <div className="text-accent-foreground text-xs leading-none">
-          updated {date && <RelativeDateDisplay.Value value={date} />}
+          {t('updated')} {date && <RelativeDateDisplay.Value value={date} />}
         </div>
       </div>
     </div>
@@ -372,14 +358,15 @@ export const CallDetailWaiting = ({
 }: {
   waitingList: { callerid: string; callerchannel: string }[];
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">Waiting</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">{t('waiting')}</h5>
       <RecordTable.Provider
         columns={[
           {
             accessorKey: 'callerid',
-            header: () => <RecordTable.InlineHead label="Caller ID" />,
+            header: () => <RecordTable.InlineHead label={t('caller-id')} />,
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {formatPhoneNumber({
@@ -391,7 +378,7 @@ export const CallDetailWaiting = ({
           },
           {
             accessorKey: 'callerchannel',
-            header: () => <RecordTable.InlineHead label="Caller Channel" />,
+            header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {cell.getValue() as string}
@@ -422,14 +409,15 @@ export const CallDetailTalking = ({
     callerid: string;
   }[];
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">Talking</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">{t('talking')}</h5>
       <RecordTable.Provider
         columns={[
           {
             accessorKey: 'callerid',
-            header: () => <RecordTable.InlineHead label="Caller ID" />,
+            header: () => <RecordTable.InlineHead label={t('caller-id')} />,
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {formatPhoneNumber({
@@ -441,7 +429,7 @@ export const CallDetailTalking = ({
           },
           {
             accessorKey: 'calleeid',
-            header: () => <RecordTable.InlineHead label="Caller Channel" />,
+            header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {cell.getValue() as string}
@@ -450,7 +438,7 @@ export const CallDetailTalking = ({
           },
           {
             accessorKey: 'bridge_time',
-            header: () => <RecordTable.InlineHead label="Duration" />,
+            header: () => <RecordTable.InlineHead label={t('duration')} />,
             cell: ({ cell }) => {
               // eslint-disable-next-line react-hooks/rules-of-hooks
               const duration = useCallDurationFromDate(cell.getValue() as Date);

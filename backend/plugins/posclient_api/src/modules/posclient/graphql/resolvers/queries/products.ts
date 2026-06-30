@@ -28,8 +28,7 @@ const getProductPropertyValue = (product: any, fieldId: string) =>
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
 
-const isPropertyField = (field: string) =>
-  field.includes('propertiesData.');
+const isPropertyField = (field: string) => field.includes('propertiesData.');
 
 const propertyExistsFilter = (fieldIds: string[]) => ({
   $or: [
@@ -65,6 +64,7 @@ export interface IProductParams extends ICommonParams {
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
+  similarity?: boolean;
   categoryMeta?: string;
   image?: string;
 
@@ -107,6 +107,7 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
+    similarity,
     minRemainder,
     maxRemainder,
     minPrice,
@@ -121,6 +122,26 @@ const generateFilter = async (
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] },
   };
+
+  // one card per bulk-similarity group: standalone products + each group's star
+  if (similarity) {
+    const similarityGroups = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.find',
+      input: { query: { status: { $ne: 'deleted' } } },
+      defaultValue: [],
+    });
+
+    const starProductIds = (similarityGroups || [])
+      .map((group) => group.starProductId)
+      .filter(Boolean);
+
+    $and.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
 
   if (type) {
     filter.type = type;
@@ -433,6 +454,124 @@ const productQueries = {
     return models.Products.find(filter).countDocuments();
   },
 
+  async poscProductBulkSimilarity(
+    _root,
+    { _id, branchId }: { _id: string; branchId?: string },
+    { models, subdomain, config }: IContext,
+  ) {
+    const product = await models.Products.getProduct({ _id });
+
+    const { similarityId } = product || {};
+
+    if (!similarityId) {
+      return null;
+    }
+
+    const members = await models.Products.find({
+      similarityId: similarityId,
+      status: { $ne: PRODUCT_STATUSES.DELETED },
+      tokens: { $in: [config.token] },
+    })
+      .sort({ code: 1 })
+      .lean();
+
+    const similarityGroup = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.findOne',
+      input: { _id: similarityId },
+      defaultValue: null,
+    });
+
+    const { propertiesData, starProductId } = similarityGroup || {};
+
+    const selection: Record<string, string[]> = propertiesData || {};
+
+    let fieldIds = Object.keys(selection);
+
+    if (!fieldIds.length) {
+      fieldIds = [
+        ...new Set(
+          members.flatMap((member) => Object.keys(member.propertiesData || {})),
+        ),
+      ];
+    }
+
+    const fields = fieldIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'fields',
+          action: 'find',
+          input: {
+            query: { _id: { $in: fieldIds } },
+            projection: {},
+            sort: {},
+          },
+          defaultValue: [],
+        })
+      : [];
+
+    const fieldNameById = {};
+    const optionLabelByValue: Record<string, Record<string, string>> = {};
+
+    for (const field of fields || []) {
+      fieldNameById[field._id] = field.name || field.text;
+
+      optionLabelByValue[field._id] = {};
+      for (const option of field.options || []) {
+        optionLabelByValue[field._id][option.value] = option.label;
+      }
+    }
+
+    const labelOf = (fieldId: string, value: string) =>
+      optionLabelByValue[fieldId]?.[value] ?? value;
+
+    const propertyValueOf = (member: any, fieldId: string) => {
+      const value = member.propertiesData?.[fieldId];
+      return Array.isArray(value) ? value[0] : value;
+    };
+
+    const valuesOf = (fieldId: string) => {
+      if (selection[fieldId]?.length) {
+        return selection[fieldId];
+      }
+
+      return [
+        ...new Set(
+          members
+            .map((member) => propertyValueOf(member, fieldId))
+            .filter((value) => value != null),
+        ),
+      ];
+    };
+
+    const products = await checkRemainders(
+      subdomain,
+      models,
+      config,
+      members.length ? members : [product],
+      branchId || '',
+    );
+
+    const fieldList = fieldIds.map((fieldId) => ({
+      fieldId,
+      title: fieldNameById[fieldId] || fieldId,
+      values: valuesOf(fieldId).map((value) => ({
+        value,
+        label: labelOf(fieldId, value),
+      })),
+    }));
+
+    return {
+      _id: similarityId,
+      starProductId,
+      products,
+      fields: fieldList,
+    };
+  },
+
   async poscProductSimilarities(
     _root,
     {
@@ -457,9 +596,8 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);

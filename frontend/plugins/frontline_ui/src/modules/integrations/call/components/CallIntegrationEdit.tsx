@@ -1,6 +1,7 @@
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 import { useAtom } from 'jotai';
 import { Sheet, Spinner, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
@@ -25,6 +26,7 @@ export const CallIntegrationSheetEdit = () => {
 };
 
 export const CallIntegrationEdit = () => {
+  const { t } = useTranslation('frontline');
   const { id } = useParams();
 
   const [integrationId, setEditSheet] = useAtom(callEditSheetAtom);
@@ -46,6 +48,7 @@ export const CallIntegrationEdit = () => {
         _id: integrationId,
         name: data.name,
         channelId: id || '',
+        brandId: data.brandId,
         details: {
           phone: data.phone,
           wsServer: data.websocketServer,
@@ -68,13 +71,13 @@ export const CallIntegrationEdit = () => {
       onCompleted() {
         setEditSheet(null);
         toast({
-          title: 'Integration updated',
-          description: 'Integration updated successfully',
+          title: t('integration-updated'),
+          description: t('integration-updated-successfully'),
         });
       },
       onError(e) {
         toast({
-          title: 'Uh oh! Something went wrong.',
+          title: t('something-went-wrong'),
           description: e.message,
           variant: 'destructive',
         });
@@ -92,6 +95,7 @@ export const CallIntegrationEdit = () => {
     ) {
       form.reset({
         name: integrationDetail.name || '',
+        brandId: integrationDetail.brandId || '',
         phone: callsIntegrationDetail?.phone || '',
         websocketServer: callsIntegrationDetail?.wsServer || '',
         srcTrunk: callsIntegrationDetail?.srcTrunk || '',

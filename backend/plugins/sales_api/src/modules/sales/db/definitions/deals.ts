@@ -59,6 +59,11 @@ const relationSchema = new Schema(
   { _id: false },
 );
 
+const mobileAmountSchema = new Schema({
+  _id: { type: String },
+  amount: { type: Number },
+});
+
 export const dealSchema = schemaWrapper(
   new Schema(
     {
@@ -67,10 +72,21 @@ export const dealSchema = schemaWrapper(
       userId: { type: String, optional: true, esType: 'keyword' },
       order: { type: Number, index: true },
       name: { type: String, optional: true, label: 'Name' },
-      startDate: { type: Date, label: 'Start date', esType: 'date' },
-      closeDate: { type: Date, label: 'Close date', esType: 'date' },
+      startDate: {
+        type: Date,
+        index: true,
+        label: 'Start date',
+        esType: 'date',
+      },
+      closeDate: {
+        type: Date,
+        index: true,
+        label: 'Close date',
+        esType: 'date',
+      },
       stageChangedDate: {
         type: Date,
+        index: true,
         label: 'Stage changed date',
         esType: 'date',
       },
@@ -157,6 +173,12 @@ export const dealSchema = schemaWrapper(
       totalAmount: { type: Number, label: 'Total Amount', index: true },
       unUsedTotalAmount: { type: Number, label: 'UnUsed TotalAmount' },
       bothTotalAmount: { type: Number, label: 'Both Total Amount' },
+      mobileAmount: { type: Number, label: 'Mobile amount' },
+      mobileAmounts: {
+        type: [mobileAmountSchema],
+        optional: true,
+        label: 'Mobile amounts',
+      },
       paymentsData: { type: Object, optional: true, label: 'Payments' },
       extraData: { type: Object, optional: true },
     },
