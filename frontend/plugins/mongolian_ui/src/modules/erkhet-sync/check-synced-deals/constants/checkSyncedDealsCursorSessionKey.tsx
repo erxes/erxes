@@ -1,1 +1,1 @@
-export const CHECK_SYNCED_DEALS_CURSOR_SESSION_KEY = 'erkhet-sync-cursor';
+export const CHECK_SYNCED_DEALS_CURSOR_SESSION_KEY = 'check-synced-deals-cursor';

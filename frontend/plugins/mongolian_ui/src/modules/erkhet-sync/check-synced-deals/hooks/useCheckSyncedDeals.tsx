@@ -28,17 +28,13 @@ import {
   ICheckSyncedDeals,
 } from '../types/checkSyncedDeals';
 import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSessionKey';
+import {
+  CheckSyncedResponse,
+  chunkIds,
+} from '../../shared/utils/syncUtils';
 
 export const CHECK_SYNCED_DEALS_PER_PAGE = 50;
 const SYNC_DEALS_BATCH_SIZE = 1;
-
-type CheckSyncedResponse = {
-  _id: string;
-  isSynced?: boolean;
-  syncedDate?: string;
-  syncedBillNumber?: string;
-  syncedCustomer?: string;
-};
 
 type SyncDealsResult = {
   skipped?: string[];
@@ -54,7 +50,7 @@ type CheckDealsOptions = {
 
 const checkedDealsAtom = atom<Record<string, Partial<ICheckSyncedDeals>>>({});
 
-const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
+export const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
 
 const getDealStatus = (
   deal?: Partial<ICheckSyncedDeals>,
@@ -64,16 +60,6 @@ const getDealStatus = (
   }
 
   return 'skipped';
-};
-
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
 };
 
 export const useCheckSyncedDealsVariables = (
@@ -474,8 +460,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
   };
 
   useEffect(() => {
-    if (!totalCount) return;
-    setCheckSyncedDealsTotalCount(totalCount);
+    if (totalCount !== undefined) setCheckSyncedDealsTotalCount(totalCount);
   }, [totalCount, setCheckSyncedDealsTotalCount]);
 
   useEffect(() => {
