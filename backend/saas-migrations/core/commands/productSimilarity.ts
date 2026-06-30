@@ -34,16 +34,13 @@ let db: Db;
 let Products: Collection;
 
 function pickKeeper(docs: any[]): any {
-  const active = docs.filter((doc) => doc.status === 'active');
-  const candidates = active.length > 0 ? active : docs;
+  return docs.reduce((oldest, doc) => {
+    if (!oldest) return doc;
 
-  return candidates.reduce((latest, doc) => {
-    if (!latest) return doc;
+    const oldestCreatedAt = new Date(oldest.createdAt || 0).getTime();
+    const docCreatedAt = new Date(doc.createdAt || 0).getTime();
 
-    const latestUpdatedAt = new Date(latest.updatedAt || 0).getTime();
-    const docUpdatedAt = new Date(doc.updatedAt || 0).getTime();
-
-    return docUpdatedAt > latestUpdatedAt ? doc : latest;
+    return docCreatedAt < oldestCreatedAt ? doc : oldest;
   }, undefined);
 }
 
@@ -92,7 +89,7 @@ const command = async () => {
 
       const docs = await Products.find(
         { _id: { $in: ids } },
-        { projection: { name: 1, status: 1, updatedAt: 1 } },
+        { projection: { name: 1, createdAt: 1 } },
       ).toArray();
 
       const docsByName = new Map<string, any[]>();
