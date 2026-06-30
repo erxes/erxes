@@ -6,6 +6,7 @@ export const SyncErkhetHistoryHeader = () => {
     <PageHeader>
       <PageHeader.Start>
         <SyncErkhetHistoryBreadcrumb />
+        <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
     </PageHeader>
   );

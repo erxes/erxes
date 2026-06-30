@@ -6,6 +6,7 @@ export const CheckProductHeader = () => {
     <PageHeader>
       <PageHeader.Start>
         <CheckProductBreadcrumb />
+        <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
     </PageHeader>
   );

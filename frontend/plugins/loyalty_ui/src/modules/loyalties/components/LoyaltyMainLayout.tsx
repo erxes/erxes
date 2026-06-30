@@ -1,4 +1,4 @@
-import { PageContainer } from 'erxes-ui';
+import { PageContainer, Separator } from 'erxes-ui';
 import { Suspense } from 'react';
 import { IconAward } from '@tabler/icons-react';
 import { PageHeader } from 'ui-modules';
@@ -27,6 +27,8 @@ export const LoyaltyMainLayout = ({
           <PageHeader.Start>
             <IconAward className="size-4" />
             <span className="font-medium">{t('loyalty-title')}</span>
+            <Separator.Inline />
+            <PageHeader.FavoriteToggleButton />
           </PageHeader.Start>
           <PageHeader.End>
             <LoyaltyHeaderEnd />

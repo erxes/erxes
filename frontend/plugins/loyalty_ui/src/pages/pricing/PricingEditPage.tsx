@@ -3,7 +3,7 @@ import { PricingEdit } from '@/pricing/edit-pricing/PricingEdit';
 import { usePricing } from '@/pricing/hooks/usePricing';
 import { IPricing } from '@/pricing/types';
 import { IconCoins } from '@tabler/icons-react';
-import { Breadcrumb, Button, Select } from 'erxes-ui';
+import { Breadcrumb, Button, Select, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
@@ -61,6 +61,8 @@ export const PricingEditPage = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton />
         </PageHeaderStart>
 
         <PageHeaderEnd>

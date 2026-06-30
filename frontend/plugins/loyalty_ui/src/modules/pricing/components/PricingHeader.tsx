@@ -1,5 +1,5 @@
 import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
-import { Breadcrumb, Button } from 'erxes-ui';
+import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconCoins } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,8 @@ export function PricingHeader() {
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>
+        <Separator.Inline />
+        <PageHeader.FavoriteToggleButton />
       </PageHeaderStart>
       <PageHeaderEnd>
         <PricingCreateSheet />

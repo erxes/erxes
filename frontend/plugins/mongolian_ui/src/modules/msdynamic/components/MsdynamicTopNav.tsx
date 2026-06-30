@@ -6,6 +6,7 @@ const MsdynamicTopNav = () => {
     <PageHeader>
       <PageHeader.Start>
         <MSDynamicBreadCrumb />
+        <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
     </PageHeader>
   );

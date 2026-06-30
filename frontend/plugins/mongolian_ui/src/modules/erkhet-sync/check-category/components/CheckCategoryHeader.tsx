@@ -6,6 +6,7 @@ export const CheckCategoryHeader = () => {
     <PageHeader>
       <PageHeader.Start>
         <CheckCategoryBreadcrumb />
+        <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
     </PageHeader>
   );

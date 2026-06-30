@@ -6,6 +6,7 @@ export const CheckSyncedDealsHeader = () => {
     <PageHeader>
       <PageHeader.Start>
         <CheckSyncedDealsBreadcrumb />
+        <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
     </PageHeader>
   );

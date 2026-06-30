@@ -6,6 +6,7 @@ export const CheckPosOrdersHeader = () => {
     <PageHeader>
       <PageHeader.Start>
         <CheckPosOrdersBreadcrumb />
+        <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
     </PageHeader>
   );

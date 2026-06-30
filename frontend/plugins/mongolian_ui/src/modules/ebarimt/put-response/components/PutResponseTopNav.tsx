@@ -6,6 +6,7 @@ export const PutResponseTopNav = () => {
     <PageHeader>
       <PageHeader.Start>
         <PutResponseBreadcrumb />
+        <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
     </PageHeader>
   );
