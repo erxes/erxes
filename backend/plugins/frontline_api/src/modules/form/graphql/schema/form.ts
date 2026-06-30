@@ -1,6 +1,6 @@
 export const types = `
   extend type Company @key(fields: "_id") {
-      _id: String! @external
+      _id: String @external
   }
 
   input SubmissionFilter {

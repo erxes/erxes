@@ -69,10 +69,6 @@ export const Deal = ({
     if (contentType === 'frontline:conversation') {
       logConversationForm({
         variables: { dealId, conversationId: contentId },
-        onCompleted: (data) =>
-          console.log('[form-activity] logged result', data),
-        onError: (error) =>
-          console.error('[form-activity] mutation error', error),
       });
     }
   };

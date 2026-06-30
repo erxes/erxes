@@ -36,11 +36,6 @@ export const dealMutations: Record<string, Resolver> = {
     { models, subdomain }: IContext,
   ) {
     const deal = await models.Deals.findOne({ _id: dealId });
-    console.log('[form-activity] dealsLogConversationForm', {
-      dealId,
-      conversationId,
-      dealFound: !!deal,
-    });
 
     if (!deal) {
       return { logged: false };
@@ -55,7 +50,6 @@ export const dealMutations: Record<string, Resolver> = {
       input: { conversationId },
       defaultValue: null,
     });
-    console.log('[form-activity] formData from frontline', formData);
 
     if (!formData?.submissions?.length) {
       return { logged: false };
