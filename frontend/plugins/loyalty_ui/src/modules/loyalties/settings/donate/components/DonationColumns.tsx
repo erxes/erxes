@@ -5,6 +5,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IDonation } from '../types/donationTypes';
 import { DonationNameCell } from '../donation-detail/components/DonationNameCell';
 import {
@@ -45,7 +46,7 @@ export const donationColumns: (
   {
     id: 'name',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
+    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTag} label={t('name')} />; },
     cell: ({ cell }: { cell: any }) => {
       return (
         <DonationNameCell
@@ -59,9 +60,7 @@ export const donationColumns: (
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
-    ),
+    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />; },
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -74,9 +73,7 @@ export const donationColumns: (
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
-    ),
+    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />; },
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -89,7 +86,7 @@ export const donationColumns: (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="status" icon={IconHash} />,
+    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead label={t('status')} icon={IconHash} />; },
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (

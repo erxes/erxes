@@ -4,6 +4,7 @@ import {
 } from '@/automations/components/builder/sidebar/states/automationNodeLibrary';
 import {
   AUTOMATION_NODE_TYPE_LIST_PROERTY,
+  CANVAS_FIT_VIEW_OPTIONS,
   CONNECTION_PROPERTY_NAME_MAP,
 } from '@/automations/constants';
 import { useAutomation } from '@/automations/context/AutomationProvider';
@@ -48,6 +49,7 @@ export const useAutomationNodeLibrarySidebar = () => {
     queryParams,
     setQueryParams,
     setAwaitingToConnectNodeId,
+    reactFlowInstance,
   } = useAutomation();
   const activeNodeTab =
     queryParams?.activeNodeTab ?? AutomationNodeType.Trigger;
@@ -160,6 +162,11 @@ export const useAutomationNodeLibrarySidebar = () => {
     setAutomationBuilderFormValue(listFieldName, [...list, newNode]);
     addNodes(generatedNode);
 
+    reactFlowInstance?.fitView({
+      nodes: [generatedNode],
+      ...CANVAS_FIT_VIEW_OPTIONS,
+    });
+
     if (awaitingToConnectNodeId) {
       onAwaitingNodeConnection(awaitingToConnectNodeId, id, generatedNode);
       setAwaitingToConnectNodeId('');
@@ -190,6 +197,7 @@ export const useAutomationNodeLibrarySidebar = () => {
     AutomationNodesLibraryMap[AutomationNodeType.Trigger];
   return {
     activeNodeTab: activeTab,
+    queryParams,
     setQueryParams,
     loading,
     triggersConst,

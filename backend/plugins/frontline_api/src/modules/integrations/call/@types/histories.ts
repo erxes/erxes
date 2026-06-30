@@ -18,6 +18,7 @@ export interface ICallHistory {
   queueName: string;
   inboxIntegrationId: string;
   extensionNumber: string;
+  uniqueid?: string;
 }
 
 export interface ICallHistoryArgs {
@@ -37,11 +38,6 @@ export interface ICallHistoryDocument extends ICallHistory, Document {
   _id: string;
 }
 
-export interface ICallHistoryEdit extends ICallHistory {
-  _id: string;
-  transferredCallStatus: string;
-}
-
 export interface ICallHistoryFilterOptions {
   integrationId: string;
   callStatus?: 'cancelled' | 'missed' | 'connected';
@@ -52,25 +48,4 @@ export interface ICallHistoryFilterOptions {
   updateAt?: Date;
   callType?: 'incoming' | 'outgoing';
   duration?: number;
-}
-
-export interface ICallHistoryCreate {
-  customerPhone: string;
-  operatorPhone: string;
-  extensionNumber: string;
-  callType: 'incoming' | 'outgoing';
-  callStatus: 'cancelled' | 'missed' | 'connected';
-  duration?: number;
-  recordingUrl?: string;
-  notes?: string;
-  integrationId: string;
-  userId: string;
-  timeStamp: Date;
-}
-
-export interface ICallHistoryUpdate {
-  callStatus?: 'cancelled' | 'missed' | 'connected';
-  duration?: number;
-  recordingUrl?: string;
-  modifiedBy?: string;
 }

@@ -3,7 +3,11 @@ import { AutomationNodesType, NodeData } from '@/automations/types';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Button, Dialog, IconPicker, Input } from 'erxes-ui';
 import { useState } from 'react';
+import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+
+type NodeMetadataFormData = NodeData &
+  Partial<Pick<Node<NodeData>, 'position'>>;
 
 type Props = {
   id: string;
@@ -11,7 +15,7 @@ type Props = {
     | AutomationNodesType.Triggers
     | AutomationNodesType.Actions
     | AutomationNodesType.Workflows;
-  data: NodeData;
+  data: NodeMetadataFormData;
   callback: () => void;
 };
 
@@ -22,7 +26,7 @@ export const NodeEditMetaDataForm = ({
   callback,
 }: Props) => {
   const { setAutomationBuilderFormValue } = useAutomationFormController();
-  const { updateNodeData } = useReactFlow<Node<NodeData>>();
+  const { updateNodeData, getNode } = useReactFlow<Node<NodeData>>();
   const { t } = useTranslation('automations');
 
   const { nodeIndex, label, description, icon } = data || {};
@@ -33,23 +37,31 @@ export const NodeEditMetaDataForm = ({
     icon,
   });
 
-  const handleChange = (e: any) => {
-    const { value, name } = e.currentTarget as HTMLInputElement;
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { value, name } = e.currentTarget;
 
     setDoc({ ...doc, [name]: value });
   };
 
   const handleSave = () => {
-    const updatedNode = {
+    const currentNode = getNode(id);
+    const updatedNodeData = {
       ...data,
       ...doc,
       id,
     };
+    const updatedNode = {
+      ...updatedNodeData,
+      position: currentNode?.position ?? data.position,
+    };
+
     setAutomationBuilderFormValue(`${fieldName}.${nodeIndex}`, updatedNode, {
       shouldValidate: true,
       shouldDirty: true,
     });
-    updateNodeData(id, updatedNode);
+    updateNodeData(id, updatedNodeData);
     callback();
   };
 
@@ -60,10 +72,8 @@ export const NodeEditMetaDataForm = ({
         {t('edit-node-metadata-description')}
       </Dialog.Description>
       <IconPicker
-        // onValueChange={field.onChange}
-        // value={field.value}
         onValueChange={(icon) => setDoc({ ...doc, icon: icon || '' })}
-        value={icon}
+        value={doc.icon}
         variant="secondary"
         size="lg"
         className="w-min p-2"

@@ -11,6 +11,7 @@ import { useTicketDate } from '@/report/hooks/useTicketOpenDate';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ResponsesChartType } from '@/report/types';
 import { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import {
   Bar,
@@ -34,6 +35,8 @@ import {
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
+import { getTicketPropertyFilterVariables } from '@/report/utils';
+import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
 import {
   getReportChartTypeAtom,
@@ -47,6 +50,7 @@ import {
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
+  getReportPropertyFilterAtom,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import {
@@ -70,6 +74,7 @@ export const TicketOpenDate = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketOpenDateProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -82,6 +87,7 @@ export const TicketOpenDate = ({
   const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
   const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
   const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
+  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -100,6 +106,7 @@ export const TicketOpenDate = ({
         tagIds: tagFilter.length ? tagFilter : undefined,
         customerIds: customerFilter.length ? customerFilter : undefined,
         companyIds: companyFilter.length ? companyFilter : undefined,
+        ...getTicketPropertyFilterVariables(propertyFilter),
         frequency,
       },
     },
@@ -161,7 +168,7 @@ export const TicketOpenDate = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -265,17 +272,19 @@ export const TicketOpenLineChart = memo(function TicketOpenLineChart({
         data={chartData}
         margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
       >
+        <defs>
+          <AreaGradient id="tk-open-primary" color="var(--primary)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <Area
           type="monotone"
           dataKey="count"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.2}
+          fill="url(#tk-open-primary)"
           strokeWidth={2}
           name="Count"
-          dot={{ fill: 'var(--primary)' }}
-          activeDot={{ r: 6 }}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <XAxis
           dataKey="date"

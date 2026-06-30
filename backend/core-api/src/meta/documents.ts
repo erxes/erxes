@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { replaceContent } from '~/modules/documents/utils';
 import { fieldsCombinedByContentType } from '~/modules/forms/utils';
+import { buildProductReplacer } from '~/modules/products/meta/document/productReplacer';
 
 export const documents = {
   types: [
@@ -100,14 +101,36 @@ export const documents = {
     const model = modelMap[moduleName];
 
     if (!model) {
-      throw new Error(`Unknown content type: ${moduleName}`);
+      return [content];
     }
 
     const documents = await model.find({ _id: { $in: replacerIds } });
 
+    if (!documents.length) {
+      return [content];
+    }
+
     const replacedContents: any[] = [];
 
     for (const document of documents) {
+      if (moduleName === 'product') {
+        const { replacement, transform } = await buildProductReplacer({
+          models,
+          product: document,
+          config: config || {},
+        });
+
+        const replacedContent = await replaceContent({
+          replacer: document,
+          content,
+          replacement,
+          transform,
+        });
+
+        replacedContents.push(replacedContent);
+        continue;
+      }
+
       const replacedContent = await replaceContent({
         replacer: document,
         content,

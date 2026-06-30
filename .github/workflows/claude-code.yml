@@ -12,6 +12,14 @@ jobs:
   claude-code:
     runs-on: ubuntu-latest
 
+    # Auto-run on PRs only when the author has write access. Read-only
+    # contributors (author_association NONE/CONTRIBUTOR/FIRST_TIME_*) are
+    # skipped here instead of failing the action with exit code 1.
+    # Comment-triggered runs (@claude) are unaffected.
+    if: >
+      github.event_name != 'pull_request' ||
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+
     permissions:
       contents: write
       pull-requests: write

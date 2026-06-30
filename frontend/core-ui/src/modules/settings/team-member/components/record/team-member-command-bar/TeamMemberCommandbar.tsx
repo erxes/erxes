@@ -2,7 +2,7 @@ import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { TeamMemberDelete } from './delete/TeamMemberDelete';
 import { TeamMemberAssignPermissions } from './assign-permissions/TeamMemberAssignPermissions';
-import { Export } from 'ui-modules';
+import { Can, Export } from 'ui-modules';
 
 export const TeamMemberCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -14,16 +14,18 @@ export const TeamMemberCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
-        <Separator.Inline />
-        <Export
-          pluginName="core"
-          moduleName="user"
-          collectionName="user"
-          buttonVariant="secondary"
-          ids={table
-            .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id)}
-        />
+        <Can action="teamMembersExportManage">
+          <Separator.Inline />
+          <Export
+            pluginName="core"
+            moduleName="user"
+            collectionName="user"
+            buttonVariant="secondary"
+            ids={table
+              .getFilteredSelectedRowModel()
+              .rows.map((row) => row.original._id)}
+          />
+        </Can>
         <Separator.Inline />
         <TeamMemberAssignPermissions teamMemberIds={teamMemberIds} />
         <Separator.Inline />

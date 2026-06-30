@@ -11,7 +11,9 @@ import { generateModels } from '~/connectionResolvers';
 import { appRouter } from '~/trpc/init-trpc';
 import { initMQWorkers } from '~/worker';
 import { couponExportHandlers } from '~/modules/coupon/meta/import-export/export/exportHandlers';
+import { automationMeta } from './meta/automations';
 import { permissions } from '~/meta/permissions';
+import { loyaltyReferences } from '~/meta/references';
 
 startPlugin({
   name: 'loyalty',
@@ -40,8 +42,20 @@ startPlugin({
   onServerInit: async () => {
     await initMQWorkers(redis);
   },
+  meta: {
+    automations: automationMeta,
+    permissions,
+    references: loyaltyReferences,
+  },
   importExport: {
     export: {
+      types: [
+        {
+          label: 'Coupon',
+          contentType: 'loyalty:coupon.coupon',
+          permissions: ['couponExportManage'],
+        },
+      ],
       getExportHeaders: createCoreModuleProducerHandler({
         moduleName: 'importExport',
         modules: { coupon: couponExportHandlers },
@@ -57,8 +71,5 @@ startPlugin({
         generateModels,
       }),
     },
-  },
-  meta: {
-    permissions,
   },
 });

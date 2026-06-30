@@ -41,6 +41,7 @@ const GET_CONVERSATION_DETAIL = gql`
         createdAt
         fromBot
         contentType
+        botData
         internal
       }
       operatorStatus
@@ -98,9 +99,16 @@ const GET_WIDGETS_CONVERSATIONS = gql`
         createdAt
         content
         fromBot
+        botData
         customerId
         isCustomerRead
         userId
+        attachments {
+          url
+          name
+          size
+          type
+        }
         user {
           _id
           isOnline
@@ -117,8 +125,8 @@ const GET_WIDGETS_CONVERSATIONS = gql`
 `;
 
 const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
-  query knowledgeBaseTopicDetail($_id: String!) {
-    knowledgeBaseTopicDetail(_id: $_id) {
+  query cpKnowledgeBaseTopicDetail($_id: String!) {
+    cpKnowledgeBaseTopicDetail(_id: $_id) {
       _id
       title
       description

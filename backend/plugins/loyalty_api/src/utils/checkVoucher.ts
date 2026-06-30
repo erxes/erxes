@@ -1,6 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IProductD } from './common';
+import { getChildCategories, getChildTags } from './utils';
 
 const availableVoucherTypes = ['bonus', 'discount'];
 
@@ -37,40 +38,6 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
     console.error('Error calculating discount:', error.message);
     return 0;
   }
-};
-
-export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'productCategories',
-    action: 'withChilds',
-    input: {
-      ids: categoryIds,
-    },
-    defaultValue: [],
-  });
-
-  const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
-
-  return Array.from(new Set(catIds));
-};
-
-export const getChildTags = async (subdomain: string, tagIds) => {
-  const childs = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'tags',
-    action: 'withChilds',
-    input: {
-      query: { _id: { $in: tagIds } },
-    },
-    defaultValue: [],
-  });
-
-  const allTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
-
-  return Array.from(new Set(allTagIds));
 };
 
 export const applyRestriction = async ({

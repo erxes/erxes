@@ -1,5 +1,6 @@
 import { Form, ScrollArea } from 'erxes-ui';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
@@ -57,6 +58,8 @@ export const AddPostForm = ({
     customTypes,
     availableLanguages,
     defaultLanguage,
+    postUrlField,
+    cmsConfig,
     fieldGroups,
   } = usePostData(websiteId, selectedType, currentEditingPost?._id);
 
@@ -91,6 +94,27 @@ export const AddPostForm = ({
     (lang: string) => handleLanguageChangeRef.current(lang),
     [],
   );
+  const isSwitchingLanguageRef = useRef(false);
+
+  const finishLanguageSwitch = useCallback(() => {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => {
+        isSwitchingLanguageRef.current = false;
+      });
+      return;
+    }
+
+    isSwitchingLanguageRef.current = false;
+  }, []);
+
+  const handlePostEditorChange = useCallback(
+    (content: string) => {
+      if (isSwitchingLanguageRef.current) return;
+
+      handleEditorChange(content);
+    },
+    [handleEditorChange],
+  );
 
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
@@ -113,19 +137,26 @@ export const AddPostForm = ({
   ]);
 
   // Helper: apply translation (or clear) translatable fields and save default data
-  const applyTranslationToForm = (lang: string) => {
-    setDefaultLangData({
-      title: fullPost?.title || '',
-      content: fullPost?.content || '',
-      excerpt: fullPost?.excerpt || fullPost?.description || '',
-      customFieldsData: fullPost?.customFieldsData || [],
-    });
-    const translation = translations[lang];
-    form.setValue('title', translation?.title || '');
-    form.setValue('content', translation?.content || '');
-    form.setValue('description', translation?.excerpt || '');
-    form.setValue('customFieldsData', translation?.customFieldsData || []);
-  };
+  const applyTranslationToForm = useCallback(
+    (lang: string) => {
+      setDefaultLangData((current) => {
+        if (current) return current;
+
+        return {
+          title: fullPost?.title || '',
+          content: fullPost?.content || '',
+          excerpt: fullPost?.excerpt || fullPost?.description || '',
+          customFieldsData: fullPost?.customFieldsData || [],
+        };
+      });
+      const translation = translations[lang];
+      form.setValue('title', translation?.title || '');
+      form.setValue('content', translation?.content || '');
+      form.setValue('description', translation?.excerpt || '');
+      form.setValue('customFieldsData', translation?.customFieldsData || []);
+    },
+    [form, fullPost, translations, setDefaultLangData],
+  );
 
   useEffect(() => {
     if (!selectedLanguage && defaultLanguage) {
@@ -134,16 +165,38 @@ export const AddPostForm = ({
       // (which remounts on key change including selectedLanguage) reads
       // the correct values when it re-initialises.
       if (initialLang !== defaultLanguage) {
+        isSwitchingLanguageRef.current = true;
         applyTranslationToForm(initialLang);
+        finishLanguageSwitch();
       }
       setSelectedLanguage(initialLang);
     }
-  }, [defaultLanguage, selectedLanguage, setSelectedLanguage, cmsLanguage]);
+  }, [
+    applyTranslationToForm,
+    cmsLanguage,
+    defaultLanguage,
+    finishLanguageSwitch,
+    selectedLanguage,
+    setSelectedLanguage,
+  ]);
+
+  // Mirror the form's active language into the shared atom (one-way). The header
+  // language tabs read this atom for their active state, so this keeps the tab
+  // highlight in lockstep with the language the form is actually showing.
+  useEffect(() => {
+    if (selectedLanguage) {
+      setCmsLanguage(selectedLanguage);
+    }
+  }, [selectedLanguage, setCmsLanguage]);
 
   // When fullPost changes (loads twice: editingPost then fullPostData.cmsPost),
   // the hook's effect resets the form with default-lang data.  Re-apply the
   // translation override for the current non-default language.
-  const appliedForPostRef = useRef<Record<string, unknown> | null>(null);
+  const appliedForPostRef = useRef<{
+    post: unknown;
+    language: string;
+    translations: unknown;
+  } | null>(null);
   useEffect(() => {
     if (
       !selectedLanguage ||
@@ -153,16 +206,34 @@ export const AddPostForm = ({
       return;
     }
     if (currentEditingPost && !fullPost) return;
-    if (appliedForPostRef.current === (fullPost ?? null)) return;
+    const post = fullPost ?? null;
+    const applied = appliedForPostRef.current;
 
+    if (
+      applied !== null &&
+      applied.post === post &&
+      applied.language === selectedLanguage &&
+      applied.translations === translations
+    ) {
+      return;
+    }
+
+    isSwitchingLanguageRef.current = true;
     applyTranslationToForm(selectedLanguage);
-    appliedForPostRef.current = fullPost ?? null;
+    finishLanguageSwitch();
+    appliedForPostRef.current = {
+      post,
+      language: selectedLanguage,
+      translations,
+    };
   }, [
-    selectedLanguage,
+    applyTranslationToForm,
     defaultLanguage,
-    translations,
-    fullPost,
+    finishLanguageSwitch,
     currentEditingPost,
+    fullPost,
+    selectedLanguage,
+    translations,
   ]);
 
   useEffect(() => {
@@ -171,7 +242,7 @@ export const AddPostForm = ({
     if (!typeCode || typeCode === 'post') return;
     const matched = customTypes.find((t: any) => t.code === typeCode);
     if (matched) form.setValue('type', matched._id);
-  }, [customTypes]);
+  }, [customTypes, currentEditingPost, form, searchParams]);
 
   useEffect(() => {
     if (
@@ -183,11 +254,12 @@ export const AddPostForm = ({
       form.setValue('customFieldsData', []);
     }
     previousTypeRef.current = selectedType;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedType, currentEditingPost]);
+  }, [selectedType, currentEditingPost, form, previousTypeRef]);
 
   const handleLanguageChange = (lang: string) => {
     if (lang === selectedLanguage) return;
+
+    isSwitchingLanguageRef.current = true;
 
     if (selectedLanguage === defaultLanguage) {
       setDefaultLangData({
@@ -200,10 +272,10 @@ export const AddPostForm = ({
       setTranslations((prev) => ({
         ...prev,
         [selectedLanguage]: {
-          title: form.getValues('title'),
-          content: form.getValues('content'),
-          excerpt: form.getValues('description'),
-          customFieldsData: form.getValues('customFieldsData'),
+          title: form.getValues('title') || '',
+          content: form.getValues('content') || '',
+          excerpt: form.getValues('description') || '',
+          customFieldsData: form.getValues('customFieldsData') || [],
         },
       }));
     }
@@ -228,11 +300,16 @@ export const AddPostForm = ({
     }
 
     setSelectedLanguage(lang);
-    setCmsLanguage(lang);
+    finishLanguageSwitch();
   };
 
   // Keep ref in sync so the stable callback always delegates to latest logic
   handleLanguageChangeRef.current = handleLanguageChange;
+
+  // The child columns type `form` loosely as UseFormReturn<FieldValues>; our form
+  // is the more specific UseFormReturn<PostFormData>, which RHF treats as
+  // incompatible. They only read/write known fields, so the widening is safe.
+  const formForColumns = form as unknown as UseFormReturn<FieldValues>;
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
@@ -240,18 +317,19 @@ export const AddPostForm = ({
         <div className="flex flex-col w-full mb-4 px-4 pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <PostEditorColumn
-              form={form}
+              form={formForColumns}
               selectedLanguage={selectedLanguage}
               defaultLanguage={defaultLanguage}
               selectedType={selectedType}
               fieldGroups={fieldGroups}
+              websiteId={websiteId}
               fullPost={fullPost}
-              handleEditorChange={handleEditorChange}
+              handleEditorChange={handlePostEditorChange}
               getCustomFieldValue={getCustomFieldValue}
               updateCustomFieldValue={updateCustomFieldValue}
             />
             <PostSidebarPanel
-              form={form}
+              form={formForColumns}
               categories={categories}
               tags={tags}
               customTypes={customTypes}
@@ -260,6 +338,9 @@ export const AddPostForm = ({
               defaultLanguage={defaultLanguage}
               selectedLanguage={selectedLanguage}
               languageOptions={languageOptions}
+              postUrlField={postUrlField}
+              fullPost={fullPost}
+              cmsConfig={cmsConfig}
               handleLanguageChange={handleLanguageChange}
             />
           </div>

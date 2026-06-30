@@ -1,16 +1,34 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const ADD_PIPELINE_LABEL = gql`
-  mutation SalesPipelineLabelsAdd($name: String!, $colorCode: String!, $pipelineId: String!) {
-    salesPipelineLabelsAdd(name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
+  mutation SalesPipelineLabelsAdd(
+    $name: String!
+    $colorCode: String!
+    $pipelineId: String!
+  ) {
+    salesPipelineLabelsAdd(
+      name: $name
+      colorCode: $colorCode
+      pipelineId: $pipelineId
+    ) {
       _id
     }
   }
 `;
 
 export const EDIT_PIPELINE_LABEL = gql`
-  mutation SalesPipelineLabelsEdit($_id: String!, $name: String!, $colorCode: String!, $pipelineId: String!) {
-    salesPipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
+  mutation SalesPipelineLabelsEdit(
+    $_id: String!
+    $name: String!
+    $colorCode: String!
+    $pipelineId: String!
+  ) {
+    salesPipelineLabelsEdit(
+      _id: $_id
+      name: $name
+      colorCode: $colorCode
+      pipelineId: $pipelineId
+    ) {
       _id
     }
   }
@@ -53,8 +71,7 @@ const commonPipelineParamsDef = `
   $excludeCategoryIds: [String],
   $excludeProductIds: [String],
   $paymentIds: [String],
-  $paymentTypes: JSON,
-  $erxesAppToken: String
+  $paymentTypes: JSON
 `;
 
 const commonPipelineParams = `
@@ -83,8 +100,7 @@ const commonPipelineParams = `
   excludeCategoryIds: $excludeCategoryIds,
   excludeProductIds: $excludeProductIds,
   paymentIds: $paymentIds,
-  paymentTypes: $paymentTypes,
-  erxesAppToken: $erxesAppToken
+  paymentTypes: $paymentTypes
 `;
 
 export const ADD_PIPELINE = gql`

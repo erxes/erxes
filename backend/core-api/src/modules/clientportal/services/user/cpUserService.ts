@@ -6,6 +6,7 @@ import {
 } from '@/clientportal/types/cpUser';
 import {
   handleCPContacts,
+  syncCPUserContactToCustomer,
   updateCustomerStateToCustomer,
 } from './contactService';
 import {
@@ -251,5 +252,20 @@ export async function updateUser(
   if (Object.keys(unsetData).length > 0) update.$unset = unsetData;
   await models.CPUser.updateOne({ _id: userId }, update);
 
-  return getCPUserByIdOrThrow(userId, models);
+  const updatedUser = await getCPUserByIdOrThrow(userId, models);
+
+  const contactChanged =
+    (params.email !== undefined && updatedUser.email !== user.email) ||
+    (params.phone !== undefined && updatedUser.phone !== user.phone) ||
+    (params.firstName !== undefined &&
+      updatedUser.firstName !== user.firstName) ||
+    (params.lastName !== undefined && updatedUser.lastName !== user.lastName);
+  const customerLinked =
+    params.erxesCustomerId !== undefined && !!setData.erxesCustomerId;
+
+  if (contactChanged || customerLinked) {
+    await syncCPUserContactToCustomer(models, updatedUser);
+  }
+
+  return updatedUser;
 }

@@ -86,10 +86,7 @@ export const getMainConditions = ({
 
   return {
     status: 'active',
-    $and: [
-      dateFilter,
-      lastFilter,
-    ]
+    $and: [dateFilter, lastFilter],
   };
 };
 

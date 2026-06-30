@@ -23,6 +23,7 @@ import { IBoard } from '@/deals/types/boards';
 import { IPipeline } from '@/deals/types/pipelines';
 import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 import { usePipelines } from '@/deals/boards/hooks/usePipelines';
+import { useTranslation } from 'react-i18next';
 
 function LoadingSkeleton() {
   return (
@@ -38,15 +39,17 @@ const BoardActionsMenu = ({ board }: { board: IBoard }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const { t } = useTranslation('sales');
+
   const handleCopyLink = async () => {
     const link = `${window.location.origin}/settings/deals`;
     try {
       await navigator.clipboard.writeText(link);
-      toast({ variant: 'default', title: 'Link copied to clipboard' });
+      toast({ variant: 'default', title: t('link-copied-to-clipboard') });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy link',
+        title: t('failed-to-copy-link'),
         description: e instanceof Error ? e.message : 'Unknown error',
       });
     }
@@ -70,14 +73,14 @@ const BoardActionsMenu = ({ board }: { board: IBoard }) => {
           onSelect={() => navigate(`/settings/deals`)}
         >
           <IconSettings className="size-4" />
-          Manage board & pipelines
+          {t('manage-board-pipelines')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           className="cursor-pointer"
           onSelect={() => handleCopyLink()}
         >
           <IconLink className="size-4" />
-          Copy link
+          {t('copy-link')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -187,6 +190,7 @@ function BoardItem({ board }: { board: IBoard }) {
 const DealsNavigation = () => {
   const { boards, loading } = useBoards();
   const [boardId, setBoardId] = useQueryState<string | null>('boardId');
+  const { t } = useTranslation('sales');
 
   useEffect(() => {
     if (!boards || boards.length === 0) return;
@@ -204,7 +208,7 @@ const DealsNavigation = () => {
   }, [boards, setBoardId, boardId]);
 
   return (
-    <NavigationMenuGroup name="Boards">
+    <NavigationMenuGroup name={t('boards')}>
       {loading ? (
         <LoadingSkeleton />
       ) : (

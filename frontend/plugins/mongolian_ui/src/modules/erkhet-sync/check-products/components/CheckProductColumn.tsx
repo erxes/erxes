@@ -5,17 +5,16 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-
-import { CheckProductMoreColumn } from './CheckProductMoreColumn';
 import { ProductItem } from '../types/productItem';
+import { HeaderCell } from '../../components/HeaderCell';
+import { SyncedStatusCell } from '../../shared/components/SyncedStatusCell';
 
 export const checkProductColumns: ColumnDef<ProductItem>[] = [
-  CheckProductMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ProductItem>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" icon={IconCode} />,
+    header: () => <HeaderCell icon={IconCode} label="code" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -27,7 +26,7 @@ export const checkProductColumns: ColumnDef<ProductItem>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Name" />,
+    header: () => <HeaderCell icon={IconHash} label="name" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -39,7 +38,7 @@ export const checkProductColumns: ColumnDef<ProductItem>[] = [
   {
     id: 'barcodes',
     accessorKey: 'barcodes',
-    header: () => <RecordTable.InlineHead label="Bar codes" icon={IconHash} />,
+    header: () => <HeaderCell icon={IconHash} label="bar-codes" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -51,7 +50,7 @@ export const checkProductColumns: ColumnDef<ProductItem>[] = [
   {
     id: 'unit_price',
     accessorKey: 'unit_price',
-    header: () => <RecordTable.InlineHead label="Unit price" icon={IconHash} />,
+    header: () => <HeaderCell icon={IconHash} label="unit-price" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -63,21 +62,7 @@ export const checkProductColumns: ColumnDef<ProductItem>[] = [
   {
     id: 'status',
     accessorKey: 'isSynced',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconCircleCheck} />
-    ),
-    cell: ({ row }) => {
-      const isSynced = row.original.isSynced;
-
-      return (
-        <RecordTableInlineCell>
-          {isSynced ? (
-            <span className="text-green-600 font-medium">Synced</span>
-          ) : (
-            <span className="text-gray-400"></span>
-          )}
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <HeaderCell icon={IconCircleCheck} label="status" />,
+    cell: ({ row }) => <SyncedStatusCell isSynced={row.original.isSynced} />,
   },
 ];

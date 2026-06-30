@@ -8,11 +8,12 @@ import momentTz from 'moment-timezone';
 import type { RequestInit, HeadersInit } from 'node-fetch';
 import redis from '@/integrations/call/redlock';
 import { IModels, generateModels } from '~/connectionResolvers';
-import { getEnv } from 'erxes-api-shared/utils';
+import { getEnv, ExpectedError } from 'erxes-api-shared/utils';
 import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { ICallHistory } from '@/integrations/call/@types/histories';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { debugCall } from '@/integrations/call/debuggers';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
@@ -34,6 +35,17 @@ export const sendRequest = async (url, options) => {
     return response;
   } catch (error) {
     console.error('Error in sendRequest:', error);
+
+    if (
+      error instanceof Error &&
+      (error.message.includes('ENOTFOUND') ||
+        error.message.includes('getaddrinfo'))
+    ) {
+      throw new ExpectedError(
+        'Call integration server is not reachable. Please check your wsServer configuration.',
+      );
+    }
+
     throw error;
   }
 };
@@ -504,11 +516,15 @@ export const cfRecordUrl = async (params, user, models, subdomain) => {
 
       clearTimeout(timeoutId);
 
+      const responseText = await uploadResponse.text();
+
       if (!uploadResponse.ok) {
-        throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+        throw new Error(
+          `Upload failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${responseText}`,
+        );
       }
 
-      return await uploadResponse.text();
+      return responseText;
     } catch (fetchError) {
       if (fetchError.name === 'AbortError')
         throw new Error('Upload to Erxes timed out');
@@ -691,6 +707,66 @@ export const checkForExistingIntegrations = async (
   return details || {};
 };
 
+export type ICallOperator = {
+  userId: string;
+  gsUsername: string;
+  gsPassword: string;
+  gsForwardAgent: boolean;
+};
+
+export const sanitizeOperators = (
+  input: any,
+  existing: any[] = [],
+): ICallOperator[] => {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  const prevByUser = new Map(
+    (existing || [])
+      .filter((op) => op && op.userId)
+      .map((op) => [String(op.userId), op]),
+  );
+
+  const result: ICallOperator[] = [];
+
+  for (const raw of input) {
+    if (!raw || typeof raw !== 'object') {
+      continue;
+    }
+
+    const userId = typeof raw.userId === 'string' ? raw.userId : '';
+    const gsUsername =
+      typeof raw.gsUsername === 'string' ? raw.gsUsername.trim() : '';
+
+    if (!gsUsername) {
+      continue;
+    }
+
+    const prev = prevByUser.get(String(userId));
+    const gsPassword =
+      typeof raw.gsPassword === 'string' && raw.gsPassword.length > 0
+        ? raw.gsPassword
+        : prev?.gsPassword || '';
+    const gsForwardAgent =
+      typeof raw.gsForwardAgent === 'boolean'
+        ? raw.gsForwardAgent
+        : !!prev?.gsForwardAgent;
+
+    result.push({ userId, gsUsername, gsPassword, gsForwardAgent });
+  }
+
+  return result;
+};
+
+const SETTABLE_INTEGRATION_FIELDS = [
+  'phone',
+  'wsServer',
+  'srcTrunk',
+  'dstTrunk',
+  'queueNames',
+];
+
 export const updateIntegrationQueues = async (
   subdomain,
   integrationId,
@@ -706,13 +782,26 @@ export const updateIntegrationQueues = async (
       integrationId,
     );
     const { queues } = checkedIntegration;
-    // Prepare update data
-    const updateData = { $set: { queues, ...details }, $upsert: true };
+
+    const $set: Record<string, any> = { queues };
+    for (const key of SETTABLE_INTEGRATION_FIELDS) {
+      if (details[key] !== undefined) {
+        $set[key] = details[key];
+      }
+    }
+
+    if (details.operators !== undefined) {
+      const current = await models.CallIntegrations.findOne({
+        inboxId: integrationId,
+      }).lean();
+      $set.operators = sanitizeOperators(details.operators, current?.operators);
+    }
 
     // Update the integration
     const integration = await models.CallIntegrations.findOneAndUpdate(
       { inboxId: integrationId },
-      updateData,
+      { $set },
+      { new: true },
     );
 
     return integration?.queues || queues;
@@ -779,6 +868,59 @@ export const updateIntegrationQueueNames = async (
     console.error('Error updating integration queue names:', error.message);
     throw error;
   }
+};
+
+export const normalizeQueueStat = (q: any, integrationId: string) => ({
+  queuechairman: q.queuechairman ?? q.queueChairman ?? '',
+  queue: q.queue,
+  totalCalls: q.total_calls ?? q.totalCalls ?? 0,
+  answeredCalls: q.answered_calls ?? q.answeredCalls ?? 0,
+  answeredRate: q.answered_rate ?? q.answeredRate ?? 0,
+  abandonedCalls: q.abandoned_calls ?? q.abandonedCalls ?? 0,
+  avgWait: q.avg_wait ?? q.avgWait ?? 0,
+  avgTalk: q.avg_talk ?? q.avgTalk ?? 0,
+  vqTotalCalls: q.vq_total_calls ?? q.vqTotalCalls ?? 0,
+  slaRate: q.sla_rate ?? q.slaRate ?? 0,
+  vqSlaRate: q.vq_sla_rate ?? q.vqSlaRate ?? 0,
+  transferOutCalls: q.transfer_out_calls ?? q.transferOutCalls ?? 0,
+  transferOutRate: q.transfer_out_rate ?? q.transferOutRate ?? 0,
+  abandonedRate: q.abandoned_rate ?? q.abandonedRate ?? 0,
+  integrationId,
+});
+
+export const upsertQueueStatistics = async (
+  models: IModels,
+  integration: ICallIntegrationDocument,
+  payload: any,
+): Promise<{ upserted: number }> => {
+  const integrationId = integration?.inboxId;
+  if (!integrationId) {
+    throw new Error('Integration not resolved');
+  }
+
+  const raw =
+    payload?.root_statistics?.queue ??
+    payload?.queue ??
+    payload?.queues ??
+    payload;
+  const list = Array.isArray(raw) ? raw : raw ? [raw] : [];
+
+  const allowed = (integration.queues || []).map(String);
+
+  const normalized = list
+    .filter((q) => q && q.queue !== undefined && q.queue !== null)
+    .map((q) => normalizeQueueStat(q, integrationId))
+    .filter((q) => allowed.includes(String(q.queue)));
+
+  for (const stat of normalized) {
+    await models.CallQueueStatistics.findOneAndUpdate(
+      { integrationId, queue: stat.queue },
+      { $set: stat },
+      { upsert: true, new: true },
+    );
+  }
+
+  return { upserted: normalized.length };
 };
 
 type ErrorList = {
@@ -983,6 +1125,34 @@ export const mapCdrToCallHistory = (
     queueName: '',
     inboxIntegrationId: cdr.inboxIntegrationId,
     acctId: cdr.acctId || '',
+  };
+};
+
+export const mapSessionToCallHistory = (
+  session: ICallSessionDocument,
+): ICallHistory & { acctId: string } => {
+  return {
+    operatorPhone: session.operatorPhone || '',
+    customerPhone: session.customerPhone || '',
+    callDuration: session.durationSec || 0,
+    callStartTime: session.startedAt,
+    callEndTime: session.endedAt as Date,
+    callType: session.callType,
+    callStatus: session.status || '',
+    timeStamp: session.startedAt ? session.startedAt.getTime() / 1000 : 0,
+    modifiedAt: session.updatedAt,
+    createdAt: session.createdAt,
+    createdBy: '',
+    modifiedBy: '',
+    extensionNumber: session.answeredExtension || '',
+    conversationId: session.conversationId || '',
+    recordUrl: session.recordUrl || '',
+    endedBy: '',
+    acceptedUserId: '',
+    queueName: session.queueName || '',
+    inboxIntegrationId: session.inboxIntegrationId,
+    acctId: session.cdrAcctId || '',
+    uniqueid: session.uniqueid,
   };
 };
 

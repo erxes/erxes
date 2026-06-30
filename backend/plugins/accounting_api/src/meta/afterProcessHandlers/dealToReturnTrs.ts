@@ -11,6 +11,7 @@ import {
   ITransaction,
   ITransactionDocument,
 } from '~/modules/accounting/@types/transaction';
+import { getDealAccountingDate } from './dealDate';
 import { getJournal } from './utils';
 
 export const dealToReturnTrs = async ({
@@ -18,10 +19,12 @@ export const dealToReturnTrs = async ({
   userId,
   deal,
   config,
+  dateType,
 }: {
   models: IModels;
   userId: string;
   deal: any;
+  dateType?: string;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
     responseFieldId?: string;
@@ -30,7 +33,6 @@ export const dealToReturnTrs = async ({
     trStatus?: string;
   };
 }) => {
-  let date = new Date();
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -51,15 +53,17 @@ export const dealToReturnTrs = async ({
       originId: { $in: [null, ''] },
       contentId: { $in: [null, ''] },
     }).lean();
-    if (config.dateRule === 'syncedDateOrNow') {
-      date = oldTrs[0].date;
-    }
-
     const oldReturnTr = oldTrs[0];
     mainId = oldReturnTr?._id || mainId;
     ptrId = oldReturnTr?.ptrId || ptrId;
     parentId = oldReturnTr?.parentId || parentId;
   }
+  const date = getDealAccountingDate({
+    deal,
+    dateRule: config.dateRule,
+    dateType,
+    existingDate: oldTrs[0]?.date,
+  });
 
   const firstSaleTr = await models.Transactions.findOne({
     contentType,

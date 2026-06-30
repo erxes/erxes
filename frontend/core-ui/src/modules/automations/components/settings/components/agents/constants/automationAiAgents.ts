@@ -13,10 +13,10 @@ export const AI_AGENT_KINDS: TAiAgentKind[] = [
     image: 'cloudflare.webp',
   },
   {
-    type: 'grok',
-    label: 'Grok',
-    description: 'Connect xAI Grok with organization-owned credentials.',
-    image: 'grok.webp',
+    type: 'openai',
+    label: 'OpenAI Direct',
+    description: 'Connect OpenAI with organization-owned credentials.',
+    image: 'openai.webp',
   },
   {
     type: 'kimi',
@@ -32,10 +32,10 @@ export const AI_AGENT_KINDS: TAiAgentKind[] = [
     image: 'kimi.webp',
   },
   {
-    type: 'openai',
-    label: 'OpenAI Direct',
-    description: 'Connect OpenAI with organization-owned credentials.',
-    image: 'openai.webp',
+    type: 'grok',
+    label: 'Grok',
+    description: 'Connect xAI Grok with organization-owned credentials.',
+    image: 'grok.webp',
   },
 ];
 

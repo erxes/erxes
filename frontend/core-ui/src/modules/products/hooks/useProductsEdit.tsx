@@ -11,16 +11,6 @@ export const useProductsEdit = () => {
     productsEdit({
       ...options,
       variables,
-      update: (cache, { data: { productsEdit } }) => {
-        cache.modify({
-          id: cache.identify(productsEdit),
-          fields: Object.keys(variables || {}).reduce((fields: any, field) => {
-            fields[field] = () => variables?.[field];
-            return fields;
-          }, {}),
-          optimistic: true,
-        });
-      },
     });
   };
 

@@ -1,5 +1,5 @@
 import { PageSubHeader } from 'erxes-ui';
-import { Export } from 'ui-modules';
+import { Can, Export } from 'ui-modules';
 import { useParams } from 'react-router';
 import { SubmissionsTotalCount } from './submissions-total-count';
 import { SubmissionsFilter } from './submissions-filter';
@@ -14,13 +14,15 @@ export const SubmissionsSubHeader = () => {
         <SubmissionsTotalCount />
       </div>
       <div className="flex-none ml-auto">
-        <Export
-          pluginName="frontline"
-          moduleName="formSubmission"
-          collectionName="formSubmission"
-          buttonVariant="secondary"
-          getFilters={() => (formId ? { formId } : {})}
-        />
+        <Can action="formSubmissionsExportManage">
+          <Export
+            pluginName="frontline"
+            moduleName="formSubmission"
+            collectionName="formSubmission"
+            buttonVariant="secondary"
+            getFilters={() => (formId ? { formId } : {})}
+          />
+        </Can>
       </div>
     </PageSubHeader>
   );

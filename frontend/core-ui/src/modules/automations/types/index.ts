@@ -9,12 +9,15 @@ import {
   TAutomationBuilderTriggers,
   TAutomationBuilderWorkflows,
 } from '@/automations/utils/automationFormDefinitions';
+import { TAutomationEdgeType } from '@/automations/constants/edgeTypes';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { Edge, EdgeProps, Node, ReactFlowInstance } from '@xyflow/react';
 import {
   IAutomationHistory,
   IAutomationHistoryAction,
   IAutomationsActionConfigConstants,
   IAutomationsTriggerConfigConstants,
+  TAiKnowledgeSourceConfig,
   TAutomationAction,
   TAutomationActionProps,
   TAutomationTrigger,
@@ -34,14 +37,15 @@ export interface AutomationConstants {
         label: string;
         exposure?: 'placeholder' | 'reference';
       }>;
-      propertySources?: Array<{
+      propertySource?: {
         key: string;
         label: string;
         propertyType: string;
-      }>;
+      };
       resolverKeys?: string[];
     };
   }>;
+  aiKnowledgeSourcesConst: TAiKnowledgeSourceConfig[];
 }
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;
@@ -65,6 +69,7 @@ export type NodeData<TConfig = any> = {
   nextActionId?: string;
   actionId?: string;
   workflowId?: string;
+  flowDirection?: TAutomationFlowDirection;
   beforeTitleContent?: (
     id: string,
     type: AutomationNodeType,
@@ -77,11 +82,14 @@ export type WorkflowNodeData = {
   description: string;
   label: string;
   nodeType: string;
+  flowDirection?: TAutomationFlowDirection;
 };
 
 export interface IAutomationDoc {
   name: string;
   status: string;
+  edgeType?: TAutomationEdgeType;
+  flowDirection?: TAutomationFlowDirection;
   triggers: TAutomationTrigger[];
   actions: TAutomationAction[];
   updatedAt?: string;
@@ -113,6 +121,7 @@ export type AutomationDropHandlerParams = {
   actions: TAutomationBuilderActions;
   workflows?: TAutomationBuilderWorkflows;
   getNodes: () => Node<NodeData>[];
+  flowDirection?: TAutomationFlowDirection;
 };
 
 export type TDraggingNode = {
@@ -187,9 +196,8 @@ interface BaseComponentConfig<TConfig = any> {
 }
 
 // Generic action component configuration with config type parameter
-interface ActionComponentConfig<
-  TConfig = any,
-> extends BaseComponentConfig<TConfig> {
+interface ActionComponentConfig<TConfig = any>
+  extends BaseComponentConfig<TConfig> {
   sidebar?: LazyAutomationComponent<TAutomationActionProps>;
   actionResult?: LazyAutomationComponent<{
     componentType: 'historyActionResult';

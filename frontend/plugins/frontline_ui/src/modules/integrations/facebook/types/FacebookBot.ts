@@ -1,8 +1,8 @@
 export type IFacebookBotPersistentMenu = {
   _id: string;
   text: string;
-  type: 'button' | 'link';
-  link: string;
+  type: 'button' | 'link' | 'human_handoff' | 'back_button';
+  link?: string;
 };
 
 export type IFacebookBotHealth = {
@@ -40,6 +40,9 @@ export type IFacebookBot = {
   profileUrl: string;
   persistentMenus: IFacebookBotPersistentMenu[];
   greetText: string;
+  handoffMessage?: string;
+  automationActiveMessage?: string;
+  handoffPauseMinutes?: number;
   tag: 'CONFIRMED_EVENT_UPDATE' | 'POST_PURCHASE_UPDATE' | 'ACCOUNT_UPDATE';
   isEnabledBackBtn: boolean;
   backButtonText: string;

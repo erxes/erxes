@@ -26,7 +26,6 @@ export interface IConfig {
     value?: string
     type?: string
   }
-  erxesAppToken?: string
   kitchenScreen?: IKitchenScreen
   uiOptions?: IUIOptions
   paymentTypes?: IPaymentType[]

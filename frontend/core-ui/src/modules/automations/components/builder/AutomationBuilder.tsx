@@ -42,7 +42,14 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
 
   const form = useForm<TAutomationBuilderForm>({
     resolver: zodResolver(automationBuilderFormSchema),
-    defaultValues: deepCleanNulls(detail),
+    defaultValues: {
+      edgeType: 'default',
+      flowDirection: 'horizontal',
+      triggers: [],
+      actions: [],
+      workflows: [],
+      ...deepCleanNulls(detail),
+    },
   });
 
   useEffect(() => {
@@ -60,7 +67,7 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
       <ReactFlowProvider>
         <AutomationBuilderDnDProvider>
           <FormProvider {...form}>
-            <AutomationBuilderUnsavedChangesAlert />
+            <AutomationBuilderUnsavedChangesAlert detail={detail} />
             <Tabs value={activeTab} className="h-screen flex flex-col">
               <AutomationBuilderHeader />
               {activeTab === 'builder' && (

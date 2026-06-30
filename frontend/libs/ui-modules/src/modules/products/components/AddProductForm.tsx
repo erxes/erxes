@@ -11,6 +11,7 @@ import {
   InfoCard,
   Input,
   Label,
+  NumberInput,
   ScrollArea,
   Select,
   Sheet,
@@ -20,7 +21,7 @@ import {
 } from 'erxes-ui';
 import { nanoid } from 'nanoid';
 import { useCallback, useMemo, useState } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules/modules/brands';
 import { SelectCompany } from 'ui-modules/modules/contacts';
@@ -36,12 +37,8 @@ import { FieldString } from 'ui-modules/modules/properties/components/FieldStrin
 import { FieldPhone } from 'ui-modules/modules/properties/components/FieldPhone';
 import { IFieldGroup } from 'ui-modules/modules/properties/types/fieldsTypes';
 import { SelectCategory } from '../categories';
-import {
-  EMPTY_PRODUCT_FORM_VALUES,
-  PRODUCT_FORM_SCHEMA,
-} from '../constants/addProductFormSchema';
+import { PRODUCT_DURATION_TYPES } from '../constants/productTypes';
 import { useAddProduct } from '../hooks/useProductsAdd';
-import { useUom } from '../hooks/useUom';
 import { IProductFormValues } from '../types';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
@@ -61,26 +58,17 @@ export function AddProductForm({
   showMoreInfo: controlledShowMoreInfo,
   onShowMoreInfoChange,
   options,
+  form,
 }: {
   embed?: boolean;
   onOpenChange: (open: boolean) => void;
   showMoreInfo?: boolean;
   onShowMoreInfoChange?: (showMoreInfo: boolean) => void;
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
+  form: UseFormReturn<IProductFormValues>;
 }) {
   const { productsAdd, loading } = useAddProduct();
-  const { uoms } = useUom();
 
-  const uomIdToName = useMemo(() => {
-    const map = new Map<string, string>();
-    uoms.forEach((uom) => map.set(uom._id, uom.name));
-    return map;
-  }, [uoms]);
-
-  const form = useForm<IProductFormValues>({
-    resolver: zodResolver(PRODUCT_FORM_SCHEMA),
-    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
-  });
 
   async function onSubmit(data: IProductFormValues) {
     const cleanData: Record<string, unknown> = {};
@@ -114,10 +102,13 @@ export function AddProductForm({
       ) {
         const customFieldsObj = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
-          .reduce((acc, [fieldId, val]) => {
-            acc[fieldId] = val;
-            return acc;
-          }, {} as Record<string, unknown>);
+          .reduce(
+            (acc, [fieldId, val]) => {
+              acc[fieldId] = val;
+              return acc;
+            },
+            {} as Record<string, unknown>,
+          );
         if (Object.keys(customFieldsObj).length > 0) {
           cleanData['propertiesData'] = customFieldsObj;
         }
@@ -125,19 +116,14 @@ export function AddProductForm({
       }
 
       if (key === 'uom') {
-        const uomName = uomIdToName.get(value as string);
-        cleanData[key] = uomName || value;
+        cleanData[key] = value;
         return;
       }
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
           const { _id, ...rest } = subUom;
-          const mappedUom = uomIdToName.get(rest.uom);
-          return {
-            ...rest,
-            uom: mappedUom || rest.uom,
-          };
+          return { ...rest };
         });
         return;
       }
@@ -145,7 +131,7 @@ export function AddProductForm({
       cleanData[key] = value;
     });
 
-    productsAdd({
+    await productsAdd({
       variables: cleanData,
       ...options,
       onError: (e) => {
@@ -631,6 +617,8 @@ function AddProductFormFieldsDetail({
   showExtended?: boolean;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
+  const productType = form.watch('type');
+
   return (
     <div className={showExtended ? 'grid gap-4 lg:grid-cols-5' : ''}>
       <div className={showExtended ? 'grid gap-4 lg:col-span-3' : ''}>
@@ -708,7 +696,7 @@ function AddProductFormFieldsDetail({
                       <SelectCategory
                         value={field.value}
                         onSelect={field.onChange}
-                        mode='single'
+                        mode="single"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -734,6 +722,55 @@ function AddProductFormFieldsDetail({
                   </Form.Item>
                 )}
               />
+              {productType === 'unique' && (
+                <>
+                  <Form.Field
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('duration')}</Form.Label>
+                        <Form.Control>
+                          <NumberInput {...field} />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="durationType"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('duration-type')}</Form.Label>
+                        <Form.Control>
+                          <Select
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                          >
+                            <Select.Trigger>
+                              <Select.Value
+                                placeholder={t('select-duration-type')}
+                              />
+                            </Select.Trigger>
+                            <Select.Content>
+                              {PRODUCT_DURATION_TYPES.map((durationType) => (
+                                <Select.Item
+                                  key={durationType.value}
+                                  value={durationType.value}
+                                >
+                                  {durationType.label}
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </>
+              )}
               <Form.Field
                 control={form.control}
                 name="uom"

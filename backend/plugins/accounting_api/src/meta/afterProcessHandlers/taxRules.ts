@@ -31,7 +31,7 @@ const getChildCategories = async (subdomain: string, categoryIds: string[]) => {
     method: 'query',
     module: 'productCategories',
     action: 'withChilds',
-    input: { _ids: categoryIds },
+    input: { ids: categoryIds },
     defaultValue: [],
   });
 

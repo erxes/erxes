@@ -1,0 +1,39 @@
+version = 1
+
+exclude_patterns = [
+  "**/node_modules/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/.next/**",
+  "**/coverage/**",
+  "**/*.min.js",
+  "**/__generated__/**",
+  "**/*.generated.*",
+]
+
+test_patterns = [
+  "**/__tests__/**",
+  "**/*.test.ts",
+  "**/*.test.tsx",
+  "**/*.test.js",
+  "**/*.test.jsx",
+  "**/*.spec.ts",
+  "**/*.spec.tsx",
+  "**/*.spec.js",
+  "**/*.spec.jsx",
+]
+
+[[analyzers]]
+name = "javascript"
+
+  [analyzers.meta]
+  plugins = ["react"]
+  environment = ["nodejs", "browser"]
+  dialect = "typescript"
+  module_system = "es-modules"
+
+[[analyzers]]
+name = "docker"
+
+[[transformers]]
+name = "prettier"

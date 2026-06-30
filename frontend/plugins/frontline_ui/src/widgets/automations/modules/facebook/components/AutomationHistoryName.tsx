@@ -18,7 +18,7 @@ export const AutomationHistoryName = ({
       <Button asChild variant="link">
         <Link
           target="_blank"
-          to={`/frontline/inbox/index?_id=${target?.conversationId}`}
+          to={`/frontline/inbox?conversationId=${target?.conversationId}`}
         >
           {'See Conversation'}
           <IconExternalLink />

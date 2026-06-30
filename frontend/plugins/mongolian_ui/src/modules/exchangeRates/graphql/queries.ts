@@ -1,4 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_PAGE_INFO,
+  GQL_CURSOR_PARAMS,
+} from 'erxes-ui';
 
 /* ---------------- exchange rate fields ---------------- */
 
@@ -16,26 +21,31 @@ const exchangeRateFields = `
 
 export const exchangeRatesMain = gql`
   query ExchangeRatesMain(
-    $page: Int
-    $perPage: Int
     $searchValue: String
+    $orderBy: JSON
+    $sortMode: String
+    $aggregationPipeline: [JSON]
+    ${GQL_CURSOR_PARAM_DEFS}
   ) {
     exchangeRatesMain(
-      page: $page
-      perPage: $perPage
       searchValue: $searchValue
+      orderBy: $orderBy
+      sortMode: $sortMode
+      aggregationPipeline: $aggregationPipeline
+      ${GQL_CURSOR_PARAMS}
     ) {
       list {
         ${exchangeRateFields}
       }
-      totalCount
+      ${GQL_PAGE_INFO}
     }
   }
 `;
 
 export const currencyConfig = gql`
-  query ExchangeRateMainCurrency {
-    configsGetValue(code: "mainCurrency")
+  query ExchangeRateCurrencies {
+    dealCurrencies: configsGetValue(code: "dealCurrency")
+    mainCurrencyConfig: configsGetValue(code: "mainCurrency")
   }
 `;
 

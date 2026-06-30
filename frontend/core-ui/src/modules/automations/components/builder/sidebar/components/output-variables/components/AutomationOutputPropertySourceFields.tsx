@@ -48,7 +48,7 @@ export const AutomationOutputPropertySourceFields = ({
       ) : filteredFields.length > 0 ? (
         <div className="space-y-2">
           {filteredFields.map((field: IField) => {
-            const fieldKey = field.code || field.name || field._id;
+            const fieldKey = field.name || field.code || field._id;
             const path = buildVariablePath(`${source.key}.${fieldKey}`);
             const token = buildVariableToken(`${source.key}.${fieldKey}`);
             const payload = buildVariablePayload({

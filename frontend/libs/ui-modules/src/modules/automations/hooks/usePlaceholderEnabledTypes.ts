@@ -7,6 +7,7 @@ import {
   DisabledSuggestions,
   EnabledSuggestions,
   SuggestionConfig,
+  TPlaceholderInputSuggestion,
 } from '../types/placeholderInputTypes';
 
 interface UsePlaceholderEnabledTypesParams {
@@ -18,11 +19,11 @@ interface UsePlaceholderEnabledTypesParams {
 }
 
 export function usePlaceholderEnabledTypes({
-  enabled,
-  disabled,
+  enabled = [],
+  disabled = [],
   suggestionGroups,
   enableAll = false,
-  extraSuggestionConfigs,
+  extraSuggestionConfigs = [],
 }: UsePlaceholderEnabledTypesParams) {
   const { enabledTypes } = useMemo(() => {
     const base: Record<string, boolean> = {
@@ -43,9 +44,8 @@ export function usePlaceholderEnabledTypes({
         }
       });
     } else if (enabled) {
-      for (const type of Object.keys(base)) {
-        const enabledValue = enabled[type];
-        base[type] = !!enabledValue;
+      for (const type of Object.values(TPlaceholderInputSuggestion)) {
+        base[type] = enabled.includes(type);
       }
     }
 
@@ -56,10 +56,8 @@ export function usePlaceholderEnabledTypes({
     }
 
     if (disabled) {
-      for (const type of Object.keys(disabled)) {
-        if (disabled[type]) {
-          base[type] = false;
-        }
+      for (const type of disabled) {
+        base[type] = false;
       }
     }
 

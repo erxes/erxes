@@ -104,6 +104,10 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       });
     }
   } else if (action === 'delete' && product) {
+    console.log(
+      `[erkhet:consumeInventory] core removeProducts 1 product`,
+      product._id,
+    );
     await sendTRPCMessage({
       subdomain,
       pluginName: 'core',

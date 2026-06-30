@@ -1,5 +1,6 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationNodeType } from '@/automations/types';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import {
   ConnectionLineComponentProps,
   InternalNode,
@@ -7,6 +8,7 @@ import {
   Node,
 } from '@xyflow/react';
 import { cn } from 'erxes-ui';
+import { useWatch } from 'react-hook-form';
 import { IAutomationsActionFolkConfig } from 'ui-modules';
 
 const getFolkTypeFn = (
@@ -37,8 +39,20 @@ const ConnectionLine = ({
 }: ConnectionLineComponentProps) => {
   const { fromHandle, fromNode } = props;
   const { actionFolks } = useAutomation();
+  const flowDirection =
+    useWatch<TAutomationBuilderForm, 'flowDirection'>({
+      name: 'flowDirection',
+    }) || 'horizontal';
 
   const folkType = getFolkTypeFn(actionFolks, fromHandle, fromNode);
+  const edgePath =
+    flowDirection === 'vertical'
+      ? `M${fromX},${fromY} C${fromX},${fromY + 50} ${toX},${
+          toY - 50
+        } ${toX},${toY}`
+      : `M${fromX},${fromY} C${fromX + 50},${fromY} ${
+          toX - 50
+        },${toY} ${toX},${toY}`;
 
   return (
     <g>
@@ -51,9 +65,7 @@ const ConnectionLine = ({
           'stroke-info': folkType === 'default',
         })}
         strokeWidth={2}
-        d={`M${fromX},${fromY} C${fromX + 50},${fromY} ${
-          toX - 50
-        },${toY} ${toX},${toY}`}
+        d={edgePath}
       />
 
       <circle

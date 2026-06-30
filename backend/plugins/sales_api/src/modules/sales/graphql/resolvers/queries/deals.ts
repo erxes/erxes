@@ -302,7 +302,8 @@ export const generateFilter = async (
     Object.assign(filter, {
       $or: [
         regexSearchText(search),
-        { number: { $regex: new RegExp(`.*${escapeRegExp(search)}.*`, 'i') } },
+        { name: { $regex: new RegExp(`${escapeRegExp(search)}`, 'i') } },
+        { number: { $regex: new RegExp(`^${escapeRegExp(search)}`, 'i') } },
       ],
     });
   }
@@ -681,27 +682,37 @@ const fetchDeals = async (
   user: IContext['user'],
   forClientPortal = false,
 ) => {
-  const filter = await generateFilter(models, subdomain, userId, args, forClientPortal);
+  const { search, noSkipArchive } = args;
+
+  if (noSkipArchive && search) {
+    args.orderBy = { status: 1, ...args.orderBy }
+  }
+
+  const filter = await generateFilter(
+    models,
+    subdomain,
+    userId,
+    args,
+    forClientPortal,
+  );
 
   const getExtraFields = async (item: any) => ({
     amount: await dealResolvers.amount(item),
     unUsedAmount: await dealResolvers.unusedAmount(item),
   });
 
-  const { list: deals, pageInfo, totalCount } = await getItemList(
-    models,
-    subdomain,
-    filter,
-    args,
-    user,
-    getExtraFields,
-  );
+  const {
+    list: deals,
+    pageInfo,
+    totalCount,
+  } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
 
   await enrichDealsWithProducts(subdomain, deals);
 
   return { list: deals, pageInfo, totalCount };
 };
 
+// #region Queries
 export const dealQueries: Record<string, Resolver> = {
   /**
    * Deals list
@@ -771,7 +782,11 @@ export const dealQueries: Record<string, Resolver> = {
       stageId: stage._id,
       pipelineId: pipeline._id,
       boardId: pipeline.boardId,
-      href: `/sales/deals?boardId=${encodeURIComponent(pipeline.boardId)}&pipelineId=${encodeURIComponent(pipeline._id)}&salesItemId=${encodeURIComponent(deal._id)}`,
+      href: `/sales/deals?boardId=${encodeURIComponent(
+        pipeline.boardId,
+      )}&pipelineId=${encodeURIComponent(
+        pipeline._id,
+      )}&salesItemId=${encodeURIComponent(deal._id)}`,
     };
   },
 

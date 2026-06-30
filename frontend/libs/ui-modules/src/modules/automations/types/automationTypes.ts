@@ -161,6 +161,65 @@ export type AutomationCustomWaitEventFormProps<TConfig = any> = {
   actionData: TAutomationAction;
 };
 
+export type TAiKnowledgeSourceConfig = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  label: string;
+  sourceSelector: 'remote-module' | 'local';
+};
+
+export type TAiToolConfig = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  label: string;
+  input: string;
+  output: string;
+};
+
+export type TAiKnowledgeSourceSelection = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  sourceIds: string[];
+  config?: Record<string, unknown>;
+};
+
+export type TAiToolSelection = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  enabled?: boolean;
+  config?: Record<string, unknown>;
+};
+
+export type TAiKnowledgeSourceIndexStatus = {
+  pluginName: string;
+  moduleName: string;
+  sourceKey: string;
+  sourceId: string;
+  status: 'queued' | 'indexing' | 'indexed' | 'failed' | 'skipped';
+  chunkCount?: number;
+  indexedAt?: string;
+  indexError?: string;
+  runId?: string;
+  totalCount?: number;
+  processedCount?: number;
+  indexedCount?: number;
+  failedCount?: number;
+  removedCount?: number;
+};
+
+export type AutomationAiKnowledgeSourceSelectorProps = {
+  componentType: 'aiKnowledgeSourceSelector';
+  source: TAiKnowledgeSourceConfig;
+  value: string[];
+  config?: Record<string, unknown>;
+  onChange: (sourceIds: string[], config?: Record<string, unknown>) => void;
+  statuses?: TAiKnowledgeSourceIndexStatus[];
+};
+
 export type AutomationRemoteEntryProps =
   | AutomationTriggerFormProps
   | AutomationActionFormProps
@@ -169,6 +228,7 @@ export type AutomationRemoteEntryProps =
   | AutomationExecutionHistoryNameProps
   | AutomationExecutionActionResultProps
   | AutomationCustomWaitEventFormProps
+  | AutomationAiKnowledgeSourceSelectorProps
   | { componentType: 'automationBotsContent' };
 
 export type AutomationRemoteEntryComponentType =
@@ -193,6 +253,14 @@ export type IAutomationsTriggerConfigConstants = {
   label: string;
   description: string;
   isCustom?: boolean;
+  output?: {
+    variables?: Array<{
+      key: string;
+      label: string;
+      type?: string;
+      exposure?: 'placeholder' | 'reference';
+    }>;
+  };
   conditions?: {
     type: string;
     icon: string;
@@ -212,11 +280,13 @@ export type IAutomationsActionConfigConstants = {
   icon: string;
   label: string;
   description: string;
+  group?: string;
   isAvailableOptionalConnect?: boolean;
   emailRecipientsConst?: any;
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
+  allowedMultiTriggerTypes?: string[];
   folks?: IAutomationsActionFolkConfig[];
 };
 

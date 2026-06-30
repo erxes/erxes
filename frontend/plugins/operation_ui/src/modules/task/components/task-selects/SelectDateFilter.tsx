@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Command,
   Filter,
@@ -70,6 +71,7 @@ const CustomDateDialog = ({
   onOpenChange: (open: boolean) => void;
   onSelectDate: (date: Date) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const handleApply = () => {
@@ -83,7 +85,7 @@ const CustomDateDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="sm:max-w-[425px]">
         <Dialog.Header>
-          <Dialog.Title>Select custom date</Dialog.Title>
+          <Dialog.Title>{t('select-custom-date')}</Dialog.Title>
         </Dialog.Header>
         <div className="py-4 flex justify-center">
           <Calendar
@@ -96,11 +98,11 @@ const CustomDateDialog = ({
         <Dialog.Footer className="sm:space-x-3">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              {t('cancel')}
             </Button>
           </Dialog.Close>
           <Button size="lg" onClick={handleApply} disabled={!selectedDate}>
-            Apply
+            {t('apply')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>
@@ -122,6 +124,7 @@ const SelectDateFilterView = ({
   label,
   showNoDueDate = false,
 }: SelectDateFilterProps) => {
+  const { t } = useTranslation('operation');
   const [dateValue, setDateValue] = useQueryState<string>(filterKey);
   const [showCustomDialog, setShowCustomDialog] = useState(false);
   const { resetFilterState } = useFilterContext();
@@ -169,11 +172,11 @@ const SelectDateFilterView = ({
             value="custom"
           >
             <IconCalendar className="w-4 h-4 mr-2" />
-            Custom date
+            {t('custom-date')}
           </Command.Item>
         </Command.List>
       </Command>
-      
+
       <CustomDateDialog
         open={showCustomDialog}
         onOpenChange={setShowCustomDialog}
@@ -188,6 +191,7 @@ const SelectDateFilterBar = ({
   label,
   icon,
 }: SelectDateFilterProps) => {
+  const { t } = useTranslation('operation');
   const [dateValue, setDateValue] = useQueryState<string>(filterKey);
   const [open, setOpen] = useState(false);
   const [showCustomDialog, setShowCustomDialog] = useState(false);
@@ -213,7 +217,7 @@ const SelectDateFilterBar = ({
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey={filterKey}>
             <div className="flex items-center gap-3">
-              <span className="text-muted-foreground ">before</span>
+              <span className="text-muted-foreground ">{t('before')}</span>
               {icon || <IconCalendarTime className="w-4 h-4" />}
               <span className="font-medium">{getDateLabel(dateValue)}</span>
             </div>
@@ -245,7 +249,7 @@ const SelectDateFilterBar = ({
                 value="custom"
               >
                 <IconCalendar className="w-4 h-4 mr-2" />
-                Custom date
+                {t('custom-date')}
               </Command.Item>
             </Command.List>
           </Command>

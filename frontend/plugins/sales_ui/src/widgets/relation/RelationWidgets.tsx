@@ -8,6 +8,12 @@ const Deal = lazy(() =>
   })),
 );
 
+const PosOrders = lazy(() =>
+  import('./modules/PosOrders').then((module) => ({
+    default: module.PosOrders,
+  })),
+);
+
 export const RelationWidgets = ({
   module,
   contentId,
@@ -24,6 +30,9 @@ export const RelationWidgets = ({
           customerId={customerId}
           companyId={companyId}
         />
+      ) : null}
+      {module === 'posOrders' ? (
+        <PosOrders contentId={contentId} />
       ) : null}
     </Suspense>
   );

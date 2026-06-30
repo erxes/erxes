@@ -20,6 +20,7 @@ import {
   toast,
   useBlockEditor,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -31,6 +32,7 @@ export const AddTriageForm = ({
 }: {
   onComplete: (triageId: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams<{
     teamId?: string;
   }>();
@@ -86,8 +88,8 @@ export const AddTriageForm = ({
       },
       onCompleted: ({ operationAddTriage }) => {
         toast({
-          title: 'Success',
-          description: 'Triage created successfully',
+          title: t('success'),
+          description: t('triage-created-successfully'),
           variant: 'default',
         });
 
@@ -130,7 +132,7 @@ export const AddTriageForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item className="space-y-0">
-                <Form.Label className="sr-only">Team</Form.Label>
+                <Form.Label className="sr-only">{t('team')}</Form.Label>
                 <SelectTeam.FormItem
                   value={field.value || ''}
                   onValueChange={(value) => {
@@ -144,7 +146,7 @@ export const AddTriageForm = ({
           />
 
           <IconChevronRight className="size-4" />
-          <Sheet.Title className="">New triage</Sheet.Title>
+          <Sheet.Title className="">{t('new-triage')}</Sheet.Title>
           <div className="ml-auto">
             <SelectTemplate teamId={_teamId} onSelect={onTemplateSelect} />
           </div>
@@ -155,12 +157,12 @@ export const AddTriageForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">Name</Form.Label>
+                <Form.Label className="sr-only">{t('name')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                    placeholder="Triage Name"
+                    placeholder={t('triage-name')}
                   />
                 </Form.Control>
               </Form.Item>
@@ -172,7 +174,7 @@ export const AddTriageForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Priority</Form.Label>
+                  <Form.Label className="sr-only">{t('priority')}</Form.Label>
                   <SelectPriority.FormItem
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
@@ -185,7 +187,7 @@ export const AddTriageForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">Status</Form.Label>
+                  <Form.Label className="sr-only">{t('status')}</Form.Label>
                   <SelectStatus.FormItem
                     value={field.value || STATUS_TYPES.TRIAGE}
                     onValueChange={(value) => field.onChange(value)}
@@ -219,7 +221,7 @@ export const AddTriageForm = ({
                 setDescriptionContent(undefined);
               }}
             >
-              Cancel
+              {t('cancel')}
             </Button>
           </Sheet.Close>
           <Button
@@ -227,7 +229,7 @@ export const AddTriageForm = ({
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={createTriageLoading}
           >
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

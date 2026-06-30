@@ -7,35 +7,75 @@ import { initializePluginConfig } from '../service-discovery';
 
 export interface BeforeResolverParams {
   resolver: string;
-  args?: any;
-  user?: any;
-  headers?: Record<string, any>;
+  args?: Record<string, unknown>;
+  user?: unknown;
+  headers?: Record<string, unknown>;
 }
+
+export type BeforeResolverOkResult = {
+  status: 'ok';
+  args?: Record<string, unknown>;
+};
+
+export type BeforeResolverBlockedResult = {
+  status: 'blocked';
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+};
+
+export type BeforeResolverResolvedResult = {
+  status: 'resolved';
+  data: unknown;
+};
+
+export type BeforeResolverResult =
+  | BeforeResolverOkResult
+  | BeforeResolverBlockedResult
+  | BeforeResolverResolvedResult
+  | Record<string, unknown>
+  | null
+  | undefined;
 
 export type BeforeResolverHandler = (
   subdomain: string,
   params: BeforeResolverParams,
-) => Promise<any> | any;
+) => Promise<BeforeResolverResult> | BeforeResolverResult;
 
 export interface BeforeResolversConfig {
   resolvers: Record<string, string[]>;
   handler: BeforeResolverHandler;
+  blocker?: BeforeResolverHandler;
 }
 
 export enum TBeforeResolversProducers {
   HANDLE = 'handle',
+  CHECK = 'check',
+  BLOCKER = 'blocker',
 }
 
 export type TBeforeResolversProducersInput = {
   [TBeforeResolversProducers.HANDLE]: BeforeResolverParams;
+  [TBeforeResolversProducers.CHECK]: BeforeResolverParams;
+  [TBeforeResolversProducers.BLOCKER]: BeforeResolverParams;
 };
+
+const beforeResolverInput = z.object({
+  subdomain: z.string(),
+  data: z.object({
+    resolver: z.string(),
+    args: z.record(z.unknown()).optional(),
+    user: z.unknown().optional(),
+    headers: z.record(z.unknown()).optional(),
+  }),
+});
 
 export const startBeforeResolvers = async (
   app: Express,
   pluginName: string,
   config: BeforeResolversConfig,
 ) => {
-  const { resolvers, handler } = config || {};
+  const { resolvers, handler, blocker } = config || {};
 
   if (!handler || !resolvers) {
     return;
@@ -47,20 +87,18 @@ export const startBeforeResolvers = async (
 
   const router = t.router({
     handle: t.procedure
-      .input(
-        z.object({
-          subdomain: z.string(),
-          data: z.object({
-            resolver: z.string(),
-            args: z.any(),
-            user: z.any().optional(),
-            headers: z.any().optional(),
-          }),
-        }),
-      )
+      .input(beforeResolverInput)
       .mutation(async ({ input }) => {
         return await handler(input.subdomain, input.data);
       }),
+    check: t.procedure.input(beforeResolverInput).query(async ({ input }) => {
+      return await handler(input.subdomain, input.data);
+    }),
+    blocker: t.procedure.input(beforeResolverInput).query(async ({ input }) => {
+      return blocker
+        ? await blocker(input.subdomain, input.data)
+        : { status: 'ok' };
+    }),
   });
 
   const middleware = trpcExpress.createExpressMiddleware({

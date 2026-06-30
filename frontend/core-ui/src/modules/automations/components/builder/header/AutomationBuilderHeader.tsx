@@ -1,21 +1,31 @@
 import { AutomationBuilderHeaderActions } from '@/automations/components/builder/header/AutomationBuilderHeaderActions';
-import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
 import { AutomationBuilderNameInput } from '@/automations/components/builder/header/AutomationBuilderNameInput';
+import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
+import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
 import {
   IconAffiliate,
+  IconAlertTriangle,
   IconDeviceFloppy,
   IconSettings,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
-import { Link } from 'react-router';
-import { Can, PageHeader } from 'ui-modules';
-import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
+import { Badge, Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router';
+import { Can, PageHeader } from 'ui-modules';
+import { AutomationButtonPermissionFallback } from '../../common/AutomationButtonPermissionFallback';
+import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 
 export const AutomationBuilderHeader = () => {
-  const { loading, handleSubmit, handleSave, handleError, toggleTabs } =
-    useAutomationHeader();
+  const {
+    isDirty,
+    loading,
+    handleSubmit,
+    handleSave,
+    handleError,
+    toggleTabs,
+  } = useAutomationHeader();
   const { t } = useTranslation('automations');
+  const { pathname } = useLocation();
 
   return (
     <div>
@@ -36,12 +46,18 @@ export const AutomationBuilderHeader = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
-            <Link to="/settings/automations">
+            <Link
+              to="/settings/automations"
+              onClick={() => setAutomationSettingsReturnPath(pathname)}
+            >
               <IconSettings />
               {t('go-to-settings')}
             </Link>
           </Button>
-          <Can actions={['automationsCreate', 'automationsUpdate']}>
+          <Can
+            actions={['automationsCreate', 'automationsUpdate']}
+            fallback={<AutomationButtonPermissionFallback />}
+          >
             <Button
               disabled={loading}
               onClick={handleSubmit(handleSave, handleError)}
@@ -52,13 +68,22 @@ export const AutomationBuilderHeader = () => {
           </Can>
         </PageHeader.End>
       </PageHeader>
-      <PageSubHeader className="flex items-center justify-between overflow-x-auto styled-scroll">
-        <div className="flex items-center gap-3 shrink-0">
+      <PageSubHeader className="flex items-center gap-4 overflow-x-auto styled-scroll">
+        <div className="flex shrink-0 items-center gap-3">
           <AutomationBuilderNameInput />
+          {isDirty && (
+            <Badge variant="warning" className="shrink-0">
+              <IconAlertTriangle className="size-3.5" /> Unsaved
+            </Badge>
+          )}
           <AutomationHeaderTabs toggleTabs={toggleTabs} />
         </div>
-        <div className="shrink-0">
-          <AutomationBuilderHeaderActions />
+        <div className="ml-auto flex shrink-0">
+          <AutomationBuilderHeaderActions
+            loading={loading}
+            onSave={handleSave}
+            onError={handleError}
+          />
         </div>
       </PageSubHeader>
     </div>

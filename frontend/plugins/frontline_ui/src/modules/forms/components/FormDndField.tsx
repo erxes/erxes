@@ -2,7 +2,7 @@ import { UniqueIdentifier } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
 import { useMountStatus } from '../hooks/useMountStatus';
-import { Button, cn, DropdownMenu, toast } from 'erxes-ui';
+import { Button, cn, DropdownMenu } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import {
   IconCheck,
@@ -24,17 +24,13 @@ import {
   IconGenderBigender,
   IconAddressBook,
   IconChevronLeft,
+  IconWorld,
 } from '@tabler/icons-react';
-import {
-  FORM_FIELD_TYPES,
-  FormFieldType,
-  FormGroupKey,
-  GroupedFields,
-} from '../constants/formFieldTypes';
+import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
 import React, { useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
-import { useRemoveForm } from '../hooks/useRemoveForm';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
+import { useTranslation } from 'react-i18next';
 
 export const FormDndField = ({
   field,
@@ -100,6 +96,8 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconCalendarEvent />;
     case 'select':
       return <IconChevronDown />;
+    case 'select:countries':
+      return <IconWorld />;
     case 'textarea':
       return <IconTextScan2 />;
     case 'radio':
@@ -124,6 +122,7 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
 };
 
 export const AddField = ({ step }: { step: UniqueIdentifier }) => {
+  const { t } = useTranslation('frontline');
   const { handleAddField } = useFormDnd();
   const [view, setView] = useState<'main' | 'customer'>('main');
 
@@ -149,7 +148,7 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
     >
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary" className="ml-auto">
-          <IconPlus /> Add Field
+          <IconPlus /> {t('add-field')}
         </Button>
       </DropdownMenu.Trigger>
 
@@ -182,7 +181,7 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
                 setView('customer');
               }}
             >
-              <IconAddressBook /> Customer fields
+              <IconAddressBook /> {t('customer-fields')}
             </DropdownMenu.Item>
           </>
         ) : (
@@ -194,11 +193,11 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
               }}
               className="text-accent-foreground text-xs"
             >
-              <IconChevronLeft /> Back
+              <IconChevronLeft /> {t('back')}
             </DropdownMenu.Item>
 
             <DropdownMenu.Label className="font-bold">
-              Customer fields
+              {t('customer-fields')}
             </DropdownMenu.Label>
 
             {GROUPED_FIELD_TYPES['core:customer'].map((type) => (
@@ -226,6 +225,7 @@ export const FieldContextMenu = ({
   stepId: UniqueIdentifier;
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const [_open, _setOpen] = React.useState<boolean>(false);
   const { handleDeleteField } = useFormDnd();
   const handleRemoveField = () => {
@@ -242,14 +242,14 @@ export const FieldContextMenu = ({
       <DropdownMenu.Content>
         <DropdownMenu.Item onClick={() => setOpen(true)}>
           <IconEdit />
-          Edit attributes
+          {t('edit-attributes')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={handleRemoveField}
           className="text-destructive"
         >
           <IconTrash />
-          Remove Field
+          {t('remove-field')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

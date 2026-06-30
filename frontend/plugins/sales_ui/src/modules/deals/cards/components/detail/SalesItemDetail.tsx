@@ -7,7 +7,7 @@ import {
   RelationWidgetSideTabs,
 } from 'ui-modules';
 import { dealCustomActivities } from './DealActivityRows';
-import { Empty, FocusSheet, ScrollArea, Tabs, useQueryState } from 'erxes-ui';
+import { Empty, FocusSheet, ScrollArea, Tabs, useFocusSheet, useQueryState } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
@@ -21,12 +21,98 @@ import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
 import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
+import { useTranslation } from 'react-i18next';
+
+const SalesItemDetailView = () => {
+  const { isSidebarOpen } = useFocusSheet();
+  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { deal, loading, error, refetch } = useDealDetail();
+
+  return (
+    <FocusSheet.View
+      loading={loading}
+      error={!!error}
+      notFound={!deal}
+      notFoundState={<SalesItemDetailEmptyState />}
+      errorState={<SalesItemDetailErrorState />}
+      className={!isSidebarOpen ? 'lg:w-[calc(100vw-1rem)] sm:max-w-none' : ''}
+    >
+      <SalesItemDetailHeader deal={deal || ({} as IDeal)} />
+      <FocusSheet.Content>
+        <FocusSheet.SideBar>
+          <SalesItemSidebar />
+        </FocusSheet.SideBar>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0">
+            <Tabs
+              value={selectedTab ?? 'overview'}
+              onValueChange={setSelectedTab}
+              className="h-full"
+            >
+              <Tabs.Content value="overview" className="h-full">
+                <ScrollArea className="h-full">
+                  <Overview deal={deal || ({} as IDeal)} />
+                </ScrollArea>
+              </Tabs.Content>
+              <Tabs.Content value="properties" className="h-full">
+                <ScrollArea className="h-full">
+                  <div className="p-6">
+                    <FieldsInDetail
+                      key={`${deal?._id || ''}-${JSON.stringify(
+                        deal?.propertiesData || {},
+                      )}`}
+                      fieldContentType="sales:deal"
+                      propertiesData={deal?.propertiesData || {}}
+                      mutateHook={useDealCustomFieldEdit}
+                      id={deal?._id || ''}
+                    />
+                  </div>
+                </ScrollArea>
+              </Tabs.Content>
+              <Tabs.Content value="activity" className="h-full">
+                <div className="h-full flex flex-col">
+                  <ScrollArea className="flex-1 min-h-0">
+                    <div className="pt-3">
+                      <ActivityLogs
+                        targetId={deal?._id || ''}
+                        customActivities={dealCustomActivities}
+                        variant="backward"
+                      />
+                    </div>
+                  </ScrollArea>
+
+                  {!!deal?._id && (
+                    <div className="shrink-0 pb-6 pt-2">
+                      <AddInternalNote
+                        contentTypeId={deal._id}
+                        contentType="sales:deal"
+                      />
+                    </div>
+                  )}
+                </div>
+              </Tabs.Content>
+              <Tabs.Content value="products" className="h-full p-6">
+                <Products deal={deal || ({} as IDeal)} refetch={refetch} />
+              </Tabs.Content>
+            </Tabs>
+          </div>
+        </div>
+        <RelationWidgetSideTabs
+          contentId={deal?._id || ''}
+          contentType="sales:deal"
+          hookOptions={{
+            hiddenModules: ['deals'],
+          }}
+        />
+      </FocusSheet.Content>
+    </FocusSheet.View>
+  );
+};
 
 export const SalesItemDetail = () => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
-  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  const { deal, loading, error, refetch } = useDealDetail();
+  const { loading } = useDealDetail();
 
   const [isOpen, setIsOpen] = useState(
     (!!activeDealId || !!salesItemId) && !loading,
@@ -47,85 +133,14 @@ export const SalesItemDetail = () => {
   return (
     <FocusSheet open={isOpen} onOpenChange={handleOpenChange}>
       <DealsProvider>
-        <FocusSheet.View
-          loading={loading}
-          error={!!error}
-          notFound={!deal}
-          notFoundState={<SalesItemDetailEmptyState />}
-          errorState={<SalesItemDetailErrorState />}
-        >
-          <SalesItemDetailHeader deal={deal || ({} as IDeal)} />
-          <FocusSheet.Content>
-            <FocusSheet.SideBar>
-              <SalesItemSidebar />
-            </FocusSheet.SideBar>
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 min-h-0">
-                <Tabs
-                  value={selectedTab ?? 'overview'}
-                  onValueChange={setSelectedTab}
-                  className="h-full"
-                >
-                  <Tabs.Content value="overview" className="h-full">
-                    <ScrollArea className="h-full">
-                      <Overview deal={deal || ({} as IDeal)} />
-                    </ScrollArea>
-                  </Tabs.Content>
-                  <Tabs.Content value="properties" className="h-full">
-                    <ScrollArea className="h-full">
-                      <div className="p-6">
-                        <FieldsInDetail
-                          fieldContentType="sales:deal"
-                          propertiesData={deal?.propertiesData || {}}
-                          mutateHook={useDealCustomFieldEdit}
-                          id={deal?._id || ''}
-                        />
-                      </div>
-                    </ScrollArea>
-                  </Tabs.Content>
-                  <Tabs.Content value="activity" className="h-full">
-                    <div className="h-full flex flex-col">
-                      <ScrollArea className="flex-1 min-h-0">
-                        <div className="pt-3">
-                          <ActivityLogs
-                            targetId={deal?._id || ''}
-                            customActivities={dealCustomActivities}
-                            variant="backward"
-                          />
-                        </div>
-                      </ScrollArea>
-
-                      {!!deal?._id && (
-                        <div className="shrink-0 pb-6 pt-2">
-                          <AddInternalNote
-                            contentTypeId={deal._id}
-                            contentType="sales:deal"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </Tabs.Content>
-                  <Tabs.Content value="products" className="h-full p-6">
-                    <Products deal={deal || ({} as IDeal)} refetch={refetch} />
-                  </Tabs.Content>
-                </Tabs>
-              </div>
-            </div>
-            <RelationWidgetSideTabs
-              contentId={deal?._id || ''}
-              contentType="sales:deal"
-              hookOptions={{
-                hiddenModules: ['deals'],
-              }}
-            />
-          </FocusSheet.Content>
-        </FocusSheet.View>
+        <SalesItemDetailView />
       </DealsProvider>
     </FocusSheet>
   );
 };
 
 const SalesItemDetailEmptyState = () => {
+  const { t } = useTranslation('sales');
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
@@ -133,9 +148,9 @@ const SalesItemDetailEmptyState = () => {
           <Empty.Media variant="icon">
             <IconCloudExclamation />
           </Empty.Media>
-          <Empty.Title>Deal not found</Empty.Title>
+          <Empty.Title>{t('deal-not-found')}</Empty.Title>
           <Empty.Description>
-            There seems to be no deal with this ID.
+            {t('no-deal-with-id')}
           </Empty.Description>
         </Empty.Header>
       </Empty>
@@ -144,6 +159,7 @@ const SalesItemDetailEmptyState = () => {
 };
 
 const SalesItemDetailErrorState = () => {
+  const { t } = useTranslation('sales');
   const { error } = useDealDetail();
 
   return (
@@ -153,7 +169,7 @@ const SalesItemDetailErrorState = () => {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>Error</Empty.Title>
+          <Empty.Title>{t('error')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
       </Empty>

@@ -15,7 +15,7 @@ import {
 } from '../utils';
 import { addDeal, changeDeal, createProductsData, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { Resolver } from 'erxes-api-shared/core-types';
+import { IUserDocument, Resolver } from 'erxes-api-shared/core-types';
 
 export const dealMutations: Record<string, Resolver> = {
   /**
@@ -45,8 +45,18 @@ export const dealMutations: Record<string, Resolver> = {
   async cpDealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
-    { user, models, subdomain }: IContext,
+    {  models, subdomain ,cpUser}: IContext,
   ) {
+    const userId =
+    cpUser?.erxesCustomerId ||
+    cpUser?._id || null;
+    
+    if (!userId) {
+      throw new Error('ClientPortal User not found');
+    }
+
+    const user = { _id: `cp:${userId}` } as IUserDocument;
+
     return await editDeal({ models, subdomain, _id, processId, doc, user });
   },
 
@@ -67,6 +77,27 @@ export const dealMutations: Record<string, Resolver> = {
     await checkPermission('dealsEdit');
 
     return changeDeal(subdomain, models, user._id, { ...doc });
+  },
+
+  async cpDealsChange(
+    _root,
+    doc: {
+      processId: string;
+      itemId: string;
+      aboveItemId?: string;
+      destinationStageId: string;
+      sourceStageId: string;
+    },
+    { cpUser, models, subdomain }: IContext,
+  ) {
+    const userId =
+      cpUser?.erxesCustomerId ||
+      cpUser?._id ||
+      null;
+    if (!userId) {
+        throw new Error('ClientPortal User not found');
+    }
+    return changeDeal(subdomain, models, `cp:${userId}`, { ...doc });
   },
 
   /**
@@ -160,7 +191,12 @@ export const dealMutations: Record<string, Resolver> = {
 
     delete doc.sourceConversationIds;
 
-    for (const param of ['productsData', 'paymentsData']) {
+    for (const param of [
+      'productsData',
+      'paymentsData',
+      'mobileAmount',
+      'mobileAmounts',
+    ]) {
       doc[param] = item[param];
     }
 
@@ -227,7 +263,11 @@ export const dealMutations: Record<string, Resolver> = {
 
   async dealsCreateProductsData(
     _root,
-    { processId, dealId, docs }: { processId: string; dealId: string; docs: IProductData[] },
+    {
+      processId,
+      dealId,
+      docs,
+    }: { processId: string; dealId: string; docs: IProductData[] },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
@@ -264,8 +304,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -323,7 +363,11 @@ export const dealMutations: Record<string, Resolver> = {
 
   async cpDealsCreateProductsData(
     _root,
-    { processId, dealId, docs }: { processId: string; dealId: string; docs: IProductData[] },
+    {
+      processId,
+      dealId,
+      docs,
+    }: { processId: string; dealId: string; docs: IProductData[] },
     { models }: IContext,
   ) {
     return createProductsData({ models, processId, dealId, docs });
@@ -358,8 +402,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -480,10 +524,12 @@ export const dealMutations: Record<string, Resolver> = {
   },
 };
 
-
-dealMutations.cpDealsEdit.wrapperConfig= {
-  forClientPortal : true ,
-}
+dealMutations.cpDealsEdit.wrapperConfig = {
+  forClientPortal: true,
+};
+dealMutations.cpDealsChange.wrapperConfig = {
+  forClientPortal: true,
+};
 dealMutations.cpDealsCreateProductsData.wrapperConfig = {
   forClientPortal: true,
 };

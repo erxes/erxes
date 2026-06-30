@@ -3,6 +3,13 @@ import { useConversationClosed } from '@/report/hooks/useConversationClose';
 import { useConversationOpen } from '@/report/hooks/useConversationOpen';
 import { useConversationSources } from '@/report/hooks/useConversationSource';
 import {
+  IconInbox,
+  IconCircleCheck,
+  IconTrophyFilled,
+  IconChartArcs,
+} from '@tabler/icons-react';
+import { KpiCard } from '../call/components/KpiSection/KpiCard';
+import {
   closestCenter,
   DndContext,
   DragEndEvent,
@@ -22,8 +29,9 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { getPluginAssetsUrl, InfoCard, ScrollArea, Skeleton, Tooltip } from 'erxes-ui';
+import { ScrollArea, Skeleton } from 'erxes-ui';
 import { Suspense, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DEFAULT_CARD_CONFIGS,
   ReportCardConfig,
@@ -65,6 +73,7 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
 }
 
 export const FrontlineReportsList = () => {
+  const { t } = useTranslation('frontline');
   const { conversationOpen, loading: openLoading } = useConversationOpen();
   const { conversationClosed, loading: closedLoading } =
     useConversationClosed();
@@ -177,7 +186,7 @@ export const FrontlineReportsList = () => {
 
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: cardConfig.title,
+      title: t(cardConfig.title),
       colSpan: overrideColSpan ?? colSpan,
       onColSpanChange: (span: 6 | 12) => handleColSpanChange(id, span),
     };
@@ -198,79 +207,51 @@ export const FrontlineReportsList = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
-      <div className="grid grid-cols-4 gap-4">
-        <InfoCard title="Open">
-          <InfoCard.Content className="text-center">
-            <div>
-              {conversationOpen?.count} / {conversationOpen?.percentage}%
-            </div>
-          </InfoCard.Content>
-        </InfoCard>
-        <InfoCard title="Close">
-          <InfoCard.Content className="text-center">
-            <div>
-              {conversationClosed?.count} / {conversationClosed?.percentage}%
-            </div>
-          </InfoCard.Content>
-        </InfoCard>
-        <InfoCard title="Top Performing Source">
-          <InfoCard.Content className="flex flex-row items-center gap-2">
-            <Tooltip>
-              <Tooltip.Trigger>
-                <img
-                  src={getPluginAssetsUrl(
-                    'frontline',
-                    INTEGRATIONS[
-                      topPerformingSource?._id as keyof typeof INTEGRATIONS
-                    ]?.img,
-                  )}
-                  alt={topPerformingSource?._id}
-                  className="size-5 object-contain cursor-help"
-                />
-              </Tooltip.Trigger>
-              <Tooltip.Content>
-                {
-                  INTEGRATIONS[
-                    topPerformingSource?._id as keyof typeof INTEGRATIONS
-                  ]?.name
-                }
-              </Tooltip.Content>
-            </Tooltip>
-            <div className="text-center flex-1">
-              {topPerformingSource?.count} / {topPerformingSource?.percentage}%
-            </div>
-          </InfoCard.Content>
-        </InfoCard>
-        <InfoCard title="Top Converting Source">
-          <InfoCard.Content className="flex flex-row items-center gap-2">
-            <Tooltip>
-              <Tooltip.Trigger>
-                <img
-                  src={getPluginAssetsUrl(
-                    'frontline',
-                    INTEGRATIONS[
-                      topConvertingSource?._id as keyof typeof INTEGRATIONS
-                    ]?.img,
-                  )}
-                  alt={topConvertingSource?._id}
-                  className="size-5 object-contain cursor-help"
-                />
-              </Tooltip.Trigger>
-              <Tooltip.Content>
-                {
-                  INTEGRATIONS[
-                    topConvertingSource?._id as keyof typeof INTEGRATIONS
-                  ]?.name
-                }
-              </Tooltip.Content>
-            </Tooltip>
-            <div className="text-center flex-1">
-              {topConvertingSource?.count} / {topConvertingSource?.percentage}%
-            </div>
-          </InfoCard.Content>
-        </InfoCard>
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <KpiCard
+          title={t('open-conversations')}
+          value={String(conversationOpen?.count ?? 0)}
+          subtitle={t('percent-of-total', { percent: conversationOpen?.percentage ?? 0 })}
+          icon={<IconInbox className="h-5 w-5" />}
+          valueClass="text-[var(--chart-1)]"
+          iconClass="bg-[var(--chart-1)]/10 text-[var(--chart-1)]"
+        />
+        <KpiCard
+          title={t('closed-conversations')}
+          value={String(conversationClosed?.count ?? 0)}
+          subtitle={t('percent-resolved', { percent: conversationClosed?.percentage ?? 0 })}
+          icon={<IconCircleCheck className="h-5 w-5" />}
+          valueClass="text-[var(--pos)]"
+          iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"
+        />
+        <KpiCard
+          title={t('top-performing-source')}
+          value={String(topPerformingSource?.count ?? 0)}
+          subtitle={
+            INTEGRATIONS[topPerformingSource?._id as keyof typeof INTEGRATIONS]
+              ?.name
+              ? t('source-name-percent', { name: INTEGRATIONS[topPerformingSource._id as keyof typeof INTEGRATIONS].name, percent: topPerformingSource?.percentage ?? 0 })
+              : t('percent-share', { percent: topPerformingSource?.percentage ?? 0 })
+          }
+          icon={<IconTrophyFilled className="h-5 w-5" />}
+          valueClass="text-[var(--chart-2)]"
+          iconClass="bg-[var(--chart-2)]/10 text-[var(--chart-2)]"
+        />
+        <KpiCard
+          title={t('top-converting-source')}
+          value={String(topConvertingSource?.count ?? 0)}
+          subtitle={
+            INTEGRATIONS[topConvertingSource?._id as keyof typeof INTEGRATIONS]
+              ?.name
+              ? t('source-name-percent', { name: INTEGRATIONS[topConvertingSource._id as keyof typeof INTEGRATIONS].name, percent: topConvertingSource?.percentage ?? 0 })
+              : t('percent-share', { percent: topConvertingSource?.percentage ?? 0 })
+          }
+          icon={<IconChartArcs className="h-5 w-5" />}
+          valueClass="text-[var(--chart-3)]"
+          iconClass="bg-[var(--chart-3)]/10 text-[var(--chart-3)]"
+        />
       </div>
-      <ScrollArea>
+      <ScrollArea className="flex-1 min-h-0">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

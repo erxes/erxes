@@ -1,6 +1,7 @@
 import { IconCaretRightFilled, IconChartHistogram } from '@tabler/icons-react';
 import { Button, SideMenu, Collapsible } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PosOrderSummary } from './PosOrderSummary';
 import { usePosOrdersSummary } from './hooks/usePosOrdersSummary';
 
@@ -9,6 +10,7 @@ interface PosOrderSideWidgetProps {
 }
 
 export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
+  const { t } = useTranslation('sales');
   const { posId } = useParams();
 
   const { posOrdersSummary, loading } = usePosOrdersSummary({ posId });
@@ -26,7 +28,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
     <SideMenu defaultValue="">
       {children}
       <SideMenu.Content value="pos-order-summary">
-        <SideMenu.Header Icon={IconChartHistogram} label="Pos order Summary" />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('pos-order-summary')} />
 
         <div className="p-4 border-b">
           <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -37,7 +39,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
                 size="sm"
               >
                 <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                Summary
+                {t('summary')}
               </Button>
             </Collapsible.Trigger>
             <Collapsible.Content>
@@ -49,7 +51,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="pos-order-summary"
-          label="Pos order Summary"
+          label={t('pos-order-summary')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>

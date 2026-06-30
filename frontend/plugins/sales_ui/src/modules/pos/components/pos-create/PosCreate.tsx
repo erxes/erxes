@@ -15,6 +15,7 @@ import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
 import { useRef, useState } from 'react';
 import type { CustomNode } from '@/pos/slot/types';
 import { useUpdatePosSlots } from '@/pos/hooks/useSlotAdd';
+import { useTranslation } from 'react-i18next';
 
 interface PosCreateDialogProps {
   open: boolean;
@@ -44,6 +45,7 @@ export const PosCreate = ({
   const { updatePosSlots } = useUpdatePosSlots();
   const productGroupsRef = useRef<ProductGroup[]>([]);
   const slotsRef = useRef<CustomNode[]>([]);
+  const { t } = useTranslation('sales');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const methods = useForm<PosFormData>({
@@ -98,7 +100,7 @@ export const PosCreate = ({
         },
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -119,9 +121,8 @@ export const PosCreate = ({
               );
             } catch {
               toast({
-                title: 'Warning',
-                description:
-                  'POS created but failed to save product groups. You can add them later.',
+                title: t('warning'),
+                description: t('pos-create-product-groups-failed'),
                 variant: 'destructive',
               });
             }
@@ -160,17 +161,16 @@ export const PosCreate = ({
               });
             } catch {
               toast({
-                title: 'Warning',
-                description:
-                  'POS created but failed to save slots. You can add them later.',
+                title: t('warning'),
+                description: t('pos-create-slots-failed'),
                 variant: 'destructive',
               });
             }
           }
 
           toast({
-            title: 'Success',
-            description: 'POS created successfully.',
+            title: t('success'),
+            description: t('pos-create-success'),
           });
           reset();
           productGroupsRef.current = [];
@@ -182,8 +182,8 @@ export const PosCreate = ({
       });
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to create POS. Please try again.',
+        title: t('error'),
+        description: t('pos-create-failed'),
         variant: 'destructive',
       });
       setIsSubmitting(false);
@@ -210,7 +210,7 @@ export const PosCreate = ({
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <Sheet.View className="flex-col p-0 h-full max-h-screen sm:max-w-md">
         <Sheet.Header className="px-5 shrink-0">
-          <Sheet.Title className="text-lg font-bold">Create POS</Sheet.Title>
+          <Sheet.Title className="text-lg font-bold">{t('pos-create')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -222,16 +222,16 @@ export const PosCreate = ({
             <div className="overflow-y-auto flex-1 px-5 py-5 space-y-4 min-h-0">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
-                  Name <span className="text-destructive">*</span>
+                  {t('name')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
-                  placeholder="Enter POS name"
+                  placeholder={t('pos-name-placeholder')}
                   {...register('name', {
-                    required: 'Name is required',
+                    required: t('name-required'),
                     minLength: {
                       value: 2,
-                      message: 'Name must be at least 2 characters',
+                      message: t('name-min-length'),
                     },
                   })}
                   className={errors.name ? 'border-destructive' : ''}
@@ -245,11 +245,11 @@ export const PosCreate = ({
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-medium">
-                  Description
+                  {t('description')}
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Enter POS description"
+                  placeholder={t('pos-description-placeholder')}
                   rows={3}
                   {...register('description')}
                   className="bg-background"
@@ -265,10 +265,10 @@ export const PosCreate = ({
                 onClick={handleCancel}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting || !isFormValid}>
-                {isSubmitting ? 'Creating...' : 'Create POS'}
+                {isSubmitting ? t('creating') : t('pos-create')}
               </Button>
             </Sheet.Footer>
           </form>

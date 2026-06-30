@@ -1,6 +1,7 @@
 import { Button, PageContainer } from 'erxes-ui';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BoardsList } from '~/modules/deals/boards/components/settings/BoardsList';
 import { IconSandbox } from '@tabler/icons-react';
@@ -21,6 +22,7 @@ const PosEditPage = lazy(() =>
 );
 
 const DealsSettings = () => {
+  const { t } = useTranslation('sales');
   return (
     <PageContainer className="flex-row">
       <BoardsList />
@@ -28,7 +30,7 @@ const DealsSettings = () => {
         <SettingsHeader breadcrumbs={[]}>
           <Button variant="ghost" className="font-semibold">
             <IconSandbox className="w-4 h-4 text-accent-foreground" />
-            Boards & Pipelines
+            {t('boards-and-pipelines')}
           </Button>
           <PipelineFormBar />
         </SettingsHeader>
@@ -42,7 +44,6 @@ const DealsSettings = () => {
   );
 };
 
-
 const Settings = () => {
   return (
     <Suspense fallback={<div />}>
@@ -50,7 +51,7 @@ const Settings = () => {
         <Route path="/deals" element={<DealsSettings />} />
         <Route path="/pos" element={<PosSettingsPage />} />
         <Route path="/pos/:id" element={<PosEditPage />} />
-        <Route path="/" element={<Navigate to="/deals" replace />} />
+        <Route path="/" element={<Navigate to="deals" replace />} />
       </Routes>
     </Suspense>
   );

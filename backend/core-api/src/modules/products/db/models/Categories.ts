@@ -80,11 +80,13 @@ export const loadProductCategoryClass = (
     public static async createProductCategory(doc: IProductCategory) {
       await this.checkCodeDuplication(doc.code);
 
-      const parentCategory = await models.ProductCategories.findOne({
-        _id: doc.parentId,
-      }).lean();
+      const parentCategory = doc.parentId
+        ? await models.ProductCategories.findOne({ _id: doc.parentId }).lean()
+        : null;
 
-      // Generatingg order
+      doc.parentId = parentCategory?._id || '';
+
+      // Generating order
       doc.order = await this.generateOrder(parentCategory, doc);
 
       const category = await models.ProductCategories.create({
@@ -114,30 +116,50 @@ export const loadProductCategoryClass = (
         await this.checkCodeDuplication(doc.code);
       }
 
-      const parentCategory = await models.ProductCategories.findOne({
-        _id: doc.parentId,
-      }).lean();
+      let parentId = doc.parentId ?? category.parentId;
 
-      if (parentCategory?.parentId === _id) {
-        throw new Error('Cannot change category');
+      if (parentId === _id) {
+        parentId = '';
       }
 
-      // Generatingg  order
+      const parentCategory = parentId
+        ? await models.ProductCategories.findOne({ _id: parentId }).lean()
+        : null;
+
+      doc.parentId = parentCategory?._id || '';
+
+      if (
+        parentCategory &&
+        category.order &&
+        parentCategory.order?.startsWith(category.order)
+      ) {
+        throw new Error('Cannot move a category under its own descendant');
+      }
+
+      // Generating order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const childCategories = await models.ProductCategories.find({
-        $and: [
-          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
-          { _id: { $ne: _id } },
-        ],
-      });
+      const orderChanged = !!category.order && category.order !== doc.order;
+
+      const childCategories = orderChanged
+        ? await models.ProductCategories.find({
+            $and: [
+              {
+                order: {
+                  $regex: new RegExp(`^${escapeRegExp(category.order)}`),
+                },
+              },
+              { _id: { $ne: _id } },
+            ],
+          })
+        : [];
 
       await models.ProductCategories.updateOne({ _id }, { $set: doc });
 
-      // updating child categories order
+      // updating child categories order by swapping the old order prefix
       for (const childCategory of childCategories) {
-        let order = childCategory.order;
-        order = order.replace(category.order, doc.order);
+        const order =
+          doc.order + childCategory.order.slice(category.order.length);
 
         await models.ProductCategories.updateOne(
           { _id: childCategory._id },

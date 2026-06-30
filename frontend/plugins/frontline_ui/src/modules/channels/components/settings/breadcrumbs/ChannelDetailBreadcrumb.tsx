@@ -1,4 +1,8 @@
 import { useGetChannel } from '@/channels/hooks/useGetChannel';
+import {
+  FACEBOOK_AUTH_SUCCESS_MESSAGE,
+  INSTAGRAM_AUTH_SUCCESS_MESSAGE,
+} from '@/integrations/constants/authMessages';
 import { Button, IconComponent, Skeleton } from 'erxes-ui';
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -12,6 +16,16 @@ export const ChannelDetailBreadcrumb = ({
 
   useEffect(() => {
     if (id === 'fb-auth' || id === 'ig-auth') {
+
+      window.opener?.postMessage(
+        {
+          type:
+            id === 'fb-auth'
+              ? FACEBOOK_AUTH_SUCCESS_MESSAGE
+              : INSTAGRAM_AUTH_SUCCESS_MESSAGE,
+        },
+        window.location.origin,
+      );
       window.close();
     }
   }, [id]);

@@ -1,4 +1,3 @@
-import { IFacebookConversationMessage } from '@/integrations/facebook/@types/conversationMessages';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import {
   IAutomationAction,
@@ -18,22 +17,17 @@ export type ISendMessageData = {
   senderId: string;
   recipientId: string;
   integration: IFacebookIntegrationDocument;
-  message: any;
+  message: Record<string, unknown>;
   tag?: string;
+  commentId?: string;
 };
 
 export type ICheckTriggerData = {
   collectionType: string;
   automationId: string;
   trigger: IAutomationTrigger;
-  target: any;
-  config: any;
-};
-
-export type IReplacePlaceholdersData = {
-  target: IFacebookConversationMessage;
-  config: TAutomationActionConfig;
-  relatedValueProps: any;
+  target: unknown;
+  config: unknown;
 };
 
 export type TFacebookMessageButton = {
@@ -97,7 +91,7 @@ export type TGenericTemplateMessage = {
 
 export type TAttachmentMessage = {
   attachment: {
-    type: 'image' | 'audio' | 'video';
+    type: 'image' | 'audio' | 'video' | 'file';
     payload: {
       url: string;
     };
@@ -111,6 +105,13 @@ export type TBotConfigMessageButton = {
   text: string;
   type: 'button' | 'link';
   link?: string;
+};
+
+export type TBotConfigMessageAttachment = {
+  _id: string;
+  url: string;
+  type?: string;
+  name?: string;
 };
 
 export type TBotConfigMessage = {
@@ -130,7 +131,7 @@ export type TBotConfigMessage = {
   text?: string;
   audio?: string;
   video?: string;
-  attachments?: any[];
+  attachments?: TBotConfigMessageAttachment[];
   input?: TBotMessageInputData;
 };
 
@@ -158,7 +159,7 @@ type TBotDataCarousel = {
     subtitle: string;
     buttons: {
       title: string;
-      url: any;
+      url: string | null;
       type: string | null;
     }[];
   }[];
@@ -174,7 +175,7 @@ type TBotDataButtonTemplate = {
   text: string;
   buttons: {
     title: string;
-    url: any;
+    url: string | null;
     type: string | null;
   }[];
 };

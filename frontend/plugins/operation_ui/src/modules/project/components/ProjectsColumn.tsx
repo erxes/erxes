@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import {
@@ -28,12 +29,13 @@ import {
 import clsx from 'clsx';
 import { SelectProjectPriority } from '@/project/components/select/SelectProjectPriority';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
-import { SelectMember } from 'ui-modules';
+import { SelectMember, TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { projectsMoreColumn } from './ProjectsMoreColumn';
 
 export const projectsColumns = (
   _teams: ITeam[] | undefined,
+  t: (key: string) => string,
 ): ColumnDef<IProject>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IProject>;
   return [
@@ -43,7 +45,7 @@ export const projectsColumns = (
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
       ),
       cell: ({ cell }) => {
         const name = cell.getValue() as string;
@@ -103,7 +105,7 @@ export const projectsColumns = (
       accessorKey: 'priority',
       header: () => (
         <RecordTable.InlineHead
-          label="Priority"
+          label={t('priority')}
           icon={IconAlertSquareRounded}
         />
       ),
@@ -122,7 +124,7 @@ export const projectsColumns = (
       id: 'status',
       accessorKey: 'status',
       header: () => (
-        <RecordTable.InlineHead label="Status" icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('status')} icon={IconProgressCheck} />
       ),
       cell: ({ cell }) => {
         return (
@@ -136,9 +138,41 @@ export const projectsColumns = (
       size: 170,
     },
     {
+      id: 'tagIds',
+      accessorKey: 'tagIds',
+      header: () => (
+        <RecordTable.InlineHead label={t('tags')} icon={IconLabelFilled} />
+      ),
+      cell: ({ cell }) => {
+        const tagIds = cell.getValue() as string[];
+        return (
+          <TagsSelect.InlineCell
+            type="operation:project"
+            mode="multiple"
+            value={tagIds}
+            targetIds={[cell.row.original._id]}
+            options={(newSelectedTagIds: string[]) => ({
+              update: (cache: any) => {
+                cache.modify({
+                  id: cache.identify({
+                    __typename: 'Project',
+                    _id: cell.row.original._id,
+                  }),
+                  fields: {
+                    tagIds: () => newSelectedTagIds,
+                  },
+                });
+              },
+            })}
+          />
+        );
+      },
+      size: 200,
+    },
+    {
       id: 'teamIds',
       header: () => (
-        <RecordTable.InlineHead label="Team" icon={IconUsersGroup} />
+        <RecordTable.InlineHead label={t('team')} icon={IconUsersGroup} />
       ),
       cell: ({ cell }) => {
         return (
@@ -153,7 +187,7 @@ export const projectsColumns = (
     },
     {
       id: 'leadId',
-      header: () => <RecordTable.InlineHead label="Lead" icon={IconUser} />,
+      header: () => <RecordTable.InlineHead label={t('lead')} icon={IconUser} />,
       cell: ({ cell }) => {
         return (
           <SelectLead.InlineCell
@@ -169,9 +203,10 @@ export const projectsColumns = (
       id: 'memberIds',
       accessorKey: 'memberIds',
       header: () => (
-        <RecordTable.InlineHead label="Members" icon={IconUsersGroup} />
+        <RecordTable.InlineHead label={t('members')} icon={IconUsersGroup} />
       ),
       cell: ({ cell }) => {
+        const { t } = useTranslation('operation');
         const memberIds = cell.getValue() as string[];
         const { updateProject } = useUpdateProject();
         const [localMemberIds, setLocalMemberIds] = useState<string[]>(
@@ -225,7 +260,7 @@ export const projectsColumns = (
               cell.row.original._id,
               'Members',
             )}
-            placeholder="Members not specified"
+            placeholder={t('members-not-specified')}
           />
         );
       },
@@ -235,7 +270,7 @@ export const projectsColumns = (
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label="Start Date" icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const startDate = cell.getValue() as string;
@@ -255,7 +290,7 @@ export const projectsColumns = (
       id: 'targetDate',
       accessorKey: 'targetDate',
       header: () => (
-        <RecordTable.InlineHead label="Target Date" icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('target-date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const targetDate = cell.getValue() as string;

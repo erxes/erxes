@@ -1,11 +1,10 @@
-import { Model, FilterQuery } from 'mongoose';
+import { Model } from 'mongoose';
 import { callHistorySchema } from '../definitions/histories';
 import { IUser, IUserDocument } from 'erxes-api-shared/core-types';
 import {
   ICallHistory,
   ICallHistoryDocument,
   ICallHistoryFilterOptions,
-  ICallHistoryUpdate,
 } from '@/integrations/call/@types/histories';
 import { IModels } from '~/connectionResolvers';
 
@@ -22,12 +21,6 @@ export interface ICallHistoryModel extends Model<ICallHistoryDocument> {
     filterOptions: ICallHistoryFilterOptions,
     user: IUser,
   ): Promise<number>;
-  createCallHistory(historyData: ICallHistory): Promise<ICallHistoryDocument>;
-  updateCallHistory(
-    id: string,
-    updateData: ICallHistoryUpdate,
-  ): Promise<ICallHistoryDocument | null>;
-  deleteCallHistory(id: string, user: IUser): Promise<boolean>;
 }
 
 const CALL_HISTORY_CONSTANTS = {
@@ -95,161 +88,28 @@ export const loadCallHistoryClass = (models: IModels) => {
       user: IUserDocument,
     ): Promise<number> {
       try {
-        const { operator } = await this.validateUserIntegration(
+        const { integration, operator } = await this.validateUserIntegration(
           models,
           user,
           filterOptions.integrationId,
         );
 
-        const historyFilter = this.buildCountFilter(filterOptions, operator);
-        const cdrFilter = this.buildCdrFilter(historyFilter, filterOptions);
-
-        const [cdrCount, historyCount] = await Promise.all([
-          models.CallCdrs.countDocuments(cdrFilter),
-          models.CallHistory.countDocuments(historyFilter),
-        ]);
-
-        return cdrCount + historyCount;
-      } catch (error) {
-        console.error('Error counting call histories:', error);
-        throw error;
-      }
-    }
-
-    public static async createCallHistory(
-      historyData: ICallHistory,
-      user: IUser,
-    ): Promise<ICallHistoryDocument> {
-      try {
-        if (!historyData.customerPhone || !historyData.operatorPhone) {
-          throw new Error('Customer phone and operator phone are required');
-        }
-
-        if (!historyData.inboxIntegrationId) {
-          throw new Error('Integration ID are required');
-        }
-
-        const callHistoryData = {
-          ...historyData,
-          timeStamp: historyData.timeStamp || new Date(),
-          createdAt: new Date(),
-          modifiedAt: new Date(),
-        };
-
-        return await models.CallHistory.create(callHistoryData);
-      } catch (error) {
-        console.error('Error creating call history:', error);
-        throw error;
-      }
-    }
-
-    public static async updateCallHistory(
-      id: string,
-      updateData: ICallHistoryUpdate,
-    ): Promise<ICallHistoryDocument | null> {
-      try {
-        if (id?.length !== 24) {
-          throw new Error('Invalid call history ID provided');
-        }
-
-        const existingHistory = await models.CallHistory.findById(id);
-        if (!existingHistory) {
-          throw new Error(ERROR_MESSAGES.CALL_HISTORY_NOT_FOUND);
-        }
-
-        if (
-          updateData.callStatus &&
-          !Object.values(CALL_HISTORY_CONSTANTS.CALL_STATUS).includes(
-            updateData.callStatus,
-          )
-        ) {
-          throw new Error('Invalid call status provided');
-        }
-
-        if (updateData.duration !== undefined && updateData.duration < 0) {
-          throw new Error('Duration cannot be negative');
-        }
-
-        const updatePayload = {
-          ...updateData,
-          modifiedAt: new Date(),
-        };
-
-        Object.keys(updatePayload).forEach((key) => {
-          if (updatePayload[key] === undefined) {
-            delete updatePayload[key];
-          }
-        });
-
-        const updatedHistory = await models.CallHistory.findByIdAndUpdate(
-          id,
-          { $set: updatePayload },
+        const pipeline = this.buildCdrPipeline(
+          operator,
+          integration,
+          filterOptions,
           {
-            new: true,
-            runValidators: true,
+            forCount: true,
           },
         );
 
-        if (updatedHistory) {
-          console.log(`Call history updated successfully: ${id}`);
-        }
+        const [row] = await models.CallCdrs.aggregate(pipeline).allowDiskUse(
+          true,
+        );
 
-        return updatedHistory;
+        return row?.n || 0;
       } catch (error) {
-        console.error(`Error updating call history ${id}:`, error);
-        throw error;
-      }
-    }
-
-    public static async deleteCallHistory(
-      id: string,
-      user: IUserDocument,
-    ): Promise<boolean> {
-      try {
-        if (id?.length !== 24) {
-          throw new Error('Invalid call history ID provided');
-        }
-
-        if (!user?._id) {
-          throw new Error('Valid user is required for deletion 1222');
-        }
-
-        const callHistory = await models.CallHistory.findById(id);
-        if (!callHistory) {
-          throw new Error(ERROR_MESSAGES.CALL_HISTORY_NOT_FOUND);
-        }
-        if (callHistory.createdBy !== user._id.toString()) {
-          try {
-            await this.validateUserIntegration(
-              models,
-              user as IUserDocument,
-              callHistory.inboxIntegrationId,
-            );
-          } catch (error) {
-            throw new Error(ERROR_MESSAGES.UNAUTHORIZED_ACCESS);
-          }
-        }
-
-        const deleteResult = await models.CallHistory.findByIdAndUpdate(id, {
-          $set: {
-            isDeleted: true,
-            deletedAt: new Date(),
-            deletedBy: user._id,
-            modifiedAt: new Date(),
-          },
-        });
-
-        const success = deleteResult !== null;
-
-        if (success) {
-          console.log(
-            `Call history deleted successfully: ${id} by user: ${user._id}`,
-          );
-        }
-
-        return success;
-      } catch (error) {
-        console.error(`Error deleting call history ${id}:`, error.message);
+        console.error('Error counting call histories:', error);
         throw error;
       }
     }
@@ -279,149 +139,186 @@ export const loadCallHistoryClass = (models: IModels) => {
       return { integration, operator };
     }
 
-    private static buildHistoryFilter(
-      filterOptions: ICallHistoryFilterOptions,
+    private static buildCdrPipeline(
       operator: any,
       integration: any,
-    ): FilterQuery<ICallHistoryDocument> {
-      const filter: FilterQuery<ICallHistoryDocument> = {};
-
-      filter.extensionNumber = operator.gsUsername;
-
-      if (
-        filterOptions.callStatus ===
-        CALL_HISTORY_CONSTANTS.CALL_STATUS.CANCELLED
-      ) {
-        filter.callStatus = {
-          $eq: CALL_HISTORY_CONSTANTS.CALL_STATUS.CANCELLED,
-        };
-        delete filter.extensionNumber;
-        filter.operatorPhone = integration.phone;
-      }
-
-      if (filterOptions.searchValue) {
-        filter.customerPhone = {
-          $regex: new RegExp(filterOptions.searchValue, 'i'),
-        };
-      }
-
-      filter.isDeleted = { $ne: true };
-
-      return filter;
-    }
-
-    private static buildCountFilter(
       filterOptions: ICallHistoryFilterOptions,
-      operator: any,
-    ): FilterQuery<ICallHistoryDocument> {
-      const filter: FilterQuery<ICallHistoryDocument> = {};
+      { forCount }: { forCount?: boolean } = {},
+    ): any[] {
+      const ext = operator?.gsUsername ? String(operator.gsUsername) : '';
+      const integrationId = filterOptions.integrationId;
 
-      filter.extensionNumber = operator.gsUsername;
+      const extVals: (string | number)[] = /^\d+$/.test(ext)
+        ? [ext, Number(ext)]
+        : [ext];
+
+      const involvement: any[] = ext
+        ? [
+            { dstchannelExt: { $in: extVals } },
+            { dstanswer: { $in: extVals } },
+            { userfield: 'Outbound', src: { $in: extVals } },
+          ]
+        : [];
+
+      const match: any = involvement.length
+        ? { $or: involvement }
+        : { _id: null };
+      if (integrationId && involvement.length) {
+        match.inboxIntegrationId = integrationId;
+      }
+
+      const pipeline: any[] = [
+        { $match: match },
+        {
+          $addFields: {
+            _answeredByMe: {
+              $and: [
+                {
+                  $eq: [
+                    { $toUpper: { $ifNull: ['$disposition', ''] } },
+                    'ANSWERED',
+                  ],
+                },
+                { $gt: [{ $ifNull: ['$billsec', 0] }, 0] },
+                { $in: ['$lastapp', ['Queue', 'Dial']] },
+                {
+                  $or: [
+                    { $in: ['$dstanswer', extVals] },
+                    {
+                      $and: [
+                        { $eq: ['$userfield', 'Outbound'] },
+                        { $in: ['$src', extVals] },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            _customerPhone: {
+              $toString: {
+                $cond: [{ $eq: ['$userfield', 'Inbound'] }, '$src', '$dst'],
+              },
+            },
+          },
+        },
+        { $sort: { uniqueid: 1, _answeredByMe: -1, billsec: -1, start: 1 } },
+        {
+          $group: {
+            _id: '$uniqueid',
+            userfield: { $first: '$userfield' },
+            customerPhone: { $first: '$_customerPhone' },
+            conversationId: { $first: '$conversationId' },
+            recordUrl: { $max: { $ifNull: ['$recordUrl', ''] } },
+            billsec: { $max: { $ifNull: ['$billsec', 0] } },
+            anyAnswered: { $max: { $cond: ['$_answeredByMe', 1, 0] } },
+            start: { $min: '$start' },
+            end: { $max: '$end' },
+            createdAt: { $min: '$createdAt' },
+            modifiedAt: { $max: '$updatedAt' },
+            inboxIntegrationId: { $first: '$inboxIntegrationId' },
+          },
+        },
+        {
+          $addFields: {
+            isAnswered: { $gt: ['$anyAnswered', 0] },
+            callType: {
+              $cond: [
+                { $eq: ['$userfield', 'Inbound'] },
+                'incoming',
+                'outgoing',
+              ],
+            },
+          },
+        },
+        {
+          $addFields: {
+            callStatus: { $cond: ['$isAnswered', 'connected', 'cancelled'] },
+          },
+        },
+      ];
+
+      const { callStatus, callType, searchValue } = filterOptions;
 
       if (
-        filterOptions.callStatus === CALL_HISTORY_CONSTANTS.CALL_STATUS.MISSED
+        callStatus === CALL_HISTORY_CONSTANTS.CALL_STATUS.CANCELLED ||
+        callStatus === CALL_HISTORY_CONSTANTS.CALL_STATUS.MISSED
       ) {
-        filter.callStatus = {
-          $ne: CALL_HISTORY_CONSTANTS.CALL_STATUS.CONNECTED,
-        };
+        pipeline.push({ $match: { isAnswered: false } });
+      } else if (callStatus === CALL_HISTORY_CONSTANTS.CALL_STATUS.CONNECTED) {
+        pipeline.push({ $match: { isAnswered: true } });
       }
 
-      if (filterOptions.searchValue) {
-        filter.customerPhone = {
-          $regex: new RegExp(filterOptions.searchValue, 'i'),
-        };
+      if (callType) {
+        pipeline.push({ $match: { callType } });
       }
 
-      filter.isDeleted = { $ne: true };
+      if (searchValue) {
+        const escaped = searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        pipeline.push({
+          $match: { customerPhone: { $regex: escaped, $options: 'i' } },
+        });
+      }
 
-      return filter;
+      if (forCount) {
+        pipeline.push({ $count: 'n' });
+        return pipeline;
+      }
+
+      const operatorPhone = integration?.phone || '';
+      pipeline.push(
+        { $sort: { start: -1 } },
+        { $skip: filterOptions.skip || CALL_HISTORY_CONSTANTS.DEFAULT_SKIP },
+        { $limit: filterOptions.limit || CALL_HISTORY_CONSTANTS.DEFAULT_LIMIT },
+        {
+          $project: {
+            _id: 1,
+            uniqueid: '$_id',
+            operatorPhone: { $literal: operatorPhone },
+            customerPhone: 1,
+            // Missed calls have no talk time, even if an IVR leg reported billsec.
+            callDuration: { $cond: ['$isAnswered', '$billsec', 0] },
+            callStartTime: '$start',
+            callEndTime: '$end',
+            callType: 1,
+            callStatus: 1,
+            timeStamp: {
+              $cond: ['$start', { $divide: [{ $toLong: '$start' }, 1000] }, 0],
+            },
+            modifiedAt: 1,
+            createdAt: 1,
+            extensionNumber: { $literal: ext },
+            conversationId: 1,
+            recordUrl: 1,
+            inboxIntegrationId: 1,
+          },
+        },
+      );
+
+      return pipeline;
     }
 
     public static async getCallHistories(
       filterOptions: ICallHistoryFilterOptions,
       user: IUserDocument,
-    ): Promise<CallHistory[]> {
+    ): Promise<(Partial<ICallHistory> & { _id: string })[]> {
       try {
         const { integration, operator } = await this.validateUserIntegration(
           models,
           user,
           filterOptions.integrationId,
         );
-        const historyFilter = this.buildHistoryFilter(
-          filterOptions,
+
+        const pipeline = this.buildCdrPipeline(
           operator,
           integration,
+          filterOptions,
         );
 
-        const cdrFilter = this.buildCdrFilter(historyFilter, filterOptions);
-
-        const cdrs = await models.CallCdrs.find(cdrFilter)
-          .sort({ createdAt: -1 })
-          .skip(filterOptions.skip || CALL_HISTORY_CONSTANTS.DEFAULT_SKIP)
-          .limit(filterOptions.limit || CALL_HISTORY_CONSTANTS.DEFAULT_LIMIT)
-          .lean();
-
-        if (cdrs && cdrs.length > 0) {
-          return cdrs;
-        }
-
-        return await models.CallHistory.find(historyFilter)
-          .sort({ createdAt: -1 })
-          .skip(filterOptions.skip || CALL_HISTORY_CONSTANTS.DEFAULT_SKIP)
-          .limit(filterOptions.limit || CALL_HISTORY_CONSTANTS.DEFAULT_LIMIT)
-          .lean();
+        return models.CallCdrs.aggregate(pipeline).allowDiskUse(true);
       } catch (error) {
         console.error('Error retrieving call histories:', error);
         throw error;
       }
-    }
-
-    private static buildCdrFilter(
-      historyFilter: any,
-      filterOptions: ICallHistoryFilterOptions,
-    ): any {
-      const cdrFilter: any = {};
-
-      if (historyFilter.createdAt) {
-        cdrFilter.createdAt = historyFilter.createdAt;
-      }
-
-      if (historyFilter.modifiedAt) {
-        cdrFilter.modifiedAt = historyFilter.modifiedAt;
-      }
-
-      if (historyFilter.createdBy) {
-        cdrFilter.createdBy = historyFilter.createdBy;
-      }
-
-      if (historyFilter.operatorPhone) {
-        cdrFilter.src = historyFilter.operatorPhone;
-      }
-
-      if (historyFilter.customerPhone) {
-        cdrFilter.dst = historyFilter.customerPhone;
-      }
-
-      if (historyFilter.callStatus) {
-        cdrFilter.disposition = historyFilter.callStatus;
-      }
-
-      if (historyFilter.callType) {
-        cdrFilter.actionType = historyFilter.callType;
-      }
-
-      if (historyFilter.conversationId) {
-        cdrFilter.$or = [
-          { conversationId: historyFilter.conversationId },
-          { userfield: historyFilter.conversationId },
-        ];
-      }
-
-      if (filterOptions.integrationId) {
-        cdrFilter.acctId = filterOptions.integrationId;
-      }
-
-      return cdrFilter;
     }
   }
 

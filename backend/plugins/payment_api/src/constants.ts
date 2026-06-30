@@ -149,6 +149,15 @@ export const PAYMENTS = {
     handlerMethod: 'POST',
     acceptedCurrencies: ['MNT'],
   },
+  tdb: {
+    title: 'TDB E-Commerce',
+    kind: 'tdb',
+    apiUrl: 'https://acsmc.tdbmlabs.mn:8000',   
+    actions: {
+      createOrder: '/order',
+      getOrderDetail: '/order/:orderId',
+    },
+  },
 
   ALL: [
     'qpay',
@@ -164,6 +173,7 @@ export const PAYMENTS = {
     'stripe',
     'khanbank',
     'toki',
+    'tdb',
   ],
 };
 

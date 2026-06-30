@@ -7,22 +7,24 @@ import { CheckSyncedDealsPage } from '~/pages/CheckSyncedDealsPage';
 import { ByDatePage } from '~/pages/PutResponseByDatePage';
 import { DuplicatedPage } from '~/pages/PutResponseDuplicatedPage';
 import { PutResponseIndexPage } from '~/pages/PutResponsePage';
+import { PutResponseLayout } from '~/pages/PutResponseLayout';
 import { SyncErkhetHistoryPage } from '~/pages/SyncErkhetHistoryPage';
+import { SyncErkhetLayout } from '~/pages/SyncErkhetLayout';
 import { CustomersPage } from '~/pages/msdynamic/CustomersPage';
 import { InventoryProductsPage } from '~/pages/msdynamic/InventoryProductsPage';
 import { InventoryCategoryPage } from '~/pages/msdynamic/InventoryCategoryPage';
 import { InventoryPricePage } from '~/pages/msdynamic/InventoryPricePage';
 import { CheckSyncedOrdersPage } from '~/pages/msdynamic/CheckSyncedOrdersPage';
-import { SyncHistoryListPage } from '~/pages/msdynamic/SyncHistoryPage';
 import { PosOrderDetailsPage } from '~/pages/msdynamic/PosOrderDetailsPage';
 import MsdynamicLayout from '~/pages/msdynamic/MsdynamicLayout';
+import { MSDynamicSyncHistoryPage } from '~/pages/msdynamic/MSDynamicSyncHistoryPage';
 
 const MongolianMain = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
         {/* PUT RESPONSE */}
-        <Route path="put-response">
+        <Route path="put-response" element={<PutResponseLayout />}>
           <Route index element={<Navigate to="put-response" replace />} />
           <Route path="put-response" element={<PutResponseIndexPage />} />
           <Route path="by-date" element={<ByDatePage />} />
@@ -30,7 +32,7 @@ const MongolianMain = () => {
         </Route>
 
         {/* ERKHET */}
-        <Route path="sync-erkhet">
+        <Route path="sync-erkhet" element={<SyncErkhetLayout />}>
           <Route index element={<Navigate to="history" replace />} />
           <Route path="history" element={<SyncErkhetHistoryPage />} />
           <Route path="deals" element={<CheckSyncedDealsPage />} />
@@ -42,10 +44,8 @@ const MongolianMain = () => {
         {/* MSDYNAMIC */}
         <Route path="msdynamic" element={<MsdynamicLayout />}>
           <Route index element={<Navigate to="sync-history" replace />} />
-
-          <Route path="sync-history" element={<SyncHistoryListPage />} />
+          <Route path="sync-history" element={<MSDynamicSyncHistoryPage />} />
           <Route path="synced-orders" element={<CheckSyncedOrdersPage />} />
-
           <Route path="customers" element={<CustomersPage />} />
           <Route path="products" element={<InventoryProductsPage />} />
           <Route path="categories" element={<InventoryCategoryPage />} />

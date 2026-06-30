@@ -4,10 +4,10 @@ import {
   IBrowserInfo,
   Resolver,
 } from 'erxes-api-shared/core-types';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import {
   getEnv,
   graphqlPubsub,
-  isEnabled,
   markResolvers,
   redis,
   sendTRPCMessage,
@@ -168,34 +168,36 @@ export const getMessengerData = async (
     'credentials.integrationId': integration._id,
   });
   let getStartedCondition: { isSelected?: boolean } | false = false;
-  const isServiceAvailable = await isEnabled('automations');
+  const { automationId } = (messengerData || {}) as any;
 
-  if (isServiceAvailable) {
-    const getStarted = await sendTRPCMessage({
+  if (automationId) {
+    const automations = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'automation',
-      action: 'trigger.find',
+      action: 'find',
       input: {
         query: {
-          triggerType: 'inbox:messages',
-          botId: integration._id,
+          triggerType: 'frontline:inbox.messages',
         },
       },
-    }).catch((error) => {
-      throw error;
-    });
+    }).catch(() => []);
 
-    getStartedCondition = (
-      getStarted[0]?.triggers[0]?.config?.conditions || []
-    ).find((condition) => condition.type === 'getStarted');
+    const automation = (automations || []).find(
+      (a: any) => String(a._id) === String(automationId),
+    );
+
+    getStartedCondition =
+      (automation?.triggers || [])
+        .flatMap((t: any) => t.config?.conditions || [])
+        .find((c: any) => c.type === 'getStarted') || false;
   }
 
   return {
     ...messengerData,
     getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
-    knowledgeBaseTopicId: topicId,
+    knowledgeBaseTopicId: topicId ?? messengerData?.knowledgeBaseTopicId,
     websiteApps,
     formCodes,
   };
@@ -572,7 +574,8 @@ export const widgetMutations: Record<string, Resolver> = {
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
     const messengerData = integration.messengerData || {};
-    const { botEndpointUrl, botShowInitialMessage, botCheck } = messengerData;
+    const { botEndpointUrl, botShowInitialMessage, botCheck, automationId } =
+      messengerData;
     let botId;
     if (botCheck === true) {
       botId = integration?._id;
@@ -599,13 +602,41 @@ export const widgetMutations: Record<string, Resolver> = {
         customerId,
         integrationId,
         visitorId,
-        operatorStatus: HAS_BOTENDPOINT_URL
-          ? CONVERSATION_OPERATOR_STATUS.BOT
-          : CONVERSATION_OPERATOR_STATUS.OPERATOR,
+        operatorStatus:
+          HAS_BOTENDPOINT_URL || !!botId
+            ? CONVERSATION_OPERATOR_STATUS.BOT
+            : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: CONVERSATION_STATUSES.OPEN,
         content: conversationContent,
         ...(skillId ? { skillId } : {}),
       });
+    }
+
+    let parsedPayload: Record<string, string> | undefined;
+    let ticketFormWidgetData:
+      | { _id: string; type: string; text: string; value: string; column: number }[]
+      | undefined;
+    if (contentType === MESSAGE_TYPES.TICKET_FORM_SUBMISSION && payload) {
+      try {
+        parsedPayload = JSON.parse(payload);
+      } catch (_e) {
+        // ignore malformed payload
+      }
+      if (parsedPayload) {
+        const TICKET_FIELD_LABELS: Record<string, string> = {
+          'ticket:name': 'Ticket name',
+          'ticket:description': 'Description',
+        };
+        ticketFormWidgetData = Object.entries(parsedPayload).map(
+          ([key, value]) => ({
+            _id: key,
+            type: key === 'ticket:description' ? 'textarea' : 'input',
+            text: TICKET_FIELD_LABELS[key] || key,
+            value: String(value),
+            column: 6,
+          }),
+        );
+      }
     }
 
     const msg = await models.ConversationMessages.createMessage({
@@ -615,6 +646,7 @@ export const widgetMutations: Record<string, Resolver> = {
       contentType,
       content: message,
       botId: botId,
+      ...(ticketFormWidgetData ? { formWidgetData: ticketFormWidgetData } : {}),
     });
 
     await models.Conversations.updateOne(
@@ -649,6 +681,63 @@ export const widgetMutations: Record<string, Resolver> = {
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg,
     });
+
+    console.log('[widgetsInsertMessage] trigger gate', {
+      contentType,
+      botId,
+      HAS_BOTENDPOINT_URL,
+      operatorStatus: conversation.operatorStatus,
+      parsedPayload,
+      willSendTrigger: !!(
+        botId &&
+        !HAS_BOTENDPOINT_URL &&
+        conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+      ),
+    });
+
+    if (
+      botId &&
+      !HAS_BOTENDPOINT_URL &&
+      conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+    ) {
+      graphqlPubsub.publish(
+        `conversationBotTypingStatus:${msg.conversationId}`,
+        {
+          conversationBotTypingStatus: {
+            conversationId: msg.conversationId,
+            typing: true,
+          },
+        },
+      );
+
+      console.log('[widgetsInsertMessage] sendAutomationTrigger', {
+        contentType,
+        msgContentType: msg.contentType,
+        automationId,
+        parsedPayload,
+      });
+
+      sendAutomationTrigger(
+        subdomain,
+        {
+          type: 'frontline:inbox.messages',
+          targets: [
+            {
+              ...msg.toObject(),
+              ...(parsedPayload || {}),
+              automationId: automationId || undefined,
+            },
+          ],
+        },
+        {
+          jobOptions: {
+            priority: 1,
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        },
+      );
+    }
 
     if (
       HAS_BOTENDPOINT_URL &&
@@ -695,7 +784,9 @@ export const widgetMutations: Record<string, Resolver> = {
           customerId,
           contentType,
           botData,
+          fromBot: true,
         });
+        console.log('[botContentType]', botMessage);
 
         graphqlPubsub.publish(
           `conversationBotTypingStatus:${msg.conversationId}`,
@@ -1033,6 +1124,33 @@ export const widgetMutations: Record<string, Resolver> = {
     });
 
     return msg;
+  },
+
+  async widgetChangeOperatorStatus(
+    _root,
+    {
+      conversationId,
+      operatorStatus,
+    }: { conversationId: string; operatorStatus: string },
+    { models }: IContext,
+  ) {
+    if (operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR) {
+      const message = await models.ConversationMessages.createMessage({
+        conversationId,
+        botData: [{ type: 'text', text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR }],
+        fromBot: true,
+      });
+
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${message.conversationId}`,
+        { conversationMessageInserted: message },
+      );
+    }
+
+    return models.Conversations.updateOne(
+      { _id: conversationId },
+      { $set: { operatorStatus } },
+    );
   },
 
   async widgetGetBotInitialMessage(

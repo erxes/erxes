@@ -105,10 +105,28 @@ export interface IAiAgentRetrieval {
   minScore?: number;
 }
 
+export interface IAiAgentKnowledgeSource {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  sourceIds: string[];
+  config?: Record<string, unknown>;
+}
+
+export interface IAiAgentTool {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  enabled?: boolean;
+  config?: Record<string, unknown>;
+}
+
 export interface IAiAgentContext {
   systemPrompt: string;
   retrieval?: IAiAgentRetrieval;
   files: IAiAgentFile[];
+  knowledgeSources?: IAiAgentKnowledgeSource[];
+  tools?: IAiAgentTool[];
 }
 
 export interface IAiAgent {
@@ -192,6 +210,34 @@ const aiAgentRuntimeSchema = new Schema<IAiAgentRuntime>(
   { _id: false },
 );
 
+const aiAgentKnowledgeSourceSchema = new Schema<IAiAgentKnowledgeSource>(
+  {
+    pluginName: { type: String, required: true },
+    moduleName: { type: String, required: true },
+    key: { type: String, required: true },
+    sourceIds: { type: [String], default: () => [] },
+    config: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  { _id: false },
+);
+
+const aiAgentToolSchema = new Schema<IAiAgentTool>(
+  {
+    pluginName: { type: String, required: true },
+    moduleName: { type: String, required: true },
+    key: { type: String, required: true },
+    enabled: { type: Boolean, default: true },
+    config: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  { _id: false },
+);
+
 const aiAgentContextSchema = new Schema<IAiAgentContext>(
   {
     systemPrompt: { type: String, default: '' },
@@ -208,6 +254,14 @@ const aiAgentContextSchema = new Schema<IAiAgentContext>(
     },
     files: {
       type: [aiAgentFileSchema],
+      default: () => [],
+    },
+    knowledgeSources: {
+      type: [aiAgentKnowledgeSourceSchema],
+      default: () => [],
+    },
+    tools: {
+      type: [aiAgentToolSchema],
       default: () => [],
     },
   },
@@ -236,4 +290,13 @@ export const aiAgentSchema = new Schema<AiAgentDocument>(
     },
   },
   { timestamps: true },
+);
+
+aiAgentSchema.index(
+  {
+    'context.knowledgeSources.pluginName': 1,
+    'context.knowledgeSources.moduleName': 1,
+    'context.knowledgeSources.key': 1,
+  },
+  { name: 'ai_agent_knowledge_source_config_lookup' },
 );

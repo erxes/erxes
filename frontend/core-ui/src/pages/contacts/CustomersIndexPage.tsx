@@ -20,14 +20,14 @@ export const CustomersIndexPage = () => {
       <CustomersHeader />
       <PageSubHeader>
         <CustomersFilter />
-        <Can action="importsManage">
+        <Can action="customersImportManage">
           <Import
             pluginName="core"
             moduleName="contacts"
             collectionName="customers"
           />
         </Can>
-        <Can action="exportsManage">
+        <Can action="customersExportManage">
           <Export
             pluginName="core"
             moduleName="contacts"

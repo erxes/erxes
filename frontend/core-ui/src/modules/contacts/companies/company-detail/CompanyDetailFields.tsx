@@ -60,11 +60,12 @@ export const CompanyDetailFields = () => {
   });
 
   const onSubmit = (data: CompanyFormType) => {
-    const { phone, email, industry, ...rest } = data;
+    const { phone, email, industry, code, ...rest } = data;
     companiesEdit({
       variables: {
         _id,
         ...rest,
+        code: code?.trim(),
         primaryPhone: phone,
         primaryEmail: email,
         industry: industry?.map((i) => i.value),

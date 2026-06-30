@@ -1,13 +1,9 @@
-import {
-  OtherPayments,
-  Payments,
-  SelectCategory,
-  SelectProduct,
-  Token,
-} from 'ui-modules';
+import { SelectCategory, SelectProduct } from 'ui-modules';
 
 import { Form } from 'erxes-ui';
+import { OtherPaymentsField, PaymentIdsField } from '@/payments';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 interface ProductConfigFormValues {
   numberSize?: string;
@@ -17,7 +13,7 @@ interface ProductConfigFormValues {
   initialCategoryIds?: string[];
   excludeCategoryIds?: string[];
   excludeProductIds?: string[];
-  erxesAppToken?: string;
+  paymentIds?: string[];
 }
 
 interface ProductConfigProps {
@@ -25,6 +21,7 @@ interface ProductConfigProps {
 }
 
 const ProductConfig = ({ form }: ProductConfigProps) => {
+  const { t } = useTranslation('sales');
   const { control } = form;
 
   return (
@@ -32,7 +29,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            Initial Product Categories
+            {t('initial-product-categories')}
           </h3>
         </div>
         <Form.Field
@@ -57,7 +54,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            Pipeline Exclude Products
+            {t('pipeline-exclude-products')}
           </h3>
         </div>
         <div className="space-y-6">
@@ -67,7 +64,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label className="text-sm font-medium">
-                  Exclude Categories
+                  {t('exclude-categories')}
                 </Form.Label>
                 <SelectCategory
                   selected={field.value?.[0] || ''}
@@ -88,13 +85,13 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label className="text-sm font-medium">
-                  Exclude Products
+                  {t('exclude-products')}
                 </Form.Label>
                 <SelectProduct
                   mode="multiple"
                   value={field.value || ([] as string[])}
                   onValueChange={field.onChange}
-                  placeholder="Select products to exclude"
+                  placeholder={t('select-products-to-exclude')}
                 />
               </Form.Item>
             )}
@@ -104,13 +101,12 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            Other Configuration
+            {t('other-configuration')}
           </h3>
         </div>
         <div className="space-y-6">
-          <Payments control={form.control} />
-          <Token control={form.control} />
-          <OtherPayments control={form.control} />
+          <PaymentIdsField control={form.control} />
+          <OtherPaymentsField control={form.control} />
         </div>
       </div>
     </div>

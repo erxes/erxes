@@ -5,6 +5,7 @@ import { useMultiQueryState, parseDateRangeFromString } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { posCoverTotalCountAtom } from '../states/usePosCoversCounts';
 import { posCovers } from '../graphql/queries/queries';
+import { useTranslation } from 'react-i18next';
 
 const COVERS_PER_PAGE = 30;
 
@@ -52,6 +53,7 @@ export const useCoversVariables = (options: UseCoversListOptions = {}) => {
 export const useCoversList = (
   options: UseCoversListOptions = {},
 ): UseCoversListReturn => {
+  const { t } = useTranslation('sales');
   const variables = useCoversVariables(options);
   const setPosCoverTotalCount = useSetAtom(posCoverTotalCountAtom);
   const { data, loading, fetchMore } = useQuery(posCovers, {
@@ -69,7 +71,7 @@ export const useCoversList = (
         description: cover.description,
         note: cover.note,
         createdAt: cover.createdAt,
-        createdBy: cover?.createdUser?.email || 'Unknown',
+        createdBy: cover?.createdUser?.email || t('unknown'),
       })) || [],
     [data?.posCovers],
   );

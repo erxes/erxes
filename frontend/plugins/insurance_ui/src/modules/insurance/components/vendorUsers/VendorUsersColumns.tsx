@@ -12,6 +12,7 @@ import {
   RecordTableInlineCell,
   Badge,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { VendorUser } from '~/modules/insurance/types';
 import { VendorUsersMoreColumn } from './VendorUsersMoreColumn';
 import { createTextColumn, createCreatedAtColumn } from '../shared';
@@ -20,7 +21,10 @@ import { createTextColumn, createCreatedAtColumn } from '../shared';
 const vendorColumn: ColumnDef<VendorUser> = {
   id: 'vendor',
   accessorKey: 'vendor',
-  header: () => <RecordTable.InlineHead icon={IconBuilding} label="Vendor" />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={cell.row.original.vendor?.name || ''} />
@@ -32,7 +36,10 @@ const vendorColumn: ColumnDef<VendorUser> = {
 const roleColumn: ColumnDef<VendorUser> = {
   id: 'role',
   accessorKey: 'role',
-  header: () => <RecordTable.InlineHead icon={IconShield} label="Role" />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconShield} label={t('role')} />;
+  },
   cell: ({ cell }) => {
     const role = cell.getValue() as string;
     return (
@@ -65,9 +72,9 @@ export const createVendorUsersColumns = (
   return [
     moreColumn,
     { ...(RecordTable.checkboxColumn as ColumnDef<VendorUser>), size: 32 },
-    createTextColumn<VendorUser>('name', 'name', IconUser, 'Name', 'No name'),
-    createTextColumn<VendorUser>('email', 'email', IconMail, 'Email', ''),
-    createTextColumn<VendorUser>('phone', 'phone', IconPhone, 'Phone', ''),
+    createTextColumn<VendorUser>('name', 'name', IconUser, 'name', 'no-name'),
+    createTextColumn<VendorUser>('email', 'email', IconMail, 'email', ''),
+    createTextColumn<VendorUser>('phone', 'phone', IconPhone, 'phone', ''),
     vendorColumn,
     roleColumn,
     createCreatedAtColumn<VendorUser>(),

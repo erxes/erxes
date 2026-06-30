@@ -5,10 +5,8 @@ import {
   getTriggerOfAction,
 } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { useMemo } from 'react';
-import {
-  IAutomationsActionConfigConstants,
-  TAutomationAction,
-} from 'ui-modules';
+
+const ACTION_TYPES_CANNOT_BE_SELECTED_AS_TARGET = ['waitEvent'];
 
 export const useActionTarget = ({
   actionId,
@@ -27,7 +25,6 @@ export const useActionTarget = ({
         : undefined,
     [actionId, actions, triggers, actionFolks],
   );
-
   const actionTypesCanBeTarget = actionsConst
     .filter(({ isTargetSource }) => isTargetSource)
     .map(({ type }) => type);
@@ -39,6 +36,10 @@ export const useActionTarget = ({
   const actionsCanBeTarget = connectedPreviousActions.filter(
     ({ type, config }, index) => {
       let isActionCanBeTarget = actionTypesCanBeTarget.includes(type);
+
+      if (ACTION_TYPES_CANNOT_BE_SELECTED_AS_TARGET.includes(type)) {
+        return false;
+      }
 
       if (type === 'findObject') {
         isActionCanBeTarget =

@@ -11,6 +11,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { IntegrationType } from '@/types/Integration';
 
 export const InstagramBotPageAccountsStep = ({
@@ -18,6 +19,7 @@ export const InstagramBotPageAccountsStep = ({
 }: {
   accountId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [selectedAccountId, setSelectedAccountId] = useAtom(
     selectedInstagramAccountAtom,
   );
@@ -28,12 +30,12 @@ export const InstagramBotPageAccountsStep = ({
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
-            <Input placeholder="Search for an account" />
+            <Input placeholder={t('search-for-an-account')} />
           </Command.Primitive.Input>
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {instagramGetAccounts.length} accounts found
+            {t('accounts-found', { count: instagramGetAccounts.length })}
           </div>
           <Button variant="ghost" className="text-pink-600" asChild>
             <a
@@ -42,7 +44,7 @@ export const InstagramBotPageAccountsStep = ({
               rel="noreferrer"
             >
               <IconPlus />
-              Add account via Instagram
+              {t('add-account-via-instagram')}
             </a>
           </Button>
         </div>

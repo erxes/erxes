@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { resolveRecordReferenceValue } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { evaluate } from 'mathjs';
 import { IModels } from '~/connectionResolvers';
@@ -157,7 +158,11 @@ export const safeEvalMath = (expr: string): number => {
   return result;
 };
 
-export const resolvePlaceholderValue = (target: any, attribute: string) => {
+export const resolvePlaceholderValue = async (
+  subdomain: string,
+  target: any,
+  attribute: string,
+) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
   const parent = target[propertyName] || {};
@@ -197,6 +202,18 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
   if (valueToCheck) {
     const property = parent[valueToCheck];
     return normalizeValue(property);
+  }
+
+  if (propertyName === 'excludeAmount') {
+    const excludeLoyaltyAmount = await resolveRecordReferenceValue({
+      subdomain,
+      type: 'sales:deal',
+      path: 'excludeLoyaltyAmount',
+      target,
+      defaultValue: 0,
+    });
+    console.log({ excludeLoyaltyAmount });
+    return excludeLoyaltyAmount;
   }
 
   // Case 4: simple top-level value (e.g. {{score}})
@@ -298,7 +315,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
   const { stageId, pipelineId, boardId, number } = doc;
 
   const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
-    action: 'refund',
+    action: { $in: ['refund', 'return'] },
   });
 
   const filterAggregate: any[] = [];

@@ -8,6 +8,10 @@ import {
   CMS_TRANSLATIONS,
   CMS_EDIT_TRANSLATION,
 } from '../../../../graphql/queries';
+import { createSlug } from '../../../../utils/createSlug';
+
+// A single custom-field value as stored on the form and in translation snapshots.
+type CustomFieldEntry = { field: string; value: CustomFieldValue };
 
 interface PostFormData {
   title: string;
@@ -43,7 +47,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
         title: string;
         content: string;
         excerpt: string;
-        customFieldsData: CustomFieldValue[];
+        customFieldsData: CustomFieldEntry[];
       }
     >
   >({});
@@ -51,7 +55,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     title: string;
     content: string;
     excerpt: string;
-    customFieldsData: CustomFieldValue[];
+    customFieldsData: CustomFieldEntry[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
 
@@ -86,12 +90,6 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     form.setValue('content', value, { shouldDirty: true, shouldTouch: true });
   };
 
-  const generateSlug = (text: string) =>
-    text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-
   const { data: fullPostData } = useQuery(CMS_POST, {
     variables: { id: editingPost?._id },
     skip: !editingPost?._id,
@@ -104,7 +102,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId: editingPost?._id, type: 'post' },
     skip: !editingPost?._id,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: false,
   });
 
@@ -118,7 +116,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
           title: string;
           content: string;
           excerpt: string;
-          customFieldsData: CustomFieldValue[];
+          customFieldsData: CustomFieldEntry[];
         }
       > = {};
       translationsData.cmsTranslations.forEach(
@@ -127,7 +125,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
           title: string;
           content: string;
           excerpt: string;
-          customFieldsData: CustomFieldValue[];
+          customFieldsData: CustomFieldEntry[];
         }) => {
           translationsMap[t.language] = {
             title: t.title || '',
@@ -184,7 +182,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     } else {
       const title = form.getValues('title');
       if (title && !form.getValues('slug')) {
-        form.setValue('slug', generateSlug(title));
+        form.setValue('slug', createSlug(title));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -227,7 +225,6 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     setDefaultLangData,
     previousTypeRef,
     handleEditorChange,
-    generateSlug,
     fullPost,
     saveTranslation,
     updateCustomFieldValue,

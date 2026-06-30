@@ -1,5 +1,6 @@
 import { IconInvoice } from '@tabler/icons-react';
 import { ScrollArea, Separator, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { IInvoice } from '~/modules/payment/types/Payment';
 import { InvoiceWidgetCard } from './InvoiceWidgetCard';
@@ -12,6 +13,7 @@ export const Invoice = ({
   contentId: string;
   contentType: string;
 }) => {
+  const { t } = useTranslation('payment');
   const { invoices, loading } = useInvoices({
     variables: {
       contentType,
@@ -29,7 +31,7 @@ export const Invoice = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconInvoice />
         </div>
-        <span className="text-sm">No invoices to display at the moment.</span>
+        <span className="text-sm">{t('no-invoices')}</span>
       </div>
     );
   }
@@ -37,7 +39,7 @@ export const Invoice = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">Invoices</span>
+        <span className="font-medium text-primary">{t('invoices')}</span>
       </div>
       <Separator />
       <ScrollArea className="flex-auto">
