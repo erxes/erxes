@@ -84,7 +84,7 @@ const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
       <Filter.BarItem queryKey="contentType">
         <Filter.BarName>
           <IconBox />
-          Types
+          {t('types', 'Types')}
         </Filter.BarName>
         <SelectTemplateContentTypes.FilterBar queryKey="contentType" />
       </Filter.BarItem>
@@ -106,17 +106,17 @@ const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
       </Filter.BarItem>
 
       {createdBy && (
-        <SelectMember.FilterBar queryKey="createdBy" label="Created By" />
+        <SelectMember.FilterBar queryKey="createdBy" label={t('created-by', 'Created By')} />
       )}
 
       {updatedBy && (
-        <SelectMember.FilterBar queryKey="updatedBy" label="Updated By" />
+        <SelectMember.FilterBar queryKey="updatedBy" label={t('updated-by', 'Updated By')} />
       )}
 
       {categoryIds && (
         <SelectTemplateCategory.FilterBar
           queryKey="categoryIds"
-          label="Category"
+          label={t('category-label', 'Category')}
         />
       )}
     </>
@@ -133,7 +133,7 @@ const TemplateFilterView = () => {
       <Filter.View>
         <Command>
           <Filter.CommandInput
-            placeholder="Filter"
+            placeholder={t('filter', 'Filter')}
             variant="secondary"
             className="bg-background"
           />
@@ -145,16 +145,16 @@ const TemplateFilterView = () => {
 
             <Filter.Item value="contentType">
               <IconBox />
-              Types
+              {t('types', 'Types')}
             </Filter.Item>
 
             <SelectTemplateCategory.FilterItem
               value="categoryIds"
-              label="Category"
+              label={t('category-label', 'Category')}
             />
 
-            <SelectMember.FilterItem value="createdBy" label="Created By" />
-            <SelectMember.FilterItem value="updatedBy" label="Updated By" />
+            <SelectMember.FilterItem value="createdBy" label={t('created-by', 'Created By')} />
+            <SelectMember.FilterItem value="updatedBy" label={t('updated-by', 'Updated By')} />
 
             <Command.Separator className="my-1" />
 

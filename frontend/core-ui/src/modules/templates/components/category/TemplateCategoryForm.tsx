@@ -6,6 +6,7 @@ import { useTemplateCategoryAdd } from '@/templates/hooks/useTemplateCategoryAdd
 import { useTemplateCategoryEdit } from '@/templates/hooks/useTemplateCategoryEdit';
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { Button, Form, Input, Sheet } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -26,6 +27,7 @@ export const TemplateCategoryForm = ({
   onCompleted,
   onClose,
 }: TemplateCategoryFormProps) => {
+  const { t } = useTranslation('templates');
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -95,7 +97,7 @@ export const TemplateCategoryForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name', 'Name')}</Form.Label>
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -107,7 +109,7 @@ export const TemplateCategoryForm = ({
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Code</Form.Label>
+                  <Form.Label>{t('category.code', 'Code')}</Form.Label>
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -139,7 +141,7 @@ export const TemplateCategoryForm = ({
             className="bg-background hover:bg-background/90"
             onClick={onClose}
           >
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
 
           <Button
@@ -148,10 +150,10 @@ export const TemplateCategoryForm = ({
             disabled={addLoading || editLoading}
           >
             {addLoading || editLoading
-              ? 'Saving...'
+              ? t('category.saving', 'Saving...')
               : category
-                ? 'Update Category'
-                : 'Create Category'}
+                ? t('category.update-category', 'Update Category')
+                : t('category.create-category', 'Create Category')}
           </Button>
         </Sheet.Footer>
       </form>

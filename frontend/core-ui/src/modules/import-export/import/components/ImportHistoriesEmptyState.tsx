@@ -1,6 +1,7 @@
 import { formatImportExportEntityTypeLabel } from '@/import-export/shared/formatEntityTypeLabel';
 import { IconFileImport } from '@tabler/icons-react';
 import { Badge, Empty, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useImportHistoriesRecordTable } from './ImportHistoriesContext';
 
 const SELECTED_CONTENT_TYPE_INFO = {
@@ -22,6 +23,7 @@ const UNSELECTED_CONTENT_TYPE_INFO = {
 };
 
 export const ImportHistoriesEmptyState = () => {
+  const { t } = useTranslation('import-export');
   const [selectedEntityType] = useQueryState<string>('type', {
     defaultValue: 'all',
   });
@@ -31,16 +33,16 @@ export const ImportHistoriesEmptyState = () => {
   const isAllSelected = selectedEntityType === 'all';
 
   const label = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.label
+    ? t('all-types', UNSELECTED_CONTENT_TYPE_INFO.label)
     : SELECTED_CONTENT_TYPE_INFO.label(selectedEntityType, contentTypes);
 
   const emptyTitle = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.title
-    : SELECTED_CONTENT_TYPE_INFO.title(label);
+    ? t('no-imports-yet', UNSELECTED_CONTENT_TYPE_INFO.title)
+    : t('no-type-imports-yet', 'No {{label}} imports yet', { label });
 
   const emptyDescription = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.emptyDescription
-    : SELECTED_CONTENT_TYPE_INFO.emptyDescription(label);
+    ? t('import-description', UNSELECTED_CONTENT_TYPE_INFO.emptyDescription)
+    : t('import-type-description', '{{label}} imports will appear here after someone uploads a CSV file. Error files will also be available here whenever a job needs attention.', { label });
 
   return (
     <tr>

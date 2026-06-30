@@ -6,6 +6,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { DropdownMenu, RecordTableInlineCell } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Can, TImportProgress } from 'ui-modules';
 import { useImportHistoryActionsCell } from '../hooks/useImportHistoryActionsCell';
 
@@ -14,6 +15,7 @@ export function ImportHistoryActionsCell({
 }: {
   importItem: TImportProgress;
 }) {
+  const { t } = useTranslation('import-export');
   const {
     canShowMenu,
     canOpenErrorFile,
@@ -48,14 +50,14 @@ export function ImportHistoryActionsCell({
       <DropdownMenu.Content>
         {canDownloadOriginal && (
           <DropdownMenu.Item onClick={handleDownloadOriginal}>
-            <IconDownload /> Download imported file
+            <IconDownload /> {t('download-imported-file', 'Download imported file')}
           </DropdownMenu.Item>
         )}
 
         <Can actions={['exportsManage', 'manageExports']} fallback={null}>
           {canOpenErrorFile && (
             <DropdownMenu.Item onClick={handleDownloadErrorFile}>
-              <IconDownload /> Download error file
+              <IconDownload /> {t('download-error-file', 'Download error file')}
             </DropdownMenu.Item>
           )}
         </Can>
@@ -65,19 +67,19 @@ export function ImportHistoryActionsCell({
         <Can actions={['importsManage', 'manageImports']} fallback={null}>
           {canCancel && (
             <DropdownMenu.Item disabled={isBusy} onClick={handleCancel}>
-              <IconX /> Cancel import
+              <IconX /> {t('cancel-import', 'Cancel import')}
             </DropdownMenu.Item>
           )}
 
           {canRetry && (
             <DropdownMenu.Item disabled={isBusy} onClick={handleRetry}>
-              <IconRefresh /> Restart import
+              <IconRefresh /> {t('restart-import', 'Restart import')}
             </DropdownMenu.Item>
           )}
 
           {canResume && (
             <DropdownMenu.Item disabled={isBusy} onClick={handleResume}>
-              <IconPlayerPlay /> Resume import
+              <IconPlayerPlay /> {t('resume-import', 'Resume import')}
             </DropdownMenu.Item>
           )}
         </Can>

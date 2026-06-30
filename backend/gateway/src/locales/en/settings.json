@@ -213,6 +213,10 @@
     "property-added": "Property added",
     "error": "Error",
     "confirm-delete-field": "Are you sure you want to delete this field?",
-    "confirm-delete-group": "Are you sure you want to delete this field group?"
+    "confirm-delete-group": "Are you sure you want to delete this field group?",
+    "field-removed": "Field removed successfully",
+    "field-group-removed": "Field group removed successfully",
+    "group-created": "Created a group",
+    "group-create-failed": "Failed to create a group"
   }
 }

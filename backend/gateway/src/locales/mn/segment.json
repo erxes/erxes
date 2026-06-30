@@ -24,5 +24,13 @@
     "calculate-segment-reach": "Сегментийн хамрах хүрээг тооцоолох",
     "save-segment": "Сегмент хадгалах",
     "add-group": "Бүлэг нэмэх"
-  }
+  },
+  "segments": "Сегментүүд",
+  "delete": "Устгах",
+  "error": "Алдаа",
+  "success": "Амжилттай",
+  "segments-deleted": "Сегментүүд амжилттай устгагдлаа",
+  "segment-id-missing": "Сегментийн ID олдсонгүй",
+  "segment-deleted": "Сегмент амжилттай устгагдлаа",
+  "selected": "{{total}} сонгосон"
 }
