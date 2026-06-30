@@ -50,6 +50,11 @@ export const loadCompanyClass = (
       { $set: { vendorId: newCompanyId } },
     );
 
+    await models.ProductSimilarities.updateMany(
+      { 'info.vendorId': { $in: oldCompanyIds } },
+      { $set: { 'info.vendorId': newCompanyId } },
+    );
+
     await models.Relations.updateMany(
       {
         entities: {

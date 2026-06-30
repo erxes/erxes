@@ -107,6 +107,16 @@ export const loadCustomerClass = (
       { $set: { erxesCustomerId: newCustomerId } },
     );
 
+    await models.FormSubmissions.updateMany(
+      { customerId: { $in: oldCustomerIds } },
+      { $set: { customerId: newCustomerId } },
+    );
+
+    await models.DeliveryReports.updateMany(
+      { customerId: { $in: oldCustomerIds } },
+      { $set: { customerId: newCustomerId } },
+    );
+
     await models.EngageMessages.changeCustomer(newCustomerId, oldCustomerIds);
 
     await models.Relations.updateMany(

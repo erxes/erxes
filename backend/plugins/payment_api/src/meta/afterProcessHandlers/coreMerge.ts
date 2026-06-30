@@ -27,10 +27,16 @@ const updateInvoiceCustomer = async (
   await models.Invoices.updateMany(
     {
       customerId: { $in: oldIds },
-      customerType:
-        customerType === 'customer'
-          ? { $in: ['customer', '', null] }
-          : customerType,
+      ...(customerType === 'customer'
+        ? {
+            $or: [
+              { customerType: 'customer' },
+              { customerType: { $exists: false } },
+              { customerType: '' },
+              { customerType: null },
+            ],
+          }
+        : { customerType }),
     },
     { $set: { customerId: newId } },
   );
