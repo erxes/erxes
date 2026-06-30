@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   Button,
-  Collapsible,
   DropdownMenu,
+  HoverCollapsible,
   NavigationMenuGroup,
   Sidebar,
   Skeleton,
@@ -99,6 +99,7 @@ function PipelineItem({
   const isActive = searchParams.get('pipelineId') === pipeline._id;
 
   const handleClick = () => {
+    localStorage.setItem('erxesCurrentBoardId', boardId);
     localStorage.setItem('erxesCurrentPipelineId', pipeline._id);
     navigate(`/sales/deals?boardId=${boardId}&pipelineId=${pipeline._id}`);
   };
@@ -117,36 +118,25 @@ function PipelineItem({
 }
 
 function BoardItem({ board }: { board: IBoard }) {
-  const [boardId, setBoardId] = useQueryState<string | null>('boardId');
+  const [boardId] = useQueryState<string | null>('boardId');
+  // Mirror the collapsible's open state so pipelines are only fetched once the
+  // board has been expanded (on hover). Start expanded for the active board.
   const [open, setOpen] = useState(boardId === board._id);
-
-  useEffect(() => {
-    setOpen(boardId === board._id);
-  }, [boardId, board._id]);
 
   const { pipelines, loading: pipelinesLoading } = usePipelines({
     variables: { boardId: board._id },
     skip: !open,
   });
 
-  const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (isOpen) {
-      localStorage.setItem('erxesCurrentBoardId', board._id);
-      setBoardId(board._id);
-      localStorage.removeItem('erxesCurrentPipelineId');
-    }
-  };
-
   return (
-    <Collapsible
+    <HoverCollapsible
       className="group/collapsible"
-      open={open}
-      onOpenChange={handleOpenChange}
+      defaultOpen={boardId === board._id}
+      onOpenChange={setOpen}
     >
       <Sidebar.Group className="p-0">
         <div className="w-full relative group/trigger hover:cursor-pointer">
-          <Collapsible.Trigger asChild>
+          <HoverCollapsible.Trigger asChild>
             <div className="w-full flex items-center justify-between">
               <Button
                 variant="ghost"
@@ -162,10 +152,10 @@ function BoardItem({ board }: { board: IBoard }) {
               </Button>
               <div className="size-5 min-w-5 mr-2"></div>
             </div>
-          </Collapsible.Trigger>
+          </HoverCollapsible.Trigger>
           <BoardActionsMenu board={board} />
         </div>
-        <Collapsible.Content className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pt-1">
+        <HoverCollapsible.Content className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pt-1">
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {pipelinesLoading ? (
@@ -181,9 +171,9 @@ function BoardItem({ board }: { board: IBoard }) {
               )}
             </Sidebar.Menu>
           </Sidebar.GroupContent>
-        </Collapsible.Content>
+        </HoverCollapsible.Content>
       </Sidebar.Group>
-    </Collapsible>
+    </HoverCollapsible>
   );
 }
 
