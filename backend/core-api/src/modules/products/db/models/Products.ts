@@ -285,6 +285,13 @@ export const loadProductClass = (
 
       const isDeleting = doc.status === PRODUCT_STATUSES.DELETED;
 
+      if (isDeleting) {
+        console.log(
+          `[updateProducts] soft-deleting ${products.length} product(s) via status=deleted`,
+          new Error('updateProducts delete call site').stack,
+        );
+      }
+
       sendDbEventLog({
         action: 'updateMany',
         docIds: products.map((product) => product._id),
@@ -329,6 +336,11 @@ export const loadProductClass = (
     }
 
     public static async removeProducts(_ids: string[]) {
+      console.log(
+        `[removeProducts] deleting ${_ids.length} product(s)`,
+        new Error('removeProducts call site').stack,
+      );
+
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
       let response = 'deleted';
@@ -363,6 +375,21 @@ export const loadProductClass = (
           docIds: updated.map((d) => d._id),
           updateDescription: { status: PRODUCT_STATUSES.DELETED },
         });
+        for (const product of toUpdate) {
+          if (product.status !== PRODUCT_STATUSES.DELETED) {
+            createActivityLog({
+              activityType: 'delete',
+              target: {
+                _id: product._id,
+              },
+              action: {
+                type: 'delete',
+                description: 'Product deleted',
+              },
+              changes: {},
+            });
+          }
+        }
         response = 'updated';
       }
 
@@ -376,6 +403,19 @@ export const loadProductClass = (
             action: 'deleteMany',
             docIds: toDelete.map((d) => d._id),
           });
+          for (const product of toDelete) {
+            createActivityLog({
+              activityType: 'delete',
+              target: {
+                _id: product._id,
+              },
+              action: {
+                type: 'delete',
+                description: 'Product deleted',
+              },
+              changes: {},
+            });
+          }
         }
       }
 
