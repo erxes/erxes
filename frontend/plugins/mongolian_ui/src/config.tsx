@@ -14,84 +14,63 @@ const SettingsNavigation = lazy(() =>
   })),
 );
 
+const MONGOLIAN_EXACT_FAVORITE_NAMES: Record<string, string> = {
+  'mongolian/ebarimt': 'EBarimt',
+  'mongolian/put-response': 'Put Response',
+  'mongolian/sync-erkhet': 'Sync Erkhet',
+  'mongolian/msdynamic': 'MSDynamic',
+  'mongolian/product-places': 'Product Places',
+  'mongolian/exchange-rates': 'Exchange Rates',
+};
+
+const MONGOLIAN_SUFFIX_FAVORITE_NAMES: Array<[string, string]> = [
+  ['/put-response/put-response', 'Put Response'],
+  ['/put-response/by-date', 'Put Response / By Date'],
+  ['/put-response/duplicated', 'Put Response / Duplicated'],
+  ['/sync-erkhet/history', 'Sync Erkhet / History'],
+  ['/sync-erkhet/deals', 'Sync Erkhet / Deals'],
+  ['/sync-erkhet/products', 'Sync Erkhet / Products'],
+  ['/sync-erkhet/category', 'Sync Erkhet / Categories'],
+  ['/sync-erkhet/pos-order', 'Sync Erkhet / POS Orders'],
+  ['/msdynamic/sync-history', 'MSDynamic / History'],
+  ['/msdynamic/synced-orders', 'MSDynamic / Orders'],
+  ['/msdynamic/customers', 'MSDynamic / Customers'],
+  ['/msdynamic/products', 'MSDynamic / Products'],
+  ['/msdynamic/categories', 'MSDynamic / Categories'],
+  ['/msdynamic/prices', 'MSDynamic / Prices'],
+];
+
 const getMongolianFavoriteName = (path: string) => {
   const pathWithoutQuery = path.split('?')[0].replace(/^\/|\/$/g, '');
 
-  if (pathWithoutQuery === 'mongolian/ebarimt') return 'EBarimt';
+  const exactName = MONGOLIAN_EXACT_FAVORITE_NAMES[pathWithoutQuery];
+  if (exactName) return exactName;
 
-  if (pathWithoutQuery === 'mongolian/put-response') return 'Put Response';
-  if (pathWithoutQuery.endsWith('/put-response/put-response')) {
-    return 'Put Response';
-  }
+  const suffixName = MONGOLIAN_SUFFIX_FAVORITE_NAMES.find(([suffix]) =>
+    pathWithoutQuery.endsWith(suffix),
+  )?.[1];
 
-  if (pathWithoutQuery.endsWith('/put-response/by-date')) {
-    return 'Put Response / By Date';
-  }
-
-  if (pathWithoutQuery.endsWith('/put-response/duplicated')) {
-    return 'Put Response / Duplicated';
-  }
-
-  if (pathWithoutQuery === 'mongolian/sync-erkhet') return 'Sync Erkhet';
-  if (pathWithoutQuery.endsWith('/sync-erkhet/history')) {
-    return 'Sync Erkhet / History';
-  }
-
-  if (pathWithoutQuery.endsWith('/sync-erkhet/deals')) {
-    return 'Sync Erkhet / Deals';
-  }
-
-  if (pathWithoutQuery.endsWith('/sync-erkhet/products')) {
-    return 'Sync Erkhet / Products';
-  }
-
-  if (pathWithoutQuery.endsWith('/sync-erkhet/category')) {
-    return 'Sync Erkhet / Categories';
-  }
-
-  if (pathWithoutQuery.endsWith('/sync-erkhet/pos-order')) {
-    return 'Sync Erkhet / POS Orders';
-  }
-
-  if (pathWithoutQuery === 'mongolian/msdynamic') return 'MSDynamic';
-  if (pathWithoutQuery.endsWith('/msdynamic/sync-history')) {
-    return 'MSDynamic / History';
-  }
-
-  if (pathWithoutQuery.endsWith('/msdynamic/synced-orders')) {
-    return 'MSDynamic / Orders';
-  }
-
-  if (pathWithoutQuery.endsWith('/msdynamic/customers')) {
-    return 'MSDynamic / Customers';
-  }
-
-  if (pathWithoutQuery.endsWith('/msdynamic/products')) {
-    return 'MSDynamic / Products';
-  }
-
-  if (pathWithoutQuery.endsWith('/msdynamic/categories')) {
-    return 'MSDynamic / Categories';
-  }
-
-  if (pathWithoutQuery.endsWith('/msdynamic/prices')) {
-    return 'MSDynamic / Prices';
-  }
+  if (suffixName) return suffixName;
 
   if (pathWithoutQuery.includes('/msdynamic/pos-order-detail/')) {
     return 'MSDynamic / Order Detail';
   }
 
-  if (pathWithoutQuery === 'mongolian/product-places') {
-    return 'Product Places';
-  }
-
-  if (pathWithoutQuery === 'mongolian/exchange-rates') {
-    return 'Exchange Rates';
-  }
-
   return 'Mongolian';
 };
+
+type MongolianModule = NonNullable<IUIConfig['modules']>[number];
+
+const mongolianModule = (
+  name: string,
+  path: string,
+  favoriteName: MongolianModule['favoriteName'] = getMongolianFavoriteName,
+): MongolianModule => ({
+  name,
+  icon: IconSandbox,
+  path,
+  favoriteName,
+});
 
 export const CONFIG: IUIConfig = {
   name: 'mongolian',
@@ -113,83 +92,46 @@ export const CONFIG: IUIConfig = {
   },
   widgets: {},
   modules: [
-    {
-      name: 'ebarimt',
-      icon: IconSandbox,
-      path: 'mongolian/ebarimt',
-      favoriteName: getMongolianFavoriteName,
-    },
-    {
-      name: 'sync-erkhet',
-      icon: IconSandbox,
-      path: 'mongolian/sync-erkhet',
-      favoriteName: getMongolianFavoriteName,
-    },
-    {
-      name: 'sync-erkhet-history',
-      icon: IconSandbox,
-      path: 'mongolian/sync-erkhet-history',
-      favoriteName: 'Sync Erkhet / History',
-    },
-    {
-      name: 'check-synced-deals',
-      icon: IconSandbox,
-      path: 'mongolian/check-synced-deals',
-      favoriteName: 'Sync Erkhet / Deals',
-    },
-    {
-      name: 'check-pos-orders',
-      icon: IconSandbox,
-      path: 'mongolian/check-pos-orders',
-      favoriteName: 'Sync Erkhet / POS Orders',
-    },
-    {
-      name: 'check-category',
-      icon: IconSandbox,
-      path: 'mongolian/check-category',
-      favoriteName: 'Sync Erkhet / Categories',
-    },
-    {
-      name: 'check-products',
-      icon: IconSandbox,
-      path: 'mongolian/check-products',
-      favoriteName: 'Sync Erkhet / Products',
-    },
-    {
-      name: 'put-response',
-      icon: IconSandbox,
-      path: 'mongolian/put-response',
-      favoriteName: getMongolianFavoriteName,
-    },
-    {
-      name: 'put-responses-by-date',
-      icon: IconSandbox,
-      path: 'mongolian/put-responses-by-date',
-      favoriteName: 'Put Response / By Date',
-    },
-    {
-      name: 'put-responses-duplicated',
-      icon: IconSandbox,
-      path: 'mongolian/put-responses-duplicated',
-      favoriteName: 'Put Response / Duplicated',
-    },
-    {
-      name: 'productplaces',
-      icon: IconSandbox,
-      path: 'mongolian/product-places',
-      favoriteName: getMongolianFavoriteName,
-    },
-    {
-      name: 'msdynamic',
-      icon: IconSandbox,
-      path: 'mongolian/msdynamic',
-      favoriteName: getMongolianFavoriteName,
-    },
-    {
-      name: 'exchange-rates',
-      icon: IconSandbox,
-      path: 'mongolian/exchange-rates',
-      favoriteName: getMongolianFavoriteName,
-    },
+    mongolianModule('ebarimt', 'mongolian/ebarimt'),
+    mongolianModule('sync-erkhet', 'mongolian/sync-erkhet'),
+    mongolianModule(
+      'sync-erkhet-history',
+      'mongolian/sync-erkhet-history',
+      'Sync Erkhet / History',
+    ),
+    mongolianModule(
+      'check-synced-deals',
+      'mongolian/check-synced-deals',
+      'Sync Erkhet / Deals',
+    ),
+    mongolianModule(
+      'check-pos-orders',
+      'mongolian/check-pos-orders',
+      'Sync Erkhet / POS Orders',
+    ),
+    mongolianModule(
+      'check-category',
+      'mongolian/check-category',
+      'Sync Erkhet / Categories',
+    ),
+    mongolianModule(
+      'check-products',
+      'mongolian/check-products',
+      'Sync Erkhet / Products',
+    ),
+    mongolianModule('put-response', 'mongolian/put-response'),
+    mongolianModule(
+      'put-responses-by-date',
+      'mongolian/put-responses-by-date',
+      'Put Response / By Date',
+    ),
+    mongolianModule(
+      'put-responses-duplicated',
+      'mongolian/put-responses-duplicated',
+      'Put Response / Duplicated',
+    ),
+    mongolianModule('productplaces', 'mongolian/product-places'),
+    mongolianModule('msdynamic', 'mongolian/msdynamic'),
+    mongolianModule('exchange-rates', 'mongolian/exchange-rates'),
   ],
 };
