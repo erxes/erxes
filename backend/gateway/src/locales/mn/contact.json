@@ -1,7 +1,7 @@
 {
   "customers": "Харилцагчид",
   "companies": "Компаниуд",
-  "leads": "Leads",
+  "leads": "Потенциал харилцагчид",
   "customer": {
     "_": "Харилцагч",
     "add": {
@@ -103,11 +103,11 @@
   },
   "lead": {
     "add": {
-      "_": "Lead нэмэх",
-      "success-message": "Lead амжилттай нэмэгдлээ"
+      "_": "Потенциал харилцагч нэмэх",
+      "success-message": "Потенциал харилцагч амжилттай нэмэгдлээ"
     },
     "detail": {
-      "lead-detail": "Lead-н дэлгэрэнгүй"
+      "lead-detail": "Потенциал харилцагчийн дэлгэрэнгүй"
     }
   },
   "clientPortalUser": {
@@ -200,7 +200,7 @@
   "selected": "{{count}} сонгосон",
   "subscribed": "Бүртгэлтэй",
   "lifecycle-state": "Амьдралын мөчлөгийн төлөв",
-  "lifecycle-state-lead": "Lead",
+  "lifecycle-state-lead": "Потенциал харилцагч",
   "lifecycle-state-customer": "Харилцагч",
   "choose-state": "Төлөв сонгох",
   "unknown": "Тодорхойгүй",
