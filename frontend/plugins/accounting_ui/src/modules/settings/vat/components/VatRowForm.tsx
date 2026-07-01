@@ -6,14 +6,7 @@ import {
   VatStatus,
   VAT_STATUS_LABELS,
 } from '../types/VatRow';
-import {
-  Button,
-  Checkbox,
-  Form,
-  Input,
-  Sheet,
-  Spinner,
-} from 'erxes-ui';
+import { Button, Checkbox, Form, Input, Sheet, Spinner } from 'erxes-ui';
 import { TaxRowCommonFields } from '../../components/TaxRowCommonFields';
 
 export const VatRowForm = ({

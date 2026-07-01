@@ -55,9 +55,7 @@ export const getSharedRowColumns = <T,>(
     accessorKey: 'number',
     header: () => <RecordTable.InlineHead label="Дугаар" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
+      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
     size: 250,
   },
@@ -66,9 +64,7 @@ export const getSharedRowColumns = <T,>(
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
+      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
     size: 250,
   },
@@ -77,9 +73,7 @@ export const getSharedRowColumns = <T,>(
     accessorKey: 'kind',
     header: () => <RecordTable.InlineHead label="Төрөл" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
+      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
   },
   {
@@ -87,9 +81,7 @@ export const getSharedRowColumns = <T,>(
     accessorKey: 'status',
     header: () => <RecordTable.InlineHead label="Төлөв" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
+      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
   },
   {
@@ -97,9 +89,7 @@ export const getSharedRowColumns = <T,>(
     accessorKey: 'percent',
     header: () => <RecordTable.InlineHead label="Хувь" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {cell.getValue() as string}
-      </RecordTableInlineCell>
+      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
   },
 ];

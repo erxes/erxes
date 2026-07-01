@@ -95,7 +95,8 @@ export const SyncOrderConfigForm = ({
   }, [form]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: TPaymentType[] = posDetailData?.posDetail?.paymentTypes || [];
+  const paymentTypes: TPaymentType[] =
+    posDetailData?.posDetail?.paymentTypes || [];
   const mongolianEnabled = isEnabled('mongolian');
 
   const handleSubmit = (data: ConfigFormValues) =>
