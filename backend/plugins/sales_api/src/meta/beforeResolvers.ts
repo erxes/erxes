@@ -19,6 +19,7 @@ export const beforeResolvers: BeforeResolversConfig = {
 
   handler: async (subdomain, params) => {
     const { resolver, args = {} } = params;
+    console.log({ fuckingshit: 'daskjbdjsa' });
 
     if (!productIdsResolvers.includes(resolver)) {
       return { status: 'ok' };
@@ -31,11 +32,17 @@ export const beforeResolvers: BeforeResolversConfig = {
     }
 
     const models = await generateModels(subdomain);
-    const usedProductIds: string[] = await models.Deals.distinct(
+    const requestedIdSet = new Set(productIds);
+    // distinct() returns every productId in matching deals' productsData array,
+    // not just the ones satisfying the $in filter, so it must be re-intersected.
+    const matchedProductIds: string[] = await models.Deals.distinct(
       'productsData.productId',
       {
         'productsData.productId': { $in: productIds },
       },
+    );
+    const usedProductIds = matchedProductIds.filter((id) =>
+      requestedIdSet.has(id),
     );
 
     if (!usedProductIds.length) {

@@ -3,6 +3,7 @@ import {
   IconCircleCheck,
   IconCircleX,
   IconClock,
+  IconEye,
   IconLock,
   IconMessage,
   IconUser,
@@ -11,32 +12,15 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
+  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { Link } from 'react-router-dom';
-import {
-  ApprovalNotificationActions,
-  ApprovalRequest,
-  ApprovalRequestStatus,
-  IUser,
-} from 'ui-modules';
-
-const getUserName = (user?: IUser) => {
-  const firstLastName = [user?.details?.firstName, user?.details?.lastName]
-    .filter(Boolean)
-    .join(' ');
-
-  return (
-    user?.details?.fullName ||
-    firstLastName ||
-    user?.email ||
-    user?.username ||
-    '-'
-  );
-};
+import { ApprovalRequest, ApprovalRequestStatus } from 'ui-modules';
+import { ApprovalRequestDetailSheet } from './ApprovalRequestDetailSheet';
+import { getApprovalRequestUserName } from './approvalRequestUtils';
 
 const statusMeta: Record<
   ApprovalRequestStatus,
@@ -71,6 +55,27 @@ export const approvalRequestColumns = ({
   onCompleted: () => void;
 }): ColumnDef<ApprovalRequest>[] => [
   {
+    id: 'details',
+    size: 42,
+    maxSize: 42,
+    minSize: 42,
+    header: () => <RecordTable.InlineHead label="" />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell className="justify-center">
+        <ApprovalRequestDetailSheet
+          request={row.original}
+          onCompleted={onCompleted}
+          t={t}
+        >
+          <Button variant="ghost" size="icon" className="size-7">
+            <IconEye className="size-4" />
+            <span className="sr-only">{t('view-details')}</span>
+          </Button>
+        </ApprovalRequestDetailSheet>
+      </RecordTableInlineCell>
+    ),
+  },
+  {
     id: 'status',
     accessorKey: 'status',
     size: 120,
@@ -103,22 +108,12 @@ export const approvalRequestColumns = ({
     cell: ({ row }) => {
       const { content, contentType } = row.original;
       const label = content?.label || contentType;
-      const link = content?.link;
 
       return (
         <RecordTableInlineCell className="min-w-0 gap-2">
           <IconLock className="size-4 shrink-0 text-muted-foreground" />
           <div className="min-w-0 space-y-0.5">
-            {link ? (
-              <Link
-                to={link}
-                className="block min-w-0 font-medium hover:underline"
-              >
-                <TextOverflowTooltip value={label} />
-              </Link>
-            ) : (
-              <TextOverflowTooltip value={label} />
-            )}
+            <TextOverflowTooltip value={label} />
             <div className="truncate text-xs text-muted-foreground">
               {contentType}
             </div>
@@ -136,7 +131,9 @@ export const approvalRequestColumns = ({
     ),
     cell: ({ row }) => (
       <RecordTableInlineCell className="min-w-0">
-        <TextOverflowTooltip value={getUserName(row.original.requester)} />
+        <TextOverflowTooltip
+          value={getApprovalRequestUserName(row.original.requester)}
+        />
       </RecordTableInlineCell>
     ),
   },
@@ -163,7 +160,7 @@ export const approvalRequestColumns = ({
     ),
     cell: ({ row }) => {
       const approverNames = (row.original.requiredApprovers || [])
-        .map(getUserName)
+        .map(getApprovalRequestUserName)
         .filter((name) => name !== '-');
 
       return (
@@ -202,20 +199,6 @@ export const approvalRequestColumns = ({
         ) : (
           '-'
         )}
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    id: 'actions',
-    size: 190,
-    minSize: 160,
-    header: () => <RecordTable.InlineHead label={t('actions')} />,
-    cell: ({ row }) => (
-      <RecordTableInlineCell>
-        <ApprovalNotificationActions
-          request={row.original}
-          onCompleted={onCompleted}
-        />
       </RecordTableInlineCell>
     ),
   },

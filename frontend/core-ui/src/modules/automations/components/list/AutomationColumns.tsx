@@ -13,6 +13,7 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Badge,
   Input,
   PopoverScoped,
   RecordTable,
@@ -25,7 +26,6 @@ import {
 } from 'erxes-ui';
 import {
   ApprovalLockedBadge,
-  ApprovalLockState,
   TagsSelect,
   TAutomationAction,
   TAutomationTrigger,
@@ -41,11 +41,7 @@ const checkBoxColumn =
 
 export const getAutomationColumns: (
   t: (key: string) => string,
-  approvalLockStatesById?: Record<string, ApprovalLockState>,
-) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (
-  t,
-  approvalLockStatesById = {},
-) => [
+) => ColumnDef<TAutomationRecordTableColumnDefData>[] = (t) => [
   {
     id: 'more',
     cell: ({ cell }) => {
@@ -54,7 +50,7 @@ export const getAutomationColumns: (
       const { removeAutomations, loading } = useRemoveAutomations();
       const { t } = useTranslation('automations');
       const { toast } = useToast();
-      const lockState = approvalLockStatesById[cell.row.original._id];
+      const lockState = cell.row.original.approvalLockState;
       const canWrite = !lockState?.locked || lockState.hasAccess;
 
       const onRemove = () => {
@@ -130,26 +126,25 @@ export const getAutomationColumns: (
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => {
-      const [editingName, setEditingName] = useState(cell.getValue() as string);
+      const currentName = cell.getValue() as string;
+      const automationId = cell.row.original._id;
+      const [editingName, setEditingName] = useState(currentName);
       const navigate = useNavigate();
       const [edit] = useMutation(AUTOMATION_EDIT);
       const { toast } = useToast();
-      const lockState = approvalLockStatesById[cell.row.original._id];
+      const lockState = cell.row.original.approvalLockState;
       const canWrite = !lockState?.locked || lockState.hasAccess;
       const handleEnter = () => {
         if (!canWrite) {
           return;
         }
 
-        if (
-          editingName === (cell.getValue() as string) ||
-          editingName.trim() === ''
-        ) {
+        if (editingName === currentName || editingName.trim() === '') {
           return;
         }
         edit({
           variables: {
-            id: cell.row.original._id,
+            id: automationId,
             name: editingName,
           },
           onError: (e: ApolloError) => {
@@ -173,25 +168,27 @@ export const getAutomationColumns: (
         return (
           <RecordTableInlineCell.Anchor
             onClick={() => {
-              navigate(`/automations/edit/${cell.row.original._id}`);
+              navigate(`/automations/edit/${automationId}`);
             }}
           >
-            <span className="truncate">{cell.getValue() as string}</span>
-            <ApprovalLockedBadge state={lockState} />
+            <span className="truncate">{currentName}</span>
           </RecordTableInlineCell.Anchor>
         );
       }
 
       return (
-        <PopoverScoped closeOnEnter onEnter={handleEnter}>
+        <PopoverScoped
+          closeOnEnter
+          onEnter={handleEnter}
+          dependencies={[automationId, canWrite, currentName, editingName]}
+        >
           <RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Anchor
               onClick={() => {
-                navigate(`/automations/edit/${cell.row.original._id}`);
+                navigate(`/automations/edit/${automationId}`);
               }}
             >
-              <span className="truncate">{cell.getValue() as string}</span>
-              <ApprovalLockedBadge state={lockState} />
+              <span className="truncate">{currentName}</span>
             </RecordTableInlineCell.Anchor>
           </RecordTableInlineCell.Trigger>
           <RecordTableInlineCell.Content>
@@ -204,6 +201,25 @@ export const getAutomationColumns: (
       );
     },
     minSize: 150,
+  },
+  {
+    id: 'visibility',
+    header: () => <RecordTable.InlineHead label={t('visibility')} />,
+    cell: ({ cell }) => {
+      const lockState = cell.row.original.approvalLockState;
+      const isPrivate = lockState?.locked === true;
+
+      return (
+        <RecordTableInlineCell>
+          {isPrivate ? (
+            <ApprovalLockedBadge state={lockState} />
+          ) : (
+            <Badge variant="secondary">{t('public')}</Badge>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+    size: 120,
   },
   {
     id: 'status',

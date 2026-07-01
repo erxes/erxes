@@ -1,23 +1,30 @@
 import {
+  APPROVAL_APPROVER_SCOPES,
   APPROVAL_DECISIONS,
   APPROVAL_LOCK_STATUSES,
   APPROVAL_MODES,
   APPROVAL_REQUEST_STATUSES,
+  ApprovalApproverScope,
   ApprovalDecision,
   ApprovalLock,
-  ApprovalLockCreateInput,
+  ApprovalMode,
   ApprovalRequest,
   ApprovalRequestCreateInput,
 } from 'erxes-api-shared/core-modules';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { PipelineStage } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { checkApprovalLock } from '../../utils/checkApprovalLock';
-import { notifyApprovalRequest } from '../../utils/notifyApprovalRequest';
-import { resolveApprovalContent } from '../../utils/resolveApprovalContent';
-import { resolveRequiredApprovers } from '../../utils/resolveRequiredApprovers';
 
 const unique = (ids: string[]) => [...new Set(ids.filter(Boolean))];
+
+type ApprovalLockCreateResolverInput = {
+  contentType: string;
+  contentTypeId: string;
+  ownerId: string;
+  allowedUserIds?: string[];
+  scope?: ApprovalApproverScope;
+  mode?: ApprovalMode;
+};
 
 const assertPending = (request: ApprovalRequest) => {
   if (request.status !== APPROVAL_REQUEST_STATUSES.PENDING) {
@@ -92,30 +99,19 @@ const recordPendingDecision = async (
 export const approvalMutations = {
   async approvalLockCreate(
     _root: undefined,
-    { input }: { input: ApprovalLockCreateInput },
+    { input }: { input: ApprovalLockCreateResolverInput },
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('approvalLocksManage');
 
-    const content = await resolveApprovalContent({
-      models,
-      contentType: input.contentType,
-      contentId: input.contentId,
-    });
-    const ownerId = input.ownerId || content.ownerId;
-
-    if (!user.isOwner && ownerId !== user._id) {
-      throw new ExpectedError(
-        'Only the owner can lock this resource',
-        'FORBIDDEN',
-      );
-    }
-
     return models.ApprovalLocks.createLock({
-      ...input,
-      ownerIdSnapshot: ownerId,
+      contentType: input.contentType,
+      contentId: input.contentTypeId,
+      ownerIdSnapshot: input.ownerId,
       lockedBy: user._id,
       allowedUserIds: unique(input.allowedUserIds || []),
+      approverScope: input.scope || APPROVAL_APPROVER_SCOPES.LOCKER_ONLY,
+      approvalMode: input.mode || APPROVAL_MODES.FIRST_WINS,
     });
   },
 
@@ -165,8 +161,7 @@ export const approvalMutations = {
     { input }: { input: ApprovalRequestCreateInput },
     { models, user, subdomain }: IContext,
   ) {
-    const state = await checkApprovalLock.state({
-      models,
+    const state = await models.ApprovalLocks.getState({
       user,
       contentType: input.contentType,
       contentId: input.contentId,
@@ -190,7 +185,10 @@ export const approvalMutations = {
       return pending;
     }
 
-    const requiredApproverIds = resolveRequiredApprovers(state.lock, user._id);
+    const requiredApproverIds = models.ApprovalRequests.getRequiredApproverIds(
+      state.lock,
+      user._id,
+    );
 
     if (!requiredApproverIds.length) {
       throw new ExpectedError('No approver is available', 'BAD_REQUEST');
@@ -203,8 +201,7 @@ export const approvalMutations = {
       requiredApproverIds,
     });
 
-    const notificationIds = await notifyApprovalRequest({
-      models,
+    const notificationIds = await models.ApprovalRequests.notifyApprovers({
       subdomain,
       request,
       lock: state.lock,
