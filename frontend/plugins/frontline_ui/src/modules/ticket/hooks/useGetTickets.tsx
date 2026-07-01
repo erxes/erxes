@@ -101,7 +101,7 @@ export const useTickets = (
       document: TICKET_LIST_CHANGED,
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!prev || !subscriptionData.data || !prev.getTickets) return prev;
 
         const { type, ticket } = subscriptionData.data.ticketListChanged;
         const currentList = prev.getTickets.list;
