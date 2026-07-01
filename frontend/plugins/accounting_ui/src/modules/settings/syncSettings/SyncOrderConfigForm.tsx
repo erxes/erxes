@@ -232,10 +232,7 @@ export const SyncOrderConfigForm = ({
                 <Form.Item>
                   <Form.Label>POS</Form.Label>
                   <Form.Control>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
                         <Select.Value placeholder={t('select-pos')} />
                       </Select.Trigger>
