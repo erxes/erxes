@@ -401,7 +401,7 @@ export const loadProductClass = (
         }
 
         if (isDeleting) {
-          if (product.status !== PRODUCT_STATUSES.DELETED) {
+          if (product.status === PRODUCT_STATUSES.DELETED) {
             createActivityLog({
               activityType: 'delete',
               target: {
