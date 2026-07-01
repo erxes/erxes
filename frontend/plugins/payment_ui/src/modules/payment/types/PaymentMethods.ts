@@ -11,6 +11,5 @@ export enum PaymentKind {
   STRIPE = 'stripe',
   TOKI = 'toki',
   TDB = 'tdb',
-  // TODO: Add Khanbank after khanbank plugin is ready
-  // KAHNBANK = 'khanbank',
+  KHANBANK = 'khanbank',
 }
