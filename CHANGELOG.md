@@ -1,5 +1,18 @@
 
 
+## [3.0.48](https://github.com/erxes/erxes/compare/3.0.47...3.0.48) (2026-07-01)
+
+
+### Bug Fixes
+
+* **logs:** make revert preview a read-only query so it stops self-logging ([#8478](https://github.com/erxes/erxes/issues/8478)) ([122730e](https://github.com/erxes/erxes/commit/122730e03e23bbc2b8ea113a7b8f82bcacb82f00))
+* sync product createdAt for sort ([c992403](https://github.com/erxes/erxes/commit/c9924035978f86eee8ce00b1d1736090657729f6))
+
+
+### Features
+
+* **frontline:** filter cpTicketGetNotes by current ticket status  ([4a9670b](https://github.com/erxes/erxes/commit/4a9670b910b8eab2b458e55756ef4b21301538b4))
+
 ## [3.0.47](https://github.com/erxes/erxes/compare/3.0.46...3.0.47) (2026-06-30)
 
 
