@@ -43,9 +43,6 @@ const CreatedAtCell = ({ voucher }: { voucher: IVoucher }) => {
 
 export const generateOtherPaymentColumns = (_summary?: any) => [];
 
-// Client portal users have no inline component in `ui-modules`, so resolve them
-// here: prefer the linked erxes customer (matching the backend `getLoyaltyOwner`
-// behaviour) and otherwise fall back to the client portal user's own name.
 const CpUserOwner = ({ ownerId }: { ownerId: string }) => {
   const { data, loading } = useQuery(VOUCHER_CP_USER_QUERY, {
     variables: { _id: ownerId },
@@ -60,23 +57,23 @@ const CpUserOwner = ({ ownerId }: { ownerId: string }) => {
     );
   }
 
-  if (loading) return <>—</>;
+  if (loading) return <></>;
 
   const name =
     [cpUser?.firstName, cpUser?.lastName].filter(Boolean).join(' ') ||
     cpUser?.email ||
     cpUser?.phone;
 
-  return <>{name || '—'}</>;
+  return <>{name || ''}</>;
 };
 
 const renderOwnerContent = (ownerId: string, ownerType?: string) => {
   if (ownerType === 'company')
-    return <CompaniesInline companyIds={[ownerId]} placeholder="—" />;
+    return <CompaniesInline companyIds={[ownerId]} placeholder="" />;
   if (ownerType === 'user')
-    return <MembersInline memberIds={[ownerId]} placeholder="—" />;
+    return <MembersInline memberIds={[ownerId]} placeholder="" />;
   if (ownerType === 'cpUser') return <CpUserOwner ownerId={ownerId} />;
-  return <CustomersInline customerIds={[ownerId]} placeholder="—" />;
+  return <CustomersInline customerIds={[ownerId]} placeholder="" />;
 };
 
 const OwnerCell = ({
@@ -101,7 +98,9 @@ export const firstVoucherColumns: ColumnDef<IVoucher>[] = [
     accessorKey: 'createdAt',
     header: () => {
       const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />;
+      return (
+        <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+      );
     },
     cell: ({ row }) => <CreatedAtCell voucher={row.original} />,
   },
