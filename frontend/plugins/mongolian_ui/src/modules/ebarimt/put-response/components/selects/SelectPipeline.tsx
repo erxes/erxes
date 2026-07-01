@@ -24,6 +24,7 @@ import {
 } from './SelectShared';
 
 import { IconCards } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useGetSalesPipelines } from '../../hooks/useGetSalesPipeline';
 
 interface IPipeline {
@@ -114,20 +115,21 @@ const SelectPipelineValue = ({
   className?: string;
 }) => {
   const { value, pipelines, boardId, mode } = useSelectPipelineContext();
+  const { t } = useTranslation('mongolian');
   const selectedPipeline = pipelines?.find(
     (pipeline) => pipeline._id === value,
   );
 
   if (!boardId) {
     return (
-      <span className="text-accent-foreground/80">Choose board first</span>
+      <span className="text-accent-foreground/80">{t('choose-board-first')}</span>
     );
   }
 
   if (!selectedPipeline && mode === 'single') {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -140,7 +142,7 @@ const SelectPipelineValue = ({
     if (!selectedPipelines?.length) {
       return (
         <span className="text-accent-foreground/80">
-          {placeholder || 'Select pipelines'}
+          {placeholder || t('select-pipelines')}
         </span>
       );
     }
@@ -182,12 +184,13 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 
 const SelectPipelineContent = () => {
   const { pipelines, boardId, loading, error } = useSelectPipelineContext();
+  const { t } = useTranslation('mongolian');
 
   const renderContent = useCallback(() => {
     if (!boardId) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Choose board first</span>
+          <span className="text-muted-foreground">{t('choose-board-first')}</span>
         </div>
       );
     }
@@ -195,7 +198,7 @@ const SelectPipelineContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -203,7 +206,7 @@ const SelectPipelineContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error')}: {error.message}
         </div>
       );
     }
@@ -211,13 +214,13 @@ const SelectPipelineContent = () => {
     return pipelines?.map((pipeline) => (
       <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />
     ));
-  }, [boardId, loading, error, pipelines]);
+  }, [boardId, loading, error, pipelines, t]);
 
-  const emptyMessage = boardId ? 'No pipelines found' : 'Choose board first';
+  const emptyMessage = boardId ? t('no-pipelines-found') : t('choose-board-first');
 
   return (
     <Command>
-      <Command.Input placeholder="Search pipeline" />
+      <Command.Input placeholder={t('search-pipeline')} />
       <Command.Empty>
         <span className="text-muted-foreground">{emptyMessage}</span>
       </Command.Empty>
@@ -270,10 +273,11 @@ const SelectPipelineRoot = ({
 };
 
 export const SelectPipelineFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="pipelineId">
       <IconCards />
-      Pipeline
+      {t('pipeline')}
     </Filter.Item>
   );
 };
@@ -329,12 +333,13 @@ export const SelectPipelineFilterBar = ({
     queryKey || 'pipelineId',
   );
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter.BarItem queryKey={queryKey || 'pipelineId'}>
       <Filter.BarName>
         <IconCards />
-        {!iconOnly && 'Pipeline'}
+        {!iconOnly && t('pipeline')}
       </Filter.BarName>
       <SelectPipelineProvider
         mode={mode}

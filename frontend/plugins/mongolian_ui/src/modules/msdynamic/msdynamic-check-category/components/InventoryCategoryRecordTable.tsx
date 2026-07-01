@@ -1,5 +1,6 @@
 import { IconCategory } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { useMSDynamicSessionKey } from '../../hooks/useMSDynamicSessionKey';
 import { useCheckCategory } from '../hooks/useCheckCategory';
@@ -17,6 +18,7 @@ const categoryActions: Record<CategoryFilterType, InventoryCategoryAction> = {
 };
 
 export const InventoryCategoryRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { items, loading, selectedFilter, toCheckCategory, pageInfo } =
     useCheckCategory();
   const { sessionKey } = useMSDynamicSessionKey('categories');
@@ -63,10 +65,10 @@ export const InventoryCategoryRecordTable = () => {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h3 className="text-xl font-semibold mb-2">
-                  No categories in this group
+                  {t('no-categories-in-group')}
                 </h3>
                 <p className="text-muted-foreground max-w-md">
-                  Run check or choose another category group.
+                  {t('run-check-or-choose-another')}
                 </p>
               </div>
             </div>

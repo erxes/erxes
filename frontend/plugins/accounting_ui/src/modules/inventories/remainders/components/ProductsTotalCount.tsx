@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { productTotalCountAtom } from '../states/productCounts';
 
 export const ProductsTotalCount = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('accounting');
   const totalCount = useAtomValue(productTotalCountAtom);
   return (
     <div className="h-7 text-sm font-medium leading-7 whitespace-nowrap text-muted-foreground">

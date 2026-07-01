@@ -14,14 +14,16 @@ import {
 } from '@tabler/icons-react';
 import { Button, Form, Select, Tabs, Textarea } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { TAutomationActionProps } from 'ui-modules';
 import { useAiAgentConfigForm } from '../hooks/useAiAgentConfigForm';
+import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 
 export const AIAgentConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TAiAgentConfigForm>) => {
+  const { pathname } = useLocation();
   const {
     form,
     control,
@@ -70,7 +72,12 @@ export const AIAgentConfigForm = ({
                             {name}
                           </Select.Item>
                         ))}
-                        <Link to="/settings/automations/agents">
+                        <Link
+                          to="/settings/automations/agents"
+                          onClick={() =>
+                            setAutomationSettingsReturnPath(pathname)
+                          }
+                        >
                           <Button variant="ghost" className="w-full">
                             <IconPlus /> {t('add-new-agent')}
                           </Button>

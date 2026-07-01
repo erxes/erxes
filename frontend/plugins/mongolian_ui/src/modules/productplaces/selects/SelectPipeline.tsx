@@ -12,6 +12,7 @@ import {
   PopoverScoped,
   SelectTriggerVariant,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useGetSalesPipelines } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesPipelines';
 import {
   SelectContent,
@@ -97,6 +98,7 @@ const SelectPipelineValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, pipelines, boardId } = useSelectPipelineContext();
   const selectedPipeline = pipelines?.find(
     (pipeline) => pipeline._id === value,
@@ -104,14 +106,14 @@ const SelectPipelineValue = ({
 
   if (!boardId) {
     return (
-      <span className="text-accent-foreground/80">Choose board first</span>
+      <span className="text-accent-foreground/80">{t('choose-board-first')}</span>
     );
   }
 
   if (!selectedPipeline) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -143,13 +145,14 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 };
 
 const SelectPipelineContent = () => {
+  const { t } = useTranslation('mongolian');
   const { pipelines, boardId, loading, error } = useSelectPipelineContext();
 
   const renderContent = () => {
     if (!boardId) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Choose board first</span>
+          <span className="text-muted-foreground">{t('choose-board-first')}</span>
         </div>
       );
     }
@@ -157,7 +160,7 @@ const SelectPipelineContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -165,7 +168,7 @@ const SelectPipelineContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error-colon', { message: error.message })}
         </div>
       );
     }
@@ -177,10 +180,10 @@ const SelectPipelineContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search pipeline" />
+      <Command.Input placeholder={t('search-pipeline')} />
       <Command.Empty>
         <span className="text-muted-foreground">
-          {boardId ? 'No pipelines found' : 'Choose board first'}
+          {boardId ? t('no-pipelines-found') : t('choose-board-first')}
         </span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>

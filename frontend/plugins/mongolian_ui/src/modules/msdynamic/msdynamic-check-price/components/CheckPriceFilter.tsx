@@ -1,10 +1,12 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCheckPrice } from '../hooks/useCheckPrice';
 import { PriceStatus, PRICE_STATUS_LABELS } from '../types/checkPrice';
 
 const FILTERS: PriceStatus[] = ['UPDATE', 'MATCH', 'CREATE', 'DELETE', 'ERROR'];
 
 export const CheckPriceFilter = () => {
+  const { t } = useTranslation('mongolian');
   const { getCount, selectedFilter, setSelectedFilter } = useCheckPrice();
 
   return (
@@ -19,7 +21,7 @@ export const CheckPriceFilter = () => {
               setSelectedFilter(selectedFilter === status ? null : status)
             }
           >
-            {PRICE_STATUS_LABELS[status]} ({count})
+            {t(PRICE_STATUS_LABELS[status])} ({count})
           </Button>
         );
       })}

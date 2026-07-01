@@ -128,7 +128,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
   return { $and: [{ ...mustFilter }, { ...filter }] };
 };
 
-const filterOrders = (params: ISearchParams, models, config) => {
+export const filterOrders = (params: ISearchParams, models, config) => {
   const filter = generateFilter(config, params);
   const { sortField, sortDirection, page, perPage } = params;
   const sort: { [key: string]: any } = {};

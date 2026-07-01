@@ -1,4 +1,5 @@
 import { PageContainer, PageSubHeader } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
 
 import { useMSDynamicCheckProducts } from '../hooks/useMSDynamicCheckProducts';
@@ -8,6 +9,7 @@ import { MSDynamicCheckProductsRecordTable } from './MSDynamicCheckProductsRecor
 
 /** Check products main layout with brand select and table */
 export const MSDynamicCheckProducts = () => {
+  const { t } = useTranslation('mongolian');
   const { selectedBrandId, setBrand } = useMSDynamicCheckProducts();
 
   return (
@@ -19,7 +21,7 @@ export const MSDynamicCheckProducts = () => {
             value={selectedBrandId}
             onValueChange={(value) => setBrand(value as string)}
             mode="single"
-            placeholder="Choose brand"
+            placeholder={t('choose-brand')}
           />
           <MSDynamicCheckProductsCheckButton />
         </div>

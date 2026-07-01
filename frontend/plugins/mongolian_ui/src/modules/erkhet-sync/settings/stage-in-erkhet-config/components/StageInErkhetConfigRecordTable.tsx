@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TErkhetConfig } from '../types';
 import { TStageInErkhetConfigRow } from '../hooks/useStageInErkhetConfigs';
 import { buildStageInErkhetConfigColumns } from './StageInErkhetConfigColumns';
@@ -18,11 +19,14 @@ export const StageInErkhetConfigRecordTable = ({
   onDelete,
   onDeleteMany,
   editLoading,
-}: Props) => (
-  <ErkhetConfigRecordTable
-    configs={configs}
-    columns={buildStageInErkhetConfigColumns(onEdit, onDelete, editLoading)}
-    emptyDescription="Create your first stage in erkhet config using the button above."
-    commandBar={<StageInErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
-  />
-);
+}: Props) => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <ErkhetConfigRecordTable
+      configs={configs}
+      columns={buildStageInErkhetConfigColumns(onEdit, onDelete, editLoading)}
+      emptyDescription={t('create-first-stage-in-erkhet-config')}
+      commandBar={<StageInErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+    />
+  );
+};

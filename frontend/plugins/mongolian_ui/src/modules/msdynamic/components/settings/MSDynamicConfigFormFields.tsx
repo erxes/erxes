@@ -2,7 +2,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { Checkbox, Form, Input } from 'erxes-ui';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { SelectBrand } from 'ui-modules/modules/brands';
-
+import { useTranslation } from 'react-i18next';
+import { MSDynamicPropertyField } from './MSDynamicPropertyField';
 import { getMSDynamicFieldLabel, TMSDynamicConfig } from '../../types';
 
 type MSDynamicTextFieldName = Exclude<
@@ -12,8 +13,6 @@ type MSDynamicTextFieldName = Exclude<
 
 const CONNECTION_FIELDS: MSDynamicTextFieldName[] = [
   'title',
-  'posConf',
-  'productUrl',
   'username',
   'password',
 ];
@@ -50,7 +49,9 @@ const DEFAULT_FIELDS: MSDynamicTextFieldName[] = [
   'defaultCompanyCode',
 ];
 
-const CUSTOM_FIELDS: MSDynamicTextFieldName[] = [
+type MSDynamicCustomFieldName = 'custCode' | 'userLocationCode';
+
+const CUSTOM_FIELDS: MSDynamicCustomFieldName[] = [
   'custCode',
   'userLocationCode',
 ];
@@ -69,6 +70,7 @@ export const MSDynamicConfigFormFields = ({
   formId: string;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('mongolian');
   const useBoard = form.watch('useBoard');
   const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
@@ -113,13 +115,13 @@ export const MSDynamicConfigFormFields = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 py-2"
       >
-        <MSDynamicFieldSection title="Connection">
+        <MSDynamicFieldSection title={t('connection')}>
           <Form.Field
             control={form.control}
             name="brandId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{getMSDynamicFieldLabel('brandId')}</Form.Label>
+                <Form.Label>{t(getMSDynamicFieldLabel('brandId'))}</Form.Label>
                 <Form.Control>
                   <SelectBrand.FormItem
                     mode="single"
@@ -144,7 +146,7 @@ export const MSDynamicConfigFormFields = ({
           ))}
         </MSDynamicFieldSection>
 
-        <MSDynamicFieldSection title="APIs">
+        <MSDynamicFieldSection title={t('apis')}>
           {API_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}
@@ -155,7 +157,7 @@ export const MSDynamicConfigFormFields = ({
           ))}
         </MSDynamicFieldSection>
 
-        <MSDynamicFieldSection title="Posting groups">
+        <MSDynamicFieldSection title={t('posting-groups')}>
           {POSTING_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}
@@ -166,7 +168,7 @@ export const MSDynamicConfigFormFields = ({
           ))}
         </MSDynamicFieldSection>
 
-        <MSDynamicFieldSection title="Defaults">
+        <MSDynamicFieldSection title={t('defaults')}>
           {DEFAULT_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}
@@ -178,7 +180,7 @@ export const MSDynamicConfigFormFields = ({
         </MSDynamicFieldSection>
         <MSDynamicFieldSection title="Custom Fields">
           {CUSTOM_FIELDS.map((name) => (
-            <MSDynamicTextField
+            <MSDynamicPropertyField
               key={name}
               form={form}
               name={name}
@@ -200,7 +202,7 @@ export const MSDynamicConfigFormFields = ({
                   />
                 </Form.Control>
                 <Form.Label variant="peer" className="whitespace-nowrap">
-                  {getMSDynamicFieldLabel('useBoard')}
+                  {t(getMSDynamicFieldLabel('useBoard'))}
                 </Form.Label>
               </Form.Item>
             )}
@@ -213,14 +215,16 @@ export const MSDynamicConfigFormFields = ({
                 name="boardId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{getMSDynamicFieldLabel('boardId')}</Form.Label>
+                    <Form.Label>
+                      {t(getMSDynamicFieldLabel('boardId'))}
+                    </Form.Label>
                     <SelectBoard.FormItem
                       mode="single"
                       value={field.value}
                       onValueChange={(value) =>
                         handleBoardChange(value, field.onChange)
                       }
-                      placeholder="Select board"
+                      placeholder={t('select-board')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -233,7 +237,7 @@ export const MSDynamicConfigFormFields = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {getMSDynamicFieldLabel('pipelineId')}
+                      {t(getMSDynamicFieldLabel('pipelineId'))}
                     </Form.Label>
                     <SelectPipeline.FormItem
                       mode="single"
@@ -242,7 +246,7 @@ export const MSDynamicConfigFormFields = ({
                       onValueChange={(value) =>
                         handlePipelineChange(value, field.onChange)
                       }
-                      placeholder="Select pipeline"
+                      placeholder={t('select-pipeline')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -254,7 +258,9 @@ export const MSDynamicConfigFormFields = ({
                 name="stageId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{getMSDynamicFieldLabel('stageId')}</Form.Label>
+                    <Form.Label>
+                      {t(getMSDynamicFieldLabel('stageId'))}
+                    </Form.Label>
                     <SelectStage.FormItem
                       mode="single"
                       value={field.value}
@@ -262,7 +268,7 @@ export const MSDynamicConfigFormFields = ({
                       onValueChange={(value) =>
                         field.onChange(getSingleSelectValue(value))
                       }
-                      placeholder="Select stage"
+                      placeholder={t('select-stage')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -303,13 +309,15 @@ const MSDynamicTextField = ({
   name: MSDynamicTextFieldName;
   loading: boolean;
   type?: 'text' | 'password';
-}) => (
+}) => {
+  const { t } = useTranslation('mongolian');
+  return (
   <Form.Field
     control={form.control}
     name={name}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label>{getMSDynamicFieldLabel(name)}</Form.Label>
+        <Form.Label>{t(getMSDynamicFieldLabel(name))}</Form.Label>
         <Form.Control>
           <Input
             type={type}
@@ -322,4 +330,5 @@ const MSDynamicTextField = ({
       </Form.Item>
     )}
   />
-);
+  );
+};

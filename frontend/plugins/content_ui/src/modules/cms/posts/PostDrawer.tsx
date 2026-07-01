@@ -3,6 +3,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { POSTS_ADD } from '../graphql/queries';
 import { POSTS_LIST } from './graphql/queries/postsListQueries';
 
@@ -37,6 +38,7 @@ export function PostDrawer({
   onClose,
   clientPortalId,
 }: PostDrawerProps) {
+  const { t } = useTranslation('content');
   const isEditing = !!post;
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
@@ -86,8 +88,8 @@ export function PostDrawer({
       onClose();
       form.reset();
       toast({
-        title: 'Success',
-        description: 'Post created successfully',
+        title: t('success'),
+        description: t('post-created-successfully'),
         variant: 'default',
       });
     },
@@ -103,17 +105,16 @@ export function PostDrawer({
       if (permissionError) {
         setHasPermissionError(true);
         toast({
-          title: 'Permission Required',
-          description:
-            'You do not have permission to create posts. Please contact your administrator to grant the necessary permissions.',
+          title: t('permission-required'),
+          description: t('post-permission-required-desc'),
           variant: 'destructive',
           duration: 8000,
         });
       } else {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
-            error.message || 'Failed to create post. Please try again.',
+            error.message || t('failed-to-create-post'),
           variant: 'destructive',
           duration: 5000,
         });
@@ -137,7 +138,7 @@ export function PostDrawer({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <Sheet.View className="sm:max-w-lg p-0">
         <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>{isEditing ? 'Edit Post' : 'New Post'}</Sheet.Title>
+          <Sheet.Title>{isEditing ? t('edit-post') : t('new-post')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -152,12 +153,10 @@ export function PostDrawer({
                   <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
                   <div className="text-sm">
                     <p className="font-medium text-red-800">
-                      Permission Required
+                      {t('permission-required')}
                     </p>
                     <p className="text-red-700 mt-1">
-                      You need permission to create or edit posts. Please
-                      contact your administrator to grant the necessary
-                      permissions.
+                      {t('post-permission-inline-desc')}
                     </p>
                   </div>
                 </div>
@@ -169,9 +168,9 @@ export function PostDrawer({
               name="title"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Post Title</Form.Label>
+                  <Form.Label>{t('post-title')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Enter post title" required />
+                    <Input {...field} placeholder={t('enter-post-title')} required />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -183,11 +182,11 @@ export function PostDrawer({
               name="content"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Content</Form.Label>
+                  <Form.Label>{t('content')}</Form.Label>
                   <Form.Control>
                     <Textarea
                       {...field}
-                      placeholder="Enter post content"
+                      placeholder={t('enter-post-content')}
                       rows={6}
                     />
                   </Form.Control>
@@ -201,7 +200,7 @@ export function PostDrawer({
               name="status"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Status</Form.Label>
+                  <Form.Label>{t('status')}</Form.Label>
                   <Form.Control>
                     <Select
                       {...field}
@@ -209,12 +208,12 @@ export function PostDrawer({
                       value={field.value}
                     >
                       <Select.Trigger>
-                        <Select.Value placeholder="Select status" />
+                        <Select.Value placeholder={t('select-status')} />
                       </Select.Trigger>
                       <Select.Content>
-                        <Select.Item value="draft">Draft</Select.Item>
-                        <Select.Item value="published">Published</Select.Item>
-                        <Select.Item value="archived">Archived</Select.Item>
+                        <Select.Item value="draft">{t('draft')}</Select.Item>
+                        <Select.Item value="published">{t('published')}</Select.Item>
+                        <Select.Item value="archived">{t('archived')}</Select.Item>
                       </Select.Content>
                     </Select>
                   </Form.Control>
@@ -228,7 +227,7 @@ export function PostDrawer({
               name="type"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Type</Form.Label>
+                  <Form.Label>{t('type')}</Form.Label>
                   <Form.Control>
                     <Select
                       {...field}
@@ -236,12 +235,12 @@ export function PostDrawer({
                       value={field.value}
                     >
                       <Select.Trigger>
-                        <Select.Value placeholder="Select type" />
+                        <Select.Value placeholder={t('select-type')} />
                       </Select.Trigger>
                       <Select.Content>
-                        <Select.Item value="post">Post</Select.Item>
-                        <Select.Item value="article">Article</Select.Item>
-                        <Select.Item value="page">Page</Select.Item>
+                        <Select.Item value="post">{t('post')}</Select.Item>
+                        <Select.Item value="article">{t('article')}</Select.Item>
+                        <Select.Item value="page">{t('page')}</Select.Item>
                       </Select.Content>
                     </Select>
                   </Form.Control>
@@ -252,18 +251,18 @@ export function PostDrawer({
 
             <div className="flex justify-end space-x-2">
               <Button onClick={onClose} variant="outline">
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={saving || hasPermissionError}>
                 {saving
                   ? isEditing
-                    ? 'Saving...'
-                    : 'Creating...'
+                    ? t('saving')
+                    : t('creating')
                   : hasPermissionError
-                    ? 'Permission Required'
+                    ? t('permission-required')
                     : isEditing
-                      ? 'Save Changes'
-                      : 'Create Post'}
+                      ? t('save-changes')
+                      : t('create-post')}
               </Button>
             </div>
           </form>

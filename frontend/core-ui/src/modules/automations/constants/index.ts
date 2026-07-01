@@ -113,6 +113,11 @@ export const AUTOMATION_HISTORIES_CURSOR_SESSION_KEY =
 export const AUTOMATION_RECORD_TABLE_FILTERS_SESSION_KEY =
   'automation-record-table-filters-cursor';
 
+export const AUTOMATION_APPROVAL_CONTENT_TYPES = {
+  AUTOMATION: 'core:automation',
+  AUTOMATION_AI_AGENT: 'core:automation_ai_agent',
+} as const;
+
 export const AUTOMATION_LIBRARY_TABS = [
   {
     value: AutomationNodeType.Trigger,

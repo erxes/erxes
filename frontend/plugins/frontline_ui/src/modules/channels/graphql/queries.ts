@@ -23,6 +23,8 @@ const GET_CHANNELS = gql`
       pipelineCount
       responseTemplateCount
       formCount
+      integrationCount
+      integrationKinds
     }
   }
 `;

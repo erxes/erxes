@@ -1,4 +1,5 @@
 export * from './automations';
+export * from './approval';
 export * from './brands';
 export * from './contacts';
 export * from './documents';

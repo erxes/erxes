@@ -10,6 +10,7 @@ import {
   useConfirm,
   toast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 import { useVatRows } from '../hooks/useVatRows';
 import { useVatRowsRemove } from '../hooks/useVatRowsRemove';
@@ -76,6 +77,7 @@ export const VatRowMoreColumnCell = ({
 }: {
   cell: Cell<IVatRow, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState('vat_row_id');
   const setVatRowDetail = useSetAtom(vatRowDetailAtom);
   const { confirm } = useConfirm();
@@ -88,25 +90,25 @@ export const VatRowMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete this VAT row?',
+      message: t('are-you-sure-delete-this-vat-row'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeVatRows({
         variables: { vatRowIds: [cell.row.original._id] },
         onError: (error: Error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Vat rows deleted successfully',
+            title: t('success'),
+            description: t('vat-rows-deleted-successfully'),
           });
         },
       });
@@ -121,10 +123,10 @@ export const VatRowMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const PRODUCTS_QUERY = gql`
   query products($ids: [String], $excludeIds: Boolean, $searchValue: String) {
@@ -75,6 +76,7 @@ export const SelectProductsProvider = ({
 };
 
 const SelectProductsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('mongolian');
   const { value, products } = useSelectProductsContext();
   const selectedNames = useMemo(
     () =>
@@ -88,7 +90,7 @@ const SelectProductsValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedNames) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Choose products'}
+        {placeholder || t('choose-products')}
       </span>
     );
   }
@@ -126,13 +128,14 @@ const SelectProductsItem = ({ product }: { product: Product }) => {
 };
 
 const SelectProductsContent = () => {
+  const { t } = useTranslation('mongolian');
   const { products, loading, error } = useSelectProductsContext();
 
   const renderContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -140,7 +143,7 @@ const SelectProductsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error-colon', { message: error.message })}
         </div>
       );
     }
@@ -152,9 +155,9 @@ const SelectProductsContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search product" />
+      <Command.Input placeholder={t('search-product')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No products found</span>
+        <span className="text-muted-foreground">{t('no-products-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

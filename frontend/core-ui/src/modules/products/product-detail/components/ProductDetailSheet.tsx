@@ -244,7 +244,11 @@ export const ProductDetailSheet = () => {
               </form>
             </Form>
           </div>
-          <FormWidgetSideTabs contentType="core:product" form={form} />
+          <FormWidgetSideTabs
+            contentType="core:product"
+            contentId={productDetail?._id}
+            form={form}
+          />
         </FocusSheet.Content>
       </ProductDetailSheetView>
     </FocusSheet>

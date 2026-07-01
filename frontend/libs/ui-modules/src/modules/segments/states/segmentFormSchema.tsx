@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { TConditionsConjunction } from '../types';
 
-const checkPropertValue = (val: any) => {
+const checkPropertValue = (val: unknown) => {
   const isArrayEmpty = val && Array.isArray(val) && !val?.length;
   const isValueEmpty = !val;
 
@@ -26,7 +26,8 @@ export const conditionsSchema = z.array(
           invalid_type_error: 'Property operator must be a provided',
         })
         .min(1, 'Property operator is required'),
-      propertyValue: z.any().optional(),
+      propertyValue: z.unknown().optional(),
+      meta: z.record(z.unknown()).optional(),
     })
     .superRefine((data, ctx) => {
       const optionalOperators = ['is', 'ins', 'it', 'if'];
@@ -47,7 +48,7 @@ export const segmentFormSchema = z.object({
   subOf: z.string().optional(),
   description: z.string().optional(),
   color: z.string().optional(),
-  config: z.record(z.any()),
+  config: z.record(z.unknown()),
   conditionSegments: z
     .array(
       z.object({

@@ -1,4 +1,6 @@
 import {
+  getSetPropertySelector,
+  setProperty,
   TCoreModuleProducerContext,
   TAutomationProducers,
   TAutomationProducersInput,
@@ -24,6 +26,38 @@ export const ticketAutomationProducers = {
   },
 
   checkCustomTrigger: async () => false,
+
+  setProperties: async (
+    data: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
+    context: TCoreModuleProducerContext<IModels>,
+  ) => {
+    const { models, subdomain } = context;
+    const { action, execution, targetType } = data;
+    const { module, rules, setPropertyTarget } = action.config;
+
+    const selector = await getSetPropertySelector({
+      subdomain,
+      module,
+      execution,
+      targetType,
+      relation: setPropertyTarget?.relation,
+    });
+
+    return await setProperty({
+      models,
+      subdomain,
+      module,
+      rules,
+      execution,
+      setPropertyTarget,
+      selector,
+      fetchItems: async (itemSelector) =>
+        await models.Ticket.find(itemSelector).lean(),
+      update: async ({ selector: itemSelector, modifier }) =>
+        await models.Ticket.updateMany(itemSelector, modifier),
+      targetType,
+    });
+  },
 
   checkTargetMatch: async (
     input: TAutomationProducersInput[TAutomationProducers.CHECK_TARGET_MATCH],

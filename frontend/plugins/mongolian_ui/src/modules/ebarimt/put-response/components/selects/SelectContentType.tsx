@@ -17,6 +17,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconTag } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { CONTENT_TYPE_DATA } from '../../constants/contentTypeData';
 import {
   SelectContent,
@@ -96,6 +97,7 @@ const SelectContentTypeValue = ({
   className?: string;
 }) => {
   const { value, contentTypes } = useSelectContentTypeContext();
+  const { t } = useTranslation('mongolian');
   const selectedContentType = contentTypes?.find(
     (type) => type.value === value,
   );
@@ -103,7 +105,7 @@ const SelectContentTypeValue = ({
   if (!selectedContentType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select content type'}
+        {placeholder || t('select-content-type')}
       </span>
     );
   }
@@ -111,7 +113,7 @@ const SelectContentTypeValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>
-        {selectedContentType.label}
+        {t(selectedContentType.label)}
       </p>
     </div>
   );
@@ -123,6 +125,7 @@ const SelectContentTypeCommandItem = ({
   contentType: IContentType;
 }) => {
   const { onValueChange, value } = useSelectContentTypeContext();
+  const { t } = useTranslation('mongolian');
   const { value: typeValue, label } = contentType || {};
 
   return (
@@ -132,7 +135,7 @@ const SelectContentTypeCommandItem = ({
         onValueChange(typeValue);
       }}
     >
-      <span className="font-medium">{label}</span>
+      <span className="font-medium">{t(label)}</span>
       <Combobox.Check checked={value === typeValue} />
     </Command.Item>
   );
@@ -140,12 +143,13 @@ const SelectContentTypeCommandItem = ({
 
 const SelectContentTypeContent = () => {
   const { contentTypes } = useSelectContentTypeContext();
+  const { t } = useTranslation('mongolian');
 
   return (
     <Command>
-      <Command.Input placeholder="Search content type" />
+      <Command.Input placeholder={t('search-content-type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No content types found</span>
+        <span className="text-muted-foreground">{t('no-content-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {contentTypes?.map((contentType) => (
@@ -160,6 +164,7 @@ const SelectContentTypeContent = () => {
 };
 
 export const SelectContentTypeFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item
       value="contentType"
@@ -168,7 +173,7 @@ export const SelectContentTypeFilterItem = () => {
       }}
     >
       <IconTag />
-      Content Type
+      {t('content-type')}
     </Filter.Item>
   );
 };
@@ -216,12 +221,13 @@ export const SelectContentTypeFilterBar = ({
     'contentType',
   );
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter.BarItem queryKey={'contentType'}>
       <Filter.BarName>
         <IconTag />
-        Content Type
+        {t('content-type')}
       </Filter.BarName>
       <SelectContentTypeProvider
         mode={mode}
