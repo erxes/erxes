@@ -1,6 +1,7 @@
 import { posTrpcRouter } from '@/pos/trpc/pos';
 import { dealTrpcRouter } from '@/sales/trpc/deal';
 import { documentTrpcRouter } from '@/sales/trpc/document';
+import { salesFavoritesTrpcRouter } from '@/sales/trpc/favorites';
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -38,6 +39,7 @@ export const appRouter = t.mergeRouters(
   dealTrpcRouter,
   posTrpcRouter,
   documentTrpcRouter,
+  salesFavoritesTrpcRouter,
   t.router({
     fields: t.router({
       getFieldList: createFieldListProcedure(

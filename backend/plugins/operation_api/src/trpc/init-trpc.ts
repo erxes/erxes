@@ -7,6 +7,7 @@ import {
   generateProjectFields,
   generateTaskFields,
 } from '~/modules/fields/fieldUtils';
+import { operationFavoritesTrpcRouter } from '~/modules/team/trpc/favorites';
 import { taskTrpcRouter } from '~/modules/task/trpc/task';
 
 export type OperationTRPCContext = ITRPCContext<{ models: IModels }>;
@@ -21,6 +22,7 @@ export const appRouter = t.mergeRouters(
       }),
     },
   }),
+  operationFavoritesTrpcRouter,
   taskTrpcRouter,
   t.router({
     fields: t.router({

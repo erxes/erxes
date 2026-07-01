@@ -42,6 +42,9 @@ export const SalesIndexPage = () => {
                 {boardId && (
                   <SalesBreadCrumb boardId={boardId} pipelineId={pipelineId} />
                 )}
+                <Breadcrumb.Item className="ml-1">
+                  <PageHeader.FavoriteToggleButton />
+                </Breadcrumb.Item>
               </Breadcrumb.List>
             </Breadcrumb>
           </PageHeader.Start>

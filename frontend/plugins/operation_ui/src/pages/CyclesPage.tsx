@@ -18,10 +18,16 @@ export const CyclesPage = () => {
               <TeamBreadCrumb />
               <Separator.Inline />
               <CyclesBreadcrumb link={link} />
+              <Breadcrumb.Item className="ml-1">
+                <PageHeader.FavoriteToggleButton />
+              </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        <AddCycleSheet />
+
+        <PageHeader.End>
+          <AddCycleSheet />
+        </PageHeader.End>
       </PageHeader>
       <CyclesRecordTable />
     </>

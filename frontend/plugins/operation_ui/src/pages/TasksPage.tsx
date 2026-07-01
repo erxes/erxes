@@ -4,7 +4,10 @@ import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
-import { TasksExportButton, TasksImportButton } from '@/task/components/TasksLayout';
+import {
+  TasksExportButton,
+  TasksImportButton,
+} from '@/task/components/TasksLayout';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useLocation, useParams } from 'react-router-dom';
 import { Can, PageHeader } from 'ui-modules';
@@ -32,12 +35,17 @@ export const TasksPage = () => {
                 </>
               )}
               <TaskBreadCrump link={basePath} />
+              <Breadcrumb.Item className="ml-1">
+                <PageHeader.FavoriteToggleButton />
+              </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        <Can action="taskCreate">
-          <AddTaskSheet />
-        </Can>
+        <PageHeader.End>
+          <Can action="taskCreate">
+            <AddTaskSheet />
+          </Can>
+        </PageHeader.End>
       </PageHeader>
       <div className="flex overflow-hidden w-full h-full">
         <div className="flex flex-col overflow-hidden w-full h-full">
@@ -54,4 +62,3 @@ export const TasksPage = () => {
     </>
   );
 };
-

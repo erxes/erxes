@@ -4,8 +4,8 @@ export const GET_FAVORITES = gql`
   query getFavoritesByCurrentUser {
     getFavoritesByCurrentUser {
       _id
-      type
       path
+      breadcrumb
     }
   }
 `;
