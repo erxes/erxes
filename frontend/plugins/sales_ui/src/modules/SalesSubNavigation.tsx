@@ -14,6 +14,7 @@ import {
   IconDotsVertical,
   IconSettings,
 } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { IBoard } from '@/deals/types/boards';
@@ -101,6 +102,10 @@ function PipelineItem({
 
 function BoardItem({ board }: { board: IBoard }) {
   const [boardId] = useQueryState<string | null>('boardId');
+  const [pipelineId, setPipelineId] = useQueryState<string | null>(
+    'pipelineId',
+  );
+
   const isBoardActive = boardId === board._id;
 
   // Fetch pipelines eagerly so they are ready before the board is expanded —
@@ -111,8 +116,38 @@ function BoardItem({ board }: { board: IBoard }) {
     variables: { boardId: board._id },
   });
 
+  useEffect(() => {
+    if (!isBoardActive || pipelineId || pipelinesLoading || !pipelines) {
+      return;
+    }
+
+    const storedPipelineId = localStorage.getItem('erxesCurrentPipelineId');
+    const storedPipelineBelongsToBoard = pipelines.some(
+      (pipeline) => pipeline._id === storedPipelineId,
+    );
+
+    if (storedPipelineId && storedPipelineBelongsToBoard) {
+      setPipelineId(storedPipelineId);
+      return;
+    }
+
+    if (pipelines[0]?._id) {
+      setPipelineId(pipelines[0]._id);
+    }
+  }, [isBoardActive, pipelineId, pipelinesLoading, pipelines]);
+
+  const [open, setOpen] = useState(isBoardActive);
+
+  useEffect(() => {
+    if (isBoardActive) setOpen(true);
+  }, [isBoardActive]);
+
   return (
-    <Collapsible className="group/collapsible" defaultOpen={isBoardActive}>
+    <Collapsible
+      className="group/collapsible"
+      open={open}
+      onOpenChange={setOpen}
+    >
       <Sidebar.Group className="p-0">
         <div className="w-full relative group/trigger hover:cursor-pointer">
           <Collapsible.Trigger asChild>
@@ -158,7 +193,26 @@ function BoardItem({ board }: { board: IBoard }) {
 
 const DealsNavigation = () => {
   const { boards, loading } = useBoards();
+  const [boardId, setBoardId] = useQueryState<string | null>('boardId');
   const { t } = useTranslation('sales');
+
+  useEffect(() => {
+    if (!boards || boards.length === 0 || boardId) return;
+
+    const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
+    const storedBoardExists = boards.some(
+      (board) => board._id === storedBoardId,
+    );
+
+    if (storedBoardId && storedBoardExists) {
+      setBoardId(storedBoardId);
+      return;
+    }
+
+    if (boards[0]?._id) {
+      setBoardId(boards[0]._id);
+    }
+  }, [boards, boardId]);
 
   return (
     <NavigationMenuGroup name={t('boards')}>
