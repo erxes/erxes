@@ -21,14 +21,14 @@ export function useCreateAutomationEmailTemplate() {
       refetchQueries: [AUTOMATION_EMAIL_TEMPLATES],
       onCompleted: () => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
           description: t('email-template-created', 'Email template created successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -57,14 +57,14 @@ export function useUpdateAutomationEmailTemplate() {
       refetchQueries: [AUTOMATION_EMAIL_TEMPLATES],
       onCompleted: () => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
           description: t('email-template-updated', 'Email template updated successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -93,14 +93,14 @@ export function useRemoveAutomationEmailTemplate() {
       refetchQueries: [AUTOMATION_EMAIL_TEMPLATES],
       onCompleted: () => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
           description: t('email-template-removed', 'Email template removed successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

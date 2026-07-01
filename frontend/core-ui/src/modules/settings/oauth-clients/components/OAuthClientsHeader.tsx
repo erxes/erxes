@@ -16,7 +16,7 @@ export function OAuthClientsHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/oauth-clients">
                   <IconApi />
-                  {t('oauth-clients', 'OAuth clients')}
+                  {t('oauth-clients._', 'OAuth clients')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

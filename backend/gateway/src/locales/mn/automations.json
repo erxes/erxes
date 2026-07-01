@@ -17,7 +17,7 @@
   "created-user": "Үүсгэсэн хэрэглэгч",
   "empty-title": "Автоматжуулалт олдсонгүй",
   "empty-description": "Шинэ автоматжуулалт үүсгэх эсвэл шүүлтүүрээ өөрчлөөд үргэлжлүүлнэ үү.",
-  "records-found-label": "үр дүн олдлоо",
+  "records-found-label": "бичлэг олдлоо",
 
   "save": "Хадгалах",
   "automation-name-placeholder": "Автоматжуулалтын нэр",
@@ -183,7 +183,7 @@
   "variables-help-step-insert-variable": "Хувьсагчийг дэмжигдэх талбар руу дарж эсвэл чирж оруулна.",
 
   "no-results": "Үр дүн олдсонгүй",
-  "records-found": "{{count}} үр дүн олдлоо",
+  "records-found": "{{count}} бичлэг олдлоо",
 
   "search-filter": "Хайх",
   "status-filter": "Төлөв",
@@ -372,11 +372,17 @@
 
   "remove": "Арилгах",
 
+  "ai-agents": "AI Агентууд",
+  "ai-agents-description": "Итгэмжлэлт AI агентуудыг тохируулж, контекст файл хавсаргаж, автоматжуулалтын үйлдлүүдэд холбохоос өмнө нийлүүлэгчийн бэлэн байдлыг шалгаарай.",
+  "automation-bots": "Автоматжуулалтын ботууд",
+  "automation-bots-description": "Ботоо тохируулж, харилцагчидтайгаа холбогдож эхлээрэй",
   "no-automation-bots-available": "Автоматжуулалтын бот байхгүй",
+  "no-bot-integrations-description": "Энэ ажлын орчинд одоогоор бот интеграц идэвхжүүлэгдээгүй байна. Бот интеграц нэмэгдсэний дараа энд харагдах болно.",
 
   "email-templates": "Имэйлийн загварууд",
   "email-templates-description": "Автоматжуулалтдаа ашиглах дахин ашиглагдах имэйл загваруудыг үүсгэж, удирдах.",
   "create-template": "Загвар үүсгэх",
+  "email-templates-count": "{{count}} загвар",
   "loading": "Ачаалж байна...",
 
   "clear": "Арилгах",
@@ -597,6 +603,8 @@
   "model-description": "Энэ автоматжуулалтын агент ашиглах загварыг сонгоно.",
 
   "provider": "Үйлчилгээ үзүүлэгч",
+  "description": "Тайлбар",
+  "created": "Үүсгэсэн",
 
   "gateway-mode": "Gateway горим",
   "select-gateway-mode": "Gateway горим сонгох",

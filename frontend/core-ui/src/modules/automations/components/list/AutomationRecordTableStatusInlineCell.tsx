@@ -36,14 +36,14 @@ export const AutomationRecordTableStatusInlineCell = ({
       onCompleted: () => {
         setOpen(false);
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
           description: t('automation-status-updated', 'Automation status updated successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

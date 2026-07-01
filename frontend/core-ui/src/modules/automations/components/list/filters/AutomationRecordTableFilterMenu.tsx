@@ -24,15 +24,15 @@ export const AutomationRecordTableFilterMenu = () => {
         <Command.List className="p-1">
           <Filter.Item value="searchValue">
             <IconSearch />
-            {t('search')}
+            {t('search', 'Search')}
           </Filter.Item>
           <Filter.Item value="status">
             <IconProgressCheck />
-            {t('status')}
+            {t('status', 'Status')}
           </Filter.Item>
           <Filter.Item value="createdAt">
             <IconCalendar />
-            {t('created-at')}
+            {t('created-at', 'Created At')}
           </Filter.Item>
           <Filter.Item value="createdByIds">
             <IconUser />
@@ -40,7 +40,7 @@ export const AutomationRecordTableFilterMenu = () => {
           </Filter.Item>
           <Filter.Item value="updatedAt">
             <IconCalendar />
-            {t('updated-at')}
+            {t('updated-at', 'Updated At')}
           </Filter.Item>
           <Filter.Item value="updatedByIds">
             <IconUserUp />
@@ -56,7 +56,7 @@ export const AutomationRecordTableFilterMenu = () => {
           </Filter.Item>
           <Filter.Item value="tagIds">
             <IconTags />
-            {t('tags')}
+            {t('tags', 'Tags')}
           </Filter.Item>
         </Command.List>
       </Command>

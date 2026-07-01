@@ -43,7 +43,7 @@ export const AIAgentConfigForm = ({
         <Tabs defaultValue="general" className="min-w-72">
           <Tabs.List className="flex flex-row">
             <Tabs.Trigger value="general" className="flex-1">
-              <IconSettings className="size-3.5 mr-2" /> {t('configuration')}
+              <IconSettings className="size-3.5 mr-2" /> {t('configuration', 'Configuration')}
             </Tabs.Trigger>
             <Tabs.Trigger value="memory" className="flex-1">
               <IconBrain className="size-3.5 mr-2" /> {t('memory', 'Memory')}

@@ -35,7 +35,7 @@ const DefaultIconCell = ({ row }: { row: any }) => {
         onClick={handleDefaultClick}
         disabled={loading}
         variant="ghost"
-        title={bundleCondition.isDefault ? t('default') : t('make-it-default')}
+        title={bundleCondition.isDefault ? t('default', 'Default') : t('make-it-default', 'Make it default')}
         className="text-success"
       >
         {bundleCondition.isDefault ? (
@@ -57,7 +57,7 @@ export const bundleConditionColumns = (
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
@@ -67,7 +67,7 @@ export const bundleConditionColumns = (
   },
   {
     id: 'default',
-    header: () => <RecordTable.InlineHead label={t('default')} />,
+    header: () => <RecordTable.InlineHead label={t('default', 'Default')} />,
     cell: DefaultIconCell,
     size: 100,
   },

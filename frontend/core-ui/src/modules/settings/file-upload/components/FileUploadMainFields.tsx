@@ -32,11 +32,11 @@ export function FileUploadMainFields({
                 {...field}
                 options={fileMimeTypesOptions}
                 badgeClassName={selectorBadgeClassName}
-                placeholder={t('select-option')}
+                placeholder={t('select-option', 'Select option')}
                 hideClearAllButton
                 hidePlaceholderWhenSelected
                 emptyIndicator={
-                  <p className="text-center text-sm">{t('no-results-found')}</p>
+                  <p className="text-center text-sm">{t('no-results-found', 'No results found')}</p>
                 }
               />
             </div>
@@ -55,11 +55,11 @@ export function FileUploadMainFields({
                 {...field}
                 options={fileMimeTypesOptions}
                 badgeClassName={selectorBadgeClassName}
-                placeholder={t('select-option')}
+                placeholder={t('select-option', 'Select option')}
                 hideClearAllButton
                 hidePlaceholderWhenSelected
                 emptyIndicator={
-                  <p className="text-center text-sm">{t('no-results-found')}</p>
+                  <p className="text-center text-sm">{t('no-results-found', 'No results found')}</p>
                 }
               />
             </div>

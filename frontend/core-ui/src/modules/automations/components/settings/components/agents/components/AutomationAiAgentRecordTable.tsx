@@ -1,5 +1,5 @@
 import { AutomationAiAgentTableEmptyState } from '@/automations/components/settings/components/agents/components/AutomationAiAgentTableEmptyState';
-import { automationAiAgentColumns } from '@/automations/components/settings/components/agents/components/automationAiAgentColumns';
+import { getAutomationAiAgentColumns } from '@/automations/components/settings/components/agents/components/automationAiAgentColumns';
 import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, RecordTable } from 'erxes-ui';
@@ -40,7 +40,7 @@ export const AutomationAiAgentRecordTable = ({
       </div>
 
       <RecordTable.Provider
-        columns={automationAiAgentColumns}
+        columns={getAutomationAiAgentColumns(t)}
         data={automationsAiAgents || []}
         className="h-full min-w-0"
       >

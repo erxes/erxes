@@ -101,7 +101,7 @@ const AutomationNodeLibrarySidebarContent = ({
     <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
       <div className="flex shrink-0 flex-row gap-2 px-5 py-4">
         <Command.Input
-          placeholder={t('search')}
+          placeholder={t('search', 'Search')}
           variant="primary"
           wrapperClassName="m-0 flex-1 rounded-md bg-background shadow-xs"
           autoFocus

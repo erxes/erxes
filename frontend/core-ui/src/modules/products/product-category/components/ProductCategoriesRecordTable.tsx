@@ -122,14 +122,14 @@ export const productCategoryColumns = (
   },
   {
     id: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabelFilled} label={t('name')} />,
+    header: () => <RecordTable.InlineHead icon={IconLabelFilled} label={t('name', 'Name')} />,
     accessorKey: 'name',
     cell: ProductCategoryNameCell,
     size: 300,
   },
   {
     id: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     accessorKey: 'code',
     cell: ({ cell }) => {
       return (
@@ -142,7 +142,7 @@ export const productCategoryColumns = (
 
   {
     id: 'productCount',
-    header: () => <RecordTable.InlineHead icon={IconPackage} label={t('product-count')} />,
+    header: () => <RecordTable.InlineHead icon={IconPackage} label={t('product-count', 'Product count')} />,
     accessorKey: 'productCount',
     cell: ({ cell }) => {
       return (
@@ -154,7 +154,7 @@ export const productCategoryColumns = (
   },
   {
     id: 'parentId',
-    header: () => <RecordTable.InlineHead icon={IconPackage} label={t('parent')} />,
+    header: () => <RecordTable.InlineHead icon={IconPackage} label={t('parent', 'Parent')} />,
     accessorKey: 'parentId',
     cell: ({ cell }) => {
       const parent = categoryObject[cell.getValue() as string];

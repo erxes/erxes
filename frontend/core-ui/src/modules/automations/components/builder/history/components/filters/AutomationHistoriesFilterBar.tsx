@@ -26,7 +26,7 @@ export const AutomationHistoriesFilterBar = () => {
       <Filter.BarItem queryKey="status">
         <Filter.BarName>
           <IconProgressCheck />
-          {t('status')}
+          {t('status', 'Status')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>

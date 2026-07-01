@@ -78,8 +78,8 @@ export const PermissionGroups = () => {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.Head>{t('name', 'Name')}</Table.Head>
-              <Table.Head>{t('description', 'Description')}</Table.Head>
+              <Table.Head>Name</Table.Head>
+              <Table.Head>Description</Table.Head>
               <Table.Head className="w-12"></Table.Head>
             </Table.Row>
           </Table.Header>
@@ -93,7 +93,7 @@ export const PermissionGroups = () => {
                 <Button variant="secondary" className="w-full justify-start">
                   <Collapsible.TriggerIcon />
                   <span className="flex items-center gap-2">
-                    {t('permissions.plugin', 'Plugin')} {plugin}
+                    Plugin {plugin}
                   </span>
                 </Button>
               </Collapsible.Trigger>
@@ -156,7 +156,7 @@ export const PermissionGroups = () => {
             <Collapsible.Trigger asChild>
               <Button variant="secondary" className="w-full justify-start">
                 <Collapsible.TriggerIcon />
-                <span className="flex items-center gap-2">{t('permissions.custom-groups', 'Custom Groups')}</span>
+                <span className="flex items-center gap-2">Custom Groups</span>
               </Button>
             </Collapsible.Trigger>
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
@@ -176,7 +176,7 @@ export const PermissionGroups = () => {
             {permissionGroups.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 border border-dashed rounded-lg">
                 <p className="text-muted-foreground mb-4">
-                  {t('permissions.no-custom-groups', 'No custom groups yet')}
+                  No custom groups yet
                 </p>
                 <Can action="permissionsManage">
                   <PermissionGroupAdd />
@@ -226,11 +226,11 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
       removePermissionGroup({
         variables: { _id: group._id },
         onCompleted: () => {
-          toast({ title: t('permissions.group-deleted', 'Permission group deleted'), variant: 'success' });
+          toast({ title: 'Permission group deleted', variant: 'success' });
         },
         onError: (error) => {
           toast({
-            title: t('permissions.group-delete-error', 'Error deleting permission group'),
+            title: 'Error deleting permission group',
             variant: 'destructive',
             description: error.message,
           });

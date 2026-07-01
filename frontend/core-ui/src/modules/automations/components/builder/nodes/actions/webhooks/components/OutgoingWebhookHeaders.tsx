@@ -25,7 +25,7 @@ export const OutgoingWebhookHeaders = () => {
               return (
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-row justify-between">
-                    <Form.Label>{t('headers')}</Form.Label>
+                    <Form.Label>{t('headers', 'Headers')}</Form.Label>
                     <Button
                       variant="outline"
                       size="sm"
@@ -44,7 +44,7 @@ export const OutgoingWebhookHeaders = () => {
             return (
               <>
                 <div className="flex items-center justify-between mb-6">
-                  <Label className="text-sm font-medium">{t('headers')}</Label>
+                  <Label className="text-sm font-medium">{t('headers', 'Headers')}</Label>
                   <Button variant="outline" size="sm" onClick={handleAddHeader}>
                     <IconPlus className="h-4 w-4 mr-2" />
                     {t('add-header', 'Add Header')}

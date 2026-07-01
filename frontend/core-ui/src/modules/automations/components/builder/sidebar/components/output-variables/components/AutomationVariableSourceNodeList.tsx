@@ -77,7 +77,7 @@ const AutomationVariableSourceNodeValue = ({
       ) : null}
       <span className="min-w-0 flex-1 truncate font-medium">{node.label}</span>
       <span className="text-xs text-muted-foreground">
-        {node.nodeType === AutomationNodeType.Trigger ? t('trigger') : t('action')}
+        {node.nodeType === AutomationNodeType.Trigger ? t('trigger', 'Trigger') : t('action', 'Action')}
       </span>
     </div>
   );

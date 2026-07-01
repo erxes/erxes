@@ -49,17 +49,17 @@ const CompaniesFilterPopover = () => {
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  {t('search')}
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <TagsFilter />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="created">
                   <IconCalendarPlus />
-                  {t('created-at')}
+                  {t('created-at', 'Created At')}
                 </Filter.Item>
                 <Filter.Item value="updated">
                   <IconCalendarUp />
-                  {t('updated-at')}
+                  {t('updated-at', 'Updated At')}
                 </Filter.Item>
                 <Filter.Item value="lastSeen">
                   <IconCalendarTime />

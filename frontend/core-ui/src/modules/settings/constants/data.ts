@@ -148,7 +148,7 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Structure,
     },
     {
-      name: t('tags'),
+      name: t('tags', 'Tags'),
       icon: IconTag,
       path: SettingsWorkspacePath.Tags,
     },

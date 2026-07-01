@@ -72,7 +72,7 @@ export const NodeDropdownActions = ({
             onClick={(e) => openNodeConfigurationForm(id)}
           >
             <IconSettings className="size-4" />
-            {t('configuration')}
+            {t('configuration', 'Configuration')}
           </Button>
         </DropdownMenu.Item>
         <NodeRemoveActionDialog
@@ -107,7 +107,7 @@ export const NodeRemoveActionDialog = ({
             onDoubleClick={(e) => e.stopPropagation()}
           >
             <IconTrash className="size-4" />
-            {t('delete')}
+            {t('delete', 'Delete')}
           </Button>
         </DropdownMenu.Item>
       </AlertDialog.Trigger>
@@ -119,7 +119,7 @@ export const NodeRemoveActionDialog = ({
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+          <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
           <AlertDialog.Action onClick={onRemoveNode}>
             {t('continue')}
           </AlertDialog.Action>

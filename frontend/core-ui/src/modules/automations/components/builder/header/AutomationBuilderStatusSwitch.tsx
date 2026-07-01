@@ -75,7 +75,7 @@ export const AutomationBuilderStatusSwitch = ({
                   </AlertDialog.Description>
                 </AlertDialog.Header>
                 <AlertDialog.Footer>
-                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+                  <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
                   <AlertDialog.Action onClick={handleConfirm}>
                     {isActivating ? t('save-and-activate', 'Save and activate') : t('save-and-deactivate', 'Save and deactivate')}
                   </AlertDialog.Action>

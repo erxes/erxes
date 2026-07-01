@@ -14,8 +14,7 @@ export const AutomationBotsEmptyState = () => {
             {t('no-automation-bots-available', 'No automation bots available')}
           </h3>
           <p className="text-muted-foreground text-sm">
-            There are no bot integrations enabled for this workspace yet. Once a
-            bot integration is added, it will appear here.
+            {t('no-bot-integrations-description', 'There are no bot integrations enabled for this workspace yet. Once a bot integration is added, it will appear here.')}
           </p>
         </div>
       </div>

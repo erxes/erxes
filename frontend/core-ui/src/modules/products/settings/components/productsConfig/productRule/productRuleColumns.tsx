@@ -18,7 +18,7 @@ export const productRuleColumns = (
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => <RecordTable.InlineHead label={t('unit-price')} />,
+    header: () => <RecordTable.InlineHead label={t('unit-price', 'Unit Price')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -31,7 +31,7 @@ export const productRuleColumns = (
   {
     id: 'categories',
     accessorKey: 'categories',
-    header: () => <RecordTable.InlineHead label={t('categories')} />,
+    header: () => <RecordTable.InlineHead label={t('categories', 'Categories')} />,
     cell: ({ cell }) => {
       const categories = (cell.getValue() as any[]) || [];
       return (
@@ -49,7 +49,7 @@ export const productRuleColumns = (
   {
     id: 'excludeCategories',
     accessorKey: 'excludeCategories',
-    header: () => <RecordTable.InlineHead label={t('exclude-categories')} />,
+    header: () => <RecordTable.InlineHead label={t('exclude-categories', 'Exclude categories')} />,
     cell: ({ cell }) => {
       const excludeCategories = (cell.getValue() as any[]) || [];
       return (
@@ -67,7 +67,7 @@ export const productRuleColumns = (
   {
     id: 'products',
     accessorKey: 'products',
-    header: () => <RecordTable.InlineHead label={t('product')} />,
+    header: () => <RecordTable.InlineHead label={t('product', 'Product')} />,
     cell: ({ cell }) => {
       const products = (cell.getValue() as any[]) || [];
       return (
@@ -85,7 +85,7 @@ export const productRuleColumns = (
   {
     id: 'excludeProducts',
     accessorKey: 'excludeProducts',
-    header: () => <RecordTable.InlineHead label={t('exclude-products')} />,
+    header: () => <RecordTable.InlineHead label={t('exclude-products', 'Exclude products')} />,
     cell: ({ cell }) => {
       const excludeProducts = (cell.getValue() as any[]) || [];
       return (
@@ -103,7 +103,7 @@ export const productRuleColumns = (
   {
     id: 'tags',
     accessorKey: 'tags',
-    header: () => <RecordTable.InlineHead label={t('tags')} />,
+    header: () => <RecordTable.InlineHead label={t('tags', 'Tags')} />,
     cell: ({ cell }) => {
       const tags = (cell.getValue() as any[]) || [];
       return (
@@ -121,7 +121,7 @@ export const productRuleColumns = (
   {
     id: 'excludeTags',
     accessorKey: 'excludeTags',
-    header: () => <RecordTable.InlineHead label={t('exclude-tags')} />,
+    header: () => <RecordTable.InlineHead label={t('exclude-tags', 'Exclude tags')} />,
     cell: ({ cell }) => {
       const excludeTags = (cell.getValue() as any[]) || [];
       return (

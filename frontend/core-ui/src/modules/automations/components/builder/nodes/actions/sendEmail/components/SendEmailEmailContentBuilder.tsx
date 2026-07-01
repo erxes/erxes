@@ -347,9 +347,9 @@ const SendEmailEmailContentBuilderEditor = ({
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
-          <Button onClick={onSave}>{t('save')}</Button>
+          <Button onClick={onSave}>{t('save', 'Save')}</Button>
         </Sheet.Footer>
       </Sheet.View>
     </Sheet>

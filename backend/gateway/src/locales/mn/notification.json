@@ -12,7 +12,7 @@
   "filter-by-date": "Огноогоор шүүх",
   "filter-by-sender": "Илгээгчээр шүүх",
   "created-at": "Үүссэн огноо",
-  "no-notification-selected": "Мэдэгдэл сонгоогүй байна",
+  "no-notification-selected": "Мэдэгдэл сонгогдоогүй байна",
   "select-notification-details": "Дэлгэрэнгүй мэдээллийг харахын тулд мэдэгдэл сонгоно уу.",
   "unknown-notification-template": "Тодорхойгүй мэдэгдлийн загвар",
   "unknown-notification-template-desc": "\"unknown_template\" төрлийн мэдэгдэл танигдахгүй байна. Энэ нь загвар дутагдаж байгаа эсвэл мэдэгдлийн форматыг шинэчлэх шаардлагатайтай холбоотой байж болно.",
@@ -25,6 +25,6 @@
   "download-file": "Файл татах",
   "error-occurred-during-import": "Импортлох явцад алдаа гарлаа.",
   "error-occurred-during-export": "Экспортлох явцад алдаа гарлаа.",
-  "receive-notifications-from-plugin": "Энэ залгаасаас мэдэгдэл хүлээн авах",
+  "receive-notifications-from-plugin": "Энэ плагинаас мэдэгдэл хүлээн авах",
   "loading-more": "цааш ачааллаж байна..."
 }

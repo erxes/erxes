@@ -71,7 +71,7 @@ export const AutomationBuilderHeader = () => {
               onClick={handleSubmit(handleSave, handleError)}
             >
               <IconDeviceFloppy />
-              {loading ? <Spinner /> : t('save')}
+              {loading ? <Spinner /> : t('save', 'Save')}
             </Button>
           </Can>
         </PageHeader.End>

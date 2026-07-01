@@ -24,7 +24,7 @@ export const AutomationRemoveButtonCommandBar = ({
       removeAutomations(automationIds, {
         onError: (e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -34,9 +34,9 @@ export const AutomationRemoveButtonCommandBar = ({
             row.toggleSelected(false);
           });
           toast({
-            title: t('success'),
+            title: t('success', 'Success'),
             variant: 'success',
-            description: t('delete-automation-success'),
+            description: t('delete-automation-success', 'Automation deleted successfully'),
           });
         },
       });
@@ -50,7 +50,7 @@ export const AutomationRemoveButtonCommandBar = ({
       onClick={onRemove}
     >
       {loading ? <Spinner /> : <IconTrash />}
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };
