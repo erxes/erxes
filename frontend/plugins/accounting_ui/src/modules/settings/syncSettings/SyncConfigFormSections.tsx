@@ -15,7 +15,13 @@ import {
 import { useMemo } from 'react';
 import { UseFormReturn, useWatch, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { SelectBranches, SelectDepartments, SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
+import {
+  SelectBranches,
+  SelectDepartments,
+  SelectBoard,
+  SelectPipeline,
+  SelectStage,
+} from 'ui-modules';
 import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 import { SyncSettingSection } from './SyncSettingSection';
