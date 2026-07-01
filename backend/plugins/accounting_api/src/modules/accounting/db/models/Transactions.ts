@@ -546,9 +546,7 @@ export const loadTransactionClass = (
       }
 
       const editTrIds = editTrDocs.map((itd) => itd._id);
-      const deleteTrs: ITransaction[] = oldTrs.filter(
-        (otr) => !editTrIds.includes(otr._id),
-      );
+      const deleteTrs = oldTrs.filter((otr) => !editTrIds.includes(otr._id));
 
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -588,6 +586,7 @@ export const loadTransactionClass = (
         }
 
         for (const tr of deleteTrs) {
+          await commonRemove(subdomain, models, tr);
           await models.Transactions.deleteMany({
             $or: [{ _id: tr._id }, { originId: tr._id }],
           });

@@ -136,6 +136,10 @@ export const JOURNALS = {
   INV_SALE_RETURN: 'invSaleReturn',
   INV_SALE_RETURN_COST: 'invSaleReturnCost',
   INV_SALE_RETURN_OUT: 'invSaleReturnOut',
+  FXA_INCOME: 'fxaIncome',
+  FXA_OUT: 'fxaOut',
+  FXA_MOVE: 'fxaMove',
+  FXA_SALE: 'fxaSale',
   // INV_IN_RETURN: 'invInReturn',
   // INV_JUSTIFY: 'invJustify',
   // INV_CONVERT: 'invConvert',
@@ -158,6 +162,10 @@ export const JOURNALS = {
     'invSaleReturn',
     'invSaleReturnOut',
     'invSaleReturnCost',
+    'fxaIncome',
+    'fxaOut',
+    'fxaMove',
+    'fxaSale',
     'expense',
     'exchangeDiff',
   ],
@@ -188,6 +196,10 @@ export const JOURNALS = {
     'invMoveIn',
     'invSale',
     'invSaleReturn',
+    'fxaIncome',
+    'fxaOut',
+    'fxaMove',
+    'fxaSale',
     'tax',
   ],
   ALL_WITH_CURRENCIES: [
@@ -202,8 +214,12 @@ export const JOURNALS = {
     'bank',
     'receivable',
     'payable',
-    'tax'
-  ]
+    'tax',
+    'fxaIncome',
+    'fxaOut',
+    'fxaMove',
+    'fxaSale',
+  ],
 };
 
 export const TR_FOLLOW_TYPES = {

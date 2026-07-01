@@ -8,6 +8,16 @@ import { createOrUpdateTr, syncProductsInventory } from './utils';
 import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
+import { commonRemove } from './commonRemove';
+import {
+  syncFxaDisposalInstances,
+  syncFxaIncomeInstances,
+  syncFxaMoveInstances,
+} from './fixedAssets';
+import {
+  FXA_INSTANCE_STATUSES,
+  FXA_LOG_EVENT_TYPES,
+} from '@/fixedAssets/@types/constants';
 
 export const commonSave = async (
   subdomain: string,
@@ -64,10 +74,33 @@ function getJournalHandler(journal: string) {
     invMove: handleInvMove,
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
+    fxaIncome: handleFxaIncome,
+    fxaOut: handleFxaOut,
+    fxaMove: handleFxaMove,
+    fxaSale: handleFxaSale,
   };
 
   return handlers[journal];
 }
+
+const isNonEmptyString = (value?: string): value is string => !!value;
+
+const getRemovedFxaDetailIds = (
+  oldTr: ITransactionDocument,
+  doc: ITransaction,
+) => {
+  const newDetailIds = new Set(
+    (doc.details || []).map((detail) => detail._id).filter(isNonEmptyString),
+  );
+
+  return (oldTr.details || [])
+    .filter(
+      (detail) =>
+        detail.fixedAssetId && detail._id && !newDetailIds.has(detail._id),
+    )
+    .map((detail) => detail._id)
+    .filter(isNonEmptyString);
+};
 
 async function handleMain(
   _subdomain: string,
@@ -175,8 +208,9 @@ async function handleInvMove(
     { ...doc, side: TR_SIDES.CREDIT },
     oldTr,
   );
-  const { invMoveInTr, oldFollowInTr } =
-    await invMoveInTrsClass.doTrs(transaction);
+  const { invMoveInTr, oldFollowInTr } = await invMoveInTrsClass.doTrs(
+    transaction,
+  );
 
   await syncProductsInventory(subdomain, transaction, oldTr, -1);
   await syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1);
@@ -243,6 +277,119 @@ async function handleInvSaleReturn(
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await invSaleReturnOtherTrsClass.doTrs(transaction))),
+  ];
+
+  return { mainTr: transaction, otherTrs };
+}
+
+async function handleFxaIncome(
+  subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const taxTrsClass = new TaxTrs(models, userId, doc, 'dt', false);
+  await taxTrsClass.checkTaxValidation();
+
+  if (oldTr) {
+    const removedDetailIds = getRemovedFxaDetailIds(oldTr, doc);
+
+    if (removedDetailIds.length) {
+      await commonRemove(subdomain, models, oldTr, undefined, {
+        detailIds: removedDetailIds,
+        validateOnly: true,
+      });
+    }
+  }
+
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.DEBIT },
+    oldTr,
+  );
+
+  await syncFxaIncomeInstances(models, userId, transaction);
+
+  const otherTrs = [
+    ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
+  ];
+
+  return { mainTr: transaction, otherTrs };
+}
+
+async function handleFxaOut(
+  _subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
+
+  await syncFxaDisposalInstances(
+    models,
+    userId,
+    transaction,
+    FXA_LOG_EVENT_TYPES.DISPOSAL,
+    FXA_INSTANCE_STATUSES.DISPOSED,
+  );
+
+  return { mainTr: transaction, otherTrs: [] };
+}
+
+async function handleFxaMove(
+  _subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
+
+  await syncFxaMoveInstances(models, userId, transaction);
+
+  return { mainTr: transaction, otherTrs: [] };
+}
+
+async function handleFxaSale(
+  _subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const taxTrsClass = new TaxTrs(models, userId, doc, 'ct', false);
+  await taxTrsClass.checkTaxValidation();
+
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
+
+  await syncFxaDisposalInstances(
+    models,
+    userId,
+    transaction,
+    FXA_LOG_EVENT_TYPES.SALE,
+    FXA_INSTANCE_STATUSES.SOLD,
+  );
+
+  const otherTrs = [
+    ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
   ];
 
   return { mainTr: transaction, otherTrs };

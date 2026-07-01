@@ -2,6 +2,7 @@ import { Document } from 'mongoose';
 
 export interface IConfig {
   code: string;
+  subId?: string;
   value: any;
 }
 

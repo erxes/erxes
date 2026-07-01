@@ -23,7 +23,10 @@ export enum TrJournalEnum {
   INV_SALE_RETURN_OUT = 'invSaleReturnOut',
   INV_SALE_RETURN_COST = 'invSaleReturnCost',
 
-  FIXED_ASSET = 'fixedAsset',
+  FXA_INCOME = 'fxaIncome',
+  FXA_OUT = 'fxaOut',
+  FXA_MOVE = 'fxaMove',
+  FXA_SALE = 'fxaSale',
 }
 
 export const TR_JOURNAL_LABELS = {
@@ -49,10 +52,17 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE_RETURN_OUT]: 'Б.Буцаалт-зарлага',
   [TrJournalEnum.INV_SALE_RETURN_COST]: 'Б.Буцаалт-ББӨ',
 
-  [TrJournalEnum.FIXED_ASSET]: 'Үндсэн хөрөнгө',
+  [TrJournalEnum.FXA_INCOME]: 'Үндсэн хөрөнгийн орлого',
+  [TrJournalEnum.FXA_OUT]: 'Үндсэн хөрөнгийн зарлага',
+  [TrJournalEnum.FXA_MOVE]: 'Үндсэн хөрөнгийн хөдөлгөөн',
+  [TrJournalEnum.FXA_SALE]: 'Үндсэн хөрөнгийн борлуулалт',
 };
 
-export const TR_PERFECT_JOURNALS = [TrJournalEnum.INV_MOVE];
+export const TR_PERFECT_JOURNALS = [
+  TrJournalEnum.INV_MOVE,
+  TrJournalEnum.FXA_MOVE,
+];
+
 export const ORIGIN_TR_JOURNALS = [
   TrJournalEnum.MAIN,
   TrJournalEnum.TAX,
@@ -65,6 +75,10 @@ export const ORIGIN_TR_JOURNALS = [
   TrJournalEnum.INV_MOVE,
   TrJournalEnum.INV_SALE,
   TrJournalEnum.INV_SALE_RETURN,
+  TrJournalEnum.FXA_INCOME,
+  TrJournalEnum.FXA_OUT,
+  TrJournalEnum.FXA_MOVE,
+  TrJournalEnum.FXA_SALE,
 ];
 
 export const TR_SIDES = {

@@ -43,6 +43,8 @@ import {
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
 } from '@/inventories/graphql/resolvers/mutations';
+import MutationsFixedAssets from '~/modules/fixedAssets/graphql/resolvers/mutations/fixedAssets';
+import QueriesFixedAssets from '~/modules/fixedAssets/graphql/resolvers/queries/fixedAssets';
 
 const resolvers: any = {
   ...apolloCustomScalars,
@@ -72,6 +74,7 @@ const resolvers: any = {
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
+    ...MutationsFixedAssets,
   },
   Query: {
     ...QueriesAccount,
@@ -87,6 +90,7 @@ const resolvers: any = {
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,
     ...QueriesSafeRemainder,
+    ...QueriesFixedAssets,
   },
 };
 

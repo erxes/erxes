@@ -10,6 +10,10 @@ import {
 } from './modules/accounting/@types/adjustInventory';
 import { IConfigDocument } from './modules/accounting/@types/config';
 import { ICtaxRowDocument } from './modules/accounting/@types/ctaxRow';
+import {
+  IAdjustFixedAssetDocument,
+  IAdjustFxaDetailDocument,
+} from './modules/accounting/@types/adjustFixedAsset';
 import { IPermissionDocument } from './modules/accounting/@types/permission';
 import {
   ITransactionCounterDocument,
@@ -39,6 +43,12 @@ import {
   loadCtaxRowClass,
 } from './modules/accounting/db/models/CtaxRows';
 import {
+  IAdjustFixedAssetModel,
+  IAdjustFxaDetailModel,
+  loadAdjustFixedAssetClass,
+  loadAdjustFxaDetailClass,
+} from './modules/accounting/db/models/FixedAssets';
+import {
   IPermissionModel,
   loadPermissionClass,
 } from './modules/accounting/db/models/Permissions';
@@ -55,6 +65,26 @@ import {
   IReserveRemModel,
   loadReserveRemClass,
 } from './modules/inventories/db/models/ReserveRems';
+import { IFixedAssetCategoryDocument } from './modules/fixedAssets/@types/fixedAssetCategory';
+import { IFixedAssetDocument } from './modules/fixedAssets/@types/fixedAsset';
+import { IFxaInstanceDocument } from './modules/fixedAssets/@types/fxaInstance';
+import { IFxaInstanceLogDocument } from './modules/fixedAssets/@types/fxaInstanceLog';
+import {
+  IFixedAssetCategoryModel,
+  loadFixedAssetCategoryClass,
+} from './modules/fixedAssets/db/models/FixedAssetCategories';
+import {
+  IFixedAssetModel,
+  loadFixedAssetClass,
+} from './modules/fixedAssets/db/models/FixedAssets';
+import {
+  IFxaInstanceModel,
+  loadFxaInstanceClass,
+} from './modules/fixedAssets/db/models/FxaInstances';
+import {
+  IFxaInstanceLogModel,
+  loadFxaInstanceLogClass,
+} from './modules/fixedAssets/db/models/FxaInstanceLogs';
 import {
   ISafeRemainderItemModel,
   loadSafeRemainderItemClass,
@@ -77,6 +107,12 @@ export interface IModels {
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
+  FixedAssetCategories: IFixedAssetCategoryModel;
+  FixedAssets: IFixedAssetModel;
+  FxaInstances: IFxaInstanceModel;
+  FxaInstanceLogs: IFxaInstanceLogModel;
+  AdjustFixedAssets: IAdjustFixedAssetModel;
+  AdjustFxaDetails: IAdjustFxaDetailModel;
   TransactionCounters: mongoose.Model<ITransactionCounterDocument>;
 
   ReserveRems: IReserveRemModel;
@@ -137,6 +173,36 @@ export const loadClasses = (
     IAdjustInvDetailDocument,
     IAdjustInvDetailsModel
   >('adjust_inv_details', loadAdjustInvDetailsClass(models, subdomain));
+
+  models.FixedAssetCategories = db.model<
+    IFixedAssetCategoryDocument,
+    IFixedAssetCategoryModel
+  >('fixed_asset_categories', loadFixedAssetCategoryClass());
+
+  models.FixedAssets = db.model<IFixedAssetDocument, IFixedAssetModel>(
+    'fixed_assets',
+    loadFixedAssetClass(),
+  );
+
+  models.FxaInstances = db.model<IFxaInstanceDocument, IFxaInstanceModel>(
+    'fxa_instances',
+    loadFxaInstanceClass(),
+  );
+
+  models.FxaInstanceLogs = db.model<
+    IFxaInstanceLogDocument,
+    IFxaInstanceLogModel
+  >('fxa_instance_logs', loadFxaInstanceLogClass());
+
+  models.AdjustFixedAssets = db.model<
+    IAdjustFixedAssetDocument,
+    IAdjustFixedAssetModel
+  >('adjust_fixed_assets', loadAdjustFixedAssetClass());
+
+  models.AdjustFxaDetails = db.model<
+    IAdjustFxaDetailDocument,
+    IAdjustFxaDetailModel
+  >('adjust_fxa_details', loadAdjustFxaDetailClass());
 
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'accounting_permissions',
