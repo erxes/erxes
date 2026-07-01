@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalRemove = ({
   clientPortalIds,
@@ -11,6 +12,7 @@ export const ClientPortalRemove = ({
   clientPortalIds: string[];
   rows: Row<any>[];
 }) => {
+  const { t } = useTranslation('client-portal');
   const { confirm } = useConfirm();
   const { removeClientPortal } = useClientPortalRemove();
 
@@ -29,13 +31,13 @@ export const ClientPortalRemove = ({
                 row.toggleSelected(false);
               });
               toast({
-                title: 'Success',
+                title: t('success', 'Success'),
                 variant: 'success',
-                description: 'Client portal deleted successfully',
+                description: t('client-portal-deleted-successfully', 'Client portal deleted successfully'),
               });
             } catch (e: any) {
               toast({
-                title: 'Error',
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -44,7 +46,7 @@ export const ClientPortalRemove = ({
         }
       >
         <IconTrash />
-        Delete
+        {t('delete', 'Delete')}
       </Button>
     </Can>
   );

@@ -41,7 +41,7 @@ export const MessageProSettings = () => {
           id={MESSAGE_PRO_API_KEY}
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder="API key"
+          placeholder={t('api-key-placeholder', 'API key')}
         />
       </div>
       <div className="flex flex-col space-y-1.5">
@@ -52,7 +52,7 @@ export const MessageProSettings = () => {
           id={MESSAGE_PRO_PHONE_NUMBER}
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
-          placeholder="Phone number"
+          placeholder={t('phone-number-placeholder', 'Phone number')}
         />
       </div>
       <Button disabled={isLoading} type="submit" className="w-1/4 ml-auto">

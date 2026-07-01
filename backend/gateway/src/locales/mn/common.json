@@ -91,7 +91,7 @@
     "resolver-result-description": "API-аас буцаасан шийдвэрлэсэн хариу.",
     "created-at": "Үүсгэсэн огноо"
   },
-  "records-found": "Бичлэг олдлоо",
+  "records-found": "{{count}} үр дүн олдлоо",
   "organization": {
     "settings": "Тохиргоо",
     "change-theme": "Дизайн өөрчлөх",
@@ -115,6 +115,11 @@
     "mail-config": "И-мэйл тохиргоо",
     "broadcast-config": "Броадкаст тохиргоо",
     "client-portal": "Харилцагчийн портал",
+    "app-tokens": "Апп токенууд",
+    "oauth-clients": "OAuth клиентүүд",
+    "system-logs": "Системийн лог",
+    "import-export": "Импорт & Экспорт",
+    "message-pro": "Мессэж Про",
     "products": "Бүтээгдэхүүнүүд",
     "properties": "Талбарууд",
     "automations": "Автоматжуулалтууд",

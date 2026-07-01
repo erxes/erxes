@@ -4,6 +4,7 @@ import { Row } from '@tanstack/react-table';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { AutomationRemoveButtonCommandBar } from '@/automations/components/list/AutomationRemoveButtonCommandBar';
 import { Can, TagsSelect } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const intersection = (arrays: string[][]): string[] => {
   if (arrays.length === 0) return [];
@@ -14,6 +15,7 @@ const intersection = (arrays: string[][]): string[] => {
 };
 
 export const AutomationRecordTableCommandBar = () => {
+  const { t } = useTranslation('automations');
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
 
@@ -56,7 +58,7 @@ export const AutomationRecordTableCommandBar = () => {
                 },
                 onError: (e: ApolloError) => {
                   toast({
-                    title: 'Error',
+                    title: t('error'),
                     description: e.message,
                     variant: 'destructive',
                   });

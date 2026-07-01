@@ -3,8 +3,10 @@ import { TAiAgentForm } from '@/automations/components/settings/components/agent
 import { Form, Tabs, Textarea } from 'erxes-ui';
 import { IconBooks, IconMessageCog } from '@tabler/icons-react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const AiAgentContextForm = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentForm>();
 
   return (
@@ -15,14 +17,14 @@ export const AiAgentContextForm = () => {
           className="gap-2 rounded-md text-muted-foreground after:hidden data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:hover:bg-background"
         >
           <IconMessageCog className="size-4" />
-          Instructions
+          {t('instructions', 'Instructions')}
         </Tabs.Trigger>
         <Tabs.Trigger
           value="knowledge"
           className="gap-2 rounded-md text-muted-foreground after:hidden data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:hover:bg-background"
         >
           <IconBooks className="size-4" />
-          Knowledge
+          {t('knowledge', 'Knowledge')}
         </Tabs.Trigger>
       </Tabs.List>
 
@@ -32,7 +34,7 @@ export const AiAgentContextForm = () => {
           name="context.systemPrompt"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>System Prompt</Form.Label>
+              <Form.Label>{t('system-prompt', 'System Prompt')}</Form.Label>
               <Form.Control>
                 <Textarea
                   rows={10}

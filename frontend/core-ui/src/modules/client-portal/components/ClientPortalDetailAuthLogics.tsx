@@ -4,12 +4,14 @@ import { ClientPortalDetail2FA } from './ClientPortalDetail2FA';
 import { ClientPortalDetailResetPassword } from './ClientPortalDetailPasswordVerification';
 import { ClientPortalDetailManual } from './ClientPortalDetailManual';
 import { IClientPortal } from '../types/clientPortal';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalDetailAuthLogics = ({
   clientPortal = {},
 }: {
   clientPortal?: IClientPortal;
 }) => {
+  const { t } = useTranslation('client-portal');
   const [authLogic, setAuthLogic] = useState<string>('two-factor');
   return (
     <InfoCard title="Account Security & Verification">
@@ -21,14 +23,14 @@ export const ClientPortalDetailAuthLogics = ({
           variant="outline"
         >
           <ToggleGroup.Item value="two-factor" className="flex-auto">
-            Two-factor authentication
+            {t('two-factor-authentication', 'Two-factor authentication')}
           </ToggleGroup.Item>
 
           <ToggleGroup.Item value="reset" className="flex-auto">
-            Reset password email
+            {t('reset-password-email', 'Reset password email')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="manual" className="flex-auto">
-            Manual verification
+            {t('manual-verification', 'Manual verification')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <ScrollArea.Bar orientation="horizontal" />

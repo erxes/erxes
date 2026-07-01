@@ -1,7 +1,9 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationSettingsSidebar = () => {
+  const { t } = useTranslation('automations');
   const activePath = useLocation().pathname;
 
   return (
@@ -14,7 +16,7 @@ export const AutomationSettingsSidebar = () => {
                 isActive={activePath.includes('/settings/automations/agents')}
                 asChild
               >
-                <Link to={`/settings/automations/agents`}>Agents</Link>
+                <Link to={`/settings/automations/agents`}>{t('agents', 'Agents')}</Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
             <Sidebar.MenuItem>
@@ -25,7 +27,7 @@ export const AutomationSettingsSidebar = () => {
                 asChild
               >
                 <Link to={`/settings/automations/email-templates`}>
-                  Email Templates
+                  {t('email-templates', 'Email Templates')}
                 </Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
@@ -34,7 +36,7 @@ export const AutomationSettingsSidebar = () => {
                 isActive={activePath.includes('/settings/automations/bots')}
                 asChild
               >
-                <Link to={`/settings/automations/bots`}>Bots</Link>
+                <Link to={`/settings/automations/bots`}>{t('bots', 'Bots')}</Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           </Sidebar.Menu>

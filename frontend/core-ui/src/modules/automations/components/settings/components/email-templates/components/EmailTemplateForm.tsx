@@ -7,6 +7,7 @@ import { REACT_APP_API_URL, readImage } from 'erxes-ui/utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { AutomationSettingsDetailHeader } from '@/automations/components/settings/components/AutomationSettingsDetailHeader';
@@ -51,6 +52,7 @@ const uploadEmailTemplateImage = async (file: File) => {
 };
 
 export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
+  const { t } = useTranslation('automations');
   const navigate = useNavigate();
   const isEditing = !!templateId;
 
@@ -160,21 +162,21 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
       <AutomationSettingsDetailHeader
-        title={isEditing ? 'Edit Email Template' : 'Create Email Template'}
+        title={isEditing ? t('edit-email-template', 'Edit Email Template') : t('create-email-template', 'Create Email Template')}
         description={
           isEditing
-            ? 'Update your email template'
-            : 'Create a new email template for automation'
+            ? t('update-your-email-template', 'Update your email template')
+            : t('create-new-email-template', 'Create a new email template for automation')
         }
         backTo="/settings/automations/email-templates"
         actions={
           <Button type="submit" form="email-template-form" disabled={isLoading}>
             <IconDeviceFloppy className="size-4 mr-2" />
             {isLoading
-              ? 'Saving...'
+              ? t('saving', 'Saving...')
               : isEditing
-              ? 'Update Template'
-              : 'Create Template'}
+              ? t('update-template', 'Update Template')
+              : t('create-template', 'Create Template')}
           </Button>
         }
       />

@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { IconFlag } from '@tabler/icons-react';
 import { STRUCTURE_STATUS_OPTIONS } from '../constants/structure-status';
+import { useTranslation } from 'react-i18next';
 
 const StructureStatusList = ({
   value,
@@ -37,13 +38,14 @@ const StructureStatusList = ({
 };
 
 const SelectStructureStatusValue = ({ value }: { value?: string }) => {
+  const { t } = useTranslation('settings');
   const selected = STRUCTURE_STATUS_OPTIONS.find(
     (status) => status.value === value,
   );
 
   if (!selected) {
     return (
-      <span className="text-accent-foreground/80">Select status</span>
+      <span className="text-accent-foreground/80">{t('select-status', 'Select status')}</span>
     );
   }
 
@@ -51,10 +53,11 @@ const SelectStructureStatusValue = ({ value }: { value?: string }) => {
 };
 
 export const SelectStructureStatusFilterItem = () => {
+  const { t } = useTranslation('settings');
   return (
     <Filter.Item value="status">
       <IconFlag />
-      Status
+      {t('status', 'Status')}
     </Filter.Item>
   );
 };
@@ -77,6 +80,7 @@ export const SelectStructureStatusFilterView = () => {
 };
 
 export const SelectStructureStatusFilterBar = () => {
+  const { t } = useTranslation('settings');
   const [status, setStatus] = useQueryState<string>('status');
   const [open, setOpen] = useState(false);
 
@@ -88,7 +92,7 @@ export const SelectStructureStatusFilterBar = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconFlag />
-        Status
+        {t('status', 'Status')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>

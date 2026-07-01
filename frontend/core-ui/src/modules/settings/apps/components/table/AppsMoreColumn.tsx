@@ -1,6 +1,7 @@
 import { Cell } from '@tanstack/react-table';
 import { RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { Popover, Command, Combobox } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash, IconLock } from '@tabler/icons-react';
 import { IApp } from '../../types';
 import { useAppsRemove } from '../../hooks/useAppsRemove';
@@ -11,6 +12,7 @@ import { Can } from 'ui-modules';
 
 export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
   const { _id, name, status } = cell.row.original;
+  const { t } = useTranslation('settings');
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { appsRemove } = useAppsRemove();
@@ -25,7 +27,7 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
         await appsRemove({ variables: { _id } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -39,10 +41,10 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
     }).then(async () => {
       try {
         await appsRevoke({ variables: { _id } });
-        toast({ variant: 'success', title: 'App revoked successfully' });
+        toast({ variant: 'success', title: t('apps.revoked-successfully', 'App revoked successfully') });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -64,15 +66,15 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
               value="edit"
               onSelect={() => setEditingApp(cell.row.original)}
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             {status === 'active' && (
               <Command.Item value="revoke" onSelect={handleRevoke}>
-                <IconLock /> Revoke
+                <IconLock /> {t('revoke', 'Revoke')}
               </Command.Item>
             )}
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

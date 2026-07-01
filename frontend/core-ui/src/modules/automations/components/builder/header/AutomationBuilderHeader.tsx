@@ -81,7 +81,7 @@ export const AutomationBuilderHeader = () => {
           <AutomationBuilderNameInput />
           {isDirty && (
             <Badge variant="warning" className="shrink-0">
-              <IconAlertTriangle className="size-3.5" /> Unsaved
+              <IconAlertTriangle className="size-3.5" /> {t('unsaved', 'Unsaved')}
             </Badge>
           )}
           <AutomationHeaderTabs toggleTabs={toggleTabs} />

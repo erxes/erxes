@@ -1,4 +1,5 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface JSONRawEditorProps {
   isOpen: boolean;
@@ -15,17 +16,18 @@ export function JSONRawEditor({
   onApply,
   onChange,
 }: JSONRawEditorProps) {
+  const { t } = useTranslation('automations');
   return (
     <div className="mt-2 border rounded-md p-2 bg-muted/30">
       <div className="flex items-center justify-between mb-2">
         <div className="text-[10px] text-muted-foreground">JSON summary</div>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={onToggle}>
-            {isOpen ? 'Hide raw' : 'Edit raw'}
+            {isOpen ? t('hide-raw', 'Hide raw') : t('edit-raw', 'Edit raw')}
           </Button>
           {isOpen && (
             <Button size="sm" onClick={onApply}>
-              Apply
+              {t('apply', 'Apply')}
             </Button>
           )}
         </div>

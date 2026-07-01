@@ -1,6 +1,8 @@
 import { IconRobot } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBotsEmptyState = () => {
+  const { t } = useTranslation('automations');
   return (
     <div className="flex flex-col items-center justify-center py-10 text-center mx-auto max-w-3xl ">
       <div className="flex flex-col items-center gap-4 max-w-sm">
@@ -9,7 +11,7 @@ export const AutomationBotsEmptyState = () => {
         </div>
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">
-            No automation bots available
+            {t('no-automation-bots-available', 'No automation bots available')}
           </h3>
           <p className="text-muted-foreground text-sm">
             There are no bot integrations enabled for this workspace yet. Once a

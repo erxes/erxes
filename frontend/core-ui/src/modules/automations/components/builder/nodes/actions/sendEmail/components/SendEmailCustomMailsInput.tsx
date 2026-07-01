@@ -1,12 +1,14 @@
 import { useSendEmailCustomMailField } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailSidebarForm';
 import { IconX } from '@tabler/icons-react';
 import { Badge, Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const SendEmailCustomMailsInput = ({
   currentActionIndex,
 }: {
   currentActionIndex: number;
 }) => {
+  const { t } = useTranslation('automations');
   const { onChange, removeMail, control } =
     useSendEmailCustomMailField(currentActionIndex);
 
@@ -29,7 +31,7 @@ export const SendEmailCustomMailsInput = ({
           </div>
           <Input
             onKeyPress={(e) => onChange(e, field.onChange)}
-            placeholder="Enter email address"
+            placeholder={t('enter-email-address', 'Enter email address')}
             className="w-full"
           />
         </Form.Item>

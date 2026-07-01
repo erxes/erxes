@@ -6,6 +6,7 @@ import { Form } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { TAutomationAction } from 'ui-modules';
 import { AutomationSegmentForm } from '@/automations/components/common/AutomationSegmentForm';
+import { useTranslation } from 'react-i18next';
 
 export function WaitEventConfigSegmentForm({
   targetType,
@@ -18,6 +19,7 @@ export function WaitEventConfigSegmentForm({
   selectedNodeId?: string;
   configFieldNamePrefix: TAutomationActionConfigFieldPrefix;
 }) {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAutomationBuilderForm>();
 
   const { contentType } = useWaitEventConfigContent(
@@ -28,9 +30,9 @@ export function WaitEventConfigSegmentForm({
   if (!contentType) {
     return (
       <Form.Item className="flex-1 px-4">
-        <Form.Label>Conditions</Form.Label>
+        <Form.Label>{t('conditions', 'Conditions')}</Form.Label>
         <div className="text-muted-foreground text-sm">
-          Select a target to configure conditions
+          {t('select-target-to-configure-conditions', 'Select a target to configure conditions')}
         </div>
       </Form.Item>
     );
@@ -45,7 +47,7 @@ export function WaitEventConfigSegmentForm({
           <Form.Item className="flex-1 min-h-0 flex flex-col px-4">
             <Form.Label>Conditions {`(${field.value})`}</Form.Label>
             <Form.Description>
-              Define conditions that must be met before continuing.
+              {t('define-conditions-description', 'Define conditions that must be met before continuing.')}
             </Form.Description>
             <Form.Message />
             <div className="flex-1 min-h-0 w-[650px]">

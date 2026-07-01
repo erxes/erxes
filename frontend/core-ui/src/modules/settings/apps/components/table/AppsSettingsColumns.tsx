@@ -10,20 +10,22 @@ import {
 } from 'erxes-ui';
 import { IconCopy, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TokenCell = ({ token }: { token: string }) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation('settings');
   const masked = token.slice(0, 6) + '••••••••••••••••••••';
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(token);
       setCopied(true);
-      toast({ variant: 'success', title: 'Token copied to clipboard' });
+      toast({ variant: 'success', title: t('apps.token-copied', 'Token copied to clipboard') });
       setTimeout(() => setCopied(false), 1000);
     } catch {
-      toast({ variant: 'destructive', title: 'Failed to copy token' });
+      toast({ variant: 'destructive', title: t('apps.token-copy-failed', 'Failed to copy token') });
     }
   };
 

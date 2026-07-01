@@ -180,27 +180,27 @@ export const SETTINGS_PATH_DATA = (
   ],
   developer: [
     {
-      name: 'Client portal',
+      name: t('client-portal', 'Client Portal'),
       icon: IconBuilding,
       path: SettingsWorkspacePath.ClientPortals,
     },
     {
-      name: 'App tokens',
+      name: t('app-tokens', 'App tokens'),
       icon: IconBuilding,
       path: SettingsWorkspacePath.AppTokens,
     },
     {
-      name: 'OAuth clients',
+      name: t('oauth-clients', 'OAuth clients'),
       icon: IconBuilding,
       path: SettingsWorkspacePath.OAuthClients,
     },
     {
-      name: 'System Logs',
+      name: t('system-logs', 'System Logs'),
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
     },
     {
-      name: 'Import & Export',
+      name: t('import-export', 'Import & Export'),
       icon: IconFileImport,
       path: SettingsWorkspacePath.ImportExport,
     },
@@ -221,12 +221,12 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
   if (version) {
     nav.push(
       {
-        name: 'File upload',
+        name: t?.('file-upload', 'File upload') ?? 'File upload',
         icon: IconFile,
         path: SettingsWorkspacePath.FileUpload,
       },
       {
-        name: 'Mail config',
+        name: t?.('mail-config', 'Mail config') ?? 'Mail config',
         icon: IconMail,
         path: SettingsWorkspacePath.MailConfig,
       },

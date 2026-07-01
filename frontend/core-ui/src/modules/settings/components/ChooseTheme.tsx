@@ -2,29 +2,29 @@ import { IconCheck, IconMinus } from '@tabler/icons-react';
 import { RadioGroup, ThemeOption, themeState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 
-const items = [
-  {
-    id: 'radio-18-r1',
-    value: 'light',
-    label: 'Light',
-    image: '/assets/ui-light.webp',
-  },
-  {
-    id: 'radio-18-r2',
-    value: 'dark',
-    label: 'Dark',
-    image: '/assets/ui-dark.webp',
-  },
-  {
-    id: 'radio-18-r3',
-    value: 'system',
-    label: 'System',
-    image: '/assets/ui-system.webp',
-  },
-];
-
 export function ChooseTheme() {
   const [theme, setTheme] = useAtom(themeState);
+
+  const items = [
+    {
+      id: 'radio-18-r1',
+      value: 'light',
+      label: 'Light',
+      image: '/assets/ui-light.webp',
+    },
+    {
+      id: 'radio-18-r2',
+      value: 'dark',
+      label: 'Dark',
+      image: '/assets/ui-dark.webp',
+    },
+    {
+      id: 'radio-18-r3',
+      value: 'system',
+      label: 'System',
+      image: '/assets/ui-system.webp',
+    },
+  ];
 
   return (
     <fieldset className="space-y-4">

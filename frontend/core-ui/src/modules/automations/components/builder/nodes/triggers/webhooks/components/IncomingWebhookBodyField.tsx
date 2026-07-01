@@ -5,12 +5,14 @@ import { Form } from 'erxes-ui';
 import { ControllerRenderProps } from 'react-hook-form';
 import { TIncomingWebhookForm } from '@/automations/components/builder/nodes/triggers/webhooks/states/automationIncomingWebhookFormDefinition';
 import { IconCodeDots } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const IncomingWebhookBodyField = ({
   field,
 }: {
   field: ControllerRenderProps<TIncomingWebhookForm, 'schema'>;
 }) => {
+  const { t } = useTranslation('automations');
   const previewJson = useMemo(
     () => JSON.stringify(generateSchemaPreview(field.value || []), null, 2),
     [field.value],
@@ -19,7 +21,7 @@ export const IncomingWebhookBodyField = ({
   return (
     <Form.Item>
       <div className="flex items-center justify-between">
-        <Form.Label>Payload Schema</Form.Label>
+        <Form.Label>{t('payload-schema', 'Payload Schema')}</Form.Label>
         <IncomingWebhookPayloadSchemaSheet
           value={field.value}
           onChange={field.onChange}
@@ -34,7 +36,7 @@ export const IncomingWebhookBodyField = ({
           <IconCodeDots className="size-5 text-muted-foreground" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">
-              No payload schema defined
+              {t('no-payload-schema-defined', 'No payload schema defined')}
             </p>
             <p className="text-xs leading-5 text-muted-foreground">
               Add fields to preview the JSON payload this webhook expects.

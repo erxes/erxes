@@ -9,8 +9,10 @@ import {
 } from 'erxes-ui';
 import { useAppsRemove } from '../hooks/useAppsRemove';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AppsCommandBar = () => {
+  const { t } = useTranslation('settings');
   const { table } = RecordTable.useRecordTable();
   const { appsRemove } = useAppsRemove();
   const { confirm } = useConfirm();
@@ -31,7 +33,7 @@ export const AppsCommandBar = () => {
               variables: { _id },
               onError: (error) => {
                 toast({
-                  title: 'Error',
+                  title: t('error', 'Error'),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -56,7 +58,7 @@ export const AppsCommandBar = () => {
             <Separator.Inline />
             <Button variant="destructive" onClick={onRemove}>
               <IconTrash />
-              Delete
+              {t('delete', 'Delete')}
             </Button>
           </>
         </Can>

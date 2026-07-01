@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CLIENTPORTAL_TEST_SCHEMA } from '../constants/clientPortalEditSchema';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { useTranslation } from 'react-i18next';
 
 type ClientPortalTestFormValues = z.infer<typeof CLIENTPORTAL_TEST_SCHEMA>;
 
@@ -20,6 +21,7 @@ export const ClientPortalDetailTest = ({
 }: {
   clientPortal?: IClientPortal;
 }) => {
+  const { t } = useTranslation('client-portal');
   const form = useForm<ClientPortalTestFormValues>({
     resolver: zodResolver(CLIENTPORTAL_TEST_SCHEMA),
     defaultValues: {
@@ -64,7 +66,7 @@ export const ClientPortalDetailTest = ({
               name="testUserEnabled"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Enable test user</Form.Label>
+                  <Form.Label>{t('enable-test-user', 'Enable test user')}</Form.Label>
                   <Form.Control>
                     <input
                       type="checkbox"
@@ -81,7 +83,7 @@ export const ClientPortalDetailTest = ({
               name="testUserEmail"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label>{t('email', 'Email')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -94,7 +96,7 @@ export const ClientPortalDetailTest = ({
               name="testUserPhone"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Phone</Form.Label>
+                  <Form.Label>{t('phone', 'Phone')}</Form.Label>
                   <Form.Control>
                     <Input
                       value={
@@ -117,7 +119,7 @@ export const ClientPortalDetailTest = ({
               name="testUserPassword"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Password</Form.Label>
+                  <Form.Label>{t('password', 'Password')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -130,7 +132,7 @@ export const ClientPortalDetailTest = ({
               name="testUserOTP"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>OTP</Form.Label>
+                  <Form.Label>{t('otp', 'OTP')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -144,7 +146,7 @@ export const ClientPortalDetailTest = ({
               disabled={form.formState.isSubmitting || !form.formState.isDirty}
             >
               {loading && <Spinner containerClassName="w-auto flex-none" />}
-              Save
+              {t('save', 'Save')}
             </Button>
           </form>
         </Form>

@@ -16,11 +16,13 @@ import {
   toast,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 export const AutomationRecordTableStatusInlineCell = ({
   cell,
 }: {
   cell: Cell<TAutomationRecordTableColumnDefData, any>;
 }) => {
+  const { t } = useTranslation('automations');
   const [open, setOpen] = useState(false);
   const status =
     cell.getValue() as TAutomationRecordTableColumnDefData['status'];
@@ -34,14 +36,14 @@ export const AutomationRecordTableStatusInlineCell = ({
       onCompleted: () => {
         setOpen(false);
         toast({
-          title: 'Success',
-          description: 'Automation status updated successfully',
+          title: t('success'),
+          description: t('automation-status-updated', 'Automation status updated successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
