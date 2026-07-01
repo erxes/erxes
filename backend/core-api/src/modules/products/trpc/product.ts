@@ -91,7 +91,12 @@ export const productsTrpcRouter = t.router({
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;
-        const { models } = ctx;
+        const { models, subdomain } = ctx;
+
+        console.log(
+          `[${subdomain}][trpc:updateProducts] called`,
+          JSON.stringify({ _id, doc }),
+        );
 
         return models.Products.updateProduct(_id, doc);
       }),

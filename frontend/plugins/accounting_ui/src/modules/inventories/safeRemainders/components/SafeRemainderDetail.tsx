@@ -7,17 +7,19 @@ import {
 import dayjs from 'dayjs';
 import {
   Button,
-  cn,
   Dialog,
   Label,
+  PageSubHeader,
   RecordTable,
   Spinner,
   Tabs,
+  ToggleGroup,
   useQueryState,
   RecordTableHotkeyProvider,
   useSetHotkeyScope,
 } from 'erxes-ui';
 import { AccountingDialog } from '@/layout/components/Dialog';
+import { AccountingHeader } from '@/layout/components/Header';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
@@ -150,45 +152,63 @@ export const SafeRemainderDetail = () => {
 
   return (
     <>
-      <div className="m-3 mb-0">
-        <h3 className="text-lg font-bold">{t('inventory-census-detail')}</h3>
-        <div className="flex items-center col-span-2 xl:col-span-3 gap-6">
-          <div>
-            {safeRemainder && <StatusBar safeRemainder={safeRemainder} />}
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-accent-foreground">{t('status')}:</span>
-            <span className="text-primary font-bold">
-              {safeRemainder?.status}
-            </span>
-          </div>
-          {renderEvents()}
+      <AccountingHeader
+        returnLink="/accounting/inventories/safe-remainders"
+        returnText="Safe Remainders"
+        skipSettings={true}
+        leftChildren={
+          <span className="font-semibold">{t('inventory-census-detail')}</span>
+        }
+      >
+        <div className="flex items-center gap-2 text-sm mr-1">
+          <span className="text-accent-foreground">{t('status')}:</span>
+          <span className="text-primary font-bold capitalize">
+            {safeRemainder?.status}
+          </span>
         </div>
-      </div>
-      <div className="">
-        <SafeRemainderDetailFilter />
-      </div>
+        {renderEvents()}
+      </AccountingHeader>
+
+      {safeRemainder && (
+        <div className="flex-none border-b px-3 py-2 flex flex-wrap items-center gap-x-6 gap-y-2">
+          <StatusBar safeRemainder={safeRemainder} />
+        </div>
+      )}
+
+      <PageSubHeader className="items-center">
+        <SafeRemainderDetailFilter
+          afterBar={
+            <span className="text-sm text-muted-foreground">
+              {safeRemainderItemsCount ?? 0}{' '}
+              {t('records-found', 'records found')}
+            </span>
+          }
+        />
+      </PageSubHeader>
+
       <Tabs
         className="col-span-2 flex flex-1 flex-col min-h-0"
         value={activeTab}
         onValueChange={setActiveTab}
       >
-        <div className="flex items-center gap-3">
-          <Tabs.List className="w-full justify-start flex-auto">
+        <div className="flex items-center gap-3 px-3 pt-3">
+          <ToggleGroup
+            type="single"
+            value={activeTab}
+            onValueChange={(value) => value && setActiveTab(value)}
+            variant="outline"
+            className="h-8"
+          >
             {Object.values(CENSUS_TABS).map((field) => (
-              <Tabs.Trigger
+              <ToggleGroup.Item
                 key={field.value}
                 value={field.value}
-                className={cn(
-                  field.value === activeTab && 'font-bold',
-                  'capitalize py-1 gap-2 pr-1 h-8',
-                )}
-                asChild
+                className="capitalize"
               >
-                <div>{field.label}</div>
-              </Tabs.Trigger>
+                {field.label}
+              </ToggleGroup.Item>
             ))}
-          </Tabs.List>
+          </ToggleGroup>
         </div>
 
         <Tabs.Content
@@ -362,40 +382,52 @@ export const SafeRemainderDetail = () => {
 
 const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
   const { t } = useTranslation('accounting');
+
+  const joinLabel = (code?: string, name?: string) =>
+    [code, name].filter(Boolean).join(' - ');
+
+  const items: { label: string; value: string }[] = [
+    {
+      label: t('date'),
+      value: dayjs(safeRemainder.date).format('YYYY-MM-DD HH:mm:ss'),
+    },
+    {
+      label: t('branch'),
+      value: joinLabel(safeRemainder.branch?.code, safeRemainder.branch?.title),
+    },
+    {
+      label: t('department'),
+      value: joinLabel(
+        safeRemainder.department?.code,
+        safeRemainder.department?.title,
+      ),
+    },
+    ...(safeRemainder.productCategoryId
+      ? [
+          {
+            label: t('product-category'),
+            value: joinLabel(
+              safeRemainder.productCategory?.code,
+              safeRemainder.productCategory?.name,
+            ),
+          },
+        ]
+      : []),
+    { label: t('description'), value: safeRemainder.description || '' },
+  ];
+
   return (
-    <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
-      <div className="flex items-center gap-2 text-sm">
-        <Label>{t('date')}:</Label>
-        <span>{dayjs(safeRemainder.date).format('YYYY-MM-DD HH:mm:ss')}</span>
-        <span className="text-accent-foreground">{'|'}</span>
-      </div>
-      <div className="flex items-center gap-2 text-sm">
-        <Label>{t('branch')}:</Label>
-        <span>{`${safeRemainder.branch?.code ?? ''} - ${
-          safeRemainder.branch?.title ?? ''
-        }`}</span>
-        <span className="text-accent-foreground">{'|'}</span>
-      </div>
-      <div className="flex items-center gap-2 text-sm">
-        <Label>{t('department')}:</Label>
-        <span>{`${safeRemainder.department?.code ?? ''} - ${
-          safeRemainder.department?.title ?? ''
-        }`}</span>
-        <span className="text-accent-foreground">{'|'}</span>
-      </div>
-      {safeRemainder.productCategoryId && (
-        <div className="flex items-center gap-2 text-sm">
-          <Label>{t('product-category')}:</Label>
-          <span>{`${safeRemainder.productCategory?.code ?? ''} - ${
-            safeRemainder.productCategory?.name ?? ''
-          }`}</span>
-          <span className="text-accent-foreground">{'|'}</span>
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+      {items.map((item) => (
+        <div key={item.label} className="flex items-baseline gap-1.5">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            {item.label}
+          </span>
+          <span className="text-sm font-medium text-foreground">
+            {item.value || '-'}
+          </span>
         </div>
-      )}
-      <div className="flex items-center gap-2 text-sm">
-        <Label>{t('description')}:</Label>
-        <span>{safeRemainder.description}</span>
-      </div>
+      ))}
     </div>
   );
 };
