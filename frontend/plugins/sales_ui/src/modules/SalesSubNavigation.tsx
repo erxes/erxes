@@ -164,7 +164,7 @@ function BoardItem({ board }: { board: IBoard }) {
                   <IconCaretRightFilled className="size-3 transition-transform duration-300 group-data-[state=open]/collapsible:rotate-90 text-accent-foreground" />
                 </span>
               </Button>
-              <div className="size-5 min-w-5 mr-2"></div>
+              <div className="size-5 min-w-5 mr-2" />
             </div>
           </Collapsible.Trigger>
           <BoardActionsMenu board={board} />
