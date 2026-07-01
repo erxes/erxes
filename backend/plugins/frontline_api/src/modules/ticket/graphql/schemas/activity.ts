@@ -1,9 +1,19 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+    type TicketActivityFormField {
+        label: String
+        value: JSON
+    }
+
     type TicketActivityMetadata {
         newValue: String
         previousValue: String
+        conversationId: String
+        ticketId: String
+        formId: String
+        formTitle: String
+        submissions: [TicketActivityFormField]
     }
 
     type TicketActivity {
@@ -37,4 +47,8 @@ const activityFilterParams = `
 
 export const queries = `
    getTicketActivities(${activityFilterParams}): TicketActivityListResponse
+`;
+
+export const mutations = `
+   ticketLogConversationForm(ticketId: String!, conversationId: String!): JSON
 `;

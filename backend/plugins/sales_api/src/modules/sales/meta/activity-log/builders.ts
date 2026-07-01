@@ -215,6 +215,39 @@ export const generateDealConvertedActivityLog = (
   },
 });
 
+export const generateDealFormSubmittedActivityLog = (
+  deal: any,
+  params: {
+    conversationId?: string;
+    formId?: string;
+    formTitle?: string;
+    submissions?: { label: string; value: unknown }[];
+  } = {},
+): ActivityLogInput => {
+  const { conversationId, formId, formTitle, submissions } = params;
+
+  return {
+    activityType: 'deal.form_submitted',
+    target: buildDealTarget(deal),
+    action: {
+      type: 'form_submitted',
+      description: 'submitted a form',
+    },
+    changes: {
+      formId,
+      conversationId,
+      submittedAt: new Date(),
+    },
+    metadata: {
+      formId,
+      formTitle,
+      conversationId,
+      submissions: submissions || [],
+      dealId: deal._id,
+    },
+  };
+};
+
 export const generateDealWatchActivityLog = (
   deal: any,
   isAdd: boolean,
