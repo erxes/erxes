@@ -127,13 +127,21 @@
   },
   "tags": {
     "_": "Таг",
-    "add-group": "Багийн гишүүд урих",
+    "add-group": "Бүлэг нэмэх",
     "add-tag": "Таг үүсгэх",
     "name": "Нэр",
     "description": "Тайлбар",
     "created-at": "Үүсгэсэн огноо",
     "not-found": "Таг олдсонгүй",
-    "workspace-description": "Workspace tag-ууд нь бүх төрлийн tag-уудаас ашиглах боломжтой, түгээмэл tag-ууд юм."
+    "workspace-description": "Workspace тагууд нь бүх төрлийн тагуудад ашиглах боломжтой, түгээмэл тагууд юм.",
+    "core-tags": "Core тагууд",
+    "workspace-tags": "Ажлын орчны тагууд",
+    "tags-suffix": "тагууд",
+    "add-tag-name": "Тагийн нэр нэмэх",
+    "add-tag-description": "Тагийн тайлбар нэмэх...",
+    "error": "Алдаа",
+    "name-cannot-be-empty": "Нэр хоосон байж болохгүй",
+    "name-required": "Нэр оруулах шаардлагатай"
   },
 
   "broadcast": {
