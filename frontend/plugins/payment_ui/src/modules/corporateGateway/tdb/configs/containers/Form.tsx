@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
-import { getConfig } from '../graphql/queries';   // you need to create this query
+import { getConfig } from '../graphql/queries'; // you need to create this query
 import { addConfig, editConfig } from '../graphql/mutations';
 import Form from '../components/Form';
 import { ITdbConfig } from '../types';
 
 type Props = {
-  configId?: string;          // if provided, we're editing
+  configId?: string; // if provided, we're editing
   closeModal: () => void;
-  refetchList: () => void;    // to refresh the list after save
+  refetchList: () => void; // to refresh the list after save
 };
 
 const ConfigFormContainer = ({ configId, closeModal, refetchList }: Props) => {
@@ -40,13 +40,7 @@ const ConfigFormContainer = ({ configId, closeModal, refetchList }: Props) => {
   // while loading, show a spinner or nothing
   if (loading && configId) return <div>Loading...</div>;
 
-  return (
-    <Form
-      config={config}
-      onSubmit={onSubmit}
-      closeModal={closeModal}
-    />
-  );
+  return <Form config={config} onSubmit={onSubmit} closeModal={closeModal} />;
 };
 
 export default ConfigFormContainer;

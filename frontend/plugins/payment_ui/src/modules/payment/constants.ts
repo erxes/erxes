@@ -246,11 +246,11 @@ export const PAYMENT_KINDS = {
   },
 
   [PaymentKind.KHANBANK]: {
-  name: 'Khanbank',
-   description: 'Connect your Khanbank Corporate Gateway account.',
-  active: true,
-   fields: []
- },
+    name: 'Khanbank',
+    description: 'Connect your Khanbank Corporate Gateway account.',
+    active: true,
+    fields: [],
+  },
 };
 
 export const BANK_CODES = [

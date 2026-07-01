@@ -6,7 +6,7 @@ import {
 } from '@/payment/graphql/schemas/payment';
 
 import {
-  mutations as InvoiceMutations,  
+  mutations as InvoiceMutations,
   queries as InvoiceQueries,
   types as InvoiceTypes,
   inputs as InvoiceInputs,

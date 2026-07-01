@@ -1,7 +1,6 @@
 import { ITdbConfig } from '../../../@types/tdb';
 import { IContext } from '~/connectionResolvers';
 
-
 const mutations = {
   async tdbConfigsAdd(_root, args: ITdbConfig, { models }: IContext) {
     return models.TdbConfigs.createConfig(args);
@@ -15,10 +14,13 @@ const mutations = {
     return models.TdbConfigs.updateConfig(args._id, args);
   },
 
-  async tdbConfigsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+  async tdbConfigsRemove(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
     return models.TdbConfigs.removeConfig(_id);
   },
 };
-
 
 export default mutations;

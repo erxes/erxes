@@ -1,7 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 
-
 const queries = {
   async khanbankConfigsList(
     _root,

@@ -82,24 +82,19 @@ export class StatementsApi extends BaseApi {
       throw new Error(e.message);
     }
   }
-  async findTransaction({
-  accountNumber,
-  amount,
-  description,
-  record,
-}) {
-  const response = await this.list({
-    accountNumber,
-    record,
-  });
+  async findTransaction({ accountNumber, amount, description, record }) {
+    const response = await this.list({
+      accountNumber,
+      record,
+    });
 
-  const statements = response.content ?? response.transactions ?? response;
+    const statements = response.content ?? response.transactions ?? response;
 
-  return statements.find((item: any) => {
-    return (
-      Number(item.amount) === Number(amount) &&
-      item.description?.trim() === description?.trim()
-    );
-  });
-}
+    return statements.find((item: any) => {
+      return (
+        Number(item.amount) === Number(amount) &&
+        item.description?.trim() === description?.trim()
+      );
+    });
+  }
 }

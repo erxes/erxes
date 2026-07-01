@@ -56,12 +56,20 @@ const ConfigsList = ({
     <div className="flex gap-6">
       {/* Sidebar */}
       <div className="w-80 space-y-4">
-        <Button className="w-full" onClick={() => { setEditing(null); setOpen(true); }}>
+        <Button
+          className="w-full"
+          onClick={() => {
+            setEditing(null);
+            setOpen(true);
+          }}
+        >
           + Add New Config
         </Button>
 
         {configs.length === 0 && !loading && (
-          <div className="text-sm text-muted-foreground">No configurations yet.</div>
+          <div className="text-sm text-muted-foreground">
+            No configurations yet.
+          </div>
         )}
 
         {configs.map((config) => {
@@ -90,7 +98,9 @@ const ConfigsList = ({
       </div>
 
       <div className="flex-1">
-        {loading && <div className="text-sm text-muted-foreground">Loading...</div>}
+        {loading && (
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        )}
         {currentConfig && (
           <div className="p-4">
             <h3 className="text-lg font-semibold">Config Details</h3>
@@ -100,10 +110,17 @@ const ConfigsList = ({
         )}
       </div>
 
-      <Dialog open={open} onOpenChange={(val) => { if (!val) setOpen(false); }}>
+      <Dialog
+        open={open}
+        onOpenChange={(val) => {
+          if (!val) setOpen(false);
+        }}
+      >
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>{editing ? 'Edit TDB Config' : 'Add TDB Config'}</Dialog.Title>
+            <Dialog.Title>
+              {editing ? 'Edit TDB Config' : 'Add TDB Config'}
+            </Dialog.Title>
           </Dialog.Header>
           <Form
             config={editing || undefined}

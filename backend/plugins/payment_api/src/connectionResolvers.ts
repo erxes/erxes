@@ -8,37 +8,33 @@ import {
   IInvoiceModel,
   loadInvoiceClass,
 } from '~/modules/payment/db/models/Invoices';
-import { IPaymentModel, loadPaymentClass } from '~/modules/payment/db/models/Payment';
+import {
+  IPaymentModel,
+  loadPaymentClass,
+} from '~/modules/payment/db/models/Payment';
 import {
   ITransactionModel,
   loadTransactionClass,
 } from '~/modules/payment/db/models/Transactions';
 // Golomt Bank
-import {
-  IGolomtBankConfigDocument,
-} from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
+import { IGolomtBankConfigDocument } from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
 import {
   IGolomtBankConfigModel,
   loadGolomtBankConfigClass,
 } from '~/modules/corporateGateway/golomtbank/db/models/golomtBankConfigs';
 // Khanbank
-import {
-  IKhanbankConfigDocument,
-} from '~/modules/corporateGateway/khanbank/@types/khanbank';
+import { IKhanbankConfigDocument } from '~/modules/corporateGateway/khanbank/@types/khanbank';
 import {
   IKhanbankConfigModel,
   loadKhanbankConfigClass,
 } from '~/modules/corporateGateway/khanbank/db/models/KhanbankConfigs';
 
-import {
-  ITdbConfigDocument,
-} from '~/modules/corporateGateway/tdb/@types/tdb';  
+import { ITdbConfigDocument } from '~/modules/corporateGateway/tdb/@types/tdb';
 
 import {
   ITdbConfigModel,
   loadTdbConfigClass,
-} from '~/modules/corporateGateway/tdb/db/models/TdbConfigs';   
-
+} from '~/modules/corporateGateway/tdb/db/models/TdbConfigs';
 
 export interface IModels {
   PaymentMethods: IPaymentModel;
@@ -72,15 +68,15 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadTransactionClass(models),
   );
 
-  models.GolomtBankConfigs = db.model<IGolomtBankConfigDocument, IGolomtBankConfigModel>(
-    'golomt_bank_configs',
-    loadGolomtBankConfigClass(models),
-  );
+  models.GolomtBankConfigs = db.model<
+    IGolomtBankConfigDocument,
+    IGolomtBankConfigModel
+  >('golomt_bank_configs', loadGolomtBankConfigClass(models));
 
-  models.KhanbankConfigs = db.model<IKhanbankConfigDocument, IKhanbankConfigModel>(
-    'khanbank_configs',
-    loadKhanbankConfigClass(models),
-  );
+  models.KhanbankConfigs = db.model<
+    IKhanbankConfigDocument,
+    IKhanbankConfigModel
+  >('khanbank_configs', loadKhanbankConfigClass(models));
 
   models.TdbConfigs = db.model<ITdbConfigDocument, ITdbConfigModel>(
     'tdb_configs',

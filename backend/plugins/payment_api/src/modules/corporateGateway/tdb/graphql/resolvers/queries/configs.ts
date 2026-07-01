@@ -42,7 +42,11 @@ const queries = {
     return result.list.map((config) => config.toJSON());
   },
 
-  async tdbConfigsDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async tdbConfigsDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
     const config = await models.TdbConfigs.getConfig({ _id });
     return config.toJSON();
   },

@@ -30,7 +30,9 @@ const ConfigsListContainer = () => {
   const configs = data?.tdbConfigs || [];
 
   const params: any = {};
-  queryParams.forEach((value, key) => { params[key] = value; });
+  queryParams.forEach((value, key) => {
+    params[key] = value;
+  });
 
   return (
     <ConfigsList

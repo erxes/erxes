@@ -31,6 +31,10 @@ export const getTdbStatusDescription = (status: string): string => {
 /**
  * Build redirect URL with order parameters for HPP
  */
-export const buildHppRedirectUrl = (hppUrl: string, orderId: number, password: string): string => {
+export const buildHppRedirectUrl = (
+  hppUrl: string,
+  orderId: number,
+  password: string,
+): string => {
   return `${hppUrl}/?id=${orderId}&password=${password}`;
 };

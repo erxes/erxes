@@ -16,7 +16,15 @@ type Props = {
   editConfig: (id: string, doc: any) => void;
 };
 
-const List = ({ configs, totalCount, loading, remove, refetch, addConfig, editConfig }: Props) => {
+const List = ({
+  configs,
+  totalCount,
+  loading,
+  remove,
+  refetch,
+  addConfig,
+  editConfig,
+}: Props) => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ITdbConfig | null>(null);
 
@@ -40,14 +48,23 @@ const List = ({ configs, totalCount, loading, remove, refetch, addConfig, editCo
             Manage your TDB E-Commerce integration settings.
           </p>
         </div>
-        <Button onClick={() => { setEditing(null); setOpen(true); }}>+ Add Config</Button>
+        <Button
+          onClick={() => {
+            setEditing(null);
+            setOpen(true);
+          }}
+        >
+          + Add Config
+        </Button>
       </div>
 
       <Card className="p-4">
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading...</p>
         ) : configs.length === 0 ? (
-          <div className="text-center py-8 text-sm text-muted-foreground">No configurations found.</div>
+          <div className="text-center py-8 text-sm text-muted-foreground">
+            No configurations found.
+          </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b">
@@ -65,7 +82,10 @@ const List = ({ configs, totalCount, loading, remove, refetch, addConfig, editCo
                   key={config._id}
                   config={config}
                   remove={remove}
-                  onEdit={() => { setEditing(config); setOpen(true); }}
+                  onEdit={() => {
+                    setEditing(config);
+                    setOpen(true);
+                  }}
                 />
               ))}
             </tbody>
@@ -73,12 +93,23 @@ const List = ({ configs, totalCount, loading, remove, refetch, addConfig, editCo
         )}
       </Card>
 
-      <Dialog open={open} onOpenChange={(val) => { if (!val) setOpen(false); }}>
+      <Dialog
+        open={open}
+        onOpenChange={(val) => {
+          if (!val) setOpen(false);
+        }}
+      >
         <Dialog.Content className="sm:max-w-lg">
           <Dialog.Header>
-            <Dialog.Title>{editing ? 'Edit TDB Config' : 'Add TDB Config'}</Dialog.Title>
+            <Dialog.Title>
+              {editing ? 'Edit TDB Config' : 'Add TDB Config'}
+            </Dialog.Title>
           </Dialog.Header>
-          <Form config={editing || undefined} onSubmit={handleSubmit} closeModal={() => setOpen(false)} />
+          <Form
+            config={editing || undefined}
+            onSubmit={handleSubmit}
+            closeModal={() => setOpen(false)}
+          />
         </Dialog.Content>
       </Dialog>
     </div>

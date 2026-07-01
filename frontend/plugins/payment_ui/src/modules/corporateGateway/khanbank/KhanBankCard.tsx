@@ -4,7 +4,7 @@ import { Card } from 'erxes-ui/components/card';
 import { Dialog } from 'erxes-ui/components/dialog';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
-import { REACT_APP_API_URL } from 'erxes-ui'; 
+import { REACT_APP_API_URL } from 'erxes-ui';
 import ConfigFormContainer from './configs/containers/Form';
 
 const KHANBANK_PAYMENT = PAYMENT_KINDS[PaymentKind.KHANBANK];

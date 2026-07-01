@@ -2,7 +2,6 @@ import { IKhanbankConfig } from '@/corporateGateway/khanbank/@types/khanbank';
 import { IContext } from '~/connectionResolvers';
 import { getAuthHeaders } from '../../../khanbank/utils';
 
-
 const mutations = {
   async khanbankConfigsAdd(_root, args: IKhanbankConfig, { models }: IContext) {
     const key = args.consumerKey;

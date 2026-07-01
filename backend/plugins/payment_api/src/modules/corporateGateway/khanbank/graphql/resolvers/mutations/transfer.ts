@@ -1,7 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import Khanbank from '../../../khanbank/khanbank';
 
-
 const mutations = {
   khanbankTransfer: async (
     _root,

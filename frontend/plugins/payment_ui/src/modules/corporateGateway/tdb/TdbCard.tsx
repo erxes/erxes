@@ -6,7 +6,7 @@ import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { useQuery } from '@apollo/client';
 import { configs } from './configs/graphql/queries';
-import { REACT_APP_API_URL } from 'erxes-ui'; 
+import { REACT_APP_API_URL } from 'erxes-ui';
 import ConfigFormContainer from './configs/containers/Form';
 
 const TDB_PAYMENT = PAYMENT_KINDS[PaymentKind.TDB];

@@ -1,5 +1,9 @@
 import { BaseApi } from './base';
-import { TdbOrderInput, TdbOrderCreateResponse, TdbOrderDetail } from '../@types/tdb';
+import {
+  TdbOrderInput,
+  TdbOrderCreateResponse,
+  TdbOrderDetail,
+} from '../@types/tdb';
 
 export class OrdersApi extends BaseApi {
   /**
@@ -47,7 +51,10 @@ export class OrdersApi extends BaseApi {
   /**
    * Get order with parsed success flag
    */
-  async getWithStatus(orderId: number, password: string): Promise<{
+  async getWithStatus(
+    orderId: number,
+    password: string,
+  ): Promise<{
     order: TdbOrderDetail['order'];
     isSuccessful: boolean;
   }> {
