@@ -290,9 +290,7 @@ export const FixedPricingTable = ({
               <Table.Head>Status</Table.Head>
             </Table.Row>
           </Table.Header>
-          <Table.Body>
-            {renderTableBody()}
-          </Table.Body>
+          <Table.Body>{renderTableBody()}</Table.Body>
         </Table>
       </RecordTableHotkeyProvider>
 
