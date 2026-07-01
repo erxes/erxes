@@ -8,22 +8,6 @@ import { IconPlus } from '@tabler/icons-react';
 import { useAddCtaxRow } from '../hooks/useCtaxRowAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-export const AddCtaxs = () => {
-  return (
-    <Sheet>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          НХАТ нэмэх
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet title="НХАТ нэмэх">
-        <AddCtaxForm />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 export const AddCtaxForm = () => {
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
@@ -44,4 +28,20 @@ export const AddCtaxForm = () => {
   };
 
   return <CtaxRowForm form={form} onSubmit={onSubmit} loading={loading} />;
+};
+
+export const AddCtaxs = () => {
+  return (
+    <Sheet>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          НХАТ нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="НХАТ нэмэх">
+        <AddCtaxForm />
+      </AccountingSheet>
+    </Sheet>
+  );
 };

@@ -10,24 +10,6 @@ import { TSafeRemainderForm } from '../types/safeRemainderForm';
 import { safeRemainderSchema } from '../types/safeRemainderSchema';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
-export const AddSafeRemainder = () => {
-  const { t } = useTranslation('accounting');
-  const [open, setOpen] = useState(false);
-  return (
-    <Sheet open={open} onOpenChange={setOpen} modal>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-safe-remainder')}
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet title={t('add-safe-remainder')}>
-        <AddSafeRemainderForm setOpen={setOpen} />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 const AddSafeRemainderForm = ({
   setOpen,
 }: {
@@ -163,5 +145,23 @@ const AddSafeRemainderForm = ({
         </Sheet.Footer>
       </form>
     </Form>
+  );
+};
+
+export const AddSafeRemainder = () => {
+  const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          {t('add-safe-remainder')}
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title={t('add-safe-remainder')}>
+        <AddSafeRemainderForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

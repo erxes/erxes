@@ -18,24 +18,6 @@ import {
   ReserveRemFormFooter,
 } from './ReserveRemFormParts';
 
-export const AddReserveRem = () => {
-  const { t } = useTranslation('accounting');
-  const [open, setOpen] = useState(false);
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-reserve-remainder')}
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet title={t('add-reserve-remainder')}>
-        <AddReserveRemForm setOpen={setOpen} />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 const AddReserveRemForm = ({
   setOpen,
 }: {
@@ -140,5 +122,23 @@ const AddReserveRemForm = ({
         <ReserveRemFormFooter loading={loading} />
       </form>
     </Form>
+  );
+};
+
+export const AddReserveRem = () => {
+  const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          {t('add-reserve-remainder')}
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title={t('add-reserve-remainder')}>
+        <AddReserveRemForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

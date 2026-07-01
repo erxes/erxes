@@ -9,22 +9,6 @@ import { AccountCategoryForm } from './AccountCategoryForm';
 import { useAccountCategoryAdd } from '../hooks/useAccountCategoryAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-export const AddAccountCategory = () => {
-  return (
-    <Sheet>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Дансны ангилал нэмэх
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet title="Дансны ангилал нэмэх">
-        <AddAccountCategoryForm />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 const AddAccountCategoryForm = () => {
   const form = useForm<TAccountCategoryForm>({
     resolver: zodResolver(accountCategorySchema),
@@ -48,5 +32,21 @@ const AddAccountCategoryForm = () => {
       handleSubmit={handleSubmit}
       loading={loading}
     />
+  );
+};
+
+export const AddAccountCategory = () => {
+  return (
+    <Sheet>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          Дансны ангилал нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="Дансны ангилал нэмэх">
+        <AddAccountCategoryForm />
+      </AccountingSheet>
+    </Sheet>
   );
 };

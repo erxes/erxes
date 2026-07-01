@@ -10,24 +10,6 @@ import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { IconPlus } from '@tabler/icons-react';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-export const AddAccount = () => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Данс нэмэх
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet title="Данс нэмэх">
-        <AddAccountForm setOpen={setOpen} />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
@@ -47,5 +29,23 @@ const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
 
   return (
     <AccountForm form={form} handleSubmit={handleSubmit} loading={loading} />
+  );
+};
+
+export const AddAccount = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          Данс нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="Данс нэмэх">
+        <AddAccountForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

@@ -9,24 +9,6 @@ import { useAdjustInventoryAdd } from '../hooks/useAdjustInventoryAdd';
 import { TAdjustInventoryForm } from '../types/adjustInventoryForm';
 import { adjustInventorySchema } from '../types/adjustInventorySchema';
 
-export const AddAdjustInventory = () => {
-  const { t } = useTranslation('accounting');
-  const [open, setOpen] = useState(false);
-  return (
-    <Sheet open={open} onOpenChange={setOpen} modal>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-inventory-adjustment')}
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet title={t('add-inventory-adjustment')}>
-        <AddAdjustInventoryForm setOpen={setOpen} />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 const AddAdjustInventoryForm = ({
   setOpen,
 }: {
@@ -105,5 +87,23 @@ const AddAdjustInventoryForm = ({
         </Sheet.Footer>
       </form>
     </Form>
+  );
+};
+
+export const AddAdjustInventory = () => {
+  const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          {t('add-inventory-adjustment')}
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title={t('add-inventory-adjustment')}>
+        <AddAdjustInventoryForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

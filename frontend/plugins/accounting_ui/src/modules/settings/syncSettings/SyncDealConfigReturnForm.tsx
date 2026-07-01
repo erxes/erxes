@@ -1,12 +1,16 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
-import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
-import { Button, Form, Input, Select, Sheet, Spinner } from 'erxes-ui';
+import { TR_STATUSES } from '@/transactions/types/constants';
+import { Form, Select } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { z } from 'zod';
+import {
+  SyncConfigGeneralFields,
+  SyncConfigFormFooter,
+} from './SyncConfigFormSections';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 import { SyncSettingSection } from './SyncSettingSection';
 
@@ -70,65 +74,7 @@ export const SyncDealReturnConfigForm = ({
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
           <SyncSettingSection title={t('general')}>
-            <Form.Field
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('title')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="dateRule"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('date-rule')}</Form.Label>
-                  <Form.Control>
-                    <Select {...field} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="alwaysNow">
-                          {t('always-now')}
-                        </Select.Item>
-                        <Select.Item value="syncedDateOrNow">
-                          {t('synced-date-or-now')}
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="trStatus"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('tr-status-label')}</Form.Label>
-                  <Form.Control>
-                    <Select {...field} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {TR_STATUS_OPTIONS.map((s) => (
-                          <Select.Item key={s.value} value={s.value}>
-                            {s.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            <SyncConfigGeneralFields />
             <Form.Field
               control={form.control}
               name="returnType"
@@ -230,16 +176,7 @@ export const SyncDealReturnConfigForm = ({
             />
           </SyncSettingSection>
         </div>
-        <Sheet.Footer className="px-5 py-4 border-t bg-background shrink-0 gap-2">
-          <Sheet.Close asChild>
-            <Button variant="outline" size="lg">
-              {t('cancel')}
-            </Button>
-          </Sheet.Close>
-          <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : t('save')}
-          </Button>
-        </Sheet.Footer>
+        <SyncConfigFormFooter loading={loading} />
       </form>
     </Form>
   );

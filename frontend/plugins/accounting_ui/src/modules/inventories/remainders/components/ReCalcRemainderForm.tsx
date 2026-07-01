@@ -12,37 +12,6 @@ import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
 import { TReCalcRemainderForm } from '../types/reCalcRemainderForm';
 import { reCalcRemainderSchema } from '../types/reCalcRemainderSchema';
 
-export const ReCalcRemainderForm = () => {
-  const { t } = useTranslation('accounting');
-  const selectedProductIds = useAtomValue(selectedProductIdsAtom);
-  const [open, setOpen] = useState(false);
-  const [frozenProductIds, setFrozenProductIds] = useState<string[]>([]);
-
-  const handleOpenChange = (next: boolean) => {
-    if (next) setFrozenProductIds(selectedProductIds);
-    setOpen(next);
-  };
-
-  return (
-    <Sheet open={open} onOpenChange={handleOpenChange} modal>
-      <Sheet.Trigger asChild>
-        <Button variant="outline">
-          <IconRefresh size={16} />
-          {t('recalc-remainder')}
-          {selectedProductIds.length > 0 && (
-            <span className="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-1.5 py-0.5 leading-none">
-              {selectedProductIds.length}
-            </span>
-          )}
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet title={t('recalculate-remainders')}>
-        <ReCalcRemaindersForm setOpen={setOpen} productIds={frozenProductIds} />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 const ReCalcRemaindersForm = ({
   setOpen,
   productIds,
@@ -162,5 +131,36 @@ const ReCalcRemaindersForm = ({
         </Sheet.Footer>
       </form>
     </Form>
+  );
+};
+
+export const ReCalcRemainderForm = () => {
+  const { t } = useTranslation('accounting');
+  const selectedProductIds = useAtomValue(selectedProductIdsAtom);
+  const [open, setOpen] = useState(false);
+  const [frozenProductIds, setFrozenProductIds] = useState<string[]>([]);
+
+  const handleOpenChange = (next: boolean) => {
+    if (next) setFrozenProductIds(selectedProductIds);
+    setOpen(next);
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={handleOpenChange} modal>
+      <Sheet.Trigger asChild>
+        <Button variant="outline">
+          <IconRefresh size={16} />
+          {t('recalc-remainder')}
+          {selectedProductIds.length > 0 && (
+            <span className="ml-1 rounded-full bg-primary text-primary-foreground text-xs px-1.5 py-0.5 leading-none">
+              {selectedProductIds.length}
+            </span>
+          )}
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title={t('recalculate-remainders')}>
+        <ReCalcRemaindersForm setOpen={setOpen} productIds={frozenProductIds} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

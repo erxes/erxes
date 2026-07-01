@@ -2,7 +2,13 @@ import { Button, Form, Input, Sheet, Spinner } from 'erxes-ui';
 import { Control } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-export const RemainderFormField = ({ control }: { control: Control<any> }) => {
+type TRemainderField = { remainder: number };
+
+export const RemainderFormField = ({
+  control,
+}: {
+  control: Control<TRemainderField>;
+}) => {
   const { t } = useTranslation('accounting');
   return (
     <Form.Field

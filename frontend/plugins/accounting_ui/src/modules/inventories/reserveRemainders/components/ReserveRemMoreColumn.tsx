@@ -23,57 +23,6 @@ import {
 } from './ReserveRemFormParts';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-const ReserveRemMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IReserveRem, unknown>;
-}) => {
-  const { t } = useTranslation('accounting');
-  const { confirm } = useConfirm();
-  const { removeReserveRems } = useReserveRemsRemove();
-  const [editOpen, setEditOpen] = useState(false);
-
-  const reserveRem = cell.row.original;
-
-  const handleDelete = () =>
-    confirm({
-      message: t('are-you-sure'),
-      options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
-      },
-    }).then(() => {
-      removeReserveRems({
-        variables: { _ids: [reserveRem._id] },
-      });
-    });
-
-  return (
-    <>
-      <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item value="edit" onSelect={() => setEditOpen(true)}>
-                <IconEdit /> {t('edit')}
-              </Command.Item>
-              <Command.Item value="delete" onSelect={handleDelete}>
-                <IconTrash /> {t('delete')}
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
-      <Sheet open={editOpen} onOpenChange={setEditOpen}>
-        <EditReserveRemSheet setOpen={setEditOpen} reserveRem={reserveRem} />
-      </Sheet>
-    </>
-  );
-};
-
 type TEditForm = {
   branchId?: string;
   departmentId?: string;
@@ -182,6 +131,57 @@ const EditReserveRemSheet = ({
         </form>
       </Form>
     </AccountingSheet>
+  );
+};
+
+const ReserveRemMoreColumnCell = ({
+  cell,
+}: {
+  cell: Cell<IReserveRem, unknown>;
+}) => {
+  const { t } = useTranslation('accounting');
+  const { confirm } = useConfirm();
+  const { removeReserveRems } = useReserveRemsRemove();
+  const [editOpen, setEditOpen] = useState(false);
+
+  const reserveRem = cell.row.original;
+
+  const handleDelete = () =>
+    confirm({
+      message: t('are-you-sure'),
+      options: {
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
+      },
+    }).then(() => {
+      removeReserveRems({
+        variables: { _ids: [reserveRem._id] },
+      });
+    });
+
+  return (
+    <>
+      <Popover>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+        <Combobox.Content>
+          <Command shouldFilter={false}>
+            <Command.List>
+              <Command.Item value="edit" onSelect={() => setEditOpen(true)}>
+                <IconEdit /> {t('edit')}
+              </Command.Item>
+              <Command.Item value="delete" onSelect={handleDelete}>
+                <IconTrash /> {t('delete')}
+              </Command.Item>
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+      <Sheet open={editOpen} onOpenChange={setEditOpen}>
+        <EditReserveRemSheet setOpen={setEditOpen} reserveRem={reserveRem} />
+      </Sheet>
+    </>
   );
 };
 
