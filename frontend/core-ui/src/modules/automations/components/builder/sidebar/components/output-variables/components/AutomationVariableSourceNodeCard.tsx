@@ -33,7 +33,7 @@ export const AutomationVariableSourceNodeCard = ({
       <div className="min-w-0 flex-1">
         <div className="truncate font-medium text-foreground">{node.label}</div>
         <div className="text-xs text-muted-foreground">
-          {node.nodeType === AutomationNodeType.Trigger ? t('trigger') : t('action')}
+          {node.nodeType === AutomationNodeType.Trigger ? t('trigger', 'Trigger') : t('action', 'Action')}
         </div>
       </div>
     </button>

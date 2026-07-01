@@ -16,7 +16,7 @@ export function AppsHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/app-tokens">
                   <IconShieldCog />
-                  {t('apps', 'Apps')}
+                  {t('apps._', 'Apps')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

@@ -33,7 +33,7 @@ export const IncomingWebhookHeadersBuilder = ({
     return (
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
-          <Form.Label>{t('headers')}</Form.Label>
+          <Form.Label>{t('headers', 'Headers')}</Form.Label>
           <IncomingWebhookHeaderAddButton
             onChange={onChange}
             headers={headers}
@@ -49,7 +49,7 @@ export const IncomingWebhookHeadersBuilder = ({
   return (
     <>
       <div className="flex flex-row justify-between">
-        <Form.Label>{t('headers')}</Form.Label>
+        <Form.Label>{t('headers', 'Headers')}</Form.Label>
         <IncomingWebhookHeaderAddButton onChange={onChange} headers={headers} />
       </div>
       <div>

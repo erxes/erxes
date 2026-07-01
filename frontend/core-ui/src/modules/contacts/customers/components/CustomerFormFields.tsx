@@ -61,7 +61,7 @@ export const CodeField = ({
       name="code"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('code')}</Form.Label>
+          <Form.Label>{t('code', 'Code')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -84,7 +84,7 @@ export const DescriptionField = ({
       name="description"
       render={({ field }) => (
         <Form.Item className="mb-5">
-          <Form.Label>{t('description')}</Form.Label>
+          <Form.Label>{t('description', 'Description')}</Form.Label>
 
           <Form.Control>
             <Editor

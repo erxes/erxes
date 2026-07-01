@@ -35,7 +35,7 @@ export function WaitEventConfigCustomForm({
       className="flex flex-col flex-1 overflow-auto"
       footer={
         <Button onClick={() => formRef.current?.submit()}>
-          {t('save-configuration')}
+          {t('save-configuration', 'Save configuration')}
         </Button>
       }
     >
@@ -136,13 +136,13 @@ const WaitWebhookContent = ({
       <Tabs defaultValue="headers">
         <Tabs.List>
           <Tabs.Trigger value="headers">
-            {t('headers')}
+            {t('headers', 'Headers')}
             {formValues?.headers?.length && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}
           </Tabs.Trigger>
           <Tabs.Trigger value="body">
-            {t('body')}
+            {t('body', 'Body')}
             {formValues?.schema && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}

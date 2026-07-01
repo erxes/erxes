@@ -151,7 +151,7 @@ export const OutgoinWebhookActionResponse = ({
               ) : null}
             </Section>
 
-            <Section title={error ? t('error') : t('response', 'Response')}>
+            <Section title={error ? t('error', 'Error') : t('response', 'Response')}>
               {response ? (
                 <>
                   <InfoRow label="Status" value={response.status} />

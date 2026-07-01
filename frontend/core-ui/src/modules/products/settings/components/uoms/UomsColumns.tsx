@@ -17,7 +17,7 @@ export const uomsColumns = (
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -28,7 +28,7 @@ export const uomsColumns = (
   {
     id: 'productCount',
     accessorKey: 'productCount',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('product-count')} />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('product-count', 'Product count')} />,
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() || 0)} />

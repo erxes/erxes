@@ -188,7 +188,7 @@ export const ProductsFilter = () => {
         <Filter.SearchValueBarItem />
         <SelectCategory.FilterBar
           filterKey="categoryIds"
-          label={t('category', 'Category')}
+          label={t('category._', 'Category')}
           mode="multiple"
         />
         <OptionFilterBar config={PRODUCT_TYPE_FILTER} />
@@ -217,7 +217,7 @@ export const ProductsFilterPopover = () => {
                 <Filter.SearchValueTrigger />
                 <SelectCategory.FilterItem
                   value="categoryIds"
-                  label={t('category', 'Category')}
+                  label={t('category._', 'Category')}
                 />
                 <OptionFilterItem config={PRODUCT_TYPE_FILTER} />
                 <SelectCompany.FilterItem value="vendorId" label={t('vendor', 'Vendor')} />

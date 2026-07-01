@@ -120,7 +120,7 @@ const ActionNode = ({ data, selected, id, ...props }: any) => {
   return (
     <div className="flex flex-col" key={id}>
       <div className="w-1/4 ml-1 bg-success/10 text-success text-center px-2 py-1 rounded-t-md">
-        <p className="font-medium font-bold">{t('action')}</p>
+        <p className="font-medium font-bold">{t('action', 'Action')}</p>
       </div>
       <div
         className={cn(

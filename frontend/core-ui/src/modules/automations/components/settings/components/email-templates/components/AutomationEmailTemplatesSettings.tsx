@@ -51,7 +51,7 @@ export function AutomationEmailTemplatesSettings() {
         <div className="relative flex-1 max-w-sm">
           <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
-            placeholder="Search email templates..."
+            placeholder={t('search-email-templates', 'Search email templates...')}
             value={searchValue}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-10"
@@ -63,7 +63,7 @@ export function AutomationEmailTemplatesSettings() {
         <span>
           {loading
             ? t('loading', 'Loading...')
-            : `${totalCount} template${totalCount !== 1 ? 's' : ''}`}
+            : t('email-templates-count', '{{count}} templates', { count: totalCount })}
         </span>
       </div>
 

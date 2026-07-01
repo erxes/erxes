@@ -48,7 +48,7 @@ export const SplitConditionsConfigForm = ({
       >
         <div className="flex items-center justify-between gap-2">
           <div>
-            <Label>{t('options')}</Label>
+            <Label>{t('options', 'Options')}</Label>
             <p className="text-sm text-muted-foreground">
               {t('split-options-description', 'Build each split option with segment conditions.')}
             </p>

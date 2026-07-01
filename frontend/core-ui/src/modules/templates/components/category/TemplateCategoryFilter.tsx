@@ -73,7 +73,7 @@ const TemplateCategoryFilterBar = ({
       <Filter.BarItem queryKey="searchValue">
         <Filter.BarName>
           <IconSearch />
-          {t('search')}
+          {t('search', 'Search')}
         </Filter.BarName>
         <Filter.BarButton filterKey="searchValue" inDialog>
           {searchValue}
@@ -83,7 +83,7 @@ const TemplateCategoryFilterBar = ({
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          {t('created-at')}
+          {t('created-at', 'Created At')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
@@ -91,7 +91,7 @@ const TemplateCategoryFilterBar = ({
       <Filter.BarItem queryKey="updatedAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          {t('updated-at')}
+          {t('updated-at', 'Updated At')}
         </Filter.BarName>
         <Filter.Date filterKey="updatedAt" />
       </Filter.BarItem>
@@ -128,7 +128,7 @@ const TemplateCategoryFilterView = () => {
           <Command.List className="p-1">
             <Filter.Item value="searchValue" inDialog>
               <IconSearch />
-              {t('search')}
+              {t('search', 'Search')}
             </Filter.Item>
 
             <SelectTemplateCategory.FilterItem
@@ -143,12 +143,12 @@ const TemplateCategoryFilterView = () => {
 
             <Filter.Item value="createdAt">
               <IconCalendarPlus />
-              {t('created-at')}
+              {t('created-at', 'Created At')}
             </Filter.Item>
 
             <Filter.Item value="updatedAt">
               <IconCalendarPlus />
-              {t('updated-at')}
+              {t('updated-at', 'Updated At')}
             </Filter.Item>
           </Command.List>
         </Command>

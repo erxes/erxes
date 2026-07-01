@@ -15,7 +15,7 @@ export const AutomationHistoriesFilterMenu = () => {
         <Command.List className="p-1">
           <Filter.Item value="status">
             <IconProgressCheck />
-            {t('status')}
+            {t('status', 'Status')}
           </Filter.Item>
           <Filter.Item value="createdAt">
             <IconCalendar />

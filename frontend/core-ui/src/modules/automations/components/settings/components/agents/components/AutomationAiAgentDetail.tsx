@@ -103,7 +103,7 @@ export const AutomationAiAgentDetail = ({
               )}
               <Button onClick={handleSubmit}>
                 <IconDeviceFloppy className="size-4 " />
-                {t('save')}
+                {t('save', 'Save')}
               </Button>
             </div>
           }

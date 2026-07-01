@@ -31,8 +31,8 @@ export const SplitCondtionRemoveButton = ({
           options: {
             description:
               'This action cannot be undone. The split option and its associated segment will be permanently removed.',
-            okLabel: t('delete'),
-            cancelLabel: t('cancel'),
+            okLabel: t('delete', 'Delete'),
+            cancelLabel: t('cancel', 'Cancel'),
           },
         });
 
@@ -47,7 +47,7 @@ export const SplitCondtionRemoveButton = ({
     } catch (error) {
       if (error instanceof Error) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

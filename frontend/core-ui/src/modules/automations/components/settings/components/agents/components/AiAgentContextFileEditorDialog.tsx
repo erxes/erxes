@@ -337,7 +337,7 @@ export const AiAgentContextFileEditorDialog = ({
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="button"

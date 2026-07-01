@@ -66,7 +66,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />
       ),
       cell: ({ cell }) => {
         const [, setDetailOpen] = useQueryState('user_id');
@@ -91,7 +91,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
               },
               onError: (error: ApolloError) => {
                 toast({
-                  title: t('team-member.failed-to-update'),
+                  title: t('team-member.failed-to-update', 'Failed to update user details'),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -352,7 +352,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
                 !status || status === 'Not verified' ? 'destructive' : 'success'
               }
             >
-              {status ? (cell.getValue() as string) : t('team-member.not-verified')}
+              {status ? (cell.getValue() as string) : t('team-member.not-verified', 'Not verified')}
             </Badge>
           </RecordTableInlineCell>
         );
@@ -362,7 +362,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
     //   id: 'isActive',
     //   accessorKey: 'isActive',
     //   header: () => (
-    //     <RecordTable.InlineHead icon={IconChecks} label={t('status')} />
+    //     <RecordTable.InlineHead icon={IconChecks} label={t('status', 'Status')} />
     //   ),
     //   cell: ({ cell }) => {
     //     const { _id } = cell.row.original || {};

@@ -15,12 +15,14 @@ const isValidDateValue = (value?: string) => {
   return !!value && !Number.isNaN(new Date(value).getTime());
 };
 
-export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
+export const getAutomationAiAgentColumns = (
+  t: (key: string, fallback: string) => string,
+): ColumnDef<TAiAgentRecord>[] => [
   automationAiAgentMoreColumn,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="truncate font-medium">
         {cell.getValue() as string}
@@ -31,7 +33,7 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'provider',
     accessorFn: (row) => row.connection?.provider,
-    header: () => <RecordTable.InlineHead label="Provider" />,
+    header: () => <RecordTable.InlineHead label={t('provider', 'Provider')} />,
     cell: ({ cell }) => {
       const provider = getAiAgentKind(cell.getValue() as string | undefined);
 
@@ -48,7 +50,7 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'model',
     accessorFn: (row) => row.connection?.model,
-    header: () => <RecordTable.InlineHead label="Model" />,
+    header: () => <RecordTable.InlineHead label={t('model', 'Model')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell
         className="truncate text-sm text-muted-foreground"
@@ -62,7 +64,7 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label={t('description', 'Description')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell
         className="truncate text-sm text-muted-foreground"
@@ -76,7 +78,7 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label="Created" />,
+    header: () => <RecordTable.InlineHead label={t('created', 'Created')} />,
     cell: ({ cell }) => {
       const createdAt = cell.getValue() as string;
 

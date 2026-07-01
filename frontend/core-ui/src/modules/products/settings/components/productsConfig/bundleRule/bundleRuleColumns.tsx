@@ -18,7 +18,7 @@ export const bundleRuleColumns = (
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -29,7 +29,7 @@ export const bundleRuleColumns = (
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label={t('description')} />,
+    header: () => <RecordTable.InlineHead label={t('description', 'Description')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />

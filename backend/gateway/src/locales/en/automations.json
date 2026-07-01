@@ -369,11 +369,17 @@
 
   "remove": "Remove",
 
+  "ai-agents": "AI Agents",
+  "ai-agents-description": "Configure credential-backed AI agents, attach context files, and validate provider readiness before wiring them into automation actions.",
+  "automation-bots": "Automation bots",
+  "automation-bots-description": "Set up your bots and start connecting with your customers",
   "no-automation-bots-available": "No automation bots available",
+  "no-bot-integrations-description": "There are no bot integrations enabled for this workspace yet. Once a bot integration is added, it will appear here.",
 
   "email-templates": "Email Templates",
   "email-templates-description": "Create and manage reusable email templates for your automations.",
   "create-template": "Create Template",
+  "email-templates-count": "{{count}} templates",
   "loading": "Loading...",
 
   "clear": "Clear",
@@ -594,6 +600,8 @@
   "model-description": "Choose the model this automation agent should use.",
 
   "provider": "Provider",
+  "description": "Description",
+  "created": "Created",
 
   "gateway-mode": "Gateway Mode",
   "select-gateway-mode": "Select gateway mode",

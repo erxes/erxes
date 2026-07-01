@@ -41,7 +41,7 @@ const ClientPortalUsersFilterPopover = () => {
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  {t('search')}
+                  {t('search', 'Search')}
                 </Filter.Item>
               </Command.List>
             </Command>

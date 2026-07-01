@@ -58,7 +58,7 @@ export const AutomationRecordTableCommandBar = () => {
                 },
                 onError: (e: ApolloError) => {
                   toast({
-                    title: t('error'),
+                    title: t('error', 'Error'),
                     description: e.message,
                     variant: 'destructive',
                   });
