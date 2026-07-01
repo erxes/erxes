@@ -13,10 +13,11 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useMemo } from 'react';
-import { useWatch, useFormContext } from 'react-hook-form';
+import { UseFormReturn, useWatch, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { SelectBranches, SelectDepartments, SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
+import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 import { SyncSettingSection } from './SyncSettingSection';
 
 export const SyncConfigGeneralFields = () => {
@@ -83,6 +84,71 @@ export const SyncConfigGeneralFields = () => {
         )}
       />
     </>
+  );
+};
+
+export const SyncConfigPipelineSection = ({
+  boardId,
+  pipelineId,
+  form,
+}: {
+  boardId?: string;
+  pipelineId?: string;
+  form: UseFormReturn<any>;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  return (
+    <SyncSettingSection title={t('pipeline')}>
+      <Form.Field
+        control={form.control}
+        name="boardId"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('board')}</Form.Label>
+            <SelectBoard.FormItem
+              mode="single"
+              value={field.value}
+              onValueChange={field.onChange}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="pipelineId"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('pipeline')}</Form.Label>
+            <SelectPipeline.FormItem
+              mode="single"
+              value={field.value}
+              boardId={boardId || undefined}
+              onValueChange={field.onChange}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="stageId"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('stage')}</Form.Label>
+            <SelectStage.FormItem
+              mode="single"
+              value={field.value}
+              pipelineId={pipelineId || undefined}
+              onValueChange={field.onChange}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <SyncResponseFieldSelect form={form} />
+    </SyncSettingSection>
   );
 };
 

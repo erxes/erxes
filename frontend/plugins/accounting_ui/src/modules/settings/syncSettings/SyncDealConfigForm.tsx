@@ -3,18 +3,17 @@ import { Form, isEnabled } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { z } from 'zod';
 import { TR_STATUSES } from '@/transactions/types/constants';
 import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
 import {
   SyncConfigGeneralFields,
+  SyncConfigPipelineSection,
   SyncConfigAccountsSection,
   SyncConfigPaymentsSection,
   SyncConfigVatCtaxSection,
   SyncConfigFormFooter,
 } from './SyncConfigFormSections';
-import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 import { SyncSettingSection } from './SyncSettingSection';
 
 export const syncDealConfigFormSchema = z.object({
@@ -129,56 +128,11 @@ export const SyncDealConfigForm = ({
             <SyncConfigGeneralFields />
           </SyncSettingSection>
 
-          <SyncSettingSection title={t('pipeline')}>
-            <Form.Field
-              control={form.control}
-              name="boardId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('board')}</Form.Label>
-                  <SelectBoard.FormItem
-                    mode="single"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="pipelineId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('pipeline')}</Form.Label>
-                  <SelectPipeline.FormItem
-                    mode="single"
-                    value={field.value}
-                    boardId={boardId || undefined}
-                    onValueChange={field.onChange}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="stageId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('stage')}</Form.Label>
-                  <SelectStage.FormItem
-                    mode="single"
-                    value={field.value}
-                    pipelineId={pipelineId || undefined}
-                    onValueChange={field.onChange}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <SyncResponseFieldSelect form={form} />
-          </SyncSettingSection>
+          <SyncConfigPipelineSection
+            boardId={boardId}
+            pipelineId={pipelineId}
+            form={form}
+          />
 
           <SyncConfigAccountsSection />
           <SyncConfigPaymentsSection

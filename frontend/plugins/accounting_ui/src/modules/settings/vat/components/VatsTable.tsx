@@ -2,8 +2,6 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
-  Table,
   useQueryState,
   Popover,
   Combobox,
@@ -19,30 +17,6 @@ import { vatRowDetailAtom } from '../states/vatRowStates';
 import { IVatRow } from '../types/VatRow';
 import { VatRowsCommandbar } from './VatRowsCommandbar';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { useMemo } from 'react';
-
-const VatRowsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {vatRowsColumns.map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
 
 export const VatRowsTable = () => {
   const { vatRows, loading, handleFetchMore, totalCount } = useVatRows();
@@ -58,7 +32,7 @@ export const VatRowsTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
-            {isInitialLoading && <VatRowsInitialSkeleton rows={20} />}
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
             {!loading && (totalCount ?? 0) > (vatRows?.length ?? 0) && (
               <RecordTable.RowSkeleton
                 rows={4}
