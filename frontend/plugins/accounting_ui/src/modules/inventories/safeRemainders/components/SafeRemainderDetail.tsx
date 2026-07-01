@@ -157,9 +157,7 @@ export const SafeRemainderDetail = () => {
         returnText="Safe Remainders"
         skipSettings={true}
         leftChildren={
-          <span className="font-semibold">
-            {t('inventory-census-detail')}
-          </span>
+          <span className="font-semibold">{t('inventory-census-detail')}</span>
         }
       >
         <div className="flex items-center gap-2 text-sm mr-1">
@@ -181,7 +179,8 @@ export const SafeRemainderDetail = () => {
         <SafeRemainderDetailFilter
           afterBar={
             <span className="text-sm text-muted-foreground">
-              {safeRemainderItemsCount ?? 0} {t('records-found', 'records found')}
+              {safeRemainderItemsCount ?? 0}{' '}
+              {t('records-found', 'records found')}
             </span>
           }
         />

@@ -209,7 +209,9 @@ const RuleSection = ({
           <div>
             <h5 className="text-sm font-semibold leading-none">{title}</h5>
             {description && (
-              <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {description}
+              </p>
             )}
           </div>
         </div>
