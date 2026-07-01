@@ -4,21 +4,21 @@ import { Card } from 'erxes-ui/components/card';
 import { Dialog } from 'erxes-ui/components/dialog';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
-
+import { REACT_APP_API_URL } from 'erxes-ui'; 
 import ConfigFormContainer from './configs/containers/Form';
 
 const KHANBANK_PAYMENT = PAYMENT_KINDS[PaymentKind.KHANBANK];
 
 const KhanBankCard = () => {
   const [open, setOpen] = useState(false);
-
+  const logoUrl = `${REACT_APP_API_URL}/pl:payment/static/images/payments/khanbank.png`;
   return (
     <>
       <Card className="p-4 space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="http://localhost:3310/images/payments/khanbank.png"
+              src={logoUrl}
               alt="Khan Bank"
               className="h-10 w-10 rounded-md object-contain"
             />

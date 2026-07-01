@@ -4,25 +4,24 @@ import { Card } from 'erxes-ui/components/card';
 import { Dialog } from 'erxes-ui/components/dialog';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
-
+import { REACT_APP_API_URL } from 'erxes-ui'; 
 import ConfigFormContainer from './configs/containers/Form';
 
 const GOLOMT_PAYMENT = PAYMENT_KINDS[PaymentKind.GOLOMT];
 
 const GolomtBankCard = () => {
   const [open, setOpen] = useState(false);
-
+  const logoUrl = `${REACT_APP_API_URL}/pl:payment/static/images/payments/golomt.png`;
   return (
     <>
       <Card className="p-4 space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="http://localhost:3310/images/payments/golomt.png"
+              src={logoUrl}
               alt="Golomt Bank"
               className="h-10 w-10 rounded-md object-contain"
             />
-
             <div>
               <p className="font-semibold">{GOLOMT_PAYMENT.name}</p>
               <p className="text-xs text-muted-foreground">(Accepts MNT)</p>

@@ -6,7 +6,7 @@ import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { useQuery } from '@apollo/client';
 import { configs } from './configs/graphql/queries';
-
+import { REACT_APP_API_URL } from 'erxes-ui'; 
 import ConfigFormContainer from './configs/containers/Form';
 
 const TDB_PAYMENT = PAYMENT_KINDS[PaymentKind.TDB];
@@ -14,7 +14,7 @@ const TDB_PAYMENT = PAYMENT_KINDS[PaymentKind.TDB];
 const TdbCard = () => {
   const [open, setOpen] = useState(false);
   const { data, refetch } = useQuery(configs);
-
+  const logoUrl = `${REACT_APP_API_URL}/pl:payment/static/images/payments/tdb.png`;
   const handleClose = () => setOpen(false);
 
   return (
@@ -24,7 +24,7 @@ const TdbCard = () => {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="http://localhost:3310/images/payments/tdb.png"
+              src={logoUrl}
               alt="TDB"
               className="h-10 w-10 rounded-md object-contain"
             />
@@ -37,13 +37,20 @@ const TdbCard = () => {
             + Add
           </Button>
         </div>
-        <p className="text-sm text-muted-foreground">{TDB_PAYMENT.description}</p>
+        <p className="text-sm text-muted-foreground">
+          {TDB_PAYMENT.description}
+        </p>
 
         {/* Optionally display existing configs */}
         {data?.tdbConfigs?.map((cfg: any) => (
-          <div key={cfg._id} className="flex justify-between items-center text-sm">
+          <div
+            key={cfg._id}
+            className="flex justify-between items-center text-sm"
+          >
             <span>{cfg.name}</span>
-            <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>Edit</Button>
+            <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
+              Edit
+            </Button>
           </div>
         ))}
       </Card>
@@ -55,7 +62,7 @@ const TdbCard = () => {
           </Dialog.Header>
 
           <ConfigFormContainer
-            configId={undefined}          // pass id if editing
+            configId={undefined} // pass id if editing
             closeModal={handleClose}
             refetchList={refetch}
           />

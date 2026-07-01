@@ -86,3 +86,24 @@ export const SUCCESSFUL_STATUSES: TdbOrderStatus[] = [
   'AUTHORIZED',
   'PAID',
 ];
+
+export interface ITdbOrder {
+  orderId: number;
+  password: string;
+  hppUrl?: string;
+  amount: number;
+  currency: string;
+  description: string;
+  language?: string;
+  status: TdbOrderStatus;
+  createTime: string;
+  typeRid?: string;
+  hppRedirectUrl?: string;
+  paymentId?: string;
+  invoiceId?: string;
+}
+
+export interface ITdbOrderDocument extends ITdbOrder, Document {
+  _id: string;
+  createdAt: Date;
+}
