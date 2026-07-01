@@ -1,15 +1,16 @@
-import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { JournalEnum } from '@/settings/account/types/Account';
 import { TR_STATUSES } from '@/transactions/types/constants';
-import { Form, Select } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 import { useEffect } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import {
   SyncConfigGeneralFields,
   SyncConfigPipelineSection,
   SyncConfigFormFooter,
+  usePipelineReset,
+  SyncConfigPaymentAccountField,
+  SyncConfigReturnTypeField,
 } from './SyncConfigFormSections';
 import { SyncSettingSection } from './SyncSettingSection';
 
@@ -37,27 +38,11 @@ export const SyncDealReturnConfigForm = ({
   loading,
 }: {
   form: UseFormReturn<ConfigFormValues>;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
 }) => {
   const { t } = useTranslation('accounting');
-  const boardId = useWatch({
-    control: form.control,
-    name: `boardId`,
-  });
-
-  const pipelineId = useWatch({
-    control: form.control,
-    name: `pipelineId`,
-  });
-
-  useEffect(() => {
-    form.setValue('pipelineId', '');
-  }, [boardId, form]);
-
-  useEffect(() => {
-    form.setValue('stageId', '');
-  }, [pipelineId, form]);
+  const { boardId, pipelineId } = usePipelineReset(form);
 
   useEffect(() => {
     if (!form.getValues('trStatus')) {
@@ -74,29 +59,7 @@ export const SyncDealReturnConfigForm = ({
         <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
           <SyncSettingSection title={t('general')}>
             <SyncConfigGeneralFields />
-            <Form.Field
-              control={form.control}
-              name="returnType"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('return-type')}</Form.Label>
-                  <Form.Control>
-                    <Select {...field} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
-                        <Select.Item value="onlySale">
-                          {t('only-sale')}
-                        </Select.Item>
-                        <Select.Item value="delete">{t('delete')}</Select.Item>
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            <SyncConfigReturnTypeField />
           </SyncSettingSection>
 
           <SyncConfigPipelineSection
@@ -106,27 +69,9 @@ export const SyncDealReturnConfigForm = ({
           />
 
           <SyncSettingSection title={t('Payments')}>
-            <Form.Field
-              control={form.control}
+            <SyncConfigPaymentAccountField
               name="defaultPayment.accountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('return-payment-account')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccount.FormItem
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      defaultFilter={{
-                        journals: [
-                          JournalEnum.BANK,
-                          JournalEnum.CASH,
-                          JournalEnum.DEBT,
-                        ],
-                      }}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
+              label={t('return-payment-account')}
             />
           </SyncSettingSection>
         </div>

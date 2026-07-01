@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { Form, isEnabled } from 'erxes-ui';
 import { useEffect } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { TR_STATUSES } from '@/transactions/types/constants';
@@ -13,6 +13,8 @@ import {
   SyncConfigPaymentsSection,
   SyncConfigVatCtaxSection,
   SyncConfigFormFooter,
+  usePipelineReset,
+  TPaymentType,
 } from './SyncConfigFormSections';
 import { SyncSettingSection } from './SyncSettingSection';
 
@@ -61,12 +63,11 @@ export const SyncDealConfigForm = ({
   loading,
 }: {
   form: UseFormReturn<ConfigFormValues>;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
 }) => {
   const { t } = useTranslation('accounting');
-  const boardId = useWatch({ control: form.control, name: 'boardId' });
-  const pipelineId = useWatch({ control: form.control, name: 'pipelineId' });
+  const { boardId, pipelineId } = usePipelineReset(form);
 
   const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(
     PIPELINE_DETAIL,
@@ -76,14 +77,6 @@ export const SyncDealConfigForm = ({
       fetchPolicy: 'network-only', // заавал backend-ээс авна
     },
   );
-
-  useEffect(() => {
-    form.setValue('pipelineId', '');
-  }, [boardId, form]);
-
-  useEffect(() => {
-    form.setValue('stageId', '');
-  }, [pipelineId, form]);
 
   useEffect(() => {
     if (pipelineId) {
@@ -98,7 +91,7 @@ export const SyncDealConfigForm = ({
   }, [form]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: any[] =
+  const paymentTypes: TPaymentType[] =
     pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
   const mongolianEnabled = isEnabled('mongolian');
 

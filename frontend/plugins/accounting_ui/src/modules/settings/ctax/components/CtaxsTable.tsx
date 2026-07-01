@@ -1,12 +1,11 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
-  RecordTable,
-  RecordTableInlineCell,
   useQueryState,
   Popover,
   Combobox,
   Command,
   useConfirm,
+  RecordTable,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCtaxRows } from '../hooks/useCtaxRows';
@@ -14,35 +13,26 @@ import { ICtaxRow } from '../types/CtaxRow';
 import { CtaxRowsCommandbar } from './CtaxRowsCommandbar';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useCtaxRowsRemove } from '../hooks/useCtaxRowsRemove';
+import {
+  SettingsRowsTable,
+  getSharedRowColumns,
+} from '../../components/SettingsRowsTable';
 
 export const CtaxRowsTable = () => {
   const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
-  const isInitialLoading = loading && !ctaxRows?.length;
 
   return (
-    <RecordTable.Provider
+    <SettingsRowsTable
       columns={ctaxRowsColumns}
-      data={isInitialLoading ? [] : ctaxRows || []}
-    >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.RowList />
-            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
-            {!loading && (totalCount ?? 0) > (ctaxRows?.length ?? 0) && (
-              <RecordTable.RowSkeleton
-                rows={4}
-                handleInView={handleFetchMore}
-              />
-            )}
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
-      <CtaxRowsCommandbar />
-    </RecordTable.Provider>
+      data={ctaxRows || []}
+      loading={loading}
+      totalCount={totalCount}
+      handleFetchMore={handleFetchMore}
+      Commandbar={CtaxRowsCommandbar}
+    />
   );
 };
+
 export const CtaxMoreColumnCell = ({
   cell,
 }: {
@@ -96,69 +86,6 @@ export const ctaxRowMoreColumn = {
   size: 33,
 };
 
-export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
-  ctaxRowMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<ICtaxRow>,
-  {
-    id: 'number',
-    accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Дугаар" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 250,
-  },
-  {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 250,
-  },
-  {
-    id: 'kind',
-    accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Төрөл" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Төлөв" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'percent',
-    accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Хувь" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-];
+export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = getSharedRowColumns(
+  ctaxRowMoreColumn as ColumnDef<ICtaxRow>,
+);

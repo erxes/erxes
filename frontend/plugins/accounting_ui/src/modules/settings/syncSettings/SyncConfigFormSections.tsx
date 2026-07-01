@@ -12,7 +12,7 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { UseFormReturn, useWatch, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -25,6 +25,91 @@ import {
 import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 import { SyncSettingSection } from './SyncSettingSection';
+
+export const usePipelineReset = (form: UseFormReturn<any>) => {
+  const boardId = useWatch({
+    control: form.control,
+    name: 'boardId',
+  });
+
+  const pipelineId = useWatch({
+    control: form.control,
+    name: 'pipelineId',
+  });
+
+  useEffect(() => {
+    form.setValue('pipelineId', '');
+  }, [boardId, form]);
+
+  useEffect(() => {
+    form.setValue('stageId', '');
+  }, [pipelineId, form]);
+
+  return { boardId, pipelineId };
+};
+
+export const SyncConfigPaymentAccountField = ({
+  name,
+  label,
+}: {
+  name: string;
+  label: string;
+}) => {
+  const { control } = useFormContext();
+  return (
+    <Form.Field
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Form.Control>
+            <SelectAccount.FormItem
+              value={field.value}
+              onValueChange={field.onChange}
+              defaultFilter={{
+                journals: [
+                  JournalEnum.BANK,
+                  JournalEnum.CASH,
+                  JournalEnum.DEBT,
+                ],
+              }}
+            />
+          </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const SyncConfigReturnTypeField = () => {
+  const { t } = useTranslation('accounting');
+  const { control } = useFormContext();
+
+  return (
+    <Form.Field
+      control={control}
+      name="returnType"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('return-type')}</Form.Label>
+          <Form.Control>
+            <Select {...field} onValueChange={field.onChange}>
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
+                <Select.Item value="onlySale">{t('only-sale')}</Select.Item>
+                <Select.Item value="delete">{t('delete')}</Select.Item>
+              </Select.Content>
+            </Select>
+          </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+};
 
 export const SyncConfigGeneralFields = () => {
   const { t } = useTranslation('accounting');
@@ -248,15 +333,19 @@ export const SyncConfigAccountsSection = () => {
   );
 };
 
+export type TPaymentType = {
+  type: string;
+  title: string;
+};
+
 export const SyncConfigPaymentsSection = ({
   paymentTypes,
   paymentKey,
 }: {
-  paymentTypes: any[];
+  paymentTypes: TPaymentType[];
   paymentKey: string;
 }) => {
   const { t } = useTranslation('accounting');
-  const { control } = useFormContext();
 
   const paymentList = useMemo(
     () => [
@@ -269,73 +358,19 @@ export const SyncConfigPaymentsSection = ({
 
   return (
     <SyncSettingSection title={t('Payments')}>
-      <Form.Field
-        control={control}
+      <SyncConfigPaymentAccountField
         name="defaultPayment.accountId"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('default-payment-account')}</Form.Label>
-            <Form.Control>
-              <SelectAccount.FormItem
-                value={field.value}
-                onValueChange={field.onChange}
-                defaultFilter={{
-                  journals: [
-                    JournalEnum.BANK,
-                    JournalEnum.CASH,
-                    JournalEnum.DEBT,
-                  ],
-                }}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
+        label={t('default-payment-account')}
       />
-      <Form.Field
-        control={control}
+      <SyncConfigPaymentAccountField
         name="defaultNegPayment.accountId"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('default-neg-payment-account')}</Form.Label>
-            <Form.Control>
-              <SelectAccount.FormItem
-                value={field.value}
-                onValueChange={field.onChange}
-                defaultFilter={{
-                  journals: [
-                    JournalEnum.BANK,
-                    JournalEnum.CASH,
-                    JournalEnum.DEBT,
-                  ],
-                }}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
+        label={t('default-neg-payment-account')}
       />
       {paymentList.map((ptype) => (
-        <Form.Field
+        <SyncConfigPaymentAccountField
           key={`${paymentKey}-${ptype.type}`}
-          control={control}
           name={`payments.${ptype.type}.accountId`}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{ptype.title}</Form.Label>
-              <Form.Control>
-                <SelectAccount.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultFilter={{
-                    journals: [
-                      JournalEnum.BANK,
-                      JournalEnum.CASH,
-                      JournalEnum.DEBT,
-                    ],
-                  }}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
+          label={ptype.title}
         />
       ))}
     </SyncSettingSection>

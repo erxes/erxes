@@ -12,6 +12,8 @@ import {
   SyncConfigPaymentsSection,
   SyncConfigVatCtaxSection,
   SyncConfigFormFooter,
+  SyncConfigReturnTypeField,
+  TPaymentType,
 } from './SyncConfigFormSections';
 import { SyncSettingSection } from './SyncSettingSection';
 
@@ -58,7 +60,7 @@ export const SyncOrderConfigForm = ({
   loading,
 }: {
   form: UseFormReturn<ConfigFormValues>;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
 }) => {
   const { t } = useTranslation('accounting');
@@ -67,7 +69,7 @@ export const SyncOrderConfigForm = ({
   const { data: posList, loading: posListLoading } = useQuery(POS_LIST, {});
   const posOptions: { value: string; label: string }[] = useMemo(() => {
     if (posListLoading) return [];
-    return posList?.posList?.map((p: { name: any; _id: any }) => ({
+    return posList?.posList?.map((p: { name: string; _id: string }) => ({
       label: p.name,
       value: p._id,
     }));
@@ -93,7 +95,7 @@ export const SyncOrderConfigForm = ({
   }, [form]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: any[] = posDetailData?.posDetail?.paymentTypes || [];
+  const paymentTypes: TPaymentType[] = posDetailData?.posDetail?.paymentTypes || [];
   const mongolianEnabled = isEnabled('mongolian');
 
   const handleSubmit = (data: ConfigFormValues) =>
@@ -120,29 +122,7 @@ export const SyncOrderConfigForm = ({
         <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
           <SyncSettingSection title={t('general')}>
             <SyncConfigGeneralFields />
-            <Form.Field
-              control={form.control}
-              name="returnType"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('return-type')}</Form.Label>
-                  <Form.Control>
-                    <Select {...field} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
-                        <Select.Item value="onlySale">
-                          {t('only-sale')}
-                        </Select.Item>
-                        <Select.Item value="delete">{t('delete')}</Select.Item>
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            <SyncConfigReturnTypeField />
           </SyncSettingSection>
 
           <SyncSettingSection title="POS">

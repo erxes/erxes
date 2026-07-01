@@ -1,13 +1,12 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
-  RecordTable,
-  RecordTableInlineCell,
   useQueryState,
   Popover,
   Combobox,
   Command,
   useConfirm,
   toast,
+  RecordTable,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
@@ -17,33 +16,23 @@ import { vatRowDetailAtom } from '../states/vatRowStates';
 import { IVatRow } from '../types/VatRow';
 import { VatRowsCommandbar } from './VatRowsCommandbar';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import {
+  SettingsRowsTable,
+  getSharedRowColumns,
+} from '../../components/SettingsRowsTable';
 
 export const VatRowsTable = () => {
   const { vatRows, loading, handleFetchMore, totalCount } = useVatRows();
-  const isInitialLoading = loading && !vatRows?.length;
 
   return (
-    <RecordTable.Provider
+    <SettingsRowsTable
       columns={vatRowsColumns}
-      data={isInitialLoading ? [] : vatRows || []}
-    >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.RowList />
-            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
-            {!loading && (totalCount ?? 0) > (vatRows?.length ?? 0) && (
-              <RecordTable.RowSkeleton
-                rows={4}
-                handleInView={handleFetchMore}
-              />
-            )}
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
-      <VatRowsCommandbar />
-    </RecordTable.Provider>
+      data={vatRows || []}
+      loading={loading}
+      totalCount={totalCount}
+      handleFetchMore={handleFetchMore}
+      Commandbar={VatRowsCommandbar}
+    />
   );
 };
 
@@ -116,83 +105,6 @@ export const vatRowMoreColumn = {
   size: 33,
 };
 
-export const vatRowsColumns: ColumnDef<IVatRow>[] = [
-  vatRowMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IVatRow>,
-  {
-    id: 'number',
-    accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Дугаар" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 250,
-  },
-  {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-    size: 250,
-  },
-  {
-    id: 'kind',
-    accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Төрөл" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Төлөв" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'percent',
-    accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Хувь" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-];
-
-export const VatMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IVatRow, unknown>;
-}) => {
-  return <RecordTable.MoreButton />;
-};
-
-export const vatMoreColumn = {
-  id: 'more',
-  cell: VatMoreColumnCell,
-  size: 33,
-};
+export const vatRowsColumns: ColumnDef<IVatRow>[] = getSharedRowColumns(
+  vatRowMoreColumn as ColumnDef<IVatRow>,
+);
