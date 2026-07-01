@@ -56,7 +56,18 @@ export const cpTicketQueries = {
     { ticketId }: { ticketId: string },
     { models }: IContext,
   ) => {
-    return models.Note.find({ contentId: ticketId }).sort({ createdAt: -1 }).lean();
+    const ticket = await models.Ticket.findOne(
+      { _id: ticketId },
+      { statusId: 1 },
+    ).lean();
+
+    const filter: Record<string, any> = { contentId: ticketId };
+
+    if (ticket?.statusId) {
+      filter.statusId = ticket.statusId;
+    }
+
+    return models.Note.find(filter).sort({ createdAt: -1 }).lean();
   },
 };
 
