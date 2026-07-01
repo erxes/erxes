@@ -18,7 +18,7 @@ export const beforeResolvers: BeforeResolversConfig = {
   },
 
   handler: async (subdomain, params) => {
-    const { resolver, args = {} } = params;
+    const { resolver, args = {}, user } = params;
 
     if (!productIdsResolvers.includes(resolver)) {
       return { status: 'ok' };
@@ -41,6 +41,12 @@ export const beforeResolvers: BeforeResolversConfig = {
     if (!usedProductIds.length) {
       return { status: 'ok' };
     }
+
+    console.log('productMutationResolvers', productMutationResolvers)
+    console.log('productIdsResolvers', productIdsResolvers)
+    console.log('resolver', resolver)
+    console.log('user', JSON.stringify(user, null, 2))
+    console.log('args', JSON.stringify(args, null, 2))
 
     // Soft-delete the products that are referenced by sales deals.
     console.log(
