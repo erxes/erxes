@@ -4,7 +4,9 @@ import { MagicLinkLoginForm } from '@/auth/login/components/MagicLinkLoginForm';
 import { useState } from 'react';
 import { useVersion } from 'ui-modules';
 import { motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 export const Login = () => {
+  const { t } = useTranslation('auth');
   const isOS = useVersion();
   const [value, setValue] = useState<string>(
     isOS ? 'credential' : 'magic-link',
@@ -13,9 +15,9 @@ export const Login = () => {
   return (
     <>
       <div className="flex flex-col items-center gap-3">
-        <div className="font-semibold text-xl leading-none">Welcome</div>
+        <div className="font-semibold text-xl leading-none">{t('welcome', 'Welcome')}</div>
         <div className="text-center text-accent-foreground">
-          Please sign in to your account to continue
+          {t('please-sign-in', 'Please sign in to your account to continue')}
         </div>
       </div>
 
@@ -40,7 +42,7 @@ export const Login = () => {
                 }}
               />
             )}
-            <span className="relative z-10">Magic link</span>
+            <span className="relative z-10">{t('magic-link', 'Magic link')}</span>
           </Tabs.Trigger>
           <Tabs.Trigger
             className="font-normal after:content-none after:border-none after:shadow-none text-muted-foreground data-[state=active]:text-primary hover:bg-transparent rounded-md transition-colors cursor-pointer relative z-10"
@@ -57,7 +59,7 @@ export const Login = () => {
                 }}
               />
             )}
-            <span className="relative z-10">Email & password</span>
+            <span className="relative z-10">{t('email-and-password', 'Email & password')}</span>
           </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="magic-link" className="h-full">

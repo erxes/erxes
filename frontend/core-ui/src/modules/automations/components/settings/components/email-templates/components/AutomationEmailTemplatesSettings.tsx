@@ -6,8 +6,10 @@ import { useRemoveAutomationEmailTemplate } from '@/automations/components/setti
 import { useAutomationEmailTemplates } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplates';
 import { EmailTemplatesList } from '@/automations/components/settings/components/email-templates/components/EmailTemplatesList';
 import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
+import { useTranslation } from 'react-i18next';
 
 export function AutomationEmailTemplatesSettings() {
+  const { t } = useTranslation('automations');
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(1);
 
@@ -34,13 +36,13 @@ export function AutomationEmailTemplatesSettings() {
 
   return (
     <AutomationSettingsPageShell
-      title="Email Templates"
-      description="Create and manage email templates for your automation workflows"
+      title={t('email-templates', 'Email Templates')}
+      description={t('email-templates-description', 'Create and manage email templates for your automation workflows')}
       actions={
         <Button asChild>
           <Link to="/settings/automations/email-templates/create">
             <IconPlus />
-            Create Template
+            {t('create-template', 'Create Template')}
           </Link>
         </Button>
       }
@@ -60,7 +62,7 @@ export function AutomationEmailTemplatesSettings() {
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           {loading
-            ? 'Loading...'
+            ? t('loading', 'Loading...')
             : `${totalCount} template${totalCount !== 1 ? 's' : ''}`}
         </span>
       </div>

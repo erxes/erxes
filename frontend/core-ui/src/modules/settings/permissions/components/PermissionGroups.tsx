@@ -29,8 +29,10 @@ import { useRemovePermissionGroup } from '@/settings/permissions/hooks/useRemove
 import { PermissionGroupEdit } from './form/PermissionGroupEdit';
 import { PermissionGroupDetails } from './PermissionGroupDetails';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const PermissionGroups = () => {
+  const { t } = useTranslation('settings');
   const { defaultGroups, loading: defaultLoading } =
     useGetPermissionDefaultGroups();
   const { permissionGroups, loading: customLoading } = useGetPermissionGroups();
@@ -42,8 +44,8 @@ export const PermissionGroups = () => {
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head>Name</Table.Head>
-                <Table.Head>Description</Table.Head>
+                <Table.Head>{t('name', 'Name')}</Table.Head>
+                <Table.Head>{t('description', 'Description')}</Table.Head>
                 <Table.Head className="w-12"></Table.Head>
               </Table.Row>
             </Table.Header>
@@ -76,8 +78,8 @@ export const PermissionGroups = () => {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.Head>Name</Table.Head>
-              <Table.Head>Description</Table.Head>
+              <Table.Head>{t('name', 'Name')}</Table.Head>
+              <Table.Head>{t('description', 'Description')}</Table.Head>
               <Table.Head className="w-12"></Table.Head>
             </Table.Row>
           </Table.Header>
@@ -91,7 +93,7 @@ export const PermissionGroups = () => {
                 <Button variant="secondary" className="w-full justify-start">
                   <Collapsible.TriggerIcon />
                   <span className="flex items-center gap-2">
-                    Plugin {plugin}
+                    {t('permissions.plugin', 'Plugin')} {plugin}
                   </span>
                 </Button>
               </Collapsible.Trigger>
@@ -133,7 +135,7 @@ export const PermissionGroups = () => {
                                   onSelect={(e) => e.preventDefault()}
                                 >
                                   <IconEye size={16} />
-                                  View
+                                  {t('view', 'View')}
                                 </DropdownMenu.Item>
                               }
                             />
@@ -154,7 +156,7 @@ export const PermissionGroups = () => {
             <Collapsible.Trigger asChild>
               <Button variant="secondary" className="w-full justify-start">
                 <Collapsible.TriggerIcon />
-                <span className="flex items-center gap-2">Custom Groups</span>
+                <span className="flex items-center gap-2">{t('permissions.custom-groups', 'Custom Groups')}</span>
               </Button>
             </Collapsible.Trigger>
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
@@ -174,7 +176,7 @@ export const PermissionGroups = () => {
             {permissionGroups.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 border border-dashed rounded-lg">
                 <p className="text-muted-foreground mb-4">
-                  No custom groups yet
+                  {t('permissions.no-custom-groups', 'No custom groups yet')}
                 </p>
                 <Can action="permissionsManage">
                   <PermissionGroupAdd />
@@ -213,6 +215,7 @@ export const PermissionGroups = () => {
 };
 
 const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
+  const { t } = useTranslation('settings');
   const { confirm } = useConfirm();
   const { removePermissionGroup } = useRemovePermissionGroup();
 
@@ -223,11 +226,11 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
       removePermissionGroup({
         variables: { _id: group._id },
         onCompleted: () => {
-          toast({ title: 'Permission group deleted', variant: 'success' });
+          toast({ title: t('permissions.group-deleted', 'Permission group deleted'), variant: 'success' });
         },
         onError: (error) => {
           toast({
-            title: 'Error deleting permission group',
+            title: t('permissions.group-delete-error', 'Error deleting permission group'),
             variant: 'destructive',
             description: error.message,
           });
@@ -253,7 +256,7 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
           trigger={
             <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
               <IconEye size={16} />
-              View
+              {t('view', 'View')}
             </DropdownMenu.Item>
           }
         />
@@ -264,7 +267,7 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
               trigger={
                 <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
                   <IconEdit size={16} />
-                  Edit
+                  {t('edit', 'Edit')}
                 </DropdownMenu.Item>
               }
             />
@@ -274,7 +277,7 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
               onClick={handleDelete}
             >
               <IconTrash size={16} />
-              Delete
+              {t('delete', 'Delete')}
             </DropdownMenu.Item>
           </>
         </Can>

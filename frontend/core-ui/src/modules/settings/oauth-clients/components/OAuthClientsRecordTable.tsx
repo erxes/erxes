@@ -3,14 +3,16 @@ import { IconArchive } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { OAuthClientsCommandBar } from './OAuthClientsCommandBar';
 import { oauthClientsMoreColumn } from './table/OAuthClientsMoreColumn';
-import { oauthClientsSettingsColumns } from './table/OAuthClientsSettingsColumns';
+import { getOAuthClientsSettingsColumns } from './table/OAuthClientsSettingsColumns';
 import { useOAuthClients } from '../hooks/useOAuthClients';
+import { useTranslation } from 'react-i18next';
 
 export function OAuthClientsRecordTable() {
+  const { t } = useTranslation('settings');
   const { oauthClientApps, loading, error } = useOAuthClients();
   const columns = useMemo(
-    () => [...oauthClientsSettingsColumns, oauthClientsMoreColumn],
-    [],
+    () => [...getOAuthClientsSettingsColumns(t), oauthClientsMoreColumn],
+    [t],
   );
 
   return (

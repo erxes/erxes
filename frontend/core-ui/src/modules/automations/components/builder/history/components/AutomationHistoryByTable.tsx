@@ -417,7 +417,7 @@ export const AutomationHistoryByTable = () => {
     <div className="flex h-full min-h-0 flex-col px-4">
       <div className="flex justify-end py-2">
         <Button variant="ghost" disabled={loading} onClick={() => refetch()}>
-          Reload <IconRefresh />
+          {t('reload', 'Reload')} <IconRefresh />
         </Button>
       </div>
       <RecordTable.Provider

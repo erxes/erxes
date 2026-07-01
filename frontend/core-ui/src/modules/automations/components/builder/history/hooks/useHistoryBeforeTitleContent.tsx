@@ -4,6 +4,7 @@ import { IconCheck, IconQuestionMark, IconX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Badge, cn, Label, Popover, Separator } from 'erxes-ui';
 import { IAutomationHistory } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 type HistoryStatusType = 'success' | 'error' | 'unknown';
 
@@ -23,6 +24,7 @@ const STATUS_MAP: Record<
 };
 
 export const useHistoryBeforeTitleContent = (history: IAutomationHistory) => {
+  const { t } = useTranslation('automations');
   const beforeTitleContent = (id: string, type: AutomationNodeType) => {
     const data = getHistoryContent(history, id, type);
     if (!data) return null;
@@ -60,7 +62,7 @@ const getHistoryContent = (
     return {
       status: 'success' as HistoryStatusType,
       createdAt: history.createdAt,
-      content: <Badge>Passed</Badge>,
+      content: <Badge>{t('passed', 'Passed')}</Badge>,
     };
   }
 

@@ -201,7 +201,7 @@ const AutomationNodeLibrarySidebarFilters = ({
                 setIsGroupPopoverOpen(false);
               }}
             >
-              Clear
+              {t('clear', 'Clear')}
             </button>
           ) : null}
         </div>

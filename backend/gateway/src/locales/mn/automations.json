@@ -17,7 +17,7 @@
   "created-user": "Үүсгэсэн хэрэглэгч",
   "empty-title": "Автоматжуулалт олдсонгүй",
   "empty-description": "Шинэ автоматжуулалт үүсгэх эсвэл шүүлтүүрээ өөрчлөөд үргэлжлүүлнэ үү.",
-  "records-found-label": "бичлэг олдлоо",
+  "records-found-label": "үр дүн олдлоо",
 
   "save": "Хадгалах",
   "automation-name-placeholder": "Автоматжуулалтын нэр",
@@ -183,7 +183,7 @@
   "variables-help-step-insert-variable": "Хувьсагчийг дэмжигдэх талбар руу дарж эсвэл чирж оруулна.",
 
   "no-results": "Үр дүн олдсонгүй",
-  "records-found": "{{count}} бичлэг олдлоо",
+  "records-found": "{{count}} үр дүн олдлоо",
 
   "search-filter": "Хайх",
   "status-filter": "Төлөв",
@@ -235,5 +235,387 @@
     }
   },
   "error": "Алдаа",
-  "success": "Амжилттай"
+  "success": "Амжилттай",
+
+  "hide-minimap": "Мини газрын зургийг нуух",
+  "show-minimap": "Мини газрын зургийг харуулах",
+  "hide-grid": "Хүснэгт нуух",
+  "show-grid": "Хүснэгт харуулах",
+  "direction": "Чиглэл",
+  "edge-type": "Холболтын төрөл",
+  "download": "Татаж авах",
+  "png": "PNG",
+  "with-background": "Арын дэвсгэртэй",
+  "transparent": "Тунгалаг",
+  "svg": "SVG",
+  "export-json": "JSON экспортлох",
+
+  "variables": "Хувьсагчид",
+  "output-variables-panel-description": "Гаралтын хувьсагчдын самбар энд харагдана.",
+
+  "select-node": "Node сонгох",
+  "search-nodes": "Node хайх...",
+  "no-nodes-found": "Node олдсонгүй.",
+
+  "no-output-variables-yet": "Одоохондоо гаралтын хувьсагч байхгүй",
+  "no-output-variables-description": "Энд боломжтой гаралтын хувьсагчдыг харахын тулд ажлын урсгалд триггер эсвэл үйлдэл нэмэн тохируулна уу..",
+
+  "no-permission": "Зөвшөөрөл байхгүй",
+
+  "hide-details": "Дэлгэрэнгүйг нуух",
+  "show-details": "Дэлгэрэнгүйг харуулах",
+  "try-again": "Дахин оролдох",
+
+  "payload-schema": "Ачааллын схем",
+  "no-payload-schema-defined": "Ачааллын схем тодорхойлогдоогүй",
+
+  "edit-content": "Агуулга засах",
+  "edit-email-content": "Имэйлийн агуулга засах",
+  "edit-email-content-description": "Имэйлээ бэлтгэхийн тулд редакторыг ашиглана уу. Мессеж бүрийг хувийн болгохын тулд баруун талын самбараас хувьсагч оруулна уу.",
+  "no-variables-available-yet": "Одоохондоо хувьсагч байхгүй байна.",
+  "no-variables-available-description": "Боломжтой гаралтын хувьсагчдыг харахын тулд энэ node-ийн өмнө trigger нэмж эсвэл action-ыг тохируулна уу.",
+  "variable-sources": "Хувьсагчийн эх сурвалж",
+
+  "see-emails": "Имэйлүүдийг харах",
+  "recipient-emails": "Хүлээн авагчийн имэйлүүд",
+
+  "sent-successfully": "Амжилттай илгээгдлээ",
+  "see-content": "Агуулга харах",
+
+  "search-email-templates": "Имэйлийн загвар хайх...",
+  "no-email-templates-found": "Имэйлийн загвар олдсонгүй",
+
+  "output-mappings": "Гаралтын зураглалууд",
+  "add-mapping": "Зураглал нэмэх",
+
+  "authentication": "Баталгаажуулалт",
+  "none": "Байхгүй",
+  "basic-auth": "Үндсэн баталгаажуулалт",
+  "bearer-token-auth": "Bearer токен баталгаажуулалт",
+  "jwt-bearer": "JWT Bearer",
+  "user": "Хэрэглэгч",
+  "password": "Нууц үг",
+  "jwt-secret": "JWT нууц",
+  "algorithm": "Алгоритм",
+  "jwt-header-json": "JWT толгой (JSON)",
+  "jwt-payload-json": "JWT ачаалал (JSON)",
+  "token-placement": "Токены байршил",
+  "authorization-header": "Зөвшөөрлийн толгой",
+  "query-parameter": "Query параметр",
+  "request-body": "Хүсэлтийн биет",
+  "jwt-token-generation": "JWT токен үүсгэх",
+
+  "method": "Арга",
+  "url": "URL",
+  "query-parameters": "Query параметрүүд",
+  "add-parameter": "Параметр нэмэх",
+
+  "hide-raw": "Түүхийг нуух",
+  "edit-raw": "Түүхийг засах",
+  "apply": "Хэрэглэх",
+
+  "retry-configuration": "Дахин оролдлогын тохиргоо",
+  "delay-between-retry-attempts": "Дахин оролдлогуудын хоорондох хугацаа",
+  "proxy-configuration": "Proxy тохиргоо",
+
+  "add-header": "Header нэмэх",
+  "no-headers-added": "Одоохондоо header нэмэгдээгүй байна...",
+
+  "no-document-configured": "Баримт бичиг тохируулагдаагүй",
+
+  "split-options-description": "Салгах сонголт бүрт сегментийн нөхцөлүүдийг тохируулна уу.",
+  "add-option": "Сонголт нэмэх",
+  "save-condition-before-split": "Split-ийн тохиргоог хадгалахын өмнө өөрчилсөн бүх нөхцөлийг эхлээд хадгална уу.",
+
+  "form-error": "Маягтад алдаа байна",
+  "settings": "Тохиргоо",
+
+  "memory": "Санах ой",
+  "runtime-snapshot": "Runtime Snapshot",
+
+  "enter-topic-label": "Сэдвийн нэр оруулна уу",
+  "explain-topic-selection": "Энэ сэдэв хэзээ сонгогдох ёстойг тайлбарлана уу",
+  "add-topic": "Сэдэв нэмэх",
+
+  "field-key": "Талбарын түлхүүр",
+  "data-type": "Өгөгдлийн төрөл",
+  "validation": "Шалгалт",
+  "add-classification-field": "Ангиллын талбар нэмэх",
+
+  "execution-history": "Гүйцэтгэлийн түүх",
+  "execution-history-description": "Автоматжуулалтын ажиллах явцын алхам бүрийн мөрдөлт. Node бүрийг дэлгэрүүлж оролт, гаралт, гүйцэтгэлийн хугацааг шалгана.",
+  "view-as-table": "Хүснэгтээр харах",
+  "view-as-flow": "Урсгалаар харах",
+
+  "filter-by-created-at": "Үүсгэсэн огноогоор шүүх",
+  "filter-by-created": "Үүсгэсэнээр шүүх",
+
+  "agents": "Агентууд",
+  "bots": "Ботууд",
+
+  "payload-schema-validation": "Ачааллын схемийн шалгалт",
+  "payload-schema-validation-description": "Шаардлагатай шинж чанар болон өгөгдлийн төрлийг тодорхойлно уу.",
+  "required-properties": "Шаардлагатай шинж чанарууд",
+  "add-root-property": "Үндсэн шинж чанар нэмэх",
+  "expected-payload-structure": "Хүлээгдэж буй ачааллын бүтэц",
+  "updates-in-realtime": "Засварлах үед бодит цаг хугацаанд шинэчлэгдэнэ.",
+
+  "configure-split-options": "Салгах сонголтуудыг тохируулах",
+  "fallback": "Нөөц сонголт",
+
+  "invalid-form": "Буруу маягт",
+  "review-highlighted-fields": "Тодруулсан талбаруудыг шалгаж, дахин оролдоно уу.",
+  "edit-ai-agent": "AI агент засах",
+  "create-ai-agent": "AI агент үүсгэх",
+  "update-your-ai-agent": "AI агентийн тохиргоог шинэчлэх",
+  "create-new-ai-agent": "Автоматжуулалтаа гадаад AI үйлчилгээ үзүүлэгчтэй холбох шинэ AI агент үүсгэнэ үү.",
+
+  "remove": "Арилгах",
+
+  "no-automation-bots-available": "Автоматжуулалтын бот байхгүй",
+
+  "email-templates": "Имэйлийн загварууд",
+  "email-templates-description": "Автоматжуулалтдаа ашиглах дахин ашиглагдах имэйл загваруудыг үүсгэж, удирдах.",
+  "create-template": "Загвар үүсгэх",
+  "loading": "Ачаалж байна...",
+
+  "clear": "Арилгах",
+
+  "webhook-url": "Webhook URL",
+
+  "required": "Шаардлагатай",
+  "optional": "Заавал биш",
+  "add-array-item-property": "Массивын элементийн шинж чанар нэмэх",
+
+  "updated-by": "Шинэчилсэн",
+  "trigger-types": "Триггерийн төрлүүд",
+  "action-types": "Үйлдлийн төрлүүд",
+
+  "no-ai-agents-found": "AI агент олдсонгүй",
+  "create-first-ai-agent-description": "Харилцагчидтайгаа харилцахыг автоматжуулахын тулд эхний AI агентаа үүсгэнэ үү.",
+  "create-first-agent": "Эхний агентыг үүсгэх",
+
+  "configured-agents": "Тохируулагдсан агентууд",
+  "pick-existing-agent": "Одоо байгаа агентыг сонгон засах эсвэл ижил provider contract-той шинэ агент үүсгэх.",
+  "create-agents": "Агент үүсгэх",
+
+  "replace-secret": "Нууцыг солих",
+  "keep-existing-secret": "Одоогийн нууцыг хэвээр үлдээх",
+
+  "failed-to-load-context-file": "Контекст файл ачааллаж чадсангүй",
+  "please-try-again": "Дахин оролдоно уу.",
+  "failed-to-save-context-file": "Контекст файл хадгалж чадсангүй",
+  "saving": "Хадгалж байна...",
+
+  "instructions": "Зааварчилгаа",
+  "knowledge": "Мэдлэг",
+  "system-prompt": "Системийн заавар",
+
+  "general": "Ерөнхий",
+  "connection": "Холболт",
+  "context": "Контекст",
+  "health": "Health",
+
+  "unsupported-file-format": "Дэмжигдээгүй файлын формат",
+  "context-file-too-large": "Контекст файл хэт том байна",
+  "too-many-context-files": "Хэт олон контекст файл байна",
+  "combined-context-too-large": "Нийлмэл контекст хэт том байна.",
+  "upload-context-files": "Контекст файлууд байршуулах",
+  "uploading": "Байршуулж байна...",
+  "choose-files": "Файлуудыг сонгох",
+  "uploading-files": "Файлуудыг байршуулж байна...",
+  "drop-more-files": "Дахин файл чирч оруулах эсвэл дарж нэмэх",
+
+  "health-schema": "Схем",
+  "health-credentials": "Нэвтрэх мэдээлэл",
+  "health-context-files": "Контекст файлууд",
+  "health-endpoint": "Endpoint",
+  "health-model-access": "Загварт хандах эрх",
+  "ready": "Бэлэн",
+  "needs-attention": "Анхаарал хэрэгтэй",
+  "checking": "Шалгаж байна...",
+  "run-health-check": "Health шалгалт хийх",
+  "agent-ready-for-calls": "Энэ агент үйлчилгээний дуудлагад бэлэн байна.",
+  "agent-needs-attention": "Энэ агент-д гүйцэтгэлийн өмнө анхаарах хэрэгтэй хэвээр байна.",
+  "provider-health": "Үйлчилгээний Health",
+  "warnings": "Анхааруулгууд",
+  "errors": "Алдаанууд",
+  "save-the-agent-first": "Эхлээд агентыг хадгална уу",
+
+  "edit-email-template": "Имэйлийн загвар засах",
+  "create-email-template": "Имэйлийн загвар үүсгэх",
+  "update-your-email-template": "Имэйлийн загвараа шинэчлэх",
+  "create-new-email-template": "Автоматжуулалтад зориулсан шинэ имэйлийн загвар үүсгэх",
+  "update-template": "Загварыг шинэчлэх",
+
+  "email-template-created": "Имэйлийн загвар амжилттай үүсгэгдлээ",
+  "email-template-updated": "Имэйлийн загвар амжилттай шинэчлэгдлээ",
+  "email-template-removed": "Имэйлийн загвар амжилттай устгагдлаа",
+
+  "automation-status-updated": "Автоматжуулалтын төлөв амжилттай шинэчлэгдлээ",
+
+  "unsaved": "Хадгалагдаагүй",
+
+  "activate-automation": "Энэ автоматжуулалтыг идэвхжүүлэх үү?",
+  "deactivate-automation": "Энэ автоматжуулалтыг идэвхгүй болгох уу?",
+  "activate-automation-description": "Энэ нь таны хамгийн сүүлийн өөрчлөлтүүдийг хадгалж автоматжуулалтыг ажиллуулна.",
+  "deactivate-automation-description": "Энэ нь таны хамгийн сүүлийн өөрчлөлтүүдийг хадгалж автоматжуулалтыг зогсооно.",
+  "save-and-activate": "Хадгалж идэвхжүүлэх",
+  "save-and-deactivate": "Хадгалж идэвхгүй болгох",
+
+  "hide-variables-panel": "Хувьсагчдын самбарыг нуух",
+  "open-variables-panel": "Хувьсагчдын самбарыг нээх",
+
+  "form-is-not-configured": "Маягт тохируулагдаагүй байна.",
+  "please-configure-action-form": "Хадгалахын өмнө үйлдлийн маягтыг тохируулна уу",
+
+  "no-matching-property-fields": "Тохирох шинж чанарын талбар олдсонгүй.",
+  "no-property-fields-available": "Шинж чанарын талбар байхгүй.",
+
+  "hide-fields": "Талбаруудыг нуух",
+  "reference": "Лавлагаа",
+  "no-matching-output-variables": "Тохирох гаралтын хувьсагч олдсонгүй.",
+  "no-output-variables-available": "Гаралтын хувьсагч байхгүй байна.",
+  "no-reference-fields-available": "Лавлагааны талбар байхгүй байна.",
+
+  "see-request-and-response": "Хүсэлт ба Хариуг харах",
+  "outgoing-webhook-result": "Гарах Webhook-ийн үр дүн",
+  "response": "Хариу",
+
+  "unsaved-condition-changes": "Хадгалагдаагүй нөхцлийн өөрчлөлтүүд",
+  "condition-is-not-saved": "Нөхцөл хадгалагдаагүй байна",
+  "condition-saved": "Нөхцөл хадгалагдсан",
+  "save-condition": "Нөхцөл хадгалах",
+  "saved": "Хадгалагдсан",
+
+  "no-mappings": "Зураглал байхгүй",
+
+  "copy-url": "URL хуулах",
+
+  "add-item": "Item нэмэх",
+
+  "add": "Нэмэх",
+
+  "no-headers-added-yet-click": "Одоохондоо толгой нэмэгдээгүй. \"Толгой нэмэх\" дарна уу.",
+
+  "edit-payload-schema": "Ачааллын схем засах",
+
+  "drop-to-add-node": "Node нэмэхийн тулд энд тавих",
+  "dragging": "Чирч байна",
+
+  "webhook-is-received": "Webhook хүлээн авагдсан",
+  "trigger-condition-is-met": "Триггерийн нөхцөл биелсэн",
+  "action-condition-is-met": "Үйлдлийн нөхцөл биелсэн",
+
+  "reindex-queued": "Дахин индексжүүлэлт дараалалд орлоо",
+  "reindex-queued-description": "Мэдлэгийн хэсгүүд цаанаа автоматаар шинэчлэгдэнэ.",
+  "could-not-queue-reindex": "Дахин индексжүүлэлтийг дараалалд оруулж чадсангүй",
+
+  "reload": "Дахин ачаалах",
+
+  "something-went-wrong": "Алдаа гарлаа",
+  "save-successful": "Амжилттай хадгалагдлаа",
+  "passed": "Амжилттай",
+
+  "memory-description": "AI-н үр дүнг дараагийн алхамуудад дахин ашиглах эсвэл ирээдүйн үйлдлүүдэд хадгалах.",
+  "read-from-memory": "Санах ойгоос унших",
+  "read-from-memory-description": "Өмнө хадгалагдсан автоматжуулалтын санах ойг энэ AI алхамд ачаалах.",
+  "read-namespace": "Унших нэрийн орон зай",
+  "read-namespace-description": "Холбогдох AI үйлдлүүдийн нэрийн орон зайг ижилхэн тохируулж санах ойг хуваалцана.",
+  "save-result-to-memory": "Үр дүнг санах ойд хадгалах",
+  "save-result-to-memory-description": "Энэ AI-н үр дүнг дараагийн үйлдлүүд дахин ашиглахын тулд хадгалах.",
+  "write-namespace": "Namespace бичих",
+  "memory-key": "Санах ойн түлхүүр",
+  "memory-key-description": "Жишээ: `lastTopic`, `attributes`, `lastReplyText`",
+  "result-path": "Үр дүнгийн зам",
+  "result-path-description": "Хоосон үлдээвэл бүтэн үр дүнг хадгалана. Жишээ: `topicId`, `attributes`, `text`",
+  "write-mode": "Бичих горим",
+  "select-mode": "Горим сонгох",
+  "replace": "Солих",
+  "merge": "Нэгтгэх",
+  "write-mode-description": "Бүтэцтэй шинж чанаруудыг хадгалахдаа `merge` ашигла.",
+  "ttl-minutes": "TTL (минут)",
+  "ttl-minutes-description": "Хадгалсан санах ой энэ хугацааны дараа автоматаар устгагдана.",
+
+  "classification": "Ангилал",
+  "reads-memory": "санах ой унших",
+  "saves-result": "хадгалах",
+  "result": "үр дүн",
+  "generate-text": "Текст үүсгэх",
+
+  "string": "Мөр",
+  "number": "Тоо",
+  "boolean": "Логик",
+  "object": "Объект",
+  "array": "Массив",
+  "optional-validation-hints": "Сонголттой validation эсвэл enum-ийн заавар",
+  "field-extraction-prompt": "Энэ талбар оролтоос ямар мэдээлэл ялган авахыг тодорхойл",
+
+  "content-type-label": "Контент төрөл:",
+  "field": "Талбар",
+  "select-a-field": "Талбар сонгох",
+  "operator": "Оператор",
+  "select-an-operator": "Оператор сонгох",
+
+  "document-type": "Баримт бичгийн төрөл",
+  "select-a-document-type": "Баримт бичгийн төрлийг сонгох",
+  "document-type-description": "Доорх баримт бичгийн жагсаалтыг энэ төрлийн баримт бичгүүдэд хязгаарлана.",
+  "document": "Баримт бичиг",
+  "select-a-document": "Баримт бичиг сонгох",
+  "document-render-description": "Сонгосон баримт бичиг триггер/зорилтот бичлэгтэй хамт дүрслэгдэж энэ үйлдлийн гаралт болно.",
+
+  "select-email-template-to-load": "Ачаалах имэйлийн загвар сонгох",
+  "enter-email-address": "Имэйл хаяг оруулах",
+
+  "add-condition": "Нөхцөл нэмэх",
+
+  "conditions": "Нөхцлүүд",
+  "select-target-to-configure-conditions": "Нөхцөл тохируулах зорилтот объектыг сонгох",
+  "define-conditions-description": "Үргэлжлэхийн өмнө биелэх ёстой нөхцлүүдийг тодорхойлно.",
+
+  "search-variables": "Хувьсагч хайх...",
+  "output-variables": "Гаралтын хувьсагчид",
+  "custom-properties": "Тусгай шинж чанарууд",
+
+  "file-added": "Нэмэгдсэн",
+  "reindex-knowledge": "Мэдлэгийг дахин индексжүүлэх",
+
+  "agent-name-placeholder": "Facebook Order Router",
+  "agent-name-description": "Автоматжуулалтын үйлдлүүдэд амархан сонгох боломжтой байхаар агентдаа тодорхой нэр өгнө үү.",
+  "agent-description-placeholder": "Facebook-ийн яриаг чиглүүлж, зорилгыг ангилж, дараагийн автоматжуулалтын алхмуудад зориулан захиалгын атрибутуудыг ялган авна.",
+  "agent-description-helper": "Энэ агент нь баг болон ирээдүйн автоматжуулалт бүтээгчдэд ямар зориулалттайг тайлбарлана уу.",
+
+  "temperature": "Температур",
+  "temperature-description": "Утга бага байх тусам чиглүүлэлт болон мэдээлэл ялгалтыг илүү тодорхой, урьдчилан таамаглахуйц болгоно.",
+  "max-tokens": "Хамгийн их токен",
+  "max-tokens-description": "Автоматжуулалтын алхамууд хурдан байхын тулд AI-н хариуны уртыг хязгаарлана.",
+  "timeout-ms": "Хугацааны хязгаар (мс)",
+  "timeout-ms-description": "Автоматжуулалт энэ хугацааны хязгаар хүртэл үйлчилгээ үзүүлэгчийг хүлээнэ.",
+
+  "model": "Загвар",
+  "select-model": "Загвар сонгох",
+  "model-description": "Энэ автоматжуулалтын агент ашиглах загварыг сонгоно.",
+
+  "provider": "Үйлчилгээ үзүүлэгч",
+
+  "gateway-mode": "Gateway горим",
+  "select-gateway-mode": "Gateway горим сонгох",
+  "compat": "Compat",
+  "openai-provider": "OpenAI үйлчилгээ үзүүлэгч",
+  "gateway-mode-description": "Compat нь OpenAI-тэй нийцтэй нэг endpoint-ийг хадгалж, model name нь downstream provider-ийг сонгоно.",
+  "account-id": "Бүртгэлийн ID",
+  "use-platform-default": "Платформын үндсэн утга ашиглах",
+  "account-id-description": "Платформын Cloudflare бүртгэлийг ашиглахын тулд хоосон орхи.",
+  "gateway-id": "Gateway ID",
+  "gateway-id-description": "Платформын AI gateway ашиглахын тулд хоосон орхи.",
+  "base-url-override": "Суурь URL-г дарах",
+  "base-url-override-placeholder": "Бүртгэл, gateway болон горимоос үүсгэгдэнэ",
+  "base-url-override-description": "Заавал биш. Хоосон үед backend нь бүртгэл, gateway болон горимоос Cloudflare gatewayн URL үүсгэнэ.",
+
+  "base-url": "Суурь URL",
+
+  "no-email-templates": "Имэйлийн загвар байхгүй",
+  "no-email-templates-description": "Автоматжуулсан имэйлийн кампанит ажил эхлэхийн тулд эхний имэйлийн загварыг үүсгэнэ үү.",
+
+  "text": "Текст"
 }

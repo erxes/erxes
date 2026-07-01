@@ -1,8 +1,10 @@
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { ClientPortalRemove } from './delete/ClientPortalRemove';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalCommandBar = () => {
+  const { t } = useTranslation('client-portal');
   const { table } = RecordTable.useRecordTable();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -13,7 +15,7 @@ export const ClientPortalCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={handleClose}>
-          {selectedRows.length} selected
+          {selectedRows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ClientPortalRemove

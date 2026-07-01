@@ -3,6 +3,7 @@ import { useLazyQuery } from '@apollo/client';
 import { Badge, Button, Spinner } from 'erxes-ui';
 import type React from 'react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   setAutomationVariableDragData,
   TAutomationVariableDragPayload,
@@ -35,6 +36,7 @@ export const AutomationOutputVariableList = ({
   sourceNode: TAutomationVariableSourceNode;
   variables: TAutomationOutputVariable[];
 }) => {
+  const { t } = useTranslation('automations');
   if (loading) {
     return (
       <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-muted-foreground">
@@ -49,8 +51,8 @@ export const AutomationOutputVariableList = ({
       <AutomationVariableBrowserEmptyState
         text={
           searchQuery
-            ? 'No matching output variables.'
-            : 'No output variables available.'
+            ? t('no-matching-output-variables', 'No matching output variables.')
+            : t('no-output-variables-available', 'No output variables available.')
         }
       />
     );
@@ -90,6 +92,7 @@ const AutomationOutputVariableItem = ({
   sourceNode: TAutomationVariableSourceNode;
   variable: TAutomationOutputVariable;
 }) => {
+  const { t } = useTranslation('automations');
   const [expanded, setExpanded] = useState(false);
   const [loadReferenceFields, { data, loading }] =
     useLazyQuery<TAutomationReferenceFieldsResponse>(
@@ -143,7 +146,7 @@ const AutomationOutputVariableItem = ({
               className="h-7 px-2"
               onClick={handleReferenceClick}
             >
-              {expanded ? 'Hide fields' : 'Reference'}
+              {expanded ? t('hide-fields', 'Hide fields') : t('reference', 'Reference')}
             </Button>
           ) : undefined
         }
@@ -198,7 +201,7 @@ const AutomationOutputVariableItem = ({
               );
             })
           ) : (
-            <AutomationVariableBrowserEmptyState text="No reference fields available." />
+            <AutomationVariableBrowserEmptyState text={t('no-reference-fields-available', 'No reference fields available.')} />
           )}
         </div>
       ) : null}

@@ -1,5 +1,6 @@
 import { Logo } from '@/auth/components/Logo';
 import { Polygons } from './Polygons';
+import { useTranslation } from 'react-i18next';
 
 interface AuthenticationLayoutProps {
   children: React.ReactNode;
@@ -7,6 +8,7 @@ interface AuthenticationLayoutProps {
 export const AuthenticationLayout = ({
   children,
 }: AuthenticationLayoutProps) => {
+  const { t } = useTranslation('auth');
   return (
     <div className="relative overflow-hidden lg:w-1/2 lg:flex-none flex-1 flex flex-col sm:pt-28 py-8 h-dvh bg-[radial-gradient(#F0F1FE,#F7F8FA)] dark:bg-[radial-gradient(#0D0D0D,#161616)]">
       <div className="px-1 sm:px-6 mx-auto w-full max-w-md flex flex-col gap-8 relative">
@@ -25,21 +27,21 @@ export const AuthenticationLayout = ({
               </div>
               <div className="flex flex-col text-accent-foreground space-y-1 py-5 w-full m-0 px-0">
                 <span className="text-sm text-center">
-                  By signing in, you confirm that you accept our
+                  {t('by-signing-in', 'By signing in, you confirm that you accept our')}
                 </span>
                 <span className="text-sm text-center inline-flex gap-1 justify-center">
                   <a
                     className="text-primary font-medium hover:underline"
                     href="#"
                   >
-                    Terms of use
+                    {t('terms-of-use', 'Terms of use')}
                   </a>
-                  and
+                  {t('and', 'and')}
                   <a
                     className="text-primary font-medium hover:underline"
                     href="#"
                   >
-                    Privacy policy
+                    {t('privacy-policy', 'Privacy policy')}
                   </a>
                 </span>
               </div>

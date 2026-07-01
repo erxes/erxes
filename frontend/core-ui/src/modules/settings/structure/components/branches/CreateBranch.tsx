@@ -10,6 +10,7 @@ import {
   useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { BranchHotKeyScope, TBranchForm } from '../../types/branch';
 import { BranchForm } from './BranchForm';
@@ -19,6 +20,7 @@ import { useBranchAdd } from '../../hooks/useBranchActions';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateBranch = () => {
+  const { t } = useTranslation('settings');
   const {
     methods,
     methods: { handleSubmit },
@@ -57,16 +59,16 @@ export const CreateBranch = () => {
         variables: data,
         onCompleted: () => {
           toast({
-            title: 'Success!',
+            title: t('success', 'Success!'),
             variant: 'success',
-            description: 'Branch created successfully',
+            description: t('branch.created-successfully', 'Branch created successfully'),
           });
           methods.reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -79,7 +81,7 @@ export const CreateBranch = () => {
       <Can action="branchesManage">
         <Sheet.Trigger asChild>
           <Button>
-            <IconPlus /> Create Branch
+            <IconPlus /> {t('branch.create', 'Create Branch')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -98,7 +100,7 @@ export const CreateBranch = () => {
             <Sheet.Header>
               <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconGitBranch size={16} />
-                Create branch
+                {t('branch.create-title', 'Create branch')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -107,10 +109,10 @@ export const CreateBranch = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

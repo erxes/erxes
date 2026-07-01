@@ -6,12 +6,14 @@ import { z } from 'zod';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalDetail2FA = ({
   clientPortal,
 }: {
   clientPortal: IClientPortal;
 }) => {
+  const { t } = useTranslation('client-portal');
   const multiFactorConfig = clientPortal?.securityAuthConfig?.multiFactorConfig;
   const isOpen = multiFactorConfig?.isEnabled ?? false;
   const [activeTab, setActiveTab] = useState<'email' | 'sms'>('email');
@@ -77,7 +79,7 @@ export const ClientPortalDetail2FA = ({
           disabled={loading}
         />
         <Label variant="peer" htmlFor="enable2FA">
-          Enable 2FA
+          {t('enable-2fa', 'Enable 2FA')}
         </Label>
       </div>
       {isOpen && (
@@ -91,8 +93,8 @@ export const ClientPortalDetail2FA = ({
               onValueChange={(val) => setActiveTab(val as 'email' | 'sms')}
             >
               <Tabs.List>
-                <Tabs.Trigger value="email">Email</Tabs.Trigger>
-                <Tabs.Trigger value="sms">SMS/Phone</Tabs.Trigger>
+                <Tabs.Trigger value="email">{t('email', 'Email')}</Tabs.Trigger>
+                <Tabs.Trigger value="sms">{t('sms-phone', 'SMS/Phone')}</Tabs.Trigger>
               </Tabs.List>
 
               <Tabs.Content value="email" className="mt-4">
@@ -102,11 +104,11 @@ export const ClientPortalDetail2FA = ({
                     name="email.emailSubject"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Email Subject</Form.Label>
+                        <Form.Label>{t('email-subject', 'Email Subject')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
-                        <Form.Description>2FA email subject</Form.Description>
+                        <Form.Description>{t('2fa-email-subject-description', '2FA email subject')}</Form.Description>
                         <Form.Message />
                       </Form.Item>
                     )}
@@ -116,7 +118,7 @@ export const ClientPortalDetail2FA = ({
                     name="email.codeLength"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
+                        <Form.Label>{t('code-length', 'Code Length')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -128,7 +130,7 @@ export const ClientPortalDetail2FA = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          2FA code length (4-6 digits)
+                          {t('2fa-code-length-description', '2FA code length (4-6 digits)')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -139,12 +141,12 @@ export const ClientPortalDetail2FA = ({
                     name="email.messageTemplate"
                     render={({ field }) => (
                       <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
+                        <Form.Label>{t('message-template', 'Message Template')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          Email message body with {'{{code}}'} placeholder
+                          {t('email-message-body-with-code-placeholder', 'Email message body with {{code}} placeholder')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -155,7 +157,7 @@ export const ClientPortalDetail2FA = ({
                     name="email.duration"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
+                        <Form.Label>{t('expiration-duration-minutes', 'Expiration Duration (minutes)')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -167,7 +169,7 @@ export const ClientPortalDetail2FA = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          2FA code expiration duration in minutes
+                          {t('2fa-code-expiration-duration', '2FA code expiration duration in minutes')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -183,7 +185,7 @@ export const ClientPortalDetail2FA = ({
                     name="sms.smsProvider"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>SMS Provider</Form.Label>
+                        <Form.Label>{t('sms-provider', 'SMS Provider')}</Form.Label>
                         <Form.Control>
                           <Input
                             {...field}
@@ -192,7 +194,7 @@ export const ClientPortalDetail2FA = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          SMS provider configuration
+                          {t('sms-provider-configuration', 'SMS provider configuration')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -203,7 +205,7 @@ export const ClientPortalDetail2FA = ({
                     name="sms.codeLength"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
+                        <Form.Label>{t('code-length', 'Code Length')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -215,7 +217,7 @@ export const ClientPortalDetail2FA = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          2FA code length (4-6 digits)
+                          {t('2fa-code-length-description', '2FA code length (4-6 digits)')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -226,12 +228,12 @@ export const ClientPortalDetail2FA = ({
                     name="sms.messageTemplate"
                     render={({ field }) => (
                       <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
+                        <Form.Label>{t('message-template', 'Message Template')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          SMS message body with {'{{code}}'} placeholder
+                          {t('sms-message-body-with-code-placeholder', 'SMS message body with {{code}} placeholder')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -242,7 +244,7 @@ export const ClientPortalDetail2FA = ({
                     name="sms.duration"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
+                        <Form.Label>{t('expiration-duration-minutes', 'Expiration Duration (minutes)')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -254,7 +256,7 @@ export const ClientPortalDetail2FA = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          2FA code expiration duration in minutes
+                          {t('2fa-code-expiration-duration', '2FA code expiration duration in minutes')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -273,7 +275,7 @@ export const ClientPortalDetail2FA = ({
               {loading && (
                 <Spinner containerClassName="w-auto flex-none mr-2" />
               )}
-              Save
+              {t('save', 'Save')}
             </Button>
           </form>
         </Form>

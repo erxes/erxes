@@ -8,6 +8,7 @@ import { AutomationVariableSourceNodeList } from './components/AutomationVariabl
 import { TAutomationVariableBrowserProps } from './AutomationVariableBrowserTypes';
 import { useAutomationVariableBrowser } from './hooks/useAutomationVariableBrowser';
 import { AutomationNodeType } from '@/automations/types';
+import { useTranslation } from 'react-i18next';
 
 export type { TAutomationVariableSourceNode } from './AutomationVariableBrowserTypes';
 
@@ -19,6 +20,7 @@ export const AutomationVariableBrowser = ({
   sourceSectionTitle = 'Selected Node',
   className,
 }: TAutomationVariableBrowserProps) => {
+  const { t } = useTranslation('automations');
   const {
     activeSourceNode,
     buildVariablePath,
@@ -84,11 +86,11 @@ export const AutomationVariableBrowser = ({
       <Input
         value={searchValue}
         onChange={(event) => setSearchValue(event.target.value)}
-        placeholder="Search variables..."
+        placeholder={t('search-variables', 'Search variables...')}
         className="h-9"
       />
 
-      <AutomationVariableBrowserSection title="Output Variables">
+      <AutomationVariableBrowserSection title={t('output-variables', 'Output Variables')}>
         <AutomationOutputVariableList
           buildVariablePath={buildVariablePath}
           buildVariablePayload={buildVariablePayload}
@@ -101,7 +103,7 @@ export const AutomationVariableBrowser = ({
         />
       </AutomationVariableBrowserSection>
 
-      <AutomationVariableBrowserSection title="Custom Properties">
+      <AutomationVariableBrowserSection title={t('custom-properties', 'Custom Properties')}>
         {mergedPropertySource ? (
           <AutomationOutputPropertySourceFields
             source={mergedPropertySource}

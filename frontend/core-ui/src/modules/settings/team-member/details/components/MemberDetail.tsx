@@ -6,8 +6,10 @@ import { MemberDetailMainContents } from './MemberDetailMainContents';
 import { MemberDetailErrorState } from './MemberDetailErrorState';
 import { RelationWidgetSideTabs } from 'ui-modules';
 import { MemberDetailEmptyState } from './MemberDetailEmptyState';
+import { useTranslation } from 'react-i18next';
 
 export const MemberDetail = () => {
+  const { t } = useTranslation('settings');
   const [open, setOpen] = useQueryState<string>('user_id');
   const { error, userDetail, loading } = useUserDetail();
 
@@ -20,7 +22,7 @@ export const MemberDetail = () => {
         notFoundState={<MemberDetailEmptyState />}
         errorState={<MemberDetailErrorState />}
       >
-        <FocusSheet.Header title="Member Detail" />
+        <FocusSheet.Header title={t('team-member.member-detail', 'Member Detail')} />
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <MemberDetailSidebar />

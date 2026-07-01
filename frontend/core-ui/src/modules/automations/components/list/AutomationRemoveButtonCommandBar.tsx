@@ -4,6 +4,7 @@ import { Button, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { IAutomation } from '@/automations/types';
 import { Row } from '@tanstack/table-core';
 import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationRemoveButtonCommandBar = ({
   automationIds,
@@ -12,6 +13,7 @@ export const AutomationRemoveButtonCommandBar = ({
   automationIds: string[];
   rows: Row<IAutomation>[];
 }) => {
+  const { t } = useTranslation('automations');
   const { confirm } = useConfirm();
   const { removeAutomations, loading } = useRemoveAutomations();
   const { toast } = useToast();
@@ -22,7 +24,7 @@ export const AutomationRemoveButtonCommandBar = ({
       removeAutomations(automationIds, {
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -32,9 +34,9 @@ export const AutomationRemoveButtonCommandBar = ({
             row.toggleSelected(false);
           });
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Automations deleted successfully',
+            description: t('delete-automation-success'),
           });
         },
       });
@@ -48,7 +50,7 @@ export const AutomationRemoveButtonCommandBar = ({
       onClick={onRemove}
     >
       {loading ? <Spinner /> : <IconTrash />}
-      Delete
+      {t('delete')}
     </Button>
   );
 };

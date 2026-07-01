@@ -2,6 +2,7 @@ import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actio
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Separator, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 export const AiAgentObjectFieldBuilder = ({
   isLastElement,
   index,
@@ -12,6 +13,7 @@ export const AiAgentObjectFieldBuilder = ({
 
   handleRemove: () => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
 
   return (
@@ -39,11 +41,11 @@ export const AiAgentObjectFieldBuilder = ({
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="string">String</Select.Item>
-                    <Select.Item value="number">Number</Select.Item>
-                    <Select.Item value="boolean">Boolean</Select.Item>
-                    <Select.Item value="object">Object</Select.Item>
-                    <Select.Item value="array">Array</Select.Item>
+                    <Select.Item value="string">{t('string', 'String')}</Select.Item>
+                    <Select.Item value="number">{t('number', 'Number')}</Select.Item>
+                    <Select.Item value="boolean">{t('boolean', 'Boolean')}</Select.Item>
+                    <Select.Item value="object">{t('object', 'Object')}</Select.Item>
+                    <Select.Item value="array">{t('array', 'Array')}</Select.Item>
                   </Select.Content>
                 </Select>
                 <Form.Message />
@@ -57,7 +59,7 @@ export const AiAgentObjectFieldBuilder = ({
             render={({ field }) => (
               <Form.Item className="col-span-4">
                 <Input
-                  placeholder="Optional validation or enum hints"
+                  placeholder={t('optional-validation-hints', 'Optional validation or enum hints')}
                   {...field}
                 />
                 <Form.Message />
@@ -82,7 +84,7 @@ export const AiAgentObjectFieldBuilder = ({
           render={({ field }) => (
             <Form.Item>
               <Textarea
-                placeholder="Describe what this field should extract from the input"
+                placeholder={t('field-extraction-prompt', 'Describe what this field should extract from the input')}
                 {...field}
               />
               <Form.Message />

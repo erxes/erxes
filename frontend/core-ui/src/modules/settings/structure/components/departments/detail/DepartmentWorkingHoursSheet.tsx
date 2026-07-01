@@ -18,8 +18,10 @@ import { useDepartmentDetailsById } from '@/settings/structure/hooks/useDepartme
 import { useDepartmentInlineEdit } from '@/settings/structure/hooks/useDepartmentActions';
 import { parseTime } from '@internationalized/date';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const DepartmentWorkingHoursSheet = () => {
+  const { t } = useTranslation('settings');
   const [workingHoursId] = useQueryState('workingHoursId');
   const [searchParams, setSearchParams] = useSearchParams();
   const { form } = useWorkhoursForm();
@@ -101,7 +103,7 @@ export const DepartmentWorkingHoursSheet = () => {
         <Sheet.View className="p-0 md:max-w-4xl">
           <div className="flex flex-col gap-0 size-full">
             <Sheet.Header>
-              <Sheet.Title>Setup department working hours</Sheet.Title>
+              <Sheet.Title>{t('department.setup-working-hours', 'Setup department working hours')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full h-auto flex flex-col px-5">
@@ -116,7 +118,7 @@ export const DepartmentWorkingHoursSheet = () => {
             </Sheet.Content>
             <Sheet.Footer className="flex justify-end items-center gap-3">
               <Button variant={'secondary'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Can action="departmentsManage">
                 <Button
@@ -124,7 +126,7 @@ export const DepartmentWorkingHoursSheet = () => {
                   type="button"
                   onClick={form.handleSubmit(onSubmit)}
                 >
-                  Save
+                  {t('save', 'Save')}
                 </Button>
               </Can>
             </Sheet.Footer>
@@ -136,6 +138,7 @@ export const DepartmentWorkingHoursSheet = () => {
 };
 
 const WeekDay = ({ weekDay }: { weekDay: string }) => {
+  const { t } = useTranslation('settings');
   const form = useFormContext<IWorkhoursForm>();
   const isInactive = form.watch(`${weekDay}.inactive`) as boolean;
 
@@ -158,7 +161,7 @@ const WeekDay = ({ weekDay }: { weekDay: string }) => {
       <span className="font-semibold">{weekDay}</span>
       {(isInactive && (
         <span className="font-normal text-sm h-8 text-accent-foreground flex items-center">
-          Not working on this day
+          {t('not-working-on-this-day', 'Not working on this day')}
         </span>
       )) || (
         <div className="flex items-center gap-8 ml-auto">
@@ -209,7 +212,7 @@ const WeekDay = ({ weekDay }: { weekDay: string }) => {
           </div>
           <div className="flex items-center gap-3">
             <legend className="font-medium text-sm text-accent-foreground">
-              Lunch
+              {t('lunch', 'Lunch')}
             </legend>
             <Form.Field
               control={form.control}

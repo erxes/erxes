@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { TBranchForm } from '../../types/branch';
 import { ControllerRenderProps, Path, useFormContext } from 'react-hook-form';
 import { Collapsible, Form, Input, Skeleton, Textarea } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectMember } from 'ui-modules';
 import { PhoneInput } from 'erxes-ui/modules/record-field/meta-inputs/components/PhoneInput';
 import { IconChevronDown } from '@tabler/icons-react';
@@ -12,6 +13,7 @@ import {
 } from '../StructureFormFields';
 
 export const BranchForm = () => {
+  const { t } = useTranslation('settings');
   const { control, formState } = useFormContext<TBranchForm>();
   // show the status field only when the record was originally deleted, so the
   // field stays visible while the user switches it back to active
@@ -31,7 +33,7 @@ export const BranchForm = () => {
               <Textarea
                 {...field}
                 value={field.value ?? ''}
-                placeholder="Provide an address"
+                placeholder={t('branch.address-placeholder', 'Provide an address')}
               />
             </Form.Control>
             <Form.Message />
@@ -43,7 +45,7 @@ export const BranchForm = () => {
         name="supervisorId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Supervisor'}</Form.Label>
+            <Form.Label>{t('supervisor', 'Supervisor')}</Form.Label>
             <SelectMember.FormItem
               value={field.value ?? ''}
               onValueChange={field.onChange}
@@ -57,7 +59,7 @@ export const BranchForm = () => {
         name="parentId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Parent'}</Form.Label>
+            <Form.Label>{t('parent', 'Parent')}</Form.Label>
             <SelectBranches.FormItem
               value={field.value as string}
               onValueChange={field.onChange}
@@ -71,7 +73,7 @@ export const BranchForm = () => {
         name="userIds"
         render={({ field }) => (
           <Form.Item className="col-span-2">
-            <Form.Label>{'Team members'}</Form.Label>
+            <Form.Label>{t('team-members', 'Team members')}</Form.Label>
             <SelectMember.FormItem
               value={field.value ?? []}
               onValueChange={field.onChange}
@@ -86,7 +88,7 @@ export const BranchForm = () => {
         name="phoneNumber"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'Phone number'}</Form.Label>
+            <Form.Label>{t('phone-number', 'Phone number')}</Form.Label>
             <Form.Control>
               <PhoneInput {...field} value={field.value as string} />
             </Form.Control>
@@ -114,7 +116,7 @@ export const BranchForm = () => {
       />
       <Collapsible className="col-span-2">
         <Collapsible.Trigger className="flex items-center justify-between w-full py-3">
-          <Form.Label>Links</Form.Label>
+          <Form.Label>{t('links', 'Links')}</Form.Label>
           <IconChevronDown size={16} className="text-accent-foreground" />
         </Collapsible.Trigger>
         <Collapsible.Content>
@@ -138,7 +140,7 @@ export const BranchForm = () => {
                   )
                 }
                 inputMode="numeric"
-                placeholder="Radius"
+                placeholder={t('branch.radius-placeholder', 'Radius')}
               />
             </Form.Control>
             <Form.Message />
@@ -150,12 +152,12 @@ export const BranchForm = () => {
         name="coordinate.latitude"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'latitude'}</Form.Label>
+            <Form.Label>{t('latitude', 'Latitude')}</Form.Label>
             <Form.Control>
               <Input
                 {...field}
                 value={field.value ?? ''}
-                placeholder="Latitude"
+                placeholder={t('branch.latitude-placeholder', 'Latitude')}
               />
             </Form.Control>
             <Form.Message />
@@ -167,12 +169,12 @@ export const BranchForm = () => {
         name="coordinate.longitude"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{'longitude'}</Form.Label>
+            <Form.Label>{t('longitude', 'Longitude')}</Form.Label>
             <Form.Control>
               <Input
                 {...field}
                 value={field.value ?? ''}
-                placeholder="Longitude"
+                placeholder={t('branch.longitude-placeholder', 'Longitude')}
               />
             </Form.Control>
             <Form.Message />

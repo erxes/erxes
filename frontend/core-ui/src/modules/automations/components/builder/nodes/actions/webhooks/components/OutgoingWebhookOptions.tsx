@@ -2,8 +2,10 @@ import { OutgoinWebhookLabeledSeparator } from '@/automations/components/builder
 import { TOutgoingWebhookForm } from '@/automations/components/builder/nodes/actions/webhooks/states/outgoingWebhookFormSchema';
 import { Form, Input, Select, Switch } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const OutgoingWebhookOptions = () => {
+  const { t } = useTranslation('automations');
   const { control, getValues } = useFormContext<TOutgoingWebhookForm>();
 
   return (
@@ -81,7 +83,7 @@ export const OutgoingWebhookOptions = () => {
       />
 
       <OutgoinWebhookLabeledSeparator>
-        Retry Configuration
+        {t('retry-configuration', 'Retry Configuration')}
       </OutgoinWebhookLabeledSeparator>
 
       <Form.Field
@@ -124,7 +126,7 @@ export const OutgoingWebhookOptions = () => {
               max="60000"
             />
             <Form.Description className="text-xs text-gray-500">
-              Delay between retry attempts
+              {t('delay-between-retry-attempts', 'Delay between retry attempts')}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -151,7 +153,7 @@ export const OutgoingWebhookOptions = () => {
         )}
       />
       <OutgoinWebhookLabeledSeparator>
-        Proxy Configuration
+        {t('proxy-configuration', 'Proxy Configuration')}
       </OutgoinWebhookLabeledSeparator>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">

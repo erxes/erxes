@@ -8,11 +8,13 @@ import { useSplitCondtionsConfigForm } from '../hooks/useSplitCondtionsConfigFor
 import { TSplitConditionsConfigForm } from '../states/splitConditionsConfigForm';
 import { SplitConditionByOutputVariables } from './SplitConditionByOutputVariables';
 import { SplitCondtionRemoveButton } from './SplitCondtionRemoveButton';
+import { useTranslation } from 'react-i18next';
 
 export const SplitConditionsConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TSplitConditionsConfigForm>) => {
+  const { t } = useTranslation('automations');
   const {
     form,
     addOption,
@@ -46,20 +48,20 @@ export const SplitConditionsConfigForm = ({
       >
         <div className="flex items-center justify-between gap-2">
           <div>
-            <Label>Options</Label>
+            <Label>{t('options')}</Label>
             <p className="text-sm text-muted-foreground">
-              Build each split option with segment conditions.
+              {t('split-options-description', 'Build each split option with segment conditions.')}
             </p>
           </div>
           <Button type="button" variant="secondary" onClick={addOption}>
             <IconPlus className="size-4" />
-            Add option
+            {t('add-option', 'Add option')}
           </Button>
         </div>
         {hasDirtyConditionOptions && (
           <div className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
             <IconAlertCircle className="size-4 shrink-0" />
-            Save each changed condition before saving the split configuration.
+            {t('save-condition-before-split', 'Save each changed condition before saving the split configuration.')}
           </div>
         )}
         <div className="flex flex-col gap-3">

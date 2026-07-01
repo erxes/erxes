@@ -4,6 +4,7 @@ import { IPermissionGroup } from '@/settings/permissions/types';
 import { Button, FocusSheet, Sheet, toast } from 'erxes-ui';
 import { useCallback, useState } from 'react';
 import { PermissionGroupForm } from './PermissionGroupForm';
+import { useTranslation } from 'react-i18next';
 
 export const PermissionGroupEdit = ({
   group,
@@ -12,6 +13,7 @@ export const PermissionGroupEdit = ({
   group: IPermissionGroup;
   trigger?: React.ReactNode;
 }) => {
+  const { t } = useTranslation('settings');
   const [open, setOpen] = useState<boolean>(false);
 
   const { editPermissionGroup, loading } = useEditPermissionGroup();
@@ -27,12 +29,12 @@ export const PermissionGroupEdit = ({
           permissions: data.permissions,
         },
         onCompleted: () => {
-          toast({ title: 'Permission group updated', variant: 'success' });
+          toast({ title: t('permissions.group-updated', 'Permission group updated'), variant: 'success' });
           setOpen(false);
         },
         onError: (error) => {
           toast({
-            title: 'Error updating permission group',
+            title: t('permissions.group-update-error', 'Error updating permission group'),
             variant: 'destructive',
             description: error.message,
           });
@@ -55,12 +57,12 @@ export const PermissionGroupEdit = ({
       ) : (
         <Sheet.Trigger asChild>
           <Button variant="ghost" size="sm">
-            Edit
+            {t('edit', 'Edit')}
           </Button>
         </Sheet.Trigger>
       )}
       <FocusSheet.View>
-        <FocusSheet.Header title="Edit Permission Group" />
+        <FocusSheet.Header title={t('permissions.edit-group', 'Edit Permission Group')} />
         <FocusSheet.Content>
           <PermissionGroupForm
             key={group._id}

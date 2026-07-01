@@ -11,6 +11,7 @@ import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const AI_AGENT_UI_LIMITS = {
   maxFiles: 10,
@@ -27,6 +28,7 @@ export const formatBytes = (bytes: number) => {
 };
 
 export const AiAgentContextFilesForm = () => {
+  const { t } = useTranslation('automations');
   const { id } = useParams();
   const { control } = useFormContext<TAiAgentForm>();
   const [editingFileId, setEditingFileId] = useState<string | null>(null);
@@ -87,14 +89,14 @@ export const AiAgentContextFilesForm = () => {
                               variables: { id, fileId },
                             });
                             toast({
-                              title: 'Reindex queued',
+                              title: t('reindex-queued', 'Reindex queued'),
                               description:
-                                'Knowledge chunks will refresh in the background.',
+                                t('reindex-queued-description', 'Knowledge chunks will refresh in the background.'),
                               variant: 'success',
                             });
                           } catch (error) {
                             toast({
-                              title: 'Could not queue reindex',
+                              title: t('could-not-queue-reindex', 'Could not queue reindex'),
                               description: (error as Error).message,
                               variant: 'destructive',
                             });

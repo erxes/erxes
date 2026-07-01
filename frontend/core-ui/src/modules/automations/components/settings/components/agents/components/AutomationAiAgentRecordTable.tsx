@@ -5,12 +5,14 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, RecordTable } from 'erxes-ui';
 import { Link } from 'react-router';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationAiAgentRecordTable = ({
   kind,
 }: {
   kind?: string | null;
 }) => {
+  const { t } = useTranslation('automations');
   const { automationsAiAgents, loading } = useAiAgents(kind);
 
   const toCreateUrl = `/settings/automations/agents/create${
@@ -21,10 +23,9 @@ export const AutomationAiAgentRecordTable = ({
     <div className="min-w-0 space-y-4">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-4">
         <div className="min-w-0 space-y-1">
-          <h2 className="text-sm font-medium">Configured agents</h2>
+          <h2 className="text-sm font-medium">{t('configured-agents', 'Configured agents')}</h2>
           <p className="text-sm text-muted-foreground">
-            Pick an existing agent for editing or create a new one with the same
-            provider contract.
+            {t('pick-existing-agent', 'Pick an existing agent for editing or create a new one with the same provider contract.')}
           </p>
         </div>
 
@@ -32,7 +33,7 @@ export const AutomationAiAgentRecordTable = ({
           <Button asChild className="shrink-0">
             <Link to={toCreateUrl}>
               <IconPlus className="size-4" />
-              Create Agents
+              {t('create-agents', 'Create Agents')}
             </Link>
           </Button>
         </Can>

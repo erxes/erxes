@@ -3,8 +3,10 @@ import { IconTerminal2 } from '@tabler/icons-react';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { useClientPortal } from '@/client-portal/hooks/useClientPortal';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalDetailHeader = () => {
+  const { t } = useTranslation('client-portal');
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -14,7 +16,7 @@ export const ClientPortalDetailHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to="/settings/client-portals">
                   <IconTerminal2 />
-                  Client portal
+                  {t('client-portal', 'Client portal')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

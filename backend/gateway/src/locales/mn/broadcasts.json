@@ -60,7 +60,7 @@
   "add-rules": "Дүрэм нэмэх",
   "select-rule": "Дүрэм сонгох",
   "go-to-settings": "Тохиргоо руу очих",
-  "new-broadcast": "Шинэ broadcast",
+  "new-broadcast": "Шинэ броадкаст",
   "average-email-statistics": "Дундаж имэйл статистик",
   "method-not-found": "Арга олдсонгүй",
   "target-type": "Зорилтот төрөл",
@@ -84,18 +84,18 @@
     "notification-description": "Харилцагчдад автомат мэдэгдэл илгээх"
   },
   "step": {
-    "new": "Шинэ broadcast",
-    "broadcast-recipients": "Broadcast хүлээн авагчид",
-    "broadcast-recipients-description": "Энэ broadcast-ыг хүлээн авах хэрэглэгчдийг сегментлэх",
-    "broadcast-config": "Broadcast тохиргоо",
-    "broadcast-config-description": "Broadcast-аа тохируулж, бичиж, зохих ёсоор бэлдэх",
+    "new": "Шинэ броадкаст",
+    "broadcast-recipients": "Броадкаст хүлээн авагчид",
+    "broadcast-recipients-description": "Энэ броадкаст-ыг хүлээн авах хэрэглэгчдийг сегментлэх",
+    "broadcast-config": "Броадкаст тохиргоо",
+    "broadcast-config-description": "Броадкаст-аа тохируулж, бичиж, зохих ёсоор бэлдэх",
     "cancel": "Болих",
     "previous": "Өмнөх алхам",
     "save-draft": "Ноороглож хадгалах",
     "save-live": "Идэвхжүүлж хадгалах",
     "next": "Дараах алхам",
-    "toast-draft": "Broadcast ноорог болгон хадгалагдлаа",
-    "toast-created": "Broadcast үүсгэгдлаа",
+    "toast-draft": "Броадкаст ноорог болгон хадгалагдлаа",
+    "toast-created": "Броадкаст үүсгэгдлаа",
     "method-not-found": "Арга олдсонгүй, Хуудсыг дахин ачааллана уу"
   },
   "email-tab": {
@@ -107,11 +107,11 @@
     "customers-valid": "{{total}} харилцагчаас {{valid}} нь хүчинтэй"
   },
   "delete-action": {
-    "confirm": "Сонгогдсон {{count}} broadcast-ыг устгахдаа итгэлтэй байна уу?",
-    "success": "Broadcast амжилттай устгагдлаа"
+    "confirm": "Сонгогдсон {{count}} броадкаст-ыг устгахдаа итгэлтэй байна уу?",
+    "success": "Броадкаст амжилттай устгагдлаа"
   },
   "set-live": {
-    "confirm": "Энэ broadcast-ыг идэвхжүүлэхдээ итгэлтэй байна уу?",
+    "confirm": "Энэ броадкаст-ыг идэвхжүүлэхдээ итгэлтэй байна уу?",
     "success": "Амжилттай идэвхжүүлэгдлаа"
   },
   "verified-email": {
@@ -132,10 +132,10 @@
     "no-traces-description": "Broadcast илгээж эхлэхэд бүртгэл энд харагдана."
   },
   "detail-stat": {
-    "campaign-run": "Энэ кампани ажилласан тоо:",
+    "campaign-run": "Кампанит ажил ажилласан:",
     "last-run-at": "Сүүлд ажилласан:",
     "total-title": "Нийт",
-    "total-description": "Энэ broadcast-д боловсруулсан бүх имэйл мессежийн нийт тоо.",
+    "total-description": "Энэ броадкаст-д боловсруулсан бүх имэйл мессежийн нийт тоо.",
     "send-title": "Илгээсэн",
     "send-description": "Amazon SES-д шилжүүлэлт амжилттай болж, хүргэлт эхэлж байна.",
     "delivery-title": "Хүргэгдсэн",

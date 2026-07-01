@@ -7,6 +7,7 @@ import { AutomationNodeType } from '@/automations/types';
 import { IconPlus } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { IconComponent, cn } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const getDraggingNodeMeta = (draggingNode: TDraggingNode) => {
   if ('label' in draggingNode) {
@@ -25,6 +26,7 @@ const getDraggingNodeMeta = (draggingNode: TDraggingNode) => {
 };
 
 export const AutomationBuilderCanvasDragOverlay = () => {
+  const { t } = useTranslation('automations');
   const { draggingNode } = useDnDMetaState();
   const { cursor, isCanvasOver } = useDnDOverlayState();
 
@@ -89,7 +91,7 @@ export const AutomationBuilderCanvasDragOverlay = () => {
                   {kind}
                 </p>
                 <p className="text-sm font-semibold text-foreground">
-                  {isCanvasOver ? 'Drop to add node' : `Dragging ${label}`}
+                  {isCanvasOver ? t('drop-to-add-node', 'Drop to add node') : `${t('dragging', 'Dragging')} ${label}`}
                 </p>
               </div>
             </motion.div>

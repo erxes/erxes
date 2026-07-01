@@ -7,12 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalGeneral = ({
   clientPortal = {},
 }: {
   clientPortal?: IClientPortal;
 }) => {
+  const { t } = useTranslation('client-portal');
   const form = useForm<z.infer<typeof CLIENTPORTAL_EDIT_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_EDIT_SCHEMA),
     defaultValues: {
@@ -48,7 +50,7 @@ export const ClientPortalGeneral = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name', 'Name')}</Form.Label>
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -59,7 +61,7 @@ export const ClientPortalGeneral = ({
               name="domain"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Domain</Form.Label>
+                  <Form.Label>{t('domain', 'Domain')}</Form.Label>
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -70,7 +72,7 @@ export const ClientPortalGeneral = ({
               name="description"
               render={({ field }) => (
                 <Form.Item className="col-span-2">
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>{t('description', 'Description')}</Form.Label>
                   <Textarea {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -88,7 +90,7 @@ export const ClientPortalGeneral = ({
                   }
                 >
                   {loading && <Spinner containerClassName="w-auto flex-none" />}
-                  Update
+                  {t('update', 'Update')}
                 </Button>
               </Can>
             </div>
