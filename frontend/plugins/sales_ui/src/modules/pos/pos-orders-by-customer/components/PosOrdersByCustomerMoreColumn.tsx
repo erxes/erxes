@@ -19,8 +19,7 @@ export const PosOrdersByCustomerMoreColumnCell = ({
     const newSearchParams = new URLSearchParams();
     newSearchParams.set('customer', customerId);
 
-    const detail: IPosOrdersByCustomer['customerDetail'] =
-      customerDetail || {};
+    const detail: IPosOrdersByCustomer['customerDetail'] = customerDetail || {};
     const displayName =
       detail.primaryName ||
       `${detail.firstName || ''} ${detail.lastName || ''}`.trim() ||

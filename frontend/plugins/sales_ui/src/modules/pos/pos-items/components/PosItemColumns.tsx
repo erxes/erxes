@@ -22,7 +22,13 @@ import { useTranslation } from 'react-i18next';
 const fmt = (val: number | null | undefined) =>
   val != null ? val.toLocaleString() : '0';
 
-const PosItemHeaderCell = ({ icon, label }: { icon: TablerIcon; label: string }) => {
+const PosItemHeaderCell = ({
+  icon,
+  label,
+}: {
+  icon: TablerIcon;
+  label: string;
+}) => {
   const { t } = useTranslation('sales');
   return <RecordTable.InlineHead icon={icon} label={t(label)} />;
 };
@@ -361,8 +367,8 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
       const paidAmounts: Array<{ type?: string }> = Array.isArray(raw)
         ? raw
         : raw
-        ? [raw as { type?: string }]
-        : [];
+          ? [raw as { type?: string }]
+          : [];
       const types = paidAmounts
         .map((pa) => pa.type)
         .filter((t): t is string => Boolean(t))

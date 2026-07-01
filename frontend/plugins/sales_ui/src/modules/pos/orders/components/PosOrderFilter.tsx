@@ -226,7 +226,9 @@ export const PosOrderFilter = () => {
             <Popover open={open} onOpenChange={setOpen}>
               <Popover.Trigger asChild>
                 <Filter.BarButton filterKey={'customer'}>
-                  <SelectCustomers.Value fallbackLabel={customerName || undefined} />
+                  <SelectCustomers.Value
+                    fallbackLabel={customerName || undefined}
+                  />
                 </Filter.BarButton>
               </Popover.Trigger>
               <Combobox.Content>
