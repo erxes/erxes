@@ -39,7 +39,9 @@ export const AccountingCheckSyncedOrdersCommandBar = ({
   const { table } = RecordTable.useRecordTable();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const selectedIds = selectedRows.map((row) => row.original._id).filter(Boolean);
+  const selectedIds = selectedRows
+    .map((row) => row.original._id)
+    .filter(Boolean);
 
   return (
     <CommandBar open={selectedRows.length > 0}>

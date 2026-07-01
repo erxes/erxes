@@ -68,10 +68,7 @@ const ReserveRemMoreColumnCell = ({
         </Combobox.Content>
       </Popover>
       <Sheet open={editOpen} onOpenChange={setEditOpen}>
-        <EditReserveRemSheet
-          setOpen={setEditOpen}
-          reserveRem={reserveRem}
-        />
+        <EditReserveRemSheet setOpen={setEditOpen} reserveRem={reserveRem} />
       </Sheet>
     </>
   );
