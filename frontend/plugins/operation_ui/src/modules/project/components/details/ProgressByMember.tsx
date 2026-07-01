@@ -1,12 +1,14 @@
 import { useGetProjectProgressByMember } from '@/project/hooks/useGetProjectProgressByMember';
 import { Button, ChartContainer, HoverCard } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { IProjectProgressByMember } from '@/project/types';
 import { ProgressDot } from '@/project/components/details/Progress';
 
 export const ProgressByMember = ({ projectId }: { projectId: string }) => {
+  const { t } = useTranslation('operation');
   const { projectProgressByMember } = useGetProjectProgressByMember({
     variables: { _id: projectId },
     skip: !projectId,
@@ -34,7 +36,7 @@ export const ProgressByMember = ({ projectId }: { projectId: string }) => {
               <div>
                 <MembersInline
                   memberIds={[item.assigneeId]}
-                  placeholder="No Assignee"
+                  placeholder={t('no-assignee')}
                 />
 
                 <ChartContainer config={{}} className="aspect-square size-6">
@@ -78,21 +80,21 @@ export const ProgressByMember = ({ projectId }: { projectId: string }) => {
             <div className="flex flex-col gap-1 text-muted-foreground">
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="total" />
-                total:
+                {t('total')}
                 <span className="text-foreground ml-auto">
                   {item.totalScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="completed" />
-                completed:
+                {t('completed-label')}
                 <span className="text-foreground ml-auto">
                   {item.totalCompletedScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="started" />
-                started:
+                {t('started-label')}
                 <span className="text-foreground ml-auto">
                   {item.totalStartedScope}
                 </span>

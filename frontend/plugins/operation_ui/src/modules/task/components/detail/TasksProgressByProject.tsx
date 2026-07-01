@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ProgressDot } from '@/task/components/detail/TasksProgress';
 import { IStatItem } from '@/task/hooks/useTasksStats';
 import { IconFolder } from '@tabler/icons-react';
@@ -10,6 +11,7 @@ interface TasksProgressByProjectProps {
 export const TasksProgressByProject = ({
   stats,
 }: TasksProgressByProjectProps) => {
+  const { t } = useTranslation('operation');
   const [project, setProject] = useQueryState<string>('project');
 
   const handleClick = (itemId: string) => {
@@ -23,7 +25,7 @@ export const TasksProgressByProject = ({
   if (stats.length === 0) {
     return (
       <div className="flex items-center justify-center h-24 text-sm text-muted-foreground">
-        No project data available
+        {t('no-project-data-available')}
       </div>
     );
   }
@@ -57,21 +59,21 @@ export const TasksProgressByProject = ({
             <div className="flex flex-col gap-1 text-muted-foreground">
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="total" />
-                total:
+                {t('total')}
                 <span className="text-foreground ml-auto">
                   {item.totalTasks}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="completed" />
-                completed:
+                {t('completed-label')}
                 <span className="text-foreground ml-auto">
                   {item.completedTasks}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="started" />
-                started:
+                {t('started-label')}
                 <span className="text-foreground ml-auto">
                   {item.startedTasks}
                 </span>

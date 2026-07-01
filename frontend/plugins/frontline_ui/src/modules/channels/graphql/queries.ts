@@ -21,6 +21,8 @@ const GET_CHANNELS = gql`
       updatedAt
       memberCount
       pipelineCount
+      responseTemplateCount
+      formCount
     }
   }
 `;

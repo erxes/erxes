@@ -86,6 +86,16 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
       if (count > 0) {
         data.label = `${data.label} (${count + 1})`;
       }
+      // Assign a default order so new groups land at the end of the sorted
+      // list (getCustomFieldGroups sorts by `order`); mirrors Menu.ts.
+      if (data.order == null) {
+        const lastGroup = await models.CustomFieldGroups.findOne({
+          clientPortalId: data.clientPortalId,
+        })
+          .sort({ order: -1 })
+          .lean();
+        data.order = (lastGroup?.order || 0) + 1;
+      }
       return await models.CustomFieldGroups.create(data);
     };
 
@@ -133,7 +143,7 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
 
     public static getCustomFieldGroups = async (query: any) => {
       return await models.CustomFieldGroups.find(query)
-        .sort({ name: 1 })
+        .sort({ order: 1, name: 1 })
         .lean();
     };
   }

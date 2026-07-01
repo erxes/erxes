@@ -1,8 +1,17 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { IChannel } from '@/channels/types';
+import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
+import { useTranslation } from 'react-i18next';
+
 export const PipelinesSection = ({ channel }: { channel: IChannel }) => {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
+  const { totalCount } = useGetPipelines({
+    variables: { filter: { channelId: channel._id, limit: 1 } },
+  });
+
+  const count = totalCount ?? 0;
 
   return (
     <div
@@ -13,15 +22,12 @@ export const PipelinesSection = ({ channel }: { channel: IChannel }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>Manage ticket pipelines</p>
+          <p>{t('manage-ticket-pipelines')}</p>
 
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1">
-              <p className="text-xs ">{channel.pipelineCount}</p>
-              <p className="text-xs ">
-                {channel.pipelineCount === 1 ? 'pipeline' : 'pipelines'}
-              </p>
-            </span>
+            <p className="text-xs">
+              {t('pipeline', { count })}
+            </p>
             <IconChevronRight className="w-4 h-4" />
           </div>
         </div>

@@ -15,6 +15,15 @@ export interface IConversation {
   assignedUser?: IUser;
   tagIds?: string[];
   status?: ConversationStatus;
+  automatedReplyControl?: IAutomatedReplyControl;
+}
+
+export interface IAutomatedReplyControl {
+  status?: 'active' | 'handoff_requested' | 'human_active';
+  pausedUntil?: string;
+  reason?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface IMessage {
@@ -27,6 +36,8 @@ export interface IMessage {
   attachments?: IAttachment[];
   formWidgetData?: IFormWidgetItem[];
   internal?: boolean;
+  botData?: unknown[];
+  fromBot?: boolean;
 }
 
 export enum ConversationStatus {

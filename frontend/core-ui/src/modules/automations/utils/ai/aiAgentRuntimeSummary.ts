@@ -35,13 +35,20 @@ export type TAiAgentRuntimeSummary = {
   contextBytes: number;
   goalPromptChars: number;
   goalItemCount: number;
-  customInputChars: number;
-  inputMode: 'focused' | 'full-trigger' | 'previous-action' | 'custom';
-  notes: Array<{
-    variant: 'default' | 'warning';
-    text: string;
-  }>;
+  inputChars: number;
+  inputMode: 'full-trigger' | 'output-variable' | 'custom';
+  notes: TAiAgentRuntimeNote[];
 };
+
+export type TAiAgentRuntimeNote =
+  | {
+      variant: 'default' | 'warning';
+      text: string;
+    }
+  | {
+      variant: 'warning';
+      translationKey: 'ai-agent-input-full-trigger-warning';
+    };
 
 const DEFAULT_RUNTIME = {
   temperature: 0.2,
@@ -102,6 +109,14 @@ const getGoalPromptStats = (config?: DeepPartial<TAiAgentConfigForm>) => {
 const getInputMode = (
   config?: DeepPartial<TAiAgentConfigForm>,
 ): TAiAgentRuntimeSummary['inputMode'] => {
+  if (config?.input !== undefined) {
+    if (!config.input.trim()) {
+      return 'full-trigger';
+    }
+
+    return config.input.includes('{{') ? 'output-variable' : 'custom';
+  }
+
   if (!config?.inputMapping) {
     return 'full-trigger';
   }
@@ -110,11 +125,17 @@ const getInputMode = (
     return 'custom';
   }
 
-  if (config.inputMapping.source === 'previousAction') {
-    return 'previous-action';
+  return config.inputMapping.path?.trim() ? 'output-variable' : 'full-trigger';
+};
+
+const getInputChars = (config?: DeepPartial<TAiAgentConfigForm>) => {
+  if (config?.input !== undefined) {
+    return config.input.trim().length;
   }
 
-  return config.inputMapping.path?.trim() ? 'focused' : 'full-trigger';
+  return config?.inputMapping?.source === 'custom'
+    ? config.inputMapping.customValue?.trim().length || 0
+    : 0;
 };
 
 export const formatAiAgentByteSize = (bytes: number) => {
@@ -144,10 +165,7 @@ export const buildAiAgentRuntimeSummary = ({
   const { chars: goalPromptChars, itemCount: goalItemCount } =
     getGoalPromptStats(actionConfig);
   const inputMode = getInputMode(actionConfig);
-  const customInputChars =
-    actionConfig?.inputMapping?.source === 'custom'
-      ? actionConfig?.inputMapping?.customValue?.trim().length || 0
-      : 0;
+  const inputChars = getInputChars(actionConfig);
   const model = agent?.connection?.model || '';
   const normalizedSystemPrompt =
     agent?.context?.systemPrompt?.trim().toLowerCase() || '';
@@ -157,19 +175,12 @@ export const buildAiAgentRuntimeSummary = ({
   const temperature =
     agent?.runtime?.temperature ?? DEFAULT_RUNTIME.temperature;
 
-  const notes: TAiAgentRuntimeSummary['notes'] = [];
+  const notes: TAiAgentRuntimeNote[] = [];
 
   if (inputMode === 'full-trigger') {
     notes.push({
       variant: 'warning',
-      text: 'This action will send the full trigger payload to the AI agent. Narrow the input path if you only need a few fields.',
-    });
-  }
-
-  if (inputMode === 'previous-action') {
-    notes.push({
-      variant: 'warning',
-      text: 'This action reads the whole previous action result. Large upstream payloads can slow the model call.',
+      translationKey: 'ai-agent-input-full-trigger-warning',
     });
   }
 
@@ -207,7 +218,7 @@ export const buildAiAgentRuntimeSummary = ({
     (contextBytes >= 25_000 ||
       systemPromptChars >= 1_000 ||
       goalPromptChars >= 600 ||
-      inputMode !== 'focused')
+      inputMode !== 'output-variable')
   ) {
     notes.push({
       variant: 'warning',
@@ -232,7 +243,7 @@ export const buildAiAgentRuntimeSummary = ({
     contextBytes,
     goalPromptChars,
     goalItemCount,
-    customInputChars,
+    inputChars,
     inputMode,
     notes,
   };

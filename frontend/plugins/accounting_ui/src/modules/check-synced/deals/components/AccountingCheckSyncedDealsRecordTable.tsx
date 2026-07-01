@@ -9,6 +9,7 @@ import {
   ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
   useAccountingCheckSyncedDeals,
 } from '../hooks/useAccountingCheckSyncedDeals';
+import { AccountingCheckSyncedDealRulePicker } from './AccountingCheckSyncedDealRuleSelect';
 
 const getSyncButtonLabel = ({
   canSync,
@@ -65,13 +66,21 @@ const AccountingCheckSyncedDealsActions = ({
         >
           {checking ? 'Checking...' : 'Check Deals'}
         </Button>
-        <Button
-          onClick={onSync}
-          disabled={syncing || !toSyncCount || !canSync}
-          variant="outline"
-        >
-          {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
-        </Button>
+        {canSync ? (
+          <Button
+            onClick={onSync}
+            disabled={syncing || !toSyncCount}
+            variant="outline"
+          >
+            {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
+          </Button>
+        ) : (
+          <AccountingCheckSyncedDealRulePicker>
+            <Button variant="outline" disabled={syncing}>
+              {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
+            </Button>
+          </AccountingCheckSyncedDealRulePicker>
+        )}
       </div>
     </div>
   );

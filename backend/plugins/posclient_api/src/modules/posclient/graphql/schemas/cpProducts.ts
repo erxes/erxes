@@ -76,6 +76,7 @@ const productsQueryParams = `
   groupedSimilarity: String,
   categoryMeta: String,
   image: String,
+  isSimilarity: Boolean,
   minRemainder: Float
   maxRemainder: Float
   minPrice: Float

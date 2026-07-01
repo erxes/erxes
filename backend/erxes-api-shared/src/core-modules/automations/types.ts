@@ -20,6 +20,7 @@ export type TAutomationOutputVariable = {
   label: string;
   exposure?: 'placeholder' | 'reference';
   field?: string;
+  referenceFields?: TAutomationOutputVariable[];
   referenceType?: string;
   sourceType?: string;
   type?: string;
@@ -115,6 +116,7 @@ export type IAutomationsActionConfig = {
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
+  allowedMultiTriggerTypes?: string[];
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
   setPropertyTargets?: TAutomationSetPropertyTarget[];

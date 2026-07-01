@@ -24,6 +24,7 @@ const modules = {
 export const automations = {
   constants: {
     actions: [
+      ...inboxAutomationConstants.actions,
       ...facebookConstants.actions,
       ...instagramConstants.actions,
       ...ticketsAutomationContants.actions,

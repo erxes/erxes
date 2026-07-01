@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
 import {
@@ -26,6 +27,7 @@ export const AmenityMoreColumn = ({
   mainLanguage,
   ...props
 }: AmenityMoreCellProps) => {
+  const { t } = useTranslation('tourism');
   const amenity = props.row.original;
   const [editOpen, setEditOpen] = useState(false);
   const { confirm } = useConfirm();
@@ -38,21 +40,21 @@ export const AmenityMoreColumn = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this amenity?',
+      message: t('confirm-delete-amenity'),
       options: { confirmationValue: 'delete' },
     })
       .then(() => {
         removeAmenities({ variables: { ids: [amenity._id] } })
           .then(() => {
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Amenity deleted successfully',
+              description: t('amenity-deleted-successfully'),
             });
           })
           .catch((e: any) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -61,7 +63,7 @@ export const AmenityMoreColumn = ({
       .catch((e: unknown) => {
         if (e instanceof Error) {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -80,7 +82,7 @@ export const AmenityMoreColumn = ({
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit')}
               </Command.Item>
               <AmenityDuplicate amenity={amenity} branchId={branchId}>
                 {({ onClick, disabled }) => (
@@ -90,13 +92,13 @@ export const AmenityMoreColumn = ({
                     disabled={disabled}
                   >
                     <IconCopy className="w-4 h-4" />
-                    Duplicate
+                    {t('duplicate')}
                   </Command.Item>
                 )}
               </AmenityDuplicate>
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete')}
               </Command.Item>
             </Command.List>
           </Command>

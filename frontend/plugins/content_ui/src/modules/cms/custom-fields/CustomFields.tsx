@@ -5,11 +5,29 @@ import {
   useConfirm,
   toast,
   PageContainer,
+  cn,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
+import {
+  DndContext,
+  PointerSensor,
+  KeyboardSensor,
+  closestCenter,
+  type DragEndEvent,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
 import { CmsSidebar } from '../shared/CmsSidebar';
@@ -20,6 +38,33 @@ import { FieldGroupDrawer } from './components/field-group-drawer/FieldGroupDraw
 import { FieldDrawer } from './components/field-drawer/FieldDrawer';
 import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
 import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
+
+function SortableGroup({
+  group,
+  children,
+}: Readonly<{
+  group: ICustomFieldGroup;
+  children: (dragHandleProps: React.HTMLAttributes<HTMLElement>) => ReactNode;
+}>) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: group._id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+      className={cn(isDragging && 'opacity-50')}
+    >
+      {children({ ...attributes, ...listeners })}
+    </div>
+  );
+}
 
 export function CustomFields() {
   const { websiteId } = useParams();
@@ -34,8 +79,44 @@ export function CustomFields() {
   const [editingField, setEditingField] = useState<ICustomField | null>(null);
   const { confirm } = useConfirm();
 
-  const { groups, loading, refetch, addGroup, editGroup, removeGroup } =
-    useCustomFieldGroups(websiteId);
+  const {
+    groups,
+    loading,
+    refetch,
+    addGroup,
+    editGroup,
+    removeGroup,
+    reorderGroups,
+    reorderFields,
+  } = useCustomFieldGroups(websiteId);
+
+  // Local order so a drop reflects immediately (no snap-back while the
+  // persisted order round-trips); re-synced whenever the stored order changes.
+  const [orderedGroups, setOrderedGroups] = useState(groups);
+  const groupsKey = groups.map((g) => g._id).join('|');
+  useEffect(() => {
+    setOrderedGroups(groups);
+  }, [groupsKey]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleGroupDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = orderedGroups.findIndex((g) => g._id === active.id);
+    const newIndex = orderedGroups.findIndex((g) => g._id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const next = arrayMove(orderedGroups, oldIndex, newIndex);
+    setOrderedGroups(next);
+    reorderGroups(next);
+  };
 
   const { data: customTypesData } = useQuery(CMS_CUSTOM_POST_TYPES, {
     variables: { clientPortalId: websiteId },
@@ -210,13 +291,13 @@ export function CustomFields() {
         <div className="flex min-h-0 overflow-hidden flex-col flex-auto w-full">
           <div className="min-h-0 flex-auto overflow-y-auto">
             <div className="p-6">
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-lg mx-auto flex flex-col gap-2">
                 {/* Table Header */}
                 <Table>
                   <Table.Header>
                     <Table.Row>
                       <Table.Head>Name</Table.Head>
-                      <Table.Head>Type</Table.Head>
+                      <Table.Head>Data type</Table.Head>
                       <Table.Head className="w-12"></Table.Head>
                     </Table.Row>
                   </Table.Header>
@@ -244,25 +325,41 @@ export function CustomFields() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2 mt-2">
-                    {groups.map((group) => (
-                      <CustomFieldGroupItem
-                        key={group._id}
-                        group={group}
-                        selectedGroupId={selectedGroup?._id || null}
-                        onSelectGroup={setSelectedGroup}
-                        onEditGroup={handleEditGroup}
-                        onDeleteGroup={handleDeleteGroup}
-                        onEditField={handleEditField}
-                        onDeleteField={handleDeleteField}
-                        onAddField={() => {
-                          setSelectedGroup(group);
-                          setEditingField(null);
-                          setIsFieldDrawerOpen(true);
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleGroupDragEnd}
+                  >
+                    <SortableContext
+                      items={orderedGroups.map((g) => g._id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="flex flex-col gap-2 mt-2">
+                        {orderedGroups.map((group) => (
+                          <SortableGroup key={group._id} group={group}>
+                            {(dragHandleProps) => (
+                              <CustomFieldGroupItem
+                                group={group}
+                                selectedGroupId={selectedGroup?._id || null}
+                                onSelectGroup={setSelectedGroup}
+                                onEditGroup={handleEditGroup}
+                                onDeleteGroup={handleDeleteGroup}
+                                onEditField={handleEditField}
+                                onDeleteField={handleDeleteField}
+                                onReorderFields={reorderFields}
+                                dragHandleProps={dragHandleProps}
+                                onAddField={() => {
+                                  setSelectedGroup(group);
+                                  setEditingField(null);
+                                  setIsFieldDrawerOpen(true);
+                                }}
+                              />
+                            )}
+                          </SortableGroup>
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
                 )}
               </div>
             </div>

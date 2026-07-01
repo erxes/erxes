@@ -114,6 +114,7 @@ export const types = `
     type: String
     text: String
     link: String
+    contentType: String
     isEditing: Boolean
   }
   input MessengerOnlineHoursSchema {
@@ -317,5 +318,5 @@ export const mutations = `
 
   integrationsSaveMessengerTicketData(
     _id: String!,
-    configId: String!): Integration
+    configId: String): Integration
 `;

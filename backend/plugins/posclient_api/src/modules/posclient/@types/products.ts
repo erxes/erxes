@@ -62,6 +62,7 @@ export interface IProduct extends IProductCommonFields {
   isCheckRems: { [token: string]: boolean };
   sameMasks?: string[];
   sameDefault?: string[];
+  similarityId?: string | null;
   pdfAttachment?: IPdfAttachment;
 
   taxRules?: ITaxRule;

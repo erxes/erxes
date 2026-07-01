@@ -1,6 +1,16 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  enum ProductDurationType {
+    minute
+    hour
+    day
+    week
+    month
+    quarter
+    year
+  }
+
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
@@ -24,10 +34,14 @@ export const types = `
     uom: String
     subUoms: JSON
     currency: String
+    duration: Float
+    durationType: ProductDurationType
 
     category: ProductCategory
     vendor: Company
     hasSimilarity: Boolean
+    similarityId: String
+    similarity: ProductBulkSimilarity
 
     pdfAttachment: PdfAttachment
 
@@ -75,6 +89,7 @@ const queryParams = `
   segment: String,
   segmentData: String,
   groupedSimilarity: String,
+  similarity: Boolean,
   image: String,
   brand: String,
 
@@ -138,6 +153,8 @@ export const mutationParams = `
   uom: String,
   subUoms: JSON,
   currency: String
+  duration: Float
+  durationType: ProductDurationType
   pdfAttachment: PdfAttachmentInput
 `;
 

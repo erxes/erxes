@@ -77,7 +77,12 @@ export const tdbCallbackHandler = async (
   }
 
   const transaction = await models.Transactions.findOne({
-    $or: [{ code: ID }, { 'details.tdbOrderId': ID }],
+    $or: [
+      { code: ID },
+      { code: Number(ID) },
+      { 'details.tdbOrderId': ID },
+      { 'details.tdbOrderId': Number(ID) },
+    ],
   });
 
   if (!transaction) {

@@ -3,8 +3,8 @@ import * as Sentry from '@sentry/node';
 import * as dotenv from 'dotenv';
 
 import express from 'express';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import * as http from 'http';
 import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
 import { Queue } from 'bullmq';

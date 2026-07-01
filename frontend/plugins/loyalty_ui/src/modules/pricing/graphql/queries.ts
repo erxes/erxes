@@ -219,3 +219,31 @@ export const GET_PRODUCTS_BY_IDS = gql`
     }
   }
 `;
+
+export const PRICING_FIXED_VALUES_PAGE = gql`
+  query PricingFixedValuesPage(
+    $pricingPlanId: String!
+    $page: Int
+    $perPage: Int
+    $search: String
+  ) {
+    pricingFixedValuesPage(
+      pricingPlanId: $pricingPlanId
+      page: $page
+      perPage: $perPage
+      search: $search
+    ) {
+      totalCount
+      list {
+        _id
+        productId
+        productName
+        sortField
+        uom
+        unitPrice
+        newPrice
+        status
+      }
+    }
+  }
+`;

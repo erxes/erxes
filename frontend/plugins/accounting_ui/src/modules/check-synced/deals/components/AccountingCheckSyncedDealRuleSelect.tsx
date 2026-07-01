@@ -8,7 +8,7 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { ACCOUNTING_SYNC_DEAL_RULES_QUERY } from '../graphql/checkSyncedDeals';
 import { AccountingDealRule } from '../types';
@@ -117,6 +117,23 @@ const AccountingCheckSyncedDealRuleContent = ({
         ))}
       </Command.List>
     </Command>
+  );
+};
+
+export const AccountingCheckSyncedDealRulePicker = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger asChild>{children}</Popover.Trigger>
+      <Combobox.Content>
+        <AccountingCheckSyncedDealRuleContent onSelect={() => setOpen(false)} />
+      </Combobox.Content>
+    </Popover>
   );
 };
 

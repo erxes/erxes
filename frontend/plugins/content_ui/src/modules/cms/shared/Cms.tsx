@@ -6,11 +6,14 @@ import {
   IconFileText,
   IconLayoutGrid,
   IconList,
+  IconLock,
   IconPlus,
 } from '@tabler/icons-react';
-import { Button, Spinner, ToggleGroup } from 'erxes-ui';
+import { Button, Spinner, ToggleGroup, toast } from 'erxes-ui';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
 import { WebsiteDrawer } from '../components/websites/WebsiteDrawer';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
 import { IWebsite } from '../types';
@@ -40,9 +43,15 @@ export function Cms() {
   const { data, loading, refetch } = useQuery<{
     contentCMSList: IWebsite[];
   }>(CONTENT_CMS_LIST);
+  const currentUser = useAtomValue(currentUserState);
   const cmsList = data?.contentCMSList || [];
   const displayWebsites: IWebsite[] = cmsList;
   const onlyCms = cmsList.length === 1 ? cmsList[0] : null;
+
+  const canAccessWebsite = (website: IWebsite) =>
+    !!currentUser?.isOwner ||
+    website.accessPolicy !== 'assigned' ||
+    (website.assignedMemberIds || []).includes(currentUser?._id || '');
 
   const handleWebsiteCreatedOrUpdated = () => {
     refetch();
@@ -56,11 +65,30 @@ export function Cms() {
   };
 
   const handleEditWebsite = (website: IWebsite) => {
+    if (!canAccessWebsite(website)) {
+      toast({
+        title: 'Access restricted',
+        description:
+          'This CMS is limited to assigned team members. Ask an owner to add you.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setEditingWebsite(website);
     setIsWebsiteDrawerOpen(true);
   };
 
   const handleWebsiteClick = (website: IWebsite) => {
+    if (!canAccessWebsite(website)) {
+      toast({
+        title: 'Access restricted',
+        description:
+          'This CMS is limited to assigned team members. Ask an owner to add you.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!website.clientPortalId) {
       navigate('/content/cms');
       return;
@@ -86,7 +114,7 @@ export function Cms() {
     </div>
   );
 
-  if (!loading && onlyCms?.clientPortalId) {
+  if (!loading && onlyCms?.clientPortalId && canAccessWebsite(onlyCms)) {
     return (
       <Navigate to={`/content/cms/${onlyCms.clientPortalId}/posts`} replace />
     );
@@ -105,7 +133,7 @@ export function Cms() {
       ) : (
         <>
           <div className="flex justify-between items-center mb-6">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               Found {cmsList.length} results
             </div>
             <ToggleGroup
@@ -125,7 +153,7 @@ export function Cms() {
           </div>
 
           {cmsList.length === 0 ? (
-            <div className="bg-white rounded-lg overflow-hidden">
+            <div className="bg-card rounded-lg overflow-hidden">
               <EmptyState
                 icon={IconFileText}
                 title="No CMS yet"
@@ -139,7 +167,7 @@ export function Cms() {
               {displayWebsites.map((website, index) => (
                 <div
                   key={website._id}
-                  className="bg-white h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                  className="bg-card h-full rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => handleWebsiteClick(website)}
                 >
                   <div
@@ -176,18 +204,27 @@ export function Cms() {
                         </div>
                       </div>
                     )}
+
+                    {!canAccessWebsite(website) && (
+                      <div className="absolute top-2 left-2">
+                        <div className="flex items-center gap-1 px-2 py-1 bg-black/60 rounded text-xs font-medium text-white">
+                          <IconLock className="w-3 h-3" />
+                          <span>Restricted</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                    <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
                       {website.name}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
                       {website.description || 'No description available'}
                     </p>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <IconCalendar className="w-3 h-3" />
                         <span>
                           Created on:{' '}
@@ -207,7 +244,7 @@ export function Cms() {
                             e.stopPropagation();
                             handleEditWebsite(website);
                           }}
-                          className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                         >
                           <IconEdit className="w-3 h-3" />
                           <span>Manage</span>
@@ -218,7 +255,7 @@ export function Cms() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
+                            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                           >
                             <IconArrowUpRight className="w-3 h-3" />
                           </a>
@@ -234,7 +271,7 @@ export function Cms() {
               {displayWebsites.map((website, index) => (
                 <div
                   key={website._id}
-                  className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  className="bg-card rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => handleWebsiteClick(website)}
                 >
                   <div className="flex items-center gap-4">
@@ -262,13 +299,13 @@ export function Cms() {
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 mb-1">
+                      <h3 className="font-semibold text-foreground mb-1">
                         {website.name}
                       </h3>
-                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                      <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                         {website.description || 'No description available'}
                       </p>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <IconCalendar className="w-3 h-3" />
                           <span>
@@ -298,7 +335,7 @@ export function Cms() {
                           e.stopPropagation();
                           handleEditWebsite(website);
                         }}
-                        className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                       >
                         <IconEdit className="w-3 h-3" />
                         <span>Manage</span>
@@ -309,7 +346,7 @@ export function Cms() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                         >
                           <IconArrowUpRight className="w-3 h-3" />
                         </a>

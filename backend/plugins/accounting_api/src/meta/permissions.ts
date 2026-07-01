@@ -26,6 +26,7 @@ const VAT_ROW_ACTIONS = {
   read: 'readVatRows',
   manage: 'manageVatRows',
   remove: 'removeVatRows',
+  import: 'vatRowsImportManage',
 } as const;
 
 const CTAX_ROW_ACTIONS = {
@@ -201,6 +202,11 @@ export const permissions: IPermissionConfig = {
           title: 'Remove VAT rows',
           name: VAT_ROW_ACTIONS.remove,
           description: 'Delete VAT rows',
+        },
+        {
+          title: 'Import VAT rows',
+          name: VAT_ROW_ACTIONS.import,
+          description: 'Import VAT rows',
         },
       ],
     },

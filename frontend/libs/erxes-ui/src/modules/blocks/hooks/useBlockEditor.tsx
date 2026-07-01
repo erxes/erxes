@@ -12,35 +12,44 @@ export const useBlockEditor = (args?: {
 }) => {
   const { placeholder, uploadFile, ...restArgs } = args || {};
 
-  const resolveRef = useRef<(url: string) => void>();
-  const rejectRef = useRef<(err: Error) => void>();
+  const pendingRef = useRef<{
+    resolve: (url: string) => void;
+    reject: (err: Error) => void;
+  } | null>(null);
 
   const uploadProps = useErxesUpload({
     maxFiles: 1,
     onFilesAdded: (added) => {
+      const pending = pendingRef.current;
+      if (!pending) return;
+
       if (added[0]?.url) {
-        resolveRef.current?.(added[0].url);
+        pending.resolve(added[0].url);
       } else {
-        rejectRef.current?.(new Error('Upload failed'));
+        pending.reject(new Error('Upload failed'));
       }
+      pendingRef.current = null;
     },
   });
 
   useEffect(() => {
     if (uploadProps.files.length > 0 && !uploadProps.loading) {
       uploadProps.onUpload().catch((err: unknown) => {
-        rejectRef.current?.(
+        pendingRef.current?.reject(
           err instanceof Error ? err : new Error('Upload failed'),
         );
+        pendingRef.current = null;
       });
     }
-  }, [uploadProps.files.length]);
+  }, [uploadProps.files[0]]);
 
   const defaultUploadFile = useCallback(
     (file: File): Promise<string> => {
       return new Promise((resolve, reject) => {
-        resolveRef.current = resolve;
-        rejectRef.current = reject;
+        pendingRef.current?.reject(
+          new Error('Previous upload was interrupted'),
+        );
+        pendingRef.current = { resolve, reject };
         const fileWithPreview = Object.assign(file, {
           preview: URL.createObjectURL(file),
           errors: [],

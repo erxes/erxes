@@ -86,6 +86,15 @@ export const OUTGOING_WEBHOOK_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition 
     ],
   };
 
+export const MESSAGE_PRO_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
+  variables: [
+    { key: 'documentId', label: 'Document ID' },
+    { key: 'content', label: 'Rendered content' },
+    { key: 'phone', label: 'Recipient phone' },
+    { key: 'sent', label: 'SMS sent' },
+  ],
+};
+
 export const AI_AGENT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [
     { key: 'type', label: 'Result Type' },

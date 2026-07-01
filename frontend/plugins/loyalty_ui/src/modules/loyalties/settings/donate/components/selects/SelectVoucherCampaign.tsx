@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import React, { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconReceipt } from '@tabler/icons-react';
 import { IVoucherCampaign } from '../../types/voucherCampaignType';
 import {
@@ -126,6 +127,7 @@ const SelectVoucherCampaignCommandItem = ({
 }: {
   voucherCampaign: IVoucherCampaign;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { onSelect, voucherCampaignId } = useSelectVoucherCampaignContext();
 
   return (
@@ -135,7 +137,7 @@ const SelectVoucherCampaignCommandItem = ({
     >
       <VoucherCampaignInline
         voucherCampaigns={[voucherCampaign]}
-        placeholder="Unnamed campaign"
+        placeholder={t('unnamed-campaign')}
       />
       <Combobox.Check
         checked={voucherCampaignId.includes(voucherCampaign._id)}
@@ -145,6 +147,7 @@ const SelectVoucherCampaignCommandItem = ({
 };
 
 const SelectVoucherCampaignContent = () => {
+  const { t } = useTranslation('loyalty');
   const [search, setSearch] = React.useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { voucherCampaigns: selectedVoucherCampaigns } =
@@ -166,7 +169,7 @@ const SelectVoucherCampaignContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder="Search voucher campaigns..."
+        placeholder={t('search-voucher-campaigns')}
         className="h-9"
       />
       <Command.List>
@@ -204,12 +207,15 @@ const SelectVoucherCampaignContent = () => {
   );
 };
 
-export const SelectVoucherCampaignFilterItem = () => (
-  <Filter.Item value="voucherCampaign">
-    <IconReceipt />
-    Voucher Campaign
-  </Filter.Item>
-);
+export const SelectVoucherCampaignFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="voucherCampaign">
+      <IconReceipt />
+      {t('voucher-campaign')}
+    </Filter.Item>
+  );
+};
 
 export const SelectVoucherCampaignFilterView = ({
   onValueChange,
@@ -252,6 +258,7 @@ export const SelectVoucherCampaignFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [voucherCampaign, setVoucherCampaign] =
     useQueryState<ValueChangeValueType>(queryKey || 'voucherCampaign');
   const [open, setOpen] = useState(false);
@@ -260,7 +267,7 @@ export const SelectVoucherCampaignFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'voucherCampaign'}>
       <Filter.BarName>
         <IconReceipt />
-        {!iconOnly && 'Voucher Campaign'}
+        {!iconOnly && t('voucher-campaign')}
       </Filter.BarName>
 
       <SelectVoucherCampaignProvider

@@ -1,5 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { COUPONS_CURSOR_SESSION_KEY } from '../constants/couponsCursorSessionKey';
 import { CREATE_COUPON_CAMPAIGN } from '../graphql/mutations/CouponMutations';
 import { QUERY_COUPON_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
@@ -41,6 +42,7 @@ export interface AddCouponVariables {
 }
 
 export const useAddCoupon = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
   const { cursor } = useRecordTableCursor({
     sessionKey: COUPONS_CURSOR_SESSION_KEY,
@@ -96,15 +98,15 @@ export const useAddCoupon = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Coupon campaign created successfully',
+          title: t('success'),
+          description: t('coupon-campaign-created'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

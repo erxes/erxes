@@ -13,6 +13,7 @@ import {
   IconHierarchy,
   IconHierarchy2,
   IconMail,
+  IconMessage,
   IconNotification,
   IconPassword,
   IconShoppingCart,
@@ -156,12 +157,12 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Brands,
     },
     {
-      name: 'Properties',
+      name: t('properties', 'Properties'),
       icon: IconHierarchy2,
       path: SettingsWorkspacePath.Properties,
     },
     {
-      name: 'Products',
+      name: t('products', 'Products'),
       icon: IconShoppingCart,
       path: SettingsWorkspacePath.Products,
     },
@@ -169,6 +170,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('automations'),
       icon: IconBolt,
       path: SettingsWorkspacePath.Automations,
+    },
+    {
+      name: t('message-pro', 'Message Pro'),
+      icon: IconMessage,
+      path: SettingsWorkspacePath.MessagePro,
     },
   ],
   developer: [

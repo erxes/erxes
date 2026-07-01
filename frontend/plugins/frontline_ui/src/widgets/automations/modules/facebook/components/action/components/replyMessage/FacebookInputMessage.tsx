@@ -2,20 +2,21 @@ import { cn, Form, Input, Select, Textarea } from 'erxes-ui';
 import { FacebookMessageProps } from '../../types/messageActionForm';
 import { InputTextCounter } from '../InputTextCounter';
 import { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
 
 export const FacebookInputMessage = ({
   index,
   message,
-  handleMessageChange,
 }: FacebookMessageProps<{ type: 'input' }>) => {
-  const { control } = useReplyMessageAction();
+  const { t } = useTranslation('frontline');
+  const { control, setValue } = useReplyMessageAction();
 
   const { value, type } = message?.input || {};
 
   const handleValueChange = (
     e: ChangeEvent<HTMLInputElement>,
-    onChange: (...event: any[]) => void,
+    onChange: (value: string) => void,
   ) => {
     let { value } = e.currentTarget;
     let intervalType: 'minute' | 'hour' | 'day' | 'month' | 'year' | undefined;
@@ -45,7 +46,7 @@ export const FacebookInputMessage = ({
     }
 
     if (intervalType) {
-      handleMessageChange(index, 'input.type', intervalType);
+      setValue(`messages.${index}.input.type`, intervalType);
     }
 
     onChange(value);
@@ -53,7 +54,7 @@ export const FacebookInputMessage = ({
 
   const handleIntervalChange = (
     type: string,
-    onChange: (...event: any[]) => void,
+    onChange: (value: string) => void,
   ) => {
     const maxValues: Record<string, number> = {
       minute: 59,
@@ -68,7 +69,7 @@ export const FacebookInputMessage = ({
     const max = maxValues[type] ?? Infinity;
 
     if (numericValue > max) {
-      handleMessageChange(index, 'input.value', '1');
+      setValue(`messages.${index}.input.value`, '1');
     }
 
     onChange(type);
@@ -82,7 +83,7 @@ export const FacebookInputMessage = ({
         render={({ field, fieldState }) => (
           <Form.Item>
             <Form.Label className="flex flex-row justify-between">
-              Text
+              {t('text')}
               <InputTextCounter count={field.value?.length || 0} limit={2000} />
             </Form.Label>
             <Form.Control>
@@ -102,7 +103,7 @@ export const FacebookInputMessage = ({
           control={control}
           render={({ field, fieldState }) => (
             <Form.Item className="w-1/2">
-              <Form.Label>Wait for</Form.Label>
+              <Form.Label>{t('wait-for')}</Form.Label>
               <Form.Control>
                 <Input
                   {...field}
@@ -124,7 +125,7 @@ export const FacebookInputMessage = ({
           control={control}
           render={({ field, fieldState }) => (
             <Form.Item className="w-1/2">
-              <Form.Label>Time unit</Form.Label>
+              <Form.Label>{t('time-unit')}</Form.Label>
               <Select
                 value={field.value}
                 onValueChange={(value) =>
@@ -132,14 +133,14 @@ export const FacebookInputMessage = ({
                 }
               >
                 <Select.Trigger id="time-unit" className="mt-1">
-                  <Select.Value placeholder="Select unit" />
+                  <Select.Value placeholder={t('select-unit')} />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="minute">Minutes</Select.Item>
-                  <Select.Item value="hour">Hours</Select.Item>
-                  <Select.Item value="day">Days</Select.Item>
-                  <Select.Item value="month">Month</Select.Item>
-                  <Select.Item value="year">Year</Select.Item>
+                  <Select.Item value="minute">{t('minutes')}</Select.Item>
+                  <Select.Item value="hour">{t('hours')}</Select.Item>
+                  <Select.Item value="day">{t('days')}</Select.Item>
+                  <Select.Item value="month">{t('month')}</Select.Item>
+                  <Select.Item value="year">{t('year')}</Select.Item>
                 </Select.Content>
               </Select>
               {fieldState.error?.message && (

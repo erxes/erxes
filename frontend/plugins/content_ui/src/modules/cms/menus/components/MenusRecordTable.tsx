@@ -34,16 +34,7 @@ import { useMenus } from '../hooks/useMenus';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
 import { buildFlatTree, getDepthPrefix } from '@/cms/menus/menuUtils';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
-
-interface MenuItem {
-  _id: string;
-  label: string;
-  parentId?: string;
-  order?: number;
-  depth?: number;
-  path?: string[];
-  [key: string]: unknown;
-}
+import { MenuItem } from '../types/menuDrawerTypes';
 
 interface MenusRecordTableProps {
   clientPortalId: string;

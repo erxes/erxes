@@ -2,6 +2,7 @@ import { Combobox, Command, Popover, toast } from 'erxes-ui';
 
 import { IconArrowDown } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   config: { value: string; label: string }[];
@@ -15,9 +16,8 @@ const Attribution = ({ config, value, onChange }: Props) => {
   const handleSelect = (val: string) => {
     if (val.startsWith(' ')) {
       toast({
-        title: 'Error',
-        description:
-          "Please make sure the attribution doesn't start with a space",
+        title: t('error'),
+        description: t('attribution-no-leading-space'),
         variant: 'destructive',
       });
       return;
@@ -32,11 +32,13 @@ const Attribution = ({ config, value, onChange }: Props) => {
     setOpen(false); // close popover after selection
   };
 
+  const { t } = useTranslation('sales');
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <span className="text-sm text-foreground/50 font-semibold flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors duration-200">
-          Attribution <IconArrowDown size={13} />
+          {t('attribution')} <IconArrowDown size={13} />
         </span>
       </Popover.Trigger>
       <Popover.Content className="p-1">

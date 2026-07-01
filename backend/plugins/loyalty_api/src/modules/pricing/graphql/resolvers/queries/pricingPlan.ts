@@ -1,7 +1,10 @@
 import { IContext, IModels } from '~/connectionResolvers';
 import dayjs from 'dayjs';
-import { cursorPaginate } from 'erxes-api-shared/utils';
-import { getAllowedProducts } from '../../../utils/product';
+import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getAllowedProducts,
+  getProductIdsForPlan,
+} from '../../../utils/product';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { checkPricing } from '../../../utils';
 
@@ -232,6 +235,117 @@ export const pricingPlanQueries = {
   ) => {
     await checkPermission('pricingPlanView');
     return await models.PricingPlans.getPricingPlan(id);
+  },
+
+  pricingFixedValuesPage: async (
+    _root: any,
+    {
+      pricingPlanId,
+      page = 1,
+      perPage = 50,
+      search = '',
+    }: {
+      pricingPlanId: string;
+      page?: number;
+      perPage?: number;
+      search?: string;
+    },
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('pricingPlanView');
+
+    const plan = await models.PricingPlans.getPricingPlan(pricingPlanId);
+
+    // Load all fixed values for this plan — small documents, no limit needed
+    const allFixedValues = await models.PricingFixedValues.find({
+      pricingPlanId,
+    })
+      .sort({ sortField: 1 })
+      .lean();
+
+    const fixedByProductId = new Map(
+      allFixedValues.map((fv) => [fv.productId, fv]),
+    );
+
+    // Get all product IDs that belong to this plan
+    const planProductIds = await getProductIdsForPlan(subdomain, plan);
+    const planProductIdSet = new Set(planProductIds);
+
+    // Stale: have a saved fixed value but product no longer on the plan
+    const staleProductIds = allFixedValues
+      .filter((fv) => !planProductIdSet.has(fv.productId))
+      .map((fv) => fv.productId);
+
+    // Full list: plan products first (sorted by their fixed value's sortField),
+    // then stale products at the end
+    let candidateProductIds = [...planProductIds, ...staleProductIds];
+
+    // Server-side search — filter by sortField (product code) from fixed values
+    if (search) {
+      const lower = search.toLowerCase();
+      const matchedByCode = new Set(
+        allFixedValues
+          .filter((fv) => fv.sortField?.toLowerCase().includes(lower))
+          .map((fv) => fv.productId),
+      );
+      const nameMatches: any[] = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'find',
+        input: { query: { name: { $regex: search, $options: 'i' } } },
+        defaultValue: [],
+      });
+      const matchedByName = new Set(
+        nameMatches.map((p: any) => p._id.toString()),
+      );
+      candidateProductIds = candidateProductIds.filter(
+        (id) => matchedByCode.has(id) || matchedByName.has(id),
+      );
+    }
+
+    const totalCount = candidateProductIds.length;
+    const skip = (page - 1) * perPage;
+    const pageProductIds = candidateProductIds.slice(skip, skip + perPage);
+
+    if (!pageProductIds.length) {
+      return { list: [], totalCount };
+    }
+
+    // Fetch product details from core for this page only
+    const products: any[] = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: { query: { _id: { $in: pageProductIds } } },
+      defaultValue: [],
+    });
+
+    const productById = new Map(products.map((p) => [p._id.toString(), p]));
+
+    const list = pageProductIds.map((productId) => {
+      const product = productById.get(productId);
+      const fixedValue = fixedByProductId.get(productId);
+      const isActive = planProductIdSet.has(productId);
+
+      let status = 'NEW';
+      if (fixedValue && isActive) status = 'SAVED';
+      else if (fixedValue && !isActive) status = 'STALE';
+
+      return {
+        _id: fixedValue?._id?.toString() || null,
+        productId,
+        productName: product?.name || `Unknown (${productId})`,
+        sortField: fixedValue?.sortField || product?.code || '',
+        uom: product?.uom || fixedValue?.uom || '',
+        unitPrice: product?.unitPrice ?? fixedValue?.unitPrice ?? 0,
+        newPrice: fixedValue?.newPrice ?? product?.unitPrice ?? 0,
+        status,
+      };
+    });
+
+    return { list, totalCount };
   },
 
   pricingCheckDiscount: async (

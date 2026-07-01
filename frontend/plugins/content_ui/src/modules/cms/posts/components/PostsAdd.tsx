@@ -4,6 +4,7 @@ import { Button, useScopedHotkeys } from 'erxes-ui';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { useCustomTypes } from '../../custom-types/hooks/useCustomTypes';
+import { buildCurrentPostsReturnPath } from '../utils/postsNavigation';
 
 export const PostsAdd = ({ clientPortalId }: { clientPortalId: string }) => {
   const navigate = useNavigate();
@@ -25,8 +26,17 @@ export const PostsAdd = ({ clientPortalId }: { clientPortalId: string }) => {
         ? pathSegments[cmsIndex + 1]
         : clientPortalId;
     const typeParam =
-      currentType && currentType !== 'post' ? `?type=${currentType}` : '';
-    navigate(`/content/cms/${websiteId}/posts/add${typeParam}`);
+      currentType && currentType !== 'post'
+        ? `?type=${encodeURIComponent(currentType)}`
+        : '';
+    navigate(`/content/cms/${websiteId}/posts/add${typeParam}`, {
+      state: {
+        returnTo: buildCurrentPostsReturnPath(
+          location.pathname,
+          location.search,
+        ),
+      },
+    });
   };
 
   useScopedHotkeys(`c`, () => onOpen(), PostsHotKeyScope.PostsPage);

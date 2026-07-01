@@ -93,6 +93,7 @@ export const useCheckSyncedDealsVariables = (
       stageChangedDateRange,
       dateType,
       dateRange,
+      createdDateRange,
     },
   ] = useMultiQueryState<{
     user: string;
@@ -104,6 +105,7 @@ export const useCheckSyncedDealsVariables = (
     stageChangedDateRange: string;
     dateType: string;
     dateRange: string;
+    createdDateRange: string;
   }>([
     'user',
     'boardId',
@@ -114,6 +116,7 @@ export const useCheckSyncedDealsVariables = (
     'stageChangedDateRange',
     'dateType',
     'dateRange',
+    'createdDateRange',
   ]);
   const { sessionKey } = useCheckSyncedDealsLeadSessionKey();
 
@@ -132,6 +135,8 @@ export const useCheckSyncedDealsVariables = (
     search: dealSearch || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
+    createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
+    createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
     dateType: dateType || undefined,
     type: 'checkSyncedDeals',
 
@@ -193,37 +198,46 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     [toSyncDealIds],
   );
 
-  const setDealToSync = useCallback((id: string, checked: boolean) => {
-    setToSyncDealIds((current) => {
-      const next = { ...current };
+  const setDealToSync = useCallback(
+    (id: string, checked: boolean) => {
+      setToSyncDealIds((current) => {
+        const next = { ...current };
 
-      if (checked) {
-        next[id] = true;
-      } else {
-        delete next[id];
-      }
-
-      return next;
-    });
-  }, [setToSyncDealIds]);
-
-  const setAllDealsToSync = useCallback((ids: string[], checked: boolean) => {
-    setToSyncDealIds((current) => {
-      const next = { ...current };
-
-      for (const id of ids) {
         if (checked) {
           next[id] = true;
         } else {
           delete next[id];
         }
-      }
 
-      return next;
-    });
-  }, [setToSyncDealIds]);
+        return next;
+      });
+    },
+    [setToSyncDealIds],
+  );
 
-  const checkDeals = async (ids: string[], checkOptions?: CheckDealsOptions) => {
+  const setAllDealsToSync = useCallback(
+    (ids: string[], checked: boolean) => {
+      setToSyncDealIds((current) => {
+        const next = { ...current };
+
+        for (const id of ids) {
+          if (checked) {
+            next[id] = true;
+          } else {
+            delete next[id];
+          }
+        }
+
+        return next;
+      });
+    },
+    [setToSyncDealIds],
+  );
+
+  const checkDeals = async (
+    ids: string[],
+    checkOptions?: CheckDealsOptions,
+  ) => {
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({

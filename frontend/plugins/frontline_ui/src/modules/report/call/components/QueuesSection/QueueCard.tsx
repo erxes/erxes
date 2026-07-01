@@ -1,5 +1,6 @@
 import type { QueueStat } from '../../types';
 import { fmtDur, fmtNum, fmtPct } from '../../utils';
+import { useTranslation } from 'react-i18next';
 
 interface QueueCardProps {
   stat: QueueStat;
@@ -9,6 +10,7 @@ interface QueueCardProps {
 
 /** Single-queue summary card with key metrics. */
 export function QueueCard({ stat, label }: QueueCardProps) {
+  const { t } = useTranslation('frontline');
   const answerRate = stat.answeredRate ?? 0;
 
   return (
@@ -21,9 +23,9 @@ export function QueueCard({ stat, label }: QueueCardProps) {
       </p>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-        <Metric label="Total" value={fmtNum(stat.totalCalls)} />
+        <Metric label={t('total')} value={fmtNum(stat.totalCalls)} />
         <Metric
-          label="Answer rate"
+          label={t('answer-rate')}
           value={fmtPct(answerRate)}
           valueClass={
             answerRate >= 80
@@ -34,12 +36,12 @@ export function QueueCard({ stat, label }: QueueCardProps) {
           }
         />
         <Metric
-          label="Answered"
+          label={t('answered')}
           value={fmtNum(stat.answeredCalls)}
           valueClass="text-[var(--pos)]"
         />
         <Metric
-          label="Abandoned"
+          label={t('abandoned')}
           value={fmtNum(stat.abandonedCalls)}
           valueClass="text-[var(--neg)]"
         />

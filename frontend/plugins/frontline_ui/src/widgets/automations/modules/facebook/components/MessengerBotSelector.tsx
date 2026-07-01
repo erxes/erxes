@@ -15,6 +15,7 @@ import {
   Skeleton,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 type Props = {
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
+  const { t } = useTranslation('frontline');
   const [selectedBotId, setBotId] = useState(botId || '');
   const [isOpen, setOpen] = useState(!botId || false);
 
@@ -55,7 +57,7 @@ export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
               </Avatar.Fallback>
             </Avatar>
             <Label className="text-lg text-muted-foreground">
-              {selectedBot?.name || 'Select a bot'}
+              {selectedBot?.name || t('select-a-bot')}
             </Label>
           </div>
           <IconChevronDown className="w-4 h-4" />
@@ -111,14 +113,15 @@ const MessengerBotList = ({
   selectedBotId: string;
   handleSelect: (_id: string) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   if (!bots?.length) {
     return (
       <div className="flex flex-col gap-2 items-center text-accent-foreground">
         <IconRobotFace />
-        <p>There's no bots configured</p>
+        <p>{t('no-bots-configured')}</p>
         <Button variant="secondary" asChild>
           <Link to={`/settings/automations/bots/facebook-messenger-bots`}>
-            <Label>Create first facebook messenger bot</Label>
+            <Label>{t('create-first-bot')}</Label>
           </Link>
         </Button>
       </div>

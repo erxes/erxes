@@ -127,6 +127,7 @@ export interface IPricingFixedValue {
   _id: string;
   pricingPlanId: string;
   productId: string;
+  sortField?: string;
   uom: string;
   unitPrice: number;
   newPrice: number;

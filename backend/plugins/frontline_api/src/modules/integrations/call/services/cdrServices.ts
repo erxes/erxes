@@ -7,6 +7,7 @@ import {
   extractOperatorId,
   findOrCreateCdr,
   getConversationContent,
+  isHumanAnsweredLeg,
 } from '@/integrations/call/services/cdrUtils';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
@@ -101,6 +102,9 @@ const processCdrLocked = async (
     }
   }
 
+  const isAnsweredLeg = isHumanAnsweredLeg(params);
+  const ownerForConversation = isAnsweredLeg ? operatorPhone : '';
+
   let conversationId;
 
   let existingSession: any = null;
@@ -117,7 +121,7 @@ const processCdrLocked = async (
         conversationId,
         content,
         updatedAt: new Date(),
-        owner: operatorPhone || '',
+        owner: ownerForConversation,
         integrationId: inboxId,
       };
       if (customer) payload.customerId = customer?.erxesApiId;
@@ -154,13 +158,17 @@ const processCdrLocked = async (
   }
 
   if (conversationId) {
+    console.log(
+      'conversationId already exists, updating erxes conversation with new content and owner',
+      conversationId,
+    );
   } else if (existingCdr || followmeCdr) {
     conversationId = existingCdr?.conversationId || followmeCdr?.conversationId;
     const payload = {
       conversationId,
       content: content,
       updatedAt: new Date(),
-      owner: operatorPhone || '',
+      owner: ownerForConversation,
       integrationId: inboxId,
     } as any;
     if (customer) {
@@ -230,7 +238,7 @@ const processCdrLocked = async (
       content: content,
       conversationId: resolvedConversationId,
       updatedAt: new Date(),
-      owner: operatorPhone || '',
+      owner: ownerForConversation,
     };
 
     const newErxesConversation = await createOrUpdateErxesConversation(
@@ -264,6 +272,33 @@ const processCdrLocked = async (
   if (params.uniqueid) {
     const sessionUniqueid = existingSession?.uniqueid || params.uniqueid;
     try {
+      const candidateExtensions = [
+        extension,
+        matchedOperator?.gsUsername,
+        params.dstchannel_ext,
+        params.channel_ext,
+        params.dstanswer,
+        params.new_src,
+        params.userfield === 'Outbound' ? params.src : params.dst,
+      ].filter(Boolean);
+
+      let opForExt: any = null;
+      let operatorExtension: string | undefined;
+      for (const candidate of candidateExtensions) {
+        const op = integration.operators.find(
+          (o: any) => o.gsUsername === candidate,
+        );
+        if (op) {
+          opForExt = op;
+          operatorExtension = candidate;
+          break;
+        }
+      }
+      if (!operatorExtension) {
+        operatorExtension = extension || matchedOperator?.gsUsername;
+      }
+      const operatorUserId = opForExt?.userId || matchedOperator?.userId;
+
       if (!existingSession) {
         const direction =
           params.userfield === 'Outbound' ? 'outgoing' : 'incoming';
@@ -285,52 +320,21 @@ const processCdrLocked = async (
           ...(startedAt ? { startedAt } : {}),
           source: 'cdr',
         });
+      }
 
-        const candidateExtensions = [
-          extension,
-          matchedOperator?.gsUsername,
-          params.dstchannel_ext,
-          params.channel_ext,
-          params.dstanswer,
-          params.new_src,
-          params.userfield === 'Outbound' ? params.src : params.dst,
-        ].filter(Boolean);
-
-        let opForExt: any = null;
-        let operatorExtension: string | undefined;
-        for (const candidate of candidateExtensions) {
-          const op = integration.operators.find(
-            (o: any) => o.gsUsername === candidate,
+      if (operatorExtension) {
+        if (isAnsweredLeg) {
+          await models.CallSessions.markAnswered(
+            sessionUniqueid,
+            operatorExtension,
+            operatorUserId,
           );
-          if (op) {
-            opForExt = op;
-            operatorExtension = candidate;
-            break;
-          }
-        }
-        if (!operatorExtension) {
-          operatorExtension = extension || matchedOperator?.gsUsername;
-        }
-
-        if (operatorExtension) {
-          const operatorUserId = opForExt?.userId || matchedOperator?.userId;
-          const answered =
-            (params.disposition || '').toUpperCase() === 'ANSWERED' &&
-            Number(params.billsec) > 0;
-
-          if (answered) {
-            await models.CallSessions.markAnswered(
-              sessionUniqueid,
-              operatorExtension,
-              operatorUserId,
-            );
-          } else {
-            await models.CallSessions.attachOperator(sessionUniqueid, {
-              extensionNumber: operatorExtension,
-              userId: operatorUserId,
-              state: 'noanswer',
-            });
-          }
+        } else if (!existingSession) {
+          await models.CallSessions.attachOperator(sessionUniqueid, {
+            extensionNumber: operatorExtension,
+            userId: operatorUserId,
+            state: 'noanswer',
+          });
         }
       }
 
@@ -341,11 +345,19 @@ const processCdrLocked = async (
           })()
         : new Date();
 
+      const legDisposition = isAnsweredLeg
+        ? 'ANSWERED'
+        : (params.disposition || '').toUpperCase() === 'ANSWERED'
+        ? 'NO ANSWER'
+        : params.disposition;
+
       await models.CallSessions.markEnded(sessionUniqueid, {
         endedAt,
-        durationSec: Number(params.billsec || params.duration) || undefined,
-        hangupCause: params.disposition,
-        disposition: params.disposition,
+        durationSec: isAnsweredLeg
+          ? Number(params.billsec) || undefined
+          : undefined,
+        hangupCause: legDisposition,
+        disposition: legDisposition,
         recordUrl: cdr.recordUrl,
         cdrAcctId: cdr.acctId,
       });

@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { Button, Form, InfoCard, Input, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useApolloClient } from '@apollo/client';
 import { SelectProduct } from 'ui-modules';
 import {
@@ -38,6 +39,7 @@ export const CommonRuleInfo = ({
   embedded = false,
   onSaveActionChange,
 }: CommonRuleInfoProps) => {
+  const { t } = useTranslation('loyalty');
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
   const client = useApolloClient();
@@ -97,6 +99,7 @@ export const CommonRuleInfo = ({
             .map((fv) => {
               const doc = {
                 productId: fv.productId,
+                sortField: fv.sortField || '',
                 uom: fv.uom,
                 unitPrice: fv.unitPrice,
                 newPrice: fv.newPrice,
@@ -111,17 +114,20 @@ export const CommonRuleInfo = ({
         );
       }
 
-      await client.refetchQueries({ include: ['PricingPlanDetail'] });
+      await client.refetchQueries({
+        include: ['PricingPlanDetail', 'PricingFixedValuesPage'],
+      });
+
       form.reset(values);
 
       toast({
-        title: 'Common rule updated',
-        description: 'Changes have been saved successfully.',
+        title: t('common-rule-updated'),
+        description: t('changes-saved'),
       });
     } catch {
       toast({
-        title: 'Failed to update common rule',
-        description: 'An unexpected error occurred.',
+        title: t('failed-to-update-common-rule'),
+        description: t('unexpected-error'),
         variant: 'destructive',
       });
     }
@@ -140,7 +146,7 @@ export const CommonRuleInfo = ({
           size="sm"
           disabled={loading}
         >
-          {loading ? 'Saving...' : 'Save Changes'}
+          {loading ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -161,16 +167,16 @@ export const CommonRuleInfo = ({
           name="discountType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Discount type</Form.Label>
+              <Form.Label>{t('discount-type')}</Form.Label>
               <Form.Control>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select discount type" />
+                    <Select.Value placeholder={t('select-discount-type')} />
                   </Select.Trigger>
                   <Select.Content>
                     {DISCOUNT_TYPES.map((option) => (
                       <Select.Item key={option.value} value={option.value}>
-                        {option.label}
+                        {t(option.label)}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -188,7 +194,8 @@ export const CommonRuleInfo = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    Discount value <span className="text-destructive">*</span>
+                    {t('discount-value')}{' '}
+                    <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
                     <Input
@@ -208,16 +215,16 @@ export const CommonRuleInfo = ({
               name="priceAdjustType"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Price adjust type</Form.Label>
+                  <Form.Label>{t('price-adjust-type')}</Form.Label>
                   <Form.Control>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
-                        <Select.Value placeholder="None" />
+                        <Select.Value placeholder={t('none')} />
                       </Select.Trigger>
                       <Select.Content>
                         {PRICE_ADJUST_TYPES.map((option) => (
                           <Select.Item key={option.value} value={option.value}>
-                            {option.label}
+                            {t(option.label)}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -232,7 +239,7 @@ export const CommonRuleInfo = ({
               name="priceAdjustFactor"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Price adjust factor</Form.Label>
+                  <Form.Label>{t('price-adjust-factor')}</Form.Label>
                   <Form.Control>
                     <Input
                       type="number"
@@ -252,7 +259,7 @@ export const CommonRuleInfo = ({
                 name="bonusProductId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Bonus product</Form.Label>
+                    <Form.Label>{t('bonus-product')}</Form.Label>
                     <Form.Control>
                       <SelectProduct
                         value={field.value || ''}
@@ -269,12 +276,10 @@ export const CommonRuleInfo = ({
             )}
           </>
         )}
-        {discountType === 'fixed' && (
+        {discountType === 'fixed' && pricingId && (
           <FixedPricingTable
             control={form.control}
             pricingId={pricingId}
-            pricingDetail={pricingDetail}
-            savedFixedValues={pricingDetail?.fixedValues || []}
             onSave={form.handleSubmit(handleSubmit)}
           />
         )}
@@ -287,7 +292,7 @@ export const CommonRuleInfo = ({
   }
 
   return (
-    <InfoCard title="Common">
+    <InfoCard title={t('common')}>
       <InfoCard.Content>{content}</InfoCard.Content>
     </InfoCard>
   );

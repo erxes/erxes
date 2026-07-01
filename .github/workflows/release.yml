@@ -30,11 +30,11 @@ jobs:
           - erxes/erxes-next-mongolian_api
           - erxes/erxes-next-posclient_api
           - erxes/erxes-next-insurance_api
-          - erxes/erxes-next-erxes-agent_api
           - erxes/erxes-next-logs
           - erxes/erxes-next-automations
           - erxes/erxes-next-ui
           - erxes/frontline-widgets
+          - erxes/posclient-front
       fail-fast: false
     steps:
       - name: Set up Docker Buildx

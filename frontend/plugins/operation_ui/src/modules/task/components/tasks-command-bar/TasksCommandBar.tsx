@@ -8,10 +8,11 @@ import {
   Popover,
   Command,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Row } from '@tanstack/table-core';
 import { ITask } from '@/task/types';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
-import { currentUserState, Export, Import } from 'ui-modules';
+import { Can, currentUserState, Export } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
@@ -38,15 +39,14 @@ import {
   TasksMoveToTeamCommandBarItem,
   TasksMoveToTeamTrigger,
 } from '../task-actions/MoveToTeam';
-import {
-  MakeACopyTrigger,
-} from '../task-actions/MakeACopy';
+import { MakeACopyTrigger } from '../task-actions/MakeACopy';
 import {
   CopyTaskTrigger,
   CopyTaskCommandBarItem,
 } from '../task-actions/CopyTask';
 
 export const TasksCommandBar = () => {
+  const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const { table } = RecordTable.useRecordTable();
   const currentUser = useAtomValue(currentUserState);
@@ -66,24 +66,17 @@ export const TasksCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {selectedRows.length} selected
-        </CommandBar.Value>
-        <Separator.Inline />
-        <Import
-          pluginName="operation"
-          moduleName="task"
-          collectionName="task"
-          title="Import Tasks"
-        />
-        <Separator.Inline />
-        <Export
-          pluginName="operation"
-          moduleName="task"
-          collectionName="task"
-          buttonVariant="secondary"
-          ids={taskIds}
-        />
+        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <Can action="taskExportManage">
+          <Separator.Inline />
+          <Export
+            pluginName="operation"
+            moduleName="task"
+            collectionName="task"
+            buttonVariant="secondary"
+            ids={taskIds}
+          />
+        </Can>
         <Separator.Inline />
         <Popover
           open={open}
@@ -97,7 +90,7 @@ export const TasksCommandBar = () => {
           <Popover.Trigger asChild>
             <Button variant="secondary">
               <IconRepeat />
-              Actions
+{t('actions')}
             </Button>
           </Popover.Trigger>
           <Popover.Content
@@ -138,7 +131,7 @@ export const TasksCommandBar = () => {
                             </Avatar.Fallback>
                           </Avatar>
                         </div>
-                        Assign to me
+                        {t('assign-to-me')}
                       </div>
                     </Command.Item>
                     <TasksAssignToTrigger
@@ -162,10 +155,7 @@ export const TasksCommandBar = () => {
                       setCurrentContent={setCurrentContent}
                     />
                     {isSingleTaskSelected && singleTask && (
-                      <MakeACopyTrigger
-                        task={singleTask}
-                        setOpen={setOpen}
-                      />
+                      <MakeACopyTrigger task={singleTask} setOpen={setOpen} />
                     )}
                     <CopyTaskTrigger setCurrentContent={setCurrentContent} />
                   </Command.Group>
@@ -187,7 +177,7 @@ export const TasksCommandBar = () => {
                     >
                       <div className="flex gap-2 items-center">
                         <IconTrash className="size-4" />
-                        Delete
+                        {t('delete')}
                       </div>
                     </Command.Item>
                   </Command.Group>

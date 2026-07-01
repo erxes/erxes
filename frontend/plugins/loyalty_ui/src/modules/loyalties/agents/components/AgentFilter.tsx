@@ -1,5 +1,6 @@
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { IconBuilding, IconUsers } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { AgentHotKeyScope } from '../types/path/AgentHotKeyScope';
 import { AgentTotalCount } from './AgentTotalCount';
 import { useAgentLeadSessionKey } from '../hooks/useAgentLeadSessionKey';
@@ -8,6 +9,7 @@ import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectComp
 import { SelectCustomer } from 'ui-modules';
 
 const AgentFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     agentStatus: string;
     agentCustomerId: string;
@@ -24,7 +26,7 @@ const AgentFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -32,11 +34,11 @@ const AgentFilterPopover = () => {
                 <SelectAgentStatus.FilterItem />
                 <SelectCustomer.FilterItem
                   value="agentCustomerId"
-                  label="Customers"
+                  label={t('customers')}
                 />
                 <SelectCompany.FilterItem
                   value="agentCompanyId"
-                  label="Companies"
+                  label={t('companies')}
                 />
               </Command.List>
             </Command>
@@ -68,6 +70,7 @@ const AgentFilterPopover = () => {
 };
 
 export const AgentFilter = () => {
+  const { t } = useTranslation('loyalty');
   const { sessionKey } = useAgentLeadSessionKey();
 
   return (
@@ -77,22 +80,22 @@ export const AgentFilter = () => {
         <Filter.BarItem queryKey="agentCustomerId">
           <Filter.BarName>
             <IconUsers size={14} />
-            Customers
+            {t('customers')}
           </Filter.BarName>
           <SelectCustomer.FilterBar
             filterKey="agentCustomerId"
-            label="Customers"
+            label={t('customers')}
             mode="single"
           />
         </Filter.BarItem>
         <Filter.BarItem queryKey="agentCompanyId">
           <Filter.BarName>
             <IconBuilding size={14} />
-            Companies
+            {t('companies')}
           </Filter.BarName>
           <SelectCompany.FilterBar
             filterKey="agentCompanyId"
-            label="Companies"
+            label={t('companies')}
             mode="single"
           />
         </Filter.BarItem>

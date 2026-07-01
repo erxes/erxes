@@ -2,6 +2,7 @@ import { useCallQueueList } from '@/integrations/call/hooks/useCallQueueList';
 import { callConfigAtom } from '@/integrations/call/states/sipStates';
 import { formatSeconds } from '@/integrations/call/utils/callUtils';
 import { ColumnDef } from '@tanstack/table-core';
+import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
   RecordTableInlineCell,
@@ -18,6 +19,7 @@ export const CallQueueRecordTable = ({
 }: {
   basePath?: string;
 }) => {
+  const columns = useGetColumns(basePath);
   const callConfig = useAtomValue(callConfigAtom);
   const { inboxId } = callConfig || {};
 
@@ -32,7 +34,7 @@ export const CallQueueRecordTable = ({
 
   return (
     <RecordTable.Provider
-      columns={getColumns(basePath)}
+      columns={columns}
       data={callQueueList || (loading ? [{}] : [])}
       className="m-3"
       stickyColumns={['queue']}
@@ -53,9 +55,11 @@ export const CallQueueRecordTable = ({
   );
 };
 
-const getColumns = (basePath: string): ColumnDef<any>[] => [
+const useGetColumns = (basePath: string): ColumnDef<any>[] => {
+  const { t } = useTranslation('frontline');
+  return [
   {
-    header: 'Queue',
+    header: t('queue'),
     accessorKey: 'queue',
     size: 240,
     cell: ({ row, cell }) => {
@@ -99,10 +103,10 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
                       value={Math.round(abandonedRate)}
                       variant="destructive"
                     />
-                    {Math.round(abandonedRate)}% of {totalCalls}
+                    {t('pct-of-total', { pct: Math.round(abandonedRate), total: totalCalls })}
                   </span>
                   <legend className="text-accent-foreground text-xs">
-                    abandoned
+                    {t('abandoned')}
                   </legend>
                 </div>
                 <div className="flex-auto space-y-1 text-center">
@@ -111,34 +115,34 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
                       value={Math.round(answeredRate)}
                       variant="success"
                     />
-                    {Math.round(answeredRate)}% of {totalCalls}
+                    {t('pct-of-total', { pct: Math.round(answeredRate), total: totalCalls })}
                   </span>
                   <legend className="text-accent-foreground text-xs">
-                    success
+                    {t('success-rate-label')}
                   </legend>
                 </div>
               </div>
               <p className="text-sm flex items-center gap-1 justify-between">
-                <legend className="text-accent-foreground">total</legend>
+                <legend className="text-accent-foreground">{t('total')}</legend>
                 <span className="font-medium">{totalCalls}</span>
               </p>
               <p className="text-sm flex items-center gap-1 justify-between">
-                <legend className="text-accent-foreground">answered</legend>
+                <legend className="text-accent-foreground">{t('answered')}</legend>
                 <span className="font-medium">{answeredCalls}</span>
               </p>
               <p className="text-sm flex items-center gap-1 justify-between">
-                <legend className="text-accent-foreground">abandoned</legend>
+                <legend className="text-accent-foreground">{t('abandoned')}</legend>
                 <span className="font-medium">{abandonedCalls}</span>
               </p>
               <p className="text-sm flex items-center gap-1 justify-between">
                 <legend className="text-accent-foreground">
-                  average wait time
+                  {t('average-wait-time')}
                 </legend>
                 <span className="font-medium">{formatSeconds(avgWait)}</span>
               </p>
               <p className="text-sm flex items-center gap-1 justify-between">
                 <legend className="text-accent-foreground">
-                  average talk time
+                  {t('average-talk-time')}
                 </legend>
                 <span className="font-medium">{formatSeconds(avgTalk)}</span>
               </p>
@@ -149,7 +153,7 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
     },
   },
   {
-    header: 'Abandoned rate',
+    header: t('abandoned-rate'),
     accessorKey: 'abandonedRate',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
@@ -157,24 +161,23 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
           value={cell.getValue() as number}
           variant="destructive"
         />
-        {Math.round(cell.getValue() as number)}% of{' '}
-        {cell.row.original.totalCalls}
+        {t('pct-of-total', { pct: Math.round(cell.getValue() as number), total: cell.row.original.totalCalls })}
       </RecordTableInlineCell>
     ),
   },
 
   {
-    header: 'Answered rate',
+    header: t('answered-rate'),
     accessorKey: 'answeredRate',
     cell: ({ cell, row }) => (
       <RecordTableInlineCell className="font-medium">
         <ProgressChart value={cell.getValue() as number} variant="success" />
-        {Math.round(cell.getValue() as number)}% of {row.original.totalCalls}
+        {t('pct-of-total', { pct: Math.round(cell.getValue() as number), total: row.original.totalCalls })}
       </RecordTableInlineCell>
     ),
   },
   {
-    header: 'Answered calls',
+    header: t('answered-calls'),
     accessorKey: 'answeredCalls',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
@@ -183,7 +186,7 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
     ),
   },
   {
-    header: 'Abandoned calls',
+    header: t('abandoned-calls'),
     accessorKey: 'abandonedCalls',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
@@ -192,7 +195,7 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
     ),
   },
   {
-    header: 'Total calls',
+    header: t('total-calls'),
     accessorKey: 'totalCalls',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
@@ -201,7 +204,7 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
     ),
   },
   {
-    header: 'Average wait time',
+    header: t('average-wait-time'),
     accessorKey: 'avgWait',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
@@ -210,7 +213,7 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
     ),
   },
   {
-    header: 'Average talk time',
+    header: t('average-talk-time'),
     accessorKey: 'avgTalk',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-medium">
@@ -218,7 +221,8 @@ const getColumns = (basePath: string): ColumnDef<any>[] => [
       </RecordTableInlineCell>
     ),
   },
-];
+  ];
+};
 
 export const ProgressChart = ({
   value,
