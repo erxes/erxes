@@ -1,5 +1,6 @@
 import type { ApolloServerPlugin, GraphQLRequestListener } from '@apollo/server';
 import { classifyError, IClassificationResult } from '../errorClassifier';
+import * as Sentry from '@sentry/node';
 
 /**
  * Apollo Server plugin that handles expected errors
@@ -8,6 +9,7 @@ import { classifyError, IClassificationResult } from '../errorClassifier';
  * - Overrides HTTP status to 200 when all errors are EXPECTED business errors
  * - Adds error category metadata to GraphQL error extensions
  * - Allows frontend to distinguish business errors from system errors
+ * - Captures unhandled system/provider errors in Sentry (e.g., GraphQL validation, syntax)
  */
 export const expectedErrorPlugin: ApolloServerPlugin = {
   async requestDidStart(): Promise<GraphQLRequestListener<any>> {
@@ -26,6 +28,30 @@ export const expectedErrorPlugin: ApolloServerPlugin = {
             ? error.path.join('.') 
             : error.message;
           errorClassifications.set(pathKey, classification);
+
+          // Capture in Sentry if it's a system/provider error and hasn't been captured yet
+          // (Resolver errors are usually captured by withSentryCapture in wrapperResolvers)
+          if (classification.category !== 'EXPECTED' && !(originalError as any)._sentryCaptured) {
+            (originalError as any)._sentryCaptured = true;
+            
+            Sentry.withScope((scope) => {
+              scope.setTag('graphql.operation', requestContext.operation?.operation || 'unknown');
+              scope.setTag('graphql.operationName', requestContext.operationName || 'unknown');
+              scope.setTag('error.category', classification.category);
+              
+              const contextValue = requestContext.contextValue as any;
+              scope.setContext('graphql', {
+                path: pathKey,
+                operation: requestContext.operation?.operation,
+                operationName: requestContext.operationName,
+                subdomain: contextValue?.subdomain,
+                userId: contextValue?.user?._id,
+                errorCategory: classification.category,
+              });
+              
+              Sentry.captureException(originalError);
+            });
+          }
         }
       },
 
