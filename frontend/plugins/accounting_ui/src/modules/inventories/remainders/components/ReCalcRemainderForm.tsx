@@ -1,7 +1,7 @@
-import { AccountingDialog } from '@/layout/components/Dialog';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconRefresh } from '@tabler/icons-react';
-import { Button, Dialog, Form, Spinner, useMultiQueryState } from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, useMultiQueryState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,8 +24,8 @@ export const ReCalcRemainderForm = () => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Trigger asChild>
+    <Sheet open={open} onOpenChange={handleOpenChange} modal>
+      <Sheet.Trigger asChild>
         <Button variant="outline">
           <IconRefresh size={16} />
           {t('recalc-remainder')}
@@ -35,14 +35,11 @@ export const ReCalcRemainderForm = () => {
             </span>
           )}
         </Button>
-      </Dialog.Trigger>
-      <AccountingDialog
-        title={t('recalculate-remainders')}
-        description={t('recalculate-live-inventory-remainders')}
-      >
+      </Sheet.Trigger>
+      <AccountingSheet title={t('recalculate-remainders')}>
         <ReCalcRemaindersForm setOpen={setOpen} productIds={frozenProductIds} />
-      </AccountingDialog>
-    </Dialog>
+      </AccountingSheet>
+    </Sheet>
   );
 };
 
@@ -85,12 +82,14 @@ const ReCalcRemaindersForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="px-6 py-4 space-y-4">
+      <form
+        className="flex flex-col flex-1 min-h-0 bg-background"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
           <p className="text-sm text-muted-foreground">
             {t('select-filters-to-recalculate')}
           </p>
-          <hr className="border-border" />
           <div className="grid grid-cols-1 gap-4">
             <Form.Field
               control={form.control}
@@ -138,13 +137,15 @@ const ReCalcRemaindersForm = ({
             />
           </div>
         </div>
-        <hr className="border-border" />
-        <Dialog.Footer className="px-6 py-4">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button">
-              {t('cancel')}
-            </Button>
-          </Dialog.Close>
+
+        <Sheet.Footer className="px-5 py-4 border-t bg-background shrink-0">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => setOpen(false)}
+          >
+            {t('cancel')}
+          </Button>
           <Button type="submit" disabled={loading}>
             {loading ? (
               <>
@@ -158,7 +159,7 @@ const ReCalcRemaindersForm = ({
               </>
             )}
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

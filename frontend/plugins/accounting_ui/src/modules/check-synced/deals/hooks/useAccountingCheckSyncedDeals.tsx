@@ -456,6 +456,11 @@ export const useAccountingCheckSyncedDeals = (
   }, [setTotalCount, totalCount]);
 
   useEffect(() => {
+    setCheckedDeals({});
+    setToSyncDealIds({});
+  }, [variables.ruleId, setCheckedDeals, setToSyncDealIds]);
+
+  useEffect(() => {
     const counts = deals.reduce<AccountingCheckSyncedDealsStatusCounts>(
       (acc, deal) => {
         const status = getDealStatus(deal);

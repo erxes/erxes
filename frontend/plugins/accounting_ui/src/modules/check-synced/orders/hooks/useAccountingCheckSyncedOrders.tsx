@@ -415,6 +415,11 @@ export const useAccountingCheckSyncedOrders = (
   }, [data?.posOrdersTotalCount, setTotalCount]);
 
   useEffect(() => {
+    setCheckedOrders({});
+    setToSyncOrderIds({});
+  }, [variables.ruleId, setCheckedOrders, setToSyncOrderIds]);
+
+  useEffect(() => {
     const counts = orders.reduce<AccountingCheckSyncedOrdersStatusCounts>(
       (acc, order) => {
         const status = getOrderStatus(order);

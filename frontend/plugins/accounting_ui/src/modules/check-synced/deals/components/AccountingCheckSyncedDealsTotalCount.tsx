@@ -1,11 +1,13 @@
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
   accountingCheckSyncedDealsStatusCountsAtom,
   accountingCheckSyncedDealsTotalCountAtom,
 } from '../states';
 
 export const AccountingCheckSyncedDealsTotalCount = () => {
+  const { t } = useTranslation('accounting');
   const totalCount = useAtomValue(accountingCheckSyncedDealsTotalCountAtom);
   const counts = useAtomValue(accountingCheckSyncedDealsStatusCountsAtom);
 
@@ -15,14 +17,14 @@ export const AccountingCheckSyncedDealsTotalCount = () => {
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
         <>
-          <span>{totalCount} records</span>
-          <span>checked {counts.checked}</span>
-          <span>synced {counts.synced}</span>
-          <span>skipped {counts.skipped}</span>
-          <span>pending {counts.pending}</span>
-          <span>error {counts.error}</span>
-          <span>resynced {counts.resynced}</span>
-          <span>toSync {counts.toSync}</span>
+          <span>{totalCount} {t('records')}</span>
+          <span>{t('checked')} {counts.checked}</span>
+          <span>{t('synced')} {counts.synced}</span>
+          <span>{t('skipped')} {counts.skipped}</span>
+          <span>{t('pending')} {counts.pending}</span>
+          <span>{t('error')} {counts.error}</span>
+          <span>{t('resynced')} {counts.resynced}</span>
+          <span>{t('toSync')} {counts.toSync}</span>
         </>
       )}
     </div>

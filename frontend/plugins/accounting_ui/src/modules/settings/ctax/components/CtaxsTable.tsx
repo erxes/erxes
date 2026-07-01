@@ -1,6 +1,7 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
+  RecordTableInlineCell,
   Skeleton,
   Table,
   useQueryState,
@@ -129,7 +130,11 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
     accessorKey: 'number',
     header: () => <RecordTable.InlineHead label="Дугаар" />,
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      );
     },
     size: 250,
   },
@@ -138,7 +143,11 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      );
     },
     size: 250,
   },
@@ -147,7 +156,11 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
     accessorKey: 'kind',
     header: () => <RecordTable.InlineHead label="Төрөл" />,
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      );
     },
   },
   {
@@ -155,7 +168,11 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
     accessorKey: 'status',
     header: () => <RecordTable.InlineHead label="Төлөв" />,
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      );
     },
   },
   {
@@ -163,7 +180,11 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
     accessorKey: 'percent',
     header: () => <RecordTable.InlineHead label="Хувь" />,
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
+      return (
+        <RecordTableInlineCell>
+          {cell.getValue() as string}
+        </RecordTableInlineCell>
+      );
     },
   },
 ];

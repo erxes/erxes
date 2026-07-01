@@ -7,10 +7,10 @@ import {
 import dayjs from 'dayjs';
 import {
   Button,
-  Dialog,
   Label,
   PageSubHeader,
   RecordTable,
+  Sheet,
   Spinner,
   Tabs,
   ToggleGroup,
@@ -18,8 +18,7 @@ import {
   RecordTableHotkeyProvider,
   useSetHotkeyScope,
 } from 'erxes-ui';
-import { AccountingDialog } from '@/layout/components/Dialog';
-import { AccountingHeader } from '@/layout/components/Header';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
@@ -48,6 +47,7 @@ import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import { useRef, useState } from 'react';
 import { useSafeRemainderItemsBulkEdit } from '../hooks/useSafeRemainderItemsBulkEdit';
 import { useTranslation } from 'react-i18next';
+import { AccountingHeader } from '~/modules/layout/components/Header';
 
 export const SafeRemainderDetail = () => {
   const { t } = useTranslation('accounting');
@@ -501,7 +501,7 @@ const ImportFromFileButton = ({
     ];
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <input
         ref={inputRef}
         type="file"
@@ -517,47 +517,46 @@ const ImportFromFileButton = ({
         <IconFileImport />
         {t('import')}
       </Button>
-      <AccountingDialog
-        title={t('import-from-file')}
-        description={t('choose-duplicate-rule')}
-      >
-        <div className="p-4 flex flex-col gap-4">
-          <p className="text-sm text-muted-foreground">
-            Давтагдсан productCode-тэй мөрүүдийг хэрхэн боловсруулах вэ?
-          </p>
-          <div className="flex flex-col gap-3">
-            {rules.map((rule) => (
-              <Label
-                key={rule.value}
-                className="flex items-start gap-3 cursor-pointer rounded-md border p-3 hover:bg-accent"
-              >
-                <input
-                  type="radio"
-                  name="duplicateRule"
-                  value={rule.value}
-                  checked={duplicateRule === rule.value}
-                  onChange={() => setDuplicateRule(rule.value)}
-                  className="mt-0.5"
-                />
-                <div>
-                  <p className="text-sm font-medium">{t(rule.label)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {rule.description}
-                  </p>
-                </div>
-              </Label>
-            ))}
+      <AccountingSheet title={t('import-from-file')}>
+        <div className="flex flex-col flex-1 min-h-0 bg-background">
+          <div className="flex-1 space-y-4 p-5">
+            <p className="text-sm text-muted-foreground">
+              Давтагдсан productCode-тэй мөрүүдийг хэрхэн боловсруулах вэ?
+            </p>
+            <div className="flex flex-col gap-3">
+              {rules.map((rule) => (
+                <Label
+                  key={rule.value}
+                  className="flex items-start gap-3 cursor-pointer rounded-md border p-3 hover:bg-accent"
+                >
+                  <input
+                    type="radio"
+                    name="duplicateRule"
+                    value={rule.value}
+                    checked={duplicateRule === rule.value}
+                    onChange={() => setDuplicateRule(rule.value)}
+                    className="mt-0.5"
+                  />
+                  <div>
+                    <p className="text-sm font-medium">{t(rule.label)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {rule.description}
+                    </p>
+                  </div>
+                </Label>
+              ))}
+            </div>
           </div>
-          <div className="flex justify-end gap-2 mt-2">
-            <Dialog.Close asChild>
-              <Button variant="secondary">Цуцлах</Button>
-            </Dialog.Close>
+          <Sheet.Footer className="px-5 border-t bg-background shrink-0 mt-4">
+            <Button variant="secondary" onClick={() => setOpen(false)}>
+              Цуцлах
+            </Button>
             <Button onClick={handleConfirm} disabled={loading}>
               Импортлох ({pendingItems.length} мөр)
             </Button>
-          </div>
+          </Sheet.Footer>
         </div>
-      </AccountingDialog>
-    </Dialog>
+      </AccountingSheet>
+    </Sheet>
   );
 };

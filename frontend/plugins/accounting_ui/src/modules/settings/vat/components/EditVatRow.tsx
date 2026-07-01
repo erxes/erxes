@@ -1,10 +1,4 @@
-import {
-  Sheet,
-  ScrollArea,
-  isDeeplyEqual,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
+import { Sheet, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
 import { useVatRowDetail } from '../hooks/useVatRowDetail';
 import { TVatRowForm } from '../types/VatRow';
 import { useForm } from 'react-hook-form';
@@ -13,6 +7,7 @@ import { vatFormSchema } from '../constants/vatFormSchema';
 import { useEffect } from 'react';
 import { useVatRowEdit } from '../hooks/useVatRowEdit';
 import { VatRowForm } from './VatRowForm';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
 export const EditVatRow = () => {
   const [open, setOpen] = useQueryState<string>('vat_row_id');
@@ -23,22 +18,9 @@ export const EditVatRow = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>НӨАТ-ын үзүүлэлт засах</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            НӨАТ-ын үзүүлэлт засах
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <EditVatRowForm onClose={() => setOpen(null)} />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
+      <AccountingSheet title="НӨАТ-ын үзүүлэлт засах">
+        <EditVatRowForm onClose={() => setOpen(null)} />
+      </AccountingSheet>
     </Sheet>
   );
 };

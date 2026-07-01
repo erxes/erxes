@@ -7,6 +7,7 @@ import {
   Input,
   Popover,
   RecordTable,
+  Sheet,
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -19,8 +20,8 @@ import { IReserveRem } from '../types/ReserveRem';
 import {
   RemainderFormField,
   ReserveRemFormFooter,
-  ReserveRemSheet,
 } from './ReserveRemFormParts';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
 const ReserveRemMoreColumnCell = ({
   cell,
@@ -66,11 +67,12 @@ const ReserveRemMoreColumnCell = ({
           </Command>
         </Combobox.Content>
       </Popover>
-      <EditReserveRemSheet
-        open={editOpen}
-        setOpen={setEditOpen}
-        reserveRem={reserveRem}
-      />
+      <Sheet open={editOpen} onOpenChange={setEditOpen}>
+        <EditReserveRemSheet
+          setOpen={setEditOpen}
+          reserveRem={reserveRem}
+        />
+      </Sheet>
     </>
   );
 };
@@ -84,11 +86,9 @@ type TEditForm = {
 };
 
 const EditReserveRemSheet = ({
-  open,
   setOpen,
   reserveRem,
 }: {
-  open: boolean;
   setOpen: (open: boolean) => void;
   reserveRem: IReserveRem;
 }) => {
@@ -112,17 +112,13 @@ const EditReserveRemSheet = ({
   };
 
   return (
-    <ReserveRemSheet
-      open={open}
-      onOpenChange={setOpen}
-      title={t('edit-reserve-remainder')}
-    >
+    <AccountingSheet title={t('edit-reserve-remainder')}>
       <Form {...form}>
         <form
-          className="flex flex-col flex-auto overflow-auto"
+          className="flex flex-col flex-1 bg-background"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <div className="p-5 space-y-4">
+          <div className="p-5 space-y-4 min-h-0 flex-1 overflow-y-auto">
             <Form.Field
               control={form.control}
               name="productId"
@@ -188,7 +184,7 @@ const EditReserveRemSheet = ({
           <ReserveRemFormFooter loading={loading} />
         </form>
       </Form>
-    </ReserveRemSheet>
+    </AccountingSheet>
   );
 };
 

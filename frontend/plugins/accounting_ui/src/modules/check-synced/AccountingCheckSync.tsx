@@ -1,7 +1,9 @@
 import { Filter, Spinner } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AccTrCheckSidebar } from '~/modules/check-synced/components/Sidebar';
+import { AccountingHeader } from '~/modules/layout/components/Header';
 
 const AccountingCheckSyncedDealsPage = lazy(() =>
   import(
@@ -20,9 +22,15 @@ const AccountingCheckSyncedOrdersPage = lazy(() =>
 );
 
 export const AccountingCheckSync = () => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Filter id="accounting-check-sync">
       <div className="flex flex-col flex-auto overflow-hidden">
+        <AccountingHeader
+          returnLink="/accounting/check-sync"
+          returnText={t('Check-sync')}
+        />
         <div className="flex flex-auto overflow-hidden">
           <AccTrCheckSidebar />
           <Suspense
