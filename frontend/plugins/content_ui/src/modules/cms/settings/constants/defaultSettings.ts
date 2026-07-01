@@ -19,6 +19,7 @@ export const DEFAULT_SETTINGS: SettingsFormState = {
   postsPerPage: '10',
   defaultPostStatus: 'draft',
   allowComments: false,
+  autoApproveComments: false,
   languages: [],
   defaultLanguage: '',
   siteLogo: null,

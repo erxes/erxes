@@ -24,6 +24,7 @@ export const CONTENT_CREATE_CMS = gql`
       customScripts
       defaultPostStatus
       allowComments
+      autoApproveComments
       siteLogo {
         url
         name
@@ -75,6 +76,7 @@ export const CONTENT_UPDATE_CMS = gql`
       customScripts
       defaultPostStatus
       allowComments
+      autoApproveComments
       siteLogo {
         url
         name

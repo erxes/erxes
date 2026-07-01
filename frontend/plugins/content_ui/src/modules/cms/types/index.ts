@@ -16,4 +16,5 @@ export interface IWebsite {
   postUrlPrefix?: string;
   accessPolicy?: 'open' | 'assigned';
   assignedMemberIds?: string[];
+  allowComments?: boolean;
 }

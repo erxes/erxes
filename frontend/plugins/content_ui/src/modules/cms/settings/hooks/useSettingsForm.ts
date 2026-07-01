@@ -137,6 +137,8 @@ export const useSettingsForm = () => {
       defaultPostStatus:
         cms?.defaultPostStatus || DEFAULT_SETTINGS.defaultPostStatus,
       allowComments: cms?.allowComments ?? DEFAULT_SETTINGS.allowComments,
+      autoApproveComments:
+        cms?.autoApproveComments ?? DEFAULT_SETTINGS.autoApproveComments,
       languages,
       defaultLanguage:
         cms?.language || languages[0] || DEFAULT_SETTINGS.defaultLanguage,
@@ -184,6 +186,7 @@ export const useSettingsForm = () => {
         .filter(Boolean),
       defaultPostStatus: settings.defaultPostStatus,
       allowComments: settings.allowComments,
+      autoApproveComments: settings.autoApproveComments,
       language,
       languages,
       postUrlField: settings.postUrlField,

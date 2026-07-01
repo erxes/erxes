@@ -31,6 +31,7 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     customScripts: { type: [String], optional: true },
     defaultPostStatus: { type: String, optional: true },
     allowComments: { type: Boolean, optional: true },
+    autoApproveComments: { type: Boolean, optional: true },
     siteLogo: { type: attachmentSchema, optional: true },
     favicon: { type: attachmentSchema, optional: true },
     language: { type: String, optional: true },

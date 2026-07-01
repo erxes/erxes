@@ -33,6 +33,7 @@ export const CONTENT_CMS_LIST = gql`
       customScripts
       defaultPostStatus
       allowComments
+      autoApproveComments
       siteLogo {
         url
         name

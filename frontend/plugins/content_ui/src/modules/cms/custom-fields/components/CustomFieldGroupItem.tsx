@@ -151,11 +151,14 @@ export function CustomFieldGroupItem({
   const { t } = useTranslation('content');
   const groupFields = group.fields || [];
 
+  // Local order so a drag-drop reflects immediately; re-synced whenever the
+  // stored fields change. Depend on the `group.fields` reference (stable from
+  // the Apollo cache until the data changes) rather than just the set of field
+  // ids, so edits to a field's label/type/options show without a page refresh.
   const [fields, setFields] = useState(groupFields);
-  const fieldsKey = groupFields.map((f) => f._id).join('|');
   useEffect(() => {
     setFields(group.fields || []);
-  }, [fieldsKey]);
+  }, [group.fields]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),

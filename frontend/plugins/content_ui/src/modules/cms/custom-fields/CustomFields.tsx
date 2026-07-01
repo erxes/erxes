@@ -93,12 +93,15 @@ export function CustomFields() {
   } = useCustomFieldGroups(websiteId);
 
   // Local order so a drop reflects immediately (no snap-back while the
-  // persisted order round-trips); re-synced whenever the stored order changes.
+  // persisted order round-trips); re-synced whenever the stored data changes.
+  // `groups` is memoized in the hook, so its reference only changes when the
+  // underlying list changes (add/remove/edit of a group, or of a field within
+  // a group). Depending on the array reference — rather than just the set of
+  // ids — ensures label/field edits are reflected without a page refresh.
   const [orderedGroups, setOrderedGroups] = useState(groups);
-  const groupsKey = groups.map((g) => g._id).join('|');
   useEffect(() => {
     setOrderedGroups(groups);
-  }, [groupsKey]);
+  }, [groups]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
