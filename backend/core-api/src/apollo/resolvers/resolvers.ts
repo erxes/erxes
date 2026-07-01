@@ -9,6 +9,7 @@ import internalNoteResolvers from '@/internalNote/graphql/customResolvers';
 import logResolvers from '@/logs/graphql/resolvers/customResolvers';
 import notificationResolvers from '@/notifications/graphql/customResolvers';
 import brandResolvers from '@/organization/brand/graphql/customResolver/brand';
+import { favoriteCustomResolvers } from '@/organization/settings/graphql/favorites/customResolvers';
 import structureResolvers from '@/organization/structure/graphql/resolvers/customResolvers';
 import userResolvers from '@/organization/team-member/graphql/customResolver';
 import productResolvers from '@/products/graphql/resolvers/customResolvers';
@@ -28,6 +29,7 @@ export const customResolvers = {
   ...approvalCustomResolvers,
   ...userResolvers,
   ...brandResolvers,
+  ...favoriteCustomResolvers,
   ...tagResolvers,
   ...notificationResolvers,
   ...documentResolvers,

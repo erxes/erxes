@@ -28,6 +28,9 @@ export const ProjectsPage = () => {
                     : `/operation/projects`
                 }
               />
+              <Breadcrumb.Item className="ml-1">
+                <PageHeader.FavoriteToggleButton />
+              </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
