@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { orderCollapsibleAtom, refetchOrderAtom } from "@/store"
 import { cartChangedAtom } from "@/store/cart.store"
 import { configAtom } from "@/store/config.store"
@@ -29,7 +29,7 @@ const OrderDetail = ({
   const setRefetchOrder = useSetAtom(refetchOrderAtom)
   const setOrderCollapsible = useSetAtom(orderCollapsibleAtom)
   const [loading, setLoading] = useState(true)
-
+  const initialLoadRef = useRef(true)
 
   const [getOrderDetail, { data, refetch, subscribeToMore }] =
     useLazyQuery(queries.orderDetail, {
@@ -61,12 +61,16 @@ const OrderDetail = ({
     if (orderDetail?._id === _id) {
       setLoading(false)
       setOrderStates(orderDetail)
-      inCheckout && setOrderCollapsible(false)
+      if (inCheckout && initialLoadRef.current) {
+        setOrderCollapsible(false)
+        initialLoadRef.current = false
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_id, data, setOrderStates])
 
   useEffect(() => {
+    initialLoadRef.current = true
     _id ? getOrderDetail({ variables: { _id } }) : setLoading(false)
   }, [_id, getOrderDetail])
 

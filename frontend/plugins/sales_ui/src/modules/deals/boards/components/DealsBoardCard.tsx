@@ -153,6 +153,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const [currentCompanies, setCurrentCompanies] = useState(
     deal.companies || [],
   );
+  const { t } = useTranslation('sales');
 
   if (!deal) return null;
 
@@ -177,7 +178,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const archivedOnly = searchParams === 'true';
   const isArchived = status === 'archived';
   const showArchivedBadge = archivedOnly || isArchived;
-  const { t } = useTranslation('sales');
 
 
   return (

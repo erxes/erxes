@@ -319,6 +319,8 @@ export const ordersEdit = async (
     subBranchId: doc.branchId,
     customerId: doc.customerId,
     customerType: doc.customerType,
+    brokerId: doc.brokerId,
+    brokerType: doc.brokerType,
     userId: posUser ? posUser._id : '',
     type: doc.type,
     totalAmount: getTotalAmount(preparedDoc.items),

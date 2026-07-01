@@ -60,6 +60,8 @@ export interface IOrderInput {
   type: string;
   customerId?: string;
   customerType?: string;
+  brokerId?: string;
+  brokerType?: string;
   branchId?: string;
   deliveryInfo?: any;
   origin?: string;

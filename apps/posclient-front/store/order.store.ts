@@ -49,6 +49,10 @@ export const previousOrderCountRefAtom = atom(0);
 export const customerAtom = atom<Customer | null>(null)
 export const customerTypeAtom = atom<CustomerType>("")
 
+// broker
+export const brokerAtom = atomWithStorage<Customer | null>("broker", null)
+export const brokerTypeAtom = atom<string>("customer")
+
 // order type
 export const orderTypeAtom = atom<IOrderType>("eat")
 
@@ -183,6 +187,8 @@ export const setInitialAtom = atom(
     set(cartChangedAtom, false)
     set(customerAtom, null)
     set(customerTypeAtom, "")
+    set(brokerAtom, null)
+    set(brokerTypeAtom, "customer")
     set(orderTypeAtom, (get(allowTypesAtom) || [])[0] || "eat")
     set(registerNumberAtom, "")
     set(billTypeAtom, null)
@@ -235,6 +241,8 @@ export const setOrderStatesAtom = atom(
       isPre,
       directDiscount,
       directIsAmount,
+      brokerType,
+      brokerId,
     }: IOrder
   ) => {
     set(activeOrderIdAtom, _id || null)
@@ -249,6 +257,11 @@ export const setOrderStatesAtom = atom(
     }
 
     set(customerTypeAtom, customerType || "")
+    const currentBroker = get(brokerAtom)
+    if (!brokerId || brokerId !== currentBroker?._id) {
+      set(brokerAtom, null)
+    }
+    set(brokerTypeAtom, brokerType || "customer")
     askSaveAtom && set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
     set(billTypeAtom, billType || "1")
@@ -307,4 +320,6 @@ export const orderValuesAtom = atom((get) => ({
   buttonType: get(buttonTypeAtom),
   dueDate: get(dueDateAtom),
   isPre: get(isPreAtom),
+  brokerType: get(brokerTypeAtom) || null,
+  brokerId: get(brokerAtom)?._id || null,
 }))

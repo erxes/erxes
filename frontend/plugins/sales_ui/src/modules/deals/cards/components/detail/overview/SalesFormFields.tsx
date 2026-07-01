@@ -2,6 +2,8 @@ import { useRef, useCallback } from 'react';
 import { Label, Editor } from 'erxes-ui';
 import {
   SelectBranches,
+  SelectCompany,
+  SelectCustomer,
   SelectDepartments,
   SelectMember,
   SelectTags,
@@ -35,13 +37,25 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const { t } = useTranslation('sales');
 
   const handleChange = useCallback(
-
     (key: string, value: string | string[] | undefined | null) => {
       if (value == null) return;
       editDeals({
         variables: {
           _id: deal._id,
           [key]: ARRAY_KEYS.has(key) && !Array.isArray(value) ? [value] : value,
+        },
+      });
+    },
+    [deal._id, editDeals],
+  );
+
+  const handleBrokerTypeChange = useCallback(
+    (type: string) => {
+      editDeals({
+        variables: {
+          _id: deal._id,
+          brokerType: type || null,
+          brokerId: null,
         },
       });
     },
@@ -58,6 +72,8 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
     tagIds,
     branchIds,
     departmentIds,
+    brokerType,
+    brokerId,
   } = deal;
 
   return (
@@ -129,13 +145,56 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             mode="multiple"
           />
         </FormField>
-        <FormField label={t('departments')}>  
+        <FormField label={t('departments')}>
           <SelectDepartments.ComboboxItem
             mode="multiple"
             value={departmentIds}
             onValueChange={(value) => handleChange('departmentIds', value)}
           />
         </FormField>
+        <FormField label={t('broker-type')}>
+          <select
+            className="w-full border rounded px-2 py-1 text-sm"
+            value={brokerType || ''}
+            onChange={(e) => handleBrokerTypeChange(e.target.value)}
+          >
+            <option value="">{t('none')}</option>
+            <option value="customer">{t('customer')}</option>
+            <option value="company">{t('company')}</option>
+            <option value="user">{t('user')}</option>
+          </select>
+        </FormField>
+        {brokerType && (
+          <FormField label={t('broker')}>
+            {brokerType === 'customer' && (
+              <SelectCustomer
+                mode="single"
+                value={brokerId || ''}
+                onValueChange={(value) => {
+                  if (value) handleChange('brokerId', value as string);
+                }}
+              />
+            )}
+            {brokerType === 'company' && (
+              <SelectCompany
+                mode="single"
+                value={brokerId || ''}
+                onValueChange={(value) => {
+                  if (value) handleChange('brokerId', value as string);
+                }}
+              />
+            )}
+            {brokerType === 'user' && (
+              <SelectMember
+                mode="single"
+                value={brokerId || ''}
+                onValueChange={(value) => {
+                  if (value) handleChange('brokerId', value as string);
+                }}
+              />
+            )}
+          </FormField>
+        )}
       </div>
       <div
         className="space-y-2"
