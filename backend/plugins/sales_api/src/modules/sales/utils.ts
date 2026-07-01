@@ -684,7 +684,6 @@ export const generateAmounts = (productsData, useTick = true) => {
   return amountsMap;
 };
 
-
 export const checkNumberConfig = async (
   numberConfig: string,
   numberSize: string,

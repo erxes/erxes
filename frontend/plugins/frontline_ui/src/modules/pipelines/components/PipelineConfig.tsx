@@ -33,7 +33,10 @@ const PipelineConfig = ({
                 />
               </div>
               <Form.Control>
-                <Input {...field} placeholder={t('enter-number-configuration')} />
+                <Input
+                  {...field}
+                  placeholder={t('enter-number-configuration')}
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>
