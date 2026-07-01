@@ -47,12 +47,14 @@ export const AddTicketForm = ({
     ticketCreateDefaultValuesState,
   );
 
+  const resolvedPipelineId = defaultValuesState?.pipelineId || pipelineId || undefined;
   const defaultValues = {
-    channelId: channelId || undefined,
-    pipelineId: pipelineId || undefined,
+    channelId: defaultValuesState?.channelId || channelId || undefined,
+    pipelineId: resolvedPipelineId,
+    statusId: defaultValuesState?.statusId || undefined,
     name: '',
     priority: 0,
-    assigneeId: pipelineId ? undefined : currentUser?._id,
+    assigneeId: resolvedPipelineId ? undefined : currentUser?._id,
     startDate: undefined,
     targetDate: undefined,
   };
