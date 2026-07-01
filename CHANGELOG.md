@@ -1,5 +1,25 @@
 
 
+## [3.0.49](https://github.com/erxes/erxes/compare/3.0.48...3.0.49) (2026-07-01)
+
+
+### Bug Fixes
+
+* build widget during production build ([29f1143](https://github.com/erxes/erxes/commit/29f11438e49aa635a3b6c1dd68381d20a765d9fb))
+* correct delete activity check, remove stale similarity branch, add trpc update debug log ([7991c56](https://github.com/erxes/erxes/commit/7991c56399b423c7c9cf91b7584b0516ae2add4f))
+* **frontline:** pass pipelineId and channelId to ticket create sheet trigger ([12010b8](https://github.com/erxes/erxes/commit/12010b85d19d5252a724df5e878f17700f23704f))
+* **frontline:** pass pipelineId and channelId to ticket create sheet trigger  ([12018b7](https://github.com/erxes/erxes/commit/12018b754a3afa68e7ae155cc8da7d2eb09703ee))
+* return all notes for ticket without statusId filter in cpTicketGetNotes ([9ac96ee](https://github.com/erxes/erxes/commit/9ac96ee1d018a9cc1210a477675c59b8b29944b4))
+* **sales:** remove default today filter, fix total count atom and customer filter display ([#8216](https://github.com/erxes/erxes/issues/8216)) ([1652945](https://github.com/erxes/erxes/commit/1652945051d4c9dc675a4b019ef463978d113ebe))
+* update MSDynamic POS config lookup and API response handling ([#8470](https://github.com/erxes/erxes/issues/8470)) ([b3aea9a](https://github.com/erxes/erxes/commit/b3aea9aef42e8680244fd3d5fb4a02a7c2aa0a58))
+
+
+### Features
+
+* **accounting:** revamp safe remainder census detail UI ([#8479](https://github.com/erxes/erxes/issues/8479)) ([07cebc5](https://github.com/erxes/erxes/commit/07cebc5f461c1274cb6cefe3d8807524cd12d100))
+* add approval lock state to automation agents and queries ([93b5c43](https://github.com/erxes/erxes/commit/93b5c43ccef59d7650c3b5e57497bba0b8ddc11d))
+* get post token url GET_CP_TOKEN ([665aa17](https://github.com/erxes/erxes/commit/665aa179e9c8b457a3eccd4eebf7f6a585bbb816))
+
 ## [3.0.48](https://github.com/erxes/erxes/compare/3.0.47...3.0.48) (2026-07-01)
 
 
