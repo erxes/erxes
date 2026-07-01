@@ -35,6 +35,7 @@ const AddReserveRemForm = ({
 
   const { addReserveRem, loading } = useReserveRemAdd();
 
+  /** ene reserve remainder save hiigeed haana. */
   const onSubmit = (data: TReserveRemForm) => {
     addReserveRem({
       variables: { ...data },
@@ -125,6 +126,7 @@ const AddReserveRemForm = ({
   );
 };
 
+/** ene reserve remainder add sheet. */
 export const AddReserveRem = () => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);

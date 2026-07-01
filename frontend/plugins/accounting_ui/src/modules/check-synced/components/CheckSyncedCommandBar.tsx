@@ -3,6 +3,7 @@ import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { ComponentType, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+/** ene sync buttonii text-iig gargana. */
 const getSyncButtonLabel = (
   t: (key: string, options?: Record<string, unknown>) => string,
   {
@@ -20,6 +21,7 @@ const getSyncButtonLabel = (
   return t('sync-selected', { count });
 };
 
+/** ene selected rows deer check sync buttons haruulna. */
 export const CheckSyncedCommandBar = ({
   canSync,
   checking,

@@ -31,6 +31,7 @@ type TEditForm = {
   remainder: number;
 };
 
+/** ene reserve remainder edit sheet. */
 const EditReserveRemSheet = ({
   setOpen,
   reserveRem,
@@ -50,6 +51,7 @@ const EditReserveRemSheet = ({
     },
   });
 
+  /** ene edit save hiigeed sheet haana. */
   const onSubmit = (data: TEditForm) => {
     editReserveRem({
       variables: { _id: reserveRem._id, ...data },
@@ -134,6 +136,37 @@ const EditReserveRemSheet = ({
   );
 };
 
+/** ene popover доторх action list. */
+const ReserveRemActions = ({
+  onEdit,
+  onDelete,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={onEdit}>
+              <IconEdit /> {t('edit')}
+            </Command.Item>
+            <Command.Item value="delete" onSelect={onDelete}>
+              <IconTrash /> {t('delete')}
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+/** ene edit/delete menu. */
 const ReserveRemMoreColumnCell = ({
   cell,
 }: {
@@ -146,6 +179,7 @@ const ReserveRemMoreColumnCell = ({
 
   const reserveRem = cell.row.original;
 
+  /** ene delete confirm hiigeed ustgana. */
   const handleDelete = () =>
     confirm({
       message: t('are-you-sure'),
@@ -161,23 +195,10 @@ const ReserveRemMoreColumnCell = ({
 
   return (
     <>
-      <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item value="edit" onSelect={() => setEditOpen(true)}>
-                <IconEdit /> {t('edit')}
-              </Command.Item>
-              <Command.Item value="delete" onSelect={handleDelete}>
-                <IconTrash /> {t('delete')}
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
+      <ReserveRemActions
+        onEdit={() => setEditOpen(true)}
+        onDelete={handleDelete}
+      />
       <Sheet open={editOpen} onOpenChange={setEditOpen}>
         <EditReserveRemSheet setOpen={setEditOpen} reserveRem={reserveRem} />
       </Sheet>

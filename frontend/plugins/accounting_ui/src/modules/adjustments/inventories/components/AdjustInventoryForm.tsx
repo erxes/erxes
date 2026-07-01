@@ -22,6 +22,7 @@ const AddAdjustInventoryForm = ({
     },
   });
   const { addAdjustInventory, loading } = useAdjustInventoryAdd();
+  /** ene submit hiigeed sheet haana. */
   const onSubmit = (data: TAdjustInventoryForm) => {
     addAdjustInventory({
       variables: { ...data },
@@ -90,6 +91,7 @@ const AddAdjustInventoryForm = ({
   );
 };
 
+/** ene add inventory sheet open hiine. */
 export const AddAdjustInventory = () => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);

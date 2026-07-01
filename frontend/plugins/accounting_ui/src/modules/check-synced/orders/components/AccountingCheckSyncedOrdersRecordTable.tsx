@@ -12,6 +12,7 @@ import {
 } from '../hooks/useAccountingCheckSyncedOrders';
 import { AccountingCheckSyncedOrdersCommandBar } from './AccountingCheckSyncedOrdersCommandBar';
 
+/** ene order baihgui ued garna. */
 const NoOrdersEmptyState = () => {
   const { t } = useTranslation('accounting');
   return (
@@ -31,6 +32,7 @@ const NoOrdersEmptyState = () => {
   );
 };
 
+/** ene order table-iig zurj bga. */
 export const AccountingCheckSyncedOrdersRecordTable = () => {
   const {
     canSync,

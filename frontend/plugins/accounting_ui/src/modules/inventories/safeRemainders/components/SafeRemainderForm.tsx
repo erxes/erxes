@@ -23,6 +23,7 @@ const AddSafeRemainderForm = ({
     },
   });
   const { addSafeRemainder, loading } = useSafeRemainderAdd();
+  /** ene safe remainder save hiigeed haana. */
   const onSubmit = (data: TSafeRemainderForm) => {
     addSafeRemainder({
       variables: { ...data },
@@ -33,7 +34,7 @@ const AddSafeRemainderForm = ({
     });
   };
 
-  const onError = (error: any) => {
+  const onError = () => {
     return {};
   };
 
@@ -148,6 +149,7 @@ const AddSafeRemainderForm = ({
   );
 };
 
+/** ene safe remainder add sheet. */
 export const AddSafeRemainder = () => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);

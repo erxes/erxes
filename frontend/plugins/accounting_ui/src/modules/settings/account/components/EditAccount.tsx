@@ -10,6 +10,7 @@ import { useAccountEdit } from '../hooks/useAccountEdit';
 import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
+/** ene selected account edit form. */
 export const EditAccountForm = ({ onClose }: { onClose?: () => void }) => {
   const { accountDetail, closeDetail, loading } = useAccountDetail();
   const { editAccount, loading: editLoading } = useAccountEdit();
@@ -69,6 +70,7 @@ export const EditAccountForm = ({ onClose }: { onClose?: () => void }) => {
   );
 };
 
+/** ene query-s account edit sheet open hiine. */
 export const EditAccount = () => {
   const [open, setOpen] = useQueryState<string>('accountId');
   return (

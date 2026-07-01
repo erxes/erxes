@@ -35,6 +35,7 @@ const ReCalcRemaindersForm = ({
   });
 
   const { addSafeRemainder, loading } = useReCalcRemainders();
+  /** ene recalc mutation duudna. */
   const onSubmit = (data: TReCalcRemainderForm) => {
     const variables: Record<string, any> = { ...data };
     if (productIds && productIds.length > 0) {
@@ -134,12 +135,14 @@ const ReCalcRemaindersForm = ({
   );
 };
 
+/** ene recalc sheet open hiine. */
 export const ReCalcRemainderForm = () => {
   const { t } = useTranslation('accounting');
   const selectedProductIds = useAtomValue(selectedProductIdsAtom);
   const [open, setOpen] = useState(false);
   const [frozenProductIds, setFrozenProductIds] = useState<string[]>([]);
 
+  /** ene open bolohdoo product ids hadgalna. */
   const handleOpenChange = (next: boolean) => {
     if (next) setFrozenProductIds(selectedProductIds);
     setOpen(next);

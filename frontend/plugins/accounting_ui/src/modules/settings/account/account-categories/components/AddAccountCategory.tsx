@@ -9,6 +9,7 @@ import { AccountCategoryForm } from './AccountCategoryForm';
 import { useAccountCategoryAdd } from '../hooks/useAccountCategoryAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
+/** ene account category add form setup. */
 const AddAccountCategoryForm = () => {
   const form = useForm<TAccountCategoryForm>({
     resolver: zodResolver(accountCategorySchema),
@@ -35,6 +36,7 @@ const AddAccountCategoryForm = () => {
   );
 };
 
+/** ene account category add sheet. */
 export const AddAccountCategory = () => {
   return (
     <Sheet>

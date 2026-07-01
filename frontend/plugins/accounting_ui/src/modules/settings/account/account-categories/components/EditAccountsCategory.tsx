@@ -10,6 +10,7 @@ import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
 import { AccountCategoryForm } from './AccountCategoryForm';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
+/** ene selected category edit form. */
 export const EditAccountCategoryForm = ({
   onClose,
 }: {
@@ -71,6 +72,7 @@ export const EditAccountCategoryForm = ({
   );
 };
 
+/** ene query-s category edit sheet open hiine. */
 export const EditAccountCategory = () => {
   const [open, setOpen] = useQueryState<string>('accountCategoryId');
   return (

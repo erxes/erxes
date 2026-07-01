@@ -8,6 +8,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useAddCtaxRow } from '../hooks/useCtaxRowAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
+/** ene ctax add form setup. */
 export const AddCtaxForm = () => {
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
@@ -30,6 +31,7 @@ export const AddCtaxForm = () => {
   return <CtaxRowForm form={form} onSubmit={onSubmit} loading={loading} />;
 };
 
+/** ene ctax add sheet. */
 export const AddCtaxs = () => {
   return (
     <Sheet>

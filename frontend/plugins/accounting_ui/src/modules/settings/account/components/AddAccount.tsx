@@ -10,6 +10,7 @@ import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { IconPlus } from '@tabler/icons-react';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
+/** ene account add form setup. */
 const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
@@ -32,6 +33,7 @@ const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   );
 };
 
+/** ene account add sheet. */
 export const AddAccount = () => {
   const [open, setOpen] = useState(false);
 

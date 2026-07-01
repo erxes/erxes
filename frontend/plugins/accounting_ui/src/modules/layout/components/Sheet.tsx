@@ -1,12 +1,14 @@
 import { cn, Sheet } from 'erxes-ui';
+import { ReactNode } from 'react';
 
+/** ene accounting sheet wrapper. */
 export const AccountingSheet = ({
   title,
   children,
   className,
 }: {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }) => {
   return (

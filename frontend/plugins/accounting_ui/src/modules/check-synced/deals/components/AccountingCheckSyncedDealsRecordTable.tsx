@@ -12,6 +12,7 @@ import {
 } from '../hooks/useAccountingCheckSyncedDeals';
 import { AccountingCheckSyncedDealsCommandBar } from './AccountingCheckSyncedDealsCommandBar';
 
+/** ene deal table-iig zurj bga. */
 export const AccountingCheckSyncedDealsRecordTable = () => {
   const { t } = useTranslation('accounting');
   const {

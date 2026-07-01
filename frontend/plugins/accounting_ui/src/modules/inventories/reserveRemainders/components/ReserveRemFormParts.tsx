@@ -1,19 +1,20 @@
 import { Button, Form, Input, Sheet, Spinner } from 'erxes-ui';
-import { Control } from 'react-hook-form';
+import { Control, FieldValues, Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-type TRemainderField = { remainder: number };
+type TRemainderField = FieldValues & { remainder: number };
 
-export const RemainderFormField = ({
+/** ene remainder number field. */
+export const RemainderFormField = <TForm extends TRemainderField>({
   control,
 }: {
-  control: Control<TRemainderField>;
+  control: Control<TForm>;
 }) => {
   const { t } = useTranslation('accounting');
   return (
     <Form.Field
       control={control}
-      name="remainder"
+      name={'remainder' as Path<TForm>}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>{t('reserve-remainder')}</Form.Label>
@@ -35,6 +36,7 @@ export const RemainderFormField = ({
   );
 };
 
+/** ene footer buttons l bga. */
 export const ReserveRemFormFooter = ({ loading }: { loading: boolean }) => {
   const { t } = useTranslation('accounting');
   return (
