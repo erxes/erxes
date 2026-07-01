@@ -46,7 +46,7 @@
     "document-id": "Баримтын ID",
     "user": "Хэрэглэгч",
     "no-user": "Хэрэглэгч байхгүй",
-    "operation": "Үйлдэл",
+    "operation": "Үйл ажиллагаа",
     "undo-this-change": "Өөрчлөлтийг буцаах",
     "put-everything-back": "Болсон үйлдлийн өмнөх байдалд эргүүлэх.",
     "checking-if-undone": "Буцаах боломжтой эсэхийг шалгаж байна…",
@@ -89,7 +89,8 @@
     "result": "Үр дүн",
     "resolver-error-description": "Resolver алдааны payload буцаасан.",
     "resolver-result-description": "API-аас буцаасан шийдвэрлэсэн хариу.",
-    "created-at": "Үүсгэсэн огноо"
+    "created-at": "Үүсгэсэн огноо",
+    "set-value": "Утга оруулах"
   },
   "records-found": "{{count}} үр дүн олдлоо",
   "organization": {
@@ -114,7 +115,7 @@
     "file-upload": "Файл байршуулах",
     "mail-config": "И-мэйл тохиргоо",
     "broadcast-config": "Броадкаст тохиргоо",
-    "client-portal": "Харилцагчийн портал",
+    "client-portal": "Клиент портал",
     "app-tokens": "Апп токенууд",
     "oauth-clients": "OAuth клиентүүд",
     "system-logs": "Системийн лог",

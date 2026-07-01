@@ -31,7 +31,7 @@ export const OAuthClientsMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${name}"?`,
+      message: t('confirm-delete-oauth-client', 'Are you sure you want to delete "{{name}}"?', { name }),
     }).then(async () => {
       try {
         await oauthClientAppsRemove({ variables: { _id } });

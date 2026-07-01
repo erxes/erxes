@@ -34,12 +34,10 @@ export function OAuthClientsRecordTable() {
                   <IconArchive className="h-8 w-8 text-muted-foreground" />
                 </div>
 
-                <h3 className="text-lg font-semibold">No OAuth clients yet</h3>
+                <h3 className="text-lg font-semibold">{t('oauth-clients.no-clients', 'No OAuth clients yet')}</h3>
 
                 <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                  OAuth clients you create will appear here. Create your first
-                  client to enable applications to authenticate with your
-                  platform.
+                  {t('oauth-clients.no-clients-description', 'OAuth clients you create will appear here. Create your first client to enable applications to authenticate with your platform.')}
                 </p>
               </div>
             )}
