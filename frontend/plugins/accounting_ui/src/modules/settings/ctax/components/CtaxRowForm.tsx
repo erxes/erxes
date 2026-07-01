@@ -87,6 +87,7 @@ export const CtaxRowForm = ({
                   <Form.Label>Хувь</Form.Label>
                   <Form.Control>
                     <Input
+                      type="number"
                       value={field.value}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       min={0}

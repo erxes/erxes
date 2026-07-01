@@ -1,5 +1,6 @@
 import { Sheet, Button } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { TAccountForm } from '../types/accountForm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { accountSchema } from '../constants/accountSchema';
@@ -10,8 +11,10 @@ import { IconPlus } from '@tabler/icons-react';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
 export const AddAccount = () => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -19,13 +22,13 @@ export const AddAccount = () => {
         </Button>
       </Sheet.Trigger>
       <AccountingSheet title="Данс нэмэх">
-        <AddAccountForm />
+        <AddAccountForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>
   );
 };
 
-const AddAccountForm = () => {
+const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
     defaultValues: ACCOUNT_DEFAULT_VALUES,
@@ -37,6 +40,7 @@ const AddAccountForm = () => {
       variables: data,
       onCompleted: () => {
         form.reset();
+        setOpen(false);
       },
     });
   };

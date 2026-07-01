@@ -122,7 +122,7 @@ export const SyncOrderConfigForm = ({
       ...data,
       vatRowId: data.hasVat ? data.vatRowId : '',
       reverseVatRules:
-        mongolianEnabled && data.hasVat
+        mongolianEnabled && !data.hasVat
           ? normalizeRuleIds(data.reverseVatRules)
           : [],
       ctaxRowId: data.hasCtax ? data.ctaxRowId : '',
@@ -233,8 +233,8 @@ export const SyncOrderConfigForm = ({
                   <Form.Label>POS</Form.Label>
                   <Form.Control>
                     <Select
-                      defaultValue={field.value}
-                      onValueChange={(value) => field.onChange(value)}
+                      value={field.value}
+                      onValueChange={field.onChange}
                     >
                       <Select.Trigger>
                         <Select.Value placeholder={t('select-pos')} />

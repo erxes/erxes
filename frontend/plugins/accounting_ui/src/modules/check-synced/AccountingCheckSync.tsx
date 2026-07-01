@@ -29,7 +29,7 @@ export const AccountingCheckSync = () => {
       <div className="flex flex-col flex-auto overflow-hidden">
         <AccountingHeader
           returnLink="/accounting/check-sync"
-          returnText={t('Check-sync')}
+          returnText={t('check-sync')}
         />
         <div className="flex flex-auto overflow-hidden">
           <AccTrCheckSidebar />

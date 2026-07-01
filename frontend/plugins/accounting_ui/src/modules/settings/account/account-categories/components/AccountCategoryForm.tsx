@@ -55,7 +55,7 @@ export const AccountCategoryForm = ({
                   <Form.Label>Эцэг</Form.Label>
                   <Form.Control>
                     <SelectAccountCategory
-                      recordId={field.value ?? ''}
+                      recordId={field.name}
                       selected={field.value}
                       onSelect={field.onChange}
                     />

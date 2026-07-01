@@ -131,7 +131,7 @@ export const SyncDealConfigForm = ({
       ...data,
       vatRowId: data.hasVat ? data.vatRowId : '',
       reverseVatRules:
-        mongolianEnabled && data.hasVat
+        mongolianEnabled && !data.hasVat
           ? normalizeRuleIds(data.reverseVatRules)
           : [],
       ctaxRowId: data.hasCtax ? data.ctaxRowId : '',

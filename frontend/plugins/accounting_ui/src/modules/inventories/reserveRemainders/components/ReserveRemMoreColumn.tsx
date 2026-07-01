@@ -112,7 +112,7 @@ const EditReserveRemSheet = ({
     <AccountingSheet title={t('edit-reserve-remainder')}>
       <Form {...form}>
         <form
-          className="flex flex-col flex-1 bg-background"
+          className="flex flex-col flex-1 bg-background min-h-0"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="p-5 space-y-4 min-h-0 flex-1 overflow-y-auto">
