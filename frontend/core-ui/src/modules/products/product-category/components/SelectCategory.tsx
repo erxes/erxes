@@ -108,21 +108,20 @@ export const SelectCategoryItem = ({
       onSelect={() => onSelect(_id)}
       selected={selected}
     >
-      <SelectCategoryBadge category={category} selected={selected} />
+      <SelectCategoryBadge category={category} />
     </SelectTree.Item>
   );
 };
 
 export const SelectCategoryBadge = ({
   category,
-  selected,
 }: {
   category?: IProductCategory;
-  selected?: boolean;
 }) => {
   if (!category) return null;
   const { avatar, code, name, productCount } = category;
   const firstLetter = name.charAt(0);
+
   return (
     <>
       <div className="flex items-center gap-2 flex-auto overflow-hidden justify-start">
@@ -133,12 +132,8 @@ export const SelectCategoryBadge = ({
         <div className="text-muted-foreground">{code}</div>
         <TextOverflowTooltip value={name} className="flex-auto" />
       </div>
-      {!selected ? (
-        productCount > 0 && (
-          <div className="text-muted-foreground ml-auto">{productCount}</div>
-        )
-      ) : (
-        <Combobox.Check checked={selected} />
+      {productCount > 0 && (
+        <div className="text-muted-foreground ml-auto">{productCount}</div>
       )}
     </>
   );

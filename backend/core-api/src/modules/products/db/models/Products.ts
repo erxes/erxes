@@ -631,6 +631,22 @@ export const loadProductClass = (
       if (product) {
         throw new Error('Code must be unique');
       }
+
+      const deletedWithCode = await models.Products.find(
+        { code, status: PRODUCT_STATUSES.DELETED },
+        { _id: 1 },
+      ).lean();
+
+      if (deletedWithCode.length) {
+        await Promise.all(
+          deletedWithCode.map((deleted) =>
+            models.Products.updateOne(
+              { _id: deleted._id },
+              { $set: { code: `${code}~deleted~${deleted._id}` } },
+            ),
+          ),
+        );
+      }
     }
 
     public static async generateCode(maxAttempts = 10) {
