@@ -1,7 +1,9 @@
 import { Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useLogs } from '../hooks/useLogs';
 
 export const LogsTotalCount = () => {
+  const { t } = useTranslation();
   const { totalCount, loading } = useLogs();
 
   if (loading && totalCount === 0) {
@@ -14,7 +16,7 @@ export const LogsTotalCount = () => {
 
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
-      {totalCount} records found
+      {t('records-found', { count: totalCount })}
     </div>
   );
 };

@@ -179,13 +179,6 @@
       "sentToPlatforms": "Sent to platforms"
     }
   },
-  "filter": {
-    "filter": "Filter",
-    "search": "Search",
-    "created-at": "Created At",
-    "updated-at": "Updated At",
-    "last-seen-at": "Last Seen At"
-  },
   "upload": "Upload",
   "upload-description": "Upload 1:1, 2MB max",
   "save": "Save",

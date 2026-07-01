@@ -88,7 +88,8 @@
     "result": "Result",
     "resolver-error-description": "The resolver returned an error payload.",
     "resolver-result-description": "Resolved response returned by the API.",
-    "created-at": "Created At"
+    "created-at": "Created At",
+    "set-value": "Set value"
   },
   "records-found": "Records Found",
   "organization": {

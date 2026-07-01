@@ -42,12 +42,12 @@ const TokenCell = ({ token }: { token: string }) => {
   );
 };
 
-export const appsSettingsColumns: ColumnDef<IApp>[] = [
+export const getAppsSettingsColumns = (t: (key: string, fallback: string) => string): ColumnDef<IApp>[] => [
   { ...RecordTable.checkboxColumn, size: 20 } as ColumnDef<IApp>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: 'App Name',
+    header: t('apps.app-name', 'App Name'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -55,13 +55,13 @@ export const appsSettingsColumns: ColumnDef<IApp>[] = [
   {
     id: 'token',
     accessorKey: 'token',
-    header: 'Token',
+    header: t('apps.token', 'Token'),
     cell: ({ cell }) => <TokenCell token={cell.getValue() as string} />,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: 'Status',
+    header: t('status', 'Status'),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (
@@ -76,7 +76,7 @@ export const appsSettingsColumns: ColumnDef<IApp>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: 'Created At',
+    header: t('created-at', 'Created At'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {format(new Date(cell.getValue() as string), 'yyyy/MM/dd') ||

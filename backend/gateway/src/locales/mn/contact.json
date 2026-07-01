@@ -179,13 +179,6 @@
       "sentToPlatforms": "Платформд илгээсэн"
     }
   },
-  "filter": {
-    "filter": "Шүүлтүүр",
-    "search": "Хайх",
-    "created-at": "Үүсгэсэн огноо",
-    "updated-at": "Шинэчлэгдсэн огноо",
-    "last-seen-at": "Сүүлд харсан"
-  },
   "upload": "Байршуулах",
   "upload-description": "1:1 харьцаатай, хамгийн ихдээ 2MB",
   "save": "Хадгалах",
