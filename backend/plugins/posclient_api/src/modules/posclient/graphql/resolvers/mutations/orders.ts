@@ -482,7 +482,10 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
   return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
 }
 
-export async function cancelPosOrder(models: IModels, _id: string): Promise<any> {
+export async function cancelPosOrder(
+  models: IModels,
+  _id: string,
+): Promise<any> {
   const order = await models.Orders.getOrder(_id);
 
   checkOrderStatus(order);

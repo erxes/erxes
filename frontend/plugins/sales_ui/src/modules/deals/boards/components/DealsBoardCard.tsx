@@ -179,7 +179,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const isArchived = status === 'archived';
   const showArchivedBadge = archivedOnly || isArchived;
 
-
   return (
     <div
       className={showArchivedBadge ? 'relative overflow-hidden' : ''}

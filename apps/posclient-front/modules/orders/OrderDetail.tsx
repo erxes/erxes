@@ -31,13 +31,15 @@ const OrderDetail = ({
   const [loading, setLoading] = useState(true)
   const initialLoadRef = useRef(true)
 
-  const [getOrderDetail, { data, refetch, subscribeToMore }] =
-    useLazyQuery(queries.orderDetail, {
+  const [getOrderDetail, { data, refetch, subscribeToMore }] = useLazyQuery(
+    queries.orderDetail,
+    {
       fetchPolicy: "network-only",
       onError({ message }) {
         onError(message)
       },
-    })
+    }
+  )
 
   useEffect(() => {
     subscribeToMore({
@@ -79,8 +81,8 @@ const OrderDetail = ({
   return (
     <>
       {children}
-      {inCheckout && !!data?.orderDetail&& (
-        <CheckoutCancel order={data?.orderDetail}/>
+      {inCheckout && !!data?.orderDetail && (
+        <CheckoutCancel order={data?.orderDetail} />
       )}
     </>
   )

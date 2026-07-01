@@ -15,7 +15,12 @@ import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
 
-const ARRAY_KEYS = new Set(['assignedUserIds', 'tagIds', 'branchIds', 'departmentIds']);
+const ARRAY_KEYS = new Set([
+  'assignedUserIds',
+  'tagIds',
+  'branchIds',
+  'departmentIds',
+]);
 
 const FormField = ({
   label,
@@ -79,7 +84,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   return (
     <>
       <div className="grid grid-cols-2 gap-4 py-4">
-        <FormField label={t('due-date')}>  
+        <FormField label={t('due-date')}>
           <div className="flex items-center">
             <DateSelectDeal
               value={startDate}
@@ -96,7 +101,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             />
           </div>
         </FormField>
-        <FormField label={t('assigned-to')}>  
+        <FormField label={t('assigned-to')}>
           <SelectMember
             value={assignedUserIds}
             onValueChange={(value) => handleChange('assignedUserIds', value)}
@@ -104,7 +109,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             mode="multiple"
           />
         </FormField>
-        <FormField label={t('label')}>  
+        <FormField label={t('label')}>
           <div className="flex flex-wrap items-center gap-1">
             <SelectLabels.FilterBar
               filterKey=""
@@ -125,12 +130,16 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             ))}
           </div>
         </FormField>
-        <FormField label={t('priority')}>  
+        <FormField label={t('priority')}>
           <div>
-            <SelectDealPriority dealId={_id} value={priority || ''} variant="card" />
+            <SelectDealPriority
+              dealId={_id}
+              value={priority || ''}
+              variant="card"
+            />
           </div>
         </FormField>
-        <FormField label={t('tags')}>  
+        <FormField label={t('tags')}>
           <SelectTags
             tagType="sales:deal"
             mode="multiple"
@@ -138,7 +147,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             onValueChange={(value) => handleChange('tagIds', value)}
           />
         </FormField>
-        <FormField label={t('branches')}>  
+        <FormField label={t('branches')}>
           <SelectBranches.ComboboxItem
             value={branchIds}
             onValueChange={(value) => handleChange('branchIds', value)}

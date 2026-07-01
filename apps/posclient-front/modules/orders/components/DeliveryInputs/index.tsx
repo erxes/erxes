@@ -4,7 +4,7 @@ import {
   activeOrderIdAtom,
   orderNumberAtom,
   setInitialAtom,
-  openCancelDialogAtom
+  openCancelDialogAtom,
 } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
 

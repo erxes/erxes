@@ -107,7 +107,12 @@ const UserHeader = () => {
 
 const DynamicPaymentHeader = ({ title }: { title: string }) => {
   const { t } = useTranslation('sales');
-  return <RecordTable.InlineHead icon={IconClock} label={t(title, { defaultValue: title })} />;
+  return (
+    <RecordTable.InlineHead
+      icon={IconClock}
+      label={t(title, { defaultValue: title })}
+    />
+  );
 };
 
 export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
