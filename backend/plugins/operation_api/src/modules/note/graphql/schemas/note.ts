@@ -6,7 +6,6 @@ export const types = `
         createdBy: String
         mentions: [String]
         statusId: String
-
         createdAt: String
         updatedAt: String
     }
