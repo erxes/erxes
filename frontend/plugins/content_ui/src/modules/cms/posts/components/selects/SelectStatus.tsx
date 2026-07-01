@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectTriggerVariantType,
 } from './SelectShared';
+import { useTranslation } from 'react-i18next';
 
 interface IStatus {
   value: string;
@@ -95,13 +96,14 @@ const SelectStatusValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('content');
   const { value, statuses } = useSelectStatusContext();
   const selectedStatus = statuses?.find((status) => status.value === value);
 
   if (!selectedStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status'}
+        {placeholder || t('select-status')}
       </span>
     );
   }
@@ -134,13 +136,14 @@ const SelectStatusCommandItem = ({ status }: { status: IStatus }) => {
 };
 
 const SelectStatusContent = () => {
+  const { t } = useTranslation('content');
   const { statuses } = useSelectStatusContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search status" />
+      <Command.Input placeholder={t('search-status')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No statuses found</span>
+        <span className="text-muted-foreground">{t('no-statuses-found')}</span>
       </Command.Empty>
       <Command.List>
         {statuses?.map((status) => (
@@ -152,10 +155,11 @@ const SelectStatusContent = () => {
 };
 
 export const SelectStatusFilterItem = () => {
+  const { t } = useTranslation('content');
   return (
     <Filter.Item value="status">
       <IconHash />
-      Status
+      {t('status')}
     </Filter.Item>
   );
 };
@@ -200,6 +204,7 @@ export const SelectStatusFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('content');
   const [status, setStatus] = useQueryState<string[] | string>('status');
   const [open, setOpen] = useState(false);
 
@@ -207,7 +212,7 @@ export const SelectStatusFilterBar = ({
     <Filter.BarItem queryKey={'status'}>
       <Filter.BarName>
         <IconHash />
-        Status
+        {t('status')}
       </Filter.BarName>
       <SelectStatusProvider
         mode={mode}

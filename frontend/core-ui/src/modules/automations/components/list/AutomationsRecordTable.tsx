@@ -15,6 +15,7 @@ import {
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
+import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 import { Link, useNavigate } from 'react-router-dom';
 import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
 
@@ -26,10 +27,14 @@ export const AutomationsRecordTable = () => {
     hasNextPage,
     handleFetchMore,
     hasPreviousPage,
+    approvalLockStatesById,
   } = useAutomationsRecordTable();
 
   const { t } = useTranslation('automations');
-  const columns = useMemo(() => getAutomationColumns(t), [t]);
+  const columns = useMemo(
+    () => getAutomationColumns(t, approvalLockStatesById),
+    [t, approvalLockStatesById],
+  );
   const navigate = useNavigate();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canCreateAutomation =
@@ -66,7 +71,10 @@ export const AutomationsRecordTable = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
-            <Link to="/settings/automations">
+            <Link
+              to="/settings/automations"
+              onClick={() => setAutomationSettingsReturnPath('/automations')}
+            >
               <IconSettings />
               {t('go-to-settings')}
             </Link>

@@ -54,7 +54,7 @@ export const AppsCommandBar = () => {
         <Can action="appsManage">
           <>
             <Separator.Inline />
-            <Button variant="secondary" onClick={onRemove}>
+            <Button variant="destructive" onClick={onRemove}>
               <IconTrash />
               Delete
             </Button>

@@ -14,7 +14,19 @@ export const defaultI18nOptions: InitOptions = {
   backend: {
     loadPath: `${REACT_APP_API_URL}/locales/{{lng}}/{{ns}}.json`,
   },
-  ns: ['common', 'contact', 'product', 'documents', 'organization', 'segment', 'automations', 'settings', 'broadcasts', 'sales'],
+  ns: [
+    'common',
+    'contact',
+    'product',
+    'documents',
+    'organization',
+    'segment',
+    'automations',
+    'approval',
+    'settings',
+    'broadcasts',
+    'sales',
+  ],
   defaultNS: 'common',
   fallbackNS: ['common'],
   react: {
@@ -30,9 +42,7 @@ i18nInstance.on('languageChanged', (lng) => {
 
 const savedLanguage = localStorage.getItem('lng');
 const lng =
-  savedLanguage && supportedLngs.includes(savedLanguage)
-    ? savedLanguage
-    : 'en';
+  savedLanguage && supportedLngs.includes(savedLanguage) ? savedLanguage : 'en';
 
 i18nInstance
   .use(HttpBackend)

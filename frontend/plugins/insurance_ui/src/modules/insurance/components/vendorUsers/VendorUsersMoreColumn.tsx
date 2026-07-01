@@ -1,5 +1,6 @@
 import { IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useDeleteVendorUser } from '~/modules/insurance/hooks';
 
 export const VendorUsersMoreColumn = ({
@@ -11,11 +12,12 @@ export const VendorUsersMoreColumn = ({
   onEdit: (user: any) => void;
   onRefetch: () => void;
 }) => {
+  const { t } = useTranslation('insurance');
   const user = cell.row.original;
   const { deleteVendorUser } = useDeleteVendorUser();
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this user?')) {
+    if (confirm(t('confirm-delete-user'))) {
       await deleteVendorUser(user.id);
       onRefetch();
     }
@@ -31,12 +33,12 @@ export const VendorUsersMoreColumn = ({
       <DropdownMenu.Content align="start">
         <DropdownMenu.Item onClick={() => onEdit(user)}>
           <IconEdit size={16} />
-          Edit
+          {t('edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onClick={handleDelete} className="text-destructive">
           <IconTrash size={16} />
-          Delete
+          {t('delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

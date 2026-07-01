@@ -8,6 +8,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { SelectMember } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import {
   type ISyncHistoryFilterField,
   type ISyncHistoryFilterValues,
@@ -24,6 +25,7 @@ interface IMSDynamicSyncHistoryTextFilterBarItemProps {
 }
 
 const MSDynamicSyncHistoryUserFilterBarItem = () => {
+  const { t } = useTranslation('mongolian');
   const [user, setUser] = useQueryState<string>('user');
   const [open, setOpen] = useState(false);
 
@@ -31,7 +33,7 @@ const MSDynamicSyncHistoryUserFilterBarItem = () => {
     <Filter.BarItem queryKey="user">
       <Filter.BarName>
         <IconUser />
-        Assigned To
+        {t('assigned-to')}
       </Filter.BarName>
       <SelectMember.Provider
         mode="single"
@@ -57,11 +59,12 @@ const MSDynamicSyncHistoryUserFilterBarItem = () => {
 };
 
 const MSDynamicSyncHistoryDateFilterBarItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.BarItem queryKey="dateRange">
       <Filter.BarName>
         <IconCalendar />
-        Date Range
+        {t('date-range')}
       </Filter.BarName>
       <Filter.Date filterKey="dateRange" />
     </Filter.BarItem>

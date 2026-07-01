@@ -5,17 +5,16 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-
-import { CheckCategoryMoreColumn } from './CheckCategoryMoreColumn';
 import { CategoryItem } from '../types/categoryItem';
+import { HeaderCell } from '../../components/HeaderCell';
+import { SyncedStatusCell } from '../../shared/components/SyncedStatusCell';
 
 export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
-  CheckCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<CategoryItem>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" icon={IconCode} />,
+    header: () => <HeaderCell icon={IconCode} label="code" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -27,7 +26,7 @@ export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Name" />,
+    header: () => <HeaderCell icon={IconHash} label="name" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -39,21 +38,7 @@ export const checkCategoryColumns: ColumnDef<CategoryItem>[] = [
   {
     id: 'status',
     accessorKey: 'isSynced',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconCircleCheck} />
-    ),
-    cell: ({ row }) => {
-      const isSynced = row.original.isSynced;
-
-      return (
-        <RecordTableInlineCell>
-          {isSynced ? (
-            <span className="text-green-600 font-medium">Synced</span>
-          ) : (
-            <span className="text-gray-400"></span>
-          )}
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <HeaderCell icon={IconCircleCheck} label="status" />,
+    cell: ({ row }) => <SyncedStatusCell isSynced={row.original.isSynced} />,
   },
 ];

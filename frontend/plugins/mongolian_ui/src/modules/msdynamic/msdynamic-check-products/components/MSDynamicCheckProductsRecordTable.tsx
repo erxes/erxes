@@ -1,5 +1,6 @@
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { MS_DYNAMIC_SESSION_KEYS } from '@/msdynamic/constants/msDynamicSessionKey';
 import { useMSDynamicCheckProducts } from '../hooks/useMSDynamicCheckProducts';
@@ -8,6 +9,7 @@ import { MSDynamicCheckProductsCommandBar } from './MSDynamicCheckProductsComman
 
 /** Products record table with sync and cursor pagination */
 export const MSDynamicCheckProductsRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { filteredProducts, checking, checkProducts, pageInfo } =
     useMSDynamicCheckProducts();
   const { hasPreviousPage, hasNextPage } = pageInfo;
@@ -49,10 +51,10 @@ export const MSDynamicCheckProductsRecordTable = () => {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h3 className="text-xl font-semibold mb-2">
-                  No products in this group
+                  {t('no-products-in-this-group')}
                 </h3>
                 <p className="text-muted-foreground max-w-md">
-                  Run check or choose another product group.
+                  {t('run-check-or-choose-another-product-group')}
                 </p>
               </div>
             </div>

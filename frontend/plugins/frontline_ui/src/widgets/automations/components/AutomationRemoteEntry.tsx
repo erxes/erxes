@@ -37,6 +37,14 @@ const InboxRemoteEntry = lazy(() =>
   })),
 );
 
+const KnowledgebaseRemoteEntry = lazy(() =>
+  import('../modules/knowledgebase/components/KnowledgebaseRemoteEntry').then(
+    (module) => ({
+      default: module.KnowledgebaseRemoteEntry,
+    }),
+  ),
+);
+
 const Remotes: Record<
   string,
   LazyExoticComponent<ComponentType<AutomationRemoteEntryProps>>
@@ -45,6 +53,7 @@ const Remotes: Record<
   instagram: InstagramRemoteEntry,
   tickets: TicketRemoteEntry,
   inbox: InboxRemoteEntry,
+  knowledgebase: KnowledgebaseRemoteEntry,
 };
 
 type GenericErrorFallbackProps = FallbackProps & {
@@ -60,7 +69,9 @@ export const GenericErrorFallback = ({
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
       <div className="rounded-lg bg-background p-8 shadow-lg">
-        <h1 className="mb-4 text-2xl font-bold text-foreground">{title ?? t('sorry-something-went-wrong')}</h1>
+        <h1 className="mb-4 text-2xl font-bold text-foreground">
+          {title ?? t('sorry-something-went-wrong')}
+        </h1>
         <p className="mb-6 text-accent-foreground">{error?.message}</p>
         <Button onClick={resetErrorBoundary} variant="secondary">
           {t('try-again')}

@@ -599,6 +599,28 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'approval',
+      description: 'Approval lock management',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'Manage approval locks',
+          name: 'approvalLocksManage',
+          description: 'Create and release approval locks',
+          always: true,
+        },
+        {
+          title: 'Force release approval locks',
+          name: 'approvalLocksForceRelease',
+          description: 'Force release locked resources with a reason',
+        },
+      ],
+    },
+    {
       name: 'automations',
       description: 'Automation management',
       scopeField: null,
@@ -829,6 +851,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'approval',
+          actions: ['approvalLocksManage', 'approvalLocksForceRelease'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
           module: 'automations',
           actions: [
             'automationsCreate',
@@ -1003,6 +1031,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'clientPortal',
           actions: ['clientPortalRead'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'approval',
+          actions: ['approvalLocksManage'],
           scope: 'all',
         },
         {

@@ -1,8 +1,10 @@
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { msDynamicSyncHistoryTotalCountAtom } from '../states/msDynamicSyncHistoryCounts';
+import { useTranslation } from 'react-i18next';
 
 export const MSDynamicSyncHistoryTotalCount = () => {
+  const { t } = useTranslation('mongolian');
   const totalCount = useAtomValue(msDynamicSyncHistoryTotalCountAtom);
 
   return (
@@ -10,7 +12,7 @@ export const MSDynamicSyncHistoryTotalCount = () => {
       {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        `${totalCount} Records found`
+        t('records-found', { count: totalCount })
       )}
     </div>
   );

@@ -8,9 +8,9 @@ export const SETTINGS_ROUTES = {
   '/settings/accounting/vat-rows': 'НӨАТ-ын мөр',
   '/settings/accounting/ctax-rows': 'НХАТ-ын мөр',
   'sync': '',
-  '/settings/accounting/sync-deal': 'Deal дүрэм',
-  '/settings/accounting/sync-deal-return': 'Deal буцаалтын дүрэм',
-  '/settings/accounting/sync-order': 'Pos order дүрэм',
+  '/settings/accounting/sync-deal': 'Хэлцлийн дүрэм',
+  '/settings/accounting/sync-deal-return': 'Хэлцлийн буцаалтын дүрэм',
+  '/settings/accounting/sync-order': 'POS захиалгын дүрэм',
 };
 
 export enum ACCOUNTING_SETTINGS_CODES {
