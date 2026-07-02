@@ -29,8 +29,12 @@ export const CustomerDetailFields = () => {
       sex: customerDetail?.sex || null,
       primaryEmail: customerDetail?.primaryEmail || '',
       primaryPhone: customerDetail?.primaryPhone || '',
-      phones: (customerDetail?.phones ?? []).filter((p): p is string => p != null),
-      emails: (customerDetail?.emails ?? []).filter((e): e is string => e != null),
+      phones: (customerDetail?.phones ?? []).filter(
+        (p): p is string => p != null,
+      ),
+      emails: (customerDetail?.emails ?? []).filter(
+        (e): e is string => e != null,
+      ),
       ownerId: customerDetail?.ownerId || '',
       description: customerDetail?.description || '',
       isSubscribed: customerDetail?.isSubscribed || 'Yes',
@@ -106,7 +110,10 @@ export const CustomerDetailFields = () => {
           <CustomerAddGeneralInformationFields form={form} />
           <div className="flex justify-end">
             <Can action="contactsUpdate">
-              <Button type="submit" disabled={loading || isSubmitting || !isDirty}>
+              <Button
+                type="submit"
+                disabled={loading || isSubmitting || !isDirty}
+              >
                 {t('save', 'Save')}
               </Button>
             </Can>
