@@ -6,6 +6,7 @@ export const BROADCAST_MESSAGE_ADD = gql`
     $kind: String
     $method: String
     $fromUserId: String
+    $cpId: String
     $targetType: String
     $targetIds: [String]
     $targetCount: Int
@@ -20,6 +21,7 @@ export const BROADCAST_MESSAGE_ADD = gql`
       kind: $kind
       method: $method
       fromUserId: $fromUserId
+      cpId: $cpId
 
       targetType: $targetType
       targetIds: $targetIds

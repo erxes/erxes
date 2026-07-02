@@ -1,11 +1,12 @@
 import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
-import { getEnv } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import validator from 'validator';
+import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IModels } from '~/connectionResolvers';
 import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 import { IEngageMessageDocument } from '../@types';
+import { generateCustomerSelector } from './engage';
 import { addBroadcastWorkerQueue } from './worker';
 
 const CUSTOMER_BATCH_SIZE = 1000;
@@ -225,6 +226,150 @@ const sendBroadcastEmail = async ({
   }
 };
 
+const sendBroadcastNotification = async ({
+  models,
+  subdomain,
+  engageMessage,
+}: {
+  models: IModels;
+  subdomain: string;
+  engageMessage: IEngageMessageDocument;
+}) => {
+  const { _id, targetType, targetIds, method, cpId } = engageMessage;
+
+  if (!cpId) {
+    throw new Error(
+      'Please select "Clientportal" in the notification campaign',
+    );
+  }
+
+  const clientPortal = await models.ClientPortal.findOne({ _id: cpId }).lean();
+
+  if (!clientPortal) {
+    throw new Error('Client portal not found');
+  }
+
+  await models.EngageMessages.updateOne(
+    { _id },
+    {
+      $set: {
+        status: 'sending',
+        'progress.processedBatches': 0,
+        'progress.totalBatches': 0,
+        'progress.successCount': 0,
+        'progress.failureCount': 0,
+        'progress.lastUpdated': new Date(),
+      },
+    },
+  );
+
+  const customersSelector = await generateCustomerSelector(subdomain, models, {
+    engageId: _id,
+    targetType,
+    targetIds,
+  });
+
+  const totalCustomersCount = await models.Customers.countDocuments(
+    customersSelector,
+  );
+
+  const erxesCustomerIds = await models.Customers.find(customersSelector)
+    .distinct('_id')
+    .lean();
+
+  const cpUsers = await models.CPUser.find({
+    clientPortalId: cpId,
+    erxesCustomerId: { $in: erxesCustomerIds },
+  }).lean();
+
+  const linkedCustomerIds = new Set(
+    cpUsers.map((cpUser) => cpUser.erxesCustomerId).filter(Boolean),
+  );
+
+  for (const customerId of erxesCustomerIds) {
+    if (!linkedCustomerIds.has(customerId)) {
+      await models.BroadcastTraces.createTrace(
+        _id,
+        'regular',
+        `Skipped customer ${customerId}: no linked client portal user`,
+      );
+    }
+  }
+
+  const batches: ICPUserDocument[][] = [];
+  let currentBatch: ICPUserDocument[] = [];
+
+  for (const cpUser of cpUsers) {
+    currentBatch.push(cpUser as ICPUserDocument);
+
+    if (currentBatch.length >= CUSTOMER_BATCH_SIZE) {
+      batches.push(currentBatch);
+      currentBatch = [];
+    }
+  }
+
+  if (currentBatch.length > 0) {
+    batches.push(currentBatch);
+  }
+
+  if (batches.length === 0) {
+    await models.EngageMessages.updateOne(
+      { _id },
+      {
+        $set: {
+          lastRunAt: new Date(),
+          totalCustomersCount,
+          status: 'completed',
+          'progress.totalBatches': 0,
+          'progress.processedBatches': 0,
+          'progress.lastUpdated': new Date(),
+        },
+        $inc: {
+          runCount: 1,
+        },
+      },
+    );
+
+    await models.BroadcastTraces.createTrace(
+      _id,
+      'regular',
+      'No linked client portal users found for the selected targets',
+    );
+
+    return;
+  }
+
+  await models.EngageMessages.updateOne(
+    { _id },
+    {
+      $set: {
+        lastRunAt: new Date(),
+        totalCustomersCount,
+        'progress.totalBatches': batches.length,
+      },
+      $inc: {
+        runCount: 1,
+      },
+    },
+  );
+
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+    addBroadcastWorkerQueue({
+      queueName: 'broadcast_processor',
+      data: {
+        method,
+        payload: {
+          cpUsers: batches[batchIndex],
+          engageMessage,
+          clientPortal,
+          subdomain,
+        },
+      },
+      jobId: `${_id}_batch_${batchIndex}`,
+    });
+  }
+};
+
 export const sendBroadcast = async ({
   models,
   subdomain,
@@ -238,5 +383,9 @@ export const sendBroadcast = async ({
 
   if (method === 'email') {
     return sendBroadcastEmail({ models, subdomain, engageMessage });
+  }
+
+  if (method === 'notification') {
+    return sendBroadcastNotification({ models, subdomain, engageMessage });
   }
 };
