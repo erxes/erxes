@@ -51,19 +51,9 @@ export const CustomerDetailFields = () => {
   const { tagIds, _id } = customerDetail;
   const { isDirty, isSubmitting } = form.formState;
 
+  /*save customer details*/
   const onSubmit = async (data: CustomerFormType) => {
-    const {
-      emailValidationStatus,
-      phoneValidationStatus,
-      sex,
-      avatar,
-      state,
-      links,
-      ...rest
-    } = data;
-    void emailValidationStatus;
-    void phoneValidationStatus;
-    void links;
+    const { avatar, state, sex, ...rest } = data;
 
     if (state !== (customerDetail.state ?? '')) {
       await changeCustomerState([_id], state, {
