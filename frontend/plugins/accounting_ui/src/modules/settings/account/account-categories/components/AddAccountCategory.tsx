@@ -3,6 +3,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TAccountCategoryForm } from '../types/AccountCategory';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { accountCategorySchema } from '../constants/accountCategorySchema';
 import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
 import { AccountCategoryForm } from './AccountCategoryForm';
@@ -10,7 +11,11 @@ import { useAccountCategoryAdd } from '../hooks/useAccountCategoryAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
 /** ene account category add form setup. */
-const AddAccountCategoryForm = () => {
+const AddAccountCategoryForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TAccountCategoryForm>({
     resolver: zodResolver(accountCategorySchema),
     defaultValues: ACCOUNT_CATEGORY_DEFAULT_VALUES,
@@ -23,6 +28,7 @@ const AddAccountCategoryForm = () => {
       variables: { ...data },
       onCompleted: () => {
         form.reset();
+        setOpen(false);
       },
     });
   };
@@ -38,8 +44,10 @@ const AddAccountCategoryForm = () => {
 
 /** ene account category add sheet. */
 export const AddAccountCategory = () => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -47,7 +55,7 @@ export const AddAccountCategory = () => {
         </Button>
       </Sheet.Trigger>
       <AccountingSheet title="Дансны ангилал нэмэх">
-        <AddAccountCategoryForm />
+        <AddAccountCategoryForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>
   );

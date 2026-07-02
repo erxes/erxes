@@ -309,7 +309,6 @@ export const AccountForm = ({
   form: UseFormReturn<TAccountForm>;
   handleSubmit: (data: TAccountForm) => void;
   loading: boolean;
-  onClose?: () => void;
 }) => {
   const status = useWatch({
     control: form.control,

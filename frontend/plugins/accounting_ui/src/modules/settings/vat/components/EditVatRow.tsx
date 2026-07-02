@@ -9,7 +9,7 @@ import { useVatRowEdit } from '../hooks/useVatRowEdit';
 import { VatRowForm } from './VatRowForm';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-export const EditVatRowForm = ({ onClose }: { onClose?: () => void }) => {
+export const EditVatRowForm = () => {
   const { vatRowDetail, closeDetail, loading } = useVatRowDetail();
   const { editVatRow, loading: editLoading } = useVatRowEdit();
   const form = useForm<TVatRowForm>({
@@ -47,12 +47,7 @@ export const EditVatRowForm = ({ onClose }: { onClose?: () => void }) => {
 
   return (
     <>
-      <VatRowForm
-        form={form}
-        onSubmit={handleSubmit}
-        loading={editLoading}
-        onClose={onClose || closeDetail}
-      />
+      <VatRowForm form={form} onSubmit={handleSubmit} loading={editLoading} />
       {loading && (
         <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">
           <Spinner />
@@ -73,7 +68,7 @@ export const EditVatRow = () => {
       }}
     >
       <AccountingSheet title="НӨАТ-ын үзүүлэлт засах">
-        <EditVatRowForm onClose={() => setOpen(null)} />
+        <EditVatRowForm />
       </AccountingSheet>
     </Sheet>
   );

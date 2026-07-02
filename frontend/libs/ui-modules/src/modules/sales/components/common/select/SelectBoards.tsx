@@ -236,11 +236,9 @@ export const SelectBoardFilterBar = ({
 
 export const SelectBoardInlineCell = ({
   onValueChange,
-  scope,
   className,
   ...props
 }: Omit<React.ComponentProps<typeof SelectBoardProvider>, 'children'> & {
-  scope?: string;
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -253,7 +251,9 @@ export const SelectBoardInlineCell = ({
       {...props}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <RecordTableInlineCell.Trigger className={className}>
+        <RecordTableInlineCell.Trigger
+          className={cn('flex items-center justify-between gap-2', className)}
+        >
           <SelectBoardsValue placeholder={'Choose board'} />
           <IconChevronDown className="size-4 text-zinc-600 shrink-0" />
         </RecordTableInlineCell.Trigger>

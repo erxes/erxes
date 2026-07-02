@@ -142,6 +142,7 @@ export const SyncOrderConfigForm = ({
           <SyncConfigPaymentsSection
             paymentTypes={paymentTypes}
             paymentKey={posId || ''}
+            currency="MNT"
           />
           <SyncConfigVatCtaxSection />
         </div>

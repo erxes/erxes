@@ -17,7 +17,6 @@ export const VatRowForm = ({
   form: UseFormReturn<TVatRowForm>;
   onSubmit: (data: TVatRowForm) => void;
   loading: boolean;
-  onClose?: () => void;
 }) => {
   return (
     <Form {...form}>

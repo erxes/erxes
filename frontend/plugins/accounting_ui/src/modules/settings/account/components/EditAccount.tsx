@@ -11,7 +11,7 @@ import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
 /** ene selected account edit form. */
-export const EditAccountForm = ({ onClose }: { onClose?: () => void }) => {
+export const EditAccountForm = () => {
   const { accountDetail, closeDetail, loading } = useAccountDetail();
   const { editAccount, loading: editLoading } = useAccountEdit();
 
@@ -59,7 +59,6 @@ export const EditAccountForm = ({ onClose }: { onClose?: () => void }) => {
         form={form}
         handleSubmit={handleSubmit}
         loading={editLoading}
-        onClose={onClose || closeDetail}
       />
       {loading && (
         <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">
@@ -81,7 +80,7 @@ export const EditAccount = () => {
       }}
     >
       <AccountingSheet title="Данс засах">
-        <EditAccountForm onClose={() => setOpen(null)} />
+        <EditAccountForm />
       </AccountingSheet>
     </Sheet>
   );

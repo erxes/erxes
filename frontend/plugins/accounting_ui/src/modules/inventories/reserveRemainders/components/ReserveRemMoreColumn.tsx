@@ -194,7 +194,9 @@ const ReserveRemMoreColumnCell = ({
         {actionsMenu}
       </Popover>
       <Sheet open={editOpen} onOpenChange={setEditOpen}>
-        <EditReserveRemSheet setOpen={setEditOpen} reserveRem={reserveRem} />
+        {editOpen && (
+          <EditReserveRemSheet setOpen={setEditOpen} reserveRem={reserveRem} />
+        )}
       </Sheet>
     </>
   );

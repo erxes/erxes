@@ -7,8 +7,13 @@ import { VatRowForm } from './VatRowForm';
 import { IconPlus } from '@tabler/icons-react';
 import { useAddVatRow } from '../hooks/useVatRowAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { useState } from 'react';
 
-export const AddVatForm = () => {
+export const AddVatForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TVatRowForm>({
     resolver: zodResolver(vatFormSchema),
     defaultValues: {
@@ -24,6 +29,7 @@ export const AddVatForm = () => {
       variables: { ...data },
       onCompleted: () => {
         form.reset();
+        setOpen(false);
       },
     });
   };
@@ -33,8 +39,10 @@ export const AddVatForm = () => {
 
 /** add vat sheet trigger. */
 export const AddVats = () => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -42,7 +50,7 @@ export const AddVats = () => {
         </Button>
       </Sheet.Trigger>
       <AccountingSheet title="НӨАТ нэмэх">
-        <AddVatForm />
+        <AddVatForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>
   );

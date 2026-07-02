@@ -3,11 +3,11 @@ import { EditVatRow } from '@/settings/vat/components/EditVatRow';
 /** vat rows list page l bn */
 export const VatRowsPage = () => {
   return (
-    <>
+    <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-auto p-3 overflow-hidden flex">
         <VatRowsTable />
       </div>
       <EditVatRow />
-    </>
+    </div>
   );
 };

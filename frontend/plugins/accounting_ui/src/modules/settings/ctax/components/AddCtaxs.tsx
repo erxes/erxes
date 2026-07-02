@@ -7,9 +7,14 @@ import { CtaxRowForm } from './CtaxRowForm';
 import { IconPlus } from '@tabler/icons-react';
 import { useAddCtaxRow } from '../hooks/useCtaxRowAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { useState } from 'react';
 
 /** ene ctax add form setup. */
-export const AddCtaxForm = () => {
+export const AddCtaxForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
     defaultValues: {
@@ -24,6 +29,7 @@ export const AddCtaxForm = () => {
       variables: { ...data },
       onCompleted: () => {
         form.reset();
+        setOpen(false);
       },
     });
   };
@@ -33,8 +39,10 @@ export const AddCtaxForm = () => {
 
 /** ene ctax add sheet. */
 export const AddCtaxs = () => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -42,7 +50,7 @@ export const AddCtaxs = () => {
         </Button>
       </Sheet.Trigger>
       <AccountingSheet title="НХАТ нэмэх">
-        <AddCtaxForm />
+        <AddCtaxForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>
   );

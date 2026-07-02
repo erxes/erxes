@@ -12,7 +12,7 @@ import {
   Sheet,
   Spinner,
 } from 'erxes-ui';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   FieldPath,
   UseFormReturn,
@@ -41,6 +41,11 @@ export interface IUsePipelineResetForm {
 export const usePipelineReset = <T extends IUsePipelineResetForm>(
   form: UseFormReturn<T>,
 ) => {
+  const hasWatchedBoardId = useRef(false);
+  const hasWatchedPipelineId = useRef(false);
+  const previousBoardId = useRef<string | undefined>(undefined);
+  const previousPipelineId = useRef<string | undefined>(undefined);
+
   const boardId = useWatch({
     control: form.control,
     name: 'boardId' as FieldPath<T>,
@@ -52,11 +57,29 @@ export const usePipelineReset = <T extends IUsePipelineResetForm>(
   }) as string | undefined;
 
   useEffect(() => {
-    form.setValue('pipelineId' as FieldPath<T>, '' as never);
+    if (!hasWatchedBoardId.current) {
+      hasWatchedBoardId.current = true;
+      previousBoardId.current = boardId;
+      return;
+    }
+
+    if (previousBoardId.current !== boardId) {
+      form.setValue('pipelineId' as FieldPath<T>, '' as never);
+      previousBoardId.current = boardId;
+    }
   }, [boardId, form]);
 
   useEffect(() => {
-    form.setValue('stageId' as FieldPath<T>, '' as never);
+    if (!hasWatchedPipelineId.current) {
+      hasWatchedPipelineId.current = true;
+      previousPipelineId.current = pipelineId;
+      return;
+    }
+
+    if (previousPipelineId.current !== pipelineId) {
+      form.setValue('stageId' as FieldPath<T>, '' as never);
+      previousPipelineId.current = pipelineId;
+    }
   }, [pipelineId, form]);
 
   return { boardId, pipelineId };
@@ -99,9 +122,11 @@ export const normalizeSyncConfigData = <
 export const SyncConfigPaymentAccountField = ({
   name,
   label,
+  currency,
 }: {
   name: string;
   label: string;
+  currency?: string;
 }) => {
   const { control } = useFormContext();
   return (
@@ -121,6 +146,7 @@ export const SyncConfigPaymentAccountField = ({
                   JournalEnum.CASH,
                   JournalEnum.DEBT,
                 ],
+                ...(currency ? { currency } : {}),
               }}
             />
           </Form.Control>
@@ -433,9 +459,11 @@ export type TPaymentType = {
 export const SyncConfigPaymentsSection = ({
   paymentTypes,
   paymentKey,
+  currency,
 }: {
   paymentTypes: TPaymentType[];
   paymentKey: string;
+  currency?: string;
 }) => {
   const { t } = useTranslation('accounting');
 
@@ -453,16 +481,19 @@ export const SyncConfigPaymentsSection = ({
       <SyncConfigPaymentAccountField
         name="defaultPayment.accountId"
         label={t('default-payment-account')}
+        currency={currency}
       />
       <SyncConfigPaymentAccountField
         name="defaultNegPayment.accountId"
         label={t('default-neg-payment-account')}
+        currency={currency}
       />
       {paymentList.map((ptype) => (
         <SyncConfigPaymentAccountField
           key={`${paymentKey}-${ptype.type}`}
           name={`payments.${ptype.type}.accountId`}
           label={ptype.title}
+          currency={currency}
         />
       ))}
     </SyncSettingSection>
@@ -473,6 +504,10 @@ type VatCtaxSelectProps = {
   value: string;
   onValueChange: (value: string) => void;
 };
+
+const SelectVatItem = (props: VatCtaxSelectProps) => <SelectVat {...props} />;
+
+const SelectCtaxItem = (props: VatCtaxSelectProps) => <SelectCtax {...props} />;
 
 /** single VAT or CTAX toggle + conditional select/rule section. */
 const VatCtaxItem = ({
@@ -555,9 +590,7 @@ export const SyncConfigVatCtaxSection = () => (
       hasLabel="has-vat"
       rowLabel="vat-row"
       reverseLabel="reverse-vat-rules"
-      selectComponent={
-        SelectVat as unknown as (props: VatCtaxSelectProps) => JSX.Element
-      }
+      selectComponent={SelectVatItem}
       kind="vat"
     />
     <VatCtaxItem
@@ -566,9 +599,7 @@ export const SyncConfigVatCtaxSection = () => (
       hasLabel="has-ctax"
       rowLabel="ctax-row"
       reverseLabel="reverse-ctax-rules"
-      selectComponent={
-        SelectCtax as unknown as (props: VatCtaxSelectProps) => JSX.Element
-      }
+      selectComponent={SelectCtaxItem}
       kind="ctax"
     />
   </section>
