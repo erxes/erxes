@@ -17,7 +17,6 @@ import {
   Tooltip,
   useQueryState,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { BrandsInline, MembersInline } from 'ui-modules';
 import {
   BROADCAST_KIND_FILTERS,
@@ -26,13 +25,14 @@ import {
   BROADCAST_METHODS,
 } from '../constants';
 
-export const broadcastColumns: ColumnDef<any>[] = [
+export const broadcastColumns = (
+  t: (key: string, defaultValue: string) => string,
+): ColumnDef<any>[] => [
   RecordTable.checkboxColumn,
   {
     id: 'title',
     accessorKey: 'title',
     header: () => {
-      const { t } = useTranslation('broadcasts');
       return (
         <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />
       );
@@ -61,13 +61,11 @@ export const broadcastColumns: ColumnDef<any>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => {
-      const { t } = useTranslation('broadcasts');
       return (
         <RecordTable.InlineHead label={t('status', 'Status')} icon={IconLabelFilled} />
       );
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('broadcasts');
       const { kind, isLive, runCount, isDraft, status, progress } =
         cell.row.original;
 
@@ -113,13 +111,11 @@ export const broadcastColumns: ColumnDef<any>[] = [
     id: 'totalCustomersCount',
     accessorKey: 'totalCustomersCount',
     header: () => {
-      const { t } = useTranslation('broadcasts');
       return (
         <RecordTable.InlineHead label={t('total', 'Total')} icon={IconLabelFilled} />
       );
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('broadcasts');
       const { validCustomersCount, totalCustomersCount } = cell.row.original;
 
       const percentage =
@@ -166,13 +162,11 @@ export const broadcastColumns: ColumnDef<any>[] = [
     id: 'method',
     accessorKey: 'method',
     header: () => {
-      const { t } = useTranslation('broadcasts');
       return (
         <RecordTable.InlineHead label={t('type', 'Type')} icon={IconLabelFilled} />
       );
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('broadcasts');
       const { method, kind } = cell.row.original;
 
       let MethodIcon: Icon = IconInfoSquareRounded;
@@ -220,13 +214,11 @@ export const broadcastColumns: ColumnDef<any>[] = [
     id: 'brandId',
     accessorKey: 'brandId',
     header: () => {
-      const { t } = useTranslation('broadcasts');
       return (
         <RecordTable.InlineHead label={t('brand', 'Brand')} icon={IconLabelFilled} />
       );
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('broadcasts');
       return (
         <RecordTableInlineCell>
           <BrandsInline
@@ -241,13 +233,11 @@ export const broadcastColumns: ColumnDef<any>[] = [
     id: 'fromUserId',
     accessorKey: 'fromUserId',
     header: () => {
-      const { t } = useTranslation('broadcasts');
       return (
         <RecordTable.InlineHead label={t('from', 'From')} icon={IconLabelFilled} />
       );
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('broadcasts');
       return (
         <RecordTableInlineCell>
           <MembersInline
