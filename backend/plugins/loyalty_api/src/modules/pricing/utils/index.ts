@@ -9,6 +9,7 @@ import {
   calculatePriceAdjust,
 } from './rule';
 import { getAllowedProducts } from './product';
+import { planMatchesContext, EligibilityCache } from './eligibility';
 import { CalculatedRule, OrderItem } from '../types';
 
 export const getMainConditions = ({
@@ -260,6 +261,9 @@ export const checkPricing = async (params: {
   branchId: string;
   pipelineId: string;
   orderItems: OrderItem[];
+  customerId?: string;
+  companyId?: string;
+  brokerId?: string;
 }) => {
   const {
     models,
@@ -270,6 +274,9 @@ export const checkPricing = async (params: {
     branchId,
     pipelineId,
     orderItems,
+    customerId,
+    companyId,
+    brokerId,
   } = params;
 
   const productIds = orderItems.map((p) => p.productId);
@@ -309,8 +316,23 @@ export const checkPricing = async (params: {
     return;
   }
 
+  // Memoize segment + entity-fact lookups across every plan in this request.
+  const eligibilityCache: EligibilityCache = new Map();
+
   // Process each plan
   for (const plan of plans) {
+    // Customer + broker eligibility gate (product targeting is handled below).
+    if (
+      !(await planMatchesContext(
+        subdomain,
+        plan,
+        { customerId, companyId, brokerId },
+        eligibilityCache,
+      ))
+    ) {
+      continue;
+    }
+
     const allowedProductIds = await getAllowedProducts(
       subdomain,
       plan,

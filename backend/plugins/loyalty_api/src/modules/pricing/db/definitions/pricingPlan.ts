@@ -34,6 +34,26 @@ export const pricingPlanSchema = schemaWrapper(new Schema({
   segments: { type: [String], default: [] },
   vendors: { type: [String], default: [] },
 
+  // Customer & broker targeting (dynamic conditions).
+  // Empty fields mean "no constraint", so pre-existing plans behave unchanged.
+  // customerType selects the buyer kind; only the active kind's fields apply.
+  customerType: { type: String, enum: ['customer', 'company'], default: 'customer' },
+
+  customerIds: { type: [String], default: [] },
+  customerTags: { type: [String], default: [] },
+  customerExcludeTags: { type: [String], default: [] },
+  customerSegmentIds: { type: [String], default: [] },
+
+  companyIds: { type: [String], default: [] },
+  companyTags: { type: [String], default: [] },
+  companyExcludeTags: { type: [String], default: [] },
+  companySegmentIds: { type: [String], default: [] },
+
+  // Broker is always a team-member/user.
+  brokerUserIds: { type: [String], default: [] },
+  brokerUserPositions: { type: [String], default: [] },
+  brokerSegmentIds: { type: [String], default: [] },
+
   isStartDateEnabled: { type: Boolean, default: false },
   isEndDateEnabled: { type: Boolean, default: false },
   startDate: { type: Date },

@@ -27,7 +27,11 @@ interface OptionsFormValues {
   pipelineId: string;
 }
 
-interface OptionsSnapshot extends OptionsFormValues {
+interface OptionsSnapshot {
+  departmentIds: string[];
+  branchIds: string[];
+  boardId: string;
+  pipelineId: string;
   repeatRules: RepeatRuleConfig[];
 }
 
@@ -214,25 +218,17 @@ export const OptionsInfo = ({
     const branchIds = pricingDetail.branchIds || [];
     const rules = getRepeatRules(pricingDetail);
 
-    reset({
+    const values: OptionsFormValues = {
       departmentIds,
       branchIds,
       boardId: pricingDetail.boardId || '',
       pipelineId: pricingDetail.pipelineId || '',
-    });
+    };
+
+    reset(values);
 
     setRepeatRules(rules);
-    setInitialSnapshot(
-      getOptionsSnapshot({
-        values: {
-          departmentIds,
-          branchIds,
-          boardId: pricingDetail.boardId || '',
-          pipelineId: pricingDetail.pipelineId || '',
-        },
-        repeatRules: rules,
-      }),
-    );
+    setInitialSnapshot(getOptionsSnapshot({ values, repeatRules: rules }));
   }, [pricingDetail, reset]);
 
   useEffect(() => {
@@ -328,22 +324,16 @@ export const OptionsInfo = ({
         repeatRules: nextRepeatRules,
       });
 
-      reset({
+      const savedValues: OptionsFormValues = {
         departmentIds,
         branchIds,
         boardId: boardId || '',
         pipelineId: pipelineId || '',
-      });
+      };
+
+      reset(savedValues);
       setInitialSnapshot(
-        getOptionsSnapshot({
-          values: {
-            departmentIds,
-            branchIds,
-            boardId: boardId || '',
-            pipelineId: pipelineId || '',
-          },
-          repeatRules,
-        }),
+        getOptionsSnapshot({ values: savedValues, repeatRules }),
       );
 
       toast({

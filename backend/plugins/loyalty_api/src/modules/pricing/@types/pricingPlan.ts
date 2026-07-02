@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { IPriceRule} from './priceRule';
+import { IPriceRule } from './priceRule';
 import { IQuantityRule } from './quantityRule';
 import { IExpiryRule } from './expiryRule';
 import { IRepeatRule } from './repeatRule';
@@ -25,6 +25,29 @@ export interface IPricingPlan {
   vendors?: string[];
   tags?: string[];
   tagsExcluded?: string[];
+
+  // Customer & broker targeting (dynamic conditions).
+  // Empty fields = no constraint, so existing plans are unaffected.
+  //
+  // Customer dimension is typed: customerType picks which entity kind is the
+  // buyer. Unset is treated as 'customer'. Only the active kind's fields are
+  // evaluated (and persisted by the UI).
+  customerType?: 'customer' | 'company';
+
+  customerIds?: string[];
+  customerTags?: string[];
+  customerExcludeTags?: string[];
+  customerSegmentIds?: string[];
+
+  companyIds?: string[];
+  companyTags?: string[];
+  companyExcludeTags?: string[];
+  companySegmentIds?: string[];
+
+  // Broker is always a team-member/user.
+  brokerUserIds?: string[];
+  brokerUserPositions?: string[];
+  brokerSegmentIds?: string[];
 
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;

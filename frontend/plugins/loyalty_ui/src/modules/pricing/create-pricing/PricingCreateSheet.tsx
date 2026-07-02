@@ -18,6 +18,12 @@ import {
   SelectProduct,
   SelectCategory,
 } from 'ui-modules';
+import {
+  CustomerBrokerConditions,
+  CUSTOMER_BROKER_DEFAULTS,
+  customerBrokerToDoc,
+  type CustomerBrokerFormValues,
+} from '@/pricing/edit-pricing/components/options/CustomerBrokerConditions';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import {
@@ -30,7 +36,7 @@ interface PricingCreateSheetProps {
   trigger?: React.ReactNode;
 }
 
-interface PricingFormValues {
+interface PricingFormValues extends CustomerBrokerFormValues {
   name: string;
   status: 'draft';
   isPriority: boolean;
@@ -113,6 +119,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       productTagIds: [],
       excludeTagIds: [],
       bundleProductIds: [],
+      ...CUSTOMER_BROKER_DEFAULTS,
     },
   });
 
@@ -222,6 +229,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       if (values.appliesTo === 'bundle' && values.bundleProductIds.length) {
         doc.productsBundle = [values.bundleProductIds];
       }
+
+      // Customer & broker conditions are independent of `appliesTo`. Only the
+      // active buyer-kind is written; the inactive kind is cleared.
+      Object.assign(doc, customerBrokerToDoc(values));
 
       await createPricing(doc);
 
@@ -635,6 +646,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   )}
                 />
               )}
+              <CustomerBrokerConditions control={form.control} />
             </div>
 
             <Sheet.Footer className="px-5 py-4 border-t bg-background">

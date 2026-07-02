@@ -16,7 +16,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useEffect, type ReactNode } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Control } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   SelectCompany,
@@ -25,7 +25,6 @@ import {
   SelectSegment,
   SelectTags,
 } from 'ui-modules';
-import { type Control } from 'react-hook-form';
 
 interface GeneralInfoProps {
   pricingId?: string;
@@ -99,6 +98,7 @@ const GeneralDateField = ({
     )}
   />
 );
+
 
 export const GeneralInfo = ({
   pricingId,

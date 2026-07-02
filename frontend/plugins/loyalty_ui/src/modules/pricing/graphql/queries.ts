@@ -116,6 +116,18 @@ export const PRICING_PLAN_DETAIL = gql`
       vendors
       tags
       tagsExcluded
+      customerType
+      customerIds
+      customerTags
+      customerExcludeTags
+      customerSegmentIds
+      companyIds
+      companyTags
+      companyExcludeTags
+      companySegmentIds
+      brokerUserIds
+      brokerUserPositions
+      brokerSegmentIds
       isStartDateEnabled
       isEndDateEnabled
       startDate

@@ -20,6 +20,9 @@ export const checkPricing = async (
         totalAmount: doc.totalAmount,
         departmentId: config.departmentId,
         branchId: config.branchId,
+        // POS order input carries the customer but no cashier/broker field, so
+        // broker-targeted plans simply do not apply at point of sale.
+        customerId: doc.customerId,
         products: [
           ...doc.items.map((i) => ({
             itemId: i._id,

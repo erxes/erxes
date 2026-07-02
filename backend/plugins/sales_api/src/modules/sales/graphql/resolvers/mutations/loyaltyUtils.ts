@@ -79,7 +79,7 @@ export const checkLoyalties = async (
 export const checkPricing = async (
   subdomain: string,
   models: IModels,
-  deal: IDeal,
+  deal: IDeal & { _id?: string },
 ) => {
   const activeProductsData =
     deal.productsData?.filter((pd) => pd.tickUsed && !pd.bonusCount) || [];
@@ -94,6 +94,16 @@ export const checkPricing = async (
     0,
   );
 
+  // Who-context for customer/broker pricing conditions: the deal's related
+  // customer + company and its assigned broker.
+  const [[customerId], [companyId]] = deal._id
+    ? await Promise.all([
+        getCustomerIds(subdomain, deal._id).then((ids) => ids || []),
+        getCompanyIds(subdomain, deal._id).then((ids) => ids || []),
+      ])
+    : [[], []];
+  const brokerId = deal.assignedUserIds?.[0];
+
   const pricing = await sendTRPCMessage({
     subdomain,
     pluginName: 'loyalty',
@@ -105,6 +115,9 @@ export const checkPricing = async (
       departmentId: deal.departmentIds?.[0] || '',
       branchId: deal.branchIds?.[0] || '',
       pipelineId: stage.pipelineId,
+      customerId,
+      companyId,
+      brokerId,
       products: activeProductsData.map((item) => ({
         itemId: item._id,
         productId: item.productId,
