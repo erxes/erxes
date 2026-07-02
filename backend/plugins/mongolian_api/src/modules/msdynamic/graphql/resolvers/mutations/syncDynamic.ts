@@ -110,7 +110,7 @@ export const msdynamicSyncMutations = {
 
     const orders = await sendTRPCMessage({
       subdomain,
-      pluginName: 'pos',
+      pluginName: 'sales',
       module: 'orders',
       action: 'find',
       input: {
