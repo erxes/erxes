@@ -43,8 +43,8 @@ export const usePipelineReset = <T extends IUsePipelineResetForm>(
 ) => {
   const hasWatchedBoardId = useRef(false);
   const hasWatchedPipelineId = useRef(false);
-  const previousBoardId = useRef<string | undefined>(undefined);
-  const previousPipelineId = useRef<string | undefined>(undefined);
+  const previousBoardId = useRef<string | undefined>();
+  const previousPipelineId = useRef<string | undefined>();
 
   const boardId = useWatch({
     control: form.control,
@@ -505,8 +505,10 @@ type VatCtaxSelectProps = {
   onValueChange: (value: string) => void;
 };
 
+/** VAT row selector adapter for sync config tax fields. */
 const SelectVatItem = (props: VatCtaxSelectProps) => <SelectVat {...props} />;
 
+/** CTax row selector adapter for sync config tax fields. */
 const SelectCtaxItem = (props: VatCtaxSelectProps) => <SelectCtax {...props} />;
 
 /** single VAT or CTAX toggle + conditional select/rule section. */

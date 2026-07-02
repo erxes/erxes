@@ -9,6 +9,7 @@ import { useAddVatRow } from '../hooks/useVatRowAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { useState } from 'react';
 
+/** VAT row add form setup. */
 export const AddVatForm = ({
   setOpen,
 }: {
