@@ -15,7 +15,7 @@ export const useAutomationsRemoteModules = (pluginName: string) => {
   // in its underscore form ("erxes_agent"). Automation node types keep the real
   // dashed name, so normalize before matching. Mirrors core-api's
   // get-frontend-plugins `remoteName()`.
-  const normalizedName = pluginName.replace(/-/g, '_');
+  const normalizedName = pluginName.replaceAll('-', '_');
 
   const result = plugins
     .filter(({ name }) => name === normalizedName)
