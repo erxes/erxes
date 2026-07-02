@@ -320,7 +320,7 @@
   "published": "Нийтлэгдсэн",
   "publishing": "Нийтэлж байна...",
   "ready": "Бэлэн",
-  "records-found": "бичлэг олдлоо",
+  "records-found": "{{count}} бичлэг олдлоо",
   "remove": "Хасах",
   "remove-parent": "Эцэг категори хасах",
   "remove-post-type": "Нийтлэлийн төрөл хасах",

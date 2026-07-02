@@ -91,7 +91,10 @@
     "created-at": "Created At",
     "set-value": "Set value"
   },
-  "records-found": "Records Found",
+  "records-found": "{{count}} records found",
+  "properties-field": {
+    "search-options": "Search options"
+  },
   "organization": {
     "settings": "Settings",
     "change-theme": "Change Theme",

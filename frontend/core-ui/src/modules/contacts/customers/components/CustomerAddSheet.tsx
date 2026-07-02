@@ -61,7 +61,10 @@ export const CustomerAddSheet = () => {
         <FocusSheet.Header title={title} />
         <FocusSheet.Content className="flex-1 min-h-0">
           <FocusSheet.SideBar>
-            <SheetNavSidebar tabs={['overview', 'properties']} groupLabel="General" />
+            <SheetNavSidebar
+              tabs={['overview', 'properties']}
+              groupLabel={t('general', 'General')}
+            />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1">
             <Suspense fallback={<Spinner />}>

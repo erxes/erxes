@@ -18,7 +18,19 @@
       "phone-verification-status": "Phone verification status",
       "description": "Description",
       "subscribed": "Subscribed",
-      "success-message": "Customer added successfully"
+      "success-message": "Customer added successfully",
+      "title-lead": "Create Lead",
+      "title-customer": "Create Customer",
+      "creating": "Creating...",
+      "customer-information": "Customer Information",
+      "select-owner": "Select owner",
+      "choose": "Choose",
+      "lead-created-success": "Lead created successfully",
+      "customer-created-success": "Customer created successfully",
+      "customer-properties": "Customer Properties",
+      "no-properties-found": "No properties found. Create properties in Settings.",
+      "avatar-upload-description": "Upload an avatar for the customer",
+      "create-new-customer": "Create new customer"
     },
     "detail": {
       "add-tags": "Add tags",

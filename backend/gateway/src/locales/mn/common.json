@@ -93,6 +93,9 @@
     "set-value": "Утга оруулах"
   },
   "records-found": "{{count}} бичлэг олдлоо",
+  "properties-field": {
+    "search-options": "Сонголт хайх"
+  },
   "organization": {
     "settings": "Тохиргоо",
     "change-theme": "Дизайн өөрчлөх",

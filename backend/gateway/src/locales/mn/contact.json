@@ -18,7 +18,19 @@
       "phone-verification-status": "Утас баталгаажуулалтын төлөв",
       "description": "Тайлбар",
       "subscribed": "Бүртгэлтэй",
-      "success-message": "Харилцагч амжилттай нэмэгдлээ"
+      "success-message": "Харилцагч амжилттай нэмэгдлээ",
+      "title-lead": "Потенциал харилцагч үүсгэх",
+      "title-customer": "Харилцагч үүсгэх",
+      "creating": "Үүсгэж байна...",
+      "customer-information": "Харилцагчийн мэдээлэл",
+      "select-owner": "Хариуцагч сонгох",
+      "choose": "Сонгох",
+      "lead-created-success": "Потенциал харилцагч амжилттай үүслээ",
+      "customer-created-success": "Харилцагч амжилттай үүслээ",
+      "customer-properties": "Харилцагчийн талбарууд",
+      "no-properties-found": "Талбар олдсонгүй. Тохиргоо хэсгээс талбар үүсгэнэ үү.",
+      "avatar-upload-description": "Харилцагчийн профайл зураг байршуулах",
+      "create-new-customer": "Шинэ харилцагч үүсгэх"
     },
     "detail": {
       "add-tags": "Таг нэмэх",
