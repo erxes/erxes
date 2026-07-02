@@ -1,41 +1,22 @@
-import { Breadcrumb, ToggleGroup, recordTableCursorAtomFamily } from 'erxes-ui';
-import { Link, useLocation } from 'react-router-dom';
-import { useSetAtom } from 'jotai';
+import { Button, Separator } from 'erxes-ui';
+import { IconSandbox } from '@tabler/icons-react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { usePutResponseLeadSessionKey } from '~/modules/ebarimt/put-response/hooks/usePutResponseLeadSessionKey';
+import { PUT_RESPONSE_ROUTES } from './PutResponseRoutes';
 
 export const PutResponseBreadcrumb = () => {
-  const { pathname } = useLocation();
-  const { sessionKey } = usePutResponseLeadSessionKey();
-  const setCursor = useSetAtom(recordTableCursorAtomFamily(sessionKey));
   const { t } = useTranslation('mongolian');
+  const { pathname } = useLocation();
   return (
-    <Breadcrumb>
-      <Breadcrumb.List className="gap-1">
-        <ToggleGroup type="single" value={pathname}>
-          <ToggleGroup.Item
-            value="/mongolian/put-response/put-response"
-            asChild
-            onClick={() => setCursor('')}
-          >
-            <Link to="/mongolian/put-response/put-response">{t('put-response')}</Link>
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="/mongolian/put-response/by-date"
-            asChild
-            onClick={() => setCursor('')}
-          >
-            <Link to="/mongolian/put-response/by-date">{t('by-date')}</Link>
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="/mongolian/put-response/duplicated"
-            asChild
-            onClick={() => setCursor('')}
-          >
-            <Link to="/mongolian/put-response/duplicated">{t('duplicated')}</Link>
-          </ToggleGroup.Item>
-        </ToggleGroup>
-      </Breadcrumb.List>
-    </Breadcrumb>
+    <>
+      <Button variant="ghost" className="font-semibold">
+        <IconSandbox className="w-4 h-4 mr-1.5" />
+        {t('put-response')}
+      </Button>
+      <Separator.Inline />
+      <Button variant="ghost" className="hover:bg-transparent font-semibold">
+        {t(PUT_RESPONSE_ROUTES.find((r) => pathname.endsWith(r.value))?.label ?? '')}
+      </Button>
+    </>
   );
 };

@@ -32,6 +32,13 @@ export const addMSDynamicConfigSchema = z.object({
   boardId: z.string(),
   pipelineId: z.string(),
   stageId: z.string(),
-  custCode: z.string().optional(),
-  userLocationCode: z.string().optional(),
+  custCode: z.object({
+    fieldId: z.string(),
+    groupId: z.string(),
+  }),
+
+  userLocationCode: z.object({
+    fieldId: z.string(),
+    groupId: z.string(),
+  }),
 });

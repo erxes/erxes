@@ -17,6 +17,7 @@ import {
   IAutomationHistoryAction,
   IAutomationsActionConfigConstants,
   IAutomationsTriggerConfigConstants,
+  ApprovalLockState,
   TAiKnowledgeSourceConfig,
   TAutomationAction,
   TAutomationActionProps,
@@ -94,12 +95,14 @@ export interface IAutomationDoc {
   actions: TAutomationAction[];
   updatedAt?: string;
   createdAt?: string;
+  createdBy?: string;
   updatedBy?: string;
   createdByIds?: string;
   updatedUser?: any;
   createdUser?: any;
   tags?: any[];
   tagIds?: string[];
+  approvalLockState?: ApprovalLockState;
 }
 
 export interface IAutomationNoteDoc {

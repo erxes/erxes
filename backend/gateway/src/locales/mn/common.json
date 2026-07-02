@@ -41,7 +41,7 @@
   },
   "sidebar": {
     "profile": "Профайл",
-    "notification" : "Мэдэгдэл",
+    "notification": "Мэдэгдэл",
     "change-password": "Нууц үг солих",
     "general": "Ерөнхий",
     "team-member": "Багийн гишүүн",
@@ -61,6 +61,7 @@
     "core-modules": "Үндсэн модулиуд",
     "templates": "Загварууд",
     "exit-settings": "Тохиргооноос гарах",
+    "approval-requests": "Зөвшөөрлийн хүсэлтүүд",
     "favorites": "Дуртай",
     "my-inbox": "Миний инбокс"
   },
