@@ -56,7 +56,12 @@ const traceExcludedCustomers = async ({
     query.tagIds = { $in: targetIds };
   }
 
-  const cursor = models.Customers.find(query, { _id: 1, primaryEmail: 1, emailValidationStatus: 1, isSubscribed: 1 })
+  const cursor = models.Customers.find(query, {
+    _id: 1,
+    primaryEmail: 1,
+    emailValidationStatus: 1,
+    isSubscribed: 1,
+  })
     .batchSize(CUSTOMER_BATCH_SIZE)
     .lean();
 
@@ -148,7 +153,12 @@ const sendBroadcastEmail = async ({
     targetIds,
   });
 
-  await traceExcludedCustomers({ models, targetType, targetIds, engageMessageId: _id });
+  await traceExcludedCustomers({
+    models,
+    targetType,
+    targetIds,
+    engageMessageId: _id,
+  });
 
   const batches: ICustomerDocument[][] = [];
   let currentBatch: ICustomerDocument[] = [];
@@ -269,9 +279,8 @@ const sendBroadcastNotification = async ({
     targetIds,
   });
 
-  const totalCustomersCount = await models.Customers.countDocuments(
-    customersSelector,
-  );
+  const totalCustomersCount =
+    await models.Customers.countDocuments(customersSelector);
 
   const erxesCustomerIds = await models.Customers.find(customersSelector)
     .distinct('_id')

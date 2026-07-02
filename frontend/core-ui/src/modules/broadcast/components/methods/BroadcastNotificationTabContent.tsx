@@ -1,8 +1,5 @@
 import { useClientPortal } from '@/client-portal/hooks/useClientPortal';
-import {
-  IconBellRinging,
-  IconDeviceMobile,
-} from '@tabler/icons-react';
+import { IconBellRinging, IconDeviceMobile } from '@tabler/icons-react';
 import { Badge, Skeleton } from 'erxes-ui';
 
 export const BroadcastTabPreviewNotificationContent = ({

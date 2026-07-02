@@ -10,9 +10,7 @@ import {
   IconXboxXFilled,
 } from '@tabler/icons-react';
 import { Badge } from 'erxes-ui';
-import {
-  BROADCAST_NOTIFICATION_STATISTIC,
-} from '../../constants';
+import { BROADCAST_NOTIFICATION_STATISTIC } from '../../constants';
 
 const EMAIL_DETAIL_STATISTIC = {
   total: {
