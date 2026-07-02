@@ -24,6 +24,11 @@ export const RenderPluginsComponentWrapper = ({
 
   const { isEnabled } = useAutomationsRemoteModules(pluginName);
 
+  // Dashed plugin names map to underscore MF container names (see
+  // useAutomationsRemoteModules / core-api get-frontend-plugins `remoteName()`),
+  // so the remote is "erxes_agent_ui", never "erxes-agent_ui".
+  const remoteContainerName = `${pluginName.replace(/-/g, '_')}_ui`;
+
   if (!isEnabled) {
     return (
       <p className="flex flex-row gap-2 items-center size-full justify-center">
@@ -41,7 +46,7 @@ export const RenderPluginsComponentWrapper = ({
         )}
       >
         <RenderPluginsComponent
-          pluginName={`${pluginName}_ui`}
+          pluginName={remoteContainerName}
           remoteModuleName="automationsWidget"
           props={{
             ...props,
