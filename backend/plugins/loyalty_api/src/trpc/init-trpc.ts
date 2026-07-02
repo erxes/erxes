@@ -82,6 +82,8 @@ const pricingProductSchema = z.object({
   manufacturedDate: z.string().optional(),
 });
 
+const participantKindSchema = z.enum(['customer', 'company', 'user']);
+
 const checkPricingInput = z.object({
   prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
@@ -89,13 +91,10 @@ const checkPricingInput = z.object({
   branchId: z.string().optional().default(''),
   products: z.array(pricingProductSchema),
   pipelineId: z.string().optional(),
-  customerId: z.string().optional(),
-  companyId: z.string().optional(),
-  userId: z.string().optional(),
-  brokerCustomerId: z.string().optional(),
-  brokerCompanyId: z.string().optional(),
-  brokerUserId: z.string().optional(),
-  brokerId: z.string().optional(),
+  customerType: participantKindSchema.optional().default('customer'),
+  customerId: z.string(),
+  brokerType: participantKindSchema.optional().default('customer'),
+  brokerId: z.string(),
 });
 
 const quantityRulesInput = z.object({
@@ -277,12 +276,9 @@ export const appRouter = t.router({
           branchId,
           products,
           pipelineId,
+          customerType,
           customerId,
-          companyId,
-          userId,
-          brokerCustomerId,
-          brokerCompanyId,
-          brokerUserId,
+          brokerType,
           brokerId,
         } = input;
 
@@ -304,12 +300,10 @@ export const appRouter = t.router({
           branchId,
           pipelineId: pipelineId || '',
           orderItems,
+          customerType,
           customerId,
-          companyId,
-          userId,
-          brokerCustomerId,
-          brokerCompanyId,
-          brokerUserId: brokerUserId || brokerId,
+          brokerType,
+          brokerId,
         });
       }),
 

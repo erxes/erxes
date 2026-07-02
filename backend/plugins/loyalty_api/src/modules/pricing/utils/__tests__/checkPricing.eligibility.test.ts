@@ -6,7 +6,7 @@
  * For reference, the wiring is — inside the plan loop, before processing items:
  *   const segmentCache = new Map(); // created once per checkPricing call
  *   if (!(await planMatchesContext(subdomain, plan,
- *         { customerId, brokerUserId }, segmentCache))) continue;
+ *         normalized participant context, segmentCache))) continue;
  * See backend/plugins/loyalty_api/AGENTS.md → "Customer & broker targeting".
  */
 jest.mock('../product', () => ({
@@ -47,7 +47,7 @@ jest.mock('erxes-api-shared/utils', () => ({
 
 import { IModels } from '~/connectionResolvers';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
-import { checkPricing } from '../index';
+import { checkPricing, getMainConditions } from '../index';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 const mockedTRPC = sendTRPCMessage as jest.Mock;
@@ -102,12 +102,10 @@ const makeModels = (plans: IPricingPlanDocument[]): IModels =>
 const run = (
   plans: IPricingPlanDocument[],
   context: {
+    customerType?: 'customer' | 'company' | 'user';
     customerId?: string;
-    companyId?: string;
-    userId?: string;
-    brokerCustomerId?: string;
-    brokerCompanyId?: string;
-    brokerUserId?: string;
+    brokerType?: 'customer' | 'company' | 'user';
+    brokerId?: string;
   } = {},
 ) =>
   checkPricing({
@@ -136,6 +134,14 @@ describe('checkPricing — applies eligible plans', () => {
     });
     expect(result?.i1?.value).toBe(DISCOUNT);
   });
+
+  it('treats empty customer filters as all customers for customer typed input', async () => {
+    const result = await run([plan()], {
+      customerType: 'customer',
+      customerId: 'c-any',
+    });
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
 });
 
 describe('checkPricing — skips ineligible plans', () => {
@@ -153,7 +159,8 @@ describe('checkPricing — skips ineligible plans', () => {
 
   it('skips a plan whose broker is not targeted', async () => {
     const result = await run([plan({ brokerUserIds: ['u1'] })], {
-      brokerUserId: 'u2',
+      brokerType: 'user',
+      brokerId: 'u2',
     });
     expect(result?.i1?.value).toBe(0);
   });
@@ -175,27 +182,56 @@ describe('checkPricing — skips ineligible plans', () => {
 
   it('applies a company-constrained plan whose companyId matches', async () => {
     const result = await run([plan({ companyIds: ['co1'] })], {
-      companyId: 'co1',
+      customerType: 'company',
+      customerId: 'co1',
     });
     expect(result?.i1?.value).toBe(DISCOUNT);
   });
 
   it('applies a user-constrained buyer plan whose userId matches', async () => {
-    const result = await run([plan({ userIds: ['u1'] })], { userId: 'u1' });
+    const result = await run([plan({ userIds: ['u1'] })], {
+      customerType: 'user',
+      customerId: 'u1',
+    });
     expect(result?.i1?.value).toBe(DISCOUNT);
   });
 
   it('applies a customer-constrained broker plan whose brokerCustomerId matches', async () => {
     const result = await run([plan({ brokerCustomerIds: ['c-broker'] })], {
-      brokerCustomerId: 'c-broker',
+      brokerId: 'c-broker',
     });
     expect(result?.i1?.value).toBe(DISCOUNT);
   });
 
   it('applies a company-constrained broker plan whose brokerCompanyId matches', async () => {
     const result = await run([plan({ brokerCompanyIds: ['co-broker'] })], {
-      brokerCompanyId: 'co-broker',
+      brokerType: 'company',
+      brokerId: 'co-broker',
     });
     expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+});
+
+describe('getMainConditions — location scope', () => {
+  it('matches selected pipeline or plans with no pipeline', () => {
+    const conditions = getMainConditions({ pipelineId: 'pipeline-1' });
+
+    expect(conditions.$and).toContainEqual({
+      $or: [{ pipelineId: 'pipeline-1' }, { pipelineId: { $in: [null, ''] } }],
+    });
+  });
+
+  it('matches selected branch or plans with no branch', () => {
+    const conditions = getMainConditions({ branchId: 'branch-1' });
+
+    expect(conditions.$and).toContainEqual({
+      $or: [{ branchIds: { $in: ['branch-1'] } }, { branchIds: { $size: 0 } }],
+    });
+  });
+
+  it('only matches no-branch plans when no branch param is supplied', () => {
+    const conditions = getMainConditions({});
+
+    expect(conditions.$and).toContainEqual({ branchIds: { $size: 0 } });
   });
 });

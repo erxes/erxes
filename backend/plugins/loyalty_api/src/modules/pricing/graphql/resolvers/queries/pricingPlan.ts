@@ -242,12 +242,10 @@ export const pricingPlanQueries = {
       departmentId: string;
       branchId: string;
       pipelineId: string;
+      customerType?: 'customer' | 'company' | 'user';
       customerId?: string;
-      companyId?: string;
-      userId?: string;
-      brokerCustomerId?: string;
-      brokerCompanyId?: string;
-      brokerUserId?: string;
+      brokerType?: 'customer' | 'company' | 'user';
+      brokerId?: string;
       products: Array<{
         itemId: string;
         productId: string;
@@ -265,12 +263,10 @@ export const pricingPlanQueries = {
       branchId,
       products,
       pipelineId,
+      customerType,
       customerId,
-      companyId,
-      userId,
-      brokerCustomerId,
-      brokerCompanyId,
-      brokerUserId,
+      brokerType,
+      brokerId,
     } = params;
 
     return checkPricing({
@@ -282,12 +278,10 @@ export const pricingPlanQueries = {
       branchId,
       pipelineId,
       orderItems: products || [],
+      customerType,
       customerId,
-      companyId,
-      userId,
-      brokerCustomerId,
-      brokerCompanyId,
-      brokerUserId,
+      brokerType,
+      brokerId,
     });
   },
 };

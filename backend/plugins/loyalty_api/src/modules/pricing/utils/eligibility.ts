@@ -3,11 +3,17 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export interface IPricingContext {
   customerId?: string;
+  customerIds?: string[];
   companyId?: string;
+  companyIds?: string[];
   userId?: string;
+  userIds?: string[];
   brokerCustomerId?: string;
+  brokerCustomerIds?: string[];
   brokerCompanyId?: string;
+  brokerCompanyIds?: string[];
   brokerUserId?: string;
+  brokerUserIds?: string[];
 }
 
 /** Targetable entity kinds. Drives which core tRPC supplies tags/positions. */
@@ -33,6 +39,12 @@ const hasAny = (list?: string[]): boolean => !!list && list.length > 0;
 /** Do two id lists overlap? */
 const intersects = (a: string[], b: string[]): boolean =>
   a.some((id) => b.includes(id));
+
+const compactIds = (ids: Array<string | undefined>): string[] =>
+  ids.filter((id): id is string => !!id);
+
+const mergeIds = (singular?: string, multiple?: string[]): string[] =>
+  compactIds([singular, ...(multiple || [])]);
 
 /**
  * Is a single entity a member of a segment? Wraps the core `segment.isInSegment`
@@ -117,11 +129,11 @@ interface DimensionRules {
 }
 
 /**
- * Evaluate one targeting dimension against a single entity.
+ * Evaluate one targeting dimension against one or more entities.
  *
  * Rules:
  *  - no rules at all                      → unconstrained, always passes
- *  - constrained but no entityId supplied → fails closed (cannot prove match)
+ *  - constrained but no entity ids supplied → fails closed (cannot prove match)
  *  - excludeTags match                    → disqualifies (exclusion wins)
  *  - only exclusion set                   → "everyone except", passes otherwise
  *  - else must match an include id OR tag OR position OR any listed segment
@@ -129,7 +141,7 @@ interface DimensionRules {
 const matchesDimension = async (
   subdomain: string,
   kind: EntityKind,
-  entityId: string | undefined,
+  entityIds: string[],
   rules: DimensionRules,
   cache?: EligibilityCache,
 ): Promise<boolean> => {
@@ -150,18 +162,25 @@ const matchesDimension = async (
     return true;
   }
 
-  if (!entityId) {
+  if (entityIds.length === 0) {
     return false;
   }
 
   // Lazily load the entity's tags/positions only when a rule needs them.
   const needsFacts = hasAny(tags) || hasAny(excludeTags) || hasAny(positions);
-  const facts = needsFacts
-    ? await getEntityFacts(subdomain, kind, entityId, cache)
-    : { tagIds: [], positionIds: [] };
+  const factsList = needsFacts
+    ? await Promise.all(
+        entityIds.map((entityId) =>
+          getEntityFacts(subdomain, kind, entityId, cache),
+        ),
+      )
+    : [];
 
   // Exclusion wins.
-  if (hasAny(excludeTags) && intersects(facts.tagIds, excludeTags)) {
+  if (
+    hasAny(excludeTags) &&
+    factsList.some((facts) => intersects(facts.tagIds, excludeTags))
+  ) {
     return false;
   }
 
@@ -172,21 +191,29 @@ const matchesDimension = async (
     return true;
   }
 
-  if (ids.includes(entityId)) {
+  if (intersects(ids, entityIds)) {
     return true;
   }
 
-  if (hasAny(tags) && intersects(facts.tagIds, tags)) {
+  if (
+    hasAny(tags) &&
+    factsList.some((facts) => intersects(facts.tagIds, tags))
+  ) {
     return true;
   }
 
-  if (hasAny(positions) && intersects(facts.positionIds, positions)) {
+  if (
+    hasAny(positions) &&
+    factsList.some((facts) => intersects(facts.positionIds, positions))
+  ) {
     return true;
   }
 
   for (const segmentId of segmentIds) {
-    if (await isInSegment(subdomain, segmentId, entityId, cache)) {
-      return true;
+    for (const entityId of entityIds) {
+      if (await isInSegment(subdomain, segmentId, entityId, cache)) {
+        return true;
+      }
     }
   }
 
@@ -195,7 +222,7 @@ const matchesDimension = async (
 
 interface ResolvedDimension {
   kind: EntityKind;
-  entityId?: string;
+  entityIds: string[];
   rules: DimensionRules;
 }
 
@@ -205,7 +232,7 @@ const customerDimensions = (
 ): ResolvedDimension[] => [
   {
     kind: 'customer',
-    entityId: context.customerId,
+    entityIds: mergeIds(context.customerId, context.customerIds),
     rules: {
       ids: plan.customerIds,
       tags: plan.customerTags,
@@ -215,7 +242,7 @@ const customerDimensions = (
   },
   {
     kind: 'company',
-    entityId: context.companyId,
+    entityIds: mergeIds(context.companyId, context.companyIds),
     rules: {
       ids: plan.companyIds,
       tags: plan.companyTags,
@@ -225,7 +252,7 @@ const customerDimensions = (
   },
   {
     kind: 'user',
-    entityId: context.userId,
+    entityIds: mergeIds(context.userId, context.userIds),
     rules: {
       ids: plan.userIds,
       positions: plan.userPositions,
@@ -240,7 +267,7 @@ const brokerDimensions = (
 ): ResolvedDimension[] => [
   {
     kind: 'customer',
-    entityId: context.brokerCustomerId,
+    entityIds: mergeIds(context.brokerCustomerId, context.brokerCustomerIds),
     rules: {
       ids: plan.brokerCustomerIds,
       tags: plan.brokerCustomerTags,
@@ -250,7 +277,7 @@ const brokerDimensions = (
   },
   {
     kind: 'company',
-    entityId: context.brokerCompanyId,
+    entityIds: mergeIds(context.brokerCompanyId, context.brokerCompanyIds),
     rules: {
       ids: plan.brokerCompanyIds,
       tags: plan.brokerCompanyTags,
@@ -260,7 +287,7 @@ const brokerDimensions = (
   },
   {
     kind: 'user',
-    entityId: context.brokerUserId,
+    entityIds: mergeIds(context.brokerUserId, context.brokerUserIds),
     rules: {
       ids: plan.brokerUserIds,
       positions: plan.brokerUserPositions,
@@ -278,7 +305,7 @@ const matchesDimensions = async (
     const ok = await matchesDimension(
       subdomain,
       dimension.kind,
-      dimension.entityId,
+      dimension.entityIds,
       dimension.rules,
       cache,
     );

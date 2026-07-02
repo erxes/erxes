@@ -364,12 +364,10 @@ const checkDiscountParams = `
   departmentId: String
   branchId: String
   pipelineId: String
+  customerType: String
   customerId: String
-  companyId: String
-  userId: String
-  brokerCustomerId: String
-  brokerCompanyId: String
-  brokerUserId: String
+  brokerType: String
+  brokerId: String
   products: [PricingCheckProduct]
 `;
 

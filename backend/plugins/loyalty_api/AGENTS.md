@@ -79,9 +79,14 @@ as before — this is fully backwards-compatible. There are intentionally **no
 `is…Enabled` flags** (we follow the existing `segments`/`vendors`/`tags`
 convention, not the rule-engine convention).
 
+Location fields follow the same convention: a plan with `pipelineId` applies
+only to that pipeline, while an empty `pipelineId` applies to every pipeline. A
+plan with `branchIds` applies only to those branches, while an empty `branchIds`
+array applies to every branch.
+
 ### Eligibility semantics (`utils/eligibility.ts`)
 
-`planMatchesContext(subdomain, plan, { customerId, companyId, userId, brokerCustomerId, brokerCompanyId, brokerUserId }, cache?)`
+`planMatchesContext(subdomain, plan, { customerId, customerIds, companyId, companyIds, userId, userIds, brokerCustomerId, brokerCustomerIds, brokerCompanyId, brokerCompanyIds, brokerUserId, brokerUserIds }, cache?)`
 → `boolean`. The buyer dimensions evaluate `customerId` + `customer*`,
 `companyId` + `company*`, and `userId` + `user*` independently. Broker
 dimensions evaluate `brokerCustomerId` + `brokerCustomer*`, `brokerCompanyId` +
@@ -112,12 +117,18 @@ plans referencing the same segment/entity fan out at most one tRPC call each.
 
 ### Wiring the gate into `checkPricing` (the remaining step)
 
-`checkPricing` accepts optional `customerId` / `companyId` / `userId` /
-`brokerCustomerId` / `brokerCompanyId` / `brokerUserId`, then inside the plan
-loop, before processing items:
+`checkPricing` accepts typed participant input
+(`customerType + customerId`, `brokerType + brokerId`) and normalizes that into
+dimension-specific ids before the eligibility gate:
 
 ```ts
 const cache = new Map<string, unknown>(); // once per checkPricing call
+const customerContext = typedParticipantContext({ type: customerType, id: customerId });
+const brokerContext = typedParticipantContext({
+  type: brokerType,
+  id: brokerId,
+  prefix: 'broker',
+});
 // ...
 for (const plan of plans) {
   if (
@@ -125,12 +136,8 @@ for (const plan of plans) {
       subdomain,
       plan,
       {
-        customerId,
-        companyId,
-        userId,
-        brokerCustomerId,
-        brokerCompanyId,
-        brokerUserId,
+        ...customerContext,
+        ...brokerContext,
       },
       cache,
     ))
@@ -141,29 +148,23 @@ for (const plan of plans) {
 }
 ```
 
-The contract (tRPC `checkPricingInput`, GraphQL `checkDiscountParams`, and the
-`PricingPlanAddInput`/`EditInput` for the new fields) also carries
-`customerId`/`companyId`/`userId`/`brokerCustomerId`/`brokerCompanyId`/
-`brokerUserId`, and callers pass the values they can derive:
-
-- **sales_api** `…/mutations/loyaltyUtils.ts` — `customerId` + `companyId`
-  (deal relations via `getCustomerIds` / `getCompanyIds`), `userId =
-deal.userId`, and `brokerUserId = deal.assignedUserIds?.[0]`.
-- **posclient_api** `…/utils/pricing.ts` — `customerId = doc.customerId` only
-  (the POS order input has no company or cashier/broker field, so company- and
-  broker-targeted plans do not apply at point of sale — by design, not a gap).
-- **mongolian_api** `…/handlers/handlePricing.ts` — from the deal.
+The tRPC contract accepts typed participant input:
+`customerType + customerId` and `brokerType + brokerId`, where type is
+`customer | company | user`. For example, `customerType: 'company'` means the
+`customerId` value is a company id, and `customerType: 'user'` means it is a
+user id. Loyalty normalizes that single id into the internal dimension-specific
+arrays. GraphQL `checkDiscountParams` carries the same typed participant input.
 
 ### Implementation status
 
-| Piece                                                                                             | Status                                                                                                                                                                                                                                        |
-| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `IPricingPlan` + Mongoose schema fields                                                           | ✅ landed (additive)                                                                                                                                                                                                                          |
-| `utils/eligibility.ts` + unit tests                                                               | ✅ landed, green                                                                                                                                                                                                                              |
-| `checkPricing` gate wiring                                                                        | ✅ landed                                                                                                                                                                                                                                     |
-| tRPC `checkPricingInput` + GraphQL inputs / `PricingPlan` type / `checkDiscountParams` + resolver | ✅ landed                                                                                                                                                                                                                                     |
-| Caller threading                                                                                  | ✅ sales_api (customer + company + broker); ✅ posclient_api (customer only — POS order input has no company/cashier/broker field); ⏳ mongolian_api follow-up (its call uses `pluginName:'pricing'` and the deal exposes no direct customer) |
-| Frontend form (`loyalty_ui`)                                                                      | ✅ Participants tab — simultaneous buyer (customer/company/user) + broker (customer/company/user) conditions                                                                                                                                  |
+| Piece                                                                                             | Status                                                                                                                              |
+| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `IPricingPlan` + Mongoose schema fields                                                           | ✅ landed (additive)                                                                                                                |
+| `utils/eligibility.ts` + unit tests                                                               | ✅ landed, green                                                                                                                    |
+| `checkPricing` gate wiring                                                                        | ✅ landed                                                                                                                           |
+| tRPC `checkPricingInput` + GraphQL inputs / `PricingPlan` type / `checkDiscountParams` + resolver | ✅ landed                                                                                                                           |
+| Caller threading                                                                                  | ✅ typed participant input is normalized inside `checkPricing`; callers provide `customerType/customerId` and `brokerType/brokerId` |
+| Frontend form (`loyalty_ui`)                                                                      | ✅ Participants tab — simultaneous buyer (customer/company/user) + broker (customer/company/user) conditions                        |
 
 > Cleanup done while wiring: removed stray `console.log` debug lines from
 > `utils/index.ts`, `graphql/resolvers/queries/pricingPlan.ts`, and the sales
