@@ -197,3 +197,45 @@ export const productCategories = gql`
     }
   }
 `;
+
+export const GET_PRODUCTS_BY_IDS = gql`
+  query AssignedProducts($ids: [String], $categoryIds: [String], $limit: Int) {
+    productsMain(ids: $ids, categoryIds: $categoryIds, limit: $limit) {
+      list {
+        _id
+        name
+        uom
+        unitPrice
+        code
+      }
+    }
+  }
+`;
+
+export const PRICING_FIXED_VALUES_PAGE = gql`
+  query PricingFixedValuesPage(
+    $pricingPlanId: String!
+    $page: Int
+    $perPage: Int
+    $search: String
+  ) {
+    pricingFixedValuesPage(
+      pricingPlanId: $pricingPlanId
+      page: $page
+      perPage: $perPage
+      search: $search
+    ) {
+      totalCount
+      list {
+        _id
+        productId
+        productName
+        sortField
+        uom
+        unitPrice
+        newPrice
+        status
+      }
+    }
+  }
+`;

@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { IPriceRule} from './priceRule';
+import { IPriceRule } from './priceRule';
 import { IQuantityRule } from './quantityRule';
 import { IExpiryRule } from './expiryRule';
 import { IRepeatRule } from './repeatRule';
