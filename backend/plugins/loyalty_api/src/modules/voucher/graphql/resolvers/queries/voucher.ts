@@ -173,20 +173,22 @@ export const voucherQueries = {
           count: voucherData.voucherIds.length,
           voucherIds: voucherData.voucherIds,
           vouchers: voucherData.voucherIds.flatMap((id) => {
-              const voucher = ownerVouchers.find(
-                (ownerVoucher) => ownerVoucher._id.toString() === id,
-              );
+            const voucher = ownerVouchers.find(
+              (ownerVoucher) => ownerVoucher._id.toString() === id,
+            );
 
-              if (!voucher) return [];
+            if (!voucher) return [];
 
-              return [{
+            return [
+              {
                 _id: voucher._id,
                 status: voucher.status,
                 ownerId: voucher.ownerId,
                 ownerType: voucher.ownerType,
                 createdAt: voucher.createdAt,
-              }];
-            }),
+              },
+            ];
+          }),
         });
       }
     }
@@ -281,20 +283,22 @@ export const voucherQueries = {
           count: voucherData.voucherIds.length,
           voucherIds: voucherData.voucherIds,
           vouchers: voucherData.voucherIds.flatMap((id) => {
-              const voucher = ownerVouchers.find(
-                (ownerVoucher) => ownerVoucher._id.toString() === id,
-              );
+            const voucher = ownerVouchers.find(
+              (ownerVoucher) => ownerVoucher._id.toString() === id,
+            );
 
-              if (!voucher) return [];
+            if (!voucher) return [];
 
-              return [{
+            return [
+              {
                 _id: voucher._id,
                 status: voucher.status,
                 ownerId: voucher.ownerId,
                 ownerType: voucher.ownerType,
                 createdAt: voucher.createdAt,
-              }];
-            }),
+              },
+            ];
+          }),
         });
       }
     }
