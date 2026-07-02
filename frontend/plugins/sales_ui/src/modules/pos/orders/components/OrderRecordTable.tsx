@@ -8,6 +8,7 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
+import { OrderCommandBar } from './OrderCommandBar';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('sales');
@@ -71,6 +72,7 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
             </div>
           </div>
         )}
+        <OrderCommandBar />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

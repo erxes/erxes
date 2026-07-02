@@ -35,6 +35,7 @@ const PosItemHeaderCell = ({
 
 export const PosItemColumns: ColumnDef<IPosItem>[] = [
   PosItemMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<IPosItem>,
   {
     id: 'number',
     accessorKey: 'number',

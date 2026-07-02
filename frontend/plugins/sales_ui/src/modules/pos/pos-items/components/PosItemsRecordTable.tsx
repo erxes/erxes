@@ -3,6 +3,7 @@ import { PosItemColumns } from './PosItemColumns';
 import { usePosItemsList } from '@/pos/pos-items/hooks/UsePosItemsList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { PosItemsCommandBar } from './PosItemsCommandBar';
 
 export const PosItemsRecordTable = ({ posId }: { posId?: string }) => {
   const { t } = useTranslation('sales');
@@ -55,6 +56,7 @@ export const PosItemsRecordTable = ({ posId }: { posId?: string }) => {
             </div>
           </div>
         )}
+        <PosItemsCommandBar />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

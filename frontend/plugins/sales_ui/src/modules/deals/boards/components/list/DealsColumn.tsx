@@ -21,7 +21,7 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 import { useTranslation } from 'react-i18next';
 
-export const DealsColumn = (): ColumnDef<IDeal>[] => {
+export const useDealsColumns = (): ColumnDef<IDeal>[] => {
   const { moveDealStage } = useMoveDealStage();
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
   const { t } = useTranslation('sales');

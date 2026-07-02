@@ -31,6 +31,13 @@ export const paginate = (
   return collection.limit(_limit).skip((_page - 1) * _limit);
 };
 
+const getSelectedIds = (params: any): string[] =>
+  Array.isArray(params?.ids) ? params.ids.filter(Boolean) : [];
+
+const buildSelectedOrderItemsQuery = (selectedIds: string[]) => ({
+  $or: [{ _id: { $in: selectedIds } }, { 'items._id': { $in: selectedIds } }],
+});
+
 const generateFilterPosQuery = async (models, params, currentUserId) => {
   const query: any = {};
   const {
@@ -51,10 +58,31 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
     hasPaidDate,
     brandId,
     dealId,
+    ids,
   } = params;
 
   if (dealId) {
     query.convertDealId = dealId;
+  }
+
+  if (Array.isArray(ids) && ids.length > 0) {
+    const selectedIds = getSelectedIds({ ids });
+
+    if (selectedIds.length > 0) {
+      const selectedItemsQuery = buildSelectedOrderItemsQuery(selectedIds);
+
+      if (query.$or) {
+        const existingOr = query.$or;
+        delete query.$or;
+        query.$and = [
+          ...(query.$and || []),
+          { $or: existingOr },
+          selectedItemsQuery,
+        ];
+      } else {
+        query.$and = [...(query.$and || []), selectedItemsQuery];
+      }
+    }
   }
 
   if (search) {
@@ -82,7 +110,7 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
 
   if (posId) {
     const pos = await models.Pos.findOne({ _id: posId }).lean();
-    query.posToken = pos.token;
+    query.posToken = pos?.token || '';
   }
 
   if (brandId) {
@@ -94,7 +122,7 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
 
   if (posToken) {
     const pos = await models.Pos.findOne({ token: posToken }).lean();
-    query.posToken = pos.token;
+    query.posToken = pos?.token || posToken;
   }
 
   if (userId) {
@@ -190,12 +218,16 @@ export const posOrderRecordsQuery = async (
   user?,
 ) => {
   const query = await generateFilterPosQuery(models, params, user?._id);
+  const selectedIds = getSelectedIds(params);
 
   const { perPage = 20, page = 1 } = params;
 
   const orders = await models.PosOrders.aggregate([
     { $match: query },
     { $unwind: '$items' },
+    ...(selectedIds.length > 0
+      ? [{ $match: buildSelectedOrderItemsQuery(selectedIds) }]
+      : []),
     { $sort: { createdAt: -1 } },
     { $skip: perPage * (page - 1) },
     { $limit: perPage },
@@ -411,10 +443,14 @@ export const posOrderRecordsCountQuery = async (
   user?,
 ) => {
   const query = await generateFilterPosQuery(models, params, user?._id);
+  const selectedIds = getSelectedIds(params);
 
   const orders = await models.PosOrders.aggregate([
     { $match: query },
     { $unwind: '$items' },
+    ...(selectedIds.length > 0
+      ? [{ $match: buildSelectedOrderItemsQuery(selectedIds) }]
+      : []),
     { $project: { 'items._id': 1 } },
   ]);
 
