@@ -1,5 +1,12 @@
 
 
+## [3.0.51](https://github.com/erxes/erxes/compare/3.0.50...3.0.51) (2026-07-02)
+
+
+### Bug Fixes
+
+* **payment:** correct widget routing and invoice URL generation ([#8528](https://github.com/erxes/erxes/issues/8528)) ([7d9de56](https://github.com/erxes/erxes/commit/7d9de5611e134456e4a0ef0cb6851c082e735d3b))
+
 ## [3.0.50](https://github.com/erxes/erxes/compare/3.0.49...3.0.50) (2026-07-02)
 
 
