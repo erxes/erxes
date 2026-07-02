@@ -217,8 +217,7 @@ export function AddCustomerForm({
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        First Name{' '}
-                        <span className="text-destructive">*</span>
+                        First Name <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <Input {...field} />
@@ -442,9 +441,7 @@ export function AddCustomerForm({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {state === 'lead'
-                ? 'Create Lead'
-                : 'Create Customer'}
+              {state === 'lead' ? 'Create Lead' : 'Create Customer'}
             </Button>
           </div>
         </form>
