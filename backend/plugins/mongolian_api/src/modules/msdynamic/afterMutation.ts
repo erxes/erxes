@@ -1,10 +1,6 @@
 import { generateModels } from '~/connectionResolvers';
 import { customerToDynamic } from './utilsCustomer';
-import {
-  dealToDynamic,
-  getConfig,
-  orderToDynamic,
-} from './utils';
+import { dealToDynamic, getConfig, orderToDynamic } from './utils';
 
 const allowTypes: Record<string, string[]> = {
   'core:customer': ['create'],
@@ -80,13 +76,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
 
         syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
 
-        await dealToDynamic(
-          subdomain,
-          models,
-          syncLog,
-          deal,
-          foundConfig,
-        );
+        await dealToDynamic(subdomain, models, syncLog, deal, foundConfig);
 
         break;
       }
@@ -100,13 +90,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         const config = configsMap[brandId || 'noBrand'];
 
         if (config && !config.useBoard) {
-          await orderToDynamic(
-            subdomain,
-            models,
-            syncLog,
-            updatedDoc,
-            config,
-          );
+          await orderToDynamic(subdomain, models, syncLog, updatedDoc, config);
         }
         break;
       }
