@@ -106,7 +106,7 @@ export const getSharedRowColumns = <T,>(
 
 /** shared more actions cell with edit/delete popover. */
 export const MoreActionsCell = <T,>({
-  cell,
+  cell: _cell,
   onEdit,
   onDelete,
 }: {

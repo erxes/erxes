@@ -2,10 +2,8 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  getAccountingCheckSyncedDealsColumns,
-  isSyncableAccountingDeal,
-} from './AccountingCheckSyncedDealsColumns';
+import { getAccountingCheckSyncedDealsColumns } from './AccountingCheckSyncedDealsColumns';
+import { isSyncable } from '../../constants/shared';
 import {
   ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
   useAccountingCheckSyncedDeals,
@@ -33,7 +31,7 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const syncableDealIds = useMemo(
     () =>
-      (deals || []).filter(isSyncableAccountingDeal).map((deal) => deal._id),
+      (deals || []).filter(isSyncable).map((deal) => deal._id),
     [deals],
   );
   const columns = useMemo(

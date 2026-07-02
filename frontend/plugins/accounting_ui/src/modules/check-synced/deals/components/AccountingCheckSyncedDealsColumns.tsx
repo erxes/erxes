@@ -14,7 +14,7 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { AccountingCheckSyncedDeal } from '../types';
-import { getSyncStatus } from '../../constants/shared';
+import { isSyncable } from '../../constants/shared';
 import { HeaderCell } from '../../constants/HeaderCell';
 
 type AccountingCheckSyncedDealsColumnsOptions = {
@@ -24,9 +24,7 @@ type AccountingCheckSyncedDealsColumnsOptions = {
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
 };
 
-export const isSyncableAccountingDeal = (deal: AccountingCheckSyncedDeal) =>
-  getSyncStatus(deal) !== 'skipped';
-
+/** stringify amount field for display. */
 const stringifyAmount = (amount: unknown) => {
   if (!amount) {
     return '';
@@ -39,6 +37,7 @@ const stringifyAmount = (amount: unknown) => {
   return JSON.stringify(amount);
 };
 
+/** build the deals table columns for check-synced screen. */
 export const getAccountingCheckSyncedDealsColumns = ({
   toSyncDealIds,
   syncableDealIds,
@@ -127,7 +126,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
     size: 33,
     cell: ({ row }) => {
       const deal = row.original;
-      const disabled = !isSyncableAccountingDeal(deal);
+      const disabled = !isSyncable(deal);
 
       return (
         <div className="flex items-center justify-center">

@@ -12,6 +12,7 @@ import {
   moreColumn,
 } from '../../components/SettingsRowsTable';
 
+/** more column actions cell for ctax rows. */
 export const CtaxMoreColumnCell = ({
   cell,
 }: {
@@ -55,6 +56,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = getSharedRowColumns(
   ctaxRowMoreColumn as ColumnDef<ICtaxRow>,
 );
 
+/** ctax rows table with record table. */
 export const CtaxRowsTable = () => {
   const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
 

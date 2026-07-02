@@ -6,7 +6,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { atom, useAtom, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_MUTATION,
   ACCOUNTING_CHECK_SYNCED_ORDERS_QUERY,
@@ -19,7 +19,13 @@ import {
   AccountingOrdersQueryResult,
   AccountingSyncResult,
 } from '../types';
-import { CheckOptions, getSyncStatus, chunkIds } from '../../constants/shared';
+import {
+  CheckOptions,
+  getSyncStatus,
+  chunkIds,
+  useSyncToggle,
+  useSyncSelectedIds,
+} from '../../constants/shared';
 import {
   AccountingCheckSyncedOrdersStatusCounts,
   accountingCheckSyncedOrdersStatusCountsAtom,
@@ -117,51 +123,10 @@ export const useAccountingCheckSyncedOrders = (
   );
   const totalCount = data?.posOrdersTotalCount || 0;
 
-  const syncSelectedOrderIds = useMemo(
-    () =>
-      Object.entries(toSyncOrderIds)
-        .filter(([, selected]) => selected)
-        .map(([id]) => id),
-    [toSyncOrderIds],
-  );
+  const { setToSync: setOrderToSync, setAllToSync: setAllOrdersToSync } =
+    useSyncToggle(setToSyncOrderIds);
 
-  const setOrderToSync = useCallback(
-    (id: string, checked: boolean) => {
-      setToSyncOrderIds((current) => {
-        if (checked) {
-          return { ...current, [id]: true };
-        }
-
-        const { [id]: _, ...next } = current;
-        return next;
-      });
-    },
-    [setToSyncOrderIds],
-  );
-
-  const setAllOrdersToSync = useCallback(
-    (ids: string[], checked: boolean) => {
-      setToSyncOrderIds((current) => {
-        const removeSet = new Set(checked ? [] : ids);
-        const next: Record<string, boolean> = {};
-
-        for (const [key, value] of Object.entries(current)) {
-          if (!removeSet.has(key)) {
-            next[key] = value;
-          }
-        }
-
-        if (checked) {
-          for (const id of ids) {
-            next[id] = true;
-          }
-        }
-
-        return next;
-      });
-    },
-    [setToSyncOrderIds],
-  );
+  const syncSelectedOrderIds = useSyncSelectedIds(toSyncOrderIds);
 
   /** songogdson orders sync status shalgah */
   const checkOrders = async (ids: string[], checkOptions?: CheckOptions) => {

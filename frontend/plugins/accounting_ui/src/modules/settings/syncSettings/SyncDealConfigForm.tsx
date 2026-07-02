@@ -14,7 +14,7 @@ import {
   SyncConfigVatCtaxSection,
   SyncConfigFormFooter,
   usePipelineReset,
-  normalizeRuleIds,
+  normalizeSyncConfigData,
   TPaymentType,
 } from './SyncConfigFormSections';
 import { SyncSettingSection } from './SyncSettingSection';
@@ -94,19 +94,7 @@ export const SyncDealConfigForm = ({
 
   /** form submission handle hiih normalisation */
   const handleSubmit = (data: ConfigFormValues) =>
-    onSubmit({
-      ...data,
-      vatRowId: data.hasVat ? data.vatRowId : '',
-      reverseVatRules:
-        mongolianEnabled && !data.hasVat
-          ? normalizeRuleIds(data.reverseVatRules)
-          : [],
-      ctaxRowId: data.hasCtax ? data.ctaxRowId : '',
-      reverseCtaxRules:
-        !mongolianEnabled || data.hasCtax
-          ? []
-          : normalizeRuleIds(data.reverseCtaxRules),
-    });
+    onSubmit(normalizeSyncConfigData(data, mongolianEnabled));
 
   return (
     <Form {...form}>

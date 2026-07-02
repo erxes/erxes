@@ -13,7 +13,7 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { AccountingCheckSyncedOrder } from '../types';
-import { getSyncStatus } from '../../constants/shared';
+import { isSyncable } from '../../constants/shared';
 import { HeaderCell } from '../../constants/HeaderCell';
 
 type AccountingCheckSyncedOrdersColumnsOptions = {
@@ -23,9 +23,7 @@ type AccountingCheckSyncedOrdersColumnsOptions = {
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
 };
 
-export const isSyncableAccountingOrder = (order: AccountingCheckSyncedOrder) =>
-  getSyncStatus(order) !== 'skipped';
-
+/** build the orders table columns for check-synced screen. */
 export const getAccountingCheckSyncedOrdersColumns = ({
   toSyncOrderIds,
   syncableOrderIds,
@@ -105,7 +103,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     size: 33,
     cell: ({ row }) => {
       const order = row.original;
-      const disabled = !isSyncableAccountingOrder(order);
+      const disabled = !isSyncable(order);
 
       return (
         <div className="flex items-center justify-center">

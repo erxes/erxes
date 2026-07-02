@@ -14,6 +14,7 @@ import {
   moreColumn,
 } from '../../components/SettingsRowsTable';
 
+/** more column actions cell for vat rows. */
 export const VatRowMoreColumnCell = ({
   cell,
 }: {

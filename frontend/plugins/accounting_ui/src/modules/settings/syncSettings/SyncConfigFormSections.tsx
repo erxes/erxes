@@ -68,6 +68,33 @@ export const normalizeRuleIds = (value?: string | string[]) => {
   return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
 };
 
+/** normalize VAT/CTax fields before submit. */
+export const normalizeSyncConfigData = <
+  T extends {
+    hasVat?: boolean;
+    hasCtax?: boolean;
+    vatRowId?: string;
+    ctaxRowId?: string;
+    reverseVatRules?: string | string[];
+    reverseCtaxRules?: string | string[];
+  },
+>(
+  data: T,
+  mongolianEnabled: boolean,
+): T => ({
+  ...data,
+  vatRowId: data.hasVat ? data.vatRowId ?? '' : '',
+  reverseVatRules:
+    mongolianEnabled && !data.hasVat
+      ? normalizeRuleIds(data.reverseVatRules)
+      : [],
+  ctaxRowId: data.hasCtax ? data.ctaxRowId ?? '' : '',
+  reverseCtaxRules:
+    !mongolianEnabled || data.hasCtax
+      ? []
+      : normalizeRuleIds(data.reverseCtaxRules),
+});
+
 /** sync config form iin payment account field */
 export const SyncConfigPaymentAccountField = ({
   name,
@@ -442,102 +469,110 @@ export const SyncConfigPaymentsSection = ({
   );
 };
 
-/** VAT/CTax toggle selection section bn */
-export const SyncConfigVatCtaxSection = () => {
+type VatCtaxSelectProps = {
+  value: string;
+  onValueChange: (value: string) => void;
+};
+
+/** single VAT or CTAX toggle + conditional select/rule section. */
+const VatCtaxItem = ({
+  hasName,
+  rowIdName,
+  hasLabel,
+  rowLabel,
+  reverseLabel,
+  selectComponent,
+  kind,
+}: {
+  hasName: string;
+  rowIdName: string;
+  hasLabel: string;
+  rowLabel: string;
+  reverseLabel: string;
+  selectComponent: (props: VatCtaxSelectProps) => JSX.Element;
+  kind: 'vat' | 'ctax';
+}) => {
   const { t } = useTranslation('accounting');
   const { control } = useFormContext();
+  const hasValue = useWatch({ control, name: hasName });
 
   return (
-    <section className="col-span-full grid grid-cols-2 gap-8 mt-4 items-start">
-      <div className="flex flex-col gap-4">
-        <Form.Field
-          control={control}
-          name="hasVat"
-          render={({ field }) => (
-            <Form.Item className="flex items-center gap-2 space-y-0">
-              <Form.Control>
-                <Checkbox
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-              <Form.Label variant="peer">{t('has-vat')}</Form.Label>
-            </Form.Item>
-          )}
-        />
-        <div>
-          {useWatch({ control, name: 'hasVat' }) ? (
-            <Form.Field
-              control={control}
-              name="vatRowId"
-              render={({ field }) => (
+    <div className="flex flex-col gap-4">
+      <Form.Field
+        control={control}
+        name={hasName}
+        render={({ field }) => (
+          <Form.Item className="flex items-center gap-2 space-y-0">
+            <Form.Control>
+              <Checkbox
+                checked={field.value ?? false}
+                onCheckedChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Label variant="peer">{t(hasLabel)}</Form.Label>
+          </Form.Item>
+        )}
+      />
+      <div>
+        {hasValue ? (
+          <Form.Field
+            control={control}
+            name={rowIdName}
+            render={({ field }) => {
+              const SelectComponent = selectComponent;
+              return (
                 <Form.Item>
-                  <Form.Label>{t('vat-row')}</Form.Label>
+                  <Form.Label>{t(rowLabel)}</Form.Label>
                   <Form.Control>
-                    <SelectVat
+                    <SelectComponent
                       value={field.value || ''}
                       onValueChange={field.onChange}
                     />
                   </Form.Control>
                 </Form.Item>
-              )}
-            />
-          ) : (
-            <FormSelectEbarimtProductRule
-              name="reverseVatRules"
-              label={t('reverse-vat-rules')}
-              kind="vat"
-              control={control}
-            />
-          )}
-        </div>
+              );
+            }}
+          />
+        ) : (
+          <FormSelectEbarimtProductRule
+            name={`reverse${kind === 'vat' ? 'Vat' : 'Ctax'}Rules`}
+            label={t(reverseLabel)}
+            kind={kind}
+            control={control}
+          />
+        )}
       </div>
-      <div className="flex-col flex gap-4">
-        <Form.Field
-          control={control}
-          name="hasCtax"
-          render={({ field }) => (
-            <Form.Item className="flex items-center gap-2 space-y-0">
-              <Form.Control>
-                <Checkbox
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-              <Form.Label variant="peer">{t('has-ctax')}</Form.Label>
-            </Form.Item>
-          )}
-        />
-        <div>
-          {useWatch({ control, name: 'hasCtax' }) ? (
-            <Form.Field
-              control={control}
-              name="ctaxRowId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('ctax-row')}</Form.Label>
-                  <Form.Control>
-                    <SelectCtax
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          ) : (
-            <FormSelectEbarimtProductRule
-              name="reverseCtaxRules"
-              label={t('reverse-ctax-rules')}
-              kind="ctax"
-              control={control}
-            />
-          )}
-        </div>
-      </div>
-    </section>
+    </div>
   );
 };
+
+/** VAT/CTax toggle selection section bn */
+export const SyncConfigVatCtaxSection = () => (
+  <section className="col-span-full grid grid-cols-2 gap-8 mt-4 items-start">
+    <VatCtaxItem
+      hasName="hasVat"
+      rowIdName="vatRowId"
+      hasLabel="has-vat"
+      rowLabel="vat-row"
+      reverseLabel="reverse-vat-rules"
+      selectComponent={
+        SelectVat as unknown as (props: VatCtaxSelectProps) => JSX.Element
+      }
+      kind="vat"
+    />
+    <VatCtaxItem
+      hasName="hasCtax"
+      rowIdName="ctaxRowId"
+      hasLabel="has-ctax"
+      rowLabel="ctax-row"
+      reverseLabel="reverse-ctax-rules"
+      selectComponent={
+        SelectCtax as unknown as (props: VatCtaxSelectProps) => JSX.Element
+      }
+      kind="ctax"
+    />
+  </section>
+);
 
 /** sync config form iin footer cancel/save bn */
 export const SyncConfigFormFooter = ({ loading }: { loading: boolean }) => {

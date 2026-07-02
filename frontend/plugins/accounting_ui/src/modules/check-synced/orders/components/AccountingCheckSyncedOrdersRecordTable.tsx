@@ -2,10 +2,8 @@ import { RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  getAccountingCheckSyncedOrdersColumns,
-  isSyncableAccountingOrder,
-} from './AccountingCheckSyncedOrdersColumns';
+import { getAccountingCheckSyncedOrdersColumns } from './AccountingCheckSyncedOrdersColumns';
+import { isSyncable } from '../../constants/shared';
 import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_SESSION_KEY,
   useAccountingCheckSyncedOrders,
@@ -53,7 +51,7 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
   const syncableOrderIds = useMemo(
     () =>
       (orders || [])
-        .filter(isSyncableAccountingOrder)
+        .filter(isSyncable)
         .map((order) => order._id),
     [orders],
   );

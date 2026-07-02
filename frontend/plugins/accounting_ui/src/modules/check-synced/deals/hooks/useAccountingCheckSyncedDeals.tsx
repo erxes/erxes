@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { atom, useAtom, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   ACCOUNTING_CHECK_SYNCED_DEALS_QUERY,
   ACCOUNTING_CHECK_SYNCED_MUTATION,
@@ -24,7 +24,13 @@ import {
   AccountingDealsQueryResult,
   AccountingSyncResult,
 } from '../types';
-import { CheckOptions, getSyncStatus, chunkIds } from '../../constants/shared';
+import {
+  CheckOptions,
+  getSyncStatus,
+  chunkIds,
+  useSyncToggle,
+  useSyncSelectedIds,
+} from '../../constants/shared';
 import {
   AccountingCheckSyncedDealsStatusCounts,
   accountingCheckSyncedDealsStatusCountsAtom,
@@ -157,51 +163,10 @@ export const useAccountingCheckSyncedDeals = (
     [checkedDeals, rawDeals],
   );
 
-  const syncSelectedDealIds = useMemo(
-    () =>
-      Object.entries(toSyncDealIds)
-        .filter(([, selected]) => selected)
-        .map(([id]) => id),
-    [toSyncDealIds],
-  );
+  const { setToSync: setDealToSync, setAllToSync: setAllDealsToSync } =
+    useSyncToggle(setToSyncDealIds);
 
-  const setDealToSync = useCallback(
-    (id: string, checked: boolean) => {
-      setToSyncDealIds((current) => {
-        if (checked) {
-          return { ...current, [id]: true };
-        }
-
-        const { [id]: _, ...next } = current;
-        return next;
-      });
-    },
-    [setToSyncDealIds],
-  );
-
-  const setAllDealsToSync = useCallback(
-    (ids: string[], checked: boolean) => {
-      setToSyncDealIds((current) => {
-        const removeSet = new Set(checked ? [] : ids);
-        const next: Record<string, boolean> = {};
-
-        for (const [key, value] of Object.entries(current)) {
-          if (!removeSet.has(key)) {
-            next[key] = value;
-          }
-        }
-
-        if (checked) {
-          for (const id of ids) {
-            next[id] = true;
-          }
-        }
-
-        return next;
-      });
-    },
-    [setToSyncDealIds],
-  );
+  const syncSelectedDealIds = useSyncSelectedIds(toSyncDealIds);
 
   /** songogdson deals sync status shalgah */
   const checkDeals = async (ids: string[], checkOptions?: CheckOptions) => {
