@@ -104,7 +104,7 @@ export const SyncDealConfigForm = ({
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
           <SyncSettingSection title={t('general')}>
-            <SyncConfigGeneralFields />
+            <SyncConfigGeneralFields control={form.control} />
           </SyncSettingSection>
 
           <SyncConfigPipelineSection
@@ -113,12 +113,13 @@ export const SyncDealConfigForm = ({
             form={form}
           />
 
-          <SyncConfigAccountsSection />
+          <SyncConfigAccountsSection control={form.control} />
           <SyncConfigPaymentsSection
+            control={form.control}
             paymentTypes={paymentTypes}
             paymentKey={pipelineId || ''}
           />
-          <SyncConfigVatCtaxSection />
+          <SyncConfigVatCtaxSection control={form.control} />
         </div>
         <SyncConfigFormFooter loading={loading} />
       </form>

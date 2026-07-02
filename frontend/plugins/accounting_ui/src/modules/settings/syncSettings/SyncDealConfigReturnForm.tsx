@@ -59,8 +59,8 @@ export const SyncDealReturnConfigForm = ({
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
           <SyncSettingSection title={t('general')}>
-            <SyncConfigGeneralFields />
-            <SyncConfigReturnTypeField />
+            <SyncConfigGeneralFields control={form.control} />
+            <SyncConfigReturnTypeField control={form.control} />
           </SyncSettingSection>
 
           <SyncConfigPipelineSection
@@ -71,6 +71,7 @@ export const SyncDealReturnConfigForm = ({
 
           <SyncSettingSection title={t('Payments')}>
             <SyncConfigPaymentAccountField
+              control={form.control}
               name="defaultPayment.accountId"
               label={t('return-payment-account')}
             />
