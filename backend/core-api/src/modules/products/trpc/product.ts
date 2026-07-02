@@ -102,7 +102,7 @@ export const productsTrpcRouter = t.router({
         const { query, doc } = input;
         const { models } = ctx;
 
-        return models.Products.updateMany(query, doc);
+        return models.Products.updateProducts(query, doc);
       }),
 
     removeProducts: t.procedure

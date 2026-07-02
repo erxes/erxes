@@ -3,6 +3,7 @@ import { getEnv } from '../utils';
 import {
   saasAddonSchema,
   saasBundleSchema,
+  saasOrganizationPlanHistorySchema,
   endPointSchema,
   experiencesSchema,
   saasInstallationSchema,
@@ -11,7 +12,11 @@ import {
   saasPromoCodeSchema,
   saasUserSchema,
 } from './definition';
-import { IOrganization } from './types';
+import {
+  IOrganization,
+  ISaasBundle,
+  ISaasOrganizationPlanHistory,
+} from './types';
 import { redis } from '../redis';
 import { mongooseConnectionOptions } from '../mongo';
 
@@ -24,6 +29,7 @@ export let coreModelEndpoints: any;
 export let coreModelPromoCodes: any;
 export let coreModelPlugins: any;
 export let coreModelExperiences: any;
+export let coreModelOrganizationPlanHistories: mongoose.Model<ISaasOrganizationPlanHistory>;
 
 export const getSaasCoreConnection = async (): Promise<void> => {
   if (coreModelOrganizations) {
@@ -31,6 +37,17 @@ export const getSaasCoreConnection = async (): Promise<void> => {
   }
 
   const CORE_MONGO_URL = getEnv({ name: 'CORE_MONGO_URL' });
+
+  // Guard before handing the URL to mongoose: an empty/invalid CORE_MONGO_URL
+  // makes mongoose.createConnection throw AND emit an unhandled 'error' event
+  // that crashes the whole process, bypassing callers' try/catch. Failing fast
+  // here keeps the rejection catchable (e.g. SaaS limit checks fall back to the
+  // enterprise/unlimited path when SaaS core isn't configured locally).
+  if (!/^mongodb(\+srv)?:\/\//.test(CORE_MONGO_URL)) {
+    throw new Error(
+      'CORE_MONGO_URL is not configured (expected a mongodb:// connection string)',
+    );
+  }
 
   const coreConnection = await mongoose.createConnection(
     CORE_MONGO_URL,
@@ -56,6 +73,11 @@ export const getSaasCoreConnection = async (): Promise<void> => {
   coreModelAddons = coreConnection.model('addons', saasAddonSchema);
   coreModelBundles = coreConnection.model('bundles', saasBundleSchema);
   coreModelPlugins = coreConnection.model('plugins', saasPluginSchema);
+  coreModelOrganizationPlanHistories =
+    coreConnection.model<ISaasOrganizationPlanHistory>(
+      'organization_plan_histories',
+      saasOrganizationPlanHistorySchema as any,
+    );
 };
 
 export const ORGANIZATION_ID_MAPPING: { [key: string]: string } = {};
@@ -264,7 +286,9 @@ export const getSaasOrganizationDetail = async ({
   }
 
   if (organization?.bundleId) {
-    const bundle = await coreModelBundles.findOne({ _id: organization.bundleId });
+    const bundle = await coreModelBundles.findOne({
+      _id: organization.bundleId,
+    });
 
     if (bundle) {
       organization.bundle = {
@@ -282,6 +306,45 @@ export const getSaasOrganizationDetail = async ({
     charge,
     setupService,
   };
+};
+
+export const getSaasOrganizationPlanHistories = async ({
+  organizationId,
+  statuses = ['active'],
+}: {
+  organizationId: string;
+  statuses?: string[];
+}): Promise<ISaasOrganizationPlanHistory[]> => {
+  await getSaasCoreConnection();
+
+  const histories = await coreModelOrganizationPlanHistories
+    .find({
+      organizationId,
+      ...(statuses.length ? { status: { $in: statuses } } : {}),
+    })
+    .sort({ createdAt: -1 })
+    .lean<ISaasOrganizationPlanHistory[]>();
+
+  const bundleIds = Array.from(
+    new Set(histories.map((history) => history.bundleId).filter(Boolean)),
+  );
+
+  if (!bundleIds.length) {
+    return histories;
+  }
+
+  const bundles = await coreModelBundles
+    .find({ _id: { $in: bundleIds } })
+    .lean();
+
+  const bundleById = new Map<string, ISaasBundle>(
+    bundles.map((bundle: any) => [String(bundle._id), bundle as ISaasBundle]),
+  );
+
+  return histories.map((history) => ({
+    ...history,
+    bundle: history.bundleId ? bundleById.get(history.bundleId) : undefined,
+  }));
 };
 
 export const removeOrgsCache = (source: string) => {

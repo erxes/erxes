@@ -79,6 +79,34 @@ export interface IPricingPlanDetail {
   tags?: string[];
   tagsExcluded?: string[];
 
+  customerIds?: string[];
+  customerTags?: string[];
+  customerExcludeTags?: string[];
+  customerSegmentIds?: string[];
+
+  companyIds?: string[];
+  companyTags?: string[];
+  companyExcludeTags?: string[];
+  companySegmentIds?: string[];
+
+  userIds?: string[];
+  userPositions?: string[];
+  userSegmentIds?: string[];
+
+  brokerCustomerIds?: string[];
+  brokerCustomerTags?: string[];
+  brokerCustomerExcludeTags?: string[];
+  brokerCustomerSegmentIds?: string[];
+
+  brokerCompanyIds?: string[];
+  brokerCompanyTags?: string[];
+  brokerCompanyExcludeTags?: string[];
+  brokerCompanySegmentIds?: string[];
+
+  brokerUserIds?: string[];
+  brokerUserPositions?: string[];
+  brokerUserSegmentIds?: string[];
+
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;
   startDate?: string;

@@ -1,4 +1,5 @@
 export * from './automations';
+export * from './approval';
 export * from './brands';
 export * from './contacts';
 export * from './documents';
@@ -21,3 +22,4 @@ export * from './activity-logs';
 export * from './payments';
 export * from './sales';
 export * from './templates';
+export * from './shared';

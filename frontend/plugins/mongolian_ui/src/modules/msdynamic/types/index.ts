@@ -49,8 +49,14 @@ export const createEmptyMSDynamicConfig = (): IMSDynamicConfig => ({
   boardId: '',
   pipelineId: '',
   stageId: '',
-  custCode: '',
-  userLocationCode: '',
+  custCode: {
+    fieldId: '',
+    groupId: '',
+  },
+  userLocationCode: {
+    fieldId: '',
+    groupId: '',
+  },
 });
 
 export const normalizeMSDynamicConfig = (

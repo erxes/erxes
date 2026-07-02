@@ -166,19 +166,14 @@ const callsMutations = {
     if (listBridgedChannelsResponse?.response) {
       const channels = listBridgedChannelsResponse.response.channel;
       if (channels) {
-        const filteredChannels = channels.filter((ch) => {
-          if (direction === 'incoming') {
-            return ch.callerid2 === extension;
-          } else {
-            return ch.callerid1 === extension;
-          }
-        });
-        if (filteredChannels.length > 0) {
-          if (direction === 'incoming') {
-            channel = filteredChannels[0].channel2 || '';
-          } else {
-            channel = filteredChannels[0].channel1 || '';
-          }
+        const matched = channels.find(
+          (ch) => ch.callerid1 === extension || ch.callerid2 === extension,
+        );
+        if (matched) {
+          channel =
+            matched.callerid1 === extension
+              ? matched.channel1 || ''
+              : matched.channel2 || '';
         }
       }
     }
@@ -206,8 +201,9 @@ const callsMutations = {
       user,
     );
 
-    if (callTransferResponse?.response?.need_apply) {
-      return callTransferResponse?.response?.need_apply;
+    const status = callTransferResponse?.status ?? callTransferResponse?.response?.status;
+    if (status === 0 || callTransferResponse?.response?.need_apply) {
+      return 'success';
     }
 
     return 'failed';

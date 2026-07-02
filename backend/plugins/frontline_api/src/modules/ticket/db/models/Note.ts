@@ -53,6 +53,16 @@ export const loadNoteClass = (models: IModels) => {
       subdomain: string;
       userId: string;
     }): Promise<INoteDocument> {
+      if (doc.contentId && !doc.statusId) {
+        const ticket = await models.Ticket.findOne(
+          { _id: doc.contentId },
+          { statusId: 1 },
+        ).lean();
+        if (ticket?.statusId) {
+          doc.statusId = ticket.statusId;
+        }
+      }
+
       const note = await models.Note.create(doc);
 
       await models.Activity.createActivity({

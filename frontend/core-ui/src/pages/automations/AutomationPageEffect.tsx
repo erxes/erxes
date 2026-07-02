@@ -32,7 +32,7 @@ export const AutomationsPageEffect = () => {
         break;
       }
     }
-  }, [isMatchingLocation, setHotkeyScope]);
+  }, [activeTab, isMatchingLocation, setHotkeyScope]);
 
   return <></>;
 };

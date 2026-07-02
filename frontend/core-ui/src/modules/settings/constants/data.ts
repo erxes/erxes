@@ -17,6 +17,7 @@ import {
   IconNotification,
   IconPassword,
   IconShoppingCart,
+  IconShieldCheck,
   IconTag,
   IconUserCircle,
   IconUsersGroup,
@@ -202,6 +203,11 @@ export const SETTINGS_PATH_DATA = (
       name: 'Import & Export',
       icon: IconFileImport,
       path: SettingsWorkspacePath.ImportExport,
+    },
+    {
+      name: t('approval-requests', 'Approval Requests'),
+      icon: IconShieldCheck,
+      path: SettingsWorkspacePath.ApprovalRequests,
     },
   ],
 });

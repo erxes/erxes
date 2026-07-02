@@ -1,7 +1,15 @@
 import { IconBriefcase, IconReceipt, IconSandbox } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
-import { IUIConfig } from 'erxes-ui';
+import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+
+const DealStagePropertyInput = lazy(() =>
+  import('./modules/deals/components/deal-selects/DealStagePropertyInput').then(
+    (module) => ({
+      default: module.DealStagePropertyInput,
+    }),
+  ),
+);
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
@@ -78,5 +86,12 @@ export const CONFIG: IUIConfig = {
         icon: IconReceipt,
       },
     ],
+    propertyInputs: {
+      dealStage: (props: TPropertyInputProps) => (
+        <Suspense fallback={<div />}>
+          <DealStagePropertyInput {...props} />
+        </Suspense>
+      ),
+    },
   },
 };

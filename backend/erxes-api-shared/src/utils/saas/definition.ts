@@ -275,3 +275,36 @@ export const experiencesSchema = new mongoose.Schema({
   onboardingDescription: { type: String, label: 'Onboarding description' },
   features: { type: String, label: 'Features' },
 });
+
+export const saasOrganizationPlanHistorySchema = new mongoose.Schema(
+  {
+    organizationId: { type: String, index: true },
+    source: { type: String, index: true },
+    status: { type: String, index: true },
+
+    isNext: { type: Boolean },
+    productId: { type: String },
+    bundleId: { type: String },
+    interval: { type: String },
+    description: { type: String },
+
+    pluginsLimitsSnapshot: { type: mongoose.Schema.Types.Mixed },
+    assistantLimit: { type: Number },
+
+    stripeCheckoutSessionId: {
+      type: String,
+      index: true,
+      unique: true,
+      sparse: true,
+    },
+    stripePaymentIntentId: { type: String, index: true },
+    stripeSubscriptionId: { type: String, index: true },
+    stripeInvoiceId: { type: String, index: true },
+
+    startsAt: { type: Date },
+    endsAt: { type: Date },
+  },
+  {
+    timestamps: true,
+  },
+);

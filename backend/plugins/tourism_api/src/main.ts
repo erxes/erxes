@@ -5,6 +5,7 @@ import { initMQWorkers } from '~/worker';
 import { generateModels } from './connectionResolvers';
 import { typeDefs } from './apollo/typeDefs';
 import resolvers from './apollo/resolvers';
+import { afterProcess } from '~/meta/afterProcess';
 
 startPlugin({
   name: 'tourism',
@@ -13,6 +14,9 @@ startPlugin({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
   }),
+  meta: {
+    afterProcess,
+  },
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain, context);
 

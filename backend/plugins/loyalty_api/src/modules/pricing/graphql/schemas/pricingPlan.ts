@@ -67,6 +67,34 @@ export const types = `
     tags: [String],
     tagsExcluded: [String],
 
+    customerIds: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
+    customerSegmentIds: [String],
+
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    userIds: [String],
+    userPositions: [String],
+    userSegmentIds: [String],
+
+    brokerCustomerIds: [String],
+    brokerCustomerTags: [String],
+    brokerCustomerExcludeTags: [String],
+    brokerCustomerSegmentIds: [String],
+
+    brokerCompanyIds: [String],
+    brokerCompanyTags: [String],
+    brokerCompanyExcludeTags: [String],
+    brokerCompanySegmentIds: [String],
+
+    brokerUserIds: [String],
+    brokerUserPositions: [String],
+    brokerUserSegmentIds: [String],
+
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
 
@@ -169,6 +197,34 @@ export const types = `
     tags: [String],
     tagsExcluded: [String],
 
+    customerIds: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
+    customerSegmentIds: [String],
+
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    userIds: [String],
+    userPositions: [String],
+    userSegmentIds: [String],
+
+    brokerCustomerIds: [String],
+    brokerCustomerTags: [String],
+    brokerCustomerExcludeTags: [String],
+    brokerCustomerSegmentIds: [String],
+
+    brokerCompanyIds: [String],
+    brokerCompanyTags: [String],
+    brokerCompanyExcludeTags: [String],
+    brokerCompanySegmentIds: [String],
+
+    brokerUserIds: [String],
+    brokerUserPositions: [String],
+    brokerUserSegmentIds: [String],
+
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
 
@@ -216,6 +272,34 @@ export const types = `
     vendors: [String],
     tags: [String],
     tagsExcluded: [String],
+
+    customerIds: [String],
+    customerTags: [String],
+    customerExcludeTags: [String],
+    customerSegmentIds: [String],
+
+    companyIds: [String],
+    companyTags: [String],
+    companyExcludeTags: [String],
+    companySegmentIds: [String],
+
+    userIds: [String],
+    userPositions: [String],
+    userSegmentIds: [String],
+
+    brokerCustomerIds: [String],
+    brokerCustomerTags: [String],
+    brokerCustomerExcludeTags: [String],
+    brokerCustomerSegmentIds: [String],
+
+    brokerCompanyIds: [String],
+    brokerCompanyTags: [String],
+    brokerCompanyExcludeTags: [String],
+    brokerCompanySegmentIds: [String],
+
+    brokerUserIds: [String],
+    brokerUserPositions: [String],
+    brokerUserSegmentIds: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -280,6 +364,10 @@ const checkDiscountParams = `
   departmentId: String
   branchId: String
   pipelineId: String
+  customerType: String
+  customerId: String
+  brokerType: String
+  brokerId: String
   products: [PricingCheckProduct]
 `;
 

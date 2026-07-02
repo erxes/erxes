@@ -234,7 +234,7 @@ export const pricingPlanQueries = {
     return await models.PricingPlans.getPricingPlan(id);
   },
 
-  pricingCheckDiscount: async (
+  pricingCheckDiscount: (
     _root: any,
     params: {
       prioritizeRule?: string;
@@ -242,6 +242,10 @@ export const pricingPlanQueries = {
       departmentId: string;
       branchId: string;
       pipelineId: string;
+      customerType?: 'customer' | 'company' | 'user';
+      customerId?: string;
+      brokerType?: 'customer' | 'company' | 'user';
+      brokerId?: string;
       products: Array<{
         itemId: string;
         productId: string;
@@ -259,6 +263,10 @@ export const pricingPlanQueries = {
       branchId,
       products,
       pipelineId,
+      customerType,
+      customerId,
+      brokerType,
+      brokerId,
     } = params;
 
     return checkPricing({
@@ -270,6 +278,10 @@ export const pricingPlanQueries = {
       branchId,
       pipelineId,
       orderItems: products || [],
+      customerType,
+      customerId,
+      brokerType,
+      brokerId,
     });
   },
 };

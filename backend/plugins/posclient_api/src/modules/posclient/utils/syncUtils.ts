@@ -190,13 +190,14 @@ export const importProducts = async (
       }[] = [];
 
       for (const product of products) {
-        const { _id, ...productDoc } = product;
+        const { _id, createdAt, ...productDoc } = product;
         bulkOps.push({
           updateOne: {
             filter: { _id },
             update: {
               $set: {
                 ...productDoc,
+                ...(createdAt ? { createdAt: new Date(createdAt) } : {}),
                 [`prices.${token}`]: product.unitPrice,
                 [`taxRules.${token}`]: product.taxRule || null,
                 uom: product.uom || 'ш',

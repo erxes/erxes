@@ -1,7 +1,39 @@
-import { TAutomationRuntimeOutputDefinition } from 'erxes-api-shared/core-modules';
+import {
+  TAutomationRuntimeOutputDefinition,
+  TAutomationSetPropertyTarget,
+} from 'erxes-api-shared/core-modules';
 import { ITicket } from '~/modules/ticket/@types/ticket';
 
-export const FRONTLINE_TICKET_TARGET_SOURCE_TYPE = 'frontline:ticket.ticket';
+export const FRONTLINE_TICKET_TARGET_SOURCE_TYPE = 'frontline:tickets.tickets';
+
+const FRONTLINE_TICKET_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
+  {
+    label: 'Ticket',
+    type: FRONTLINE_TICKET_TARGET_SOURCE_TYPE,
+    source: 'target',
+    cardinality: 'one',
+  },
+  {
+    label: 'Ticket customers',
+    type: 'core:contacts.customers',
+    source: 'relation',
+    cardinality: 'many',
+    relation: {
+      contentType: 'frontline:ticket',
+      relatedContentType: 'core:customer',
+    },
+  },
+  {
+    label: 'Ticket companies',
+    type: 'core:contacts.companies',
+    source: 'relation',
+    cardinality: 'many',
+    relation: {
+      contentType: 'frontline:ticket',
+      relatedContentType: 'core:company',
+    },
+  },
+];
 
 const TICKET_OUTPUT: TAutomationRuntimeOutputDefinition<ITicket> = {
   variables: [
@@ -105,6 +137,7 @@ export const ticketsAutomationContants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off tickets',
       output: TICKET_OUTPUT,
+      setPropertyTargets: FRONTLINE_TICKET_SET_PROPERTY_TARGETS,
     },
   ],
   actions: [
@@ -119,6 +152,7 @@ export const ticketsAutomationContants = {
       targetSourceType: FRONTLINE_TICKET_TARGET_SOURCE_TYPE,
       allowTargetFromActions: true,
       output: TICKET_OUTPUT,
+      setPropertyTargets: FRONTLINE_TICKET_SET_PROPERTY_TARGETS,
     },
   ],
 };

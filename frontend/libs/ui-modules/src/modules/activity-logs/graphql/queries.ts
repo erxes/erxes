@@ -32,6 +32,7 @@ export const ACTIVITY_LOGS = gql`
         contextType
         changes
         activityType
+        sourcePlugin
         metadata
       }
       totalCount
