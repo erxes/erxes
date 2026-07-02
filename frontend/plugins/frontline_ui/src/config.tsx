@@ -26,11 +26,11 @@ const FrontlineSettingsNavigation = lazy(() =>
 );
 
 const TicketStatusPropertyInput = lazy(() =>
-  import(
-    './modules/ticket/components/ticket-selects/TicketStatusPropertyInput'
-  ).then((module) => ({
-    default: module.TicketStatusPropertyInput,
-  })),
+  import('./modules/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
+    (module) => ({
+      default: module.TicketStatusPropertyInput,
+    }),
+  ),
 );
 
 const FormSubmissionActivityRow = lazy(() =>

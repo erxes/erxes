@@ -299,8 +299,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -397,8 +397,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])

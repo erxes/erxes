@@ -17,8 +17,11 @@ type TFormSubmissionField = {
 
 export const FormSubmissionActivityRow = ({ activity }: TActivityRowProps) => {
   const { t } = useTranslation('frontline');
-  const { formTitle, submissions = [], conversationId } =
-    activity.metadata || {};
+  const {
+    formTitle,
+    submissions = [],
+    conversationId,
+  } = activity.metadata || {};
   const fields = submissions as TFormSubmissionField[];
 
   return (

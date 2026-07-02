@@ -208,7 +208,9 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">{t('added-checklist-item')}</span>
+        <span className="text-muted-foreground">
+          {t('added-checklist-item')}
+        </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
             {itemName}
@@ -228,7 +230,9 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">{t('removed-checklist-item')}</span>
+        <span className="text-muted-foreground">
+          {t('removed-checklist-item')}
+        </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
             {itemName}
@@ -270,7 +274,9 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">{t('unchecked-checklist-item')}</span>
+        <span className="text-muted-foreground">
+          {t('unchecked-checklist-item')}
+        </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
             {itemName}

@@ -61,7 +61,6 @@ export function AddProductForm({
 }) {
   const { productsAdd, loading } = useAddProduct();
 
-
   async function onSubmit(data: IProductFormValues) {
     const cleanData: Record<string, unknown> = {};
 
