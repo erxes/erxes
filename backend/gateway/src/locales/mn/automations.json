@@ -1,6 +1,9 @@
 {
   "automations": "Автоматжуулалтууд",
   "name": "Нэр",
+  "visibility": "Харагдах байдал",
+  "public": "Нийтийн",
+  "private": "Хувийн",
   "status": "Төлөв",
   "created-at": "Үүсгэсэн огноо",
   "triggers": "Триггерүүд",

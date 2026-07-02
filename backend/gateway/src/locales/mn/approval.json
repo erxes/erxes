@@ -11,6 +11,7 @@
   "cancel": "Цуцлах",
   "cancel-request": "Хүсэлт цуцлах",
   "created": "Үүссэн",
+  "decision-history": "Шийдвэрийн түүх",
   "first-wins": "Эхний зөвшөөрөл",
   "invalid-notification": "Энэ approval notification дээр хүсэлтийн мэдээлэл дутуу байна.",
   "lock": "Түгжих",
@@ -60,8 +61,11 @@
   "target": "Зорилтот бичлэг",
   "this-record": "Энэ бичлэг",
   "no-requests": "Зөвшөөрлийн хүсэлт алга",
+  "no-decisions": "Шийдвэр хараахан алга",
+  "request-details": "Хүсэлтийн дэлгэрэнгүй",
   "unanimous": "Бүгд зөвшөөрөх",
   "unknown-error": "Тодорхойгүй алдаа",
   "unlock": "Нээх",
+  "view-details": "Дэлгэрэнгүй харах",
   "waiting-for-approver": "Зөвшөөрөгчийг хүлээж байна"
 }

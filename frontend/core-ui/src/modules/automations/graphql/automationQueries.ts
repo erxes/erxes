@@ -80,6 +80,14 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         tagIds
         triggers { id }
         actions { id }
+        approvalLockState(action: "edit") {
+          contentType
+          contentId
+          action
+          locked
+          hasAccess
+          reason
+        }
         createdUser {
           ${COMMON_USER_FIELDS}
         }

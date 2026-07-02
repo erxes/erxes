@@ -4,7 +4,6 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { checkApprovalLock } from '@/approval/utils/checkApprovalLock';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import {
   mergeAiAgentConnectionSecrets,
@@ -52,8 +51,7 @@ export const automationMutations = {
       throw new Error('Automation not found');
     }
 
-    await checkApprovalLock.assert({
-      models,
+    await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
       contentId: _id,
@@ -85,8 +83,7 @@ export const automationMutations = {
     }).lean();
 
     for (const automation of automations) {
-      await checkApprovalLock.assert({
-        models,
+      await models.ApprovalLocks.assertAccess({
         user,
         contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
         contentId: automation._id,
@@ -122,8 +119,7 @@ export const automationMutations = {
     });
 
     for (const automation of automations) {
-      await checkApprovalLock.assert({
-        models,
+      await models.ApprovalLocks.assertAccess({
         user,
         contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
         contentId: automation._id,
@@ -182,8 +178,7 @@ export const automationMutations = {
       throw new Error('AI agent not found');
     }
 
-    await checkApprovalLock.assert({
-      models,
+    await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
       contentId: _id,
@@ -221,8 +216,7 @@ export const automationMutations = {
       throw new Error('AI agent not found');
     }
 
-    await checkApprovalLock.assert({
-      models,
+    await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
       contentId: _id,
@@ -246,8 +240,7 @@ export const automationMutations = {
       throw new Error('AI agent not found');
     }
 
-    await checkApprovalLock.assert({
-      models,
+    await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
       contentId: _id,

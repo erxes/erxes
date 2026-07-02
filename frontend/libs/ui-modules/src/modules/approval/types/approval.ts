@@ -23,7 +23,6 @@ export type ApprovalContentMeta = {
   contentType: string;
   contentId: string;
   label?: string;
-  link?: string;
   ownerId?: string;
 };
 
@@ -79,7 +78,6 @@ export type ApprovalNotificationMetadata = {
   targetContentType: string;
   targetContentId: string;
   targetLabel?: string;
-  targetLink?: string;
 };
 
 export type ApprovalLockVariables = {

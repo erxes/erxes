@@ -1,6 +1,9 @@
 {
   "automations": "Automations",
   "name": "Name",
+  "visibility": "Visibility",
+  "public": "Public",
+  "private": "Private",
   "status": "Status",
   "created-at": "Created at",
   "triggers": "Triggers",

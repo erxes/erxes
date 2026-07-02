@@ -6,7 +6,6 @@ import {
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { CoreTRPCContext } from '~/init-trpc';
 import { IModels } from '~/connectionResolvers';
-import { checkApprovalLock } from '../utils/checkApprovalLock';
 
 type ApprovalTrpcUser = {
   _id: string;
@@ -49,8 +48,7 @@ export const approvalTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const user = await getTrpcUser(ctx, input.userId);
 
-        return checkApprovalLock.state({
-          models: ctx.models,
+        return ctx.models.ApprovalLocks.getState({
           user,
           contentType: input.contentType,
           contentId: input.contentId,
@@ -64,8 +62,7 @@ export const approvalTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const user = await getTrpcUser(ctx, input.userId);
 
-        return checkApprovalLock.states({
-          models: ctx.models,
+        return ctx.models.ApprovalLocks.getStates({
           user,
           contentType: input.contentType,
           contentIds: input.contentIds,
@@ -78,8 +75,7 @@ export const approvalTrpcRouter = t.router({
       .input(approvalLockCheckInputSchema)
       .mutation(async ({ ctx, input }) => {
         const user = await getTrpcUser(ctx, input.userId);
-        const state = await checkApprovalLock.state({
-          models: ctx.models,
+        const state = await ctx.models.ApprovalLocks.getState({
           user,
           contentType: input.contentType,
           contentId: input.contentId,

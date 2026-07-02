@@ -45,7 +45,6 @@ export const SETTINGS_APPROVAL_REQUESTS = gql`
           contentType
           contentId
           label
-          link
           ownerId
         }
         requester {
