@@ -380,13 +380,6 @@ export const loadProductClass = (
 
       const isDeleting = doc.status === PRODUCT_STATUSES.DELETED;
 
-      if (isDeleting) {
-        console.log(
-          `[${subdomain}][updateProducts] soft-deleting ${products.length} product(s) via status=deleted`,
-          new Error('updateProducts delete call site').stack,
-        );
-      }
-
       sendDbEventLog({
         action: 'updateMany',
         docIds: products.map((product) => product._id),
@@ -431,11 +424,6 @@ export const loadProductClass = (
     }
 
     public static async removeProducts(_ids: string[]) {
-      console.log(
-        `[${subdomain}][removeProducts] deleting ${_ids.length} product(s)`,
-        new Error('removeProducts call site').stack,
-      );
-
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
       let response = 'deleted';
