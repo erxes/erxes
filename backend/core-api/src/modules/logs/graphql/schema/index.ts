@@ -38,6 +38,7 @@ export const types = `
         _id: String
         createdAt: Date
         activityType: String
+        sourcePlugin: String
         actorType: String
         actor: JSON
         targetType: String

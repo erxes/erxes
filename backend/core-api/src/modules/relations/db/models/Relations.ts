@@ -1,6 +1,9 @@
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IRelation, IRelationDocument } from 'erxes-api-shared/core-types';
-import { generateRelationActivityLogs } from '@/relations/meta/activity-log';
+import {
+  generateRelationActivityLogs,
+  RelationEntityPair,
+} from '@/relations/meta/activity-log';
 import lodash from 'lodash';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -92,9 +95,25 @@ export const loadRelationClass = (
   models: IModels,
   { createActivityLog, getContext }: EventDispatcherReturn,
 ) => {
+  const toEntityPairs = (relations: IRelation[]): RelationEntityPair[] =>
+    relations
+      .filter(({ entities = [] }) => entities.length >= 2)
+      .map(({ entities: [entity, relatedEntity] }) => [entity, relatedEntity]);
+
   class Relation {
     public static async createRelation({ relation }: { relation: IRelation }) {
-      return models.Relations.create(relation);
+      const created = await models.Relations.create(relation);
+      const { subdomain, userId } = getContext();
+
+      await generateRelationActivityLogs({
+        subdomain,
+        userId,
+        createActivityLog,
+        added: toEntityPairs([relation]),
+        removed: [],
+      });
+
+      return created;
     }
 
     public static async createMultipleRelations({
@@ -102,7 +121,18 @@ export const loadRelationClass = (
     }: {
       relations: IRelation[];
     }) {
-      return models.Relations.insertMany(relations);
+      const created = await models.Relations.insertMany(relations);
+      const { subdomain, userId } = getContext();
+
+      await generateRelationActivityLogs({
+        subdomain,
+        userId,
+        createActivityLog,
+        added: toEntityPairs(relations),
+        removed: [],
+      });
+
+      return created;
     }
 
     public static async updateRelation({
@@ -273,7 +303,7 @@ export const loadRelationClass = (
       relatedContentType: string;
       relatedContentIds: string[];
     }) {
-      const { subdomain } = getContext();
+      const { subdomain, userId } = getContext();
       const existingRels = await models.Relations.getRelationsByEntity({
         contentType,
         contentId,
@@ -333,14 +363,17 @@ export const loadRelationClass = (
         );
       }
 
+      const toPair = (relatedContentId: string): RelationEntityPair => [
+        { contentType, contentId },
+        { contentType: relatedContentType, contentId: relatedContentId },
+      ];
+
       await generateRelationActivityLogs({
         subdomain,
+        userId,
         createActivityLog,
-        contentType,
-        contentId,
-        relatedContentType,
-        addedRelationIds: toCreateRelIds,
-        removedRelationIds: toDeleteRelIds,
+        added: toCreateRelIds.map(toPair),
+        removed: toDeleteRelIds.map(toPair),
       });
 
       return models.Relations.getRelationsByEntity({

@@ -34,7 +34,10 @@ export const AddCustomer = ({
   };
 
   return (
-    <FocusSheet open={open} onOpenChange={(isOpen) => (isOpen ? setOpen(true) : onClose())}>
+    <FocusSheet
+      open={open}
+      onOpenChange={(isOpen) => (isOpen ? setOpen(true) : onClose())}
+    >
       <Sheet.Trigger asChild>
         {children || (
           <Button variant="outline">

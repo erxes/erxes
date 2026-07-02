@@ -49,7 +49,10 @@ export const CustomerAddSheet = () => {
   const title = isLead ? t('lead.add._') : t('customer.add._');
 
   return (
-    <FocusSheet open={open} onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}>
+    <FocusSheet
+      open={open}
+      onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}
+    >
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />

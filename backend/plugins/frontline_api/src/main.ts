@@ -141,6 +141,9 @@ startPlugin({
     permissions,
     references: frontlineReferences,
     segments,
+    relations: {
+      subscribedTypes: ['frontline:conversation'],
+    },
     tags: {
       types: [
         {
