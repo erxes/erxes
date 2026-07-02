@@ -194,9 +194,18 @@ const productsEdit = gql`
   }
 `;
 
+const productsMerge = gql`
+  mutation ProductsMerge($productIds: [String], $productFields: JSON) {
+    productsMerge(productIds: $productIds, productFields: $productFields) {
+      _id
+    }
+  }
+`;
+
 export const productsMutations = {
   productsEdit,
   productsAdd,
   categoryEdit,
   categoryRemove,
+  productsMerge,
 };
