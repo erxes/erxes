@@ -89,7 +89,7 @@ const plan = (
     brokerUserSegmentIds: [],
     ...overrides,
     // Boundary cast: a full Mongoose document is impractical to build in a unit test.
-  } as unknown as IPricingPlanDocument);
+  }) as unknown as IPricingPlanDocument;
 
 const makeModels = (plans: IPricingPlanDocument[]): IModels =>
   ({
@@ -97,7 +97,7 @@ const makeModels = (plans: IPricingPlanDocument[]): IModels =>
       find: jest.fn(() => ({ sort: jest.fn().mockResolvedValue(plans) })),
     },
     // Boundary cast: only PricingPlans.find is exercised by checkPricing.
-  } as unknown as IModels);
+  }) as unknown as IModels;
 
 const run = (
   plans: IPricingPlanDocument[],

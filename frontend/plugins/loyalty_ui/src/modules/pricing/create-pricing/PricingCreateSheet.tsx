@@ -70,11 +70,17 @@ const getTargetValidationError = (
     case 'category':
       return values.productCategoryIds.length
         ? null
-        : { field: 'productCategoryIds', message: t('select-at-least-one-category') };
+        : {
+            field: 'productCategoryIds',
+            message: t('select-at-least-one-category'),
+          };
     case 'product':
       return values.appliesProductIds.length
         ? null
-        : { field: 'appliesProductIds', message: t('select-at-least-one-product') };
+        : {
+            field: 'appliesProductIds',
+            message: t('select-at-least-one-product'),
+          };
     case 'segment':
       return values.segmentId
         ? null
@@ -82,7 +88,10 @@ const getTargetValidationError = (
     case 'vendor':
       return values.vendorCompanyIds.length
         ? null
-        : { field: 'vendorCompanyIds', message: t('select-at-least-one-vendor') };
+        : {
+            field: 'vendorCompanyIds',
+            message: t('select-at-least-one-vendor'),
+          };
     case 'tag':
       return values.productTagIds.length
         ? null
@@ -90,7 +99,10 @@ const getTargetValidationError = (
     case 'bundle':
       return values.bundleProductIds.length
         ? null
-        : { field: 'bundleProductIds', message: t('select-at-least-one-bundle-product') };
+        : {
+            field: 'bundleProductIds',
+            message: t('select-at-least-one-bundle-product'),
+          };
     default:
       return null;
   }
@@ -393,7 +405,9 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                           <Select.Item value="vendor">
                             {t('specific-vendor')}
                           </Select.Item>
-                          <Select.Item value="tag">{t('specific-tag')}</Select.Item>
+                          <Select.Item value="tag">
+                            {t('specific-tag')}
+                          </Select.Item>
                           <Select.Item value="bundle">
                             {t('specific-bundle')}
                           </Select.Item>
@@ -484,7 +498,8 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('products-label')} <span className="text-destructive">*</span>
+                        {t('products-label')}{' '}
+                        <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <SelectProduct
@@ -510,7 +525,8 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('segment-label')} <span className="text-destructive">*</span>
+                        {t('segment-label')}{' '}
+                        <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <SelectSegment
@@ -531,7 +547,8 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('vendors')} <span className="text-destructive">*</span>
+                        {t('vendors')}{' '}
+                        <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
                         <SelectCompany

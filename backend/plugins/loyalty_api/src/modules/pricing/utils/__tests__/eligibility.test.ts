@@ -57,7 +57,7 @@ const plan = (
     brokerUserSegmentIds: [],
     ...overrides,
     // Boundary cast: building a full Mongoose document in a unit test is impractical.
-  } as unknown as IPricingPlanDocument);
+  }) as unknown as IPricingPlanDocument;
 
 /**
  * Dispatch tRPC mocks:
