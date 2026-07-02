@@ -66,7 +66,7 @@ export const broadcastColumns = (
         cell.row.original;
 
       let labelStyle: BadgeProps['variant'] = 'default';
-      let labelText = t('sending', 'Sending');
+      let labelText: string;
 
       if (!isLive) {
         labelStyle = 'warning';

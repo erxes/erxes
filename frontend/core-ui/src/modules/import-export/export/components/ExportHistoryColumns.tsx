@@ -73,7 +73,7 @@ const EXPORT_STATUS_META: Record<
 };
 
 export const exportHistoryColumns = (
-  contentTypes: ImportExportContentType[] = [],
+  contentTypes: ImportExportContentType[],
   t: (key: string, defaultValue: string) => string,
 ): ColumnDef<TExportProgress>[] => [
   {

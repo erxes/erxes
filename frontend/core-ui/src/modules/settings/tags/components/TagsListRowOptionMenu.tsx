@@ -99,7 +99,7 @@ export const TagsListRowOptionMenu = ({ tag }: { tag: ITag }) => {
               ) : (
                 <Command.Item onSelect={() => setMenuContent('groupSelect')}>
                   <IconArrowMoveRight />
-                  {!tag.parentId ? t('tags.move-to-group', 'Move to group') : t('tags.change-group', 'Change group')}
+                  {tag.parentId ? t('tags.change-group', 'Change group') : t('tags.move-to-group', 'Move to group')}
                   <IconCaretRightFilled className="size-5 absolute right-1 text-accent-foreground" />
                 </Command.Item>
               )}
