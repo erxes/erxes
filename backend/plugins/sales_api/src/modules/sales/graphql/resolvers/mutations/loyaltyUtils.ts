@@ -94,16 +94,20 @@ export const checkPricing = async (
     0,
   );
 
-  // Who-context for customer/broker pricing conditions: the deal's related
-  // customer + company + creator and its assigned broker.
-  const [[customerId], [companyId]] = deal._id
-    ? await Promise.all([
-        getCustomerIds(subdomain, deal._id).then((ids) => ids || []),
-        getCompanyIds(subdomain, deal._id).then((ids) => ids || []),
-      ])
-    : [[], []];
-  const userId = deal.userId;
-  const brokerUserId = deal.assignedUserIds?.[0];
+  let customerType: 'company' | 'customer' = 'customer';
+  let pricingCustomerId = '';
+
+  if (deal._id) {
+    const [companyId] = (await getCompanyIds(subdomain, deal._id)) || [];
+
+    if (companyId) {
+      customerType = 'company';
+      pricingCustomerId = companyId;
+    } else {
+      const [customerId] = (await getCustomerIds(subdomain, deal._id)) || [];
+      pricingCustomerId = customerId || '';
+    }
+  }
 
   const pricing = await sendTRPCMessage({
     subdomain,
@@ -116,10 +120,8 @@ export const checkPricing = async (
       departmentId: deal.departmentIds?.[0] || '',
       branchId: deal.branchIds?.[0] || '',
       pipelineId: stage.pipelineId,
-      customerId,
-      companyId,
-      userId,
-      brokerUserId,
+      customerType,
+      customerId: pricingCustomerId,
       products: activeProductsData.map((item) => ({
         itemId: item._id,
         productId: item.productId,
@@ -167,7 +169,7 @@ export const checkPricing = async (
         quantity: bonusProductsToAdd[bonusProductId].count,
         amount: 0,
         tickUsed: true,
-      }) as IProductData,
+      } as IProductData),
   );
 
   return [
