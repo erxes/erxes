@@ -1,11 +1,26 @@
 import { IconPlus } from '@tabler/icons-react';
 
-import { ApolloError } from '@apollo/client';
+import { ApolloCache, ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { Button, CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { Can, Export, IProduct, PrintDocument, TagsSelect } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
 import { ProductMerge } from './ProductMerge';
+
+const updateProductsTagCache = (
+  cache: ApolloCache<unknown>,
+  productIds: string[],
+  newSelectedTagIds: string[],
+) => {
+  productIds.forEach((productId) => {
+    cache.modify({
+      id: cache.identify({ __typename: 'Product', _id: productId }),
+      fields: {
+        tagIds: () => newSelectedTagIds,
+      },
+    });
+  });
+};
 
 export const ProductCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -41,19 +56,8 @@ export const ProductCommandBar = () => {
               }
               targetIds={productIds}
               options={(newSelectedTagIds) => ({
-                update: (cache) => {
-                  productIds.forEach((productId) => {
-                    cache.modify({
-                      id: cache.identify({
-                        __typename: 'Product',
-                        _id: productId,
-                      }),
-                      fields: {
-                        tagIds: () => newSelectedTagIds,
-                      },
-                    });
-                  });
-                },
+                update: (cache) =>
+                  updateProductsTagCache(cache, productIds, newSelectedTagIds),
                 onError: (e: ApolloError) => {
                   toast({
                     title: 'Error',

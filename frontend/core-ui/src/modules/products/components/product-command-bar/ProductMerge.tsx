@@ -359,16 +359,17 @@ const ProductMergeBody = ({
                             type={isNumber ? 'number' : 'text'}
                             placeholder={t('enter-value', 'Enter value')}
                             value={value[field.key] ?? ''}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              let nextValue: string | number = raw;
+                              if (isNumber) {
+                                nextValue = raw === '' ? '' : Number(raw);
+                              }
                               setValue((prev) => ({
                                 ...prev,
-                                [field.key]: isNumber
-                                  ? e.target.value === ''
-                                    ? ''
-                                    : Number(e.target.value)
-                                  : e.target.value,
-                              }))
-                            }
+                                [field.key]: nextValue,
+                              }));
+                            }}
                           />
                         </div>
                       ) : (
@@ -383,11 +384,14 @@ const ProductMergeBody = ({
                     <span className="pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                       {t('properties', 'Properties')}
                     </span>
-                    {[productA, productB].map((product, index) => {
+                    {[
+                      { side: 'source-a', product: productA },
+                      { side: 'source-b', product: productB },
+                    ].map(({ side, product }) => {
                       const entries = propertiesEntries(product);
                       return (
                         <div
-                          key={index}
+                          key={side}
                           className="flex min-w-0 flex-col gap-0.5 px-2 py-1.5 text-sm text-muted-foreground"
                         >
                           {entries.length
