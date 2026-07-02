@@ -349,8 +349,8 @@ export const dealToDynamic = async (
     const sendData: any = {
       Sell_to_Customer_No:
         customerType === 'company'
-          ? msdCustomer?.No ?? config.defaultUserCode
-          : custCode ?? config.defaultUserCode,
+          ? (msdCustomer?.No ?? config.defaultUserCode)
+          : (custCode ?? config.defaultUserCode),
       Sell_to_Phone_No: customer?.primaryPhone ?? '',
       Sell_to_E_Mail: customer?.primaryEmail ?? '',
       External_Document_No: deal.number ?? deal.name.split(':').pop().trim(),
@@ -440,13 +440,13 @@ export const dealToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `not found product ${product._id}`,
+                error: `Product not found: ${item.productId}`,
               },
             },
           );
+
           continue;
         }
-
         const sendSalesLine: any = {
           Document_No: responseSale.No,
           Type: 'Item',
@@ -690,7 +690,11 @@ export const orderToDynamic = async (
       headers: postHeaders,
       body: JSON.stringify(sendData),
     }).then((res) => res.json());
-
+    if (responseSale?.error) {
+      throw new Error(
+        responseSale.error.message || 'MS Dynamic returned an error',
+      );
+    }
     const lineNoById = {};
 
     if (responseSale) {
@@ -865,12 +869,19 @@ export const orderToDynamic = async (
     );
 
     return responseSale;
-  } catch (e) {
+  } catch (e: any) {
     await models.SyncLogsMSD.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      {
+        $set: {
+          error: e?.message || 'Unknown error',
+        },
+      },
     );
-    console.log(e, 'error');
+
+    console.error(e);
+
+    throw e;
   }
 };
 

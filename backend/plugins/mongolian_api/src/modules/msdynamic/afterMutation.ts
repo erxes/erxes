@@ -1,6 +1,6 @@
 import { generateModels } from '~/connectionResolvers';
 import { customerToDynamic } from './utilsCustomer';
-import { dealToDynamic, orderToDynamic } from './utils';
+import { dealToDynamic, getConfig, orderToDynamic } from './utils';
 
 const allowTypes: Record<string, string[]> = {
   'core:customer': ['create'],
@@ -18,23 +18,11 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
 
   const models = await generateModels(subdomain);
 
-  const dynamicConfigs = await models.Configs.getConfigs('DYNAMIC');
+  const configsMap = await getConfig(subdomain, 'DYNAMIC', {});
 
-  if (!dynamicConfigs?.length) {
+  if (!configsMap || !Object.keys(configsMap).length) {
     return;
   }
-
-  const configsMap = dynamicConfigs.reduce(
-    (acc, conf) => {
-      const sub = conf.subId || 'noBrand';
-      acc[sub] = conf.value;
-      if (sub === 'noBrand' && typeof conf.value === 'object') {
-        Object.assign(acc, conf.value);
-      }
-      return acc;
-    },
-    {} as Record<string, any>,
-  );
 
   const contentId = updatedDocument?._id || object?._id;
 
@@ -87,7 +75,9 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         }
 
         syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
+
         await dealToDynamic(subdomain, models, syncLog, deal, foundConfig);
+
         break;
       }
 
@@ -109,11 +99,16 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         break;
     }
   } catch (e: any) {
-    console.error(`MSDynamic error:`, e);
+    console.error('MSDynamic error:', e);
+
     if (syncLog?._id) {
       await models.SyncLogsMSD.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e?.message || 'Unknown error' } },
+        {
+          $set: {
+            error: e?.message || 'Unknown error',
+          },
+        },
       );
     }
   }
