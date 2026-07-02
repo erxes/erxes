@@ -20,6 +20,8 @@ export const checkPricing = async (
         totalAmount: doc.totalAmount,
         departmentId: config.departmentId,
         branchId: config.branchId,
+        customerType: doc.customerType,
+        customerId: doc.customerId,
         products: [
           ...doc.items.map((i) => ({
             itemId: i._id,
