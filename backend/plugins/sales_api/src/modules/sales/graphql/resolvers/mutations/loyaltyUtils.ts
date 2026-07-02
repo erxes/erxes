@@ -167,7 +167,7 @@ export const checkPricing = async (
         quantity: bonusProductsToAdd[bonusProductId].count,
         amount: 0,
         tickUsed: true,
-      } as IProductData),
+      }) as IProductData,
   );
 
   return [
