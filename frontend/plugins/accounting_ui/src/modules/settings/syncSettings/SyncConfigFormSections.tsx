@@ -127,7 +127,9 @@ export const normalizeSyncConfigData = <
 });
 
 /** sync config form iin payment account field */
-export const SyncConfigPaymentAccountField = <TFieldValues extends FieldValues>({
+export const SyncConfigPaymentAccountField = <
+  TFieldValues extends FieldValues,
+>({
   control,
   name,
   label,
@@ -209,7 +211,7 @@ export const SyncConfigReturnTypeField = <
   return (
     <Form.Field
       control={control}
-      name={"returnType" as FieldPath<TFieldValues>}
+      name={'returnType' as FieldPath<TFieldValues>}
       render={({ field }) => <ReturnTypeFieldContent field={field} t={t} />}
     />
   );
@@ -288,7 +290,7 @@ export const SyncConfigGeneralFields = <
     <>
       <Form.Field
         control={control}
-        name={"title" as FieldPath<TFieldValues>}
+        name={'title' as FieldPath<TFieldValues>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('title')}</Form.Label>
@@ -300,12 +302,12 @@ export const SyncConfigGeneralFields = <
       />
       <Form.Field
         control={control}
-        name={"dateRule" as FieldPath<TFieldValues>}
+        name={'dateRule' as FieldPath<TFieldValues>}
         render={({ field }) => <DateRuleFieldContent field={field} t={t} />}
       />
       <Form.Field
         control={control}
-        name={"trStatus" as FieldPath<TFieldValues>}
+        name={'trStatus' as FieldPath<TFieldValues>}
         render={({ field }) => <TrStatusFieldContent field={field} t={t} />}
       />
     </>
@@ -392,7 +394,7 @@ export const SyncConfigAccountsSection = <
     <SyncSettingSection title={t('accounts')}>
       <Form.Field
         control={control}
-        name={"saleAccountId" as FieldPath<TFieldValues>}
+        name={'saleAccountId' as FieldPath<TFieldValues>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('sale-account')}</Form.Label>
@@ -408,7 +410,7 @@ export const SyncConfigAccountsSection = <
       />
       <Form.Field
         control={control}
-        name={"saleOutAccountId" as FieldPath<TFieldValues>}
+        name={'saleOutAccountId' as FieldPath<TFieldValues>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('sale-out-account')}</Form.Label>
@@ -424,7 +426,7 @@ export const SyncConfigAccountsSection = <
       />
       <Form.Field
         control={control}
-        name={"saleCostAccountId" as FieldPath<TFieldValues>}
+        name={'saleCostAccountId' as FieldPath<TFieldValues>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('sale-cost-account')}</Form.Label>
@@ -440,7 +442,7 @@ export const SyncConfigAccountsSection = <
       />
       <Form.Field
         control={control}
-        name={"branchId" as FieldPath<TFieldValues>}
+        name={'branchId' as FieldPath<TFieldValues>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('branch')}</Form.Label>
@@ -456,7 +458,7 @@ export const SyncConfigAccountsSection = <
       />
       <Form.Field
         control={control}
-        name={"departmentId" as FieldPath<TFieldValues>}
+        name={'departmentId' as FieldPath<TFieldValues>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('department')}</Form.Label>
@@ -508,13 +510,13 @@ export const SyncConfigPaymentsSection = <
     <SyncSettingSection title={t('Payments')}>
       <SyncConfigPaymentAccountField
         control={control}
-        name={"defaultPayment.accountId" as FieldPath<TFieldValues>}
+        name={'defaultPayment.accountId' as FieldPath<TFieldValues>}
         label={t('default-payment-account')}
         currency={currency}
       />
       <SyncConfigPaymentAccountField
         control={control}
-        name={"defaultNegPayment.accountId" as FieldPath<TFieldValues>}
+        name={'defaultNegPayment.accountId' as FieldPath<TFieldValues>}
         label={t('default-neg-payment-account')}
         currency={currency}
       />
@@ -604,7 +606,9 @@ const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
           />
         ) : (
           <FormSelectEbarimtProductRule
-            name={`reverse${kind === 'vat' ? 'Vat' : 'Ctax'}Rules` as FieldPath<TFieldValues>}
+            name={
+              `reverse${kind === 'vat' ? 'Vat' : 'Ctax'}Rules` as FieldPath<TFieldValues>
+            }
             label={t(reverseLabel)}
             kind={kind}
             control={control}
@@ -626,8 +630,8 @@ export const SyncConfigVatCtaxSection = <
   <section className="col-span-full grid grid-cols-2 gap-8 mt-4 items-start">
     <VatCtaxItem
       control={control}
-      hasName={"hasVat" as FieldPath<TFieldValues>}
-      rowIdName={"vatRowId" as FieldPath<TFieldValues>}
+      hasName={'hasVat' as FieldPath<TFieldValues>}
+      rowIdName={'vatRowId' as FieldPath<TFieldValues>}
       hasLabel="has-vat"
       rowLabel="vat-row"
       reverseLabel="reverse-vat-rules"
@@ -636,8 +640,8 @@ export const SyncConfigVatCtaxSection = <
     />
     <VatCtaxItem
       control={control}
-      hasName={"hasCtax" as FieldPath<TFieldValues>}
-      rowIdName={"ctaxRowId" as FieldPath<TFieldValues>}
+      hasName={'hasCtax' as FieldPath<TFieldValues>}
+      rowIdName={'ctaxRowId' as FieldPath<TFieldValues>}
       hasLabel="has-ctax"
       rowLabel="ctax-row"
       reverseLabel="reverse-ctax-rules"
