@@ -92,6 +92,7 @@ const AccountingCheckSyncedOrdersActions = ({
 };
 
 export const AccountingCheckSyncedOrdersRecordTable = () => {
+  const { t } = useTranslation('accounting');
   const {
     canSync,
     checkOrders,
@@ -122,8 +123,9 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
         syncableOrderIds,
         onToggleToSync: setOrderToSync,
         onToggleAllToSync: setAllOrdersToSync,
+        t,
       }),
-    [setAllOrdersToSync, setOrderToSync, syncableOrderIds, toSyncOrderIds],
+    [setAllOrdersToSync, setOrderToSync, syncableOrderIds, toSyncOrderIds, t],
   );
 
   return (

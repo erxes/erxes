@@ -518,7 +518,6 @@ const FacebookCardsMessageContent = () => {
 export const FacebookCardsMessage = ({
   index,
 }: FacebookMessageProps<{ type: 'card' }>) => {
-  const { t } = useTranslation('frontline');
   const { control } = useReplyMessageAction();
 
   return (

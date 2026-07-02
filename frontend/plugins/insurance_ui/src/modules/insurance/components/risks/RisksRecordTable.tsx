@@ -10,7 +10,7 @@ export const RisksRecordTable = () => {
 
   return (
     <GenericRecordTable
-      columns={risksColumns}
+      columns={risksColumns(t)}
       data={riskTypes || []}
       loading={loading}
       sessionKey="risks-cursor"

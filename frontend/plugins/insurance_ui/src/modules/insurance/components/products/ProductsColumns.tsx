@@ -11,7 +11,6 @@ import {
   RecordTableInlineCell,
   Badge,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { InsuranceProduct } from '~/modules/insurance/types';
 import { ProductsMoreColumn } from './ProductsMoreColumn';
 
@@ -22,6 +21,7 @@ const formatDate = (date: Date) => {
 export const createProductsColumns = (
   onEdit: (product: InsuranceProduct) => void,
   onDelete: (product: InsuranceProduct) => void,
+  t: (key: string, defaultValue?: string) => string,
 ): ColumnDef<InsuranceProduct>[] => [
   {
     id: 'more',
@@ -37,8 +37,7 @@ export const createProductsColumns = (
     id: 'name',
     accessorKey: 'name',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconPackage} label={t('name')} />;
+      return <RecordTable.InlineHead icon={IconPackage} label={t('name', 'Name')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -52,8 +51,7 @@ export const createProductsColumns = (
     id: 'insuranceType',
     accessorKey: 'insuranceType',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('insurance-type')} />;
+      return <RecordTable.InlineHead icon={IconCategory} label={t('insurance-type', 'Insurance type')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -69,15 +67,13 @@ export const createProductsColumns = (
     id: 'coveredRisks',
     accessorKey: 'coveredRisks',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('covered-risks')} />;
+      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('covered-risks', 'Covered risks')} />;
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('insurance');
       const risks = cell.row.original.coveredRisks || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{risks.length} {t('risks')}</Badge>
+          <Badge variant="secondary">{risks.length} {t('risks', 'risks')}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -86,8 +82,7 @@ export const createProductsColumns = (
     id: 'riskDetails',
     accessorKey: 'riskDetails',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('risk-details')} />;
+      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('risk-details', 'Risk details')} />;
     },
     cell: ({ cell }) => {
       const risks = cell.row.original.coveredRisks || [];
@@ -108,8 +103,7 @@ export const createProductsColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
+      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created at')} />;
     },
     cell: ({ cell }) => {
       return (

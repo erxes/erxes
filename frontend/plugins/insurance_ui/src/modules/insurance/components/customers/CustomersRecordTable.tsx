@@ -10,7 +10,7 @@ export const CustomersRecordTable = () => {
 
   return (
     <GenericRecordTable
-      columns={customersColumns}
+      columns={customersColumns(t)}
       data={customers || []}
       loading={loading}
       sessionKey="customers-cursor"

@@ -1,4 +1,5 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { invoicesColumns } from './InvoiceColumns';
 import { InvoiceFilterBar } from './InvoiceFilterBar';
 import { useInvoices } from '../hooks/use-invoices';
@@ -6,11 +7,12 @@ import { useInvoices } from '../hooks/use-invoices';
 export function InvoiceRecordTable() {
   const { invoices, loading, pageInfo, handleFetchMore } = useInvoices();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const { t } = useTranslation('payment');
 
   return (
     <RecordTable.Provider
       data={invoices || []}
-      columns={invoicesColumns}
+      columns={invoicesColumns(t)}
       className="m-3"
       stickyColumns={['checkbox', 'invoiceNumber']}
     >

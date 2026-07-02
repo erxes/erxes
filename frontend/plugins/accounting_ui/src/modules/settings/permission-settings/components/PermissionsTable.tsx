@@ -4,8 +4,15 @@ import { usePermissionsMain } from '../hooks/usePermissionsMain';
 import { permissionsColumns } from './PermissionsColumns';
 import { PermissionsCommandbar } from './PermissionsCommandBar';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const PermissionsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+const PermissionsInitialSkeleton = ({
+  rows = 20,
+  columns,
+}: {
+  rows?: number;
+  columns: ReturnType<typeof permissionsColumns>;
+}) => {
   const rowKeys = useMemo(
     () => Array.from({ length: rows }, () => crypto.randomUUID()),
     [rows],
@@ -14,7 +21,7 @@ const PermissionsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
     <>
       {rowKeys.map((rowKey) => (
         <Table.Row key={rowKey} className="h-cell">
-          {permissionsColumns.map((col, colIndex) => (
+          {columns.map((col, colIndex) => (
             <Table.Cell
               key={`${rowKey}-${col.id ?? colIndex}`}
               className="border-r-0 px-2"
@@ -29,15 +36,17 @@ const PermissionsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 };
 
 export const PermissionsTable = () => {
+  const { t } = useTranslation('accounting');
   const { permissionsMain, loading, handleFetchMore, pageInfo } =
     usePermissionsMain();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const isFetchingMore = loading && (permissionsMain?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
+  const columns = useMemo(() => permissionsColumns(t), [t]);
 
   return (
     <RecordTable.Provider
-      columns={permissionsColumns}
+      columns={columns}
       data={isInitialLoading ? [] : permissionsMain || []}
       stickyColumns={['checkbox', 'accountName']}
       className="m-3"
@@ -55,7 +64,9 @@ export const PermissionsTable = () => {
               handleFetchMore={handleFetchMore}
             />
             <RecordTable.RowList />
-            {isInitialLoading && <PermissionsInitialSkeleton rows={20} />}
+            {isInitialLoading && (
+              <PermissionsInitialSkeleton rows={20} columns={columns} />
+            )}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />

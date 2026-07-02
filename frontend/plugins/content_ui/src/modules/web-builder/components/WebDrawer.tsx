@@ -126,7 +126,9 @@ export const WebDrawer = () => {
       <Sheet.View className="sm:max-w-lg p-0 flex flex-col">
         <Sheet.Header className="border-b gap-3">
           <Sheet.Title>
-            {isEditing ? t('edit-web-project') : t('new-web-project')}
+            {isEditing
+              ? t('edit-web-project', 'Edit Web Project')
+              : t('new-web-project', 'New Web Project')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -142,9 +144,9 @@ export const WebDrawer = () => {
                 name="name"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('name')}</Form.Label>
+                    <Form.Label>{t('name', 'Name')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('my-website')} required />
+                      <Input {...field} placeholder={t('my-website', 'My Website')} required />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -158,13 +160,13 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('client-portal')} <span className="text-destructive">*</span>
+                      {t('client-portal', 'Client Portal')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <FormComboSelect
                       options={portalOptions}
                       value={field.value || ''}
                       onChange={field.onChange}
-                      placeholder={t('select-a-client-portal')}
+                      placeholder={t('select-a-client-portal', 'Select a client portal')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -176,11 +178,11 @@ export const WebDrawer = () => {
                 name="description"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('description')}</Form.Label>
+                    <Form.Label>{t('description', 'Description')}</Form.Label>
                     <Form.Control>
                       <Textarea
                         {...field}
-                        placeholder={t('optional-description')}
+                        placeholder={t('optional-description', 'Optional description')}
                         rows={3}
                       />
                     </Form.Control>
@@ -194,7 +196,7 @@ export const WebDrawer = () => {
                 name="domain"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('domain')}</Form.Label>
+                    <Form.Label>{t('domain', 'Domain')}</Form.Label>
                     <Form.Control>
                       <Input {...field} placeholder="example.com" />
                     </Form.Control>
@@ -210,7 +212,7 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('template-type')} <span className="text-destructive">*</span>
+                      {t('template-type', 'Template Type')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <FormComboSelect
                       options={TEMPLATE_TYPES}
@@ -219,7 +221,7 @@ export const WebDrawer = () => {
                         field.onChange(v);
                         form.setValue('templateId', '');
                       }}
-                      placeholder={t('select-a-template-type')}
+                      placeholder={t('select-a-template-type', 'Select a template type')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -233,7 +235,7 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('template')} <span className="text-destructive">*</span>
+                      {t('template', 'Template')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <TemplateSelect
                       type={selectedType || ''}
@@ -248,16 +250,16 @@ export const WebDrawer = () => {
 
             <div className="flex justify-end gap-2 p-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={creating || updating}>
                 {creating || updating
                   ? isEditing
-                    ? t('saving')
-                    : t('creating')
+                    ? t('saving', 'Saving...')
+                    : t('creating', 'Creating...')
                   : isEditing
-                    ? t('save-changes')
-                    : t('create')}
+                    ? t('save-changes', 'Save changes')
+                    : t('create', 'Create')}
               </Button>
             </div>
           </form>

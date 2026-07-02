@@ -1,6 +1,8 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { createCustomTypesColumns } from './CustomTypesColumn';
 import { useCustomTypes } from '../hooks/useCustomTypes';
+import { useEditCustomType } from '../hooks/useEditCustomType';
 import { CustomTypesCommandBar } from './customer-types-command-bar/CustomTypesCommandBar';
 
 interface CustomTypesRecordTableProps {
@@ -14,12 +16,16 @@ export const CustomTypesRecordTable = ({
   onEdit,
   onBulkDelete,
 }: CustomTypesRecordTableProps) => {
+  const { t } = useTranslation('content');
   const { customTypes, loading, refetch } = useCustomTypes({
     clientPortalId,
   });
+  const { editType } = useEditCustomType(refetch);
 
   const columns = createCustomTypesColumns(
     clientPortalId,
+    t,
+    editType,
     onEdit || (() => {}),
     refetch,
   );

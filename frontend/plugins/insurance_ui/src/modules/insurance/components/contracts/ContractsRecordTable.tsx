@@ -10,7 +10,7 @@ export const ContractsRecordTable = () => {
 
   return (
     <GenericRecordTable
-      columns={contractsColumns}
+      columns={contractsColumns(t)}
       data={contracts || []}
       loading={loading}
       sessionKey="contracts-cursor"

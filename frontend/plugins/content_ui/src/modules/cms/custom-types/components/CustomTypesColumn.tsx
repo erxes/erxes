@@ -9,26 +9,24 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 import { customTypeMoreColumn } from './CustomTypesMoreColumn';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { IconLayout, IconCalendar, IconArticle } from '@tabler/icons-react';
 import { ICustomPostType } from '../types/customTypeTypes';
 import { useEditCustomType } from '../hooks/useEditCustomType';
 
 export const createCustomTypesColumns = (
   websiteId: string,
+  t: (key: string, defaultValue?: string) => string,
+  editType: ReturnType<typeof useEditCustomType>['editType'],
   onEdit?: (customType: any) => void,
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
-  const { t } = useTranslation('content');
-  const { editType } = useEditCustomType(onRefetch);
-
   return [
     customTypeMoreColumn(onEdit, onRefetch),
     RecordTable.checkboxColumn as ColumnDef<any>,
     {
       id: 'name',
       header: () => (
-        <RecordTable.InlineHead icon={IconLayout} label={t('type-name')} />
+        <RecordTable.InlineHead icon={IconLayout} label={t('type-name', 'Type name')} />
       ),
       accessorKey: 'label',
       cell: ({ cell }) => {
@@ -98,7 +96,7 @@ export const createCustomTypesColumns = (
     {
       id: 'description',
       header: () => (
-        <RecordTable.InlineHead icon={IconArticle} label={t('description')} />
+        <RecordTable.InlineHead icon={IconArticle} label={t('description', 'Description')} />
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
@@ -113,7 +111,7 @@ export const createCustomTypesColumns = (
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label={t('created')} />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('created', 'Created')} />
       ),
       accessorKey: 'createdAt',
       size: 120,

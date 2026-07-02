@@ -20,7 +20,7 @@ export const InsuranceTypesRecordTable = ({
   const { insuranceTypes, loading, refetch } = useInsuranceTypes();
 
   const columns = useMemo(() => {
-    return insuranceTypesColumns.map((col) => {
+    return insuranceTypesColumns(t).map((col) => {
       if (col.id === 'more') {
         return {
           ...col,
@@ -38,7 +38,7 @@ export const InsuranceTypesRecordTable = ({
       }
       return col;
     });
-  }, [onEdit, onDeleted, refetch]);
+  }, [onEdit, onDeleted, refetch, t]);
 
   return (
     <GenericRecordTable

@@ -19,6 +19,60 @@ interface ArticleListProps {
   readonly onCreateArticle: () => void;
 }
 
+interface ArticleCommandBarProps {
+  readonly onEditArticle: (article: any) => void;
+  readonly onDeleteArticles: (articleIds: string[]) => void;
+  readonly t: (key: string, options?: any) => string;
+}
+
+// Command bar for bulk actions
+function ArticleCommandBar({
+  onEditArticle,
+  onDeleteArticles,
+  t,
+}: ArticleCommandBarProps) {
+  const { table } = RecordTable.useRecordTable();
+
+  const selectedArticles = table.getFilteredSelectedRowModel().rows;
+  const articleIds = selectedArticles.map((row) => row.original._id);
+
+  const handleEdit = () => {
+    if (selectedArticles.length === 1) {
+      const article = selectedArticles[0].original;
+      onEditArticle(article);
+    }
+  };
+
+  const handleDelete = () => {
+    onDeleteArticles(articleIds);
+  };
+
+  return (
+    <CommandBar open={selectedArticles.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>
+          {t('n-selected', { count: selectedArticles.length })}
+        </CommandBar.Value>
+        <Separator.Inline />
+        <button
+          onClick={handleEdit}
+          disabled={selectedArticles.length !== 1}
+          className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent text-foreground hover:bg-border h-7 py-1"
+        >
+          {t('edit')}
+        </button>
+        <Separator.Inline />
+        <button
+          onClick={handleDelete}
+          className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent hover:bg-border h-7 py-1 text-destructive"
+        >
+          {t('delete')}
+        </button>
+      </CommandBar.Bar>
+    </CommandBar>
+  );
+}
+
 export function ArticleList({
   onEditArticle,
   onCreateArticle,
@@ -172,72 +226,33 @@ export function ArticleList({
     });
   }, [articleList, q, status]);
 
-  // Command bar for bulk actions
-  const ArticleCommandBar = () => {
-    const { table } = RecordTable.useRecordTable();
+  // Delete selected articles
+  const handleDeleteArticles = async (articleIds: string[]) => {
+    if (articleIds.length === 0) return;
 
-    const selectedArticles = table.getFilteredSelectedRowModel().rows;
-    const articleIds = selectedArticles.map((row) => row.original._id);
+    const message = t('kb-confirm-delete-articles', { count: articleIds.length });
 
-    const handleEdit = () => {
-      if (selectedArticles.length === 1) {
-        const article = selectedArticles[0].original;
-        onEditArticle(article);
-      }
+    const confirmOptions = {
+      confirmationValue: 'delete',
+      description: t('kb-action-permanent'),
     };
 
-    const handleDelete = async () => {
-      if (articleIds.length === 0) return;
+    try {
+      await confirm({
+        message,
+        options: confirmOptions,
+      });
 
-      const message = t('kb-confirm-delete-articles', { count: articleIds.length });
+      // Delete all selected articles
+      await Promise.all(
+        articleIds.map((id) => removeArticle({ variables: { _id: id } })),
+      );
 
-      const confirmOptions = {
-        confirmationValue: 'delete',
-        description: t('kb-action-permanent'),
-      };
-
-      try {
-        await confirm({
-          message,
-          options: confirmOptions,
-        });
-
-        // Delete all selected articles
-        await Promise.all(
-          articleIds.map((id) => removeArticle({ variables: { _id: id } })),
-        );
-
-        // Refetch to update the list
-        refetch();
-      } catch (error) {
-        console.error('Error deleting articles:', error);
-      }
-    };
-
-    return (
-      <CommandBar open={selectedArticles.length > 0}>
-        <CommandBar.Bar>
-          <CommandBar.Value>
-            {t('n-selected', { count: selectedArticles.length })}
-          </CommandBar.Value>
-          <Separator.Inline />
-          <button
-            onClick={handleEdit}
-            disabled={selectedArticles.length !== 1}
-            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent text-foreground hover:bg-border h-7 py-1"
-          >
-            {t('edit')}
-          </button>
-          <Separator.Inline />
-          <button
-            onClick={handleDelete}
-            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent hover:bg-border h-7 py-1 text-destructive"
-          >
-            {t('delete')}
-          </button>
-        </CommandBar.Bar>
-      </CommandBar>
-    );
+      // Refetch to update the list
+      refetch();
+    } catch (error) {
+      console.error('Error deleting articles:', error);
+    }
   };
 
   return (
@@ -321,7 +336,11 @@ export function ArticleList({
           data={filtered}
           stickyColumns={['checkbox']}
         >
-          <ArticleCommandBar />
+          <ArticleCommandBar
+            onEditArticle={onEditArticle}
+            onDeleteArticles={handleDeleteArticles}
+            t={t}
+          />
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>

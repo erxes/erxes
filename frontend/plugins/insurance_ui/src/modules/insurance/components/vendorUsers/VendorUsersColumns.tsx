@@ -12,33 +12,32 @@ import {
   RecordTableInlineCell,
   Badge,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { VendorUser } from '~/modules/insurance/types';
 import { VendorUsersMoreColumn } from './VendorUsersMoreColumn';
 import { createTextColumn, createCreatedAtColumn } from '../shared';
 
+type TFunc = (key: string, defaultValue?: string) => string;
+
 // Custom vendor column with nested accessor
-const vendorColumn: ColumnDef<VendorUser> = {
+const vendorColumn = (t: TFunc): ColumnDef<VendorUser> => ({
   id: 'vendor',
   accessorKey: 'vendor',
   header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
+    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor', 'Vendor')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={cell.row.original.vendor?.name || ''} />
     </RecordTableInlineCell>
   ),
-};
+});
 
 // Custom role column with badge
-const roleColumn: ColumnDef<VendorUser> = {
+const roleColumn = (t: TFunc): ColumnDef<VendorUser> => ({
   id: 'role',
   accessorKey: 'role',
   header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconShield} label={t('role')} />;
+    return <RecordTable.InlineHead icon={IconShield} label={t('role', 'Role')} />;
   },
   cell: ({ cell }) => {
     const role = cell.getValue() as string;
@@ -48,11 +47,12 @@ const roleColumn: ColumnDef<VendorUser> = {
       </RecordTableInlineCell>
     );
   },
-};
+});
 
 export const createVendorUsersColumns = (
   onEdit: (user: VendorUser) => void,
   onRefetch: () => void,
+  t: TFunc,
 ): ColumnDef<VendorUser>[] => {
   // More column with callbacks
   const moreColumn: ColumnDef<VendorUser> = {
@@ -72,11 +72,11 @@ export const createVendorUsersColumns = (
   return [
     moreColumn,
     { ...(RecordTable.checkboxColumn as ColumnDef<VendorUser>), size: 32 },
-    createTextColumn<VendorUser>('name', 'name', IconUser, 'name', 'no-name'),
-    createTextColumn<VendorUser>('email', 'email', IconMail, 'email', ''),
-    createTextColumn<VendorUser>('phone', 'phone', IconPhone, 'phone', ''),
-    vendorColumn,
-    roleColumn,
-    createCreatedAtColumn<VendorUser>(),
+    createTextColumn<VendorUser>(t, 'name', 'name', IconUser, 'name', 'no-name'),
+    createTextColumn<VendorUser>(t, 'email', 'email', IconMail, 'email', ''),
+    createTextColumn<VendorUser>(t, 'phone', 'phone', IconPhone, 'phone', ''),
+    vendorColumn(t),
+    roleColumn(t),
+    createCreatedAtColumn<VendorUser>(t),
   ];
 };

@@ -10,7 +10,7 @@ export const CarInsuranceRecordTable = () => {
 
   return (
     <GenericRecordTable
-      columns={carInsuranceColumns}
+      columns={carInsuranceColumns(t)}
       data={contracts || []}
       loading={loading}
       sessionKey="car-insurance-cursor"

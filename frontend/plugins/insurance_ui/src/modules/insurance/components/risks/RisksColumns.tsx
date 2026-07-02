@@ -11,11 +11,13 @@ import {
   createUpdatedAtColumn,
 } from '../shared';
 
-export const risksColumns: ColumnDef<RiskType>[] = [
+export const risksColumns = (
+  t: (key: string, defaultValue?: string) => string,
+): ColumnDef<RiskType>[] => [
   createEntityMoreColumn<RiskType>(RisksMoreColumn, 18),
   RecordTable.checkboxColumn as ColumnDef<RiskType>,
-  createNameColumn<RiskType>(IconAlertTriangle),
-  createDescriptionColumn<RiskType>(),
-  createCreatedAtColumn<RiskType>(),
-  createUpdatedAtColumn<RiskType>(),
+  createNameColumn<RiskType>(t, IconAlertTriangle),
+  createDescriptionColumn<RiskType>(t),
+  createCreatedAtColumn<RiskType>(t),
+  createUpdatedAtColumn<RiskType>(t),
 ];

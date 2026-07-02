@@ -78,7 +78,7 @@ export function KpiSection() {
     {
       title: t('kpi-answer-rate'),
       value: fmtPct(answerRate),
-      subtitle: direction !== 'all' ? t('kpi-direction-only', { direction }) : t('kpi-all-directions'),
+      subtitle: direction === 'all' ? t('kpi-all-directions') : t('kpi-direction-only', { direction }),
       icon: <IconPercentage className="h-5 w-5" />,
       valueClass: 'text-[var(--chart-3)]',
       iconClass: 'bg-[var(--chart-3)]/10 text-[var(--chart-3)]',

@@ -10,11 +10,11 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { formatDate } from './formatters';
-import { ForwardRefExoticComponent, RefAttributes, ReactNode } from 'react';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
+type TFunc = (key: string, defaultValue?: string) => string;
 
 // Generic more column factory
 export const createEntityMoreColumn = <T,>(
@@ -30,14 +30,14 @@ export const createEntityMoreColumn = <T,>(
 
 // Generic name column factory
 export const createNameColumn = <T,>(
+  t: TFunc,
   icon: TablerIcon,
   label: string = 'name',
 ): ColumnDef<T> => ({
   id: 'name',
   accessorKey: 'name',
   header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={icon} label={t(label)} />;
+    return <RecordTable.InlineHead icon={icon} label={t(label, 'Name')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -48,13 +48,13 @@ export const createNameColumn = <T,>(
 
 // Description column
 export const createDescriptionColumn = <T,>(
+  t: TFunc,
   icon: TablerIcon = IconFileDescription,
 ): ColumnDef<T> => ({
   id: 'description',
   accessorKey: 'description',
   header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={icon} label={t('description')} />;
+    return <RecordTable.InlineHead icon={icon} label={t('description', 'Description')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -64,12 +64,11 @@ export const createDescriptionColumn = <T,>(
 });
 
 // Created at column
-export const createCreatedAtColumn = <T,>(): ColumnDef<T> => ({
+export const createCreatedAtColumn = <T,>(t: TFunc): ColumnDef<T> => ({
   id: 'createdAt',
   accessorKey: 'createdAt',
   header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
+    return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created at')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -79,12 +78,11 @@ export const createCreatedAtColumn = <T,>(): ColumnDef<T> => ({
 });
 
 // Updated at column
-export const createUpdatedAtColumn = <T,>(): ColumnDef<T> => ({
+export const createUpdatedAtColumn = <T,>(t: TFunc): ColumnDef<T> => ({
   id: 'updatedAt',
   accessorKey: 'updatedAt',
   header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('updated-at')} />;
+    return <RecordTable.InlineHead icon={IconCalendar} label={t('updated-at', 'Updated at')} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -95,6 +93,7 @@ export const createUpdatedAtColumn = <T,>(): ColumnDef<T> => ({
 
 // Generic text column factory
 export const createTextColumn = <T,>(
+  t: TFunc,
   id: string,
   accessorKey: string,
   icon: TablerIcon,
@@ -104,8 +103,7 @@ export const createTextColumn = <T,>(
   id,
   accessorKey,
   header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={icon} label={t(label)} />;
+    return <RecordTable.InlineHead icon={icon} label={t(label, label)} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -116,6 +114,7 @@ export const createTextColumn = <T,>(
 
 // Date column factory
 export const createDateColumn = <T,>(
+  t: TFunc,
   id: string,
   accessorKey: string,
   label: string,
@@ -123,8 +122,7 @@ export const createDateColumn = <T,>(
   id,
   accessorKey,
   header: () => {
-    const { t } = useTranslation('insurance');
-    return <RecordTable.InlineHead icon={IconCalendar} label={t(label)} />;
+    return <RecordTable.InlineHead icon={IconCalendar} label={t(label, label)} />;
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>

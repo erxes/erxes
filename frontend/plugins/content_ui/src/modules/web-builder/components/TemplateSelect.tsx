@@ -24,7 +24,7 @@ export const TemplateSelect = ({
   if (!type) {
     return (
       <p className="text-sm text-muted-foreground py-2">
-        {t('select-template-type-first')}
+        {t('select-template-type-first', 'Select a template type first')}
       </p>
     );
   }

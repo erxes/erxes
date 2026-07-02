@@ -6,17 +6,17 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { IInvoice } from '~/modules/payment/types/Payment';
 
-export const invoicesColumns: ColumnDef<IInvoice>[] = [
+export const invoicesColumns = (
+  t: (key: string, defaultValue?: string) => string,
+): ColumnDef<IInvoice>[] => [
   RecordTable.checkboxColumn as ColumnDef<IInvoice>,
   {
     id: 'invoiceNumber',
     accessorKey: 'invoiceNumber',
     header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('invoice-number')} icon={IconAlignLeft} />;
+      return <RecordTable.InlineHead label={t('invoice-number', 'Invoice number')} icon={IconAlignLeft} />;
     },
     cell: ({ cell }) => {
       return (
@@ -31,8 +31,7 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
     id: 'description',
     accessorKey: 'description',
     header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('description')} icon={IconHash} />;
+      return <RecordTable.InlineHead label={t('description', 'Description')} icon={IconHash} />;
     },
     cell: ({ cell }) => {
       return (
@@ -47,8 +46,7 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
     id: 'amount',
     accessorKey: 'amount',
     header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('amount')} icon={IconHash} />;
+      return <RecordTable.InlineHead label={t('amount', 'Amount')} icon={IconHash} />;
     },
     cell: ({ cell }) => {
       return (
@@ -62,8 +60,7 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
     id: 'currency',
     accessorKey: 'currency',
     header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('currency')} icon={IconHash} />;
+      return <RecordTable.InlineHead label={t('currency', 'Currency')} icon={IconHash} />;
     },
     cell: ({ cell }) => {
       return (
@@ -77,8 +74,7 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('status')} icon={IconHash} />;
+      return <RecordTable.InlineHead label={t('status', 'Status')} icon={IconHash} />;
     },
     cell: ({ cell }) => {
       return (
@@ -98,11 +94,9 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
     id: 'scannedAt',
     accessorKey: 'scannedAt',
     header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('scanned')} icon={IconQrcode} />;
+      return <RecordTable.InlineHead label={t('scanned', 'Scanned')} icon={IconQrcode} />;
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('payment');
       const scannedAt = cell.getValue() as string | undefined;
       return (
         <RecordTableInlineCell>
@@ -113,7 +107,7 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
               </Badge>
             </RelativeDateDisplay>
           ) : (
-            <Badge variant="outline">{t('not-scanned')}</Badge>
+            <Badge variant="outline">{t('not-scanned', 'Not scanned')}</Badge>
           )}
         </RecordTableInlineCell>
       );
@@ -123,8 +117,7 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('date-created')} icon={IconCalendarPlus} />;
+      return <RecordTable.InlineHead label={t('date-created', 'Date created')} icon={IconCalendarPlus} />;
     },
     cell: ({ cell }) => {
       return (

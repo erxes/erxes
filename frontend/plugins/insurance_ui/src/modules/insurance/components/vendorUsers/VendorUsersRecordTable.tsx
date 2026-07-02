@@ -34,8 +34,8 @@ export const VendorUsersRecordTable = ({ vendorId }: VendorUsersRecordTableProps
   };
 
   const columns = useMemo(
-    () => createVendorUsersColumns(handleEdit, refetch),
-    [refetch]
+    () => createVendorUsersColumns(handleEdit, refetch, t),
+    [refetch, t]
   );
 
   return (

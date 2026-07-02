@@ -6,7 +6,6 @@ import {
   RecordTableInlineCell,
   Badge,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { InsuranceVendor } from '~/modules/insurance/types';
 import { VendorsMoreColumn } from './VendorsMoreColumn';
 
@@ -14,7 +13,9 @@ const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString('mn-MN');
 };
 
-export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
+export const vendorsColumns = (
+  t: (key: string, defaultValue?: string) => string,
+): ColumnDef<InsuranceVendor>[] => [
   {
     id: 'more',
     accessorKey: 'more',
@@ -30,8 +31,7 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
     id: 'name',
     accessorKey: 'name',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor', 'Vendor')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -45,15 +45,13 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
     id: 'productsCount',
     accessorKey: 'offeredProducts',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconPackage} label={t('products')} />;
+      return <RecordTable.InlineHead icon={IconPackage} label={t('products', 'Products')} />;
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('insurance');
       const products = cell.row.original.offeredProducts || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{products.length} {t('products-offered')}</Badge>
+          <Badge variant="secondary">{products.length} {t('products-offered', 'products offered')}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -62,8 +60,7 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
     id: 'products',
     accessorKey: 'offeredProducts',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconPackage} label={t('offered-products')} />;
+      return <RecordTable.InlineHead icon={IconPackage} label={t('offered-products', 'Offered products')} />;
     },
     cell: ({ cell }) => {
       const products = cell.row.original.offeredProducts || [];
@@ -83,8 +80,7 @@ export const vendorsColumns: ColumnDef<InsuranceVendor>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
+      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created at')} />;
     },
     cell: ({ cell }) => {
       return (

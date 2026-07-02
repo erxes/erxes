@@ -22,7 +22,8 @@ import { useTranslation } from 'react-i18next';
 
 export const IntegrationsRecordTable = () => {
   const params = useParams();
-  const columns = useIntegrationTypeColumns();
+  const { t } = useTranslation('frontline');
+  const columns = integrationTypeColumns(t);
 
   const { integrations, loading, handleFetchMore } = useIntegrations({
     variables: {
@@ -131,14 +132,15 @@ export const BrandField = ({
   return null;
 };
 
-export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => {
-  const { t } = useTranslation('frontline');
+const integrationTypeColumns = (
+  t: (key: string, defaultValue?: string) => string,
+): ColumnDef<IIntegrationDetail>[] => {
   return [
     integrationMoreColumn(),
     {
       id: 'name',
       accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label={t('name')} />,
+      header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
       cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
         <NameField cell={cell} />
       ),
@@ -147,7 +149,7 @@ export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => 
     {
       id: 'isActive',
       accessorKey: 'isActive',
-      header: () => <RecordTable.InlineHead label={t('status')} />,
+      header: () => <RecordTable.InlineHead label={t('status', 'Status')} />,
       cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
         const status = cell.getValue() as boolean;
         return (
@@ -166,7 +168,7 @@ export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => 
     {
       id: 'healthStatus',
       accessorKey: 'healthStatus',
-      header: () => <RecordTable.InlineHead label={t('health-status')} />,
+      header: () => <RecordTable.InlineHead label={t('health-status', 'Health status')} />,
       cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
         const healthStatus = cell.getValue() as IIntegrationDetail['healthStatus'];
         const status = healthStatus?.status;
