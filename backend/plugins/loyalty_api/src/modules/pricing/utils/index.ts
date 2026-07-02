@@ -13,6 +13,7 @@ import { planMatchesContext, EligibilityCache } from './eligibility';
 import { CalculatedRule, OrderItem } from '../types';
 
 type ParticipantKind = 'customer' | 'company' | 'user';
+type PrioritizeRule = 'only' | 'exclude' | string;
 
 export const getMainConditions = ({
   branchId,
@@ -82,6 +83,44 @@ export const getMainConditions = ({
     status: 'active',
     $and: [dateFilter, pipelineFilter, branchFilter, departmentFilter],
   };
+};
+
+const applyPriorityConditions = (
+  conditions: Record<string, any>,
+  prioritizeRule?: PrioritizeRule,
+) => {
+  if (prioritizeRule === 'only') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [
+          { priority: 'posBase' },
+          { priority: { $exists: false }, isPriority: true },
+        ],
+      },
+    ];
+    return;
+  }
+
+  if (prioritizeRule === 'exclude') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [
+          { priority: '' },
+          { priority: { $exists: false }, isPriority: false },
+        ],
+      },
+    ];
+    return;
+  }
+
+  conditions.$and = [
+    ...(conditions.$and || []),
+    {
+      $or: [{ priority: { $ne: 'public' } }, { priority: { $exists: false } }],
+    },
+  ];
 };
 
 // Helper function to calculate default discount value
@@ -204,7 +243,7 @@ const updateResultWithCalculations = (
 ): void => {
   if (type !== 'bonus') {
     result[itemId].type = type;
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase' || plan.isPriority) {
       result[itemId].value += value;
     } else if (
       (value > 0 && result[itemId].value < value) ||
@@ -215,7 +254,7 @@ const updateResultWithCalculations = (
   }
 
   if (type === 'bonus') {
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase' || plan.isPriority) {
       result[itemId].bonusProducts = [
         ...result[itemId].bonusProducts,
         ...bonusProducts,
@@ -286,7 +325,7 @@ const typedParticipantContext = ({
 export const checkPricing = async (params: {
   models: IModels;
   subdomain: string;
-  prioritizeRule: string;
+  prioritizeRule: PrioritizeRule;
   totalAmount: number;
   departmentId: string;
   branchId: string;
@@ -331,15 +370,11 @@ export const checkPricing = async (params: {
 
   // Prepare query conditions
   const conditions = getMainConditions({ branchId, departmentId, pipelineId });
-  if (prioritizeRule === 'only') {
-    conditions.isPriority = true;
-  } else if (prioritizeRule === 'exclude') {
-    conditions.isPriority = false;
-  }
+  applyPriorityConditions(conditions, prioritizeRule);
 
   // Fix: Use proper sort order type for MongoDB
   const sortArgs: Record<string, 1 | -1> = {
-    isPriority: 1,
+    priority: 1,
     value: 1,
   };
 

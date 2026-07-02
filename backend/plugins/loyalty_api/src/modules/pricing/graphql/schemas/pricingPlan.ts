@@ -54,6 +54,7 @@ export const types = `
     priceAdjustFactor: Int,
     bonusProduct: String,
     isPriority: Boolean,
+    priority: String,
 
     applyType: String,
 
@@ -184,6 +185,7 @@ export const types = `
     priceAdjustFactor: Int,
     bonusProduct: String,
     isPriority: Boolean,
+    priority: String,
 
     applyType: String,
 
@@ -260,6 +262,7 @@ export const types = `
     priceAdjustFactor: Int,
     bonusProduct: String,
     isPriority: Boolean,
+    priority: String,
 
     applyType: String,
 
@@ -337,6 +340,7 @@ export const types = `
 
 const pricingQueryParams = `
   status: String
+  priority: String
   prioritizeRule: String
   branchId: String
   departmentId: String
@@ -383,4 +387,5 @@ export const mutations = `
   pricingPlanAdd(doc: PricingPlanAddInput): PricingPlan
   pricingPlanEdit(doc: PricingPlanEditInput): PricingPlan
   pricingPlanRemove(id: String): PricingPlan
+  pricingPlansRecalculatePublicDiscounts: JSON
 `;

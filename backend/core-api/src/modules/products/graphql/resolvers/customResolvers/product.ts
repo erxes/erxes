@@ -6,6 +6,22 @@ import { IProductParams } from '~/modules/products/@types';
 
 const inventoryKey = (id?: string) => id || '_';
 
+const getDiscount = (
+  discounts: IProductDocument['discounts'],
+  branchId?: string,
+  departmentId?: string,
+) => {
+  const branchKey = inventoryKey(branchId);
+  const departmentKey = inventoryKey(departmentId);
+
+  return (
+    discounts?.[branchKey]?.[departmentKey] ||
+    discounts?.[branchKey]?._ ||
+    discounts?._?.[departmentKey] ||
+    discounts?._?._
+  );
+};
+
 export default {
   __resolveReference: async (
     { _id }: { _id: string },
@@ -101,9 +117,7 @@ export default {
   },
 
   discount: async (product: IProductDocument, args: IProductParams) => {
-    if (args.branchId && args.departmentId) {
-      return product.discounts?.[args.branchId]?.[args.departmentId];
-    }
+    return getDiscount(product.discounts, args.branchId, args.departmentId);
   },
 
   similarity: async (

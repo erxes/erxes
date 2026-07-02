@@ -43,7 +43,7 @@ const applyProductIdFilter = async (
   const plans: IPricingPlanDocument[] = await models.PricingPlans.find(
     baseFilter,
   ).sort({
-    isPriority: 1,
+    priority: 1,
     value: 1,
   });
 
@@ -63,11 +63,26 @@ const applyPrioritizeRuleFilter = (
   filter: Record<string, any>,
   prioritizeRule?: 'only' | 'exclude',
 ): Record<string, any> => {
+  const appendAndFilter = (nextFilter: Record<string, any>) => ({
+    ...filter,
+    $and: [...(filter.$and || []), nextFilter],
+  });
+
   if (prioritizeRule === 'only') {
-    return { ...filter, isPriority: true };
+    return appendAndFilter({
+      $or: [
+        { priority: 'posBase' },
+        { priority: { $exists: false }, isPriority: true },
+      ],
+    });
   }
   if (prioritizeRule === 'exclude') {
-    return { ...filter, isPriority: false };
+    return appendAndFilter({
+      $or: [
+        { priority: '' },
+        { priority: { $exists: false }, isPriority: false },
+      ],
+    });
   }
   return filter;
 };
@@ -111,6 +126,7 @@ const generateFilter = async (
   models: IModels,
   params: {
     status?: string;
+    priority?: string;
     branchId?: string;
     departmentId?: string;
     date?: string | Date;
@@ -122,13 +138,24 @@ const generateFilter = async (
     isRepeatEnabled?: boolean;
   },
 ): Promise<Record<string, any>> => {
-  const { status, branchId, departmentId, date, productId, prioritizeRule } =
-    params;
+  const {
+    status,
+    priority,
+    branchId,
+    departmentId,
+    date,
+    productId,
+    prioritizeRule,
+  } = params;
 
   let filter: Record<string, any> = {};
 
   if (status && status !== 'all') {
     filter.status = status;
+  }
+
+  if (priority !== undefined && priority !== 'all') {
+    filter.priority = priority;
   }
 
   if (branchId) {
@@ -289,5 +316,3 @@ export const pricingPlanQueries = {
 (pricingPlanQueries.cpPricingPlans as any).wrapperConfig = {
   forClientPortal: true,
 };
-
-export default pricingPlanQueries;

@@ -25,6 +25,13 @@ export const PRICE_ADJUST_TYPES = {
   ALL: ['none', 'default', 'round', 'floor', 'ceil', 'endsWith9'] as const
 };
 
+export const PRIORITY_TYPES = {
+  NONE: '',
+  PUBLIC: 'public',
+  POS_BASE: 'posBase',
+  ALL: ['', 'public', 'posBase'] as const
+};
+
 export const APPLY_TYPES = {
   PRODUCT: 'product',
   CATEGORY: 'category',

@@ -25,9 +25,9 @@ interface IInventory {
 interface IDiscount {
   [branchId: string]: {
     [departmentId: string]: {
-      pricingId: { type: string };
-      value: { type: number };
-      percent: { type: number };
+      planId: string;
+      discount: number;
+      discountPercent: number;
     };
   };
 }

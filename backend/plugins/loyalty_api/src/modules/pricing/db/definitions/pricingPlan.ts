@@ -4,6 +4,7 @@ import {
   APPLY_TYPES,
   DISCOUNT_TYPES,
   PRICE_ADJUST_TYPES,
+  PRIORITY_TYPES,
   STATUS_TYPES,
 } from './constants';
 import { expiryRuleSchema } from './expiryRule';
@@ -35,6 +36,11 @@ export const pricingPlanSchema = schemaWrapper(
       priceAdjustFactor: { type: Number },
       bonusProduct: { type: String },
       isPriority: { type: Boolean, default: false },
+      priority: {
+        type: String,
+        enum: PRIORITY_TYPES.ALL,
+        default: PRIORITY_TYPES.NONE,
+      },
 
       applyType: {
         type: String,

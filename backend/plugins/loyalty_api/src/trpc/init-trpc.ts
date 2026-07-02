@@ -323,7 +323,15 @@ export const appRouter = t.router({
         const rulesByProductId = {};
 
         const conditions = getMainConditions({ branchId, departmentId });
-        conditions.isPriority = false;
+        conditions.$and = [
+          ...(conditions.$and || []),
+          {
+            $or: [
+              { priority: '' },
+              { priority: { $exists: false }, isPriority: false },
+            ],
+          },
+        ];
 
         const plans = await models.PricingPlans.find({
           ...conditions,

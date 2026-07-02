@@ -21,6 +21,32 @@ import {
 
 const inventoryKey = (id?: string) => id || '_';
 
+const getDiscountPath = (
+  field: 'discount' | 'discountPercent',
+  branchId?: string,
+  departmentId?: string,
+) => {
+  return `discounts.${inventoryKey(branchId)}.${inventoryKey(
+    departmentId,
+  )}.${field}`;
+};
+
+const getSortField = (params: IProductParams) => {
+  if (params.sortField === 'discount') {
+    return getDiscountPath('discount', params.branchId, params.departmentId);
+  }
+
+  if (params.sortField === 'discountPercent') {
+    return getDiscountPath(
+      'discountPercent',
+      params.branchId,
+      params.departmentId,
+    );
+  }
+
+  return params.sortField;
+};
+
 const generateFilter = async (
   models: IModels,
   subdomain: string,
@@ -216,7 +242,7 @@ const generateFilter = async (
 
     if (minDiscountValue || minDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.value`]: {
+        [`discounts.${branchKey}.${departmentKey}.discount`]: {
           $exists: true,
           $gte: minDiscountValue,
         },
@@ -224,7 +250,7 @@ const generateFilter = async (
     }
     if (maxDiscountValue || maxDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.value`]: {
+        [`discounts.${branchKey}.${departmentKey}.discount`]: {
           $exists: true,
           $lte: maxDiscountValue,
         },
@@ -233,7 +259,7 @@ const generateFilter = async (
 
     if (minDiscountPercent || minDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.percent`]: {
+        [`discounts.${branchKey}.${departmentKey}.discountPercent`]: {
           $exists: true,
           $gte: minDiscountPercent,
         },
@@ -241,7 +267,7 @@ const generateFilter = async (
     }
     if (maxDiscountPercent || maxDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.percent`]: {
+        [`discounts.${branchKey}.${departmentKey}.discountPercent`]: {
           $exists: true,
           $lte: maxDiscountPercent,
         },
@@ -315,7 +341,7 @@ const generateFilter = async (
                       $map: {
                         input: { $objectToArray: '$$branch.v' },
                         as: 'dept',
-                        in: { $ifNull: ['$$dept.v.value', 0] },
+                        in: { $ifNull: ['$$dept.v.discount', 0] },
                       },
                     },
                   },
@@ -341,7 +367,7 @@ const generateFilter = async (
                       $map: {
                         input: { $objectToArray: '$$branch.v' },
                         as: 'dept',
-                        in: { $ifNull: ['$$dept.v.value', 0] },
+                        in: { $ifNull: ['$$dept.v.discount', 0] },
                       },
                     },
                   },
@@ -368,7 +394,7 @@ const generateFilter = async (
                       $map: {
                         input: { $objectToArray: '$$branch.v' },
                         as: 'dept',
-                        in: { $ifNull: ['$$dept.v.percent', 0] },
+                        in: { $ifNull: ['$$dept.v.discountPercent', 0] },
                       },
                     },
                   },
@@ -394,7 +420,7 @@ const generateFilter = async (
                       $map: {
                         input: { $objectToArray: '$$branch.v' },
                         as: 'dept',
-                        in: { $ifNull: ['$$dept.v.percent', 0] },
+                        in: { $ifNull: ['$$dept.v.discountPercent', 0] },
                       },
                     },
                   },
@@ -463,6 +489,14 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
       params,
     );
 
+    const sortField = getSortField(params);
+
+    if (sortField) {
+      params.orderBy = {
+        [sortField]: (params.sortDirection || 1) as SortOrder,
+      };
+    }
+
     if (!params.orderBy) {
       params.orderBy = { code: 1 };
     }
@@ -486,7 +520,8 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
       params,
     );
 
-    const { sortField, sortDirection } = params;
+    const { sortDirection } = params;
+    const sortField = getSortField(params);
 
     let sort: { [key: string]: SortOrder } = { code: 1 };
 
@@ -517,7 +552,8 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
       params,
     );
 
-    const { sortField, sortDirection } = params;
+    const { sortDirection } = params;
+    const sortField = getSortField(params);
 
     let sort: { [key: string]: SortOrder } = { code: 1 };
 
