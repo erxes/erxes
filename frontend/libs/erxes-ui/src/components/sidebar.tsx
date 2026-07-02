@@ -98,11 +98,12 @@ const SidebarProvider = React.forwardRef<
     const [_collapseState, _setCollapseState] = React.useState<CollapseState>(
       defaultCollapseState ?? (defaultOpen ? 'expanded' : 'collapsed'),
     );
-    const collapseState: CollapseState = threeStep
-      ? (collapseStateProp ?? _collapseState)
-      : openControlled
-        ? 'expanded'
-        : 'collapsed';
+    let collapseState: CollapseState;
+    if (threeStep) {
+      collapseState = collapseStateProp ?? _collapseState;
+    } else {
+      collapseState = openControlled ? 'expanded' : 'collapsed';
+    }
 
     const open = threeStep ? collapseState === 'expanded' : openControlled;
 
