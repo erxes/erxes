@@ -17,7 +17,7 @@ import {
 
 import { BoardsInline } from '../BoardsInline';
 import { IBoard } from 'ui-modules/modules/sales/types';
-import { IconLabel } from '@tabler/icons-react';
+import { IconChevronDown, IconLabel } from '@tabler/icons-react';
 import { useBoards } from 'ui-modules/modules/sales/hooks/useBoards';
 import { useDebounce } from 'use-debounce';
 
@@ -237,9 +237,11 @@ export const SelectBoardFilterBar = ({
 export const SelectBoardInlineCell = ({
   onValueChange,
   scope,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof SelectBoardProvider>, 'children'> & {
   scope?: string;
+  className?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -251,8 +253,9 @@ export const SelectBoardInlineCell = ({
       {...props}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Trigger className={className}>
           <SelectBoardsValue placeholder={'Choose board'} />
+          <IconChevronDown className="size-4 text-zinc-600 shrink-0" />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectBoardContent />

@@ -1,14 +1,7 @@
-import { AccountingDialog } from '@/layout/components/Dialog';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  DatePicker,
-  Dialog,
-  Form,
-  Spinner,
-  Textarea,
-} from 'erxes-ui';
+import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -17,27 +10,7 @@ import { TSafeRemainderForm } from '../types/safeRemainderForm';
 import { safeRemainderSchema } from '../types/safeRemainderSchema';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
-export const AddSafeRemainder = () => {
-  const { t } = useTranslation('accounting');
-  const [open, setOpen] = useState(false);
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-safe-remainder')}
-        </Button>
-      </Dialog.Trigger>
-      <AccountingDialog
-        title={t('create-adjust-inventory')}
-        description={t('adjust-inventory-description')}
-      >
-        <AddSafeRemainderForm setOpen={setOpen} />
-      </AccountingDialog>
-    </Dialog>
-  );
-};
-
+/** safe remainder form uusgeh */
 const AddSafeRemainderForm = ({
   setOpen,
 }: {
@@ -51,6 +24,7 @@ const AddSafeRemainderForm = ({
     },
   });
   const { addSafeRemainder, loading } = useSafeRemainderAdd();
+  /** ene safe remainder save hiigeed haana. */
   const onSubmit = (data: TSafeRemainderForm) => {
     addSafeRemainder({
       variables: { ...data },
@@ -61,17 +35,18 @@ const AddSafeRemainderForm = ({
     });
   };
 
-  const onError = (error: any) => {
+  /** form submit hiih error handler bn */
+  const onError = (_error: unknown) => {
     return {};
   };
 
   return (
     <Form {...form}>
       <form
-        className="flex flex-col flex-auto overflow-auto"
+        className="flex flex-col flex-1 min-h-0 bg-background"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
-        <div className="p-6 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
           <Form.Field
             control={form.control}
             name="date"
@@ -157,18 +132,40 @@ const AddSafeRemainderForm = ({
           />
         </div>
 
-        <Dialog.Footer className="px-6 py-4 border-t bg-muted/30">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              {t('cancel')}
-            </Button>
-          </Dialog.Close>
+        <Sheet.Footer className="px-5 py-4 border-t bg-background shrink-0">
+          <Button
+            variant="outline"
+            type="button"
+            size="lg"
+            onClick={() => setOpen(false)}
+          >
+            {t('cancel')}
+          </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
             {t('save')}
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
+  );
+};
+
+/** ene safe remainder add sheet. */
+export const AddSafeRemainder = () => {
+  const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          {t('add-safe-remainder')}
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title={t('add-safe-remainder')}>
+        <AddSafeRemainderForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

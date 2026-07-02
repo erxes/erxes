@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { atom, useAtom, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   ACCOUNTING_CHECK_SYNCED_DEALS_QUERY,
   ACCOUNTING_CHECK_SYNCED_MUTATION,
@@ -24,6 +24,13 @@ import {
   AccountingDealsQueryResult,
   AccountingSyncResult,
 } from '../types';
+import {
+  CheckOptions,
+  getSyncStatus,
+  chunkIds,
+  useSyncToggle,
+  useSyncSelectedIds,
+} from '../../constants/shared';
 import {
   AccountingCheckSyncedDealsStatusCounts,
   accountingCheckSyncedDealsStatusCountsAtom,
@@ -41,26 +48,7 @@ const checkedDealsAtom = atom<
 
 const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
 
-type CheckDealsOptions = {
-  silent?: boolean;
-  keepToSyncIds?: boolean;
-  statusById?: Record<string, AccountingCheckSyncedStatus>;
-};
-
-const getDealStatus = (
-  deal?: Partial<AccountingCheckSyncedDeal>,
-): AccountingCheckSyncedStatus => deal?.syncStatus || 'skipped';
-
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
-};
-
+/** check-synced deals query variable barih */
 export const useAccountingCheckSyncedDealsVariables = (
   variables?: QueryHookOptions<AccountingDealsQueryResult>['variables'],
 ) => {
@@ -130,6 +118,7 @@ export const useAccountingCheckSyncedDealsVariables = (
   };
 };
 
+/** check-synced deals query mutation hook bn */
 export const useAccountingCheckSyncedDeals = (
   options?: QueryHookOptions<AccountingDealsQueryResult>,
 ) => {
@@ -169,59 +158,18 @@ export const useAccountingCheckSyncedDeals = (
       (rawDeals || []).map((deal) => ({
         ...deal,
         ...checkedDeals[deal._id],
-        syncStatus: getDealStatus(checkedDeals[deal._id]),
+        syncStatus: getSyncStatus(checkedDeals[deal._id]),
       })),
     [checkedDeals, rawDeals],
   );
 
-  const syncSelectedDealIds = useMemo(
-    () =>
-      Object.entries(toSyncDealIds)
-        .filter(([, selected]) => selected)
-        .map(([id]) => id),
-    [toSyncDealIds],
-  );
+  const { setToSync: setDealToSync, setAllToSync: setAllDealsToSync } =
+    useSyncToggle(setToSyncDealIds);
 
-  const setDealToSync = useCallback(
-    (id: string, checked: boolean) => {
-      setToSyncDealIds((current) => {
-        const next = { ...current };
+  const syncSelectedDealIds = useSyncSelectedIds(toSyncDealIds);
 
-        if (checked) {
-          next[id] = true;
-        } else {
-          delete next[id];
-        }
-
-        return next;
-      });
-    },
-    [setToSyncDealIds],
-  );
-
-  const setAllDealsToSync = useCallback(
-    (ids: string[], checked: boolean) => {
-      setToSyncDealIds((current) => {
-        const next = { ...current };
-
-        for (const id of ids) {
-          if (checked) {
-            next[id] = true;
-          } else {
-            delete next[id];
-          }
-        }
-
-        return next;
-      });
-    },
-    [setToSyncDealIds],
-  );
-
-  const checkDeals = async (
-    ids: string[],
-    checkOptions?: CheckDealsOptions,
-  ) => {
+  /** songogdson deals sync status shalgah */
+  const checkDeals = async (ids: string[], checkOptions?: CheckOptions) => {
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
@@ -267,16 +215,24 @@ export const useAccountingCheckSyncedDeals = (
     });
 
     setToSyncDealIds((current) => {
-      const next = { ...current };
+      if (checkOptions?.keepToSyncIds) {
+        return current;
+      }
+
+      const idsToRemove = new Set(
+        checked.filter((item) => item.isSynced).map((item) => item._id),
+      );
+
+      const next: Record<string, boolean> = {};
+
+      for (const [key, value] of Object.entries(current)) {
+        if (!idsToRemove.has(key)) {
+          next[key] = value;
+        }
+      }
 
       for (const item of checked) {
-        if (checkOptions?.keepToSyncIds) {
-          continue;
-        }
-
-        if (item.isSynced) {
-          delete next[item._id];
-        } else {
+        if (!item.isSynced) {
           next[item._id] = true;
         }
       }
@@ -292,6 +248,7 @@ export const useAccountingCheckSyncedDeals = (
     }
   };
 
+  /** deals-iig accounting sync hiih */
   const syncDeals = async (ids: string[]) => {
     if (!variables.ruleId) {
       toast({
@@ -303,7 +260,7 @@ export const useAccountingCheckSyncedDeals = (
     }
 
     const syncableIds = ids.filter(
-      (id) => getDealStatus(checkedDeals[id]) !== 'skipped',
+      (id) => getSyncStatus(checkedDeals[id]) !== 'skipped',
     );
 
     if (!syncableIds.length) {
@@ -428,10 +385,17 @@ export const useAccountingCheckSyncedDeals = (
       }
 
       setToSyncDealIds((current) => {
-        const next = { ...current };
+        const idsToRemove = new Set([
+          ...skippedIds,
+          ...errorIds,
+          ...successIds,
+        ]);
+        const next: Record<string, boolean> = {};
 
-        for (const id of [...skippedIds, ...errorIds, ...successIds]) {
-          delete next[id];
+        for (const [key, value] of Object.entries(current)) {
+          if (!idsToRemove.has(key)) {
+            next[key] = value;
+          }
         }
 
         return next;
@@ -456,9 +420,14 @@ export const useAccountingCheckSyncedDeals = (
   }, [setTotalCount, totalCount]);
 
   useEffect(() => {
+    setCheckedDeals({});
+    setToSyncDealIds({});
+  }, [variables.ruleId, setCheckedDeals, setToSyncDealIds]);
+
+  useEffect(() => {
     const counts = deals.reduce<AccountingCheckSyncedDealsStatusCounts>(
       (acc, deal) => {
-        const status = getDealStatus(deal);
+        const status = getSyncStatus(deal);
 
         acc[status] += 1;
 
@@ -478,6 +447,7 @@ export const useAccountingCheckSyncedDeals = (
     setStatusCounts(counts);
   }, [deals, setStatusCounts, syncSelectedDealIds.length]);
 
+  /** deals ihuu tatah pagination oor */
   const handleFetchMore = ({
     direction,
   }: {

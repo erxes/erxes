@@ -1,5 +1,6 @@
-import { Sheet, ScrollArea, Button } from 'erxes-ui';
+import { Sheet, Button } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { TAccountForm } from '../types/accountForm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { accountSchema } from '../constants/accountSchema';
@@ -7,37 +8,10 @@ import { useAccountAdd } from '../hooks/useAccountAdd';
 import { AccountForm } from './AccountForm';
 import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { IconPlus } from '@tabler/icons-react';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-export const AddAccount = () => {
-  return (
-    <Sheet>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Данс нэмэх
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>Данс нэмэх</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            Данс нэмэх
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <AddAccountForm />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-const AddAccountForm = () => {
+/** ene account add form setup. */
+const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
     defaultValues: ACCOUNT_DEFAULT_VALUES,
@@ -49,11 +23,31 @@ const AddAccountForm = () => {
       variables: data,
       onCompleted: () => {
         form.reset();
+        setOpen(false);
       },
     });
   };
 
   return (
     <AccountForm form={form} handleSubmit={handleSubmit} loading={loading} />
+  );
+};
+
+/** ene account add sheet. */
+export const AddAccount = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          Данс нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="Данс нэмэх">
+        <AddAccountForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

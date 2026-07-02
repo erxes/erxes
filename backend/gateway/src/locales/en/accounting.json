@@ -259,7 +259,16 @@
   "service": "Service",
   "subscription": "Subscription",
   "unique": "Unique",
+  "check-sync": "Check Sync",
   "last": "Last",
   "skip": "Skip",
-  "add": "Add"
+  "add": "Add",
+
+  "records": "records",
+  "checked": "checked",
+  "synced": "synced",
+  "skipped": "skipped",
+  "pending": "pending",
+  "resynced": "resynced",
+  "toSync": "toSync"
 }
