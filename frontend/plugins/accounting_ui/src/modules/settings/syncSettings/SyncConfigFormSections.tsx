@@ -83,12 +83,12 @@ export const normalizeSyncConfigData = <
   mongolianEnabled: boolean,
 ): T => ({
   ...data,
-  vatRowId: data.hasVat ? data.vatRowId ?? '' : '',
+  vatRowId: data.hasVat ? (data.vatRowId ?? '') : '',
   reverseVatRules:
     mongolianEnabled && !data.hasVat
       ? normalizeRuleIds(data.reverseVatRules)
       : [],
-  ctaxRowId: data.hasCtax ? data.ctaxRowId ?? '' : '',
+  ctaxRowId: data.hasCtax ? (data.ctaxRowId ?? '') : '',
   reverseCtaxRules:
     !mongolianEnabled || data.hasCtax
       ? []

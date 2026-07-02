@@ -49,10 +49,7 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
   } = useAccountingCheckSyncedOrders();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const syncableOrderIds = useMemo(
-    () =>
-      (orders || [])
-        .filter(isSyncable)
-        .map((order) => order._id),
+    () => (orders || []).filter(isSyncable).map((order) => order._id),
     [orders],
   );
   const columns = useMemo(

@@ -30,8 +30,7 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
   } = useAccountingCheckSyncedDeals();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const syncableDealIds = useMemo(
-    () =>
-      (deals || []).filter(isSyncable).map((deal) => deal._id),
+    () => (deals || []).filter(isSyncable).map((deal) => deal._id),
     [deals],
   );
   const columns = useMemo(
