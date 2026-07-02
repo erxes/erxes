@@ -43,14 +43,14 @@ export const AIAgentConfigForm = ({
         <Tabs defaultValue="general" className="min-w-72">
           <Tabs.List className="flex flex-row">
             <Tabs.Trigger value="general" className="flex-1">
-              <IconSettings className="size-3.5 mr-2" /> Configuration
+              <IconSettings className="size-3.5 mr-2" /> {t('configuration', 'Configuration')}
             </Tabs.Trigger>
             <Tabs.Trigger value="memory" className="flex-1">
-              <IconBrain className="size-3.5 mr-2" /> Memory
+              <IconBrain className="size-3.5 mr-2" /> {t('memory', 'Memory')}
             </Tabs.Trigger>
             <Tabs.Trigger value="runtimeSnapshot" className="flex-1">
               <IconChartPie className="size-3.5 mr-2" />
-              Runtime Snapshot
+              {t('runtime-snapshot', 'Runtime Snapshot')}
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="general" className="flex flex-col gap-2">

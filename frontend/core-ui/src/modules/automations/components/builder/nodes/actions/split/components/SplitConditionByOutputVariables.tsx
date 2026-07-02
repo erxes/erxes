@@ -4,6 +4,7 @@ import { Button, DatePicker, Form, Input, Label, Select } from 'erxes-ui';
 import { useEffect, useMemo } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { TSplitConditionsConfigForm } from '../states/splitConditionsConfigForm';
+import { useTranslation } from 'react-i18next';
 
 type TOutputVariable = {
   id?: string;
@@ -129,6 +130,7 @@ export const SplitConditionByOutputVariables = ({
   optionIndex: number;
   outputVariables?: unknown;
 }) => {
+  const { t } = useTranslation('automations');
   const form = useFormContext<TSplitConditionsConfigForm>();
   const conditionFieldsPath =
     `options.${optionIndex}.config.conditions` as const;
@@ -204,7 +206,7 @@ export const SplitConditionByOutputVariables = ({
             onClick={addCondition}
           >
             <IconPlus />
-            Add condition
+            {t('add-condition', 'Add condition')}
           </Button>
         </div>
       </div>
@@ -225,6 +227,7 @@ const OutputVariableConditionRow = ({
   outputFields: TOutputVariableField[];
   onRemove: () => void;
 }) => {
+  const { t } = useTranslation('automations');
   const form = useFormContext<TSplitConditionsConfigForm>();
   const conditionPath =
     `options.${optionIndex}.config.conditions.${conditionIndex}` as const;
@@ -273,7 +276,7 @@ const OutputVariableConditionRow = ({
               }}
             >
               <Select.Trigger className="w-full min-w-0">
-                <Select.Value placeholder="Select an field" />
+                <Select.Value placeholder={t('select-a-field', 'Select a field')} />
               </Select.Trigger>
               <Select.Content>
                 {outputFields.map(({ name, label }) => (
@@ -303,7 +306,7 @@ const OutputVariableConditionRow = ({
               }}
             >
               <Select.Trigger className="w-full min-w-0">
-                <Select.Value placeholder="Select an operator" />
+                <Select.Value placeholder={t('select-an-operator', 'Select an operator')} />
               </Select.Trigger>
               <Select.Content>
                 {operators.map(({ value, label }) => (

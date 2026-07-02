@@ -2,6 +2,7 @@ import { Combobox, Command, IconComponent, Popover, cn } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { TAutomationVariableSourceNode } from '../AutomationVariableBrowserTypes';
 import { AutomationNodeType } from '@/automations/types';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationVariableSourceNodeList = ({
   activeSourceNodeId,
@@ -12,6 +13,7 @@ export const AutomationVariableSourceNodeList = ({
   sourceNodes: TAutomationVariableSourceNode[];
   onSelectSourceNode: (nodeId: string) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const [open, setOpen] = useState(false);
   const selectedNode = useMemo(
     () => sourceNodes.find((node) => node.id === activeSourceNodeId),
@@ -24,13 +26,13 @@ export const AutomationVariableSourceNodeList = ({
         {selectedNode ? (
           <AutomationVariableSourceNodeValue node={selectedNode} />
         ) : (
-          <Combobox.Value placeholder="Select node" />
+          <Combobox.Value placeholder={t('select-node', 'Select node')} />
         )}
       </Combobox.Trigger>
       <Combobox.Content>
         <Command shouldFilter>
-          <Command.Input placeholder="Search nodes..." />
-          <Command.Empty>No nodes found.</Command.Empty>
+          <Command.Input placeholder={t('search-nodes', 'Search nodes...')} />
+          <Command.Empty>{t('no-nodes-found', 'No nodes found.')}</Command.Empty>
           <Command.List>
             {sourceNodes.map((node) => (
               <Command.Item
@@ -58,6 +60,7 @@ const AutomationVariableSourceNodeValue = ({
 }: {
   node: TAutomationVariableSourceNode;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <div className="flex min-w-0 items-center gap-2">
       {node.icon ? (
@@ -74,7 +77,7 @@ const AutomationVariableSourceNodeValue = ({
       ) : null}
       <span className="min-w-0 flex-1 truncate font-medium">{node.label}</span>
       <span className="text-xs text-muted-foreground">
-        {node.nodeType === AutomationNodeType.Trigger ? 'Trigger' : 'Action'}
+        {node.nodeType === AutomationNodeType.Trigger ? t('trigger', 'Trigger') : t('action', 'Action')}
       </span>
     </div>
   );

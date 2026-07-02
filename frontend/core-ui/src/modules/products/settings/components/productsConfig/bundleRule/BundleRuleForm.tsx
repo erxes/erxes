@@ -157,10 +157,10 @@ export const BundleRuleForm = ({
               render={({ field }) => (
                 <Form.Item className="w-full">
                   <Form.Label>
-                    {t('name')} <span className="text-destructive">*</span>
+                    {t('name', 'Name')} <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
-                    <Input placeholder={t('name')} {...field} autoFocus />
+                    <Input placeholder={t('name', 'Name')} {...field} autoFocus />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -172,10 +172,10 @@ export const BundleRuleForm = ({
               render={({ field }) => (
                 <Form.Item className="w-full">
                   <Form.Label>
-                    {t('code')} <span className="text-destructive">*</span>
+                    {t('code', 'Code')} <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
-                    <Input placeholder={t('code')} {...field} />
+                    <Input placeholder={t('code', 'Code')} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -186,10 +186,10 @@ export const BundleRuleForm = ({
               name="description"
               render={({ field }) => (
                 <Form.Item className="w-full">
-                  <Form.Label>{t('description')}</Form.Label>
+                  <Form.Label>{t('description', 'Description')}</Form.Label>
                   <Form.Control>
                     <Textarea
-                      placeholder={t('description')}
+                      placeholder={t('description', 'Description')}
                       {...field}
                       value={field.value ?? ''}
                       rows={3}
@@ -206,7 +206,7 @@ export const BundleRuleForm = ({
               onClick={handleOpenDialog}
             >
               <IconPlus />
-              Add Row
+              {t('add-row', 'Add Row')}
             </Button>
 
             {rules.length > 0 && (
@@ -214,8 +214,8 @@ export const BundleRuleForm = ({
                 <table className="w-full text-xs">
                   <thead className="bg-muted">
                     <tr>
-                      <th className="px-4 py-2 text-left">Code</th>
-                      <th className="px-4 py-2 text-right">Actions</th>
+                      <th className="px-4 py-2 text-left">{t('code', 'Code')}</th>
+                      <th className="px-4 py-2 text-right">{t('actions', 'Actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -251,7 +251,7 @@ export const BundleRuleForm = ({
         </Sheet.Content>
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button type="button" variant="outline" onClick={handleCancel}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading

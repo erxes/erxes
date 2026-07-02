@@ -11,8 +11,10 @@ import {
   RecordTable,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const TemplateMoreColumn = (props: CellContext<Template, unknown>) => {
+  const { t } = useTranslation('templates');
   const template = props.row.original;
 
   const [, setTemplateId] = useQueryState<string>('templateId');
@@ -39,11 +41,11 @@ export const TemplateMoreColumn = (props: CellContext<Template, unknown>) => {
             <TemplateExport template={template} />
             <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit className="w-4 h-4" />
-              Edit
+              {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
               <IconTrash className="w-4 h-4" />
-              Delete
+              {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

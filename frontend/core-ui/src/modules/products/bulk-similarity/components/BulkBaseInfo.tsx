@@ -93,7 +93,7 @@ export const BulkBaseInfo = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t('category', 'Category')}{' '}
+                    {t('category._', 'Category')}{' '}
                     <span className="text-destructive">*</span>
                   </Form.Label>
                   <SelectCategory

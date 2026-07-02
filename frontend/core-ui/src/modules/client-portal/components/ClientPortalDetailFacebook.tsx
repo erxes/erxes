@@ -4,12 +4,14 @@ import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_FACEBOOK_SCHEMA } from '@/client-portal/constants/clientPortalEditSchema';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   clientPortal: IClientPortal;
 }
 
 export function ClientPortalDetailFacebook({ clientPortal }: Props) {
+  const { t } = useTranslation('client-portal');
   const form = useForm<
     ReturnType<(typeof CLIENTPORTAL_FACEBOOK_SCHEMA)['parse']>
   >({
@@ -49,11 +51,10 @@ export function ClientPortalDetailFacebook({ clientPortal }: Props) {
           name="facebookAppId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Facebook App ID</Form.Label>
+              <Form.Label>{t('facebook-app-id', 'Facebook App ID')}</Form.Label>
               <Input {...field} autoComplete="off" />
               <Form.Description>
-                Your Facebook App ID. Get it from
-                https://developers.facebook.com/
+                {t('facebook-app-id-description', 'Your Facebook App ID. Get it from https://developers.facebook.com/')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -66,7 +67,7 @@ export function ClientPortalDetailFacebook({ clientPortal }: Props) {
           disabled={loading}
         >
           {loading && <Spinner containerClassName="w-auto flex-none" />}
-          Save
+          {t('save', 'Save')}
         </Button>
       </form>
     </Form>

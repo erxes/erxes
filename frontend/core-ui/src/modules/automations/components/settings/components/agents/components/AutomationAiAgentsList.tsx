@@ -3,8 +3,10 @@ import { AutomationAiAgentRecordTable } from '@/automations/components/settings/
 import { AI_AGENT_KINDS } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
 import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
 import { useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationAiAgentsList = () => {
+  const { t } = useTranslation('automations');
   const [kind, setKind] = useQueryState<string>('kind');
   const activeKind = kind || AI_AGENT_KINDS[0]?.type || null;
 
@@ -14,8 +16,8 @@ export const AutomationAiAgentsList = () => {
 
   return (
     <AutomationSettingsPageShell
-      title="AI Agents"
-      description="Configure credential-backed AI agents, attach context files, and validate provider readiness before wiring them into automation actions."
+      title={t('ai-agents', 'AI Agents')}
+      description={t('ai-agents-description', 'Configure credential-backed AI agents, attach context files, and validate provider readiness before wiring them into automation actions.')}
     >
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
         <AutomationAiAgentKinds

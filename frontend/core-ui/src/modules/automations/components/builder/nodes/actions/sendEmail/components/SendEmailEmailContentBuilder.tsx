@@ -24,6 +24,7 @@ import {
   useAttributes,
   useAutomationVariableBlockEditorDrop,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 interface SendEmailEmailContentBuilderProps {
   content: string;
@@ -184,6 +185,7 @@ export const SendEmailEmailContentBuilder = ({
   variableSourceNodes,
   onChange,
 }: SendEmailEmailContentBuilderProps) => {
+  const { t } = useTranslation('automations');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const editor = useBlockEditor({});
@@ -231,7 +233,7 @@ export const SendEmailEmailContentBuilder = ({
               }}
             >
               <IconEdit className="size-4" />
-              Edit Content
+              {t('edit-content', 'Edit Content')}
             </Button>
           </div>
         )}
@@ -264,6 +266,7 @@ const SendEmailEmailContentBuilderEditor = ({
   setIsSheetOpen: (isOpen: boolean) => void;
   onChange: (content: string) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { setValue } = useFormContext<TAutomationSendEmailConfig>();
   const { isDragActive, handleDragOver, handleDragLeave, handleDrop } =
     useAutomationVariableBlockEditorDrop({
@@ -293,9 +296,9 @@ const SendEmailEmailContentBuilderEditor = ({
       <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
         <Sheet.Header>
           <div className="space-y-1">
-            <Sheet.Title>Edit Email Content</Sheet.Title>
+            <Sheet.Title>{t('edit-email-content', 'Edit Email Content')}</Sheet.Title>
             <Sheet.Description>
-              Edit the email content for the email action.
+              {t('edit-email-content-description', 'Edit the email content for the email action.')}
             </Sheet.Description>
           </div>
           <Sheet.Close />
@@ -307,11 +310,13 @@ const SendEmailEmailContentBuilderEditor = ({
                 sourceNodes={variableSourceNodes}
                 onInsertVariable={handleInsertVariable}
                 emptyState={{
-                  title: 'No variables available yet',
-                  description:
+                  title: t('no-variables-available-yet', 'No variables available yet'),
+                  description: t(
+                    'no-variables-available-description',
                     'Add a trigger or an earlier action to this automation to insert variables into the email content.',
+                  ),
                 }}
-                sourceSectionTitle="Variable Sources"
+                sourceSectionTitle={t('variable-sources', 'Variable Sources')}
               />
             </div>
           </aside>
@@ -342,9 +347,9 @@ const SendEmailEmailContentBuilderEditor = ({
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
-          <Button onClick={onSave}>Save</Button>
+          <Button onClick={onSave}>{t('save', 'Save')}</Button>
         </Sheet.Footer>
       </Sheet.View>
     </Sheet>

@@ -16,12 +16,14 @@ import {
   useToast,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IClientPortal, unknown>;
 }) => {
+  const { t } = useTranslation('client-portal');
   const { _id, name } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -30,8 +32,8 @@ export const ClientPortalMoreColumnCell = ({
   const handleDelete = () => {
     if (!_id) {
       toast({
-        title: 'Error',
-        description: 'Client portal ID is missing',
+        title: t('error', 'Error'),
+        description: t('client-portal-id-missing', 'Client portal ID is missing'),
         variant: 'destructive',
       });
       return;
@@ -43,13 +45,13 @@ export const ClientPortalMoreColumnCell = ({
       try {
         await removeClientPortal([_id]);
         toast({
-          title: 'Success',
+          title: t('success', 'Success'),
           variant: 'success',
-          description: 'Client portal deleted successfully',
+          description: t('client-portal-deleted-successfully', 'Client portal deleted successfully'),
         });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -77,11 +79,11 @@ export const ClientPortalMoreColumnCell = ({
                   _id
                 }
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit', 'Edit')}
               </Link>
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

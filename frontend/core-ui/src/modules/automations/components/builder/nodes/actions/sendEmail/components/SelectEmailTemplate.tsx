@@ -5,6 +5,7 @@ import { IconTemplate, IconPlus } from '@tabler/icons-react';
 import { Button, Popover, Command, Combobox } from 'erxes-ui';
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
+import { useTranslation } from 'react-i18next';
 
 interface SelectEmailTemplateProps {
   onSelect: (value: string) => void;
@@ -17,6 +18,7 @@ export const SelectEmailTemplate = ({
   onContentSelect,
   placeholder = 'Select email template',
 }: SelectEmailTemplateProps) => {
+  const { t } = useTranslation('automations');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
@@ -52,13 +54,13 @@ export const SelectEmailTemplate = ({
             variant="secondary"
             wrapperClassName="flex-auto"
             focusOnMount
-            placeholder="Search email templates..."
+            placeholder={t('search-email-templates', 'Search email templates...')}
           />
           <Command.List className="max-h-[300px] overflow-y-auto">
             <Combobox.Empty loading={loading} />
             {!loading && emailTemplates.length === 0 && (
               <div className="p-4 text-center text-muted-foreground">
-                No email templates found
+                {t('no-email-templates-found', 'No email templates found')}
               </div>
             )}
             {!loading &&

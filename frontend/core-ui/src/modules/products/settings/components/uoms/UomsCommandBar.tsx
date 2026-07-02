@@ -7,9 +7,11 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useUomsRemove } from '../../hooks/useUomsRemove';
 
 export const UomsCommandBar = () => {
+  const { t } = useTranslation('product');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeUoms } = useUomsRemove();
@@ -21,9 +23,10 @@ export const UomsCommandBar = () => {
       .rows.map((row) => row.original._id);
 
     confirm({
-      message: `Are you sure you want to delete the ${
-        selectedIds.length
-      } selected UOM${selectedIds.length === 1 ? '' : 's'}?`,
+      message: t('confirm-delete-uoms', {
+        defaultValue: 'Are you sure you want to delete the {{count}} selected UOM(s)?',
+        count: selectedIds.length,
+      }),
       options: confirmOptions,
     }).then(() => {
       removeUoms({
@@ -39,7 +42,7 @@ export const UomsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected', { defaultValue: '{{count}} selected', count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <Can action="uomsManage">
@@ -49,7 +52,7 @@ export const UomsCommandBar = () => {
             onClick={handleDelete}
           >
             <IconTrash />
-            Delete
+            {t('delete', 'Delete')}
           </Button>
         </Can>
       </CommandBar.Bar>

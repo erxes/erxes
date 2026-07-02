@@ -13,8 +13,10 @@ import {
   ScrollArea,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const NotificationFilterBar = () => {
+  const { t } = useTranslation('notification');
   const [queries, setQueries] = useMultiQueryState<{
     priority?: string;
     type?: string;
@@ -38,7 +40,7 @@ export const NotificationFilterBar = () => {
               <Filter.BarItem queryKey="type">
                 <Filter.BarName className="whitespace-nowrap">
                   <IconNotification />
-                  Notification Type
+                  {t('notification-type', 'Notification Type')}
                 </Filter.BarName>
                 <Popover>
                   <Popover.Trigger>
@@ -54,7 +56,7 @@ export const NotificationFilterBar = () => {
               <Filter.BarItem queryKey="priority">
                 <Filter.BarName className="whitespace-nowrap">
                   <IconEyeUp />
-                  Priority
+                  {t('priority', 'Priority')}
                 </Filter.BarName>
                 <Popover>
                   <Popover.Trigger>
@@ -73,7 +75,7 @@ export const NotificationFilterBar = () => {
               <Filter.BarItem queryKey="createdAt">
                 <Filter.BarName className="whitespace-nowrap">
                   <IconCalendarPlus />
-                  Created at
+                  {t('created-at', 'Created at')}
                 </Filter.BarName>
                 <Filter.Date filterKey="createdAt" />
               </Filter.BarItem>

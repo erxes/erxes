@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { SEGMENT_REMOVE } from 'ui-modules';
 import { TSplitConditionsConfigForm } from '../states/splitConditionsConfigForm';
+import { useTranslation } from 'react-i18next';
 
 export const SplitCondtionRemoveButton = ({
   index,
@@ -15,6 +16,7 @@ export const SplitCondtionRemoveButton = ({
   disabled?: boolean;
   onRemove: () => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const [removeSegment] = useMutation(SEGMENT_REMOVE);
@@ -29,8 +31,8 @@ export const SplitCondtionRemoveButton = ({
           options: {
             description:
               'This action cannot be undone. The split option and its associated segment will be permanently removed.',
-            okLabel: 'Delete',
-            cancelLabel: 'Cancel',
+            okLabel: t('delete', 'Delete'),
+            cancelLabel: t('cancel', 'Cancel'),
           },
         });
 
@@ -45,7 +47,7 @@ export const SplitCondtionRemoveButton = ({
     } catch (error) {
       if (error instanceof Error) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

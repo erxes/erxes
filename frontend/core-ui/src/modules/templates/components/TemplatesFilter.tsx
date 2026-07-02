@@ -74,7 +74,7 @@ const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
       <Filter.BarItem queryKey="searchValue">
         <Filter.BarName>
           <IconSearch />
-          {t('search')}
+          {t('search', 'Search')}
         </Filter.BarName>
         <Filter.BarButton filterKey="searchValue" inDialog>
           {searchValue}
@@ -84,7 +84,7 @@ const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
       <Filter.BarItem queryKey="contentType">
         <Filter.BarName>
           <IconBox />
-          Types
+          {t('types', 'Types')}
         </Filter.BarName>
         <SelectTemplateContentTypes.FilterBar queryKey="contentType" />
       </Filter.BarItem>
@@ -92,7 +92,7 @@ const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          {t('created-at')}
+          {t('created-at', 'Created At')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
@@ -100,23 +100,23 @@ const TemplateFilterBar = ({ queries }: { queries: TemplateFilterState }) => {
       <Filter.BarItem queryKey="updatedAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          {t('updated-at')}
+          {t('updated-at', 'Updated At')}
         </Filter.BarName>
         <Filter.Date filterKey="updatedAt" />
       </Filter.BarItem>
 
       {createdBy && (
-        <SelectMember.FilterBar queryKey="createdBy" label="Created By" />
+        <SelectMember.FilterBar queryKey="createdBy" label={t('created-by', 'Created By')} />
       )}
 
       {updatedBy && (
-        <SelectMember.FilterBar queryKey="updatedBy" label="Updated By" />
+        <SelectMember.FilterBar queryKey="updatedBy" label={t('updated-by', 'Updated By')} />
       )}
 
       {categoryIds && (
         <SelectTemplateCategory.FilterBar
           queryKey="categoryIds"
-          label="Category"
+          label={t('category-label', 'Category')}
         />
       )}
     </>
@@ -133,39 +133,39 @@ const TemplateFilterView = () => {
       <Filter.View>
         <Command>
           <Filter.CommandInput
-            placeholder="Filter"
+            placeholder={t('filter', 'Filter')}
             variant="secondary"
             className="bg-background"
           />
           <Command.List className="p-1">
             <Filter.Item value="searchValue" inDialog>
               <IconSearch />
-              {t('search')}
+              {t('search', 'Search')}
             </Filter.Item>
 
             <Filter.Item value="contentType">
               <IconBox />
-              Types
+              {t('types', 'Types')}
             </Filter.Item>
 
             <SelectTemplateCategory.FilterItem
               value="categoryIds"
-              label="Category"
+              label={t('category-label', 'Category')}
             />
 
-            <SelectMember.FilterItem value="createdBy" label="Created By" />
-            <SelectMember.FilterItem value="updatedBy" label="Updated By" />
+            <SelectMember.FilterItem value="createdBy" label={t('created-by', 'Created By')} />
+            <SelectMember.FilterItem value="updatedBy" label={t('updated-by', 'Updated By')} />
 
             <Command.Separator className="my-1" />
 
             <Filter.Item value="createdAt">
               <IconCalendarPlus />
-              {t('created-at')}
+              {t('created-at', 'Created At')}
             </Filter.Item>
 
             <Filter.Item value="updatedAt">
               <IconCalendarPlus />
-              {t('updated-at')}
+              {t('updated-at', 'Updated At')}
             </Filter.Item>
           </Command.List>
         </Command>

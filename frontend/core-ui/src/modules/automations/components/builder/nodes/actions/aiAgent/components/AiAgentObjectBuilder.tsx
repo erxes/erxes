@@ -3,8 +3,10 @@ import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actio
 import { Button, Form, Label } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { generateAutomationElementId } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AiAgentObjectBuilder = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
 
   return (
@@ -18,9 +20,9 @@ export const AiAgentObjectBuilder = () => {
           <Form.Item>
             <div className="flex flex-col gap-2 p-4">
               <div className="grid grid-cols-12 items-center gap-2">
-                <Label className="col-span-5">Field Key</Label>
-                <Label className="col-span-2">Data Type</Label>
-                <Label className="col-span-4">Validation</Label>
+                <Label className="col-span-5">{t('field-key', 'Field Key')}</Label>
+                <Label className="col-span-2">{t('data-type', 'Data Type')}</Label>
+                <Label className="col-span-4">{t('validation', 'Validation')}</Label>
                 <div className="col-span-1" />
               </div>
 
@@ -51,7 +53,7 @@ export const AiAgentObjectBuilder = () => {
                 ])
               }
             >
-              Add Classification Field
+              {t('add-classification-field', 'Add Classification Field')}
             </Button>
           </Form.Item>
         );

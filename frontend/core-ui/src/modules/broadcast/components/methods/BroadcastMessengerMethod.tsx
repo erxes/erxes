@@ -1,11 +1,13 @@
 import { Form } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SelectBrand, SelectMember } from 'ui-modules';
 import { BroadcastRules } from '../BroadcastRules';
 import { BroadcastSelectMessengerMessageSentAs } from '../select/BroadcastSelectMessengerMessageSentAs';
 import { BroadcastSelectMessengerMessageType } from '../select/BroadcastSelectMessengerMessageType';
 
 export const BroadcastMessengerMethod = () => {
+  const { t } = useTranslation('broadcasts');
   const { control } = useFormContext();
 
   return (
@@ -16,12 +18,12 @@ export const BroadcastMessengerMethod = () => {
           control={control}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>From User</Form.Label>
+              <Form.Label>{t('from-user', 'From User')}</Form.Label>
               <Form.Control>
                 <SelectMember.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
-                  placeholder="Select team members"
+                  placeholder={t('select-team-members', 'Select team members')}
                 />
               </Form.Control>
             </Form.Item>
@@ -32,12 +34,12 @@ export const BroadcastMessengerMethod = () => {
           control={control}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Brand</Form.Label>
+              <Form.Label>{t('brand', 'Brand')}</Form.Label>
               <Form.Control>
                 <SelectBrand.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
-                  placeholder="Select brand"
+                  placeholder={t('select-brand', 'Select brand')}
                 />
               </Form.Control>
             </Form.Item>
@@ -51,7 +53,7 @@ export const BroadcastMessengerMethod = () => {
           control={control}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Message type</Form.Label>
+              <Form.Label>{t('message-type', 'Message type')}</Form.Label>
               <Form.Control>
                 <BroadcastSelectMessengerMessageType
                   value={field.value}
@@ -66,7 +68,7 @@ export const BroadcastMessengerMethod = () => {
           control={control}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Sent as</Form.Label>
+              <Form.Label>{t('sent-as', 'Sent as')}</Form.Label>
               <Form.Control>
                 <BroadcastSelectMessengerMessageSentAs
                   value={field.value}

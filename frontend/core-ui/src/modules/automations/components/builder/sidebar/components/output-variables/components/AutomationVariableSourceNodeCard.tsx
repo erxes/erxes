@@ -1,6 +1,7 @@
 import { cn, IconComponent } from 'erxes-ui';
 import { TAutomationVariableSourceNode } from '../AutomationVariableBrowserTypes';
 import { AutomationNodeType } from '@/automations/types';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationVariableSourceNodeCard = ({
   node,
@@ -11,6 +12,7 @@ export const AutomationVariableSourceNodeCard = ({
   isSelected: boolean;
   onClick: () => void;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <button
       type="button"
@@ -31,7 +33,7 @@ export const AutomationVariableSourceNodeCard = ({
       <div className="min-w-0 flex-1">
         <div className="truncate font-medium text-foreground">{node.label}</div>
         <div className="text-xs text-muted-foreground">
-          {node.nodeType === AutomationNodeType.Trigger ? 'Trigger' : 'Action'}
+          {node.nodeType === AutomationNodeType.Trigger ? t('trigger', 'Trigger') : t('action', 'Action')}
         </div>
       </div>
     </button>

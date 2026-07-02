@@ -2,6 +2,7 @@ import { SelectEmailTemplate } from '@/automations/components/builder/nodes/acti
 import { useAutomationEmailTemplateDetailLazy } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplateDetailLazy';
 import { useConfirm } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface EmailTemplateSelectorProps {
   content: string;
@@ -12,6 +13,7 @@ export const EmailTemplateSelector = ({
   content,
   onChange,
 }: EmailTemplateSelectorProps) => {
+  const { t } = useTranslation('automations');
   const { loadEmailTemplate, emailTemplate, loading } =
     useAutomationEmailTemplateDetailLazy();
   const { confirm } = useConfirm();
@@ -41,7 +43,7 @@ export const EmailTemplateSelector = ({
   return (
     <SelectEmailTemplate
       onSelect={handleTemplateSelect}
-      placeholder="Select email template to load"
+      placeholder={t('select-email-template-to-load', 'Select email template to load')}
     />
   );
 };

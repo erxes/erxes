@@ -4,6 +4,7 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label, Select } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { PlaceholderInput } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const DISABLED_WEBHOOK_URL_SUGGESTIONS = {
   attribute: true,
@@ -18,6 +19,7 @@ const DISABLED_WEBHOOK_URL_SUGGESTIONS = {
 } as const;
 
 export const OutgoingWebhookRequest = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TOutgoingWebhookForm>();
 
   return (
@@ -28,7 +30,7 @@ export const OutgoingWebhookRequest = () => {
           name="method"
           render={({ field }) => (
             <Form.Item className="w-1/6">
-              <Form.Label>Method</Form.Label>
+              <Form.Label>{t('method', 'Method')}</Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value />
@@ -52,7 +54,7 @@ export const OutgoingWebhookRequest = () => {
           name="url"
           render={({ field }) => (
             <Form.Item className="w-5/6">
-              <Form.Label>URL</Form.Label>
+              <Form.Label>{t('url', 'URL')}</Form.Label>
               <PlaceholderInput
                 {...field}
                 disabled={DISABLED_WEBHOOK_URL_SUGGESTIONS}
@@ -72,7 +74,7 @@ export const OutgoingWebhookRequest = () => {
               <>
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">
-                    Query Parameters
+                    {t('query-parameters', 'Query Parameters')}
                   </Label>
                   <Button
                     variant="outline"
@@ -82,7 +84,7 @@ export const OutgoingWebhookRequest = () => {
                     }
                   >
                     <IconPlus className="mr-2" />
-                    Add Parameter
+                    {t('add-parameter', 'Add Parameter')}
                   </Button>
                 </div>
                 {queryParams.map((param, index) => (

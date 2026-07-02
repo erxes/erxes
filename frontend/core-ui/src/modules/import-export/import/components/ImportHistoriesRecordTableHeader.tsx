@@ -1,8 +1,10 @@
 import { IconFileImport } from '@tabler/icons-react';
 import { Badge, Select, Skeleton } from 'erxes-ui';
 import { useImportHistoriesRecordTableHeader } from '../hooks/useImportHistoriesRecordTableHeader';
+import { useTranslation } from 'react-i18next';
 
 export const ImportHistoriesRecordTableHeader = () => {
+  const { t } = useTranslation('import-export');
   const {
     selectedEntityType,
     setSelectedEntityType,
@@ -23,11 +25,10 @@ export const ImportHistoriesRecordTableHeader = () => {
             <div className="rounded-lg bg-primary/10 p-2 text-primary">
               <IconFileImport className="size-4" />
             </div>
-            <h3 className="text-base font-semibold">Import history</h3>
+            <h3 className="text-base font-semibold">{t('import-history', 'Import history')}</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Review completed and failed CSV imports, then open error files when
-            a job needs attention.
+            {t('import-history-description', 'Review completed and failed CSV imports, then open error files when a job needs attention.')}
           </p>
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">{selectedTypeLabel}</Badge>
@@ -53,10 +54,10 @@ export const ImportHistoriesRecordTableHeader = () => {
               onValueChange={setSelectedEntityType}
             >
               <Select.Trigger className="w-full lg:w-56">
-                <Select.Value placeholder="Filter by type" />
+                <Select.Value placeholder={t('filter-by-type', 'Filter by type')} />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="all">All types</Select.Item>
+                <Select.Item value="all">{t('all-types', 'All types')}</Select.Item>
                 {contentTypes.map((type) => (
                   <Select.Item key={type.contentType} value={type.contentType}>
                     {type.label}
@@ -67,7 +68,7 @@ export const ImportHistoriesRecordTableHeader = () => {
           )}
           {isFilterNotAviable && (
             <p className="text-xs text-muted-foreground">
-              Type filters are temporarily unavailable.
+              {t('type-filters-unavailable', 'Type filters are temporarily unavailable.')}
             </p>
           )}
         </div>

@@ -6,15 +6,17 @@ import {
   IconNotification,
   IconUserUp,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const NotificationFilterMenu = () => {
+  const { t } = useTranslation('notification');
   const [status, setStatus] = useQueryState<string>('notificationStatus');
 
   return (
     <Filter.View>
       <Command>
         <Filter.CommandInput
-          placeholder="Filter"
+          placeholder={t('filter', 'Filter')}
           variant="secondary"
           className="bg-background"
         />
@@ -30,21 +32,21 @@ export const NotificationFilterMenu = () => {
               value="unread"
               className="flex-1"
             >
-              Unread
+              {t('unread', 'Unread')}
             </ToggleGroup.Item>
             <ToggleGroup.Item
               aria-label="Toggle all"
               value="all"
               className="flex-1"
             >
-              All
+              {t('all', 'All')}
             </ToggleGroup.Item>
             <ToggleGroup.Item
               aria-label="Toggle Read"
               value="read"
               className="flex-1"
             >
-              Read
+              {t('read', 'Read')}
             </ToggleGroup.Item>
           </ToggleGroup>
         </div>
@@ -52,11 +54,11 @@ export const NotificationFilterMenu = () => {
         <Command.List className="p-1">
           <Filter.Item value="type">
             <IconNotification />
-            Notification Type
+            {t('notification-type', 'Notification Type')}
           </Filter.Item>
           <Filter.Item value="priority">
             <IconEyeUp />
-            Priority
+            {t('priority', 'Priority')}
           </Filter.Item>
 
           <Filter.Item value="module">
@@ -66,12 +68,12 @@ export const NotificationFilterMenu = () => {
 
           <Filter.Item value="createdAt">
             <IconCalendar />
-            Filter by date
+            {t('filter-by-date', 'Filter by date')}
           </Filter.Item>
           <Command.Separator className="my-1" />
           <Filter.Item value="fromUserId">
             <IconUserUp />
-            Filter by sender
+            {t('filter-by-sender', 'Filter by sender')}
           </Filter.Item>
         </Command.List>
       </Command>

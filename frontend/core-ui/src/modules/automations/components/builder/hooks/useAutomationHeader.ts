@@ -14,9 +14,11 @@ import { toast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { SubmitErrorHandler, useFormContext } from 'react-hook-form';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { currentUserState } from 'ui-modules';
 
 export const useAutomationHeader = () => {
+  const { t } = useTranslation('automations');
   const {
     handleSubmit,
     clearErrors,
@@ -77,7 +79,7 @@ export const useAutomationHeader = () => {
       variables: generateValues(),
       onError: (error) => {
         toast({
-          title: 'Something went wrong',
+          title: t('something-went-wrong', 'Something went wrong'),
           description: error.message,
           variant: 'destructive',
         });
@@ -87,7 +89,7 @@ export const useAutomationHeader = () => {
         clearErrors();
         clearNodeErrors();
         toast({
-          title: 'Save successful',
+          title: t('save-successful', 'Save successful'),
           variant: 'success',
         });
         if (!id && automationsAdd) {
@@ -131,7 +133,7 @@ export const useAutomationHeader = () => {
             errorKeys[0]
           ] || {};
         toast({
-          title: 'Something went wrong',
+          title: t('something-went-wrong', 'Something went wrong'),
           description: message,
           variant: 'destructive',
         });

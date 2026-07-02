@@ -79,7 +79,7 @@ export const productColumns: (
     id: 'category',
     accessorKey: 'category',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label={t('category')} />
+      <RecordTable.InlineHead icon={IconCategory} label={t('category._', 'Category')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       const code = cell.row.original?.category?.code;

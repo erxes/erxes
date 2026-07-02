@@ -9,8 +9,10 @@ import {
 } from 'erxes-ui';
 import { useRemovePosition } from '../../hooks/usePositionActions';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const PositionsCommandBar = () => {
+  const { t } = useTranslation('settings');
   const { table } = RecordTable.useRecordTable();
   const { handleRemove } = useRemovePosition();
   const { confirm } = useConfirm();
@@ -47,7 +49,7 @@ export const PositionsCommandBar = () => {
         <Can action="positionsManage">
           <Button variant="secondary" onClick={onRemove}>
             <IconTrash />
-            Delete
+            {t('delete', 'Delete')}
           </Button>
         </Can>
       </CommandBar.Bar>

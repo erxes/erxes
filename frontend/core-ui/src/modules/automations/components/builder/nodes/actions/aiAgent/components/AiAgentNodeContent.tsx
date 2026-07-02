@@ -1,6 +1,7 @@
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { useAutomationOptionalConnect } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AiAgentNodeContent = (
   props: NodeContentComponentProps<TAiAgentConfigForm>,
@@ -38,6 +39,7 @@ export const AiAgentNodeContent = (
 };
 
 const AiAgentMemorySummary = ({ config }: { config?: TAiAgentConfigForm }) => {
+  const { t } = useTranslation('automations');
   const readEnabled = config?.memory?.read?.enabled;
   const writeEnabled = config?.memory?.write?.enabled;
 
@@ -49,12 +51,12 @@ const AiAgentMemorySummary = ({ config }: { config?: TAiAgentConfigForm }) => {
     <div className="flex flex-wrap gap-2 px-2 pb-2">
       {readEnabled ? (
         <div className="rounded-xs bg-info/10 px-2 py-1 text-xs font-semibold text-info">
-          reads memory
+          {t('reads-memory', 'reads memory')}
         </div>
       ) : null}
       {writeEnabled ? (
         <div className="rounded-xs bg-success/10 px-2 py-1 text-xs font-semibold text-success">
-          saves {config?.memory?.write?.key || 'result'}
+          {t('saves-result', 'saves')} {config?.memory?.write?.key || t('result', 'result')}
         </div>
       ) : null}
     </div>
@@ -88,13 +90,14 @@ const AiAgentClassifyTopic = ({
 const AiAgentClassification = ({
   config,
 }: NodeContentComponentProps<TAiAgentConfigForm>) => {
+  const { t } = useTranslation('automations');
   const { objectFields = [] } = (config || {}) as Extract<
     TAiAgentConfigForm,
     { goalType: 'classification' }
   >;
 
   if (!objectFields.length) {
-    return <div>Classification</div>;
+    return <div>{t('classification', 'Classification')}</div>;
   }
 
   return (
@@ -119,6 +122,7 @@ const AiAgentClassification = ({
 const AiAgentGenerateText = ({
   config,
 }: NodeContentComponentProps<TAiAgentConfigForm>) => {
+  const { t } = useTranslation('automations');
   const { prompt = '' } = (config || {}) as Extract<
     TAiAgentConfigForm,
     { goalType: 'generateText' }
@@ -126,7 +130,7 @@ const AiAgentGenerateText = ({
 
   return (
     <div className="line-clamp-3 p-2 text-xs text-muted-foreground">
-      {prompt || 'Generate text'}
+      {prompt || t('generate-text', 'Generate text')}
     </div>
   );
 };

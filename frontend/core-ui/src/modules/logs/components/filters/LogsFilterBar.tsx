@@ -11,6 +11,7 @@ import {
   Popover,
   useFilterQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
 
 import { formatLogContentTypeLabel } from '@/logs/constants/logFilter';
@@ -21,6 +22,7 @@ import { LogStatusFilter } from './LogStatusFilter';
 import { LogsTotalCount } from '../LogsTotalCount';
 
 export const LogsFilterBar = () => {
+  const { t } = useTranslation('common');
   const [status] = useFilterQueryState<string>('status');
   const [source] = useFilterQueryState<string>('source');
   const [action] = useFilterQueryState<string>('action');
@@ -32,11 +34,11 @@ export const LogsFilterBar = () => {
       <Filter.BarItem queryKey="status">
         <Filter.BarName>
           <IconProgressCheck />
-          Status
+          {t('logs.status', 'Status')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
-            <Filter.BarButton>{status || 'Set value'}</Filter.BarButton>
+            <Filter.BarButton>{status || t('logs.set-value', 'Set value')}</Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
             <LogStatusFilter />
@@ -47,11 +49,11 @@ export const LogsFilterBar = () => {
       <Filter.BarItem queryKey="source">
         <Filter.BarName>
           <IconSourceCode />
-          Source
+          {t('logs.source', 'Source')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
-            <Filter.BarButton>{source || 'Set value'}</Filter.BarButton>
+            <Filter.BarButton>{source || t('logs.set-value', 'Set value')}</Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
             <LogSourceFilter />
@@ -63,11 +65,11 @@ export const LogsFilterBar = () => {
         <Filter.BarItem queryKey="action">
           <Filter.BarName>
             <IconProgressCheck />
-            Action
+            {t('logs.action', 'Action')}
           </Filter.BarName>
           <Popover>
             <Popover.Trigger>
-              <Filter.BarButton>{action || 'Set value'}</Filter.BarButton>
+              <Filter.BarButton>{action || t('logs.set-value', 'Set value')}</Filter.BarButton>
             </Popover.Trigger>
             <Combobox.Content>
               <LogActionsFilter />
@@ -81,12 +83,12 @@ export const LogsFilterBar = () => {
       <Filter.BarItem queryKey="contentType">
         <Filter.BarName>
           <IconTag />
-          Content Type
+          {t('logs.content-type', 'Content Type')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
             <Filter.BarButton>
-              {formatLogContentTypeLabel(contentType) || 'Set value'}
+              {formatLogContentTypeLabel(contentType) || t('logs.set-value', 'Set value')}
             </Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
@@ -98,17 +100,17 @@ export const LogsFilterBar = () => {
       <Filter.BarItem queryKey="docId">
         <Filter.BarName>
           <IconHash />
-          Document ID
+          {t('logs.document-id', 'Document ID')}
         </Filter.BarName>
         <Filter.BarButton filterKey="docId" inDialog>
-          {docId || 'Set value'}
+          {docId || t('logs.set-value', 'Set value')}
         </Filter.BarButton>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          Created At
+          {t('logs.created-at', 'Created At')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>

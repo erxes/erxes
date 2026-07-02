@@ -1,7 +1,9 @@
 import { IconCalendar, IconProgressCheck } from '@tabler/icons-react';
 import { Command, Filter } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoriesFilterMenu = () => {
+  const { t } = useTranslation('automations');
   return (
     <Filter.View>
       <Command>
@@ -13,11 +15,11 @@ export const AutomationHistoriesFilterMenu = () => {
         <Command.List className="p-1">
           <Filter.Item value="status">
             <IconProgressCheck />
-            Status
+            {t('status', 'Status')}
           </Filter.Item>
           <Filter.Item value="createdAt">
             <IconCalendar />
-            Filter by created
+            {t('filter-by-created', 'Filter by created')}
           </Filter.Item>
         </Command.List>
       </Command>

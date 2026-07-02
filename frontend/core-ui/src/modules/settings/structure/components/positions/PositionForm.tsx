@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Form, Skeleton } from 'erxes-ui';
 import { TPositionForm } from '../../types/position';
 import { SelectMember, SelectPositions } from 'ui-modules';
@@ -9,6 +10,7 @@ import {
 } from '../StructureFormFields';
 
 export const PositionForm = ({ loading }: { loading?: boolean }) => {
+  const { t } = useTranslation('settings');
   const { control, formState } = useFormContext<TPositionForm>();
   // show the status field only when the record was originally deleted, so the
   // field stays visible while the user switches it back to active
@@ -28,7 +30,7 @@ export const PositionForm = ({ loading }: { loading?: boolean }) => {
         render={({ field }) => {
           return (
             <Form.Item className="col-span-2">
-              <Form.Label>{'Team members'}</Form.Label>
+              <Form.Label>{t('team-members', 'Team members')}</Form.Label>
               <Form.Control>
                 <SelectMember.FormItem
                   value={field.value ?? []}
@@ -46,7 +48,7 @@ export const PositionForm = ({ loading }: { loading?: boolean }) => {
         name="parentId"
         render={({ field }) => (
           <Form.Item className="col-span-2">
-            <Form.Label>Parent position</Form.Label>
+            <Form.Label>{t('position.parent-position', 'Parent position')}</Form.Label>
             <SelectPositions.FormItem
               mode="single"
               value={field.value ?? ''}

@@ -65,19 +65,19 @@ export const AutomationBuilderStatusSwitch = ({
                 <AlertDialog.Header>
                   <AlertDialog.Title>
                     {isActivating
-                      ? 'Activate this automation?'
-                      : 'Deactivate this automation?'}
+                      ? t('activate-automation', 'Activate this automation?')
+                      : t('deactivate-automation', 'Deactivate this automation?')}
                   </AlertDialog.Title>
                   <AlertDialog.Description>
                     {isActivating
-                      ? 'This will save your latest changes and start running this automation.'
-                      : 'This will save your latest changes and stop this automation from running.'}
+                      ? t('activate-automation-description', 'This will save your latest changes and start running this automation.')
+                      : t('deactivate-automation-description', 'This will save your latest changes and stop this automation from running.')}
                   </AlertDialog.Description>
                 </AlertDialog.Header>
                 <AlertDialog.Footer>
-                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+                  <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
                   <AlertDialog.Action onClick={handleConfirm}>
-                    {isActivating ? 'Save and activate' : 'Save and deactivate'}
+                    {isActivating ? t('save-and-activate', 'Save and activate') : t('save-and-deactivate', 'Save and deactivate')}
                   </AlertDialog.Action>
                 </AlertDialog.Footer>
               </AlertDialog.Content>

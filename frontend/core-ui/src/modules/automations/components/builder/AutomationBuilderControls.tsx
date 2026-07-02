@@ -35,6 +35,7 @@ import { toPng, toSvg } from 'html-to-image';
 import type React from 'react';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const EXPORT_PADDING = 160;
 const MIN_EXPORT_WIDTH = 800;
@@ -112,6 +113,7 @@ export const AutomationBuilderControls = ({
   onToggleGrid,
   onToggleMiniMap,
 }: AutomationBuilderControlsProps) => {
+  const { t } = useTranslation('automations');
   const { getValues, setValue } = useFormContext<TAutomationBuilderForm>();
   const {
     fitView,
@@ -296,11 +298,11 @@ export const AutomationBuilderControls = ({
           <DropdownMenu.Content align="start" side="right" className="w-56">
             <DropdownMenu.Item onClick={onToggleMiniMap}>
               <IconMap className="size-4" />
-              {showMiniMap ? 'Hide minimap' : 'Show minimap'}
+              {showMiniMap ? t('hide-minimap', 'Hide minimap') : t('show-minimap', 'Show minimap')}
             </DropdownMenu.Item>
             <DropdownMenu.Item onClick={onToggleGrid}>
               <IconGridDots className="size-4" />
-              {showGrid ? 'Hide grid' : 'Show grid'}
+              {showGrid ? t('hide-grid', 'Hide grid') : t('show-grid', 'Show grid')}
             </DropdownMenu.Item>
             <DropdownMenu.Separator />
             <DropdownMenu.Sub>
@@ -310,7 +312,7 @@ export const AutomationBuilderControls = ({
                 ) : (
                   <IconArrowRight className="size-4" />
                 )}
-                Direction
+                {t('direction', 'Direction')}
               </DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent className="w-48">
                 <DropdownMenu.RadioGroup
@@ -329,7 +331,7 @@ export const AutomationBuilderControls = ({
             <DropdownMenu.Sub>
               <DropdownMenu.SubTrigger>
                 <IconVectorBezier2 className="size-4" />
-                Edge type
+                {t('edge-type', 'Edge type')}
               </DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent className="w-48">
                 <DropdownMenu.RadioGroup
@@ -348,34 +350,34 @@ export const AutomationBuilderControls = ({
             <DropdownMenu.Sub>
               <DropdownMenu.SubTrigger>
                 <IconDownload className="size-4" />
-                Download
+                {t('download', 'Download')}
               </DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent className="w-48">
                 <DropdownMenu.Sub>
                   <DropdownMenu.SubTrigger>
                     <IconPhoto className="size-4" />
-                    PNG
+                    {t('png', 'PNG')}
                   </DropdownMenu.SubTrigger>
                   <DropdownMenu.SubContent className="w-48">
                     <DropdownMenu.Item
                       onClick={() => handleExportPng({ withBackground: true })}
                     >
-                      With background
+                      {t('with-background', 'With background')}
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
                       onClick={() => handleExportPng({ withBackground: false })}
                     >
-                      Transparent
+                      {t('transparent', 'Transparent')}
                     </DropdownMenu.Item>
                   </DropdownMenu.SubContent>
                 </DropdownMenu.Sub>
                 <DropdownMenu.Item onClick={handleExportSvg}>
                   <IconVectorBezier2 className="size-4" />
-                  SVG
+                  {t('svg', 'SVG')}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item onClick={handleExportJson}>
                   <IconBraces className="size-4" />
-                  Export JSON
+                  {t('export-json', 'Export JSON')}
                 </DropdownMenu.Item>
               </DropdownMenu.SubContent>
             </DropdownMenu.Sub>

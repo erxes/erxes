@@ -2,8 +2,10 @@ import { clientPortalUserColumns } from '@/contacts/client-portal-users/componen
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { useClientPortalUsers } from '@/contacts/client-portal-users/hooks/useClientPortalUsers';
 import { Label, RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalUsersRecordTable = () => {
+  const { t } = useTranslation('contact');
   const {
     list,
     handleFetchMore,
@@ -21,7 +23,7 @@ export const ClientPortalUsersRecordTable = () => {
         <tr className="h-[40vh]">
           <td colSpan={9} className="py-10 text-center">
             <div className="flex flex-col items-center justify-center text-muted-foreground">
-              <Label>No client portal users</Label>
+              <Label>{t('clientPortalUser.noUsers', 'No client portal users')}</Label>
             </div>
           </td>
         </tr>
@@ -31,7 +33,7 @@ export const ClientPortalUsersRecordTable = () => {
   };
   return (
     <RecordTable.Provider
-      columns={clientPortalUserColumns}
+      columns={clientPortalUserColumns(t)}
       data={list}
       stickyColumns={['name']}
       className="m-3"

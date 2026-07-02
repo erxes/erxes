@@ -4,8 +4,10 @@ import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailState
 import { useSetAtom } from 'jotai';
 import { toast, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const useCompanyDetailWithQuery = () => {
+  const { t } = useTranslation('contact');
   const [_id] = useQueryState('companyId');
   const setRendering = useSetAtom(renderingCompanyDetailAtom);
   const { data, loading, error } = useQuery(GET_COMPANY_DETAIL, {
@@ -20,7 +22,7 @@ export const useCompanyDetailWithQuery = () => {
       setRendering(false);
       if (error) {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

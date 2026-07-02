@@ -17,6 +17,7 @@ import {
   useWatch,
 } from 'react-hook-form';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 export function WaitEventConfigCustomForm({
   configFieldNamePrefix,
@@ -25,6 +26,7 @@ export function WaitEventConfigCustomForm({
   configFieldNamePrefix: TAutomationActionConfigFieldPrefix;
   handleSave: (config: TAutomationWaitEventConfig) => void;
 }) {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAutomationBuilderForm>();
   const formRef = useRef<{ submit: () => void }>(null);
 
@@ -33,7 +35,7 @@ export function WaitEventConfigCustomForm({
       className="flex flex-col flex-1 overflow-auto"
       footer={
         <Button onClick={() => formRef.current?.submit()}>
-          Save Configuration
+          {t('save-configuration', 'Save configuration')}
         </Button>
       }
     >
@@ -87,6 +89,7 @@ const WaitWebhookContent = ({
   handleSave: (config: TAutomationWaitEventConfig['webhookConfig']) => void;
   config: TAutomationWaitEventConfig['webhookConfig'];
 }) => {
+  const { t } = useTranslation('automations');
   const form = useForm<TIncomingWebhookForm>({
     resolver: zodResolver(
       z.object({
@@ -121,7 +124,7 @@ const WaitWebhookContent = ({
     submit: () =>
       form.handleSubmit(handleSave, () => {
         toast({
-          title: 'There is some error in the form',
+          title: t('form-error', 'There is some error in the form'),
           variant: 'destructive',
         });
       })(),
@@ -133,19 +136,19 @@ const WaitWebhookContent = ({
       <Tabs defaultValue="headers">
         <Tabs.List>
           <Tabs.Trigger value="headers">
-            Headers
+            {t('headers', 'Headers')}
             {formValues?.headers?.length && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}
           </Tabs.Trigger>
           <Tabs.Trigger value="body">
-            Body
+            {t('body', 'Body')}
             {formValues?.schema && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}
           </Tabs.Trigger>
           <Tabs.Trigger value="settings">
-            Settings
+            {t('settings', 'Settings')}
             {formValues?.isEnabledSecurity && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}

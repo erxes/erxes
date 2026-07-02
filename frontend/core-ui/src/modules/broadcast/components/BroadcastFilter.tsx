@@ -7,11 +7,13 @@ import {
   IconSettingsSpark,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectBrand, SelectMember } from 'ui-modules';
 import { BroadcastMessageMethod } from './select/BroadcastSelectMessageMethod';
 import { BroadcastMessageStatus } from './select/BroadcastSelectMessageStatus';
 
 const BroadcastFilterPopover = () => {
+  const { t } = useTranslation('broadcasts');
   const [queries, setQueries] = useMultiQueryState<{
     searchValue: string;
     status: string;
@@ -30,7 +32,7 @@ const BroadcastFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -39,14 +41,14 @@ const BroadcastFilterPopover = () => {
                   onSelect={() => setQueries({ kind: 'auto' })}
                 >
                   <IconSettingsSpark />
-                  Auto
+                  {t('auto', 'Auto')}
                   {queries.kind === 'auto' && <IconCheck className="ml-auto" />}
                 </Filter.CommandItem>
                 <Filter.CommandItem
                   onSelect={() => setQueries({ kind: 'manual' })}
                 >
                   <IconSettings />
-                  Manual
+                  {t('manual', 'Manual')}
                   {queries.kind === 'manual' && (
                     <IconCheck className="ml-auto" />
                   )}
@@ -55,19 +57,19 @@ const BroadcastFilterPopover = () => {
 
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconProgress />
-                  Status
+                  {t('status', 'Status')}
                 </Filter.Item>
                 <Filter.Item value="methods">
                   <IconBroadcast />
-                  Method
+                  {t('method', 'Method')}
                 </Filter.Item>
 
                 <SelectBrand.FilterItem />
-                <SelectMember.FilterItem value="fromUser" label="From" />
+                <SelectMember.FilterItem value="fromUser" label={t('from', 'From')} />
               </Command.List>
             </Command>
           </Filter.View>
@@ -89,6 +91,7 @@ const BroadcastFilterPopover = () => {
 };
 
 export const BroadcastFilter = () => {
+  const { t } = useTranslation('broadcasts');
   const [queries, setQueries] = useMultiQueryState<{
     searchValue: string;
     status: string;
@@ -111,14 +114,14 @@ export const BroadcastFilter = () => {
               setQueries({ kind: queries?.kind === 'auto' ? 'manual' : 'auto' })
             }
           >
-            {queries?.kind === 'auto' ? 'Auto' : 'Manual'}
+            {queries?.kind === 'auto' ? t('auto', 'Auto') : t('manual', 'Manual')}
           </Filter.BarButton>
         </Filter.BarItem>
 
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('search', 'Search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {queries.searchValue || ''}
@@ -128,7 +131,7 @@ export const BroadcastFilter = () => {
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgress />
-            Status
+            {t('status', 'Status')}
           </Filter.BarName>
           <BroadcastMessageStatus.FilterBar />
         </Filter.BarItem>
@@ -136,13 +139,13 @@ export const BroadcastFilter = () => {
         <Filter.BarItem queryKey="methods">
           <Filter.BarName>
             <IconBroadcast />
-            Method
+            {t('method', 'Method')}
           </Filter.BarName>
           <BroadcastMessageMethod.FilterBar />
         </Filter.BarItem>
 
         <SelectBrand.FilterBar />
-        <SelectMember.FilterBar queryKey="fromUser" label="From" />
+        <SelectMember.FilterBar queryKey="fromUser" label={t('from', 'From')} />
 
         <BroadcastFilterPopover />
       </Filter.Bar>

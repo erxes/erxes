@@ -14,10 +14,12 @@ import { IProductRule } from './types';
 import { useProductRulesRemove } from '@/products/settings/hooks/useProductRulesRemove';
 import { ProductRuleForm } from './ProductRuleForm';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ProductRuleMoreColumn = (
   props: CellContext<IProductRule, unknown>,
 ) => {
+  const { t } = useTranslation('product');
   const productRule = props.row.original;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { confirm } = useConfirm();
@@ -31,14 +33,17 @@ export const ProductRuleMoreColumn = (
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${productRule.name}"?`,
+      message: t('confirm-delete-product-rule', {
+        defaultValue: 'Are you sure you want to delete "{{name}}"?',
+        name: productRule.name,
+      }),
       options: confirmOptions,
     }).then(() => {
       removeProductRules({
         variables: { _ids: [productRule._id] },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -60,7 +65,7 @@ export const ProductRuleMoreColumn = (
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit', 'Edit')}
               </Command.Item>
               <Command.Item
                 value="delete"
@@ -68,7 +73,7 @@ export const ProductRuleMoreColumn = (
                 disabled={loading}
               >
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete', 'Delete')}
               </Command.Item>
             </Command.List>
           </Command>

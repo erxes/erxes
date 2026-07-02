@@ -3,8 +3,10 @@ import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { CategoriesDelete } from './delete/CategoryDelete';
 import { useState } from 'react';
 import { Can, TemplateSheet } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CategoryCommandBar = () => {
+  const { t } = useTranslation('product');
   const { table } = RecordTable.useRecordTable();
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -20,7 +22,7 @@ export const CategoryCommandBar = () => {
     >
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected', { defaultValue: '{{count}} selected', count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <CategoriesDelete
@@ -34,7 +36,7 @@ export const CategoryCommandBar = () => {
         <Can action="productCategoriesManage">
           <Button variant="secondary">
             <IconPlus />
-            Create
+            {t('create', 'Create')}
           </Button>
         </Can>
 

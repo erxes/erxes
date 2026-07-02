@@ -90,7 +90,7 @@ export function SettingsSidebar() {
           ))}
         </SettingsNavigationGroup>
 
-        <SettingsNavigationGroup name={t('developer')}>
+        <SettingsNavigationGroup name={t('developer._', 'Developer')}>
           {filteredDeveloper.map((item) => (
             <NavigationMenuLinkItem
               pathPrefix={AppPath.Settings}

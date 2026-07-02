@@ -84,7 +84,7 @@ export const ProductDetailGeneral = () => {
             name="categoryId"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label>{t('category')}</Label>
+                <Label>{t('category._', 'Category')}</Label>
                 <SelectCategory
                   selected={field.value}
                   onSelect={field.onChange}

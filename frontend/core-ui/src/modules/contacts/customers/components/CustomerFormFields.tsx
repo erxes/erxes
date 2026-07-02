@@ -61,7 +61,7 @@ export const CodeField = ({
       name="code"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('code')}</Form.Label>
+          <Form.Label>{t('code', 'Code')}</Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
@@ -84,7 +84,7 @@ export const DescriptionField = ({
       name="description"
       render={({ field }) => (
         <Form.Item className="mb-5">
-          <Form.Label>{t('description')}</Form.Label>
+          <Form.Label>{t('description', 'Description')}</Form.Label>
 
           <Form.Control>
             <Editor
@@ -361,30 +361,30 @@ export const PrimaryPhoneField = ({
   );
 };
 
-const lifecycleStates = [
-  { label: 'Lead', value: 'lead' },
-  { label: 'Customer', value: 'customer' },
-];
-
 export const StateField = ({
   control,
 }: {
   control: Control<CustomerFormType>;
 }) => {
+  const { t } = useTranslation('contact');
+  const lifecycleStates = [
+    { label: t('lifecycle-state-lead', 'Lead'), value: 'lead' },
+    { label: t('lifecycle-state-customer', 'Customer'), value: 'customer' },
+  ];
   return (
     <Form.Field
       control={control}
       name="state"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Lifecycle State</Form.Label>
+          <Form.Label>{t('lifecycle-state', 'Lifecycle State')}</Form.Label>
           <Select onValueChange={field.onChange} value={field.value ?? ''}>
             <Form.Control>
               <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
-                <Select.Value placeholder="Choose state">
+                <Select.Value placeholder={t('choose-state', 'Choose state')}>
                   <span className="text-foreground font-medium text-sm">
                     {lifecycleStates.find((s) => s.value === field.value)
-                      ?.label ?? 'Unknown'}
+                      ?.label ?? t('unknown', 'Unknown')}
                   </span>
                 </Select.Value>
               </Select.Trigger>

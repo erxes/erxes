@@ -5,8 +5,10 @@ import { Row } from '@tanstack/table-core';
 import { Button, CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { Can, Export, IProduct, PrintDocument, TagsSelect } from 'ui-modules';
 import { ProductsDelete } from './delete/productDelete';
+import { useTranslation } from 'react-i18next';
 
 export const ProductCommandBar = () => {
+  const { t } = useTranslation('product');
   const { table } = RecordTable.useRecordTable();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -22,7 +24,7 @@ export const ProductCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{t('selected', { defaultValue: '{{count}} selected', count: selectedRows.length })}</CommandBar.Value>
         <Can action="tagsTag">
           <>
             <Separator.Inline />
@@ -61,7 +63,7 @@ export const ProductCommandBar = () => {
                 },
                 onError: (e: ApolloError) => {
                   toast({
-                    title: 'Error',
+                    title: t('error', 'Error'),
                     description: e.message,
                     variant: 'destructive',
                   });
@@ -86,7 +88,7 @@ export const ProductCommandBar = () => {
         <Can action="productsCreate">
           <Button variant="secondary">
             <IconPlus />
-            Create
+            {t('create', 'Create')}
           </Button>
         </Can>
         <PrintDocument

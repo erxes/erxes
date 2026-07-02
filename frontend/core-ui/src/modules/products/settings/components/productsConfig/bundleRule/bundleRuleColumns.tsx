@@ -9,14 +9,16 @@ import { IBundleRule } from './types';
 import { bundleRuleNameColumn } from './BundleRuleNameColumn';
 import { bundleRuleMoreColumn } from './BundleRuleMoreColumn';
 
-export const bundleRuleColumns: ColumnDef<IBundleRule>[] = [
+export const bundleRuleColumns = (
+  t: (key: string) => string,
+): ColumnDef<IBundleRule>[] => [
   bundleRuleMoreColumn,
   bundleRuleNameColumn,
   RecordTable.checkboxColumn as ColumnDef<IBundleRule>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code', 'Code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -27,7 +29,7 @@ export const bundleRuleColumns: ColumnDef<IBundleRule>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label={t('description', 'Description')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />

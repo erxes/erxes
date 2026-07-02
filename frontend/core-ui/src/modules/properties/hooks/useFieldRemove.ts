@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { FIELD_REMOVE } from '../graphql/mutations/propertiesMutations';
 import { toast } from 'erxes-ui';
 import { FIELDS_QUERY } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const useFieldRemove = ({
   groupId,
@@ -10,9 +11,10 @@ export const useFieldRemove = ({
   groupId: string;
   contentType: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const [removeField, { loading }] = useMutation(FIELD_REMOVE, {
     onCompleted: () => {
-      toast({ title: 'Field removed successfully', variant: 'success' });
+      toast({ title: t('field-removed', 'Field removed successfully'), variant: 'success' });
     },
     refetchQueries: [
       {
@@ -22,7 +24,7 @@ export const useFieldRemove = ({
     ],
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       });

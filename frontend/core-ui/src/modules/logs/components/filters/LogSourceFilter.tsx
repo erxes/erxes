@@ -5,9 +5,11 @@ import {
   IconUserCheck,
   IconWebhook,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, useMultiQueryState } from 'erxes-ui';
 
 export const LogSourceFilter = () => {
+  const { t } = useTranslation('common');
   const [queries, setQueries] = useMultiQueryState<{
     source: string;
     sourceOperator: string;
@@ -24,22 +26,22 @@ export const LogSourceFilter = () => {
           {
             value: 'mongo',
             icon: IconBrandMongodb,
-            label: 'MongoDb',
+            label: t('logs.source-mongodb', 'MongoDb'),
           },
           {
             value: 'graphql',
             icon: IconBrandGraphql,
-            label: 'Graphql',
+            label: t('logs.source-graphql', 'Graphql'),
           },
           {
             value: 'auth',
             icon: IconUserCheck,
-            label: 'Authentication',
+            label: t('logs.source-auth', 'Authentication'),
           },
           {
             value: 'webhook',
             icon: IconWebhook,
-            label: 'Api Request',
+            label: t('logs.source-api-request', 'Api Request'),
           },
         ].map(({ value, icon: Icon, label }) => (
           <Command.Item

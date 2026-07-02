@@ -1,6 +1,7 @@
 import { IconApi } from '@tabler/icons-react';
 import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { SubmitHandler } from 'react-hook-form';
 import { useAtom } from 'jotai';
 import { editingOAuthClientAtom } from '../state';
@@ -22,6 +23,7 @@ const getDefaultAccessTokenLifetime = (
 };
 
 export const EditOAuthClient = () => {
+  const { t } = useTranslation('settings');
   const { toast } = useToast();
   const [editingOAuthClient, setEditingOAuthClient] = useAtom(
     editingOAuthClientAtom,
@@ -75,7 +77,7 @@ export const EditOAuthClient = () => {
         onCompleted: ({ oauthClientAppsEdit: oauthClientApp }) => {
           toast({
             variant: 'success',
-            title: 'OAuth client updated successfully',
+            title: t('oauth-client.updated-successfully', 'OAuth client updated successfully'),
           });
           if (oauthClientApp?.generatedSecret) {
             setRevealedSecret({
@@ -87,7 +89,7 @@ export const EditOAuthClient = () => {
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -110,7 +112,7 @@ export const EditOAuthClient = () => {
             >
               <Sheet.Header>
                 <IconApi />
-                <Sheet.Title>Edit OAuth client</Sheet.Title>
+                <Sheet.Title>{t('oauth-client.edit', 'Edit OAuth client')}</Sheet.Title>
                 <Sheet.Close />
               </Sheet.Header>
               <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -118,10 +120,10 @@ export const EditOAuthClient = () => {
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant="secondary" onClick={onClose}>
-                  Cancel
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? <Spinner /> : 'Update client'}
+                  {loading ? <Spinner /> : t('oauth-client.update-client', 'Update client')}
                 </Button>
               </Sheet.Footer>
             </form>

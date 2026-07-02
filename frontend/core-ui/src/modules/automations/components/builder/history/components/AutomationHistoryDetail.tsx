@@ -8,6 +8,7 @@ import {
 } from '@tabler/icons-react';
 import { RecordTable, RecordTableInlineCell, Sheet, Tabs } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryDetail = ({
   executionId,
@@ -35,6 +36,7 @@ export const AutomationHistoryDetail = ({
 };
 
 const AutomationHistorySheetContent = ({ isOpen }: { isOpen: boolean }) => {
+  const { t } = useTranslation('automations');
   if (!isOpen) {
     return null;
   }
@@ -42,9 +44,9 @@ const AutomationHistorySheetContent = ({ isOpen }: { isOpen: boolean }) => {
     <>
       <Sheet.Header>
         <div>
-          <Sheet.Title>Execution history</Sheet.Title>
+          <Sheet.Title>{t('execution-history', 'Execution history')}</Sheet.Title>
           <Sheet.Description>
-            View the execution log of your automation in table or flow format.
+            {t('execution-history-description', 'View the execution log of your automation in table or flow format.')}
           </Sheet.Description>
         </div>
         <Sheet.Close />
@@ -54,11 +56,11 @@ const AutomationHistorySheetContent = ({ isOpen }: { isOpen: boolean }) => {
           <Tabs.List className="w-full">
             <Tabs.Trigger value="table">
               <IconAutomaticGearbox />
-              View as table
+              {t('view-as-table', 'View as table')}
             </Tabs.Trigger>
             <Tabs.Trigger value="flow">
               <IconTournament className="scale-x-[-1]" />
-              View as flow
+              {t('view-as-flow', 'View as flow')}
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="flow" className="h-[calc(100%-36px)]">
