@@ -28,7 +28,10 @@ export const AddCustomer = ({
   };
 
   return (
-    <FocusSheet open={open} onOpenChange={(isOpen) => (isOpen ? setOpen(true) : onClose())}>
+    <FocusSheet
+      open={open}
+      onOpenChange={(isOpen) => (isOpen ? setOpen(true) : onClose())}
+    >
       <Sheet.Trigger asChild>
         {children || (
           <Button variant="outline">
@@ -41,7 +44,10 @@ export const AddCustomer = ({
         <FocusSheet.Header title={title} />
         <FocusSheet.Content className="flex-1 min-h-0">
           <FocusSheet.SideBar>
-            <SheetNavSidebar tabs={['overview', 'properties']} groupLabel="General" />
+            <SheetNavSidebar
+              tabs={['overview', 'properties']}
+              groupLabel="General"
+            />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1">
             <Suspense fallback={<Spinner />}>
