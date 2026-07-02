@@ -228,7 +228,7 @@ export const FixedPricingTable = ({
       >
         <div style={{ flex: 1 }}>
           <Input
-            placeholder="Search by product code..."
+            placeholder="Search by product"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
