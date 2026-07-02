@@ -24,6 +24,7 @@ import {
   AccountingDealsQueryResult,
   AccountingSyncResult,
 } from '../types';
+import { CheckOptions, getSyncStatus, chunkIds } from '../../constants/shared';
 import {
   AccountingCheckSyncedDealsStatusCounts,
   accountingCheckSyncedDealsStatusCountsAtom,
@@ -40,28 +41,6 @@ const checkedDealsAtom = atom<
 >({});
 
 const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
-
-type CheckDealsOptions = {
-  silent?: boolean;
-  keepToSyncIds?: boolean;
-  statusById?: Record<string, AccountingCheckSyncedStatus>;
-};
-
-/** deal-iin sync status avah */
-const getDealStatus = (
-  deal?: Partial<AccountingCheckSyncedDeal>,
-): AccountingCheckSyncedStatus => deal?.syncStatus || 'skipped';
-
-/** array-iig chunk bolgoh */
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
-};
 
 /** check-synced deals query variable barih */
 export const useAccountingCheckSyncedDealsVariables = (
@@ -173,7 +152,7 @@ export const useAccountingCheckSyncedDeals = (
       (rawDeals || []).map((deal) => ({
         ...deal,
         ...checkedDeals[deal._id],
-        syncStatus: getDealStatus(checkedDeals[deal._id]),
+        syncStatus: getSyncStatus(checkedDeals[deal._id]),
       })),
     [checkedDeals, rawDeals],
   );
@@ -225,10 +204,7 @@ export const useAccountingCheckSyncedDeals = (
   );
 
   /** songogdson deals sync status shalgah */
-  const checkDeals = async (
-    ids: string[],
-    checkOptions?: CheckDealsOptions,
-  ) => {
+  const checkDeals = async (ids: string[], checkOptions?: CheckOptions) => {
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
@@ -319,7 +295,7 @@ export const useAccountingCheckSyncedDeals = (
     }
 
     const syncableIds = ids.filter(
-      (id) => getDealStatus(checkedDeals[id]) !== 'skipped',
+      (id) => getSyncStatus(checkedDeals[id]) !== 'skipped',
     );
 
     if (!syncableIds.length) {
@@ -486,7 +462,7 @@ export const useAccountingCheckSyncedDeals = (
   useEffect(() => {
     const counts = deals.reduce<AccountingCheckSyncedDealsStatusCounts>(
       (acc, deal) => {
-        const status = getDealStatus(deal);
+        const status = getSyncStatus(deal);
 
         acc[status] += 1;
 

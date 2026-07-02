@@ -62,6 +62,7 @@ export const EditVatRowForm = ({ onClose }: { onClose?: () => void }) => {
   );
 };
 
+/** edit vat row sheet. */
 export const EditVatRow = () => {
   const [open, setOpen] = useQueryState<string>('vat_row_id');
   return (

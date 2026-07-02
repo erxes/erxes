@@ -13,6 +13,7 @@ import {
   SyncConfigVatCtaxSection,
   SyncConfigFormFooter,
   SyncConfigReturnTypeField,
+  normalizeRuleIds,
   TPaymentType,
 } from './SyncConfigFormSections';
 import { SyncSettingSection } from './SyncSettingSection';
@@ -48,12 +49,6 @@ export const syncOrderConfigFormSchema = z.object({
 });
 
 type ConfigFormValues = z.infer<typeof syncOrderConfigFormSchema>;
-
-/** rule IDs normalise hiih bn */
-const normalizeRuleIds = (value?: string | string[]) => {
-  if (!value) return [];
-  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
-};
 
 /** order sync config form bn */
 export const SyncOrderConfigForm = ({

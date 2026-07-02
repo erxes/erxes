@@ -57,6 +57,7 @@ export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
   );
 };
 
+/** edit ctax row sheet. */
 export const EditCtaxRow = () => {
   const [open, setOpen] = useQueryState<string>('ctax_row_id');
   return (

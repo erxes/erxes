@@ -14,6 +14,7 @@ import {
   SyncConfigVatCtaxSection,
   SyncConfigFormFooter,
   usePipelineReset,
+  normalizeRuleIds,
   TPaymentType,
 } from './SyncConfigFormSections';
 import { SyncSettingSection } from './SyncSettingSection';
@@ -51,12 +52,6 @@ export const syncDealConfigFormSchema = z.object({
 });
 
 type ConfigFormValues = z.infer<typeof syncDealConfigFormSchema>;
-
-/** rule IDs normalise hiih bn */
-const normalizeRuleIds = (value?: string | string[]) => {
-  if (!value) return [];
-  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
-};
 
 /** deal sync config form bn */
 export const SyncDealConfigForm = ({

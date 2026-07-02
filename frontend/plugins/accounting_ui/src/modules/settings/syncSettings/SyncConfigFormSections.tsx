@@ -62,6 +62,12 @@ export const usePipelineReset = <T extends IUsePipelineResetForm>(
   return { boardId, pipelineId };
 };
 
+/** normalize rule IDs to array. */
+export const normalizeRuleIds = (value?: string | string[]) => {
+  if (!value) return [];
+  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
+};
+
 /** sync config form iin payment account field */
 export const SyncConfigPaymentAccountField = ({
   name,
@@ -104,24 +110,31 @@ const ReturnTypeFieldContent = ({
 }: {
   field: { value: string; onChange: (v: string) => void };
   t: (s: string) => string;
-}) => (
-  <Form.Item>
-    <Form.Label>{t('return-type')}</Form.Label>
-    <Form.Control>
-      <Select {...field} onValueChange={field.onChange}>
-        <Select.Trigger>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
-          <Select.Item value="onlySale">{t('only-sale')}</Select.Item>
-          <Select.Item value="delete">{t('delete')}</Select.Item>
-        </Select.Content>
-      </Select>
-    </Form.Control>
-  </Form.Item>
-);
+}) => {
+  const options = (
+    <Select.Content>
+      <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
+      <Select.Item value="onlySale">{t('only-sale')}</Select.Item>
+      <Select.Item value="delete">{t('delete')}</Select.Item>
+    </Select.Content>
+  );
 
+  return (
+    <Form.Item>
+      <Form.Label>{t('return-type')}</Form.Label>
+      <Form.Control>
+        <Select {...field} onValueChange={field.onChange}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          {options}
+        </Select>
+      </Form.Control>
+    </Form.Item>
+  );
+};
+
+/** return type select field. */
 export const SyncConfigReturnTypeField = () => {
   const { t } = useTranslation('accounting');
   const { control } = useFormContext();
@@ -135,31 +148,39 @@ export const SyncConfigReturnTypeField = () => {
   );
 };
 
+/** date rule select field. */
 const DateRuleFieldContent = ({
   field,
   t,
 }: {
   field: { value: string; onChange: (v: string) => void };
   t: (s: string) => string;
-}) => (
-  <Form.Item>
-    <Form.Label>{t('date-rule')}</Form.Label>
-    <Form.Control>
-      <Select {...field} onValueChange={field.onChange}>
-        <Select.Trigger>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="alwaysNow">{t('always-now')}</Select.Item>
-          <Select.Item value="syncedDateOrNow">
-            {t('synced-date-or-now')}
-          </Select.Item>
-        </Select.Content>
-      </Select>
-    </Form.Control>
-  </Form.Item>
-);
+}) => {
+  const options = (
+    <Select.Content>
+      <Select.Item value="alwaysNow">{t('always-now')}</Select.Item>
+      <Select.Item value="syncedDateOrNow">
+        {t('synced-date-or-now')}
+      </Select.Item>
+    </Select.Content>
+  );
 
+  return (
+    <Form.Item>
+      <Form.Label>{t('date-rule')}</Form.Label>
+      <Form.Control>
+        <Select {...field} onValueChange={field.onChange}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          {options}
+        </Select>
+      </Form.Control>
+    </Form.Item>
+  );
+};
+
+/** transaction status select field. */
 const TrStatusFieldContent = ({
   field,
   t,

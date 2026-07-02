@@ -1,5 +1,13 @@
-import { ColumnDef } from '@tanstack/react-table';
-import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
+} from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface SettingsRowsTableProps<TData> {
   columns: ColumnDef<TData>[];
@@ -95,3 +103,46 @@ export const getSharedRowColumns = <T,>(
     ),
   },
 ];
+
+/** shared more actions cell with edit/delete popover. */
+export const MoreActionsCell = <T,>({
+  cell,
+  onEdit,
+  onDelete,
+}: {
+  cell: Cell<T, unknown>;
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  const actionsMenu = (
+    <Combobox.Content>
+      <Command shouldFilter={false}>
+        <Command.List>
+          <Command.Item value="edit" onSelect={onEdit}>
+            <IconEdit /> {t('edit')}
+          </Command.Item>
+          <Command.Item value="delete" onSelect={onDelete}>
+            <IconTrash /> {t('delete')}
+          </Command.Item>
+        </Command.List>
+      </Command>
+    </Combobox.Content>
+  );
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      {actionsMenu}
+    </Popover>
+  );
+};
+
+/** shared more column definition. */
+export const moreColumn = {
+  id: 'more',
+  size: 33,
+};

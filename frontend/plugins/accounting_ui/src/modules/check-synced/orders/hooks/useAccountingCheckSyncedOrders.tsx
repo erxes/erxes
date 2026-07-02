@@ -19,6 +19,7 @@ import {
   AccountingOrdersQueryResult,
   AccountingSyncResult,
 } from '../types';
+import { CheckOptions, getSyncStatus, chunkIds } from '../../constants/shared';
 import {
   AccountingCheckSyncedOrdersStatusCounts,
   accountingCheckSyncedOrdersStatusCountsAtom,
@@ -35,28 +36,6 @@ const checkedOrdersAtom = atom<
 >({});
 
 const toSyncOrderIdsAtom = atom<Record<string, boolean>>({});
-
-type CheckOrdersOptions = {
-  silent?: boolean;
-  keepToSyncIds?: boolean;
-  statusById?: Record<string, AccountingCheckSyncedStatus>;
-};
-
-/** order-iin sync status avah */
-const getOrderStatus = (
-  order?: Partial<AccountingCheckSyncedOrder>,
-): AccountingCheckSyncedStatus => order?.syncStatus || 'skipped';
-
-/** array-iig chunk bolgoh */
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
-};
 
 /** check-synced orders query variable barih */
 export const useAccountingCheckSyncedOrdersVariables = (
@@ -132,7 +111,7 @@ export const useAccountingCheckSyncedOrders = (
       (data?.posOrders || []).map((order) => ({
         ...order,
         ...checkedOrders[order._id],
-        syncStatus: getOrderStatus(checkedOrders[order._id]),
+        syncStatus: getSyncStatus(checkedOrders[order._id]),
       })),
     [checkedOrders, data?.posOrders],
   );
@@ -185,10 +164,7 @@ export const useAccountingCheckSyncedOrders = (
   );
 
   /** songogdson orders sync status shalgah */
-  const checkOrders = async (
-    ids: string[],
-    checkOptions?: CheckOrdersOptions,
-  ) => {
+  const checkOrders = async (ids: string[], checkOptions?: CheckOptions) => {
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
@@ -279,7 +255,7 @@ export const useAccountingCheckSyncedOrders = (
     }
 
     const syncableIds = ids.filter(
-      (id) => getOrderStatus(checkedOrders[id]) !== 'skipped',
+      (id) => getSyncStatus(checkedOrders[id]) !== 'skipped',
     );
 
     if (!syncableIds.length) {
@@ -445,7 +421,7 @@ export const useAccountingCheckSyncedOrders = (
   useEffect(() => {
     const counts = orders.reduce<AccountingCheckSyncedOrdersStatusCounts>(
       (acc, order) => {
-        const status = getOrderStatus(order);
+        const status = getSyncStatus(order);
 
         acc[status] += 1;
 

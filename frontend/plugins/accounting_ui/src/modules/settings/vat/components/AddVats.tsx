@@ -31,6 +31,7 @@ export const AddVatForm = () => {
   return <VatRowForm form={form} onSubmit={onSubmit} loading={loading} />;
 };
 
+/** add vat sheet trigger. */
 export const AddVats = () => {
   return (
     <Sheet>

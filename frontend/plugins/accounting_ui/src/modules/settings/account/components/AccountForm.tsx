@@ -22,6 +22,7 @@ import {
 } from '../types/Account';
 import { TAccountForm } from '../types/accountForm';
 
+/** account form fields. */
 const AccountFormFields = ({
   control,
   status,
@@ -299,6 +300,7 @@ const AccountFormFields = ({
   );
 };
 
+/** account form. */
 export const AccountForm = ({
   form,
   handleSubmit,
@@ -319,6 +321,20 @@ export const AccountForm = ({
     name: 'journal',
   });
 
+  const footer = (
+    <Sheet.Footer className="shrink-0 border-t bg-background">
+      <Sheet.Close asChild>
+        <Button variant="outline" type="button" size="lg">
+          Болих
+        </Button>
+      </Sheet.Close>
+
+      <Button type="submit" size="lg" disabled={loading}>
+        {loading ? <Spinner /> : 'Данс хадгалах'}
+      </Button>
+    </Sheet.Footer>
+  );
+
   return (
     <Form {...form}>
       <form
@@ -332,18 +348,7 @@ export const AccountForm = ({
             journal={journal}
           />
         </div>
-
-        <Sheet.Footer className="shrink-0 border-t bg-background">
-          <Sheet.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              Болих
-            </Button>
-          </Sheet.Close>
-
-          <Button type="submit" size="lg" disabled={loading}>
-            {loading ? <Spinner /> : 'Данс хадгалах'}
-          </Button>
-        </Sheet.Footer>
+        {footer}
       </form>
     </Form>
   );
