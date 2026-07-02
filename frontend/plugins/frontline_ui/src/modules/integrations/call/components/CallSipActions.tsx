@@ -30,19 +30,27 @@ export const TurnOffButton = () => {
   const setCallInfo = useSetAtom(callInfoAtom);
   const { unregisterSip, registerSip } = useSip();
 
-  const isConnected = sipState?.sipStatus === SipStatusEnum.REGISTERED;
+  const isRegistered = sipState?.sipStatus === SipStatusEnum.REGISTERED;
+  const canRegister = sipState?.sipStatus === SipStatusEnum.CONNECTED;
 
   const handleConnection = () => {
-    isConnected ? unregisterSip() : registerSip();
-    setCallInfo((prev) => ({
-      ...prev,
-      isUnregistered: isConnected,
-    }));
+    if (isRegistered) {
+      unregisterSip();
+      setCallInfo((prev) => ({ ...prev, isUnregistered: true }));
+    } else if (canRegister) {
+      registerSip();
+      setCallInfo((prev) => ({ ...prev, isUnregistered: false }));
+    }
   };
 
   return (
-    <Button size="sm" variant="secondary" onClick={handleConnection}>
-      <IconPower /> {isConnected ? t('turn-off') : t('turn-on')}
+    <Button
+      size="sm"
+      variant="secondary"
+      onClick={handleConnection}
+      disabled={!isRegistered && !canRegister}
+    >
+      <IconPower /> {isRegistered ? t('turn-off') : t('turn-on')}
     </Button>
   );
 };
