@@ -1,5 +1,6 @@
 import { IconEye, IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { InsuranceProduct } from '~/modules/insurance/types';
 
 interface ProductsMoreColumnProps {
@@ -13,6 +14,7 @@ export const ProductsMoreColumn = ({
   onEdit,
   onDelete,
 }: ProductsMoreColumnProps) => {
+  const { t } = useTranslation('insurance');
   const product = cell.row.original as InsuranceProduct;
 
   return (
@@ -25,7 +27,7 @@ export const ProductsMoreColumn = ({
       <DropdownMenu.Content align="start">
         <DropdownMenu.Item onClick={() => onEdit(product)}>
           <IconEdit size={16} />
-          Edit
+          {t('edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -33,7 +35,7 @@ export const ProductsMoreColumn = ({
           className="text-red-600"
         >
           <IconTrash size={16} />
-          Delete
+          {t('delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

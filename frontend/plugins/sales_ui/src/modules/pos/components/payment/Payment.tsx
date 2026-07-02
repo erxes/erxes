@@ -6,6 +6,7 @@ import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { OtherPaymentsField, PaymentIdsField } from '@/payments';
 import { type PaymentConfigItem } from '@/payments';
+import { useTranslation } from 'react-i18next';
 
 interface PaymentProps {
   posId?: string;
@@ -26,6 +27,7 @@ const DEFAULT_FORM_VALUES: PaymentFormData = {
 };
 
 const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<PaymentFormData>({
@@ -60,8 +62,8 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
     async (data: PaymentFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -86,14 +88,14 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
         });
 
         toast({
-          title: 'Success',
-          description: 'Payment settings saved successfully',
+          title: t('success'),
+          description: t('payment-settings-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save payment settings',
+          title: t('error'),
+          description: t('failed-to-save-payment'),
           variant: 'destructive',
         });
       }
@@ -114,7 +116,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -140,7 +142,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details', { message: error.message })}
           </p>
         </div>
       );
@@ -162,7 +164,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
 
   return (
     <div className="p-6">
-      <InfoCard title="Payment configuration">
+      <InfoCard title={t('payment-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

@@ -16,6 +16,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useMemo } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { z } from 'zod';
 import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
@@ -70,6 +71,7 @@ export const SyncOrderConfigForm = ({
   onSubmit: (data: any) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   const posId = useWatch({
     control: form.control,
     name: `posId`,
@@ -140,7 +142,7 @@ export const SyncOrderConfigForm = ({
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Гарчиг</Form.Label>
+              <Form.Label>{t('title')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -152,16 +154,16 @@ export const SyncOrderConfigForm = ({
           name="dateRule"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Огнооны дүрэм</Form.Label>
+              <Form.Label>{t('date-rule')}</Form.Label>
               <Form.Control>
                 <Select {...field} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="alwaysNow">Үргэлж одоо</Select.Item>
+                    <Select.Item value="alwaysNow">{t('always-now')}</Select.Item>
                     <Select.Item value="syncedDateOrNow">
-                      Sync огноо эсвэл одоо
+                      {t('synced-date-or-now')}
                     </Select.Item>
                   </Select.Content>
                 </Select>
@@ -174,7 +176,7 @@ export const SyncOrderConfigForm = ({
           name="trStatus"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Гүйлгээний төлөв</Form.Label>
+              <Form.Label>{t('tr-status-label')}</Form.Label>
               <Form.Control>
                 <Select {...field} onValueChange={field.onChange}>
                   <Select.Trigger>
@@ -197,18 +199,18 @@ export const SyncOrderConfigForm = ({
           name="returnType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Буцаалтын төрөл</Form.Label>
+              <Form.Label>{t('return-type')}</Form.Label>
               <Form.Control>
                 <Select {...field} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="fullTr">Бүтэн гүйлгээ</Select.Item>
+                    <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
                     <Select.Item value="onlySale">
-                      Зөвхөн борлуулалт
+                      {t('only-sale')}
                     </Select.Item>
-                    <Select.Item value="delete">Устгах</Select.Item>
+                    <Select.Item value="delete">{t('delete')}</Select.Item>
                   </Select.Content>
                 </Select>
               </Form.Control>
@@ -228,7 +230,7 @@ export const SyncOrderConfigForm = ({
                 >
                   <Form.Control>
                     <Select.Trigger>
-                      <Select.Value placeholder="Select pos" />
+                      <Select.Value placeholder={t('select-pos')} />
                     </Select.Trigger>
                   </Form.Control>
                   <Select.Content>
@@ -248,7 +250,7 @@ export const SyncOrderConfigForm = ({
           name="saleAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Борлуулалтын данс</Form.Label>
+              <Form.Label>{t('sale-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -264,7 +266,7 @@ export const SyncOrderConfigForm = ({
           name="saleOutAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Борлуулалтын зарлагын данс</Form.Label>
+              <Form.Label>{t('sale-out-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -280,7 +282,7 @@ export const SyncOrderConfigForm = ({
           name="saleCostAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Борлуулалтын өртгийн данс</Form.Label>
+              <Form.Label>{t('sale-cost-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -296,7 +298,7 @@ export const SyncOrderConfigForm = ({
           name="branchId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Салбар</Form.Label>
+              <Form.Label>{t('branch')}</Form.Label>
               <Form.Control>
                 <SelectBranches.FormItem
                   mode="single"
@@ -312,7 +314,7 @@ export const SyncOrderConfigForm = ({
           name="departmentId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Хэлтэс</Form.Label>
+              <Form.Label>{t('department')}</Form.Label>
               <Form.Control>
                 <SelectDepartments.FormItem
                   mode="single"
@@ -328,7 +330,7 @@ export const SyncOrderConfigForm = ({
           name="defaultPayment.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Төлбөрийн үндсэн данс</Form.Label>
+              <Form.Label>{t('default-payment-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -351,7 +353,7 @@ export const SyncOrderConfigForm = ({
           name="defaultNegPayment.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Сөрөг төлбөрийн үндсэн данс</Form.Label>
+              <Form.Label>{t('default-neg-payment-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -410,7 +412,7 @@ export const SyncOrderConfigForm = ({
           name="hasVat"
           render={({ field }) => (
             <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
-              <Form.Label>НӨАТ-тэй</Form.Label>
+              <Form.Label>{t('has-vat')}</Form.Label>
               <Form.Control>
                 <Checkbox
                   checked={field.value ?? false}
@@ -430,7 +432,7 @@ export const SyncOrderConfigForm = ({
               name="vatRowId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>НӨАТ-ын мөр</Form.Label>
+                  <Form.Label>{t('vat-row')}</Form.Label>
                   <Form.Control>
                     <SelectVat
                       value={field.value || ''}
@@ -442,7 +444,7 @@ export const SyncOrderConfigForm = ({
             />
             <FormSelectEbarimtProductRule
               name="reverseVatRules"
-              label="НӨАТ-с хасах барааны дүрэм"
+              label={t('reverse-vat-rules')}
               kind="vat"
               control={form.control}
             />
@@ -453,7 +455,7 @@ export const SyncOrderConfigForm = ({
           name="hasCtax"
           render={({ field }) => (
             <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
-              <Form.Label>НХАТ-тэй</Form.Label>
+              <Form.Label>{t('has-ctax')}</Form.Label>
               <Form.Control>
                 <Checkbox
                   checked={field.value ?? false}
@@ -472,7 +474,7 @@ export const SyncOrderConfigForm = ({
             name="ctaxRowId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>НХАТ-ын мөр</Form.Label>
+                <Form.Label>{t('ctax-row')}</Form.Label>
                 <Form.Control>
                   <SelectCtax
                     value={field.value || ''}
@@ -485,7 +487,7 @@ export const SyncOrderConfigForm = ({
         ) : (
           <FormSelectEbarimtProductRule
             name="reverseCtaxRules"
-            label="НХАТ-тай онцгой барааны дүрэм"
+            label={t('reverse-ctax-rules')}
             kind="ctax"
             control={form.control}
           />
@@ -493,11 +495,11 @@ export const SyncOrderConfigForm = ({
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
-              Болих
+              {t('cancel')}
             </Button>
           </Dialog.Close>
           <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Хадгалах'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Dialog.Footer>
       </form>

@@ -12,6 +12,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   lotteryFormSchema,
   LotteryFormValues,
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -113,7 +115,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
         <Sheet.Trigger asChild>
           <Button variant="ghost" size="sm">
             <IconEdit className="h-4 w-4" />
-            Edit
+            {t('edit')}
             <Kbd>E</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -125,7 +127,7 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Edit lottery campaign</Sheet.Title>
+          <Sheet.Title>{t('edit-lottery-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

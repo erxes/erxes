@@ -10,6 +10,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { ApprovalLockedBadge } from 'ui-modules';
 
 const isValidDateValue = (value?: string) => {
   return !!value && !Number.isNaN(new Date(value).getTime());
@@ -27,6 +28,25 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
       </RecordTableInlineCell>
     ),
     size: 260,
+  },
+  {
+    id: 'visibility',
+    header: () => <RecordTable.InlineHead label="Visibility" />,
+    cell: ({ cell }) => {
+      const lockState = cell.row.original.approvalLockState;
+      const isPrivate = lockState?.locked === true;
+
+      return (
+        <RecordTableInlineCell>
+          {isPrivate ? (
+            <ApprovalLockedBadge state={lockState} />
+          ) : (
+            <Badge variant="secondary">Public</Badge>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+    size: 120,
   },
   {
     id: 'provider',

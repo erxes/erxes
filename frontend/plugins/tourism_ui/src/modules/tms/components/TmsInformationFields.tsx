@@ -19,6 +19,7 @@ import {
 } from '@/tms/components/TmsFormFields';
 import { Button } from 'erxes-ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const TmsInformationFields = ({
   form,
@@ -33,6 +34,7 @@ export const TmsInformationFields = ({
   isOpen?: boolean;
   isLoading?: boolean;
 }) => {
+  const { t } = useTranslation('tourism');
   const [currentStep, setCurrentStep] = useAtom(currentStepAtom);
   const [hasBeenOpened, setHasBeenOpened] = useState(false);
   const setFormAtom = useSetAtom(tmsFormAtom);
@@ -175,15 +177,15 @@ export const TmsInformationFields = ({
         <div className="flex gap-2 items-center">
           <div className="flex h-5 px-2 justify-center items-center gap-1 rounded-[21px] bg-[rgba(79,70,229,0.10)] transition-all duration-300">
             <p className="text-primary leading-none text-[12px] font-semibold uppercase font-mono">
-              STEP {currentStep}
+              {t('step', { step: currentStep })}
             </p>
           </div>
           <p className="text-primary font-inter text-[14px] font-semibold leading-[140%] transition-all duration-300">
             {currentStep === 1
-              ? 'General information'
+              ? t('general-information')
               : currentStep === 2
-                ? 'Permission'
-                : 'Payments'}
+                ? t('permission')
+                : t('payments')}
           </p>
         </div>
         <div className="flex gap-2 items-center self-stretch">
@@ -202,10 +204,10 @@ export const TmsInformationFields = ({
         </div>
         <p className="self-stretch text-muted-foreground font-inter text-[13px] font-medium leading-[140%] transition-all duration-300">
           {currentStep === 1
-            ? 'Set up your TMS information'
+            ? t('setup-tms-information')
             : currentStep === 2
-              ? 'Setup your permission'
-              : 'Setup your payments'}
+              ? t('setup-permission')
+              : t('setup-payments')}
         </p>
       </div>
       <div className="overflow-hidden relative flex-1 min-h-0">
@@ -221,7 +223,7 @@ export const TmsInformationFields = ({
             onClick={handleCancel}
             className="transition-all duration-200 hover:scale-105"
           >
-            Cancel
+            {t('cancel')}
           </Button>
         ) : (
           <Button
@@ -229,7 +231,7 @@ export const TmsInformationFields = ({
             onClick={handlePrevious}
             className="transition-all duration-200 hover:scale-105"
           >
-            Previous
+            {t('previous')}
           </Button>
         )}
         {currentStep < 3 ? (
@@ -237,7 +239,7 @@ export const TmsInformationFields = ({
             onClick={handleNext}
             className="transition-all duration-200 hover:scale-105"
           >
-            Next
+            {t('next')}
           </Button>
         ) : (
           <Button
@@ -245,7 +247,7 @@ export const TmsInformationFields = ({
             disabled={isLoading}
             className="transition-all duration-200 hover:scale-105"
           >
-            {isLoading ? 'Saving...' : 'Save'}
+            {isLoading ? t('saving') : t('save')}
           </Button>
         )}
       </div>

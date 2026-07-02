@@ -5,7 +5,9 @@ import {
 } from '@apollo/client';
 import { UPDATE_PIPELINE } from '@/pipelines/graphql/mutations/updatePipeline';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 export const useUpdatePipeline = () => {
+  const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const [_updatePipeline, { loading }] = useMutation(UPDATE_PIPELINE);
   const updatePipeline = (options: MutationFunctionOptions) => {
@@ -16,7 +18,7 @@ export const useUpdatePipeline = () => {
       },
       onError: (error: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           variant: 'destructive',
           description: error.message,
         });

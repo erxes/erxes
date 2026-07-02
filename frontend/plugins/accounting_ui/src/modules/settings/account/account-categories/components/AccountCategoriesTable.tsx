@@ -14,6 +14,7 @@ import {
   useConfirm,
   toast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAccountCategories } from '../hooks/useAccountCategories';
 import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
 import { useAccountCategoriesRemove } from '../hooks/useAccountCategoriesRemove';
@@ -139,6 +140,7 @@ const AccountCategoryMoreColumnCell = ({
 }: {
   cell: Cell<IAccountCategory & { hasChildren: boolean }, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState('accountCategoryId');
   const setAccountCategoryDetail = useSetAtom(accountCategoryDetailAtom);
   const { confirm } = useConfirm();
@@ -151,25 +153,25 @@ const AccountCategoryMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete this account category?',
+      message: t('are-you-sure-delete-this-account-category'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeAccountCategories({
         variables: { _id: cell.row.original._id },
         onError: (error: Error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Account category deleted successfully',
+            title: t('success'),
+            description: t('account-category-deleted-successfully'),
           });
         },
       });
@@ -184,10 +186,10 @@ const AccountCategoryMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

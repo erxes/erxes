@@ -6,6 +6,8 @@ import {
   TAutomationOutputDefinition,
   TAutomationOutputVariable,
   TAutomationFindObjectTargetDefinition,
+  TAiKnowledgeSourceConfig,
+  TAiToolConfig,
   TAutomationSetPropertyTarget,
   TRecordReferencesConfig,
   normalizeAutomationConstantsForTransport,
@@ -36,6 +38,8 @@ type TAutomationConstantsResponse = {
   actionsConst: TWithPluginName<IAutomationsActionConfig>[];
   findObjectTargetsConst: TAutomationFindObjectTargetDefinition[];
   setPropertyTargetsConst: TWithPluginName<TAutomationSetPropertyTarget>[];
+  aiKnowledgeSourcesConst: TWithPluginName<TAiKnowledgeSourceConfig>[];
+  aiToolsConst: TWithPluginName<TAiToolConfig>[];
 };
 
 type TRecordReferenceType = TRecordReferencesConfig['types'][number];
@@ -179,6 +183,16 @@ export const getAutomationConstants =
       setPropertyTargetsConst: [
         ...(normalizedCoreConstants.setPropertyTargets || []),
       ],
+      aiKnowledgeSourcesConst: (
+        normalizedCoreConstants.ai?.knowledgeSources || []
+      ).map((source) => ({
+        ...source,
+        pluginName: 'core',
+      })),
+      aiToolsConst: (normalizedCoreConstants.ai?.tools || []).map((tool) => ({
+        ...tool,
+        pluginName: 'core',
+      })),
     };
 
     for (const pluginName of plugins) {
@@ -202,10 +216,23 @@ export const getAutomationConstants =
         actions = [],
         findObjectTargets = [],
         setPropertyTargets = [],
+        ai,
       } = pluginConstants as AutomationConstants;
       constants.findObjectTargetsConst.push(...findObjectTargets);
       constants.setPropertyTargetsConst.push(
         ...setPropertyTargets.map((target) => ({ ...target, pluginName })),
+      );
+      constants.aiKnowledgeSourcesConst.push(
+        ...(ai?.knowledgeSources || []).map((source) => ({
+          ...source,
+          pluginName,
+        })),
+      );
+      constants.aiToolsConst.push(
+        ...(ai?.tools || []).map((tool) => ({
+          ...tool,
+          pluginName,
+        })),
       );
 
       for (const trigger of triggers) {

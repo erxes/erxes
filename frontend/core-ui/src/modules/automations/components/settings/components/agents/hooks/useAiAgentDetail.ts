@@ -4,6 +4,7 @@ import {
   AUTOMATIONS_AI_AGENT_ADD,
   AUTOMATIONS_AI_AGENT_DETAIL,
   AUTOMATIONS_AI_AGENT_EDIT,
+  AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES,
   AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { toast } from 'erxes-ui';
@@ -33,15 +34,21 @@ export interface AiAgentInput {
   context?: {
     systemPrompt?: string;
     files?: unknown;
+    knowledgeSources?: Array<{
+      pluginName: string;
+      moduleName: string;
+      key: string;
+      sourceIds: string[];
+    }>;
   };
 }
 
-export function useAiAgentDetail() {
+export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
   const { id } = useParams();
 
   const { data, loading } = useQuery(AUTOMATIONS_AI_AGENT_DETAIL, {
     variables: { id },
-    skip: !id,
+    skip: !id || skip,
   });
 
   const [addMutation, { loading: adding }] = useMutation(
@@ -62,7 +69,17 @@ export function useAiAgentDetail() {
 
       const res = await mutation({
         variables: id ? { ...input, id } : input,
-        refetchQueries: [AUTOMATIONS_AI_AGENT_TOTAL_COUNTS],
+        refetchQueries: [
+          AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
+          ...(id
+            ? [
+                {
+                  query: AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES,
+                  variables: { agentId: id },
+                },
+              ]
+            : []),
+        ],
         onError: ({ message }) => {
           toast({
             title: 'Something went wrong',

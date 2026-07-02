@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { IMAP_SEND_MAIL_MUTATION } from '../graphql/mutations/imapMutations';
+import { useTranslation } from 'react-i18next';
 
 export interface ImapSendMailVariables {
   integrationId?: string;
@@ -20,6 +21,7 @@ export interface ImapSendMailVariables {
 }
 
 export const useImapSendMail = () => {
+  const { t } = useTranslation('frontline');
   const [sendMailMutation, { loading }] = useMutation(IMAP_SEND_MAIL_MUTATION);
 
   const imapSendMail = (
@@ -29,12 +31,12 @@ export const useImapSendMail = () => {
     sendMailMutation({
       variables,
       onCompleted: () => {
-        toast({ title: 'Email sent successfully!' });
+        toast({ title: t('email-sent-successfully') });
         onCompleted?.();
       },
       onError: (err) => {
         toast({
-          title: `Failed to send email: ${err.message}`,
+          title: t('failed-to-send-email', { message: err.message }),
           variant: 'destructive',
         });
       },

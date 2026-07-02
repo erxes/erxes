@@ -28,6 +28,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useTranslation } from 'react-i18next';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
 import { CmsSidebar } from '../shared/CmsSidebar';
@@ -67,6 +68,7 @@ function SortableGroup({
 }
 
 export function CustomFields() {
+  const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const [isGroupDrawerOpen, setIsGroupDrawerOpen] = useState(false);
   const [isFieldDrawerOpen, setIsFieldDrawerOpen] = useState(false);
@@ -198,8 +200,8 @@ export function CustomFields() {
       },
       onCompleted: async () => {
         toast({
-          title: 'Success',
-          description: editingField ? 'Field updated!' : 'Field created!',
+          title: t('success'),
+          description: editingField ? t('field-updated') : t('field-created'),
         });
         setIsFieldDrawerOpen(false);
         setEditingField(null);
@@ -228,8 +230,7 @@ export function CustomFields() {
 
   const handleDeleteGroup = (groupId: string) => {
     confirm({
-      message:
-        'Are you sure you want to delete this field group? All fields in this group will also be deleted.',
+      message: t('confirm-delete-field-group'),
     }).then(() => {
       removeGroup({ variables: { _id: groupId } });
     });
@@ -238,7 +239,7 @@ export function CustomFields() {
   const handleDeleteField = (fieldId: string) => {
     if (!selectedGroup) return;
     confirm({
-      message: 'Are you sure you want to delete this field?',
+      message: t('confirm-delete-field'),
     }).then(async () => {
       const latestGroup =
         groups.find((g) => g._id === selectedGroup._id) || selectedGroup;
@@ -258,7 +259,7 @@ export function CustomFields() {
           },
         },
         onCompleted: async () => {
-          toast({ title: 'Success', description: 'Field deleted!' });
+          toast({ title: t('success'), description: t('field-deleted') });
           const result = await refetch();
           if (result.data?.cmsCustomFieldGroupList?.list) {
             const updatedGroup = result.data.cmsCustomFieldGroupList.list.find(
@@ -283,7 +284,7 @@ export function CustomFields() {
           }}
         >
           <IconPlus className="w-4 h-4 mr-2" />
-          Add Group
+          {t('add-group')}
         </Button>
       </CustomFieldsHeader>
       <div className="flex overflow-hidden flex-auto">
@@ -296,8 +297,8 @@ export function CustomFields() {
                 <Table>
                   <Table.Header>
                     <Table.Row>
-                      <Table.Head>Name</Table.Head>
-                      <Table.Head>Data type</Table.Head>
+                      <Table.Head>{t('name')}</Table.Head>
+                      <Table.Head>{t('type')}</Table.Head>
                       <Table.Head className="w-12"></Table.Head>
                     </Table.Row>
                   </Table.Header>
@@ -311,7 +312,7 @@ export function CustomFields() {
                 ) : groups.length === 0 ? (
                   <div className="py-12 text-center border rounded-lg mt-2">
                     <p className="text-muted-foreground mb-4">
-                      No field groups yet
+                      {t('no-field-groups-yet')}
                     </p>
                     <Button
                       variant="secondary"
@@ -321,7 +322,7 @@ export function CustomFields() {
                       }}
                     >
                       <IconPlus className="w-4 h-4 mr-2" />
-                      Create First Group
+                      {t('create-first-group')}
                     </Button>
                   </div>
                 ) : (

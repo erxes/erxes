@@ -9,8 +9,10 @@ import { IconBuildingStore, IconCheck, IconSearch, IconX } from '@tabler/icons-r
 import { useBrands } from 'ui-modules/modules/brands/hooks/useBrands';
 import { useState, useRef, type ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
+import { useTranslation } from 'react-i18next';
 
 export const ChooseBrand = () => {
+  const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,7 +33,7 @@ export const ChooseBrand = () => {
   } else if (!brands?.length) {
     brandContent = (
       <div className="text-sm text-accent-foreground ml-1 my-2">
-        No brands found
+        {t('no-brands-found')}
       </div>
     );
   } else {
@@ -39,7 +41,7 @@ export const ChooseBrand = () => {
       <BrandItem
         key={brand._id}
         _id={brand._id}
-        name={brand.name ?? 'Unnamed brand'}
+        name={brand.name ?? t('unnamed-brand')}
       />
     ));
   }
@@ -51,7 +53,7 @@ export const ChooseBrand = () => {
         <Input
           ref={inputRef}
           variant="secondary"
-          placeholder="Search..."
+          placeholder={t('search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-7 pl-6 pr-7 text-xs"

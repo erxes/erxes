@@ -11,12 +11,14 @@ import {
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const FacebookBotPageAccountsStep = ({
   accountId,
 }: {
   accountId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [selectedAccountId, setSelectedAccountId] = useAtom(
     selectedFacebookAccountAtom,
   );
@@ -27,12 +29,12 @@ export const FacebookBotPageAccountsStep = ({
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
-            <Input placeholder="Search for an account" />
+            <Input placeholder={t('search-for-an-account')} />
           </Command.Primitive.Input>
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {facebookGetAccounts.length} accounts found
+            {t('accounts-found', { count: facebookGetAccounts.length })}
           </div>
 
           <Button variant="ghost" className="text-primary" asChild>
@@ -42,7 +44,7 @@ export const FacebookBotPageAccountsStep = ({
               rel="noreferrer"
             >
               <IconPlus />
-              Connect Facebook page
+              {t('add-account-via-facebook')}
             </Link>
           </Button>
         </div>

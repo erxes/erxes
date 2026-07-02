@@ -1,5 +1,6 @@
 import { IconPlus, IconUpload } from '@tabler/icons-react';
 import { Avatar, Form, Textarea } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
 import { TBotMessageButton } from '~/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm';
 import { FacebookMessageProps } from '../../types/messageActionForm';
@@ -9,6 +10,7 @@ import { InputTextCounter } from '../InputTextCounter';
 export const FacebookQuickRepliesMessage = ({
   index,
 }: FacebookMessageProps<{ type: 'quickReplies' }>) => {
+  const { t } = useTranslation('frontline');
   const { control } = useReplyMessageAction();
   return (
     <>
@@ -32,7 +34,7 @@ export const FacebookQuickRepliesMessage = ({
           return (
             <Form.Item>
               <Form.Label className="flex flex-row justify-between">
-                Quick replies
+                {t('quick-replies')}
                 <InputTextCounter count={field.value?.length || 0} limit={13} />
               </Form.Label>
               <Form.Control>
@@ -43,7 +45,7 @@ export const FacebookQuickRepliesMessage = ({
                   addButtonContent={
                     <>
                       <IconPlus />
-                      add quick reply
+                      {t('add-quick-reply')}
                     </>
                   }
                   ContentBeforeInput={QuickReplyImageUploader}

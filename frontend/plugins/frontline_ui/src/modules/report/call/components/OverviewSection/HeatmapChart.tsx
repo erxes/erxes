@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DOW_LABELS, fmtPct } from '../../utils';
 import type { HeatCell } from '../../types';
 
@@ -17,6 +18,7 @@ const DOWS = [1, 2, 3, 4, 5, 6, 7]; // Mon–Sun ($isoDayOfWeek)
 export const HeatmapChart = memo(function HeatmapChart({
   cells,
 }: HeatmapChartProps) {
+  const { t } = useTranslation('frontline');
   const { maxTotal, cellMap } = useMemo(() => {
     const map = new Map<string, HeatCell>();
     let max = 0;
@@ -30,7 +32,7 @@ export const HeatmapChart = memo(function HeatmapChart({
   if (!cells.length) {
     return (
       <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-        No heatmap data
+        {t('no-heatmap-data')}
       </div>
     );
   }
@@ -66,7 +68,7 @@ export const HeatmapChart = memo(function HeatmapChart({
                   title={
                     cell
                       ? `${DOW_LABELS[dow]} ${hour}:00 — ${cell.total} calls, ${fmtPct(cell.answerRate)} answered`
-                      : 'No data'
+                      : t('no-data')
                   }
                   className="flex-1 m-[1px] rounded-sm aspect-square"
                   style={{

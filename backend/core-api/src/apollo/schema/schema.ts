@@ -114,6 +114,11 @@ import {
   queries as PermissionQueries,
   types as PermissionTypes,
 } from '~/modules/permissions/graphql/schemas/permission';
+import {
+  mutations as ApprovalMutations,
+  queries as ApprovalQueries,
+  types as ApprovalTypes,
+} from '@/approval/graphql/schema';
 
 import {
   mutations as DocumentMutations,
@@ -241,6 +246,7 @@ export const types = `
     ${RelationTypes}
     ${FavoritesTypes}
     ${PermissionTypes}
+    ${ApprovalTypes}
     ${DocumentTypes}
     ${AutomationsTypes}
     ${LogsTypes}
@@ -281,6 +287,7 @@ export const queries = `
     ${RelationQueries}
     ${FavoritesQueries}
     ${PermissionQueries}
+    ${ApprovalQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
     ${BeforeResolverQueries}
@@ -320,6 +327,7 @@ export const mutations = `
     ${RelationMutations}
     ${FavoritesMutations}
     ${PermissionMutations}
+    ${ApprovalMutations}
     ${DocumentMutations}
     ${AutomationsMutations}
     ${NotificationsMutations}

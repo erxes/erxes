@@ -3,6 +3,7 @@ import { insuranceTypesColumns } from './InsuranceTypesColumns';
 import { useInsuranceTypes } from '~/modules/insurance/hooks';
 import { InsuranceType } from '~/modules/insurance/types';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GenericRecordTable } from '../shared';
 import { InsuranceTypesMoreColumn } from './InsuranceTypesMoreColumn';
 
@@ -15,6 +16,7 @@ export const InsuranceTypesRecordTable = ({
   onEdit,
   onDeleted,
 }: InsuranceTypesRecordTableProps) => {
+  const { t } = useTranslation('insurance');
   const { insuranceTypes, loading, refetch } = useInsuranceTypes();
 
   const columns = useMemo(() => {
@@ -47,9 +49,8 @@ export const InsuranceTypesRecordTable = ({
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconShieldCheck size={64} />,
-        title: 'No insurance types yet',
-        description:
-          'Create insurance types to categorize your insurance products.',
+        title: t('no-insurance-types-yet'),
+        description: t('no-insurance-types-description'),
       }}
     />
   );

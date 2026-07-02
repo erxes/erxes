@@ -11,6 +11,7 @@ import {
   RecordTableInlineCell,
   Badge,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { InsuranceProduct } from '~/modules/insurance/types';
 import { ProductsMoreColumn } from './ProductsMoreColumn';
 
@@ -35,7 +36,10 @@ export const createProductsColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconPackage} label="Name" />,
+    header: () => {
+      const { t } = useTranslation('insurance');
+      return <RecordTable.InlineHead icon={IconPackage} label={t('name')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -47,9 +51,10 @@ export const createProductsColumns = (
   {
     id: 'insuranceType',
     accessorKey: 'insuranceType',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Insurance Type" />
-    ),
+    header: () => {
+      const { t } = useTranslation('insurance');
+      return <RecordTable.InlineHead icon={IconCategory} label={t('insurance-type')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -63,14 +68,16 @@ export const createProductsColumns = (
   {
     id: 'coveredRisks',
     accessorKey: 'coveredRisks',
-    header: () => (
-      <RecordTable.InlineHead icon={IconShieldCheck} label="Covered Risks" />
-    ),
+    header: () => {
+      const { t } = useTranslation('insurance');
+      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('covered-risks')} />;
+    },
     cell: ({ cell }) => {
+      const { t } = useTranslation('insurance');
       const risks = cell.row.original.coveredRisks || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{risks.length} risks</Badge>
+          <Badge variant="secondary">{risks.length} {t('risks')}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -78,9 +85,10 @@ export const createProductsColumns = (
   {
     id: 'riskDetails',
     accessorKey: 'riskDetails',
-    header: () => (
-      <RecordTable.InlineHead icon={IconShieldCheck} label="Risk Details" />
-    ),
+    header: () => {
+      const { t } = useTranslation('insurance');
+      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('risk-details')} />;
+    },
     cell: ({ cell }) => {
       const risks = cell.row.original.coveredRisks || [];
       const riskNames = risks
@@ -99,9 +107,10 @@ export const createProductsColumns = (
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created" />
-    ),
+    header: () => {
+      const { t } = useTranslation('insurance');
+      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

@@ -19,12 +19,14 @@ import { useNavigate } from 'react-router-dom';
 import { useChannelAdd } from '../../../hooks/useChannelAdd';
 import { useChannelsForm } from '../../../hooks/useChannelsForm';
 import { ChannelHotKeyScope, TChannelForm } from '../../../types';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   isIconOnly?: boolean;
 };
 
 export const CreateChannel = ({ isIconOnly = false }: Props) => {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const form = useChannelsForm({});
   const { addChannel, loading } = useChannelAdd();
@@ -53,14 +55,14 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
       addChannel({
         variables: data,
         onCompleted: (data) => {
-          toast({ title: 'Success!' });
+          toast({ title: t('success') });
           navigate(`/settings/frontline/channels/${data.channelAdd._id}`);
           form.reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -79,7 +81,7 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
           <IconPlus />
           {!isIconOnly && (
             <>
-              <span>Create channel</span>
+              <span>{t('create-channel')}</span>
               <Kbd>C</Kbd>
             </>
           )}
@@ -92,7 +94,7 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
             onSubmit={form.handleSubmit(submitHandler)}
           >
             <Sheet.Header>
-              <Sheet.Title>Create channel</Sheet.Title>
+              <Sheet.Title>{t('create-channel')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -100,10 +102,10 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => onClose()}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create')}
               </Button>
             </Sheet.Footer>
           </form>

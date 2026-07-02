@@ -7,6 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 import { WebsiteDrawer } from './cms/components/websites/WebsiteDrawer';
@@ -14,6 +15,7 @@ import { CONTENT_CMS_LIST } from './cms/graphql/queries';
 import { IWebsite } from './cms/types';
 
 export const ContentNavigation = () => {
+  const { t } = useTranslation('content');
   const { pathname } = useLocation();
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
   const [editingWebsite, setEditingWebsite] = useState<IWebsite>();
@@ -76,10 +78,10 @@ export const ContentNavigation = () => {
             </Sidebar.MenuButton>
             <div className="absolute inset-y-0 right-1 flex items-center gap-0.5">
               <Button
-                aria-label="Add CMS"
+                aria-label={t('add-cms')}
                 className="h-6 w-6 p-0 text-primary/70 hover:bg-transparent hover:text-primary"
                 size="icon"
-                title="Add CMS"
+                title={t('add-cms')}
                 type="button"
                 variant="ghost"
                 onClick={(event) => {
@@ -91,10 +93,10 @@ export const ContentNavigation = () => {
                 <IconPlus className="h-4 w-4" />
               </Button>
               <Button
-                aria-label="Manage CMS"
+                aria-label={t('manage-cms')}
                 className="h-6 w-6 p-0 text-primary/70 hover:bg-transparent hover:text-primary"
                 size="icon"
-                title="Manage CMS"
+                title={t('manage-cms')}
                 type="button"
                 variant="ghost"
                 onClick={(event) => {

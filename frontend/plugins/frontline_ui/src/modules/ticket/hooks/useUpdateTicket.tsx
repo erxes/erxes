@@ -1,8 +1,10 @@
 import { useMutation, MutationHookOptions } from '@apollo/client';
 import { UPDATE_TICKET_MUTATION } from '@/ticket/graphql/mutations/updateTicket';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useUpdateTicket = () => {
+  const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const [_updateTicket, { loading, error }] = useMutation(
     UPDATE_TICKET_MUTATION,
@@ -15,7 +17,7 @@ export const useUpdateTicket = () => {
 
         if (!options.onError) {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });

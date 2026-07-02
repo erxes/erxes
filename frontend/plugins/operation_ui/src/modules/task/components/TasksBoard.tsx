@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGetStatusByTeam } from '@/task/hooks/useGetStatusByTeam';
 import { useTasks } from '@/task/hooks/useGetTasks';
 import { ITask } from '@/task/types';
@@ -32,6 +33,7 @@ const fetchedTasksState = atom<BoardItemProps[]>([]);
 export const allTasksMapState = atom<Record<string, ITask>>({});
 
 export const TasksBoard = () => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams();
   const allTasksMap = useAtomValue(allTasksMapState);
   const { updateTask } = useUpdateTask();
@@ -107,15 +109,15 @@ export const TasksBoard = () => {
             className="text-muted-foreground"
           />
           <h2 className="text-lg font-semibold text-muted-foreground">
-            No team yet
+            {t('no-team-yet')}
           </h2>
           <p className="text-md text-muted-foreground mb-4">
-            Create a team to start organizing your board.
+            {t('create-team-to-start')}
           </p>
           <Button variant="outline" asChild>
             <Link to={`/settings/operation/team`}>
               <IconSettings />
-              Go to settings
+              {t('go-to-settings')}
             </Link>
           </Button>
         </div>

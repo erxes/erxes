@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   EMLayout,
   EMLayoutPreviousStepButton,
@@ -17,6 +18,7 @@ import {
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 
 export const EMGreeting = () => {
+  const { t } = useTranslation('frontline');
   const atomValue = useAtomValue(erxesMessengerSetupGreetingAtom);
   const form = useForm<z.infer<typeof EMGREETING_SCHEMA>>({
     resolver: zodResolver(EMGREETING_SCHEMA),
@@ -47,11 +49,11 @@ export const EMGreeting = () => {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <EMLayout
-          title="Greeting"
+          title={t('greeting')}
           actions={
             <>
               <EMLayoutPreviousStepButton />
-              <Button type="submit">Next step</Button>
+              <Button type="submit">{t('next-step')}</Button>
             </>
           }
         >
@@ -60,7 +62,7 @@ export const EMGreeting = () => {
               name="title"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Greeting Title</Form.Label>
+                  <Form.Label>{t('greeting-title')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -72,7 +74,7 @@ export const EMGreeting = () => {
               name="message"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Greeting Message</Form.Label>
+                  <Form.Label>{t('greeting-message')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -84,9 +86,9 @@ export const EMGreeting = () => {
               name="supporterIds"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Supporters</Form.Label>
+                  <Form.Label>{t('supporters')}</Form.Label>
                   <SelectMember.FormItem
-                    placeholder="Select supporters"
+                    placeholder={t('select-supporters')}
                     value={field.value}
                     mode="multiple"
                     onValueChange={field.onChange}
@@ -96,7 +98,7 @@ export const EMGreeting = () => {
               )}
             />
             <Form.Item>
-              <Form.Label>Social Links</Form.Label>
+              <Form.Label>{t('social-links')}</Form.Label>
               {fields.map((field, index) => {
                 return (
                   <div className="flex gap-2 items-center" key={field.id}>
@@ -135,7 +137,7 @@ export const EMGreeting = () => {
                   variant="secondary"
                 >
                   <IconPlus />
-                  Add social link
+                  {t('add-social-link')}
                 </Button>
               </div>
             </Form.Item>

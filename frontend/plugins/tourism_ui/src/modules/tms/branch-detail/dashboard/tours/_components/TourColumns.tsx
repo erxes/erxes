@@ -37,6 +37,7 @@ export const TourColumns = (
   categories: ICategory[],
   onEdit?: (tourId: string) => void,
   onDuplicate?: (tourId: string, dateType?: 'fixed' | 'flexible') => void,
+  t: (key: string) => string = (k) => k,
 ): ColumnDef<ITour>[] => {
   return [
     RecordTable.checkboxColumn as ColumnDef<ITour>,
@@ -44,7 +45,7 @@ export const TourColumns = (
     {
       id: 'name',
       accessorKey: 'name',
-      header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
+      header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
       cell: ({ cell, row }: { cell: any; row: any }) => (
         <RecordTableInlineCell>
           <Badge
@@ -61,7 +62,7 @@ export const TourColumns = (
     {
       id: 'refNumber',
       accessorKey: 'refNumber',
-      header: () => <RecordTable.InlineHead icon={IconHash} label="Ref" />,
+      header: () => <RecordTable.InlineHead icon={IconHash} label={t('ref')} />,
       cell: ({ cell }: { cell: any }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
@@ -73,7 +74,7 @@ export const TourColumns = (
       id: 'status',
       accessorKey: 'status',
       header: () => (
-        <RecordTable.InlineHead icon={IconProgressCheck} label="Status" />
+        <RecordTable.InlineHead icon={IconProgressCheck} label={t('status')} />
       ),
       cell: ({ cell }: { cell: any }) => (
         <RecordTableInlineCell>
@@ -86,7 +87,7 @@ export const TourColumns = (
       id: 'date_status',
       accessorKey: 'date_status',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendarEvent} label="Date status" />
+        <RecordTable.InlineHead icon={IconCalendarEvent} label={t('date-status')} />
       ),
       cell: ({ cell }: { cell: any }) => (
         <RecordTableInlineCell>
@@ -99,7 +100,7 @@ export const TourColumns = (
       id: 'categoryIds',
       accessorKey: 'categoryIds',
       header: () => (
-        <RecordTable.InlineHead icon={IconListTree} label="Category" />
+        <RecordTable.InlineHead icon={IconListTree} label={t('category')} />
       ),
       cell: ({ cell }: { cell: any }) => {
         const ids = cell.getValue() as string[] | undefined;
@@ -130,7 +131,7 @@ export const TourColumns = (
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
       ),
       cell: ({ row }: { row: any }) => {
         const tour = row.original as ITour;
@@ -148,7 +149,7 @@ export const TourColumns = (
       id: 'endDate',
       accessorKey: 'endDate',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="End Date" />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('end-date')} />
       ),
       cell: ({ row }: { row: any }) => {
         const tour = row.original as ITour;
@@ -166,7 +167,7 @@ export const TourColumns = (
       id: 'createdAt',
       accessorKey: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />
+        <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created')} />
       ),
       cell: ({ cell }: { cell: any }) => {
         return (
@@ -183,7 +184,7 @@ export const TourColumns = (
       id: 'modifiedAt',
       accessorKey: 'modifiedAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendarDot} label="Modified" />
+        <RecordTable.InlineHead icon={IconCalendarDot} label={t('modified')} />
       ),
       cell: ({ cell }: { cell: any }) => {
         return (

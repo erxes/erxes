@@ -3,19 +3,21 @@ import {
   AutomationTriggerConfigProps,
 } from 'ui-modules';
 import { TStageProbalityTriggerConfigForm } from '../../states/stageProbalityTriggerConfigFormDefinitions';
+import { useTranslation } from 'react-i18next';
 
 export const StageProbalityTriggerNodeContent = ({
   type,
   config,
 }: AutomationTriggerConfigProps<TStageProbalityTriggerConfigForm>) => {
+  const { t } = useTranslation('sales');
   const { probability, fromStageId, toStageId } = config || {};
 
   if (type?.endsWith('.stageChanged')) {
     return (
       <div>
         <AutomationNodeMetaInfoRow
-          fieldName="When sales card stage changes"
-          content={`${fromStageId || 'Any stage'} -> ${toStageId || 'Any stage'}`}
+          fieldName={t('when-sales-card-stage-changes')}
+          content={`${fromStageId || t('any-stage')} -> ${toStageId || t('any-stage')}`}
         />
       </div>
     );
@@ -24,7 +26,7 @@ export const StageProbalityTriggerNodeContent = ({
   return (
     <div>
       <AutomationNodeMetaInfoRow
-        fieldName="When sales card moved to stage with probability"
+        fieldName={t('when-sales-card-moved-to-stage-with-probability')}
         content={probability}
       />
     </div>

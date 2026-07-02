@@ -7,6 +7,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconUser } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
 
 // The owner of a loyalty record can be a customer, a company or a team member.
@@ -21,14 +22,15 @@ type OwnerParts = {
   placeholder: string;
 };
 
-const getOwnerParts = (ownerType?: string | null): OwnerParts => {
+const useOwnerParts = (ownerType?: string | null): OwnerParts => {
+  const { t } = useTranslation('loyalty');
   if (ownerType === 'company') {
     return {
       Provider: SelectCompany.Provider,
       Content: SelectCompany.Content,
       Value: SelectCompany.Value,
-      label: 'Company',
-      placeholder: 'Select company',
+      label: t('company'),
+      placeholder: t('select-company'),
     };
   }
   if (ownerType === 'user') {
@@ -36,16 +38,16 @@ const getOwnerParts = (ownerType?: string | null): OwnerParts => {
       Provider: SelectMember.Provider,
       Content: SelectMember.Content,
       Value: SelectMember.Value,
-      label: 'Team Member',
-      placeholder: 'Select team member',
+      label: t('team-member'),
+      placeholder: t('select-team-member'),
     };
   }
   return {
     Provider: SelectCustomer.Provider,
     Content: SelectCustomer.Content,
     Value: SelectCustomer.Value,
-    label: 'Customer',
-    placeholder: 'Select customer',
+    label: t('customer'),
+    placeholder: t('select-customer'),
   };
 };
 
@@ -66,12 +68,15 @@ const useResetOnOwnerTypeChange = (
   }, [ownerType, setValue, value]);
 };
 
-const SelectOwnerFilterItem = ({ queryKey }: { queryKey: string }) => (
-  <Filter.Item value={queryKey}>
-    <IconUser />
-    Owner
-  </Filter.Item>
-);
+const SelectOwnerFilterItem = ({ queryKey }: { queryKey: string }) => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value={queryKey}>
+      <IconUser />
+      {t('owner')}
+    </Filter.Item>
+  );
+};
 
 const SelectOwnerFilterView = ({
   queryKey,
@@ -86,7 +91,7 @@ const SelectOwnerFilterView = ({
 
   useResetOnOwnerTypeChange(ownerType, value, setValue);
 
-  const { Provider, Content } = getOwnerParts(ownerType);
+  const { Provider, Content } = useOwnerParts(ownerType);
 
   return (
     <Filter.View filterKey={queryKey}>
@@ -118,7 +123,7 @@ const SelectOwnerFilterBar = ({
   useResetOnOwnerTypeChange(ownerType, value, setValue);
 
   const { Provider, Content, Value, label, placeholder } =
-    getOwnerParts(ownerType);
+    useOwnerParts(ownerType);
 
   if (!value) return null;
 

@@ -3,8 +3,10 @@ import { Button, cn, NavigationMenuGroup, useQueryState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { Link } from 'react-router';
 import { currentUserState } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const InboxActions = () => {
+  const { t } = useTranslation('frontline');
   const currentUser = useAtomValue(currentUserState);
   const [assignedTo, setAssignedTo] = useQueryState('assignedTo');
 
@@ -17,7 +19,7 @@ export const InboxActions = () => {
       >
         <Link to="/frontline/inbox">
           <IconRefresh className="text-accent-foreground" />
-          Reset filters
+          {t('reset-filters')}
         </Link>
       </Button>
       <Button
@@ -31,7 +33,7 @@ export const InboxActions = () => {
         }}
       >
         <IconUserUp className="text-accent-foreground" />
-        Assigned to me
+        {t('assigned-to-me')}
       </Button>
     </NavigationMenuGroup>
   );

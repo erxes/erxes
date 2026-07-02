@@ -2,8 +2,10 @@ import { RecordTable } from 'erxes-ui';
 import { PosOrdersBySubsColumns } from '@/pos/pos-order-by-subsription/components/PosOrdersBySubsColumns';
 import { usePosOrderBySubscriptionList } from '@/pos/pos-order-by-subsription/hooks/usePosOrderBySubsriptionList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const PosOrdersBySubsRecordTable = ({ posId }: { posId?: string }) => {
+  const { t } = useTranslation('sales');
   const { posOrderBySubscriptionList, handleFetchMore, loading, pageInfo } =
     usePosOrderBySubscriptionList({ posId });
 
@@ -40,10 +42,10 @@ export const PosOrdersBySubsRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No pos order by subscription yet
+                {t('no-pos-order-by-subscription-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first pos order by subscription.
+                {t('create-first-pos-order-by-subscription')}
               </p>
             </div>
           </div>

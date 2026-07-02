@@ -16,6 +16,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconArrowsExchange } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const ACTION_OPTIONS = [{ value: 'createdAt', label: 'Date' }];
 
@@ -72,13 +73,14 @@ const SelectScoreActionValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = useSelectScoreActionContext();
   const selected = ACTION_OPTIONS.find((o) => o.value === value);
 
   if (!selected) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select action'}
+        {placeholder || t('select-action')}
       </span>
     );
   }
@@ -91,13 +93,14 @@ const SelectScoreActionValue = ({
 };
 
 const SelectScoreActionContent = () => {
+  const { t } = useTranslation('loyalty');
   const { value, onValueChange } = useSelectScoreActionContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search action..." />
+      <Command.Input placeholder={t('search-action')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No action found</span>
+        <span className="text-muted-foreground">{t('no-action-found')}</span>
       </Command.Empty>
       <Command.List>
         {ACTION_OPTIONS.map((opt) => (
@@ -115,12 +118,15 @@ const SelectScoreActionContent = () => {
   );
 };
 
-export const SelectScoreActionFilterItem = () => (
-  <Filter.Item value="scoreOrderType">
-    <IconArrowsExchange />
-    Order Type
-  </Filter.Item>
-);
+export const SelectScoreActionFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="scoreOrderType">
+      <IconArrowsExchange />
+      {t('order-type')}
+    </Filter.Item>
+  );
+};
 
 export const SelectScoreActionFilterView = ({
   queryKey = 'scoreOrderType',
@@ -146,6 +152,7 @@ export const SelectScoreActionFilterView = ({
 };
 
 export const SelectScoreActionFilterBar = () => {
+  const { t } = useTranslation('loyalty');
   const [value, setValue] = useQueryState<string>('scoreOrderType');
   const [open, setOpen] = useState(false);
 
@@ -153,7 +160,7 @@ export const SelectScoreActionFilterBar = () => {
     <Filter.BarItem queryKey="scoreOrderType">
       <Filter.BarName>
         <IconArrowsExchange />
-        Order Type
+        {t('order-type')}
       </Filter.BarName>
       <SelectScoreActionProvider
         value={value || ''}

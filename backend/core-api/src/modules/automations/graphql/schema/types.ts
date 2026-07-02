@@ -63,6 +63,7 @@ const types = `
 
     createdUser: User
     updatedUser: User
+    approvalLockState(action: String): ApprovalLockState
 
   }
 

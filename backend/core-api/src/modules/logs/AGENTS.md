@@ -70,6 +70,12 @@ recoverable — but it's auth-agnostic (agent and human run under the same user)
 4. **Revert** — `logsRevertProcess(processId, dryRun, force, skipConflicts,
 resolutions)` → `revert/revertByProcessId.ts` reverse-replays the process's
    entries (dedup → authorize → plan → conflicts → dry-run/apply → marker).
+   **Preview is a separate `logsRevertPreview(processId)` QUERY** that runs the
+   same engine with `dryRun:true`. It exists because every mutation is
+   audit-logged: running the on-open silent dry-run through the mutation spawned a
+   phantom `logsRevertProcess` log on every log view (looked like the revert
+   "fired by itself"). Queries are not journaled, so the preview leaves no trail;
+   only the actual apply (the mutation) is recorded.
 
 ### Always on
 
@@ -141,10 +147,12 @@ is still honored when present.
   for Mongo data-change logs AND the GraphQL mutation log of the same request;
   excludes the `logsRevertProcess` log). Plain-language for non-technical users
   (no "revert/field/processId" jargon; field names humanized, values formatted,
-  IDs shown only as a quiet reference). On open it **silently dry-runs** to detect
-  an already-undone action and shows an "Already undone" notice instead of the
-  button. Otherwise: one-click "Undo this change" → dry-run preview → confirm, or
-  the `RevertConflictResolver` when a record was edited in the meantime.
+  IDs shown only as a quiet reference). On open it **silently dry-runs** (via the
+  read-only `logsRevertPreview` query — NOT the mutation, so it is not
+  audit-logged) to detect an already-undone action and shows an "Already undone"
+  notice instead of the button. Otherwise: one-click "Undo this change" → dry-run
+  preview → confirm, or the `RevertConflictResolver` when a record was edited in
+  the meantime.
 - `components/RevertConflictResolver.tsx` — the merge UI (erxes-ui `ToggleGroup`).
   Calm amber "warning" tone (not destructive red). Per changed field: a segmented
   Restore-previous / Keep-current toggle + a `Previous → Current` comparison where
@@ -153,8 +161,10 @@ is still honored when present.
   entity Badge + short id when more than one conflicts.
 - `utils/revertFormat.ts` — pure plain-language formatters shared by both
   (`formatValue`, `entityNoun`, `humanizeField`, `shortId`, `kindInfo`, `conflictKey`).
-- `hooks/useRevertProcess.tsx` (`preview`/`apply`) · `graphql/revertMutations.ts`
-  (`LOGS_REVERT_PROCESS`) · `components/LogDetailView.tsx` (renders the panel) ·
+- `hooks/useRevertProcess.tsx` (`preview` = `logsRevertPreview` query / `apply` =
+  `logsRevertProcess` mutation) · `graphql/revertMutations.ts`
+  (`LOGS_REVERT_PROCESS`) · `graphql/revertQueries.ts` (`LOGS_REVERT_PREVIEW`) ·
+  `components/LogDetailView.tsx` (renders the panel) ·
   `components/LogDetailPrimitives.tsx` (JSON viewer made dark-theme-readable).
 
 ---

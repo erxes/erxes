@@ -8,6 +8,7 @@ import {
   StatusInlineIcon,
   StatusInlineLabel,
 } from '@/operation/components/StatusInline';
+import { useTranslation } from 'react-i18next';
 
 const isTask = (content: ITask | IProject): content is ITask => {
   return 'teamId' in content;
@@ -18,6 +19,7 @@ export const ActivityStatus = ({
 }: {
   metadata: IActivity['metadata'];
 }) => {
+  const { t } = useTranslation('operation');
   const { previousValue, newValue } = metadata;
   const contentDetail = useActivityListContext();
 
@@ -54,9 +56,9 @@ export const ActivityStatus = ({
 
   return (
     <div className="flex items-center gap-1">
-      changed status
+      {t('changed-status')}
       {renderStatusBadge(previousValue)}
-      to
+      {t('to')}
       {renderStatusBadge(newValue)}
     </div>
   );

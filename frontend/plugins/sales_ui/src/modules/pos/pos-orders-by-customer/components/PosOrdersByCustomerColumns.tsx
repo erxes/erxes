@@ -8,13 +8,17 @@ import {
 
 import { IPosOrdersByCustomer } from '@/pos/pos-orders-by-customer/types/posOrdersByCustomerType';
 import { PosOrdersByCustomerMoreColumn } from '@/pos/pos-orders-by-customer/components/PosOrdersByCustomerMoreColumn';
+import { useTranslation } from 'react-i18next';
 
 export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
   PosOrdersByCustomerMoreColumn,
   {
     id: 'type',
     accessorKey: 'customerDetail.state',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Type" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('type')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -26,9 +30,10 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
   {
     id: 'customerName',
     accessorKey: 'customerDetail.primaryName',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Customer Name" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('customer-name')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -40,9 +45,10 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
   {
     id: 'customerEmail',
     accessorKey: 'customerDetail.emails.email',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Customer Email" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('customer-email')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -54,9 +60,10 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
   {
     id: 'totalOrders',
     accessorKey: 'totalOrders',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Orders Count" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('orders-count')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -68,9 +75,10 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Total Amount" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('total-amount')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

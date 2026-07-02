@@ -20,7 +20,7 @@ export const useDocument = () => {
     skip: !cleanDocumentId,
   });
 
-  const document = data?.documentsDetail || {};
+  const document = data?.documentsDetail || null;
 
   useEffect(() => {
     if (data?.documentsDetail) {
@@ -93,6 +93,7 @@ export const useDocument = () => {
 
   return {
     document,
+    documentId: cleanDocumentId,
     documentSave,
     loading,
     saving,

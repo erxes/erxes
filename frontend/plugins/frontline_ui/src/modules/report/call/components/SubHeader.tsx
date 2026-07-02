@@ -7,6 +7,7 @@ import {
   useFilterQueryState,
 } from 'erxes-ui';
 import { IconCalendar, IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useCallFilters } from '../hooks/useCallFilters';
 import type { SelectOption } from '../types';
 
@@ -36,6 +37,7 @@ export function SubHeader({
   integrationsLoading,
   queuesLoading,
 }: SubHeaderProps) {
+  const { t } = useTranslation('frontline');
   const {
     integrationId,
     setIntegrationId,
@@ -71,10 +73,10 @@ export function SubHeader({
         <Filter.Bar>
           {/* Integration */}
           {integrationsLoading ? (
-            <LoadingChip label="Integration" />
+            <LoadingChip label={t('integrations')} />
           ) : (
             <SelectChip
-              label="Integration"
+              label={t('integrations')}
               value={integrationLabel}
               options={integrationOptions}
               onSelect={setIntegrationId}
@@ -84,10 +86,10 @@ export function SubHeader({
 
           {/* Queue */}
           {queuesLoading ? (
-            <LoadingChip label="Queue" />
+            <LoadingChip label={t('queue')} />
           ) : (
             <SelectChip
-              label="Queue"
+              label={t('queue')}
               value={queueLabel}
               options={queueOptions}
               onSelect={setQueueId}
@@ -98,7 +100,7 @@ export function SubHeader({
 
           {/* Direction */}
           <SelectChip
-            label="Direction"
+            label={t('direction')}
             value={directionLabel}
             options={DIRECTION_OPTIONS}
             onSelect={setDirection}
@@ -109,7 +111,7 @@ export function SubHeader({
           <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium">
             <Filter.BarName>
               <IconCalendar className="h-3.5 w-3.5" />
-              Date
+              {t('date')}
             </Filter.BarName>
             <Filter.BarButton
               inDialog
@@ -122,7 +124,7 @@ export function SubHeader({
               <button
                 onClick={handleClearDate}
                 className="rounded-r flex items-center px-2 hover:bg-muted-foreground/10 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Clear date filter"
+                aria-label={t('clear-date-filter')}
               >
                 <IconX className="h-3 w-3" />
               </button>
@@ -136,7 +138,7 @@ export function SubHeader({
         <Filter.View filterKey={DATE_FILTER_KEY} inDialog>
           <Filter.DialogDateView
             filterKey={DATE_FILTER_KEY}
-            label="Date range"
+            label={t('date-range')}
           />
         </Filter.View>
       </Filter.Dialog>
@@ -208,6 +210,7 @@ function SelectChip({
   selected: string;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
   return (
@@ -230,7 +233,7 @@ function SelectChip({
               <Command.Input placeholder={`Search ${label.toLowerCase()}…`} />
             )}
             <Command.List className="pb-2">
-              <Command.Empty>No options found</Command.Empty>
+              <Command.Empty>{t('no-options-found')}</Command.Empty>
               <Command.Group>
                 {options.map((opt) => (
                   <Command.Item

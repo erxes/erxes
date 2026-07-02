@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
 import {
@@ -27,6 +28,7 @@ export const ItineraryMoreColumn = ({
   mainLanguage,
   ...props
 }: ItineraryMoreCellProps) => {
+  const { t } = useTranslation('tourism');
   const itinerary = props.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -43,20 +45,20 @@ export const ItineraryMoreColumn = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this itinerary?',
+      message: t('confirm-delete-itinerary'),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removeItineraries([itinerary._id])
         .then(() => {
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Itinerary deleted successfully',
+            description: t('itinerary-deleted-successfully'),
           });
         })
         .catch((e: any) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -75,15 +77,15 @@ export const ItineraryMoreColumn = ({
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit')}
               </Command.Item>
               <Command.Item value="duplicate" onSelect={handleDuplicate}>
                 <IconCopy className="w-4 h-4" />
-                Duplicate
+                {t('duplicate')}
               </Command.Item>
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete')}
               </Command.Item>
             </Command.List>
           </Command>

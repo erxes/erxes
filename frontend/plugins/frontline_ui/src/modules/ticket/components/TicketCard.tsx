@@ -9,12 +9,14 @@ import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { BoardCardProps, Button, Separator, TextOverflowTooltip } from 'erxes-ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const ticketBoardItemAtom = atom(
   (get) => (id: string) => get(allTicketsMapState)[id],
 );
 
 export const TicketCard = ({ id, column }: BoardCardProps) => {
+  const { t } = useTranslation('frontline');
   const {
     startDate,
     targetDate,
@@ -53,7 +55,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
             value={name}
           />
           <div className="text-accent-foreground uppercase">
-            Ticket #{number}
+            {t('ticket-number', { number })}
           </div>
         </div>
         <div className="flex flex-wrap gap-1">

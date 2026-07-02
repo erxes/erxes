@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
@@ -26,6 +27,7 @@ import { IconTags } from '@tabler/icons-react';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
+  const { t } = useTranslation('operation');
   const {
     _id: taskId,
     teamId,
@@ -51,7 +53,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
 
   const editor = useBlockEditor({
     initialContent: descriptionContent?.length ? descriptionContent : undefined,
-    placeholder: 'Description...',
+    placeholder: t('description-placeholder'),
   });
   const { updateTask } = useUpdateTask();
   const [name, setName] = useState(_name);
@@ -108,7 +110,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
         ref={textareaRef}
         className="shadow-none focus-visible:shadow-none p-0"
         style={{ fontSize: '1.25rem', lineHeight: '1.75rem' }}
-        placeholder="Task Name"
+        placeholder={t('task-name')}
         value={name}
         onChange={(e) => setName(e.target.value)}
       />

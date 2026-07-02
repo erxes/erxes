@@ -5,8 +5,10 @@ import {
   PageSubHeader,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelsSubHeader = () => {
+  const { t } = useTranslation('frontline');
   const [queries] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',
   ]);
@@ -22,7 +24,7 @@ export const ChannelsSubHeader = () => {
             <Filter.View>
               <Command>
                 <Filter.CommandInput
-                  placeholder="Filter..."
+                  placeholder={t('filter')}
                   variant="secondary"
                   className="bg-background"
                 />

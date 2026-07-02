@@ -43,6 +43,8 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { T } from 'react-router/dist/development/fog-of-war-oa9CGk10';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -106,6 +108,7 @@ export const SelectLabelsProvider = ({
 };
 
 export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
+  const { t } = useTranslation('sales');
   const { labelPipelineLabel } = usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
   const client = useApolloClient();
@@ -193,6 +196,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   const [editLabelId, setEditLabelId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
 
+
   if (showForm) {
     return (
       <>
@@ -201,10 +205,10 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
             onClick={() => setShowForm(false)}
             className="text-sm text-blue-600 hover:underline"
           >
-            Back
+            {t('back')}
           </button>
           <h3 className="text-sm font-semibold text-gray-600">
-            {editLabelId ? 'Edit Label' : 'Add Label'}
+            {editLabelId ? t('edit-label') : t('add-label')}
           </h3>
           <span />
         </div>
@@ -235,7 +239,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
           }}
         >
           <IconPlus size={16} />
-          Create a new label
+          {t('create-new-label')}
         </Button>
       </Command>
     );
@@ -243,7 +247,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search label" />
+        <Command.Input placeholder={t('search-label')} />
         <div className="flex items-center gap-2">
           <IconLoader className="animate-spin" />
         </div>
@@ -252,7 +256,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   } else
     return (
       <Command>
-        <Command.Input placeholder="Search label" />
+        <Command.Input placeholder={t('search-label')} />
         <Command.List className="px-1">
           {pipelineLabels.map((label) => {
             return (
@@ -300,7 +304,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
           }}
         >
           <IconPlus size={16} />
-          Create a new label
+          {t('create-new-label')}
         </Button>
       </Command>
     );
@@ -333,6 +337,7 @@ export const SelectLabelsValue = ({
 }: {
   showLabels?: boolean;
 }) => {
+  const { t } = useTranslation('sales');
   const [pipelineId] = useQueryState('pipelineId');
   const { pipelineLabels = [] } = usePipelineLabels({
     variables: { pipelineId },
@@ -354,14 +359,14 @@ export const SelectLabelsValue = ({
           </>
         ) : (
           <>
-            <IconLabel className="w-4 h-4 text-gray-400" /> Label +
+            <IconLabel className="w-4 h-4 text-gray-400" /> {t('label')} +
             {(labelIds || []).length}
           </>
         )}
       </span>
     );
   }
-  return <Combobox.Value placeholder="Select Label" />;
+  return <Combobox.Value placeholder={t('select-label')} />;
 };
 
 export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
@@ -435,6 +440,7 @@ export const SelectLabelsCommandbarItem = ({
   onValueChange,
   ...props
 }: Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'>) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
 
   return (
@@ -449,7 +455,7 @@ export const SelectLabelsCommandbarItem = ({
         <Button variant={'secondary'} asChild>
           <RecordTableInlineCell.Trigger>
             <IconLabel />
-            Label
+            {t('label')}
           </RecordTableInlineCell.Trigger>
         </Button>
         <RecordTableInlineCell.Content className="w-96">

@@ -1,9 +1,11 @@
 import { Control, useFieldArray } from 'react-hook-form';
 import { Button, Form, Input } from 'erxes-ui';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
 const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
+  const { t } = useTranslation('tourism');
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'discount',
@@ -13,7 +15,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
     <div className="space-y-4">
       <Button onClick={() => append({})}>
         <IconPlus />
-        Add discount
+        {t('add-discount')}
       </Button>
 
       {fields.map((field, index) => (
@@ -24,7 +26,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name={`discount.${index}.type`}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Type</Form.Label>
+                  <Form.Label>{t('type')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -37,7 +39,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name={`discount.${index}.title`}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Title</Form.Label>
+                  <Form.Label>{t('title')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -50,7 +52,7 @@ const Discount = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name={`discount.${index}.config`}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Config</Form.Label>
+                  <Form.Label>{t('config')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>

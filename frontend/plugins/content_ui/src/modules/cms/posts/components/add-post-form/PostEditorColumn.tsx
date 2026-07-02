@@ -1,5 +1,6 @@
 import { Form, Input } from 'erxes-ui';
 import { UseFormReturn, FieldValues } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { PostPreview } from '../../PostPreview';
 import { CustomFieldValue } from '../../CustomFieldInput';
 import { CustomFieldsSection, FieldGroup } from './CustomFieldsSection';
@@ -31,7 +32,9 @@ export const PostEditorColumn = ({
   handleEditorChange,
   getCustomFieldValue,
   updateCustomFieldValue,
-}: PostEditorColumnProps) => (
+}: PostEditorColumnProps) => {
+  const { t } = useTranslation('content');
+  return (
   <div className="col-span-2">
     <Form.Field
       control={form.control}
@@ -39,7 +42,7 @@ export const PostEditorColumn = ({
       render={({ field }) => (
         <Form.Item className="mb-4">
           <Form.Label>
-            Post Title
+            {t('post-title')}
             {selectedLanguage !== defaultLanguage && (
               <span className="ml-2 text-xs text-blue-600">
                 ({selectedLanguage})
@@ -47,7 +50,7 @@ export const PostEditorColumn = ({
             )}
           </Form.Label>
           <Form.Control>
-            <Input {...field} placeholder="Post title" />
+            <Input {...field} placeholder={t('post-title-placeholder')} />
           </Form.Control>
           <Form.Message />
         </Form.Item>
@@ -69,4 +72,5 @@ export const PostEditorColumn = ({
       />
     )}
   </div>
-);
+  );
+};

@@ -1,6 +1,7 @@
 import { IconEdit } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -44,6 +45,7 @@ export const CategoryEditSheet = ({
   showTrigger = true,
   children,
 }: CategoryEditSheetProps) => {
+  const { t } = useTranslation('tourism');
   const [internalOpen, setInternalOpen] = useState(false);
 
   const isControlled = typeof open === 'boolean';
@@ -127,16 +129,16 @@ export const CategoryEditSheet = ({
       });
 
       toast({
-        title: 'Success',
-        description: 'Category updated successfully',
+        title: t('success'),
+        description: t('category-updated-successfully'),
       });
 
       handleOpenChange(false);
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
-          error instanceof Error ? error.message : 'Failed to update category',
+          error instanceof Error ? error.message : t('failed-to-update-category'),
         variant: 'destructive',
       });
     }
@@ -160,7 +162,7 @@ export const CategoryEditSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Edit category</Sheet.Title>
+              <Sheet.Title>{t('edit-category')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex gap-2 items-center ml-auto">
                   <TourFieldLanguageSwitch
@@ -199,11 +201,11 @@ export const CategoryEditSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
 
               <Button type="submit" disabled={loading}>
-                {loading ? 'Updating...' : 'Update'}
+                {loading ? t('updating') : t('update')}
               </Button>
             </Sheet.Footer>
           </form>

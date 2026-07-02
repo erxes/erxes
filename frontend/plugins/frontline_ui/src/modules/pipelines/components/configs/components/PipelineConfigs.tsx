@@ -1,7 +1,9 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const PipelineConfigs = () => {
+  const { t } = useTranslation('frontline');
   const { id } = useParams<{
     id: string;
   }>();
@@ -20,7 +22,7 @@ export const PipelineConfigs = () => {
         }
       >
         <div className="flex items-center justify-between">
-          <p>Manage messenger configurations</p>
+          <p>{t('manage-messenger-configurations')}</p>
 
           <div className="flex items-center gap-2">
             <IconChevronRight className="w-4 h-4" />

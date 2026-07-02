@@ -20,10 +20,12 @@ import {
 
 import { PipelineForm } from './PipelineForm';
 import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
 import { useStages } from '@/deals/stage/hooks/useStages';
 
 export function PipelineFormBar() {
+  const { t } = useTranslation('sales');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -103,8 +105,8 @@ export function PipelineFormBar() {
     async (data) => {
       const managePipeline = pipelineId ? pipelineEdit : addPipeline;
       const successTitle = pipelineId
-        ? 'Pipeline updated successfully'
-        : 'Pipeline added successfully';
+        ? t('pipeline-updated')
+        : t('pipeline-added');
 
       const { paymentTypes, paymentIds, ...rest } = data;
 
@@ -116,7 +118,7 @@ export function PipelineFormBar() {
       };
 
       confirm({
-        message: `Are you absolutely sure to continue?`,
+        message: t('are-you-absolutely-sure-to-continue'),
       }).then(() => {
         managePipeline({
           variables,
@@ -147,7 +149,7 @@ export function PipelineFormBar() {
     PipelineHotKeyScope.PipelineAddSheet,
   );
 
-  const title = pipelineId ? 'Edit Pipeline' : 'Add Pipeline';
+  const title = pipelineId ? t('edit-pipeline') : t('add-pipeline');
 
   useEffect(() => {
     if (pipelineId && pipelineDetail) {
@@ -236,10 +238,10 @@ export function PipelineFormBar() {
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant={'ghost'} onClick={onClose}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={addLoading || editLoading}>
-                  {pipelineId ? 'Update' : 'Create'}
+                  {pipelineId ? t('update') : t('create')}
                 </Button>
               </Sheet.Footer>
             </form>

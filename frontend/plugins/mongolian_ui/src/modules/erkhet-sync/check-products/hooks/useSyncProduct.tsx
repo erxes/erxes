@@ -1,11 +1,13 @@
 import { useMutation } from '@apollo/client';
 import { syncProductsMutation } from '../graphql/mutations/syncProductsMutations';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ProductItem, ProductStatus } from '../types/productItem';
 
 export const useSyncProduct = () => {
   const [mutate, { loading, error }] = useMutation(syncProductsMutation);
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const syncProducts = async (
     toCheckProducts: ProductItem[],
@@ -13,8 +15,8 @@ export const useSyncProduct = () => {
   ): Promise<ProductItem[] | undefined> => {
     if (!toCheckProducts || toCheckProducts.length === 0) {
       toast({
-        title: 'Error',
-        description: 'Sync products not found',
+        title: t('error'),
+        description: t('sync-products-not-found'),
         variant: 'destructive',
       });
       return;
@@ -26,8 +28,8 @@ export const useSyncProduct = () => {
 
     if (productsToSync.length === 0) {
       toast({
-        title: 'Info',
-        description: `All ${selectedFilter} products are already synced`,
+        title: t('info'),
+        description: t('all-products-already-synced'),
       });
       return toCheckProducts;
     }
@@ -65,7 +67,7 @@ export const useSyncProduct = () => {
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -87,8 +89,8 @@ export const useSyncProduct = () => {
         });
 
         toast({
-          title: 'Success',
-          description: `${productsToSync.length} ${selectedFilter} products synced`,
+          title: t('success'),
+          description: t('products-synced', { count: productsToSync.length }),
         });
 
         return updatedProducts;
@@ -96,8 +98,8 @@ export const useSyncProduct = () => {
     } catch (err) {
       console.error('Sync products error:', err);
       toast({
-        title: 'Error',
-        description: 'Sync products error',
+        title: t('error'),
+        description: t('sync-products-error'),
         variant: 'destructive',
       });
     }

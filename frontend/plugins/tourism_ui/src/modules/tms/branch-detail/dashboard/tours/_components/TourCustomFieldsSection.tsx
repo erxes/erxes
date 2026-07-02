@@ -1,5 +1,6 @@
 import { Button, Collapsible, Form, Select } from 'erxes-ui';
 import { Control } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { TourFormValues } from '../constants/formSchema';
 import type {
   ITourCustomFieldGroup,
@@ -15,6 +16,7 @@ export const TourTypeField = ({
   control: Control<TourFormValues>;
   customTypes: ITourCustomPostType[];
 }) => {
+  const { t } = useTranslation('tourism');
   if (!customTypes.length) {
     return null;
   }
@@ -25,19 +27,19 @@ export const TourTypeField = ({
       name="customTourTypeId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Tour Type</Form.Label>
+          <Form.Label>{t('tour-type')}</Form.Label>
           <Form.Control>
             <Select
               value={field.value || ''}
               onValueChange={(value) => field.onChange(value)}
             >
               <Select.Trigger className="w-full">
-                <Select.Value placeholder="Select tour type" />
+                <Select.Value placeholder={t('select-tour-type')} />
               </Select.Trigger>
               <Select.Content>
                 {customTypes.map((type) => (
                   <Select.Item key={type._id} value={type._id}>
-                    {type.label || type.code || 'Unnamed type'}
+                    {type.label || type.code || t('unnamed-type')}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -62,13 +64,14 @@ export const TourCustomFieldsSection = ({
     value: string | boolean | string[],
   ) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   if (!fieldGroups.length) {
     return null;
   }
 
   return (
     <div className="pt-6 mt-2 space-y-3 border-t">
-      <div className="text-sm font-semibold text-foreground">Custom Fields</div>
+      <div className="text-sm font-semibold text-foreground">{t('tour-custom-fields')}</div>
       {fieldGroups.map((group) => (
         <Collapsible key={group._id} defaultOpen className="group">
           <Collapsible.Trigger asChild>

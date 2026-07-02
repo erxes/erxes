@@ -7,14 +7,17 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconStarFilled } from '@tabler/icons-react';
+import { TFunction } from 'i18next';
 import { IProductSimilarity } from '../types';
 
-export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
+export const createSimilarityColumns = (
+  t: TFunction,
+): ColumnDef<IProductSimilarity>[] => [
   RecordTable.checkboxColumn as ColumnDef<IProductSimilarity>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ row }) => {
       const [, setEditId] = useQueryState<string>('similarityId');
       return (
@@ -28,13 +31,13 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
                 setEditId(row.original._id);
               }}
             >
-              {row.original.info?.name || 'Untitled'}
+              {row.original.info?.name || t('untitled', 'Untitled')}
             </Badge>
             {row.original.starProductId && (
               <IconStarFilled
                 size={13}
                 className="text-warning shrink-0"
-                aria-label="Has a star product"
+                aria-label={t('has-star-product', 'Has a star product')}
               />
             )}
           </div>
@@ -45,7 +48,7 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
   {
     id: 'code',
     accessorKey: 'info.code',
-    header: () => <RecordTable.InlineHead label="Code" />,
+    header: () => <RecordTable.InlineHead label={t('code', 'Code')} />,
     size: 120,
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -56,7 +59,7 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label={t('status', 'Status')} />,
     size: 110,
     cell: ({ row }) => {
       const status = row.original.status || 'active';
@@ -72,7 +75,7 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
   {
     id: 'type',
     accessorKey: 'info.type',
-    header: () => <RecordTable.InlineHead label="Type" />,
+    header: () => <RecordTable.InlineHead label={t('type', 'Type')} />,
     size: 110,
     cell: ({ row }) => (
       <RecordTableInlineCell className="capitalize">
@@ -83,7 +86,7 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
   {
     id: 'uom',
     accessorKey: 'info.uom',
-    header: () => <RecordTable.InlineHead label="UOM" />,
+    header: () => <RecordTable.InlineHead label={t('uom', 'UOM')} />,
     size: 100,
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -94,7 +97,7 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'info.unitPrice',
-    header: () => <RecordTable.InlineHead label="Unit price" />,
+    header: () => <RecordTable.InlineHead label={t('unit-price', 'Unit price')} />,
     size: 130,
     cell: ({ row }) => {
       const { unitPrice, currency } = row.original.info || {};
@@ -109,7 +112,7 @@ export const similarityColumns: ColumnDef<IProductSimilarity>[] = [
   },
   {
     id: 'products',
-    header: () => <RecordTable.InlineHead label="Products" />,
+    header: () => <RecordTable.InlineHead label={t('products', 'Products')} />,
     size: 110,
     cell: ({ row }) => (
       <RecordTableInlineCell>

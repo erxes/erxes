@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   Avatar,
@@ -154,10 +155,11 @@ export const SelectParentCategoryTrigger = React.forwardRef<
     loading: boolean;
   }
 >(({ selectedCategory, loading, className, ...props }, ref) => {
+  const { t } = useTranslation('tourism');
   return (
     <Combobox.Trigger ref={ref} className={className} {...props}>
       <SelectParentCategoryBadge category={selectedCategory} />
-      {!selectedCategory && <Combobox.Value placeholder="Select category" />}
+      {!selectedCategory && <Combobox.Value placeholder={t('select-category')} />}
       {loading && (
         <>
           <Skeleton className="w-4 h-4" />

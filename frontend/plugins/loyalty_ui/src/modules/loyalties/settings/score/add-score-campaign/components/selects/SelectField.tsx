@@ -19,6 +19,7 @@ import {
 
 import { IconTextSize } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import {
   SelectContent,
   SelectTrigger,
@@ -122,6 +123,7 @@ const SelectFieldValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value, fields } = useSelectFieldContext();
 
   const fieldsArray = Array.isArray(fields) ? fields : [];
@@ -130,7 +132,7 @@ const SelectFieldValue = ({
   if (!selectedField) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select field'}
+        {placeholder || t('select-field')}
       </span>
     );
   }
@@ -166,6 +168,7 @@ const SelectFieldCommandItem = ({ field }: { field: IField }) => {
 };
 
 const SelectFieldContent = () => {
+  const { t } = useTranslation('loyalty');
   const { fields, loading } = useSelectFieldContext();
 
   const fieldsArray = Array.isArray(fields) ? fields : [];
@@ -173,10 +176,10 @@ const SelectFieldContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search fields" />
+        <Command.Input placeholder={t('search-fields')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading fields...</span>
+            <span className="text-muted-foreground">{t('loading-fields')}</span>
           </div>
         </Command.List>
       </Command>
@@ -185,9 +188,9 @@ const SelectFieldContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search fields" />
+      <Command.Input placeholder={t('search-fields')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No fields found</span>
+        <span className="text-muted-foreground">{t('no-fields-found')}</span>
       </Command.Empty>
       <Command.List>
         {fieldsArray.map((field) => (
@@ -199,10 +202,11 @@ const SelectFieldContent = () => {
 };
 
 export const SelectFieldFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="fields">
       <IconTextSize />
-      Fields
+      {t('fields')}
     </Filter.Item>
   );
 };
@@ -256,6 +260,7 @@ export const SelectFieldFilterBar = ({
   contentTypes?: string[];
   groupId?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const [fields, setFields] = useQueryState<string[] | string>('fields');
   const [open, setOpen] = useState(false);
 
@@ -263,7 +268,7 @@ export const SelectFieldFilterBar = ({
     <Filter.BarItem queryKey={'fields'}>
       <Filter.BarName>
         <IconTextSize />
-        Fields
+        {t('fields')}
       </Filter.BarName>
       <SelectFieldProvider
         mode={mode}

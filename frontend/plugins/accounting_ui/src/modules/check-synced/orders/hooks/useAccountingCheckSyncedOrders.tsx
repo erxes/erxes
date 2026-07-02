@@ -4,6 +4,7 @@ import {
   useMultiQueryState,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
@@ -96,6 +97,7 @@ export const useAccountingCheckSyncedOrdersVariables = (
 export const useAccountingCheckSyncedOrders = (
   options?: QueryHookOptions<AccountingOrdersQueryResult>,
 ) => {
+  const { t } = useTranslation('accounting');
   const { toast } = useToast();
   const [checkedOrders, setCheckedOrders] = useAtom(checkedOrdersAtom);
   const [toSyncOrderIds, setToSyncOrderIds] = useAtom(toSyncOrderIdsAtom);
@@ -183,8 +185,8 @@ export const useAccountingCheckSyncedOrders = (
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
-          title: 'Warning',
-          description: 'No orders selected',
+          title: t('warning'),
+          description: t('no-orders-selected'),
           variant: 'destructive',
         });
       }
@@ -195,7 +197,7 @@ export const useAccountingCheckSyncedOrders = (
       variables: { ids, contentType: 'sales:order' },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -244,8 +246,8 @@ export const useAccountingCheckSyncedOrders = (
 
     if (!checkOptions?.silent) {
       toast({
-        title: 'Success',
-        description: `${checked.length} orders checked`,
+        title: t('success'),
+        description: t('orders-checked', { count: checked.length }),
       });
     }
   };
@@ -253,8 +255,8 @@ export const useAccountingCheckSyncedOrders = (
   const syncOrders = async (ids: string[]) => {
     if (!variables.ruleId) {
       toast({
-        title: 'Warning',
-        description: 'Select a rule before syncing orders',
+        title: t('warning'),
+        description: t('select-rule-before-syncing-orders'),
         variant: 'destructive',
       });
       return;
@@ -266,8 +268,8 @@ export const useAccountingCheckSyncedOrders = (
 
     if (!syncableIds.length) {
       toast({
-        title: 'Warning',
-        description: 'No checked orders selected',
+        title: t('warning'),
+        description: t('no-checked-orders-selected'),
         variant: 'destructive',
       });
       return;
@@ -313,7 +315,7 @@ export const useAccountingCheckSyncedOrders = (
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -398,8 +400,13 @@ export const useAccountingCheckSyncedOrders = (
     const syncedCount = summary.success - summary.resynced;
 
     toast({
-      title: 'Sync complete',
-      description: `${syncedCount} synced, ${summary.resynced} resynced, ${summary.error} failed, ${summary.skipped} skipped`,
+      title: t('sync-complete'),
+      description: t('sync-summary', {
+        synced: syncedCount,
+        resynced: summary.resynced,
+        failed: summary.error,
+        skipped: summary.skipped,
+      }),
     });
   };
 

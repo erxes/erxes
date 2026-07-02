@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { fixNum, RecordTable, Sheet, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SCORE_LOGS_QUERY } from '../graphql/queries';
 import { IScoreLog } from '../types/score';
 import { getOwnerName, scoreDetailColumns } from './ScoreColumns';
@@ -19,6 +20,7 @@ export const ScoreDetailSheet = ({
   onOpenChange,
   record,
 }: ScoreDetailSheetProps) => {
+  const { t } = useTranslation('loyalty');
   const ownerName = record ? getOwnerName(record.owner, record.ownerType) : '';
 
   // The detail is keyed by person: every score log row of the same owner opens
@@ -45,7 +47,7 @@ export const ScoreDetailSheet = ({
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-xs text-destructive">
-          {error.message || 'Failed to load score logs'}
+          {error.message || t('failed-to-load-score-logs')}
         </div>
       );
     }
@@ -53,7 +55,7 @@ export const ScoreDetailSheet = ({
     if (logs.length === 0) {
       return (
         <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
-          No log records found
+          {t('no-log-records-found')}
         </div>
       );
     }
@@ -70,7 +72,7 @@ export const ScoreDetailSheet = ({
         </RecordTable.Provider>
         {isTruncated && (
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            Showing the latest {SCORE_DETAIL_LIMIT} entries.
+            {t('showing-latest-entries', { count: SCORE_DETAIL_LIMIT })}
           </p>
         )}
       </div>
@@ -84,7 +86,7 @@ export const ScoreDetailSheet = ({
           <div>
             <Sheet.Title>{ownerName || '—'}</Sheet.Title>
             <p className="text-xs text-muted-foreground mt-1 capitalize">
-              {record?.ownerType || ''} · Total Score:{' '}
+              {record?.ownerType || ''} · {t('total-score-label')}{' '}
               <span className="font-semibold text-foreground">
                 {formatScore(record?.totalScore)}
               </span>

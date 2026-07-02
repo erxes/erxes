@@ -3,6 +3,7 @@ import { IconCaretLeftRight } from '@tabler/icons-react';
 import { ScrollArea, Separator, Spinner } from 'erxes-ui';
 import { useCreateMultipleRelations, useRelations } from 'ui-modules';
 import { TaskWidget } from './TaskWidget';
+import { useTranslation } from 'react-i18next';
 
 export const Task = ({
   contentId,
@@ -15,6 +16,7 @@ export const Task = ({
   customerId?: string;
   companyId?: string;
 }) => {
+  const { t } = useTranslation('operation');
   const { ownEntities, loading: loadingRelations } = useRelations({
     variables: {
       contentId,
@@ -63,7 +65,7 @@ export const Task = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconCaretLeftRight />
         </div>
-        <span className="text-sm">No triages to display at the moment.</span>
+        <span className="text-sm">{t('no-triages-to-display')}</span>
         <AddTriageSheet onComplete={onComplete} />
       </div>
     );
@@ -72,7 +74,7 @@ export const Task = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">Tasks and Triages</span>
+        <span className="font-medium text-primary">{t('tasks-and-triages')}</span>
         <AddTriageSheet onComplete={onComplete} />
       </div>
       <Separator />

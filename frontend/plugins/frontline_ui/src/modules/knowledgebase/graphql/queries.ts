@@ -231,10 +231,8 @@ export const ARTICLES = gql`
 `;
 
 export const ARTICLE_DETAIL = gql`
-  ${CATEGORY_FRAGMENT}
   ${USER_FRAGMENT}
   ${ATTACHMENT_FRAGMENT}
-
   query knowledgeBaseArticleDetail($_id: String!) {
     knowledgeBaseArticleDetail(_id: $_id) {
       _id

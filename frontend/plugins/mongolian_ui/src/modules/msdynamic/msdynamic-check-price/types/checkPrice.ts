@@ -21,9 +21,9 @@ export interface ICheckPriceResponse {
 }
 
 export const PRICE_STATUS_LABELS: Record<PriceStatus, string> = {
-  UPDATE: 'Update product price',
-  MATCH: 'Matched product price',
-  CREATE: 'Not created product',
-  DELETE: 'Unmatched product',
-  ERROR: 'Error product',
+  UPDATE: 'price-update',
+  MATCH: 'price-match',
+  CREATE: 'price-create',
+  DELETE: 'price-delete',
+  ERROR: 'price-error',
 };

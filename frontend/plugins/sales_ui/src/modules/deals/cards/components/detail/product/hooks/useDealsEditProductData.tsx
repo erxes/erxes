@@ -6,11 +6,13 @@ import {
   useMutation,
 } from '@apollo/client';
 import { useQueryState, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { DEALS_EDIT_PRODUCT_DATA } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
 
 export const useDealsEditProductData = (options?: MutationHookOptions) => {
   const { toast } = useToast();
+  const { t } = useTranslation('sales');
   const [salesItemId] = useQueryState('salesItemId');
   const client = useApolloClient();
 
@@ -20,7 +22,7 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
         });
         const nextProductsData = data.dealsEditProductData.productsData;
@@ -65,7 +67,7 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });

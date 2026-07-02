@@ -2,8 +2,10 @@ import { IconCaretLeftRight } from '@tabler/icons-react';
 import { Button, Separator, Sidebar } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { AddTriageSheet } from './add-triage/AddTriageSheet';
+import { useTranslation } from 'react-i18next';
 
 export const TriageHeader = () => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams();
 
   return (
@@ -14,7 +16,7 @@ export const TriageHeader = () => {
           <Button variant="ghost" asChild>
             <Link to={`/operation/team/${teamId}/triage`}>
               <IconCaretLeftRight />
-              Triage
+              {t('triage')}
             </Link>
           </Button>
           <div className="ml-auto">

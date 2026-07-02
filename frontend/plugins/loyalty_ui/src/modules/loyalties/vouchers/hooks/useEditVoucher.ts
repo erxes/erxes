@@ -1,8 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { VOUCHERS_EDIT_MUTATION } from '../graphql/mutations/mutations';
 
 export const useEditVoucher = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
   const [editVoucher, { loading, error }] = useMutation(
@@ -23,14 +25,14 @@ export const useEditVoucher = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Voucher updated successfully',
+          title: t('success'),
+          description: t('voucher-updated'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

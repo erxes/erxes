@@ -8,6 +8,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ACCOUNT_PERMISSIONS,
   IPermission,
@@ -61,6 +62,7 @@ const PermissionInlineScopeCell = ({
   onChange: (next: string) => void;
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
 
@@ -71,9 +73,9 @@ const PermissionInlineScopeCell = ({
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Command>
-          <Command.Input placeholder="Search" />
+          <Command.Input placeholder={t('search')} />
           <Command.List className="p-1">
-            <Command.Empty>No results found</Command.Empty>
+            <Command.Empty>{t('no-results-found')}</Command.Empty>
             {options.map((option) => (
               <Command.Item
                 key={option.value}
@@ -111,6 +113,7 @@ export const PermissionScopeSelect = ({
   triggerClassName?: string;
   hideChevron?: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
 
@@ -129,9 +132,9 @@ export const PermissionScopeSelect = ({
       </Combobox.Trigger>
       <Combobox.Content>
         <Command>
-          <Command.Input placeholder="Search" />
+          <Command.Input placeholder={t('search')} />
           <Command.List className="p-1">
-            <Command.Empty>No results found</Command.Empty>
+            <Command.Empty>{t('no-results-found')}</Command.Empty>
             {options.map((option) => (
               <Command.Item
                 key={option.value}
@@ -191,7 +194,10 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'accountName',
     accessorFn: (row) => row.account?.name,
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => {
+      const { t } = useTranslation('accounting');
+      return <RecordTable.InlineHead label={t('name')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -202,7 +208,10 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'accountCode',
     accessorFn: (row) => row.account?.code,
-    header: () => <RecordTable.InlineHead label="Code" />,
+    header: () => {
+      const { t } = useTranslation('accounting');
+      return <RecordTable.InlineHead label={t('code')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -213,7 +222,10 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'email',
     accessorFn: (row) => row.user?.email,
-    header: () => <RecordTable.InlineHead label="Email" />,
+    header: () => {
+      const { t } = useTranslation('accounting');
+      return <RecordTable.InlineHead label={t('email')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -224,22 +236,32 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'level',
     accessorKey: 'level',
-    header: () => <RecordTable.InlineHead label="Level" />,
+    header: () => {
+      const { t } = useTranslation('accounting');
+      return <RecordTable.InlineHead label={t('level')} />;
+    },
     cell: PermissionLevelCell,
     size: 120,
   },
   {
     id: 'read',
     accessorKey: 'read',
-    header: () => <RecordTable.InlineHead label="Read" />,
+    header: () => {
+      const { t } = useTranslation('accounting');
+      return <RecordTable.InlineHead label={t('read')} />;
+    },
     cell: PermissionReadCell,
     size: 220,
   },
   {
     id: 'write',
     accessorKey: 'write',
-    header: () => <RecordTable.InlineHead label="Write" />,
+    header: () => {
+      const { t } = useTranslation('accounting');
+      return <RecordTable.InlineHead label={t('write')} />;
+    },
     cell: PermissionWriteCell,
     size: 220,
   },
 ];
+

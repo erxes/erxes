@@ -9,6 +9,7 @@ import {
   Command,
   useConfirm,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCtaxRows } from '../hooks/useCtaxRows';
 import { ICtaxRow } from '../types/CtaxRow';
 import { CtaxRowsCommandbar } from './CtaxRowsCommandbar';
@@ -72,6 +73,7 @@ export const CtaxMoreColumnCell = ({
 }: {
   cell: Cell<ICtaxRow, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState('ctax_row_id');
   const { confirm } = useConfirm();
   const { removeCtaxRows } = useCtaxRowsRemove();
@@ -81,10 +83,10 @@ export const CtaxMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete this account?',
+      message: t('are-you-sure-delete-this-account'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeCtaxRows({
@@ -101,10 +103,10 @@ export const CtaxMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

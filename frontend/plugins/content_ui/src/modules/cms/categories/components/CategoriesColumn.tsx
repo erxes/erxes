@@ -10,6 +10,7 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 import { categoryMoreColumn } from './CategoriesMoreColumn';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   IconUser,
   IconArticle,
@@ -41,6 +42,7 @@ export const useCategoriesColumns = (
   onEdit?: (category: any) => void,
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
+  const { t } = useTranslation('content');
   const { editCategory } = useEditCategory();
   const { isMissing, isNonDefaultLanguage } = useIsTranslationMissing();
   const selectedLanguage = useAtomValue(cmsLanguageAtom);
@@ -54,7 +56,7 @@ export const useCategoriesColumns = (
     RecordTable.checkboxColumn as ColumnDef<any>,
     {
       id: 'name',
-      header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
+      header: () => <RecordTable.InlineHead icon={IconUser} label={t('name')} />,
       accessorKey: 'name',
       cell: ({ cell }) => {
         const original = cell.row.original as ICategory & { _depth?: number };
@@ -114,7 +116,7 @@ export const useCategoriesColumns = (
               <CmsTranslatableBadge
                 value={cell.getValue() as string}
                 missing={missing}
-                placeholder="Untitled category"
+                placeholder={t('untitled-category')}
                 prefix={prefix}
                 missingVariant="destructive"
                 missingClassName="border-red-300"
@@ -138,7 +140,7 @@ export const useCategoriesColumns = (
     {
       id: 'description',
       header: () => (
-        <RecordTable.InlineHead icon={IconArticle} label="Description" />
+        <RecordTable.InlineHead icon={IconArticle} label={t('description')} />
       ),
       accessorKey: 'description',
       cell: ({ cell, row }) => {
@@ -154,7 +156,7 @@ export const useCategoriesColumns = (
           return (
             <RecordTableInlineCell>
               <span className="italic text-muted-foreground">
-                No description
+                {t('no-description')}
               </span>
             </RecordTableInlineCell>
           );
@@ -175,7 +177,7 @@ export const useCategoriesColumns = (
     },
     {
       id: 'parent',
-      header: () => <RecordTable.InlineHead icon={IconFolder} label="Parent" />,
+      header: () => <RecordTable.InlineHead icon={IconFolder} label={t('parent')} />,
       accessorKey: 'parentId',
       cell: ({ row }) => {
         const getParentName = (parent: any): string => {
@@ -195,7 +197,7 @@ export const useCategoriesColumns = (
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendarPlus} label="Created At" />
+        <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />
       ),
       accessorKey: 'createdAt',
       size: 120,

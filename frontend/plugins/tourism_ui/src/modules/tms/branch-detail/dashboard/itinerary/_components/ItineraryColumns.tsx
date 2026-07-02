@@ -25,6 +25,7 @@ interface ItineraryColumnsProps {
 
 export const itineraryColumns = (
   props?: ItineraryColumnsProps,
+  t: (key: string) => string = (k) => k,
 ): ColumnDef<IItinerary>[] => [
   RecordTable.checkboxColumn as ColumnDef<IItinerary>,
   itineraryMoreColumn(
@@ -36,7 +37,7 @@ export const itineraryColumns = (
   {
     id: 'color',
     accessorKey: 'color',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Color" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('color')} />,
     cell: ({ cell }: { cell: any }) => {
       const color = (cell.getValue() as string) || '#4F46E5';
       return (
@@ -53,7 +54,7 @@ export const itineraryColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
     cell: ({ cell, row }: { cell: any; row: any }) => (
       <RecordTableInlineCell>
         <Badge
@@ -74,7 +75,7 @@ export const itineraryColumns = (
     id: 'duration',
     accessorKey: 'duration',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Duration (days)" />
+      <RecordTable.InlineHead icon={IconClock} label={t('duration-days')} />
     ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
@@ -89,7 +90,7 @@ export const itineraryColumns = (
     id: 'totalCost',
     accessorKey: 'totalCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Total cost" />
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('total-cost')} />
     ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
@@ -102,7 +103,7 @@ export const itineraryColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />
+      <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
@@ -119,7 +120,7 @@ export const itineraryColumns = (
     id: 'modifiedAt',
     accessorKey: 'modifiedAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarDot} label="Modified" />
+      <RecordTable.InlineHead icon={IconCalendarDot} label={t('modified')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (

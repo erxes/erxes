@@ -8,6 +8,7 @@ import {
   Textarea,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertySchema } from '../propertySchema';
@@ -32,6 +33,7 @@ export const PropertyForm = ({
   isEdit?: boolean;
   disableType?: boolean;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const form = useForm<IPropertyForm>({
     resolver: zodResolver(propertySchema),
     defaultValues,
@@ -60,7 +62,7 @@ export const PropertyForm = ({
             name="icon"
             render={({ field }) => (
               <Form.Item className="flex-none">
-                <Form.Label>Icon</Form.Label>
+                <Form.Label>{t('icon', 'Icon')}</Form.Label>
                 <Form.Control>
                   <IconPicker
                     onValueChange={field.onChange}
@@ -77,7 +79,7 @@ export const PropertyForm = ({
             name="name"
             render={({ field }) => (
               <Form.Item className="flex-auto">
-                <Form.Label>Name</Form.Label>
+                <Form.Label>{t('name', 'Name')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -90,7 +92,7 @@ export const PropertyForm = ({
           name="code"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>Code</Form.Label>
+              <Form.Label>{t('code', 'Code')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -102,7 +104,7 @@ export const PropertyForm = ({
           name="description"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description', 'Description')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -114,7 +116,7 @@ export const PropertyForm = ({
           name="type"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>Type</Form.Label>
+              <Form.Label>{t('type', 'Type')}</Form.Label>
 
               <Select
                 value={field.value}
@@ -126,7 +128,7 @@ export const PropertyForm = ({
               >
                 <Form.Control>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select type" />
+                    <Select.Value placeholder={t('select-type', 'Select type')} />
                   </Select.Trigger>
                 </Form.Control>
                 <Select.Content>
@@ -134,7 +136,7 @@ export const PropertyForm = ({
                     <Select.Item key={type.value} value={type.value}>
                       <div className="flex items-center gap-2 [&_svg]:size-4">
                         {type.icon}
-                        {type.label}
+                        {t(`field-type.${type.value}`, type.label)}
                       </div>
                     </Select.Item>
                   ))}
@@ -156,7 +158,9 @@ export const PropertyForm = ({
             ) : (
               <IconPlus />
             )}
-            {isEdit ? 'Update' : 'Add'} Property
+            {isEdit
+              ? t('update-property', 'Update Property')
+              : t('add-property', 'Add Property')}
           </Button>
         </Can>
       </form>

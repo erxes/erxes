@@ -17,6 +17,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface StatusOption {
   value: string;
@@ -24,8 +25,8 @@ interface StatusOption {
 }
 
 const STATUS_OPTIONS: StatusOption[] = [
-  { value: 'new', label: 'New' },
-  { value: 'used', label: 'Used' },
+  { value: 'new', label: 'new' },
+  { value: 'used', label: 'used' },
 ];
 
 interface SelectStatusContextType {
@@ -91,6 +92,7 @@ const SelectStatusValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = useSelectStatusContext();
   const selectedOption = STATUS_OPTIONS.find(
     (option) => option.value === value,
@@ -99,7 +101,7 @@ const SelectStatusValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status'}
+        {placeholder || t('select-status')}
       </span>
     );
   }
@@ -107,13 +109,14 @@ const SelectStatusValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>
-        {selectedOption.label}
+        {t(selectedOption.label)}
       </p>
     </div>
   );
 };
 
 const SelectStatusCommandItem = ({ option }: { option: StatusOption }) => {
+  const { t } = useTranslation('loyalty');
   const { onValueChange, value } = useSelectStatusContext();
   const { value: optionValue, label } = option;
   const isChecked = value.split(',').includes(optionValue);
@@ -126,7 +129,7 @@ const SelectStatusCommandItem = ({ option }: { option: StatusOption }) => {
       }}
     >
       <div className="flex items-center gap-2">
-        <span className="font-medium">{label}</span>
+        <span className="font-medium">{t(label)}</span>
       </div>
       <Combobox.Check checked={isChecked} />
     </Command.Item>
@@ -134,11 +137,12 @@ const SelectStatusCommandItem = ({ option }: { option: StatusOption }) => {
 };
 
 const SelectStatusContent = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Command>
-      <Command.Input placeholder="Search statuses..." />
+      <Command.Input placeholder={t('search-statuses')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No statuses found</span>
+        <span className="text-muted-foreground">{t('no-statuses-found')}</span>
       </Command.Empty>
       <Command.List>
         {STATUS_OPTIONS.map((option) => (
@@ -150,10 +154,11 @@ const SelectStatusContent = () => {
 };
 
 export const SelectStatusFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="status">
       <IconCheck />
-      Status
+      {t('status')}
     </Filter.Item>
   );
 };
@@ -198,6 +203,7 @@ export const SelectStatusFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [status, setStatus] = useQueryState<string[] | string>('status');
   const [open, setOpen] = useState(false);
 
@@ -205,7 +211,7 @@ export const SelectStatusFilterBar = ({
     <Filter.BarItem queryKey={'status'}>
       <Filter.BarName>
         <IconCheck />
-        {!iconOnly && 'Status'}
+        {!iconOnly && t('status')}
       </Filter.BarName>
       <SelectStatusProvider
         mode={mode}

@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { IconFlag } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { STATUS_DATA } from '../../constants/statusData';
 import {
   SelectContent,
@@ -96,12 +97,13 @@ const SelectStatusValue = ({
   className?: string;
 }) => {
   const { value, statuses } = useSelectStatusContext();
+  const { t } = useTranslation('mongolian');
   const selectedStatus = statuses?.find((type) => type.value === value);
 
   if (!selectedStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status'}
+        {placeholder || t('select-status')}
       </span>
     );
   }
@@ -109,7 +111,7 @@ const SelectStatusValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>
-        {selectedStatus.label}
+        {t(selectedStatus.label)}
       </p>
     </div>
   );
@@ -117,6 +119,7 @@ const SelectStatusValue = ({
 
 const SelectStatusCommandItem = ({ status }: { status: IStatus }) => {
   const { onValueChange, value } = useSelectStatusContext();
+  const { t } = useTranslation('mongolian');
   const { value: statusValue, label } = status || {};
 
   return (
@@ -126,7 +129,7 @@ const SelectStatusCommandItem = ({ status }: { status: IStatus }) => {
         onValueChange(statusValue);
       }}
     >
-      <span className="font-medium">{label}</span>
+      <span className="font-medium">{t(label)}</span>
       <Combobox.Check checked={value === statusValue} />
     </Command.Item>
   );
@@ -134,12 +137,13 @@ const SelectStatusCommandItem = ({ status }: { status: IStatus }) => {
 
 const SelectStatusContent = () => {
   const { statuses } = useSelectStatusContext();
+  const { t } = useTranslation('mongolian');
 
   return (
     <Command>
-      <Command.Input placeholder="Search status" />
+      <Command.Input placeholder={t('search-status')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No statuses found</span>
+        <span className="text-muted-foreground">{t('no-statuses-found')}</span>
       </Command.Empty>
       <Command.List>
         {statuses?.map((status) => (
@@ -151,10 +155,11 @@ const SelectStatusContent = () => {
 };
 
 export const SelectStatusFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="status">
       <IconFlag />
-      Status
+      {t('status')}
     </Filter.Item>
   );
 };
@@ -201,12 +206,13 @@ export const SelectStatusFilterBar = ({
 }) => {
   const [status, setStatus] = useQueryState<string[] | string>('status');
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter.BarItem queryKey={'status'}>
       <Filter.BarName>
         <IconFlag />
-        Status
+        {t('status')}
       </Filter.BarName>
       <SelectStatusProvider
         mode={mode}

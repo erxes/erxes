@@ -37,6 +37,7 @@ export const useManagePropertySidebarContent = (
 
   const sourceType = selectedActionType || trigger?.type || '';
   const selectedPropertyType = module || sourceType;
+  console.log({ selectedPropertyType, module, sourceType });
   const { propertyTypes, loading } = useGetFieldsProperties(
     selectedPropertyType,
     {

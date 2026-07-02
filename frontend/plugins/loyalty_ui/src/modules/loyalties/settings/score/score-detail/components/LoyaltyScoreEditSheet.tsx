@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { LoyaltyHotKeyScope } from '../../types/LoyaltyHotKeyScope';
 import {
   loyaltyScoreFormSchema,
@@ -23,6 +24,7 @@ const parseIds = (value: string | string[] | undefined): string[] => {
 };
 
 export const LoyaltyScoreEditSheet = () => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -152,7 +154,7 @@ export const LoyaltyScoreEditSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Edit score campaign</Sheet.Title>
+          <Sheet.Title>{t('edit-score-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <EditScoreForm

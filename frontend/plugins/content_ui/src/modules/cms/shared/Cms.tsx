@@ -10,6 +10,7 @@ import {
   IconPlus,
 } from '@tabler/icons-react';
 import { Button, Spinner, ToggleGroup, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -36,6 +37,7 @@ const getThumbnailGradient = (color: string) => {
 };
 
 export function Cms() {
+  const { t } = useTranslation('content');
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
@@ -67,9 +69,8 @@ export function Cms() {
   const handleEditWebsite = (website: IWebsite) => {
     if (!canAccessWebsite(website)) {
       toast({
-        title: 'Access restricted',
-        description:
-          'This CMS is limited to assigned team members. Ask an owner to add you.',
+        title: t('access-restricted'),
+        description: t('access-restricted-desc'),
         variant: 'destructive',
       });
       return;
@@ -81,9 +82,8 @@ export function Cms() {
   const handleWebsiteClick = (website: IWebsite) => {
     if (!canAccessWebsite(website)) {
       toast({
-        title: 'Access restricted',
-        description:
-          'This CMS is limited to assigned team members. Ask an owner to add you.',
+        title: t('access-restricted'),
+        description: t('access-restricted-desc'),
         variant: 'destructive',
       });
       return;
@@ -109,7 +109,7 @@ export function Cms() {
     <div>
       <Button onClick={() => setIsWebsiteDrawerOpen(true)}>
         <IconPlus className="mr-2 h-4 w-4" />
-        Add CMS
+        {t('add-cms')}
       </Button>
     </div>
   );
@@ -134,7 +134,7 @@ export function Cms() {
         <>
           <div className="flex justify-between items-center mb-6">
             <div className="text-sm text-muted-foreground">
-              Found {cmsList.length} results
+              {t('found-x-results', { count: cmsList.length })}
             </div>
             <ToggleGroup
               type="single"
@@ -143,10 +143,10 @@ export function Cms() {
                 setViewMode(value as 'list' | 'thumbnail')
               }
             >
-              <ToggleGroup.Item value="list" aria-label="List view">
+              <ToggleGroup.Item value="list" aria-label={t('list-view')}>
                 <IconList className="h-4 w-4" />
               </ToggleGroup.Item>
-              <ToggleGroup.Item value="thumbnail" aria-label="Thumbnail view">
+              <ToggleGroup.Item value="thumbnail" aria-label={t('thumbnail-view')}>
                 <IconLayoutGrid className="h-4 w-4" />
               </ToggleGroup.Item>
             </ToggleGroup>
@@ -156,9 +156,9 @@ export function Cms() {
             <div className="bg-card rounded-lg overflow-hidden">
               <EmptyState
                 icon={IconFileText}
-                title="No CMS yet"
-                description="Get started by creating your first website."
-                actionLabel="Add CMS"
+                title={t('no-cms-yet')}
+                description={t('no-cms-yet-desc')}
+                actionLabel={t('add-cms')}
                 onAction={() => setIsWebsiteDrawerOpen(true)}
               />
             </div>
@@ -209,7 +209,7 @@ export function Cms() {
                       <div className="absolute top-2 left-2">
                         <div className="flex items-center gap-1 px-2 py-1 bg-black/60 rounded text-xs font-medium text-white">
                           <IconLock className="w-3 h-3" />
-                          <span>Restricted</span>
+                          <span>{t('restricted')}</span>
                         </div>
                       </div>
                     )}
@@ -220,14 +220,14 @@ export function Cms() {
                       {website.name}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                      {website.description || 'No description available'}
+                      {website.description || t('no-description-available')}
                     </p>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <IconCalendar className="w-3 h-3" />
                         <span>
-                          Created on:{' '}
+                          {t('created-on')}:{' '}
                           {new Date(website.createdAt).toLocaleDateString(
                             'en-US',
                             {
@@ -247,7 +247,7 @@ export function Cms() {
                           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                         >
                           <IconEdit className="w-3 h-3" />
-                          <span>Manage</span>
+                          <span>{t('manage')}</span>
                         </button>
                         {website.url && (
                           <a
@@ -303,13 +303,13 @@ export function Cms() {
                         {website.name}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                        {website.description || 'No description available'}
+                        {website.description || t('no-description-available')}
                       </p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <IconCalendar className="w-3 h-3" />
                           <span>
-                            Created on:{' '}
+                            {t('created-on')}{' '}
                             {new Date(website.createdAt).toLocaleDateString(
                               'en-US',
                               {
@@ -338,7 +338,7 @@ export function Cms() {
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                       >
                         <IconEdit className="w-3 h-3" />
-                        <span>Manage</span>
+                        <span>{t('manage')}</span>
                       </button>
                       {website.url && (
                         <a

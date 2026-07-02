@@ -8,6 +8,7 @@ import {
   useQueryState,
   useFilterContext,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { addTicketSchema } from '@/ticket/types';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
@@ -136,13 +137,14 @@ const SelectStatusCommandItem = ({
 };
 
 const SelectStatusContent = () => {
+  const { t } = useTranslation('frontline');
   const { statuses, pipelineId } = useSelectStatusContext();
   return (
     <Command>
-      <Command.Input placeholder="Search status" />
+      <Command.Input placeholder={t('search-status')} />
       <Command.Empty>
         <span className="text-muted-foreground">
-          {pipelineId ? 'No status found' : 'Pipeline not selected'}
+          {pipelineId ? t('no-status-found') : t('pipeline-not-selected')}
         </span>
       </Command.Empty>
       <Command.List>
@@ -235,6 +237,7 @@ export const SelectStatusTicketFilterBar = ({
   pipelineId?: string;
   scope?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [status, setStatus] = useQueryState<string>('statusId');
   const [open, setOpen] = useState(false);
 
@@ -249,7 +252,7 @@ export const SelectStatusTicketFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <Filter.BarButton filterKey="statusId">
-          <SelectStatusValue placeholder="Status" />
+          <SelectStatusValue placeholder={t('status')} />
         </Filter.BarButton>
         <Combobox.Content>
           <SelectStatusContent />

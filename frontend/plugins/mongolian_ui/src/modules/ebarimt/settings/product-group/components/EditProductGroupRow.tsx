@@ -9,6 +9,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProductGroupForm } from './ProductGroupForm';
 import {
   productGroupSchema,
@@ -20,6 +21,7 @@ import { useGroupProductRowEdit } from '@/ebarimt/settings/product-group/hooks/u
 const FORM_ID = 'edit-product-group-form';
 
 export const EditProductGroupRow = () => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useQueryState<string>('product_group_id');
   const { productGroupDetail, closeDetail, loading } =
     useProductGroupRowDetail();
@@ -66,7 +68,7 @@ export const EditProductGroupRow = () => {
     };
 
     if (isDeeplyEqual({ ...initialData, ...data }, initialData)) {
-      toast({ title: 'Info', description: 'No changes were made' });
+      toast({ title: t('info'), description: t('no-changes-made') });
       reset();
       return closeDetail();
     }
@@ -82,8 +84,8 @@ export const EditProductGroupRow = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Product group updated successfully',
+          title: t('success'),
+          description: t('product-group-updated-successfully'),
         });
         closeDetail();
         reset();
@@ -91,8 +93,8 @@ export const EditProductGroupRow = () => {
       },
       onError: (error) => {
         toast({
-          title: 'Error',
-          description: error.message || 'Failed to update product group',
+          title: t('error'),
+          description: error.message || t('failed-to-update-product-group'),
           variant: 'destructive',
         });
       },
@@ -103,7 +105,7 @@ export const EditProductGroupRow = () => {
     <Sheet open={open !== null} onOpenChange={handleClose}>
       <Sheet.View side="right" className="bg-background sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>Edit Product Group</Sheet.Title>
+          <Sheet.Title>{t('edit-product-group')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <div className="flex-1 overflow-y-auto px-5 py-4 relative">
@@ -123,7 +125,7 @@ export const EditProductGroupRow = () => {
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              {t('cancel')}
             </Button>
           </Sheet.Close>
           <Button
@@ -132,7 +134,7 @@ export const EditProductGroupRow = () => {
             size="lg"
             disabled={editLoading || loading}
           >
-            {editLoading ? <Spinner /> : 'Save'}
+            {editLoading ? <Spinner /> : t('save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

@@ -1,19 +1,23 @@
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
-import { msDynamicSyncHistoryColumns } from './MSDynamicSyncHistoryColumns';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { getMsDynamicSyncHistoryColumns } from './MSDynamicSyncHistoryColumns';
 import { useMSDynamicSyncHistory } from '../hooks/useMSDynamicSyncHistory';
 import { MSDynamicSyncHistoryDetailSheet } from './MSDynamicSyncHistoryDetailSheet';
 import { getMSDynamicSessionKey } from '../../constants/msDynamicSessionKey';
 
 export const MSDynamicSyncHistoryRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { syncHistories, handleFetchMore, loading, pageInfo } =
     useMSDynamicSyncHistory();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const columns = useMemo(() => getMsDynamicSyncHistoryColumns(t), [t]);
 
   return (
     <RecordTable.Provider
-      columns={msDynamicSyncHistoryColumns}
+      columns={columns}
       data={syncHistories || []}
       className="m-3"
       stickyColumns={['more', 'createdAt']}
@@ -46,9 +50,9 @@ export const MSDynamicSyncHistoryRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No sync yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-sync-yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first sync.
+                    {t('create-first-sync')}
                   </p>
                 </div>
               </div>

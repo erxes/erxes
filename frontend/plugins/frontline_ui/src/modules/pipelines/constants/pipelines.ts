@@ -1,16 +1,16 @@
 export const BOARD_NUMBERS = [
-  { label: 'Year', value: 'year' },
-  { label: 'Month', value: 'month' },
-  { label: 'Day', value: 'day' },
-  { label: 'Dash', value: '-' },
-  { label: 'Underscore', value: '_' },
-  { label: 'Slash', value: '/' },
+  { label: 'year', value: 'year' },
+  { label: 'month', value: 'month' },
+  { label: 'day', value: 'day' },
+  { label: 'dash', value: '-' },
+  { label: 'underscore', value: '_' },
+  { label: 'slash', value: '/' },
 ];
 
 export const BOARD_NAMES_CONFIGS = [
-  { label: "Customer's lastName", value: 'customer.lastName' },
-  { label: "Customer's firstName", value: 'customer.firstName' },
-  { label: "Customer's email", value: 'customer.email' },
-  { label: "Customer's phone", value: 'customer.phone' },
-  { label: "Company's name", value: 'company.name' },
+  { label: 'customers-last-name', value: 'customer.lastName' },
+  { label: 'customers-first-name', value: 'customer.firstName' },
+  { label: 'customers-email', value: 'customer.email' },
+  { label: 'customers-phone', value: 'customer.phone' },
+  { label: 'company-name', value: 'company.name' },
 ];

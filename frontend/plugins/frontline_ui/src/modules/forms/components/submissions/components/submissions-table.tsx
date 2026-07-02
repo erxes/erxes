@@ -14,6 +14,7 @@ import {
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IFormSubmission } from '../types';
 import {
   IconCheckbox,
@@ -27,6 +28,7 @@ type FlatRow = { _id: string } & Record<string, unknown>;
 type FieldMeta = { text: string; type: string };
 
 const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
+  const { t } = useTranslation('frontline');
   const { _id } = cell.row.original;
   const [__blank, setSubmissionId] = useQueryState<string>('submissionId');
 
@@ -39,7 +41,7 @@ const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
       <DropdownMenu.Content side="bottom" align="start">
         <DropdownMenu.Item onSelect={() => setSubmissionId(_id)}>
           <IconEdit />
-          Edit
+          {t('edit')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -47,6 +49,7 @@ const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
 };
 
 export const CheckboxCell = ({ value }: { value: string[] }) => {
+  const { t } = useTranslation('frontline');
   if (!value || value.length === 0) {
     return <RecordTableInlineCell>-</RecordTableInlineCell>;
   }
@@ -54,7 +57,7 @@ export const CheckboxCell = ({ value }: { value: string[] }) => {
     <RecordTableInlineCell>
       <Badge className="rounded-lg" variant={'info'}>
         <IconCheckbox size={12} />
-        {value.length} selected
+        {t('n-selected', { count: value.length })}
       </Badge>
     </RecordTableInlineCell>
   );
@@ -81,7 +84,11 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
   const submittedAtColumn: ColumnDef<FlatRow> = {
     id: '__submittedAt',
     accessorKey: '__submittedAt',
-    header: () => <RecordTable.InlineHead label="Submitted At" />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('submitted-at')} />;
+    },
     cell: (cell) => {
       const value = cell.getValue() as string | undefined;
       const { _id } = cell.row.original;
@@ -106,6 +113,8 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     accessorKey: text,
     header: () => <RecordTable.InlineHead label={text} />,
     cell: ({ getValue }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
       const value = getValue();
 
       if (type === 'core:customer:avatar') {
@@ -179,7 +188,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
             ) : (
               <Badge variant="info" className="rounded-lg">
                 <IconCheckbox size={12} />
-                {options.length} selected
+                {t('n-selected', { count: options.length })}
               </Badge>
             )}
           </RecordTableInlineCell>

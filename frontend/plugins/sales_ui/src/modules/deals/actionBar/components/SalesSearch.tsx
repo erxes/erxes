@@ -1,6 +1,7 @@
 import { Input, useMultiQueryState } from 'erxes-ui';
 import { IconSearch } from '@tabler/icons-react';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const SalesSearch = () => {
   const [queries, setQueries] = useMultiQueryState<{ search: string }>([
@@ -22,10 +23,12 @@ export const SalesSearch = () => {
     setQueries({ search });
   };
 
+  const { t } = useTranslation('sales');
+
   return (
     <div className="relative">
       <Input
-        placeholder="Search"
+        placeholder={t('search')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}

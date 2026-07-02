@@ -1,6 +1,7 @@
 import { gql, useMutation } from '@apollo/client';
 import { useAtom, useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { mutations } from '../../graphql';
 import {
   customerItemsAtom,
@@ -23,6 +24,7 @@ export const useCheckCustomerActions = (brandId: string) => {
   const [syncing, setSyncing] = useAtom(customerSyncingAtom);
   const setItems = useSetAtom(customerItemsAtom);
   const setResponse = useSetAtom(customerCheckResponseAtom);
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const [toCheckMsdCustomers] = useMutation<ICheckResponse>(
@@ -63,14 +65,14 @@ export const useCheckCustomerActions = (brandId: string) => {
       setItems(flattenItems(data));
 
       toast({
-        title: 'Customers checked successfully',
+        title: t('customers-checked-successfully'),
         variant: 'success',
       });
     } catch (e: unknown) {
       const description =
         e instanceof Error ? e.message : 'Unexpected error occurred';
       toast({
-        title: 'Failed to check customers',
+        title: t('failed-to-check-customers'),
         description,
         variant: 'destructive',
       });
@@ -120,14 +122,14 @@ export const useCheckCustomerActions = (brandId: string) => {
       );
 
       toast({
-        title: 'Customers synced successfully',
+        title: t('customers-synced-successfully'),
         variant: 'success',
       });
     } catch (e: unknown) {
       const description =
         e instanceof Error ? e.message : 'Unexpected error occurred';
       toast({
-        title: 'Failed to sync customers',
+        title: t('failed-to-sync-customers'),
         description,
         variant: 'destructive',
       });

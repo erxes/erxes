@@ -17,8 +17,10 @@ import {
   IconQuestionMark,
 } from '@tabler/icons-react';
 import { MembersInline } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
+  const { t } = useTranslation('frontline');
   const { metadata, action } = activity;
 
   switch (activity.module) {
@@ -39,7 +41,7 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
     case ACTIVITY_MODULES.DESCRIPTION:
       return <ActivityDescription />;
     default:
-      return <div>Unknown module</div>;
+      return <div>{t('unknown-module')}</div>;
   }
 };
 

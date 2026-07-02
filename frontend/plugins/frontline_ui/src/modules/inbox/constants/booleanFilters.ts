@@ -1,5 +1,5 @@
 export const BOOLEAN_FILTERS = [
-  { statusKey: 'unassigned', label: 'Unassigned' },
-  { statusKey: 'participating', label: 'Participating' },
-  { statusKey: 'awaitingResponse', label: 'Awaiting Response' },
+  { statusKey: 'unassigned', label: 'unassigned' },
+  { statusKey: 'participating', label: 'participated' },
+  { statusKey: 'awaitingResponse', label: 'awaiting-response' },
 ];

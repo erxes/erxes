@@ -3,6 +3,7 @@ import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
 import { lazy, Suspense } from 'react';
 import { Spinner } from 'erxes-ui';
 import { NotificationContent } from './contents/NotificationContent';
+import { useTranslation } from 'react-i18next';
 
 const NotificationTaskAssignment = lazy(() =>
   import('./my-inbox/components/NotificationTaskAssignment').then((m) => ({
@@ -29,6 +30,7 @@ const PROJECT_INBOX_TITLES = new Set([
 ]);
 
 const NotificationsWidgets = (props: any) => {
+  const { t } = useTranslation('operation');
   const { contentTypeId, contentType, title } = props;
 
   const [_, moduleName, collectionType] = (contentType || '')
@@ -40,7 +42,7 @@ const NotificationsWidgets = (props: any) => {
       NotificationContent[collectionType as keyof typeof NotificationContent];
 
     if (!NotificationComponent) {
-      return <div>No notification component found</div>;
+      return <div>{t('no-notification-component-found')}</div>;
     }
 
     return <NotificationComponent {...props} />;

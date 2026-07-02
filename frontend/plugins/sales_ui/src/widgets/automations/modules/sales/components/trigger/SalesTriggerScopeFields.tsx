@@ -2,6 +2,7 @@ import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { Form } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { Control } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { TStageProbalityTriggerConfigForm } from '../../states/stageProbalityTriggerConfigFormDefinitions';
 
 type SalesTriggerScopeFieldsProps = {
@@ -19,6 +20,7 @@ export const SalesTriggerScopeFields = ({
   children,
   optional = true,
 }: SalesTriggerScopeFieldsProps) => {
+  const { t } = useTranslation('sales');
   return (
     <>
       <div className="flex flex-row items-center gap-2 mt-2">
@@ -27,7 +29,7 @@ export const SalesTriggerScopeFields = ({
           name="boardId"
           render={({ field }) => (
             <Form.Item className="flex-1">
-              <Form.Label>Board {optional && '(optional)'}</Form.Label>
+              <Form.Label>{optional ? t('board-optional') : t('board')}</Form.Label>
               <SelectBoard.FormItem
                 mode="single"
                 onValueChange={field.onChange}
@@ -42,7 +44,7 @@ export const SalesTriggerScopeFields = ({
           name="pipelineId"
           render={({ field }) => (
             <Form.Item className="flex-1">
-              <Form.Label>Pipeline {optional && '(optional)'}</Form.Label>
+              <Form.Label>{optional ? t('pipeline-optional') : t('pipeline')}</Form.Label>
               <SelectPipeline.FormItem
                 mode="single"
                 onValueChange={field.onChange}

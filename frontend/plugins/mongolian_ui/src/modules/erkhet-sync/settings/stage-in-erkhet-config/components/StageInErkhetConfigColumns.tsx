@@ -1,6 +1,7 @@
 import { IconAlignLeft, IconAt, IconLayoutKanban } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { checkboxColumn } from 'erxes-ui/modules/record-table/components/CheckboxColumn';
 import { TErkhetConfig } from '../types';
 import { TStageInErkhetConfigRow } from '../hooks/useStageInErkhetConfigs';
@@ -39,7 +40,10 @@ export const buildStageInErkhetConfigColumns = (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label="Title" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />;
+    },
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
         config={row.original}
@@ -59,7 +63,10 @@ export const buildStageInErkhetConfigColumns = (
   {
     id: 'userEmail',
     accessorKey: 'userEmail',
-    header: () => <RecordTable.InlineHead icon={IconAt} label="User Email" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -70,9 +77,10 @@ export const buildStageInErkhetConfigColumns = (
   {
     id: 'responseField',
     accessorKey: 'responseField',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLayoutKanban} label="Response Field" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -83,9 +91,10 @@ export const buildStageInErkhetConfigColumns = (
   {
     id: 'defaultPay',
     accessorKey: 'defaultPay',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLayoutKanban} label="Default Pay" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('default-pay')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}

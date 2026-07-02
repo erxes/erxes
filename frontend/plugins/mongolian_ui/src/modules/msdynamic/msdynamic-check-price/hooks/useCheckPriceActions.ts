@@ -1,6 +1,7 @@
 import { gql, useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { mutations } from '@/msdynamic/graphql';
 import {
@@ -60,6 +61,7 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
   const setCheckResponseData = useSetAtom(checkResponseDataAtom);
   const setChecking = useSetAtom(checkingAtom);
   const setSyncing = useSetAtom(syncingAtom);
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const [checkMsdPrices] = useMutation<CheckPricesData, CheckPricesVariables>(
@@ -87,13 +89,13 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
 
       setPriceItems(allItems);
       toast({
-        title: 'Success',
-        description: `${allItems.length} price items found`,
+        title: t('success'),
+        description: t('price-items-found', { count: allItems.length }),
       });
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to check MS Dynamic prices',
+        title: t('error'),
+        description: t('failed-to-check-prices'),
         variant: 'destructive',
       });
     } finally {
@@ -119,13 +121,13 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
       setCheckResponseData(refreshedData || null);
 
       toast({
-        title: 'Success',
-        description: `${itemsToSync.length} prices synced`,
+        title: t('success'),
+        description: t('prices-synced', { count: itemsToSync.length }),
       });
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to sync MS Dynamic prices',
+        title: t('error'),
+        description: t('failed-to-sync-prices'),
         variant: 'destructive',
       });
     } finally {

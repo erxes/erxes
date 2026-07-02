@@ -4,6 +4,7 @@ import {
   useFormValidationErrorHandler,
 } from 'ui-modules';
 import { Form, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   TStageProbalityTriggerConfigForm,
   stageProbalityTriggerConfigFormSchema,
@@ -21,6 +22,7 @@ export const StageProbabilityTriggerConfigForm = ({
   onSaveTriggerConfig,
   activeTrigger,
 }: AutomationTriggerFormProps<TStageProbalityTriggerConfigForm>) => {
+  const { t } = useTranslation('sales');
   const form = useForm<TStageProbalityTriggerConfigForm>({
     resolver: zodResolver(stageProbalityTriggerConfigFormSchema),
     defaultValues: {
@@ -50,10 +52,10 @@ export const StageProbabilityTriggerConfigForm = ({
         name="probability"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Probability</Form.Label>
+            <Form.Label>{t('probability')}</Form.Label>
             <Select value={field.value} onValueChange={field.onChange}>
               <Select.Trigger>
-                <Select.Value placeholder="Select probability" />
+                <Select.Value placeholder={t('select-probability')} />
               </Select.Trigger>
               <Select.Content>
                 {STAGE_PROBABILITIES.map((probability) => (
@@ -75,7 +77,7 @@ export const StageProbabilityTriggerConfigForm = ({
         <SalesTriggerStageField
           control={control}
           name="stageId"
-          label="Stage (optional)"
+          label={t('stage-optional')}
           pipelineId={pipelineId}
         />
       </SalesTriggerScopeFields>

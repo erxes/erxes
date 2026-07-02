@@ -2,10 +2,12 @@ import { IconBox } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { TmsCreateSheet } from '@/tms/components/CreateTmsSheet';
 import { BranchList } from '@/tms/components/BranchList';
 
 export const IndexPage = () => {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -16,7 +18,7 @@ export const IndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/tourism/tms">
                     <IconBox />
-                    Tour management system
+                    {t('tms-index-breadcrumb')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

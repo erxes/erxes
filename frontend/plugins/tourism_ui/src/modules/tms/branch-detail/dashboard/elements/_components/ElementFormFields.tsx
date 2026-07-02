@@ -1,5 +1,6 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
 import { Form, Input, Editor } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { ElementCreateFormType } from '../constants/formSchema';
 import { LANGUAGES } from '@/tms/constants/languages';
@@ -32,6 +33,7 @@ export const ElementNameField = ({
   name = 'name',
   labelSuffix = '',
 }: ElementNameFieldProps) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
@@ -39,11 +41,11 @@ export const ElementNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder="Element name" {...field} />
+            <Input placeholder={t('element-name')} {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -57,6 +59,7 @@ export const ElementNoteField = ({
   name = 'note',
   labelSuffix = '',
 }: ElementNoteFieldProps) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
@@ -64,10 +67,10 @@ export const ElementNoteField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Note<span className="text-primary">{labelSuffix}</span>
+            {t('note')}<span className="text-primary">{labelSuffix}</span>
           </Form.Label>
           <Form.Description>
-            Not visible for clients and agents.
+            {t('not-visible-for-clients')}
           </Form.Description>
           <Form.Control>
             <Editor
@@ -89,13 +92,14 @@ export const ElementStartTimeField = ({
 }: {
   control: Control<ElementCreateFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
       name="startTime"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Start Time</Form.Label>
+          <Form.Label>{t('start-time')}</Form.Label>
           <Form.Control>
             <Input type="time" {...field} />
           </Form.Control>
@@ -111,13 +115,14 @@ export const ElementDurationField = ({
 }: {
   control: Control<ElementCreateFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
       name="duration"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Duration (minutes)</Form.Label>
+          <Form.Label>{t('duration-minutes')}</Form.Label>
           <Form.Control>
             <Input type="number" placeholder="0" {...field} />
           </Form.Control>
@@ -137,6 +142,7 @@ export const ElementCostField = ({
   name?: ElementNumberFieldPath;
   currencySymbol?: string;
 }) => {
+  const { t } = useTranslation('tourism');
   const lang = useAtomValue(activeLangAtom);
   const symbol =
     currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
@@ -146,7 +152,7 @@ export const ElementCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Cost</Form.Label>
+          <Form.Label>{t('cost')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">

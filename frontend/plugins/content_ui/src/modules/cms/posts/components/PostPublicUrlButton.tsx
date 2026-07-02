@@ -1,5 +1,6 @@
 import { Button, Tooltip, useToast } from 'erxes-ui';
 import { IconExternalLink } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { buildPostPublicUrl, type PostUrlSource } from '../../shared/utils';
 import type { IWebsite } from '../../types';
 import type { MouseEvent } from 'react';
@@ -31,6 +32,7 @@ export const PostPublicUrlButton = ({
   cmsConfig,
   iconOnly,
 }: PostPublicUrlButtonProps) => {
+  const { t } = useTranslation('content');
   const isPublished = post.status === 'published';
   const publicUrl = isPublished
     ? buildPostPublicUrl(cmsConfig, post, { allowRelative: true })
@@ -48,17 +50,16 @@ export const PostPublicUrlButton = ({
 
     if (isPublished) {
       toast({
-        title: 'Public URL is not ready',
-        description:
-          'Set the CMS public URL and make sure the selected post URL field has a value.',
+        title: t('public-url-not-ready'),
+        description: t('public-url-not-ready-desc'),
         variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: 'Post is not published',
-      description: 'Publish this post before opening it on the website.',
+      title: t('post-not-published'),
+      description: t('post-not-published-desc'),
       variant: 'warning',
     });
   };
@@ -77,7 +78,7 @@ export const PostPublicUrlButton = ({
               onClick={handleOpen}
             >
               <IconExternalLink className="size-4" />
-              {!iconOnly && <span>Open on site</span>}
+              {!iconOnly && <span>{t('open-on-site')}</span>}
             </Button>
           </span>
         </Tooltip.Trigger>

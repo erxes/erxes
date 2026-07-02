@@ -3,6 +3,7 @@
 import { Button, Form, Input, Select } from 'erxes-ui';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 import {
   Control,
   FieldArrayPath,
@@ -22,6 +23,7 @@ type OtherPaymentsFieldProps<TFieldValues extends FieldValues> = {
 export const OtherPaymentsField = <TFieldValues extends FieldValues>({
   control,
 }: OtherPaymentsFieldProps<TFieldValues>) => {
+  const { t } = useTranslation('sales');
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'paymentTypes' as FieldArrayPath<TFieldValues>,
@@ -49,16 +51,16 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
     <div className="py-3">
       <div className="flex flex-col gap-2 items-start self-stretch mb-4">
         <h2 className="self-stretch text-[#4F46E5] text-sm font-medium leading-tight">
-          Other Payments
+          {t('other-payment')}
         </h2>
 
         <p className="text-[#71717A] font-['Inter'] text-xs font-medium leading-[140%]">
-          Type is must latin, some default types: golomtCard, khaanCard, TDBCard
-          Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
-          Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
-          хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
-          (Татвар тооцсон) бол: "preTax: true", Тухайн төрөл нь QRCode
-          шаардлагатай бол "require": "qrCode"
+          {t('type-must-use-latin')}
+          {' '}Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: &quot;skipEbarimt: true&quot;,
+          Харилцагч сонгосон үед л харагдах бол: &quot;mustCustomer: true&quot;, Хэрэв
+          хуваах боломжгүй бол: &quot;notSplit: true&quot; Урьдчилж төлсөн төлбөрөөр
+          (Татвар тооцсон) бол: &quot;preTax: true&quot;, Тухайн төрөл нь QRCode
+          шаардлагатай бол &quot;require&quot;: &quot;qrCode&quot;
         </p>
       </div>
 
@@ -74,11 +76,11 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
-                    TYPE
+                    {t('TYPE')}
                   </Form.Label>
                   <Form.Control>
                     <Input
-                      placeholder="Enter type"
+                      placeholder={t('enter-type')}
                       {...field}
                       value={field.value || ''}
                     />
@@ -94,11 +96,11 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
-                    TITLE
+                    {t('TITLE')}
                   </Form.Label>
                   <Form.Control>
                     <Input
-                      placeholder="Enter title"
+                      placeholder={t('enter-title')}
                       {...field}
                       value={field.value || ''}
                     />
@@ -114,14 +116,14 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
-                    ICON
+                    {t('ICON')}
                   </Form.Label>
                   <Select
                     value={field.value || ''}
                     onValueChange={field.onChange}
                   >
                     <Select.Trigger className="mb-0">
-                      <Select.Value placeholder="Select">
+                      <Select.Value placeholder={t('select-option')}>
                         {field.value && (
                           <div className="flex gap-2 items-center">
                             <PaymentIcon iconType={field.value} size={16} />
@@ -160,11 +162,11 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
-                    CONFIG
+                    {t('CONFIG')}
                   </Form.Label>
                   <Form.Control>
                     <Input
-                      placeholder="Enter config"
+                      placeholder={t('enter-config')}
                       {...field}
                       value={field.value || ''}
                     />
@@ -180,7 +182,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">
-                    SCORE CAMPAIGN
+                    {t('score-campaign')}
                   </Form.Label>
                   <Form.Control>
                     <Select
@@ -188,7 +190,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
                       onValueChange={field.onChange}
                     >
                       <Select.Trigger className="mb-0">
-                        <Select.Value placeholder="Score campaigns" />
+                        <Select.Value placeholder={t('score-campaigns')} />
                       </Select.Trigger>
                       <Select.Content>
                         {scoreDetail?.map((campaign) => (
@@ -222,7 +224,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
           type="button"
         >
           <IconPlus size={16} />
-          Add payment method
+          {t('add-payment-method')}
         </Button>
       </div>
     </div>

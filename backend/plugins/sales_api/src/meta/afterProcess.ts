@@ -1,11 +1,19 @@
 import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
-import { productMutationNames, syncPosProductGroups } from './productUtils';
+import { posSyncMutationNames, syncPosProductGroups } from './productUtils';
+import {
+  handleCoreMergeMutation,
+  mergeMutationNames,
+} from './afterProcessHandlers/coreMerge';
 
 const relationMutationNames = ['manageRelations'];
 
-const mutationNames = [...relationMutationNames, ...productMutationNames];
+const mutationNames = [
+  ...relationMutationNames,
+  ...posSyncMutationNames,
+  ...mergeMutationNames,
+];
 
 const allRules: IAfterProcessRule[] = [
   {
@@ -74,12 +82,28 @@ export const afterProcess: AfterProcessConfigs = {
 
     const models = await generateModels(ctx.subdomain);
 
+    if ((mergeMutationNames as readonly string[]).includes(mutationName)) {
+      await handleCoreMergeMutation(models, input?.data);
+
+      if (mutationName === 'productsMerge') {
+        await syncPosProductGroups(
+          ctx.subdomain,
+          models,
+          mutationName,
+          args,
+          result,
+        );
+      }
+
+      return;
+    }
+
     if (relationMutationNames.includes(mutationName)) {
       await syncDealRelationSubscriptions(models, args, result);
       return;
     }
 
-    if (productMutationNames.includes(mutationName)) {
+    if (posSyncMutationNames.includes(mutationName)) {
       await syncPosProductGroups(
         ctx.subdomain,
         models,

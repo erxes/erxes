@@ -16,6 +16,7 @@ import { TChecklistActionConfigForm } from '../../states/checklistActionConfigFo
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Form } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { PipelineLabelsCommandList } from '../PipelineLabelsCommandList';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -29,6 +30,7 @@ export const CreateDealActionConfigForm = ({
   currentAction,
   targetType,
 }: AutomationActionFormProps<TSalesAutomationActionConfigForm>) => {
+  const { t } = useTranslation('sales');
   const form = useForm<TSalesActionConfigForm>({
     resolver: zodResolver(salesActionConfigFormSchema),
     defaultValues: {
@@ -61,7 +63,7 @@ export const CreateDealActionConfigForm = ({
           name="boardId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Board</Form.Label>
+              <Form.Label>{t('board')}</Form.Label>
               <SelectBoard.FormItem
                 mode="single"
                 onValueChange={field.onChange}
@@ -76,7 +78,7 @@ export const CreateDealActionConfigForm = ({
           name="pipelineId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Pipeline</Form.Label>
+              <Form.Label>{t('pipeline')}</Form.Label>
               <SelectPipeline.FormItem
                 mode="single"
                 onValueChange={field.onChange}
@@ -92,7 +94,7 @@ export const CreateDealActionConfigForm = ({
           name="stageId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Stage</Form.Label>
+              <Form.Label>{t('stage')}</Form.Label>
               <SelectStage.FormItem
                 mode="single"
                 onValueChange={field.onChange}
@@ -108,7 +110,7 @@ export const CreateDealActionConfigForm = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Name</Form.Label>
+            <Form.Label>{t('name')}</Form.Label>
             <PlaceholderInput
               propertyType={targetType}
               value={field.value}
@@ -123,7 +125,7 @@ export const CreateDealActionConfigForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <PlaceholderInput
               propertyType={targetType}
               value={field.value}
@@ -141,7 +143,7 @@ export const CreateDealActionConfigForm = ({
         name="assignedTo"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Assigned To</Form.Label>
+            <Form.Label>{t('assigned-to')}</Form.Label>
             <PlaceholderInput
               propertyType={targetType}
               value={field.value}
@@ -161,7 +163,7 @@ export const CreateDealActionConfigForm = ({
         name="closeDate"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Close Date</Form.Label>
+            <Form.Label>{t('close-date')}</Form.Label>
             <PlaceholderInput
               propertyType={targetType}
               value={field.value}
@@ -181,7 +183,7 @@ export const CreateDealActionConfigForm = ({
         name="labelIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Label IDs</Form.Label>
+            <Form.Label>{t('label-ids')}</Form.Label>
             <PlaceholderInput
               propertyType={targetType}
               value={field.value}
@@ -196,7 +198,7 @@ export const CreateDealActionConfigForm = ({
                 {
                   type: 'pipeline_labels',
                   trigger: ';',
-                  title: 'Pipeline Labels',
+                  title: t('pipeline-labels'),
                   mode: 'command',
                   render: (props) => (
                     <PipelineLabelsCommandList
@@ -216,7 +218,7 @@ export const CreateDealActionConfigForm = ({
         name="priority"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Priority</Form.Label>
+            <Form.Label>{t('priority')}</Form.Label>
             <PlaceholderInput
               propertyType={targetType}
               value={field.value}

@@ -1,3 +1,4 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -42,7 +43,7 @@ const generateFilter = (params: IListParams) => {
   return filter;
 };
 
-export const addressQueries = {
+export const addressQueries: Record<string, Resolver> = {
   address: async (_root, params: { _id: string }, { models }: IContext) => {
     const { _id } = params;
 
@@ -66,5 +67,7 @@ export const addressQueries = {
     return list.list;
   },
 };
+
+addressQueries.addressList.wrapperConfig = { forClientPortal: true }
 
 export default addressQueries;

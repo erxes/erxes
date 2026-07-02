@@ -8,10 +8,12 @@ import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
 
 export const CategoriesNavigation = () => {
+  const { t } = useTranslation('content');
   const { pathname } = useLocation();
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
@@ -39,28 +41,28 @@ export const CategoriesNavigation = () => {
     if (lastSegment === 'posts' || pathname.endsWith('/posts')) {
       return {
         path: `${basePath}/posts`,
-        label: 'Posts',
+        label: t('posts'),
         icon: IconCategory,
       };
     }
     if (lastSegment === 'pages' || pathname.endsWith('/pages')) {
       return {
         path: `${basePath}/pages`,
-        label: 'Pages',
+        label: t('pages'),
         icon: IconRulerMeasure,
       };
     }
     if (lastSegment === 'categories' || pathname.endsWith('/categories')) {
       return {
         path: `${basePath}/categories`,
-        label: 'Categories',
+        label: t('categories'),
         icon: IconListDetails,
       };
     }
     if (lastSegment === 'tags' || pathname.endsWith('/tags')) {
       return {
         path: `${basePath}/tags`,
-        label: 'Tags',
+        label: t('tags'),
         icon: IconRulerMeasure,
       };
     }
@@ -70,21 +72,21 @@ export const CategoriesNavigation = () => {
     ) {
       return {
         path: `${basePath}/custom-fields`,
-        label: 'Custom Fields',
+        label: t('custom-fields'),
         icon: IconRulerMeasure,
       };
     }
     if (lastSegment === 'custom-types' || pathname.endsWith('/custom-types')) {
       return {
         path: `${basePath}/custom-types`,
-        label: 'Custom Post Types',
+        label: t('custom-post-types'),
         icon: IconRulerMeasure,
       };
     }
 
     return {
       path: `${basePath}/posts`,
-      label: 'Posts',
+      label: t('posts'),
       icon: IconCube,
     };
   }, [pathname, basePath]);
@@ -104,14 +106,14 @@ export const CategoriesNavigation = () => {
             <Button variant="ghost" asChild>
               <Link to={'/content/cms'}>
                 <IconCube />
-                CMS
+                {t('cms')}
               </Link>
             </Button>
           </Breadcrumb.Item>
           <Breadcrumb.Separator />
           <Breadcrumb.Item>
             <Button variant="ghost" asChild>
-              <Link to="/content/cms">{websiteName || 'Website'}</Link>
+              <Link to="/content/cms">{websiteName || t('website')}</Link>
             </Button>
           </Breadcrumb.Item>
           <Breadcrumb.Separator />

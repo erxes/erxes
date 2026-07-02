@@ -5,8 +5,10 @@ import { Link } from 'react-router-dom';
 import { PosCardGrid } from '@/pos/components/PosRecordList';
 import { PosCreate } from '~/modules/pos/components/pos-create';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Settings = () => {
+  const { t } = useTranslation('sales');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const onCreatePos = () => {
@@ -23,7 +25,7 @@ const Settings = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/sales/pos">
                     <IconCashRegister />
-                    pos
+                    {t('pos')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -35,7 +37,7 @@ const Settings = () => {
         <PageHeader.End>
           <Button onClick={onCreatePos}>
             <IconPlus className="mr-2 w-4 h-4" />
-            Create POS
+            {t('pos-create')}
           </Button>
         </PageHeader.End>
       </PageHeader>

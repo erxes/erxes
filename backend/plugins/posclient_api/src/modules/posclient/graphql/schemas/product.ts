@@ -64,7 +64,7 @@ export const types = `
   type PoscProductBulkSimilarityField {
     fieldId: String
     title: String
-    values: [String]
+    values: JSON
   }
   type PoscProductBulkSimilarity {
     _id: String

@@ -23,6 +23,7 @@ import { usePosSummaryLeadSessionKey } from '../hooks/usePosSummaryLeadSessionKe
 
 import { PosSummaryHotKeyScope } from '../types/path/PosSummaryHotKeyScope';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SelectTypes } from './selects/SelectTypes';
 import { SelectGroupType } from './selects/SelectGroupType';
 import { SelectStatus } from './selects/SelectStatus';
@@ -60,57 +61,58 @@ export const PosSummaryFilterPopover = () => {
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
+  const { t } = useTranslation('sales');
   const { resetFilterState } = useFilterContext();
   return (
     <>
       <Filter.Popover scope={PosSummaryHotKeyScope.PosSummaryPage}>
-        <Filter.Trigger isFiltered={hasFilters}>Filter</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="customer">
                   <IconCashRegister />
-                  Customer
+                  {t('customer')}
                 </Filter.Item>
                 <Filter.Item value="company">
                   <IconBuilding />
-                  Company
+                  {t('company')}
                 </Filter.Item>
                 <Filter.Item value="user">
                   <IconUser />
-                  Users
+                  {t('users')}
                 </Filter.Item>
                 <SelectGroupType.FilterItem />
                 <Filter.Item value="types">
                   <IconCategory />
-                  Types
+                  {t('types')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconFlag />
-                  Status
+                  {t('status')}
                 </Filter.Item>
                 <Filter.Item value="excludeStatus">
                   <IconX />
-                  Exclude Status
+                  {t('exclude-status')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdDateRange">
                   <IconClock />
-                  Created Date Range
+                  {t('created-date-range')}
                 </Filter.Item>
                 <Filter.Item value="paidDateRange">
                   <IconCalendar />
-                  Paid Date Range
+                  {t('paid-date-range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -191,6 +193,7 @@ export const PosSummaryFilter = () => {
   const [customer, setCustomer] = useQueryState<string>('customer');
   const [company, setCompany] = useQueryState<string>('company');
   const [user, setUser] = useQueryState<string>('user');
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState<boolean>(false);
   return (
     <Filter id="pos-summary-filter" sessionKey={sessionKey}>
@@ -199,7 +202,7 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -208,7 +211,7 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey={'customer'}>
           <Filter.BarName>
             <IconUser />
-            Customer
+            {t('customer')}
           </Filter.BarName>
           <SelectCustomers.Provider
             mode="single"
@@ -233,7 +236,7 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey={'company'}>
           <Filter.BarName>
             <IconBuilding />
-            Company
+            {t('company')}
           </Filter.BarName>
           <SelectCompanies.Provider
             mode="single"
@@ -258,7 +261,7 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            Users
+            {t('users')}
           </Filter.BarName>
           <SelectUsers.Provider
             mode="single"
@@ -283,14 +286,14 @@ export const PosSummaryFilter = () => {
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconClock />
-            Created Date Range
+            {t('created-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="paidDateRange">
           <Filter.BarName>
             <IconCalendar />
-            Paid Date Range
+            {t('paid-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>

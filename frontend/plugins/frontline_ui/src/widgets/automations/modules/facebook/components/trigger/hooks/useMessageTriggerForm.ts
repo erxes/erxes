@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationTriggerFormProps,
   useAutomationRemoteFormSubmit,
@@ -17,6 +18,7 @@ export const useMessageTriggerForm = ({
   AutomationTriggerFormProps<TMessageTriggerForm>,
   'activeTrigger' | 'onSaveTriggerConfig' | 'formRef'
 >) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<TMessageTriggerForm>({
     resolver: zodResolver(messageTriggerSchema),
     values: { ...((activeTrigger?.config || {}) as TMessageTriggerForm) },
@@ -29,7 +31,7 @@ export const useMessageTriggerForm = ({
     callback: () => {
       form.handleSubmit(onSaveTriggerConfig, () =>
         toast({
-          title: 'There is some error in the form',
+          title: t('form-error'),
           variant: 'destructive',
         }),
       )();

@@ -6,11 +6,13 @@ import { COMMENT_POST_TYPES } from '../../constants/commentTriggerOptions';
 import { useCommentTriggerForm } from '../../hooks/useCommentTriggerForm';
 import { TCommentTriggerForm } from '../../types/commentTrigger';
 import { DirectMessageEditor } from '../message/DirectMessageEditor';
+import { useTranslation } from 'react-i18next';
 export const CommentTriggerForm = ({
   formRef,
   activeTrigger,
   onSaveTriggerConfig,
 }: AutomationTriggerFormProps<TCommentTriggerForm>) => {
+  const { t } = useTranslation('frontline');
   const { form, botId, checkContent, postType } = useCommentTriggerForm({
     formRef,
     activeTrigger,
@@ -41,7 +43,7 @@ export const CommentTriggerForm = ({
             name="postType"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Type</Form.Label>
+                <Form.Label>{t('type')}</Form.Label>
                 <Form.Control>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
@@ -82,7 +84,7 @@ export const CommentTriggerForm = ({
             name="onlyFirstLevel"
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
-                <Form.Label>Track first level comments only</Form.Label>
+                <Form.Label>{t('track-first-level-comments')}</Form.Label>
                 <Form.Control>
                   <Switch
                     checked={field.value}
@@ -99,7 +101,7 @@ export const CommentTriggerForm = ({
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
                 <Form.Label>
-                  Check comment text contains with keywords
+                  {t('check-comment-text-keywords')}
                 </Form.Label>
                 <Form.Control>
                   <Switch

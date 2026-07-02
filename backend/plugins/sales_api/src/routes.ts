@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { posInit, posSyncConfig } from './modules/pos/routes';
+import { getPosToken, posInit, posSyncConfig } from './modules/pos/routes';
 import {
   ecommerceInit,
   ecommerceProductSummary,
@@ -13,6 +13,7 @@ import {
 export const router: Router = Router();
 router.get(`/pos-init`, posInit);
 router.post(`/pos-sync-config`, posSyncConfig);
+router.get(`/get-pos-token`, getPosToken);
 
 //ecommerce routes
 router.get(`/ecommerce-init`, ecommerceInit);

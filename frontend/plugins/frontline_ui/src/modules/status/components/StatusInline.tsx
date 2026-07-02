@@ -12,6 +12,7 @@ import {
 } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const StatusInlineIcon = ({
   statusType = 0,
@@ -60,9 +61,10 @@ export const StatusInlineLabel = ({
 }: {
   statusType?: number | string;
 }) => {
+  const { t } = useTranslation('frontline');
   const numericType =
     typeof statusType === 'string' ? Number.parseInt(statusType, 10) : statusType;
   return (
-    <span className="capitalize">{TICKET_STATUS_TYPE_NAMES[numericType]}</span>
+    <span className="capitalize">{t(TICKET_STATUS_TYPE_NAMES[numericType])}</span>
   );
 };

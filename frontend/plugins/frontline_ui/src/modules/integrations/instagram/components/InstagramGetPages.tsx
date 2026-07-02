@@ -1,4 +1,5 @@
 import { Button, cn, Command, Input, RadioGroup } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   InstagramIntegrationFormLayout,
   InstagramIntegrationFormSteps,
@@ -12,6 +13,7 @@ import { useInstagramPages } from '../hooks/useInstagramPages';
 import { useIgIntegrationContext } from '../context/IgIntegrationContext';
 
 export const InstagramGetPages = () => {
+  const { t } = useTranslation('frontline');
   const { isPost } = useIgIntegrationContext();
   const [selectedPage, setSelectedPage] = useAtom(selectedInstagramPageAtom);
   const { instagramGetPages } = useInstagramPages({
@@ -31,29 +33,29 @@ export const InstagramGetPages = () => {
               setSelectedPage(undefined);
             }}
           >
-            Previous step
+            {t('previous-step')}
           </Button>
           <Button disabled={!selectedPage} onClick={() => setActiveStep(3)}>
-            Next step
+            {t('next-step')}
           </Button>
         </>
       }
     >
       <InstagramIntegrationFormSteps
-        title="Connect pages"
+        title={t('connect-pages')}
         step={2}
-        description="Select the Instagram pages you want to integrate."
+        description={t('ig-select-pages-description')}
       />
       <div className="flex-1 overflow-hidden p-4 pt-0">
         <Command>
           <div className="p-1">
             <Command.Primitive.Input asChild>
-              <Input placeholder="Search for a page" />
+              <Input placeholder={t('search-for-a-page')} />
             </Command.Primitive.Input>
           </div>
           <div className="flex justify-between items-center px-1 py-2">
             <div className="text-sm text-muted-foreground">
-              {instagramGetPages.length} pages found
+              {t('pages-found', { count: instagramGetPages.length })}
             </div>
           </div>
           <RadioGroup

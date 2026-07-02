@@ -2,8 +2,10 @@ import { RecordTable, Spinner } from 'erxes-ui';
 import { PosItemColumns } from './PosItemColumns';
 import { usePosItemsList } from '@/pos/pos-items/hooks/UsePosItemsList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const PosItemsRecordTable = ({ posId }: { posId?: string }) => {
+  const { t } = useTranslation('sales');
   const { posItemList, handleFetchMore, loading, pageInfo } = usePosItemsList({
     posId,
   });
@@ -45,10 +47,10 @@ export const PosItemsRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No pos items yet
+                {t('no-pos-items-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first pos item.
+                {t('create-first-pos-item')}
               </p>
             </div>
           </div>

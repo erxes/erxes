@@ -5,6 +5,8 @@ import { IconPaperclip } from '@tabler/icons-react';
 import { removeTypename } from '@/deals/utils/common';
 import { useAttachmentContext } from './AttachmentContext';
 import { useDealsContext } from '@/deals/context/DealContext';
+import { useTranslation } from 'react-i18next';
+
 
 const AttachmentUploader = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +33,8 @@ const AttachmentUploader = () => {
   const handleAllUploadsComplete = () => {
     setIsLoading(false);
   };
+
+  const { t } = useTranslation('sales');
 
   useEffect(() => {
     if (
@@ -85,7 +89,7 @@ const AttachmentUploader = () => {
         ) : (
           <IconPaperclip size={16} />
         )}
-        Add attachments
+        {t('add-attachments')}
       </Upload.Button>
     </Upload.Root>
   );

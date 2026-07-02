@@ -1,4 +1,5 @@
 import { Input, Separator, useBlockEditor, BlockEditor, Dialog, Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
@@ -14,6 +15,7 @@ import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
+  const { t } = useTranslation('operation');
   const { _id: triageId, priority, status, name: _name } = triage || {};
 
   const description = (triage as ITriage)?.description;
@@ -25,7 +27,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
-    placeholder: 'Description...',
+    placeholder: t('description-placeholder'),
   });
   const { updateTriage } = useUpdateTriage();
   const { convertTriageToTask } = useConvertTriage();
@@ -82,7 +84,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     <div className="flex flex-col gap-3">
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-        placeholder="Triage Name"
+        placeholder={t('triage-name')}
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
@@ -128,17 +130,16 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <Dialog.Content>
           <Dialog.Header>
-            <Dialog.Title>Convert to Task</Dialog.Title>
+            <Dialog.Title>{t('convert-to-task')}</Dialog.Title>
           </Dialog.Header>
           <div className="py-4">
             <p>
-              Changing the status will convert the triage to a task. Are you sure you want
-              to proceed?
+              {t('convert-triage-confirm')}
             </p>
           </div>
           <Dialog.Footer>
             <Dialog.Close asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('cancel')}</Button>
             </Dialog.Close>
             <Button
               onClick={() => {
@@ -150,7 +151,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
                 setConfirmOpen(false);
               }}
             >
-              Confirm
+              {t('confirm')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

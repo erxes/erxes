@@ -70,6 +70,9 @@ export const SelectUOMWithName = ({
   };
 
   const Controller = inForm ? Form.Control : React.Fragment;
+  const selectableUoms = uoms.filter(
+    (uom) => (uom.code ?? '').trim().length > 0,
+  );
   const selectedUom = uoms.find((uom) => uom.code === value);
 
   const displayValue =
@@ -131,12 +134,8 @@ export const SelectUOMWithName = ({
             </Select.Trigger>
           </Controller>
           <Select.Content>
-            {uoms.length === 0 ? (
-              <div className="flex flex-col gap-2 justify-center items-center py-8 text-sm text-center text-muted-foreground">
-                No UOMs available
-              </div>
-            ) : (
-              uoms.map((uom) => (
+            {selectableUoms.length ? (
+              selectableUoms.map((uom) => (
                 <Select.Item
                   key={uom._id}
                   value={uom.code}
@@ -145,6 +144,10 @@ export const SelectUOMWithName = ({
                   {uom.name}
                 </Select.Item>
               ))
+            ) : (
+              <div className="flex flex-col gap-2 justify-center items-center py-8 text-sm text-center text-muted-foreground">
+                No UOMs available
+              </div>
             )}
           </Select.Content>
         </Select>

@@ -2,11 +2,13 @@ import { PropertyForm } from './PropertyForm';
 import { IPropertyForm } from '../types/Properties';
 import { useAddProperty } from '../hooks/useAddProperty';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { useSetAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
 
 export const AddProperty = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groupId, type } = useParams<{
     groupId: string;
     type: string;
@@ -23,13 +25,13 @@ export const AddProperty = () => {
         contentType: type,
       },
       onCompleted: () => {
-        toast({ title: 'Property added', variant: 'success' });
+        toast({ title: t('property-added', 'Property added'), variant: 'success' });
         navigate(`/settings/properties/${type}`);
         setNeedsToRefresh(true);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         });

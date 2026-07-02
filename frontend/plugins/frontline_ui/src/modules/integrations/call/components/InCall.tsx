@@ -29,6 +29,7 @@ import { ICustomer } from '@/integrations/call/types/callTypes';
 import { renderUserInfo } from '@/integrations/call/utils/renderUserInfo';
 import { extractPhoneNumberFromCounterpart } from '@/integrations/call/utils/callUtils';
 import { useCustomerDetail } from '@/integrations/call/hooks/useCustomerDetail';
+import { useTranslation } from 'react-i18next';
 
 export const InCall = ({
   customer,
@@ -39,6 +40,7 @@ export const InCall = ({
   channels: any;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const sipState = useAtomValue(sipStateAtom);
 
   const phoneNumber = extractPhoneNumberFromCounterpart(
@@ -75,7 +77,7 @@ export const InCall = ({
           variant="secondary"
           onClick={stopCall}
         >
-          End Call
+          {t('end-call')}
         </Button>
       </div>
     </>
@@ -100,6 +102,7 @@ export const InCallActionButton = React.forwardRef<
 });
 
 export const Mute = () => {
+  const { t } = useTranslation('frontline');
   const { mute, isMuted, unmute } = useSip();
   const [isMutedState, setIsMutedState] = useState(isMuted());
   const [checkIsMuted, setCheckIsMuted] = useState(false);
@@ -124,12 +127,13 @@ export const Mute = () => {
       className={cn(isMutedState && 'text-destructive hover:text-destructive')}
     >
       {isMutedState ? <IconMicrophoneOff /> : <IconMicrophone />}
-      {isMutedState ? 'Unmute' : 'Mute'}
+      {isMutedState ? t('unmute') : t('mute')}
     </InCallActionButton>
   );
 };
 
 export const Detail = () => {
+  const { t } = useTranslation('frontline');
   const sip = useAtomValue(sipStateAtom);
   const currentCallConversationId = useAtomValue(currentCallConversationIdAtom);
   const setRefetchNewMessages = useSetAtom(refetchNewMessagesState);
@@ -150,25 +154,27 @@ export const Detail = () => {
       }}
     >
       <IconFileText />
-      Detail
+      {t('detail')}
     </InCallActionButton>
   );
 };
 
 export const KeypadTrigger = () => {
+  const { t } = useTranslation('frontline');
   return (
     <InCallActionButton>
       <IconDialpad />
-      Keypad
+      {t('keypad')}
     </InCallActionButton>
   );
 };
 
 export const SelectCustomer = () => {
+  const { t } = useTranslation('frontline');
   return (
     <InCallActionButton>
       <IconUser />
-      Select <br /> Customer
+      {t('select')} <br/> {t('customer')}
     </InCallActionButton>
   );
 };
@@ -186,6 +192,7 @@ const CallInfo = ({
   phoneNumber: string;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const sip = useAtomValue(sipStateAtom);
   const setStartDate = useSetAtom(callDurationAtom);
   const time = useCallDuration();
@@ -202,14 +209,14 @@ const CallInfo = ({
   return (
     <>
       <div className="text-accent-foreground text-sm text-center font-medium">
-        {sip.callStatus === CallStatusEnum.STARTING && 'Calling...'}
-        {sip.callStatus === CallStatusEnum.ACTIVE && 'In call'}
+        {sip.callStatus === CallStatusEnum.STARTING && t('calling')}
+        {sip.callStatus === CallStatusEnum.ACTIVE && t('in-call')}
       </div>
       {!loading && renderUserInfo(customer, customerDetail, phoneNumber)}
 
       {sip.callStatus === CallStatusEnum.ACTIVE && (
         <div className="text-center text-accent-foreground text-sm">
-          Duration: {time}
+          {t('duration')}: {time}
         </div>
       )}
     </>

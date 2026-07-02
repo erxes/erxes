@@ -10,6 +10,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useRemovePosts } from '../hooks/useRemovePosts';
 import { useSendPostNotification } from '../hooks/useSendPostNotification';
 import { Posts } from '../types/postsType';
@@ -27,6 +28,7 @@ export const PostMoreColumnCell = ({
   onDelete,
   onRefetch,
 }: PostMoreColumnCellProps) => {
+  const { t } = useTranslation('content');
   const post = cell.row.original;
   const { _id, status } = post;
   const isPublished = status === 'published';
@@ -57,23 +59,22 @@ export const PostMoreColumnCell = ({
 
           if (recipientCount === 0) {
             toast({
-              title: 'No recipients',
-              description:
-                'No client portal users were found for this website.',
+              title: t('no-recipients'),
+              description: t('no-client-portal-users-found'),
               variant: 'warning',
             });
             return;
           }
 
           toast({
-            title: 'Notification sent',
+            title: t('notification-sent'),
             variant: 'success',
-            description: `Notification sent to ${recipientCount} client portal user${recipientCount === 1 ? '' : 's'}.`,
+            description: t('notification-sent-to-users', { count: recipientCount }),
           });
         })
         .catch((e: Error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -86,20 +87,20 @@ export const PostMoreColumnCell = ({
       onDelete(_id);
     } else {
       confirm({
-        message: 'Are you sure you want to delete this post?',
+        message: t('confirm-delete-this-post'),
       }).then(() => {
         removePosts(_id)
           .then(() => {
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Post deleted successfully',
+              description: t('post-deleted-successfully'),
             });
             onRefetch?.();
           })
           .catch((e: Error) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -128,7 +129,7 @@ export const PostMoreColumnCell = ({
                 onClick={handleEdit}
               >
                 <IconEdit className="size-4" />
-                Edit
+                {t('edit')}
               </Button>
             </Command.Item>
             {isPublished && (
@@ -141,7 +142,7 @@ export const PostMoreColumnCell = ({
                   disabled={loading}
                 >
                   <IconBell className="size-4" />
-                  Send notification
+                  {t('send-notification')}
                 </Button>
               </Command.Item>
             )}
@@ -154,7 +155,7 @@ export const PostMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>

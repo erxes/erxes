@@ -2,8 +2,10 @@ import { IconAlertTriangle } from '@tabler/icons-react';
 import { risksColumns } from './RisksColumns';
 import { useRiskTypes } from '~/modules/insurance/hooks';
 import { GenericRecordTable } from '../shared';
+import { useTranslation } from 'react-i18next';
 
 export const RisksRecordTable = () => {
+  const { t } = useTranslation('insurance');
   const { riskTypes, loading } = useRiskTypes();
 
   return (
@@ -15,9 +17,8 @@ export const RisksRecordTable = () => {
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconAlertTriangle size={64} />,
-        title: 'No risk types yet',
-        description:
-          'Define risk types that can be covered by insurance products.',
+        title: t('no-risk-types-yet'),
+        description: t('no-risk-types-description'),
       }}
     />
   );

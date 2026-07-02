@@ -3,6 +3,7 @@ import { ILogDocument } from 'erxes-api-shared/core-types';
 import { cursorPaginate, getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { sanitizeLogValue } from '../../sanitize';
+import { revertByProcessId } from '../../revert/revertByProcessId';
 
 const operatorMap = {
   ne: '$ne',
@@ -263,6 +264,26 @@ export const logQueries = {
       totalCount,
       pageInfo,
     };
+  },
+
+  /**
+   * Read-only preview of a point-in-time revert (what "Undo this change" would
+   * restore, plus conflicts / unrevertables / alreadyReverted). Deliberately a
+   * QUERY, not the `logsRevertProcess` mutation: the log-detail panel dry-runs
+   * this silently on open to detect an already-undone action, and every mutation
+   * is audit-logged — so running the preview as a mutation spawned a phantom
+   * `logsRevertProcess` log on every log view (looking like the revert "fired by
+   * itself"). Queries are not journaled, so the preview leaves no audit trail;
+   * only the actual apply (the mutation) is recorded.
+   */
+  async logsRevertPreview(
+    _root: unknown,
+    { processId }: { processId: string },
+    context: IContext,
+  ) {
+    await requireLogsReadAccess(context.checkPermission);
+
+    return await revertByProcessId(context, { processId, dryRun: true });
   },
 
   async logDetail(

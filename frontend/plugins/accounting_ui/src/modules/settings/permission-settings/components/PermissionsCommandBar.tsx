@@ -1,6 +1,7 @@
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, CommandBar, Input, RecordTable, Separator } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePermissionEdit } from '../hooks/usePermissionEdit';
 import {
   ACCOUNT_PERMISSIONS,
@@ -11,6 +12,7 @@ import {
 import { PermissionScopeSelect } from './PermissionsColumns';
 
 export const PermissionsCommandbar = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const selected = table
     .getFilteredSelectedRowModel()
@@ -19,7 +21,7 @@ export const PermissionsCommandbar = () => {
   return (
     <CommandBar open={selected.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selected.length} selected</CommandBar.Value>
+        <CommandBar.Value>{selected.length} {t('selected')}</CommandBar.Value>
         <Separator.Inline />
         <PermissionsBulkEditor selected={selected} />
       </CommandBar.Bar>
@@ -28,6 +30,7 @@ export const PermissionsCommandbar = () => {
 };
 
 const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const { editPermissionsBulk, loading } = usePermissionEdit();
   const [level, setLevel] = useState<string>('');
@@ -68,7 +71,7 @@ const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
           type="number"
           inputMode="numeric"
           value={level}
-          placeholder="Level"
+          placeholder={t('level')}
           className="h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           onChange={(e) => setLevel(e.target.value)}
         />
@@ -77,7 +80,7 @@ const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
         <PermissionScopeSelect
           value={read}
           options={ACCOUNT_PERMISSIONS.READ}
-          placeholder="Read"
+          placeholder={t('read')}
           triggerVariant="outline"
           hideChevron={false}
           triggerClassName="h-8 w-full font-normal"
@@ -88,7 +91,7 @@ const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
         <PermissionScopeSelect
           value={write}
           options={ACCOUNT_PERMISSIONS.WRITE}
-          placeholder="Write"
+          placeholder={t('write')}
           triggerVariant="outline"
           hideChevron={false}
           triggerClassName="h-8 w-full font-normal"
@@ -97,7 +100,7 @@ const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
       </div>
       <Button variant="secondary" disabled={!canSave} onClick={handleSave}>
         <IconDeviceFloppy />
-        Save
+        {t('save')}
       </Button>
     </>
   );

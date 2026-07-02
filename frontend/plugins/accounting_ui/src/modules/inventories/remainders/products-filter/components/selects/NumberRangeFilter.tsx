@@ -3,6 +3,7 @@ import { IconX } from '@tabler/icons-react';
 import { useRemoveQueryStateByKey } from 'erxes-ui/hooks';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface NumberRangeDialogViewProps {
   readonly minKey: string;
@@ -19,6 +20,7 @@ const toInputString = (v: unknown): string => {
 };
 
 export function NumberRangeDialogView({ minKey, maxKey, label }: Readonly<NumberRangeDialogViewProps>) {
+  const { t } = useTranslation('accounting');
   const { setDialogView, setOpenDialog, sessionKey } = useFilterContext();
   const [minQuery, setMinQuery] = useFilterQueryState<string>(minKey, sessionKey ?? '');
   const [maxQuery, setMaxQuery] = useFilterQueryState<string>(maxKey, sessionKey ?? '');
@@ -44,27 +46,27 @@ export function NumberRangeDialogView({ minKey, maxKey, label }: Readonly<Number
     <Dialog.Content>
       <form onSubmit={onSubmit}>
         <Dialog.Header>
-          <Dialog.Title className="font-medium text-lg">Filter by {label}</Dialog.Title>
+          <Dialog.Title className="font-medium text-lg">{t('filter-by', { label })}</Dialog.Title>
         </Dialog.Header>
         <div className="flex gap-3 my-4">
           <Input
             type="number"
-            placeholder="Min"
+            placeholder={t('min')}
             value={minVal}
             onChange={(e) => setMinVal(e.target.value)}
           />
           <Input
             type="number"
-            placeholder="Max"
+            placeholder={t('max')}
             value={maxVal}
             onChange={(e) => setMaxVal(e.target.value)}
           />
         </div>
         <Dialog.Footer className="sm:space-x-3">
           <Dialog.Close asChild>
-            <Button variant="outline" size="lg">Cancel</Button>
+            <Button variant="outline" size="lg">{t('cancel')}</Button>
           </Dialog.Close>
-          <Button size="lg" type="submit">Apply</Button>
+          <Button size="lg" type="submit">{t('apply')}</Button>
         </Dialog.Footer>
       </form>
     </Dialog.Content>

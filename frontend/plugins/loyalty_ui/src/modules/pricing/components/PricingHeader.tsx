@@ -2,9 +2,11 @@ import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconCoins } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { PricingCreateSheet } from '@/pricing/create-pricing/PricingCreateSheet';
 
 export function PricingHeader() {
+  const { t } = useTranslation('loyalty');
   return (
     <PageHeader>
       <PageHeaderStart>
@@ -14,7 +16,7 @@ export function PricingHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/loyalty/pricing">
                   <IconCoins />
-                  Pricing
+                  {t('pricing')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

@@ -48,6 +48,7 @@ export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql`
   subscription conversationClientMessageInserted($userId: String!) {
     conversationClientMessageInserted(userId: $userId) {
       _id
+      conversationId
       content
     }
   }

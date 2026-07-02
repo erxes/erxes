@@ -1,5 +1,6 @@
 import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
   ticketTotalCountBoardAtom,
   ticketTotalCountAtom,
@@ -7,6 +8,7 @@ import {
 import { ticketViewAtom } from '@/ticket/states/ticketViewState';
 
 export const TicketsTotalCount = () => {
+  const { t } = useTranslation('frontline');
   const totalCount = useAtomValue(ticketTotalCountAtom);
   const ticketCountByBoard = useAtomValue(ticketTotalCountBoardAtom);
   const view = useAtomValue(ticketViewAtom);
@@ -18,7 +20,7 @@ export const TicketsTotalCount = () => {
       {isUndefinedOrNull(totalCountToShow) ? (
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        `${totalCountToShow} records found`
+        t('records-found', { count: totalCountToShow })
       )}
     </div>
   );

@@ -20,6 +20,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, Card, cn, Input, Popover } from 'erxes-ui';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
 import { TBotMessageButton } from '../states/replyMessageActionForm';
 
@@ -140,6 +141,7 @@ const FacebookMessageButton = ({
     handleChangeButton: (button: TBotMessageButton) => void;
   }) => React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: button._id });
 
@@ -197,7 +199,7 @@ const FacebookMessageButton = ({
           <Input
             autoFocus
             maxLength={20}
-            placeholder="Enter button text"
+            placeholder={t('enter-button-text')}
             value={button.text || button.link}
             onBlur={onSave}
             onChange={onChangeButtonText}
@@ -217,7 +219,7 @@ const FacebookMessageButton = ({
           </a>
         ) : (
           <span className="font-mono font-medium text-foreground text-sm">
-            {button.text || 'Type a button label'}
+            {button.text || t('type-a-button-label')}
           </span>
         )}
       </div>
@@ -230,7 +232,7 @@ const FacebookMessageButton = ({
         <Popover.Content>
           <Input
             type="url"
-            placeholder="Enter URL"
+            placeholder={t('enter-url')}
             value={button.link}
             onChange={(e) =>
               handleChangeButton({ ...button, link: e.target.value })

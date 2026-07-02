@@ -10,6 +10,7 @@ import {
   YAxis,
 } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import type { VolumePoint } from '../../types';
 
 interface VolumeChartProps {
@@ -26,6 +27,7 @@ const CHART_CONFIG = {
 export const VolumeChart = memo(function VolumeChart({
   data,
 }: VolumeChartProps) {
+  const { t } = useTranslation('frontline');
   const chartData = useMemo(
     () =>
       data.map((d) => ({
@@ -38,7 +40,7 @@ export const VolumeChart = memo(function VolumeChart({
   if (!data.length) {
     return (
       <div className="flex h-56 items-center justify-center text-sm text-muted-foreground">
-        No volume data for selected range
+        {t('no-volume-data')}
       </div>
     );
   }
@@ -79,7 +81,7 @@ export const VolumeChart = memo(function VolumeChart({
         <Area
           type="monotone"
           dataKey="incoming"
-          name="Inbound"
+          name={t('inbound')}
           stroke="var(--chart-2)"
           fill="url(#cr-vol-incoming)"
           strokeWidth={2}
@@ -88,7 +90,7 @@ export const VolumeChart = memo(function VolumeChart({
         <Area
           type="monotone"
           dataKey="outgoing"
-          name="Outbound"
+          name={t('outbound')}
           stroke="var(--chart-3)"
           fill="url(#cr-vol-outgoing)"
           strokeWidth={2}

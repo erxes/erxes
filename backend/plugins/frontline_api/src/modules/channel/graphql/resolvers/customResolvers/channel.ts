@@ -39,4 +39,26 @@ export const Channel = {
       channelId: channel._id,
     });
   },
+
+  integrationCount: async (
+    channel: IChannelDocument,
+    _params: undefined,
+    { models }: IContext,
+  ) => {
+    return models.Integrations.countDocuments({ channelId: channel._id });
+  },
+
+  integrationKinds: async (
+    channel: IChannelDocument,
+    _params: undefined,
+    { models }: IContext,
+  ) => {
+    const integrations = await models.Integrations.find(
+      { channelId: channel._id },
+      { kind: 1 },
+    ).lean();
+    return (integrations as Array<{ kind?: string }>)
+      .map((i) => i.kind)
+      .filter(Boolean);
+  },
 };

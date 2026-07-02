@@ -45,9 +45,11 @@ const callQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
-    return models.CallIntegrations.getIntegrations(user._id, isAdmin);
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // return models.CallIntegrations.getIntegrations(user._id, isAdmin);
+    const res = models.CallIntegrations.getIntegrations(user._id);
+    return res;
   },
 
   async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
@@ -96,12 +98,11 @@ const callQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
-      isAdmin,
     );
     if (!integration) {
       throw new Error('Integration not found');
@@ -540,11 +541,10 @@ const callQueries = {
     { startDate, endDate, queueId, direction },
     { models, user }: IContext,
   ) {
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
-      isAdmin,
     );
 
     const isContainsQueue = true;
@@ -736,11 +736,10 @@ const callQueries = {
     if (!queueId) {
       return [];
     }
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
-      isAdmin,
     );
 
     const isContainsQueue = queueId && queues.includes(queueId);

@@ -3,6 +3,7 @@ import { useAtomValue } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { Form, MultipleSelector, type MultiSelectOption } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { POST_CMS_TAGS } from '../../graphql/queries/postCmsTagsQuery';
 import { useInlineTag } from './hooks/useInlineTag';
@@ -72,6 +73,7 @@ const mapTagOptions = (tags: CmsTagSearchResult[]): TagSelectOption[] =>
     }));
 
 export const TagField = ({ form, tags, websiteId }: TagFieldProps) => {
+  const { t } = useTranslation('content');
   const language = useAtomValue(cmsLanguageAtom);
   const { resolveTagIds } = useInlineTag(websiteId);
   const [searchTags] = useLazyQuery<CmsTagsQueryData, CmsTagsQueryVariables>(
@@ -127,7 +129,7 @@ export const TagField = ({ form, tags, websiteId }: TagFieldProps) => {
       name="tagIds"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Tag</Form.Label>
+          <Form.Label>{t('tag')}</Form.Label>
           <Form.Control>
             <MultipleSelector
               value={selectableOptions.filter((option) =>
@@ -135,12 +137,12 @@ export const TagField = ({ form, tags, websiteId }: TagFieldProps) => {
               )}
               defaultOptions={initialOptions}
               options={selectableOptions}
-              placeholder="Select"
+              placeholder={t('select')}
               hidePlaceholderWhenSelected={true}
-              emptyIndicator="Empty"
+              emptyIndicator={t('empty')}
               loadingIndicator={
                 <span className="block px-2 py-4 text-sm text-muted-foreground">
-                  Loading tags...
+                  {t('loading-tags')}
                 </span>
               }
               creatable

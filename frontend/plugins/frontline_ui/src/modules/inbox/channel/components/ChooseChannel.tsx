@@ -8,8 +8,10 @@ import {
 import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
+import { useTranslation } from 'react-i18next';
 
 export const ChooseChannel = () => {
+  const { t } = useTranslation('frontline');
   const { channels, loading } = useGetMyChannels();
 
   if (loading)
@@ -24,7 +26,7 @@ export const ChooseChannel = () => {
   if (!channels?.length)
     return (
       <div className="text-sm text-accent-foreground ml-3 my-4">
-        No channels found
+        {t('no-channels-found')}
       </div>
     );
 

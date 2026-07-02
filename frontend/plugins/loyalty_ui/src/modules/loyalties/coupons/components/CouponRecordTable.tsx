@@ -1,5 +1,6 @@
 import { RecordTable, Spinner } from 'erxes-ui';
 import { IconTicket } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { couponColumns } from './CouponColumns';
 
 import { CouponAddModal } from './CouponAddModal';
@@ -9,6 +10,7 @@ const COUPON_CURSOR_SESSION_KEY = 'coupons_cursor';
 
 export const CouponRecordTable = () => {
   const { couponList, handleFetchMore, loading, pageInfo } = useCouponList();
+  const { t } = useTranslation('loyalty');
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (loading && !couponList?.length) return <Spinner />;
@@ -47,10 +49,10 @@ export const CouponRecordTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconTicket size={48} className="text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900">
-                No coupons yet
+                {t('no-coupons-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 mb-4">
-                Get started by creating your first coupon.
+                {t('get-started-coupon')}
               </p>
               <CouponAddModal />
             </div>

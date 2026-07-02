@@ -16,6 +16,7 @@ import { IFieldData, useFormDnd } from './FormDndProvider';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import {
   FieldValidatorPresetKey,
@@ -36,14 +37,14 @@ const VALIDATOR_PRESET_OPTIONS: {
   value: FieldValidatorPresetKey;
   label: string;
 }[] = [
-  { value: 'EMAIL', label: 'Email address' },
-  { value: 'PHONE', label: 'Phone number' },
-  { value: 'POSTAL_CODE', label: 'Postal / ZIP code' },
-  { value: 'ALPHANUMERIC', label: 'Alphanumeric only' },
-  { value: 'MN_VEHICLE_REGISTRATION', label: 'Vehicle plate (MN)' },
-  { value: 'NUMBER', label: 'Numeric value' },
-  { value: 'DATE', label: 'Date value' },
-  { value: 'DATE_TIME', label: 'Date and time' },
+  { value: 'EMAIL', label: 'validator-email-address' },
+  { value: 'PHONE', label: 'validator-phone-number' },
+  { value: 'POSTAL_CODE', label: 'validator-postal-code' },
+  { value: 'ALPHANUMERIC', label: 'validator-alphanumeric' },
+  { value: 'MN_VEHICLE_REGISTRATION', label: 'validator-vehicle-plate-mn' },
+  { value: 'NUMBER', label: 'validator-numeric-value' },
+  { value: 'DATE', label: 'validator-date-value' },
+  { value: 'DATE_TIME', label: 'validator-date-time' },
 ];
 
 const getOperatorOptions = (fieldType?: string) => {
@@ -78,6 +79,7 @@ export const FormFieldDetail = ({
   stepId: UniqueIdentifier;
   handleClose: () => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const { handleChangeField, handleDeleteField, fields, getFieldValue } =
     useFormDnd();
 
@@ -162,14 +164,14 @@ export const FormFieldDetail = ({
         <ScrollArea className="h-full">
           <div className="grid grid-cols-2 gap-4 p-6">
             <div className="space-y-2 col-span-2">
-              <Label>Label</Label>
+              <Label>{t('field-label')}</Label>
               <Input
                 value={fieldData?.label}
                 onChange={(e) => handleValueChange('label', e.target.value)}
               />
             </div>
             <div className="space-y-2 col-span-2 flex gap-2 items-center">
-              <Label className="flex items-center m-0!">Required</Label>
+              <Label className="flex items-center m-0!">{t('required')}</Label>
               <Checkbox
                 checked={fieldData?.required}
                 onCheckedChange={(checked) =>
@@ -178,7 +180,7 @@ export const FormFieldDetail = ({
               />
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>Description</Label>
+              <Label>{t('description')}</Label>
               <BlockEditor
                 editor={editor}
                 variant="outline"
@@ -193,7 +195,7 @@ export const FormFieldDetail = ({
               />
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>Field Width</Label>
+              <Label>{t('field-width')}</Label>
               <ToggleGroup
                 type="single"
                 variant="outline"
@@ -203,15 +205,15 @@ export const FormFieldDetail = ({
                 }
               >
                 <ToggleGroup.Item value="1" className="flex-1">
-                  half width
+                  {t('half-width')}
                 </ToggleGroup.Item>
                 <ToggleGroup.Item value="2" className="flex-1">
-                  full width
+                  {t('full-width')}
                 </ToggleGroup.Item>
               </ToggleGroup>
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>Placeholder Attribute</Label>
+              <Label>{t('placeholder-attribute')}</Label>
               <Input
                 value={fieldData?.placeholder}
                 onChange={(e) =>
@@ -222,7 +224,7 @@ export const FormFieldDetail = ({
             {/* Validator Configuration */}
             {fieldData.type?.startsWith('core:customer') ? null : (
               <div className="space-y-3 col-span-2">
-                <Label>Validation</Label>
+                <Label>{t('validation')}</Label>
                 <ToggleGroup
                   type="single"
                   variant="outline"
@@ -235,13 +237,13 @@ export const FormFieldDetail = ({
                   }}
                 >
                   <ToggleGroup.Item value="NONE" className="flex-1">
-                    None
+                    {t('none')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="PRESET" className="flex-1">
-                    Preset
+                    {t('preset')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="CUSTOM" className="flex-1">
-                    Custom
+                    {t('custom')}
                   </ToggleGroup.Item>
                 </ToggleGroup>
 
@@ -255,12 +257,12 @@ export const FormFieldDetail = ({
                     }
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder="Select a preset rule" />
+                      <Select.Value placeholder={t('select-preset-rule')} />
                     </Select.Trigger>
                     <Select.Content>
                       {VALIDATOR_PRESET_OPTIONS.map((opt) => (
                         <Select.Item key={opt.value} value={opt.value}>
-                          {opt.label}
+                          {t(opt.label)}
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -273,7 +275,7 @@ export const FormFieldDetail = ({
                     onChange={(e) =>
                       handleChangeValidator({ customRegex: e.target.value })
                     }
-                    placeholder="Regex pattern (e.g. ^[A-Z]{3}\d{4}$)"
+                    placeholder={t('regex-pattern-placeholder')}
                     spellCheck={false}
                   />
                 )}
@@ -285,7 +287,7 @@ export const FormFieldDetail = ({
                       onChange={(e) =>
                         handleChangeValidator({ errorMessage: e.target.value })
                       }
-                      placeholder="Error message shown to the user"
+                      placeholder={t('error-message-placeholder')}
                     />
                   )}
               </div>
@@ -295,7 +297,7 @@ export const FormFieldDetail = ({
               fieldData?.type === 'select:countries') && (
               <div className="space-y-2 col-span-2 flex gap-2 items-center">
                 <Label htmlFor="allowSearch" className="flex items-center m-0!">
-                  Allow search
+                  {t('allow-search')}
                 </Label>
                 <Checkbox
                   id="allowSearch"
@@ -314,7 +316,7 @@ export const FormFieldDetail = ({
                       />
                     </Tooltip.Trigger>
                     <Tooltip.Content>
-                      Enables searching within options
+                      {t('enables-search-in-options')}
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>
@@ -326,7 +328,7 @@ export const FormFieldDetail = ({
               fieldData?.type === 'check' ||
               fieldData?.type === 'core:customer:sex') && (
               <div className="space-y-2 col-span-2">
-                <Label>Options</Label>
+                <Label>{t('options')}</Label>
                 <StringArrayInput
                   styleClasses={{
                     inlineTagsContainer: 'shadow-xs',
@@ -339,7 +341,7 @@ export const FormFieldDetail = ({
               </div>
             )}
             <div className="space-y-2 col-span-2">
-              <Label>Field Logic action</Label>
+              <Label>{t('field-logic-action')}</Label>
               <Select
                 value={fieldData?.logicAction}
                 onValueChange={(value) =>
@@ -347,21 +349,21 @@ export const FormFieldDetail = ({
                 }
               >
                 <Select.Trigger>
-                  <Select.Value placeholder="Select logic action" />
+                  <Select.Value placeholder={t('select-logic-action')} />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="show">Show this field</Select.Item>
-                  <Select.Item value="hide">Hide this field</Select.Item>
+                  <Select.Item value="show">{t('show-this-field')}</Select.Item>
+                  <Select.Item value="hide">{t('hide-this-field')}</Select.Item>
                 </Select.Content>
               </Select>
             </div>
             {/* Logics */}
             <div className="space-y-2 col-span-2">
               <div className="flex items-center justify-between">
-                <Label>Field Logics</Label>
+                <Label>{t('field-logics')}</Label>
                 <Button variant="outline" size="sm" onClick={handleAddLogic}>
                   <IconPlus size={14} />
-                  Add Logic
+                  {t('add-logic')}
                 </Button>
               </div>
               <div className="space-y-2">
@@ -382,7 +384,7 @@ export const FormFieldDetail = ({
                         }
                       >
                         <Select.Trigger className="col-span-1">
-                          <Select.Value placeholder="Select field" />
+                          <Select.Value placeholder={t('select-field')} />
                         </Select.Trigger>
                         <Select.Content>
                           {availableFields.map((f) => (
@@ -399,7 +401,7 @@ export const FormFieldDetail = ({
                         }
                       >
                         <Select.Trigger className="col-span-1">
-                          <Select.Value placeholder="Operator" />
+                          <Select.Value placeholder={t('operator')} />
                         </Select.Trigger>
                         <Select.Content>
                           {operators.map((op) => (
@@ -415,7 +417,7 @@ export const FormFieldDetail = ({
                         onChange={(e) =>
                           handleChangeLogic(index, 'logicValue', e.target.value)
                         }
-                        placeholder="Value"
+                        placeholder={t('value')}
                       />
                       <Button
                         variant="ghost"
@@ -440,10 +442,10 @@ export const FormFieldDetail = ({
           onClick={handleDelete}
         >
           <IconTrash />
-          Delete
+          {t('delete')}
         </Button>
         <Button variant="outline" onClick={handleClose}>
-          Close
+          {t('close')}
         </Button>
       </Sheet.Footer>
     </div>

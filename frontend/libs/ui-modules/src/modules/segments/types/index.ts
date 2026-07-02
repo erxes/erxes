@@ -36,7 +36,8 @@ export interface ICondition {
   subSegmentId?: string;
   subSegmentForPreview?: ISegment;
 
-  config?: any;
+  config?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
 }
 
 export interface ISegment {
@@ -57,7 +58,7 @@ export interface ISegment {
 
   scopeBrandIds?: string[];
 
-  config?: any;
+  config?: Record<string, unknown>;
 }
 
 export type FieldQueryResponse = {
@@ -102,8 +103,8 @@ export type IPropertyField = {
   fields: IField[];
   currentField?: IField;
   parentFieldName: IFormFieldName;
-  defaultValue?: any;
-  propertyTypes: any[];
+  defaultValue?: unknown;
+  propertyTypes: TPropertyTypeOption[];
   loading: boolean;
   onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
@@ -113,7 +114,7 @@ export type IPropertyCondtion = {
   currentField?: IField;
   operators: IOperator[];
   parentFieldName: IFormFieldName;
-  defaultValue?: any;
+  defaultValue?: unknown;
   loading: boolean;
   onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
@@ -121,7 +122,7 @@ export type IPropertyCondtion = {
 export type IPropertyInput = {
   index: number;
   parentFieldName: IFormFieldName;
-  defaultValue?: any;
+  defaultValue?: unknown;
   operators: IOperator[];
   selectedField?: IField;
   loading: boolean;
@@ -132,7 +133,7 @@ export interface ISegmentMap {
   _id?: string;
   key: string;
   contentType: string;
-  config?: any;
+  config?: Record<string, unknown>;
   conditions: ICondition[];
   conditionsConjunction: string;
 }

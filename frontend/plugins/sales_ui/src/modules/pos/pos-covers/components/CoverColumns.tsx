@@ -5,6 +5,7 @@ import {
   IconPhone,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
   TextOverflowTooltip,
@@ -22,7 +23,10 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   {
     id: 'posName',
     accessorKey: 'posName',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label="Pos" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconPhone} label={t('pos')} />;
+    },
     cell: ({ row }) => {
       return <ClickablePosName value={row.original.posName || ''} row={row} />;
     },
@@ -31,9 +35,10 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   {
     id: 'beginDate',
     accessorKey: 'beginDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Begin Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconLabel} label={t('begin-date')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -55,9 +60,10 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMobiledata} label="End Date" />
-    ),
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconMobiledata} label={t('end-date')} />;
+    },
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -78,7 +84,10 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   {
     id: 'user.email',
     accessorKey: 'user.email',
-    header: () => <RecordTable.InlineHead icon={IconBuilding} label="User" />,
+    header: () => {
+      const { t } = useTranslation('sales');
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('user')} />;
+    },
     cell: ({ row }) => {
       return (
         <RecordTableInlineCell>

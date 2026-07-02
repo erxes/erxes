@@ -12,6 +12,7 @@ import {
 import { IconEdit, IconTrash, IconTicket } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useDeleteAssignment } from '../hooks/useDeleteAssignment';
 import { IAssignment } from '../types/assignmentTypes';
 
@@ -20,6 +21,7 @@ export const AssignmentMoreColumnCell = ({
 }: {
   cell: Cell<IAssignment, unknown>;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { _id } = cell.row.original;
   const [, setEditAssignmentId] = useQueryState('editAssignmentId');
   const { removeAssignment, loading } = useDeleteAssignment();
@@ -38,20 +40,20 @@ export const AssignmentMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: 'Are you sure you want to delete this assignment?',
+      message: t('delete-assignment-confirm', { count: 1 }),
     }).then(() => {
       removeAssignment({
         variables: { _ids: [_id] },
       })
         .then(() => {
           toast({
-            title: '1 coupon deleted successfully',
+            title: t('assignments-deleted', { count: 1 }),
             variant: 'success',
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -72,10 +74,10 @@ export const AssignmentMoreColumnCell = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="see-assignments" onSelect={handleSeeAssignments}>
-              <IconTicket /> See assignments
+              <IconTicket /> {t('see-assignments')}
             </Command.Item>
             <Command.Item asChild>
               <Button
@@ -86,7 +88,7 @@ export const AssignmentMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>

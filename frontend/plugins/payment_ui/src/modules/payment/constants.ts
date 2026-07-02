@@ -3,46 +3,46 @@ import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 export const PAYMENT_KINDS = {
   [PaymentKind.QPAY]: {
     name: 'Qpay',
-    description: 'Connect your existing Qpay account to Erxes',
+    description: 'connect-qpay-account',
     active: true,
     fields: [
       {
         key: 'qpayMerchantUser',
-        label: 'Username',
+        label: 'username',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'qpayMerchantPassword',
-        label: 'Password',
+        label: 'password',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'qpayInvoiceCode',
-        label: 'Invoice code',
+        label: 'invoice-code',
         validation: { type: 'minLength', value: 1 },
       },
     ],
   },
   [PaymentKind.QUICKQR]: {
     name: 'Qpay Quick QR',
-    description: 'Connect your bank account to Qpay',
+    description: 'connect-qpay-bank-account',
     active: true,
     fields: [],
   },
   [PaymentKind.SOCIALPAY]: {
     name: 'Social Pay',
-    description: 'Fast and easy way to receive payments',
+    description: 'fast-easy-socialpay',
     active: true,
     fields: [
       {
         key: 'inStoreSPTerminal',
-        label: 'Terminal',
+        label: 'terminal',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'inStoreSPKey',
-        label: 'Key',
+        label: 'key',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
@@ -50,17 +50,17 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.MONPAY]: {
     name: 'MonPay',
-    description: 'Easy, fast and reliable payment by QR scan',
+    description: 'fast-easy-reliable-qr',
     active: true,
     fields: [
       {
         key: 'username',
-        label: 'Branch username',
+        label: 'branch-username',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'accountId',
-        label: 'Account ID',
+        label: 'account-id',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
@@ -68,34 +68,34 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.STOREPAY]: {
     name: 'StorePay',
-    description: 'Connect your StorePay merchant account.',
+    description: 'connect-storepay-account',
     active: true,
 
     fields: [
       {
         key: 'storeId',
-        label: 'Store id',
+        label: 'store-id',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'merchantUsername',
-        label: 'Merchant username',
+        label: 'merchant-username',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'merchantPassword',
-        label: 'Merchant password',
+        label: 'merchant-password',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'appUsername',
-        label: 'App username',
+        label: 'app-username',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'appPassword',
-        label: 'App password',
+        label: 'app-password',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
@@ -103,22 +103,22 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.POCKET]: {
     name: 'Pocket',
-    description: 'Connect your Pocket merchant account.',
+    description: 'connect-pocket-account',
     active: true,
     fields: [
       {
         key: 'pocketMerchant',
-        label: 'Merchant',
+        label: 'merchant',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'pocketClientId',
-        label: 'Client ID',
+        label: 'client-id',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'pocketClientSecret',
-        label: 'Client secret',
+        label: 'client-secret',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
@@ -126,40 +126,40 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.WECHATPAY]: {
     name: 'Qpay Wechat Pay',
-    description: 'Receive payments in Mongolia through the WeChat Pay',
+    description: 'wechat-receive-payments',
     active: true,
     fields: [
       {
         key: 'username',
-        label: 'Username',
+        label: 'username',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'password',
-        label: 'Password',
+        label: 'password',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'terminal',
-        label: 'Terminal code',
+        label: 'terminal-code',
         validation: { type: 'minLength', value: 1 },
       },
     ],
   },
   [PaymentKind.MINUPAY]: {
     name: 'Minupay',
-    description: 'Connect your Minupay merchant account.',
+    description: 'connect-minupay-account',
     active: true,
     fields: [
       {
         key: 'username',
-        label: 'Username',
+        label: 'username',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'password',
-        label: 'Password',
+        label: 'password',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
@@ -167,18 +167,18 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.GOLOMT]: {
     name: 'Golomt Card',
-    description: 'Connect your Golomt e-commerce account.',
+    description: 'connect-golomt-account',
     active: true,
     fields: [
       {
         key: 'merchant',
-        label: 'Merchant',
+        label: 'merchant',
         validation: { type: 'minLength', value: 1 },
       },
-      { key: 'key', label: 'Key', validation: { type: 'minLength', value: 1 } },
+      { key: 'key', label: 'key', validation: { type: 'minLength', value: 1 } },
       {
         key: 'token',
-        label: 'Token',
+        label: 'token',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
@@ -186,17 +186,17 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.STRIPE]: {
     name: 'Stripe',
-    description: 'Accepts most type of domestic and foreign card.',
+    description: 'stripe-accepts-cards',
     active: true,
     fields: [
       {
         key: 'publishableKey',
-        label: 'Publishable key',
+        label: 'publishable-key',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'secretKey',
-        label: 'Secret key',
+        label: 'secret-key',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
@@ -204,22 +204,22 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.TOKI]: {
     name: 'Toki',
-    description: 'Connect your Toki merchant account.',
+    description: 'connect-toki-account',
     active: true,
     fields: [
       {
         key: 'tokiMerchantId',
-        label: 'Merchant ID',
+        label: 'merchant-id',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'tokiUsername',
-        label: 'Username',
+        label: 'username',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'tokiPassword',
-        label: 'Password',
+        label: 'password',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },
@@ -227,17 +227,17 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.TDB]: {
     name: 'Trade and Development Bank Card',
-    description: 'Connect your Trade and Development Bank E-Commerce account.',
+    description: 'connect-tdb-account',
     active: true,
     fields: [
       {
         key: 'username',
-        label: 'Terminal Username',
+        label: 'terminal-username',
         validation: { type: 'minLength', value: 1 },
       },
       {
         key: 'password',
-        label: 'Terminal Password',
+        label: 'terminal-password',
         type: 'password',
         validation: { type: 'minLength', value: 1 },
       },

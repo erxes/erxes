@@ -13,7 +13,7 @@ export const productMutations = {
   ) {
     await checkPermission('productsCreate');
 
-    return await models.Products.createProduct(__(doc));
+    return models.Products.createProduct(__(doc));
   },
 
   /**
@@ -28,7 +28,7 @@ export const productMutations = {
   ) {
     await checkPermission('productsUpdate');
 
-    return await models.Products.updateProduct(
+    return models.Products.updateProduct(
       _id,
       __({
         ...doc,
@@ -44,11 +44,15 @@ export const productMutations = {
   async productsRemove(
     _parent: undefined,
     { productIds }: { productIds: string[] },
-    { models, checkPermission }: IContext,
+    { models, checkPermission, subdomain }: IContext,
   ) {
     await checkPermission('productsDelete');
 
-    return await models.Products.removeProducts(productIds);
+    console.log(
+      `[${subdomain}][graphql:productsRemove] called with ${productIds?.length ?? 0} id(s)`,
+    );
+
+    return models.Products.removeProducts(productIds);
   },
 
   /**
@@ -64,7 +68,9 @@ export const productMutations = {
   ) {
     await checkPermission('productsMerge');
 
-    return models.Products.mergeProducts(productIds, { ...productFields });
+    return models.Products.mergeProducts(productIds, {
+      ...productFields,
+    });
   },
 
   /**
@@ -77,6 +83,6 @@ export const productMutations = {
   ) {
     await checkPermission('productsCreate');
 
-    return await models.Products.duplicateProduct(_id);
+    return models.Products.duplicateProduct(_id);
   },
 };

@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { checkProductsMutation } from '../graphql/mutations/checkProductsMutations';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtom, atom } from 'jotai';
 import { ProductItem, ProductStatus } from '../types/productItem';
 import { ICheckProduct } from '../types/checkProduct';
@@ -36,13 +37,14 @@ export const useCheckProduct = () => {
   } = useSyncProduct();
 
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const checkProduct = async () => {
     try {
       const response = await mutate({
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -78,15 +80,15 @@ export const useCheckProduct = () => {
         setToCheckProducts(allProducts);
 
         toast({
-          title: 'Success',
-          description: `${allProducts.length} products found`,
+          title: t('success'),
+          description: t('products-found', { count: allProducts.length }),
         });
       }
     } catch (err) {
       console.error('Check product error:', err);
       toast({
-        title: 'Error',
-        description: 'Failed to check products',
+        title: t('error'),
+        description: t('failed-to-check-products'),
         variant: 'destructive',
       });
     }
@@ -95,8 +97,8 @@ export const useCheckProduct = () => {
   const syncProducts = async () => {
     if (!toCheckProducts || toCheckProducts.length === 0) {
       toast({
-        title: 'Warning',
-        description: 'No products to sync',
+        title: t('warning'),
+        description: t('no-products-to-sync'),
         variant: 'destructive',
       });
       return;

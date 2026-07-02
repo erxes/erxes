@@ -6,9 +6,11 @@ import {
 import { useOrdersList } from '@/pos/orders/hooks/UseOrderList';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePosOrdersSummary } from '../detail/hooks/usePosOrdersSummary';
 
 export const OrderRecordTable = ({ posId }: { posId?: string }) => {
+  const { t } = useTranslation('sales');
   const { ordersList, handleFetchMore, loading, pageInfo } = useOrdersList({
     posId,
   });
@@ -61,10 +63,10 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No orders yet
+                {t('no-orders-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first order.
+                {t('create-first-order')}
               </p>
             </div>
           </div>

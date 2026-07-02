@@ -21,6 +21,7 @@ import {
   Textarea,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LANGUAGES } from '../../../../constants';
 import {
   CmsSettingsData,
@@ -70,6 +71,7 @@ export const SettingsForm = ({
   updateSetting,
   onDelete,
 }: ISettingsFormProps) => {
+  const { t } = useTranslation('content');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteNameConfirmation, setDeleteNameConfirmation] = useState('');
   const [deletePhraseConfirmation, setDeletePhraseConfirmation] = useState('');
@@ -170,11 +172,11 @@ export const SettingsForm = ({
     <div className="min-w-0 space-y-4 p-4">
       <SettingsSection
         id="general"
-        title="General"
-        badge={<Badge variant="secondary">Base info</Badge>}
+        title={t('general')}
+        badge={<Badge variant="secondary">{t('base-info')}</Badge>}
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <Field id="websiteName" label="Website Name" required>
+          <Field id="websiteName" label={t('website-name')} required>
             <Input
               id="websiteName"
               value={settings.websiteName}
@@ -185,7 +187,7 @@ export const SettingsForm = ({
             />
           </Field>
 
-          <Field id="clientPortalKind" label="Client Portal (kind)">
+          <Field id="clientPortalKind" label={t('client-portal-kind')}>
             <Select
               value={settings.clientPortalKind}
               onValueChange={(value) =>
@@ -193,7 +195,7 @@ export const SettingsForm = ({
               }
             >
               <Select.Trigger id="clientPortalKind" className="bg-muted">
-                <Select.Value placeholder="Select portal" />
+                <Select.Value placeholder={t('select-portal')} />
               </Select.Trigger>
               <Select.Content>
                 {clientPortals.length ? (
@@ -214,8 +216,8 @@ export const SettingsForm = ({
 
         <Field
           id="shortDescription"
-          label="Short Description"
-          hint="Used as fallback meta description if none set in SEO Defaults."
+          label={t('short-description')}
+          hint={t('short-description-hint')}
           required
         >
           <Textarea
@@ -229,7 +231,7 @@ export const SettingsForm = ({
         </Field>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Field id="domain" label="Domain">
+          <Field id="domain" label={t('domain')}>
             <Input
               id="domain"
               value={settings.domain}
@@ -238,7 +240,7 @@ export const SettingsForm = ({
             />
           </Field>
 
-          <Field id="publicUrl" label="Public URL">
+          <Field id="publicUrl" label={t('public-url')}>
             <Input
               id="publicUrl"
               value={settings.publicUrl}
@@ -253,15 +255,15 @@ export const SettingsForm = ({
 
       <SettingsSection
         id="seo"
-        title="SEO"
-        badge={<Badge variant="success">New</Badge>}
+        title={t('seo')}
+        badge={<Badge variant="success">{t('new')}</Badge>}
       >
-        <SectionLabel>Defaults</SectionLabel>
+        <SectionLabel>{t('defaults')}</SectionLabel>
 
         <Field
           id="metaTitle"
-          label="Default Meta Title"
-          hint="Fallback for pages without an explicit title."
+          label={t('default-meta-title')}
+          hint={t('default-meta-title-hint')}
         >
           <Input
             id="metaTitle"
@@ -274,8 +276,8 @@ export const SettingsForm = ({
 
         <Field
           id="metaDescription"
-          label="Default Meta Description"
-          hint="Max 160 characters recommended."
+          label={t('default-meta-description')}
+          hint={t('default-meta-description-hint')}
         >
           <Textarea
             id="metaDescription"
@@ -290,51 +292,51 @@ export const SettingsForm = ({
           </div>
         </Field>
 
-        <Field id="defaultOgImage" label="Default OG Image">
+        <Field id="defaultOgImage" label={t('default-og-image')}>
           <Uploader
             icon={IconPhoto}
-            label="Open Graph Image"
-            hint="Recommended: 1200x630px, PNG or JPG"
+            label={t('open-graph-image')}
+            hint={t('og-image-hint')}
             value={settings.metaImage}
             onChange={(value) => updateSetting('metaImage', value)}
           />
         </Field>
 
-        <SectionLabel>Keywords</SectionLabel>
+        <SectionLabel>{t('keywords')}</SectionLabel>
 
         <Field
-          label="Meta Keywords"
-          hint="Injected into the meta keywords tag. Less critical for modern SEO but still used by some crawlers."
+          label={t('meta-keywords')}
+          hint={t('meta-keywords-hint')}
         >
           <MultipleSelector
             value={selectedKeywordOptions}
             options={selectedKeywordOptions}
-            placeholder="Select"
+            placeholder={t('select')}
             hidePlaceholderWhenSelected
-            emptyIndicator="Empty"
+            emptyIndicator={t('empty')}
             creatable
             inputProps={{ 'aria-label': 'Meta Keywords' }}
             onChange={handleKeywordChange}
           />
         </Field>
 
-        <SectionLabel>Robots & Indexing</SectionLabel>
+        <SectionLabel>{t('robots-indexing')}</SectionLabel>
 
         <Field
-          label="Search Engine Indexing"
-          hint="Sets the global robots meta tag. Individual pages can override this."
+          label={t('search-engine-indexing')}
+          hint={t('search-engine-indexing-hint')}
         >
           <div className="grid gap-2 md:grid-cols-2">
             <RobotsOption
               checked={settings.indexing === 'index'}
-              title="Index site"
-              description="Allow crawlers to index pages"
+              title={t('index-site')}
+              description={t('index-site-desc')}
               onClick={() => updateSetting('indexing', 'index')}
             />
             <RobotsOption
               checked={settings.indexing === 'noindex'}
-              title="No index"
-              description="Block all search engine crawling"
+              title={t('no-index')}
+              description={t('no-index-desc')}
               onClick={() => updateSetting('indexing', 'noindex')}
             />
           </div>
@@ -343,15 +345,15 @@ export const SettingsForm = ({
 
       <SettingsSection
         id="analytics"
-        title="Analytics"
-        badge={<Badge variant="success">New</Badge>}
+        title={t('analytics')}
+        badge={<Badge variant="success">{t('new')}</Badge>}
       >
-        <SectionLabel>Google Analytics</SectionLabel>
+        <SectionLabel>{t('google-analytics')}</SectionLabel>
 
         <Field
           id="gaTrackingId"
-          label="GA Tracking ID (gaTrackingId)"
-          hint="Supports both GA4 (G-XXXXXXX) and Universal Analytics (UA-XXXXX-X) formats."
+          label={t('ga-tracking-id')}
+          hint={t('ga-tracking-id-hint')}
         >
           <div className="relative">
             <IconChartBar className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -374,21 +376,21 @@ export const SettingsForm = ({
             </div>
             <div className="min-w-0">
               <div className="text-sm font-semibold text-success">
-                Google Analytics configured
+                {t('google-analytics-configured')}
               </div>
               <div className="truncate font-mono text-xs text-muted-foreground">
-                Tracking ID: {settings.gaTrackingId}
+                {t('tracking-id-value', { id: settings.gaTrackingId })}
               </div>
             </div>
           </div>
         ) : null}
 
-        <SectionLabel>Other Integrations</SectionLabel>
+        <SectionLabel>{t('other-integrations')}</SectionLabel>
 
         <Field
           id="googleTagManagerId"
-          label="Google Tag Manager ID"
-          hint="Optional. If set, GTM will be used instead of direct GA injection."
+          label={t('google-tag-manager-id')}
+          hint={t('google-tag-manager-id-hint')}
         >
           <Input
             id="googleTagManagerId"
@@ -403,8 +405,8 @@ export const SettingsForm = ({
 
         <Field
           id="customHeadScripts"
-          label="Custom Head Scripts"
-          hint="Injected into head on every page. Use with care."
+          label={t('custom-head-scripts')}
+          hint={t('custom-head-scripts-hint')}
         >
           <Textarea
             id="customHeadScripts"
@@ -421,11 +423,11 @@ export const SettingsForm = ({
         </Field>
       </SettingsSection>
 
-      <SettingsSection id="content" title="Content">
+      <SettingsSection id="content" title={t('content')}>
         <Field
           id="postUrlPrefix"
-          label="Post URL Path"
-          hint="Path before the post identifier. Examples: /blog/, /news/post/. Defaults to /posts/."
+          label={t('post-url-path')}
+          hint={t('post-url-path-hint')}
         >
           <Input
             id="postUrlPrefix"
@@ -440,15 +442,15 @@ export const SettingsForm = ({
 
         <Field
           id="postUrlField"
-          label="Post URL Field"
-          hint="Choose which post field the public website will use in post URLs."
+          label={t('post-url-field')}
+          hint={t('post-url-field-hint')}
         >
           <Select
             value={settings.postUrlField}
             onValueChange={(value) => updateSetting('postUrlField', value)}
           >
             <Select.Trigger id="postUrlField" className="bg-muted">
-              <Select.Value placeholder="Select post URL field" />
+              <Select.Value placeholder={t('select-post-url-field')} />
             </Select.Trigger>
             <Select.Content>
               {POST_URL_FIELD_OPTIONS.map((option) => (
@@ -460,13 +462,13 @@ export const SettingsForm = ({
           </Select>
           <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
             <IconLink className="size-4 shrink-0" />
-            <span className="min-w-0 truncate">Preview: {previewUrl}</span>
+            <span className="min-w-0 truncate">{t('preview-url', { url: previewUrl })}</span>
           </div>
         </Field>
       </SettingsSection>
 
-      <SettingsSection id="languages" title="Languages">
-        <Field label="Supported Languages">
+      <SettingsSection id="languages" title={t('languages')}>
+        <Field label={t('supported-languages')}>
           <MultipleSelector
             defaultOptions={LANGUAGES}
             onSearchSync={(term) =>
@@ -479,15 +481,15 @@ export const SettingsForm = ({
             triggerSearchOnFocus
             value={selectedLanguageOptions}
             onChange={handleLanguagesChange}
-            placeholder="Select languages"
+            placeholder={t('select-languages')}
             commandProps={{ shouldFilter: false }}
           />
         </Field>
 
         <Field
           id="defaultLanguage"
-          label="Default Language"
-          hint="Used when no locale is specified in the URL."
+          label={t('default-language')}
+          hint={t('default-language-hint')}
         >
           <Select
             value={settings.defaultLanguage}
@@ -495,7 +497,7 @@ export const SettingsForm = ({
             disabled={availableDefaultLanguages.length === 0}
           >
             <Select.Trigger id="defaultLanguage" className="bg-muted">
-              <Select.Value placeholder="Select default language" />
+              <Select.Value placeholder={t('select-default-language')} />
             </Select.Trigger>
             <Select.Content>
               {availableDefaultLanguages.map((language) => (
@@ -510,24 +512,24 @@ export const SettingsForm = ({
 
       <SettingsSection
         id="appearance"
-        title="Appearance"
-        badge={<Badge variant="secondary">Optional</Badge>}
+        title={t('appearance')}
+        badge={<Badge variant="secondary">{t('optional')}</Badge>}
       >
-        <Field label="Site Logo">
+        <Field label={t('site-logo')}>
           <Uploader
             icon={IconPhoto}
-            label="Logo Image"
-            hint="SVG or PNG, transparent background preferred"
+            label={t('logo-image')}
+            hint={t('logo-image-hint')}
             value={settings.siteLogo}
             onChange={(value) => updateSetting('siteLogo', value)}
           />
         </Field>
 
-        <Field label="Favicon">
+        <Field label={t('favicon')}>
           <Uploader
             icon={IconWorld}
-            label="Favicon"
-            hint=".ico or 32x32 PNG"
+            label={t('favicon')}
+            hint={t('favicon-hint')}
             value={settings.favicon}
             onChange={(value) => updateSetting('favicon', value)}
           />
@@ -536,24 +538,24 @@ export const SettingsForm = ({
 
       <SettingsSection
         id="access"
-        title="Access Control"
-        badge={<Badge variant="secondary">Team</Badge>}
+        title={t('access-control')}
+        badge={<Badge variant="secondary">{t('team')}</Badge>}
       >
         <Field
-          label="Who can manage this CMS"
-          hint="Owners always have full access. Choose whether everyone or only assigned team members can manage this CMS and its content."
+          label={t('who-can-manage-cms')}
+          hint={t('who-can-manage-cms-hint')}
         >
           <div className="grid gap-2 md:grid-cols-2">
             <RobotsOption
               checked={settings.accessPolicy === 'open'}
-              title="Open access"
-              description="Any team member with content access"
+              title={t('open-access')}
+              description={t('open-access-desc')}
               onClick={() => updateSetting('accessPolicy', 'open')}
             />
             <RobotsOption
               checked={settings.accessPolicy === 'assigned'}
-              title="Assigned members only"
-              description="Only assigned team members (and owners)"
+              title={t('assigned-members-only')}
+              description={t('assigned-members-only-desc')}
               onClick={() => updateSetting('accessPolicy', 'assigned')}
             />
           </div>
@@ -561,8 +563,8 @@ export const SettingsForm = ({
 
         {settings.accessPolicy === 'assigned' ? (
           <Field
-            label="Assigned Team Members"
-            hint="These team members get access to this CMS. Members who are not assigned will be blocked from opening or editing it."
+            label={t('assigned-team-members')}
+            hint={t('assigned-team-members-hint')}
           >
             <SelectMember
               mode="multiple"
@@ -573,7 +575,7 @@ export const SettingsForm = ({
                   Array.isArray(value) ? value : value ? [value] : [],
                 )
               }
-              placeholder="Select team members"
+              placeholder={t('select-team-members')}
             />
             <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
               {settings.assignedMemberIds.length ? (
@@ -589,8 +591,7 @@ export const SettingsForm = ({
                 <>
                   <IconLock className="size-4 shrink-0" />
                   <span>
-                    No members assigned — only owners will be able to access
-                    this CMS.
+                    {t('no-members-assigned-desc')}
                   </span>
                 </>
               )}
@@ -601,14 +602,13 @@ export const SettingsForm = ({
 
       <SettingsSection
         id="delete"
-        title="Delete CMS"
+        title={t('delete-cms')}
         className="border-destructive/40"
         contentClassName="space-y-0 p-0"
       >
         <div className="space-y-4 p-4">
           <p className="text-sm text-muted-foreground">
-            Permanently delete this CMS and its settings. This action cannot be
-            undone.
+            {t('delete-cms-desc')}
           </p>
           <div className="rounded-md border bg-muted/30 p-3">
             <div className="text-sm font-medium">{cmsName}</div>
@@ -617,7 +617,7 @@ export const SettingsForm = ({
                 cms?.publicUrl ||
                 settings.domain ||
                 settings.publicUrl ||
-                'No public URL set'}
+                t('no-public-url-set')}
             </div>
           </div>
         </div>
@@ -629,7 +629,7 @@ export const SettingsForm = ({
             onClick={() => handleDeleteDialogChange(true)}
           >
             <IconTrash className="size-4" />
-            Delete CMS
+            {t('delete-cms')}
           </Button>
         </div>
       </SettingsSection>
@@ -637,9 +637,9 @@ export const SettingsForm = ({
       <Dialog open={deleteDialogOpen} onOpenChange={handleDeleteDialogChange}>
         <Dialog.Content className="max-w-xl gap-0 overflow-hidden p-0">
           <Dialog.Header className="border-b p-6">
-            <Dialog.Title>Delete CMS</Dialog.Title>
+            <Dialog.Title>{t('delete-cms')}</Dialog.Title>
             <Dialog.Description>
-              This will permanently delete the CMS and related settings.
+              {t('delete-cms-dialog-desc')}
             </Dialog.Description>
           </Dialog.Header>
 
@@ -649,7 +649,7 @@ export const SettingsForm = ({
                 htmlFor={DELETE_NAME_CONFIRMATION_INPUT_ID}
                 className="block text-sm leading-5 text-muted-foreground"
               >
-                To confirm, type{' '}
+                {t('to-confirm-type')}{' '}
                 <span className="font-semibold text-foreground">
                   &quot;{cmsName}&quot;
                 </span>
@@ -669,7 +669,7 @@ export const SettingsForm = ({
                 htmlFor={DELETE_PHRASE_CONFIRMATION_INPUT_ID}
                 className="block text-sm leading-5 text-muted-foreground"
               >
-                To confirm, type{' '}
+                {t('to-confirm-type')}{' '}
                 <span className="font-semibold text-foreground">
                   &quot;{DELETE_CONFIRMATION_PHRASE}&quot;
                 </span>
@@ -687,7 +687,7 @@ export const SettingsForm = ({
           <div className="border-y border-destructive/20 p-4">
             <div className="flex items-center gap-3 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
               <IconAlertTriangle className="size-5 shrink-0" />
-              <span>Deleting {cmsName} cannot be undone.</span>
+              <span>{t('deleting-cms-cannot-be-undone', { name: cmsName })}</span>
             </div>
           </div>
 
@@ -698,7 +698,7 @@ export const SettingsForm = ({
               onClick={() => handleDeleteDialogChange(false)}
               disabled={isDeleting}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               type="button"
@@ -706,7 +706,7 @@ export const SettingsForm = ({
               disabled={!canDeleteCMS}
               onClick={handleDelete}
             >
-              {isDeleting ? 'Deleting...' : 'Delete CMS'}
+              {isDeleting ? t('deleting') : t('delete-cms')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

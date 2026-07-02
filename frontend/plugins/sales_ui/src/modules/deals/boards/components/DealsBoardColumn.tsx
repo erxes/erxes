@@ -9,10 +9,11 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import { DealsBoardColumnHeader } from './DealsBoardColumnHeader';
 import { DealsBoardColumnProps } from '@/deals/types/boards';
-import { EnumCursorDirection } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { EnumCursorDirection, isUndefinedOrNull } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
 import { useSearchParams } from 'react-router-dom';
+import { dealCountByBoardAtom } from '@/deals/states/dealsTotalCountState';
 
 export function DealsBoardColumn({
   column,
@@ -28,6 +29,7 @@ export function DealsBoardColumn({
   const [, setAllDealsMap] = useAllDealsMap();
   const [, setDealCountByColumn] = useDealCountByColumn();
   const [, setColumnLoading] = useColumnLoading();
+  const setDealCountByBoard = useSetAtom(dealCountByBoardAtom);
 
   const prevTriggerRef = useRef(fetchMoreTrigger);
   const prevDealsCountRef = useRef(0);
@@ -47,8 +49,14 @@ export function DealsBoardColumn({
       prevTriggerRef.current = 0;
       isFetchingRef.current = false;
       initialLoadRef.current = true;
+
+      setDealCountByBoard((prev) => {
+        const next = { ...prev };
+        delete next[column._id];
+        return next;
+      });
     }
-  }, [queryVariablesKey]);
+  }, [queryVariablesKey, column._id, setDealCountByBoard]);
 
   const { deals, totalCount, loading, pageInfo, handleFetchMore } = useDeals({
     variables: {
@@ -57,6 +65,28 @@ export function DealsBoardColumn({
       ...queryVariables,
     },
   });
+
+  useEffect(() => {
+    if (!loading) {
+      const finalCount = isUndefinedOrNull(totalCount)
+        ? deals?.length || 0
+        : totalCount;
+      setDealCountByBoard((prev) => ({
+        ...prev,
+        [column._id]: finalCount,
+      }));
+    }
+  }, [totalCount, loading, deals?.length, column._id, setDealCountByBoard]);
+
+  useEffect(() => {
+    return () => {
+      setDealCountByBoard((prev) => {
+        const next = { ...prev };
+        delete next[column._id];
+        return next;
+      });
+    };
+  }, [column._id, setDealCountByBoard]);
 
   useEffect(() => {
     setColumnLoading((prev) => ({ ...prev, [column._id]: loading }));

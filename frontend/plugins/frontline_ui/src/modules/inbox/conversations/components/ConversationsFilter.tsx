@@ -26,8 +26,10 @@ import {
 } from '@/integrations/components/IntegrationTypeFilter';
 import { useAtomValue } from 'jotai';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
+import { useTranslation } from 'react-i18next';
 
 export const FilterConversationsPopover = () => {
+  const { t } = useTranslation('frontline');
   const [queries, setQueries] = useMultiQueryState<{
     status: ConversationStatus;
     unassigned: boolean;
@@ -44,14 +46,14 @@ export const FilterConversationsPopover = () => {
         <Filter.View>
           <Command>
             <Filter.CommandInput
-              placeholder="Filter"
+              placeholder={t('filter')}
               variant="secondary"
               className="bg-background"
             />
             <Command.List className="max-h-none">
               <Filter.CommandItem onSelect={() => setQueries({ status: null })}>
                 <IconSquare />
-                Unresolved
+                {t('unresolved')}
                 {status === null && <IconCheck className="ml-auto" />}
               </Filter.CommandItem>
               <Filter.CommandItem
@@ -60,7 +62,7 @@ export const FilterConversationsPopover = () => {
                 }
               >
                 <IconCheckbox />
-                Resolved
+                {t('resolved')}
                 {status === ConversationStatus.CLOSED && (
                   <IconCheck className="ml-auto" />
                 )}
@@ -74,7 +76,7 @@ export const FilterConversationsPopover = () => {
                 }}
               >
                 <IconUserX />
-                Unassigned
+                {t('unassigned')}
                 {unassigned && <IconCheck className="ml-auto" />}
               </Filter.CommandItem>
               <Filter.CommandItem
@@ -85,7 +87,7 @@ export const FilterConversationsPopover = () => {
                 }}
               >
                 <IconUsersGroup />
-                Participated
+                {t('participated')}
                 {participated && <IconCheck className="ml-auto" />}
               </Filter.CommandItem>
               <Command.Separator className="my-1" />
@@ -97,7 +99,7 @@ export const FilterConversationsPopover = () => {
                 }
               >
                 <IconLoader />
-                Awaiting response
+                {t('awaiting-response')}
                 {awaitingResponse && <IconCheck className="ml-auto" />}
               </Filter.CommandItem>
               <SelectChannel.FilterItem />
@@ -105,7 +107,7 @@ export const FilterConversationsPopover = () => {
               <Command.Separator className="my-1" />
               <Filter.Item value="created">
                 <IconCalendarPlus />
-                Created At
+                {t('created-at')}
               </Filter.Item>
             </Command.List>
           </Command>
@@ -128,6 +130,7 @@ export const ConversationFilterBar = ({
 }: {
   children?: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const [status] = useQueryState<ConversationStatus>('status');
   const inboxLayout = useAtomValue(inboxLayoutState);
   const filterStates = useNonNullMultiQueryState<{
@@ -159,7 +162,7 @@ export const ConversationFilterBar = ({
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconCheckbox />
-            Resolved
+            {t('resolved')}
           </Filter.BarName>
         </Filter.BarItem>
       )}
@@ -171,21 +174,21 @@ export const ConversationFilterBar = ({
       <Filter.BarItem queryKey="unassigned">
         <Filter.BarName>
           <IconUserX />
-          Unassigned
+          {t('unassigned')}
         </Filter.BarName>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="awaitingResponse">
         <Filter.BarName>
           <IconLoader />
-          Awaiting response
+          {t('awaiting-response')}
         </Filter.BarName>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="participated">
         <Filter.BarName>
           <IconUsersGroup />
-          Participated
+          {t('participated')}
         </Filter.BarName>
       </Filter.BarItem>
       <SelectChannel.FilterBar iconOnly />

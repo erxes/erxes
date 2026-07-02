@@ -2,6 +2,7 @@ import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { RecordTable, Command, Combobox, Popover } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IOrder } from '@/pos/types/order';
 import { renderingOrderDetailAtom } from '@/pos/states/orderDetail';
 import { IconEdit } from '@tabler/icons-react';
@@ -11,6 +12,7 @@ export const OrdersMoreColumnCell = ({
 }: {
   cell: Cell<IOrder, unknown>;
 }) => {
+  const { t } = useTranslation('sales');
   const [searchParams, setSearchParams] = useSearchParams();
   const setRenderingOrderDetail = useSetAtom(renderingOrderDetailAtom);
   const { _id } = cell.row.original;
@@ -39,7 +41,7 @@ export const OrdersMoreColumnCell = ({
               onSelect={() => setOpen(_id)}
               disabled={!_id}
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
           </Command.List>
         </Command>

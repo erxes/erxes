@@ -6,6 +6,7 @@ import {
   PopoverScoped,
 } from 'erxes-ui';
 import { createContext, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ResponsesChartType, ResponsesChartTypeOption } from '../../types';
 import { RESPONSES_CHART_TYPE_OPTIONS } from '../../constants/modules';
 
@@ -75,6 +76,7 @@ export const SelectChartCommandItem = ({
 }: {
   option: ResponsesChartTypeOption;
 }) => {
+  const { t } = useTranslation('frontline');
   const { onValueChange, value } = useChartSelectContext();
   const Icon = option.IconComponent;
   return (
@@ -86,7 +88,7 @@ export const SelectChartCommandItem = ({
     >
       <div className="flex items-center gap-2">
         <Icon className="size-4" />
-        <span className="text-sm">{option.label}</span>
+        <span className="text-sm">{t(option.label)}</span>
       </div>
       <Combobox.Check checked={value === option.value} />
     </Command.Item>
@@ -125,6 +127,7 @@ const SelectChartRoot = ({
   onValueChange: (value: ResponsesChartType) => void;
   hideCircularCharts?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   return (
     <SelectChartProvider
@@ -135,7 +138,7 @@ const SelectChartRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Popover.Trigger className="bg-background rounded px-2 shadow-xs hover:bg-accent cursor-pointer transition-all duration-200 hover:text-primary/80 ease-in-out">
-          <SelectChartValue placeholder="Select chart" />
+          <SelectChartValue placeholder={t('select-chart')} />
         </Popover.Trigger>
         <Combobox.Content sideOffset={8} onClick={(e) => e.stopPropagation()}>
           <SelectChartContent />

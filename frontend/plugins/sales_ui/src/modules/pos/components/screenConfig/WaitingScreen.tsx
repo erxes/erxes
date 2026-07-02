@@ -1,17 +1,18 @@
 import { Control, Controller } from 'react-hook-form';
 import { Label, Switch, Select, Input } from 'erxes-ui';
 import type { ScreenConfigFormData } from './ScreenConfig';
+import { useTranslation } from 'react-i18next';
 
 interface WaitingScreenProps {
   control: Control<ScreenConfigFormData>;
 }
 
-const changeTypeOptions = [
-  { value: 'time', label: 'Time' },
-  { value: 'count', label: 'Count' },
-];
-
 export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
+  const { t } = useTranslation('sales');
+  const changeTypeOptions = [
+    { value: 'time', label: t('time') },
+    { value: 'count', label: t('count') },
+  ];
   return (
     <div className="space-y-4">
       <Controller
@@ -20,7 +21,7 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
         render={({ field }) => (
           <div className="flex gap-2 items-center">
             <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Label>WAITING SCREEN</Label>
+            <Label>{t('WAITING-SCREEN')}</Label>
           </div>
         )}
       />
@@ -36,7 +37,7 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                 control={control}
                 render={({ field }) => (
                   <div className="space-y-2">
-                    <Label>CHANGE TYPE</Label>
+                    <Label>{t('CHANGE-TYPE')}</Label>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
                         <Select.Value />
@@ -64,8 +65,8 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                       <div className="space-y-2">
                         <Label>
                           {typeField.value === 'time'
-                            ? 'CHANGE TIME (MIN)'
-                            : 'CHANGE COUNT'}
+                            ? t('CHANGE-TIME-MIN')
+                            : t('CHANGE-COUNT')}
                         </Label>
                         <Input
                           type="number"
@@ -73,8 +74,8 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                           value={field.value || ''}
                           placeholder={
                             typeField.value === 'time'
-                              ? 'Enter time in minutes'
-                              : 'Enter count'
+                              ? t('enter-time-in-minutes')
+                              : t('enter-count')
                           }
                         />
                       </div>
@@ -88,12 +89,12 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                 control={control}
                 render={({ field }) => (
                   <div className="space-y-2">
-                    <Label>CONTENT URL</Label>
+                    <Label>{t('CONTENT-URL')}</Label>
                     <Input
                       type="text"
                       {...field}
                       value={field.value || ''}
-                      placeholder="Enter content URL"
+                      placeholder={t('enter-content-url')}
                     />
                   </div>
                 )}

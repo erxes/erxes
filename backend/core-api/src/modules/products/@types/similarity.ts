@@ -23,6 +23,7 @@ export interface IProductSimilarityInfo {
 export interface IProductSimilarityRow {
   productId?: string;
   code: string;
+  name?: string;
   unitPrice?: number;
   isExcluded?: boolean;
   isDefault?: boolean;

@@ -2,6 +2,7 @@ import { SelectPos } from '@/pos/orders/components/selects/SelectPos';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui';
 import { Control, useForm, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
@@ -44,7 +45,7 @@ const PosOptionFormField = ({
           value={field.value as string | undefined}
           onChange={field.onChange}
           options={options}
-          placeholder={`Select ${label.toLowerCase()}`}
+          placeholder={label}
         />
         <Form.Message />
       </Form.Item>
@@ -56,17 +57,19 @@ const CustomerField = ({
   control,
   customerType,
   propertyType,
+  t,
 }: {
   control: Control<TPosOrderActionConfigForm>;
   customerType?: string;
   propertyType: string;
+  t: (key: string) => string;
 }) => (
   <Form.Field
     control={control}
     name="customerId"
     render={({ field }) => (
       <Form.Item>
-        <Form.Label>Customer</Form.Label>
+        <Form.Label>{t('customer')}</Form.Label>
         <PlaceholderInput
           propertyType={propertyType}
           value={field.value || ''}
@@ -95,6 +98,7 @@ export const CreatePosOrderActionConfigForm = ({
   currentAction,
   targetType,
 }: AutomationActionFormProps<TPosOrderActionConfigForm>) => {
+  const { t } = useTranslation('sales');
   const propertyType = targetType || POS_ORDER_PROPERTY_TYPE;
   const form = useForm<TPosOrderActionConfigForm>({
     resolver: zodResolver(posOrderActionConfigFormSchema),
@@ -129,14 +133,14 @@ export const CreatePosOrderActionConfigForm = ({
           name="posId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>POS</Form.Label>
+              <Form.Label>{t('pos')}</Form.Label>
               <SelectPos.FormItem
                 mode="single"
                 value={field.value || ''}
                 onValueChange={(value) =>
                   field.onChange(typeof value === 'string' ? value : '')
                 }
-                placeholder="Select POS"
+                placeholder={t('select-pos')}
               />
               <Form.Message />
             </Form.Item>
@@ -145,13 +149,13 @@ export const CreatePosOrderActionConfigForm = ({
         <PosOptionFormField
           control={control}
           name="status"
-          label="Status"
+          label={t('status')}
           options={POS_ORDER_STATUS_OPTIONS}
         />
         <PosOptionFormField
           control={control}
           name="type"
-          label="Order type"
+          label={t('order-type')}
           options={POS_ORDER_TYPE_OPTIONS}
         />
       </div>
@@ -160,13 +164,14 @@ export const CreatePosOrderActionConfigForm = ({
         <PosOptionFormField
           control={control}
           name="customerType"
-          label="Customer type"
+          label={t('customer-type')}
           options={POS_CUSTOMER_TYPE_OPTIONS}
         />
         <CustomerField
           control={control}
           customerType={customerType}
           propertyType={propertyType}
+          t={t}
         />
       </div>
 
@@ -175,7 +180,7 @@ export const CreatePosOrderActionConfigForm = ({
         name="productIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Products</Form.Label>
+            <Form.Label>{t('products')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}

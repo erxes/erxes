@@ -381,12 +381,105 @@ export function buildTicketMatch(filters: IReportFilters) {
     match.branchId = { $in: filters.branchIds };
   }
 
-  if (filters.propertyIds?.length) {
-    andConditions.push({
-      $or: filters.propertyIds.map((propertyId) => ({
-        [`propertiesData.${propertyId}`]: { $exists: true },
-      })),
-    });
+  for (const propertyFilter of filters.propertyValueFilters || []) {
+    if (!propertyFilter.propertyId) {
+      continue;
+    }
+
+    const propertyPath = `propertiesData.${propertyFilter.propertyId}`;
+    const values = propertyFilter.values || [];
+
+    if (!values.length) {
+      continue;
+    }
+
+    if (propertyFilter.type === 'date') {
+      const dateValues = values.filter((value) =>
+        /^\d{4}-\d{2}-\d{2}$/.test(value),
+      );
+
+      if (!dateValues.length) {
+        continue;
+      }
+
+      const dateStringExpression = {
+        $dateToString: {
+          date: {
+            $convert: {
+              input: `$${propertyPath}`,
+              to: 'date',
+              onError: null,
+              onNull: null,
+            },
+          },
+          format: '%Y-%m-%d',
+          timezone: process.env.TZ || 'Asia/Ulaanbaatar',
+        },
+      };
+
+      if (dateValues.length > 1) {
+        const [fromDateKey, toDateKey] = dateValues
+          .slice(0, 2)
+          .sort((a, b) => a.localeCompare(b));
+
+        andConditions.push({
+          $or: [
+            {
+              [propertyPath]: {
+                $gte: fromDateKey,
+                $lte: `${toDateKey}T23:59:59.999Z`,
+              },
+            },
+            {
+              $expr: {
+                $and: [
+                  { $gte: [dateStringExpression, fromDateKey] },
+                  { $lte: [dateStringExpression, toDateKey] },
+                ],
+              },
+            },
+          ],
+        });
+        continue;
+      }
+
+      const [year, month, day] = dateValues[0].split('-').map(Number);
+
+      if (!year || !month || !day) {
+        continue;
+      }
+
+      const dateKey = [
+        year.toString().padStart(4, '0'),
+        month.toString().padStart(2, '0'),
+        day.toString().padStart(2, '0'),
+      ].join('-');
+
+      andConditions.push({
+        $or: [
+          { [propertyPath]: { $regex: `^${dateKey}` } },
+          {
+            $expr: {
+              $eq: [dateStringExpression, dateKey],
+            },
+          },
+        ],
+      });
+      continue;
+    }
+
+    if (
+      propertyFilter.type === 'select' ||
+      propertyFilter.type === 'multiSelect' ||
+      propertyFilter.type === 'radio'
+    ) {
+      andConditions.push({ [propertyPath]: { $in: values } });
+      continue;
+    }
+
+    andConditions.push(
+      ...values.map((value) => ({ [propertyPath]: { $all: [value] } })),
+    );
   }
 
   if (filters.startDate) {

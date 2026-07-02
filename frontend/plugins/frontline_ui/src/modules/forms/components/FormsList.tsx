@@ -22,6 +22,7 @@ import {
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MembersInline, SelectTags } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useFormsList } from '../hooks/useFormsList';
 import { IForm } from '../types/formTypes';
 import { FormInstallScript } from './actions/install-form';
@@ -33,6 +34,7 @@ import { OpenLiveForm } from './actions/open-live-form';
 import { OpenSubmissionsAction } from './actions/open-submissions';
 
 export const FormsList = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string }>();
   const [{ searchValue, status, tagId }] = useMultiQueryState<{
     searchValue?: string;
@@ -57,8 +59,8 @@ export const FormsList = () => {
           <Empty.Media>
             <IconForms />
           </Empty.Media>
-          <Empty.Title>No forms found</Empty.Title>
-          <Empty.Description>Create a form to get started</Empty.Description>
+          <Empty.Title>{t('no-forms-found')}</Empty.Title>
+          <Empty.Description>{t('forms-empty-description')}</Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <FormsCreateButton />
@@ -106,6 +108,7 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
   const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
@@ -128,7 +131,7 @@ export const FormsMoreColumnCell = ({
             );
           }}
         >
-          <IconEdit /> Edit
+          <IconEdit /> {t('edit')}
         </DropdownMenu.Item>
         <OpenLiveForm formId={_id} channelId={channelId as string} />
         <OpenSubmissionsAction formId={_id} />
@@ -151,7 +154,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
-    header: () => <RecordTable.InlineHead label="Name" icon={IconLabel} />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -170,9 +177,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'status',
     id: 'status',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconToggleRight} />
-    ),
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -188,13 +197,19 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'channelId',
     id: 'channelId',
-    header: () => <RecordTable.InlineHead label="Channel" icon={IconCircles} />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />;
+    },
     cell: ({ cell }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
       return (
         <RecordTableInlineCell>
           <ChannelsInline
             channelIds={[cell.getValue() as string]}
-            placeholder="No channel"
+            placeholder={t('no-channel')}
           />
         </RecordTableInlineCell>
       );
@@ -203,7 +218,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'tagIds',
     id: 'tagIds',
-    header: () => <RecordTable.InlineHead label="Tags" icon={IconTag} />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('tags')} icon={IconTag} />;
+    },
     cell: ({ cell }) => {
       return (
         <SelectTags.InlineCell
@@ -219,7 +238,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdUserId',
     id: 'createdUserId',
-    header: () => <RecordTable.InlineHead label="Created By" icon={IconUser} />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -231,9 +254,11 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdDate',
     id: 'createdDate',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarEvent} />
-    ),
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarEvent} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

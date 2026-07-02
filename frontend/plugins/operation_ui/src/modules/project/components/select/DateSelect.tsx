@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProjectHotKeyScope } from '@/project/constants/ProjectHotKeyScope';
 import { format } from 'date-fns';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
@@ -76,12 +77,13 @@ const DateSelectValue = ({
   type?: 'start' | 'target';
   status?: number;
 }) => {
+  const { t } = useTranslation('operation');
   const { value } = useDateSelectContext();
 
   if (!value) {
     return (
       <span className="text-accent-foreground/80 capitalize">
-        {placeholder || 'Select date...'}
+        {placeholder || t('select-date')}
       </span>
     );
   }
@@ -101,6 +103,7 @@ const DateSelectFormItemValue = ({
   placeholder?: string;
   type?: 'start' | 'target';
 }) => {
+  const { t } = useTranslation('operation');
   const { value } = useDateSelectContext();
 
   if (!value) {
@@ -111,7 +114,7 @@ const DateSelectFormItemValue = ({
         ) : (
           <IconCalendarQuestion className="size-4" />
         )}
-        {placeholder || 'Select date'}
+        {placeholder || t('select-date-short')}
       </span>
     );
   }
@@ -139,10 +142,11 @@ const DateSelectContent = () => {
 };
 
 export const DateSelectFilterItem = () => {
+  const { t } = useTranslation('operation');
   return (
     <Filter.Item value="Date">
       <IconCalendarTime />
-      Date
+      {t('date-label')}
     </Filter.Item>
   );
 };
@@ -239,6 +243,7 @@ export const DateSelectInlineCell = ({
   type?: 'start' | 'target';
   status?: number;
 }) => {
+  const { t } = useTranslation('operation');
   const { updateProject } = useUpdateProject();
   const [open, setOpen] = useState(false);
 
@@ -272,7 +277,7 @@ export const DateSelectInlineCell = ({
       >
         <RecordTableInlineCell.Trigger>
           <DateSelectValue
-            placeholder="not specified"
+            placeholder={t('not-specified')}
             type={type}
             status={status}
           />

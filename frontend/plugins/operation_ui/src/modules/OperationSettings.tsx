@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconUserSquare } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -18,6 +19,7 @@ const TeamsSettings = lazy(() =>
 );
 
 const OperationSettings = () => {
+  const { t } = useTranslation('operation');
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -29,7 +31,7 @@ const OperationSettings = () => {
                 breadcrumbs={
                   <Button variant="ghost" className="font-semibold">
                     <IconUserSquare className="w-4 h-4 text-accent-foreground" />
-                    Team
+                    {t('team')}
                   </Button>
                 }
               />

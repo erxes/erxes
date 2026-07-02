@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Table, cn } from 'erxes-ui';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import type { AgentStat } from '../../types';
 import { fmtDur, fmtNum, fmtPct } from '../../utils';
 import { AgentAvatar } from './AgentAvatar';
@@ -12,6 +13,7 @@ interface AgentTableProps {
 
 /** Leaderboard table for agents with expandable drilldown rows. */
 export function AgentTable({ stats }: AgentTableProps) {
+  const { t } = useTranslation('frontline');
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const toggle = (agent: string) =>
@@ -20,7 +22,7 @@ export function AgentTable({ stats }: AgentTableProps) {
   if (!stats.length) {
     return (
       <div className="rounded-xl border-2 border-dashed p-10 text-center text-sm text-muted-foreground">
-        No agent data for the selected range
+        {t('no-agent-data')}
       </div>
     );
   }
@@ -37,9 +39,9 @@ export function AgentTable({ stats }: AgentTableProps) {
             <Table.Head className="font-semibold">Agent</Table.Head>
             <Table.Head className="font-semibold text-right">Total</Table.Head>
             <Table.Head className="font-semibold text-right">
-              Answered
+              {t('answered')}
             </Table.Head>
-            <Table.Head className="font-semibold text-right">Missed</Table.Head>
+            <Table.Head className="font-semibold text-right">{t('missed')}</Table.Head>
             <Table.Head className="font-semibold text-right">
               Ans. Rate
             </Table.Head>

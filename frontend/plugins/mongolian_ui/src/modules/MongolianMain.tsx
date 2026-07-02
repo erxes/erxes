@@ -7,7 +7,9 @@ import { CheckSyncedDealsPage } from '~/pages/CheckSyncedDealsPage';
 import { ByDatePage } from '~/pages/PutResponseByDatePage';
 import { DuplicatedPage } from '~/pages/PutResponseDuplicatedPage';
 import { PutResponseIndexPage } from '~/pages/PutResponsePage';
+import { PutResponseLayout } from '~/pages/PutResponseLayout';
 import { SyncErkhetHistoryPage } from '~/pages/SyncErkhetHistoryPage';
+import { SyncErkhetLayout } from '~/pages/SyncErkhetLayout';
 import { CustomersPage } from '~/pages/msdynamic/CustomersPage';
 import { InventoryProductsPage } from '~/pages/msdynamic/InventoryProductsPage';
 import { InventoryCategoryPage } from '~/pages/msdynamic/InventoryCategoryPage';
@@ -22,7 +24,7 @@ const MongolianMain = () => {
     <Suspense fallback={<div />}>
       <Routes>
         {/* PUT RESPONSE */}
-        <Route path="put-response">
+        <Route path="put-response" element={<PutResponseLayout />}>
           <Route index element={<Navigate to="put-response" replace />} />
           <Route path="put-response" element={<PutResponseIndexPage />} />
           <Route path="by-date" element={<ByDatePage />} />
@@ -30,7 +32,7 @@ const MongolianMain = () => {
         </Route>
 
         {/* ERKHET */}
-        <Route path="sync-erkhet">
+        <Route path="sync-erkhet" element={<SyncErkhetLayout />}>
           <Route index element={<Navigate to="history" replace />} />
           <Route path="history" element={<SyncErkhetHistoryPage />} />
           <Route path="deals" element={<CheckSyncedDealsPage />} />

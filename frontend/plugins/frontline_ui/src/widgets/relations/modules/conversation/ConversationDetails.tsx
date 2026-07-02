@@ -11,6 +11,7 @@ import {
   Tooltip,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CustomersInline, ICustomerInline } from 'ui-modules';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { useChannelInline } from '@/inbox/channel/hooks/useChannelInline';
@@ -27,6 +28,7 @@ export const ConversationRelationDetails = ({
 }: {
   conversationId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const [, setConversationId] = useQueryState<string>('relatedConversationId');
   const { conversationDetail } = useConversationDetail({
@@ -90,7 +92,7 @@ export const ConversationRelationDetails = ({
         </Sheet.Trigger>
         <Sheet.View>
           <Sheet.Header>
-            <Sheet.Title>Conversation Details</Sheet.Title>
+            <Sheet.Title>{t('conversation-details')}</Sheet.Title>
             <Sheet.Close />
           </Sheet.Header>
           <Sheet.Content>
@@ -107,6 +109,7 @@ export const ConversationRelationDetails = ({
 };
 
 export const ConversationItemContent = () => {
+  const { t } = useTranslation('frontline');
   const { content } = useConversationContext();
   if (!content) return null;
 
@@ -115,7 +118,7 @@ export const ConversationItemContent = () => {
 
     return (
       <div className="font-medium">
-        {callDirection === 'INCOMING' ? 'Incoming Call' : 'Outgoing Call'}
+        {callDirection === 'INCOMING' ? t('incoming-call') : t('outgoing-call')}
       </div>
     );
   }

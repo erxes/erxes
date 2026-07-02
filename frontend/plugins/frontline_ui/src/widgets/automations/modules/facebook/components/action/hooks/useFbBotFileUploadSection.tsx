@@ -1,6 +1,7 @@
 import { REACT_APP_API_URL, useToast, useUpload } from 'erxes-ui';
 import { readImage } from 'erxes-ui/utils/core';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   IconPhotoScan,
   IconVideo,
@@ -48,6 +49,7 @@ export const useFbBotFileUploadSection = ({
   limit: number;
   onUpload?: (fileUrl: string | null) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(
     resolveUploadedFileUrl(url),
@@ -89,7 +91,7 @@ export const useFbBotFileUploadSection = ({
 
     navigator.clipboard.writeText(uploadedFileUrl);
     toast({
-      title: 'URL copied to clipboard',
+      title: t('url-copied-to-clipboard'),
       variant: 'default',
     });
   }, [uploadedFileUrl, toast]);
@@ -102,8 +104,8 @@ export const useFbBotFileUploadSection = ({
 
       if (file.size > sizeLimit) {
         toast({
-          title: 'File size exceeds limit',
-          description: `File size must be less than ${limit}MB`,
+          title: t('file-size-exceeds-limit'),
+          description: t('file-size-must-be-less-than', { limit }),
           variant: 'destructive',
         });
         return;
@@ -125,7 +127,7 @@ export const useFbBotFileUploadSection = ({
           onUpload?.(encodeURIComponent(response));
 
           toast({
-            title: 'File uploaded successfully',
+            title: t('file-upload-complete'),
             variant: 'default',
           });
         },

@@ -11,10 +11,12 @@ import {
 } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
 import { useSavePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useSavePosInEbarimtConfig';
 import { PosInEBarimtConfigFormFields } from './PosInEBarimtConfigFormFields';
+import { useTranslation } from 'react-i18next';
 
 const FORM_ID = 'edit-pos-in-ebarimt-form';
 
 export const EditPosInEBarimtConfig = () => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useQueryState<string>('pos_in_ebarimt_id');
   const [detail, setDetail] = useAtom(posInEbarimtDetailAtom);
   const { savePosInEbarimtConfig } = useSavePosInEbarimtConfig();
@@ -95,8 +97,8 @@ export const EditPosInEBarimtConfig = () => {
       reset();
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to save configuration',
+        title: t('error'),
+        description: t('failed-to-save-config'),
         variant: 'destructive',
       });
     }
@@ -129,7 +131,7 @@ export const EditPosInEBarimtConfig = () => {
     <Sheet open={open !== null} onOpenChange={handleClose}>
       <Sheet.View side="right" className="bg-background sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>Edit Pos In Ebarimt Config</Sheet.Title>
+          <Sheet.Title>{t('edit-pos-in-ebarimt-config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <div className="flex-1 overflow-y-auto px-5 py-4">
@@ -145,11 +147,11 @@ export const EditPosInEBarimtConfig = () => {
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              {t('cancel')}
             </Button>
           </Sheet.Close>
           <Button type="submit" form={FORM_ID} size="lg">
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

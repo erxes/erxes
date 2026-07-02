@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCalendar, IconBuilding, IconHash } from '@tabler/icons-react';
 import {
   Combobox,
@@ -19,6 +20,7 @@ import { SelectStage } from './selects/SelectStage';
 import { SelectDateType } from './selects/SelectDateType';
 import { useState } from 'react';
 export const CheckSyncedDealsFilterPopover = () => {
+  const { t } = useTranslation('mongolian');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
   const [user, setUser] = useQueryState<string>('user');
@@ -57,7 +59,7 @@ export const CheckSyncedDealsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -65,27 +67,27 @@ export const CheckSyncedDealsFilterPopover = () => {
                 <SelectSalesBoard.FilterItem />
                 <SelectPipeline.FilterItem />
                 <SelectStage.FilterItem />
-                <SelectMember.FilterItem value="user" label="Assigned To" />
+                <SelectMember.FilterItem value="user" label={t('assigned-to')} />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dealSearch" inDialog>
                   <IconBuilding />
-                  Deal Search
+                  {t('deal-search')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Close date range
+                  {t('close-date-range')}
                 </Filter.Item>
                 <Filter.Item value="createdDateRange">
                   <IconCalendar />
-                  Created date range
+                  {t('created-date-range')}
                 </Filter.Item>
                 <Filter.Item value="stageChangedDateRange">
                   <IconCalendar />
-                  Stage changed date range
+                  {t('stage-changed-date-range')}
                 </Filter.Item>
                 <SelectDateType.FilterItem />
               </Command.List>
@@ -140,6 +142,7 @@ export const CheckSyncedDealsFilterPopover = () => {
 };
 
 export const CheckSyncedDealsFilter = () => {
+  const { t } = useTranslation('mongolian');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [number] = useFilterQueryState<string>('number');
   const [dealSearch] = useFilterQueryState<string>('dealSearch');
@@ -155,7 +158,7 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dealSearch">
           <Filter.BarName>
             <IconBuilding />
-            Deal search
+            {t('deal-search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="dealSearch" inDialog>
             {dealSearch}
@@ -164,7 +167,7 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -173,21 +176,21 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            Close date range
+            {t('close-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconCalendar />
-            Created date range
+            {t('created-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="stageChangedDateRange">
           <Filter.BarName>
             <IconCalendar />
-            Stage changed date range
+            {t('stage-changed-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="stageChangedDateRange" />
         </Filter.BarItem>
@@ -196,7 +199,7 @@ export const CheckSyncedDealsFilter = () => {
         <SelectPipeline.FilterBar boardId={boardId || undefined} />
         <SelectStage.FilterBar pipelineId={pipelineId || undefined} />
         <Filter.BarItem queryKey="user">
-          <Filter.BarName>Assigned To</Filter.BarName>
+          <Filter.BarName>{t('assigned-to')}</Filter.BarName>
           <SelectMember.Provider
             mode="single"
             value={user || ''}

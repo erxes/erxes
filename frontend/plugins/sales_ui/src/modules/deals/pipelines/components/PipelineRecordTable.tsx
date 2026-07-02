@@ -36,6 +36,7 @@ import { IPipeline } from '@/deals/types/pipelines';
 import { PipelineCommandBar } from './PipelineCommandBar';
 import React from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const PipelineMoreColumnCell = ({
   cell,
@@ -52,12 +53,12 @@ export const PipelineMoreColumnCell = ({
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
-
   const { _id, status } = cell.row.original;
+  const { t } = useTranslation('sales');
 
   const onRemove = () => {
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t('confirm-remove-selected'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -74,8 +75,7 @@ export const PipelineMoreColumnCell = ({
 
   const onDuplicate = () => {
     confirm({
-      message:
-        'This will duplicate the current pipeline. Are you absolutely sure?',
+      message: t('duplicate-pipeline-confirm'),
     }).then(async () => {
       try {
         copyPipeline({
@@ -91,8 +91,7 @@ export const PipelineMoreColumnCell = ({
 
   const onArchive = () => {
     confirm({
-      message: `This will ${status === 'active' ? 'archive' : 'unarchive'
-        } the current pipeline. Are you absolutely sure?`,
+      message: status === 'active' ? t('archive-pipeline-confirm') : t('unarchive-pipeline-confirm'),
     }).then(async () => {
       try {
         archivePipeline({
@@ -119,19 +118,19 @@ export const PipelineMoreColumnCell = ({
               value="edit"
               onSelect={() => setOpen({ pipelineId: _id, tab: null })}
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="duplicate" onSelect={onDuplicate}>
-              <IconCopy /> Duplicate
+              <IconCopy /> {t('duplicate')}
             </Command.Item>
             <Command.Item value="archive" onSelect={onArchive}>
               {status === 'active' ? (
                 <>
-                  <IconArchive /> Archive
+                  <IconArchive /> {t('archive')}
                 </>
               ) : (
                 <>
-                  <IconArrowBack /> Unarchive
+                  <IconArrowBack /> {t('unarchive')}
                 </>
               )}
             </Command.Item>
@@ -141,21 +140,21 @@ export const PipelineMoreColumnCell = ({
                 setOpen({ pipelineId: _id, tab: 'productConfig' });
               }}
             >
-              <IconSettings /> Product config
+              <IconSettings /> {t('product-config')}
             </Command.Item>
             <Command.Item
               onSelect={() => {
                 navigate(`/sales/deals?boardId=${activeBoardId}&pipelineId=${_id}`)
               }}
             >
-              <IconSandbox /> Go To Pipeline
+              <IconSandbox /> {t('go-to-pipeline')}
             </Command.Item>
             <Command.Item
               disabled={removeLoading}
               value="remove"
               onSelect={onRemove}
             >
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -177,7 +176,7 @@ export const pipelinesColumns: ColumnDef<
     },
     {
       id: 'name',
-      header: 'Name',
+      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('name'); },
       accessorKey: 'name',
       cell: ({ cell }) => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -187,6 +186,7 @@ export const pipelinesColumns: ColumnDef<
         const [open, setOpen] = React.useState<boolean>(false);
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const [_name, setName] = React.useState<string>(name);
+
 
         const onSave = () => {
           if (name !== _name) {
@@ -233,7 +233,7 @@ export const pipelinesColumns: ColumnDef<
       size: 300,
     },
     {
-      header: 'Status',
+      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('status'); },
       accessorKey: 'status',
       cell: ({ cell }) => {
         const status = cell.getValue() as string;
@@ -255,9 +255,7 @@ export const pipelinesColumns: ColumnDef<
     {
       id: 'createdAt',
       accessorKey: 'createdAt',
-      header: () => (
-        <RecordTable.InlineHead icon={IconCalendarTime} label="Created At" />
-      ),
+      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />; },
       cell: ({ cell }) => {
         return (
           <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -271,7 +269,7 @@ export const pipelinesColumns: ColumnDef<
     {
       id: 'createdBy',
       accessorKey: 'createdUser.details.fullName',
-      header: () => <RecordTable.InlineHead icon={IconUser} label="Created by" />,
+      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />; },
       cell: ({ cell }) => {
         return (
           <RecordTableInlineCell>
@@ -283,6 +281,7 @@ export const pipelinesColumns: ColumnDef<
   ];
 
 const PipelineRecordTable = () => {
+  const { t } = useTranslation('sales');
   const [queries] = useMultiQueryState<{
     contentType: string;
     searchValue: string;
@@ -302,7 +301,7 @@ const PipelineRecordTable = () => {
 
   return (
     <>
-      <PageSubHeader>Pipelines ({totalCount})</PageSubHeader>
+      <PageSubHeader>{t('pipelines-with-count', { count: totalCount })}</PageSubHeader>
       <RecordTable.Provider
         columns={pipelinesColumns}
         data={pipelines || []}

@@ -3,6 +3,7 @@ import { useCallFilters } from '../../hooks/useCallFilters';
 import { QueueCard } from './QueueCard';
 import { SectionCard } from '../SectionCard';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { SelectOption } from '../../types';
 
 interface QueuesSectionProps {
@@ -11,6 +12,7 @@ interface QueuesSectionProps {
 
 /** Queues tab: grid of QueueCards for all queue stats. */
 export function QueuesSection({ queueOptions }: QueuesSectionProps) {
+  const { t } = useTranslation('frontline');
   const { queueStats, loading } = useDashboard();
   const { queueId } = useCallFilters();
 
@@ -35,15 +37,15 @@ export function QueuesSection({ queueOptions }: QueuesSectionProps) {
   if (!queueStats.length) {
     return (
       <div className="rounded-xl border-2 border-dashed p-10 text-center text-sm text-muted-foreground">
-        No queue data for the selected range
+        {t('no-queue-data')}
       </div>
     );
   }
 
   return (
     <SectionCard
-      title="Queue Snapshot"
-      description="Per-queue answer rate, wait and talk times"
+      title={t('queue-snapshot')}
+      description={t('per-queue-answer-rate')}
       accentClass="bg-[var(--chart-1)]"
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

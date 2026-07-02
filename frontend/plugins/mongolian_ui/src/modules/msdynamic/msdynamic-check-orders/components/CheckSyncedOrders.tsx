@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { RecordTable, useToast } from 'erxes-ui';
 import { IconInbox } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { getCheckSyncedOrdersColumns } from './CheckSyncedOrdersColumns';
 import {
   ISyncedOrderInfo,
@@ -20,17 +21,21 @@ type TSendMsdOrdersResponse = {
 };
 
 /** Empty ued synced order list deer message gargana. */
-const CheckSyncedOrdersEmptyState = () => (
-  <div className="flex h-full min-h-[400px] w-full items-center justify-center px-8 text-center">
-    <div>
-      <IconInbox size={64} className="mx-auto mb-4 text-muted-foreground" />
-      <h3 className="mb-2 text-xl font-semibold">No order yet</h3>
+const CheckSyncedOrdersEmptyState = () => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <div className="flex h-full min-h-[400px] w-full items-center justify-center px-8 text-center">
+      <div>
+        <IconInbox size={64} className="mx-auto mb-4 text-muted-foreground" />
+        <h3 className="mb-2 text-xl font-semibold">{t('no-order-yet')}</h3>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /** Msdynamic synced order check table haruulna. */
 const CheckSyncedOrders = () => {
+  const { t } = useTranslation('mongolian');
   const { loading, orders, handleFetchMore, pageInfo } =
     useMSDynamicCheckOrder();
   const { toast } = useToast();
@@ -78,14 +83,14 @@ const CheckSyncedOrders = () => {
         return { ...remainingInfos, ...syncedInfos };
       });
       toast({
-        title: 'Orders checked successfully',
+        title: t('orders-checked-successfully'),
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: 'Failed to check orders',
+        title: t('failed-to-check-orders'),
         description:
-          error instanceof Error ? error.message : 'Please try again later',
+          error instanceof Error ? error.message : t('please-try-again-later'),
         variant: 'destructive',
       });
     }
@@ -115,14 +120,14 @@ const CheckSyncedOrders = () => {
           },
         }));
         toast({
-          title: 'Order resent successfully',
+          title: t('order-resent-successfully'),
           variant: 'success',
         });
       } catch (error) {
         toast({
-          title: 'Failed to resend order',
+          title: t('failed-to-resend-order'),
           description:
-            error instanceof Error ? error.message : 'Please try again later',
+            error instanceof Error ? error.message : t('please-try-again-later'),
           variant: 'destructive',
         });
       }
@@ -131,8 +136,9 @@ const CheckSyncedOrders = () => {
     return getCheckSyncedOrdersColumns({
       syncedOrderInfos,
       onResend: resend,
+      t,
     });
-  }, [syncedOrderInfos, toSendMsdOrdersMutation, toast]);
+  }, [syncedOrderInfos, toSendMsdOrdersMutation, toast, t]);
 
   return (
     <RecordTable.Provider

@@ -2,7 +2,37 @@ import { ITopic } from '@/knowledgebase/@types/topic';
 import { IArticleCreate } from '@/knowledgebase/db/models/Article';
 import { ICategoryCreate } from '@/knowledgebase/db/models/Category';
 import { IContext } from '~/connectionResolvers';
-import { markResolvers } from 'erxes-api-shared/utils';
+import {
+  enqueueAiKnowledgeSourceRefreshJob,
+  markResolvers,
+} from 'erxes-api-shared/utils';
+import { FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY } from '@/knowledgebase/meta/automations';
+
+const refreshKnowledgeArticle = async ({
+  subdomain,
+  articleId,
+}: {
+  subdomain: string;
+  articleId: string;
+}) => {
+  try {
+    await enqueueAiKnowledgeSourceRefreshJob({
+      subdomain,
+      source: {
+        pluginName: 'frontline',
+        moduleName: 'knowledgebase',
+        key: FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY,
+        sourceId: articleId,
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error(
+      `Failed to queue knowledge base article refresh for ${articleId}:`,
+      error,
+    );
+  }
+};
 
 export const knowledgeBaseMutations = {
   async knowledgeBaseTopicsAdd(
@@ -93,6 +123,11 @@ export const knowledgeBaseMutations = {
 
     const kbArticle = await models.Article.createDoc(doc, user._id);
 
+    await refreshKnowledgeArticle({
+      subdomain,
+      articleId: kbArticle._id,
+    });
+
     return kbArticle;
   },
 
@@ -117,6 +152,8 @@ export const knowledgeBaseMutations = {
 
     const updated = await models.Article.updateDoc(_id, doc, user._id);
 
+    await refreshKnowledgeArticle({ subdomain, articleId: _id });
+
     return updated;
   },
 
@@ -126,6 +163,8 @@ export const knowledgeBaseMutations = {
     { user, models, subdomain }: IContext,
   ) {
     const removed = await models.Article.removeDoc(_id);
+
+    await refreshKnowledgeArticle({ subdomain, articleId: _id });
 
     return removed;
   },

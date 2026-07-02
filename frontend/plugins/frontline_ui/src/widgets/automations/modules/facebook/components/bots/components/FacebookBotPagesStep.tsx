@@ -4,6 +4,7 @@ import { selectedFacebookPageAtom } from '@/integrations/facebook/states/faceboo
 import { cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type FacebookPageOption = {
   id: string;
@@ -20,6 +21,7 @@ const getBotPageIds = (bots: { pageId?: string | null }[]) =>
   );
 
 export const FacebookBotPagesStep = () => {
+  const { t } = useTranslation('frontline');
   const [selectedPage, setSelectedPage] = useAtom(selectedFacebookPageAtom);
 
   const { facebookGetPages, loading } = useFacebookPages();
@@ -47,12 +49,12 @@ export const FacebookBotPagesStep = () => {
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
-            <Input placeholder="Search for a page" />
+            <Input placeholder={t('search-for-a-page')} />
           </Command.Primitive.Input>
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {facebookGetPages.length} pages found
+            {t('pages-found', { count: facebookGetPages.length })}
           </div>
         </div>
         <RadioGroup

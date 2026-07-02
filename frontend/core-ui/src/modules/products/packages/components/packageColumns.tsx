@@ -10,6 +10,8 @@ import {
 } from 'erxes-ui';
 import { TagsSelect } from 'ui-modules';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import { IPackage, PACKAGE_STATUSES } from '../types/Package';
 import { useChangePackageStatus, useEditPackage } from '../hooks/usePackageMutations';
 
@@ -25,6 +27,7 @@ const statusVariant = (status?: string) => {
 };
 
 const StatusCell = ({ pkg }: { pkg: IPackage }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const [open, setOpen] = useState(false);
   const { changeStatus, loading } = useChangePackageStatus();
   const current = pkg.status || 'draft';
@@ -35,11 +38,11 @@ const StatusCell = ({ pkg }: { pkg: IPackage }) => {
 
     try {
       await changeStatus({ variables: { _id: pkg._id, status: next } });
-      toast({ variant: 'success', title: 'Status updated' });
+      toast({ variant: 'success', title: t('status-updated', 'Status updated') });
     } catch (e: any) {
       toast({
         variant: 'destructive',
-        title: 'Failed to update status',
+        title: t('status-update-failed', 'Failed to update status'),
         description: e?.message,
       });
     }
@@ -66,6 +69,7 @@ const StatusCell = ({ pkg }: { pkg: IPackage }) => {
 };
 
 const TagsCell = ({ pkg }: { pkg: IPackage }) => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const { editPackage } = useEditPackage(pkg._id);
 
   return (
@@ -82,7 +86,7 @@ const TagsCell = ({ pkg }: { pkg: IPackage }) => {
           onError: (e) => {
             toast({
               variant: 'destructive',
-              title: 'Failed to update tags',
+              title: t('tags-update-failed', 'Failed to update tags'),
               description: e.message,
             });
           },
@@ -105,12 +109,14 @@ const formatDate = (value?: string) => {
   return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 };
 
-export const packageColumns: ColumnDef<IPackage>[] = [
+export const createPackageColumns = (
+  t: TFunction,
+): ColumnDef<IPackage>[] => [
   RecordTable.checkboxColumn as ColumnDef<IPackage>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ row }) => {
       const [, setActivePackageId] = useQueryState<string>('activePackageId');
       return (
@@ -123,7 +129,7 @@ export const packageColumns: ColumnDef<IPackage>[] = [
               setActivePackageId(row.original._id);
             }}
           >
-            {row.original.name || 'Unnamed'}
+            {row.original.name || t('unnamed', 'Unnamed')}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -131,7 +137,7 @@ export const packageColumns: ColumnDef<IPackage>[] = [
   },
   {
     id: 'productCount',
-    header: () => <RecordTable.InlineHead label="Products" />,
+    header: () => <RecordTable.InlineHead label={t('products', 'Products')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-sm">
         {row.original.products?.length ?? 0}
@@ -141,7 +147,7 @@ export const packageColumns: ColumnDef<IPackage>[] = [
   {
     id: 'price',
     accessorKey: 'price',
-    header: () => <RecordTable.InlineHead label="Price" />,
+    header: () => <RecordTable.InlineHead label={t('price', 'Price')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-sm">
         {formatPrice(cell.getValue() as number | undefined)}
@@ -151,7 +157,7 @@ export const packageColumns: ColumnDef<IPackage>[] = [
   {
     id: 'totalPrice',
     accessorKey: 'totalPrice',
-    header: () => <RecordTable.InlineHead label="Total Price" />,
+    header: () => <RecordTable.InlineHead label={t('total-price', 'Total Price')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-sm">
         {formatPrice(cell.getValue() as number | undefined)}
@@ -160,21 +166,21 @@ export const packageColumns: ColumnDef<IPackage>[] = [
   },
   {
     id: 'tags',
-    header: () => <RecordTable.InlineHead label="Tags" />,
+    header: () => <RecordTable.InlineHead label={t('tags', 'Tags')} />,
     size: 240,
     cell: ({ row }) => <TagsCell pkg={row.original} />,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label={t('status', 'Status')} />,
     size: 120,
     cell: ({ row }) => <StatusCell pkg={row.original} />,
   },
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label="Created" />,
+    header: () => <RecordTable.InlineHead label={t('created', 'Created')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-sm">
         {formatDate(cell.getValue() as string | undefined)}

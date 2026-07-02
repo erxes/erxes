@@ -5,6 +5,7 @@ import {
   IconTable,
 } from '@tabler/icons-react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { ticketViewAtom } from '@/ticket/states/ticketViewState';
 import { lazy, Suspense, useState } from 'react';
 import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
@@ -22,6 +23,7 @@ const TicketsBoard = lazy(() =>
 );
 
 export const TicketsViewControl = () => {
+  const { t } = useTranslation('frontline');
   const [view, setView] = useAtom(ticketViewAtom);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,7 +32,7 @@ export const TicketsViewControl = () => {
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconAdjustmentsHorizontal />
-          View
+          {t('view')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -51,7 +53,7 @@ export const TicketsViewControl = () => {
               className="h-11 flex-col gap-0"
             >
               <IconTable className="!size-5" />
-              <span className="text-xs font-normal">List</span>
+              <span className="text-xs font-normal">{t('list')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="grid" asChild>
@@ -61,7 +63,7 @@ export const TicketsViewControl = () => {
               className="h-11 flex-col gap-0"
             >
               <IconLayoutKanban className="!size-5" />
-              <span className="text-xs font-normal">Board</span>
+              <span className="text-xs font-normal">{t('board')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

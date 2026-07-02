@@ -1,7 +1,9 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCheckCategory } from '../hooks/useCheckCategory';
 
 const CheckButton = () => {
+  const { t } = useTranslation('mongolian');
   const { checkCategory, loading } = useCheckCategory();
 
   const handleCheck = async () => {
@@ -10,7 +12,7 @@ const CheckButton = () => {
 
   return (
     <Button onClick={handleCheck} disabled={loading}>
-      {loading ? 'Checking...' : 'Check'}
+      {loading ? t('checking') : t('check')}
     </Button>
   );
 };

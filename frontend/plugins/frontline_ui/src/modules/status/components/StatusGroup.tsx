@@ -47,6 +47,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 const StatusSkeleton = () => {
@@ -145,6 +146,7 @@ const StatusOptionMenu = ({
   statusId: string;
   statusType: number;
 }) => {
+  const { t } = useTranslation('frontline');
   const setEditingStatus = useSetAtom(editingStatusState);
   const { toast } = useToast();
   const { deleteStatus } = useDeleteTicketStatus(statusType);
@@ -154,12 +156,12 @@ const StatusOptionMenu = ({
       variables: { id: statusId },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success'),
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -187,7 +189,7 @@ const StatusOptionMenu = ({
           }}
         >
           <IconEdit />
-          Edit
+          {t('edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -195,7 +197,7 @@ const StatusOptionMenu = ({
           onClick={handleDeleteStatus}
         >
           <IconTrash />
-          Delete
+          {t('delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -209,6 +211,7 @@ export const StatusForm = ({
   statusType: number;
   editingStatus?: ITicketStatus;
 }) => {
+  const { t } = useTranslation('frontline');
   const { addStatus } = useAddTicketStatus();
   const { toast } = useToast();
   const { updateStatus } = useUpdateTicketStatus();
@@ -254,7 +257,7 @@ export const StatusForm = ({
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -281,7 +284,7 @@ export const StatusForm = ({
         <form
           onSubmit={form.handleSubmit(onSubmit, (errors) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: Object.entries(errors)[0][1].message,
               variant: 'destructive',
             });
@@ -332,7 +335,7 @@ export const StatusForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Control>
-                      <Input placeholder="Name" {...field} className="w-full" />
+                      <Input placeholder={t('name')} {...field} className="w-full" />
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -344,7 +347,7 @@ export const StatusForm = ({
                   <Form.Item className="w-full">
                     <Form.Control>
                       <Input
-                        placeholder="Description"
+                        placeholder={t('description')}
                         {...field}
                         className="w-full"
                       />
@@ -354,9 +357,9 @@ export const StatusForm = ({
               />
             </span>
             <Button variant="ghost" onClick={handleCancel}>
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button type="submit">{isEditing ? 'Update' : 'Save'}</Button>
+            <Button type="submit">{isEditing ? t('update') : t('save')}</Button>
           </span>
         </form>
       </Form>
@@ -365,6 +368,7 @@ export const StatusForm = ({
 };
 
 export const StatusGroup = ({ statusType }: { statusType: number }) => {
+  const { t } = useTranslation('frontline');
   const { statuses = [], loading } = useGetTicketStatus({
     variables: { type: statusType },
   });
@@ -406,7 +410,7 @@ export const StatusGroup = ({ statusType }: { statusType: number }) => {
           onError: (error) => {
             _setStatuses(previousOrder);
             toast({
-              title: 'Error',
+              title: t('error'),
               description: error.message,
               variant: 'destructive',
             });

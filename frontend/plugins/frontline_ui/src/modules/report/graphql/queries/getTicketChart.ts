@@ -59,6 +59,12 @@ export const GET_TICKET_LIST = gql`
         _id
         name
         statusId
+        status {
+          _id
+          name
+          color
+          type
+        }
         state
         priority
         assigneeId

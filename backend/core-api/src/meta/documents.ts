@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { replaceContent } from '~/modules/documents/utils';
 import { fieldsCombinedByContentType } from '~/modules/forms/utils';
+import { buildProductReplacer } from '~/modules/products/meta/document/productReplacer';
 
 export const documents = {
   types: [
@@ -112,6 +113,25 @@ export const documents = {
     const replacedContents: any[] = [];
 
     for (const document of documents) {
+      if (moduleName === 'product') {
+        const { replacement, transform } = await buildProductReplacer({
+          models,
+          subdomain,
+          product: document,
+          config: config || {},
+        });
+
+        const replacedContent = await replaceContent({
+          replacer: document,
+          content,
+          replacement,
+          transform,
+        });
+
+        replacedContents.push(replacedContent);
+        continue;
+      }
+
       const replacedContent = await replaceContent({
         replacer: document,
         content,

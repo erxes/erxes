@@ -1,4 +1,5 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import type { FieldArrayWithId } from 'react-hook-form';
 import {
@@ -26,6 +27,7 @@ export const SyncList: React.FC<SyncListProps> = ({
   editingConfig,
   onEditComplete,
 }) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -39,7 +41,7 @@ export const SyncList: React.FC<SyncListProps> = ({
 
       {fields.length === 0 ? (
         <div className="py-8 text-center text-muted-foreground">
-          No configurations yet. Click "Add Config" to add one.
+          {t('no-configs-yet')}
         </div>
       ) : (
         <div className="space-y-2">
@@ -50,7 +52,7 @@ export const SyncList: React.FC<SyncListProps> = ({
             >
               <div>
                 <div className="font-medium">
-                  {(field as unknown as CardConfig).title || 'Untitled'}
+                  {(field as unknown as CardConfig).title || t('untitled')}
                 </div>
               </div>
               <div className="flex gap-2">

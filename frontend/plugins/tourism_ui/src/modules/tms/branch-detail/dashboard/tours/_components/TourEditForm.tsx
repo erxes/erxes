@@ -3,6 +3,7 @@ import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { TourSideTab, TourOrdersSidePanel } from './TourOrdersSidePanel';
 
@@ -107,6 +108,7 @@ export const TourEditForm = ({
   sideTab: sideTabProp,
   onSideTabChange,
 }: Props) => {
+  const { t } = useTranslation('tourism');
   const { toast } = useToast();
   const { editTour, loading: editLoading } = useEditTour();
   const { createTour, loading: createLoading } = useCreateTour();
@@ -344,8 +346,8 @@ export const TourEditForm = ({
   const handleSubmit = async (values: TourFormValues) => {
     if (!tourId) {
       toast({
-        title: 'Error',
-        description: 'Tour ID required',
+        title: t('error'),
+        description: t('tour-id-required'),
         variant: 'destructive',
       });
       return;
@@ -353,8 +355,8 @@ export const TourEditForm = ({
 
     if (!values.pricingOptions || values.pricingOptions.length === 0) {
       toast({
-        title: 'Error',
-        description: 'At least one pricing option is required',
+        title: t('error'),
+        description: t('at-least-one-pricing'),
         variant: 'destructive',
       });
       return;
@@ -399,9 +401,8 @@ export const TourEditForm = ({
 
       if (additionalDates.length > 0 && !targetBranchId) {
         toast({
-          title: 'Error',
-          description:
-            'Branch ID is required to create additional tours for the selected dates',
+          title: t('error'),
+          description: t('branch-id-required-dates'),
           variant: 'destructive',
         });
         return;
@@ -465,19 +466,19 @@ export const TourEditForm = ({
       }
 
       toast({
-        title: 'Success',
+        title: t('success'),
         description:
           additionalDates.length > 0
-            ? `Tour updated and ${additionalDates.length} new tour(s) created`
-            : 'Tour updated successfully',
+            ? t('tour-updated-and-created', { count: additionalDates.length })
+            : t('tour-updated-successfully'),
       });
 
       onSuccess?.();
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
-          error instanceof Error ? error.message : 'Failed to update tour',
+          error instanceof Error ? error.message : t('failed-to-update-tour'),
         variant: 'destructive',
       });
     }
@@ -491,7 +492,7 @@ export const TourEditForm = ({
         className="flex flex-col h-full"
       >
         <Sheet.Header>
-          <Sheet.Title>Edit tour</Sheet.Title>
+          <Sheet.Title>{t('edit-tour')}</Sheet.Title>
           {allLanguages.length > 1 && (
             <div className="flex items-center gap-2 ml-auto">
               <TourFieldLanguageSwitch
@@ -589,7 +590,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">Duration Info</Form.Label>
+                  <Form.Label className="mx-2">{t('duration-info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -607,7 +608,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">Crew</Form.Label>
+                  <Form.Label className="mx-2">{t('crew')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -615,7 +616,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">Pricing Info</Form.Label>
+                  <Form.Label className="mx-2">{t('pricing-info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -640,7 +641,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">More Info</Form.Label>
+                  <Form.Label className="mx-2">{t('more-info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -653,13 +654,13 @@ export const TourEditForm = ({
                 <div className="space-y-4">
                   <Tabs defaultValue="info1" className="w-full">
                     <Tabs.List className="grid w-full grid-cols-5">
-                      <Tabs.Trigger value="info1">Included</Tabs.Trigger>
-                      <Tabs.Trigger value="info2">Not Included</Tabs.Trigger>
-                      <Tabs.Trigger value="info3">Highlights</Tabs.Trigger>
+                      <Tabs.Trigger value="info1">{t('included')}</Tabs.Trigger>
+                      <Tabs.Trigger value="info2">{t('not-included')}</Tabs.Trigger>
+                      <Tabs.Trigger value="info3">{t('highlights')}</Tabs.Trigger>
                       <Tabs.Trigger value="info4">
-                        Additional Information
+                        {t('additional-information')}
                       </Tabs.Trigger>
-                      <Tabs.Trigger value="info5">Notes</Tabs.Trigger>
+                      <Tabs.Trigger value="info5">{t('notes')}</Tabs.Trigger>
                     </Tabs.List>
 
                     <Tabs.Content value="info1" className="pt-4">
@@ -720,11 +721,11 @@ export const TourEditForm = ({
             disabled={loading}
             onClick={onSuccess}
           >
-            Cancel
+            {t('cancel')}
           </Button>
 
           <Button type="submit" disabled={loading}>
-            {loading ? 'Updating...' : 'Update'}
+            {loading ? t('updating') : t('update')}
           </Button>
         </Sheet.Footer>
       </form>

@@ -1,17 +1,19 @@
 import { useRemoveProject } from '@/project/hooks/useRemoveProject';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Command } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ProjectsDeleteTrigger = ({
   setCurrentContent,
 }: {
   setCurrentContent: (content: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item onSelect={() => setCurrentContent('delete')}>
       <div className="flex gap-2 items-center text-red-500">
         <IconTrash size={16} />
-        Delete Project
+        {t('delete-project')}
       </div>
     </Command.Item>
   );
@@ -24,6 +26,7 @@ export const ProjectsDeleteContent = ({
   projectIds: string[];
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const { removeProject, loading } = useRemoveProject();
 
   const handleDelete = async () => {
@@ -42,11 +45,11 @@ export const ProjectsDeleteContent = ({
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="text-sm font-medium">
-        Are you sure you want to delete {projectIds.length} projects?
+        {t('delete-confirmation', { count: projectIds.length })}
       </div>
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
-          Cancel
+          {t('cancel')}
         </Button>
         <Button
           variant="destructive"
@@ -54,7 +57,7 @@ export const ProjectsDeleteContent = ({
           onClick={handleDelete}
           disabled={loading}
         >
-          Delete
+          {t('delete')}
         </Button>
       </div>
     </div>

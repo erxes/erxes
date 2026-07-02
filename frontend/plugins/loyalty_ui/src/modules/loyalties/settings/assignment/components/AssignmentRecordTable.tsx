@@ -1,4 +1,5 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { assignmentColumns } from './AssignmentColumns';
 import { AssignmentCommandBar } from './assignment-command-bar/AssignmentCommandBar';
@@ -10,6 +11,7 @@ import { IconTicket } from '@tabler/icons-react';
 import { LoyaltyAssignmentAddSheet } from './AssignmentAddSheet';
 
 export const AssignmentRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { assignments, handleFetchMore, loading, pageInfo } = useAssignments();
   const { editStatus } = useAssignmentStatusEdit();
 
@@ -50,10 +52,10 @@ export const AssignmentRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    No assignment yet
+                    {t('no-assignments-yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first assignment.
+                    {t('get-started-assignment')}
                   </p>
                 </div>
                 <LoyaltyAssignmentAddSheet />

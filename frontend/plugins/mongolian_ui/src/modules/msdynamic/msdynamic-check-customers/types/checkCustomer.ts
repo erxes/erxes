@@ -23,9 +23,9 @@ export interface ICheckCustomerResponse {
 }
 
 export const CUSTOMER_STATUS_LABELS: Record<CustomerStatus, string> = {
-  CREATE: 'Create customers',
-  UPDATE: 'Update customers',
-  DELETE: 'Delete customers',
+  CREATE: 'create-customers',
+  UPDATE: 'update-customers',
+  DELETE: 'delete-customers',
 };
 
 export const CUSTOMER_STATUS_ICONS: Record<

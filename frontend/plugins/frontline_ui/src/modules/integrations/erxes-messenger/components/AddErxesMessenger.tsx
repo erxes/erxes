@@ -7,8 +7,10 @@ import {
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { EMSetup } from '@/integrations/erxes-messenger/components/EMSetup';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { useTranslation } from 'react-i18next';
 
 export const AddErxesMessengerSheet = () => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useAtom(erxesMessengerSetupSheetOpenAtom);
   const settedIntegrationDetail = useAtomValue(settedIntegrationDetailAtom);
   const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
@@ -23,11 +25,11 @@ export const AddErxesMessengerSheet = () => {
             }
           >
             <IconPlus />
-            Add Messenger
+            {t('add-messenger')}
           </Button>
         </Sheet.Trigger>
       </div>
-      <EMSetup title="Add Erxes Messenger" />
+      <EMSetup title={t('add-erxes-messenger')} />
     </Sheet>
   );
 };

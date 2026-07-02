@@ -15,6 +15,8 @@ export const types = `
         pipelineCount: Int
         responseTemplateCount: Int
         formCount: Int
+        integrationCount: Int
+        integrationKinds: [String]
     }
 
     type ChannelMember {

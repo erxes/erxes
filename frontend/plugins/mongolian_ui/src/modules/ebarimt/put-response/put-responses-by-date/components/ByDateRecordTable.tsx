@@ -3,9 +3,11 @@ import { ByDateColumns } from '~/modules/ebarimt/put-response/put-responses-by-d
 import { useByDate } from '~/modules/ebarimt/put-response/put-responses-by-date/hooks/useByDate';
 import { BY_DATE_CURSOR_SESSION_KEY } from '~/modules/ebarimt/put-response/put-responses-by-date/constants/ByDateCursorSessionKey';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const ByDateRecordTable = () => {
   const { byDate, handleFetchMore, loading, pageInfo } = useByDate();
+  const { t } = useTranslation('mongolian');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -14,7 +16,7 @@ export const ByDateRecordTable = () => {
       columns={ByDateColumns}
       data={byDate || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', '']}
+      stickyColumns={['more']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -41,11 +43,9 @@ export const ByDateRecordTable = () => {
               <div className="mb-6">
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                No by date
-              </h3>
+              <h3 className="text-lg font-semibold">{t('no-by-date')}</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first by date.
+                {t('create-first-by-date')}
               </p>
             </div>
           </div>

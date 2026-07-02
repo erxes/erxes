@@ -9,8 +9,10 @@ import {
   useToast,
 } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const MemberMoreColumnCell = ({ cell }: { cell: Cell<any, any> }) => {
+  const { t } = useTranslation('frontline');
   const { memberId, channelId } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -19,15 +21,15 @@ export const MemberMoreColumnCell = ({ cell }: { cell: Cell<any, any> }) => {
   const handleDelete = async () => {
     if (!memberId || !channelId) {
       toast({
-        title: 'Error',
-        description: 'Member ID is missing',
+        title: t('error'),
+        description: t('member-id-missing'),
         variant: 'destructive',
       });
       return;
     }
 
     confirm({
-      message: `Are you sure you want to delete this member?`,
+      message: t('confirm-delete-member'),
     }).then(() => {
       removeChannelMember({
         variables: { channelId, memberId },
@@ -43,7 +45,7 @@ export const MemberMoreColumnCell = ({ cell }: { cell: Cell<any, any> }) => {
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

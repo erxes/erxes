@@ -31,6 +31,7 @@ import {
 } from '@dnd-kit/sortable';
 import { ScrollArea, Skeleton } from 'erxes-ui';
 import { Suspense, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DEFAULT_CARD_CONFIGS,
   ReportCardConfig,
@@ -72,6 +73,7 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
 }
 
 export const FrontlineReportsList = () => {
+  const { t } = useTranslation('frontline');
   const { conversationOpen, loading: openLoading } = useConversationOpen();
   const { conversationClosed, loading: closedLoading } =
     useConversationClosed();
@@ -184,7 +186,7 @@ export const FrontlineReportsList = () => {
 
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: cardConfig.title,
+      title: t(cardConfig.title),
       colSpan: overrideColSpan ?? colSpan,
       onColSpanChange: (span: 6 | 12) => handleColSpanChange(id, span),
     };
@@ -207,42 +209,42 @@ export const FrontlineReportsList = () => {
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <KpiCard
-          title="Open Conversations"
+          title={t('open-conversations')}
           value={String(conversationOpen?.count ?? 0)}
-          subtitle={`${conversationOpen?.percentage ?? 0}% of total`}
+          subtitle={t('percent-of-total', { percent: conversationOpen?.percentage ?? 0 })}
           icon={<IconInbox className="h-5 w-5" />}
           valueClass="text-[var(--chart-1)]"
           iconClass="bg-[var(--chart-1)]/10 text-[var(--chart-1)]"
         />
         <KpiCard
-          title="Closed Conversations"
+          title={t('closed-conversations')}
           value={String(conversationClosed?.count ?? 0)}
-          subtitle={`${conversationClosed?.percentage ?? 0}% resolved`}
+          subtitle={t('percent-resolved', { percent: conversationClosed?.percentage ?? 0 })}
           icon={<IconCircleCheck className="h-5 w-5" />}
           valueClass="text-[var(--pos)]"
           iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"
         />
         <KpiCard
-          title="Top Performing Source"
+          title={t('top-performing-source')}
           value={String(topPerformingSource?.count ?? 0)}
           subtitle={
             INTEGRATIONS[topPerformingSource?._id as keyof typeof INTEGRATIONS]
               ?.name
-              ? `${INTEGRATIONS[topPerformingSource._id as keyof typeof INTEGRATIONS].name} · ${topPerformingSource?.percentage ?? 0}%`
-              : `${topPerformingSource?.percentage ?? 0}% share`
+              ? t('source-name-percent', { name: INTEGRATIONS[topPerformingSource._id as keyof typeof INTEGRATIONS].name, percent: topPerformingSource?.percentage ?? 0 })
+              : t('percent-share', { percent: topPerformingSource?.percentage ?? 0 })
           }
           icon={<IconTrophyFilled className="h-5 w-5" />}
           valueClass="text-[var(--chart-2)]"
           iconClass="bg-[var(--chart-2)]/10 text-[var(--chart-2)]"
         />
         <KpiCard
-          title="Top Converting Source"
+          title={t('top-converting-source')}
           value={String(topConvertingSource?.count ?? 0)}
           subtitle={
             INTEGRATIONS[topConvertingSource?._id as keyof typeof INTEGRATIONS]
               ?.name
-              ? `${INTEGRATIONS[topConvertingSource._id as keyof typeof INTEGRATIONS].name} · ${topConvertingSource?.percentage ?? 0}%`
-              : `${topConvertingSource?.percentage ?? 0}% share`
+              ? t('source-name-percent', { name: INTEGRATIONS[topConvertingSource._id as keyof typeof INTEGRATIONS].name, percent: topConvertingSource?.percentage ?? 0 })
+              : t('percent-share', { percent: topConvertingSource?.percentage ?? 0 })
           }
           icon={<IconChartArcs className="h-5 w-5" />}
           valueClass="text-[var(--chart-3)]"

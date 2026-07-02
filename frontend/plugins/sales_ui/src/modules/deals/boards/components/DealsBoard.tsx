@@ -20,6 +20,11 @@ import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 import { useQueryState } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useStagesOrder } from '@/deals/stage/hooks/useStages';
+import { useAtom, useSetAtom } from 'jotai';
+import {
+  dealCountByBoardAtom,
+  dealTotalCountAtom,
+} from '@/deals/states/dealsTotalCountState';
 
 const PAGE_SIZE = 20;
 
@@ -36,6 +41,34 @@ export const DealsBoard = () => {
   >({});
   const locallyMovedIdsRef = useRef<Record<string, string>>({});
   const resetColumnsRef = useRef(columns);
+
+  const [dealCountByBoard] = useAtom(dealCountByBoardAtom);
+  const setTotalCount = useSetAtom(dealTotalCountAtom);
+
+  useEffect(() => {
+    if (columnsLoading) {
+      setTotalCount(null);
+      return;
+    }
+    const hasAllCounts = columns.every((col) =>
+      Object.prototype.hasOwnProperty.call(dealCountByBoard, col._id),
+    );
+    if (hasAllCounts) {
+      const sum = columns.reduce(
+        (acc, col) => acc + (dealCountByBoard[col._id] || 0),
+        0,
+      );
+      setTotalCount(sum);
+    } else {
+      setTotalCount(null);
+    }
+  }, [columns, columnsLoading, dealCountByBoard, setTotalCount]);
+
+  useEffect(() => {
+    return () => {
+      setTotalCount(null);
+    };
+  }, [setTotalCount]);
 
   const { pagination, initColumn, setLoading, updateAfterFetch } =
     useColumnPagination(PAGE_SIZE);
@@ -84,7 +117,13 @@ export const DealsBoard = () => {
     });
 
     setFetchMoreTriggers({});
-  }, [columnIdsKey, queryVariablesKey, setBoardState, setAllDealsMap, initColumn]);
+  }, [
+    columnIdsKey,
+    queryVariablesKey,
+    setBoardState,
+    setAllDealsMap,
+    initColumn,
+  ]);
 
   useEffect(() => {
     setBoardState((prev) => {

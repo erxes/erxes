@@ -23,10 +23,12 @@ export const categoryColumns: (
   categoryObject: Record<string, ICategory>,
   branchLanguages?: string[],
   mainLanguage?: string,
+  t?: (key: string) => string,
 ) => ColumnDef<ICategory & { hasChildren: boolean }>[] = (
   categoryObject,
   branchLanguages,
   mainLanguage,
+  t = (k) => k,
 ) => [
   RecordTable.checkboxColumn as ColumnDef<ICategory & { hasChildren: boolean }>,
   categoryMoreColumn(branchLanguages, mainLanguage),
@@ -50,7 +52,7 @@ export const categoryColumns: (
   },
   {
     id: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
     accessorKey: 'name',
     cell: ({ cell, row }) => {
       const name = (cell.getValue() as string) || '';
@@ -86,7 +88,7 @@ export const categoryColumns: (
   },
   {
     id: 'code',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Code" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('code')} />,
     accessorKey: 'code',
     cell: ({ cell }) => {
       return (
@@ -99,7 +101,7 @@ export const categoryColumns: (
   },
   {
     id: 'parentId',
-    header: () => <RecordTable.InlineHead icon={IconFolder} label="Parent" />,
+    header: () => <RecordTable.InlineHead icon={IconFolder} label={t('parent')} />,
     accessorKey: 'parentId',
     cell: ({ cell }) => {
       const parent = categoryObject[cell.getValue() as string];
@@ -114,7 +116,7 @@ export const categoryColumns: (
   {
     id: 'tourCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Tour count" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('tour-count')} />
     ),
     accessorKey: 'tourCount',
     cell: ({ cell }) => {
@@ -130,7 +132,7 @@ export const categoryColumns: (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />
+      <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
@@ -147,7 +149,7 @@ export const categoryColumns: (
     id: 'modifiedAt',
     accessorKey: 'modifiedAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarDot} label="Modified" />
+      <RecordTable.InlineHead icon={IconCalendarDot} label={t('modified')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (

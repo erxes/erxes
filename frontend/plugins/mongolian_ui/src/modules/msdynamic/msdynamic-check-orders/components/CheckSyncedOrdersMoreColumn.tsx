@@ -7,6 +7,7 @@ import {
   RecordTable,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IMSDynamicCheckOrder } from '../types/msDynamicCheckOrder';
 import { OrdersDetailContainer } from '../../containers/PosOrderDetail';
 
@@ -21,18 +22,21 @@ const CheckSyncedOrdersMoreActions = ({
   orderId: string;
   onView: (orderId: string) => void;
   onResend: (orderId: string) => void;
-}) => (
-  <Command shouldFilter={false}>
-    <Command.List>
-      <Command.Item value="view" onSelect={() => onView(orderId)}>
-        <IconEye /> View detail
-      </Command.Item>
-      <Command.Item value="resend" onSelect={() => onResend(orderId)}>
-        <IconSend /> Resend
-      </Command.Item>
-    </Command.List>
-  </Command>
-);
+}) => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <Command shouldFilter={false}>
+      <Command.List>
+        <Command.Item value="view" onSelect={() => onView(orderId)}>
+          <IconEye /> {t('view-detail')}
+        </Command.Item>
+        <Command.Item value="resend" onSelect={() => onResend(orderId)}>
+          <IconSend /> {t('resend')}
+        </Command.Item>
+      </Command.List>
+    </Command>
+  );
+};
 
 /** More popover-iin content gargana. */
 const CheckSyncedOrdersMoreContent = ({

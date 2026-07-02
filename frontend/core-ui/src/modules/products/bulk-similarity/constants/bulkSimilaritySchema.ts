@@ -10,9 +10,9 @@ export const bulkRowSchema = z.object({
   productId: z.string().optional(),
   combination: z.record(z.string(), z.string()),
   code: z.string(),
-  // true once the user manually edits the code, so regeneration stops
-  // overwriting it from the base code + field suffix
   codeEdited: z.boolean().default(false),
+  name: z.string().default(''),
+  nameEdited: z.boolean().default(false),
   unitPrice: z.coerce.number().optional(),
   isExcluded: z.boolean(),
   isStar: z.boolean(),

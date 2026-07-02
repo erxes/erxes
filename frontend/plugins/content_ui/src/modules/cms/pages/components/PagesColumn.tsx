@@ -13,6 +13,7 @@ import {
   IconSitemap,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { IPage } from '../types/pageTypes';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 import { CmsTranslatableBadge } from '../../shared/components/CmsTranslatableBadge';
@@ -22,6 +23,7 @@ export const usePagesColumns = (
   onRefetch?: () => void,
   pages?: IPage[],
 ): ColumnDef<IPage>[] => {
+  const { t } = useTranslation('content');
   const navigate = useNavigate();
   const { isMissing } = useIsTranslationMissing();
 
@@ -30,7 +32,7 @@ export const usePagesColumns = (
     RecordTable.checkboxColumn as ColumnDef<IPage>,
     {
       id: 'name',
-      header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
+      header: () => <RecordTable.InlineHead icon={IconUser} label={t('name')} />,
       accessorKey: 'name',
       cell: ({ row }) => {
         const page = row.original as IPage & {
@@ -51,7 +53,7 @@ export const usePagesColumns = (
               <CmsTranslatableBadge
                 value={page.name}
                 missing={missing}
-                placeholder="Untitled page"
+                placeholder={t('untitled-page')}
               />
             </div>
           </RecordTableInlineCell>
@@ -62,7 +64,7 @@ export const usePagesColumns = (
     {
       id: 'parentPage',
       header: () => (
-        <RecordTable.InlineHead icon={IconSitemap} label="Parent Page" />
+        <RecordTable.InlineHead icon={IconSitemap} label={t('parent-page')} />
       ),
       accessorKey: 'parentId',
       cell: ({ row }) => {
@@ -85,7 +87,7 @@ export const usePagesColumns = (
     },
     {
       id: 'slug',
-      header: () => <RecordTable.InlineHead icon={IconArticle} label="Slug" />,
+      header: () => <RecordTable.InlineHead icon={IconArticle} label={t('slug')} />,
       accessorKey: 'slug',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-gray-500">
@@ -100,7 +102,7 @@ export const usePagesColumns = (
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('created')} />
       ),
       accessorKey: 'createdAt',
       cell: ({ cell }) => (
@@ -114,7 +116,7 @@ export const usePagesColumns = (
     {
       id: 'updatedAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label="Updated" />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('updated')} />
       ),
       accessorKey: 'updatedAt',
       cell: ({ cell }) => (

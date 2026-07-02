@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation } from '@apollo/client';
 import {
   IconArrowLeft,
@@ -35,21 +36,20 @@ import { MASTRA_TOOL_CREATE, MASTRA_TOOL_UPDATE } from '~/graphql/mutations';
 const BUILTIN_OPTIONS = [
   {
     id: 'webSearch',
-    name: 'Web Search',
-    description: 'Search Wikipedia for articles related to a query.',
+    name: 'web-search',
+    description: 'web-search-description',
     icon: IconSearch,
   },
   {
     id: 'fetchUrl',
-    name: 'Fetch URL / Article Reader',
-    description: 'Fetch full text content of a Wikipedia article by title.',
+    name: 'fetch-url',
+    description: 'fetch-url-description',
     icon: IconWorld,
   },
   {
     id: 'calculator',
-    name: 'Calculator',
-    description:
-      'Evaluate a mathematical expression and return the numeric result.',
+    name: 'calculator',
+    description: 'calculator-description',
     icon: IconCalculator,
   },
 ];
@@ -78,6 +78,7 @@ const Field = ({
 );
 
 export const ToolFormPage = () => {
+  const { t } = useTranslation('mastra');
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
@@ -121,7 +122,7 @@ export const ToolFormPage = () => {
 
   const onMutationError = (e: any) =>
     toast({
-      title: 'Could not save tool',
+      title: t('could-not-save-tool'),
       description: e.message,
       variant: 'destructive',
     });
@@ -218,14 +219,14 @@ export const ToolFormPage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
                   <Link to="/settings/mastra/tools">
-                    <IconTool /> Tools
+                    <IconTool /> {t('tools')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <span className="text-muted-foreground">
-                  {isEdit ? 'Edit Tool' : 'New Tool'}
+                  {isEdit ? t('edit-tool') : t('new-tool')}
                 </span>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -235,11 +236,11 @@ export const ToolFormPage = () => {
         <PageHeader.End>
           <Button variant="outline" asChild>
             <Link to="/settings/mastra/tools">
-              <IconArrowLeft /> Back
+              <IconArrowLeft /> {t('back')}
             </Link>
           </Button>
           <Button type="submit" form="tool-form" disabled={isSaving}>
-            {isSaving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Tool'}
+            {isSaving ? t('saving') : isEdit ? t('save-changes') : t('create-tool')}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -253,8 +254,8 @@ export const ToolFormPage = () => {
           {/* Tool type */}
           <Card className="shadow-none">
             <Card.Header className="pb-3">
-              <Card.Title className="text-base">Tool Type</Card.Title>
-              <Card.Description>Choose what powers this tool.</Card.Description>
+              <Card.Title className="text-base">{t('tool-type')}</Card.Title>
+              <Card.Description>{t('choose-what-powers-this-tool')}</Card.Description>
             </Card.Header>
             <Card.Content>
               <ChoiceboxGroup
@@ -263,15 +264,15 @@ export const ToolFormPage = () => {
                 onValueChange={(v) => set('type', v as 'builtin' | 'erxes')}
               >
                 <ChoiceboxGroup.Item value="builtin" title="Category">
-                  Built-in
+                  {t('built-in')}
                   <p className="text-xs font-normal text-muted-foreground mt-0.5">
-                    Web search, fetch URL, calculator
+                    {t('built-in-description')}
                   </p>
                 </ChoiceboxGroup.Item>
                 <ChoiceboxGroup.Item value="erxes" title="Category">
-                  erxes Operation
+                  {t('erxes-operation')}
                   <p className="text-xs font-normal text-muted-foreground mt-0.5">
-                    Any erxes GraphQL query or mutation
+                    {t('erxes-operation-description')}
                   </p>
                 </ChoiceboxGroup.Item>
               </ChoiceboxGroup>
@@ -283,7 +284,7 @@ export const ToolFormPage = () => {
             <Card className="shadow-none">
               <Card.Header className="pb-3">
                 <Card.Title className="text-base">
-                  Select Built-in Tool
+                  {t('select-built-in-tool')}
                 </Card.Title>
               </Card.Header>
               <Card.Content>
@@ -300,10 +301,10 @@ export const ToolFormPage = () => {
                           <Icon className="size-4 mt-0.5 shrink-0" />
                           <div>
                             <div className="font-medium text-sm">
-                              {opt.name}
+                              {t(opt.name)}
                             </div>
                             <div className="text-xs text-muted-foreground mt-0.5">
-                              {opt.description}
+                              {t(opt.description)}
                             </div>
                           </div>
                         </div>
@@ -320,14 +321,14 @@ export const ToolFormPage = () => {
             <Card className="shadow-none">
               <Card.Header className="pb-3">
                 <Card.Title className="text-base">
-                  Select erxes Operation
+                  {t('select-erxes-operation')}
                 </Card.Title>
                 <Card.Description>
-                  Operations are discovered from the gateway at runtime.
+                  {t('operations-discovered-at-runtime')}
                 </Card.Description>
               </Card.Header>
               <Card.Content className="space-y-4">
-                <Field label="Plugin *">
+                <Field label={t('plugin-required')}>
                   {loadingErxes ? (
                     <Skeleton className="h-9 w-full" />
                   ) : (
@@ -341,7 +342,7 @@ export const ToolFormPage = () => {
                       required
                     >
                       <Select.Trigger className="w-full border border-border rounded-md px-3 py-2 h-9">
-                        <Select.Value placeholder="Select plugin…" />
+                        <Select.Value placeholder={t('select-plugin')} />
                       </Select.Trigger>
                       <Select.Content>
                         {plugins.map((p: any) => (
@@ -355,13 +356,13 @@ export const ToolFormPage = () => {
                 </Field>
 
                 {form.erxesPlugin && (
-                  <Field label="Operation *">
+                  <Field label={t('operation-required')}>
                     <div className="relative mb-1.5">
                       <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
                       <Input
                         value={opSearch}
                         onChange={(e) => setOpSearch(e.target.value)}
-                        placeholder="Search by what it does or its name… (e.g. “create deal”)"
+                        placeholder={t('search-operations-placeholder')}
                         className="pl-8 h-8 text-sm"
                       />
                     </div>
@@ -374,7 +375,7 @@ export const ToolFormPage = () => {
                       <div className="p-2 space-y-0.5">
                         {filteredOps.length === 0 && (
                           <p className="text-sm text-muted-foreground text-center py-8">
-                            No operations match “{opSearch}”.
+                            {t('no-operations-match', { query: opSearch })}
                           </p>
                         )}
                         {filteredOps.map((op: any) => {
@@ -416,7 +417,7 @@ export const ToolFormPage = () => {
                                       variant="success"
                                       className="text-[10px]"
                                     >
-                                      Added
+                                      {t('added')}
                                     </Badge>
                                   )}
                                   <Badge
@@ -428,8 +429,8 @@ export const ToolFormPage = () => {
                                     className="text-[10px]"
                                   >
                                     {op.operationType === 'mutation'
-                                      ? 'write'
-                                      : 'read'}
+                                      ? t('write')
+                                      : t('read')}
                                   </Badge>
                                 </div>
                               </div>
@@ -439,14 +440,14 @@ export const ToolFormPage = () => {
                                 </span>
                                 {requiredArgs.length > 0 && (
                                   <span className="text-[11px] text-muted-foreground">
-                                    · needs{' '}
+                                    · {t('needs')}{' '}
                                     {requiredArgs.slice(0, 4).join(', ')}
                                     {requiredArgs.length > 4 ? '…' : ''}
                                   </span>
                                 )}
                                 {added && (
                                   <span className="text-[11px] text-primary">
-                                    · click to edit
+                                    · {t('click-to-edit')}
                                   </span>
                                 )}
                               </div>
@@ -460,8 +461,8 @@ export const ToolFormPage = () => {
 
                 {form.erxesOperation && (
                   <Field
-                    label="Response Fields"
-                    hint="Space-separated GraphQL fields to return. Used only when the operation returns an object type."
+                    label={t('response-fields')}
+                    hint={t('response-fields-hint')}
                   >
                     <Input
                       value={form.erxesResponseFields}
@@ -480,16 +481,15 @@ export const ToolFormPage = () => {
           {/* Identity */}
           <Card className="shadow-none">
             <Card.Header className="pb-3">
-              <Card.Title className="text-base">Identity</Card.Title>
+              <Card.Title className="text-base">{t('identity')}</Card.Title>
               <Card.Description>
-                The LLM uses the name and description to decide when to call
-                this tool.
+                {t('identity-description')}
               </Card.Description>
             </Card.Header>
             <Card.Content className="space-y-4">
               <Field
-                label="Tool ID *"
-                hint="Unique machine identifier. Auto-generated from name."
+                label={t('tool-id-required')}
+                hint={t('tool-id-hint')}
               >
                 <Input
                   value={form.toolId}
@@ -503,20 +503,20 @@ export const ToolFormPage = () => {
                 />
               </Field>
 
-              <Field label="Name *">
+              <Field label={t('name-required')}>
                 <Input
                   value={form.name}
                   onChange={(e) => set('name', e.target.value)}
-                  placeholder="Tool display name"
+                  placeholder={t('tool-display-name')}
                   required
                 />
               </Field>
 
-              <Field label="Description">
+              <Field label={t('description')}>
                 <Textarea
                   value={form.description}
                   onChange={(e: any) => set('description', e.target.value)}
-                  placeholder="What this tool does — the LLM uses this to decide when to call it"
+                  placeholder={t('description-placeholder')}
                   rows={3}
                 />
               </Field>
@@ -528,9 +528,9 @@ export const ToolFormPage = () => {
             <Card.Content className="pt-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <Label className="font-medium">Enabled</Label>
+                  <Label className="font-medium">{t('enabled')}</Label>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Disabled tools won't be available to any agent
+                    {t('disabled-tools-hint')}
                   </p>
                 </div>
                 <Switch
@@ -544,10 +544,10 @@ export const ToolFormPage = () => {
           {/* Mobile submit */}
           <div className="flex gap-3 pb-4 sm:hidden">
             <Button type="submit" disabled={isSaving}>
-              {isSaving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Tool'}
+              {isSaving ? t('saving') : isEdit ? t('save-changes') : t('create-tool')}
             </Button>
             <Button type="button" variant="outline" asChild>
-              <Link to="/settings/mastra/tools">Cancel</Link>
+              <Link to="/settings/mastra/tools">{t('cancel')}</Link>
             </Button>
           </div>
         </form>

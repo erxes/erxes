@@ -2,8 +2,11 @@ import { RecordTable } from 'erxes-ui';
 import { putResponseColumns } from '~/modules/ebarimt/put-response/components/PutResponseColumn';
 import { PUT_RESPONSE_CURSOR_SESSION_KEY } from '~/modules/ebarimt/put-response/constants/putResponseCursorSessionKey';
 import { usePutResponse } from '~/modules/ebarimt/put-response/hooks/usePutResponse';
+import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const PutResponseRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { putResponses, handleFetchMore, loading, pageInfo } = usePutResponse();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -13,7 +16,7 @@ export const PutResponseRecordTable = () => {
       columns={putResponseColumns}
       data={putResponses || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['more', 'name']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -34,6 +37,19 @@ export const PutResponseRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
+        {!loading && !putResponses?.length && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="mb-6">
+                <IconShoppingCartX size={48} className="text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold">{t('no-put-response')}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t('create-first-put-response')}
+              </p>
+            </div>
+          </div>
+        )}
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

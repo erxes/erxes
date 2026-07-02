@@ -2,6 +2,7 @@ import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, Tabs, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { useAddVoucher } from '../../hooks/useAddVoucher';
 import {
@@ -21,6 +22,7 @@ type Props = {
 };
 
 export const VoucherTabs = ({ onOpenChange, form }: Props) => {
+  const { t } = useTranslation('loyalty');
   const [activeTab, setActiveTab] = useState<VoucherTab>('campaign');
 
   const selectedType = form.watch('type');
@@ -99,7 +101,7 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
         variables,
         onError: (e: ApolloError) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           }),
@@ -112,8 +114,8 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
     () => {
       setActiveTab('campaign');
       toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields',
+        title: t('validation-error'),
+        description: t('fill-required-fields'),
         variant: 'destructive',
       });
     },
@@ -134,28 +136,28 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
     >
       <Tabs.List className="flex justify-center">
         <Tabs.Trigger asChild value="campaign">
-          <Button variant="outline">Campaign</Button>
+          <Button variant="outline">{t('campaign')}</Button>
         </Tabs.Trigger>
 
         <Tabs.Trigger asChild value="restriction">
-          <Button variant="outline">Restriction</Button>
+          <Button variant="outline">{t('restriction')}</Button>
         </Tabs.Trigger>
 
         {showProductBonusTab && (
           <Tabs.Trigger asChild value="productBonus">
-            <Button variant="outline">Product Bonus</Button>
+            <Button variant="outline">{t('product-bonus')}</Button>
           </Tabs.Trigger>
         )}
 
         {showLotteryTab && (
           <Tabs.Trigger asChild value="lottery">
-            <Button variant="outline">Lottery Campaign</Button>
+            <Button variant="outline">{t('lottery-campaign')}</Button>
           </Tabs.Trigger>
         )}
 
         {showSpinTab && (
           <Tabs.Trigger asChild value="spin">
-            <Button variant="outline">Spin Campaign</Button>
+            <Button variant="outline">{t('spin-campaign')}</Button>
           </Tabs.Trigger>
         )}
       </Tabs.List>
@@ -207,15 +209,15 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
 
       <Sheet.Footer className="flex justify-end gap-2 p-2">
         <Button variant="ghost" onClick={() => onOpenChange(false)}>
-          Cancel
+          {t('cancel')}
         </Button>
 
         {isLast ? (
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('saving') : t('save')}
           </Button>
         ) : (
-          <Button onClick={handleNext}>Next</Button>
+          <Button onClick={handleNext}>{t('next')}</Button>
         )}
       </Sheet.Footer>
     </Tabs>

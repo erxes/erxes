@@ -1,5 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { LOYALTY_SCORE_CURSOR_SESSION_KEY } from '../../constants/loyaltyScoreCursorSessionKey';
 import { LOYALTY_SCORE_CAMPAIGN_QUERY } from '../../graphql/queries/loyaltyScoreCampaignQuery';
 import { CREATE_SCORE_CAMPAIGN } from '../graphql/mutations/loyaltyScoreAddMutation';
@@ -45,6 +46,7 @@ export interface AddScoreCampaignVariables {
 export const SCORE_PER_PAGE = 30;
 
 export const useAddScoreCampaign = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
   const { cursor } = useRecordTableCursor({
     sessionKey: LOYALTY_SCORE_CURSOR_SESSION_KEY,
@@ -104,15 +106,15 @@ export const useAddScoreCampaign = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Score campaign created successfully',
+          title: t('success'),
+          description: t('score-campaign-created'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

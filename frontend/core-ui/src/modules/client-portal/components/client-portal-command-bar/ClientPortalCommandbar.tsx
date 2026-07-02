@@ -8,10 +8,13 @@ export const ClientPortalCommandBar = () => {
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const clientPortalIds = selectedRows.map((row: Row<any>) => row.original._id);
 
+  const handleClose = () => table.resetRowSelection();
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value onClose={handleClose}>
+          {selectedRows.length} selected
+        </CommandBar.Value>
         <Separator.Inline />
         <ClientPortalRemove
           clientPortalIds={clientPortalIds}

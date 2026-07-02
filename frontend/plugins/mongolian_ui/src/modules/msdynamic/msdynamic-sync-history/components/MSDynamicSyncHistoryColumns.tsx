@@ -26,13 +26,15 @@ const InlineCell = ({ value }: { value: unknown }) => (
   </RecordTableInlineCell>
 );
 
-export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
+export const getMsDynamicSyncHistoryColumns = (
+  t: (key: string) => string,
+): ColumnDef<IMSDynamicSyncHistory>[] => [
   MSDynamicSyncHistoryMoreColumn,
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
+      <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
     ),
     cell: ({ getValue }) => {
       const msDynamicSyncHistoryCreatedAt = getValue() as string;
@@ -48,7 +50,7 @@ export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('user')} />,
     cell: ({ row }) => {
       const user = row.original.createdUser;
       const value =
@@ -65,21 +67,21 @@ export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
     id: 'contentType',
     accessorKey: 'contentType',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Content Type" />
+      <RecordTable.InlineHead icon={IconCategory} label={t('content-type')} />
     ),
     cell: ({ cell }) => <InlineCell value={cell.getValue()} />,
   },
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Content" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('content')} />,
     cell: ({ cell }) => <InlineCell value={cell.getValue()} />,
   },
   {
     id: 'response',
     accessorKey: 'responseStr',
     header: () => (
-      <RecordTable.InlineHead icon={IconExchange} label="Response" />
+      <RecordTable.InlineHead icon={IconExchange} label={t('response')} />
     ),
     cell: ({ row }) => {
       return (
@@ -96,7 +98,7 @@ export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
     id: 'error',
     accessorKey: 'error',
     header: () => (
-      <RecordTable.InlineHead icon={IconAlertTriangle} label="Error" />
+      <RecordTable.InlineHead icon={IconAlertTriangle} label={t('error')} />
     ),
     cell: ({ row }) => {
       return (

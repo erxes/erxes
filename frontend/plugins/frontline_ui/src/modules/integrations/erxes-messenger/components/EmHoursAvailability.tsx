@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   TimeField,
   DateInput,
@@ -31,6 +32,7 @@ import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
 type EMHoursAvailabilityFormValues = z.infer<typeof EMHOURS_SCHEMA>;
 
 export const EMHoursAvailability = () => {
+  const { t } = useTranslation('frontline');
   const atomValue = useAtomValue(erxesMessengerSetupHoursAtom);
   const form = useForm<EMHoursAvailabilityFormValues>({
     resolver: zodResolver(EMHOURS_SCHEMA),
@@ -59,11 +61,11 @@ export const EMHoursAvailability = () => {
         className="flex-auto flex flex-col overflow-hidden"
       >
         <EMLayout
-          title="Hours availability"
+          title={t('hours-availability')}
           actions={
             <>
               <EMLayoutPreviousStepButton />
-              <Button type="submit">Next step</Button>
+              <Button type="submit">{t('next-step')}</Button>
             </>
           }
         >
@@ -73,7 +75,7 @@ export const EMHoursAvailability = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">
-                    Availability switch type
+                    {t('availability-switch-type')}
                   </Form.Label>
                   <Form.Control>
                     <RadioGroup
@@ -86,7 +88,7 @@ export const EMHoursAvailability = () => {
                           <RadioGroup.Item value="manual" />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Turn online/offline manually
+                          {t('turn-online-offline-manually')}
                         </Form.Label>
                       </Form.Item>
                       <Form.Item className="flex items-center gap-3 space-y-0">
@@ -94,7 +96,7 @@ export const EMHoursAvailability = () => {
                           <RadioGroup.Item value="auto" />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Set to follow your schedule
+                          {t('set-to-follow-your-schedule')}
                         </Form.Label>
                       </Form.Item>
                     </RadioGroup>
@@ -108,7 +110,7 @@ export const EMHoursAvailability = () => {
               name="responseRate"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Response rate</Form.Label>
+                  <Form.Label>{t('response-rate')}</Form.Label>
                   <Form.Control>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -122,7 +124,7 @@ export const EMHoursAvailability = () => {
                           <Form.Control>
                             <RadioGroup.Item value={rate} />
                           </Form.Control>
-                          <Form.Label variant="peer">few {rate}</Form.Label>
+                          <Form.Label variant="peer">{t('few-rate', { rate })}</Form.Label>
                         </Form.Item>
                       ))}
                     </RadioGroup>
@@ -135,7 +137,7 @@ export const EMHoursAvailability = () => {
               name="timezone"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Timezone</Form.Label>
+                  <Form.Label>{t('timezone')}</Form.Label>
                   <Form.Control>
                     <TimezoneSelect
                       value={field.value}
@@ -161,12 +163,11 @@ export const EMHoursAvailability = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Display operator timezone
+                      {t('display-operator-timezone')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    Display chat operator timezone set in their location in team
-                    member profiles
+                    {t('display-operator-timezone-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -185,12 +186,11 @@ export const EMHoursAvailability = () => {
                     </Form.Control>
 
                     <Form.Label variant="peer" className="leading-6">
-                      Hide messenger during offline hours
+                      {t('hide-messenger-during-offline-hours')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    Forcibly hide the messenger when you're offline. This will
-                    hide the messenger from your website visitors.
+                    {t('hide-messenger-during-offline-hours-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -243,6 +243,7 @@ export const EMHoursTimeTable = ({
 }: {
   form: UseFormReturn<z.infer<typeof EMHOURS_SCHEMA>>;
 }) => {
+  const { t } = useTranslation('frontline');
   const availabilityMethod = useWatch({
     control: form.control,
     name: 'availabilityMethod',
@@ -298,7 +299,7 @@ export const EMHoursTimeTable = ({
               </Form.Control>
 
               <Form.Label variant="peer" className="leading-6">
-                Visible online to visitor or customer
+                {t('visible-online-to-visitor-or-customer')}
               </Form.Label>
             </div>
             <Form.Message />
@@ -423,7 +424,7 @@ export const EMHoursTimeTable = ({
                       </Form.Item>
                     )}
                   />
-                  <span>to</span>
+                  <span>{t('to')}</span>
                   <Form.Field
                     name={`onlineHours.${day}.to`}
                     render={({ field }) => (
@@ -448,7 +449,7 @@ export const EMHoursTimeTable = ({
                 </div>
               ) : (
                 <Form.Label variant="peer" className="text-accent-foreground">
-                  Not working on this day
+                  {t('not-working-on-this-day')}
                 </Form.Label>
               )}
             </Form.Item>

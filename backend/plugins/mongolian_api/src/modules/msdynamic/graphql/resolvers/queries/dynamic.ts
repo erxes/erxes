@@ -114,25 +114,25 @@ export const msdynamicQueries = {
       brandId: string;
       posToken?: string;
     },
-    { subdomain, checkPermission }: IContext,
+    { subdomain }: IContext,
   ) {
-    await checkPermission('showMsd');
-
     const models = await generateModels(subdomain);
 
     let resolvedBrandId = brandId;
 
-    /**
-     * Resolve brandId from POS token if needed
-     */
+    // Resolve brandId from POS token if needed
     if (!resolvedBrandId && posToken) {
       const posConfig = await sendTRPCMessage({
         subdomain,
-        pluginName: 'pos',
-        module: 'configs',
+        pluginName: 'sales',
+        module: 'pos',
         action: 'findOne',
         method: 'query',
-        input: { token: posToken },
+        input: {
+          query: {
+            token: posToken,
+          },
+        },
         defaultValue: {},
       });
 
@@ -161,16 +161,26 @@ export const msdynamicQueries = {
       .map((loc: string) => `Location_Filter eq '${loc.trim()}'`)
       .join(' or ');
 
-    const url = `${itemApi}?$filter=(${filterSection}) and (${locationFilterSection})&$select=No,Inventory`;
+    const url =
+      `${itemApi}?$filter=(${filterSection}) and (${locationFilterSection})` +
+      `&$select=No,Inventory`;
 
-    const response = await fetch(url, {
+    const res = await fetch(url, {
       headers: {
         Accept: 'application/json',
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
           'base64',
         )}`,
       },
-    }).then((r) => r.json());
+    });
+
+    const body = await res.text();
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${body}`);
+    }
+
+    const response = body ? JSON.parse(body) : {};
 
     return response?.value || [];
   },
@@ -178,10 +188,8 @@ export const msdynamicQueries = {
   async msdCustomerRelations(
     _root,
     { customerId }: { customerId: string },
-    { models, subdomain, checkPermission }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    await checkPermission('showMsd');
-
     const relations = await models.CustomerRelations.find({
       customerId,
     }).lean();
@@ -205,4 +213,7 @@ export const msdynamicQueries = {
       brand: brands.find((b) => b._id === r.brandId),
     }));
   },
+};
+(msdynamicQueries.msdProductsRemainder as any).wrapperConfig = {
+  skipPermission: true,
 };

@@ -1,9 +1,11 @@
 import { ActivityLogs, IUser, MembersInline, TActivityLog } from 'ui-modules';
 import { IDeal } from '@/deals/types/deals';
+import { useTranslation } from 'react-i18next';
 
 export const AssigneeActivityRow = (activity: TActivityLog<IDeal, IUser[]>) => {
   const { context, action } = activity;
   const { data: users = [] } = context || {};
+  const { t } = useTranslation('sales');
 
   return (
     <div className="flex flex-row items-center gap-3">
@@ -15,7 +17,7 @@ export const AssigneeActivityRow = (activity: TActivityLog<IDeal, IUser[]>) => {
             ? users.filter(({ _id }) => _id).map((user) => user._id)
             : []
         }
-        placeholder="Unnamed user"
+        placeholder={t('unnamed-user')}
       />
     </div>
   );

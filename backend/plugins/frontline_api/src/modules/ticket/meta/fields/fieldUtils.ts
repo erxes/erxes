@@ -12,10 +12,11 @@ type TSelectOption = {
 };
 
 type TSelectionConfig = {
-  queryName: string;
-  labelField: string;
+  queryName?: string;
+  labelField?: string;
   valueField?: string;
   multi?: boolean;
+  component?: string;
 };
 
 type TTicketField = {
@@ -183,22 +184,15 @@ const getPipelineOptions = async (models: IModels, channelId?: string) => {
   });
 };
 
-const getStatusOptions = async (models: IModels, pipelineId?: string) => {
-  const selector = pipelineId ? { pipelineId } : {};
-  const statuses = await models.Status.find(selector)
-    .sort({ pipelineId: 1, order: 1, name: 1 })
-    .lean();
-  const options = statuses
-    .map((status) => toOption(status._id, status.name))
-    .filter((option): option is TSelectOption => Boolean(option));
-
-  return withStaticOptions({
-    name: 'statusId',
-    label: 'Status',
-    type: 'status',
-    options,
-  });
-};
+const getStatusOptions = (): TTicketField => ({
+  _id: 'statusId',
+  name: 'statusId',
+  label: 'Status',
+  type: 'status',
+  selectionConfig: {
+    component: 'ticketStatus',
+  },
+});
 
 const getStatusTypeOptions = () =>
   withStaticOptions({
@@ -299,13 +293,12 @@ export const generateTicketFields = async ({
   }
 
   const channelId = toStringValue(config.channelId);
-  const pipelineId = toStringValue(config.pipelineId);
 
   return [
     ...(await getSchemaFields(models)),
     await getChannelOptions(models),
     await getPipelineOptions(models, channelId),
-    await getStatusOptions(models, pipelineId),
+    getStatusOptions(),
     getStatusTypeOptions(),
     getPriorityOptions(),
     generateUsersOptions('assigneeId', 'Assignee'),

@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { TeamDetails } from '@/team/components/team-details/TeamDetails';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageContainer, ScrollArea } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 
 export const TeamDetailPage = () => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
 
   return (
@@ -19,7 +21,7 @@ export const TeamDetailPage = () => {
                   onClick={() => navigate('/settings/operation/team')}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
-                  Teams
+                  {t('teams')}
                 </Button>
               </Breadcrumb.Link>
             </Breadcrumb.Item>

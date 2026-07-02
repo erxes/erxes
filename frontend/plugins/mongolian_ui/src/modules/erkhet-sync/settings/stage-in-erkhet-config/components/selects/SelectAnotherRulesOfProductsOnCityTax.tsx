@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Form, MultipleSelector, MultiSelectOption, Spinner } from 'erxes-ui';
 import { useGetAnotherRulesOfProductsOnCityTax } from '../../hooks/useGetAnotherRulesOfProductsOnCityTax';
 import { IAnotherRulesOfProductsOnCityTax } from '../../types/anotherRulesOfProductsOnCityTax';
@@ -19,6 +20,7 @@ export const SelectAnotherRulesOfProductsOnCityTax = ({
   onValueChange: (value: string[]) => void;
   kind?: 'vat' | 'ctax';
 }) => {
+  const { t } = useTranslation('mongolian');
   const { anotherRulesOfProductsOnCityTax, loading } =
     useGetAnotherRulesOfProductsOnCityTax(
       {
@@ -53,10 +55,10 @@ export const SelectAnotherRulesOfProductsOnCityTax = ({
       <MultipleSelector
         value={selectedOptions}
         options={options}
-        placeholder="Select product rules"
+        placeholder={t('select-product-rules')}
         emptyIndicator={
           <p className="text-center text-sm text-muted-foreground">
-            No rules found
+            {t('no-rules-found')}
           </p>
         }
         loadingIndicator={

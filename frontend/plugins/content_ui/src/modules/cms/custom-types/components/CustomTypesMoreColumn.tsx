@@ -9,6 +9,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useRemoveCustomType } from '../hooks/useRemoveCustomType';
 
 interface CustomTypeMoreColumnCellProps {
@@ -22,6 +23,7 @@ export const CustomTypeMoreColumnCell = ({
   onEdit,
   onRefetch,
 }: CustomTypeMoreColumnCellProps) => {
+  const { t } = useTranslation('content');
   const { _id } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -36,19 +38,19 @@ export const CustomTypeMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this custom type?',
+      message: t('confirm-delete-this-custom-type'),
     }).then(() => {
       removeType(_id)
         .then(() => {
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Custom type deleted successfully',
+            description: t('custom-type-deleted-successfully'),
           });
         })
         .catch((e: any) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -76,7 +78,7 @@ export const CustomTypeMoreColumnCell = ({
                 onClick={handleEdit}
               >
                 <IconEdit className="size-4" />
-                Edit
+                {t('edit')}
               </Button>
             </Command.Item>
             <Command.Item asChild>
@@ -88,7 +90,7 @@ export const CustomTypeMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>

@@ -12,8 +12,10 @@ import { IconCircles } from '@tabler/icons-react';
 import { Button, Separator, useIsMatchingLocation } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { MembersBreadcrumb } from '../members/MembersBreadcrumb';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelSettingsBreadcrumb = () => {
+  const { t } = useTranslation('frontline');
   const isMatchingLocation = useIsMatchingLocation(
     '/settings/frontline/channels',
   );
@@ -59,7 +61,7 @@ export const ChannelSettingsBreadcrumb = () => {
       <Link to="/settings/frontline/channels">
         <Button variant="ghost" className="font-semibold">
           <IconCircles className="w-4 h-4 text-accent-foreground" />
-          Channels
+          {t('channels')}
         </Button>
       </Link>
 
@@ -89,7 +91,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/response`}>
             <Button variant="ghost" className="font-semibold">
-              Response templates
+              {t('response-templates')}
             </Button>
           </Link>
         </>
@@ -106,7 +108,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
             <Button variant="ghost" className="font-semibold">
-              Pipelines
+              {t('pipelines')}
             </Button>
           </Link>
         </>
@@ -148,7 +150,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/forms`}>
             <Button variant="ghost" className="font-semibold">
-              Forms
+              {t('forms')}
             </Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.FormDetail) && (
@@ -171,7 +173,7 @@ export const ChannelSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <Button variant="ghost" className="font-semibold">
-            Create form
+            {t('create-form')}
           </Button>
         </>
       )}

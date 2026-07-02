@@ -1,10 +1,13 @@
 import {
   loadAiActionMemory,
+  loadAiConversationState,
   parseAiAgentActionConfig,
   parseAiAgentInput,
   persistAiActionMemory,
+  persistAiConversationState,
   runAiAction,
   TAiActionExecutionResult,
+  TAiAgentActionConfig,
 } from '../../ai';
 import { generateModels } from '../../connectionResolver';
 import {
@@ -30,15 +33,21 @@ export const executeAiAgentAction = async (
 ): Promise<TAiAgentActionWorkerResponse> => {
   try {
     const models = await generateModels(subdomain);
+    const rawActionConfig = normalizeAiAgentActionConfig(
+      parseAiAgentActionConfig(action.config),
+    );
     const parsedActionConfig = parseAiAgentActionConfig(
-      resolveRuntimeConfigValue(
-        parseAiAgentActionConfig(action.config),
-        execution,
-      ),
+      resolveRuntimeConfigValue(rawActionConfig, execution),
     );
     const aiContext = await getAiContext(subdomain, execution);
     const inputData = await getInputData(execution, parsedActionConfig);
     const memory = await loadAiActionMemory({
+      models,
+      execution,
+      actionConfig: parsedActionConfig,
+      aiContext,
+    });
+    const conversationState = await loadAiConversationState({
       models,
       execution,
       actionConfig: parsedActionConfig,
@@ -66,6 +75,7 @@ export const executeAiAgentAction = async (
       inputData,
       aiContext,
       memory,
+      conversationState,
     });
     console.timeEnd(timerLabel);
     if (!response) {
@@ -79,12 +89,88 @@ export const executeAiAgentAction = async (
       result: response.result,
       aiContext,
     });
+    await persistAiConversationState({
+      models,
+      execution,
+      actionConfig: parsedActionConfig,
+      aiContext,
+      state: response.conversationState,
+    });
 
-    return response;
+    return {
+      result: response.result,
+      nextActionId: response.nextActionId,
+    };
   } catch (error) {
     throw new Error(`AI Agent Action failed: ${error.message}`);
   }
 };
+
+const runtimeTokenRegex = /^\s*\{\{\s*([^{}]+?)\s*\}\}\s*$/;
+const nestedRuntimeTokenRegex =
+  /\{\{\s*(?:trigger|actions\.[^.\s{}]+)\.(\{\{\s*([^{}]+?)\s*\}\})\s*\}\}/g;
+
+const unwrapRuntimeToken = (value?: string) => {
+  const match = value?.match(runtimeTokenRegex);
+
+  return match?.[1]?.trim();
+};
+
+const normalizeAiInputTemplate = (input?: string) => {
+  if (!input) {
+    return input;
+  }
+
+  return input.replace(
+    nestedRuntimeTokenRegex,
+    (_match, _innerToken: string, innerPath: string) => `{{ ${innerPath} }}`,
+  );
+};
+
+const normalizeInputMappingPath = (
+  inputMapping?: TAiAgentActionConfig['inputMapping'],
+) => {
+  if (!inputMapping?.path) {
+    return inputMapping;
+  }
+
+  const unwrappedPath = unwrapRuntimeToken(inputMapping.path);
+
+  if (!unwrappedPath) {
+    return inputMapping;
+  }
+
+  if (inputMapping.source === 'trigger') {
+    return {
+      ...inputMapping,
+      path: unwrappedPath.startsWith('trigger.')
+        ? unwrappedPath.slice(8)
+        : unwrappedPath,
+    };
+  }
+
+  if (inputMapping.source === 'previousAction') {
+    return {
+      ...inputMapping,
+      path: unwrappedPath.startsWith('actions.')
+        ? unwrappedPath.slice(8)
+        : unwrappedPath,
+    };
+  }
+
+  return {
+    ...inputMapping,
+    path: unwrappedPath,
+  };
+};
+
+const normalizeAiAgentActionConfig = (
+  actionConfig: TAiAgentActionConfig,
+): TAiAgentActionConfig => ({
+  ...actionConfig,
+  input: normalizeAiInputTemplate(actionConfig.input),
+  inputMapping: normalizeInputMappingPath(actionConfig.inputMapping),
+});
 
 const getAiContext = async (
   subdomain: string,

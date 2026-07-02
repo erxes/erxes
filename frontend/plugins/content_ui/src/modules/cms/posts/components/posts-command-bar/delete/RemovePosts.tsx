@@ -1,5 +1,6 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Button, useConfirm, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useRemovePosts } from '../../../hooks/useRemovePosts';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
@@ -13,6 +14,7 @@ export const PostsDelete = ({
   rows: Row<any>[];
   onRefetch?: () => void;
 }) => {
+  const { t } = useTranslation('content');
   const { confirm } = useConfirm();
   const { removeManyPosts } = useRemovePosts();
   const { toast } = useToast();
@@ -22,9 +24,7 @@ export const PostsDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${
-            postsIds.length
-          } selected post${postsIds.length === 1 ? '' : 's'}?`,
+          message: t('confirm-delete-x-posts', { count: postsIds.length }),
         }).then(() => {
           removeManyPosts(postsIds)
             .then(() => {
@@ -32,16 +32,16 @@ export const PostsDelete = ({
                 row.toggleSelected(false);
               });
               toast({
-                title: 'Success',
+                title: t('success'),
                 variant: 'success',
-                description: 'Posts deleted successfully',
+                description: t('posts-deleted-successfully'),
               });
 
               onRefetch?.();
             })
             .catch((e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -50,7 +50,7 @@ export const PostsDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

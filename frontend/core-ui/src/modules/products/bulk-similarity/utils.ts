@@ -43,31 +43,47 @@ export const generateCombinations = (
 export const generateCodeSuffix = (
   fieldIds: string[],
   combination: Record<string, string>,
-  labelOf: (fieldId: string, value: string) => string,
 ): string =>
   fieldIds
-    .map((fieldId) => labelOf(fieldId, combination[fieldId]))
+    .map((fieldId) => combination[fieldId])
     .filter(Boolean)
     .join('-');
+
+export const generateName = (
+  name: string,
+  fieldIds: string[],
+  combination: Record<string, string>,
+  labelOf: (fieldId: string, value: string) => string,
+): string =>
+  [
+    name,
+    ...fieldIds.map((fieldId) => labelOf(fieldId, combination[fieldId])),
+  ]
+    .filter(Boolean)
+    .join(' ');
 
 export const buildRows = ({
   fieldIds,
   selection,
   code,
+  name = '',
   products = [],
   starProductId,
   labelOf,
   previousRows = [],
   baseCodeDirty = false,
+  baseNameDirty = false,
 }: {
   fieldIds: string[];
   selection: Record<string, string[]>;
   code: string;
+  name?: string;
   products?: ISimilarityProduct[];
   starProductId?: string;
   labelOf: (fieldId: string, value: string) => string;
   previousRows?: BulkRowFormValue[];
   baseCodeDirty?: boolean;
+  baseNameDirty?: boolean;
 }): BulkRowFormValue[] => {
   const combinations = generateCombinations(fieldIds, selection);
 
@@ -86,16 +102,21 @@ export const buildRows = ({
     const key = combinationKey(fieldIds, combination);
     const product = productByKey.get(key);
     const previous = previousByKey.get(key);
-    const suffix = generateCodeSuffix(fieldIds, combination, labelOf);
+    const suffix = generateCodeSuffix(fieldIds, combination);
     const derivedCode = `${code}${suffix}`;
     const autoCode = baseCodeDirty ? derivedCode : (product?.code ?? derivedCode);
+    const derivedName = generateName(name, fieldIds, combination, labelOf);
+    const autoName = baseNameDirty
+      ? derivedName
+      : (product?.name ?? derivedName);
 
     if (previous) {
-      if (previous.codeEdited) return previous;
+      if (previous.codeEdited && previous.nameEdited) return previous;
       return {
         ...previous,
         productId: product?._id ?? previous.productId,
-        code: autoCode,
+        code: previous.codeEdited ? previous.code : autoCode,
+        name: previous.nameEdited ? previous.name : autoName,
       };
     }
 
@@ -105,6 +126,8 @@ export const buildRows = ({
       combination,
       code: autoCode,
       codeEdited: false,
+      name: autoName,
+      nameEdited: false,
       unitPrice: product?.unitPrice,
       isExcluded: false,
       isStar: product ? product._id === starProductId : false,
@@ -124,9 +147,10 @@ export const toSavePayload = ({
       .map((p) => [p.fieldId, p.values]),
   ),
   rows: rows.map(
-    ({ productId, code, unitPrice, isExcluded, isStar, combination }) => ({
+    ({ productId, code, name, unitPrice, isExcluded, isStar, combination }) => ({
       productId,
       code,
+      name,
       unitPrice,
       isExcluded,
       ...(isStar ? { isDefault: true } : {}),

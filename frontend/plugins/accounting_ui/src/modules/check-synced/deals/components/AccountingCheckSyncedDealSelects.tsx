@@ -14,6 +14,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_CHECK_SYNCED_DEAL_DATE_TYPES } from '../constants/dateTypeData';
 import {
   ACCOUNTING_SALES_BOARDS_QUERY,
@@ -54,6 +55,7 @@ const SalesBoardContent = ({
   value: string | null;
   onValueChange: (value: string) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const { data, loading } = useQuery<{ salesBoards?: SalesBoard[] }>(
     ACCOUNTING_SALES_BOARDS_QUERY,
   );
@@ -61,16 +63,16 @@ const SalesBoardContent = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">Loading...</span>
+        <span className="text-muted-foreground">{t('loading')}</span>
       </div>
     );
   }
 
   return (
     <Command>
-      <Command.Input placeholder="Search board" />
+      <Command.Input placeholder={t('search-board')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No boards found</span>
+        <span className="text-muted-foreground">{t('no-boards-found')}</span>
       </Command.Empty>
       <Command.List>
         {(data?.salesBoards || []).map((board) => (
@@ -97,6 +99,7 @@ const SalesPipelineContent = ({
   value: string | null;
   onValueChange: (value: string) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const { data, loading } = useQuery<{
     salesPipelines?: { list?: SalesPipeline[] };
   }>(ACCOUNTING_SALES_PIPELINES_QUERY, {
@@ -107,7 +110,7 @@ const SalesPipelineContent = ({
   if (!boardId) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">Choose board first</span>
+        <span className="text-muted-foreground">{t('choose-board-first')}</span>
       </div>
     );
   }
@@ -115,16 +118,16 @@ const SalesPipelineContent = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">Loading...</span>
+        <span className="text-muted-foreground">{t('loading')}</span>
       </div>
     );
   }
 
   return (
     <Command>
-      <Command.Input placeholder="Search pipeline" />
+      <Command.Input placeholder={t('search-pipeline')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No pipelines found</span>
+        <span className="text-muted-foreground">{t('no-pipelines-found')}</span>
       </Command.Empty>
       <Command.List>
         {(data?.salesPipelines?.list || []).map((pipeline) => (
@@ -151,6 +154,7 @@ const SalesStageContent = ({
   value: string | null;
   onValueChange: (value: string) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const { data, loading } = useQuery<{ salesStages?: SalesStage[] }>(
     ACCOUNTING_SALES_STAGES_QUERY,
     {
@@ -162,7 +166,7 @@ const SalesStageContent = ({
   if (!pipelineId) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">Choose pipeline first</span>
+        <span className="text-muted-foreground">{t('choose-pipeline-first')}</span>
       </div>
     );
   }
@@ -170,16 +174,16 @@ const SalesStageContent = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">Loading...</span>
+        <span className="text-muted-foreground">{t('loading')}</span>
       </div>
     );
   }
 
   return (
     <Command>
-      <Command.Input placeholder="Search stage" />
+      <Command.Input placeholder={t('search-stage')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No stages found</span>
+        <span className="text-muted-foreground">{t('no-stages-found')}</span>
       </Command.Empty>
       <Command.List>
         {(data?.salesStages || []).map((stage) => (
@@ -203,54 +207,69 @@ const DateTypeContent = ({
 }: {
   value: string | null;
   onValueChange: (value: string) => void;
-}) => (
-  <Command>
-    <Command.Input placeholder="Search date type" />
-    <Command.Empty>
-      <span className="text-muted-foreground">No date types found</span>
-    </Command.Empty>
-    <Command.List>
-      {ACCOUNTING_CHECK_SYNCED_DEAL_DATE_TYPES.map((dateType: DateType) => (
-        <Command.Item
-          key={dateType.value}
-          value={dateType.value}
-          onSelect={() => onValueChange(dateType.value)}
-        >
-          <span className="font-medium">{dateType.label}</span>
-          <Combobox.Check checked={value === dateType.value} />
-        </Command.Item>
-      ))}
-    </Command.List>
-  </Command>
-);
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Command>
+      <Command.Input placeholder={t('search-date-type')} />
+      <Command.Empty>
+        <span className="text-muted-foreground">{t('no-date-types-found')}</span>
+      </Command.Empty>
+      <Command.List>
+        {ACCOUNTING_CHECK_SYNCED_DEAL_DATE_TYPES.map((dateType: DateType) => (
+          <Command.Item
+            key={dateType.value}
+            value={dateType.value}
+            onSelect={() => onValueChange(dateType.value)}
+          >
+            <span className="font-medium">{t(dateType.label)}</span>
+            <Combobox.Check checked={value === dateType.value} />
+          </Command.Item>
+        ))}
+      </Command.List>
+    </Command>
+  );
+};
 
-export const AccountingDealBoardFilterItem = () => (
-  <Filter.Item value="boardId">
-    <IconLayoutCards />
-    Board
-  </Filter.Item>
-);
+export const AccountingDealBoardFilterItem = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Item value="boardId">
+      <IconLayoutCards />
+      {t('board')}
+    </Filter.Item>
+  );
+};
 
-export const AccountingDealPipelineFilterItem = () => (
-  <Filter.Item value="pipelineId">
-    <IconCards />
-    Pipeline
-  </Filter.Item>
-);
+export const AccountingDealPipelineFilterItem = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Item value="pipelineId">
+      <IconCards />
+      {t('pipeline')}
+    </Filter.Item>
+  );
+};
 
-export const AccountingDealStageFilterItem = () => (
-  <Filter.Item value="stageId">
-    <IconLabel />
-    Stage
-  </Filter.Item>
-);
+export const AccountingDealStageFilterItem = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Item value="stageId">
+      <IconLabel />
+      {t('stage')}
+    </Filter.Item>
+  );
+};
 
-export const AccountingDealDateTypeFilterItem = () => (
-  <Filter.Item value="dateType">
-    <IconClock />
-    Date Type
-  </Filter.Item>
-);
+export const AccountingDealDateTypeFilterItem = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Item value="dateType">
+      <IconClock />
+      {t('date-type')}
+    </Filter.Item>
+  );
+};
 
 export const AccountingDealBoardFilterView = () => {
   const [boardId, setBoardId] = useQueryState<string>('boardId');
@@ -337,6 +356,7 @@ export const AccountingDealDateTypeFilterView = () => {
 };
 
 export const AccountingDealBoardFilterBar = () => {
+  const { t } = useTranslation('accounting');
   const [boardId, setBoardId] = useQueryState<string>('boardId');
   const [, setPipelineId] = useQueryState<string>('pipelineId');
   const [, setStageId] = useQueryState<string>('stageId');
@@ -349,12 +369,12 @@ export const AccountingDealBoardFilterBar = () => {
     <Filter.BarItem queryKey="boardId">
       <Filter.BarName>
         <IconLayoutCards />
-        Board
+        {t('board')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="boardId">
-            {getSelectedName(data?.salesBoards, boardId, 'Select board')}
+            {getSelectedName(data?.salesBoards, boardId, t('select-board'))}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -378,6 +398,7 @@ export const AccountingDealPipelineFilterBar = ({
 }: {
   boardId?: string;
 }) => {
+  const { t } = useTranslation('accounting');
   const [pipelineId, setPipelineId] = useQueryState<string>('pipelineId');
   const [, setStageId] = useQueryState<string>('stageId');
   const [open, setOpen] = useState(false);
@@ -393,7 +414,7 @@ export const AccountingDealPipelineFilterBar = ({
     <Filter.BarItem queryKey="pipelineId">
       <Filter.BarName>
         <IconCards />
-        Pipeline
+        {t('pipeline')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
@@ -402,9 +423,9 @@ export const AccountingDealPipelineFilterBar = ({
               ? getSelectedName(
                   data?.salesPipelines?.list,
                   pipelineId,
-                  'Select pipeline',
+                  t('select-pipeline'),
                 )
-              : 'Choose board first'}
+              : t('choose-board-first')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -428,6 +449,7 @@ export const AccountingDealStageFilterBar = ({
 }: {
   pipelineId?: string;
 }) => {
+  const { t } = useTranslation('accounting');
   const [stageId, setStageId] = useQueryState<string>('stageId');
   const [open, setOpen] = useState(false);
   const { data } = useQuery<{ salesStages?: SalesStage[] }>(
@@ -442,14 +464,14 @@ export const AccountingDealStageFilterBar = ({
     <Filter.BarItem queryKey="stageId">
       <Filter.BarName>
         <IconLabel />
-        Stage
+        {t('stage')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="stageId">
             {pipelineId
-              ? getSelectedName(data?.salesStages, stageId, 'Select stage')
-              : 'Choose pipeline first'}
+              ? getSelectedName(data?.salesStages, stageId, t('select-stage'))
+              : t('choose-pipeline-first')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -468,6 +490,7 @@ export const AccountingDealStageFilterBar = ({
 };
 
 export const AccountingDealDateTypeFilterBar = () => {
+  const { t } = useTranslation('accounting');
   const [dateType, setDateType] = useQueryState<string>('dateType');
   const [open, setOpen] = useState(false);
   const selectedDateType = ACCOUNTING_CHECK_SYNCED_DEAL_DATE_TYPES.find(
@@ -478,12 +501,12 @@ export const AccountingDealDateTypeFilterBar = () => {
     <Filter.BarItem queryKey="dateType">
       <Filter.BarName>
         <IconClock />
-        Date Type
+        {t('date-type')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="dateType">
-            {selectedDateType?.label || 'Select date type'}
+            {selectedDateType ? t(selectedDateType.label) : t('select-date-type')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

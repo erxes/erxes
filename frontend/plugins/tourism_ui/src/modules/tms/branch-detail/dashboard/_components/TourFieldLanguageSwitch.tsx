@@ -1,4 +1,5 @@
 import { Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { LANGUAGES } from '@/tms/constants/languages';
 
 interface TourFieldLanguageSwitchProps {
@@ -12,6 +13,7 @@ export const TourFieldLanguageSwitch = ({
   value,
   onValueChange,
 }: TourFieldLanguageSwitchProps) => {
+  const { t } = useTranslation('tourism');
   if (!availableLanguages.length) {
     return null;
   }
@@ -21,7 +23,7 @@ export const TourFieldLanguageSwitch = ({
   return (
     <Select value={value} onValueChange={onValueChange}>
       <Select.Trigger className="h-8 min-w-40">
-        <Select.Value placeholder="Select language" className="text-xs">
+        <Select.Value placeholder={t('select-language')} className="text-xs">
           {selected?.label || value}
         </Select.Value>
       </Select.Trigger>

@@ -1,11 +1,13 @@
 import { AUTOMATIONS_AI_AGENTS } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { useQuery } from '@apollo/client';
+import { ApprovalLockState } from 'ui-modules';
 
 export type TAiAgentRecord = {
   _id: string;
   name: string;
   description: string;
   createdAt: string;
+  approvalLockState?: ApprovalLockState;
   connection?: {
     provider?: string;
     model?: string;

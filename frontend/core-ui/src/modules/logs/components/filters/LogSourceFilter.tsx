@@ -11,7 +11,9 @@ export const LogSourceFilter = () => {
   const [queries, setQueries] = useMultiQueryState<{
     source: string;
     sourceOperator: string;
-  }>(['source', 'sourceOperator']);
+    action: string;
+    actionOperator: string;
+  }>(['source', 'sourceOperator', 'action', 'actionOperator']);
   const { source } = queries;
 
   return (
@@ -48,9 +50,12 @@ export const LogSourceFilter = () => {
               setQueries({
                 source: value === source ? null : value,
                 sourceOperator: null,
+                action: null,
+                actionOperator: null,
               })
             }
           >
+
             <Icon />
             {label}
             {source === value && <IconCheck className="ml-auto" />}

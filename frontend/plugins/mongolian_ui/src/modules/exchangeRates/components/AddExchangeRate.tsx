@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
@@ -15,6 +16,7 @@ import { ExchangeRateSheetContent } from './ExchangeRateSheetContent';
 const FORM_ID = 'add-exchange-rate-form';
 
 export const AddExchangeRate = () => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useState(false);
   const form = useExchangeRateForm();
 
@@ -38,11 +40,11 @@ export const AddExchangeRate = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Exchange Rate
+          {t('add-exchange-rate')}
         </Button>
       </Sheet.Trigger>
       <ExchangeRateSheetContent
-        title="Add Exchange Rate"
+        title={t('add-exchange-rate')}
         formId={FORM_ID}
         form={form}
         loading={loading}

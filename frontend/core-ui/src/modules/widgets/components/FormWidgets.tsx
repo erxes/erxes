@@ -6,9 +6,11 @@ import { useFormWidgetsModules } from '../hooks/useFormWidgets';
 
 export const FormWidgetSideTabs = <T extends FieldValues>({
   contentType,
+  contentId,
   form,
 }: {
   contentType: string;
+  contentId?: string;
   form: UseFormReturn<T>;
 }) => {
   const modules = useFormWidgetsModules(contentType);
@@ -31,6 +33,7 @@ export const FormWidgetSideTabs = <T extends FieldValues>({
             props={{
               pluginName: module.pluginName,
               contentType: module.contentType,
+              contentId,
               form: formWidgetForm,
             }}
           />

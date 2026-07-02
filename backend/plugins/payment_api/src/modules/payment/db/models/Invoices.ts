@@ -62,7 +62,6 @@ export const loadInvoiceClass = (models: IModels) => {
           transaction.response = response;
           transaction.details = {
             ...transaction.details,
-            tdbOrderId: response.order?.id,
           };
           await transaction.save();
 

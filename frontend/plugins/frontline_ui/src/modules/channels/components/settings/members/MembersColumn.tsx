@@ -4,10 +4,12 @@ import { Cell, ColumnDef } from '@tanstack/table-core';
 import { RecordTable, RecordTableInlineCell, Select } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
 import { MemberMoreColumn } from './MemberMoreColumn';
+import { useTranslation } from 'react-i18next';
 
 type RowType = { order: string; hasChildren: boolean } & IChannelMember;
 
 const RoleCell = ({ cell }: { cell: Cell<RowType, unknown> }) => {
+  const { t } = useTranslation('frontline');
   const { updateChannelMember } = useChannelMemberUpdate();
 
   const row = cell.row.original;
@@ -24,17 +26,17 @@ const RoleCell = ({ cell }: { cell: Cell<RowType, unknown> }) => {
     <RecordTableInlineCell>
       <Select value={cell.getValue() as string} onValueChange={roleHandler}>
         <Select.Trigger className="w-full h-7 hover:bg-accent-foreground/10 shadow-none">
-          <Select.Value placeholder="Select role" />
+          <Select.Value placeholder={t('select-role')} />
         </Select.Trigger>
         <Select.Content>
           <Select.Item value="admin">
-            <p className="text-xs">Admin</p>
+            <p className="text-xs">{t('admin')}</p>
           </Select.Item>
           <Select.Item value="lead">
-            <p className="text-xs">Lead</p>
+            <p className="text-xs">{t('lead')}</p>
           </Select.Item>
           <Select.Item value="member">
-            <p className="text-xs">Member</p>
+            <p className="text-xs">{t('member-label')}</p>
           </Select.Item>
         </Select.Content>
       </Select>
@@ -54,7 +56,11 @@ const columns: () => ColumnDef<
   {
     id: 'member',
     accessorKey: 'memberId',
-    header: () => <RecordTable.InlineHead label="Member" />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('member-label')} />;
+    },
     cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
@@ -75,7 +81,11 @@ const columns: () => ColumnDef<
   {
     id: 'role',
     accessorKey: 'role',
-    header: () => <RecordTable.InlineHead label="Role" />,
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('role-label')} />;
+    },
     cell: ({ cell }) => {
       return <RoleCell cell={cell} />;
     },

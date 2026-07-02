@@ -3,6 +3,7 @@
 import { Button, Input } from 'erxes-ui';
 import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
 import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 type TotalByCurrency = { [currency: string]: number };
 type TotalWithPercent = {
@@ -121,6 +122,8 @@ const ProductFooter = ({
 
   const currencies = Object.keys({ ...total, ...discount, ...tax });
 
+  const { t } = useTranslation('sales');
+
   return (
     <div className="sticky bottom-0 right-0 left-0 p-3 z-10 bg-background border-t space-y-2">
       {showAdvancedView && currencies.length > 0 && (
@@ -130,7 +133,7 @@ const ProductFooter = ({
               {/* Discount */}
               <div className="flex items-center gap-2">
                 <span className="text-primary font-semibold">
-                  Total Discount:
+                  {t('total-discount')}:
                 </span>
                 <Input
                   type="number"
@@ -163,7 +166,7 @@ const ProductFooter = ({
 
               {/* Tax */}
               <div className="flex items-center gap-2">
-                <span className="text-primary font-semibold">Total Tax:</span>
+                <span className="text-primary font-semibold">{t('total-tax')}:</span>
                 <Input
                   type="number"
                   className="w-32"
@@ -192,22 +195,22 @@ const ProductFooter = ({
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Products:</span>
+            <span className="text-sm text-muted-foreground">{t('products')}:</span>
             <span className="text-primary font-semibold">{productsCount}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Amount:</span>
+            <span className="text-sm text-muted-foreground">{t('amount')}:</span>
             {formatTotal(total)}
           </div>
           {Object.keys(unUsedTotal).length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Unused:</span>
+              <span className="text-muted-foreground">{t('unused')}:</span>
               <span className="font-medium">{formatTotal(unUsedTotal)}</span>
             </div>
           )}
           {Object.keys(unUsedTotal).length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Total:</span>
+              <span className="text-muted-foreground">{t('total')}:</span>
               <span className="font-medium">{formatTotal(bothTotal)}</span>
             </div>
           )}
@@ -222,12 +225,12 @@ const ProductFooter = ({
           >
             <Button variant="secondary">
               <IconPlus className="w-4 h-4 mr-1" />
-              Add Products
+              {t('add-products')}
             </Button>
           </SelectProductsBulk>
           <Button onClick={onSave}>
             <IconDeviceFloppy size={16} />
-            Save
+            {t('save')}
           </Button>
         </div>
       </div>

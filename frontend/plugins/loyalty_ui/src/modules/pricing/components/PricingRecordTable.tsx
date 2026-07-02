@@ -3,9 +3,11 @@ import { pricingColumns } from '@/pricing/components/PricingColumns';
 import { PricingCommandBar } from '@/pricing/components/PricingCommandBar';
 import { usePricing } from '@/pricing/hooks/usePricing';
 import { IconCoins, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { PricingCreateSheet } from '@/pricing/create-pricing/PricingCreateSheet';
 
 export function PricingRecordTable() {
+  const { t } = useTranslation('loyalty');
   const { pricing, loading, totalCount } = usePricing();
 
   if (!loading && totalCount === 0) {
@@ -13,16 +15,16 @@ export function PricingRecordTable() {
       <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
         <IconCoins size={64} stroke={1.5} className="text-muted-foreground" />
         <h2 className="text-lg font-semibold text-muted-foreground">
-          No pricing yet
+          {t('no-pricing-yet')}
         </h2>
         <p className="mb-4 text-md text-muted-foreground">
-          Add your first pricing to get started.
+          {t('get-started-pricing')}
         </p>
         <PricingCreateSheet
           trigger={
             <Button variant="outline">
               <IconPlus />
-              Create Pricing
+              {t('create-pricing')}
             </Button>
           }
         />

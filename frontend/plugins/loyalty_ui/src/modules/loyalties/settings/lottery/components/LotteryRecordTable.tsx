@@ -1,4 +1,5 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { IconHeart } from '@tabler/icons-react';
 import { LOTTERY_CURSOR_SESSION_KEY } from '../constants/lotteryCursorSessionKey';
@@ -8,6 +9,7 @@ import { LotteryAddSheet } from './LotteryAddSheet';
 import { LotteryCommandBar } from './lottery-command-bar/LotteryCommandBar';
 
 export const LotteryRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { lottery, handleFetchMore, loading, pageInfo } = useLottery();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -46,9 +48,9 @@ export const LotteryRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No lottery yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-lotteries-yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first lottery.
+                    {t('get-started-lottery')}
                   </p>
                 </div>
                 <LotteryAddSheet />

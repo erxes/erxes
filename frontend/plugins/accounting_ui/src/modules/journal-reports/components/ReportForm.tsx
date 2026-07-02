@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { SelectAccountCategory } from '~/modules/settings/account/account-categories/components/SelectAccountCategory';
 import { activeReportState } from '../states/renderingReportsStates';
@@ -33,6 +34,7 @@ const getQueryParam = (
 };
 
 export const ReportForm = () => {
+  const { t } = useTranslation('accounting');
   const [activeReport] = useAtom(activeReportState);
   const activeReportConf = useMemo(() => {
     return ReportRules[activeReport] || ({} as IReportConfig);
@@ -70,7 +72,7 @@ export const ReportForm = () => {
   };
 
   if (!activeReport) {
-    return 'Choose report'; // report handbook
+    return t('choose-report');
   }
 
   return (
@@ -87,7 +89,7 @@ export const ReportForm = () => {
             name="categoryId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Account Category</Form.Label>
+                <Form.Label>{t('account-category')}</Form.Label>
                 <Form.Control>
                   <SelectAccountCategory
                     tabIndex={0}
@@ -106,7 +108,7 @@ export const ReportForm = () => {
             name="accountIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Accounts</Form.Label>
+                <Form.Label>{t('accounts')}</Form.Label>
                 <Form.Control>
                   <SelectAccount
                     value={field.value}
@@ -125,7 +127,7 @@ export const ReportForm = () => {
             name="branchId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Branch</Form.Label>
+                <Form.Label>{t('branch')}</Form.Label>
                 <Form.Control>
                   <SelectBranches.FormItem
                     mode="single"
@@ -143,7 +145,7 @@ export const ReportForm = () => {
             name="departmentId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Department</Form.Label>
+                <Form.Label>{t('department')}</Form.Label>
                 <Form.Control>
                   <SelectDepartments.FormItem
                     mode="single"
@@ -167,7 +169,7 @@ export const ReportForm = () => {
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label>Temporary Account</Form.Label>
+                <Form.Label>{t('temporary-account')}</Form.Label>
               </Form.Item>
             )}
           />
@@ -193,11 +195,11 @@ export const ReportForm = () => {
             name="groupKey"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Group by</Form.Label>
+                <Form.Label>{t('group-by')}</Form.Label>
                 <Form.Control>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
-                      <Select.Value placeholder="Select a property type" />
+                      <Select.Value placeholder={t('select-a-property-type')} />
                     </Select.Trigger>
                     <Select.Content>
                       {groupKeyChoices.map(
@@ -219,7 +221,7 @@ export const ReportForm = () => {
             name="fromDate"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>From Date</Form.Label>
+                <Form.Label>{t('from-date')}</Form.Label>
                 <Form.Control>
                   <DatePicker
                     value={field.value}
@@ -236,7 +238,7 @@ export const ReportForm = () => {
             name="toDate"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>To Date</Form.Label>
+                <Form.Label>{t('to-date')}</Form.Label>
                 <Form.Control>
                   <DatePicker
                     value={field.value}
@@ -249,7 +251,7 @@ export const ReportForm = () => {
           />
           <Dialog.Footer className="col-span-2 mt-4">
             <Button type="submit" size="lg">
-              Generate Report
+              {t('generate-report')}
             </Button>
           </Dialog.Footer>
         </form>

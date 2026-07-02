@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { format, endOfDay, startOfMonth, subMonths } from 'date-fns';
 import { ScrollArea, Spinner, Tabs } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import { CALL_QUEUE_LIST } from '@/integrations/call/graphql/queries/callQueueList';
@@ -22,11 +23,11 @@ import type { CallFilters, SelectOption } from './types';
 type QueueRecord = { _id?: string; name?: string; queue?: string };
 
 const TABS = [
-  { value: 'overview', label: 'Overview' },
-  { value: 'queues', label: 'Queues' },
-  { value: 'agents', label: 'Agents' },
-  { value: 'callbacks', label: 'Callbacks' },
-  { value: 'top-numbers', label: 'Top Numbers' },
+  { value: 'overview', label: 'overview' },
+  { value: 'queues', label: 'queues' },
+  { value: 'agents', label: 'agents' },
+  { value: 'callbacks', label: 'callbacks' },
+  { value: 'top-numbers', label: 'top-numbers' },
 ] as const;
 
 type TabValue = (typeof TABS)[number]['value'];
@@ -39,6 +40,7 @@ type TabValue = (typeof TABS)[number]['value'];
  * - Has a `SubHeader` filter bar and `Tabs` navigation to 5 section views
  */
 export function CallReportsPage() {
+  const { t } = useTranslation('frontline');
   const [tab, setTab] = useState<TabValue>('overview');
   const [integrationId, setIntegrationId] = useState('');
   const [queueId, setQueueId] = useState('');
@@ -142,7 +144,7 @@ export function CallReportsPage() {
         {/* ── Empty / error states ──────────────────────────────────────── */}
         {!integrationsLoading && !integrationOptions.length && (
           <div className="m-6 rounded-xl border-2 border-dashed p-12 text-center text-sm text-muted-foreground">
-            No call integration found for this user.
+            {t('no-call-integration-found')}
           </div>
         )}
         {!queuesLoading &&
@@ -150,7 +152,7 @@ export function CallReportsPage() {
           integrationOptions.length > 0 &&
           !queueOptions.length && (
             <div className="m-6 rounded-xl border-2 border-dashed p-12 text-center text-sm text-muted-foreground">
-              The selected integration has no assigned queues.
+              {t('no-queues-assigned')}
             </div>
           )}
 
@@ -176,7 +178,7 @@ export function CallReportsPage() {
                     value={value}
                     className="h-10 rounded-none border-b-2 border-transparent px-4 text-xs font-medium data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {label}
+                    {t(label)}
                   </Tabs.Trigger>
                 ))}
               </Tabs.List>

@@ -30,27 +30,27 @@ export const CHECK_ORDER_FILTER_KEYS: TCheckOrderFilterKey[] = [
 export const PRIMARY_FILTER_FIELDS: ICheckOrderFilterField[] = [
   {
     key: 'brandId',
-    label: 'Brand',
+    label: 'brand',
     Icon: IconSearch,
   },
   {
     key: 'user',
-    label: 'User',
+    label: 'user',
     Icon: IconUser,
   },
   {
     key: 'paidDateRange',
-    label: 'Paid Date Range',
+    label: 'paid-date-range',
     Icon: IconCalendar,
   },
   {
     key: 'createdAtRange',
-    label: 'Created Date Range',
+    label: 'created-date-range',
     Icon: IconCalendar,
   },
   {
     key: 'number',
-    label: 'Number',
+    label: 'number',
     Icon: IconSearch,
   },
 ];
@@ -58,7 +58,7 @@ export const PRIMARY_FILTER_FIELDS: ICheckOrderFilterField[] = [
 export const TEXT_FILTER_FIELDS: ICheckOrderFilterField[] = [
   {
     key: 'number',
-    label: 'Number',
+    label: 'number',
     Icon: IconSearch,
   },
 ];

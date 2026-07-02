@@ -1,3 +1,12 @@
+export type TFieldSelectionConfig = {
+  queryName?: string;
+  labelField?: string;
+  valueField?: string;
+  multi?: boolean;
+  component?: string;
+  [key: string]: unknown;
+};
+
 export type IField = {
   _id: string;
   name: string;
@@ -6,12 +15,13 @@ export type IField = {
   type: string;
   group?: string;
   groupId?: string;
-  logics?: Record<string, any>;
+  logics?: Record<string, unknown>;
   relationType?: string;
   multiple?: boolean;
   icon?: string;
-  configs?: Record<string, any>;
-  validation?: any;
+  configs?: TFieldSelectionConfig;
+  selectionConfig?: TFieldSelectionConfig;
+  validation?: unknown;
   selectOptions?: Array<{ label: string; value: string }>;
 };
 
@@ -22,8 +32,8 @@ export interface IFieldGroup {
   description: string;
   contentType: string;
   order: number;
-  logics?: Record<string, any>;
-  configs?: Record<string, any>;
+  logics?: Record<string, unknown>;
+  configs?: Record<string, unknown>;
 }
 
 export type mutateFunction = (

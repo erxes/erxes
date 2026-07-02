@@ -127,15 +127,9 @@ const reserveRemsMutations = {
     { models, user }: IContext,
   ) => {
     const { _id, ...params } = doc;
-    const reserveRem = await models.ReserveRems.getReserveRem({ _id });
-    return await models.ReserveRems.reserveRemEdit(
-      _id,
-      {
-        ...reserveRem,
-        ...params,
-      },
-      user,
-    );
+    await models.ReserveRems.getReserveRem({ _id });
+    await models.ReserveRems.reserveRemEdit(_id, params, user);
+    return await models.ReserveRems.findOne({ _id }).lean();
   },
 
   reserveRemsRemove: async (

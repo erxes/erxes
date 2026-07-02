@@ -7,6 +7,7 @@ import { useQuery } from '@apollo/client';
 import { useNonNullMultiQueryState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { currentUserState, useTags } from 'ui-modules';
 
 export interface IStatItem {
@@ -37,6 +38,7 @@ export const useTasksStats = ({
   teamId,
   userId,
 }: UseTasksStatsProps): UseTasksStatsReturn => {
+  const { t } = useTranslation('operation');
   const currentUser = useAtomValue(currentUserState);
   const {
     searchValue,
@@ -266,7 +268,7 @@ export const useTasksStats = ({
           id: projectId,
           name:
             project?.name ||
-            (projectId === 'no-project' ? 'No Project' : 'Unknown Project'),
+            (projectId === 'no-project' ? t('no-project-label') : t('unknown-project')),
           totalTasks: stats.total,
           completedTasks: stats.completed,
           startedTasks: stats.started,

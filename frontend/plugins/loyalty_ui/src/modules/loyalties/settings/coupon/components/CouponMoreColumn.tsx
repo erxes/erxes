@@ -12,6 +12,7 @@ import {
 import { IconEdit, IconTrash, IconTicket } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useDeleteCoupon } from '../hooks/useDeleteCoupon';
 import { ICoupon } from '../types/couponTypes';
 
@@ -20,6 +21,7 @@ export const CouponMoreColumnCell = ({
 }: {
   cell: Cell<ICoupon, unknown>;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { _id } = cell.row.original;
   const [, setEditCouponId] = useQueryState('editCouponId');
   const { removeCoupon, loading } = useDeleteCoupon();
@@ -38,20 +40,20 @@ export const CouponMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: 'Are you sure you want to delete this coupon?',
+      message: t('delete-coupon-confirm', { count: 1 }),
     }).then(() => {
       removeCoupon({
         variables: { _ids: [_id] },
       })
         .then(() => {
           toast({
-            title: '1 coupon deleted successfully',
+            title: t('coupons-deleted', { count: 1 }),
             variant: 'success',
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -72,10 +74,10 @@ export const CouponMoreColumnCell = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="see-coupons" onSelect={handleSeeCoupons}>
-              <IconTicket /> See coupons
+              <IconTicket /> {t('see-coupons')}
             </Command.Item>
             <Command.Item asChild>
               <Button
@@ -86,7 +88,7 @@ export const CouponMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>

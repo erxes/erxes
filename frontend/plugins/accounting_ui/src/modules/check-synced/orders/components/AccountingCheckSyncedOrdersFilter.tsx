@@ -11,6 +11,7 @@ import {
   useFilterQueryState,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   AccountingCheckSyncedOrderRuleFilterBar,
   AccountingCheckSyncedOrderRuleFilterItem,
@@ -24,6 +25,7 @@ import {
 import { AccountingCheckSyncedOrdersTotalCount } from './AccountingCheckSyncedOrdersTotalCount';
 
 export const AccountingCheckSyncedOrdersFilterPopover = () => {
+  const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<{
     orderRuleId: string;
     pos: string;
@@ -51,7 +53,7 @@ export const AccountingCheckSyncedOrdersFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -61,19 +63,19 @@ export const AccountingCheckSyncedOrdersFilterPopover = () => {
                 <Command.Separator className="my-1" />
                 <Filter.Item value="searchValue" inDialog>
                   <IconBuilding />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="createdDateRange">
                   <IconClock />
-                  Created date range
+                  {t('created-date-range')}
                 </Filter.Item>
                 <Filter.Item value="paidDateRange">
                   <IconCalendar />
-                  Paid date range
+                  {t('paid-date-range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -107,6 +109,7 @@ export const AccountingCheckSyncedOrdersFilterPopover = () => {
 };
 
 export const AccountingCheckSyncedOrdersFilter = () => {
+  const { t } = useTranslation('accounting');
   const [searchValue] = useFilterQueryState<string>('searchValue');
   const [number] = useFilterQueryState<string>('number');
 
@@ -119,7 +122,7 @@ export const AccountingCheckSyncedOrdersFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconBuilding />
-            Search
+            {t('search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -128,7 +131,7 @@ export const AccountingCheckSyncedOrdersFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -137,14 +140,14 @@ export const AccountingCheckSyncedOrdersFilter = () => {
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconClock />
-            Created date range
+            {t('created-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="paidDateRange">
           <Filter.BarName>
             <IconCalendar />
-            Paid date range
+            {t('paid-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>

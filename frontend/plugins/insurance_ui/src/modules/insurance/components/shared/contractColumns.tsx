@@ -16,6 +16,7 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
 import { InsuranceContract } from '~/modules/insurance/types';
 import { ContractMoreColumn } from './ContractMoreColumn';
 import { formatCurrency, formatDate } from './formatters';
@@ -36,9 +37,10 @@ export const createMoreColumn = (
 export const contractNumberColumn: ColumnDef<InsuranceContract> = {
   id: 'contractNumber',
   accessorKey: 'contractNumber',
-  header: () => (
-    <RecordTable.InlineHead icon={IconFileText} label="Contract No." />
-  ),
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconFileText} label={t('contract-no')} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={cell.getValue() as string} />
@@ -49,7 +51,10 @@ export const contractNumberColumn: ColumnDef<InsuranceContract> = {
 export const customerColumn: ColumnDef<InsuranceContract> = {
   id: 'customer',
   accessorKey: 'customer',
-  header: () => <RecordTable.InlineHead icon={IconUser} label="Customer" />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconUser} label={t('customer')} />;
+  },
   cell: ({ cell }) => {
     const customer = cell.row.original.customer;
     return (
@@ -65,7 +70,10 @@ export const customerColumn: ColumnDef<InsuranceContract> = {
 export const vendorColumn: ColumnDef<InsuranceContract> = {
   id: 'vendor',
   accessorKey: 'vendor',
-  header: () => <RecordTable.InlineHead icon={IconBuilding} label="Vendor" />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={cell.row.original.vendor?.name || ''} />
@@ -78,7 +86,10 @@ export const createProductColumn = (
 ): ColumnDef<InsuranceContract> => ({
   id: 'product',
   accessorKey: 'insuranceProduct',
-  header: () => <RecordTable.InlineHead icon={icon} label="Product" />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={icon} label={t('product')} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip
@@ -91,9 +102,10 @@ export const createProductColumn = (
 export const chargedAmountColumn: ColumnDef<InsuranceContract> = {
   id: 'chargedAmount',
   accessorKey: 'chargedAmount',
-  header: () => (
-    <RecordTable.InlineHead icon={IconCurrencyTugrik} label="Amount" />
-  ),
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('amount')} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={formatCurrency(cell.getValue() as number)} />
@@ -104,9 +116,10 @@ export const chargedAmountColumn: ColumnDef<InsuranceContract> = {
 export const startDateColumn: ColumnDef<InsuranceContract> = {
   id: 'startDate',
   accessorKey: 'startDate',
-  header: () => (
-    <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
-  ),
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />
@@ -117,7 +130,10 @@ export const startDateColumn: ColumnDef<InsuranceContract> = {
 export const endDateColumn: ColumnDef<InsuranceContract> = {
   id: 'endDate',
   accessorKey: 'endDate',
-  header: () => <RecordTable.InlineHead icon={IconCalendar} label="End Date" />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconCalendar} label={t('end-date')} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />
@@ -128,17 +144,19 @@ export const endDateColumn: ColumnDef<InsuranceContract> = {
 export const paymentStatusColumn: ColumnDef<InsuranceContract> = {
   id: 'paymentStatus',
   accessorKey: 'paymentStatus',
-  header: () => (
-    <RecordTable.InlineHead icon={IconCurrencyTugrik} label="Status" />
-  ),
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('status')} />;
+  },
   cell: ({ cell }) => {
+    const { t } = useTranslation('insurance');
     const status = cell.getValue() as string;
     return (
       <RecordTableInlineCell>
         {status === 'paid' ? (
-          <Badge className="bg-green-100 text-green-800">Paid</Badge>
+          <Badge className="bg-green-100 text-green-800">{t('paid')}</Badge>
         ) : (
-          <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
+          <Badge className="bg-yellow-100 text-yellow-800">{t('pending')}</Badge>
         )}
       </RecordTableInlineCell>
     );

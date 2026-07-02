@@ -1,5 +1,6 @@
-import { useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import { LOGS_REVERT_PROCESS } from '@/logs/graphql/revertMutations';
+import { LOGS_REVERT_PREVIEW } from '@/logs/graphql/revertQueries';
 
 export interface IRevertField {
   field: string;
@@ -48,26 +49,40 @@ export interface IDocResolution {
   fields: IFieldResolution[];
 }
 
-/** Hook exposing `preview`/`apply` for the point-in-time revert mutation. */
+/** Hook exposing `preview`/`apply` for the point-in-time revert. */
 export const useRevertProcess = () => {
-  const [run, { loading }] = useMutation(LOGS_REVERT_PROCESS);
+  // Preview is a read-only QUERY (not audit-logged), so the panel's silent
+  // on-open dry-run never spawns a phantom `logsRevertProcess` log. Only `apply`
+  // uses the mutation, which is correctly recorded as a real change.
+  const [runPreview, { loading: previewLoading }] = useLazyQuery(
+    LOGS_REVERT_PREVIEW,
+    { fetchPolicy: 'network-only' },
+  );
+  const [runApply, { loading: applyLoading }] = useMutation(
+    LOGS_REVERT_PROCESS,
+  );
 
-  /** Run the revert mutation and return its typed result. */
-  const call = async (variables: {
-    processId: string;
-    dryRun?: boolean;
-    resolutions?: IDocResolution[];
-  }): Promise<IRevertResult> => {
-    const { data } = await run({ variables });
+  /** Preview the plan without writing anything (read-only, un-logged). */
+  const preview = async (processId: string): Promise<IRevertResult> => {
+    // useLazyQuery resolves (not rejects) with `.error` on failure; re-throw so
+    // callers' try/catch and error toasts keep the mutation's throw semantics.
+    const { data, error } = await runPreview({ variables: { processId } });
+    if (error) {
+      throw error;
+    }
+    return data.logsRevertPreview as IRevertResult;
+  };
+
+  /** Apply the revert, optionally with per-field merge resolutions. */
+  const apply = async (
+    processId: string,
+    resolutions?: IDocResolution[],
+  ): Promise<IRevertResult> => {
+    const { data } = await runApply({
+      variables: { processId, dryRun: false, resolutions },
+    });
     return data.logsRevertProcess as IRevertResult;
   };
 
-  /** Preview the plan without writing anything. */
-  const preview = (processId: string) => call({ processId, dryRun: true });
-
-  /** Apply the revert, optionally with per-field merge resolutions. */
-  const apply = (processId: string, resolutions?: IDocResolution[]) =>
-    call({ processId, dryRun: false, resolutions });
-
-  return { preview, apply, loading };
+  return { preview, apply, loading: previewLoading || applyLoading };
 };

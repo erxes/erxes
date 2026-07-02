@@ -12,21 +12,23 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useAdjustInventoryAdd } from '../hooks/useAdjustInventoryAdd';
 import { TAdjustInventoryForm } from '../types/adjustInventoryForm';
 import { adjustInventorySchema } from '../types/adjustInventorySchema';
 
 export const AddAdjustInventory = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Inventory Adjustment
+          {t('add-inventory-adjustment')}
         </Button>
       </Dialog.Trigger>
-      <AccountingDialog title="Add Account" description="Add a new account">
+      <AccountingDialog title={t('add-account')} description={t('add-a-new-account')}>
         <AddAdjustInventoryForm setOpen={setOpen} />
       </AccountingDialog>
     </Dialog>
@@ -38,6 +40,7 @@ const AddAdjustInventoryForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const form = useForm<TAdjustInventoryForm>({
     resolver: zodResolver(adjustInventorySchema),
     defaultValues: {
@@ -65,14 +68,14 @@ const AddAdjustInventoryForm = ({
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <h3 className="text-lg font-bold">
-          {id ? `Edit` : `Create`} Adjust Inventory
+          {`${id ? t('edit') : t('create')} ${t('adjust-inventory')}`}
         </h3>
         <Form.Field
           control={form.control}
           name="date"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Date</Form.Label>
+              <Form.Label>{t('date')}</Form.Label>
               <Form.Control>
                 <DatePicker
                   value={field.value}
@@ -89,9 +92,9 @@ const AddAdjustInventoryForm = ({
           name="description"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description')}</Form.Label>
               <Form.Control>
-                <Textarea placeholder="Enter description" {...field} />
+                <Textarea placeholder={t('enter-description')} {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -101,12 +104,12 @@ const AddAdjustInventoryForm = ({
         <Dialog.Footer className="col-span-2 mt-4">
           <Dialog.Close asChild>
             <Button variant="outline" type="button" size="lg">
-              Cancel
+              {t('cancel')}
             </Button>
           </Dialog.Close>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            {t('save')}
           </Button>
         </Dialog.Footer>
       </form>

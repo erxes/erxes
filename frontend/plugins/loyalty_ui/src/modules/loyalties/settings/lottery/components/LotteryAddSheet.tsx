@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { LotteryTabs } from '../add-lottery-campaign/components/LotteryTabs';
 import {
   lotteryFormSchema,
@@ -19,6 +20,7 @@ import {
 import { LotteryHotKeyScope } from '../types/LotteryHotKeyScope';
 
 export const LotteryAddSheet = () => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -62,7 +64,7 @@ export const LotteryAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add lottery campaign
+          {t('add-lottery-campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -73,7 +75,7 @@ export const LotteryAddSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Add lottery campaign</Sheet.Title>
+          <Sheet.Title>{t('add-lottery-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

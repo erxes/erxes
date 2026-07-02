@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   cn,
   Combobox,
@@ -95,13 +96,14 @@ const SelectTypeValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value, types } = useSelectTypeContext();
   const selectedType = types?.find((type) => type.value === value);
 
   if (!selectedType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select type'}
+        {placeholder || t('select-type')}
       </span>
     );
   }
@@ -133,13 +135,14 @@ const SelectTypeCommandItem = ({ type }: { type: IType }) => {
 };
 
 const SelectTypeContent = () => {
+  const { t } = useTranslation('sales');
   const { types } = useSelectTypeContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search type" />
+      <Command.Input placeholder={t('search-type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No types found</span>
+        <span className="text-muted-foreground">{t('no-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {types?.map((type) => (
@@ -151,10 +154,11 @@ const SelectTypeContent = () => {
 };
 
 export const SelectTypeFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="types">
       <IconCategory />
-      Type
+      {t('type')}
     </Filter.Item>
   );
 };
@@ -197,6 +201,7 @@ export const SelectTypeFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('sales');
   const [type, setType] = useQueryState<string[] | string>('types');
   const [open, setOpen] = useState(false);
 
@@ -204,7 +209,7 @@ export const SelectTypeFilterBar = ({
     <Filter.BarItem queryKey={'types'}>
       <Filter.BarName>
         <IconCategory />
-        Type
+        {t('type')}
       </Filter.BarName>
       <SelectTypeProvider
         mode={mode}

@@ -53,21 +53,31 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
   });
 
   useEffect(() => {
-    if (activeTab !== queryParams.activeTab) {
-      setActiveTab(queryParams.activeTab || AutomationBuilderTabsType.Builder);
+    const nextActiveTab =
+      queryParams.activeTab || AutomationBuilderTabsType.Builder;
+
+    if (activeTab !== nextActiveTab) {
+      setActiveTab(nextActiveTab);
     }
 
     if (queryParams.activeNodeId && !isOpenSideBar) {
       setOpenSidebar(true);
     }
-  }, [queryParams?.activeTab, queryParams?.activeNodeId]);
+  }, [
+    activeTab,
+    isOpenSideBar,
+    queryParams.activeNodeId,
+    queryParams.activeTab,
+    setActiveTab,
+    setOpenSidebar,
+  ]);
 
   return (
-    <AutomationProvider>
+    <AutomationProvider detail={detail}>
       <ReactFlowProvider>
         <AutomationBuilderDnDProvider>
           <FormProvider {...form}>
-            <AutomationBuilderUnsavedChangesAlert detail={detail} />
+            <AutomationBuilderUnsavedChangesAlert />
             <Tabs value={activeTab} className="h-screen flex flex-col">
               <AutomationBuilderHeader />
               {activeTab === 'builder' && (

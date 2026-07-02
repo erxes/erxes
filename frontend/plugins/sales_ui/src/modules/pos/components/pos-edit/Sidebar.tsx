@@ -1,5 +1,6 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { getSteps } from '@/pos/constants';
 
 interface PosEditSidebarProps {
@@ -8,6 +9,7 @@ interface PosEditSidebarProps {
 }
 
 export const PosEditSidebar = ({ posType, activeTab }: PosEditSidebarProps) => {
+  const { t } = useTranslation('sales');
   const steps = getSteps();
 
   return (
@@ -21,7 +23,7 @@ export const PosEditSidebar = ({ posType, activeTab }: PosEditSidebarProps) => {
                 to={step.value}
                 isActive={activeTab === step.value}
               >
-                {step.title}
+                {t(step.title)}
               </PosEditSidebarItem>
             ))}
           </Sidebar.Menu>

@@ -7,11 +7,13 @@ export type FieldType =
   | 'date'
   | 'checkbox'
   | 'select'
+  | 'multiSelect'
   | 'radio'
   | 'file'
   | 'image'
   | 'spreadsheet'
-  | 'richText';
+  | 'richText'
+  | 'products';
 
 export interface ICustomField {
   _id: string;
@@ -54,6 +56,7 @@ export interface ICustomFieldGroup {
 import {
   IconAt,
   IconCalendarEvent,
+  IconChecks,
   IconChevronDown,
   IconCircleCheck,
   IconFile,
@@ -61,6 +64,7 @@ import {
   IconListDetails,
   IconNumbers,
   IconPhoto,
+  IconShoppingCart,
   IconSquareCheck,
   IconTable,
   IconTextScan2,
@@ -80,6 +84,7 @@ export const FIELD_TYPES: {
   { value: 'date', label: 'Date', icon: <IconCalendarEvent /> },
   { value: 'checkbox', label: 'Checkbox', icon: <IconSquareCheck /> },
   { value: 'select', label: 'Select', icon: <IconChevronDown /> },
+  { value: 'multiSelect', label: 'Multi-Select', icon: <IconChecks /> },
   { value: 'radio', label: 'Radio', icon: <IconCircleCheck /> },
   { value: 'file', label: 'File', icon: <IconFile /> },
   { value: 'image', label: 'Image', icon: <IconPhoto /> },
@@ -89,6 +94,7 @@ export const FIELD_TYPES: {
     icon: <IconTable />,
   },
   { value: 'richText', label: 'Rich Text (Editor)', icon: <IconListDetails /> },
+  { value: 'products', label: 'Products', icon: <IconShoppingCart /> },
 ];
 
 export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce(

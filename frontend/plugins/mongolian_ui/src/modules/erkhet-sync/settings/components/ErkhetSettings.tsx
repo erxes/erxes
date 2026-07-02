@@ -71,12 +71,6 @@ const PosOrderErkhetConfigAddSheetConnected = lazy(() =>
   })),
 );
 
-const StageInErkhetIncomeConfig = lazy(() =>
-  import('~/pages/StageInErkhetIncomeConfigPage').then((module) => ({
-    default: module.StageInErkhetIncomeConfig,
-  })),
-);
-
 const ErkhetSettingsHeader = () => {
   const { pathname } = useLocation();
   const isMovement = pathname.endsWith('/movement');
@@ -141,7 +135,6 @@ const ErkhetSettings = () => {
                 path="/movement"
                 element={<StageInErkhetMovementConfig />}
               />
-              <Route path="/income" element={<StageInErkhetIncomeConfig />} />
             </Routes>
           </Suspense>
         </div>

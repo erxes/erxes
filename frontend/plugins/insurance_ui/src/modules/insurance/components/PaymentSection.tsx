@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCurrencyTugrik } from '@tabler/icons-react';
 import { Select } from 'erxes-ui';
 
@@ -14,25 +15,26 @@ export const PaymentSection = ({
   calculatedPremium = 0,
   showPremiumDisplay = false,
 }: PaymentSectionProps) => {
+  const { t } = useTranslation('insurance');
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
         <IconCurrencyTugrik size={20} />
-        Payment Information
+        {t('payment-information')}
       </h3>
 
       <div className={showPremiumDisplay ? 'grid grid-cols-2 gap-4' : ''}>
         <div>
           <label className="block text-sm font-medium mb-2">
-            Payment Method *
+            {t('payment-method-required')}
           </label>
           <Select value={paymentKind} onValueChange={onPaymentKindChange}>
             <Select.Trigger>
-              <Select.Value placeholder="Select" />
+              <Select.Value placeholder={t('select')} />
             </Select.Trigger>
             <Select.Content>
-              <Select.Item value="cash">Cash</Select.Item>
-              <Select.Item value="qpay">QPay</Select.Item>
+              <Select.Item value="cash">{t('cash')}</Select.Item>
+              <Select.Item value="qpay">{t('qpay')}</Select.Item>
             </Select.Content>
           </Select>
         </div>
@@ -40,7 +42,7 @@ export const PaymentSection = ({
         {showPremiumDisplay && (
           <div>
             <label className="block text-sm font-medium mb-2">
-              Payment Amount ($)
+              {t('payment-amount')}
             </label>
             <div className="p-3 bg-gray-50 border rounded-md">
               <p className="text-lg font-semibold">
@@ -50,7 +52,7 @@ export const PaymentSection = ({
                 ₮
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Automatically calculated
+                {t('automatically-calculated')}
               </p>
             </div>
           </div>

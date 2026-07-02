@@ -7,6 +7,7 @@ import {
 } from 'erxes-ui';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { format, parse } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 type DateRange = { from: Date | undefined; to?: Date | undefined };
 
@@ -39,15 +40,15 @@ const useDateSelectorContext = () => {
 };
 
 const DATE_OPTIONS = [
-  { value: 'today', label: 'Today' },
-  { value: 'yesterday', label: 'Yesterday' },
-  { value: 'this-week', label: 'This Week' },
-  { value: 'last-week', label: 'Last Week' },
-  { value: 'this-month', label: 'This Month' },
-  { value: 'last-month', label: 'Last Month' },
-  { value: 'this-year', label: 'This Year' },
-  { value: 'last-year', label: 'Last Year' },
-  { value: 'custom', label: 'Custom Date' },
+  { value: 'today', label: 'today' },
+  { value: 'yesterday', label: 'yesterday' },
+  { value: 'this-week', label: 'this-week' },
+  { value: 'last-week', label: 'last-week' },
+  { value: 'this-month', label: 'this-month' },
+  { value: 'last-month', label: 'last-month' },
+  { value: 'this-year', label: 'this-year' },
+  { value: 'last-year', label: 'last-year' },
+  { value: 'custom', label: 'custom-date' },
 ] as const;
 
 export const DateSelectorProvider = ({
@@ -82,6 +83,7 @@ export const DateSelectorProvider = ({
 };
 
 export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
+  const { t } = useTranslation('frontline');
   const { value } = useDateSelectorContext();
   if (!value) {
     return (
@@ -115,7 +117,7 @@ export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
       } catch {
         return (
           <div className="flex items-center gap-2">
-            <span className="text-sm">Custom Date</span>
+            <span className="text-sm">{t('custom-date')}</span>
           </div>
         );
       }
@@ -130,7 +132,7 @@ export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
   const selectedOption = DATE_OPTIONS.find((option) => option.value === value);
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm">{selectedOption?.label || placeholder}</span>
+      <span className="text-sm">{selectedOption ? t(selectedOption.label) : placeholder}</span>
     </div>
   );
 };
@@ -140,6 +142,7 @@ export const DateSelectorCommandItem = ({
 }: {
   option: (typeof DATE_OPTIONS)[number];
 }) => {
+  const { t } = useTranslation('frontline');
   const { onValueChange, value } = useDateSelectorContext();
   const isChecked =
     option.value === 'custom'
@@ -154,13 +157,14 @@ export const DateSelectorCommandItem = ({
         onValueChange(option.value);
       }}
     >
-      <span className="text-sm">{option.label}</span>
+      <span className="text-sm">{t(option.label)}</span>
       <Combobox.Check checked={isChecked} />
     </Command.Item>
   );
 };
 
 export const DateSelectorCustomDate = () => {
+  const { t } = useTranslation('frontline');
   const { value, onValueChange } = useDateSelectorContext();
 
   const getCustomDate = (): DateRange | undefined => {
@@ -206,7 +210,7 @@ export const DateSelectorCustomDate = () => {
       <DatePicker
         value={customDate}
         onChange={handleDateChange}
-        placeholder="Select custom date range"
+        placeholder={t('select-custom-date-range')}
         format="MMM DD, YYYY"
         variant="outline"
         className="w-full"
@@ -245,6 +249,7 @@ const DateSelectorRoot = ({
   value: DateSelectorValue | string;
   onValueChange: (value: DateSelectorValue | string) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   return (
     <DateSelectorProvider
@@ -254,7 +259,7 @@ const DateSelectorRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Popover.Trigger className="bg-background rounded px-2 shadow-xs hover:bg-accent cursor-pointer transition-all duration-200 hover:text-primary/80 ease-in-out">
-          <DateSelectorValue placeholder="Select date" />
+          <DateSelectorValue placeholder={t('select-date')} />
         </Popover.Trigger>
         <Combobox.Content sideOffset={8} onClick={(e) => e.stopPropagation()}>
           <DateSelectorContent />

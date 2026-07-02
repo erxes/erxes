@@ -15,11 +15,19 @@ import {
   TAiAgentFormDetail,
   TAiAgentForm,
 } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
+import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import {
+  IconActivityHeartbeat,
+  IconBook2,
+  IconDeviceFloppy,
+  IconPlug,
+  IconSettings,
+} from '@tabler/icons-react';
 import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
+import { ApprovalLockButton } from 'ui-modules';
 
 export const AutomationAiAgentDetail = ({
   detail,
@@ -29,8 +37,24 @@ export const AutomationAiAgentDetail = ({
   handleSave: (input: AiAgentInput) => Promise<unknown>;
 }) => {
   const isEditing = !!detail;
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryKind = searchParams.get('kind');
+  const AI_AGENT_TABS = ['general', 'connection', 'context', 'health'];
+  const tabParam = searchParams.get('tab');
+  const activeTab = AI_AGENT_TABS.includes(tabParam ?? '')
+    ? (tabParam as string)
+    : 'general';
+
+  const handleTabChange = (value: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('tab', value);
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const defaultProvider =
     !isEditing &&
     AI_AGENT_PROVIDER_TYPES.includes(queryKind as TAiAgentProvider)
@@ -65,32 +89,51 @@ export const AutomationAiAgentDetail = ({
           }
           backTo="/settings/automations/agents"
           actions={
-            <Button onClick={handleSubmit}>
-              <IconDeviceFloppy className="size-4 " />
-              Save
-            </Button>
+            <div className="flex items-center gap-2">
+              {detail?._id && (
+                <ApprovalLockButton
+                  contentType={
+                    AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT
+                  }
+                  contentId={detail._id}
+                  action="edit"
+                />
+              )}
+              <Button onClick={handleSubmit}>
+                <IconDeviceFloppy className="size-4 " />
+                Save
+              </Button>
+            </div>
           }
         />
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-6 pb-4">
-          <Tabs defaultValue="general" className="flex min-h-0 flex-1 flex-col">
+          <Tabs
+            value={activeTab}
+            onValueChange={handleTabChange}
+            className="flex min-h-0 flex-1 flex-col"
+          >
             <Tabs.List className="mt-4 shrink-0">
-              <Tabs.Trigger className="w-1/4" value="general">
+              <Tabs.Trigger className="w-1/4 gap-2" value="general">
+                <IconSettings className="size-4" />
                 General
               </Tabs.Trigger>
-              <Tabs.Trigger className="w-1/4" value="connection">
+              <Tabs.Trigger className="w-1/4 gap-2" value="connection">
+                <IconPlug className="size-4" />
                 Connection
               </Tabs.Trigger>
-              <Tabs.Trigger className="w-1/4" value="context">
+              <Tabs.Trigger className="w-1/4 gap-2" value="context">
+                <IconBook2 className="size-4" />
                 Context
               </Tabs.Trigger>
-              <Tabs.Trigger className="w-1/4" value="health">
+              <Tabs.Trigger className="w-1/4 gap-2" value="health">
+                <IconActivityHeartbeat className="size-4" />
                 Health
               </Tabs.Trigger>
             </Tabs.List>
 
             <div className="min-h-0 flex-1 overflow-y-auto pt-4">
-              <Tabs.Content value="general" className="mt-0">
+              <Tabs.Content value="general" className="mt-0 px-2">
                 <Card className="p-4">
                   <AiAgentGeneralForm />
                 </Card>
@@ -98,7 +141,7 @@ export const AutomationAiAgentDetail = ({
 
               <Tabs.Content
                 value="connection"
-                className="mt-0 grid gap-4 lg:grid-cols-2"
+                className="mt-0 grid gap-4 lg:grid-cols-2 px-2"
               >
                 <Card className="p-4">
                   <AiAgentConnectionForm
@@ -117,11 +160,11 @@ export const AutomationAiAgentDetail = ({
                 </Card>
               </Tabs.Content>
 
-              <Tabs.Content value="context" className="mt-0">
+              <Tabs.Content value="context" className="mt-0 px-2">
                 <AiAgentContextForm />
               </Tabs.Content>
 
-              <Tabs.Content value="health" className="mt-0">
+              <Tabs.Content value="health" className="mt-0 px-2">
                 <AutomationAiAgentHealthSection agentId={detail?._id} />
               </Tabs.Content>
             </div>

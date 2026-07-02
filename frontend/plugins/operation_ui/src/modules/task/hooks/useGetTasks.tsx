@@ -11,6 +11,7 @@ import {
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -137,6 +138,7 @@ export const useTasksVariables = (
 export const useTasks = (
   options?: QueryHookOptions<ICursorListResponse<ITask>>,
 ) => {
+  const { t } = useTranslation('operation');
   const variables = useTasksVariables(options?.variables);
   const { toast } = useToast();
   const { data, loading, fetchMore, subscribeToMore } = useQuery<
@@ -148,7 +150,7 @@ export const useTasks = (
     fetchPolicy: 'cache-and-network',
     onError: (e) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });

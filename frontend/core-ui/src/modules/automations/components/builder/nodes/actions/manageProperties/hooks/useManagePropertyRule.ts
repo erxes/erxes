@@ -171,6 +171,7 @@ export const useManagePropertyRule = ({
 
   return {
     control,
+    setValue,
     rule,
     operators,
     operatorType,

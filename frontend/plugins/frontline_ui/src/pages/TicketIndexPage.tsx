@@ -1,6 +1,7 @@
 import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { Can, PageHeader, Import } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { IconTicket } from '@tabler/icons-react';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
@@ -14,6 +15,7 @@ import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
 
 const TicketsIndexPage = () => {
+  const { t } = useTranslation('frontline');
   const variables = useTicketsVariables();
 
   const getFilters = () => {
@@ -31,7 +33,7 @@ const TicketsIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/tickets">
                     <IconTicket />
-                    Tickets
+                    {t('tickets')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

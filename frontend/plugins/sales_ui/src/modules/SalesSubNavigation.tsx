@@ -17,6 +17,7 @@ import { IBoard } from '@/deals/types/boards';
 import { useBoards } from '~/modules/deals/boards/hooks/useBoards';
 import { useEffect } from 'react';
 import { usePipelines } from '@/deals/boards/hooks/usePipelines';
+import { useTranslation } from 'react-i18next';
 
 function LoadingSkeleton() {
   return (
@@ -76,6 +77,8 @@ const Pipelines = () => {
   const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
   const selectedBoardId = storedBoardId ? storedBoardId : boardId;
 
+  const { t } = useTranslation('sales');
+
   const { pipelines, loading } = usePipelines({
     variables: {
       boardId: selectedBoardId,
@@ -87,6 +90,7 @@ const Pipelines = () => {
     if (!boardId || !pipelines) return;
 
     const storedPipelineId = localStorage.getItem('erxesCurrentPipelineId');
+
 
     if (storedPipelineId) {
       setPipelineId(storedPipelineId);
@@ -122,7 +126,7 @@ const Pipelines = () => {
           {!loading && !pipelines?.length && (
             <Sidebar.MenuItem>
               <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">No pipelines</span>
+                <span className="capitalize text-foreground">{t('no-pipelines')}</span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}
@@ -137,6 +141,8 @@ const ActionsMenu = () => {
 
   const { toast } = useToast();
 
+  const { t } = useTranslation('sales');
+
   const handleCopyLink = async () => {
     const link = `${window.location.origin}/settings/deals`;
 
@@ -144,12 +150,12 @@ const ActionsMenu = () => {
       await navigator.clipboard.writeText(link);
       toast({
         variant: 'default',
-        title: 'Link copied to clipboard',
+        title: t('link-copied-to-clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy link',
+        title: t('failed-to-copy-link'),
         description: e as string,
       });
     }
@@ -177,7 +183,7 @@ const ActionsMenu = () => {
           }}
         >
           <IconSettings className="size-4" />
-          Manage board & pipelines
+          {t('manage-board-pipelines')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={(e) => {
@@ -186,7 +192,7 @@ const ActionsMenu = () => {
           className="cursor-pointer"
         >
           <IconLink className="size-4" />
-          Copy link
+          {t('copy-link')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -196,6 +202,7 @@ const ActionsMenu = () => {
 const DealsNavigation = () => {
   const { boards, loading } = useBoards();
   const [boardId, setBoardId] = useQueryState<string | null>('boardId');
+  const { t } = useTranslation('sales');
 
   useEffect(() => {
     if (!boards || boards.length === 0) return;
@@ -214,14 +221,14 @@ const DealsNavigation = () => {
 
   return (
     <>
-      <NavigationMenuGroup name="Boards" actions={<ActionsMenu />}>
+      <NavigationMenuGroup name={t('boards')} actions={<ActionsMenu />}>
         {loading ? (
           <LoadingSkeleton />
         ) : (
           boards?.map((board) => <BoardItem key={board._id} board={board} />)
         )}
       </NavigationMenuGroup>
-      <NavigationMenuGroup name="Pipelines" actions={<ActionsMenu />}>
+      <NavigationMenuGroup name={t('pipelines')} actions={<ActionsMenu />}>
         {boardId && <Pipelines />}
       </NavigationMenuGroup>
     </>

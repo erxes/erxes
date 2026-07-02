@@ -23,6 +23,7 @@ import {
   SelectContent,
 } from './SelectShared';
 import { IconClock } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface IDateType {
   value: string;
@@ -97,12 +98,13 @@ const SelectDateTypeValue = ({
   className?: string;
 }) => {
   const { value, dateTypes } = useSelectDateTypeContext();
+  const { t } = useTranslation('mongolian');
   const selectedDateType = dateTypes?.find((type) => type.value === value);
 
   if (!selectedDateType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select date type'}
+        {placeholder || t('select-date-type')}
       </span>
     );
   }
@@ -110,7 +112,7 @@ const SelectDateTypeValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>
-        {selectedDateType.label}
+        {t(selectedDateType.label)}
       </p>
     </div>
   );
@@ -118,6 +120,7 @@ const SelectDateTypeValue = ({
 
 const SelectDateTypeCommandItem = ({ dateType }: { dateType: IDateType }) => {
   const { onValueChange, value } = useSelectDateTypeContext();
+  const { t } = useTranslation('mongolian');
   const { value: typeValue, label } = dateType || {};
 
   return (
@@ -127,7 +130,7 @@ const SelectDateTypeCommandItem = ({ dateType }: { dateType: IDateType }) => {
         onValueChange(typeValue);
       }}
     >
-      <span className="font-medium">{label}</span>
+      <span className="font-medium">{t(label)}</span>
       <Combobox.Check checked={value === typeValue} />
     </Command.Item>
   );
@@ -135,12 +138,13 @@ const SelectDateTypeCommandItem = ({ dateType }: { dateType: IDateType }) => {
 
 const SelectDateTypeContent = () => {
   const { dateTypes } = useSelectDateTypeContext();
+  const { t } = useTranslation('mongolian');
 
   return (
     <Command>
-      <Command.Input placeholder="Search date type" />
+      <Command.Input placeholder={t('search-date-type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No date types found</span>
+        <span className="text-muted-foreground">{t('no-date-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {dateTypes?.map((dateType) => (
@@ -152,10 +156,11 @@ const SelectDateTypeContent = () => {
 };
 
 export const SelectDateTypeFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="dateType">
       <IconClock />
-      Date Type
+      {t('date-type')}
     </Filter.Item>
   );
 };
@@ -202,12 +207,13 @@ export const SelectDateTypeFilterBar = ({
 }) => {
   const [dateType, setDateType] = useQueryState<string[] | string>('dateType');
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter.BarItem queryKey={'dateType'}>
       <Filter.BarName>
         <IconClock />
-        Date Type
+        {t('date-type')}
       </Filter.BarName>
       <SelectDateTypeProvider
         mode={mode}

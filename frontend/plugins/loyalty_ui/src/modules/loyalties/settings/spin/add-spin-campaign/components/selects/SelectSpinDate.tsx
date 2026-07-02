@@ -11,6 +11,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export enum DateSelectVariant {
   TABLE = 'table',
@@ -58,6 +59,7 @@ export const DateSelectProvider = ({
 };
 
 const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = useDateSelectContext();
 
   if (!value) {
@@ -65,7 +67,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
       <>
         <IconCalendarPlus className="text-accent-foreground" />
         <span className="text-accent-foreground font-medium">
-          {placeholder || 'Select date...'}
+          {placeholder || t('select-date')}
         </span>
       </>
     );
@@ -142,6 +144,7 @@ export const DateSelectTaskRoot = ({
   onValueChange: (value?: Date) => void;
   variant?: `${DateSelectVariant}`;
 }) => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState(false);
 
   const handleValueChange = (value?: Date) => {
@@ -160,7 +163,7 @@ export const DateSelectTaskRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
-          <DateSelectValue placeholder="Not specified" />
+          <DateSelectValue placeholder={t('not-specified')} />
         </DateSelectTrigger>
         <Content className="w-auto p-0" onClick={(e) => e.stopPropagation()}>
           <DateSelectContent />

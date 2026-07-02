@@ -1,4 +1,5 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { spinColumns } from './SpinColumns';
 import { SpinCommandBar } from './spin-command-bar/SpinCommandBar';
@@ -9,6 +10,7 @@ import { IconHeart } from '@tabler/icons-react';
 import { LoyaltySpinAddSheet } from './SpinAddSheet';
 
 export const SpinRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { spins, handleFetchMore, loading, pageInfo } = useSpins();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -47,9 +49,9 @@ export const SpinRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No spin yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-spins-yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first spin.
+                    {t('get-started-spin')}
                   </p>
                 </div>
                 <LoyaltySpinAddSheet />

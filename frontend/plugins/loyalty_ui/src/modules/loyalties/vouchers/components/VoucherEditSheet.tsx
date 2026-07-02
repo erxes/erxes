@@ -1,6 +1,7 @@
 import { Button, Form, Sheet, Select } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useEditVoucher } from '../hooks/useEditVoucher';
 import { SelectCustomer, useGiveTags } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
@@ -25,6 +26,7 @@ export const VoucherEditSheet = ({
   open,
   onOpenChange,
 }: VoucherEditSheetProps) => {
+  const { t } = useTranslation('loyalty');
   const { voucherEdit, loading } = useEditVoucher();
   const { giveTags } = useGiveTags();
 
@@ -80,7 +82,7 @@ export const VoucherEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>Edit voucher</Sheet.Title>
+          <Sheet.Title>{t('edit-voucher')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -94,11 +96,11 @@ export const VoucherEditSheet = ({
                 name="campaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Campaign</Form.Label>
+                    <Form.Label>{t('campaign')}</Form.Label>
                     <SelectVoucherCampaign
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Choose voucher campaign"
+                      placeholder={t('choose-voucher-campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -110,7 +112,7 @@ export const VoucherEditSheet = ({
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner Type</Form.Label>
+                    <Form.Label>{t('owner-type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -123,11 +125,11 @@ export const VoucherEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">Customer</Select.Item>
-                          <Select.Item value="company">Company</Select.Item>
-                          <Select.Item value="user">Team Members</Select.Item>
+                          <Select.Item value="customer">{t('customer')}</Select.Item>
+                          <Select.Item value="company">{t('company')}</Select.Item>
+                          <Select.Item value="user">{t('team-members')}</Select.Item>
                           <Select.Item value="cpUser">
-                            Client Portal User
+                            {t('cp-user')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -142,7 +144,7 @@ export const VoucherEditSheet = ({
                 name="ownerId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner *</Form.Label>
+                    <Form.Label>{t('owner-label')}</Form.Label>
                     <Form.Control>
                       {ownerType === 'company' ? (
                         <SelectCompany
@@ -176,7 +178,7 @@ export const VoucherEditSheet = ({
                 name="status"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Status *</Form.Label>
+                    <Form.Label>{t('status-label')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -186,8 +188,8 @@ export const VoucherEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="new">New</Select.Item>
-                          <Select.Item value="used">Used</Select.Item>
+                          <Select.Item value="new">{t('new')}</Select.Item>
+                          <Select.Item value="used">{t('used')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -202,10 +204,10 @@ export const VoucherEditSheet = ({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Close
+                  {t('close')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? t('saving') : t('save')}
                 </Button>
               </div>
             </form>

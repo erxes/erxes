@@ -1,5 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const POS_ORDER_ERKHET_CONFIG_CODE = 'posOrderErkhetConfig';
 
@@ -127,6 +128,7 @@ const writeConfig = (data: TPosOrderErkhetConfig) => {
 
 export const usePosOrderErkhetConfigs = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const { data, loading, refetch } = useQuery(MN_CONFIGS, {
     variables: { code: POS_ORDER_ERKHET_CONFIG_CODE },
@@ -142,7 +144,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -153,7 +155,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -164,7 +166,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -181,7 +183,7 @@ export const usePosOrderErkhetConfigs = () => {
       await updateConfig({
         variables: { id: data._id, subId: value.posId, value },
       });
-      toast({ title: 'Success', description: 'Config updated successfully' });
+      toast({ title: t('success'), description: t('config-updated-successfully') });
     } else {
       await createConfig({
         variables: {
@@ -190,7 +192,7 @@ export const usePosOrderErkhetConfigs = () => {
           value,
         },
       });
-      toast({ title: 'Success', description: 'Config created successfully' });
+      toast({ title: t('success'), description: t('config-created-successfully') });
     }
 
     await refetch();
@@ -199,13 +201,13 @@ export const usePosOrderErkhetConfigs = () => {
   const deleteConfig = async (id: string) => {
     await removeConfig({ variables: { id } });
     await refetch();
-    toast({ title: 'Success', description: 'Config deleted successfully' });
+    toast({ title: t('success'), description: t('config-deleted-successfully') });
   };
 
   const deleteManyConfigs = async (ids: string[]) => {
     await Promise.all(ids.map((id) => removeConfig({ variables: { id } })));
     await refetch();
-    toast({ title: 'Success', description: `${ids.length} config(s) deleted` });
+    toast({ title: t('success'), description: t('configs-deleted', { count: ids.length }) });
   };
 
   return {

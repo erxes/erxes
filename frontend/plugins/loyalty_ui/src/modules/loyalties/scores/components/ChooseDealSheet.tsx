@@ -8,6 +8,7 @@ import {
   Spinner,
   cn,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
@@ -36,6 +37,7 @@ const DealsList = ({
   onSelect: (deal: IDeal) => void;
   onConfirm: (deal: IDeal) => void;
 }) => {
+  const { t } = useTranslation('loyalty');
   const [search, setSearch] = useState('');
   const [boardId, setBoardId] = useState('');
   const [pipelineId, setPipelineId] = useState('');
@@ -71,22 +73,22 @@ const DealsList = ({
             htmlFor="deal-search"
             className="text-xs font-medium text-accent-foreground"
           >
-            Search
+            {t('search-label')}
           </label>
           <Input
             id="deal-search"
-            placeholder="Search by name or number..."
+            placeholder={t('search-deals')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium text-accent-foreground">Board</p>
+          <p className="text-xs font-medium text-accent-foreground">{t('board')}</p>
           <SelectBoard value={boardId} onValueChange={handleBoardChange} />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium text-accent-foreground">Pipeline</p>
+          <p className="text-xs font-medium text-accent-foreground">{t('pipeline')}</p>
           <SelectPipeline
             value={pipelineId}
             boardId={boardId}
@@ -95,7 +97,7 @@ const DealsList = ({
           />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium text-accent-foreground">Stage</p>
+          <p className="text-xs font-medium text-accent-foreground">{t('stage')}</p>
           <SelectStage
             value={stageId}
             pipelineId={pipelineId}
@@ -105,8 +107,8 @@ const DealsList = ({
         </div>
         <div className="text-xs text-accent-foreground">
           {pipelineId || debouncedSearch
-            ? `${deals.length} results`
-            : 'Select a pipeline or search to see deals'}
+            ? t('results-count', { count: deals.length })
+            : t('select-pipeline-to-see-deals')}
         </div>
       </div>
       <Separator />
@@ -116,7 +118,7 @@ const DealsList = ({
             <div className="flex gap-2 items-center px-2 h-8">
               <Spinner containerClassName="flex-none" />
               <span className="animate-pulse text-accent-foreground text-sm">
-                Loading deals...
+                {t('loading-deals')}
               </span>
             </div>
           )}
@@ -164,10 +166,12 @@ const SelectedDeal = ({
 }: {
   deal: IDeal | null;
   onRemove: () => void;
-}) => (
+}) => {
+  const { t } = useTranslation('loyalty');
+  return (
   <ScrollArea className="h-full">
     <div className="flex flex-col gap-1 p-4">
-      <div className="px-3 mb-1 text-xs text-accent-foreground">Added</div>
+      <div className="px-3 mb-1 text-xs text-accent-foreground">{t('added')}</div>
       {deal && (
         <Button
           variant="ghost"
@@ -187,7 +191,8 @@ const SelectedDeal = ({
       )}
     </div>
   </ScrollArea>
-);
+  );
+};
 
 export const ChooseDealSheet = ({
   open,
@@ -195,6 +200,7 @@ export const ChooseDealSheet = ({
   onSelect,
   selectedDealId,
 }: ChooseDealSheetProps) => {
+  const { t } = useTranslation('loyalty');
   const [selectedDeal, setSelectedDeal] = useState<IDeal | null>(null);
 
   const handleOpenChange = (val: boolean) => {
@@ -211,7 +217,7 @@ export const ChooseDealSheet = ({
     <Sheet open={open} onOpenChange={handleOpenChange} modal>
       <Sheet.View className="sm:max-w-3xl p-0">
         <Sheet.Header className="px-6 py-4">
-          <Sheet.Title>Choose deal</Sheet.Title>
+          <Sheet.Title>{t('choose-deal')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grid overflow-hidden grid-cols-2 p-0">
@@ -231,7 +237,7 @@ export const ChooseDealSheet = ({
             className="bg-border"
             onClick={() => handleOpenChange(false)}
           >
-            Cancel
+            {t('cancel')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

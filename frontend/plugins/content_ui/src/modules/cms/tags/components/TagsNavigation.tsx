@@ -8,10 +8,12 @@ import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
 
 export const TagsNavigation = () => {
+  const { t } = useTranslation('content');
   const { pathname } = useLocation();
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
@@ -39,14 +41,14 @@ export const TagsNavigation = () => {
     if (lastSegment === 'tags' || pathname.endsWith('/tags')) {
       return {
         path: `${basePath}/tags`,
-        label: 'Tags',
+        label: t('tags'),
         icon: IconTags,
       };
     }
     // Default fallback
     return {
       path: `${basePath}/tags`,
-      label: 'Tags',
+      label: t('tags'),
       icon: IconTags,
     };
   }, [pathname, basePath]);
@@ -66,14 +68,14 @@ export const TagsNavigation = () => {
             <Button variant="ghost" asChild>
               <Link to={'/content/cms'}>
                 <IconCube />
-                CMS
+                {t('cms')}
               </Link>
             </Button>
           </Breadcrumb.Item>
           <Breadcrumb.Separator />
           <Breadcrumb.Item>
             <Button variant="ghost" asChild>
-              <Link to="/content/cms">{websiteName || 'Website'}</Link>
+              <Link to="/content/cms">{websiteName || t('website')}</Link>
             </Button>
           </Breadcrumb.Item>
           <Breadcrumb.Separator />

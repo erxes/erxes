@@ -3,6 +3,7 @@ import {
   AutomationTriggerConfigProps,
   splitAutomationNodeType,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import {
   getOptionLabel,
   OPERATION_COMPLETION_MODE_OPTIONS,
@@ -13,6 +14,7 @@ export const OperationCompletionTriggerNodeContent = ({
   type,
   config,
 }: AutomationTriggerConfigProps<TOperationCompletionTriggerConfigForm>) => {
+  const { t } = useTranslation('operation');
   const [, moduleName, collectionType] = splitAutomationNodeType(type);
   const modeLabel = getOptionLabel(
     OPERATION_COMPLETION_MODE_OPTIONS,
@@ -48,7 +50,7 @@ export const OperationCompletionTriggerNodeContent = ({
           <AutomationNodeMetaInfoRow
             fieldName="Teams"
             content={
-              config?.teamIds?.length ? config.teamIds.join(', ') : 'Any team'
+              config?.teamIds?.length ? config.teamIds.join(', ') : t('any-team')
             }
           />
         </>

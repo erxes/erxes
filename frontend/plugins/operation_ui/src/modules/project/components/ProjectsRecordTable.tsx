@@ -1,5 +1,6 @@
 import { projectsColumns } from '@/project/components/ProjectsColumn';
 import { RecordTable, PageSubHeader } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   useProjects,
   useProjectsVariables,
@@ -52,6 +53,7 @@ const ProjectsExportButton = () => {
 };
 
 export const ProjectsRecordTable = () => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams();
   const currentUser = useAtomValue(currentUserState);
 
@@ -73,7 +75,7 @@ export const ProjectsRecordTable = () => {
         <ProjectsExportButton />
       </PageSubHeader>
       <RecordTable.Provider
-        columns={projectsColumns(teams)}
+        columns={projectsColumns(teams, t)}
         data={projects || [{}]}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}

@@ -12,6 +12,7 @@ import { onLocalChangeAtom } from '../productTableAtom';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useProductCalculations } from '../hooks/useProductCalculations';
+import { useTranslation } from 'react-i18next';
 
 const ProductsList = ({
   products,
@@ -77,6 +78,7 @@ const ProductsList = ({
 
   const filteredProducts = filterProducts(availableProducts, filters);
   const { toast } = useToast();
+  const { t } = useTranslation('sales');
 
   const productRecords = localProductsData
     .map((data) => {
@@ -276,8 +278,8 @@ const ProductsList = ({
         .join(', ');
       return toast({
         variant: 'destructive',
-        title: 'Error',
-        description: `Please assign a team member to the following service item(s) before saving: ${names}.`,
+        title: t('error'),
+        description: t('assign-service-before-saving', { names }),
       });
     }
     const formattedProductsData = localProductsData.map((data) => ({
@@ -299,13 +301,13 @@ const ProductsList = ({
       <Filter id="product-filter">
         <div className="flex items-center gap-4 flex-wrap">
           <Input
-            placeholder="Vat percent"
+            placeholder={t('vat-percent')}
             className="w-[40%]"
             value={vatPercent}
             onChange={(e) => setVatPercent(Number.parseInt(e.target.value))}
           />
           <Button className="ml-3" onClick={() => applyVat()}>
-            Apply VAT
+            {t('apply-vat')}
           </Button>
         </div>
         <div className="w-full mt-3 flex items-center justify-between">
@@ -315,7 +317,7 @@ const ProductsList = ({
               size={16}
             />
             <Input
-              placeholder="Search"
+              placeholder={t('search')}
               className="pl-9 w-full"
               value={filters.productSearch || ''}
               onChange={(e) =>
@@ -325,7 +327,7 @@ const ProductsList = ({
           </div>
           <div className="flex items-center gap-6">
             <div>
-              <Label className="mr-3">Advanced view</Label>
+              <Label className="mr-3">{t('advanced-view')}</Label>
               <Switch
                 checked={showAdvancedView}
                 onCheckedChange={(checked) => {

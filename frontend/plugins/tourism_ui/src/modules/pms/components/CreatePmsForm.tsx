@@ -25,6 +25,7 @@ import { Form, Spinner, useToast } from 'erxes-ui';
 import { nanoid } from 'nanoid';
 import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const CreatePmsForm = ({
   onOpenChange,
@@ -37,6 +38,7 @@ const CreatePmsForm = ({
   mode: 'create' | 'edit';
   branchId?: string;
 }) => {
+  const { t } = useTranslation('tourism');
   const { createPmsBranch, loading: createLoading } = usePmsCreateBranch();
   const { editBranch, loading: editLoading } = usePmsEditBranch();
   const {
@@ -192,15 +194,15 @@ const CreatePmsForm = ({
     editBranch(branchId, editVariables)
       .then(() => {
         toast({
-          title: 'Success',
-          description: 'PMS updated successfully',
+          title: t('success'),
+          description: t('pms-updated-successfully'),
         });
         onOpenChange?.(false);
         onSuccess?.();
       })
       .catch((e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -214,15 +216,15 @@ const CreatePmsForm = ({
       variables: createVariables,
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'PMS created successfully',
+          title: t('success'),
+          description: t('pms-created-successfully'),
         });
         form.reset();
         onOpenChange?.(false);
@@ -321,8 +323,8 @@ const CreatePmsForm = ({
     if (mode === 'edit') {
       if (!branchId) {
         toast({
-          title: 'Error',
-          description: 'Missing branchId for edit mode',
+          title: t('error'),
+          description: t('missing-branch-id-for-edit'),
           variant: 'destructive',
         });
         return;
@@ -358,7 +360,7 @@ const CreatePmsForm = ({
             </div>
           ) : mode === 'edit' && detailError ? (
             <div className="flex flex-col justify-center items-center w-full h-full text-destructive">
-              <p>Failed to load branch details</p>
+              <p>{t('failed-to-load-branch-details')}</p>
               <p className="text-sm">{detailError.message}</p>
             </div>
           ) : (

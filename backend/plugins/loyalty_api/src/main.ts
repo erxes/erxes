@@ -14,6 +14,7 @@ import { couponExportHandlers } from '~/modules/coupon/meta/import-export/export
 import { automationMeta } from './meta/automations';
 import { permissions } from '~/meta/permissions';
 import { loyaltyReferences } from '~/meta/references';
+import { afterProcess } from '~/meta/afterProcess';
 
 startPlugin({
   name: 'loyalty',
@@ -44,6 +45,7 @@ startPlugin({
   },
   meta: {
     automations: automationMeta,
+    afterProcess,
     permissions,
     references: loyaltyReferences,
   },

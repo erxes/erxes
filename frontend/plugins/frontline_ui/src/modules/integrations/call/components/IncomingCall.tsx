@@ -13,6 +13,7 @@ import { IconPhone, IconPhoneEnd } from '@tabler/icons-react';
 import { Button, getPluginAssetsUrl } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const IncomingCallAudio = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -56,6 +57,7 @@ export const IncomingCall = ({
   channels: any;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const sipState = useAtomValue(sipStateAtom);
 
   const phoneNumber = extractPhoneNumberFromCounterpart(
@@ -88,7 +90,7 @@ export const IncomingCall = ({
       <div className="mt-2 px-3 pt-3 mb-1 space-y-2">
         {!loading && renderUserInfo(customer, null, phoneNumber)}
         <div className="text-center text-accent-foreground">
-          Incoming call to{' '}
+          {t('incoming-call-to')}{' '}
           <span className="font-semibold text-foreground">
             <span role="img" aria-label="flag-mn">
               🇲🇳
@@ -110,7 +112,7 @@ export const IncomingCall = ({
           onClick={onDeclineCall}
         >
           <IconPhoneEnd />
-          Decline
+          {t('decline')}
         </Button>
         <Button
           variant="secondary"
@@ -118,7 +120,7 @@ export const IncomingCall = ({
           onClick={onAcceptCall}
         >
           <IconPhone />
-          Answer
+          {t('answer')}
         </Button>
       </div>
     </>

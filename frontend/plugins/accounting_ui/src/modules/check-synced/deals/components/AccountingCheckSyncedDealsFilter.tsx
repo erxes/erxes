@@ -8,6 +8,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
 import {
   AccountingCheckSyncedDealRuleFilterBar,
@@ -31,6 +32,7 @@ import {
 } from './AccountingCheckSyncedDealSelects';
 
 export const AccountingCheckSyncedDealsFilterPopover = () => {
+  const { t } = useTranslation('accounting');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
   const [user, setUser] = useQueryState<string>('user');
@@ -72,7 +74,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -81,27 +83,27 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
                 <AccountingDealBoardFilterItem />
                 <AccountingDealPipelineFilterItem />
                 <AccountingDealStageFilterItem />
-                <SelectMember.FilterItem value="user" label="Assigned To" />
+                <SelectMember.FilterItem value="user" label={t('assigned-to')} />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dealSearch" inDialog>
                   <IconBuilding />
-                  Deal Search
+                  {t('deal-search')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Close date range
+                  {t('close-date-range')}
                 </Filter.Item>
                 <Filter.Item value="createdDateRange">
                   <IconCalendar />
-                  Created date range
+                  {t('created-date-range')}
                 </Filter.Item>
                 <Filter.Item value="stageChangedDateRange">
                   <IconCalendar />
-                  Stage changed date range
+                  {t('stage-changed-date-range')}
                 </Filter.Item>
                 <AccountingDealDateTypeFilterItem />
               </Command.List>
@@ -157,6 +159,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
 };
 
 export const AccountingCheckSyncedDealsFilter = () => {
+  const { t } = useTranslation('accounting');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
   const [dealSearch] = useFilterQueryState<string>('dealSearch');
@@ -170,7 +173,7 @@ export const AccountingCheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dealSearch">
           <Filter.BarName>
             <IconBuilding />
-            Deal search
+            {t('deal-search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="dealSearch" inDialog>
             {dealSearch}
@@ -179,7 +182,7 @@ export const AccountingCheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -188,21 +191,21 @@ export const AccountingCheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            Close date range
+            {t('close-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconCalendar />
-            Created date range
+            {t('created-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="stageChangedDateRange">
           <Filter.BarName>
             <IconCalendar />
-            Stage changed date range
+            {t('stage-changed-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="stageChangedDateRange" />
         </Filter.BarItem>

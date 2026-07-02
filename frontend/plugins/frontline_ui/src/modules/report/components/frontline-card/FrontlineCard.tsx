@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, cn, Empty, Skeleton } from 'erxes-ui';
@@ -99,6 +100,7 @@ export function FrontlineCardRoot({
 }
 
 export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
+  const { t } = useTranslation('frontline');
   const { title, dragHandleProps, colSpan, onColSpanChange } =
     useFrontlineCardContext();
 
@@ -130,7 +132,7 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
           onClick={toggleColSpan}
           className="p-1 hover:bg-accent rounded"
           title={
-            colSpan === 6 ? 'Expand to full width' : 'Collapse to half width'
+            colSpan === 6 ? t('expand-to-full-width') : t('collapse-to-half-width')
           }
         >
           {colSpan === 6 ? (
@@ -145,6 +147,7 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
 }
 
 export function FrontlineCardEmpty() {
+  const { t } = useTranslation('frontline');
   const { description } = useFrontlineCardContext();
   return (
     <Empty>
@@ -152,7 +155,7 @@ export function FrontlineCardEmpty() {
         <IconChartHistogram className="size-10" />
       </Empty.Media>
       <Empty.Header>
-        <Empty.Title>No data available</Empty.Title>
+        <Empty.Title>{t('no-data-available')}</Empty.Title>
         <Empty.Description>{description}</Empty.Description>
       </Empty.Header>
     </Empty>

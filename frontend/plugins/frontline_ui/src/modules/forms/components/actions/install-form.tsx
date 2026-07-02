@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 function CopyButton({
   text,
@@ -19,6 +20,7 @@ function CopyButton({
   text: string;
   label?: string;
 }) {
+  const { t } = useTranslation('frontline');
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -30,8 +32,8 @@ function CopyButton({
       })
       .catch(() => {
         toast({
-          title: `Failed to copy ${label.toLowerCase()}`,
-          description: 'Please try again',
+          title: t('failed-to-copy', { label: label.toLowerCase() }),
+          description: t('please-try-again'),
           variant: 'destructive',
         });
       });
@@ -47,7 +49,7 @@ function CopyButton({
       {copied ? (
         <>
           <IconCheck className="w-4 h-4 mr-2" />
-          Copied!
+          {t('copied')}
         </>
       ) : (
         <>
@@ -68,6 +70,7 @@ export function FormInstallScript({
   channelId: string;
   inActionBar?: boolean;
 }) {
+  const { t } = useTranslation('frontline');
   const [dialogOpen, setDialogOpen] = useState(false);
   const API = REACT_APP_WIDGETS_URL;
   const script = `<script>
@@ -102,14 +105,14 @@ export function FormInstallScript({
             setDialogOpen(true);
           }}
         >
-          <IconCode /> Install Script
+          <IconCode /> {t('install-script')}
         </DropdownMenu.Item>
       ) : (
         <Button
           variant="outline"
           size={'icon'}
           onClick={() => setDialogOpen(true)}
-          title="View installation script"
+          title={t('view-installation-script')}
         >
           <IconCode />
         </Button>
@@ -119,9 +122,9 @@ export function FormInstallScript({
         <Dialog.Content className="max-w-2xl p-0 gap-0 overflow-hidden">
           <div className="flex flex-col max-h-[75vh] overflow-hidden p-6 gap-4">
             <Dialog.Header>
-              <Dialog.Title>Installation Guide</Dialog.Title>
+              <Dialog.Title>{t('installation-guide')}</Dialog.Title>
               <Dialog.Description>
-                Follow the steps below to embed this form on your website.
+                {t('installation-guide-description')}
               </Dialog.Description>
             </Dialog.Header>
 
@@ -133,14 +136,11 @@ export function FormInstallScript({
                       1
                     </span>
                     <p className="text-sm font-medium">
-                      Add the loader script to your HTML
+                      {t('install-step-1-title')}
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    Paste this snippet just before the closing{' '}
-                    <code className="bg-muted px-1 rounded">{'</body>'}</code>{' '}
-                    tag. It loads the form widget asynchronously without
-                    blocking your page.
+                    {t('install-step-1-description')}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -156,12 +156,11 @@ export function FormInstallScript({
                       2
                     </span>
                     <p className="text-sm font-medium">
-                      Place the embed element where the form should appear
+                      {t('install-step-2-title')}
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    Add this element anywhere in your page body. The form will
-                    render inside it.
+                    {t('install-step-2-description')}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -170,8 +169,7 @@ export function FormInstallScript({
                     <CopyButton text={embed} label="" />
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    If your form style is a popup, additionally paste this code
-                    after the main code.
+                    {t('install-step-2-popup-note')}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -182,17 +180,12 @@ export function FormInstallScript({
                 </div>
 
                 <Badge variant="info" className="block w-full h-auto p-3">
-                  <h4 className="font-medium text-sm mb-2">Quick checklist</h4>
+                  <h4 className="font-medium text-sm mb-2">{t('quick-checklist')}</h4>
                   <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
-                    <li>
-                      Loader script is placed before{' '}
-                      <code className="bg-muted px-1 rounded">{'</body>'}</code>
-                    </li>
-                    <li>
-                      Embed element is placed where you want the form to appear
-                    </li>
-                    <li>Both snippets are on the same page</li>
-                    <li>Page is served over HTTPS (required for the widget)</li>
+                    <li>{t('checklist-loader-script')}</li>
+                    <li>{t('checklist-embed-element')}</li>
+                    <li>{t('checklist-same-page')}</li>
+                    <li>{t('checklist-https')}</li>
                   </ul>
                 </Badge>
               </div>
@@ -200,14 +193,14 @@ export function FormInstallScript({
 
             <Dialog.Footer>
               <Button variant="secondary" onClick={() => setDialogOpen(false)}>
-                Close
+                {t('close')}
               </Button>
               <Button>
                 <Link
                   target="_blank"
                   to={`/settings/frontline/forms/form-preview?inPreview=true&formId=${formId}`}
                 >
-                  Preview Form
+                  {t('preview-form')}
                 </Link>
               </Button>
             </Dialog.Footer>

@@ -12,6 +12,7 @@ import {
   IconHash,
   IconTag,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { LotteryNameCell } from '../lottery-detail/components/LotteryNameCell';
 import { ILottery } from '../types/lotteryTypes';
 import { lotteryMoreColumn } from './LotteryMoreColumn';
@@ -44,7 +45,7 @@ export const lotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
+    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconTag} label={t('title')} />; },
     cell: ({ cell }) => {
       return (
         <LotteryNameCell
@@ -58,9 +59,7 @@ export const lotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
-    ),
+    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />; },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -73,9 +72,7 @@ export const lotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
-    ),
+    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />; },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -88,7 +85,7 @@ export const lotteryColumns: ColumnDef<ILottery>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="status" icon={IconHash} />,
+    header: () => { const { t } = useTranslation('loyalty'); return <RecordTable.InlineHead label={t('status')} icon={IconHash} />; },
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (

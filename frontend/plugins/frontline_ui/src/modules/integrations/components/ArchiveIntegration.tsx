@@ -2,6 +2,7 @@ import { Spinner, toast, useConfirm } from 'erxes-ui';
 import { IconArchive } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
 import { ARCHIVE_INTEGRATION } from '@/integrations/graphql/mutations/ArchiveIntegration';
+import { useTranslation } from 'react-i18next';
 
 export const ArchiveIntegration = ({
   _id,
@@ -12,18 +13,19 @@ export const ArchiveIntegration = ({
   name: string;
   isActive: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const [archiveIntegration, { loading }] = useMutation(ARCHIVE_INTEGRATION, {
     refetchQueries: ['Integrations'],
     onCompleted() {
       toast({
-        title: isActive ? 'Integration archived' : 'Integration unarchived',
+        title: isActive ? t('integration-archived') : t('integration-unarchived'),
         variant: 'default',
       });
     },
     onError(e) {
       toast({
-        title: `Failed to ${isActive ? 'archive' : 'unarchive'} integration`,
+        title: isActive ? t('failed-to-archive-integration') : t('failed-to-unarchive-integration'),
         description: e?.message,
         variant: 'destructive',
       });
@@ -32,9 +34,9 @@ export const ArchiveIntegration = ({
 
   const handleArchive = () => {
     confirm({
-      message: `Are you sure you want to ${
-        isActive ? 'archive' : 'unarchive'
-      } "${name}" integration?`,
+      message: isActive
+        ? t('confirm-archive-integration', { name })
+        : t('confirm-unarchive-integration', { name }),
     }).then(() => {
       archiveIntegration({ variables: { id: _id, status: isActive } });
     });
@@ -47,7 +49,7 @@ export const ArchiveIntegration = ({
       ) : (
         <IconArchive size={16} />
       )}
-      {isActive ? 'Archive' : 'Unarchive'}
+      {isActive ? t('archive') : t('unarchive')}
     </div>
   );
 };

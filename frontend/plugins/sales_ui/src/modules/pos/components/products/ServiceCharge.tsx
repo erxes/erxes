@@ -1,4 +1,5 @@
 import { Form, Input, Label } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
 import { type ProductsFormData } from '@/pos/components/products/Products';
@@ -27,6 +28,7 @@ const normalizeServiceCharge = (value: string) => {
 };
 
 export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <Form.Field
@@ -34,7 +36,7 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
         name="serviceCharge"
         render={({ field }) => (
           <Form.Item>
-            <Label htmlFor="serviceCharge">Service Charge (%)</Label>
+            <Label htmlFor="serviceCharge">{t('service-charge-percent')}</Label>
 
             <Form.Control>
               <div className="relative">
@@ -72,7 +74,7 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
         name="serviceChargeApplicableProductId"
         render={({ field }) => (
           <Form.Item>
-            <Label>Applicable Products</Label>
+            <Label>{t('applicable-products')}</Label>
 
             <Form.Control>
               <SelectProduct
@@ -85,7 +87,7 @@ export const ServiceCharge: React.FC<ServiceChargeProps> = ({ control }) => {
 
                   field.onChange(nextValue);
                 }}
-                placeholder="Select products to apply service charge"
+                placeholder={t('select-products-to-apply-service-charge')}
               />
             </Form.Control>
           </Form.Item>

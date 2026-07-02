@@ -1,5 +1,6 @@
 import { RecordTable, Spinner } from 'erxes-ui';
 import { IconClipboardList } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { assignmentColumns } from './AssignmentColumns';
 import {
   useAssignmentList,
@@ -10,6 +11,7 @@ import { AssignmentAddModal } from './AssignmentAddModal';
 
 export const AssignmentRecordTable = () => {
   const { list, handleFetchMore, loading, pageInfo } = useAssignmentList();
+  const { t } = useTranslation('loyalty');
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (loading && !list?.length) return <Spinner />;
@@ -48,10 +50,10 @@ export const AssignmentRecordTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconClipboardList size={48} className="text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900">
-                No assignments yet
+                {t('no-assignments-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 mb-4">
-                Get started by creating your first assignment.
+                {t('get-started-assignment')}
               </p>
               <AssignmentAddModal />
             </div>

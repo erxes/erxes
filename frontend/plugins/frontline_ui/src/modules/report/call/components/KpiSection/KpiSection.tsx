@@ -6,13 +6,15 @@ import {
   IconPhoneOff,
   IconShieldCheck,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { KpiCard } from './KpiCard';
 import { useKpiScorecard } from '../../hooks/useKpiScorecard';
 import { useCallFilters } from '../../hooks/useCallFilters';
-import { fmt, fmtDur, fmtNum, fmtPct } from '../../utils';
+import { fmtDur, fmtNum, fmtPct } from '../../utils';
 
 /** 6-card KPI scorecard row. */
 export function KpiSection() {
+  const { t } = useTranslation('frontline');
   const { kpi, loading } = useKpiScorecard();
   const { direction, dateRangeLabel } = useCallFilters();
 
@@ -34,7 +36,7 @@ export function KpiSection() {
 
   const cards = [
     {
-      title: 'Total Calls',
+      title: t('kpi-total-calls'),
       value: fmtNum(kpi?.callstotal),
       subtitle: dateRangeLabel,
       icon: <IconPhone className="h-5 w-5" />,
@@ -42,46 +44,46 @@ export function KpiSection() {
       iconClass: 'bg-[var(--chart-1)]/10 text-[var(--chart-1)]',
     },
     {
-      title: 'Service Level',
+      title: t('kpi-service-level'),
       value: fmtPct(kpi?.serviceLevel),
-      subtitle: '≤ 20 s answer target',
+      subtitle: t('kpi-service-level-subtitle'),
       icon: <IconShieldCheck className="h-5 w-5" />,
       valueClass: 'text-[var(--chart-2)]',
       iconClass: 'bg-[var(--chart-2)]/10 text-[var(--chart-2)]',
     },
     {
-      title: 'Abandonment Rate',
+      title: t('kpi-abandonment-rate'),
       value: fmtPct(kpi?.abandonment),
-      subtitle: 'Inbound abandoned',
+      subtitle: t('kpi-abandonment-rate-subtitle'),
       icon: <IconPhoneOff className="h-5 w-5" />,
       valueClass: 'text-[var(--neg)]',
       iconClass: 'bg-[var(--neg)]/10 text-[var(--neg)]',
     },
     {
-      title: 'Avg Speed of Answer',
+      title: t('kpi-avg-speed-of-answer'),
       value: fmtDur(kpi?.averageSpeed),
-      subtitle: 'Time before answer',
+      subtitle: t('kpi-avg-speed-of-answer-subtitle'),
       icon: <IconClock className="h-5 w-5" />,
       valueClass: 'text-[var(--warn)]',
       iconClass: 'bg-[var(--warn)]/10 text-[var(--warn)]',
     },
     {
-      title: 'Avg Handle Time',
+      title: t('kpi-avg-handle-time'),
       value: fmtDur(kpi?.averageAnsweredTime),
-      subtitle: 'Talk + estimated wrap',
+      subtitle: t('kpi-avg-handle-time-subtitle'),
       icon: <IconPhoneCheck className="h-5 w-5" />,
       valueClass: 'text-[var(--pos)]',
       iconClass: 'bg-[var(--pos)]/10 text-[var(--pos)]',
     },
     {
-      title: 'Answer Rate',
+      title: t('kpi-answer-rate'),
       value: fmtPct(answerRate),
-      subtitle: direction !== 'all' ? `${direction} only` : 'All directions',
+      subtitle: direction !== 'all' ? t('kpi-direction-only', { direction }) : t('kpi-all-directions'),
       icon: <IconPercentage className="h-5 w-5" />,
       valueClass: 'text-[var(--chart-3)]',
       iconClass: 'bg-[var(--chart-3)]/10 text-[var(--chart-3)]',
     },
-  ] as const;
+  ];
 
   return (
     <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-6">

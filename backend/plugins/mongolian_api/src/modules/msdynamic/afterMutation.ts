@@ -18,7 +18,6 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
 
   const models = await generateModels(subdomain);
 
-  // ✅ NEW: Load configs from MNConfig system
   const dynamicConfigs = await models.Configs.getConfigs('DYNAMIC');
 
   if (!dynamicConfigs?.length) {
@@ -56,7 +55,6 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
       case 'core:customer':
       case 'core:company': {
         syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
-
         await customerToDynamic(
           subdomain,
           syncLog,
@@ -65,7 +63,6 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
           models,
           configsMap,
         );
-
         break;
       }
 
@@ -74,8 +71,9 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         const oldDeal = object;
 
         const destinationStageId = deal?.stageId;
+        const oldStageId = oldDeal?.stageId;
 
-        if (!destinationStageId || destinationStageId === oldDeal?.stageId) {
+        if (!destinationStageId || destinationStageId === oldStageId) {
           return;
         }
 
@@ -89,9 +87,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         }
 
         syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
-
         await dealToDynamic(subdomain, models, syncLog, deal, foundConfig);
-
         break;
       }
 
@@ -106,7 +102,6 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         if (config && !config.useBoard) {
           await orderToDynamic(subdomain, models, syncLog, updatedDoc, config);
         }
-
         break;
       }
 
@@ -114,6 +109,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         break;
     }
   } catch (e: any) {
+    console.error(`MSDynamic error:`, e);
     if (syncLog?._id) {
       await models.SyncLogsMSD.updateOne(
         { _id: syncLog._id },

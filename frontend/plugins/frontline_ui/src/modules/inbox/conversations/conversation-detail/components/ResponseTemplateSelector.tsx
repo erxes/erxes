@@ -10,6 +10,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { responseListViewAtom } from '../states/responseTemplate';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
+import { useTranslation } from 'react-i18next';
 
 interface ResponseTemplate {
   _id: string;
@@ -42,6 +43,7 @@ const getViewModeTitle = (viewMode: ViewMode): string => {
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
 > = ({ onSelect, children }) => {
+  const { t } = useTranslation('frontline');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
@@ -142,14 +144,14 @@ export const ResponseTemplateSelector: React.FC<
       <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
-            <h3 className="font-semibold text-sm">Response Templates</h3>
+            <h3 className="font-semibold text-sm">{t('response-templates')}</h3>
             <div className="flex items-center space-x-2">
               <Button
                 onClick={toggleViewMode}
                 variant={'ghost'}
                 size="icon"
                 className="h-8 w-8 rounded hover:bg-muted"
-                title={getViewModeTitle(viewMode)}
+                title={viewMode === 'grid' ? t('switch-to-list-view') : t('switch-to-grid-view')}
               >
                 <ViewModeIcon />
               </Button>
@@ -173,7 +175,7 @@ export const ResponseTemplateSelector: React.FC<
             <Command.Input
               variant="secondary"
               focusOnMount
-              placeholder="Search templates..."
+              placeholder={t('search-templates')}
               value={search}
               onValueChange={setSearch}
             />
@@ -194,8 +196,8 @@ export const ResponseTemplateSelector: React.FC<
               ) : filteredTemplates.length === 0 ? (
                 <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
                   {search
-                    ? 'No matching templates found'
-                    : 'No templates available'}
+                    ? t('no-matching-templates')
+                    : t('no-templates-available')}
                 </div>
               ) : (
                 <>
@@ -255,7 +257,7 @@ export const ResponseTemplateSelector: React.FC<
                           })
                         }
                       >
-                        Load more
+                        {t('load-more')}
                       </Button>
                     </div>
                   )}

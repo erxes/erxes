@@ -2,8 +2,10 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { SAFE_REMAINDER_ADD } from '../graphql/safeRemainderAdd';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const useSafeRemainderAdd = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const [_addSafeRemainder, { loading }] = useMutation(
     SAFE_REMAINDER_ADD,
@@ -15,7 +17,7 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -23,8 +25,8 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Safe Remainder created successfully',
+          title: t('success'),
+          description: t('safe-remainder-created'),
         });
         options?.onCompleted();
       },

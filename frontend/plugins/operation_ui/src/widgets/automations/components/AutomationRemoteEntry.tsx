@@ -6,6 +6,7 @@ import {
   type LazyExoticComponent,
 } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 import { AutomationRemoteEntryProps } from 'ui-modules';
 
 const TaskRemoteEntry = lazy(() =>
@@ -47,7 +48,7 @@ export const AutomationRemoteEntries = ({
 
   return (
     <Suspense fallback={<Spinner />}>
-      <ErrorBoundary FallbackComponent={() => <div>Error </div>}>
+      <ErrorBoundary FallbackComponent={() => { const { t } = useTranslation('operation'); return <div>{t('error')}</div>; }}>
         <RemoteComponent {...props} />
       </ErrorBoundary>
     </Suspense>

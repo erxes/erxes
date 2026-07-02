@@ -2,6 +2,7 @@ import { PageContainer } from 'erxes-ui';
 import { Suspense } from 'react';
 import { IconAward } from '@tabler/icons-react';
 import { PageHeader } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { LoyaltyMainSidebar } from './LoyaltyMainSidebar';
 import {
   LoyaltyHeaderActionProvider,
@@ -18,13 +19,14 @@ export const LoyaltyMainLayout = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <LoyaltyHeaderActionProvider>
       <PageContainer className="flex flex-col h-full">
         <PageHeader className="p-3 mx-0">
           <PageHeader.Start>
             <IconAward className="size-4" />
-            <span className="font-medium">Loyalty</span>
+            <span className="font-medium">{t('loyalty-title')}</span>
           </PageHeader.Start>
           <PageHeader.End>
             <LoyaltyHeaderEnd />

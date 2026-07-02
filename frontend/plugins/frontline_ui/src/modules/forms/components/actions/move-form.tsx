@@ -3,6 +3,7 @@ import { useFormEdit } from '@/forms/hooks/useFormEdit';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { IconArrowBarToRight } from '@tabler/icons-react';
 import { DropdownMenu, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   formId: string;
@@ -19,6 +20,7 @@ export const MoveFormToChannel = ({
   name,
   type,
 }: Props) => {
+  const { t } = useTranslation('frontline');
   const { editForm, loading } = useFormEdit();
 
   const onSelect = (id: string) => {
@@ -33,14 +35,14 @@ export const MoveFormToChannel = ({
       onCompleted: () => {
         setOpen(false);
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: 'Form moved successfully',
+          description: t('form-moved-successfully'),
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           variant: 'destructive',
           description: error.message,
         });
@@ -52,7 +54,7 @@ export const MoveFormToChannel = ({
     <DropdownMenu.Sub>
       <DropdownMenu.SubTrigger>
         <IconArrowBarToRight />
-        Move to Channel
+        {t('move-to-channel')}
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>

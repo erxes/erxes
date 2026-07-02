@@ -17,6 +17,7 @@ import React, { useState } from 'react';
 
 import { PROJECT_PRIORITIES_OPTIONS } from '@/deals/constants/cards';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 interface SelectPriorityContextType {
   value: number;
@@ -66,12 +67,13 @@ const SelectPriorityBadgeValue = ({
 }: {
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value } = useSelectPriorityContext();
 
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select priority'}
+        {placeholder || t('select-priority')}
       </span>
     );
   }

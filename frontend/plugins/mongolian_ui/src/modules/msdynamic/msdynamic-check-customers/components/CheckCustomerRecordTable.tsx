@@ -1,11 +1,13 @@
 import { RecordTable } from 'erxes-ui';
 import { IconUserX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useCheckCustomer } from '../hooks/useCheckCustomer';
 import { checkCustomerColumns } from './CheckCustomerColumns';
 import { MS_DYNAMIC_SESSION_KEYS } from '../../constants/msDynamicSessionKey';
 import { CheckCustomerCommandBar } from './CheckCustomerCommandBar';
 
 export const CheckCustomerRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { paginatedItems, pageInfo, checking, checkCustomers } =
     useCheckCustomer();
 
@@ -46,10 +48,10 @@ export const CheckCustomerRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    No customers yet
+                    {t('no-customers-yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by checking customers.
+                    {t('get-started-checking')}
                   </p>
                 </div>
               </div>

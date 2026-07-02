@@ -1,5 +1,6 @@
 import { Form, Input, Select, Textarea, Switch } from 'erxes-ui';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { CategoryField } from './CategoryField';
 import { TagField } from './TagField';
 import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
@@ -85,6 +86,7 @@ export const ContentTab = ({
   cmsConfig,
   handleLanguageChange,
 }: ContentTabProps) => {
+  const { t } = useTranslation('content');
   const isTranslationMode =
     Boolean(selectedLanguage) && selectedLanguage !== defaultLanguage;
   const canShowUrlField = selectedLanguage === defaultLanguage;
@@ -107,20 +109,20 @@ export const ContentTab = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Post Type
+              {t('post-type')}
               {isTranslationMode && (
                 <span className="ml-2 text-xs text-gray-500">
-                  (shared across languages)
+                  ({t('shared-across-languages')})
                 </span>
               )}
             </Form.Label>
             <Form.Control>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Choose type" />
+                  <Select.Value placeholder={t('choose-type')} />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="post">post</Select.Item>
+                  <Select.Item value="post">{t('post')}</Select.Item>
                   {customTypes.map((type) => (
                     <Select.Item key={type._id} value={type._id}>
                       {type.label}
@@ -158,7 +160,7 @@ export const ContentTab = ({
                 </div>
               </Form.Control>
               <Form.Description>
-                Leave empty to generate from the post title.
+                {t('slug-leave-empty-desc')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -177,7 +179,7 @@ export const ContentTab = ({
                   fullPost,
                 )}
                 className="flex-1"
-                placeholder="Generated after save"
+                placeholder={t('generated-after-save')}
                 readOnly
               />
               {fullPost && (
@@ -201,7 +203,7 @@ export const ContentTab = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Short Description
+              {t('short-description')}
               {isTranslationMode && (
                 <span className="ml-2 text-xs text-blue-600">
                   ({selectedLanguage})
@@ -211,13 +213,13 @@ export const ContentTab = ({
             <Form.Control>
               <Textarea
                 {...field}
-                placeholder="Description here"
+                placeholder={t('description-here')}
                 rows={8}
                 maxLength={500}
               />
             </Form.Control>
             <div className="text-xs text-muted-foreground text-right">
-              {field.value?.length || 0}/500 characters
+              {t('x-of-500-chars', { count: field.value?.length || 0 })}
             </div>
             <Form.Message />
           </Form.Item>
@@ -236,9 +238,9 @@ export const ContentTab = ({
         name="featured"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Featured</Form.Label>
+            <Form.Label>{t('featured')}</Form.Label>
             <Form.Description>
-              Turn this post into a featured post
+              {t('featured-desc')}
             </Form.Description>
             <Form.Control>
               <Switch

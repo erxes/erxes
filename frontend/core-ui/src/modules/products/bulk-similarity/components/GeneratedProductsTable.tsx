@@ -5,9 +5,10 @@ import {
   IconStarFilled,
   IconSwitchHorizontal,
 } from '@tabler/icons-react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IMaskInput } from 'react-imask';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
 import { useBulkRows } from '../hooks/useBulkRows';
 import { useVariantFields } from '../hooks/useVariantFields';
@@ -146,7 +147,6 @@ const RowSwapCell = ({
   combination,
   baseCode,
   fieldIds,
-  labelOf,
   excludeIds,
 }: {
   index: number;
@@ -156,7 +156,6 @@ const RowSwapCell = ({
   combination: Record<string, string>;
   baseCode: string;
   fieldIds: string[];
-  labelOf: (fieldId: string, value: string) => string;
   excludeIds: string[];
 }) => {
   const { setValue, trigger } = useFormContext<BulkSimilarityFormValues>();
@@ -172,7 +171,7 @@ const RowSwapCell = ({
   };
 
   const handleClear = () => {
-    const suffix = generateCodeSuffix(fieldIds, combination, labelOf);
+    const suffix = generateCodeSuffix(fieldIds, combination);
     setValue(`rows.${index}.productId`, undefined);
     setValue(`rows.${index}.code`, `${baseCode}${suffix}`);
     setValue(`rows.${index}.codeEdited`, false);
@@ -220,12 +219,98 @@ const EmptyPanel = ({
   </div>
 );
 
+const DEFAULT_COLUMN_WIDTH = 144;
+const MIN_COLUMN_WIDTH = 64;
+
+const useColumnWidths = (defaults: Record<string, number>) => {
+  const [widths, setWidths] = useState<Record<string, number>>(defaults);
+
+  const widthOf = (id: string) =>
+    widths[id] ?? defaults[id] ?? DEFAULT_COLUMN_WIDTH;
+
+  const startResize = useCallback(
+    (id: string, event: React.MouseEvent) => {
+      event.preventDefault();
+      const startX = event.clientX;
+      const startWidth = widths[id] ?? defaults[id] ?? DEFAULT_COLUMN_WIDTH;
+
+      const onMove = (e: MouseEvent) => {
+        const next = Math.max(MIN_COLUMN_WIDTH, startWidth + e.clientX - startX);
+        setWidths((prev) => ({ ...prev, [id]: next }));
+      };
+
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    },
+    [widths, defaults],
+  );
+
+  return { widthOf, startResize };
+};
+
+const ResizeHandle = ({
+  onMouseDown,
+}: {
+  onMouseDown: (e: React.MouseEvent) => void;
+}) => (
+  <span
+    onMouseDown={onMouseDown}
+    onClick={(e) => e.stopPropagation()}
+    className={cn(
+      'absolute top-0 right-0 z-10 h-full w-2 cursor-col-resize select-none touch-none',
+      'after:absolute after:inset-y-2 after:right-0 after:w-px after:bg-border',
+      'hover:after:inset-y-1 hover:after:w-0.5 hover:after:bg-primary',
+    )}
+  />
+);
+
+const ResizableHead = ({
+  columnId,
+  width,
+  onResize,
+  className,
+  children,
+}: {
+  columnId: string;
+  width: number;
+  onResize: (id: string, e: React.MouseEvent) => void;
+  className?: string;
+  children: React.ReactNode;
+}) => (
+  <Table.Head className={cn('relative px-3', className)} style={{ width }}>
+    {children}
+    <ResizeHandle onMouseDown={(e) => onResize(columnId, e)} />
+  </Table.Head>
+);
+
 export const GeneratedProductsTable = ({
   fieldName,
   unitPrice,
 }: GeneratedProductsTableProps) => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { control, setValue } = useFormContext<BulkSimilarityFormValues>();
   const { fieldIds, labelOf } = useVariantFields();
+  const columnDefaults = useMemo(
+    () => ({
+      name: 224,
+      code: 224,
+      unitPrice: 128,
+      swap: 80,
+      star: 64,
+      ...Object.fromEntries(fieldIds.map((id) => [id, 144])),
+    }),
+    [fieldIds],
+  );
+  const { widthOf, startResize } = useColumnWidths(columnDefaults);
   const {
     rows,
     duplicateCodes,
@@ -238,7 +323,12 @@ export const GeneratedProductsTable = ({
 
   if (!rows.length) {
     return (
-      <EmptyPanel>Select field values above to generate products.</EmptyPanel>
+      <EmptyPanel>
+        {t(
+          'select-values-hint',
+          'Select field values above to generate products.',
+        )}
+      </EmptyPanel>
     );
   }
 
@@ -246,8 +336,11 @@ export const GeneratedProductsTable = ({
     return (
       <EmptyPanel variant="destructive">
         <IconAlertTriangle size={16} />
-        {rows.length} combinations — too many to render. Reduce the selected
-        options.
+        {t('too-many-combinations', {
+          count: rows.length,
+          defaultValue:
+            '{{count}} combinations — too many to render. Reduce the selected options.',
+        })}
       </EmptyPanel>
     );
   }
@@ -262,7 +355,7 @@ export const GeneratedProductsTable = ({
 
   return (
     <div className="border rounded-lg max-h-[28rem] overflow-auto">
-      <Table>
+      <Table className="w-auto min-w-full">
         <Table.Header className="top-0 z-10 sticky bg-sidebar">
           <Table.Row>
             <Table.Head className="px-3 w-10">
@@ -275,25 +368,67 @@ export const GeneratedProductsTable = ({
                         onCheckedChange={(checked) =>
                           handleSetAllExcluded(!checked)
                         }
-                        aria-label="Include all"
+                        aria-label={t('include-all', 'Include all')}
                       />
                     </span>
                   </Tooltip.Trigger>
                   <Tooltip.Content>
-                    {allIncluded ? 'Exclude all' : 'Include all'}
+                    {allIncluded
+                      ? t('exclude-all', 'Exclude all')
+                      : t('include-all', 'Include all')}
                   </Tooltip.Content>
                 </Tooltip>
               </Tooltip.Provider>
             </Table.Head>
-            <Table.Head className="px-3 w-auto">Code</Table.Head>
-            <Table.Head className="px-3 w-32">Unit price</Table.Head>
+            <ResizableHead
+              columnId="name"
+              width={widthOf('name')}
+              onResize={startResize}
+            >
+              {t('name', 'Name')}
+            </ResizableHead>
+            <ResizableHead
+              columnId="code"
+              width={widthOf('code')}
+              onResize={startResize}
+            >
+              {t('code', 'Code')}
+            </ResizableHead>
+            <ResizableHead
+              columnId="unitPrice"
+              width={widthOf('unitPrice')}
+              onResize={startResize}
+            >
+              {t('unit-price', 'Unit price')}
+            </ResizableHead>
             {fieldIds.map((fieldId) => (
-              <Table.Head key={fieldId} className="px-3 w-36">
-                {fieldName(fieldId)}
-              </Table.Head>
+              <ResizableHead
+                key={fieldId}
+                columnId={fieldId}
+                width={widthOf(fieldId)}
+                onResize={startResize}
+              >
+                <span className="block truncate" title={fieldName(fieldId)}>
+                  {fieldName(fieldId)}
+                </span>
+              </ResizableHead>
             ))}
-            <Table.Head className="px-3 w-20 text-center">Swap</Table.Head>
-            <Table.Head className="px-3 w-16 text-center">Star</Table.Head>
+            <ResizableHead
+              columnId="swap"
+              width={widthOf('swap')}
+              onResize={startResize}
+              className="text-center"
+            >
+              {t('swap', 'Swap')}
+            </ResizableHead>
+            <ResizableHead
+              columnId="star"
+              width={widthOf('star')}
+              onResize={startResize}
+              className="text-center"
+            >
+              {t('star', 'Star')}
+            </ResizableHead>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -302,6 +437,7 @@ export const GeneratedProductsTable = ({
             const combination = watchedRow?.combination || {};
             const isExcluded = !!watchedRow?.isExcluded;
             const code = watchedRow?.code || '';
+            const name = watchedRow?.name || '';
             const isDup = !isExcluded && duplicateCodes?.has(code);
 
             return (
@@ -312,7 +448,7 @@ export const GeneratedProductsTable = ({
                   isDup && 'bg-destructive/5',
                 )}
               >
-                <Table.Cell className="px-3">
+                <Table.Cell className="px-3 w-10">
                   <Controller
                     control={control}
                     name={`rows.${index}.isExcluded`}
@@ -320,12 +456,22 @@ export const GeneratedProductsTable = ({
                       <Checkbox
                         checked={!field.value}
                         onCheckedChange={(checked) => field.onChange(!checked)}
-                        aria-label="Include product"
+                        aria-label={t('include-product', 'Include product')}
                       />
                     )}
                   />
                 </Table.Cell>
-                <Table.Cell className="px-1">
+                <Table.Cell className="px-1" style={{ width: widthOf('name') }}>
+                  <EditableCell
+                    value={name}
+                    onCommit={(next) => {
+                      setValue(`rows.${index}.name`, next);
+                      setValue(`rows.${index}.nameEdited`, true);
+                    }}
+                    placeholder={t('name-placeholder', 'name')}
+                  />
+                </Table.Cell>
+                <Table.Cell className="px-1" style={{ width: widthOf('code') }}>
                   <div className="flex items-center gap-1">
                     <EditableCell
                       value={code}
@@ -335,7 +481,7 @@ export const GeneratedProductsTable = ({
                         });
                         setValue(`rows.${index}.codeEdited`, true);
                       }}
-                      placeholder="code"
+                      placeholder={t('code-placeholder', 'code')}
                       className="font-mono"
                     />
                     {isDup && (
@@ -347,13 +493,16 @@ export const GeneratedProductsTable = ({
                               className="mr-1 text-destructive shrink-0"
                             />
                           </Tooltip.Trigger>
-                          <Tooltip.Content>Duplicate code</Tooltip.Content>
+                          <Tooltip.Content>{t('duplicate-code', 'Duplicate code')}</Tooltip.Content>
                         </Tooltip>
                       </Tooltip.Provider>
                     )}
                   </div>
                 </Table.Cell>
-                <Table.Cell className="px-1">
+                <Table.Cell
+                  className="px-1"
+                  style={{ width: widthOf('unitPrice') }}
+                >
                   <Controller
                     control={control}
                     name={`rows.${index}.unitPrice`}
@@ -371,14 +520,27 @@ export const GeneratedProductsTable = ({
                     )}
                   />
                 </Table.Cell>
-                {fieldIds.map((fieldId) => (
-                  <Table.Cell key={fieldId} className="px-3">
-                    <Badge variant="secondary">
-                      {labelOf(fieldId, combination[fieldId])}
-                    </Badge>
-                  </Table.Cell>
-                ))}
-                <Table.Cell className="px-3">
+                {fieldIds.map((fieldId) => {
+                  const label = labelOf(fieldId, combination[fieldId]);
+                  return (
+                    <Table.Cell
+                      key={fieldId}
+                      className="px-3"
+                      style={{ width: widthOf(fieldId) }}
+                    >
+                      <div className="w-full">
+                        <Badge
+                          variant="secondary"
+                          className="max-w-full"
+                          title={label}
+                        >
+                          <span className="truncate">{label}</span>
+                        </Badge>
+                      </div>
+                    </Table.Cell>
+                  );
+                })}
+                <Table.Cell className="px-3" style={{ width: widthOf('swap') }}>
                   <RowSwapCell
                     index={index}
                     isExcluded={isExcluded}
@@ -387,11 +549,13 @@ export const GeneratedProductsTable = ({
                     combination={combination}
                     baseCode={baseCode}
                     fieldIds={fieldIds}
-                    labelOf={labelOf}
                     excludeIds={usedProductIds}
                   />
                 </Table.Cell>
-                <Table.Cell className="px-3 text-center">
+                <Table.Cell
+                  className="px-3 text-center"
+                  style={{ width: widthOf('star') }}
+                >
                   <Controller
                     control={control}
                     name={`rows.${index}.isStar`}

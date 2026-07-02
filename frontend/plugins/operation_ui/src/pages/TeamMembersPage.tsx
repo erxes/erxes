@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { IconArrowLeft } from '@tabler/icons-react';
 
@@ -5,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Members } from '@/team/components/members/Members';
 
 export const TeamMembersPage = () => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
 
   return (
@@ -20,7 +22,7 @@ export const TeamMembersPage = () => {
                   onClick={() => navigate(-1)}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
-                  Team settings
+                  {t('team-settings')}
                 </Button>
               </Breadcrumb.Link>
             </Breadcrumb.Item>

@@ -8,6 +8,7 @@ const SALES_DOCUMENT_ATTRIBUTES = [
   { value: 'closeDate', name: 'Close date' },
   { value: 'description', name: 'Description' },
   { value: 'productsInfo', name: 'Products information' },
+  { value: 'allProductsInfo', name: 'All items information (products + services)' },
   { value: 'productCategoryInfo', name: 'Products with category information' },
   { value: 'servicesInfo', name: 'Services information' },
   { value: 'assignedUsers', name: 'Assigned users' },

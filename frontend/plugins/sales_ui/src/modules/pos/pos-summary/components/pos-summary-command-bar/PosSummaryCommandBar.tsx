@@ -1,16 +1,17 @@
 import { IconPlus } from '@tabler/icons-react';
-
+import { useTranslation } from 'react-i18next';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { PosSummaryDelete } from '@/pos/pos-summary/components/pos-summary-delete/PosSummaryDelete';
 
 export const PosSummaryCommandBar = () => {
+  const { t } = useTranslation('sales');
   const { table } = RecordTable.useRecordTable();
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <PosSummaryDelete
@@ -22,7 +23,7 @@ export const PosSummaryCommandBar = () => {
         <Separator.Inline />
         <Button variant="secondary">
           <IconPlus />
-          Create
+          {t('create')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

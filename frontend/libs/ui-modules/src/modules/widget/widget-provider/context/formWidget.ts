@@ -13,6 +13,7 @@ export interface IFormWidgetForm {
 export interface IFormWidgetProps {
   pluginName: string;
   contentType: string;
+  contentId?: string;
   form: IFormWidgetForm;
 }
 

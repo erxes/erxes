@@ -1,6 +1,7 @@
 import { Button, Collapsible, cn } from 'erxes-ui';
 import { IconGripVertical } from '@tabler/icons-react';
 import { ReactNode, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   PointerSensor,
@@ -151,6 +152,7 @@ export const ReorderableCustomFields = ({
   websiteId,
   renderField,
 }: ReorderableCustomFieldsProps) => {
+  const { t } = useTranslation('content');
   const { reorderVisibleGroups, reorderFields } =
     useCustomFieldOrdering(websiteId);
 
@@ -184,7 +186,7 @@ export const ReorderableCustomFields = ({
 
   return (
     <div className="space-y-3 mt-6 pt-6 border-t">
-      <div className="text-sm font-semibold text-foreground">Custom Fields</div>
+      <div className="text-sm font-semibold text-foreground">{t('custom-fields')}</div>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

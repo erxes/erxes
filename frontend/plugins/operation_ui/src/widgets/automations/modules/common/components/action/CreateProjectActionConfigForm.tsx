@@ -4,6 +4,7 @@ import { SelectTeam } from '@/team/components/SelectTeam';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui';
 import { Control, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationActionFormProps,
   PlaceholderInput,
@@ -90,6 +91,7 @@ export const CreateProjectActionConfigForm = ({
 > & {
   onSaveActionConfig: (config: TProjectActionConfigForm) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const propertyType = targetType || OPERATION_PROJECT_TARGET_TYPE;
   const currentConfig = getProjectActionConfig(currentAction?.config);
   const form = useForm<TProjectActionConfigForm>({
@@ -120,7 +122,7 @@ export const CreateProjectActionConfigForm = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Name</Form.Label>
+            <Form.Label>{t('name')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -136,7 +138,7 @@ export const CreateProjectActionConfigForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -152,7 +154,7 @@ export const CreateProjectActionConfigForm = ({
         name="teamIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Teams</Form.Label>
+            <Form.Label>{t('teams')}</Form.Label>
             <SelectTeam.FormItem
               mode="multiple"
               value={field.value || []}
@@ -169,7 +171,7 @@ export const CreateProjectActionConfigForm = ({
           name="status"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Status</Form.Label>
+              <Form.Label>{t('status')}</Form.Label>
               <SelectStatus.FormItem
                 value={field.value || 0}
                 onValueChange={field.onChange}
@@ -185,7 +187,7 @@ export const CreateProjectActionConfigForm = ({
           name="priority"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Priority</Form.Label>
+              <Form.Label>{t('priority')}</Form.Label>
               <SelectPriority.FormItem
                 value={field.value || 0}
                 onValueChange={field.onChange}

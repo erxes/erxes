@@ -1,5 +1,6 @@
 import { gql, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { mutations } from '../../graphql';
 import {
@@ -31,6 +32,7 @@ const getAction = (filter: CategoryFilterType): InventoryCategoryAction => {
 export const useSyncCategory = () => {
   const [mutate, { loading, error }] =
     useMutation<SyncCategoryMutationResponse>(gql(mutations.toSyncCategories));
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   /* Unsynced MS Dynamic-aas irsen category-uudiig erxes ruu sync hiigeed shine state butsaana */
@@ -50,8 +52,8 @@ export const useSyncCategory = () => {
 
     if (categoriesToSync.length === 0) {
       toast({
-        title: 'Info',
-        description: `All ${selectedFilter} categories are already synced`,
+        title: t('info'),
+        description: t('all-categories-synced', { filter: selectedFilter }),
       });
       return items;
     }
@@ -90,8 +92,8 @@ export const useSyncCategory = () => {
         };
 
         toast({
-          title: 'Success',
-          description: `${categoriesToSync.length} ${selectedFilter} categories synced`,
+          title: t('success'),
+          description: t('categories-synced', { count: categoriesToSync.length, filter: selectedFilter }),
         });
 
         return updatedItems;
@@ -100,8 +102,8 @@ export const useSyncCategory = () => {
       return undefined;
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to sync MS Dynamic categories',
+        title: t('error'),
+        description: t('failed-to-sync-categories'),
         variant: 'destructive',
       });
       return undefined;

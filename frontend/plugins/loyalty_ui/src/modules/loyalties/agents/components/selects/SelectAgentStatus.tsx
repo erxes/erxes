@@ -8,11 +8,12 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconCheck } from '@tabler/icons-react';
 
 const OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'draft', label: 'Draft' },
+  { value: 'active', label: 'active' },
+  { value: 'draft', label: 'draft' },
 ];
 
 const StatusContent = ({
@@ -21,10 +22,12 @@ const StatusContent = ({
 }: {
   value: string;
   onSelect: (v: string) => void;
-}) => (
+}) => {
+  const { t } = useTranslation('loyalty');
+  return (
   <Command>
-    <Command.Input placeholder="Search..." />
-    <Command.Empty>No statuses found</Command.Empty>
+    <Command.Input placeholder={t('search')} />
+    <Command.Empty>{t('no-statuses-found')}</Command.Empty>
     <Command.List>
       {OPTIONS.map((o) => (
         <Command.Item
@@ -32,20 +35,24 @@ const StatusContent = ({
           value={o.value}
           onSelect={() => onSelect(o.value)}
         >
-          {o.label}
+          {t(o.label)}
           <Combobox.Check checked={value === o.value} />
         </Command.Item>
       ))}
     </Command.List>
   </Command>
-);
+  );
+};
 
-const FilterItem = () => (
-  <Filter.Item value="agentStatus">
-    <IconCheck />
-    Status
-  </Filter.Item>
-);
+const FilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="agentStatus">
+      <IconCheck />
+      {t('status')}
+    </Filter.Item>
+  );
+};
 
 const FilterView = ({ queryKey = 'agentStatus' }: { queryKey?: string }) => {
   const [status, setStatus] = useQueryState<string>(queryKey);
@@ -66,18 +73,19 @@ const FilterView = ({ queryKey = 'agentStatus' }: { queryKey?: string }) => {
 const FilterBar = () => {
   const [status, setStatus] = useQueryState<string>('agentStatus');
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('loyalty');
   const label = OPTIONS.find((o) => o.value === status)?.label;
 
   return (
     <Filter.BarItem queryKey="agentStatus">
       <Filter.BarName>
         <IconCheck />
-        Status
+        {t('status')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="agentStatus">
-            <span>{label || 'Select status'}</span>
+            <span>{label ? t(label) : t('select-status')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -104,13 +112,14 @@ const FormItem = ({
   placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('loyalty');
   const label = OPTIONS.find((o) => o.value === value)?.label;
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Form.Control>
         <Combobox.Trigger className="w-full shadow-xs">
           <span className={label ? '' : 'text-accent-foreground/80'}>
-            {label || placeholder || 'Select status'}
+            {label ? t(label) : placeholder || t('select-status')}
           </span>
         </Combobox.Trigger>
       </Form.Control>

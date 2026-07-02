@@ -6,8 +6,10 @@ import {
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const IndexPage = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
@@ -31,11 +33,11 @@ export const IndexPage = () => {
           <Button variant="outline" asChild>
             <Link to="/settings/ebarimt">
               <IconSettings />
-              Go to settings
+              {t('go-to-settings')}
             </Link>
           </Button>
           <Button>
-            More <IconCaretDownFilled />
+            {t('more')} <IconCaretDownFilled />
           </Button>
         </PageHeader.End>
       </PageHeader>

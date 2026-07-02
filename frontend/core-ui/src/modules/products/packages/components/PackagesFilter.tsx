@@ -7,6 +7,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconCheck, IconTag } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { SelectTags } from 'ui-modules';
 import { PACKAGE_STATUSES } from '../types/Package';
 
@@ -44,6 +45,7 @@ function StatusFilterView() {
 }
 
 function StatusFilterBar() {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const [status, setStatus] = useQueryState<string>('status');
 
   if (!status) return null;
@@ -52,14 +54,14 @@ function StatusFilterBar() {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconTag />
-        Status
+        {t('status', 'Status')}
       </Filter.BarName>
       <Select
         value={status}
         onValueChange={(value) => setStatus(value || null)}
       >
         <Filter.BarButton filterKey="status">
-          <Select.Value placeholder="Select status" />
+          <Select.Value placeholder={t('select-status', 'Select status')} />
         </Filter.BarButton>
         <Select.Content>
           {STATUS_OPTIONS.map((option) => (
@@ -74,6 +76,7 @@ function StatusFilterBar() {
 }
 
 function TagsFilterBar() {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const [tags] = useQueryState<string[]>('tags');
 
   if (!tags?.length) return null;
@@ -82,7 +85,7 @@ function TagsFilterBar() {
     <SelectTags.FilterBar
       mode="multiple"
       filterKey="tags"
-      label="Tags"
+      label={t('tags', 'Tags')}
       tagType="core:product"
     />
   );
@@ -107,6 +110,7 @@ export const PackagesFilter = () => {
 };
 
 export const PackagesFilterPopover = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   return (
     <>
       <Filter.Popover>
@@ -114,14 +118,14 @@ export const PackagesFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
                 <Filter.Item value="status">
                   <IconTag />
-                  Status
+                  {t('status', 'Status')}
                 </Filter.Item>
-                <SelectTags.FilterItem value="tags" label="Tags" />
+                <SelectTags.FilterItem value="tags" label={t('tags', 'Tags')} />
               </Command.List>
             </Command>
           </Filter.View>

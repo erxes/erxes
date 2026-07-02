@@ -18,6 +18,8 @@ import { IconGripVertical } from '@tabler/icons-react';
 import { useColumnLoading } from '@/deals/states/dealsBoardState';
 import { useDroppable } from '@dnd-kit/core';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { useTranslation } from 'react-i18next';
+
 
 const ESTIMATED_CARD_HEIGHT = 100;
 const SCROLL_THRESHOLD = 200;
@@ -91,13 +93,21 @@ function GenericBoardColumnInner<
       />
 
       {totalCount !== undefined && totalCount > items.length && (
-        <div className="px-3 py-1.5 text-xs text-muted-foreground border-t border-border/50 text-center">
-          Showing {items.length} of {totalCount}
-        </div>
+        <ShowingOf current={items.length} total={totalCount} />
       )}
     </div>
   );
 }
+
+const ShowingOf = memo(({ current, total }: { current: number; total: number }) => {
+  const { t } = useTranslation('sales');
+  return (
+    <div className="px-3 py-1.5 text-xs text-muted-foreground border-t border-border/50 text-center">
+      {t('showing-of', { current, total })}
+    </div>
+  );
+});
+ShowingOf.displayName = 'ShowingOf';
 
 const DefaultColumnHeader = memo(
   ({ title, count }: { title: string; count: number }) => (
@@ -173,6 +183,7 @@ function VirtualizedCardListInner<TItem extends BaseBoardItem>({
   }, [handleScroll]);
 
   const itemIds = items.map((item) => item._id);
+  const { t } = useTranslation('sales');
 
   return (
     <div
@@ -220,7 +231,7 @@ function VirtualizedCardListInner<TItem extends BaseBoardItem>({
             ${isOver ? 'border-primary bg-primary/5' : 'border-muted'}
           `}
         >
-          Drop cards here!
+          {t('drop-cards-here')}
         </div>
       )}
     </div>

@@ -7,15 +7,17 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useProductRulesOnTaxRemove } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRowsRemove';
 
 export const ProductRulesOnTaxRowsCommandbar = () => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ProductRulesOnTaxRowsDelete />
@@ -25,16 +27,17 @@ export const ProductRulesOnTaxRowsCommandbar = () => {
 };
 
 export const ProductRulesOnTaxRowsDelete = () => {
+  const { t } = useTranslation('mongolian');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeProductRulesOnTax, loading } = useProductRulesOnTaxRemove();
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete these product rules on tax?',
+      message: t('delete-product-rules-on-tax-confirm'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       const productRulesOnTaxIds = table
@@ -45,7 +48,7 @@ export const ProductRulesOnTaxRowsDelete = () => {
         variables: { ids: productRulesOnTaxIds },
         onError: (error: Error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -53,8 +56,8 @@ export const ProductRulesOnTaxRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Success',
-            description: 'Product rules on tax deleted successfully',
+            title: t('success'),
+            description: t('product-rules-on-tax-deleted-successfully'),
           });
         },
       });
@@ -64,7 +67,7 @@ export const ProductRulesOnTaxRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   closestCenter,
   DndContext,
@@ -218,11 +219,12 @@ const FacebookCardsMessageProvider = ({
 };
 
 const FacebookCardsMessageHeader = () => {
+  const { t } = useTranslation('frontline');
   const { addPage, cards } = useFacebookCardsMessage();
 
   return (
     <div className="flex items-center justify-between gap-3">
-      <Label>Templates</Label>
+      <Label>{t('templates')}</Label>
       <div className="flex items-center gap-2">
         <InputTextCounter count={cards.length} limit={10} />
         <Button
@@ -231,7 +233,7 @@ const FacebookCardsMessageHeader = () => {
           disabled={cards.length >= 10}
           onClick={addPage}
         >
-          <IconPlus className="size-3" /> Add page
+          <IconPlus className="size-3" /> {t('add-page')}
         </Button>
       </div>
     </div>
@@ -399,6 +401,7 @@ const FacebookSelectedCardImage = () => {
 };
 
 const FacebookSelectedCardTitleField = () => {
+  const { t } = useTranslation('frontline');
   const { selectedCard, updateSelectedCard } = useFacebookCardsMessage();
 
   if (!selectedCard) {
@@ -416,13 +419,14 @@ const FacebookSelectedCardTitleField = () => {
             title: e.currentTarget.value,
           })
         }
-        placeholder="Enter a title"
+        placeholder={t('enter-a-title')}
       />
     </div>
   );
 };
 
 const FacebookSelectedCardSubtitleField = () => {
+  const { t } = useTranslation('frontline');
   const { selectedCard, updateSelectedCard } = useFacebookCardsMessage();
 
   if (!selectedCard) {
@@ -440,7 +444,7 @@ const FacebookSelectedCardSubtitleField = () => {
             subtitle: e.currentTarget.value,
           })
         }
-        placeholder="Enter a subtitle"
+        placeholder={t('enter-a-subtitle')}
       />
     </div>
   );
@@ -477,6 +481,7 @@ const FacebookSelectedCardMessage = () => (
 );
 
 const FacebookSelectedCardMessagePlaceholder = () => {
+  const { t } = useTranslation('frontline');
   const { addPage, cards } = useFacebookCardsMessage();
 
   return (
@@ -486,7 +491,7 @@ const FacebookSelectedCardMessagePlaceholder = () => {
         disabled={cards.length >= 10}
         onClick={addPage}
       >
-        <IconPlus className="size-4" /> Add page
+        <IconPlus className="size-4" /> {t('add-page')}
       </Button>
     </div>
   );
@@ -513,6 +518,7 @@ const FacebookCardsMessageContent = () => {
 export const FacebookCardsMessage = ({
   index,
 }: FacebookMessageProps<{ type: 'card' }>) => {
+  const { t } = useTranslation('frontline');
   const { control } = useReplyMessageAction();
 
   return (

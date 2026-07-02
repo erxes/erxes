@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
 import { ITask } from '@/task/types';
 import { IconEdit } from '@tabler/icons-react';
@@ -10,6 +11,7 @@ export const TasksMoreColumnCell = ({
 }: {
   cell: Cell<ITask, unknown>;
 }) => {
+  const { t } = useTranslation('operation');
   const setActiveTask = useSetAtom(taskDetailSheetState);
   const { _id } = cell.row.original;
 
@@ -26,7 +28,7 @@ export const TasksMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
           </Command.List>
         </Command>

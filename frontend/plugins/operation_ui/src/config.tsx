@@ -5,7 +5,15 @@ import {
 } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
-import { IUIConfig } from 'erxes-ui';
+import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+
+const TaskStatusPropertyInput = lazy(() =>
+  import('./modules/task/components/task-selects/TaskStatusPropertyInput').then(
+    (module) => ({
+      default: module.TaskStatusPropertyInput,
+    }),
+  ),
+);
 
 const MainNavigation = lazy(() =>
   import('./modules/navigation/MainNavigation').then((module) => ({
@@ -75,5 +83,12 @@ export const CONFIG: IUIConfig = {
         icon: IconClipboard,
       },
     ],
+    propertyInputs: {
+      taskStatus: (props: TPropertyInputProps) => (
+        <Suspense fallback={<div />}>
+          <TaskStatusPropertyInput {...props} />
+        </Suspense>
+      ),
+    },
   },
 };

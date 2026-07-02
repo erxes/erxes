@@ -53,13 +53,15 @@ export const buildAiInputFromContext = ({
   aiContext?: TAiContext | null;
 }) => {
   const explicitInput = stringifyAiContextValue(inputData);
-  const currentInput =
-    explicitInput || stringifyAiContextValue(aiContext?.input?.text);
+  const latestUserMessage = stringifyAiContextValue(aiContext?.input?.text);
+  const actionInput =
+    explicitInput && explicitInput !== latestUserMessage ? explicitInput : '';
 
   return [
+    latestUserMessage ? `Latest user message:\n${latestUserMessage}` : '',
     buildHistorySection(aiContext),
     buildFactsSection(aiContext),
-    currentInput ? `Current input:\n${currentInput}` : '',
+    actionInput ? `Action input:\n${actionInput}` : '',
   ]
     .filter(Boolean)
     .join('\n\n');

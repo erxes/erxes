@@ -1,8 +1,10 @@
 import { IconCircleCheck, IconCircleDashed, IconSquareToggle } from "@tabler/icons-react"
 import { Badge, Combobox, Command, Filter, Popover, useFilterContext, useQueryState } from "erxes-ui"
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const BarItem = () => {
+  const { t } = useTranslation('frontline');
   const [query, setQuery] = useQueryState<string | null>('status');
   const [open, setOpen] = useState(false);
   const handleSelect = (value: string) => {
@@ -24,8 +26,8 @@ const BarItem = () => {
           <Command>
             <Command.List>
               <Command.Group>
-                <Command.Item onSelect={handleSelect} value="active">Active</Command.Item>
-                <Command.Item onSelect={handleSelect} value="archived">Archived</Command.Item>
+                <Command.Item onSelect={handleSelect} value="active">{t('active')}</Command.Item>
+                <Command.Item onSelect={handleSelect} value="archived">{t('archived')}</Command.Item>
               </Command.Group>
             </Command.List>
           </Command>
@@ -36,6 +38,7 @@ const BarItem = () => {
 }
 
 const View = () => {
+  const { t } = useTranslation('frontline');
   const [_, setQuery] = useQueryState<string | null>('status');
   const { resetFilterState } = useFilterContext();
   const handleSelect = (value: string) => {
@@ -48,8 +51,8 @@ const View = () => {
         <Command>
           <Command.List>
             <Command.Group>
-              <Command.Item onSelect={handleSelect} value="active">Active</Command.Item>
-              <Command.Item onSelect={handleSelect} value="archived">Archived</Command.Item>
+              <Command.Item onSelect={handleSelect} value="active">{t('active')}</Command.Item>
+              <Command.Item onSelect={handleSelect} value="archived">{t('archived')}</Command.Item>
             </Command.Group>
           </Command.List>
         </Command>
@@ -59,10 +62,11 @@ const View = () => {
 }
 
 const Item = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Filter.Item value="status">
       <IconSquareToggle />
-      Status
+      {t('status')}
     </Filter.Item>
   )
 }

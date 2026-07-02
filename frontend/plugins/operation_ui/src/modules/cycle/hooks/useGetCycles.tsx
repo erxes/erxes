@@ -12,6 +12,7 @@ import {
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -40,6 +41,7 @@ export const useGetCycles = (
   options?: QueryHookOptions<ICursorListResponse<ICycle>>,
 ) => {
   const variables = useCyclesVariables(options?.variables);
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const { data, loading, error, fetchMore } = useQuery<
     ICursorListResponse<ICycle>
@@ -49,7 +51,7 @@ export const useGetCycles = (
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     onError: (e) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });

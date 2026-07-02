@@ -1,31 +1,33 @@
 import { IconAdjustmentsCode } from '@tabler/icons-react';
 import { NavigationMenuGroup, NavigationMenuLinkItem } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AdjustmentNavigation = () => {
+  const { t } = useTranslation('accounting');
   return (
-    <NavigationMenuGroup name="Тохиргоо бичилт">
+    <NavigationMenuGroup name={t('adjustment-settings')}>
       <NavigationMenuLinkItem
-        name="МХ ханш тэгшитгэл"
+        name={t('fx-rate-adjustment')}
         icon={IconAdjustmentsCode}
         path="accounting/adjustment/fundRate"
       ></NavigationMenuLinkItem>
       <NavigationMenuLinkItem
-        name="Тооцоо ханш тэгшитгэл"
+        name={t('calc-rate-adjustment')}
         icon={IconAdjustmentsCode}
         path="accounting/adjustment/debRate"
       ></NavigationMenuLinkItem>
       <NavigationMenuLinkItem
-        name="Барааны өртөг тооцоо"
+        name={t('inventory-cost-calc')}
         icon={IconAdjustmentsCode}
         path="accounting/adjustment/inventory"
       ></NavigationMenuLinkItem>
       <NavigationMenuLinkItem
-        name="FixedAsset"
+        name={t('fixed-asset')}
         icon={IconAdjustmentsCode}
         path="accounting/adjustment/fxa"
       ></NavigationMenuLinkItem>
       <NavigationMenuLinkItem
-        name="Хаалтын бичилт"
+        name={t('closing-entry')}
         icon={IconAdjustmentsCode}
         path="accounting/adjustment/closing"
       ></NavigationMenuLinkItem>

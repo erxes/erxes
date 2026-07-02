@@ -10,6 +10,7 @@ import {
   toast,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PagesHotKeyScope } from '../types/PagesHotKeyScope';
 import { PAGES_EDIT } from '../graphql/mutations/pagesMutations';
 export const PagesRecordTableStatusInlineCell = ({
@@ -17,6 +18,7 @@ export const PagesRecordTableStatusInlineCell = ({
 }: {
   cell: Cell<any, any>;
 }) => {
+  const { t } = useTranslation('content');
   const [open, setOpen] = useState(false);
   const status = cell.getValue() as string;
   const [edit, { loading }] = useMutation(PAGES_EDIT);
@@ -31,14 +33,14 @@ export const PagesRecordTableStatusInlineCell = ({
       onCompleted: () => {
         setOpen(false);
         toast({
-          title: 'Success',
-          description: 'Page status updated successfully',
+          title: t('success'),
+          description: t('page-status-updated-successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

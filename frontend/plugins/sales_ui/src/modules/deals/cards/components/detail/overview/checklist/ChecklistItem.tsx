@@ -12,6 +12,7 @@ import CircularProgressbar from '@/deals/components/common/CircularProgressbar';
 import { IconTrash } from '@tabler/icons-react';
 import SortableList from '@/deals/components/common/SortableList';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ChecklistItem = ({
   item,
@@ -37,6 +38,8 @@ const ChecklistItem = ({
 
   const checkedCount = items.filter((i) => i.isChecked).length;
 
+  const { t } = useTranslation('sales');
+
   useEffect(() => {
     if (!Array.isArray(item.items)) return;
 
@@ -46,7 +49,7 @@ const ChecklistItem = ({
   useEffect(() => {
     if (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -111,7 +114,7 @@ const ChecklistItem = ({
     e.stopPropagation();
 
     confirm({
-      message: `Are you sure you want to delete ${item.title}?`,
+      message: t('delete-checklist-confirm', { title: item.title }),
     }).then(() => {
       salesChecklistsRemove({
         variables: {
@@ -123,9 +126,8 @@ const ChecklistItem = ({
             error.message?.includes('denied')
           ) {
             toast({
-              title: 'Permission Denied',
-              description:
-                'You do not have permission to delete this checklist.',
+              title: t('permission-denied'),
+              description: t('no-permission-delete-checklist'),
               variant: 'destructive',
             });
           }
@@ -165,22 +167,22 @@ const ChecklistItem = ({
               }}
             >
               {hideChecked
-                ? `Show checked items (${checkedCount})`
-                : 'Hide Completed Items'}
+                ? t('show-checked-items', { count: checkedCount })
+                : t('hide-completed-items')}
             </Button>
           )}
 
           <Button
             variant="destructive"
             onClick={(e) => onDeleteChecklist(e, item._id)}
-            title="Delete checklist"
+            title={t('delete-checklist')}
             size="sm"
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
             className={cn(salesChecklistsRemoveLoading && 'opacity-50')}
           >
             <IconTrash />{' '}
-            {salesChecklistsRemoveLoading ? <Spinner /> : 'Delete'}
+            {salesChecklistsRemoveLoading ? <Spinner /> : t('delete')}
           </Button>
         </div>
       </Collapsible.TriggerButton>

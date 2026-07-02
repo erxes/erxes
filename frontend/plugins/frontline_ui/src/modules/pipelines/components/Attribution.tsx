@@ -2,6 +2,7 @@ import { Combobox, Command, Popover, toast } from 'erxes-ui';
 
 import { IconArrowDown } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   config: { value: string; label: string }[];
@@ -10,13 +11,14 @@ type Props = {
 };
 
 const Attribution = ({ config, value, onChange }: Props) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
   const handleSelect = (val: string) => {
     if (val.startsWith(' ')) {
       toast({
-        title: 'Error',
-        description: "Please make sure the attribution doesn't start with a space",
+        title: t('error'),
+        description: t('attribution-no-leading-space'),
         variant: 'destructive',
       });
       return;

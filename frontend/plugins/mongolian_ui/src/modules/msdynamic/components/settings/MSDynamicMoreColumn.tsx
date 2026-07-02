@@ -2,6 +2,7 @@ import { Cell } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { useMSDynamicConfigActions } from '../../hooks/useMSDynamicConfigActions';
 import { useMSDynamicConfigs } from '../../hooks/useMSDynamicConfigs';
@@ -13,6 +14,7 @@ export const MSDynamicMoreColumnCell = ({
 }: {
   cell: Cell<MSMDynamicConfigRow, unknown>;
 }) => {
+  const { t } = useTranslation('mongolian');
   const row = cell.row.original;
   const setEditDetail = useSetAtom(msDynamicConfigDetailAtom);
   const { configsMap, saveConfigs } = useMSDynamicConfigs();
@@ -27,10 +29,10 @@ export const MSDynamicMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => setEditDetail(row)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={() => removeConfig(row)}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

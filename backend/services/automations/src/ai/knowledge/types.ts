@@ -21,6 +21,9 @@ export type TAiKnowledgeMetadata = {
 export type TAiKnowledgeChunk = {
   id?: string;
   agentId?: string;
+  sourceType?: string;
+  sourceId?: string;
+  sourceUrl?: string;
   fileId: string;
   fileName: string;
   chunkIndex: number;

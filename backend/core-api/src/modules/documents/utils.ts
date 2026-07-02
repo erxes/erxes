@@ -75,6 +75,22 @@ export const replaceContent = async ({
   const processAttribute = (block, text) => {
     const { props, ...rest } = block;
 
+    if (typeof text === 'string' && /<[a-z][\s\S]*>/i.test(text)) {
+      const inlineHtml = text
+        .replace(/<(p|div)(\s[^>]*)?>/gi, '<span$1>')
+        .replace(/<\/(p|div)>/gi, '</span>');
+
+      return {
+        ...rest,
+        type: 'rawHtml',
+        content: undefined,
+        props: {
+          ...props,
+          html: inlineHtml,
+        },
+      };
+    }
+
     if (text && /\.(png|jpe?g|gif|webp|svg)$/i.test(text)) {
       const DOMAIN = getEnv({
         name: 'DOMAIN',

@@ -4,6 +4,7 @@ import {
   AutomationConstants,
   AutomationNodeType,
   ConstantsQueryResponse,
+  IAutomation,
   NodeData,
 } from '@/automations/types';
 import { useQuery } from '@apollo/client';
@@ -76,14 +77,17 @@ interface AutomationContextType {
   actionConstMap: Map<string, IAutomationsActionConfigConstants>;
   triggerConstMap: Map<string, IAutomationsTriggerConfigConstants>;
   isCreatePage: boolean;
+  detail?: IAutomation;
 }
 
 const AutomationContext = createContext<AutomationContextType | null>(null);
 
 export const AutomationProvider = ({
   children,
+  detail,
 }: {
   children: React.ReactNode;
+  detail?: IAutomation;
 }) => {
   const [awaitingToConnectNodeId, setAwaitingToConnectNodeId] = useState('');
   const [selectedNode, setSelectedNode] = useState<{
@@ -200,6 +204,7 @@ export const AutomationProvider = ({
         actionConstMap,
         triggerConstMap,
         isCreatePage,
+        detail,
       }}
     >
       {children}

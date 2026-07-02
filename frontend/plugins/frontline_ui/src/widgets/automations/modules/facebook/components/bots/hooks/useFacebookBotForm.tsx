@@ -7,6 +7,7 @@ import { resetFacebookAddStateAtom } from '@/integrations/facebook/states/facebo
 import { useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
 import { z } from 'zod';
 import {
@@ -17,6 +18,7 @@ import { facebookBotFormSchema } from '~/widgets/automations/modules/facebook/co
 import { FacebookBotDetailQueryResponse } from '~/widgets/automations/modules/facebook/components/bots/types/facebookBotTypes';
 
 export const useFacebookBotSave = () => {
+  const { t } = useTranslation('frontline');
   const [facebookBotId] = useQueryState<string>('facebookBotId');
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
 
@@ -65,13 +67,13 @@ export const useFacebookBotSave = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Save successful',
+          title: t('save-successful'),
         });
       },
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: 'Something went wrong',
+          title: t('something-went-wrong'),
           description: error?.message,
         });
       },

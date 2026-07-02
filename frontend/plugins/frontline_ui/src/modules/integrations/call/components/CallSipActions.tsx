@@ -12,6 +12,7 @@ import {
 } from '@tabler/icons-react';
 import { Badge, Button } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const CallSipActions = () => {
   return (
@@ -24,6 +25,7 @@ export const CallSipActions = () => {
 };
 
 export const TurnOffButton = () => {
+  const { t } = useTranslation('frontline');
   const sipState = useAtomValue(sipStateAtom);
   const setCallInfo = useSetAtom(callInfoAtom);
   const { unregisterSip, registerSip } = useSip();
@@ -40,12 +42,13 @@ export const TurnOffButton = () => {
 
   return (
     <Button size="sm" variant="secondary" onClick={handleConnection}>
-      <IconPower /> turn {isConnected ? 'off' : 'on'}
+      <IconPower /> {isConnected ? t('turn-off') : t('turn-on')}
     </Button>
   );
 };
 
 export const SipPauseButton = () => {
+  const { t } = useTranslation('frontline');
   const { pauseAgent, loading, agentStatus } = usePauseAgent();
   const isPaused = agentStatus === 'pause';
   return (
@@ -57,19 +60,20 @@ export const SipPauseButton = () => {
       disabled={loading}
     >
       {isPaused ? <IconPlayerPlay /> : <IconPlayerPause />}
-      {isPaused ? 'Unpause' : 'Pause'}
+      {isPaused ? t('unpause') : t('pause')}
     </Button>
   );
 };
 
 export const SipStatusBadge = () => {
+  const { t } = useTranslation('frontline');
   const sipState = useAtomValue(sipStateAtom);
 
   const isConnected = sipState?.sipStatus === SipStatusEnum.REGISTERED;
 
   return (
     <Badge variant={isConnected ? 'success' : 'destructive'}>
-      {isConnected ? 'Online' : 'Offline'}
+      {isConnected ? t('online') : t('offline')}
     </Badge>
   );
 };

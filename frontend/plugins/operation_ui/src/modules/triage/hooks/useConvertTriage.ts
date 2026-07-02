@@ -1,5 +1,6 @@
 import { useMutation, MutationHookOptions } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CONVERT_TRIAGE_TO_TASK } from '../graphql/mutations/convertTriage';
 
 import { GET_TRIAGES } from '@/triage/graphql/queries/getTriages';
@@ -9,6 +10,7 @@ import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
 import { GET_TRIAGE } from '@/triage/graphql/queries/getTriage';
 
 export const useConvertTriage = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
 
   const setActiveTask = useSetAtom(taskDetailSheetState);
@@ -22,7 +24,7 @@ export const useConvertTriage = () => {
       refetchQueries: [GET_TRIAGES, GET_TRIAGE],
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -30,8 +32,8 @@ export const useConvertTriage = () => {
 
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Triage converted to task successfully',
+          title: t('success'),
+          description: t('triage-converted-successfully'),
         });
 
         setActiveTask(data.operationConvertTriageToTask._id);

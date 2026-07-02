@@ -9,6 +9,7 @@ import {
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 import { CORE_RELATION_TYPES, Can, IField, useFields } from 'ui-modules';
 import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
@@ -16,6 +17,7 @@ import { useFieldRemove } from '../hooks/useFieldRemove';
 import { needsToRefreshState } from '../states/needsToRefresh';
 
 export const Properties = ({ groupId }: { groupId: string }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
   const [needsToRefresh, setNeedsToRefresh] = useAtom(needsToRefreshState);
   const { fields, loading, refetch } = useFields({
@@ -49,7 +51,7 @@ export const Properties = ({ groupId }: { groupId: string }) => {
           colSpan={3}
           className="h-auto py-12 text-center group-hover/table-row:bg-background"
         >
-          No fields found
+          {t('no-fields-found', 'No fields found')}
         </Table.Cell>
       </Table.Row>
     );
@@ -77,6 +79,7 @@ const PropertyRow = ({
   groupId: string;
   contentType: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { confirm } = useConfirm();
   const { removeField, loading: removeFieldLoading } = useFieldRemove({
     groupId,
@@ -86,7 +89,10 @@ const PropertyRow = ({
 
   const handleDeleteField = (fieldId: string) => {
     confirm({
-      message: 'Are you sure you want to delete this field?',
+      message: t(
+        'confirm-delete-field',
+        'Are you sure you want to delete this field?',
+      ),
     }).then(() => {
       removeField({ variables: { id: fieldId } });
     });
@@ -117,12 +123,15 @@ const PropertyRow = ({
         >
           <div>
             {fieldTypeObject?.icon}
-            {fieldTypeObject?.label}
+            {fieldTypeObject &&
+              t(`field-type.${fieldTypeObject.value}`, fieldTypeObject.label)}
             {type === 'relation' &&
-              ` (${
-                CORE_RELATION_TYPES.find((type) => type.value === relationType)
-                  ?.label
-              })`}
+              relationType &&
+              ` (${t(
+                `content-type.${relationType.replace(':', '-')}`,
+                CORE_RELATION_TYPES.find((rt) => rt.value === relationType)
+                  ?.label || relationType,
+              )})`}
           </div>
         </Button>
       </Table.Cell>
@@ -146,7 +155,7 @@ const PropertyRow = ({
                   to={`/settings/properties/${contentType}/${groupId}/${_id}`}
                 >
                   <IconEdit />
-                  Edit
+                  {t('edit', 'Edit')}
                 </Link>
               </DropdownMenu.Item>
             </Can>
@@ -157,7 +166,7 @@ const PropertyRow = ({
                 onClick={() => handleDeleteField(_id)}
               >
                 {removeFieldLoading ? <Spinner /> : <IconTrash />}
-                Delete
+                {t('delete', 'Delete')}
               </DropdownMenu.Item>
             </Can>
           </DropdownMenu.Content>

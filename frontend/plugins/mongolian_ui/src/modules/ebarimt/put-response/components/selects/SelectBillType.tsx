@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { IconSettings } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { BILL_TYPE_DATA } from '../../constants/billTypeData';
 import {
   SelectContent,
@@ -98,12 +99,13 @@ const SelectBillTypeValue = ({
   className?: string;
 }) => {
   const { value, billTypes } = useSelectBillTypeContext();
+  const { t } = useTranslation('mongolian');
   const selectedBillType = billTypes?.find((type) => type.value === value);
 
   if (!selectedBillType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select bill type'}
+        {placeholder || t('select-bill-type')}
       </span>
     );
   }
@@ -137,12 +139,13 @@ const SelectBillTypeCommandItem = ({ billType }: { billType: IBillType }) => {
 
 const SelectBillTypeContent = () => {
   const { billTypes } = useSelectBillTypeContext();
+  const { t } = useTranslation('mongolian');
 
   return (
     <Command>
-      <Command.Input placeholder="Search bill type" />
+      <Command.Input placeholder={t('search-bill-type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No bill types found</span>
+        <span className="text-muted-foreground">{t('no-bill-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {billTypes?.map((billType) => (
@@ -154,10 +157,11 @@ const SelectBillTypeContent = () => {
 };
 
 export const SelectBillTypeFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="billType">
       <IconSettings />
-      Bill Type
+      {t('bill-type')}
     </Filter.Item>
   );
 };
@@ -204,12 +208,13 @@ export const SelectBillTypeFilterBar = ({
 }) => {
   const [billType, setBillType] = useQueryState<string[] | string>('billType');
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter.BarItem queryKey={'billType'}>
       <Filter.BarName>
         <IconSettings />
-        Bill Type
+        {t('bill-type')}
       </Filter.BarName>
       <SelectBillTypeProvider
         mode={mode}

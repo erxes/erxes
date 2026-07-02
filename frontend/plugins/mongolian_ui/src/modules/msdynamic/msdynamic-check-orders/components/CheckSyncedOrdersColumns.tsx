@@ -24,6 +24,7 @@ const ORDER_DETAIL_ID_KEY = 'orderDetailId';
 type CheckSyncedOrdersColumnsOptions = {
   syncedOrderInfos: Record<string, ISyncedOrderInfo>;
   onResend: (orderId: string) => void;
+  t: (key: string) => string;
 };
 
 /** Date cell deer order detail neeh row gargana. */
@@ -59,13 +60,14 @@ const CheckSyncedOrderDateRow = ({
 export const getCheckSyncedOrdersColumns = ({
   syncedOrderInfos,
   onResend,
+  t,
 }: CheckSyncedOrdersColumnsOptions): ColumnDef<IMSDynamicCheckOrder>[] => [
   getCheckSyncedOrdersMoreColumn({ onResend }),
   RecordTable.checkboxColumn as ColumnDef<IMSDynamicCheckOrder>,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Number" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('number')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -76,7 +78,7 @@ export const getCheckSyncedOrdersColumns = ({
     id: 'totalAmount',
     accessorKey: 'totalAmount',
     header: () => (
-      <RecordTable.InlineHead icon={IconCash} label="Total Amount" />
+      <RecordTable.InlineHead icon={IconCash} label={t('total-amount')} />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
@@ -91,7 +93,7 @@ export const getCheckSyncedOrdersColumns = ({
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created At" />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
     ),
     cell: ({ cell, row }) => (
       <CheckSyncedOrderDateRow
@@ -105,7 +107,7 @@ export const getCheckSyncedOrdersColumns = ({
     id: 'paidDate',
     accessorKey: 'paidDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Paid At" />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('paid-at')} />
     ),
     cell: ({ cell, row }) => (
       <CheckSyncedOrderDateRow
@@ -117,7 +119,7 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'syncedDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Synced Date" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('synced-date')} />
     ),
     cell: ({ row }) => {
       const syncedInfo = syncedOrderInfos[row.original._id];
@@ -137,7 +139,7 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'syncedBillNumber',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Synced bill Number" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('synced-bill-number')} />
     ),
     cell: ({ row }) => {
       const syncedInfo = syncedOrderInfos[row.original._id];
@@ -151,7 +153,7 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'syncedCustomer',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Synced customer" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('synced-customer')} />
     ),
     cell: ({ row }) => {
       const syncedInfo = syncedOrderInfos[row.original._id];

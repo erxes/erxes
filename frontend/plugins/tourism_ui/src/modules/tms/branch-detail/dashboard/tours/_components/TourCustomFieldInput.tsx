@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   DatePicker,
@@ -60,6 +61,7 @@ const FileFieldInput = ({
   value: CustomFieldValue;
   onChange: (value: string[]) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   const urls = Array.isArray(value) ? value : [];
 
   const uploadProps = useErxesUpload({
@@ -105,11 +107,11 @@ const FileFieldInput = ({
         disabled={uploadProps.loading}
       >
         <IconUpload size={16} />
-        {uploadProps.loading ? 'Uploading...' : 'Upload file'}
+        {uploadProps.loading ? t('uploading') : t('upload-file')}
       </Button>
       {!!uploadProps.errors.length && (
         <p className="text-xs text-destructive">
-          {uploadProps.errors[0]?.message || 'Upload failed'}
+          {uploadProps.errors[0]?.message || t('upload-failed')}
         </p>
       )}
     </div>
@@ -121,6 +123,7 @@ export const TourCustomFieldInput = ({
   value,
   onChange,
 }: TourCustomFieldInputProps) => {
+  const { t } = useTranslation('tourism');
   switch (field.type) {
     case 'text':
     case 'email':
@@ -129,7 +132,7 @@ export const TourCustomFieldInput = ({
         <Input
           type={field.type === 'text' ? 'text' : field.type}
           placeholder={
-            field.placeholder || `Enter ${field.label.toLowerCase()}`
+            field.placeholder || t('enter-field-placeholder', { label: field.label.toLowerCase() })
           }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
@@ -140,7 +143,7 @@ export const TourCustomFieldInput = ({
       return (
         <Textarea
           placeholder={
-            field.placeholder || `Enter ${field.label.toLowerCase()}`
+            field.placeholder || t('enter-field-placeholder', { label: field.label.toLowerCase() })
           }
           rows={6}
           value={typeof value === 'string' ? value : ''}
@@ -154,7 +157,7 @@ export const TourCustomFieldInput = ({
         <Input
           type="number"
           placeholder={
-            field.placeholder || `Enter ${field.label.toLowerCase()}`
+            field.placeholder || t('enter-field-placeholder', { label: field.label.toLowerCase() })
           }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
@@ -168,7 +171,7 @@ export const TourCustomFieldInput = ({
           onChange={(date) =>
             onChange(date ? (date as Date).toISOString() : '')
           }
-          placeholder={field.placeholder || 'Select date'}
+          placeholder={field.placeholder || t('select-date')}
         />
       );
 
@@ -185,7 +188,7 @@ export const TourCustomFieldInput = ({
           <Select.Trigger className="w-full">
             <Select.Value
               placeholder={
-                field.placeholder || `Select ${field.label.toLowerCase()}`
+                field.placeholder || t('select-field-placeholder', { label: field.label.toLowerCase() })
               }
             />
           </Select.Trigger>
@@ -234,10 +237,10 @@ export const TourCustomFieldInput = ({
           )}
           options={options}
           placeholder={
-            field.placeholder || `Select ${field.label.toLowerCase()}`
+            field.placeholder || t('select-field-placeholder', { label: field.label.toLowerCase() })
           }
           hidePlaceholderWhenSelected
-          emptyIndicator="No options"
+          emptyIndicator={t('no-options')}
           onChange={(options: Array<{ value: string }>) =>
             onChange(options.map((option) => option.value))
           }
@@ -255,7 +258,7 @@ export const TourCustomFieldInput = ({
       return (
         <Input
           placeholder={
-            field.placeholder || `Enter ${field.label.toLowerCase()}`
+            field.placeholder || t('enter-field-placeholder', { label: field.label.toLowerCase() })
           }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}

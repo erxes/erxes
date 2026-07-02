@@ -74,7 +74,7 @@ export const PostsRecordTable = ({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      <PostsCommandbar refetch={refetch} />
+      <PostsCommandbar clientPortalId={clientPortalId} refetch={refetch} />
     </RecordTable.Provider>
   );
 };

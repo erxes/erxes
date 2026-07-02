@@ -1,4 +1,5 @@
 import { Sheet, Button, Spinner, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,6 +40,7 @@ const DEFAULT_VALUES: TStageInEbarimtConfig = {
 };
 
 export const AddStageInEBarimtConfig = () => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useState(false);
   const { saveStageInEbarimtConfig } = useSaveStageInEbarimtConfig();
   const [loading, setLoading] = useState(false);
@@ -56,8 +58,8 @@ export const AddStageInEBarimtConfig = () => {
       form.reset(DEFAULT_VALUES);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to create configuration',
+        title: t('error'),
+        description: t('failed-to-create-config'),
         variant: 'destructive',
       });
     } finally {
@@ -110,12 +112,12 @@ export const AddStageInEBarimtConfig = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Config
+          {t('add-config')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View side="right" className="bg-background sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>Add Stage In Ebarimt Config</Sheet.Title>
+          <Sheet.Title>{t('add-stage-in-ebarimt-config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <div className="flex-1 overflow-y-auto px-5 py-4">
@@ -133,11 +135,11 @@ export const AddStageInEBarimtConfig = () => {
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              {t('cancel')}
             </Button>
           </Sheet.Close>
           <Button type="submit" form={FORM_ID} size="lg" disabled={loading}>
-            {loading ? <Spinner /> : 'Save'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

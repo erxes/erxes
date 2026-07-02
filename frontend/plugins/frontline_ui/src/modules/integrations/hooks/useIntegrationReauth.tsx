@@ -1,5 +1,6 @@
 import { REACT_APP_API_URL, toast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const POPUP_FEATURES =
   'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes';
@@ -22,6 +23,7 @@ export const useIntegrationReauth = (
   authMessageType: string,
   onAuthorized: () => void,
 ) => {
+  const { t } = useTranslation('frontline');
   const [loading, setLoading] = useState(false);
   const mountedRef = useRef(true);
 
@@ -47,8 +49,8 @@ export const useIntegrationReauth = (
 
     if (!popup) {
       toast({
-        title: 'Unable to open the authorization window',
-        description: 'Please allow pop-ups for this site and try again.',
+        title: t('unable-to-open-authorization-window'),
+        description: t('please-allow-popups'),
         variant: 'destructive',
       });
       return;
@@ -81,9 +83,8 @@ export const useIntegrationReauth = (
         onAuthorized();
       } else {
         toast({
-          title: 'Repair failed',
-          description:
-            'Authorization was cancelled or Facebook returned an error. Please try again.',
+          title: t('repair-failed'),
+          description: t('authorization-cancelled'),
           variant: 'destructive',
         });
       }

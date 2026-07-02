@@ -27,6 +27,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { AttachmentProvider } from '../attachments/AttachmentContext';
@@ -34,6 +35,7 @@ import AttachmentUploader from '../attachments/AttachmentUploader';
 import Attachments from '../attachments/Attachments';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
+  const { t } = useTranslation('frontline');
   const {
     _id: ticketId,
     priority,
@@ -111,7 +113,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
-    placeholder: 'Description...',
+    placeholder: t('description-ellipsis'),
   });
   const { pipeline } = useGetPipeline(pipelineId);
   const { status: currentStatus } = useGetTicketStatusById(statusId);
@@ -156,7 +158,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         }}
       >
         <Button variant="ghost">
-          <legend>{isSubscribed ? 'UnSubscribe' : 'Subscribe'}</legend>
+          <legend>{isSubscribed ? t('unsubscribe') : t('subscribe')}</legend>
         </Button>
       </div>
     );
@@ -179,16 +181,14 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: `Ticket ${
-            newState === 'archived' ? 'archived' : 'restored'
-          } successfully`,
+          title: t('success'),
+          description: newState === 'archived' ? t('ticket-archived-successfully') : t('ticket-restored-successfully'),
         });
       },
       onError: (error) => {
         setState(previousState);
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -198,18 +198,18 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const handleDeleteTicket = async () => {
     confirm({
-      message: 'Are you sure you want to delete this ticket?',
+      message: t('confirm-delete-ticket'),
     }).then(async () => {
       try {
         await removeTicket([ticketId]);
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: 'Ticket deleted successfully',
+          description: t('ticket-deleted-successfully'),
         });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -268,7 +268,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       <div className="flex flex-col gap-3 h-full px-5 py-8">
         <Input
           className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-          placeholder="Ticket Name"
+          placeholder={t('ticket-name')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={!canEditTicket}
@@ -292,7 +292,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                 <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
                 <SelectChannel value={channelId} variant="detail" disabled />
               </div>
-              <Tooltip.Content>Channel cannot be changed</Tooltip.Content>
+              <Tooltip.Content>{t('channel-cannot-be-changed')}</Tooltip.Content>
             </Tooltip>
             <Tooltip>
               <div className="relative">
@@ -304,7 +304,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                   disabled
                 />
               </div>
-              <Tooltip.Content>Pipeline cannot be changed</Tooltip.Content>
+              <Tooltip.Content>{t('pipeline-cannot-be-changed')}</Tooltip.Content>
             </Tooltip>
             <SelectStatusTicket
               variant="detail"
@@ -343,20 +343,20 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               <DropdownMenu.Trigger asChild>
                 <Button variant="ghost" size="sm">
                   <IconSquareToggle />
-                  {state === 'active' ? 'Archive' : 'Unarchive'}
+                  {state === 'active' ? t('archive') : t('unarchive')}
                 </Button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content>
                 <DropdownMenu.Item onSelect={handleArchiveToggle}>
                   <IconSquareToggle />
-                  {state === 'active' ? 'Archive' : 'Unarchive'}
+                  {state === 'active' ? t('archive') : t('unarchive')}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onSelect={handleDeleteTicket}
                   className="text-destructive"
                 >
                   <IconTrash />
-                  Delete
+                  {t('delete')}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>

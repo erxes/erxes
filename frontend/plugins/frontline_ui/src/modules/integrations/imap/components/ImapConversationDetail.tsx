@@ -7,6 +7,7 @@ import {
   formatDateISOStringToRelativeDate,
   toast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   IconArrowBackUp,
   IconChevronDown,
@@ -130,6 +131,7 @@ const deriveFrom = (msgs: ImapMessage[]) => {
 /* ── EmailBody iframe ───────────────────────────────────────────────── */
 
 const EmailBody: React.FC<{ body?: string }> = ({ body }) => {
+  const { t } = useTranslation('frontline');
   const ref = useRef<HTMLIFrameElement>(null);
   const [h, setH] = useState(80);
 
@@ -145,7 +147,7 @@ const EmailBody: React.FC<{ body?: string }> = ({ body }) => {
   }, [body]);
 
   if (!body)
-    return <p className="py-3 text-sm text-[#5f6368] italic">No content</p>;
+    return <p className="py-3 text-sm text-[#5f6368] italic">{t('no-content')}</p>;
 
   return (
     <iframe
@@ -154,7 +156,7 @@ const EmailBody: React.FC<{ body?: string }> = ({ body }) => {
       style={{ height: h }}
       className="w-full border-0"
       sandbox="allow-same-origin"
-      title="Email body"
+      title={t('email-body')}
     />
   );
 };
@@ -176,6 +178,7 @@ const EmailRow: React.FC<{
   onReplyAll,
   onForward,
 }) => {
+  const { t } = useTranslation('frontline');
   const [expanded, setExpanded] = useState(defaultExpanded);
   const { mailData, createdAt } = message;
   const isSent = mailData.type === 'SENT';
@@ -291,15 +294,15 @@ const EmailRow: React.FC<{
           {/* action buttons */}
           <div className="flex gap-2 pt-3 mt-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">
             <button className={actionBtn} onClick={onReply}>
-              <IconArrowBackUp size={13} /> Reply
+              <IconArrowBackUp size={13} /> {t('reply')}
             </button>
             {multiRecipient && (
               <button className={actionBtn} onClick={onReplyAll}>
-                <IconUsers size={13} /> Reply all
+                <IconUsers size={13} /> {t('reply-all')}
               </button>
             )}
             <button className={actionBtn} onClick={onForward}>
-              <IconMailForward size={13} /> Forward
+              <IconMailForward size={13} /> {t('forward')}
             </button>
           </div>
         </div>
@@ -325,6 +328,7 @@ interface ComposeProps {
 }
 
 const ComposeSection: React.FC<ComposeProps> = (p) => {
+  const { t } = useTranslation('frontline');
   const [to, setTo] = useState(p.defaultTo.join(', '));
   const [cc, setCc] = useState(p.defaultCc?.join(', ') ?? '');
   const [bcc, setBcc] = useState('');
@@ -355,13 +359,13 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
     const toList = split(to);
     if (!toList.length)
       return toast({
-        title: 'Enter at least one recipient',
+        title: t('enter-at-least-one-recipient'),
         variant: 'destructive',
       });
     const body = bodyRef.current?.innerHTML ?? '';
     if (!body.trim() || body === '<br>')
       return toast({
-        title: 'Message body cannot be empty',
+        title: t('message-body-cannot-be-empty'),
         variant: 'destructive',
       });
 
@@ -405,15 +409,15 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
       <div className="flex items-center justify-between px-4 h-10 border-b border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] bg-[rgba(0,0,0,0.02)] dark:bg-[rgba(255,255,255,0.02)]">
         <span className="text-[13px] font-medium text-foreground/70">
           {p.mode === 'forward'
-            ? 'Forward'
+            ? t('forward')
             : p.mode === 'replyAll'
-            ? 'Reply all'
-            : 'Reply'}
+            ? t('reply-all')
+            : t('reply')}
         </span>
         <button
           className="p-1 rounded text-[#5f6368] hover:text-foreground hover:bg-background/10 transition-colors"
           onClick={p.onClose}
-          aria-label="Discard"
+          aria-label={t('discard')}
         >
           <IconX size={14} />
         </button>
@@ -421,18 +425,18 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
 
       {/* address rows */}
       <div className={row}>
-        <span className={lbl}>From</span>
+        <span className={lbl}>{t('from')}</span>
         <span className="text-[13px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
           {p.defaultFrom}
         </span>
       </div>
       <div className={row}>
-        <span className={lbl}>To</span>
+        <span className={lbl}>{t('to')}</span>
         <input
           className={inp}
           value={to}
           onChange={(e) => setTo(e.target.value)}
-          placeholder={p.mode === 'forward' ? 'Recipients' : ''}
+          placeholder={p.mode === 'forward' ? t('recipients') : ''}
           autoFocus={p.mode === 'forward'}
         />
         <div className="flex gap-3 flex-none text-[11px] text-[#5f6368]">
@@ -441,7 +445,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
               className="hover:text-foreground transition-colors"
               onClick={() => setShowCc(true)}
             >
-              Cc
+              {t('cc')}
             </button>
           )}
           {!showBcc && (
@@ -449,14 +453,14 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
               className="hover:text-foreground transition-colors"
               onClick={() => setShowBcc(true)}
             >
-              Bcc
+              {t('bcc')}
             </button>
           )}
         </div>
       </div>
       {showCc && (
         <div className={row}>
-          <span className={lbl}>Cc</span>
+          <span className={lbl}>{t('cc')}</span>
           <input
             className={inp}
             value={cc}
@@ -476,7 +480,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
       )}
       {showBcc && (
         <div className={row}>
-          <span className={lbl}>Bcc</span>
+          <span className={lbl}>{t('bcc')}</span>
           <input
             className={inp}
             value={bcc}
@@ -495,7 +499,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
         </div>
       )}
       <div className={row}>
-        <span className={lbl}>Subject</span>
+        <span className={lbl}>{t('subject')}</span>
         <input
           className={inp}
           value={subject}
@@ -511,8 +515,8 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
         suppressContentEditableWarning
         role="textbox"
         aria-multiline="true"
-        aria-label="Email body"
-        data-placeholder="Write your message…"
+        aria-label={t('email-body')}
+        data-placeholder={t('write-your-message')}
       />
 
       {/* footer */}
@@ -521,7 +525,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
           {typeof navigator !== 'undefined' && /Mac/.test(navigator.platform)
             ? '⌘'
             : 'Ctrl'}
-          +Enter to send
+          +{t('enter-to-send')}
         </span>
         <div className="flex items-center gap-2">
           <button
@@ -529,7 +533,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
             onClick={p.onClose}
             disabled={loading}
           >
-            Discard
+            {t('discard')}
           </button>
           <button
             className={cn(
@@ -542,7 +546,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
             disabled={loading}
           >
             {loading ? <Spinner size="sm" /> : <IconSend size={13} />}
-            Send
+            {t('send')}
           </button>
         </div>
       </div>
@@ -553,6 +557,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
 /* ── Main ───────────────────────────────────────────────────────────── */
 
 export const ImapConversationDetail: React.FC = () => {
+  const { t } = useTranslation('frontline');
   const { _id: conversationId, integration } = useConversationContext();
   const setHideInput = useSetAtom(hideMessageInputState);
 
@@ -592,7 +597,7 @@ export const ImapConversationDetail: React.FC = () => {
   if (error)
     return (
       <div className="flex h-40 items-center justify-center text-sm text-destructive/80">
-        Failed to load emails: {error.message}
+        {t('failed-to-load-emails', { message: error.message })}
       </div>
     );
 
@@ -602,7 +607,7 @@ export const ImapConversationDetail: React.FC = () => {
     return (
       <div className="flex flex-col h-40 items-center justify-center gap-2 text-[#5f6368]">
         <IconMailForward size={32} strokeWidth={1.2} />
-        <span className="text-[13px]">No emails in this conversation</span>
+        <span className="text-[13px]">{t('no-emails-in-conversation')}</span>
       </div>
     );
 

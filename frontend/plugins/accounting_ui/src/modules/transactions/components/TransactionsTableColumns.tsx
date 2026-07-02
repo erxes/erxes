@@ -20,6 +20,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
 import { TR_JOURNAL_LABELS, TR_STATUS_LABELS, TrJournalEnum } from '../types/constants';
@@ -77,11 +78,12 @@ const StatusCell = ({ row }: any) => {
 };
 
 const JournalCell = ({ row }: any) => {
+  const { t } = useTranslation('accounting');
   const { journal } = row.original;
 
   return (
     <RecordTableInlineCell>
-      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || 'Main'}
+      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || t('main')}
     </RecordTableInlineCell>
   );
 };
@@ -195,6 +197,7 @@ const TransactionMoreColumnCell = ({
 }: {
   cell: Cell<ITransaction, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const { parentId, _id, originId } = cell.row.original;
   const navigate = useNavigate();
   const { confirm } = useConfirm();
@@ -207,10 +210,10 @@ const TransactionMoreColumnCell = ({
   };
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete these transactions?',
+      message: t('are-you-sure-delete-transactions'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeTransactions(parentId);
@@ -225,10 +228,10 @@ const TransactionMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEditAcc}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

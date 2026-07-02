@@ -45,16 +45,18 @@ export const OAuthClientsCommandBar = () => {
     });
   };
 
+  const handleClose = () => table.resetRowSelection();
+
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
+        <CommandBar.Value onClose={handleClose}>
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Can action="appsManage">
           <>
             <Separator.Inline />
-            <Button variant="secondary" onClick={onRemove}>
+            <Button variant="destructive" onClick={onRemove}>
               <IconTrash />
               Delete
             </Button>

@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, ScrollArea, Sheet, Form } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   loyaltyScoreFormSchema,
   LoyaltyScoreFormValues,
@@ -17,6 +18,7 @@ export function AddLoyaltyScoreForm({
 }: Readonly<{
   onOpenChange: (open: boolean) => void;
 }>) {
+  const { t } = useTranslation('loyalty');
   const { scoreCampaignAdd, loading: editLoading } = useAddScoreCampaign();
   const form = useForm<LoyaltyScoreFormValues>({
     resolver: zodResolver(loyaltyScoreFormSchema),
@@ -124,14 +126,14 @@ export function AddLoyaltyScoreForm({
             className="bg-background hover:bg-background/90"
             onClick={handleCancel}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={editLoading}
           >
-            {editLoading ? 'Saving...' : 'Save'}
+            {editLoading ? t('saving') : t('save')}
           </Button>
         </Sheet.Footer>
       </form>

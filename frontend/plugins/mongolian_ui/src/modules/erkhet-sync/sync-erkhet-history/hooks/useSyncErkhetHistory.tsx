@@ -40,12 +40,12 @@ export const useSyncErkhetHistoryVariables = (
   ] = useMultiQueryState<{
     user: string;
     dateRange: string;
-    contentType: string;
-    contentId: string;
-    searchConsume: string;
-    searchSend: string;
-    searchResponse: string;
-    searchError: string;
+    contentType: string | number;
+    contentId: string | number;
+    searchConsume: string | number;
+    searchSend: string | number;
+    searchResponse: string | number;
+    searchError: string | number;
   }>([
     'user',
     'dateRange',
@@ -66,12 +66,12 @@ export const useSyncErkhetHistoryVariables = (
       createdAt: -1,
     },
     cursor,
-    searchConsume: searchConsume || undefined,
-    searchSend: searchSend || undefined,
-    searchResponse: searchResponse || undefined,
-    searchError: searchError || undefined,
-    contentType: contentType || undefined,
-    contentId: contentId || undefined,
+    searchConsume: String(searchConsume ?? '') || undefined,
+    searchSend: String(searchSend ?? '') || undefined,
+    searchResponse: String(searchResponse ?? '') || undefined,
+    searchError: String(searchError ?? '') || undefined,
+    contentType: String(contentType ?? '') || undefined,
+    contentId: String(contentId ?? '') || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
     type: isHistory ? 'syncErkhetHistory' : 'isSyncErkhetHistory',
@@ -100,10 +100,9 @@ export const useSyncErkhetHistory = (
     };
   }>(syncErkhetHistoryQuery, {
     ...options,
-    variables: {
-      skip: options?.skip || isUndefinedOrNull(variables.cursor),
-      ...variables,
-    },
+    skip: options?.skip || isUndefinedOrNull(variables.cursor),
+    variables,
+    fetchPolicy: 'network-only',
   });
   const {
     list: SyncHistories,
@@ -111,8 +110,7 @@ export const useSyncErkhetHistory = (
     pageInfo,
   } = data?.syncHistories || {};
   useEffect(() => {
-    if (!totalCount) return;
-    setSyncErkhetHistoryTotalCount(totalCount);
+    setSyncErkhetHistoryTotalCount(totalCount ?? null);
   }, [totalCount, setSyncErkhetHistoryTotalCount]);
   const handleFetchMore = ({
     direction,

@@ -1,6 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AddSpinCampaignForm } from '../../add-spin-campaign/components/AddSpinCampaignForm';
 import { SpinFormValues } from '../../constants/spinFormSchema';
 import { useEditSpin } from '../../hooks/useEditSpin';
@@ -12,14 +13,15 @@ type Props = {
 };
 
 export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
+  const { t } = useTranslation('loyalty');
   const { spinEdit, loading: editLoading } = useEditSpin();
   const { toast } = useToast();
 
   const handleSubmit = async () => {
     if (!spinId) {
       toast({
-        title: 'Error',
-        description: 'No spin ID provided',
+        title: t('error'),
+        description: t('no-spin-id-provided'),
         variant: 'destructive',
       });
       return;
@@ -54,7 +56,7 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -74,7 +76,7 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        Cancel
+        {t('cancel')}
       </Button>
       <Button
         type="button"
@@ -82,7 +84,7 @@ export const EditSpinTabs = ({ onOpenChange, form, spinId }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? 'Saving...' : 'Save'}
+        {editLoading ? t('saving') : t('save')}
       </Button>
     </Sheet.Footer>
   );

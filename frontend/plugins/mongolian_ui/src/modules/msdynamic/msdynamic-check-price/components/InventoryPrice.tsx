@@ -1,10 +1,12 @@
 import { PageContainer, PageSubHeader, Button } from 'erxes-ui';
 import { SelectBrand } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useCheckPrice } from '../hooks/useCheckPrice';
 import { CheckPriceFilter } from './CheckPriceFilter';
 import { CheckPriceRecordTable } from './CheckPriceRecordTable';
 
 export const InventoryPrice = () => {
+  const { t } = useTranslation('mongolian');
   const { selectedBrandId, setBrand, checking, checkPrice } = useCheckPrice();
 
   return (
@@ -16,10 +18,10 @@ export const InventoryPrice = () => {
             value={selectedBrandId}
             onValueChange={(value) => setBrand(value as string)}
             mode="single"
-            placeholder="Choose brand"
+            placeholder={t('choose-brand')}
           />
           <Button onClick={checkPrice} disabled={checking || !selectedBrandId}>
-            {checking ? 'Checking...' : 'Check'}
+            {checking ? t('checking') : t('check')}
           </Button>
         </div>
       </PageSubHeader>
