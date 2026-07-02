@@ -208,9 +208,8 @@ async function handleInvMove(
     { ...doc, side: TR_SIDES.CREDIT },
     oldTr,
   );
-  const { invMoveInTr, oldFollowInTr } = await invMoveInTrsClass.doTrs(
-    transaction,
-  );
+  const { invMoveInTr, oldFollowInTr } =
+    await invMoveInTrsClass.doTrs(transaction);
 
   await syncProductsInventory(subdomain, transaction, oldTr, -1);
   await syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1);

@@ -39,7 +39,7 @@ export const AccountingSidebarItem = ({
   const isActive = useLocation().pathname === to;
 
   if (!children) {
-    return <Separator />
+    return <Separator />;
   }
 
   if (!to.startsWith('/')) {

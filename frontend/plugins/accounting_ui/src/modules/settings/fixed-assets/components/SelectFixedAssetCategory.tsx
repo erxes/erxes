@@ -1,10 +1,4 @@
-import {
-  Combobox,
-  Command,
-  Form,
-  Popover,
-  cn,
-} from 'erxes-ui';
+import { Combobox, Command, Form, Popover, cn } from 'erxes-ui';
 import { useState } from 'react';
 import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
 

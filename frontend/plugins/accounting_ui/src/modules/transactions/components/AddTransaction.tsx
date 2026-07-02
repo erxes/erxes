@@ -130,30 +130,34 @@ export const AddTransaction = ({
         <AddTransactionItem
           journal={TrJournalEnum.FXA_INCOME}
           onClick={onClick}
-          inForm={inForm}>
+          inForm={inForm}
+        >
           Орлого
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.FXA_OUT}
           onClick={onClick}
-          inForm={inForm}>
+          inForm={inForm}
+        >
           Акт
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.FXA_MOVE}
           onClick={onClick}
-          inForm={inForm}>
+          inForm={inForm}
+        >
           Хөдөлгөөн
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.FXA_SALE}
           onClick={onClick}
-          inForm={inForm}>
+          inForm={inForm}
+        >
           Борлуулалт
         </AddTransactionItem>
         <AddTransactionItem disabled>Тохируулга</AddTransactionItem>
-      </DropdownMenu.Content >
-    </DropdownMenu >
+      </DropdownMenu.Content>
+    </DropdownMenu>
   );
 };
 

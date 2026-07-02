@@ -1,7 +1,4 @@
-import {
-  TFixedAssetCategoryForm,
-  TFixedAssetForm,
-} from '../types/FixedAsset';
+import { TFixedAssetCategoryForm, TFixedAssetForm } from '../types/FixedAsset';
 
 export const FIXED_ASSET_CATEGORY_DEFAULT_VALUES: TFixedAssetCategoryForm = {
   code: '',

@@ -3,7 +3,9 @@ import { IFixedAssetCategory } from '@/fixedAssets/@types/fixedAssetCategory';
 import { IContext } from '~/connectionResolvers';
 
 const buildAuditFields = (userId?: string, isEdit = false) => ({
-  ...(isEdit ? { modifiedBy: userId, updatedAt: new Date() } : { createdBy: userId }),
+  ...(isEdit
+    ? { modifiedBy: userId, updatedAt: new Date() }
+    : { createdBy: userId }),
 });
 
 const fixedAssetMutations = {
@@ -83,8 +85,7 @@ const fixedAssetMutations = {
       taxDepreciationMethod:
         doc.taxDepreciationMethod || category?.taxDepreciationMethod,
       taxUsefulLife: doc.taxUsefulLife ?? category?.defaultTaxUsefulLife,
-      taxSalvageValue:
-        doc.taxSalvageValue ?? category?.defaultTaxSalvageValue,
+      taxSalvageValue: doc.taxSalvageValue ?? category?.defaultTaxSalvageValue,
       ...buildAuditFields(user?._id),
     });
   },

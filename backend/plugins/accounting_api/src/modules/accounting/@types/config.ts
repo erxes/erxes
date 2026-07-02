@@ -6,8 +6,6 @@ export interface IConfig {
   value: any;
 }
 
-export interface IConfigDocument
-  extends IConfig,
-  Document {
+export interface IConfigDocument extends IConfig, Document {
   _id: string;
 }

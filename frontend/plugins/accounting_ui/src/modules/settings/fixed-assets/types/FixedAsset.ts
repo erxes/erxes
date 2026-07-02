@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { fixedAssetCategorySchema, fixedAssetSchema } from '../constants/schema';
+import {
+  fixedAssetCategorySchema,
+  fixedAssetSchema,
+} from '../constants/schema';
 
 export interface IFixedAssetCategory {
   _id: string;
@@ -32,8 +35,6 @@ export interface IFixedAsset {
   propertiesData?: Record<string, unknown>;
 }
 
-export type TFixedAssetCategoryForm = z.infer<
-  typeof fixedAssetCategorySchema
->;
+export type TFixedAssetCategoryForm = z.infer<typeof fixedAssetCategorySchema>;
 
 export type TFixedAssetForm = z.infer<typeof fixedAssetSchema>;

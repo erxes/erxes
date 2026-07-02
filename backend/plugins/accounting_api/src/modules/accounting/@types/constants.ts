@@ -82,7 +82,14 @@ export const TR_STATUSES = {
     'complete',
   ],
   ACTIVE: ['progress', 'assigned', 'confirmed', 'canelled', 'complete'],
-  CONVERSATION: ['draft', 'mentioned', 'approved', 'rejeced', 'returned', 'plan'],
+  CONVERSATION: [
+    'draft',
+    'mentioned',
+    'approved',
+    'rejeced',
+    'returned',
+    'plan',
+  ],
 };
 
 export const TR_INVENTORY_STATUS_TYPES = {
@@ -90,9 +97,7 @@ export const TR_INVENTORY_STATUS_TYPES = {
   SOON: 'soon',
   REAL: 'real',
 
-  OMIT_STATUSES: [
-    TR_STATUSES.PLAN,
-  ],
+  OMIT_STATUSES: [TR_STATUSES.PLAN],
   SOON_STATUSES: [
     TR_STATUSES.DRAFT,
     TR_STATUSES.MENTIONED,
@@ -202,12 +207,7 @@ export const JOURNALS = {
     'fxaSale',
     'tax',
   ],
-  ALL_WITH_CURRENCIES: [
-    'cash',
-    'bank',
-    'receivable',
-    'payable',
-  ],
+  ALL_WITH_CURRENCIES: ['cash', 'bank', 'receivable', 'payable'],
   SINGLES: [
     'main',
     'cash',

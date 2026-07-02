@@ -13,7 +13,10 @@ export const useFxaAccountConfig = (
       (config) => config.accountId === account._id,
     )?.value;
 
-    form.setValue(`trDocs.${index}.followInfos.fixedAssetAccountId`, account._id);
+    form.setValue(
+      `trDocs.${index}.followInfos.fixedAssetAccountId`,
+      account._id,
+    );
     form.setValue(`trDocs.${index}.followExtras.fixedAssetAccount`, account);
 
     if (!value) {

@@ -138,7 +138,7 @@ export const TR_STATUSES = {
     'canelled',
     'complete',
   ],
-}
+};
 
 export const TR_STATUS_LABELS: Record<string, string> = {
   // future level

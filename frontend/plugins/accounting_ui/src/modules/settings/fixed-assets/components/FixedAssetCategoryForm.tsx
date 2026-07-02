@@ -1,5 +1,13 @@
 import { UseFormReturn } from 'react-hook-form';
-import { Button, Form, Input, Select, Sheet, Spinner, Textarea } from 'erxes-ui';
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  Sheet,
+  Spinner,
+  Textarea,
+} from 'erxes-ui';
 import { FIXED_ASSET_DEPRECIATION_METHODS } from '../constants/depreciationMethods';
 import { TFixedAssetCategoryForm } from '../types/FixedAsset';
 import { SelectFixedAssetCategory } from './SelectFixedAssetCategory';

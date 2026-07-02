@@ -19,7 +19,11 @@ type TAccountingConfig = {
 const withToast = (options: OperationVariables, message: string) => ({
   ...options,
   onError: (error: Error) => {
-    toast({ title: 'Алдаа', description: error.message, variant: 'destructive' });
+    toast({
+      title: 'Алдаа',
+      description: error.message,
+      variant: 'destructive',
+    });
     options.onError?.(error);
   },
   onCompleted: (data: unknown) => {
@@ -49,10 +53,7 @@ export const useFixedAssetAccountConfigs = () => {
 const mutationOptions = { refetchQueries: ['AccountingsConfigs'] };
 
 export const useFixedAssetAccountConfigMutations = () => {
-  const [add, addState] = useMutation(
-    ACCOUNTINGS_CONFIGS_ADD,
-    mutationOptions,
-  );
+  const [add, addState] = useMutation(ACCOUNTINGS_CONFIGS_ADD, mutationOptions);
   const [edit, editState] = useMutation(
     ACCOUNTINGS_CONFIGS_EDIT,
     mutationOptions,

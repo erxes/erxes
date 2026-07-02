@@ -111,8 +111,7 @@ export interface ITransactionCounter {
 }
 
 export interface ITransactionCounterDocument
-  extends ITransactionCounter,
-    Document {
+  extends ITransactionCounter, Document {
   _id: string;
 }
 

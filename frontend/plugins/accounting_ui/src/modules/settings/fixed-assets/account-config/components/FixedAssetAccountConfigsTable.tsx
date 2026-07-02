@@ -47,7 +47,10 @@ const AccountConfigMoreCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={() => onEdit(cell.row.original)}>
+            <Command.Item
+              value="edit"
+              onSelect={() => onEdit(cell.row.original)}
+            >
               <IconEdit /> Засах
             </Command.Item>
             <Command.Item
@@ -56,7 +59,9 @@ const AccountConfigMoreCell = ({
                 confirm({
                   message: 'Дансны багцыг устгах уу?',
                   options: { okLabel: 'Устгах', cancelLabel: 'Болих' },
-                }).then(() => remove({ variables: { _id: cell.row.original._id } }))
+                }).then(() =>
+                  remove({ variables: { _id: cell.row.original._id } }),
+                )
               }
             >
               <IconTrash /> Устгах
@@ -71,7 +76,11 @@ const AccountConfigMoreCell = ({
 const getColumns = (
   onEdit: (config: IFixedAssetAccountConfig) => void,
 ): ColumnDef<IFixedAssetAccountConfig>[] => [
-  { id: 'more', cell: (props) => <AccountConfigMoreCell {...props} onEdit={onEdit} />, size: 33 },
+  {
+    id: 'more',
+    cell: (props) => <AccountConfigMoreCell {...props} onEdit={onEdit} />,
+    size: 33,
+  },
   {
     id: 'accountId',
     accessorKey: 'accountId',
@@ -103,7 +112,9 @@ const getColumns = (
   {
     id: 'taxAssetAccountId',
     accessorFn: (config) => config.value.taxAssetAccountId,
-    header: () => <RecordTable.InlineHead label="Хойшлогдсон татварын хөрөнгө" />,
+    header: () => (
+      <RecordTable.InlineHead label="Хойшлогдсон татварын хөрөнгө" />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <AccountsInline
@@ -170,7 +181,8 @@ const AccountConfigSheet = ({
 
 export const FixedAssetAccountConfigsTable = () => {
   const { configs } = useFixedAssetAccountConfigs();
-  const [selectedConfig, setSelectedConfig] = useState<IFixedAssetAccountConfig>();
+  const [selectedConfig, setSelectedConfig] =
+    useState<IFixedAssetAccountConfig>();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const columns = getColumns((config) => setSelectedConfig(config));
 
@@ -191,23 +203,48 @@ export const FixedAssetAccountConfigsTable = () => {
       </RecordTable.Provider>
       <Sheet open={isAddOpen} onOpenChange={setIsAddOpen}>
         <Sheet.Trigger asChild>
-          <Button className="absolute top-3 right-3" onClick={() => setIsAddOpen(true)}>
+          <Button
+            className="absolute top-3 right-3"
+            onClick={() => setIsAddOpen(true)}
+          >
             <IconPlus /> Дансны багц нэмэх
           </Button>
         </Sheet.Trigger>
         <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none">
           <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-            <Sheet.Title>Дансны багц нэмэх</Sheet.Title><Sheet.Close />
+            <Sheet.Title>Дансны багц нэмэх</Sheet.Title>
+            <Sheet.Close />
           </Sheet.Header>
-          <Sheet.Content className="overflow-hidden flex-auto"><ScrollArea className="h-full"><div className="p-5"><AccountConfigSheet onClose={() => setIsAddOpen(false)} /></div></ScrollArea></Sheet.Content>
+          <Sheet.Content className="overflow-hidden flex-auto">
+            <ScrollArea className="h-full">
+              <div className="p-5">
+                <AccountConfigSheet onClose={() => setIsAddOpen(false)} />
+              </div>
+            </ScrollArea>
+          </Sheet.Content>
         </Sheet.View>
       </Sheet>
-      <Sheet open={Boolean(selectedConfig)} onOpenChange={(open) => !open && setSelectedConfig(undefined)}>
+      <Sheet
+        open={Boolean(selectedConfig)}
+        onOpenChange={(open) => !open && setSelectedConfig(undefined)}
+      >
         <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none">
           <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-            <Sheet.Title>Дансны багц засах</Sheet.Title><Sheet.Close />
+            <Sheet.Title>Дансны багц засах</Sheet.Title>
+            <Sheet.Close />
           </Sheet.Header>
-          <Sheet.Content className="overflow-hidden flex-auto"><ScrollArea className="h-full"><div className="p-5">{selectedConfig && <AccountConfigSheet config={selectedConfig} onClose={() => setSelectedConfig(undefined)} />}</div></ScrollArea></Sheet.Content>
+          <Sheet.Content className="overflow-hidden flex-auto">
+            <ScrollArea className="h-full">
+              <div className="p-5">
+                {selectedConfig && (
+                  <AccountConfigSheet
+                    config={selectedConfig}
+                    onClose={() => setSelectedConfig(undefined)}
+                  />
+                )}
+              </div>
+            </ScrollArea>
+          </Sheet.Content>
         </Sheet.View>
       </Sheet>
     </>

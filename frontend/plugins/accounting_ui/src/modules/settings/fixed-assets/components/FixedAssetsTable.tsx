@@ -17,11 +17,7 @@ import { useFixedAssetRemove } from '../hooks/useFixedAssetMutations';
 import { useFixedAssets } from '../hooks/useFixedAssets';
 import { IFixedAsset, IFixedAssetCategory } from '../types/FixedAsset';
 
-const FixedAssetMoreCell = ({
-  cell,
-}: {
-  cell: Cell<IFixedAsset, unknown>;
-}) => {
+const FixedAssetMoreCell = ({ cell }: { cell: Cell<IFixedAsset, unknown> }) => {
   const [, setOpen] = useQueryState('fixedAssetId');
   const { confirm } = useConfirm();
   const { removeFixedAsset } = useFixedAssetRemove();

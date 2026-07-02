@@ -79,9 +79,7 @@ export interface IAdjustFixedAsset extends ICommonAdjusting {
   modifiedBy?: string;
 }
 
-export interface IAdjustFixedAssetDocument
-  extends IAdjustFixedAsset,
-    Document {
+export interface IAdjustFixedAssetDocument extends IAdjustFixedAsset, Document {
   _id: string;
   createdAt: Date;
   createdBy: string;
