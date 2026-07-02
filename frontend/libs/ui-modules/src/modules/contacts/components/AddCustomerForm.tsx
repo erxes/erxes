@@ -6,14 +6,50 @@ import {
   Input,
   ScrollArea,
   Select,
+  Sidebar,
   Switch,
   Upload,
   toast,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { FieldsInDetail } from '../../properties/components/FieldsInDetail';
+import { mutateFunction } from '../../properties/types/fieldsTypes';
 import { SelectMember } from '../../team-members/components/SelectMember';
 import { useAddCustomer } from '../hooks/useAddCustomer';
+
+const ADD_CUSTOMER_TABS = ['overview', 'properties'] as const;
+
+const AddCustomerSidebar = ({
+  selectedTab,
+  setSelectedTab,
+}: {
+  selectedTab: string;
+  setSelectedTab: (tab: string) => void;
+}) => (
+  <Sidebar collapsible="none" className="flex-none w-48 border-r">
+    <Sidebar.Content>
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
+        <Sidebar.GroupContent className="mt-2">
+          <Sidebar.Menu>
+            {ADD_CUSTOMER_TABS.map((tab) => (
+              <Sidebar.MenuItem key={tab}>
+                <Sidebar.MenuButton
+                  isActive={selectedTab === tab}
+                  onClick={() => setSelectedTab(tab)}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            ))}
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+    </Sidebar.Content>
+  </Sidebar>
+);
 
 const EMAIL_VALIDATION_STATUSES = [
   { label: 'Valid', value: 'valid' },
@@ -46,6 +82,7 @@ const SCHEMA = z.object({
   phoneValidationStatus: z.string().optional(),
   description: z.string().optional(),
   isSubscribed: z.string().optional(),
+  propertiesData: z.record(z.any()).optional(),
 });
 
 type FormValues = z.infer<typeof SCHEMA>;
@@ -60,6 +97,7 @@ export function AddCustomerForm({
   onSuccess?: (id: string) => void;
 }>) {
   const { customersAdd, loading } = useAddCustomer();
+  const [selectedTab, setSelectedTab] = useState<string>('overview');
 
   const form = useForm<FormValues>({
     resolver: zodResolver(SCHEMA),
@@ -75,7 +113,19 @@ export function AddCustomerForm({
       phoneValidationStatus: 'unknown',
       description: '',
       isSubscribed: 'Yes',
+      propertiesData: {},
     },
+  });
+
+  const propertiesMutateHook = () => ({
+    mutate: ((variables: { _id: string } & Record<string, unknown>) => {
+      form.setValue(
+        'propertiesData',
+        (variables.propertiesData as Record<string, unknown>) ?? {},
+        { shouldDirty: true },
+      );
+    }) as mutateFunction,
+    loading: false,
   });
 
   function onSubmit(data: FormValues) {
@@ -105,131 +155,243 @@ export function AddCustomerForm({
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full overflow-hidden bg-background"
-      >
-        <ScrollArea className="flex-1">
-          <div className="p-5 space-y-4">
-            <Form.Field
-              name="avatar"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Upload.Root
-                      {...field}
-                      value={field.value || ''}
-                      onChange={(fileInfo) => {
-                        if ('url' in fileInfo) {
-                          field.onChange(fileInfo.url);
-                        }
-                      }}
-                    >
-                      <Upload.Preview className="rounded-full" />
-                      <div className="flex flex-col justify-center gap-2">
-                        <div className="flex gap-4">
-                          <Upload.Button
-                            size="sm"
-                            variant="outline"
-                            type="button"
-                          >
-                            Upload
-                          </Upload.Button>
-                          <Upload.RemoveButton
-                            size="sm"
-                            variant="outline"
-                            type="button"
+    <div className="flex overflow-hidden flex-row flex-1 min-w-0 min-h-0">
+      <AddCustomerSidebar
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+      />
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 min-w-0 h-full overflow-hidden bg-background"
+        >
+          <ScrollArea
+            className={`flex-1 ${selectedTab !== 'overview' ? 'hidden' : ''}`}
+          >
+            <div className="p-5 space-y-4">
+              <Form.Field
+                name="avatar"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <Upload.Root
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(fileInfo) => {
+                          if ('url' in fileInfo) {
+                            field.onChange(fileInfo.url);
+                          }
+                        }}
+                      >
+                        <Upload.Preview className="rounded-full" />
+                        <div className="flex flex-col justify-center gap-2">
+                          <div className="flex gap-4">
+                            <Upload.Button
+                              size="sm"
+                              variant="outline"
+                              type="button"
+                            >
+                              Upload
+                            </Upload.Button>
+                            <Upload.RemoveButton
+                              size="sm"
+                              variant="outline"
+                              type="button"
+                            />
+                          </div>
+                          <Form.Description>
+                            Upload an avatar for the customer
+                          </Form.Description>
+                        </div>
+                      </Upload.Root>
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <Form.Field
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>
+                        First Name{' '}
+                        <span className="text-destructive">*</span>
+                      </Form.Label>
+                      <Form.Control>
+                        <Input {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Last Name</Form.Label>
+                      <Form.Control>
+                        <Input {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Code</Form.Label>
+                      <Form.Control>
+                        <Input {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="ownerId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Owner</Form.Label>
+                      <Form.Control>
+                        <div className="w-full">
+                          <SelectMember.FormItem
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                            placeholder="Select owner"
                           />
                         </div>
-                        <Form.Description>
-                          Upload an avatar for the customer
-                        </Form.Description>
-                      </div>
-                    </Upload.Root>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Field
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      First Name{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Code</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="ownerId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Owner</Form.Label>
-                    <Form.Control>
-                      <div className="w-full">
-                        <SelectMember.FormItem
-                          value={field.value || ''}
-                          onValueChange={field.onChange}
-                          placeholder="Select owner"
+                <Form.Field
+                  control={form.control}
+                  name="primaryEmail"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Email</Form.Label>
+                      <Form.Control>
+                        <Input
+                          type="email"
+                          placeholder="email@example.com"
+                          {...field}
                         />
-                      </div>
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="emailValidationStatus"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Email Verification Status</Form.Label>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <Form.Control>
+                          <Select.Trigger>
+                            <Select.Value placeholder="Choose">
+                              {
+                                EMAIL_VALIDATION_STATUSES.find(
+                                  (s) => s.value === field.value,
+                                )?.label
+                              }
+                            </Select.Value>
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content>
+                          <Select.Group>
+                            {EMAIL_VALIDATION_STATUSES.map((s) => (
+                              <Select.Item key={s.value} value={s.value}>
+                                {s.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Group>
+                        </Select.Content>
+                      </Select>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="primaryPhone"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Phone</Form.Label>
+                      <Form.Control>
+                        <Input placeholder="+1 234 567 8900" {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="phoneValidationStatus"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Phone Verification Status</Form.Label>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <Form.Control>
+                          <Select.Trigger>
+                            <Select.Value placeholder="Choose">
+                              {
+                                PHONE_VALIDATION_STATUSES.find(
+                                  (s) => s.value === field.value,
+                                )?.label
+                              }
+                            </Select.Value>
+                          </Select.Trigger>
+                        </Form.Control>
+                        <Select.Content>
+                          <Select.Group>
+                            {PHONE_VALIDATION_STATUSES.map((s) => (
+                              <Select.Item key={s.value} value={s.value}>
+                                {s.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Group>
+                        </Select.Content>
+                      </Select>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
 
               <Form.Field
                 control={form.control}
-                name="primaryEmail"
+                name="description"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label>Description</Form.Label>
                     <Form.Control>
-                      <Input
-                        type="email"
-                        placeholder="email@example.com"
-                        {...field}
+                      <Editor
+                        initialContent={field.value}
+                        onChange={field.onChange}
+                        scope="customer-add-description"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -238,146 +400,55 @@ export function AddCustomerForm({
               />
 
               <Form.Field
+                name="isSubscribed"
                 control={form.control}
-                name="emailValidationStatus"
                 render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Email Verification Status</Form.Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <Form.Control>
-                        <Select.Trigger>
-                          <Select.Value placeholder="Choose">
-                            {
-                              EMAIL_VALIDATION_STATUSES.find(
-                                (s) => s.value === field.value,
-                              )?.label
-                            }
-                          </Select.Value>
-                        </Select.Trigger>
-                      </Form.Control>
-                      <Select.Content>
-                        <Select.Group>
-                          {EMAIL_VALIDATION_STATUSES.map((s) => (
-                            <Select.Item key={s.value} value={s.value}>
-                              {s.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Group>
-                      </Select.Content>
-                    </Select>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="primaryPhone"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Phone</Form.Label>
+                  <Form.Item className="flex items-center space-x-2 space-y-0">
                     <Form.Control>
-                      <Input placeholder="+1 234 567 8900" {...field} />
+                      <Switch
+                        checked={field.value === 'Yes'}
+                        onCheckedChange={(checked) =>
+                          field.onChange(checked ? 'Yes' : 'No')
+                        }
+                      />
                     </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="phoneValidationStatus"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Phone Verification Status</Form.Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <Form.Control>
-                        <Select.Trigger>
-                          <Select.Value placeholder="Choose">
-                            {
-                              PHONE_VALIDATION_STATUSES.find(
-                                (s) => s.value === field.value,
-                              )?.label
-                            }
-                          </Select.Value>
-                        </Select.Trigger>
-                      </Form.Control>
-                      <Select.Content>
-                        <Select.Group>
-                          {PHONE_VALIDATION_STATUSES.map((s) => (
-                            <Select.Item key={s.value} value={s.value}>
-                              {s.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Group>
-                      </Select.Content>
-                    </Select>
+                    <Form.Label variant="peer">Subscribed</Form.Label>
                     <Form.Message />
                   </Form.Item>
                 )}
               />
             </div>
+          </ScrollArea>
 
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Description</Form.Label>
-                  <Form.Control>
-                    <Editor
-                      initialContent={field.value}
-                      onChange={field.onChange}
-                      scope="customer-add-description"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              name="isSubscribed"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item className="flex items-center space-x-2 space-y-0">
-                  <Form.Control>
-                    <Switch
-                      checked={field.value === 'Yes'}
-                      onCheckedChange={(checked) =>
-                        field.onChange(checked ? 'Yes' : 'No')
-                      }
-                    />
-                  </Form.Control>
-                  <Form.Label variant="peer">Subscribed</Form.Label>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
-        </ScrollArea>
-
-        <div className="flex justify-end gap-2 p-4 border-t shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
+          <ScrollArea
+            className={`flex-1 ${selectedTab !== 'properties' ? 'hidden' : ''}`}
           >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {state === 'lead'
-              ? 'Create Lead'
-              : 'Create Customer'}
-          </Button>
-        </div>
-      </form>
-    </Form>
+            <div className="p-5">
+              <FieldsInDetail
+                fieldContentType="core:customer"
+                propertiesData={form.watch('propertiesData') || {}}
+                mutateHook={propertiesMutateHook}
+                id=""
+              />
+            </div>
+          </ScrollArea>
+
+          <div className="flex justify-end gap-2 p-4 border-t shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {state === 'lead'
+                ? 'Create Lead'
+                : 'Create Customer'}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }

@@ -29,7 +29,7 @@ export const AddCustomer = ({
           </Button>
         )}
       </Sheet.Trigger>
-      <FocusSheet.View className="w-[30%] md:w-[30%] lg:w-[30%]">
+      <FocusSheet.View className="w-[45%] md:w-[45%] lg:w-[45%]">
         <FocusSheet.Header title="Create customer" />
         <FocusSheet.Content className="flex-1 min-h-0">
           <div className="flex overflow-hidden flex-col flex-1">

@@ -50,7 +50,7 @@ export const CustomerAddSheet = () => {
         </Button>
       </Sheet.Trigger>
       <Sheet.View
-        className="sm:max-w-lg p-0"
+        className="sm:max-w-4xl p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
