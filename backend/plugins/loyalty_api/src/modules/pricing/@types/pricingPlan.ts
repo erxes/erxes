@@ -26,14 +26,6 @@ export interface IPricingPlan {
   tags?: string[];
   tagsExcluded?: string[];
 
-  // Customer & broker targeting (dynamic conditions).
-  // Empty fields = no constraint, so existing plans are unaffected.
-  //
-  // Customer dimension is typed: customerType picks which entity kind is the
-  // buyer. Unset is treated as 'customer'. Only the active kind's fields are
-  // evaluated (and persisted by the UI).
-  customerType?: 'customer' | 'company';
-
   customerIds?: string[];
   customerTags?: string[];
   customerExcludeTags?: string[];
@@ -44,10 +36,23 @@ export interface IPricingPlan {
   companyExcludeTags?: string[];
   companySegmentIds?: string[];
 
-  // Broker is always a team-member/user.
+  userIds?: string[];
+  userPositions?: string[];
+  userSegmentIds?: string[];
+
+  brokerCustomerIds?: string[];
+  brokerCustomerTags?: string[];
+  brokerCustomerExcludeTags?: string[];
+  brokerCustomerSegmentIds?: string[];
+
+  brokerCompanyIds?: string[];
+  brokerCompanyTags?: string[];
+  brokerCompanyExcludeTags?: string[];
+  brokerCompanySegmentIds?: string[];
+
   brokerUserIds?: string[];
   brokerUserPositions?: string[];
-  brokerSegmentIds?: string[];
+  brokerUserSegmentIds?: string[];
 
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;

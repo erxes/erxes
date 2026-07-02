@@ -1,33 +1,21 @@
 import { type ReactNode } from 'react';
-import { Form, Label, ToggleGroup } from 'erxes-ui';
+import { Form, Label, Separator } from 'erxes-ui';
 import {
-  useWatch,
   type Control,
   type ControllerRenderProps,
   type FieldValues,
 } from 'react-hook-form';
 import {
-  SelectCustomer,
   SelectCompany,
+  SelectCustomer,
   SelectMember,
+  SelectPositions,
   SelectSegment,
   SelectTags,
-  SelectPositions,
 } from 'ui-modules';
 import { IPricingPlanDetail } from '@/pricing/types';
 
-/**
- * Customer (buyer) + broker targeting fields, rendered in the
- * Participants tab. The buyer is typed: `customerType` selects customer vs company,
- * and only the active kind's fields are shown and persisted. The broker is
- * always a team-member/user.
- *
- * Segments are single-select here for parity with the rest of the pricing form;
- * the backend stores them as arrays, so multi-segment is a future-safe upgrade.
- */
 export interface CustomerBrokerFormValues {
-  customerType: 'customer' | 'company';
-
   customerIds: string[];
   customerTags: string[];
   customerExcludeTags: string[];
@@ -38,13 +26,26 @@ export interface CustomerBrokerFormValues {
   companyExcludeTags: string[];
   companySegmentId: string | null;
 
+  userIds: string[];
+  userPositions: string[];
+  userSegmentId: string | null;
+
+  brokerCustomerIds: string[];
+  brokerCustomerTags: string[];
+  brokerCustomerExcludeTags: string[];
+  brokerCustomerSegmentId: string | null;
+
+  brokerCompanyIds: string[];
+  brokerCompanyTags: string[];
+  brokerCompanyExcludeTags: string[];
+  brokerCompanySegmentId: string | null;
+
   brokerUserIds: string[];
   brokerUserPositions: string[];
-  brokerSegmentId: string | null;
+  brokerUserSegmentId: string | null;
 }
 
 export const CUSTOMER_BROKER_DEFAULTS: CustomerBrokerFormValues = {
-  customerType: 'customer',
   customerIds: [],
   customerTags: [],
   customerExcludeTags: [],
@@ -53,16 +54,25 @@ export const CUSTOMER_BROKER_DEFAULTS: CustomerBrokerFormValues = {
   companyTags: [],
   companyExcludeTags: [],
   companySegmentId: null,
+  userIds: [],
+  userPositions: [],
+  userSegmentId: null,
+  brokerCustomerIds: [],
+  brokerCustomerTags: [],
+  brokerCustomerExcludeTags: [],
+  brokerCustomerSegmentId: null,
+  brokerCompanyIds: [],
+  brokerCompanyTags: [],
+  brokerCompanyExcludeTags: [],
+  brokerCompanySegmentId: null,
   brokerUserIds: [],
   brokerUserPositions: [],
-  brokerSegmentId: null,
+  brokerUserSegmentId: null,
 };
 
-/** Map a saved plan into the customer/broker form slice. */
 export const customerBrokerFromDetail = (
   detail: IPricingPlanDetail,
 ): CustomerBrokerFormValues => ({
-  customerType: detail.customerType === 'company' ? 'company' : 'customer',
   customerIds: detail.customerIds || [],
   customerTags: detail.customerTags || [],
   customerExcludeTags: detail.customerExcludeTags || [],
@@ -71,51 +81,54 @@ export const customerBrokerFromDetail = (
   companyTags: detail.companyTags || [],
   companyExcludeTags: detail.companyExcludeTags || [],
   companySegmentId: detail.companySegmentIds?.[0] || null,
+  userIds: detail.userIds || [],
+  userPositions: detail.userPositions || [],
+  userSegmentId: detail.userSegmentIds?.[0] || null,
+  brokerCustomerIds: detail.brokerCustomerIds || [],
+  brokerCustomerTags: detail.brokerCustomerTags || [],
+  brokerCustomerExcludeTags: detail.brokerCustomerExcludeTags || [],
+  brokerCustomerSegmentId: detail.brokerCustomerSegmentIds?.[0] || null,
+  brokerCompanyIds: detail.brokerCompanyIds || [],
+  brokerCompanyTags: detail.brokerCompanyTags || [],
+  brokerCompanyExcludeTags: detail.brokerCompanyExcludeTags || [],
+  brokerCompanySegmentId: detail.brokerCompanySegmentIds?.[0] || null,
   brokerUserIds: detail.brokerUserIds || [],
   brokerUserPositions: detail.brokerUserPositions || [],
-  brokerSegmentId: detail.brokerSegmentIds?.[0] || null,
+  brokerUserSegmentId: detail.brokerUserSegmentIds?.[0] || null,
 });
 
 const toSegmentArray = (id: string | null): string[] => (id ? [id] : []);
 
-/**
- * Build the persisted customer/broker doc slice. Only the active customerType's
- * fields are written; the inactive kind is explicitly cleared so a plan never
- * carries contradictory stale targeting (one coherent intent per document).
- */
 export const customerBrokerToDoc = (
   values: CustomerBrokerFormValues,
-): Partial<IPricingPlanDetail> => {
-  const isCompany = values.customerType === 'company';
+): Partial<IPricingPlanDetail> => ({
+  customerIds: values.customerIds,
+  customerTags: values.customerTags,
+  customerExcludeTags: values.customerExcludeTags,
+  customerSegmentIds: toSegmentArray(values.customerSegmentId),
+  companyIds: values.companyIds,
+  companyTags: values.companyTags,
+  companyExcludeTags: values.companyExcludeTags,
+  companySegmentIds: toSegmentArray(values.companySegmentId),
+  userIds: values.userIds,
+  userPositions: values.userPositions,
+  userSegmentIds: toSegmentArray(values.userSegmentId),
+  brokerCustomerIds: values.brokerCustomerIds,
+  brokerCustomerTags: values.brokerCustomerTags,
+  brokerCustomerExcludeTags: values.brokerCustomerExcludeTags,
+  brokerCustomerSegmentIds: toSegmentArray(values.brokerCustomerSegmentId),
+  brokerCompanyIds: values.brokerCompanyIds,
+  brokerCompanyTags: values.brokerCompanyTags,
+  brokerCompanyExcludeTags: values.brokerCompanyExcludeTags,
+  brokerCompanySegmentIds: toSegmentArray(values.brokerCompanySegmentId),
+  brokerUserIds: values.brokerUserIds,
+  brokerUserPositions: values.brokerUserPositions,
+  brokerUserSegmentIds: toSegmentArray(values.brokerUserSegmentId),
+});
 
-  return {
-    customerType: values.customerType,
-
-    customerIds: isCompany ? [] : values.customerIds,
-    customerTags: isCompany ? [] : values.customerTags,
-    customerExcludeTags: isCompany ? [] : values.customerExcludeTags,
-    customerSegmentIds: isCompany
-      ? []
-      : toSegmentArray(values.customerSegmentId),
-
-    companyIds: isCompany ? values.companyIds : [],
-    companyTags: isCompany ? values.companyTags : [],
-    companyExcludeTags: isCompany ? values.companyExcludeTags : [],
-    companySegmentIds: isCompany
-      ? toSegmentArray(values.companySegmentId)
-      : [],
-
-    brokerUserIds: values.brokerUserIds,
-    brokerUserPositions: values.brokerUserPositions,
-    brokerSegmentIds: toSegmentArray(values.brokerSegmentId),
-  };
-};
-
-/** Coerce a single-or-multi selector value into a string[] for the form. */
 const toArray = (value: string[] | string | null | undefined): string[] =>
   Array.isArray(value) ? value : value ? [value] : [];
 
-/** Labeled field wrapper so each selector below stays a one-liner. */
 function ConditionField<Name extends keyof CustomerBrokerFormValues>({
   control,
   name,
@@ -153,6 +166,200 @@ const SectionDivider = ({ label }: { label: string }) => (
   </div>
 );
 
+const CustomerFields = ({
+  control,
+  idsName,
+  tagsName,
+  excludeTagsName,
+  segmentName,
+  tagType,
+  labels,
+}: {
+  control: Control<CustomerBrokerFormValues>;
+  idsName: 'customerIds' | 'brokerCustomerIds';
+  tagsName: 'customerTags' | 'brokerCustomerTags';
+  excludeTagsName: 'customerExcludeTags' | 'brokerCustomerExcludeTags';
+  segmentName: 'customerSegmentId' | 'brokerCustomerSegmentId';
+  tagType: 'core:customer';
+  labels: {
+    ids: string;
+    segment: string;
+    tags: string;
+    excludeTags: string;
+  };
+}) => (
+  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+    <ConditionField control={control} name={idsName} label={labels.ids}>
+      {(field) => (
+        <SelectCustomer
+          mode="multiple"
+          value={field.value}
+          onValueChange={(value) => field.onChange(toArray(value))}
+        />
+      )}
+    </ConditionField>
+
+    <ConditionField control={control} name={segmentName} label={labels.segment}>
+      {(field) => (
+        <SelectSegment
+          selected={field.value || undefined}
+          onSelect={(id) => field.onChange(id)}
+        />
+      )}
+    </ConditionField>
+
+    <ConditionField control={control} name={tagsName} label={labels.tags}>
+      {(field) => (
+        <SelectTags
+          tagType={tagType}
+          mode="multiple"
+          value={field.value}
+          onValueChange={(value) => field.onChange(value as string[])}
+        />
+      )}
+    </ConditionField>
+
+    <ConditionField
+      control={control}
+      name={excludeTagsName}
+      label={labels.excludeTags}
+    >
+      {(field) => (
+        <SelectTags
+          tagType={tagType}
+          mode="multiple"
+          value={field.value}
+          onValueChange={(value) => field.onChange(value as string[])}
+        />
+      )}
+    </ConditionField>
+  </div>
+);
+
+const CompanyFields = ({
+  control,
+  idsName,
+  tagsName,
+  excludeTagsName,
+  segmentName,
+  tagType,
+  labels,
+}: {
+  control: Control<CustomerBrokerFormValues>;
+  idsName: 'companyIds' | 'brokerCompanyIds';
+  tagsName: 'companyTags' | 'brokerCompanyTags';
+  excludeTagsName: 'companyExcludeTags' | 'brokerCompanyExcludeTags';
+  segmentName: 'companySegmentId' | 'brokerCompanySegmentId';
+  tagType: 'core:company';
+  labels: {
+    ids: string;
+    segment: string;
+    tags: string;
+    excludeTags: string;
+  };
+}) => (
+  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+    <ConditionField control={control} name={idsName} label={labels.ids}>
+      {(field) => (
+        <SelectCompany
+          mode="multiple"
+          value={field.value}
+          onValueChange={(value) => field.onChange(toArray(value))}
+        />
+      )}
+    </ConditionField>
+
+    <ConditionField control={control} name={segmentName} label={labels.segment}>
+      {(field) => (
+        <SelectSegment
+          selected={field.value || undefined}
+          onSelect={(id) => field.onChange(id)}
+        />
+      )}
+    </ConditionField>
+
+    <ConditionField control={control} name={tagsName} label={labels.tags}>
+      {(field) => (
+        <SelectTags
+          tagType={tagType}
+          mode="multiple"
+          value={field.value}
+          onValueChange={(value) => field.onChange(value as string[])}
+        />
+      )}
+    </ConditionField>
+
+    <ConditionField
+      control={control}
+      name={excludeTagsName}
+      label={labels.excludeTags}
+    >
+      {(field) => (
+        <SelectTags
+          tagType={tagType}
+          mode="multiple"
+          value={field.value}
+          onValueChange={(value) => field.onChange(value as string[])}
+        />
+      )}
+    </ConditionField>
+  </div>
+);
+
+const UserFields = ({
+  control,
+  idsName,
+  positionsName,
+  segmentName,
+  labels,
+}: {
+  control: Control<CustomerBrokerFormValues>;
+  idsName: 'userIds' | 'brokerUserIds';
+  positionsName: 'userPositions' | 'brokerUserPositions';
+  segmentName: 'userSegmentId' | 'brokerUserSegmentId';
+  labels: {
+    ids: string;
+    segment: string;
+    positions: string;
+  };
+}) => (
+  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+    <ConditionField control={control} name={idsName} label={labels.ids}>
+      {(field) => (
+        <SelectMember
+          mode="multiple"
+          value={field.value}
+          onValueChange={(value) => field.onChange(toArray(value))}
+        />
+      )}
+    </ConditionField>
+
+    <ConditionField control={control} name={segmentName} label={labels.segment}>
+      {(field) => (
+        <SelectSegment
+          selected={field.value || undefined}
+          onSelect={(id) => field.onChange(id)}
+        />
+      )}
+    </ConditionField>
+
+    <ConditionField
+      control={control}
+      name={positionsName}
+      label={labels.positions}
+      className="lg:col-span-2"
+    >
+      {(field) => (
+        <SelectPositions.FormItem
+          mode="multiple"
+          value={field.value}
+          onValueChange={(value) => field.onChange(toArray(value))}
+        />
+      )}
+    </ConditionField>
+  </div>
+);
+
 export const CustomerBrokerConditions = <
   TFormValues extends CustomerBrokerFormValues & FieldValues,
 >({
@@ -160,211 +367,96 @@ export const CustomerBrokerConditions = <
 }: {
   control: Control<TFormValues>;
 }) => {
-  // React Hook Form's Control is invariant, while the host forms extend this
-  // slice with additional fields. Narrow once at this boundary for the slice UI.
-  const customerBrokerControl =
+  const participantControl =
     control as unknown as Control<CustomerBrokerFormValues>;
-  const customerType = useWatch({
-    control: customerBrokerControl,
-    name: 'customerType',
-  });
-  const isCompany = customerType === 'company';
 
   return (
     <div className="space-y-4">
-      <SectionDivider label="Customer & broker conditions (optional)" />
+      <SectionDivider label="Buyer conditions (optional)" />
+      <CustomerFields
+        control={participantControl}
+        idsName="customerIds"
+        tagsName="customerTags"
+        excludeTagsName="customerExcludeTags"
+        segmentName="customerSegmentId"
+        tagType="core:customer"
+        labels={{
+          ids: 'CUSTOMERS',
+          segment: 'CUSTOMER SEGMENT',
+          tags: 'CUSTOMER TAGS',
+          excludeTags: 'EXCLUDE CUSTOMER TAGS',
+        }}
+      />
+      <Separator />
+      <CompanyFields
+        control={participantControl}
+        idsName="companyIds"
+        tagsName="companyTags"
+        excludeTagsName="companyExcludeTags"
+        segmentName="companySegmentId"
+        tagType="core:company"
+        labels={{
+          ids: 'COMPANIES',
+          segment: 'COMPANY SEGMENT',
+          tags: 'COMPANY TAGS',
+          excludeTags: 'EXCLUDE COMPANY TAGS',
+        }}
+      />
+      <Separator />
+      <UserFields
+        control={participantControl}
+        idsName="userIds"
+        positionsName="userPositions"
+        segmentName="userSegmentId"
+        labels={{
+          ids: 'USERS',
+          segment: 'USER SEGMENT',
+          positions: 'USER POSITIONS',
+        }}
+      />
 
-      <ConditionField
-        control={customerBrokerControl}
-        name="customerType"
-        label="BUYER TYPE"
-      >
-        {(field) => (
-          <ToggleGroup
-            type="single"
-            value={field.value}
-            onValueChange={(value) => value && field.onChange(value)}
-            className="grid w-full max-w-xs grid-cols-2 gap-2"
-          >
-            <ToggleGroup.Item value="customer" className="border rounded-md">
-              Customer
-            </ToggleGroup.Item>
-            <ToggleGroup.Item value="company" className="border rounded-md">
-              Company
-            </ToggleGroup.Item>
-          </ToggleGroup>
-        )}
-      </ConditionField>
-
-      <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-        {!isCompany && (
-          <>
-            <ConditionField
-              control={customerBrokerControl}
-              name="customerIds"
-              label="CUSTOMERS"
-            >
-              {(field) => (
-                <SelectCustomer
-                  mode="multiple"
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(toArray(value))}
-                />
-              )}
-            </ConditionField>
-
-            <ConditionField
-              control={customerBrokerControl}
-              name="customerSegmentId"
-              label="CUSTOMER SEGMENT"
-            >
-              {(field) => (
-                <SelectSegment
-                  selected={field.value || undefined}
-                  onSelect={(id) => field.onChange(id)}
-                />
-              )}
-            </ConditionField>
-
-            <ConditionField
-              control={customerBrokerControl}
-              name="customerTags"
-              label="CUSTOMER TAGS"
-            >
-              {(field) => (
-                <SelectTags
-                  tagType="core:customer"
-                  mode="multiple"
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value as string[])}
-                />
-              )}
-            </ConditionField>
-
-            <ConditionField
-              control={customerBrokerControl}
-              name="customerExcludeTags"
-              label="EXCLUDE CUSTOMER TAGS"
-            >
-              {(field) => (
-                <SelectTags
-                  tagType="core:customer"
-                  mode="multiple"
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value as string[])}
-                />
-              )}
-            </ConditionField>
-          </>
-        )}
-
-        {isCompany && (
-          <>
-            <ConditionField
-              control={customerBrokerControl}
-              name="companyIds"
-              label="COMPANIES"
-            >
-              {(field) => (
-                <SelectCompany
-                  mode="multiple"
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(toArray(value))}
-                />
-              )}
-            </ConditionField>
-
-            <ConditionField
-              control={customerBrokerControl}
-              name="companySegmentId"
-              label="COMPANY SEGMENT"
-            >
-              {(field) => (
-                <SelectSegment
-                  selected={field.value || undefined}
-                  onSelect={(id) => field.onChange(id)}
-                />
-              )}
-            </ConditionField>
-
-            <ConditionField
-              control={customerBrokerControl}
-              name="companyTags"
-              label="COMPANY TAGS"
-            >
-              {(field) => (
-                <SelectTags
-                  tagType="core:company"
-                  mode="multiple"
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value as string[])}
-                />
-              )}
-            </ConditionField>
-
-            <ConditionField
-              control={customerBrokerControl}
-              name="companyExcludeTags"
-              label="EXCLUDE COMPANY TAGS"
-            >
-              {(field) => (
-                <SelectTags
-                  tagType="core:company"
-                  mode="multiple"
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value as string[])}
-                />
-              )}
-            </ConditionField>
-          </>
-        )}
-      </div>
-
-      <SectionDivider label="Broker" />
-
-      <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
-        <ConditionField
-          control={customerBrokerControl}
-          name="brokerUserIds"
-          label="BROKERS"
-        >
-          {(field) => (
-            <SelectMember
-              mode="multiple"
-              value={field.value}
-              onValueChange={(value) => field.onChange(toArray(value))}
-            />
-          )}
-        </ConditionField>
-
-        <ConditionField
-          control={customerBrokerControl}
-          name="brokerSegmentId"
-          label="BROKER SEGMENT"
-        >
-          {(field) => (
-            <SelectSegment
-              selected={field.value || undefined}
-              onSelect={(id) => field.onChange(id)}
-            />
-          )}
-        </ConditionField>
-
-        <ConditionField
-          control={customerBrokerControl}
-          name="brokerUserPositions"
-          label="BROKER POSITIONS"
-          className="lg:col-span-2"
-        >
-          {(field) => (
-            <SelectPositions.FormItem
-              mode="multiple"
-              value={field.value}
-              onValueChange={(value) => field.onChange(toArray(value))}
-            />
-          )}
-        </ConditionField>
-      </div>
+      <SectionDivider label="Broker conditions (optional)" />
+      <CustomerFields
+        control={participantControl}
+        idsName="brokerCustomerIds"
+        tagsName="brokerCustomerTags"
+        excludeTagsName="brokerCustomerExcludeTags"
+        segmentName="brokerCustomerSegmentId"
+        tagType="core:customer"
+        labels={{
+          ids: 'BROKER CUSTOMERS',
+          segment: 'BROKER CUSTOMER SEGMENT',
+          tags: 'BROKER CUSTOMER TAGS',
+          excludeTags: 'EXCLUDE BROKER CUSTOMER TAGS',
+        }}
+      />
+      <Separator />
+      <CompanyFields
+        control={participantControl}
+        idsName="brokerCompanyIds"
+        tagsName="brokerCompanyTags"
+        excludeTagsName="brokerCompanyExcludeTags"
+        segmentName="brokerCompanySegmentId"
+        tagType="core:company"
+        labels={{
+          ids: 'BROKER COMPANIES',
+          segment: 'BROKER COMPANY SEGMENT',
+          tags: 'BROKER COMPANY TAGS',
+          excludeTags: 'EXCLUDE BROKER COMPANY TAGS',
+        }}
+      />
+      <Separator />
+      <UserFields
+        control={participantControl}
+        idsName="brokerUserIds"
+        positionsName="brokerUserPositions"
+        segmentName="brokerUserSegmentId"
+        labels={{
+          ids: 'BROKERS',
+          segment: 'BROKER USER SEGMENT',
+          positions: 'BROKER POSITIONS',
+        }}
+      />
     </div>
   );
 };

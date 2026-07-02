@@ -6,7 +6,7 @@
  * For reference, the wiring is — inside the plan loop, before processing items:
  *   const segmentCache = new Map(); // created once per checkPricing call
  *   if (!(await planMatchesContext(subdomain, plan,
- *         { customerId, brokerId }, segmentCache))) continue;
+ *         { customerId, brokerUserId }, segmentCache))) continue;
  * See backend/plugins/loyalty_api/AGENTS.md → "Customer & broker targeting".
  */
 jest.mock('../product', () => ({
@@ -18,10 +18,27 @@ jest.mock('../product', () => ({
 jest.mock('../rule', () => ({
   checkRepeatRule: jest.fn(() => true),
   calculateDiscountValue: jest.fn((_type: string, value: number) => value),
-  calculatePriceAdjust: jest.fn((_price: number, discountValue: number) => discountValue),
-  calculatePriceRule: jest.fn(() => ({ passed: true, type: '', value: 0, bonusProducts: [] })),
-  calculateQuantityRule: jest.fn(() => ({ passed: true, type: '', value: 0, bonusProducts: [] })),
-  calculateExpiryRule: jest.fn(() => ({ passed: true, type: '', value: 0, bonusProducts: [] })),
+  calculatePriceAdjust: jest.fn(
+    (_price: number, discountValue: number) => discountValue,
+  ),
+  calculatePriceRule: jest.fn(() => ({
+    passed: true,
+    type: '',
+    value: 0,
+    bonusProducts: [],
+  })),
+  calculateQuantityRule: jest.fn(() => ({
+    passed: true,
+    type: '',
+    value: 0,
+    bonusProducts: [],
+  })),
+  calculateExpiryRule: jest.fn(() => ({
+    passed: true,
+    type: '',
+    value: 0,
+    bonusProducts: [],
+  })),
 }));
 
 jest.mock('erxes-api-shared/utils', () => ({
@@ -48,7 +65,6 @@ const plan = (
     applyType: 'product',
     products: ['p1'],
     isPriority: false,
-    customerType: 'customer',
     customerIds: [],
     customerTags: [],
     customerExcludeTags: [],
@@ -57,12 +73,23 @@ const plan = (
     companyTags: [],
     companyExcludeTags: [],
     companySegmentIds: [],
+    userIds: [],
+    userPositions: [],
+    userSegmentIds: [],
+    brokerCustomerIds: [],
+    brokerCustomerTags: [],
+    brokerCustomerExcludeTags: [],
+    brokerCustomerSegmentIds: [],
+    brokerCompanyIds: [],
+    brokerCompanyTags: [],
+    brokerCompanyExcludeTags: [],
+    brokerCompanySegmentIds: [],
     brokerUserIds: [],
     brokerUserPositions: [],
-    brokerSegmentIds: [],
+    brokerUserSegmentIds: [],
     ...overrides,
     // Boundary cast: a full Mongoose document is impractical to build in a unit test.
-  }) as unknown as IPricingPlanDocument;
+  } as unknown as IPricingPlanDocument);
 
 const makeModels = (plans: IPricingPlanDocument[]): IModels =>
   ({
@@ -70,11 +97,18 @@ const makeModels = (plans: IPricingPlanDocument[]): IModels =>
       find: jest.fn(() => ({ sort: jest.fn().mockResolvedValue(plans) })),
     },
     // Boundary cast: only PricingPlans.find is exercised by checkPricing.
-  }) as unknown as IModels;
+  } as unknown as IModels);
 
 const run = (
   plans: IPricingPlanDocument[],
-  context: { customerId?: string; companyId?: string; brokerId?: string } = {},
+  context: {
+    customerId?: string;
+    companyId?: string;
+    userId?: string;
+    brokerCustomerId?: string;
+    brokerCompanyId?: string;
+    brokerUserId?: string;
+  } = {},
 ) =>
   checkPricing({
     models: makeModels(plans),
@@ -97,14 +131,18 @@ describe('checkPricing — applies eligible plans', () => {
   });
 
   it('applies a plan whose customer constraint matches', async () => {
-    const result = await run([plan({ customerIds: ['c1'] })], { customerId: 'c1' });
+    const result = await run([plan({ customerIds: ['c1'] })], {
+      customerId: 'c1',
+    });
     expect(result?.i1?.value).toBe(DISCOUNT);
   });
 });
 
 describe('checkPricing — skips ineligible plans', () => {
   it('skips a plan whose customer is not targeted', async () => {
-    const result = await run([plan({ customerIds: ['c1'] })], { customerId: 'c2' });
+    const result = await run([plan({ customerIds: ['c1'] })], {
+      customerId: 'c2',
+    });
     expect(result?.i1?.value).toBe(0);
   });
 
@@ -114,7 +152,9 @@ describe('checkPricing — skips ineligible plans', () => {
   });
 
   it('skips a plan whose broker is not targeted', async () => {
-    const result = await run([plan({ brokerUserIds: ['u1'] })], { brokerId: 'u2' });
+    const result = await run([plan({ brokerUserIds: ['u1'] })], {
+      brokerUserId: 'u2',
+    });
     expect(result?.i1?.value).toBe(0);
   });
 
@@ -126,19 +166,36 @@ describe('checkPricing — skips ineligible plans', () => {
     expect(result?.i1?.value).toBe(0);
   });
 
-  it('skips a company-typed plan when no companyId is supplied', async () => {
-    const result = await run(
-      [plan({ customerType: 'company', companyIds: ['co1'] })],
-      { customerId: 'co1' },
-    );
+  it('skips a company-constrained plan when no companyId is supplied', async () => {
+    const result = await run([plan({ companyIds: ['co1'] })], {
+      customerId: 'co1',
+    });
     expect(result?.i1?.value).toBe(0);
   });
 
-  it('applies a company-typed plan whose companyId matches', async () => {
-    const result = await run(
-      [plan({ customerType: 'company', companyIds: ['co1'] })],
-      { companyId: 'co1' },
-    );
+  it('applies a company-constrained plan whose companyId matches', async () => {
+    const result = await run([plan({ companyIds: ['co1'] })], {
+      companyId: 'co1',
+    });
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+
+  it('applies a user-constrained buyer plan whose userId matches', async () => {
+    const result = await run([plan({ userIds: ['u1'] })], { userId: 'u1' });
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+
+  it('applies a customer-constrained broker plan whose brokerCustomerId matches', async () => {
+    const result = await run([plan({ brokerCustomerIds: ['c-broker'] })], {
+      brokerCustomerId: 'c-broker',
+    });
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+
+  it('applies a company-constrained broker plan whose brokerCompanyId matches', async () => {
+    const result = await run([plan({ brokerCompanyIds: ['co-broker'] })], {
+      brokerCompanyId: 'co-broker',
+    });
     expect(result?.i1?.value).toBe(DISCOUNT);
   });
 });

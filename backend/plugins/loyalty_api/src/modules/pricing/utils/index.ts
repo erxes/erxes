@@ -263,7 +263,10 @@ export const checkPricing = async (params: {
   orderItems: OrderItem[];
   customerId?: string;
   companyId?: string;
-  brokerId?: string;
+  userId?: string;
+  brokerCustomerId?: string;
+  brokerCompanyId?: string;
+  brokerUserId?: string;
 }) => {
   const {
     models,
@@ -276,7 +279,10 @@ export const checkPricing = async (params: {
     orderItems,
     customerId,
     companyId,
-    brokerId,
+    userId,
+    brokerCustomerId,
+    brokerCompanyId,
+    brokerUserId,
   } = params;
 
   const productIds = orderItems.map((p) => p.productId);
@@ -326,7 +332,14 @@ export const checkPricing = async (params: {
       !(await planMatchesContext(
         subdomain,
         plan,
-        { customerId, companyId, brokerId },
+        {
+          customerId,
+          companyId,
+          userId,
+          brokerCustomerId,
+          brokerCompanyId,
+          brokerUserId,
+        },
         eligibilityCache,
       ))
     ) {

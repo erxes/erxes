@@ -4,7 +4,10 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 export interface IPricingContext {
   customerId?: string;
   companyId?: string;
-  brokerId?: string;
+  userId?: string;
+  brokerCustomerId?: string;
+  brokerCompanyId?: string;
+  brokerUserId?: string;
 }
 
 /** Targetable entity kinds. Drives which core tRPC supplies tags/positions. */
@@ -190,26 +193,17 @@ const matchesDimension = async (
   return false;
 };
 
-/** Resolve the active customer (buyer) dimension from the plan's customerType. */
-const customerDimension = (
+interface ResolvedDimension {
+  kind: EntityKind;
+  entityId?: string;
+  rules: DimensionRules;
+}
+
+const customerDimensions = (
   plan: IPricingPlanDocument,
   context: IPricingContext,
-): { kind: EntityKind; entityId?: string; rules: DimensionRules } => {
-  if (plan.customerType === 'company') {
-    return {
-      kind: 'company',
-      entityId: context.companyId,
-      rules: {
-        ids: plan.companyIds,
-        tags: plan.companyTags,
-        excludeTags: plan.companyExcludeTags,
-        segmentIds: plan.companySegmentIds,
-      },
-    };
-  }
-
-  // Unset customerType is treated as 'customer'.
-  return {
+): ResolvedDimension[] => [
+  {
     kind: 'customer',
     entityId: context.customerId,
     rules: {
@@ -218,15 +212,90 @@ const customerDimension = (
       excludeTags: plan.customerExcludeTags,
       segmentIds: plan.customerSegmentIds,
     },
-  };
+  },
+  {
+    kind: 'company',
+    entityId: context.companyId,
+    rules: {
+      ids: plan.companyIds,
+      tags: plan.companyTags,
+      excludeTags: plan.companyExcludeTags,
+      segmentIds: plan.companySegmentIds,
+    },
+  },
+  {
+    kind: 'user',
+    entityId: context.userId,
+    rules: {
+      ids: plan.userIds,
+      positions: plan.userPositions,
+      segmentIds: plan.userSegmentIds,
+    },
+  },
+];
+
+const brokerDimensions = (
+  plan: IPricingPlanDocument,
+  context: IPricingContext,
+): ResolvedDimension[] => [
+  {
+    kind: 'customer',
+    entityId: context.brokerCustomerId,
+    rules: {
+      ids: plan.brokerCustomerIds,
+      tags: plan.brokerCustomerTags,
+      excludeTags: plan.brokerCustomerExcludeTags,
+      segmentIds: plan.brokerCustomerSegmentIds,
+    },
+  },
+  {
+    kind: 'company',
+    entityId: context.brokerCompanyId,
+    rules: {
+      ids: plan.brokerCompanyIds,
+      tags: plan.brokerCompanyTags,
+      excludeTags: plan.brokerCompanyExcludeTags,
+      segmentIds: plan.brokerCompanySegmentIds,
+    },
+  },
+  {
+    kind: 'user',
+    entityId: context.brokerUserId,
+    rules: {
+      ids: plan.brokerUserIds,
+      positions: plan.brokerUserPositions,
+      segmentIds: plan.brokerUserSegmentIds,
+    },
+  },
+];
+
+const matchesDimensions = async (
+  subdomain: string,
+  dimensions: ResolvedDimension[],
+  cache?: EligibilityCache,
+): Promise<boolean> => {
+  for (const dimension of dimensions) {
+    const ok = await matchesDimension(
+      subdomain,
+      dimension.kind,
+      dimension.entityId,
+      dimension.rules,
+      cache,
+    );
+
+    if (!ok) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
 /**
  * Decide whether a pricing plan is eligible for the given customer + broker.
  *
  * Product targeting stays in getAllowedProducts(); this gate only covers the
- * who-dimensions. Both dimensions must pass (logical AND). The broker dimension
- * is always evaluated against a team-member/user.
+ * who-dimensions. Both dimensions must pass (logical AND).
  */
 export const planMatchesContext = async (
   subdomain: string,
@@ -234,13 +303,9 @@ export const planMatchesContext = async (
   context: IPricingContext,
   cache?: EligibilityCache,
 ): Promise<boolean> => {
-  const customer = customerDimension(plan, context);
-
-  const customerOk = await matchesDimension(
+  const customerOk = await matchesDimensions(
     subdomain,
-    customer.kind,
-    customer.entityId,
-    customer.rules,
+    customerDimensions(plan, context),
     cache,
   );
 
@@ -248,15 +313,5 @@ export const planMatchesContext = async (
     return false;
   }
 
-  return matchesDimension(
-    subdomain,
-    'user',
-    context.brokerId,
-    {
-      ids: plan.brokerUserIds,
-      positions: plan.brokerUserPositions,
-      segmentIds: plan.brokerSegmentIds,
-    },
-    cache,
-  );
+  return matchesDimensions(subdomain, brokerDimensions(plan, context), cache);
 };

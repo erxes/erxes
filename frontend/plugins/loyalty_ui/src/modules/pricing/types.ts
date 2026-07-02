@@ -79,8 +79,6 @@ export interface IPricingPlanDetail {
   tags?: string[];
   tagsExcluded?: string[];
 
-  customerType?: 'customer' | 'company';
-
   customerIds?: string[];
   customerTags?: string[];
   customerExcludeTags?: string[];
@@ -91,9 +89,23 @@ export interface IPricingPlanDetail {
   companyExcludeTags?: string[];
   companySegmentIds?: string[];
 
+  userIds?: string[];
+  userPositions?: string[];
+  userSegmentIds?: string[];
+
+  brokerCustomerIds?: string[];
+  brokerCustomerTags?: string[];
+  brokerCustomerExcludeTags?: string[];
+  brokerCustomerSegmentIds?: string[];
+
+  brokerCompanyIds?: string[];
+  brokerCompanyTags?: string[];
+  brokerCompanyExcludeTags?: string[];
+  brokerCompanySegmentIds?: string[];
+
   brokerUserIds?: string[];
   brokerUserPositions?: string[];
-  brokerSegmentIds?: string[];
+  brokerUserSegmentIds?: string[];
 
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;

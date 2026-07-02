@@ -244,7 +244,10 @@ export const pricingPlanQueries = {
       pipelineId: string;
       customerId?: string;
       companyId?: string;
-      brokerId?: string;
+      userId?: string;
+      brokerCustomerId?: string;
+      brokerCompanyId?: string;
+      brokerUserId?: string;
       products: Array<{
         itemId: string;
         productId: string;
@@ -264,7 +267,10 @@ export const pricingPlanQueries = {
       pipelineId,
       customerId,
       companyId,
-      brokerId,
+      userId,
+      brokerCustomerId,
+      brokerCompanyId,
+      brokerUserId,
     } = params;
 
     return checkPricing({
@@ -278,7 +284,10 @@ export const pricingPlanQueries = {
       orderItems: products || [],
       customerId,
       companyId,
-      brokerId,
+      userId,
+      brokerCustomerId,
+      brokerCompanyId,
+      brokerUserId,
     });
   },
 };

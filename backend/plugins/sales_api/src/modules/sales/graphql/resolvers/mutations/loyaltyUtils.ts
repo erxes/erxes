@@ -95,14 +95,15 @@ export const checkPricing = async (
   );
 
   // Who-context for customer/broker pricing conditions: the deal's related
-  // customer + company and its assigned broker.
+  // customer + company + creator and its assigned broker.
   const [[customerId], [companyId]] = deal._id
     ? await Promise.all([
         getCustomerIds(subdomain, deal._id).then((ids) => ids || []),
         getCompanyIds(subdomain, deal._id).then((ids) => ids || []),
       ])
     : [[], []];
-  const brokerId = deal.assignedUserIds?.[0];
+  const userId = deal.userId;
+  const brokerUserId = deal.assignedUserIds?.[0];
 
   const pricing = await sendTRPCMessage({
     subdomain,
@@ -117,7 +118,8 @@ export const checkPricing = async (
       pipelineId: stage.pipelineId,
       customerId,
       companyId,
-      brokerId,
+      userId,
+      brokerUserId,
       products: activeProductsData.map((item) => ({
         itemId: item._id,
         productId: item.productId,
@@ -223,15 +225,16 @@ export const doScoreCampaign = async (
   const target = (deal as any)?.toObject?.() || deal;
   const oldTarget = (oldDeal as any)?.toObject?.() || oldDeal;
 
-  const [oldStage, currentStage, [customerId], [companyId]] =
-    await Promise.all([
+  const [oldStage, currentStage, [customerId], [companyId]] = await Promise.all(
+    [
       oldTarget?.stageId
         ? models.Stages.findOne({ _id: oldTarget.stageId }).lean()
         : null,
       models.Stages.findOne({ _id: target.stageId }).lean(),
       getCustomerIds(subdomain, _id),
       getCompanyIds(subdomain, _id),
-    ]);
+    ],
+  );
 
   const [oldPipeline, currentPipeline] = await Promise.all([
     oldStage?.pipelineId
