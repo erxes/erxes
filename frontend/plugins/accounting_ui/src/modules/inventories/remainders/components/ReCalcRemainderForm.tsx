@@ -12,6 +12,7 @@ import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
 import { TReCalcRemainderForm } from '../types/reCalcRemainderForm';
 import { reCalcRemainderSchema } from '../types/reCalcRemainderSchema';
 
+/** remainder recalculation hiih form */
 const ReCalcRemaindersForm = ({
   setOpen,
   productIds,
@@ -37,7 +38,7 @@ const ReCalcRemaindersForm = ({
   const { addSafeRemainder, loading } = useReCalcRemainders();
   /** ene recalc mutation duudna. */
   const onSubmit = (data: TReCalcRemainderForm) => {
-    const variables: Record<string, any> = { ...data };
+    const variables: Record<string, unknown> = { ...data };
     if (productIds && productIds.length > 0) {
       variables.productIds = productIds;
     }

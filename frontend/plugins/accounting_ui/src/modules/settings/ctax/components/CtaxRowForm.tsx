@@ -32,7 +32,7 @@ export const CtaxRowForm = ({
               kindLabels={CTAX_KIND_LABELS}
               statuses={Object.values(CtaxStatus)}
               statusLabels={CTAX_STATUS_LABELS}
-              statusColSpan={true}
+              statusColSpan
             />
           </div>
         </div>

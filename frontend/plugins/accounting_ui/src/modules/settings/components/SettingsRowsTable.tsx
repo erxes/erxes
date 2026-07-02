@@ -10,6 +10,7 @@ interface SettingsRowsTableProps<TData> {
   Commandbar: React.ComponentType;
 }
 
+/** RecordTable-g heregleed settings rows table hiih */
 export const SettingsRowsTable = <TData,>({
   columns,
   data,
@@ -45,6 +46,7 @@ export const SettingsRowsTable = <TData,>({
   );
 };
 
+/** tax/vat/ctax row iin shared column definitions avah */
 export const getSharedRowColumns = <T,>(
   moreColumn: ColumnDef<T>,
 ): ColumnDef<T>[] => [

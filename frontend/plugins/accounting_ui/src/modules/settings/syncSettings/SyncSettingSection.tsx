@@ -1,3 +1,4 @@
+/** sync config section iin wrapper bn */
 export const SyncSettingSection = ({
   title,
   children,

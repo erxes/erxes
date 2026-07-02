@@ -42,10 +42,12 @@ type CheckOrdersOptions = {
   statusById?: Record<string, AccountingCheckSyncedStatus>;
 };
 
+/** order-iin sync status avah */
 const getOrderStatus = (
   order?: Partial<AccountingCheckSyncedOrder>,
 ): AccountingCheckSyncedStatus => order?.syncStatus || 'skipped';
 
+/** array-iig chunk bolgoh */
 const chunkIds = (ids: string[], size: number) => {
   const chunks: string[][] = [];
 
@@ -56,6 +58,7 @@ const chunkIds = (ids: string[], size: number) => {
   return chunks;
 };
 
+/** check-synced orders query variable barih */
 export const useAccountingCheckSyncedOrdersVariables = (
   variables?: QueryHookOptions<AccountingOrdersQueryResult>['variables'],
 ) => {
@@ -94,6 +97,7 @@ export const useAccountingCheckSyncedOrdersVariables = (
   };
 };
 
+/** check-synced orders query mutation hook bn */
 export const useAccountingCheckSyncedOrders = (
   options?: QueryHookOptions<AccountingOrdersQueryResult>,
 ) => {
@@ -145,14 +149,11 @@ export const useAccountingCheckSyncedOrders = (
   const setOrderToSync = useCallback(
     (id: string, checked: boolean) => {
       setToSyncOrderIds((current) => {
-        const next = { ...current };
-
         if (checked) {
-          next[id] = true;
-        } else {
-          delete next[id];
+          return { ...current, [id]: true };
         }
 
+        const { [id]: _, ...next } = current;
         return next;
       });
     },
@@ -162,13 +163,18 @@ export const useAccountingCheckSyncedOrders = (
   const setAllOrdersToSync = useCallback(
     (ids: string[], checked: boolean) => {
       setToSyncOrderIds((current) => {
-        const next = { ...current };
+        const removeSet = new Set(checked ? [] : ids);
+        const next: Record<string, boolean> = {};
 
-        for (const id of ids) {
-          if (checked) {
+        for (const [key, value] of Object.entries(current)) {
+          if (!removeSet.has(key)) {
+            next[key] = value;
+          }
+        }
+
+        if (checked) {
+          for (const id of ids) {
             next[id] = true;
-          } else {
-            delete next[id];
           }
         }
 
@@ -178,6 +184,7 @@ export const useAccountingCheckSyncedOrders = (
     [setToSyncOrderIds],
   );
 
+  /** songogdson orders sync status shalgah */
   const checkOrders = async (
     ids: string[],
     checkOptions?: CheckOrdersOptions,
@@ -227,16 +234,24 @@ export const useAccountingCheckSyncedOrders = (
     });
 
     setToSyncOrderIds((current) => {
-      const next = { ...current };
+      if (checkOptions?.keepToSyncIds) {
+        return current;
+      }
+
+      const idsToRemove = new Set(
+        checked.filter((item) => item.isSynced).map((item) => item._id),
+      );
+
+      const next: Record<string, boolean> = {};
+
+      for (const [key, value] of Object.entries(current)) {
+        if (!idsToRemove.has(key)) {
+          next[key] = value;
+        }
+      }
 
       for (const item of checked) {
-        if (checkOptions?.keepToSyncIds) {
-          continue;
-        }
-
-        if (item.isSynced) {
-          delete next[item._id];
-        } else {
+        if (!item.isSynced) {
           next[item._id] = true;
         }
       }
@@ -252,6 +267,7 @@ export const useAccountingCheckSyncedOrders = (
     }
   };
 
+  /** orders-iig accounting sync hiih */
   const syncOrders = async (ids: string[]) => {
     if (!variables.ruleId) {
       toast({
@@ -387,10 +403,17 @@ export const useAccountingCheckSyncedOrders = (
       }
 
       setToSyncOrderIds((current) => {
-        const next = { ...current };
+        const idsToRemove = new Set([
+          ...skippedIds,
+          ...errorIds,
+          ...successIds,
+        ]);
+        const next: Record<string, boolean> = {};
 
-        for (const id of [...skippedIds, ...errorIds, ...successIds]) {
-          delete next[id];
+        for (const [key, value] of Object.entries(current)) {
+          if (!idsToRemove.has(key)) {
+            next[key] = value;
+          }
         }
 
         return next;
@@ -442,6 +465,7 @@ export const useAccountingCheckSyncedOrders = (
     setStatusCounts(counts);
   }, [orders, setStatusCounts, syncSelectedOrderIds.length]);
 
+  /** orders ihuu tatah pagination oor */
   const handleFetchMore = () => {
     const currentPage = Math.ceil(
       orders.length / ACCOUNTING_CHECK_SYNCED_ORDERS_PER_PAGE,

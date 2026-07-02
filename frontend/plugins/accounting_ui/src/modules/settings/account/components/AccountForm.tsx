@@ -22,6 +22,283 @@ import {
 } from '../types/Account';
 import { TAccountForm } from '../types/accountForm';
 
+const AccountFormFields = ({
+  control,
+  status,
+  journal,
+}: {
+  control: UseFormReturn<TAccountForm>['control'];
+  status: string | undefined;
+  journal: string | undefined;
+}) => {
+  return (
+    <div className="grid grid-cols-2 gap-5">
+      <Form.Field
+        control={control}
+        name="name"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Нэр</Form.Label>
+            <Form.Control>
+              <Input
+                placeholder="Дансны нэр оруулах"
+                {...field}
+                autoComplete="off"
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="code"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Код</Form.Label>
+            <Form.Control>
+              <Input placeholder="Дансны код оруулах" {...field} />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="categoryId"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Ангилал</Form.Label>
+            <Form.Control>
+              <SelectAccountCategory
+                tabIndex={0}
+                selected={field.value}
+                onSelect={field.onChange}
+                recordId={field.name}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="currency"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Валют</Form.Label>
+            <Form.Control>
+              <CurrencyField.SelectCurrency
+                value={field.value}
+                onChange={field.onChange}
+                className="w-full"
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <Form.Item className="col-span-2">
+            <Form.Label>Тайлбар</Form.Label>
+            <Form.Control>
+              <Textarea placeholder="Тайлбар оруулах" {...field} />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="kind"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Төрөл</Form.Label>
+            <Form.Control>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <Select.Trigger>
+                  <Select.Value placeholder="Төрөл сонгох" />
+                </Select.Trigger>
+                <Select.Content>
+                  {Object.values(AccountKind).map((kind) => (
+                    <Select.Item key={kind} value={kind}>
+                      {ACCOUNT_KIND_LABELS[kind]}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="journal"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Журнал</Form.Label>
+            <Form.Control>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <Select.Trigger>
+                  <Select.Value placeholder="Журнал сонгох" />
+                </Select.Trigger>
+                <Select.Content>
+                  {Object.values(JournalEnum).map((journal) => (
+                    <Select.Item key={journal} value={journal}>
+                      {JOURNAL_LABELS[journal]}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      {journal === JournalEnum.BANK && (
+        <>
+          <Form.Field
+            control={control}
+            name="extra.bank"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Банк</Form.Label>
+                <Form.Control>
+                  <Input placeholder="Банкны нэр оруулах" {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={control}
+            name="extra.bankAccount"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Банкны данс</Form.Label>
+                <Form.Control>
+                  <Input
+                    placeholder="Банкны дансны дугаар оруулах"
+                    {...field}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </>
+      )}
+
+      <Form.Field
+        control={control}
+        name="branchId"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Салбар</Form.Label>
+            <Form.Control>
+              <SelectBranches.FormItem
+                mode="single"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="departmentId"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Хэлтэс</Form.Label>
+            <Form.Control>
+              <SelectDepartments.FormItem
+                mode="single"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="isTemp"
+        render={({ field }) => (
+          <Form.Item className="flex items-center gap-2 space-y-0">
+            <Form.Control>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Label variant="peer">Түр данс</Form.Label>
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        control={control}
+        name="isOutBalance"
+        render={({ field }) => (
+          <Form.Item className="flex items-center gap-2 space-y-0">
+            <Form.Control>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Label variant="peer">Баланс бус</Form.Label>
+          </Form.Item>
+        )}
+      />
+
+      {status && (
+        <Form.Field
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Төлөв</Form.Label>
+              <Form.Control>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Төлөв сонгох" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {Object.values(AccountStatus).map((status) => (
+                      <Select.Item key={status} value={status}>
+                        {ACCOUNT_STATUS_LABELS[status]}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      )}
+    </div>
+  );
+};
+
 export const AccountForm = ({
   form,
   handleSubmit,
@@ -49,273 +326,11 @@ export const AccountForm = ({
         className="flex flex-col flex-1 bg-background min-h-0"
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-5">
-          <div className="grid grid-cols-2 gap-5">
-            <Form.Field
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Нэр</Form.Label>
-                  <Form.Control>
-                    <Input
-                      placeholder="Дансны нэр оруулах"
-                      {...field}
-                      autoComplete="off"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Код</Form.Label>
-                  <Form.Control>
-                    <Input placeholder="Дансны код оруулах" {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Ангилал</Form.Label>
-                  <Form.Control>
-                    <SelectAccountCategory
-                      tabIndex={0}
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      recordId={field.name}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="currency"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Валют</Form.Label>
-                  <Form.Control>
-                    <CurrencyField.SelectCurrency
-                      value={field.value}
-                      onChange={field.onChange}
-                      className="w-full"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Form.Item className="col-span-2">
-                  <Form.Label>Тайлбар</Form.Label>
-                  <Form.Control>
-                    <Textarea placeholder="Тайлбар оруулах" {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="kind"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Төрөл</Form.Label>
-                  <Form.Control>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Төрөл сонгох" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {Object.values(AccountKind).map((kind) => (
-                          <Select.Item key={kind} value={kind}>
-                            {ACCOUNT_KIND_LABELS[kind]}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="journal"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Журнал</Form.Label>
-                  <Form.Control>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Журнал сонгох" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {Object.values(JournalEnum).map((journal) => (
-                          <Select.Item key={journal} value={journal}>
-                            {JOURNAL_LABELS[journal]}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            {journal === JournalEnum.BANK && (
-              <>
-                <Form.Field
-                  control={form.control}
-                  name="extra.bank"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Банк</Form.Label>
-                      <Form.Control>
-                        <Input placeholder="Банкны нэр оруулах" {...field} />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="extra.bankAccount"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Банкны данс</Form.Label>
-                      <Form.Control>
-                        <Input
-                          placeholder="Банкны дансны дугаар оруулах"
-                          {...field}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </>
-            )}
-
-            <Form.Field
-              control={form.control}
-              name="branchId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Салбар</Form.Label>
-                  <Form.Control>
-                    <SelectBranches.FormItem
-                      mode="single"
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="departmentId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Хэлтэс</Form.Label>
-                  <Form.Control>
-                    <SelectDepartments.FormItem
-                      mode="single"
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="isTemp"
-              render={({ field }) => (
-                <Form.Item className="flex items-center gap-2 space-y-0">
-                  <Form.Control>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Label variant="peer">Түр данс</Form.Label>
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="isOutBalance"
-              render={({ field }) => (
-                <Form.Item className="flex items-center gap-2 space-y-0">
-                  <Form.Control>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Label variant="peer">Баланс бус</Form.Label>
-                </Form.Item>
-              )}
-            />
-
-            {status && (
-              <Form.Field
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Төлөв</Form.Label>
-                    <Form.Control>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder="Төлөв сонгох" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {Object.values(AccountStatus).map((status) => (
-                            <Select.Item key={status} value={status}>
-                              {ACCOUNT_STATUS_LABELS[status]}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            )}
-          </div>
+          <AccountFormFields
+            control={form.control}
+            status={status}
+            journal={journal}
+          />
         </div>
 
         <Sheet.Footer className="shrink-0 border-t bg-background">

@@ -9,6 +9,7 @@ import { useAdjustInventoryAdd } from '../hooks/useAdjustInventoryAdd';
 import { TAdjustInventoryForm } from '../types/adjustInventoryForm';
 import { adjustInventorySchema } from '../types/adjustInventorySchema';
 
+/** inventory adjustment form uusgeh */
 const AddAdjustInventoryForm = ({
   setOpen,
 }: {

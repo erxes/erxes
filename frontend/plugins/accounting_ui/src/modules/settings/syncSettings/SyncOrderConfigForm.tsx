@@ -49,11 +49,13 @@ export const syncOrderConfigFormSchema = z.object({
 
 type ConfigFormValues = z.infer<typeof syncOrderConfigFormSchema>;
 
+/** rule IDs normalise hiih bn */
 const normalizeRuleIds = (value?: string | string[]) => {
   if (!value) return [];
   return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
 };
 
+/** order sync config form bn */
 export const SyncOrderConfigForm = ({
   form,
   onSubmit,
@@ -99,6 +101,7 @@ export const SyncOrderConfigForm = ({
     posDetailData?.posDetail?.paymentTypes || [];
   const mongolianEnabled = isEnabled('mongolian');
 
+  /** form submission handle hiih normalisation */
   const handleSubmit = (data: ConfigFormValues) =>
     onSubmit({
       ...data,

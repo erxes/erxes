@@ -32,6 +32,7 @@ export const syncDealReturnConfigFormSchema = z.object({
 
 type ConfigFormValues = z.infer<typeof syncDealReturnConfigFormSchema>;
 
+/** deal return sync config form bn */
 export const SyncDealReturnConfigForm = ({
   form,
   onSubmit,

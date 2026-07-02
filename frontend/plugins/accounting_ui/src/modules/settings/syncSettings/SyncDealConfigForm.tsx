@@ -52,11 +52,13 @@ export const syncDealConfigFormSchema = z.object({
 
 type ConfigFormValues = z.infer<typeof syncDealConfigFormSchema>;
 
+/** rule IDs normalise hiih bn */
 const normalizeRuleIds = (value?: string | string[]) => {
   if (!value) return [];
   return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
 };
 
+/** deal sync config form bn */
 export const SyncDealConfigForm = ({
   form,
   onSubmit,
@@ -95,6 +97,7 @@ export const SyncDealConfigForm = ({
     pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
   const mongolianEnabled = isEnabled('mongolian');
 
+  /** form submission handle hiih normalisation */
   const handleSubmit = (data: ConfigFormValues) =>
     onSubmit({
       ...data,

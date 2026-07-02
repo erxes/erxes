@@ -10,6 +10,7 @@ import { TSafeRemainderForm } from '../types/safeRemainderForm';
 import { safeRemainderSchema } from '../types/safeRemainderSchema';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
+/** safe remainder form uusgeh */
 const AddSafeRemainderForm = ({
   setOpen,
 }: {
@@ -34,7 +35,8 @@ const AddSafeRemainderForm = ({
     });
   };
 
-  const onError = () => {
+  /** form submit hiih error handler bn */
+  const onError = (_error: unknown) => {
     return {};
   };
 

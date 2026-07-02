@@ -9,22 +9,6 @@ import { useCtaxRowEdit } from '../hooks/useCtaxRowEdit';
 import { CtaxRowForm } from './CtaxRowForm';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-export const EditCtaxRow = () => {
-  const [open, setOpen] = useQueryState<string>('ctax_row_id');
-  return (
-    <Sheet
-      open={open !== null}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) setOpen(null);
-      }}
-    >
-      <AccountingSheet title="НХАТ-ын мөр засах">
-        <EditCtaxRowForm onClose={() => setOpen(null)} />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
   const { ctaxRowDetail, closeDetail, loading } = useCtaxRowDetail();
   const { editCtaxRow, loading: editLoading } = useCtaxRowEdit();
@@ -70,5 +54,21 @@ export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
         </div>
       )}
     </>
+  );
+};
+
+export const EditCtaxRow = () => {
+  const [open, setOpen] = useQueryState<string>('ctax_row_id');
+  return (
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <AccountingSheet title="НХАТ-ын мөр засах">
+        <EditCtaxRowForm onClose={() => setOpen(null)} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

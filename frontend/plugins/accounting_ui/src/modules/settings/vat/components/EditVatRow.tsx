@@ -9,22 +9,6 @@ import { useVatRowEdit } from '../hooks/useVatRowEdit';
 import { VatRowForm } from './VatRowForm';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-export const EditVatRow = () => {
-  const [open, setOpen] = useQueryState<string>('vat_row_id');
-  return (
-    <Sheet
-      open={open !== null}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) setOpen(null);
-      }}
-    >
-      <AccountingSheet title="НӨАТ-ын үзүүлэлт засах">
-        <EditVatRowForm onClose={() => setOpen(null)} />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 export const EditVatRowForm = ({ onClose }: { onClose?: () => void }) => {
   const { vatRowDetail, closeDetail, loading } = useVatRowDetail();
   const { editVatRow, loading: editLoading } = useVatRowEdit();
@@ -75,5 +59,21 @@ export const EditVatRowForm = ({ onClose }: { onClose?: () => void }) => {
         </div>
       )}
     </>
+  );
+};
+
+export const EditVatRow = () => {
+  const [open, setOpen] = useQueryState<string>('vat_row_id');
+  return (
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <AccountingSheet title="НӨАТ-ын үзүүлэлт засах">
+        <EditVatRowForm onClose={() => setOpen(null)} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

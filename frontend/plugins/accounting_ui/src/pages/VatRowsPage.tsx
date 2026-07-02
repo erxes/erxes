@@ -1,5 +1,6 @@
 import { VatRowsTable } from '@/settings/vat/components/VatsTable';
 import { EditVatRow } from '@/settings/vat/components/EditVatRow';
+/** vat rows list page l bn */
 export const VatRowsPage = () => {
   return (
     <>

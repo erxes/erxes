@@ -8,22 +8,6 @@ import { IconPlus } from '@tabler/icons-react';
 import { useAddVatRow } from '../hooks/useVatRowAdd';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
-export const AddVats = () => {
-  return (
-    <Sheet>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          НӨАТ нэмэх
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet title="НӨАТ нэмэх">
-        <AddVatForm />
-      </AccountingSheet>
-    </Sheet>
-  );
-};
-
 export const AddVatForm = () => {
   const form = useForm<TVatRowForm>({
     resolver: zodResolver(vatFormSchema),
@@ -45,4 +29,20 @@ export const AddVatForm = () => {
   };
 
   return <VatRowForm form={form} onSubmit={onSubmit} loading={loading} />;
+};
+
+export const AddVats = () => {
+  return (
+    <Sheet>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          НӨАТ нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="НӨАТ нэмэх">
+        <AddVatForm />
+      </AccountingSheet>
+    </Sheet>
+  );
 };

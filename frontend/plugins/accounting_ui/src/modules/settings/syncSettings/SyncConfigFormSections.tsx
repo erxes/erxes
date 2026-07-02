@@ -13,7 +13,12 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useEffect, useMemo } from 'react';
-import { UseFormReturn, useWatch, useFormContext } from 'react-hook-form';
+import {
+  FieldPath,
+  UseFormReturn,
+  useWatch,
+  useFormContext,
+} from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   SelectBranches,
@@ -26,28 +31,38 @@ import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 import { SyncSettingSection } from './SyncSettingSection';
 
-export const usePipelineReset = (form: UseFormReturn<any>) => {
+export interface IUsePipelineResetForm {
+  boardId?: string;
+  pipelineId?: string;
+  stageId?: string;
+}
+
+/** board/pipeline changed ued pipeline/stage reset hiih */
+export const usePipelineReset = <T extends IUsePipelineResetForm>(
+  form: UseFormReturn<T>,
+) => {
   const boardId = useWatch({
     control: form.control,
-    name: 'boardId',
-  });
+    name: 'boardId' as FieldPath<T>,
+  }) as string | undefined;
 
   const pipelineId = useWatch({
     control: form.control,
-    name: 'pipelineId',
-  });
+    name: 'pipelineId' as FieldPath<T>,
+  }) as string | undefined;
 
   useEffect(() => {
-    form.setValue('pipelineId', '');
+    form.setValue('pipelineId' as FieldPath<T>, '' as never);
   }, [boardId, form]);
 
   useEffect(() => {
-    form.setValue('stageId', '');
+    form.setValue('stageId' as FieldPath<T>, '' as never);
   }, [pipelineId, form]);
 
   return { boardId, pipelineId };
 };
 
+/** sync config form iin payment account field */
 export const SyncConfigPaymentAccountField = ({
   name,
   label,
@@ -82,6 +97,31 @@ export const SyncConfigPaymentAccountField = ({
   );
 };
 
+/** return type select field bn */
+const ReturnTypeFieldContent = ({
+  field,
+  t,
+}: {
+  field: { value: string; onChange: (v: string) => void };
+  t: (s: string) => string;
+}) => (
+  <Form.Item>
+    <Form.Label>{t('return-type')}</Form.Label>
+    <Form.Control>
+      <Select {...field} onValueChange={field.onChange}>
+        <Select.Trigger>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
+          <Select.Item value="onlySale">{t('only-sale')}</Select.Item>
+          <Select.Item value="delete">{t('delete')}</Select.Item>
+        </Select.Content>
+      </Select>
+    </Form.Control>
+  </Form.Item>
+);
+
 export const SyncConfigReturnTypeField = () => {
   const { t } = useTranslation('accounting');
   const { control } = useFormContext();
@@ -90,27 +130,63 @@ export const SyncConfigReturnTypeField = () => {
     <Form.Field
       control={control}
       name="returnType"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('return-type')}</Form.Label>
-          <Form.Control>
-            <Select {...field} onValueChange={field.onChange}>
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
-                <Select.Item value="onlySale">{t('only-sale')}</Select.Item>
-                <Select.Item value="delete">{t('delete')}</Select.Item>
-              </Select.Content>
-            </Select>
-          </Form.Control>
-        </Form.Item>
-      )}
+      render={({ field }) => <ReturnTypeFieldContent field={field} t={t} />}
     />
   );
 };
 
+const DateRuleFieldContent = ({
+  field,
+  t,
+}: {
+  field: { value: string; onChange: (v: string) => void };
+  t: (s: string) => string;
+}) => (
+  <Form.Item>
+    <Form.Label>{t('date-rule')}</Form.Label>
+    <Form.Control>
+      <Select {...field} onValueChange={field.onChange}>
+        <Select.Trigger>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="alwaysNow">{t('always-now')}</Select.Item>
+          <Select.Item value="syncedDateOrNow">
+            {t('synced-date-or-now')}
+          </Select.Item>
+        </Select.Content>
+      </Select>
+    </Form.Control>
+  </Form.Item>
+);
+
+const TrStatusFieldContent = ({
+  field,
+  t,
+}: {
+  field: { value: string; onChange: (v: string) => void };
+  t: (s: string) => string;
+}) => (
+  <Form.Item>
+    <Form.Label>{t('tr-status-label')}</Form.Label>
+    <Form.Control>
+      <Select {...field} onValueChange={field.onChange}>
+        <Select.Trigger>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          {TR_STATUS_OPTIONS.map((s) => (
+            <Select.Item key={s.value} value={s.value}>
+              {s.label}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    </Form.Control>
+  </Form.Item>
+);
+
+/** general fields (title, dateRule, trStatus) bn */
 export const SyncConfigGeneralFields = () => {
   const { t } = useTranslation('accounting');
   const { control } = useFormContext();
@@ -132,60 +208,26 @@ export const SyncConfigGeneralFields = () => {
       <Form.Field
         control={control}
         name="dateRule"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('date-rule')}</Form.Label>
-            <Form.Control>
-              <Select {...field} onValueChange={field.onChange}>
-                <Select.Trigger>
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="alwaysNow">{t('always-now')}</Select.Item>
-                  <Select.Item value="syncedDateOrNow">
-                    {t('synced-date-or-now')}
-                  </Select.Item>
-                </Select.Content>
-              </Select>
-            </Form.Control>
-          </Form.Item>
-        )}
+        render={({ field }) => <DateRuleFieldContent field={field} t={t} />}
       />
       <Form.Field
         control={control}
         name="trStatus"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('tr-status-label')}</Form.Label>
-            <Form.Control>
-              <Select {...field} onValueChange={field.onChange}>
-                <Select.Trigger>
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Content>
-                  {TR_STATUS_OPTIONS.map((s) => (
-                    <Select.Item key={s.value} value={s.value}>
-                      {s.label}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            </Form.Control>
-          </Form.Item>
-        )}
+        render={({ field }) => <TrStatusFieldContent field={field} t={t} />}
       />
     </>
   );
 };
 
-export const SyncConfigPipelineSection = ({
+/** pipeline/stage selection section bn */
+export const SyncConfigPipelineSection = <T extends IUsePipelineResetForm>({
   boardId,
   pipelineId,
   form,
 }: {
   boardId?: string;
   pipelineId?: string;
-  form: UseFormReturn<any>;
+  form: UseFormReturn<T>;
 }) => {
   const { t } = useTranslation('accounting');
 
@@ -193,7 +235,7 @@ export const SyncConfigPipelineSection = ({
     <SyncSettingSection title={t('pipeline')}>
       <Form.Field
         control={form.control}
-        name="boardId"
+        name={'boardId' as FieldPath<T>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('board')}</Form.Label>
@@ -208,7 +250,7 @@ export const SyncConfigPipelineSection = ({
       />
       <Form.Field
         control={form.control}
-        name="pipelineId"
+        name={'pipelineId' as FieldPath<T>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('pipeline')}</Form.Label>
@@ -224,7 +266,7 @@ export const SyncConfigPipelineSection = ({
       />
       <Form.Field
         control={form.control}
-        name="stageId"
+        name={'stageId' as FieldPath<T>}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('stage')}</Form.Label>
@@ -243,6 +285,7 @@ export const SyncConfigPipelineSection = ({
   );
 };
 
+/** accounts section sale account branch department bn */
 export const SyncConfigAccountsSection = () => {
   const { t } = useTranslation('accounting');
   const { control } = useFormContext();
@@ -338,6 +381,7 @@ export type TPaymentType = {
   title: string;
 };
 
+/** payment account iin payments section bn */
 export const SyncConfigPaymentsSection = ({
   paymentTypes,
   paymentKey,
@@ -377,6 +421,7 @@ export const SyncConfigPaymentsSection = ({
   );
 };
 
+/** VAT/CTax toggle selection section bn */
 export const SyncConfigVatCtaxSection = () => {
   const { t } = useTranslation('accounting');
   const { control } = useFormContext();
@@ -473,6 +518,7 @@ export const SyncConfigVatCtaxSection = () => {
   );
 };
 
+/** sync config form iin footer cancel/save bn */
 export const SyncConfigFormFooter = ({ loading }: { loading: boolean }) => {
   const { t } = useTranslation('accounting');
 
