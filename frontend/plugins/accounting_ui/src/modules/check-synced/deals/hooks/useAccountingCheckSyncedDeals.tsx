@@ -25,11 +25,11 @@ import {
   AccountingSyncResult,
 } from '../types';
 import {
-  CheckOptions,
   getSyncStatus,
   chunkIds,
   useSyncToggle,
   useSyncSelectedIds,
+  useAccountingCheckSyncedAction,
 } from '../../constants/shared';
 import {
   AccountingCheckSyncedDealsStatusCounts,
@@ -169,84 +169,14 @@ export const useAccountingCheckSyncedDeals = (
   const syncSelectedDealIds = useSyncSelectedIds(toSyncDealIds);
 
   /** songogdson deals sync status shalgah */
-  const checkDeals = async (ids: string[], checkOptions?: CheckOptions) => {
-    if (!ids.length) {
-      if (!checkOptions?.silent) {
-        toast({
-          title: t('warning'),
-          description: t('no-deals-selected'),
-          variant: 'destructive',
-        });
-      }
-      return;
-    }
-
-    const response = await accountingCheckSynced({
-      variables: { ids, contentType: 'sales:deal' },
-      onError: (error) => {
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
-
-    const checked = response.data?.accountingCheckSynced || [];
-
-    setCheckedDeals((current) => {
-      const next = { ...current };
-
-      for (const item of checked) {
-        const syncStatus =
-          checkOptions?.statusById?.[item._id] ||
-          (item.isSynced ? 'synced' : 'checked');
-
-        next[item._id] = {
-          isSynced: item.isSynced,
-          syncStatus,
-          syncedDate: item.syncedDate,
-          syncedBillNumber: item.syncedBillNumber,
-          syncedCustomer: item.syncedCustomer,
-        };
-      }
-
-      return next;
-    });
-
-    setToSyncDealIds((current) => {
-      if (checkOptions?.keepToSyncIds) {
-        return current;
-      }
-
-      const idsToRemove = new Set(
-        checked.filter((item) => item.isSynced).map((item) => item._id),
-      );
-
-      const next: Record<string, boolean> = {};
-
-      for (const [key, value] of Object.entries(current)) {
-        if (!idsToRemove.has(key)) {
-          next[key] = value;
-        }
-      }
-
-      for (const item of checked) {
-        if (!item.isSynced) {
-          next[item._id] = true;
-        }
-      }
-
-      return next;
-    });
-
-    if (!checkOptions?.silent) {
-      toast({
-        title: t('success'),
-        description: t('deals-checked', { count: checked.length }),
-      });
-    }
-  };
+  const checkDeals = useAccountingCheckSyncedAction<AccountingCheckSyncedDeal>({
+    contentType: 'sales:deal',
+    setCheckedItems: setCheckedDeals,
+    setToSyncIds: setToSyncDealIds,
+    checkSyncedMutation: accountingCheckSynced,
+    warningMsg: 'no-deals-selected',
+    successMsg: 'deals-checked',
+  });
 
   /** deals-iig accounting sync hiih */
   const syncDeals = async (ids: string[]) => {
