@@ -4,10 +4,8 @@ import { useCreateMultipleRelations, useRelations } from 'ui-modules';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import ChooseDealSheet from '@/deals/components/ChooseDealSheet';
-import { DEALS_LOG_CONVERSATION_FORM } from '@/deals/graphql/mutations/DealsMutations';
 import { DealWidget } from './DealWidget';
 import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
-import { useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -32,7 +30,6 @@ export const Deal = ({
   });
 
   const { createMultipleRelations } = useCreateMultipleRelations();
-  const [logConversationForm] = useMutation(DEALS_LOG_CONVERSATION_FORM);
   const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
 
   if (loadingRelations) {
@@ -65,12 +62,6 @@ export const Deal = ({
       .map(([ct, cid]) => createRelation(ct, cid));
 
     createMultipleRelations(relations);
-
-    if (contentType === 'frontline:conversation') {
-      logConversationForm({
-        variables: { dealId, conversationId: contentId },
-      });
-    }
   };
 
   const handleDealOpen = () => {

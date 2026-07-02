@@ -48,7 +48,3 @@ const activityFilterParams = `
 export const queries = `
    getTicketActivities(${activityFilterParams}): TicketActivityListResponse
 `;
-
-export const mutations = `
-   ticketLogConversationForm(ticketId: String!, conversationId: String!): JSON
-`;

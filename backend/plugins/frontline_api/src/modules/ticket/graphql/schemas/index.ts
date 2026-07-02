@@ -17,7 +17,6 @@ import {
 } from '@/ticket/graphql/schemas/ticket';
 
 import {
-  mutations as ActivityMutations,
   queries as ActivityQueries,
   types as ActivityTypes,
 } from '@/ticket/graphql/schemas/activity';
@@ -59,5 +58,4 @@ export const mutations = `
   ${TicketMutations}
   ${NoteMutations}
   ${TicketConfigMutations}
-  ${ActivityMutations}
 `;

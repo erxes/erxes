@@ -12,7 +12,6 @@ import { dealSchema } from '../definitions/deals';
 import {
   generateDealUpdateActivityLogs,
   generateDealCreatedActivityLog,
-  generateDealFormSubmittedActivityLog,
   generateDealWatchActivityLog,
 } from '~/modules/sales/meta/activity-log';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
@@ -22,15 +21,6 @@ export interface IDealModel extends Model<IDealDocument> {
   createDeal(doc: IDeal): Promise<IDealDocument>;
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
   watchDeal(_id: string, isAdd: boolean, userId: string): Promise<void>;
-  logFormSubmission(
-    deal: IDeal | IDealDocument,
-    formData: {
-      conversationId?: string;
-      formId?: string;
-      formTitle?: string;
-      submissions?: { label: string; value: unknown }[];
-    },
-  ): Promise<void>;
   removeDeals(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
@@ -121,24 +111,6 @@ export const loadDealClass = (
       createActivityLog(
         generateDealWatchActivityLog(deal.toObject(), isAdd, userId),
       );
-    }
-
-    /** Log a form submission related to this deal */
-    public static async logFormSubmission(
-      deal: IDeal | IDealDocument,
-      formData: {
-        conversationId?: string;
-        formId?: string;
-        formTitle?: string;
-        submissions?: { label: string; value: unknown }[];
-      },
-    ) {
-      const dealObj =
-        typeof (deal as IDealDocument).toObject === 'function'
-          ? (deal as IDealDocument).toObject()
-          : deal;
-
-      createActivityLog(generateDealFormSubmittedActivityLog(dealObj, formData));
     }
 
     public static async removeDeals(_ids: string[]) {

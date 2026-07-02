@@ -1,4 +1,3 @@
-import { activityMutations } from '@/ticket/graphql/resolvers/mutations/activity';
 import { cpTicketMutations } from '@/ticket/graphql/resolvers/mutations/clientPortal';
 import { noteMutations } from '@/ticket/graphql/resolvers/mutations/note';
 import { pipelineMutations } from '@/ticket/graphql/resolvers/mutations/pipeline';
@@ -13,5 +12,4 @@ export default {
   ...noteMutations,
   ...ticketConfigMutations,
   ...cpTicketMutations,
-  ...activityMutations,
 };

@@ -8,7 +8,6 @@ import { DEAL_ACTIVITY_FIELDS } from './constants';
 import {
   generateDealConvertedActivityLog,
   generateDealCreatedActivityLog,
-  generateDealFormSubmittedActivityLog,
   generateDealMovedActivityLog,
   generateDealWatchActivityLog,
 } from './builders';
@@ -56,7 +55,6 @@ export async function generateDealUpdateActivityLogs(
 export {
   generateDealConvertedActivityLog,
   generateDealCreatedActivityLog,
-  generateDealFormSubmittedActivityLog,
   generateDealMovedActivityLog,
   generateDealWatchActivityLog,
 };

@@ -255,12 +255,3 @@ export const DEALS_COPY = gql`
     }
   }
 `;
-
-export const DEALS_LOG_CONVERSATION_FORM = gql`
-  mutation dealsLogConversationForm(
-    $dealId: String!
-    $conversationId: String!
-  ) {
-    dealsLogConversationForm(dealId: $dealId, conversationId: $conversationId)
-  }
-`;

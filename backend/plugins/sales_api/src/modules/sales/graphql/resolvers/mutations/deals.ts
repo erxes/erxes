@@ -14,7 +14,7 @@ import {
   subscriptionWrapper,
 } from '../utils';
 import { addDeal, changeDeal, createProductsData, editDeal } from './utils';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IUserDocument, Resolver } from 'erxes-api-shared/core-types';
 
 export const dealMutations: Record<string, Resolver> = {
@@ -28,41 +28,6 @@ export const dealMutations: Record<string, Resolver> = {
   ) {
     await checkPermission('dealsAdd');
     return await addDeal({ models, subdomain, user, doc });
-  },
-
-  async dealsLogConversationForm(
-    _root,
-    { dealId, conversationId }: { dealId: string; conversationId: string },
-    { models, subdomain }: IContext,
-  ) {
-    const deal = await models.Deals.findOne({ _id: dealId });
-
-    if (!deal) {
-      return { logged: false };
-    }
-
-    const formData = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'frontline',
-      method: 'query',
-      module: 'form',
-      action: 'submissionsByConversation',
-      input: { conversationId },
-      defaultValue: null,
-    });
-
-    if (!formData?.submissions?.length) {
-      return { logged: false };
-    }
-
-    await models.Deals.logFormSubmission(deal, {
-      conversationId,
-      formId: formData.formId,
-      formTitle: formData.formTitle,
-      submissions: formData.submissions,
-    });
-
-    return { logged: true };
   },
 
   /**

@@ -1,8 +1,6 @@
-import { TICKET_LOG_CONVERSATION_FORM } from '@/activity/graphql/mutations/logConversationForm';
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
-import { useMutation } from '@apollo/client';
 import { IconTicketOff } from '@tabler/icons-react';
 import { ScrollArea, Separator, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
@@ -27,7 +25,6 @@ export const TicketRelationWidget = ({
   });
 
   const { createMultipleRelations } = useCreateMultipleRelations();
-  const [logConversationForm] = useMutation(TICKET_LOG_CONVERSATION_FORM);
 
   const onComplete = (ticketId: string) => {
     const createRelation = (ct: string, cid: string) => ({
@@ -55,12 +52,6 @@ export const TicketRelationWidget = ({
       .map(([ct, cid]) => createRelation(ct, cid));
 
     createMultipleRelations(relations);
-
-    if (contentType === 'frontline:conversation') {
-      logConversationForm({
-        variables: { ticketId, conversationId: contentId },
-      });
-    }
   };
 
   const setTicketCreateDefaultValues = useSetAtom(
