@@ -349,8 +349,8 @@ export const dealToDynamic = async (
     const sendData: any = {
       Sell_to_Customer_No:
         customerType === 'company'
-          ? msdCustomer?.No ?? config.defaultUserCode
-          : custCode ?? config.defaultUserCode,
+          ? (msdCustomer?.No ?? config.defaultUserCode)
+          : (custCode ?? config.defaultUserCode),
       Sell_to_Phone_No: customer?.primaryPhone ?? '',
       Sell_to_E_Mail: customer?.primaryEmail ?? '',
       External_Document_No: deal.number ?? deal.name.split(':').pop().trim(),
@@ -435,18 +435,18 @@ export const dealToDynamic = async (
         const lineNo = orderItemsMsdNo[item._id] || '';
         const product = productById[item.productId];
 
-if (!product) {
-  await models.SyncLogsMSD.updateOne(
-    { _id: syncLog._id },
-    {
-      $set: {
-        error: `Product not found: ${item.productId}`,
-      },
-    },
-  );
+        if (!product) {
+          await models.SyncLogsMSD.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `Product not found: ${item.productId}`,
+              },
+            },
+          );
 
-  continue;
-}
+          continue;
+        }
         const sendSalesLine: any = {
           Document_No: responseSale.No,
           Type: 'Item',
@@ -691,10 +691,10 @@ export const orderToDynamic = async (
       body: JSON.stringify(sendData),
     }).then((res) => res.json());
     if (responseSale?.error) {
-  throw new Error(
-    responseSale.error.message || 'MS Dynamic returned an error',
-  );
-}
+      throw new Error(
+        responseSale.error.message || 'MS Dynamic returned an error',
+      );
+    }
     const lineNoById = {};
 
     if (responseSale) {
@@ -869,20 +869,20 @@ export const orderToDynamic = async (
     );
 
     return responseSale;
-  }  catch (e: any) {
-  await models.SyncLogsMSD.updateOne(
-    { _id: syncLog._id },
-    {
-      $set: {
-        error: e?.message || 'Unknown error',
+  } catch (e: any) {
+    await models.SyncLogsMSD.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          error: e?.message || 'Unknown error',
+        },
       },
-    },
-  );
+    );
 
-  console.error(e);
+    console.error(e);
 
-  throw e;
-}
+    throw e;
+  }
 };
 
 const getPriceForList = (prods, exchangeRates) => {

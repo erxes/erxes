@@ -100,80 +100,74 @@ export const msdynamicSyncMutations = {
   },
 
   async toSendMsdOrders(
-  _root,
-  { orderIds }: { orderIds: string[] },
-  { subdomain, user, checkPermission }: IContext,
-) {
-  await checkPermission('msdSync');
+    _root,
+    { orderIds }: { orderIds: string[] },
+    { subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdSync');
 
-  const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain);
 
-  const orders = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'pos',
-    module: 'orders',
-    action: 'find',
-    input: {
-      query: {
-        _id: { $in: orderIds },
+    const orders = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'pos',
+      module: 'orders',
+      action: 'find',
+      input: {
+        query: {
+          _id: { $in: orderIds },
+        },
       },
-    },
-    defaultValue: [],
-  });
+      defaultValue: [],
+    });
 
-  if (!Array.isArray(orders)) {
-    throw new Error(
-      `Expected orders to be an array but got ${typeof orders}`,
-    );
-  }
-
-  const results: any[] = [];
-
-  for (const order of orders) {
-    try {
-      const config = await getDynamicConfig(
-        models,
-        order.scopeBrandIds?.[0],
+    if (!Array.isArray(orders)) {
+      throw new Error(
+        `Expected orders to be an array but got ${typeof orders}`,
       );
-
-      const syncLog = await models.SyncLogsMSD.syncLogsAdd({
-        contentType: 'pos:order',
-        contentId: order._id,
-        createdAt: new Date(),
-        createdBy: user?._id,
-        consumeData: order,
-        consumeStr: JSON.stringify(order),
-      });
-
-      const response = await orderToDynamic(
-        subdomain,
-        models,
-        syncLog,
-        order,
-        config,
-      );
-
-      results.push({
-        _id: order._id,
-        isSynced: true,
-        syncedDate: response?.Order_Date,
-        syncedBillNumber: response?.No,
-        syncedCustomer: response?.Sell_to_Customer_No,
-      });
-    } catch (e: any) {
-      console.error(
-        `[MSD] Failed to sync order ${order._id}`,
-        e,
-      );
-
-      results.push({
-        _id: order._id,
-        isSynced: false,
-        error: e?.message || 'Unknown error',
-      });
     }
-  }
 
-  return results;
-},
+    const results: any[] = [];
+
+    for (const order of orders) {
+      try {
+        const config = await getDynamicConfig(models, order.scopeBrandIds?.[0]);
+
+        const syncLog = await models.SyncLogsMSD.syncLogsAdd({
+          contentType: 'pos:order',
+          contentId: order._id,
+          createdAt: new Date(),
+          createdBy: user?._id,
+          consumeData: order,
+          consumeStr: JSON.stringify(order),
+        });
+
+        const response = await orderToDynamic(
+          subdomain,
+          models,
+          syncLog,
+          order,
+          config,
+        );
+
+        results.push({
+          _id: order._id,
+          isSynced: true,
+          syncedDate: response?.Order_Date,
+          syncedBillNumber: response?.No,
+          syncedCustomer: response?.Sell_to_Customer_No,
+        });
+      } catch (e: any) {
+        console.error(`[MSD] Failed to sync order ${order._id}`, e);
+
+        results.push({
+          _id: order._id,
+          isSynced: false,
+          error: e?.message || 'Unknown error',
+        });
+      }
+    }
+
+    return results;
+  },
 };
