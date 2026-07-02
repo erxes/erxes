@@ -26,7 +26,7 @@ const STATUS_MAP: Record<
 export const useHistoryBeforeTitleContent = (history: IAutomationHistory) => {
   const { t } = useTranslation('automations');
   const beforeTitleContent = (id: string, type: AutomationNodeType) => {
-    const data = getHistoryContent(history, id, type);
+    const data = getHistoryContent(history, id, type, t);
     if (!data) return null;
 
     const { status, createdAt, content } = data;
@@ -57,6 +57,7 @@ const getHistoryContent = (
   history: IAutomationHistory,
   id: string,
   type: AutomationNodeType,
+  t: (key: string, defaultValue: string) => string,
 ) => {
   if (type === 'trigger' && history.triggerId === id) {
     return {
