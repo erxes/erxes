@@ -1167,16 +1167,18 @@ const orderMutations: Record<string, Resolver> = {
           module: 'relation',
           action: 'createRelation',
           input: {
-            entities: [
-              {
-                contentType: 'sales:deal',
-                contentId: deal._id,
-              },
-              {
-                contentType: `core:${order.customerType || 'customer'}`,
-                contentId: order.customerId,
-              },
-            ],
+            relation: {
+              entities: [
+                {
+                  contentType: 'sales:deal',
+                  contentId: deal._id,
+                },
+                {
+                  contentType: `core:${order.customerType || 'customer'}`,
+                  contentId: order.customerId,
+                },
+              ],
+            }
           },
           defaultValue: null,
         });
