@@ -102,7 +102,7 @@ function EmailTemplateMenu({
   selectedIndex,
   emailTemplates,
   loading,
-}: EmailTemplateMenuProps) {
+}: Readonly<EmailTemplateMenuProps>) {
   if (loading) {
     return (
       <SuggestionMenu>
@@ -127,7 +127,6 @@ function EmailTemplateMenu({
           onClick={item.onItemClick}
           text={item.title}
           isSelected={selectedIndex === index}
-          index={index}
           template={emailTemplates?.find((t) => t.name === item.title)}
         />
       ))}
@@ -138,7 +137,6 @@ function EmailTemplateMenu({
 interface EmailTemplateMenuItemProps {
   onClick: () => void;
   isSelected: boolean;
-  index: number;
   text: string;
   template?: IAutomationEmailTemplate;
 }
@@ -147,7 +145,7 @@ function EmailTemplateMenuItem({
   onClick,
   isSelected,
   template,
-}: EmailTemplateMenuItemProps) {
+}: Readonly<EmailTemplateMenuItemProps>) {
   return (
     <SuggestionMenuItem
       isSelected={isSelected}
