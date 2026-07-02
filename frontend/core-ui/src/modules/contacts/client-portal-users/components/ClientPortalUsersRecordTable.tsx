@@ -23,7 +23,7 @@ export const ClientPortalUsersRecordTable = () => {
         <tr className="h-[40vh]">
           <td colSpan={9} className="py-10 text-center">
             <div className="flex flex-col items-center justify-center text-muted-foreground">
-              <Label>{t('clientPortalUser.noUsers', { defaultValue: 'No client portal users' })}</Label>
+              <Label>{t('clientPortalUser.noUsers', 'No client portal users')}</Label>
             </div>
           </td>
         </tr>
@@ -33,7 +33,7 @@ export const ClientPortalUsersRecordTable = () => {
   };
   return (
     <RecordTable.Provider
-      columns={clientPortalUserColumns}
+      columns={clientPortalUserColumns(t)}
       data={list}
       stickyColumns={['name']}
       className="m-3"

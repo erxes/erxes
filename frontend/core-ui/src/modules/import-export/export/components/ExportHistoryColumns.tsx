@@ -1,5 +1,4 @@
 import { IconAlertCircle, IconFileText } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
@@ -75,6 +74,7 @@ const EXPORT_STATUS_META: Record<
 
 export const exportHistoryColumns = (
   contentTypes: ImportExportContentType[] = [],
+  t: (key: string, defaultValue: string) => string,
 ): ColumnDef<TExportProgress>[] => [
   {
     id: 'actions',
@@ -87,7 +87,7 @@ export const exportHistoryColumns = (
     accessorKey: 'fileName',
     size: 220,
     minSize: 180,
-    header: () => { const { t } = useTranslation('import-export'); return <RecordTable.InlineHead label={t('file', 'File')} />; },
+    header: () => { return <RecordTable.InlineHead label={t('file', 'File')} />; },
     cell: ({ cell }) => (
       <RecordTableInlineCell className="max-w-xs gap-2">
         <IconFileText className="size-4 text-muted-foreground flex-shrink-0" />
@@ -100,7 +100,7 @@ export const exportHistoryColumns = (
     accessorKey: 'entityType',
     size: 120,
     minSize: 100,
-    header: () => { const { t } = useTranslation('import-export'); return <RecordTable.InlineHead label={t('type', 'Type')} />; },
+    header: () => { return <RecordTable.InlineHead label={t('type', 'Type')} />; },
     cell: ({ row }) => (
       <RecordTableInlineCell className="whitespace-nowrap">
         <Badge variant="secondary" className="font-normal">
@@ -117,9 +117,8 @@ export const exportHistoryColumns = (
     accessorKey: 'status',
     size: 100,
     minSize: 90,
-    header: () => { const { t } = useTranslation('import-export'); return <RecordTable.InlineHead label={t('status', 'Status')} />; },
+    header: () => { return <RecordTable.InlineHead label={t('status', 'Status')} />; },
     cell: ({ row }) => {
-      const { t } = useTranslation('import-export');
       const { status, errorMessage } = row.original;
       const statusMeta =
         EXPORT_STATUS_META[status] || EXPORT_STATUS_META.pending;
@@ -166,7 +165,7 @@ export const exportHistoryColumns = (
     accessorKey: 'totalRows',
     size: 84,
     minSize: 72,
-    header: () => { const { t } = useTranslation('import-export'); return <RecordTable.InlineHead label={t('records', 'Records')} />; },
+    header: () => { return <RecordTable.InlineHead label={t('records', 'Records')} />; },
     cell: ({ row }) => {
       const totalRows = row.original.totalRows || 0;
 
@@ -182,7 +181,7 @@ export const exportHistoryColumns = (
     accessorKey: 'progress',
     size: 100,
     minSize: 90,
-    header: () => { const { t } = useTranslation('import-export'); return <RecordTable.InlineHead label={t('progress', 'Progress')} />; },
+    header: () => { return <RecordTable.InlineHead label={t('progress', 'Progress')} />; },
     cell: ({ row }) => {
       const progressValue = row.original.progress;
 
@@ -207,7 +206,7 @@ export const exportHistoryColumns = (
     accessorKey: 'createdAt',
     size: 118,
     minSize: 108,
-    header: () => { const { t } = useTranslation('import-export'); return <RecordTable.InlineHead label={t('created', 'Created')} />; },
+    header: () => { return <RecordTable.InlineHead label={t('created', 'Created')} />; },
     cell: ({ row }) => {
       const { createdAt } = row.original;
 
@@ -223,7 +222,7 @@ export const exportHistoryColumns = (
     accessorKey: 'completedAt',
     size: 118,
     minSize: 108,
-    header: () => { const { t } = useTranslation('import-export'); return <RecordTable.InlineHead label={t('completed', 'Completed')} />; },
+    header: () => { return <RecordTable.InlineHead label={t('completed', 'Completed')} />; },
     cell: ({ row }) => {
       const { completedAt } = row.original;
 
@@ -242,7 +241,7 @@ export const exportHistoryColumns = (
     id: 'duration',
     size: 82,
     minSize: 72,
-    header: () => { const { t } = useTranslation('import-export'); return <RecordTable.InlineHead label={t('duration', 'Duration')} />; },
+    header: () => { return <RecordTable.InlineHead label={t('duration', 'Duration')} />; },
     cell: ({ row }) => {
       const { startedAt, completedAt } =
         row.original || ({} as TExportProgress);

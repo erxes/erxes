@@ -8,19 +8,19 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { IUser, MembersInline } from 'ui-modules';
 import { TemplateCategoriesInline } from 'ui-modules/modules/templates/components/TemplateCategoryInline';
 import { useTemplateTypes } from '../hooks/useTemplateTypes';
 
-export const templateColumns: ColumnDef<any>[] = [
+export const templateColumns = (
+  t: (key: string, defaultValue: string) => string,
+): ColumnDef<any>[] => [
   templateMoreColumn,
   RecordTable.checkboxColumn,
   {
     id: 'name',
     accessorKey: 'name',
     header: () => {
-      const { t } = useTranslation('templates');
       return <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />;
     },
     cell: ({ cell }) => {
@@ -35,7 +35,6 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'contentType',
     accessorKey: 'contentType',
     header: () => {
-      const { t } = useTranslation('templates');
       return <RecordTable.InlineHead label={t('type', 'Type')} icon={IconLabelFilled} />;
     },
     cell: ({ cell }) => {
@@ -58,11 +57,9 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'categories',
     accessorKey: 'categories',
     header: () => {
-      const { t } = useTranslation('templates');
       return <RecordTable.InlineHead label={t('category-label', 'Category')} icon={IconLabelFilled} />;
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('templates');
       const categories = (cell.getValue() || []) as TemplateCategory[];
 
       return (
@@ -79,11 +76,9 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'createdBy',
     accessorKey: 'createdBy',
     header: () => {
-      const { t } = useTranslation('templates');
       return <RecordTable.InlineHead label={t('created-by', 'Created By')} icon={IconLabelFilled} />;
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('templates');
       const member = cell.getValue() as IUser;
 
       if (!member) {
@@ -102,7 +97,6 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      const { t } = useTranslation('templates');
       return <RecordTable.InlineHead label={t('created-at', 'Created At')} icon={IconLabelFilled} />;
     },
     cell: ({ cell }) => {
@@ -119,11 +113,9 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'updatedBy',
     accessorKey: 'updatedBy',
     header: () => {
-      const { t } = useTranslation('templates');
       return <RecordTable.InlineHead label={t('updated-by', 'Updated By')} icon={IconLabelFilled} />;
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('templates');
       const member = (cell.getValue() || {}) as IUser;
 
       return (
@@ -137,11 +129,9 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'updatedAt',
     accessorKey: 'updatedAt',
     header: () => {
-      const { t } = useTranslation('templates');
       return <RecordTable.InlineHead label={t('updated-at', 'Updated At')} icon={IconLabelFilled} />;
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('templates');
       const updatedBy = cell.row.original.updatedBy || undefined;
 
       if (!updatedBy) {

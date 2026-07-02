@@ -19,7 +19,6 @@ import {
 } from 'erxes-ui';
 import { ICPUser } from '@/contacts/client-portal-users/types/cpUser';
 import { CPUserRowDeleteButton } from '@/contacts/client-portal-users/components/CPUserRowDeleteButton';
-import { useTranslation } from 'react-i18next';
 
 function displayName(user: ICPUser) {
   const parts = [user.firstName, user.lastName].filter(Boolean);
@@ -27,13 +26,14 @@ function displayName(user: ICPUser) {
   return user.email || user.phone || user.username || '-';
 }
 
-export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
+export const clientPortalUserColumns = (
+  t: (key: string, defaultValue: string) => string,
+): ColumnDef<ICPUser>[] => [
   {
     id: 'name',
     accessorKey: 'firstName',
     header: () => {
-      const { t } = useTranslation('contact');
-      return <RecordTable.InlineHead icon={IconUser} label={t('customer.name', { defaultValue: 'Name' })} />;
+      return <RecordTable.InlineHead icon={IconUser} label={t('customer.name', 'Name')} />;
     },
     cell: ({ cell }) => {
       const row = cell.row.original;
@@ -52,8 +52,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'email',
     accessorKey: 'email',
     header: () => {
-      const { t } = useTranslation('contact');
-      return <RecordTable.InlineHead icon={IconMail} label={t('customer.add.email', { defaultValue: 'Email' })} />;
+      return <RecordTable.InlineHead icon={IconMail} label={t('customer.add.email', 'Email')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -65,8 +64,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'phone',
     accessorKey: 'phone',
     header: () => {
-      const { t } = useTranslation('contact');
-      return <RecordTable.InlineHead icon={IconPhone} label={t('customer.add.phone', { defaultValue: 'Phone' })} />;
+      return <RecordTable.InlineHead icon={IconPhone} label={t('customer.add.phone', 'Phone')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -78,8 +76,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'type',
     accessorKey: 'type',
     header: () => {
-      const { t } = useTranslation('contact');
-      return <RecordTable.InlineHead icon={IconUser} label={t('clientPortalUser.detail.type', { defaultValue: 'Type' })} />;
+      return <RecordTable.InlineHead icon={IconUser} label={t('clientPortalUser.detail.type', 'Type')} />;
     },
     cell: ({ cell }) => {
       const type = cell.getValue() as string;
@@ -98,8 +95,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'companyName',
     accessorKey: 'companyName',
     header: () => {
-      const { t } = useTranslation('contact');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('clientPortalUser.detail.company', { defaultValue: 'Company' })} />;
+      return <RecordTable.InlineHead icon={IconBuilding} label={t('clientPortalUser.detail.company', 'Company')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -111,8 +107,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'clientPortal',
     accessorKey: 'clientPortal',
     header: () => {
-      const { t } = useTranslation('contact');
-      return <RecordTable.InlineHead icon={IconWorld} label={t('clientPortal', { defaultValue: 'Client portal' })} />;
+      return <RecordTable.InlineHead icon={IconWorld} label={t('clientPortal', 'Client portal')} />;
     },
     cell: ({ cell }) => {
       const clientPortal = cell.getValue() as ICPUser['clientPortal'];
@@ -127,16 +122,14 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'isVerified',
     accessorKey: 'isVerified',
     header: () => {
-      const { t } = useTranslation('contact');
-      return <RecordTable.InlineHead icon={IconCheck} label={t('verified', { defaultValue: 'Verified' })} />;
+      return <RecordTable.InlineHead icon={IconCheck} label={t('verified', 'Verified')} />;
     },
     cell: ({ cell }) => {
-      const { t } = useTranslation('contact');
       const isVerified = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
           <Badge variant={isVerified ? 'success' : 'secondary'}>
-            {isVerified ? t('yes', { defaultValue: 'Yes' }) : t('no', { defaultValue: 'No' })}
+            {isVerified ? t('yes', 'Yes') : t('no', 'No')}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -146,8 +139,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      const { t } = useTranslation('contact');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('clientPortalUser.detail.created', { defaultValue: 'Created' })} />;
+      return <RecordTable.InlineHead icon={IconCalendar} label={t('clientPortalUser.detail.created', 'Created')} />;
     },
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>

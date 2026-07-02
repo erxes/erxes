@@ -1,9 +1,11 @@
 import { useImportExportTypes } from '@/import-export/hooks/useImportExportTypes';
 import { useQueryState } from 'erxes-ui/hooks/use-query-state';
+import { useTranslation } from 'react-i18next';
 import { importHistoryColumns } from '../components/ImportHistoryColumns';
 import { useImportHistories } from './useImportHistories';
 
 export const useImportHistoriesRecordTable = () => {
+  const { t } = useTranslation('import-export');
   const [selectedEntityType] = useQueryState<string>('type', {
     defaultValue: 'all',
   });
@@ -31,7 +33,7 @@ export const useImportHistoriesRecordTable = () => {
         ? undefined
         : [selectedEntityType],
   });
-  const columns = importHistoryColumns(importExportTypes);
+  const columns = importHistoryColumns(importExportTypes, t);
 
   const providerValue = {
     contentTypes: importExportTypes,
