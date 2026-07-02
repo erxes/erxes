@@ -14,7 +14,7 @@ import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQue
 
 export const CustomerDetailFields = () => {
   const { customerDetail } = useCustomerDetailWithQuery();
-  const { customerEdit } = useCustomerEdit();
+  const { customerEdit, loading } = useCustomerEdit();
   const { changeCustomerState } = useChangeCustomerState();
   const { t } = useTranslation('contact');
   const { toast } = useToast();
@@ -45,6 +45,7 @@ export const CustomerDetailFields = () => {
   if (!customerDetail) return null;
 
   const { tagIds, _id } = customerDetail;
+  const { isDirty, isSubmitting } = form.formState;
 
   const onSubmit = async (data: CustomerFormType) => {
     const {
@@ -53,10 +54,12 @@ export const CustomerDetailFields = () => {
       sex,
       avatar,
       state,
+      links,
       ...rest
     } = data;
     void emailValidationStatus;
     void phoneValidationStatus;
+    void links;
 
     if (state !== (customerDetail.state ?? '')) {
       await changeCustomerState([_id], state, {
@@ -78,6 +81,7 @@ export const CustomerDetailFields = () => {
         _id,
       },
       onCompleted: () => {
+        form.reset(data);
         toast({
           title: t('saved', 'Customer details updated successfully.'),
           variant: 'success',
@@ -102,7 +106,9 @@ export const CustomerDetailFields = () => {
           <CustomerAddGeneralInformationFields form={form} />
           <div className="flex justify-end">
             <Can action="contactsUpdate">
-              <Button type="submit">{t('save', 'Save')}</Button>
+              <Button type="submit" disabled={loading || isSubmitting || !isDirty}>
+                {t('save', 'Save')}
+              </Button>
             </Can>
           </div>
         </form>

@@ -268,7 +268,13 @@ export const loadCustomerClass = (
         throw new Error(e.message);
       }
 
-      const oldCustomer = await models.Customers.getCustomer(_id);
+      const oldCustomerDoc = await models.Customers.findOne({ _id });
+
+      if (!oldCustomerDoc) {
+        throw new Error('Customer not found');
+      }
+
+      const oldCustomer = oldCustomerDoc.toObject();
 
       if (doc.propertiesData) {
         const propertiesData = await models.Fields.validateFieldValues(
