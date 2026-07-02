@@ -21,14 +21,24 @@ import { AppHotkeyScope } from 'erxes-ui/modules/hotkey/types/AppHotkeyScope';
 import { ScrollArea } from './scroll-area';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar:state';
+const SIDEBAR_COLLAPSE_COOKIE_NAME = 'sidebar:collapse';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = '16rem';
+const SIDEBAR_WIDTH_COMPACT = '12rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
 const SIDEBAR_WIDTH_ICON = '3rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
+type CollapseState = 'expanded' | 'compact' | 'collapsed';
+
+const COLLAPSE_ORDER: CollapseState[] = ['expanded', 'compact', 'collapsed'];
+
+const nextCollapseState = (prev: CollapseState): CollapseState =>
+  COLLAPSE_ORDER[(COLLAPSE_ORDER.indexOf(prev) + 1) % COLLAPSE_ORDER.length];
+
 type ISidebarContext = {
   state: 'expanded' | 'collapsed';
+  collapseState: CollapseState;
   open: boolean;
   setOpen: (open: boolean) => void;
   openMobile: boolean;
@@ -54,6 +64,9 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    collapseState?: CollapseState;
+    defaultCollapseState?: CollapseState;
+    onCollapseStateChange?: (state: CollapseState) => void;
   }
 >(
   (
@@ -61,6 +74,9 @@ const SidebarProvider = React.forwardRef<
       defaultOpen = true,
       open: openProp,
       onOpenChange: setOpenProp,
+      collapseState: collapseStateProp,
+      defaultCollapseState,
+      onCollapseStateChange,
       className,
       style,
       children,
@@ -71,31 +87,68 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
+    const threeStep =
+      collapseStateProp !== undefined || defaultCollapseState !== undefined;
+
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
     const [_open, _setOpen] = React.useState(defaultOpen);
-    const open = openProp ?? _open;
+    const openControlled = openProp ?? _open;
+
+    const [_collapseState, _setCollapseState] = React.useState<CollapseState>(
+      defaultCollapseState ?? (defaultOpen ? 'expanded' : 'collapsed'),
+    );
+    let collapseState: CollapseState;
+    if (threeStep) {
+      collapseState = collapseStateProp ?? _collapseState;
+    } else {
+      collapseState = openControlled ? 'expanded' : 'collapsed';
+    }
+
+    const open = threeStep ? collapseState === 'expanded' : openControlled;
+
+    const setCollapseState = React.useCallback(
+      (value: CollapseState | ((value: CollapseState) => CollapseState)) => {
+        const next = typeof value === 'function' ? value(collapseState) : value;
+        if (onCollapseStateChange) {
+          onCollapseStateChange(next);
+        } else {
+          _setCollapseState(next);
+        }
+        document.cookie = `${SIDEBAR_COLLAPSE_COOKIE_NAME}=${next}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      },
+      [onCollapseStateChange, collapseState],
+    );
+
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
         const openState = typeof value === 'function' ? value(open) : value;
+        if (threeStep) {
+          setCollapseState(openState ? 'expanded' : 'collapsed');
+          return;
+        }
         if (setOpenProp) {
           setOpenProp(openState);
         } else {
           _setOpen(openState);
         }
 
-        // This sets the cookie to keep the sidebar state.
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       },
-      [setOpenProp, open],
+      [setOpenProp, open, threeStep, setCollapseState],
     );
 
-    // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      return isMobile
-        ? setOpenMobile((open) => !open)
-        : setOpen((open) => !open);
-    }, [isMobile, setOpen, setOpenMobile]);
+      if (isMobile) {
+        setOpenMobile((open) => !open);
+        return;
+      }
+      if (threeStep) {
+        setCollapseState((prev) => nextCollapseState(prev));
+        return;
+      }
+      setOpen((open) => !open);
+    }, [isMobile, threeStep, setCollapseState, setOpen, setOpenMobile]);
 
     // Adds a keyboard shortcut to toggle the sidebar.
 
@@ -105,13 +158,12 @@ const SidebarProvider = React.forwardRef<
       AppHotkeyScope.Sidebar,
     );
 
-    // We add a state so that we can do data-state="expanded" or "collapsed".
-    // This makes it easier to style the sidebar with Tailwind classes.
-    const state = open ? 'expanded' : 'collapsed';
+    const state = collapseState === 'collapsed' ? 'collapsed' : 'expanded';
 
     const contextValue = React.useMemo<ISidebarContext>(
       () => ({
         state,
+        collapseState,
         open,
         setOpen,
         isMobile,
@@ -121,6 +173,7 @@ const SidebarProvider = React.forwardRef<
       }),
       [
         state,
+        collapseState,
         open,
         setOpen,
         isMobile,
@@ -137,6 +190,7 @@ const SidebarProvider = React.forwardRef<
             style={
               {
                 '--sidebar-width': SIDEBAR_WIDTH,
+                '--sidebar-width-compact': SIDEBAR_WIDTH_COMPACT,
                 '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
                 ...style,
               } as React.CSSProperties
@@ -176,7 +230,15 @@ const SidebarRoot = React.forwardRef<
     },
     ref,
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+    const { isMobile, state, collapseState, openMobile, setOpenMobile } =
+      useSidebar();
+
+    let dataCollapsible = '';
+    if (collapseState === 'compact') {
+      dataCollapsible = 'compact';
+    } else if (state === 'collapsed') {
+      dataCollapsible = collapsible;
+    }
 
     if (collapsible === 'none') {
       return (
@@ -218,7 +280,7 @@ const SidebarRoot = React.forwardRef<
         ref={ref}
         className="group peer hidden text-foreground md:block"
         data-state={state}
-        data-collapsible={state === 'collapsed' ? collapsible : ''}
+        data-collapsible={dataCollapsible}
         data-variant={variant}
         data-side={side}
       >
@@ -227,6 +289,7 @@ const SidebarRoot = React.forwardRef<
           className={cn(
             'relative h-svh w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear',
             'group-data-[collapsible=offcanvas]:w-0',
+            'group-data-[collapsible=compact]:w-(--sidebar-width-compact)',
             'group-data-[side=right]:rotate-180',
             variant === 'floating' || variant === 'inset'
               ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]'
@@ -236,6 +299,7 @@ const SidebarRoot = React.forwardRef<
         <div
           className={cn(
             'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
+            'group-data-[collapsible=compact]:w-(--sidebar-width-compact)',
             side === 'left'
               ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
               : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
@@ -264,7 +328,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar, open } = useSidebar();
+  const { toggleSidebar, collapseState } = useSidebar();
 
   return (
     <Button
@@ -279,10 +343,10 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      {open ? (
-        <IconLayoutSidebarLeftCollapse />
-      ) : (
+      {collapseState === 'collapsed' ? (
         <IconLayoutSidebarLeftExpand />
+      ) : (
+        <IconLayoutSidebarLeftCollapse />
       )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
