@@ -25,7 +25,7 @@ export const MovementConfigRecordTable = ({
   return (
     <ErkhetConfigRecordTable
       configs={configs}
-      columns={buildMovementConfigColumns(onEdit, onDelete, editLoading)}
+      columns={buildMovementConfigColumns(t, onEdit, onDelete, editLoading)}
       emptyDescription={t('create-first-movement-config')}
       commandBar={<MovementConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
     />

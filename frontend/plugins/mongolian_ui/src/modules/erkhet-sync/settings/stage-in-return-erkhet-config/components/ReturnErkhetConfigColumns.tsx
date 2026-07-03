@@ -2,7 +2,7 @@ import { IconAlignLeft, IconAt, IconLayoutKanban } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { checkboxColumn } from 'erxes-ui/modules/record-table/components/CheckboxColumn';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { TReturnErkhetConfig } from '../types';
 import { TReturnErkhetConfigRow } from '../hooks/useReturnErkhetConfigs';
 import { RETURN_TYPES } from '../constants/returnTypesData';
@@ -13,6 +13,7 @@ const returnTypeLabel = (value: string) =>
   RETURN_TYPES.find((t) => t.value === value)?.label ?? (value || '—');
 
 export const buildReturnErkhetConfigColumns = (
+  t: TFunction,
   onEdit: (id: string, data: TReturnErkhetConfig) => Promise<void>,
   onDelete: (id: string) => void,
   editLoading: boolean,
@@ -41,10 +42,7 @@ export const buildReturnErkhetConfigColumns = (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />,
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
         config={row.original}
@@ -64,10 +62,7 @@ export const buildReturnErkhetConfigColumns = (
   {
     id: 'userEmail',
     accessorKey: 'userEmail',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
     ),
@@ -76,10 +71,7 @@ export const buildReturnErkhetConfigColumns = (
   {
     id: 'returnType',
     accessorKey: 'returnType',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('return-type')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label={t('return-type')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{returnTypeLabel(cell.getValue() as string)}</RecordTableInlineCell>
     ),

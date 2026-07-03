@@ -24,7 +24,7 @@ export const PipelineRemainderConfigRecordTable = ({
   return (
     <ErkhetConfigRecordTable
       configs={configs}
-      columns={buildRemainderConfigColumns(onEdit, onDelete, editLoading)}
+      columns={buildRemainderConfigColumns(t, onEdit, onDelete, editLoading)}
       emptyDescription={t('create-first-remainder-config')}
       commandBar={<PipelineRemainderConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
     />

@@ -12,7 +12,7 @@ export const CheckPriceRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={checkPriceColumns}
+      columns={checkPriceColumns(t)}
       data={filteredItems || []}
       className="h-full w-full overflow-y-auto px-2"
       stickyColumns={['checkbox']}

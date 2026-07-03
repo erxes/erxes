@@ -7,7 +7,7 @@ import {
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { checkboxColumn } from 'erxes-ui/modules/record-table/components/CheckboxColumn';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { TMovementErkhetConfig } from '../types';
 import { MovementConfigEditSheet } from './MovementConfigEditSheet';
 import {
@@ -18,6 +18,7 @@ import {
 type TConfigRow = TMovementErkhetConfig & { _id: string };
 
 export const buildMovementConfigColumns = (
+  t: TFunction,
   onEdit: (id: string, data: TMovementErkhetConfig) => Promise<void>,
   onDelete: (id: string) => void,
   editLoading: boolean,
@@ -46,10 +47,7 @@ export const buildMovementConfigColumns = (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />,
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
         config={row.original}
@@ -69,10 +67,7 @@ export const buildMovementConfigColumns = (
   {
     id: 'userEmail',
     accessorKey: 'userEmail',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -83,10 +78,7 @@ export const buildMovementConfigColumns = (
   {
     id: 'defaultCustomer',
     accessorKey: 'defaultCustomer',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconUser} label={t('default-customer')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('default-customer')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -97,10 +89,7 @@ export const buildMovementConfigColumns = (
   {
     id: 'responseField',
     accessorKey: 'responseField',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}

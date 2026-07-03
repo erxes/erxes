@@ -16,7 +16,7 @@ export const CheckPosOrdersRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={checkPosOrdersColumns}
+      columns={checkPosOrdersColumns(t)}
       data={checkPosOrders || []}
       className="m-3"
       stickyColumns={['checkbox', 'toSync', 'createdAt']}

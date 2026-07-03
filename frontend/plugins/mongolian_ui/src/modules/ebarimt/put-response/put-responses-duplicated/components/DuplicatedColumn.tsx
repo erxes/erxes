@@ -1,4 +1,5 @@
 import { ColumnDef } from '@tanstack/table-core';
+import type { TFunction } from 'i18next';
 import {
   amountColumn,
   cityTaxColumn,
@@ -9,11 +10,11 @@ import {
 import { duplicatedMoreColumn } from '~/modules/ebarimt/put-response/put-responses-duplicated/components/DuplicatedMoreColumn';
 import { IDuplicated } from '~/modules/ebarimt/put-response/put-responses-duplicated/types/DuplicatedType';
 
-export const DuplicatedColumns: ColumnDef<IDuplicated>[] = [
+export const DuplicatedColumns = (t: TFunction): ColumnDef<IDuplicated>[] => [
   duplicatedMoreColumn,
-  dateColumn as ColumnDef<IDuplicated>,
-  counterColumn as ColumnDef<IDuplicated>,
-  cityTaxColumn as ColumnDef<IDuplicated>,
-  vatColumn as ColumnDef<IDuplicated>,
-  amountColumn as ColumnDef<IDuplicated>,
+  dateColumn(t) as ColumnDef<IDuplicated>,
+  counterColumn(t) as ColumnDef<IDuplicated>,
+  cityTaxColumn(t) as ColumnDef<IDuplicated>,
+  vatColumn(t) as ColumnDef<IDuplicated>,
+  amountColumn(t) as ColumnDef<IDuplicated>,
 ];

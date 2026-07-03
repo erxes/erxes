@@ -13,7 +13,7 @@ export const PutResponseRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={putResponseColumns}
+      columns={putResponseColumns(t)}
       data={putResponses || []}
       className="m-3"
       stickyColumns={['more', 'name']}

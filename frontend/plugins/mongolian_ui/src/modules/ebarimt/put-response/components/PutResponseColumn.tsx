@@ -7,20 +7,21 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { putResponseMoreColumn } from '~/modules/ebarimt/put-response/components/PutResponseMoreColumn';
-import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 
-export const putResponseColumns: ColumnDef<IPutResponse>[] = [
+export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   putResponseMoreColumn,
   {
     id: 'id',
     accessorKey: 'id',
-    header: () => <HeaderCell icon={IconHash} label="bill-id" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('bill-id')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -32,7 +33,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'billId',
     accessorKey: 'billId',
-    header: () => <HeaderCell icon={IconLabel} label="sub-bill-ids" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('sub-bill-ids')} />,
     cell: ({ row }) => {
       const receipts = row.original.receipts;
       const receiptId = receipts?.[0]?.id || '-';
@@ -47,7 +48,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <HeaderCell icon={IconCurrencyDollar} label="number" />,
+    header: () => <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('number')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -59,7 +60,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'date',
     accessorKey: 'date',
-    header: () => <HeaderCell icon={IconUser} label="date" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('date')} />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -73,7 +74,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <HeaderCell icon={IconCategory} label="status" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('status')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -85,7 +86,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => <HeaderCell icon={IconCategory} label="bill-type" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('bill-type')} />,
     cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
@@ -97,7 +98,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'receipts',
     accessorKey: 'receipts',
-    header: () => <HeaderCell icon={IconCategory} label="receipts" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('receipts')} />,
     cell: ({ row }) => {
       const receipts = row.original.receipts;
       if (!receipts || !Array.isArray(receipts) || receipts.length === 0) {
@@ -130,7 +131,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <HeaderCell icon={IconCategory} label="amount" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('amount')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -142,7 +143,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'message',
     accessorKey: 'message',
-    header: () => <HeaderCell icon={IconCategory} label="message" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('message')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -154,7 +155,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'inactiveId',
     accessorKey: 'inactiveId',
-    header: () => <HeaderCell icon={IconCategory} label="inactive-id" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('inactive-id')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -167,7 +168,7 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   {
     id: 'user',
     accessorKey: 'user',
-    header: () => <HeaderCell icon={IconCategory} label="user" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('user')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

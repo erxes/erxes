@@ -13,12 +13,12 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import {
   CheckSyncedDealStatus,
   ICheckSyncedDeals,
 } from '../types/checkSyncedDeals';
 import { toSyncDealIdsAtom } from '../hooks/useCheckSyncedDeals';
-import { HeaderCell } from '../../components/HeaderCell';
 import {
   ToSyncHeaderCell,
   ToSyncCell,
@@ -51,12 +51,12 @@ const stringifyAmount = (amount: unknown) => {
   return JSON.stringify(amount);
 };
 
-export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
+export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDeals>[] => [
   RecordTable.checkboxColumn as ColumnDef<ICheckSyncedDeals>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <HeaderCell icon={IconLabel} label="deal-name" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('deal-name')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -68,7 +68,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <HeaderCell icon={IconHash} label="deal-number" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -80,7 +80,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => <HeaderCell icon={IconCurrencyDollar} label="amount" />,
+    header: () => <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -92,7 +92,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <HeaderCell icon={IconCalendarPlus} label="created-at" />,
+    header: () => <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -106,7 +106,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'modifiedAt',
     accessorKey: 'modifiedAt',
-    header: () => <HeaderCell icon={IconCategory} label="modified-at" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('modified-at')} />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -120,7 +120,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'stageChangedDate',
     accessorKey: 'stageChangedDate',
-    header: () => <HeaderCell icon={IconCategory} label="stage-changed-date" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('stage-changed-date')} />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -134,7 +134,7 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
   {
     id: 'unSynced',
     accessorKey: 'syncStatus',
-    header: () => <HeaderCell icon={IconCategory} label="sync-status" />,
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('sync-status')} />,
     cell: ({ cell }) => {
       const status = (cell.getValue() || 'skipped') as string;
 
@@ -165,13 +165,13 @@ export const checkSyncedDealsColumns: ColumnDef<ICheckSyncedDeals>[] = [
       />
     ),
   },
-  syncedInfoColumn('syncedDate', 'synced-date'),
-  syncedInfoColumn('syncedBillNumber', 'synced-bill-number'),
-  syncedInfoColumn('syncedCustomer', 'synced-customer'),
+  syncedInfoColumn('syncedDate', t('synced-date')),
+  syncedInfoColumn('syncedBillNumber', t('synced-bill-number')),
+  syncedInfoColumn('syncedCustomer', t('synced-customer')),
   {
     id: 'syncAction',
     accessorKey: 'syncAction',
-    header: () => <HeaderCell icon={IconRefresh} label="sync-action" />,
+    header: () => <RecordTable.InlineHead icon={IconRefresh} label={t('sync-action')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

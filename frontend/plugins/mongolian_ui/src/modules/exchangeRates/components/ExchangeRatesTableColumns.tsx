@@ -5,6 +5,7 @@ import {
   IconCurrencyDollar,
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
+import type { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 import {
   Badge,
@@ -52,13 +53,13 @@ const checkBoxColumn = {
   minSize: 24,
 } as ColumnDef<IExchangeRate>;
 
-export const exchangeRatesColumns: ColumnDef<IExchangeRate>[] = [
+export const exchangeRatesColumns = (t: TFunction): ColumnDef<IExchangeRate>[] => [
   exchangeRatesMoreColumn,
   checkBoxColumn,
   {
     id: 'date',
     accessorKey: 'date',
-    header: () => <RecordTable.InlineHead label="Date" icon={IconCalendar} />,
+    header: () => <RecordTable.InlineHead label={t('date')} icon={IconCalendar} />,
     cell: ({ cell }) => <ExchangeRateDateCell cell={cell} />,
     size: 200,
   },
@@ -66,7 +67,7 @@ export const exchangeRatesColumns: ColumnDef<IExchangeRate>[] = [
     id: 'mainCurrency',
     accessorKey: 'mainCurrency',
     header: () => (
-      <RecordTable.InlineHead label="Main Currency" icon={IconCoin} />
+      <RecordTable.InlineHead label={t('main-currency')} icon={IconCoin} />
     ),
     cell: ({ cell }) => <CurrencyCell value={cell.getValue() as string} />,
     size: 200,
@@ -75,7 +76,7 @@ export const exchangeRatesColumns: ColumnDef<IExchangeRate>[] = [
     id: 'rateCurrency',
     accessorKey: 'rateCurrency',
     header: () => (
-      <RecordTable.InlineHead label="Rate Currency" icon={IconCurrencyDollar} />
+      <RecordTable.InlineHead label={t('rate-currency')} icon={IconCurrencyDollar} />
     ),
     cell: ({ cell }) => <CurrencyCell value={cell.getValue() as string} />,
     size: 200,
@@ -84,7 +85,7 @@ export const exchangeRatesColumns: ColumnDef<IExchangeRate>[] = [
     id: 'rate',
     accessorKey: 'rate',
     header: () => (
-      <RecordTable.InlineHead label="Rate" icon={IconArrowsExchange} />
+      <RecordTable.InlineHead label={t('rate')} icon={IconArrowsExchange} />
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>

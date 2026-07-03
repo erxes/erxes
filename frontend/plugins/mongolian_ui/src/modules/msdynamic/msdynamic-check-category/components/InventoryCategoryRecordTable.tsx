@@ -31,7 +31,7 @@ export const InventoryCategoryRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={getInventoryCategoryColumns(action)}
+      columns={getInventoryCategoryColumns(t, action)}
       data={data}
       className="h-full w-full overflow-y-auto px-2"
       stickyColumns={['checkbox']}

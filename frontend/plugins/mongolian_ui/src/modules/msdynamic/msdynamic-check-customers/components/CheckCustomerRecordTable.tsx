@@ -13,7 +13,7 @@ export const CheckCustomerRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={checkCustomerColumns}
+      columns={checkCustomerColumns(t)}
       data={paginatedItems}
       className="h-full w-full px-2 overflow-y-auto"
       stickyColumns={['checkbox', 'No']}
