@@ -75,7 +75,9 @@ const itemColumns = (t: TFunction): ColumnDef<any>[] => [
     header: () => <RecordTable.InlineHead icon={IconTag} label={t('count')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-center">
-        <TextOverflowTooltip value={(cell.getValue() as number)?.toString() || '0'} />
+        <TextOverflowTooltip
+          value={(cell.getValue() as number)?.toString() || '0'}
+        />
       </RecordTableInlineCell>
     ),
     size: 80,
@@ -174,8 +176,8 @@ export const PosOrderSheet = () => {
   const transactionNumber = transaction?.number || transaction?.ptrNumber;
   const transactionHref = transaction
     ? `/accounting/transaction/edit?parentId=${encodeURIComponent(
-      transaction.parentId || transaction._id,
-    )}`
+        transaction.parentId || transaction._id,
+      )}`
     : '';
 
   const paidAmountsSummary = React.useMemo(() => {
@@ -238,7 +240,10 @@ export const PosOrderSheet = () => {
         if (expectedTotal > 0 && sum !== expectedTotal) {
           toast({
             title: t('amount-mismatch'),
-            description: t('payments-sum-mismatch', { sum: sum.toLocaleString(), total: expectedTotal.toLocaleString() }),
+            description: t('payments-sum-mismatch', {
+              sum: sum.toLocaleString(),
+              total: expectedTotal.toLocaleString(),
+            }),
             variant: 'destructive',
           });
           return;
@@ -258,7 +263,9 @@ export const PosOrderSheet = () => {
           if (error.message.includes('Already returned')) {
             errorMessage = t('order-returned-no-payment-changes');
           } else if (error.message.includes('not balanced')) {
-            errorMessage = t('payments-must-sum', { total: posOrder?.totalAmount?.toLocaleString() || 0 });
+            errorMessage = t('payments-must-sum', {
+              total: posOrder?.totalAmount?.toLocaleString() || 0,
+            });
           } else {
             errorMessage = error.message;
           }
@@ -331,7 +338,8 @@ export const PosOrderSheet = () => {
                       {t('transaction')}:
                     </span>
                     <span className="text-base font-medium">
-                      {(transaction && transactionNumber) || transactionTotalCount ? (
+                      {(transaction && transactionNumber) ||
+                      transactionTotalCount ? (
                         <a
                           href={transactionHref}
                           target="_blank"
@@ -369,8 +377,8 @@ export const PosOrderSheet = () => {
                     <span className="text-base font-medium">
                       {posOrder.putResponses?.[0]?.createdAt
                         ? new Date(
-                          posOrder.putResponses?.[0].createdAt,
-                        ).toLocaleDateString()
+                            posOrder.putResponses?.[0].createdAt,
+                          ).toLocaleDateString()
                         : '-'}
                     </span>
                   </div>

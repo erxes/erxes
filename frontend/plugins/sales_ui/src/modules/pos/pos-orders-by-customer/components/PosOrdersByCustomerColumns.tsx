@@ -10,7 +10,9 @@ import { IPosOrdersByCustomer } from '@/pos/pos-orders-by-customer/types/posOrde
 import { PosOrdersByCustomerMoreColumn } from '@/pos/pos-orders-by-customer/components/PosOrdersByCustomerMoreColumn';
 import type { TFunction } from 'i18next';
 
-export const PosOrdersByCustomerColumns = (t: TFunction): ColumnDef<IPosOrdersByCustomer>[] => [
+export const PosOrdersByCustomerColumns = (
+  t: TFunction,
+): ColumnDef<IPosOrdersByCustomer>[] => [
   PosOrdersByCustomerMoreColumn,
   {
     id: 'type',
@@ -25,7 +27,9 @@ export const PosOrdersByCustomerColumns = (t: TFunction): ColumnDef<IPosOrdersBy
   {
     id: 'customerName',
     accessorKey: 'customerDetail.primaryName',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('customer-name')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('customer-name')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -35,7 +39,9 @@ export const PosOrdersByCustomerColumns = (t: TFunction): ColumnDef<IPosOrdersBy
   {
     id: 'customerEmail',
     accessorKey: 'customerDetail.emails.email',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('customer-email')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('customer-email')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -45,7 +51,9 @@ export const PosOrdersByCustomerColumns = (t: TFunction): ColumnDef<IPosOrdersBy
   {
     id: 'totalOrders',
     accessorKey: 'totalOrders',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('orders-count')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('orders-count')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -55,7 +63,9 @@ export const PosOrdersByCustomerColumns = (t: TFunction): ColumnDef<IPosOrdersBy
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('total-amount')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('total-amount')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />

@@ -56,7 +56,9 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
   const otherPayTitles = (summary ? Object.keys(summary) : [])
     .filter(
       (a) =>
-        !['_id', 'count', 'cashAmount', 'mobileAmount', 'totalAmount'].includes(a),
+        !['_id', 'count', 'cashAmount', 'mobileAmount', 'totalAmount'].includes(
+          a,
+        ),
     )
     .sort();
 
@@ -104,8 +106,12 @@ export const firstOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
       </RelativeDateDisplay>
     ),
     sortingFn: (rowA, rowB) => {
-      const dateA = rowA.original.paidDate ? new Date(rowA.original.paidDate) : new Date(0);
-      const dateB = rowB.original.paidDate ? new Date(rowB.original.paidDate) : new Date(0);
+      const dateA = rowA.original.paidDate
+        ? new Date(rowA.original.paidDate)
+        : new Date(0);
+      const dateB = rowB.original.paidDate
+        ? new Date(rowB.original.paidDate)
+        : new Date(0);
       return dateA.getTime() - dateB.getTime();
     },
   },
@@ -117,7 +123,9 @@ export const firstOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as number)?.toLocaleString()} />
+        <TextOverflowTooltip
+          value={(cell.getValue() as number)?.toLocaleString()}
+        />
       </RecordTableInlineCell>
     ),
     size: 150,
@@ -130,7 +138,9 @@ export const firstOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as number)?.toLocaleString()} />
+        <TextOverflowTooltip
+          value={(cell.getValue() as number)?.toLocaleString()}
+        />
       </RecordTableInlineCell>
     ),
     size: 150,
@@ -146,7 +156,9 @@ export const secondOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as number)?.toLocaleString()} />
+        <TextOverflowTooltip
+          value={(cell.getValue() as number)?.toLocaleString()}
+        />
       </RecordTableInlineCell>
     ),
     size: 150,
@@ -167,9 +179,7 @@ export const secondOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
   {
     id: 'posName',
     accessorKey: 'posName',
-    header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('pos')} />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('pos')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -180,9 +190,7 @@ export const secondOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('type')} />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('type')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="default">{cell.getValue() as string}</Badge>
@@ -193,12 +201,12 @@ export const secondOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
   {
     id: 'user',
     accessorKey: 'user',
-    header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('user')} />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('user')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as IUser)?.username || ''} />
+        <TextOverflowTooltip
+          value={(cell.getValue() as IUser)?.username || ''}
+        />
       </RecordTableInlineCell>
     ),
     size: 150,

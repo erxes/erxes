@@ -25,11 +25,15 @@ import { IPosItem } from '../types/posItem';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 
-const itemColumns = (t: TFunction): ColumnDef<NonNullable<IPosItem['items']>>[] => [
+const itemColumns = (
+  t: TFunction,
+): ColumnDef<NonNullable<IPosItem['items']>>[] => [
   {
     id: 'productName',
     accessorKey: 'productName',
-    header: () => <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
       return (
@@ -57,7 +61,9 @@ const itemColumns = (t: TFunction): ColumnDef<NonNullable<IPosItem['items']>>[] 
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -266,7 +272,10 @@ export const PosItemDetailSheet = () => {
         if (expectedTotal > 0 && sum !== expectedTotal) {
           toast({
             title: t('amount-mismatch'),
-            description: t('payments-sum-must-equal', { sum: sum.toLocaleString(), expectedTotal: expectedTotal.toLocaleString() }),
+            description: t('payments-sum-must-equal', {
+              sum: sum.toLocaleString(),
+              expectedTotal: expectedTotal.toLocaleString(),
+            }),
             variant: 'destructive',
           });
           return;
@@ -286,7 +295,9 @@ export const PosItemDetailSheet = () => {
           if (error.message.includes('Already returned')) {
             errorMessage = t('item-already-returned');
           } else if (error.message.includes('not balanced')) {
-            errorMessage = t('payments-not-balanced', { totalAmount: posItem?.totalAmount?.toLocaleString() || 0 });
+            errorMessage = t('payments-not-balanced', {
+              totalAmount: posItem?.totalAmount?.toLocaleString() || 0,
+            });
           } else {
             errorMessage = error.message;
           }

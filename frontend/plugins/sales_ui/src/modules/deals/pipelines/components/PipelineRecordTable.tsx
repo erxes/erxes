@@ -50,7 +50,7 @@ export const PipelineMoreColumnCell = ({
     pipelineId: string;
     tab: string;
   }>(['pipelineId', 'tab']);
-  const [activeBoardId] = useQueryState('activeBoardId')
+  const [activeBoardId] = useQueryState('activeBoardId');
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
@@ -92,7 +92,10 @@ export const PipelineMoreColumnCell = ({
 
   const onArchive = () => {
     confirm({
-      message: status === 'active' ? t('archive-pipeline-confirm') : t('unarchive-pipeline-confirm'),
+      message:
+        status === 'active'
+          ? t('archive-pipeline-confirm')
+          : t('unarchive-pipeline-confirm'),
     }).then(async () => {
       try {
         archivePipeline({
@@ -145,7 +148,9 @@ export const PipelineMoreColumnCell = ({
             </Command.Item>
             <Command.Item
               onSelect={() => {
-                navigate(`/sales/deals?boardId=${activeBoardId}&pipelineId=${_id}`)
+                navigate(
+                  `/sales/deals?boardId=${activeBoardId}&pipelineId=${_id}`,
+                );
               }}
             >
               <IconSandbox /> {t('go-to-pipeline')}
@@ -164,7 +169,9 @@ export const PipelineMoreColumnCell = ({
   );
 };
 
-type PipelineColumnDef = ColumnDef<IPipeline & { hasChildren: boolean; type?: string }>;
+type PipelineColumnDef = ColumnDef<
+  IPipeline & { hasChildren: boolean; type?: string }
+>;
 
 export const pipelinesColumns = (t: TFunction): PipelineColumnDef[] => [
   RecordTable.checkboxColumn as PipelineColumnDef,
@@ -296,7 +303,9 @@ const PipelineRecordTable = () => {
 
   return (
     <>
-      <PageSubHeader>{t('pipelines-with-count', { count: totalCount })}</PageSubHeader>
+      <PageSubHeader>
+        {t('pipelines-with-count', { count: totalCount })}
+      </PageSubHeader>
       <RecordTable.Provider
         columns={pipelinesColumns(t)}
         data={pipelines || []}

@@ -55,11 +55,15 @@ export const generateOtherPaymentColumns = (
     size: 155,
   }));
 };
-export const firstPosSummaryColumns = (t: TFunction): ColumnDef<IPosSummary>[] => [
+export const firstPosSummaryColumns = (
+  t: TFunction,
+): ColumnDef<IPosSummary>[] => [
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('group')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('group')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
       return (
@@ -75,7 +79,9 @@ export const firstPosSummaryColumns = (t: TFunction): ColumnDef<IPosSummary>[] =
   {
     id: 'count',
     accessorKey: 'amounts.count',
-    header: () => <RecordTable.InlineHead icon={IconMobiledata} label={t('count')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMobiledata} label={t('count')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (
@@ -91,7 +97,9 @@ export const firstPosSummaryColumns = (t: TFunction): ColumnDef<IPosSummary>[] =
   {
     id: 'amounts.cashAmount',
     accessorKey: 'amounts.cashAmount',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label={t('cash-amount')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconPhone} label={t('cash-amount')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (
@@ -107,7 +115,9 @@ export const firstPosSummaryColumns = (t: TFunction): ColumnDef<IPosSummary>[] =
   {
     id: 'amounts.mobileAmount',
     accessorKey: 'amounts.mobileAmount',
-    header: () => <RecordTable.InlineHead icon={IconBuilding} label={t('mobile-amount')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuilding} label={t('mobile-amount')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (
@@ -122,11 +132,15 @@ export const firstPosSummaryColumns = (t: TFunction): ColumnDef<IPosSummary>[] =
   },
 ];
 
-export const secondPosSummaryColumns = (t: TFunction): ColumnDef<IPosSummary>[] => [
+export const secondPosSummaryColumns = (
+  t: TFunction,
+): ColumnDef<IPosSummary>[] => [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label={t('amount')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label={t('amount')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number | undefined;
       return (

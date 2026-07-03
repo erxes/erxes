@@ -33,7 +33,9 @@ export const coverColumns = (t: TFunction): ColumnDef<ICovers>[] => [
   {
     id: 'beginDate',
     accessorKey: 'beginDate',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('begin-date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('begin-date')} />
+    ),
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -53,7 +55,9 @@ export const coverColumns = (t: TFunction): ColumnDef<ICovers>[] => [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => <RecordTable.InlineHead icon={IconMobiledata} label={t('end-date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMobiledata} label={t('end-date')} />
+    ),
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -71,7 +75,9 @@ export const coverColumns = (t: TFunction): ColumnDef<ICovers>[] => [
   {
     id: 'user.email',
     accessorKey: 'user.email',
-    header: () => <RecordTable.InlineHead icon={IconBuilding} label={t('user')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuilding} label={t('user')} />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={row.original.user?.email || ''} />
