@@ -1,11 +1,12 @@
 import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
+  cursorPaginateAggregation,
   defaultPaginate,
   escapeRegExp,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
-import { FilterQuery, SortOrder } from 'mongoose';
+import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductParams } from '@/products/@types/product';
@@ -20,31 +21,214 @@ import {
 } from '@/products/utils';
 
 const inventoryKey = (id?: string) => id || '_';
+type DiscountField = 'discount' | 'discountPercent';
+type DiscountRangeOperator = '$gte' | '$lte';
+type DiscountConditions = Record<string, unknown>;
 
-const getDiscountPath = (
-  field: 'discount' | 'discountPercent',
-  branchId?: string,
-  departmentId?: string,
-) => {
-  return `discounts.${inventoryKey(branchId)}.${inventoryKey(
-    departmentId,
-  )}.${field}`;
-};
+const isDiscountSortField = (sortField?: string) =>
+  sortField === 'discount' || sortField === 'discountPercent';
+
+const hasRangeValue = (value?: number | null): value is number =>
+  value !== undefined && value !== null;
+
+const compactDiscountConditions = (conditions: DiscountConditions = {}) =>
+  Object.entries(conditions).reduce<DiscountConditions>(
+    (result, [key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return result;
+      }
+
+      result[key] = value;
+      return result;
+    },
+    {},
+  );
+
+const getDiscountConditions = (params: IProductParams): DiscountConditions =>
+  compactDiscountConditions({
+    ...(params.discountConditions || {}),
+    branchId: params.branchId,
+    departmentId: params.departmentId,
+    pipelineId: params.pipelineId,
+  });
 
 const getSortField = (params: IProductParams) => {
-  if (params.sortField === 'discount') {
-    return getDiscountPath('discount', params.branchId, params.departmentId);
-  }
-
-  if (params.sortField === 'discountPercent') {
-    return getDiscountPath(
-      'discountPercent',
-      params.branchId,
-      params.departmentId,
-    );
-  }
-
   return params.sortField;
+};
+
+const getConditionValueExpression = (conditionsExpression, prefixExpression) => ({
+  $first: {
+    $map: {
+      input: {
+        $filter: {
+          input: { $objectToArray: conditionsExpression },
+          as: 'condition',
+          cond: { $eq: ['$$condition.k', prefixExpression] },
+        },
+      },
+      as: 'condition',
+      in: '$$condition.v',
+    },
+  },
+});
+
+const getRuleConditionMatchExpression = (requestConditions: DiscountConditions) => {
+  const requestConditionsExpression = { $literal: requestConditions };
+
+  return {
+    $allElementsTrue: {
+      $map: {
+        input: { $ifNull: ['$$discount.prefixes', []] },
+        as: 'prefix',
+        in: {
+          $let: {
+            vars: {
+              requestValue: getConditionValueExpression(
+                requestConditionsExpression,
+                '$$prefix',
+              ),
+              ruleValue: getConditionValueExpression(
+                { $ifNull: ['$$discount.conditions', {}] },
+                '$$prefix',
+              ),
+            },
+            in: {
+              $and: [
+                { $ne: ['$$requestValue', null] },
+                {
+                  $cond: [
+                    { $isArray: '$$ruleValue' },
+                    { $in: ['$$requestValue', '$$ruleValue'] },
+                    {
+                      $cond: [
+                        { $eq: [{ $type: '$$ruleValue' }, 'object'] },
+                        {
+                          $and: [
+                            {
+                              $or: [
+                                { $eq: ['$$ruleValue.start', null] },
+                                { $gte: ['$$requestValue', '$$ruleValue.start'] },
+                              ],
+                            },
+                            {
+                              $or: [
+                                { $eq: ['$$ruleValue.end', null] },
+                                { $lte: ['$$requestValue', '$$ruleValue.end'] },
+                              ],
+                            },
+                          ],
+                        },
+                        { $eq: ['$$ruleValue', '$$requestValue'] },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+  };
+};
+
+const getMatchingDiscountsExpression = (conditions: DiscountConditions) => ({
+  $filter: {
+    input: { $ifNull: ['$discounts', []] },
+    as: 'discount',
+    cond: getRuleConditionMatchExpression(conditions),
+  },
+});
+
+const getDiscountValueExpression = (
+  field: DiscountField,
+  conditions: DiscountConditions,
+) => ({
+  $ifNull: [
+    {
+      $max: {
+        $map: {
+          input: getMatchingDiscountsExpression(conditions),
+          as: 'discount',
+          in: `$$discount.${field}`,
+        },
+      },
+    },
+    0,
+  ],
+});
+
+const buildScopedDiscountRangeFilter = (
+  field: DiscountField,
+  operator: DiscountRangeOperator,
+  value: number,
+  conditions: DiscountConditions,
+) => ({
+  $expr: {
+    [operator]: [getDiscountValueExpression(field, conditions), value],
+  },
+});
+
+const pushScopedDiscountRangeFilter = (
+  filters: FilterQuery<IProductDocument>[],
+  field: DiscountField,
+  operator: DiscountRangeOperator,
+  value: number | undefined,
+  conditions: DiscountConditions,
+) => {
+  if (!hasRangeValue(value)) {
+    return;
+  }
+
+  filters.push(
+    buildScopedDiscountRangeFilter(
+      field,
+      operator,
+      value,
+      conditions,
+    ),
+  );
+};
+
+const buildDiscountSortPipeline = (
+  filter: FilterQuery<IProductDocument>,
+  params: IProductParams,
+): PipelineStage[] => {
+  const discountField =
+    params.sortField === 'discountPercent' ? 'discountPercent' : 'discount';
+  const conditions = getDiscountConditions(params);
+
+  return [
+    { $match: filter },
+    {
+      $addFields: {
+        discountSortValue: getDiscountValueExpression(discountField, conditions),
+      },
+    },
+  ];
+};
+
+const paginateDiscountSortedProducts = async (
+  models: IModels,
+  filter: FilterQuery<IProductDocument>,
+  params: IProductParams,
+) => {
+  const pipeline = buildDiscountSortPipeline(filter, params);
+  const sortDirection = params.sortDirection === -1 ? -1 : 1;
+  const paginationParams = params as IProductParams & {
+    page?: number;
+    perPage?: number;
+  };
+  const page = Number(paginationParams.page || 1);
+  const perPage = Number(paginationParams.perPage || params.limit || 20);
+
+  pipeline.push(
+    { $sort: { discountSortValue: sortDirection, code: 1, _id: 1 } },
+    { $skip: (page - 1) * perPage },
+    { $limit: perPage },
+  );
+
+  return models.Products.aggregate(pipeline);
 };
 
 const generateFilter = async (
@@ -82,7 +266,7 @@ const generateFilter = async (
 
   const filter: FilterQuery<IProductParams> = { ...commonQuerySelector };
 
-  const andFilters: any[] = [];
+  const andFilters: FilterQuery<IProductDocument>[] = [];
 
   filter.status = { $ne: PRODUCT_STATUSES.DELETED };
 
@@ -240,39 +424,6 @@ const generateFilter = async (
       });
     }
 
-    if (minDiscountValue || minDiscountValue === 0) {
-      andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.discount`]: {
-          $exists: true,
-          $gte: minDiscountValue,
-        },
-      });
-    }
-    if (maxDiscountValue || maxDiscountValue === 0) {
-      andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.discount`]: {
-          $exists: true,
-          $lte: maxDiscountValue,
-        },
-      });
-    }
-
-    if (minDiscountPercent || minDiscountPercent === 0) {
-      andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.discountPercent`]: {
-          $exists: true,
-          $gte: minDiscountPercent,
-        },
-      });
-    }
-    if (maxDiscountPercent || maxDiscountPercent === 0) {
-      andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.discountPercent`]: {
-          $exists: true,
-          $lte: maxDiscountPercent,
-        },
-      });
-    }
   } else {
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
@@ -327,112 +478,38 @@ const generateFilter = async (
       });
     }
 
-    if (minDiscountValue || minDiscountValue === 0) {
-      andFilters.push({
-        $expr: {
-          $gte: [
-            {
-              $sum: {
-                $map: {
-                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
-                  as: 'branch',
-                  in: {
-                    $sum: {
-                      $map: {
-                        input: { $objectToArray: '$$branch.v' },
-                        as: 'dept',
-                        in: { $ifNull: ['$$dept.v.discount', 0] },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            minDiscountValue,
-          ],
-        },
-      });
-    }
-    if (maxDiscountValue || maxDiscountValue === 0) {
-      andFilters.push({
-        $expr: {
-          $lte: [
-            {
-              $sum: {
-                $map: {
-                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
-                  as: 'branch',
-                  in: {
-                    $sum: {
-                      $map: {
-                        input: { $objectToArray: '$$branch.v' },
-                        as: 'dept',
-                        in: { $ifNull: ['$$dept.v.discount', 0] },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            maxDiscountValue,
-          ],
-        },
-      });
-    }
-
-    if (minDiscountPercent || minDiscountPercent === 0) {
-      andFilters.push({
-        $expr: {
-          $gte: [
-            {
-              $avg: {
-                $map: {
-                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
-                  as: 'branch',
-                  in: {
-                    $avg: {
-                      $map: {
-                        input: { $objectToArray: '$$branch.v' },
-                        as: 'dept',
-                        in: { $ifNull: ['$$dept.v.discountPercent', 0] },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            minDiscountPercent,
-          ],
-        },
-      });
-    }
-    if (maxDiscountPercent || maxDiscountPercent === 0) {
-      andFilters.push({
-        $expr: {
-          $lte: [
-            {
-              $avg: {
-                $map: {
-                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
-                  as: 'branch',
-                  in: {
-                    $avg: {
-                      $map: {
-                        input: { $objectToArray: '$$branch.v' },
-                        as: 'dept',
-                        in: { $ifNull: ['$$dept.v.discountPercent', 0] },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            maxDiscountPercent,
-          ],
-        },
-      });
-    }
   }
+
+  const discountConditions = getDiscountConditions(params);
+
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discount',
+    '$gte',
+    minDiscountValue,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discount',
+    '$lte',
+    maxDiscountValue,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discountPercent',
+    '$gte',
+    minDiscountPercent,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discountPercent',
+    '$lte',
+    maxDiscountPercent,
+    discountConditions,
+  );
 
   if (vendorId) {
     filter.vendorId = vendorId;
@@ -491,6 +568,20 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
 
     const sortField = getSortField(params);
 
+    if (isDiscountSortField(params.sortField)) {
+      return await cursorPaginateAggregation({
+        model: models.Products,
+        pipeline: buildDiscountSortPipeline(filter, params),
+        params: {
+          ...params,
+          orderBy: {
+            discountSortValue: (params.sortDirection || 1) as SortOrder,
+            _id: 1,
+          },
+        },
+      });
+    }
+
     if (sortField) {
       params.orderBy = {
         [sortField]: (params.sortDirection || 1) as SortOrder,
@@ -535,6 +626,10 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
       });
     }
 
+    if (isDiscountSortField(params.sortField)) {
+      return await paginateDiscountSortedProducts(models, filter, params);
+    }
+
     return await defaultPaginate(models.Products.find(filter).sort(sort), {
       ...params,
     });
@@ -565,6 +660,10 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
       return await getSimilaritiesProducts(models, filter, sort, {
         groupedSimilarity: params.groupedSimilarity,
       });
+    }
+
+    if (isDiscountSortField(params.sortField)) {
+      return await paginateDiscountSortedProducts(models, filter, params);
     }
 
     return await defaultPaginate(models.Products.find(filter).sort(sort), {

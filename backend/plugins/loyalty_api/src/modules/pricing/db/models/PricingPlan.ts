@@ -59,18 +59,14 @@ const participantFields: ParticipantField[] = [
 
 const normalizePlanDoc = (doc: IPricingPlan): IPricingPlan => {
   const priority: PricingPlanPriority =
-    doc.priority ??
-    (doc.isPriority
-      ? (PRIORITY_TYPES.POS_BASE as PricingPlanPriority)
-      : (PRIORITY_TYPES.NONE as PricingPlanPriority));
+    doc.priority ?? (PRIORITY_TYPES.NONE as PricingPlanPriority);
 
   const normalizedDoc: IPricingPlan = {
     ...doc,
     priority,
-    isPriority: priority === PRIORITY_TYPES.POS_BASE,
   };
 
-  if (priority !== PRIORITY_TYPES.NONE) {
+  if (priority === PRIORITY_TYPES.POS_BASE) {
     const participants = normalizedDoc as Record<
       ParticipantField,
       string[] | undefined

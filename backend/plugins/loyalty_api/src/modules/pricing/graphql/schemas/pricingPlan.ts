@@ -53,7 +53,6 @@ export const types = `
     priceAdjustType: String,
     priceAdjustFactor: Int,
     bonusProduct: String,
-    isPriority: Boolean,
     priority: String,
 
     applyType: String,
@@ -184,7 +183,6 @@ export const types = `
     priceAdjustType: String,
     priceAdjustFactor: Int,
     bonusProduct: String,
-    isPriority: Boolean,
     priority: String,
 
     applyType: String,
@@ -261,7 +259,6 @@ export const types = `
     priceAdjustType: String,
     priceAdjustFactor: Int,
     bonusProduct: String,
-    isPriority: Boolean,
     priority: String,
 
     applyType: String,
@@ -341,7 +338,6 @@ export const types = `
 const pricingQueryParams = `
   status: String
   priority: String
-  prioritizeRule: String
   branchId: String
   departmentId: String
   productId: String

@@ -9,12 +9,14 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 const inventoryKey = (id?: string) => id || '_';
 
 const discountValueSchema = z.object({
+  planId: z.string(),
   discount: z.number(),
   discountPercent: z.number(),
-  planId: z.string(),
+  prefixes: z.array(z.string()),
+  conditions: z.record(z.any()),
 });
 
-const discountsSchema = z.record(z.record(discountValueSchema));
+const discountsSchema = z.array(discountValueSchema);
 
 export const productsTrpcRouter = t.router({
   products: t.router({

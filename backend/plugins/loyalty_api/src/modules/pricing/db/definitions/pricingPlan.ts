@@ -35,7 +35,6 @@ export const pricingPlanSchema = schemaWrapper(
       },
       priceAdjustFactor: { type: Number },
       bonusProduct: { type: String },
-      isPriority: { type: Boolean, default: false },
       priority: {
         type: String,
         enum: PRIORITY_TYPES.ALL,

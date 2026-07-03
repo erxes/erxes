@@ -14,8 +14,7 @@ export interface IPricingPlan {
   priceAdjustType: 'none' | 'round' | 'floor' | 'ceil' | 'endsWith9';
   priceAdjustFactor: number;
   bonusProduct?: string;
-  isPriority?: boolean;
-  priority?: PricingPlanPriority;
+  priority: PricingPlanPriority;
 
   applyType: string;
 

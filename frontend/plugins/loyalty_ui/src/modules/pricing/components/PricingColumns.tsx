@@ -17,6 +17,17 @@ import { IPricing } from '@/pricing/types';
 import { MembersInline } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { PricingMoreCell } from '@/pricing/components/PricingMoreCell';
+import { priorityLabelKey } from '@/pricing/constants';
+
+const PricingPriorityCell = ({ value }: { value: IPricing['priority'] }) => {
+  const { t } = useTranslation('loyalty');
+
+  return (
+    <RecordTableInlineCell>
+      <Badge variant="secondary">{t(priorityLabelKey(value))}</Badge>
+    </RecordTableInlineCell>
+  );
+};
 
 export const pricingColumns: ColumnDef<IPricing>[] = [
   RecordTable.checkboxColumn as ColumnDef<IPricing>,
@@ -65,19 +76,15 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
     size: 350,
   },
   {
-    id: 'isPriority',
-    accessorKey: 'isPriority',
+    id: 'priority',
+    accessorKey: 'priority',
     header: () => {
       const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('is-priority')} icon={IconTag} />;
+      return <RecordTable.InlineHead label={t('priority')} icon={IconTag} />;
     },
     cell: ({ cell }) => {
-      const value = cell.getValue() as boolean;
-      return (
-        <RecordTableInlineCell>
-          <span className="font-mono text-xs">{String(value)}</span>
-        </RecordTableInlineCell>
-      );
+      const value = cell.getValue() as IPricing['priority'];
+      return <PricingPriorityCell value={value} />;
     },
   },
   {

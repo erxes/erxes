@@ -19,7 +19,10 @@ import {
 import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
+  getDiscountSortedProducts,
   getRemBranchId,
+  isDiscountSortField,
+  pushDiscountRangeFilters,
 } from '~/modules/posclient/utils/products';
 
 const getPropertyFieldId = (field: string) =>
@@ -77,6 +80,11 @@ export interface IProductParams extends ICommonParams {
   maxRemainder?: number;
   minPrice?: number;
   maxPrice?: number;
+  minDiscountValue?: number;
+  maxDiscountValue?: number;
+  minDiscountPercent?: number;
+  maxDiscountPercent?: number;
+  discountConditions?: Record<string, unknown>;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -117,6 +125,11 @@ const generateFilter = async (
     maxRemainder,
     minPrice,
     maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -312,6 +325,14 @@ const generateFilter = async (
     });
   }
 
+  pushDiscountRangeFilters($and, config, branchId, {
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+  });
+
   const lastFilter = { ...filter, $and };
 
   if (isKiosk) {
@@ -427,6 +448,17 @@ const cpProductQueries: Record<string, Resolver> = {
         groupedSimilarity,
         ...paginationArgs,
       });
+    }
+
+    if (isDiscountSortField(sortField)) {
+      const products = await getDiscountSortedProducts({
+        models,
+        filter,
+        config,
+        params,
+      });
+
+      return checkRemainders(subdomain, models, config, products, branchId || '');
     }
 
     const paginatedProducts = await paginate(

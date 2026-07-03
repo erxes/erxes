@@ -59,34 +59,6 @@ const applyProductIdFilter = async (
   return { ...baseFilter, _id: { $in: planIds } };
 };
 
-const applyPrioritizeRuleFilter = (
-  filter: Record<string, any>,
-  prioritizeRule?: 'only' | 'exclude',
-): Record<string, any> => {
-  const appendAndFilter = (nextFilter: Record<string, any>) => ({
-    ...filter,
-    $and: [...(filter.$and || []), nextFilter],
-  });
-
-  if (prioritizeRule === 'only') {
-    return appendAndFilter({
-      $or: [
-        { priority: 'posBase' },
-        { priority: { $exists: false }, isPriority: true },
-      ],
-    });
-  }
-  if (prioritizeRule === 'exclude') {
-    return appendAndFilter({
-      $or: [
-        { priority: '' },
-        { priority: { $exists: false }, isPriority: false },
-      ],
-    });
-  }
-  return filter;
-};
-
 const applyBooleanFilters = (
   filter: Record<string, any>,
   params: {
@@ -131,7 +103,6 @@ const generateFilter = async (
     departmentId?: string;
     date?: string | Date;
     productId?: string;
-    prioritizeRule?: 'only' | 'exclude';
     isQuantityEnabled?: boolean;
     isPriceEnabled?: boolean;
     isExpiryEnabled?: boolean;
@@ -145,7 +116,6 @@ const generateFilter = async (
     departmentId,
     date,
     productId,
-    prioritizeRule,
   } = params;
 
   let filter: Record<string, any> = {};
@@ -171,8 +141,6 @@ const generateFilter = async (
   if (date) {
     filter.$or = buildDateFilter(date);
   }
-
-  filter = applyPrioritizeRuleFilter(filter, prioritizeRule);
 
   if (productId) {
     filter = await applyProductIdFilter(subdomain, models, filter, productId);

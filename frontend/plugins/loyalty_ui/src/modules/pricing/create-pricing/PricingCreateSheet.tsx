@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   DatePicker,
   Input,
   Select,
@@ -11,6 +10,11 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useCreatePricing } from '@/pricing/hooks/useCreatePricing';
+import {
+  PRICING_PRIORITY_OPTIONS,
+  PricingPriorityFormValue,
+  priorityFromFormValue,
+} from '@/pricing/constants';
 import {
   SelectCompany,
   SelectSegment,
@@ -39,7 +43,7 @@ interface PricingCreateSheetProps {
 interface PricingFormValues extends CustomerBrokerFormValues {
   name: string;
   status: 'draft';
-  isPriority: boolean;
+  priority: PricingPriorityFormValue;
   startDate: string | null;
   endDate: string | null;
   appliesTo: 'category' | 'product' | 'segment' | 'vendor' | 'tag' | 'bundle';
@@ -118,7 +122,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
     defaultValues: {
       name: '',
       status: 'draft',
-      isPriority: false,
+      priority: 'none',
       startDate: null,
       endDate: null,
       appliesTo: 'category',
@@ -136,6 +140,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   });
 
   const appliesTo = form.watch('appliesTo');
+  const priority = form.watch('priority');
   const formValues = form.watch();
 
   useEffect(() => {
@@ -197,7 +202,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
         name: values.name.trim(),
         status: 'draft',
         applyType: values.appliesTo,
-        isPriority: values.isPriority,
+        priority: priorityFromFormValue(values.priority),
       };
 
       if (values.startDate) {
@@ -242,9 +247,9 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
         doc.productsBundle = [values.bundleProductIds];
       }
 
-      // Customer & broker conditions are independent of `appliesTo`. Only the
-      // active buyer-kind is written; the inactive kind is cleared.
-      Object.assign(doc, customerBrokerToDoc(values));
+      if (values.priority !== 'posBase') {
+        Object.assign(doc, customerBrokerToDoc(values));
+      }
 
       await createPricing(doc);
 
@@ -304,19 +309,26 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
 
               <Form.Field
                 control={form.control}
-                name="isPriority"
+                name="priority"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>{t('priority')}</Form.Label>
                     <Form.Control>
-                      <div className="flex items-center h-9">
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={(checked) =>
-                            field.onChange(checked === true)
-                          }
-                        />
-                      </div>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger>
+                          <Select.Value placeholder={t('select-priority')} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {PRICING_PRIORITY_OPTIONS.map((option) => (
+                            <Select.Item key={option.label} value={option.value}>
+                              {t(option.label)}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -663,7 +675,9 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   )}
                 />
               )}
-              <CustomerBrokerConditions control={form.control} />
+              {priority !== 'posBase' && (
+                <CustomerBrokerConditions control={form.control} />
+              )}
             </div>
 
             <Sheet.Footer className="px-5 py-4 border-t bg-background">

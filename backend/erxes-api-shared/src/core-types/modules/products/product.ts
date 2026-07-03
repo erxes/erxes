@@ -22,14 +22,23 @@ interface IInventory {
   };
 }
 
-interface IDiscount {
-  [branchId: string]: {
-    [departmentId: string]: {
-      planId: string;
-      discount: number;
-      discountPercent: number;
+export type ProductDiscountConditionValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | number[]
+  | {
+      start?: string | number;
+      end?: string | number;
     };
-  };
+
+export interface IDiscount {
+  planId: string;
+  discount: number;
+  discountPercent: number;
+  prefixes: string[];
+  conditions: Record<string, ProductDiscountConditionValue>;
 }
 
 export type ProductDurationType =
@@ -76,7 +85,7 @@ export interface IProduct {
   pdfAttachment?: IPdfAttachment;
 
   inventories?: IInventory;
-  discounts?: IDiscount;
+  discounts?: IDiscount[];
 
   similarityId?: string;
 }

@@ -326,10 +326,7 @@ export const appRouter = t.router({
         conditions.$and = [
           ...(conditions.$and || []),
           {
-            $or: [
-              { priority: '' },
-              { priority: { $exists: false }, isPriority: false },
-            ],
+            $or: [{ priority: { $ne: 'posBase' } }],
           },
         ];
 

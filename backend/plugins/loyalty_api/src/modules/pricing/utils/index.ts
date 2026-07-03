@@ -93,10 +93,7 @@ const applyPriorityConditions = (
     conditions.$and = [
       ...(conditions.$and || []),
       {
-        $or: [
-          { priority: 'posBase' },
-          { priority: { $exists: false }, isPriority: true },
-        ],
+        $or: [{ priority: 'posBase' }],
       },
     ];
     return;
@@ -106,21 +103,11 @@ const applyPriorityConditions = (
     conditions.$and = [
       ...(conditions.$and || []),
       {
-        $or: [
-          { priority: '' },
-          { priority: { $exists: false }, isPriority: false },
-        ],
+        $or: [{ priority: { $ne: 'posBase' } }],
       },
     ];
     return;
   }
-
-  conditions.$and = [
-    ...(conditions.$and || []),
-    {
-      $or: [{ priority: { $ne: 'public' } }, { priority: { $exists: false } }],
-    },
-  ];
 };
 
 // Helper function to calculate default discount value
@@ -243,7 +230,7 @@ const updateResultWithCalculations = (
 ): void => {
   if (type !== 'bonus') {
     result[itemId].type = type;
-    if (plan.priority === 'posBase' || plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].value += value;
     } else if (
       (value > 0 && result[itemId].value < value) ||
@@ -254,7 +241,7 @@ const updateResultWithCalculations = (
   }
 
   if (type === 'bonus') {
-    if (plan.priority === 'posBase' || plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].bonusProducts = [
         ...result[itemId].bonusProducts,
         ...bonusProducts,
