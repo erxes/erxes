@@ -12,6 +12,14 @@ type CustomerActivityContext = {
   models: IModels;
 };
 
+interface DescriptionBlockContent {
+  text?: string;
+}
+
+interface DescriptionBlock {
+  content?: DescriptionBlockContent[];
+}
+
 /**
  * Formats stored Blocknote description JSON into readable activity text.
  */
@@ -21,14 +29,16 @@ const formatDescriptionValue = (value: unknown) => {
   }
 
   try {
-    const blocks = JSON.parse(value);
+    const blocks: unknown = JSON.parse(value);
 
     if (!Array.isArray(blocks)) {
       return value;
     }
 
     const text = blocks
-      .flatMap((block) => (Array.isArray(block?.content) ? block.content : []))
+      .flatMap((block: DescriptionBlock) =>
+        Array.isArray(block?.content) ? block.content : [],
+      )
       .map((content) => content?.text)
       .filter(Boolean)
       .join(' ')
@@ -39,7 +49,6 @@ const formatDescriptionValue = (value: unknown) => {
     return value;
   }
 };
-
 export const customerActivityResolvers: Record<
   string,
   Resolver<ActivityLogInput>
