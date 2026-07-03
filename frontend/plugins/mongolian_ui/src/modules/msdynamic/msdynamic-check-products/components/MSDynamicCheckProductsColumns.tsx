@@ -10,7 +10,9 @@ import type { TFunction } from 'i18next';
 
 import { MSDynamicCheckProduct } from '../types/msDynamicCheckProduct';
 
-export const msDynamicCheckProductColumns = (t: TFunction): ColumnDef<MSDynamicCheckProduct>[] => [
+export const msDynamicCheckProductColumns = (
+  t: TFunction,
+): ColumnDef<MSDynamicCheckProduct>[] => [
   RecordTable.checkboxColumn as ColumnDef<MSDynamicCheckProduct>,
   {
     id: 'code',
@@ -35,7 +37,9 @@ export const msDynamicCheckProductColumns = (t: TFunction): ColumnDef<MSDynamicC
   {
     id: 'barcodes',
     accessorKey: 'displayBarcodes',
-    header: () => <RecordTable.InlineHead label={t('bar-codes')} icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('bar-codes')} icon={IconHash} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue<string>()} />
@@ -45,19 +49,21 @@ export const msDynamicCheckProductColumns = (t: TFunction): ColumnDef<MSDynamicC
   {
     id: 'unitPrice',
     accessorKey: 'displayUnitPrice',
-    header: () => <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={String(cell.getValue<string | number>())}
-        />
+        <TextOverflowTooltip value={String(cell.getValue<string | number>())} />
       </RecordTableInlineCell>
     ),
   },
   {
     id: 'status',
     accessorKey: 'isSynced',
-    header: () => <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {row.original.isSynced ? (

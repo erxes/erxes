@@ -19,12 +19,16 @@ import {
   CUSTOMER_STATUS_LABELS,
 } from '../types/checkCustomer';
 
-export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] => [
+export const checkCustomerColumns = (
+  t: TFunction,
+): ColumnDef<ICustomerItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<ICustomerItem>,
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconAlertTriangle} label={t('status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlertTriangle} label={t('status')} />
+    ),
     cell: ({ cell }) => {
       const status = cell.getValue() as ICustomerItem['status'];
       const Icon = CUSTOMER_STATUS_ICONS[status];
@@ -42,7 +46,9 @@ export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] =
   {
     id: 'No',
     accessorKey: 'No',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('msd-code')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('msd-code')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -52,7 +58,9 @@ export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] =
   {
     id: 'Name',
     accessorKey: 'Name',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('msd-name')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('msd-name')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -62,7 +70,9 @@ export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] =
   {
     id: 'Phone_No',
     accessorKey: 'Phone_No',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label={t('msd-phone')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconPhone} label={t('msd-phone')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -72,7 +82,9 @@ export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] =
   {
     id: 'E_Mail',
     accessorKey: 'E_Mail',
-    header: () => <RecordTable.InlineHead icon={IconMail} label={t('msd-email')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMail} label={t('msd-email')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -82,7 +94,9 @@ export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] =
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('erxes-code')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('erxes-code')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -92,7 +106,9 @@ export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] =
   {
     id: 'primaryPhone',
     accessorKey: 'primaryPhone',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label={t('erxes-phone')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconPhone} label={t('erxes-phone')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -102,7 +118,9 @@ export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] =
   {
     id: 'primaryEmail',
     accessorKey: 'primaryEmail',
-    header: () => <RecordTable.InlineHead icon={IconMail} label={t('erxes-email')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMail} label={t('erxes-email')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -112,7 +130,9 @@ export const checkCustomerColumns = (t: TFunction): ColumnDef<ICustomerItem>[] =
   {
     id: 'message',
     accessorKey: 'message',
-    header: () => <RecordTable.InlineHead icon={IconAlertTriangle} label={t('message')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlertTriangle} label={t('message')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />

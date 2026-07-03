@@ -9,7 +9,9 @@ import type { TFunction } from 'i18next';
 import { CategoryItem } from '../types/categoryItem';
 import { SyncedStatusCell } from '../../shared/components/SyncedStatusCell';
 
-export const checkCategoryColumns = (t: TFunction): ColumnDef<CategoryItem>[] => [
+export const checkCategoryColumns = (
+  t: TFunction,
+): ColumnDef<CategoryItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<CategoryItem>,
   {
     id: 'code',
@@ -38,7 +40,9 @@ export const checkCategoryColumns = (t: TFunction): ColumnDef<CategoryItem>[] =>
   {
     id: 'status',
     accessorKey: 'isSynced',
-    header: () => <RecordTable.InlineHead icon={IconCircleCheck} label={t('status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCircleCheck} label={t('status')} />
+    ),
     cell: ({ row }) => <SyncedStatusCell isSynced={row.original.isSynced} />,
   },
 ];

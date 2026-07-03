@@ -7,7 +7,10 @@ import { TReturnErkhetConfig } from '../types';
 import { TReturnErkhetConfigRow } from '../hooks/useReturnErkhetConfigs';
 import { RETURN_TYPES } from '../constants/returnTypesData';
 import { ReturnErkhetConfigEditSheet } from './ReturnErkhetConfigEditSheet';
-import { ErkhetConfigTitleCell, ErkhetConfigMoreCell } from '../../shared/components/ErkhetConfigColumnCells';
+import {
+  ErkhetConfigTitleCell,
+  ErkhetConfigMoreCell,
+} from '../../shared/components/ErkhetConfigColumnCells';
 
 const returnTypeLabel = (value: string) =>
   RETURN_TYPES.find((t) => t.value === value)?.label ?? (value || '—');
@@ -42,7 +45,9 @@ export const buildReturnErkhetConfigColumns = (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />
+    ),
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
         config={row.original}
@@ -62,18 +67,29 @@ export const buildReturnErkhetConfigColumns = (
   {
     id: 'userEmail',
     accessorKey: 'userEmail',
-    header: () => <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />
+    ),
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {(cell.getValue() as string) || '—'}
+      </RecordTableInlineCell>
     ),
     size: 200,
   },
   {
     id: 'returnType',
     accessorKey: 'returnType',
-    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label={t('return-type')} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconLayoutKanban}
+        label={t('return-type')}
+      />
+    ),
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{returnTypeLabel(cell.getValue() as string)}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {returnTypeLabel(cell.getValue() as string)}
+      </RecordTableInlineCell>
     ),
     size: 200,
   },

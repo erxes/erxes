@@ -26,7 +26,12 @@ export const PipelineRemainderConfigRecordTable = ({
       configs={configs}
       columns={buildRemainderConfigColumns(t, onEdit, onDelete, editLoading)}
       emptyDescription={t('create-first-remainder-config')}
-      commandBar={<PipelineRemainderConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+      commandBar={
+        <PipelineRemainderConfigCommandBar
+          onDeleteMany={onDeleteMany}
+          loading={editLoading}
+        />
+      }
     />
   );
 };

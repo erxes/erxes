@@ -26,7 +26,12 @@ export const ReturnErkhetConfigRecordTable = ({
       configs={configs}
       columns={buildReturnErkhetConfigColumns(t, onEdit, onDelete, editLoading)}
       emptyDescription={t('create-first-return-erkhet-config')}
-      commandBar={<ReturnErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+      commandBar={
+        <ReturnErkhetConfigCommandBar
+          onDeleteMany={onDeleteMany}
+          loading={editLoading}
+        />
+      }
     />
   );
 };

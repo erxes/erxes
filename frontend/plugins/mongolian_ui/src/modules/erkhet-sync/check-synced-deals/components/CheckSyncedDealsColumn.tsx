@@ -51,12 +51,16 @@ const stringifyAmount = (amount: unknown) => {
   return JSON.stringify(amount);
 };
 
-export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDeals>[] => [
+export const checkSyncedDealsColumns = (
+  t: TFunction,
+): ColumnDef<ICheckSyncedDeals>[] => [
   RecordTable.checkboxColumn as ColumnDef<ICheckSyncedDeals>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('deal-name')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('deal-name')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -68,7 +72,9 @@ export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDea
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -80,7 +86,9 @@ export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDea
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -92,7 +100,9 @@ export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDea
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -106,7 +116,9 @@ export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDea
   {
     id: 'modifiedAt',
     accessorKey: 'modifiedAt',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('modified-at')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('modified-at')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -120,7 +132,12 @@ export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDea
   {
     id: 'stageChangedDate',
     accessorKey: 'stageChangedDate',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('stage-changed-date')} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconCategory}
+        label={t('stage-changed-date')}
+      />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -134,7 +151,9 @@ export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDea
   {
     id: 'unSynced',
     accessorKey: 'syncStatus',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('sync-status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('sync-status')} />
+    ),
     cell: ({ cell }) => {
       const status = (cell.getValue() || 'skipped') as string;
 
@@ -171,7 +190,9 @@ export const checkSyncedDealsColumns = (t: TFunction): ColumnDef<ICheckSyncedDea
   {
     id: 'syncAction',
     accessorKey: 'syncAction',
-    header: () => <RecordTable.InlineHead icon={IconRefresh} label={t('sync-action')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconRefresh} label={t('sync-action')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

@@ -6,7 +6,10 @@ import { checkboxColumn } from 'erxes-ui/modules/record-table/components/Checkbo
 import { AddPipelineRemainderConfig } from '../types';
 import { TRemainderConfigRow } from '../hooks/usePipelineRemainderConfigs';
 import { PipelineRemainderConfigEditSheet } from './PipelineRemainderConfigEditSheet';
-import { ErkhetConfigTitleCell, ErkhetConfigMoreCell } from '../../shared/components/ErkhetConfigColumnCells';
+import {
+  ErkhetConfigTitleCell,
+  ErkhetConfigMoreCell,
+} from '../../shared/components/ErkhetConfigColumnCells';
 
 export const buildRemainderConfigColumns = (
   t: TFunction,
@@ -38,7 +41,9 @@ export const buildRemainderConfigColumns = (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />
+    ),
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
         config={row.original}
@@ -60,16 +65,22 @@ export const buildRemainderConfigColumns = (
     accessorKey: 'account',
     header: () => <RecordTable.InlineHead icon={IconAt} label={t('account')} />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {(cell.getValue() as string) || '—'}
+      </RecordTableInlineCell>
     ),
     size: 200,
   },
   {
     id: 'location',
     accessorKey: 'location',
-    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label={t('location')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLayoutKanban} label={t('location')} />
+    ),
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {(cell.getValue() as string) || '—'}
+      </RecordTableInlineCell>
     ),
     size: 200,
   },

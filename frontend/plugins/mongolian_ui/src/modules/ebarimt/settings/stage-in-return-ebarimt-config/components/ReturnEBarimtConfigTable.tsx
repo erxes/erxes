@@ -11,7 +11,13 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { IconClipboardList, IconCode, IconEdit, IconToggleLeft, IconTrash } from '@tabler/icons-react';
+import {
+  IconClipboardList,
+  IconCode,
+  IconEdit,
+  IconToggleLeft,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
@@ -116,7 +122,9 @@ const returnEbarimtMoreColumn = {
   size: 33,
 };
 
-const returnEbarimtColumns = (t: TFunction): ColumnDef<IReturnEbarimtConfigRow>[] => [
+const returnEbarimtColumns = (
+  t: TFunction,
+): ColumnDef<IReturnEbarimtConfigRow>[] => [
   returnEbarimtMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IReturnEbarimtConfigRow>,
   {
@@ -140,7 +148,9 @@ const returnEbarimtColumns = (t: TFunction): ColumnDef<IReturnEbarimtConfigRow>[
   {
     id: 'hasVat',
     accessorKey: 'hasVat',
-    header: () => <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
@@ -151,7 +161,9 @@ const returnEbarimtColumns = (t: TFunction): ColumnDef<IReturnEbarimtConfigRow>[
   {
     id: 'hasCitytax',
     accessorKey: 'hasCitytax',
-    header: () => <RecordTable.InlineHead label={t('has-citytax')} icon={IconToggleLeft} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('has-citytax')} icon={IconToggleLeft} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />

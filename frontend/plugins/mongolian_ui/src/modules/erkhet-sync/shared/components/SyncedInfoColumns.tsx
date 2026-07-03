@@ -1,8 +1,18 @@
 import { IconClock } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { TextOverflowTooltip, RecordTableInlineCell, RecordTable } from 'erxes-ui';
+import {
+  TextOverflowTooltip,
+  RecordTableInlineCell,
+  RecordTable,
+} from 'erxes-ui';
 
-export const syncedInfoColumn = <T extends { syncedDate?: string; syncedBillNumber?: string; syncedCustomer?: string }>(
+export const syncedInfoColumn = <
+  T extends {
+    syncedDate?: string;
+    syncedBillNumber?: string;
+    syncedCustomer?: string;
+  },
+>(
   accessorKey: 'syncedDate' | 'syncedBillNumber' | 'syncedCustomer',
   label: string,
 ): ColumnDef<T> => ({

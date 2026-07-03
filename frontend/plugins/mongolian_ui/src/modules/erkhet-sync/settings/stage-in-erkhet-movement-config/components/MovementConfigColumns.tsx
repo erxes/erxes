@@ -47,7 +47,9 @@ export const buildMovementConfigColumns = (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />
+    ),
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
         config={row.original}
@@ -67,7 +69,9 @@ export const buildMovementConfigColumns = (
   {
     id: 'userEmail',
     accessorKey: 'userEmail',
-    header: () => <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -78,7 +82,9 @@ export const buildMovementConfigColumns = (
   {
     id: 'defaultCustomer',
     accessorKey: 'defaultCustomer',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('default-customer')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('default-customer')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -89,7 +95,12 @@ export const buildMovementConfigColumns = (
   {
     id: 'responseField',
     accessorKey: 'responseField',
-    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field')} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconLayoutKanban}
+        label={t('response-field')}
+      />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}

@@ -62,7 +62,9 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'name',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('name')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('name')} />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={getCategoryName(row.original, action)} />
@@ -71,7 +73,12 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFileDescription} label={t('description')} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconFileDescription}
+        label={t('description')}
+      />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-muted-foreground">
         <TextOverflowTooltip
@@ -82,7 +89,9 @@ export const getInventoryCategoryColumns = (
   },
   {
     id: 'status',
-    header: () => <RecordTable.InlineHead icon={IconStatusChange} label={t('status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconStatusChange} label={t('status')} />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {row.original.syncStatus === true ? (

@@ -21,7 +21,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'id',
     accessorKey: 'id',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('bill-id')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('bill-id')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -33,7 +35,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'billId',
     accessorKey: 'billId',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('sub-bill-ids')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('sub-bill-ids')} />
+    ),
     cell: ({ row }) => {
       const receipts = row.original.receipts;
       const receiptId = receipts?.[0]?.id || '-';
@@ -48,7 +52,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('number')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('number')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -74,7 +80,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('status')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -86,7 +94,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('bill-type')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('bill-type')} />
+    ),
     cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
@@ -98,7 +108,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'receipts',
     accessorKey: 'receipts',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('receipts')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('receipts')} />
+    ),
     cell: ({ row }) => {
       const receipts = row.original.receipts;
       if (!receipts || !Array.isArray(receipts) || receipts.length === 0) {
@@ -131,7 +143,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('amount')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('amount')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -143,7 +157,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'message',
     accessorKey: 'message',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('message')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('message')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -155,7 +171,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'inactiveId',
     accessorKey: 'inactiveId',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('inactive-id')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('inactive-id')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -168,7 +186,9 @@ export const putResponseColumns = (t: TFunction): ColumnDef<IPutResponse>[] => [
   {
     id: 'user',
     accessorKey: 'user',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('user')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('user')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

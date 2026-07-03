@@ -23,7 +23,9 @@ export const checkPriceColumns = (t: TFunction): ColumnDef<IPriceItem>[] => [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('type')} icon={IconCategory} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('type')} icon={IconCategory} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as PriceStatus;
       return (
@@ -52,7 +54,9 @@ export const checkPriceColumns = (t: TFunction): ColumnDef<IPriceItem>[] => [
   {
     id: 'unitPrice',
     accessorKey: 'Unit_Price',
-    header: () => <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const row = cell.row.original;
       const price = row.status === 'DELETE' ? row.unitPrice : row.Unit_Price;
@@ -69,7 +73,9 @@ export const checkPriceColumns = (t: TFunction): ColumnDef<IPriceItem>[] => [
   {
     id: 'endingDate',
     accessorKey: 'Ending_Date',
-    header: () => <RecordTable.InlineHead label={t('ending-date')} icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('ending-date')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const row = cell.row.original;
       const value = row.status === 'DELETE' ? '' : row.Ending_Date;
@@ -83,7 +89,9 @@ export const checkPriceColumns = (t: TFunction): ColumnDef<IPriceItem>[] => [
   {
     id: 'syncedStatus',
     accessorKey: 'isSynced',
-    header: () => <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />
+    ),
     cell: ({ row }) => {
       const isSynced = row.original.isSynced;
       return (

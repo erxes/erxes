@@ -36,12 +36,16 @@ const getSyncStatus = (order: ICheckPosOrders): CheckPosOrderStatus =>
 export const isSyncableOrder = (order: ICheckPosOrders) =>
   syncableStatuses.has(getSyncStatus(order));
 
-export const checkPosOrdersColumns = (t: TFunction): ColumnDef<ICheckPosOrders>[] => [
+export const checkPosOrdersColumns = (
+  t: TFunction,
+): ColumnDef<ICheckPosOrders>[] => [
   RecordTable.checkboxColumn as ColumnDef<ICheckPosOrders>,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('number')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('number')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -54,7 +58,9 @@ export const checkPosOrdersColumns = (t: TFunction): ColumnDef<ICheckPosOrders>[
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('total-amount')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('total-amount')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -66,7 +72,9 @@ export const checkPosOrdersColumns = (t: TFunction): ColumnDef<ICheckPosOrders>[
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -80,7 +88,9 @@ export const checkPosOrdersColumns = (t: TFunction): ColumnDef<ICheckPosOrders>[
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
-    header: () => <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('paid-at')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('paid-at')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -94,7 +104,9 @@ export const checkPosOrdersColumns = (t: TFunction): ColumnDef<ICheckPosOrders>[
   {
     id: 'unSynced',
     accessorKey: 'syncStatus',
-    header: () => <RecordTable.InlineHead icon={IconClock} label={t('sync-status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('sync-status')} />
+    ),
     cell: ({ cell }) => {
       const status = (cell.getValue() || 'skipped') as string;
 

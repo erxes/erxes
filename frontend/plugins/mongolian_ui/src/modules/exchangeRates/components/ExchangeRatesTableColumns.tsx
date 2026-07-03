@@ -53,13 +53,17 @@ const checkBoxColumn = {
   minSize: 24,
 } as ColumnDef<IExchangeRate>;
 
-export const exchangeRatesColumns = (t: TFunction): ColumnDef<IExchangeRate>[] => [
+export const exchangeRatesColumns = (
+  t: TFunction,
+): ColumnDef<IExchangeRate>[] => [
   exchangeRatesMoreColumn,
   checkBoxColumn,
   {
     id: 'date',
     accessorKey: 'date',
-    header: () => <RecordTable.InlineHead label={t('date')} icon={IconCalendar} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('date')} icon={IconCalendar} />
+    ),
     cell: ({ cell }) => <ExchangeRateDateCell cell={cell} />,
     size: 200,
   },
@@ -76,7 +80,10 @@ export const exchangeRatesColumns = (t: TFunction): ColumnDef<IExchangeRate>[] =
     id: 'rateCurrency',
     accessorKey: 'rateCurrency',
     header: () => (
-      <RecordTable.InlineHead label={t('rate-currency')} icon={IconCurrencyDollar} />
+      <RecordTable.InlineHead
+        label={t('rate-currency')}
+        icon={IconCurrencyDollar}
+      />
     ),
     cell: ({ cell }) => <CurrencyCell value={cell.getValue() as string} />,
     size: 200,

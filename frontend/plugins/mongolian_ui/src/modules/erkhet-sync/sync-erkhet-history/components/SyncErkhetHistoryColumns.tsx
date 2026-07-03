@@ -30,12 +30,16 @@ const stringify = (value: unknown) => {
   return JSON.stringify(value);
 };
 
-export const syncErkhetHistoryColumns = (t: TFunction): ColumnDef<ISyncHistory>[] => [
+export const syncErkhetHistoryColumns = (
+  t: TFunction,
+): ColumnDef<ISyncHistory>[] => [
   SyncErkhetHistoryMoreColumn,
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -65,7 +69,12 @@ export const syncErkhetHistoryColumns = (t: TFunction): ColumnDef<ISyncHistory>[
   {
     id: 'contentType',
     accessorKey: 'contentType',
-    header: () => <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('content-type')} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconCurrencyDollar}
+        label={t('content-type')}
+      />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -77,7 +86,9 @@ export const syncErkhetHistoryColumns = (t: TFunction): ColumnDef<ISyncHistory>[
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('content')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('content')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -89,7 +100,9 @@ export const syncErkhetHistoryColumns = (t: TFunction): ColumnDef<ISyncHistory>[
   {
     id: 'response',
     accessorKey: 'responseStr',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('response')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('response')} />
+    ),
     cell: ({ row }) => {
       return (
         <SyncHistoryClickableColumnCell
@@ -104,7 +117,9 @@ export const syncErkhetHistoryColumns = (t: TFunction): ColumnDef<ISyncHistory>[
   {
     id: 'error',
     accessorKey: 'error',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('error')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('error')} />
+    ),
     cell: ({ row }) => {
       return (
         <SyncHistoryClickableColumnCell

@@ -41,7 +41,9 @@ export const buildStageInErkhetConfigColumns = (
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />
+    ),
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
         config={row.original}
@@ -61,7 +63,9 @@ export const buildStageInErkhetConfigColumns = (
   {
     id: 'userEmail',
     accessorKey: 'userEmail',
-    header: () => <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -72,7 +76,12 @@ export const buildStageInErkhetConfigColumns = (
   {
     id: 'responseField',
     accessorKey: 'responseField',
-    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field')} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconLayoutKanban}
+        label={t('response-field')}
+      />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -83,7 +92,12 @@ export const buildStageInErkhetConfigColumns = (
   {
     id: 'defaultPay',
     accessorKey: 'defaultPay',
-    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label={t('default-pay')} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconLayoutKanban}
+        label={t('default-pay')}
+      />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}

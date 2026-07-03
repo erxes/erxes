@@ -6,7 +6,11 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { TextOverflowTooltip, RecordTableInlineCell, RecordTable } from 'erxes-ui';
+import {
+  TextOverflowTooltip,
+  RecordTableInlineCell,
+  RecordTable,
+} from 'erxes-ui';
 import type { TFunction } from 'i18next';
 
 export const dateColumn = (t: TFunction): ColumnDef<unknown> => ({
@@ -39,7 +43,9 @@ export const counterColumn = (t: TFunction): ColumnDef<unknown> => ({
 export const cityTaxColumn = (t: TFunction): ColumnDef<unknown> => ({
   id: 'values.cityTax',
   accessorKey: 'values.cityTax',
-  header: () => <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('city-tax')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('city-tax')} />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -65,7 +71,9 @@ export const vatColumn = (t: TFunction): ColumnDef<unknown> => ({
 export const amountColumn = (t: TFunction): ColumnDef<unknown> => ({
   id: 'values.amount',
   accessorKey: 'values.amount',
-  header: () => <RecordTable.InlineHead icon={IconCategory} label={t('amount')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconCategory} label={t('amount')} />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>

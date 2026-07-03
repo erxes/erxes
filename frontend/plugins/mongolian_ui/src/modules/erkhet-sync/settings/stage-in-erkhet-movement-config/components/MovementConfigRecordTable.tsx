@@ -27,7 +27,12 @@ export const MovementConfigRecordTable = ({
       configs={configs}
       columns={buildMovementConfigColumns(t, onEdit, onDelete, editLoading)}
       emptyDescription={t('create-first-movement-config')}
-      commandBar={<MovementConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+      commandBar={
+        <MovementConfigCommandBar
+          onDeleteMany={onDeleteMany}
+          loading={editLoading}
+        />
+      }
     />
   );
 };

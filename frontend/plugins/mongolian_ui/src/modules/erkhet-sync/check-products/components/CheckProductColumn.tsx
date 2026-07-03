@@ -38,7 +38,9 @@ export const checkProductColumns = (t: TFunction): ColumnDef<ProductItem>[] => [
   {
     id: 'barcodes',
     accessorKey: 'barcodes',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('bar-codes')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('bar-codes')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -50,7 +52,9 @@ export const checkProductColumns = (t: TFunction): ColumnDef<ProductItem>[] => [
   {
     id: 'unit_price',
     accessorKey: 'unit_price',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('unit-price')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('unit-price')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -62,7 +66,9 @@ export const checkProductColumns = (t: TFunction): ColumnDef<ProductItem>[] => [
   {
     id: 'status',
     accessorKey: 'isSynced',
-    header: () => <RecordTable.InlineHead icon={IconCircleCheck} label={t('status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCircleCheck} label={t('status')} />
+    ),
     cell: ({ row }) => <SyncedStatusCell isSynced={row.original.isSynced} />,
   },
 ];
