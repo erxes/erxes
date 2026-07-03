@@ -131,6 +131,14 @@ knowledgeChunkSchema.index(
   {
     name: 'knowledge_chunk_text_search',
     default_language: 'none',
+    // Chunk docs carry a human `language` field ('mn' | 'mixed' | 'en' |
+    // 'unknown') for retrieval filtering. Without an explicit override, Mongo
+    // treats that field as the per-document text-search language override and
+    // rejects any value outside its built-in set — so a Mongolian ('mn') or
+    // 'mixed' chunk fails to insert with "language override unsupported: mn".
+    // Point the override at a field that doesn't exist so every doc falls back
+    // to default_language: 'none' (we do our own tokenization anyway).
+    language_override: 'textSearchLanguage',
     weights: {
       title: 8,
       keywords: 6,
