@@ -218,3 +218,6 @@ export const voucherQueries = {
     );
   },
 };
+(voucherQueries.cpOwnerVouchers as any).wrapperConfig = {
+  skipPermission: true,
+};
