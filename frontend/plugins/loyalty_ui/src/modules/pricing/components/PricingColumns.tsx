@@ -12,21 +12,18 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { IPricing } from '@/pricing/types';
 import { MembersInline } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { PricingMoreCell } from '@/pricing/components/PricingMoreCell';
 
-export const pricingColumns: ColumnDef<IPricing>[] = [
+export const pricingColumns = (t: TFunction): ColumnDef<IPricing>[] => [
   RecordTable.checkboxColumn as ColumnDef<IPricing>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('name')} icon={IconAlignLeft} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('name')} icon={IconAlignLeft} />,
     cell: ({ cell, row }) => {
       const pricingId = row.original._id;
       return (
@@ -45,10 +42,7 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('status')} icon={IconHash} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('status')} icon={IconHash} />,
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (
@@ -67,10 +61,7 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
   {
     id: 'isPriority',
     accessorKey: 'isPriority',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('is-priority')} icon={IconTag} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('is-priority')} icon={IconTag} />,
     cell: ({ cell }) => {
       const value = cell.getValue() as boolean;
       return (
@@ -83,27 +74,19 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
   {
     id: 'applyType',
     accessorKey: 'applyType',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('apply-type')} icon={IconTag} />;
-    },
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <Badge variant="secondary" className="lowercase">
-            {cell.getValue() as string}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead label={t('apply-type')} icon={IconTag} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Badge variant="secondary" className="lowercase">
+          {cell.getValue() as string}
+        </Badge>
+      </RecordTableInlineCell>
+    ),
   },
   {
     id: 'createdBy',
     accessorKey: 'createdBy',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />,
     cell: ({ cell }) => {
       const createdById = cell.getValue() as string;
       return (
@@ -120,36 +103,26 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('date-created')} icon={IconCalendarPlus} />;
-    },
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
-    },
+    header: () => <RecordTable.InlineHead label={t('date-created')} icon={IconCalendarPlus} />,
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
   },
   {
     id: 'updatedAt',
     accessorKey: 'updatedAt',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('last-updated-at')} icon={IconCalendarPlus} />;
-    },
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
-    },
+    header: () => <RecordTable.InlineHead label={t('last-updated-at')} icon={IconCalendarPlus} />,
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
   },
   {
     id: 'more',

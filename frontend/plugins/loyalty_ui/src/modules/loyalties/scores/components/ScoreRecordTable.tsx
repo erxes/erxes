@@ -17,7 +17,7 @@ export const ScoreRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const [detailRecord, setDetailRecord] = useAtom(scoreDetailRecordAtom);
 
-  const columnsKey = scoreLogColumns.map((c) => c.id || '').join('|');
+  const columnsKey = scoreLogColumns(t).map((c) => c.id || '').join('|');
 
   if (loading && !list?.length) return <Spinner />;
 
@@ -25,7 +25,7 @@ export const ScoreRecordTable = () => {
     <>
       <RecordTable.Provider
       key={columnsKey}
-      columns={scoreLogColumns}
+      columns={scoreLogColumns(t)}
       data={list || []}
       className="m-3 relative"
       stickyColumns={['more', 'ownerName']}

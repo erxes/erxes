@@ -13,7 +13,7 @@ import {
   RelativeDateDisplay,
   Switch,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { IVoucher } from '../types/voucherTypes';
 import { VoucherNameCell } from '../voucher-detail/components/VoucherNameCell';
 import { voucherMoreColumn } from './VoucherMoreColumn';
@@ -39,84 +39,61 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const voucherColumns: (
+export const voucherColumns = (
+  t: TFunction,
   editStatus: (options: any) => void,
-) => ColumnDef<IVoucher>[] = (editStatus) => [
+): ColumnDef<IVoucher>[] => [
   voucherMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IVoucher>,
-
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTag} label={t('title')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <VoucherNameCell
-          voucher={cell.row.original}
-          name={cell.getValue() as string}
-        />
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('title')} />,
+    cell: ({ cell }: { cell: any }) => (
+      <VoucherNameCell
+        voucher={cell.row.original}
+        name={cell.getValue() as string}
+      />
+    ),
     size: 150,
   },
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <SafeRelativeDate value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />,
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+        <SafeRelativeDate value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <SafeRelativeDate value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />,
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+        <SafeRelativeDate value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'voucherType',
     accessorKey: 'voucherType',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTicket} label={t('type')} />;
-    },
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconTicket} label={t('type')} />,
+    cell: ({ cell }: { cell: any }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />,
     cell: ({ cell }) => {
       const { _id } = cell.row.original || {};
       const currentStatus = cell.getValue() as string;

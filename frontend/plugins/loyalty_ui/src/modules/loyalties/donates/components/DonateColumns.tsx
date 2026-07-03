@@ -7,8 +7,8 @@ import {
   Badge,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { IDonate } from '../types/donate';
 import { CustomersInline } from 'ui-modules/modules/contacts/components/CustomersInline';
@@ -65,44 +65,32 @@ const OwnerCell = ({
   );
 };
 
-export const firstDonateColumns: ColumnDef<IDonate>[] = [
+export const firstDonateColumns = (t: TFunction): ColumnDef<IDonate>[] => [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />,
     size: 100,
     cell: ({ row }) => <CreatedAtCell donate={row.original} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
-      return (
-        <RecordTableInlineCell>
-          <span className="capitalize">{t(cell.getValue() as string)}</span>
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <span className="capitalize">{t(cell.getValue() as string)}</span>
+      </RecordTableInlineCell>
+    ),
     size: 130,
   },
 ];
 
-export const secondDonateColumns: ColumnDef<IDonate>[] = [
+export const secondDonateColumns = (t: TFunction): ColumnDef<IDonate>[] => [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconUser} label={t('owner')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -113,23 +101,17 @@ export const secondDonateColumns: ColumnDef<IDonate>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead icon={IconTag} label={t('status')} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('loyalty');
-      return (
-        <RecordTableInlineCell>
-          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Badge variant="default">{t(cell.getValue() as string)}</Badge>
+      </RecordTableInlineCell>
+    ),
     size: 60,
   },
 ];
 
-export const donateColumns: ColumnDef<IDonate>[] = [
-  ...firstDonateColumns,
-  ...secondDonateColumns,
+export const donateColumns = (t: TFunction): ColumnDef<IDonate>[] => [
+  ...firstDonateColumns(t),
+  ...secondDonateColumns(t),
 ];

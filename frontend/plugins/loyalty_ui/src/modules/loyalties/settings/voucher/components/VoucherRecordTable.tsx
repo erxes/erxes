@@ -18,7 +18,7 @@ export const VoucherRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={voucherColumns(editStatus)}
+      columns={voucherColumns(t, editStatus)}
       data={vouchers || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}

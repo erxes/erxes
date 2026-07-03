@@ -18,7 +18,7 @@ export const CouponRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={couponColumns(editStatus)}
+      columns={couponColumns(t, editStatus)}
       data={coupons || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}

@@ -15,7 +15,7 @@ export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [...firstLotteryColumns, ...secondLotteryColumns];
+  const allColumns = [...firstLotteryColumns(t), ...secondLotteryColumns(t)];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
