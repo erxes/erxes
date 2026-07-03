@@ -28,7 +28,9 @@ export const useGetTicket = (options: QueryHookOptions) => {
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
 
-        const newTicket = subscriptionData.data.ticketChanged.ticket;
+        const { type, ticket: newTicket } = subscriptionData.data.ticketChanged;
+
+        if (type === 'delete' || !newTicket) return prev;
 
 
         return {
