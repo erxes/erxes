@@ -8,6 +8,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { useState } from 'react';
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
   ACCOUNT_PERMISSIONS,
@@ -189,15 +190,12 @@ const PermissionWriteCell = ({
   );
 };
 
-export const permissionsColumns: ColumnDef<IPermission>[] = [
+export const permissionsColumns = (t: TFunction): ColumnDef<IPermission>[] => [
   RecordTable.checkboxColumn as ColumnDef<IPermission>,
   {
     id: 'accountName',
     accessorFn: (row) => row.account?.name,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('name')} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -208,10 +206,7 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'accountCode',
     accessorFn: (row) => row.account?.code,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('code')} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -222,10 +217,7 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'email',
     accessorFn: (row) => row.user?.email,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('email')} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('email')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -236,30 +228,21 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'level',
     accessorKey: 'level',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('level')} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('level')} />,
     cell: PermissionLevelCell,
     size: 120,
   },
   {
     id: 'read',
     accessorKey: 'read',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('read')} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('read')} />,
     cell: PermissionReadCell,
     size: 220,
   },
   {
     id: 'write',
     accessorKey: 'write',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('write')} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('write')} />,
     cell: PermissionWriteCell,
     size: 220,
   },

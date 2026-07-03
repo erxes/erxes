@@ -12,7 +12,7 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   AccountingCheckSyncedOrder,
   AccountingCheckSyncedStatus,
@@ -40,20 +40,20 @@ const getSyncStatus = (
 export const isSyncableAccountingOrder = (order: AccountingCheckSyncedOrder) =>
   syncableStatuses.has(getSyncStatus(order));
 
-export const getAccountingCheckSyncedOrdersColumns = ({
-  toSyncOrderIds,
-  syncableOrderIds,
-  onToggleToSync,
-  onToggleAllToSync,
-}: AccountingCheckSyncedOrdersColumnsOptions): ColumnDef<AccountingCheckSyncedOrder>[] => [
+export const getAccountingCheckSyncedOrdersColumns = (
+  t: TFunction,
+  {
+    toSyncOrderIds,
+    syncableOrderIds,
+    onToggleToSync,
+    onToggleAllToSync,
+  }: AccountingCheckSyncedOrdersColumnsOptions,
+): ColumnDef<AccountingCheckSyncedOrder>[] => [
   RecordTable.checkboxColumn as ColumnDef<AccountingCheckSyncedOrder>,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead icon={IconHash} label={t('order-number')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('order-number')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -63,10 +63,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() || '')} />
@@ -76,10 +73,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />,
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -91,10 +85,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'syncStatus',
     accessorKey: 'syncStatus',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('sync-status')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('sync-status')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || 'skipped'} />
@@ -150,10 +141,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'syncedDate',
     accessorKey: 'syncedDate',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('synced-date')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconCategory} label={t('synced-date')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />

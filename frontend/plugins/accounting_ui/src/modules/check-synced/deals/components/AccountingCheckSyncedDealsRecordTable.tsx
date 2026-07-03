@@ -108,13 +108,13 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
   );
   const columns = useMemo(
     () =>
-      getAccountingCheckSyncedDealsColumns({
+      getAccountingCheckSyncedDealsColumns(t, {
         toSyncDealIds,
         syncableDealIds,
         onToggleToSync: setDealToSync,
         onToggleAllToSync: setAllDealsToSync,
       }),
-    [setAllDealsToSync, setDealToSync, syncableDealIds, toSyncDealIds],
+    [setAllDealsToSync, setDealToSync, syncableDealIds, toSyncDealIds, t],
   );
 
   return (

@@ -117,13 +117,13 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
   );
   const columns = useMemo(
     () =>
-      getAccountingCheckSyncedOrdersColumns({
+      getAccountingCheckSyncedOrdersColumns(t, {
         toSyncOrderIds,
         syncableOrderIds,
         onToggleToSync: setOrderToSync,
         onToggleAllToSync: setAllOrdersToSync,
       }),
-    [setAllOrdersToSync, setOrderToSync, syncableOrderIds, toSyncOrderIds],
+    [setAllOrdersToSync, setOrderToSync, syncableOrderIds, toSyncOrderIds, t],
   );
 
   return (
