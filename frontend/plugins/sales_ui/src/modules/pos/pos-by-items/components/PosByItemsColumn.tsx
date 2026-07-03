@@ -71,11 +71,7 @@ export const PosByItemsColumns = (t: TFunction): ColumnDef<IPosByItems>[] => [
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={
-            (cell.getValue() as number) != null
-              ? (cell.getValue() as number).toLocaleString()
-              : '0'
-          }
+          value={((cell.getValue() as number) ?? 0).toLocaleString()}
         />
       </RecordTableInlineCell>
     ),
@@ -129,11 +125,7 @@ export const PosByItemsColumns = (t: TFunction): ColumnDef<IPosByItems>[] => [
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={
-            (cell.getValue() as number) != null
-              ? (cell.getValue() as number).toLocaleString()
-              : '0'
-          }
+          value={((cell.getValue() as number) ?? 0).toLocaleString()}
         />
       </RecordTableInlineCell>
     ),
@@ -148,11 +140,7 @@ export const PosByItemsColumns = (t: TFunction): ColumnDef<IPosByItems>[] => [
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={
-            (cell.getValue() as number) != null
-              ? (cell.getValue() as number).toLocaleString()
-              : '0'
-          }
+          value={((cell.getValue() as number) ?? 0).toLocaleString()}
         />
       </RecordTableInlineCell>
     ),
