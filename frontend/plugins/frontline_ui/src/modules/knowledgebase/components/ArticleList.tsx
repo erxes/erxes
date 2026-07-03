@@ -25,6 +25,37 @@ interface ArticleCommandBarProps {
   readonly t: (key: string, options?: any) => string;
 }
 
+function ArticleStatusCell({ status }: { status: string }) {
+  const s = String(status || 'unknown').toLowerCase();
+  const isPublished = s.includes('publish');
+  const isDraft = s.includes('draft');
+  const isArchived = s.includes('archived');
+
+  let statusColor = 'text-muted-foreground';
+  let bgColor = 'bg-muted';
+
+  if (isPublished) {
+    statusColor = 'text-success';
+    bgColor = 'bg-success/10';
+  } else if (isDraft) {
+    statusColor = 'text-info';
+    bgColor = 'bg-info/10';
+  } else if (isArchived) {
+    statusColor = 'text-destructive';
+    bgColor = 'bg-destructive/10';
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className={`inline-flex rounded-full border px-2 py-0.5 text-xs ml-2 ${bgColor} ${statusColor}`}
+      >
+        {status || 'unknown'}
+      </span>
+    </div>
+  );
+}
+
 // Command bar for bulk actions
 function ArticleCommandBar({
   onEditArticle,
@@ -132,39 +163,8 @@ export function ArticleList({
       id: 'status',
       accessorKey: 'status',
       size: 220,
-      header: () => (
-        <RecordTable.InlineHead icon={IconEye} label={t('status')} />
-      ),
-      cell: ({ row }: any) => {
-        const status = String(row.original?.status || 'unknown').toLowerCase();
-        const isPublished = status.includes('publish');
-        const isDraft = status.includes('draft');
-        const isArchived = status.includes('archived');
-
-        let statusColor = 'text-muted-foreground';
-        let bgColor = 'bg-muted';
-
-        if (isPublished) {
-          statusColor = 'text-success';
-          bgColor = 'bg-success/10';
-        } else if (isDraft) {
-          statusColor = 'text-info';
-          bgColor = 'bg-info/10';
-        } else if (isArchived) {
-          statusColor = 'text-destructive';
-          bgColor = 'bg-destructive/10';
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-flex rounded-full border px-2 py-0.5 text-xs ml-2 ${bgColor} ${statusColor}`}
-            >
-              {row.original?.status || 'unknown'}
-            </span>
-          </div>
-        );
-      },
+      header: () => <RecordTable.InlineHead icon={IconEye} label={t('status')} />,
+      cell: ({ row }: any) => <ArticleStatusCell status={row.original?.status} />,
     },
     {
       id: 'createdUser',

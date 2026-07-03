@@ -17,12 +17,12 @@ export const createCustomTypesColumns = (
   websiteId: string,
   t: (key: string, defaultValue?: string) => string,
   editType: ReturnType<typeof useEditCustomType>['editType'],
-  onEdit?: (customType: any) => void,
+  onEdit?: (customType: ICustomPostType) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+): ColumnDef<ICustomPostType>[] => {
   return [
     customTypeMoreColumn(onEdit, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<ICustomPostType>,
     {
       id: 'name',
       header: () => (

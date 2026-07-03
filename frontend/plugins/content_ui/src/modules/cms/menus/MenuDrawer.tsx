@@ -32,11 +32,10 @@ export function MenuDrawer(props: MenuDrawerProps) {
     parentOptions,
   } = useMenuDrawer(props);
 
-  const submitButtonLabel = saving
-    ? t('saving', 'Saving...')
-    : isEditing
-      ? t('save-changes', 'Save changes')
-      : t('create-menu', 'Create menu');
+  const idleLabel = isEditing
+    ? t('save-changes', 'Save changes')
+    : t('create-menu', 'Create menu');
+  const submitButtonLabel = saving ? t('saving', 'Saving...') : idleLabel;
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
