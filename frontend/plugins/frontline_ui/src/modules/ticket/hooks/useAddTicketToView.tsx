@@ -4,7 +4,6 @@ import { fetchedTicketsState } from '../states/fetchedTicketState';
 import { allTicketsMapState } from '../states/allTicketsMapState';
 import { ticketCountByBoardAtom } from '../states/ticketsTotalCountState';
 
-
 export const useAddTicketToView = () => {
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
   const setAllTicketsMap = useSetAtom(allTicketsMapState);

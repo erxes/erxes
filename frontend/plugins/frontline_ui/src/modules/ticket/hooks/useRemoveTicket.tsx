@@ -14,7 +14,6 @@ export const useTicketRemove = () => {
   const { removeTicketsFromView } = useRemoveTicketsFromView();
   const [activeTicket, setActiveTicket] = useAtom(ticketDetailSheetState);
   const removeTicket = async (ticketIds: string[]) => {
-
     markTicketsRemoved(ticketIds);
 
     try {

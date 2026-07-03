@@ -113,7 +113,6 @@ export const useTickets = (
         let updatedList = currentList;
         let countDelta = 0;
 
-
         const listState = variables.state || 'active';
         const ticketState = ticket.state || 'active';
         const matchesFilter =
@@ -147,7 +146,6 @@ export const useTickets = (
               item._id === ticket._id ? { ...item, ...ticket } : item,
             );
           } else if (matchesFilter) {
-
             updatedList = [ticket, ...currentList];
             countDelta = 1;
           }

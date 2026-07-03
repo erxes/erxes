@@ -32,7 +32,6 @@ export const useGetTicket = (options: QueryHookOptions) => {
 
         if (type === 'delete' || !newTicket) return prev;
 
-
         return {
           getTicket: {
             ...prev.getTicket,

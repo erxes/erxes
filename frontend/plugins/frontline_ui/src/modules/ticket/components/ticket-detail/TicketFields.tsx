@@ -195,7 +195,10 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         }
         toast({
           title: t('success'),
-          description: newState === 'archived' ? t('ticket-archived-successfully') : t('ticket-restored-successfully'),
+          description:
+            newState === 'archived'
+              ? t('ticket-archived-successfully')
+              : t('ticket-restored-successfully'),
         });
       },
       onError: (error) => {
@@ -313,7 +316,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                 <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
                 <SelectChannel value={channelId} variant="detail" disabled />
               </div>
-              <Tooltip.Content>{t('channel-cannot-be-changed')}</Tooltip.Content>
+              <Tooltip.Content>
+                {t('channel-cannot-be-changed')}
+              </Tooltip.Content>
             </Tooltip>
             <Tooltip>
               <div className="relative">
@@ -325,7 +330,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                   disabled
                 />
               </div>
-              <Tooltip.Content>{t('pipeline-cannot-be-changed')}</Tooltip.Content>
+              <Tooltip.Content>
+                {t('pipeline-cannot-be-changed')}
+              </Tooltip.Content>
             </Tooltip>
             <SelectStatusTicket
               variant="detail"

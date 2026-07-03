@@ -1,4 +1,3 @@
-
 const removedTicketIds = new Set<string>();
 
 export const markTicketsRemoved = (ids: string[]) => {
