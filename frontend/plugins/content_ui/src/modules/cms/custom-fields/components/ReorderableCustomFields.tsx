@@ -19,7 +19,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { FieldDefinition } from '../../posts/CustomFieldInput';
+import { FieldDefinition } from '../../posts/components/CustomFieldInput';
 import { useCustomFieldOrdering } from '../hooks/useCustomFieldOrdering';
 
 export interface ReorderableFieldGroup {

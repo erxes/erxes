@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
-import { LanguageSelector } from '@/cms/shared/LanguageSelector';
+import { LanguageSelector } from '@/cms/shared/components/LanguageSelector';
 import {
   TranslationData,
   useCmsTranslation,

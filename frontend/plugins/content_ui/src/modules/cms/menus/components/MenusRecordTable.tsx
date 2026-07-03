@@ -33,7 +33,7 @@ import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
 import { useMenus } from '../hooks/useMenus';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
-import { buildFlatTree, getDepthPrefix } from '@/cms/menus/menuUtils';
+import { buildFlatTree, getDepthPrefix } from '@/cms/menus/utils/menuUtils';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { MenuItem } from '../types/menuDrawerTypes';
 

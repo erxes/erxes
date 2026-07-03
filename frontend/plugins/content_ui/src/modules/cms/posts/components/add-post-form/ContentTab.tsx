@@ -3,7 +3,7 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CategoryField } from './CategoryField';
 import { TagField } from './TagField';
-import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
+import { LanguageSelector } from '~/modules/cms/shared/components/LanguageSelector';
 import { PostPublicUrlButton } from '../PostPublicUrlButton';
 import type { IWebsite } from '~/modules/cms/types';
 

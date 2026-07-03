@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Form, Input, Tabs } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
+import { LanguageSelector } from '~/modules/cms/shared/components/LanguageSelector';
 import { MediaSection } from '~/modules/cms/posts/components/add-post-form/MediaSection';
 import { SelectParentPage } from './SelectParentPage';
 import { IPageFormData } from '../types/pageTypes';

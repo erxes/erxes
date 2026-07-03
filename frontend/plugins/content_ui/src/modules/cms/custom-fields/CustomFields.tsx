@@ -31,7 +31,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
-import { CmsSidebar } from '../shared/CmsSidebar';
+import { CmsSidebar } from '../shared/components/CmsSidebar';
 
 import { ICustomFieldGroup, ICustomField } from './types/customFieldTypes';
 import { useCustomFieldGroups } from './hooks/useCustomFieldGroups';

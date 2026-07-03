@@ -1,5 +1,5 @@
 import { PageContainer, Spinner } from 'erxes-ui';
-import { PageDrawer } from '~/modules/cms/pages/PageDrawer';
+import { PageDrawer } from '~/modules/cms/pages/components/PageDrawer';
 import { PagesHeader } from '~/modules/cms/pages/components/PagesHeader';
 import { PageHeaderActions } from '~/modules/cms/pages/components/PageHeaderActions';
 import { usePageDetail } from '~/modules/cms/pages/hooks/usePageDetail';

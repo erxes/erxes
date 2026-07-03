@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FieldDefinition } from '../posts/CustomFieldInput';
+import { FieldDefinition } from '../posts/components/CustomFieldInput';
 
 // Base schema without custom fields
 export const baseCategoryFormSchema = z.object({

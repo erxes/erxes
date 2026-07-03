@@ -1,8 +1,8 @@
 import { Form, Input } from 'erxes-ui';
 import { UseFormReturn, FieldValues } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { PostPreview } from '../../PostPreview';
-import { CustomFieldValue } from '../../CustomFieldInput';
+import { PostPreview } from '../PostPreview';
+import { CustomFieldValue } from '../CustomFieldInput';
 import { CustomFieldsSection, FieldGroup } from './CustomFieldsSection';
 
 interface PostEditorColumnProps {

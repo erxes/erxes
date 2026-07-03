@@ -1,6 +1,6 @@
 import { PagesNavigation } from './PagesNavigation';
 import { PageHeader } from 'ui-modules';
-import { HeaderLanguageTabs } from '../../shared/HeaderLanguageTabs';
+import { HeaderLanguageTabs } from '../../shared/components/HeaderLanguageTabs';
 
 interface PagesHeaderProps {
   onLanguageChange?: (lang: string) => void;

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CustomFieldValue } from '../posts/CustomFieldInput';
+import { CustomFieldValue } from '../posts/components/CustomFieldInput';
 
 export const pageFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),

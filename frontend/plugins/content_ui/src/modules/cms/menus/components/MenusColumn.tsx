@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useMutation } from '@apollo/client';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
-import { getDepthPrefix } from '../menuUtils';
+import { getDepthPrefix } from '../utils/menuUtils';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
 import { MenuItem } from '../types/menuDrawerTypes';
 

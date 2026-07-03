@@ -1,4 +1,4 @@
-import { CustomFieldValue } from '../../posts/CustomFieldInput';
+import { CustomFieldValue } from '../../posts/components/CustomFieldInput';
 
 export interface IAttachment {
   url: string;

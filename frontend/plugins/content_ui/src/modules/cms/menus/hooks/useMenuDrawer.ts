@@ -12,7 +12,7 @@ import {
   CMS_MENU_LIST,
   CONTENT_CMS_LIST,
 } from '../../graphql/queries';
-import { buildFlatTree, getDepthPrefix, RawMenuItem } from '../menuUtils';
+import { buildFlatTree, getDepthPrefix, RawMenuItem } from '../utils/menuUtils';
 import {
   MENU_PAGES_QUERY,
   MENU_POSTS_QUERY,

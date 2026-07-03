@@ -4,7 +4,7 @@ import {
   CustomFieldInput,
   CustomFieldValue,
   FieldDefinition,
-} from '../../posts/CustomFieldInput';
+} from '../../posts/components/CustomFieldInput';
 import { ReorderableCustomFields } from '../../custom-fields/components/ReorderableCustomFields';
 import { IPageFormData } from '../types/pageTypes';
 

@@ -2,7 +2,7 @@ import { IconArticle } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmptyState } from '../../shared/EmptyState';
+import { EmptyState } from '../../shared/components/EmptyState';
 import { useCategoriesColumns } from './CategoriesColumn';
 
 import { useCategories } from '../hooks/useCategoriesEnhanced';

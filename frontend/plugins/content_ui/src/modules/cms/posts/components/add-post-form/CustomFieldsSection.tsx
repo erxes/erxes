@@ -3,7 +3,7 @@ import {
   CustomFieldInput,
   CustomFieldValue,
   FieldDefinition,
-} from '../../CustomFieldInput';
+} from '../CustomFieldInput';
 import { ReorderableCustomFields } from '../../../custom-fields/components/ReorderableCustomFields';
 
 export interface FieldGroup {

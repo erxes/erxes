@@ -3,9 +3,9 @@ import { readImage } from 'erxes-ui/utils/core';
 import { IconUpload, IconX } from '@tabler/icons-react';
 import { UseFormReturn, ControllerRenderProps } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { GalleryUploader } from '../../GalleryUploader';
-import { DocumentsUploader } from '../../DocumentsUploader';
-import { AttachmentsUploader } from '../../AttachmentsUploader';
+import { GalleryUploader } from '../uploaders/GalleryUploader';
+import { DocumentsUploader } from '../uploaders/DocumentsUploader';
+import { AttachmentsUploader } from '../uploaders/AttachmentsUploader';
 
 type MediaFormData = {
   thumbnail?: string | { url: string; name: string };

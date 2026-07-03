@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { CMS_MENU_LIST } from '../../graphql/queries';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
-import { buildFlatTree } from '../menuUtils';
+import { buildFlatTree } from '../utils/menuUtils';
 
 export const useMenus = ({
   clientPortalId,

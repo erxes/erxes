@@ -1,7 +1,7 @@
 import { Form, Input, Editor } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { formatInitialContent } from '~/modules/cms/posts/formHelpers';
+import { formatInitialContent } from '~/modules/cms/posts/utils/formHelpers';
 import { IPage, IPageFormData } from '../types/pageTypes';
 
 interface PageEditorColumnProps {
