@@ -25,6 +25,7 @@ import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
 import { PosOrderForm } from '../detail/PosOrderForm';
 import { TPosOrderFormData } from '../types/posOrderType';
+import type { TFunction } from 'i18next';
 
 const POS_ORDER_TRANSACTIONS = gql`
   query PosOrderTransactions($contentType: String!, $contentId: String!) {
@@ -52,38 +53,29 @@ type PosOrderTransaction = {
   number?: string;
 };
 
-const itemColumns: ColumnDef<any>[] = [
+const itemColumns = (t: TFunction): ColumnDef<any>[] => [
   {
     id: 'productName',
     accessorKey: 'productName',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />;
-    },
-    cell: ({ cell }) => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={(cell.getValue() as string) || t('unknown-product')}
-          />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip
+          value={(cell.getValue() as string) || t('unknown-product')}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 200,
   },
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('count')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('count')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-center">
-        <TextOverflowTooltip
-          value={(cell.getValue() as number)?.toString() || '0'}
-        />
+        <TextOverflowTooltip value={(cell.getValue() as number)?.toString() || '0'} />
       </RecordTableInlineCell>
     ),
     size: 80,
@@ -91,10 +83,9 @@ const itemColumns: ColumnDef<any>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-right">
         <TextOverflowTooltip
@@ -119,10 +110,7 @@ const itemColumns: ColumnDef<any>[] = [
 
       return count * unitPrice;
     },
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('amount')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('amount')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-right font-medium">
         <TextOverflowTooltip
@@ -389,7 +377,7 @@ export const PosOrderSheet = () => {
                   {posOrder?.items?.length && (
                     <div className="rounded-md overflow-hidden">
                       <RecordTable.Provider
-                        columns={itemColumns}
+                        columns={itemColumns(t)}
                         data={posOrder.items}
                         className="w-full"
                       >

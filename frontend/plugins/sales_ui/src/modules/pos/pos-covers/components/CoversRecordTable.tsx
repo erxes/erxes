@@ -20,7 +20,7 @@ export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
 
   return (
     <RecordTable.Provider
-      columns={coverColumns}
+      columns={coverColumns(t)}
       data={coversList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'pos']}

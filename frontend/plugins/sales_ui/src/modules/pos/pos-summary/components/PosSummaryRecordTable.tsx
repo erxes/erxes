@@ -15,9 +15,9 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
     usePosSummaryList({ posId });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const allColumns = [
-    ...firstPosSummaryColumns,
+    ...firstPosSummaryColumns(t),
     ...generateOtherPaymentColumns(posSummaryList?.[0]?.amounts || {}, columns),
-    ...secondPosSummaryColumns,
+    ...secondPosSummaryColumns(t),
   ];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
   return (

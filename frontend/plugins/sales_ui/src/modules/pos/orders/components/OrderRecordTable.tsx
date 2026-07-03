@@ -18,9 +18,9 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
   const { posOrdersSummary } = usePosOrdersSummary({ posId });
 
   const allColumns = [
-    ...firstOrderColumns,
+    ...firstOrderColumns(t),
     ...generateOtherPaymentColumns(posOrdersSummary),
-    ...secondOrderColumns,
+    ...secondOrderColumns(t),
   ];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 

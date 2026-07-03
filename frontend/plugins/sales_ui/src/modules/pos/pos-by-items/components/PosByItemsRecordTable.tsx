@@ -13,7 +13,7 @@ export const PosByItemsRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={PosByItemsColumns}
+      columns={PosByItemsColumns(t)}
       data={posByItemsList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'code', 'name']}

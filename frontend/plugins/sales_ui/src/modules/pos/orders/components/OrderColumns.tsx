@@ -7,7 +7,6 @@ import {
   IconFileText,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
   TextOverflowTooltip,
@@ -17,6 +16,8 @@ import {
 } from 'erxes-ui';
 
 import { IOrder } from '@/pos/types/order';
+
+import type { TFunction } from 'i18next';
 import { IUser } from 'ui-modules/modules';
 import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 import { ClickableBillNumber } from './ClickableBillNumber';
@@ -55,23 +56,13 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
   const otherPayTitles = (summary ? Object.keys(summary) : [])
     .filter(
       (a) =>
-        !['_id', 'count', 'cashAmount', 'mobileAmount', 'totalAmount'].includes(
-          a,
-        ),
+        !['_id', 'count', 'cashAmount', 'mobileAmount', 'totalAmount'].includes(a),
     )
     .sort();
 
   return otherPayTitles.map((title: string, index) => ({
     id: `${title}_${index}`,
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead
-          icon={IconClock}
-          label={t(title, { defaultValue: title })}
-        />
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconClock} label={title} />,
     cell: ({ row }: { row: PaymentRow }) => {
       const order = row.original;
       const dynamicAmounts = getPaidAmountsMap(order.paidAmounts);
@@ -86,191 +77,143 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
     size: 150,
   }));
 };
-export const firstOrderColumns: ColumnDef<IOrder>[] = [
+
+export const firstOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
   ordersMoreColumn,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead icon={IconLabel} label={t('bill-number')} />
-      );
-    },
-    cell: ({ cell, row }) => {
-      return (
-        <ClickableBillNumber value={cell.getValue() as string} row={row} />
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('bill-number')} />
+    ),
+    cell: ({ cell, row }) => (
+      <ClickableBillNumber value={cell.getValue() as string} row={row} />
+    ),
   },
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconMobiledata} label={t('date')} />;
-    },
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconMobiledata} label={t('date')} />
+    ),
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
     sortingFn: (rowA, rowB) => {
-      const dateA = rowA.original.paidDate
-        ? new Date(rowA.original.paidDate)
-        : new Date(0);
-      const dateB = rowB.original.paidDate
-        ? new Date(rowB.original.paidDate)
-        : new Date(0);
+      const dateA = rowA.original.paidDate ? new Date(rowA.original.paidDate) : new Date(0);
+      const dateB = rowB.original.paidDate ? new Date(rowB.original.paidDate) : new Date(0);
       return dateA.getTime() - dateB.getTime();
     },
   },
   {
     id: 'cashAmount',
     accessorKey: 'cashAmount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead icon={IconLabel} label={t('cash-amount')} />
-      );
-    },
-    cell: ({ cell }) => {
-      const value = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString()} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('cash-amount')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={(cell.getValue() as number)?.toLocaleString()} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'mobileAmount',
     accessorKey: 'mobileAmount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return (
-        <RecordTable.InlineHead icon={IconLabel} label={t('mobile-amount')} />
-      );
-    },
-    cell: ({ cell }) => {
-      const value = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString()} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('mobile-amount')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={(cell.getValue() as number)?.toLocaleString()} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
 ];
 
-export const secondOrderColumns: ColumnDef<IOrder>[] = [
+export const secondOrderColumns = (t: TFunction): ColumnDef<IOrder>[] => [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('amount')} />;
-    },
-    cell: ({ cell }) => {
-      const value = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString()} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('amount')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={(cell.getValue() as number)?.toLocaleString()} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'customerType',
     accessorKey: 'customerType',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconClock} label={t('customer')} />;
-    },
-    cell: ({ cell }) => {
-      const value = cell.getValue() as string;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={value} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('customer')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'posName',
     accessorKey: 'posName',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('pos')} />;
-    },
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('pos')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 120,
   },
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('type')} />;
-    },
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <Badge variant="default">{cell.getValue() as string}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('type')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <Badge variant="default">{cell.getValue() as string}</Badge>
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
   {
     id: 'user',
     accessorKey: 'user',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('user')} />;
-    },
-    cell: ({ cell }) => {
-      const user = cell.getValue() as IUser;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={user?.username || ''} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('user')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={(cell.getValue() as IUser)?.username || ''} />
+      </RecordTableInlineCell>
+    ),
     size: 150,
   },
   {
     id: 'description',
     accessorKey: 'description',
     header: () => (
-      <RecordTable.InlineHead icon={IconFileText} label="Description" />
+      <RecordTable.InlineHead icon={IconFileText} label={t('description')} />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
     size: 200,
   },
-];
-
-export const orderColumns: ColumnDef<IOrder>[] = [
-  ...firstOrderColumns,
-  ...secondOrderColumns,
 ];

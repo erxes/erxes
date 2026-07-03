@@ -13,6 +13,7 @@ import { ProductCommandBar } from '../product-command-bar/ProductCommandBar';
 import { RecordTable } from 'erxes-ui';
 import { productColumns } from './ProductColumns';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ProductsRecordTable = ({
   products,
@@ -27,6 +28,8 @@ export const ProductsRecordTable = ({
   showAdvancedView: boolean;
   onLocalChange: (id: string, patch: Partial<IProductData>) => void;
 }) => {
+  const { t } = useTranslation('sales');
+
   const columns = useMemo<ColumnDef<IProductData>[]>(() => {
     if (!showAdvancedView) return productColumns;
 
@@ -34,20 +37,20 @@ export const ProductsRecordTable = ({
 
     const discountIndex = newColumns.findIndex((col) => col.id === 'discount');
     if (discountIndex !== -1)
-      newColumns.splice(discountIndex + 1, 0, taxPercent, tax);
+      newColumns.splice(discountIndex + 1, 0, taxPercent(t), tax(t));
 
     const amountIndex = newColumns.findIndex((col) => col.id === 'amount');
     if (amountIndex !== -1)
-      newColumns.splice(amountIndex + 1, 0, currency, uom);
+      newColumns.splice(amountIndex + 1, 0, currency(t), uom(t));
 
     const assignedIndex = newColumns.findIndex(
       (col) => col.id === 'assignUserId',
     );
     if (assignedIndex !== -1)
-      newColumns.splice(assignedIndex + 1, 0, branch, department);
+      newColumns.splice(assignedIndex + 1, 0, branch(t), department(t));
 
     return newColumns;
-  }, [showAdvancedView]);
+  }, [showAdvancedView, t]);
 
   return (
     <RecordTable.Provider

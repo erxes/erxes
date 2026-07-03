@@ -11,9 +11,9 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-
 import { IPosByItems } from '@/pos/pos-by-items/types/PosByItemType';
+
+import type { TFunction } from 'i18next';
 
 const getHourCount = (
   counts: Record<string, number> | undefined,
@@ -27,14 +27,11 @@ const getHourCount = (
 const BEFORE_10_HOURS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 const AFTER_21_HOURS = [22, 23];
 
-export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
+export const PosByItemsColumns = (t: TFunction): ColumnDef<IPosByItems>[] => [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('code')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -45,10 +42,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('name')} />;
-    },
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -58,10 +52,9 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   },
   {
     id: 'category',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('category')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label={t('category')} />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={row.original.category?.name || ''} />
@@ -72,20 +65,16 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconMobiledata} label={t('unit-price')} />;
-    },
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={val != null ? val.toLocaleString() : '0'}
-          />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconMobiledata} label={t('unit-price')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip
+          value={(cell.getValue() as number) != null ? (cell.getValue() as number).toLocaleString() : '0'}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
   {
@@ -93,9 +82,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     header: () => <RecordTable.InlineHead label="<10" />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={getHourCount(row.original.counts, BEFORE_10_HOURS)}
-        />
+        <TextOverflowTooltip value={getHourCount(row.original.counts, BEFORE_10_HOURS)} />
       </RecordTableInlineCell>
     ),
     size: 50,
@@ -107,9 +94,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
         header: () => <RecordTable.InlineHead label={String(hour)} />,
         cell: ({ row }) => (
           <RecordTableInlineCell>
-            <TextOverflowTooltip
-              value={getHourCount(row.original.counts, [hour])}
-            />
+            <TextOverflowTooltip value={getHourCount(row.original.counts, [hour])} />
           </RecordTableInlineCell>
         ),
         size: 50,
@@ -120,9 +105,7 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
     header: () => <RecordTable.InlineHead label="21<" />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={getHourCount(row.original.counts, AFTER_21_HOURS)}
-        />
+        <TextOverflowTooltip value={getHourCount(row.original.counts, AFTER_21_HOURS)} />
       </RecordTableInlineCell>
     ),
     size: 50,
@@ -130,39 +113,31 @@ export const PosByItemsColumns: ColumnDef<IPosByItems>[] = [
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconChartBar} label={t('pos-sale')} />;
-    },
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={val != null ? val.toLocaleString() : '0'}
-          />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label={t('pos-sale')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip
+          value={(cell.getValue() as number) != null ? (cell.getValue() as number).toLocaleString() : '0'}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('pos-amount')} />;
-    },
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={val != null ? val.toLocaleString() : '0'}
-          />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuilding} label={t('pos-amount')} />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip
+          value={(cell.getValue() as number) != null ? (cell.getValue() as number).toLocaleString() : '0'}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 100,
   },
 ];

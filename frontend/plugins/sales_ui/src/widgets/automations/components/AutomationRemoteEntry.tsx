@@ -2,7 +2,6 @@ import { Spinner } from 'erxes-ui';
 import { ComponentType, lazy, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { AutomationRemoteEntryProps } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
 
 const SalesRemoteEntry = lazy(() =>
   import('../modules/sales/components/SalesRemoteEntry').then((module) => ({
