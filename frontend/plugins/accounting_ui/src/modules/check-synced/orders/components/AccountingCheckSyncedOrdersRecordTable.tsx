@@ -92,6 +92,7 @@ const AccountingCheckSyncedOrdersActions = ({
 };
 
 export const AccountingCheckSyncedOrdersRecordTable = () => {
+  const { t } = useTranslation('accounting');
   const {
     canSync,
     checkOrders,
