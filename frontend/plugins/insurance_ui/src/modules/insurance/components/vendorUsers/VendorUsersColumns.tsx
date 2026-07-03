@@ -23,7 +23,12 @@ const vendorColumn = (t: TFunc): ColumnDef<VendorUser> => ({
   id: 'vendor',
   accessorKey: 'vendor',
   header: () => {
-    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor', 'Vendor')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconBuilding}
+        label={t('vendor', 'Vendor')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -37,7 +42,9 @@ const roleColumn = (t: TFunc): ColumnDef<VendorUser> => ({
   id: 'role',
   accessorKey: 'role',
   header: () => {
-    return <RecordTable.InlineHead icon={IconShield} label={t('role', 'Role')} />;
+    return (
+      <RecordTable.InlineHead icon={IconShield} label={t('role', 'Role')} />
+    );
   },
   cell: ({ cell }) => {
     const role = cell.getValue() as string;
@@ -72,7 +79,14 @@ export const createVendorUsersColumns = (
   return [
     moreColumn,
     { ...(RecordTable.checkboxColumn as ColumnDef<VendorUser>), size: 32 },
-    createTextColumn<VendorUser>(t, 'name', 'name', IconUser, 'name', 'no-name'),
+    createTextColumn<VendorUser>(
+      t,
+      'name',
+      'name',
+      IconUser,
+      'name',
+      'no-name',
+    ),
     createTextColumn<VendorUser>(t, 'email', 'email', IconMail, 'email', ''),
     createTextColumn<VendorUser>(t, 'phone', 'phone', IconPhone, 'phone', ''),
     vendorColumn(t),

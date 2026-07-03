@@ -17,7 +17,12 @@ const attributesColumn = (
   id: 'attributes',
   accessorKey: 'attributes',
   header: () => {
-    return <RecordTable.InlineHead icon={IconList} label={t('attributes', 'Attributes')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconList}
+        label={t('attributes', 'Attributes')}
+      />
+    );
   },
   cell: ({ cell }) => {
     const attributes = cell.getValue() as any[];

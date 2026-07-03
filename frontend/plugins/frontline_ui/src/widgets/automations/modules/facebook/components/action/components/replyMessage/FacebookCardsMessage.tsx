@@ -486,11 +486,7 @@ const FacebookSelectedCardMessagePlaceholder = () => {
 
   return (
     <div className="grid min-h-48 place-items-center rounded-md border border-dashed bg-muted/30 p-6">
-      <Button
-        variant="outline"
-        disabled={cards.length >= 10}
-        onClick={addPage}
-      >
+      <Button variant="outline" disabled={cards.length >= 10} onClick={addPage}>
         <IconPlus className="size-4" /> {t('add-page')}
       </Button>
     </div>

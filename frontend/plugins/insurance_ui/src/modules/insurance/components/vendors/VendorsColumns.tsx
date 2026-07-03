@@ -31,7 +31,12 @@ export const vendorsColumns = (
     id: 'name',
     accessorKey: 'name',
     header: () => {
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor', 'Vendor')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconBuilding}
+          label={t('vendor', 'Vendor')}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -45,13 +50,20 @@ export const vendorsColumns = (
     id: 'productsCount',
     accessorKey: 'offeredProducts',
     header: () => {
-      return <RecordTable.InlineHead icon={IconPackage} label={t('products', 'Products')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconPackage}
+          label={t('products', 'Products')}
+        />
+      );
     },
     cell: ({ cell }) => {
       const products = cell.row.original.offeredProducts || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{products.length} {t('products-offered', 'products offered')}</Badge>
+          <Badge variant="secondary">
+            {products.length} {t('products-offered', 'products offered')}
+          </Badge>
         </RecordTableInlineCell>
       );
     },
@@ -60,7 +72,12 @@ export const vendorsColumns = (
     id: 'products',
     accessorKey: 'offeredProducts',
     header: () => {
-      return <RecordTable.InlineHead icon={IconPackage} label={t('offered-products', 'Offered products')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconPackage}
+          label={t('offered-products', 'Offered products')}
+        />
+      );
     },
     cell: ({ cell }) => {
       const products = cell.row.original.offeredProducts || [];
@@ -80,7 +97,12 @@ export const vendorsColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created at')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCalendar}
+          label={t('created-at', 'Created at')}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (

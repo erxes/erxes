@@ -40,7 +40,12 @@ export const contractNumberColumn = (
   id: 'contractNumber',
   accessorKey: 'contractNumber',
   header: () => {
-    return <RecordTable.InlineHead icon={IconFileText} label={t('contract-no', 'Contract No.')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconFileText}
+        label={t('contract-no', 'Contract No.')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -53,7 +58,12 @@ export const customerColumn = (t: TFunc): ColumnDef<InsuranceContract> => ({
   id: 'customer',
   accessorKey: 'customer',
   header: () => {
-    return <RecordTable.InlineHead icon={IconUser} label={t('customer', 'Customer')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconUser}
+        label={t('customer', 'Customer')}
+      />
+    );
   },
   cell: ({ cell }) => {
     const customer = cell.row.original.customer;
@@ -71,7 +81,12 @@ export const vendorColumn = (t: TFunc): ColumnDef<InsuranceContract> => ({
   id: 'vendor',
   accessorKey: 'vendor',
   header: () => {
-    return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor', 'Vendor')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconBuilding}
+        label={t('vendor', 'Vendor')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -87,7 +102,9 @@ export const createProductColumn = (
   id: 'product',
   accessorKey: 'insuranceProduct',
   header: () => {
-    return <RecordTable.InlineHead icon={icon} label={t('product', 'Product')} />;
+    return (
+      <RecordTable.InlineHead icon={icon} label={t('product', 'Product')} />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -98,11 +115,18 @@ export const createProductColumn = (
   ),
 });
 
-export const chargedAmountColumn = (t: TFunc): ColumnDef<InsuranceContract> => ({
+export const chargedAmountColumn = (
+  t: TFunc,
+): ColumnDef<InsuranceContract> => ({
   id: 'chargedAmount',
   accessorKey: 'chargedAmount',
   header: () => {
-    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('amount', 'Amount')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconCurrencyTugrik}
+        label={t('amount', 'Amount')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -115,7 +139,12 @@ export const startDateColumn = (t: TFunc): ColumnDef<InsuranceContract> => ({
   id: 'startDate',
   accessorKey: 'startDate',
   header: () => {
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('start-date', 'Start date')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconCalendar}
+        label={t('start-date', 'Start date')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -128,7 +157,12 @@ export const endDateColumn = (t: TFunc): ColumnDef<InsuranceContract> => ({
   id: 'endDate',
   accessorKey: 'endDate',
   header: () => {
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('end-date', 'End date')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconCalendar}
+        label={t('end-date', 'End date')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -137,20 +171,31 @@ export const endDateColumn = (t: TFunc): ColumnDef<InsuranceContract> => ({
   ),
 });
 
-export const paymentStatusColumn = (t: TFunc): ColumnDef<InsuranceContract> => ({
+export const paymentStatusColumn = (
+  t: TFunc,
+): ColumnDef<InsuranceContract> => ({
   id: 'paymentStatus',
   accessorKey: 'paymentStatus',
   header: () => {
-    return <RecordTable.InlineHead icon={IconCurrencyTugrik} label={t('status', 'Status')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconCurrencyTugrik}
+        label={t('status', 'Status')}
+      />
+    );
   },
   cell: ({ cell }) => {
     const status = cell.getValue() as string;
     return (
       <RecordTableInlineCell>
         {status === 'paid' ? (
-          <Badge className="bg-green-100 text-green-800">{t('paid', 'Paid')}</Badge>
+          <Badge className="bg-green-100 text-green-800">
+            {t('paid', 'Paid')}
+          </Badge>
         ) : (
-          <Badge className="bg-yellow-100 text-yellow-800">{t('pending', 'Pending')}</Badge>
+          <Badge className="bg-yellow-100 text-yellow-800">
+            {t('pending', 'Pending')}
+          </Badge>
         )}
       </RecordTableInlineCell>
     );

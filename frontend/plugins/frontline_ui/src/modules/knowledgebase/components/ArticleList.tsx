@@ -112,7 +112,9 @@ export function ArticleList({
       id: 'title',
       accessorKey: 'title',
       size: 220,
-      header: () => <RecordTable.InlineHead icon={IconFileText} label={t('col-name')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconFileText} label={t('col-name')} />
+      ),
       cell: ({ row }: any) => (
         <div
           className="flex items-center gap-2 ml-2 cursor-pointer hover:bg-accent rounded p-1 -m-1"
@@ -130,7 +132,9 @@ export function ArticleList({
       id: 'status',
       accessorKey: 'status',
       size: 220,
-      header: () => <RecordTable.InlineHead icon={IconEye} label={t('status')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconEye} label={t('status')} />
+      ),
       cell: ({ row }: any) => {
         const status = String(row.original?.status || 'unknown').toLowerCase();
         const isPublished = status.includes('publish');
@@ -166,7 +170,9 @@ export function ArticleList({
       id: 'createdUser',
       accessorKey: 'createdUser',
       size: 220,
-      header: () => <RecordTable.InlineHead icon={IconUser} label={t('kb-owner')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconUser} label={t('kb-owner')} />
+      ),
       cell: ({ row }: any) => (
         <div className="flex items-center gap-2 opacity-80 ml-2">
           {row.original?.createdUser?.username || '-'}
@@ -215,12 +221,12 @@ export function ArticleList({
         status === 'all'
           ? true
           : status === 'draft'
-          ? st.includes('draft')
-          : status === 'published'
-          ? st.includes('publish')
-          : status === 'archived'
-          ? st.includes('archived')
-          : true;
+            ? st.includes('draft')
+            : status === 'published'
+              ? st.includes('publish')
+              : status === 'archived'
+                ? st.includes('archived')
+                : true;
 
       return textOk && statusOk;
     });
@@ -230,7 +236,9 @@ export function ArticleList({
   const handleDeleteArticles = async (articleIds: string[]) => {
     if (articleIds.length === 0) return;
 
-    const message = t('kb-confirm-delete-articles', { count: articleIds.length });
+    const message = t('kb-confirm-delete-articles', {
+      count: articleIds.length,
+    });
 
     const confirmOptions = {
       confirmationValue: 'delete',
@@ -325,9 +333,7 @@ export function ArticleList({
               : t('kb-no-articles')}
           </div>
           <div className="mt-1 text-sm opacity-70 mb-4">
-            {q.trim()
-              ? t('kb-adjust-search')
-              : t('kb-create-first-article')}
+            {q.trim() ? t('kb-adjust-search') : t('kb-create-first-article')}
           </div>
         </div>
       ) : (

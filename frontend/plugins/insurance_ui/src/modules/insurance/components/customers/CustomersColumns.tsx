@@ -48,16 +48,22 @@ const typeColumn = (
   id: 'type',
   accessorKey: 'type',
   header: () => {
-    return <RecordTable.InlineHead icon={IconBuilding} label={t('type', 'Type')} />;
+    return (
+      <RecordTable.InlineHead icon={IconBuilding} label={t('type', 'Type')} />
+    );
   },
   cell: ({ cell }) => {
     const type = cell.getValue() as string;
     return (
       <RecordTableInlineCell>
         {type === 'company' ? (
-          <Badge className="bg-blue-100 text-blue-800">{t('company', 'Company')}</Badge>
+          <Badge className="bg-blue-100 text-blue-800">
+            {t('company', 'Company')}
+          </Badge>
         ) : (
-          <Badge className="bg-green-100 text-green-800">{t('individual', 'Individual')}</Badge>
+          <Badge className="bg-green-100 text-green-800">
+            {t('individual', 'Individual')}
+          </Badge>
         )}
       </RecordTableInlineCell>
     );
@@ -87,5 +93,10 @@ export const customersColumns = (
     IconBuilding,
     'company-name',
   ),
-  createDateColumn<InsuranceCustomer>(t, 'createdAt', 'createdAt', 'created-at'),
+  createDateColumn<InsuranceCustomer>(
+    t,
+    'createdAt',
+    'createdAt',
+    'created-at',
+  ),
 ];

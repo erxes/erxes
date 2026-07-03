@@ -26,7 +26,10 @@ export const createCustomTypesColumns = (
     {
       id: 'name',
       header: () => (
-        <RecordTable.InlineHead icon={IconLayout} label={t('type-name', 'Type name')} />
+        <RecordTable.InlineHead
+          icon={IconLayout}
+          label={t('type-name', 'Type name')}
+        />
       ),
       accessorKey: 'label',
       cell: ({ cell }) => {
@@ -96,7 +99,10 @@ export const createCustomTypesColumns = (
     {
       id: 'description',
       header: () => (
-        <RecordTable.InlineHead icon={IconArticle} label={t('description', 'Description')} />
+        <RecordTable.InlineHead
+          icon={IconArticle}
+          label={t('description', 'Description')}
+        />
       ),
       accessorKey: 'description',
       cell: ({ cell }) => (
@@ -111,7 +117,10 @@ export const createCustomTypesColumns = (
     {
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label={t('created', 'Created')} />
+        <RecordTable.InlineHead
+          icon={IconCalendar}
+          label={t('created', 'Created')}
+        />
       ),
       accessorKey: 'createdAt',
       size: 120,

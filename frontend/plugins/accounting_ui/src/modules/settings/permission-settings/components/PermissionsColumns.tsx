@@ -260,4 +260,3 @@ export const permissionsColumns = (
     size: 220,
   },
 ];
-

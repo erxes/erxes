@@ -20,7 +20,9 @@ const NoOrdersEmptyState = () => {
         <div className="mb-6">
           <IconShoppingCartX size={48} className="text-gray-400" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900">{t('no-orders')}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          {t('no-orders')}
+        </h3>
         <p className="mt-1 text-sm text-gray-500">
           {t('select-rule-or-adjust-filters-orders')}
         </p>
@@ -160,9 +162,7 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && orders?.length === 0 && (
-          <NoOrdersEmptyState />
-        )}
+        {!loading && orders?.length === 0 && <NoOrdersEmptyState />}
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

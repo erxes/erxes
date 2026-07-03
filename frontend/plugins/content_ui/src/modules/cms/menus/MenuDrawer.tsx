@@ -42,20 +42,32 @@ export function MenuDrawer(props: MenuDrawerProps) {
     <Sheet open={isOpen} onOpenChange={onClose}>
       <Sheet.View className="sm:max-w-lg p-0 bg-background">
         <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>{isEditing ? t('edit-menu', 'Edit Menu') : t('new-menu', 'New Menu')}</Sheet.Title>
+          <Sheet.Title>
+            {isEditing
+              ? t('edit-menu', 'Edit Menu')
+              : t('new-menu', 'New Menu')}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-4 space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="p-4 space-y-4"
+          >
             {hasPermissionError && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
                 <div className="flex items-start gap-2">
                   <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                   <div className="text-sm">
-                    <p className="font-medium text-red-800">{t('permission-required', 'Permission Required')}</p>
+                    <p className="font-medium text-red-800">
+                      {t('permission-required', 'Permission Required')}
+                    </p>
                     <p className="text-red-700 mt-1">
-                      {t('menus-permission-required-desc', 'You do not have permission to manage menus. Please contact your administrator.')}
+                      {t(
+                        'menus-permission-required-desc',
+                        'You do not have permission to manage menus. Please contact your administrator.',
+                      )}
                     </p>
                   </div>
                 </div>
@@ -78,11 +90,17 @@ export function MenuDrawer(props: MenuDrawerProps) {
                   <Form.Label>
                     {t('label', 'Label')}
                     {isTranslationMode && (
-                      <span className="ml-2 text-xs text-blue-600">({selectedLanguage})</span>
+                      <span className="ml-2 text-xs text-blue-600">
+                        ({selectedLanguage})
+                      </span>
                     )}
                   </Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('enter-label', 'Enter label')} required />
+                    <Input
+                      {...field}
+                      placeholder={t('enter-label', 'Enter label')}
+                      required
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -115,7 +133,10 @@ export function MenuDrawer(props: MenuDrawerProps) {
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label htmlFor="target-blank" className="cursor-pointer font-normal">
+                    <Form.Label
+                      htmlFor="target-blank"
+                      className="cursor-pointer font-normal"
+                    >
                       {t('open-in-new-tab', 'Open in New Tab')}
                     </Form.Label>
                   </div>
@@ -131,17 +152,30 @@ export function MenuDrawer(props: MenuDrawerProps) {
                   <Form.Label>
                     {t('kind', 'Kind')}
                     {isTranslationMode && (
-                      <span className="ml-2 text-xs text-gray-500">({t('shared-across-languages', 'shared across languages')})</span>
+                      <span className="ml-2 text-xs text-gray-500">
+                        (
+                        {t(
+                          'shared-across-languages',
+                          'shared across languages',
+                        )}
+                        )
+                      </span>
                     )}
                   </Form.Label>
                   <Form.Control>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
-                        <Select.Value placeholder={t('select-kind', 'Select kind')} />
+                        <Select.Value
+                          placeholder={t('select-kind', 'Select kind')}
+                        />
                       </Select.Trigger>
                       <Select.Content>
-                        <Select.Item value="header">{t('header', 'Header')}</Select.Item>
-                        <Select.Item value="footer">{t('footer', 'Footer')}</Select.Item>
+                        <Select.Item value="header">
+                          {t('header', 'Header')}
+                        </Select.Item>
+                        <Select.Item value="footer">
+                          {t('footer', 'Footer')}
+                        </Select.Item>
                       </Select.Content>
                     </Select>
                   </Form.Control>
@@ -158,16 +192,30 @@ export function MenuDrawer(props: MenuDrawerProps) {
                   <Form.Label>
                     {t('parent-menu', 'Parent Menu')}
                     {isTranslationMode && (
-                      <span className="ml-2 text-xs text-gray-500">({t('shared-across-languages', 'shared across languages')})</span>
+                      <span className="ml-2 text-xs text-gray-500">
+                        (
+                        {t(
+                          'shared-across-languages',
+                          'shared across languages',
+                        )}
+                        )
+                      </span>
                     )}
                   </Form.Label>
                   <Form.Control>
-                    <Select value={field.value || 'none'} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value || 'none'}
+                      onValueChange={field.onChange}
+                    >
                       <Select.Trigger>
-                        <Select.Value placeholder={t('none-top-level', 'None (Top Level)')} />
+                        <Select.Value
+                          placeholder={t('none-top-level', 'None (Top Level)')}
+                        />
                       </Select.Trigger>
                       <Select.Content>
-                        <Select.Item value="none">{t('none-top-level', 'None (Top Level)')}</Select.Item>
+                        <Select.Item value="none">
+                          {t('none-top-level', 'None (Top Level)')}
+                        </Select.Item>
                         {parentOptions.map((opt) => (
                           <Select.Item key={opt._id} value={opt._id}>
                             {opt.label}

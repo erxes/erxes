@@ -44,12 +44,20 @@ export const IntegrationsRecordTable = () => {
             </div>
           </Empty.Media>
           <Empty.Title>
-            No {INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name}{' '}
+            No{' '}
+            {
+              INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]
+                ?.name
+            }{' '}
             found
           </Empty.Title>
           <Empty.Description>
             Get started by adding your first{' '}
-            {INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name}.
+            {
+              INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]
+                ?.name
+            }
+            .
           </Empty.Description>
         </Empty.Header>
       </Empty>
@@ -168,9 +176,12 @@ const integrationTypeColumns = (
     {
       id: 'healthStatus',
       accessorKey: 'healthStatus',
-      header: () => <RecordTable.InlineHead label={t('health-status', 'Health status')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('health-status', 'Health status')} />
+      ),
       cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
-        const healthStatus = cell.getValue() as IIntegrationDetail['healthStatus'];
+        const healthStatus =
+          cell.getValue() as IIntegrationDetail['healthStatus'];
         const status = healthStatus?.status;
 
         return (

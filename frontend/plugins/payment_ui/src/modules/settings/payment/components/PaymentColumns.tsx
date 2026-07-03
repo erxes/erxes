@@ -83,7 +83,12 @@ export const paymentColumns = (
     id: 'kind',
     accessorKey: 'kind',
     header: () => {
-      return <RecordTable.InlineHead label={t('payment-method-label', 'Payment method')} icon={IconSettings} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('payment-method-label', 'Payment method')}
+          icon={IconSettings}
+        />
+      );
     },
     cell: ({ cell }) => {
       const kind = cell.getValue() as string;
@@ -107,7 +112,9 @@ export const paymentColumns = (
     id: 'name',
     accessorKey: 'name',
     header: () => {
-      return <RecordTable.InlineHead label={t('name', 'Name')} icon={IconHash} />;
+      return (
+        <RecordTable.InlineHead label={t('name', 'Name')} icon={IconHash} />
+      );
     },
     cell: ({ cell }) => {
       const payment = cell.row.original;
@@ -133,7 +140,12 @@ export const paymentColumns = (
     id: 'status',
     accessorKey: 'status',
     header: () => {
-      return <RecordTable.InlineHead label={t('status', 'Status')} icon={IconProgress} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('status', 'Status')}
+          icon={IconProgress}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -147,7 +159,12 @@ export const paymentColumns = (
     id: 'credentials',
     accessorKey: 'credentials',
     header: () => {
-      return <RecordTable.InlineHead label={t('credentials', 'Credentials')} icon={IconKey} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('credentials', 'Credentials')}
+          icon={IconKey}
+        />
+      );
     },
     cell: () => {
       return (
@@ -161,7 +178,12 @@ export const paymentColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      return <RecordTable.InlineHead label={t('created-at', 'Created at')} icon={IconCalendarPlus} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-at', 'Created at')}
+          icon={IconCalendarPlus}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (

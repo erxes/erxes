@@ -65,7 +65,12 @@ export const getAccountingCheckSyncedDealsColumns = ({
     id: 'name',
     accessorKey: 'name',
     header: () => {
-      return <RecordTable.InlineHead icon={IconLabel} label={t('deal-name', 'Deal name')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconLabel}
+          label={t('deal-name', 'Deal name')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -77,7 +82,12 @@ export const getAccountingCheckSyncedDealsColumns = ({
     id: 'number',
     accessorKey: 'number',
     header: () => {
-      return <RecordTable.InlineHead icon={IconHash} label={t('deal-number', 'Deal number')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconHash}
+          label={t('deal-number', 'Deal number')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -89,7 +99,12 @@ export const getAccountingCheckSyncedDealsColumns = ({
     id: 'amount',
     accessorKey: 'amount',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount', 'Amount')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCurrencyDollar}
+          label={t('amount', 'Amount')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -101,7 +116,12 @@ export const getAccountingCheckSyncedDealsColumns = ({
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at', 'Created at')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCalendarPlus}
+          label={t('created-at', 'Created at')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -115,7 +135,12 @@ export const getAccountingCheckSyncedDealsColumns = ({
     id: 'syncStatus',
     accessorKey: 'syncStatus',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCategory} label={t('sync-status', 'Sync status')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCategory}
+          label={t('sync-status', 'Sync status')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -172,7 +197,12 @@ export const getAccountingCheckSyncedDealsColumns = ({
     id: 'syncedDate',
     accessorKey: 'syncedDate',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCategory} label={t('synced-date', 'Synced date')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCategory}
+          label={t('synced-date', 'Synced date')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -184,7 +214,12 @@ export const getAccountingCheckSyncedDealsColumns = ({
     id: 'syncedBillNumber',
     accessorKey: 'syncedBillNumber',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCategory} label={t('synced-number', 'Synced number')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCategory}
+          label={t('synced-number', 'Synced number')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

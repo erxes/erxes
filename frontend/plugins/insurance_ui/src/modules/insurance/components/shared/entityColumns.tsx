@@ -54,7 +54,12 @@ export const createDescriptionColumn = <T,>(
   id: 'description',
   accessorKey: 'description',
   header: () => {
-    return <RecordTable.InlineHead icon={icon} label={t('description', 'Description')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={icon}
+        label={t('description', 'Description')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -68,7 +73,12 @@ export const createCreatedAtColumn = <T,>(t: TFunc): ColumnDef<T> => ({
   id: 'createdAt',
   accessorKey: 'createdAt',
   header: () => {
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created at')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconCalendar}
+        label={t('created-at', 'Created at')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -82,7 +92,12 @@ export const createUpdatedAtColumn = <T,>(t: TFunc): ColumnDef<T> => ({
   id: 'updatedAt',
   accessorKey: 'updatedAt',
   header: () => {
-    return <RecordTable.InlineHead icon={IconCalendar} label={t('updated-at', 'Updated at')} />;
+    return (
+      <RecordTable.InlineHead
+        icon={IconCalendar}
+        label={t('updated-at', 'Updated at')}
+      />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
@@ -107,7 +122,9 @@ export const createTextColumn = <T,>(
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
-      <TextOverflowTooltip value={(cell.getValue() as string) || defaultValue} />
+      <TextOverflowTooltip
+        value={(cell.getValue() as string) || defaultValue}
+      />
     </RecordTableInlineCell>
   ),
 });
@@ -122,7 +139,9 @@ export const createDateColumn = <T,>(
   id,
   accessorKey,
   header: () => {
-    return <RecordTable.InlineHead icon={IconCalendar} label={t(label, label)} />;
+    return (
+      <RecordTable.InlineHead icon={IconCalendar} label={t(label, label)} />
+    );
   },
   cell: ({ cell }) => (
     <RecordTableInlineCell>

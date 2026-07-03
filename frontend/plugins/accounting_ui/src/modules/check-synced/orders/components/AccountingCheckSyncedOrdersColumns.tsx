@@ -52,7 +52,12 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     id: 'number',
     accessorKey: 'number',
     header: () => {
-      return <RecordTable.InlineHead icon={IconHash} label={t('order-number', 'Order number')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconHash}
+          label={t('order-number', 'Order number')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -64,7 +69,12 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     id: 'totalAmount',
     accessorKey: 'totalAmount',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('amount', 'Amount')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCurrencyDollar}
+          label={t('amount', 'Amount')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -76,7 +86,12 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at', 'Created at')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCalendarPlus}
+          label={t('created-at', 'Created at')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -90,7 +105,12 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     id: 'syncStatus',
     accessorKey: 'syncStatus',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCategory} label={t('sync-status', 'Sync status')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCategory}
+          label={t('sync-status', 'Sync status')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -148,7 +168,12 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     id: 'syncedDate',
     accessorKey: 'syncedDate',
     header: () => {
-      return <RecordTable.InlineHead icon={IconCategory} label={t('synced-date', 'Synced date')} />;
+      return (
+        <RecordTable.InlineHead
+          icon={IconCategory}
+          label={t('synced-date', 'Synced date')}
+        />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
