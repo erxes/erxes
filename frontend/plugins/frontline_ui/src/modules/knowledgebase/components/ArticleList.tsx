@@ -163,8 +163,12 @@ export function ArticleList({
       id: 'status',
       accessorKey: 'status',
       size: 220,
-      header: () => <RecordTable.InlineHead icon={IconEye} label={t('status')} />,
-      cell: ({ row }: any) => <ArticleStatusCell status={row.original?.status} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconEye} label={t('status')} />
+      ),
+      cell: ({ row }: any) => (
+        <ArticleStatusCell status={row.original?.status} />
+      ),
     },
     {
       id: 'createdUser',
