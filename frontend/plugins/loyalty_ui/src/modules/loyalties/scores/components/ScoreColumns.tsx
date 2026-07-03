@@ -78,14 +78,18 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   makeScoreMoreColumn(),
   {
     id: 'ownerName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner-name')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-name')} />
+    ),
     size: 180,
     cell: ({ row }) => <ScoreOwnerNameCell row={row} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />
+    ),
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="capitalize text-xs">
@@ -96,7 +100,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'totalScore',
     accessorKey: 'totalScore',
-    header: () => <RecordTable.InlineHead icon={IconStar} label={t('total-score')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconStar} label={t('total-score')} />
+    ),
     size: 140,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-semibold">
@@ -107,7 +113,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -118,7 +126,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'dealNumber',
     accessorFn: (row) => row.target?.number,
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />
+    ),
     size: 200,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -153,7 +163,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'pointsEarned',
     accessorFn: (row) => (row.action === 'add' ? row.change : undefined),
-    header: () => <RecordTable.InlineHead icon={IconCoins} label={t('points-earned')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCoins} label={t('points-earned')} />
+    ),
     size: 130,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -167,7 +179,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'pointsSpent',
     accessorFn: (row) => (row.action === 'subtract' ? row.change : undefined),
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label={t('points-spent')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label={t('points-spent')} />
+    ),
     size: 130,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -181,7 +195,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'pointsRefunded',
     accessorFn: (row) => (row.action === 'refund' ? row.change : undefined),
-    header: () => <RecordTable.InlineHead icon={IconRefresh} label={t('points-refunded')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconRefresh} label={t('points-refunded')} />
+    ),
     size: 150,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -195,7 +211,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'pointsSet',
     accessorFn: (row) => (row.action === 'set' ? row.change : undefined),
-    header: () => <RecordTable.InlineHead icon={IconCoins} label={t('score-set')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCoins} label={t('score-set')} />
+    ),
     size: 120,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -209,7 +227,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'campaign',
     accessorFn: (row) => row.campaign?.title,
-    header: () => <RecordTable.InlineHead icon={IconTrophy} label={t('campaign')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTrophy} label={t('campaign')} />
+    ),
     size: 140,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -220,7 +240,9 @@ export const scoreLogColumns = (t: TFunction): ColumnDef<IScoreLog>[] => [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead icon={IconNote} label={t('description')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconNote} label={t('description')} />
+    ),
     size: 160,
     cell: ({ cell }) => (
       <RecordTableInlineCell>

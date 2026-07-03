@@ -67,7 +67,9 @@ export const couponColumns = (t: TFunction): ColumnDef<ICoupon>[] => [
   {
     id: 'campaignId',
     accessorKey: 'campaign',
-    header: () => <RecordTable.InlineHead icon={IconTag} label={t('campaign')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('campaign')} />
+    ),
     size: 160,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">
@@ -85,7 +87,9 @@ export const couponColumns = (t: TFunction): ColumnDef<ICoupon>[] => [
   {
     id: 'usageCount',
     accessorKey: 'usageCount',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label={t('usage')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label={t('usage')} />
+    ),
     size: 90,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -107,7 +111,9 @@ export const couponColumns = (t: TFunction): ColumnDef<ICoupon>[] => [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
+    ),
     size: 100,
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
@@ -123,7 +129,9 @@ export const couponColumns = (t: TFunction): ColumnDef<ICoupon>[] => [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
+    ),
     size: 150,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">

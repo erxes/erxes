@@ -68,7 +68,9 @@ export const agentColumns = (t: TFunction): ColumnDef<IAgent>[] => [
   {
     id: 'hasReturn',
     accessorKey: 'hasReturn',
-    header: () => <RecordTable.InlineHead icon={IconRefresh} label={t('has-return')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconRefresh} label={t('has-return')} />
+    ),
     size: 100,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -87,7 +89,9 @@ export const agentColumns = (t: TFunction): ColumnDef<IAgent>[] => [
   {
     id: 'productRules',
     accessorKey: 'rulesOfProducts',
-    header: () => <RecordTable.InlineHead icon={IconBox} label={t('product-rules')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBox} label={t('product-rules')} />
+    ),
     cell: ({ row }) => <ProductRulesCell agent={row.original} />,
   },
 ];

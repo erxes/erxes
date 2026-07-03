@@ -60,7 +60,9 @@ export const voucherColumns = (
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
         <SafeRelativeDate value={cell.getValue() as string} />
@@ -71,7 +73,9 @@ export const voucherColumns = (
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
         <SafeRelativeDate value={cell.getValue() as string} />
@@ -82,7 +86,9 @@ export const voucherColumns = (
   {
     id: 'voucherType',
     accessorKey: 'voucherType',
-    header: () => <RecordTable.InlineHead icon={IconTicket} label={t('type')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTicket} label={t('type')} />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -93,7 +99,9 @@ export const voucherColumns = (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
+    ),
     cell: ({ cell }) => {
       const { _id } = cell.row.original || {};
       const currentStatus = cell.getValue() as string;

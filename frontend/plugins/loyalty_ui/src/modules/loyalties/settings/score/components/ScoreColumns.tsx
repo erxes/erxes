@@ -37,7 +37,9 @@ export const scoreColumns = (
   {
     id: 'order',
     accessorKey: 'order',
-    header: () => <RecordTable.InlineHead icon={IconListNumbers} label={t('order')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconListNumbers} label={t('order')} />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={`${cell.getValue() ?? ''}`} />
@@ -48,7 +50,9 @@ export const scoreColumns = (
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -59,7 +63,9 @@ export const scoreColumns = (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
+    ),
     cell: ({ cell }) => {
       const { _id } = cell.row.original || {};
       const currentStatus = cell.getValue() as string;

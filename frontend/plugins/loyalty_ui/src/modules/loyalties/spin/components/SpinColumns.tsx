@@ -67,14 +67,18 @@ export const firstSpinColumns = (t: TFunction): ColumnDef<ISpin>[] => [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+    ),
     size: 100,
     cell: ({ row }) => <CreatedAtCell spin={row.original} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="capitalize">{t(cell.getValue() as string)}</span>

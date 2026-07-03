@@ -81,21 +81,27 @@ export const firstLotteryColumns = (t: TFunction): ColumnDef<ILottery>[] => [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('number')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('number')} />
+    ),
     cell: ({ row }) => <NumberCell lottery={row.original} />,
     size: 300,
   },
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+    ),
     size: 100,
     cell: ({ row }) => <CreatedAtCell lottery={row.original} />,
   },
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="capitalize">{t(cell.getValue() as string)}</span>

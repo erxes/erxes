@@ -247,4 +247,3 @@ export const permissionsColumns = (t: TFunction): ColumnDef<IPermission>[] => [
     size: 220,
   },
 ];
-

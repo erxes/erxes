@@ -51,7 +51,9 @@ export const VoucherRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-voucher-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-voucher-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
                     {t('get-started-voucher')}
                   </p>

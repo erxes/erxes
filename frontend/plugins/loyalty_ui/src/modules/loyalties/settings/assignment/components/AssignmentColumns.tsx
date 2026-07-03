@@ -58,7 +58,9 @@ export const assignmentColumns = (
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
         <SafeRelativeDate value={cell.getValue() as string} />
@@ -69,7 +71,9 @@ export const assignmentColumns = (
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />
+    ),
     cell: ({ cell }: { cell: any }) => (
       <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
         <SafeRelativeDate value={cell.getValue() as string} />
@@ -80,7 +84,9 @@ export const assignmentColumns = (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (

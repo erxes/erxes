@@ -45,17 +45,16 @@ export const spinColumns = (t: TFunction): ColumnDef<ISpin>[] => [
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead icon={IconTag} label={t('title')} />,
     cell: ({ cell }) => (
-      <SpinNameCell
-        spin={cell.row.original}
-        name={cell.getValue() as string}
-      />
+      <SpinNameCell spin={cell.row.original} name={cell.getValue() as string} />
     ),
     size: 150,
   },
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('start-date')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
         <SafeRelativeDate value={cell.getValue() as string} />
@@ -66,7 +65,9 @@ export const spinColumns = (t: TFunction): ColumnDef<ISpin>[] => [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendarEvent} label={t('end-date')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
         <SafeRelativeDate value={cell.getValue() as string} />
@@ -77,7 +78,9 @@ export const spinColumns = (t: TFunction): ColumnDef<ISpin>[] => [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (
