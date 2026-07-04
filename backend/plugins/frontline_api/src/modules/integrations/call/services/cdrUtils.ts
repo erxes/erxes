@@ -173,10 +173,12 @@ export const extractOperatorId = (params) => {
 
 export const isHumanAnsweredLeg = (leg: any): boolean => {
   const lastapp = leg?.lastapp;
+  const actionType = String(leg?.actionType ?? leg?.action_type ?? '');
   return (
     (leg?.disposition || '').toLowerCase() === 'answered' &&
     Number(leg?.billsec) > 0 &&
-    (lastapp === 'Queue' || lastapp === 'Dial')
+    (lastapp === 'Queue' || lastapp === 'Dial') &&
+    !actionType.includes('VM')
   );
 };
 
@@ -205,6 +207,13 @@ export const getConversationContent = async (models: IModels, cdrParams) => {
       (leg.disposition || '').toLowerCase() === 'answered',
   );
   if (ivrAnswered && direction === 'Inbound') return `IVR · ${direction}`;
+
+  const vmAnswered = legs.some(
+    (leg) =>
+      actionTypeOf(leg).includes('VM') &&
+      (leg.disposition || '').toLowerCase() === 'answered',
+  );
+  if (vmAnswered && direction === 'Inbound') return `VOICEMAIL · ${direction}`;
 
   if (legs.some((leg) => actionTypeOf(leg).includes('FOLLOWME'))) {
     return `FOLLOWME · ${direction}`;
