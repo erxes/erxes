@@ -14,6 +14,7 @@ import {
 } from './definition';
 import {
   IOrganization,
+  ISaasAddon,
   ISaasBundle,
   ISaasOrganizationPlanHistory,
 } from './types';
@@ -342,6 +343,53 @@ export const getSaasOrganizationPlanHistories = async ({
   return histories.map((history) => ({
     ...history,
     bundle: history.bundleId ? bundleById.get(history.bundleId) : undefined,
+  }));
+};
+
+export const getSaasOrganizationActiveAddons = async ({
+  organizationId,
+}: {
+  organizationId: string;
+}): Promise<ISaasAddon[]> => {
+  await getSaasCoreConnection();
+
+  const installation = await coreModelInstallations
+    .findOne({ organizationId }, { _id: 1 })
+    .lean();
+
+  if (!installation?._id) {
+    return [];
+  }
+
+  const addons = await coreModelAddons
+    .find({
+      installationId: String(installation._id),
+      paymentStatus: 'complete',
+      isCanceled: { $ne: true },
+      $or: [{ expiryDate: { $gt: new Date() } }, { interval: 'oneTime' }],
+    })
+    .sort({ createdAt: -1 })
+    .lean<ISaasAddon[]>();
+
+  const bundleTypes = Array.from(
+    new Set(addons.map((addon) => addon.kind).filter(Boolean)),
+  );
+
+  if (!bundleTypes.length) {
+    return addons;
+  }
+
+  const bundles = await coreModelBundles
+    .find({ type: { $in: bundleTypes } })
+    .lean();
+
+  const bundleByType = new Map<string, ISaasBundle>(
+    bundles.map((bundle: any) => [String(bundle.type), bundle as ISaasBundle]),
+  );
+
+  return addons.map((addon) => ({
+    ...addon,
+    bundle: addon.kind ? bundleByType.get(addon.kind) : undefined,
   }));
 };
 
