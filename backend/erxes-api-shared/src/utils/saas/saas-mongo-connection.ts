@@ -363,7 +363,7 @@ export const getSaasOrganizationActiveAddons = async ({
     return [];
   }
 
-  const addons = await coreModelAddons
+  const addons = (await coreModelAddons
     .find({
       installationId: String(installation._id),
       paymentStatus: 'complete',
@@ -371,7 +371,7 @@ export const getSaasOrganizationActiveAddons = async ({
       $or: [{ expiryDate: { $gt: new Date() } }, { interval: 'oneTime' }],
     })
     .sort({ createdAt: -1 })
-    .lean() as ISaasAddon[];
+    .lean()) as ISaasAddon[];
 
   const bundleTypes = Array.from(
     new Set(addons.map((addon) => addon.kind).filter(Boolean)),
