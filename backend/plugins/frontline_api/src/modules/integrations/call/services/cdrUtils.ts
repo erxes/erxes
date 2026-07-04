@@ -14,13 +14,14 @@ export const findOrCreateCdr = async (
   const existingCdr = await findExistingCdr(models, acctId);
 
   if (existingCdr) {
-    return await updateExistingCdr(models, existingCdr, conversationId);
+    const cdr = await updateExistingCdr(models, existingCdr, conversationId);
+    return { cdr, created: false };
   }
 
   const newCdr = await createNewCdr(models, cdrParams, inboxId, conversationId);
   await processRecordUrl(models, cdrParams, inboxId, subdomain, acctId);
 
-  return newCdr;
+  return { cdr: newCdr, created: true };
 };
 
 const validateRequiredParams = (cdrParams) => {

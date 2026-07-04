@@ -255,7 +255,7 @@ const processCdrLocked = async (
     throw new Error('Failed to find or create a conversation ID.');
   }
 
-  const cdr = await findOrCreateCdr(
+  const { cdr, created } = await findOrCreateCdr(
     models,
     subdomain,
     params,
@@ -263,11 +263,13 @@ const processCdrLocked = async (
     conversationId,
   );
 
-  const doc = {
-    ...cdr.toObject(),
-    conversationId: cdr.conversationId,
-  };
-  await pConversationClientMessageInserted(subdomain, doc);
+  if (created && params.lastapp !== 'ForkCDR') {
+    const doc = {
+      ...cdr.toObject(),
+      conversationId: cdr.conversationId,
+    };
+    await pConversationClientMessageInserted(subdomain, doc);
+  }
 
   if (params.uniqueid) {
     const sessionUniqueid = existingSession?.uniqueid || params.uniqueid;
