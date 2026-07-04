@@ -371,7 +371,7 @@ export const getSaasOrganizationActiveAddons = async ({
       $or: [{ expiryDate: { $gt: new Date() } }, { interval: 'oneTime' }],
     })
     .sort({ createdAt: -1 })
-    .lean<ISaasAddon[]>();
+    .lean() as ISaasAddon[];
 
   const bundleTypes = Array.from(
     new Set(addons.map((addon) => addon.kind).filter(Boolean)),
