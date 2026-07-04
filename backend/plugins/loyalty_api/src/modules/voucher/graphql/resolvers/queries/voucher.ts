@@ -44,7 +44,115 @@ const generateFilter = (params: IVoucherParams) => {
 
   return filter;
 };
+const getOwnerVouchers = async (
+  models: IContext['models'],
+  subdomain: string,
+  ownerId: string,
+  ownerType?: string,
+) => {
+  let resolvedOwnerId = ownerId;
+  let resolvedOwnerType = ownerType;
 
+  if (!resolvedOwnerType || resolvedOwnerType === 'customer') {
+    const cpUserById = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'cpUsers',
+      action: 'get',
+      input: { id: resolvedOwnerId },
+      defaultValue: null,
+    });
+
+    const cpUser =
+      cpUserById ||
+      (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'cpUsers',
+        action: 'get',
+        input: { erxesCustomerId: resolvedOwnerId },
+        defaultValue: null,
+      }));
+
+    if (cpUser) {
+      resolvedOwnerId = cpUser._id;
+      resolvedOwnerType = 'cpUser';
+    }
+  }
+
+  const ownerVouchers = await models.Vouchers.find({
+    ownerId: resolvedOwnerId,
+    ...(resolvedOwnerType && { ownerType: resolvedOwnerType }),
+  }).lean();
+
+  const campaignVoucherMap = new Map<string, { voucherIds: string[] }>();
+
+  for (const voucher of ownerVouchers) {
+    if (!voucher.campaignId) continue;
+
+    if (!campaignVoucherMap.has(voucher.campaignId)) {
+      campaignVoucherMap.set(voucher.campaignId, { voucherIds: [] });
+    }
+
+    campaignVoucherMap
+      .get(voucher.campaignId)!
+      .voucherIds.push(voucher._id.toString());
+  }
+
+  const campaignIds = Array.from(campaignVoucherMap.keys());
+  const now = new Date();
+
+  const campaigns = await models.VoucherCampaigns.find({
+    _id: { $in: campaignIds },
+    status: CAMPAIGN_STATUS.ACTIVE,
+    startDate: { $lte: now },
+    endDate: { $gte: now },
+  }).lean();
+
+  const vouchers: Array<{
+    campaign: (typeof campaigns)[number];
+    count: number;
+    voucherIds: string[];
+    vouchers: Array<{
+      _id: string;
+      status?: string;
+      ownerId?: string;
+      ownerType?: string;
+      createdAt?: Date;
+    }>;
+  }> = [];
+
+  for (const campaign of campaigns) {
+    const voucherData = campaignVoucherMap.get(campaign._id.toString());
+
+    if (!voucherData) continue;
+
+    vouchers.push({
+      campaign,
+      count: voucherData.voucherIds.length,
+      voucherIds: voucherData.voucherIds,
+      vouchers: voucherData.voucherIds.flatMap((id) => {
+        const voucher = ownerVouchers.find((v) => v._id.toString() === id);
+
+        if (!voucher) return [];
+
+        return [
+          {
+            _id: voucher._id,
+            status: voucher.status,
+            ownerId: voucher.ownerId,
+            ownerType: voucher.ownerType,
+            createdAt: voucher.createdAt,
+          },
+        ];
+      }),
+    });
+  }
+
+  return vouchers;
+};
 export const voucherQueries = {
   async vouchers(
     _parent: undefined,
@@ -84,113 +192,29 @@ export const voucherQueries = {
 
     return { list, totalCount };
   },
-
   async ownerVouchers(
     _parent: undefined,
     params: { ownerId: string; ownerType?: string },
     { models, subdomain }: IContext,
   ) {
-    let { ownerId, ownerType } = params || {};
+    return getOwnerVouchers(
+      models,
+      subdomain,
+      params.ownerId,
+      params.ownerType,
+    );
+  },
 
-    if (!ownerType || ownerType === 'customer') {
-      const cpUserById = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'cpUsers',
-        action: 'get',
-        input: { id: ownerId },
-        defaultValue: null,
-      });
-      const cpUser =
-        cpUserById ||
-        (await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'cpUsers',
-          action: 'get',
-          input: { erxesCustomerId: ownerId },
-          defaultValue: null,
-        }));
-
-      if (cpUser) {
-        ownerId = cpUser._id;
-        ownerType = 'cpUser';
-      }
-    }
-
-    const ownerVouchers = await models.Vouchers.find({
-      ownerId,
-      ...(ownerType && { ownerType }),
-    }).lean();
-
-    const campaignVoucherMap = new Map<string, { voucherIds: string[] }>();
-
-    for (const voucher of ownerVouchers) {
-      const { _id, campaignId } = voucher;
-
-      if (!campaignId) continue;
-
-      if (!campaignVoucherMap.has(campaignId)) {
-        campaignVoucherMap.set(campaignId, { voucherIds: [] });
-      }
-
-      campaignVoucherMap.get(campaignId)!.voucherIds.push(_id.toString());
-    }
-
-    const campaignIds = Array.from(campaignVoucherMap.keys());
-
-    const campaigns = await models.VoucherCampaigns.find({
-      _id: { $in: campaignIds },
-      status: CAMPAIGN_STATUS.ACTIVE,
-      startDate: { $lte: new Date() },
-      endDate: { $gte: new Date() },
-    }).lean();
-
-    const vouchers: Array<{
-      campaign: (typeof campaigns)[number];
-      count: number;
-      voucherIds: string[];
-      vouchers: Array<{
-        _id: string;
-        status?: string;
-        ownerId?: string;
-        ownerType?: string;
-        createdAt?: Date;
-      }>;
-    }> = [];
-
-    for (const campaign of campaigns) {
-      const { _id } = campaign;
-
-      const campaignId = _id.toString();
-      const voucherData = campaignVoucherMap.get(campaignId);
-
-      if (voucherData) {
-        vouchers.push({
-          campaign,
-          count: voucherData.voucherIds.length,
-          voucherIds: voucherData.voucherIds,
-          vouchers: voucherData.voucherIds.flatMap((id) => {
-              const voucher = ownerVouchers.find(
-                (ownerVoucher) => ownerVoucher._id.toString() === id,
-              );
-
-              if (!voucher) return [];
-
-              return [{
-                _id: voucher._id,
-                status: voucher.status,
-                ownerId: voucher.ownerId,
-                ownerType: voucher.ownerType,
-                createdAt: voucher.createdAt,
-              }];
-            }),
-        });
-      }
-    }
-
-    return vouchers;
+  async cpOwnerVouchers(
+    _parent: undefined,
+    params: { ownerId: string; ownerType?: string },
+    { models, subdomain }: IContext,
+  ) {
+    return getOwnerVouchers(
+      models,
+      subdomain,
+      params.ownerId,
+      params.ownerType,
+    );
   },
 };

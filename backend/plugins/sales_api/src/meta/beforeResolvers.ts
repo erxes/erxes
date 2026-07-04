@@ -18,7 +18,7 @@ export const beforeResolvers: BeforeResolversConfig = {
   },
 
   handler: async (subdomain, params) => {
-    const { resolver, args = {}, user } = params;
+    const { resolver, args = {} } = params;
 
     if (!productIdsResolvers.includes(resolver)) {
       return { status: 'ok' };
@@ -48,16 +48,7 @@ export const beforeResolvers: BeforeResolversConfig = {
       return { status: 'ok' };
     }
 
-    console.log('productMutationResolvers', productMutationResolvers);
-    console.log('productIdsResolvers', productIdsResolvers);
-    console.log('resolver', resolver);
-    console.log('user', JSON.stringify(user, null, 2));
-    console.log('args', JSON.stringify(args, null, 2));
-
     // Soft-delete the products that are referenced by sales deals.
-    console.log(
-      `[${subdomain}][sales:beforeResolvers:${resolver}] core updateProducts status=deleted for ${usedProductIds.length} product(s)`,
-    );
     await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
