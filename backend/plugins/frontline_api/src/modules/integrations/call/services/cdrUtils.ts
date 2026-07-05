@@ -26,6 +26,16 @@ export const parseCdrDate = (
   return isNaN(date.getTime()) ? undefined : date;
 };
 
+export const getPbxDayRange = (now: Date = new Date()) => {
+  const local = new Date(now.getTime() + CDR_TIME_OFFSET_MS);
+  const dateFrom = new Date(
+    Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate()) -
+      CDR_TIME_OFFSET_MS,
+  );
+  const dateTo = new Date(dateFrom.getTime() + 24 * 60 * 60 * 1000);
+  return { dateFrom, dateTo };
+};
+
 export const formatCdrApiDate = (value?: string | Date | null): string => {
   if (typeof value === 'string') {
     return value.includes(' ') ? value.replace(' ', 'T') : value;

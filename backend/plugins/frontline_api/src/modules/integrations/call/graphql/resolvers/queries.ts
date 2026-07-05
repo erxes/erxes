@@ -6,6 +6,7 @@ import {
 } from '@/integrations/call/@types/histories';
 import {
   deriveCallStatusFromLegs,
+  getPbxDayRange,
   selectRelevantCdr,
 } from '@/integrations/call/services/cdrUtils';
 import {
@@ -208,17 +209,7 @@ const callQueries = {
     const DEFAULT_VALUE = 0;
 
     try {
-      const now = new Date();
-      const dateFrom = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-      );
-      const dateTo = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-      );
+      const { dateFrom, dateTo } = getPbxDayRange();
 
       const todayCdrs = await models.CallCdrs.find({
         actionType: { $regex: queue },
