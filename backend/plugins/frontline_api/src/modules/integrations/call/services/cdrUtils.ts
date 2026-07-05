@@ -1,6 +1,44 @@
 import { IModels } from '~/connectionResolvers';
 import { cfRecordUrl, toCamelCase } from '../utils';
 
+const CDR_TIME_OFFSET = '+08:00';
+const CDR_TIME_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+export const parseCdrDate = (
+  value?: string | Date | null,
+): Date | undefined => {
+  if (!value) return undefined;
+  if (value instanceof Date) {
+    return isNaN(value.getTime()) ? undefined : value;
+  }
+
+  const trimmed = String(value).trim();
+  if (!trimmed) return undefined;
+
+  const normalized = trimmed.includes('T')
+    ? trimmed
+    : trimmed.replace(' ', 'T');
+  const hasZone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized);
+  const date = new Date(
+    hasZone ? normalized : `${normalized}${CDR_TIME_OFFSET}`,
+  );
+
+  return isNaN(date.getTime()) ? undefined : date;
+};
+
+export const formatCdrApiDate = (value?: string | Date | null): string => {
+  if (typeof value === 'string') {
+    return value.includes(' ') ? value.replace(' ', 'T') : value;
+  }
+
+  const date = parseCdrDate(value);
+  if (!date) return '';
+
+  return new Date(date.getTime() + CDR_TIME_OFFSET_MS)
+    .toISOString()
+    .slice(0, 19);
+};
+
 export const findOrCreateCdr = async (
   models: IModels,
   subdomain,
@@ -63,6 +101,9 @@ const createNewCdr = async (
     acctId,
     disposition,
     ...filteredParams,
+    start: parseCdrDate(filteredParams.start),
+    answer: parseCdrDate(filteredParams.answer),
+    end: parseCdrDate(filteredParams.end),
     inboxIntegrationId: inboxId,
     conversationId,
     createdAt: new Date(),
@@ -182,6 +223,32 @@ export const isHumanAnsweredLeg = (leg: any): boolean => {
   );
 };
 
+export const deriveCallStatusFromLegs = (legs: any[]): string => {
+  const actionTypeOf = (leg: any) => leg.actionType ?? leg.action_type ?? '';
+
+  if (legs.some(isHumanAnsweredLeg)) return 'ANSWERED';
+
+  const answeredBy = (type: string) =>
+    legs.some(
+      (leg) =>
+        actionTypeOf(leg).includes(type) &&
+        (leg.disposition || '').toLowerCase() === 'answered',
+    );
+
+  if (answeredBy('IVR')) return 'IVR';
+  if (answeredBy('VM')) return 'VOICEMAIL';
+
+  if (legs.some((leg) => actionTypeOf(leg).includes('FOLLOWME'))) {
+    return 'FOLLOWME';
+  }
+
+  const dispositions = legs.map((leg) => (leg.disposition || '').toUpperCase());
+  if (dispositions.includes('BUSY')) return 'BUSY';
+  if (dispositions.includes('FAILED')) return 'FAILED';
+  if (dispositions.includes('NO ANSWER')) return 'NO ANSWER';
+  return 'MISSED';
+};
+
 export const getConversationContent = async (models: IModels, cdrParams) => {
   const { userfield } = cdrParams;
   const direction = userfield === 'Outbound' ? 'Outbound' : 'Inbound';
@@ -195,35 +262,13 @@ export const getConversationContent = async (models: IModels, cdrParams) => {
   });
   const legs: any[] = [...storedCdrs, cdrParams];
 
-  const actionTypeOf = (leg: any) => leg.actionType ?? leg.action_type ?? '';
+  const status = deriveCallStatusFromLegs(legs);
 
-  if (legs.some(isHumanAnsweredLeg)) return `ANSWERED · ${direction}`;
+  if (status === 'ANSWERED') return `ANSWERED · ${direction}`;
 
   if (userfield === 'Outbound') return `OUTBOUND`;
 
-  const ivrAnswered = legs.some(
-    (leg) =>
-      actionTypeOf(leg).includes('IVR') &&
-      (leg.disposition || '').toLowerCase() === 'answered',
-  );
-  if (ivrAnswered && direction === 'Inbound') return `IVR · ${direction}`;
-
-  const vmAnswered = legs.some(
-    (leg) =>
-      actionTypeOf(leg).includes('VM') &&
-      (leg.disposition || '').toLowerCase() === 'answered',
-  );
-  if (vmAnswered && direction === 'Inbound') return `VOICEMAIL · ${direction}`;
-
-  if (legs.some((leg) => actionTypeOf(leg).includes('FOLLOWME'))) {
-    return `FOLLOWME · ${direction}`;
-  }
-
-  const dispositions = legs.map((leg) => (leg.disposition || '').toUpperCase());
-  if (dispositions.includes('BUSY')) return `BUSY · ${direction}`;
-  if (dispositions.includes('FAILED')) return `FAILED · ${direction}`;
-  if (dispositions.includes('NO ANSWER')) return `NO ANSWER · ${direction}`;
-  return `MISSED · ${direction}`;
+  return `${status} · ${direction}`;
 };
 
 export function selectRelevantCdr(histories: any[]): any | null {

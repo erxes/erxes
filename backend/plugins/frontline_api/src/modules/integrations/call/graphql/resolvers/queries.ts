@@ -4,7 +4,10 @@ import {
   ICallHistory,
   ICallHistoryFilterOptions,
 } from '@/integrations/call/@types/histories';
-import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
+import {
+  deriveCallStatusFromLegs,
+  selectRelevantCdr,
+} from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,
   calculateAverageHandlingTime,
@@ -493,7 +496,16 @@ const callQueries = {
       if (_id) {
         const cdr = await models.CallCdrs.findOne({ _id });
         if (cdr) {
-          return mapCdrToCallHistory(cdr);
+          const history = mapCdrToCallHistory(cdr);
+          if (cdr.uniqueid) {
+            const legs = await models.CallCdrs.find({
+              uniqueid: cdr.uniqueid,
+            });
+            if (legs.length) {
+              history.callStatus = deriveCallStatusFromLegs(legs);
+            }
+          }
+          return history;
         }
 
         result = await models.CallHistory.findOne({ _id });
@@ -510,7 +522,9 @@ const callQueries = {
         const selected = selectRelevantCdr(histories);
 
         if (selected) {
-          return mapCdrToCallHistory(selected);
+          const history = mapCdrToCallHistory(selected);
+          history.callStatus = deriveCallStatusFromLegs(histories);
+          return history;
         }
 
         result = await models.CallHistory.findOne({ conversationId });

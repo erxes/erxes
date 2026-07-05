@@ -1,5 +1,6 @@
 import { IModels } from '~/connectionResolvers';
-import { cfRecordUrl, getPureDate, sendToGrandStream } from './utils';
+import { cfRecordUrl, sendToGrandStream } from './utils';
+import { formatCdrApiDate } from './services/cdrUtils';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
@@ -178,14 +179,8 @@ export async function saveRecordUrl(
 
 const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
   const { src, dst, start, end } = params;
-  const startTime =
-    typeof start === 'string' && start.includes(' ')
-      ? start.replace(' ', 'T')
-      : getPureDate(start, 0);
-  const endTime =
-    typeof end === 'string' && end.includes(' ')
-      ? end.replace(' ', 'T')
-      : getPureDate(end, 0);
+  const startTime = formatCdrApiDate(start);
+  const endTime = formatCdrApiDate(end);
 
   const cdrData = await sendToGrandStream(
     models,

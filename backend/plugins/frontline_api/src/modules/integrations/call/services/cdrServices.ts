@@ -8,6 +8,7 @@ import {
   findOrCreateCdr,
   getConversationContent,
   isHumanAnsweredLeg,
+  parseCdrDate,
 } from '@/integrations/call/services/cdrUtils';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
@@ -148,10 +149,8 @@ const processCdrLocked = async (
   let followmeCdr: any = null;
   if (!existingCdr) {
     const isFollowmeLeg = !!params.action_type?.includes('FOLLOWME');
-    const legStart = params.start ? new Date(params.start) : null;
-    const legEndRaw = params.end ? new Date(params.end) : null;
-    const legEnd =
-      legEndRaw && !isNaN(legEndRaw.getTime()) ? legEndRaw : legStart;
+    const legStart = parseCdrDate(params.start) || null;
+    const legEnd = parseCdrDate(params.end) || legStart;
 
     const shouldCheck = isFollowmeLeg || params.userfield !== 'Outbound';
 
@@ -273,11 +272,7 @@ const processCdrLocked = async (
       if (!existingSession) {
         const direction =
           params.userfield === 'Outbound' ? 'outgoing' : 'incoming';
-        let startedAt: Date | undefined;
-        if (params.start) {
-          const [sd, st] = params.start.split(' ');
-          startedAt = new Date(`${sd}T${st}+08:00`);
-        }
+        const startedAt = parseCdrDate(params.start);
 
         await models.CallSessions.upsertSession({
           uniqueid: sessionUniqueid,
@@ -309,12 +304,7 @@ const processCdrLocked = async (
         }
       }
 
-      const endedAt = params.end
-        ? (() => {
-            const [d, t] = params.end.split(' ');
-            return new Date(`${d}T${t}+08:00`);
-          })()
-        : new Date();
+      const endedAt = parseCdrDate(params.end) || new Date();
 
       const legDisposition = isAnsweredLeg
         ? 'ANSWERED'
