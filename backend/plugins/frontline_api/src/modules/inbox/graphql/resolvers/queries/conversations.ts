@@ -15,12 +15,18 @@ const count = async (models: IModels, query: any): Promise<number> => {
   return Number(result);
 };
 
-const toQueryUser = (user: IContext['user']) => ({
-  _id: user._id,
-  code: user.code,
-  starredConversationIds: user.starredConversationIds,
-  role: user.role,
-});
+const toQueryUser = (user: IContext['user']) => {
+  if (!user) {
+    return { _id: '', code: '', starredConversationIds: [], role: '' };
+  }
+
+  return {
+    _id: user._id,
+    code: user.code,
+    starredConversationIds: user.starredConversationIds,
+    role: user.role,
+  };
+};
 
 export const conversationQueries = {
   /**
@@ -262,7 +268,7 @@ export const conversationQueries = {
       models,
       subdomain,
       {},
-      { _id: user._id, code: user.code },
+      toQueryUser(user),
     );
 
     await qb.buildAllQueries();
