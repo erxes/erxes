@@ -8,6 +8,7 @@ import {
 export const GET_CONVERSATIONS = gql`
   query Conversations(
     $channelId: String
+    $integrationId: String
     $status: String
     $unassigned: String
     $tag: String
@@ -24,6 +25,7 @@ export const GET_CONVERSATIONS = gql`
   ) {
     conversations(
       channelId: $channelId
+      integrationId: $integrationId
       status: $status
       unassigned: $unassigned
       tag: $tag

@@ -38,6 +38,7 @@ export interface IMessage {
   formWidgetData?: any;
   botData?: any;
   messengerAppData?: any;
+  extraData?: any;
   engageData?: IEngageData;
   contentType?: string;
   botId?: string;
@@ -65,4 +66,12 @@ export interface IConversationMessageAdd {
   userId?: string;
   extraInfo?: any;
   responseTemplateId?: string;
+  // Native poll to create on the channel (currently Discord). The integration
+  // turns this into a real poll and returns the rendered poll on `extraData`.
+  poll?: {
+    question: string;
+    options: string[];
+    duration?: number;
+    allowMultiselect?: boolean;
+  };
 }

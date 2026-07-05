@@ -36,6 +36,12 @@ const InboxRemoteEntry = lazy(() =>
   })),
 );
 
+const DiscordRemoteEntry = lazy(() =>
+  import('../modules/discord/components/DiscordRemoteEntry').then((module) => ({
+    default: module.DiscordRemoteEntry,
+  })),
+);
+
 const Remotes: Record<
   string,
   LazyExoticComponent<ComponentType<AutomationRemoteEntryProps>>
@@ -44,6 +50,7 @@ const Remotes: Record<
   instagram: InstagramRemoteEntry,
   tickets: TicketRemoteEntry,
   inbox: InboxRemoteEntry,
+  discord: DiscordRemoteEntry,
 };
 
 type GenericErrorFallbackProps = FallbackProps & {

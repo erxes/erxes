@@ -1,5 +1,7 @@
 import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
+import { useDiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
+import { IntegrationType } from '@/types/Integration';
 import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChangeConversationStatus';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 import { sideWidgetOpenState } from '@/inbox/states/sideWidgetOpenState';
@@ -8,6 +10,7 @@ import { ConversationStatus } from '@/inbox/types/Conversation';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
 import { IconArrowLeft, IconDots } from '@tabler/icons-react';
 import {
+  Avatar,
   Button,
   DropdownMenu,
   ScrollArea,
@@ -21,7 +24,7 @@ import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
 import { ConversationActions } from './ConversationActions';
 
 export const ConversationHeader = () => {
-  const { customerId, loading, customer } = useConversationContext();
+  const { loading } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');
   const view = useAtomValue(inboxLayoutState);
   const isSideWidgetOpen = useAtomValue(sideWidgetOpenState);
@@ -40,12 +43,7 @@ export const ConversationHeader = () => {
           </Button>
         )}
         {!loading ? (
-          <CustomersInline
-            customers={customer ? [customer] : undefined}
-            customerIds={customerId ? [customerId] : undefined}
-            className="text-sm text-foreground flex-none"
-            placeholder="anonymous customer"
-          />
+          <ConversationHeaderProfile />
         ) : (
           <Skeleton className="w-32 h-4 ml-2" />
         )}
@@ -65,6 +63,44 @@ export const ConversationHeader = () => {
       </div>
       <ScrollArea.Bar orientation="horizontal" />
     </ScrollArea>
+  );
+};
+
+// The conversation's profile. For a Discord channel in group mode the
+// conversation represents the channel (not one person), so show a letter-avatar
+// of the channel name and the channel name as the title; otherwise the normal
+// customer profile. Non-Discord inboxes are unaffected.
+const ConversationHeaderProfile = () => {
+  const { _id, integration, customer, customerId } = useConversationContext();
+  const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const channel = useDiscordConversationChannel(_id, !_id || !isDiscord);
+
+  if (isDiscord && channel?.channelName) {
+    const letter = channel.channelName.trim().charAt(0).toUpperCase();
+    return (
+      <div className="flex items-center gap-2 flex-none">
+        <Avatar size="lg">
+          <Avatar.Fallback className="bg-primary/10 text-primary font-medium">
+            {letter}
+          </Avatar.Fallback>
+        </Avatar>
+        <span
+          className="text-sm text-foreground"
+          title={`Discord channel: #${channel.channelName}`}
+        >
+          #{channel.channelName}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <CustomersInline
+      customers={customer ? [customer] : undefined}
+      customerIds={customerId ? [customerId] : undefined}
+      className="text-sm text-foreground flex-none"
+      placeholder="anonymous customer"
+    />
   );
 };
 

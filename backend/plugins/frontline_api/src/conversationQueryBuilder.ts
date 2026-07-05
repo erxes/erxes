@@ -15,6 +15,9 @@ interface IExists {
 export interface IListArgs {
   limit?: number;
   channelId?: string;
+  // Narrow to a single integration (e.g. one Discord channel) for an isolated,
+  // server-side filtered view rather than the all-channels grouped list.
+  integrationId?: string;
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
@@ -191,6 +194,15 @@ export default class Builder {
     if (this.params.brandId) {
       const brandQuery = await this.brandFilter(this.params.brandId);
       if (brandQuery) nestedIntegrationIds.push(brandQuery);
+    }
+
+    // filter by a single integration (e.g. one Discord channel). Intersected
+    // with the access-controlled set above, so it can only narrow what the user
+    // is already allowed to see — never widen it.
+    if (this.params.integrationId) {
+      nestedIntegrationIds.push({
+        integrationId: { $in: [this.params.integrationId] },
+      });
     }
 
     return this.intersectIntegrationIds(...nestedIntegrationIds);

@@ -47,6 +47,14 @@ const InstagramIntegrationDetail = lazy(() =>
   ),
 );
 
+const DiscordIntegrationDetail = lazy(() =>
+  import('@/integrations/discord/components/DiscordIntegrationDetail').then(
+    (module) => ({
+      default: module.DiscordIntegrationDetail,
+    }),
+  ),
+);
+
 export const IntegrationDetailPage = () => {
   const { integrationType, id } = useParams<{
     integrationType: string;
@@ -104,6 +112,9 @@ export const IntegrationDetailPage = () => {
         )}
         {integrationType === IntegrationType.INSTAGRAM_POST && (
           <InstagramIntegrationDetail isPost />
+        )}
+        {integrationType === IntegrationType.DISCORD_MESSENGER && (
+          <DiscordIntegrationDetail />
         )}
       </Suspense>
       <IntegrationsRecordTable />

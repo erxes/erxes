@@ -1,4 +1,5 @@
 import {
+  Avatar,
   BlockEditorReadOnly,
   Button,
   Checkbox,
@@ -10,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { currentUserState, CustomersInline, MembersInline } from 'ui-modules';
+import { DiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { activeConversationState } from '../states/activeConversationState';
 import { ConversationIntegrationBadge } from '@/integrations/components/IntegrationBadge';
@@ -22,14 +24,21 @@ import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 
 export const ConversationItem = ({
   onConversationSelect,
+  channelInfo,
 }: {
   onConversationSelect: () => void;
+  channelInfo?: DiscordConversationChannel;
 }) => {
   const inboxLayout = useAtomValue(inboxLayoutState);
 
   const { createdAt, updatedAt, customer, integration } =
     useConversationContext();
   const { channel } = integration || {};
+
+  // A Discord conversation represents its channel, not a single person, so show
+  // the channel name as the title and its first letter as the avatar.
+  const channelProfileName = channelInfo?.channelName;
+  const channelLetter = channelProfileName?.trim()?.[0]?.toUpperCase();
 
   if (inboxLayout === 'split') {
     return (
@@ -39,10 +48,16 @@ export const ConversationItem = ({
       >
         <CustomersInline.Provider customers={customer ? [customer] : []}>
           <div className="flex w-full gap-3 leading-tight">
-            <ConversationSelector />
+            <ConversationSelector channelLetter={channelLetter} />
             <div className="flex-1 space-y-1">
               <div className="flex items-center">
-                <CustomersInline.Title className="truncate" />
+                {channelProfileName ? (
+                  <span className="truncate text-sm font-medium" title={`#${channelProfileName}`}>
+                    #{channelProfileName}
+                  </span>
+                ) : (
+                  <CustomersInline.Title className="truncate" />
+                )}
                 <div className="ml-auto text-accent-foreground">
                   {createdAt && (
                     <RelativeDateDisplay.Value
@@ -69,8 +84,17 @@ export const ConversationItem = ({
   return (
     <ConversationContainer onConversationSelect={onConversationSelect}>
       <CustomersInline.Provider customers={customer ? [customer] : []}>
-        <ConversationSelector />
-        <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
+        <ConversationSelector channelLetter={channelLetter} />
+        {channelProfileName ? (
+          <span
+            className="w-56 truncate flex-none text-foreground"
+            title={`#${channelProfileName}`}
+          >
+            #{channelProfileName}
+          </span>
+        ) : (
+          <CustomersInline.Title className="w-56 truncate flex-none text-foreground" />
+        )}
         <ConversationItemContent />
         <div className="w-auto text-right flex-none">
           <span> to </span>
@@ -188,7 +212,7 @@ const ConversationContainer = ({
   );
 };
 
-const ConversationSelector = () => {
+const ConversationSelector = ({ channelLetter }: { channelLetter?: string }) => {
   const [conversationId] = useQueryState<string>('conversationId');
   const { integrationId } = useConversationContext();
 
@@ -202,10 +226,18 @@ const ConversationSelector = () => {
       <div className="absolute size-full bg-primary/10 rounded-full" />
       <ConversationCheckbox />
       <div className="transition-opacity duration-200 relative opacity-100 group-hover:opacity-0 peer-data-[state=checked]:opacity-0">
-        <CustomersInline.Avatar
-          size={conversationId ? 'xl' : 'lg'}
-          className=""
-        />
+        {channelLetter ? (
+          <Avatar size={conversationId ? 'xl' : 'lg'}>
+            <Avatar.Fallback className="bg-primary/10 text-primary font-medium">
+              {channelLetter}
+            </Avatar.Fallback>
+          </Avatar>
+        ) : (
+          <CustomersInline.Avatar
+            size={conversationId ? 'xl' : 'lg'}
+            className=""
+          />
+        )}
         <ConversationIntegrationBadge integrationId={integrationId} />
       </div>
     </div>

@@ -30,6 +30,12 @@ export const INTEGRATIONS = {
       'Connect and manage Instagram Post comments right from your Team Inbox',
     img: 'ig.svg',
   },
+  [IntegrationType.DISCORD_MESSENGER]: {
+    name: 'Discord',
+    description:
+      'Connect and manage Discord channel messages right from your Team Inbox',
+    img: 'discord.svg',
+  },
   [IntegrationType.CALL]: {
     name: 'Call',
     description: 'Connect and manage calls right from your Team Inbox',

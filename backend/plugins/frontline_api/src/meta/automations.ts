@@ -4,6 +4,8 @@ import { instagramConstants } from '@/integrations/instagram/meta/constants';
 import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
 import { inboxAutomationConstants } from '@/inbox/meta/automation/constants';
 import { inboxAutomationWorkers } from '@/inbox/meta/automation/workers';
+import { discordConstants } from '@/integrations/discord/meta/automation/constants';
+import { discordAutomationWorkers } from '@/integrations/discord/meta/automation/workers';
 
 import {
   AutomationConfigs,
@@ -19,6 +21,7 @@ const modules = {
   instagram: instagramAutomationWorkers,
   inbox: inboxAutomationWorkers,
   tickets: ticketAutomationProducers,
+  discord: discordAutomationWorkers,
 };
 
 export const automations = {
@@ -27,12 +30,14 @@ export const automations = {
       ...facebookConstants.actions,
       ...instagramConstants.actions,
       ...ticketsAutomationContants.actions,
+      ...discordConstants.actions,
     ],
     triggers: [
       ...inboxAutomationConstants.triggers,
       ...facebookConstants.triggers,
       ...instagramConstants.triggers,
       ...ticketsAutomationContants.triggers,
+      ...discordConstants.triggers,
     ],
     bots: [...facebookConstants.bots, ...instagramConstants.bots],
   },

@@ -12,10 +12,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/rest": "^2.6.1",
+    "@discordjs/ws": "^2.0.4",
     "aws-sdk": "^2.1692.0",
     "base64-stream": "^1.0.0",
     "date-fns": "^4.1.0",
     "debug": "^4.4.0",
+    "discord-api-types": "0.38.49",
     "erxes-api-shared": "workspace:^",
     "fast-xml-parser": "5.2.5",
     "fbgraph": "^1.4.4",
