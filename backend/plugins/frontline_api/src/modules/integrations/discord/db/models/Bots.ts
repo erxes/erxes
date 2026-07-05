@@ -46,10 +46,10 @@ export const loadDiscordBotClass = (models: IModels) => {
       return bot;
     }
 
-    public static async getBots(
+    public static getBots(
       filter: FilterQuery<IDiscordBotDocument>,
     ): Promise<IDiscordBotDocument[]> {
-      return models.DiscordBots.find(filter).sort({ createdAt: -1 });
+      return models.DiscordBots.find(filter).sort({ createdAt: -1 }).exec();
     }
 
     public static async createBot(

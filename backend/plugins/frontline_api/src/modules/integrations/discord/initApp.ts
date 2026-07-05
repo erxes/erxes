@@ -496,7 +496,7 @@ const startSaasDistributing = async () => {
  * guarded by a Redis lock so only one replica owns each socket. The loops run
  * forever, so this is fire-and-forget (not awaited).
  */
-export const initDiscord = async () => {
+export const initDiscord = () => {
   const VERSION = getEnv({ name: 'VERSION' });
 
   debugDiscord('Initializing Discord gateway distributor');

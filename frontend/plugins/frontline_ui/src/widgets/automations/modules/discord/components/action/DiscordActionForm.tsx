@@ -177,8 +177,9 @@ export const DiscordActionForm = ({
                 </Select.Content>
               </Select>
               <Form.Description>
-                "Reply to the triggering conversation" needs a conversation
-                trigger; the others send proactively from a chosen bot.
+                &quot;Reply to the triggering conversation&quot; needs a
+                conversation trigger; the others send proactively from a chosen
+                bot.
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -259,7 +260,7 @@ export const DiscordActionForm = ({
                 </Form.Control>
                 <Form.Description>
                   The bot must share a server with this user to DM them. DM
-                  replies are sent on Discord but aren't shown in the inbox.
+                  replies are sent on Discord but aren&apos;t shown in the inbox.
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
@@ -283,7 +284,7 @@ export const DiscordActionForm = ({
                 <PlaceholderInput.Header />
               </PlaceholderInput>
               <Form.Description>
-                Insert an AI Agent output variable to reply with the agent's
+                Insert an AI Agent output variable to reply with the agent&apos;s
                 response. Optional if you add an embed, button or attachment.
               </Form.Description>
               <Form.Message />

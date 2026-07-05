@@ -23,8 +23,8 @@ export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
   const totalVotes = [...countById.values()].reduce((sum, n) => sum + n, 0);
 
   const closed =
-    !!poll.results?.isFinalized ||
-    (!!poll.expiry && new Date(poll.expiry).getTime() <= Date.now());
+    Boolean(poll.results?.isFinalized) ||
+    (poll.expiry ? new Date(poll.expiry).getTime() <= Date.now() : false);
   const status = closed ? 'Poll closed' : timeLeftLabel(poll.expiry);
 
   return (

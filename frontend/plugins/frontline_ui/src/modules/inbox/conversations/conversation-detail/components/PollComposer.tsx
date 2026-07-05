@@ -29,6 +29,11 @@ const DURATIONS: { label: string; value: number }[] = [
   { label: '7 days', value: 168 },
 ];
 
+// Options carry a stable id so React keys survive add/remove without relying on
+// the array index.
+let optionIdSeq = 0;
+const makeOption = () => ({ id: `opt-${(optionIdSeq += 1)}`, value: '' });
+
 export const PollComposer = ({
   onSubmit,
   loading,
@@ -41,29 +46,33 @@ export const PollComposer = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState('');
-  const [options, setOptions] = useState<string[]>(['', '']);
+  const [options, setOptions] = useState(() => [makeOption(), makeOption()]);
   const [duration, setDuration] = useState(24);
   const [allowMultiselect, setAllowMultiselect] = useState(false);
 
   const reset = () => {
     setQuestion('');
-    setOptions(['', '']);
+    setOptions([makeOption(), makeOption()]);
     setDuration(24);
     setAllowMultiselect(false);
   };
 
   const setOption = (index: number, value: string) =>
-    setOptions((prev) => prev.map((o, i) => (i === index ? value : o)));
+    setOptions((prev) =>
+      prev.map((o, i) => (i === index ? { ...o, value } : o)),
+    );
 
   const addOption = () =>
-    setOptions((prev) => (prev.length < MAX_OPTIONS ? [...prev, ''] : prev));
+    setOptions((prev) =>
+      prev.length < MAX_OPTIONS ? [...prev, makeOption()] : prev,
+    );
 
   const removeOption = (index: number) =>
     setOptions((prev) =>
       prev.length > 2 ? prev.filter((_, i) => i !== index) : prev,
     );
 
-  const trimmedOptions = options.map((o) => o.trim()).filter(Boolean);
+  const trimmedOptions = options.map((o) => o.value.trim()).filter(Boolean);
   const canSubmit = question.trim().length > 0 && trimmedOptions.length >= 2;
 
   const handleSubmit = async () => {
@@ -124,9 +133,9 @@ export const PollComposer = ({
           <div className="flex flex-col gap-1.5">
             <Label>Options</Label>
             {options.map((option, index) => (
-              <div key={index} className="flex items-center gap-2">
+              <div key={option.id} className="flex items-center gap-2">
                 <Input
-                  value={option}
+                  value={option.value}
                   maxLength={55}
                   placeholder={`Option ${index + 1}`}
                   onChange={(e) => setOption(index, e.target.value)}

@@ -13,16 +13,16 @@ import {
 import { debugError } from '@/integrations/discord/debuggers';
 
 export const discordQueries = {
-  discordBots: async (_root: undefined, _args: unknown, { models }: IContext) =>
+  discordBots: (_root: undefined, _args: unknown, { models }: IContext) =>
     models.DiscordBots.getBots({}),
 
-  discordBot: async (
+  discordBot: (
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => models.DiscordBots.getBot(_id),
 
-  discordBotsTotalCount: async (
+  discordBotsTotalCount: (
     _root: undefined,
     _args: unknown,
     { models }: IContext,
@@ -166,7 +166,7 @@ export const discordQueries = {
       channelId: conversation.channelId,
       channelName,
       guildId: conversation.guildId,
-      isThread: !!conversation.isThread,
+      isThread: Boolean(conversation.isThread),
       parentChannelId: conversation.parentChannelId,
       parentChannelName: conversation.parentChannelName,
     };

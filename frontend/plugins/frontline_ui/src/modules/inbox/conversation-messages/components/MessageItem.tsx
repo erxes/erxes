@@ -52,21 +52,24 @@ export const MessageItem = () => {
   // In a group conversation, label each customer's message cluster with its
   // author so multiple senders are distinguishable.
   const showAuthorName =
-    isGroupConversation && !userId && !!customerId && separatePrevious;
+    isGroupConversation && !userId && Boolean(customerId) && separatePrevious;
 
   // Label an automation/AI reply so it reads as a bot answer, not a human one.
-  const showBotName = !!fromBot && separatePrevious;
+  const showBotName = Boolean(fromBot) && separatePrevious;
 
   // A text bubble carries its own timestamp; an attachment-only message (empty
   // content) renders just the file, so it needs the timestamp added separately.
-  const hasTextBubble = !!content && content !== HAS_ATTACHMENT;
+  const hasTextBubble = Boolean(content) && content !== HAS_ATTACHMENT;
 
   // Nothing to render — no text, attachments, poll, or embeds. This happens for
   // system messages that slip through (e.g. a Discord member-join "just landed"
   // message stored before ingest-time filtering existed): skip it entirely so it
   // doesn't leave an empty bubble + author label in the thread.
   const hasRenderableContent =
-    hasTextBubble || !!attachments?.length || !!poll || !!embeds?.length;
+    hasTextBubble ||
+    Boolean(attachments?.length) ||
+    Boolean(poll) ||
+    Boolean(embeds?.length);
 
   if (!hasRenderableContent) {
     return null;
@@ -76,7 +79,7 @@ export const MessageItem = () => {
     <>
       {showAuthorName && (
         <div className="pl-11 pt-4 pb-0.5 text-xs font-medium text-muted-foreground">
-          <CustomersInline customerIds={[customerId]} hideAvatar />
+          <CustomersInline customerIds={customerId ? [customerId] : []} hideAvatar />
         </div>
       )}
       {showBotName && (
@@ -123,7 +126,9 @@ export const MessageItem = () => {
               message. */}
           {!hasTextBubble &&
             separateNext &&
-            (!!attachments?.length || !!poll || !!embeds?.length) && (
+            (Boolean(attachments?.length) ||
+              Boolean(poll) ||
+              Boolean(embeds?.length)) && (
             <div
               className={cn(
                 'text-muted-foreground mt-1 text-xs',
@@ -174,7 +179,7 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
         // Reserve the avatar column (size-8 + gap-3 = pl-11) for a customer's
         // non-last messages, which don't render an avatar, so every message in
         // a cluster lines up with the avatar'd one instead of jumping left.
-        !separateNext && !!customerId && 'pl-11',
+        !separateNext && Boolean(customerId) && 'pl-11',
         !customerId && !userId && 'px-0 pl-0 pr-0',
         !customerId && 'pl-11',
         !userId && 'pr-11',
@@ -191,7 +196,7 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
       )}
       {/* AI/automation replies have no customer or user; give them their own
           bot avatar so they don't borrow a customer's identity. */}
-      {!!fromBot && !customerId && separateNext && (
+      {Boolean(fromBot) && !customerId && separateNext && (
         <Avatar size="xl">
           <Avatar.Fallback className="bg-primary/10 text-primary">
             <IconSparkles className="size-4" />
@@ -259,7 +264,7 @@ const Attachment = ({
           <span className="truncate text-sm font-medium text-primary">
             {attachment.name || 'File'}
           </span>
-          {!!attachment.size && (
+          {Boolean(attachment.size) && (
             <span className="text-xs text-muted-foreground">
               {formatBytes(attachment.size)}
             </span>

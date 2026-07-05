@@ -85,7 +85,7 @@ export const discordAutomationWorkers = {
     return { result: null };
   },
 
-  checkCustomTrigger: async (
+  checkCustomTrigger: (
     {
       collectionType,
       target,
@@ -112,7 +112,9 @@ export const discordAutomationWorkers = {
       // messages with no matching automation never show a typing indicator.
       // Fire-and-forget so the match result isn't delayed by Discord I/O.
       if (matched) {
-        void startTypingForMatchedTrigger(models, triggerTarget);
+        startTypingForMatchedTrigger(models, triggerTarget).catch(
+          () => undefined,
+        );
       }
 
       return matched;

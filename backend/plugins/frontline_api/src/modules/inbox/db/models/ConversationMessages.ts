@@ -112,7 +112,7 @@ export const loadClass = (models: IModels) => {
       // Structured payloads (e.g. a Discord poll on `extraData`) are valid
       // "content" on their own, just like attachments — the bubble renders them.
       const hasStructuredContent =
-        !!doc.extraData &&
+        Boolean(doc.extraData) &&
         typeof doc.extraData === 'object' &&
         Object.keys(doc.extraData).length > 0;
 

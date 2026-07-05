@@ -37,9 +37,13 @@ export const MentionInEditor = ({
   return (
     <SuggestionMenuController
       triggerCharacter="@"
+      // BlockNote's SuggestionMenuProps requires DefaultReactSuggestionItem,
+      // which this custom item shape (item/isPlaceholder) can't satisfy.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       suggestionMenuComponent={(props: SuggestionMenuProps<any>) => (
         <MentionMenu {...props} />
       )}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onItemClick={(item: any) => item.onItemClick?.()}
       getItems={async (query) => {
         if (participants.length === 0) {
@@ -81,6 +85,7 @@ export const MentionInEditor = ({
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MentionMenu(props: SuggestionMenuProps<any>) {
   const { items, selectedIndex } = props;
   const mentionItems = items as MentionSuggestionItem[];
@@ -91,7 +96,7 @@ function MentionMenu(props: SuggestionMenuProps<any>) {
         if (entry.isPlaceholder) {
           return (
             <div
-              key={`placeholder-${index}`}
+              key="placeholder"
               className="p-2 text-muted-foreground italic cursor-default"
             >
               {entry.title}

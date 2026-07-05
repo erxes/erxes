@@ -56,20 +56,21 @@ import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 // survives HTML serialization + stripping on the way to Discord. The backend
 // converts `{@discord:ID}` into Discord's `<@ID>` ping.
 const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
-  blocks?.map((block: any) =>
+  blocks?.map((block) =>
     Array.isArray(block?.content)
-      ? {
+      ? ({
           ...block,
-          content: block.content.map((inline: any) =>
-            inline?.type === 'mention'
-              ? {
-                  type: 'text',
-                  text: `{@discord:${inline.props?._id}}`,
-                  styles: {},
-                }
-              : inline,
+          content: block.content.map(
+            (inline: { type?: string; props?: { _id?: string } }) =>
+              inline?.type === 'mention'
+                ? {
+                    type: 'text',
+                    text: `{@discord:${inline.props?._id}}`,
+                    styles: {},
+                  }
+                : inline,
           ),
-        }
+        } as Block)
       : block,
   );
 

@@ -11,21 +11,73 @@ import { IMessageEmbed } from '@/inbox/types/Conversation';
 // iframe URL in `video.url` that can't go in a <video> tag — those render as a
 // click-to-open thumbnail card via `VideoEmbed`.
 const isInlineGif = (embed: IMessageEmbed) =>
-  embed.type === 'gifv' && !!embed.video?.url;
+  embed.type === 'gifv' && Boolean(embed.video?.url);
 
 const isImageOnly = (embed: IMessageEmbed) =>
   embed.type === 'image' &&
-  !!embed.image?.url &&
+  Boolean(embed.image?.url) &&
   !embed.title &&
   !embed.description;
 
 const isVideoCard = (embed: IMessageEmbed) =>
-  embed.type === 'video' && !!(embed.thumbnail?.url || embed.image?.url);
+  embed.type === 'video' && Boolean(embed.thumbnail?.url || embed.image?.url);
 
 const mediaAspect = (media?: { width?: number; height?: number }) =>
   media?.width && media?.height
     ? `${media.width} / ${media.height}`
     : undefined;
+
+// Provider / author / title / description — shared by video cards and rich
+// embeds so a YouTube card and a bot embed share the same heading layout.
+const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => (
+  <>
+    {embed.author?.name && (
+      <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
+        {embed.author.iconUrl && (
+          <img src={embed.author.iconUrl} alt="" className="size-4 rounded-full" />
+        )}
+        {embed.author.url ? (
+          <a
+            href={embed.author.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            {embed.author.name}
+          </a>
+        ) : (
+          <span>{embed.author.name}</span>
+        )}
+      </div>
+    )}
+
+    {embed.provider?.name && !embed.author?.name && (
+      <div className="mb-0.5 text-xs text-muted-foreground">
+        {embed.provider.name}
+      </div>
+    )}
+
+    {embed.title &&
+      (embed.url ? (
+        <a
+          href={embed.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-semibold text-primary hover:underline"
+        >
+          {embed.title}
+        </a>
+      ) : (
+        <div className="text-sm font-semibold">{embed.title}</div>
+      ))}
+
+    {embed.description && (
+      <div className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">
+        {embed.description}
+      </div>
+    )}
+  </>
+);
 
 // Inline autoplay (muted + looped) so a shared Tenor/Giphy GIF behaves like one.
 const InlineGif = ({ embed }: { embed: IMessageEmbed }) => (
@@ -83,58 +135,6 @@ const VideoEmbed = ({ embed }: { embed: IMessageEmbed }) => {
   );
 };
 
-// Provider / author / title / description — shared by video cards and rich
-// embeds so a YouTube card and a bot embed share the same heading layout.
-const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => (
-  <>
-    {embed.author?.name && (
-      <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
-        {embed.author.iconUrl && (
-          <img src={embed.author.iconUrl} alt="" className="size-4 rounded-full" />
-        )}
-        {embed.author.url ? (
-          <a
-            href={embed.author.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            {embed.author.name}
-          </a>
-        ) : (
-          <span>{embed.author.name}</span>
-        )}
-      </div>
-    )}
-
-    {embed.provider?.name && !embed.author?.name && (
-      <div className="mb-0.5 text-xs text-muted-foreground">
-        {embed.provider.name}
-      </div>
-    )}
-
-    {embed.title &&
-      (embed.url ? (
-        <a
-          href={embed.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm font-semibold text-primary hover:underline"
-        >
-          {embed.title}
-        </a>
-      ) : (
-        <div className="text-sm font-semibold">{embed.title}</div>
-      ))}
-
-    {embed.description && (
-      <div className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">
-        {embed.description}
-      </div>
-    )}
-  </>
-);
-
 // Rich embeds (bot messages / developer cards) and link/article previews render
 // as a card with Discord's left accent bar in the embed color.
 const RichEmbed = ({ embed }: { embed: IMessageEmbed }) => (
@@ -144,11 +144,11 @@ const RichEmbed = ({ embed }: { embed: IMessageEmbed }) => (
   >
     <EmbedHeading embed={embed} />
 
-    {!!embed.fields?.length && (
+    {embed.fields && embed.fields.length > 0 && (
       <div className="mt-2 grid grid-cols-2 gap-2">
-        {embed.fields.map((field, index) => (
+        {embed.fields.map((field) => (
           <div
-            key={`${field.name}-${index}`}
+            key={`${field.name}-${field.value}`}
             className={cn('text-xs', !field.inline && 'col-span-2')}
           >
             <div className="font-medium">{field.name}</div>
@@ -201,9 +201,9 @@ export const MessageEmbeds = ({ embeds }: { embeds?: IMessageEmbed[] }) => {
 
   return (
     <div className="mt-2 flex w-full flex-col gap-2">
-      {embeds.map((embed, index) => (
+      {embeds.map((embed) => (
         <EmbedCard
-          key={`${embed.url || embed.type || 'embed'}-${index}`}
+          key={`${embed.url ?? ''}:${embed.type ?? ''}:${embed.title ?? ''}`}
           embed={embed}
         />
       ))}

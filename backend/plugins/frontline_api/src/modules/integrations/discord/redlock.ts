@@ -1,7 +1,7 @@
 import Redis from 'ioredis';
 import Redlock from 'redlock';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { config } from 'dotenv';
+config();
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 
@@ -23,26 +23,27 @@ type TRedlockLike = {
 // Distributed lock so that, across horizontally-scaled replicas, only ONE
 // process owns each bot's Gateway connection (and the work distributor). Mirrors
 // the proven IMAP/call integration pattern. Degrades to a granting stub when
-// Redis is absent so a single-instance deployment still runs (see below).
-let redlock: TRedlockLike;
+// Redis is absent so a single-instance deployment still runs (see below). Built
+// in a factory so the export stays a `const` rather than a reassigned `let`.
+const createRedlock = (): TRedlockLike => {
+  if (REDIS_HOST) {
+    const redis = new Redis({
+      host: REDIS_HOST,
+      port: parseInt(REDIS_PORT || '6379', 10),
+      password: REDIS_PASSWORD,
+    });
 
-if (REDIS_HOST) {
-  const redis = new Redis({
-    host: REDIS_HOST,
-    port: parseInt(REDIS_PORT || '6379', 10),
-    password: REDIS_PASSWORD,
-  });
+    redis.on('error', (err) => {
+      console.error('[discord] Redis connection error:', err);
+    });
 
-  redlock = new Redlock([redis], {
-    retryCount: 3,
-    retryDelay: 100,
-    driftFactor: 0.01,
-  });
+    return new Redlock([redis], {
+      retryCount: 3,
+      retryDelay: 100,
+      driftFactor: 0.01,
+    });
+  }
 
-  redis.on('error', (err) => {
-    console.error('[discord] Redis connection error:', err);
-  });
-} else {
   console.warn(
     '[discord] Redis not configured — assuming single instance and running ' +
       'without distributed locking. Multiple replicas without Redis WILL open ' +
@@ -55,12 +56,14 @@ if (REDIS_HOST) {
   // to acquire means "don't open" — so the stub must GRANT (not throw), or a
   // single self-hosted instance with no Redis would never connect.
   const noopLock: TDiscordLock = {
-    extend: async () => noopLock,
-    release: async () => undefined,
+    extend: () => Promise.resolve(noopLock),
+    release: () => Promise.resolve(undefined),
   };
-  redlock = {
-    acquire: async () => noopLock,
+  return {
+    acquire: () => Promise.resolve(noopLock),
   };
-}
+};
+
+const redlock = createRedlock();
 
 export { redlock };

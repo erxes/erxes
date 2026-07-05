@@ -83,7 +83,7 @@ const countByIntegrationTypes = async (
 // its own integration), keyed by integration id. Used by the inbox sidebar's
 // "Discord Channels" section to badge each channel with its open count.
 const countByIntegrations = async (
-  qb: any,
+  qb: CommonBuilder<IListArgs>,
   counts: ICountBy,
 ): Promise<ICountBy> => {
   const integrations = await qb.models.Integrations.findIntegrations({

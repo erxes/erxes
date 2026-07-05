@@ -137,20 +137,20 @@ const buttonsToMirrorEmbeds = (buttons?: TDiscordButton[]): DiscordEmbed[] =>
 // scoped to the sending bot's integration and to synced rows so the mirror
 // always has an `erxesApiId` to publish against. Returns null when the channel
 // has no inbox conversation yet (the message still goes out to Discord).
-const resolveChannelMirror = async (
+const resolveChannelMirror = (
   models: IModels,
   channelId: string,
   integrationId?: string,
 ): Promise<IDiscordConversationDocument | null> => {
   if (!channelId || !integrationId) {
-    return null;
+    return Promise.resolve(null);
   }
 
   return models.DiscordConversations.findOne({
     channelId: { $eq: channelId },
     integrationId,
     erxesApiId: { $nin: [null, ''] },
-  });
+  }).exec();
 };
 
 /**

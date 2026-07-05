@@ -67,6 +67,17 @@ type InboundAttachment = DiscordAttachment;
 // Skip re-hosting oversized images and keep the CDN link instead.
 const MAX_REHOST_IMAGE_BYTES = 25 * 1024 * 1024;
 
+// Derives a filename from a URL when the config doesn't specify one.
+const filenameFromUrl = (url: string, index: number): string => {
+  try {
+    const { pathname } = new URL(url);
+    const last = pathname.split('/').filter(Boolean).pop();
+    return last || `attachment-${index}`;
+  } catch {
+    return `attachment-${index}`;
+  }
+};
+
 // Re-hosts a single image: fetch the Discord CDN bytes, upload to erxes storage,
 // and return the attachment pointing at the storage key. Best-effort — any
 // failure (fetch, size cap, upload) degrades to the original CDN URL so a
@@ -126,12 +137,12 @@ const rehostImage = async (
  * through unchanged with their original CDN URL. Uploads run in parallel and
  * the function never throws — a failed re-host degrades to the original URL.
  */
-export const rehostImageAttachments = async (
+export const rehostImageAttachments = (
   subdomain: string,
   attachments?: InboundAttachment[],
 ): Promise<InboundAttachment[]> => {
   if (!attachments?.length) {
-    return attachments || [];
+    return Promise.resolve(attachments || []);
   }
 
   return Promise.all(
@@ -314,13 +325,21 @@ const TYPING_MAX_MS = 15000;
 export const AUTOMATION_TYPING_MAX_MS = 60000;
 
 export const sendTypingIndicator = (token: string, channelId: string) =>
-  discordRequest<void>({
+  discordRequest<unknown>({
     token,
     method: 'POST',
     path: `/channels/${channelId}/typing`,
   }).catch((e) =>
     debugError(`Failed to send Discord typing indicator: ${getErrorMessage(e)}`),
   );
+
+export const stopTypingIndicator = (channelId: string) => {
+  const timer = typingTimers.get(channelId);
+  if (timer) {
+    clearInterval(timer);
+    typingTimers.delete(channelId);
+  }
+};
 
 // Starts (and keeps alive) the typing indicator for a channel. Idempotent per
 // channel; auto-stops after `maxMs` so a never-answered message can't leave the
@@ -331,7 +350,7 @@ export const startTypingIndicator = (
   maxMs: number = TYPING_MAX_MS,
 ) => {
   stopTypingIndicator(channelId);
-  void sendTypingIndicator(token, channelId);
+  sendTypingIndicator(token, channelId).catch(() => undefined);
 
   const startedAt = Date.now();
   const timer = setInterval(() => {
@@ -339,30 +358,11 @@ export const startTypingIndicator = (
       stopTypingIndicator(channelId);
       return;
     }
-    void sendTypingIndicator(token, channelId);
+    sendTypingIndicator(token, channelId).catch(() => undefined);
   }, TYPING_REFRESH_MS);
   // Don't let the indicator keep the process alive.
   timer.unref?.();
   typingTimers.set(channelId, timer);
-};
-
-export const stopTypingIndicator = (channelId: string) => {
-  const timer = typingTimers.get(channelId);
-  if (timer) {
-    clearInterval(timer);
-    typingTimers.delete(channelId);
-  }
-};
-
-// Derives a filename from a URL when the config doesn't specify one.
-const filenameFromUrl = (url: string, index: number): string => {
-  try {
-    const { pathname } = new URL(url);
-    const last = pathname.split('/').filter(Boolean).pop();
-    return last || `attachment-${index}`;
-  } catch {
-    return `attachment-${index}`;
-  }
 };
 
 // --- Long-message chunking -------------------------------------------------
@@ -396,7 +396,7 @@ const pickCut = (window: string, maxLen: number): number | null => {
 const balanceCodeFences = (chunks: string[]): string[] => {
   let open: string | null = null; // language of the currently-open fence, else null
   return chunks.map((chunk) => {
-    const prefix = open !== null ? '```' + open + '\n' : '';
+    const prefix = open !== null ? `\`\`\`${open}\n` : '';
     for (const marker of chunk.match(/^[ \t]*```(\w*)/gm) || []) {
       open = open === null ? marker.trim().slice(3) : null;
     }
@@ -443,7 +443,7 @@ export const splitDiscordContent = (
     if (isHighSurrogate(tail.charCodeAt(tail.length - 1))) {
       tail = tail.slice(0, -1);
     }
-    chunks.push(tail.trimEnd() + '…');
+    chunks.push(`${tail.trimEnd()}…`);
   } else if (rest.trim()) {
     chunks.push(rest);
   }
@@ -549,7 +549,7 @@ export const sendChannelMessage = async (
     debugError(
       `Discord reply for channel ${channelId} exceeded the ${MAX_CHUNKS}-message ` +
         `cap (${(content || '').length} chars); sent ~${MAX_CHUNKS * CHUNK_SIZE} ` +
-        `and dropped the rest`,
+        'and dropped the rest',
     );
   }
 
@@ -590,7 +590,7 @@ export const sendChannelMessage = async (
  * Opens (or returns the existing) DM channel with a user, so the bot can send a
  * direct message. https://discord.com/developers/docs/resources/user#create-dm
  */
-export const openDmChannel = async (token: string, userId: string) => {
+export const openDmChannel = (token: string, userId: string) => {
   return discordRequest<APIChannel>({
     token,
     method: 'POST',
@@ -603,7 +603,7 @@ export const openDmChannel = async (token: string, userId: string) => {
  * Fetches the bot's own user, used to validate the token / connection.
  * https://discord.com/developers/docs/resources/user#get-current-user
  */
-export const getCurrentBotUser = async (token: string) => {
+export const getCurrentBotUser = (token: string) => {
   return discordRequest<APIUser>({ token, method: 'GET', path: '/users/@me' });
 };
 
@@ -612,7 +612,7 @@ export const getCurrentBotUser = async (token: string) => {
  * (username, avatar) when a new sender first appears.
  * https://discord.com/developers/docs/resources/user#get-user
  */
-export const getDiscordUser = async (token: string, userId: string) => {
+export const getDiscordUser = (token: string, userId: string) => {
   return discordRequest<APIUser>({
     token,
     method: 'GET',
@@ -641,7 +641,7 @@ export const hasMessageContentIntent = (flags?: number): boolean =>
  * so the user never has to copy those by hand.
  * https://discord.com/developers/docs/resources/application#get-current-application
  */
-export const getApplicationInfo = async (token: string) => {
+export const getApplicationInfo = (token: string) => {
   return discordRequest<APIApplication>({
     token,
     method: 'GET',
@@ -653,7 +653,7 @@ export const getApplicationInfo = async (token: string) => {
  * Lists the guilds (servers) the bot is a member of, to populate the server
  * picker. https://discord.com/developers/docs/resources/user#get-current-user-guilds
  */
-export const listBotGuilds = async (token: string) => {
+export const listBotGuilds = (token: string) => {
   return discordRequest<RESTGetAPICurrentUserGuildsResult>({
     token,
     method: 'GET',
@@ -673,7 +673,7 @@ const ROUTABLE_CHANNEL_TYPES = new Set<ChannelType>([
  * (e.g. `#general`) for display in the inbox.
  * https://discord.com/developers/docs/resources/channel#get-channel
  */
-export const getChannel = async (token: string, channelId: string) => {
+export const getChannel = (token: string, channelId: string) => {
   return discordRequest<APIChannel>({
     token,
     method: 'GET',
@@ -686,7 +686,7 @@ export const getChannel = async (token: string, channelId: string) => {
  * display (e.g. the sidebar's server groups).
  * https://discord.com/developers/docs/resources/guild#get-guild
  */
-export const getGuild = async (token: string, guildId: string) => {
+export const getGuild = (token: string, guildId: string) => {
   return discordRequest<APIGuild>({
     token,
     method: 'GET',
@@ -712,7 +712,7 @@ export const isThreadChannel = (
  * itself carries only the answer id, not the updated counts.
  * https://discord.com/developers/docs/resources/channel#get-channel-message
  */
-export const getMessage = async (
+export const getMessage = (
   token: string,
   channelId: string,
   messageId: string,

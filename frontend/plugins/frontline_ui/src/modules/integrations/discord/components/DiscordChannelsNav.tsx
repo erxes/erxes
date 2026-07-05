@@ -107,7 +107,7 @@ export const DiscordServersNav = () => {
     const activeIntegrations = (integrations || []).filter(
       (integration) =>
         integration.isActive &&
-        !!integration.channelId &&
+        Boolean(integration.channelId) &&
         myChannelIds.has(integration.channelId),
     );
 
