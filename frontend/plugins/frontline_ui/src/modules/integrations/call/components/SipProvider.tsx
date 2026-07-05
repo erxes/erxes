@@ -21,7 +21,8 @@ import {
   rtcSessionAtom,
   sipStateAtom,
 } from '../states/sipStates';
-import { getPluginAssetsUrl } from 'erxes-ui';
+import { getPluginAssetsUrl, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   extractPhoneNumberFromCounterpart,
   logger,
@@ -49,6 +50,7 @@ const SipProvider = ({
   children,
   createSession,
 }: SipProviderProps & { children: React.ReactNode }) => {
+  const { t } = useTranslation('frontline');
   const [callInfo] = useAtom(callInfoAtom);
   const setCallNumber = useSetAtom(callNumberState);
   // State
@@ -476,6 +478,22 @@ const SipProvider = ({
           }
           customerPhone = extractPhoneNumberFromCounterpart(counterpart);
 
+          if (e?.cause === JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS) {
+            toast({
+              title: t('mic-permission-denied'),
+              variant: 'destructive',
+            });
+          } else if (
+            callDirection === CallDirectionEnum.INCOMING &&
+            e?.originator !== 'local'
+          ) {
+            toast({
+              title: t('missed-call'),
+              description: customerPhone,
+              variant: 'destructive',
+            });
+          }
+
           setSipState((prev) => ({
             ...prev,
             callStatus: CallStatusEnum.IDLE,
@@ -589,7 +607,9 @@ const SipProvider = ({
               ...prev,
               callStatus: CallStatusEnum.ACTIVE,
             }));
-          } catch (error) {}
+          } catch (error) {
+            console.error('Error in accepted event handler:', error);
+          }
         });
 
         if (originator === 'remote' && autoAnswer) {
@@ -662,6 +682,7 @@ const SipProvider = ({
       },
       registerSip,
       unregisterSip,
+      reconnectSip: reinitializeJsSIP,
       answerCall,
       startCall,
       stopCall,
@@ -677,6 +698,7 @@ const SipProvider = ({
       createSession,
       registerSip,
       unregisterSip,
+      reinitializeJsSIP,
       answerCall,
       startCall,
       stopCall,
