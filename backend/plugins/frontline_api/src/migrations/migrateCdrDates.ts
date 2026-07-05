@@ -19,6 +19,10 @@ if (!CUTOFF || isNaN(new Date(CUTOFF).getTime())) {
     'CUTOFF (deploy time, e.g. CUTOFF=2026-07-05T12:00:00Z) is required',
   );
 }
+if (!CUTOFF) {
+  throw new Error('CUTOFF env is required');
+}
+const cutoffDate = new Date(CUTOFF); // 👈 FIX
 
 const client = new MongoClient(MONGO_URL);
 
@@ -36,7 +40,7 @@ async function migrate() {
 
   const result = await db.collection('calls_cdrs').updateMany(
     {
-      createdAt: { $lt: new Date(CUTOFF) },
+      createdAt: { $lt: cutoffDate },
       cdrTzFixed: { $ne: true },
     },
     [
