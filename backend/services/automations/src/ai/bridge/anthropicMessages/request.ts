@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import { nativeFetch as fetch } from '../nativeFetch';
 import {
   TAiBridgeConnection,
   TAiBridgeMessage,
