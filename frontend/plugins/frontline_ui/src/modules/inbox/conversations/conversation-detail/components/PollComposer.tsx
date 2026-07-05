@@ -98,6 +98,7 @@ export const PollComposer = ({
   };
 
   return (
+    // skipcq: JS-0415
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <Button

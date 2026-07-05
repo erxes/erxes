@@ -45,6 +45,8 @@ export const MentionInEditor = ({
       )}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onItemClick={(item: any) => item.onItemClick?.()}
+      // skipcq: JS-0116 — BlockNote's getItems prop must return a Promise, so
+      // `async` is required here even without an explicit await.
       getItems={async (query) => {
         if (participants.length === 0) {
           return [{ title: emptyText, isPlaceholder: true }];
@@ -116,6 +118,7 @@ function MentionMenu(props: SuggestionMenuProps<any>) {
             }}
           >
             {entry.item?.avatar ? (
+              // skipcq: JS-W1015
               <img
                 src={entry.item.avatar}
                 alt=""

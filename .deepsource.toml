@@ -31,6 +31,9 @@ name = "javascript"
   environment = ["nodejs", "browser"]
   dialect = "typescript"
   module_system = "es-modules"
+  # The codebase does not require JSDoc on every declaration; skip doc-coverage
+  # (JS-D1001) for these node types so it isn't flagged across the repo.
+  skip_doc_coverage = ["module", "class", "method", "function"]
 
 [[analyzers]]
 name = "docker"

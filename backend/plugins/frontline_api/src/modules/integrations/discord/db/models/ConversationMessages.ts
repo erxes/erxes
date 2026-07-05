@@ -11,6 +11,7 @@ export interface IDiscordConversationMessageModel
 }
 
 export const loadDiscordConversationMessageClass = (models: IModels) => {
+  // skipcq: JS-0327 — Mongoose's schema.loadClass() requires a class of statics.
   class ConversationMessage {
     public static async getMessage(
       selector: FilterQuery<IDiscordConversationMessageDocument>,

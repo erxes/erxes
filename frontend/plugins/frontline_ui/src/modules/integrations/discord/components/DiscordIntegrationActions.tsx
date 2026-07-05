@@ -45,6 +45,7 @@ export const DiscordIntegrationActions = ({
         </div>
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
+        {/* skipcq: JS-0357 */}
         <DiscordIntegrationEditForm
           id={cell.row.original._id}
           setOpen={setOpen}
@@ -100,6 +101,7 @@ const DiscordIntegrationEditForm = ({
   if (loading) return <Spinner className="p-20" />;
 
   return (
+    // skipcq: JS-0415
     <>
       <Dialog.Header className="flex-row items-center justify-between space-y-0 px-4 py-3">
         <Dialog.Title>{integrationDetail?.name}</Dialog.Title>

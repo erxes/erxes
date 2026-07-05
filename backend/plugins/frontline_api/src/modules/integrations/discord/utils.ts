@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
+import { promises as fsPromises } from 'fs';
+import { tmpdir } from 'os';
+import { basename, join } from 'path';
 import {
   APIActionRowComponent,
   APIApplication,
@@ -105,11 +105,11 @@ const rehostImage = async (
     // `attachment.name` is Discord-supplied; strip any path components so a
     // crafted name (e.g. `../../etc/foo`) can't escape os.tmpdir() when embedded
     // in the temp filename. basename() also keeps the storage upload name clean.
-    const fileName = path.basename(
+    const fileName = basename(
       attachment.name || filenameFromUrl(attachment.url, 0),
     );
-    tmpPath = path.join(os.tmpdir(), `discord-${randomUUID()}-${fileName}`);
-    await fs.promises.writeFile(tmpPath, buffer);
+    tmpPath = join(tmpdir(), `discord-${randomUUID()}-${fileName}`);
+    await fsPromises.writeFile(tmpPath, buffer);
 
     const key = await uploadFileToStorage({
       subdomain,
@@ -126,7 +126,7 @@ const rehostImage = async (
     return attachment;
   } finally {
     if (tmpPath) {
-      await fs.promises.rm(tmpPath, { force: true }).catch(() => undefined);
+      await fsPromises.rm(tmpPath, { force: true }).catch(() => undefined);
     }
   }
 };

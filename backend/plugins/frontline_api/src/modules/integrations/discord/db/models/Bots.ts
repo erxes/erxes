@@ -35,6 +35,7 @@ export interface IDiscordBotModel extends Model<IDiscordBotDocument> {
 }
 
 export const loadDiscordBotClass = (models: IModels) => {
+  // skipcq: JS-0327 — Mongoose's schema.loadClass() requires a class of statics.
   class DiscordBot {
     public static async getBot(_id: string) {
       const bot = await models.DiscordBots.findOne({ _id });

@@ -53,6 +53,8 @@ const STEP_DETAILS = [
   },
 ];
 
+// skipcq: JS-R1005 — multi-step connect wizard (token → guild → channels →
+// submit); the step branches read clearer inline than split across helpers.
 export const DiscordIntegrationDetail = () => {
   const { id: inboxChannelId } = useParams();
   const [open, setOpen] = useState(false);
@@ -141,6 +143,7 @@ export const DiscordIntegrationDetail = () => {
       : undefined;
 
   return (
+    // skipcq: JS-0415
     <div>
       <Sheet
         open={open}

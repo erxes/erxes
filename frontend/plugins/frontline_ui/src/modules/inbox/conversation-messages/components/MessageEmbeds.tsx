@@ -2,6 +2,14 @@ import { cn } from 'erxes-ui';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import { IMessageEmbed } from '@/inbox/types/Conversation';
 
+// erxes runs on Vite, not Next.js, so next/image (JS-W1015) doesn't apply here.
+// This thin wrapper localizes the single suppression instead of repeating it at
+// every embed image.
+const Img = (props: JSX.IntrinsicElements['img']) => (
+  // skipcq: JS-W1015
+  <img {...props} />
+);
+
 // Discord embed media (image/thumbnail/video) carry absolute Discord/Tenor CDN
 // URLs, so they're used as-is (not run through `readImage`, which is for erxes
 // storage keys).
@@ -34,7 +42,7 @@ const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => (
     {embed.author?.name && (
       <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
         {embed.author.iconUrl && (
-          <img src={embed.author.iconUrl} alt="" className="size-4 rounded-full" />
+          <Img src={embed.author.iconUrl} alt="" className="size-4 rounded-full" />
         )}
         {embed.author.url ? (
           <a
@@ -95,7 +103,7 @@ const InlineGif = ({ embed }: { embed: IMessageEmbed }) => (
 
 const ImageEmbed = ({ embed }: { embed: IMessageEmbed }) => (
   <a href={embed.url || embed.image?.url} target="_blank" rel="noopener noreferrer">
-    <img
+    <Img
       src={embed.image?.url}
       alt={embed.title || ''}
       className="max-w-full rounded-lg object-cover"
@@ -119,7 +127,7 @@ const VideoEmbed = ({ embed }: { embed: IMessageEmbed }) => {
         rel="noopener noreferrer"
         className="relative mt-2 block overflow-hidden rounded"
       >
-        <img
+        <Img
           src={poster}
           alt={embed.title || ''}
           className="w-full object-cover"
@@ -161,7 +169,7 @@ const RichEmbed = ({ embed }: { embed: IMessageEmbed }) => (
     )}
 
     {embed.image?.url && (
-      <img
+      <Img
         src={embed.image.url}
         alt={embed.title || ''}
         className="mt-2 max-w-full rounded object-cover"
@@ -169,7 +177,7 @@ const RichEmbed = ({ embed }: { embed: IMessageEmbed }) => (
     )}
 
     {embed.thumbnail?.url && !embed.image?.url && (
-      <img
+      <Img
         src={embed.thumbnail.url}
         alt={embed.title || ''}
         className="mt-2 max-h-20 rounded object-cover"
@@ -179,7 +187,7 @@ const RichEmbed = ({ embed }: { embed: IMessageEmbed }) => (
     {embed.footer?.text && (
       <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
         {embed.footer.iconUrl && (
-          <img src={embed.footer.iconUrl} alt="" className="size-4 rounded-full" />
+          <Img src={embed.footer.iconUrl} alt="" className="size-4 rounded-full" />
         )}
         <span>{embed.footer.text}</span>
       </div>

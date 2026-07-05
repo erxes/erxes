@@ -160,6 +160,8 @@ const resolveChannelMirror = (
  * one of: the triggering conversation's channel (default), a specific channel,
  * or a DM. The bot's own gateway echo is deduped by messageId.
  */
+// skipcq: JS-R1005 — sequential resolve→send→mirror flow; branches are the
+// three targets (conversation/channel/DM), clearer inline than extracted.
 export const actionSendDiscordMessage = async ({
   models,
   subdomain,

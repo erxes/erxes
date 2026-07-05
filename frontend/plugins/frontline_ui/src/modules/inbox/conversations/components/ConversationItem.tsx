@@ -42,12 +42,14 @@ export const ConversationItem = ({
 
   if (inboxLayout === 'split') {
     return (
+      // skipcq: JS-0415
       <ConversationContainer
         className="p-4 pl-6 h-auto overflow-hidden flex-col items-start cursor-pointer"
         onConversationSelect={onConversationSelect}
       >
         <CustomersInline.Provider customers={customer ? [customer] : []}>
           <div className="flex w-full gap-3 leading-tight">
+            {/* skipcq: JS-0357 */}
             <ConversationSelector channelLetter={channelLetter} />
             <div className="flex-1 space-y-1">
               <div className="flex items-center">
@@ -84,6 +86,7 @@ export const ConversationItem = ({
   return (
     <ConversationContainer onConversationSelect={onConversationSelect}>
       <CustomersInline.Provider customers={customer ? [customer] : []}>
+        {/* skipcq: JS-0357 */}
         <ConversationSelector channelLetter={channelLetter} />
         {channelProfileName ? (
           <span

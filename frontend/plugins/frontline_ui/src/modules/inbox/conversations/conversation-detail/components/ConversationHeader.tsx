@@ -43,6 +43,7 @@ export const ConversationHeader = () => {
           </Button>
         )}
         {!loading ? (
+          // skipcq: JS-0357
           <ConversationHeaderProfile />
         ) : (
           <Skeleton className="w-32 h-4 ml-2" />

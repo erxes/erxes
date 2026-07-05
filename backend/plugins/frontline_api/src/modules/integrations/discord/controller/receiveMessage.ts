@@ -194,6 +194,8 @@ const getOrCreateCustomer = async (
  * publishes the real-time `conversationMessageInserted` event so it appears
  * live in the agent inbox. The Discord analogue of Facebook's `receiveMessage`.
  */
+// skipcq: JS-R1005 — one cohesive ingest+dedup+sync routine; the concurrency
+// guards read more clearly inline than split across helpers.
 export const receiveDiscordMessage = async ({
   models,
   subdomain,

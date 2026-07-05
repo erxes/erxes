@@ -157,6 +157,7 @@ export const DiscordServersNav = () => {
   return (
     <NavigationMenuGroup name="Discord Servers">
       {serverGroups.map((group) => (
+        // skipcq: JS-0357
         <DiscordServerItem
           key={group.guildId}
           group={group}
@@ -192,6 +193,7 @@ const DiscordServerItem = ({
   );
 
   return (
+    // skipcq: JS-0415
     <Collapsible className="group/collapsible" defaultOpen={defaultOpen}>
       <Sidebar.Group className="p-0">
         <Collapsible.Trigger asChild>
@@ -220,6 +222,7 @@ const DiscordServerItem = ({
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {group.integrations.map((integration) => (
+                // skipcq: JS-0357
                 <DiscordChannelItem
                   key={integration._id}
                   integration={integration}

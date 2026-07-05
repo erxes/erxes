@@ -57,7 +57,7 @@ const createRedlock = (): TRedlockLike => {
   // single self-hosted instance with no Redis would never connect.
   const noopLock: TDiscordLock = {
     extend: () => Promise.resolve(noopLock),
-    release: () => Promise.resolve(undefined),
+    release: () => Promise.resolve(),
   };
   return {
     acquire: () => Promise.resolve(noopLock),

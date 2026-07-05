@@ -36,6 +36,7 @@ export const ConversationThreadList = ({
     <>
       {direct.map(renderItem)}
       {threads.length > 0 && (
+        // skipcq: JS-0357
         <ThreadsSubsection
           conversations={threads}
           threadMap={threadMap}
