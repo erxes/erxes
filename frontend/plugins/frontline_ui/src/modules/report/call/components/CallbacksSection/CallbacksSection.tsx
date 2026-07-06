@@ -1,4 +1,5 @@
 import { Table } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCallbackStats } from '../../hooks/useCallbackStats';
 import { CallbackMiniKpi } from './CallbackMiniKpi';
 import { SectionCard } from '../SectionCard';
@@ -6,6 +7,7 @@ import { fmt, fmtNum, fmtPct } from '../../utils';
 
 /** Callbacks tab: per-queue callback recovery stats. */
 export function CallbacksSection() {
+  const { t } = useTranslation('frontline');
   const { stats, loading } = useCallbackStats();
 
   const totals = stats.reduce(
@@ -26,18 +28,18 @@ export function CallbacksSection() {
       {/* Mini KPI row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <CallbackMiniKpi
-          label="Missed Calls"
+          label={t('missed-calls')}
           value={fmtNum(totals.missed)}
           accentVar="var(--neg)"
         />
-        <CallbackMiniKpi label="CB Attempts" value={fmtNum(totals.attempts)} />
+        <CallbackMiniKpi label={t('cb-attempts')} value={fmtNum(totals.attempts)} />
         <CallbackMiniKpi
-          label="Successful"
+          label={t('successful')}
           value={fmtNum(totals.successful)}
           accentVar="var(--pos)"
         />
         <CallbackMiniKpi
-          label="Recovery Rate"
+          label={t('recovery-rate')}
           value={fmtPct(overallRate)}
           accentVar={overallRate >= 60 ? 'var(--pos)' : 'var(--warn)'}
         />
@@ -45,39 +47,39 @@ export function CallbacksSection() {
 
       {/* Detail table */}
       <SectionCard
-        title="Callback Recovery"
-        description="Per-queue missed call follow-up statistics"
+        title={t('callback-recovery')}
+        description={t('per-queue-missed-call-follow-up')}
         accentClass="bg-[var(--warn)]"
         loading={loading}
         skeletonHeight="h-32"
       >
         {!stats.length ? (
           <div className="rounded-xl border-2 border-dashed p-8 text-center text-sm text-muted-foreground">
-            No callback data for the selected period
+            {t('no-callback-data')}
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border">
             <Table>
               <Table.Header>
                 <Table.Row className="bg-muted/50">
-                  <Table.Head className="font-semibold">Queue</Table.Head>
+                  <Table.Head className="font-semibold">{t('queue')}</Table.Head>
                   <Table.Head className="font-semibold text-right">
-                    Missed
+                    {t('missed')}
                   </Table.Head>
                   <Table.Head className="font-semibold text-right">
-                    CB Attempts
+                    {t('cb-attempts')}
                   </Table.Head>
                   <Table.Head className="font-semibold text-right">
-                    Successful
+                    {t('successful')}
                   </Table.Head>
                   <Table.Head className="font-semibold text-right">
-                    Pending
+                    {t('pending')}
                   </Table.Head>
                   <Table.Head className="font-semibold text-right">
-                    CB Rate
+                    {t('cb-rate')}
                   </Table.Head>
                   <Table.Head className="font-semibold text-right">
-                    Avg CB Time
+                    {t('avg-cb-time')}
                   </Table.Head>
                 </Table.Row>
               </Table.Header>
@@ -110,7 +112,7 @@ export function CallbacksSection() {
                       {fmtPct(row.callbackRate)}
                     </Table.Cell>
                     <Table.Cell className="text-right font-mono text-sm">
-                      {fmt(row.averageCallbackTime)} min
+                      {fmt(row.averageCallbackTime)} {t('min')}
                     </Table.Cell>
                   </Table.Row>
                 ))}

@@ -17,6 +17,15 @@ export interface IConversation {
   assignedUser?: IUser;
   tagIds?: string[];
   status?: ConversationStatus;
+  automatedReplyControl?: IAutomatedReplyControl;
+}
+
+export interface IAutomatedReplyControl {
+  status?: 'active' | 'handoff_requested' | 'human_active';
+  pausedUntil?: string;
+  reason?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 // A poll carried on a message's `extraData` (currently produced by the Discord
@@ -63,6 +72,7 @@ export interface IMessage {
   formWidgetData?: IFormWidgetItem[];
   extraData?: { poll?: IMessagePoll; embeds?: IMessageEmbed[] };
   internal?: boolean;
+  botData?: unknown[];
   // Set on messages an automation sent (e.g. the AI Agent), so the inbox can
   // render them differently from human-written messages.
   fromBot?: boolean;

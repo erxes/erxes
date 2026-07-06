@@ -14,6 +14,7 @@ import {
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TICKETS_PER_PAGE = 30;
 
@@ -74,6 +75,7 @@ export const useTicketsVariables = (
 export const useTickets = (
   options?: QueryHookOptions<ICursorListResponse<ITicket>>,
 ) => {
+  const { t } = useTranslation('frontline');
   const variables = useTicketsVariables(options?.variables);
   const { toast } = useToast();
   const { data, loading, fetchMore, subscribeToMore } = useQuery<
@@ -85,7 +87,7 @@ export const useTickets = (
     fetchPolicy: 'cache-and-network',
     onError: (e) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });
@@ -104,27 +106,56 @@ export const useTickets = (
         const { type, ticket } = subscriptionData.data.ticketListChanged;
         const currentList = prev.getTickets.list;
 
+        if (!ticket) return prev;
+
+        const isRemoval = type === 'delete' || type === 'remove';
+
         let updatedList = currentList;
+        let countDelta = 0;
+
+        const listState = variables.state || 'active';
+        const ticketState = ticket.state || 'active';
+        const matchesFilter =
+          ticketState === listState &&
+          (!variables.statusId || ticket.statusId === variables.statusId);
 
         if (type === 'create') {
           const exists = currentList.some(
             (item: ITicket) => item._id === ticket._id,
           );
-          if (!exists) {
+          if (!exists && matchesFilter) {
             updatedList = [ticket, ...currentList];
+            countDelta = 1;
           }
         }
 
         if (type === 'update') {
-          updatedList = currentList.map((item: ITicket) =>
-            item._id === ticket._id ? { ...item, ...ticket } : item,
+          const wasPresent = currentList.some(
+            (item: ITicket) => item._id === ticket._id,
           );
+
+          if (!matchesFilter) {
+            updatedList = currentList.filter(
+              (item: ITicket) => item._id !== ticket._id,
+            );
+            if (wasPresent) {
+              countDelta = -1;
+            }
+          } else if (wasPresent) {
+            updatedList = currentList.map((item: ITicket) =>
+              item._id === ticket._id ? { ...item, ...ticket } : item,
+            );
+          } else if (matchesFilter) {
+            updatedList = [ticket, ...currentList];
+            countDelta = 1;
+          }
         }
 
-        if (type === 'remove') {
+        if (isRemoval) {
           updatedList = currentList.filter(
             (item: ITicket) => item._id !== ticket._id,
           );
+          countDelta = -1;
         }
 
         return {
@@ -133,12 +164,7 @@ export const useTickets = (
             ...prev.getTickets,
             list: updatedList,
             pageInfo: prev.getTickets.pageInfo,
-            totalCount:
-              type === 'create'
-                ? prev.getTickets.totalCount + 1
-                : type === 'remove'
-                ? prev.getTickets.totalCount - 1
-                : prev.getTickets.totalCount,
+            totalCount: prev.getTickets.totalCount + countDelta,
           },
         };
       },

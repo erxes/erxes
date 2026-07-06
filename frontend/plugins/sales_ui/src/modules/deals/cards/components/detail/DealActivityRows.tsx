@@ -7,6 +7,7 @@ import {
   TActivityLog,
 } from 'ui-modules';
 import { DescriptionChangedActivityRow } from './overview/activity/DescriptionChangedActivityRow';
+import { useTranslation } from 'react-i18next';
 
 const Sentence = ({ children }: { children: ReactNode }) => (
   <div className="flex flex-wrap items-center gap-1 text-sm text-foreground">
@@ -14,17 +15,21 @@ const Sentence = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-const DealCreatedRow = ({ activity }: { activity: TActivityLog }) => (
-  <Sentence>
-    <ActivityLogs.ActorName activity={activity} />
-    <span className="text-muted-foreground">created deal</span>
-    {activity.target?.text && (
-      <span className="font-medium">{activity.target.text}</span>
-    )}
-  </Sentence>
-);
+const DealCreatedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('sales');
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <span className="text-muted-foreground">{t('created-deal')}</span>
+      {activity.target?.text && (
+        <span className="font-medium">{activity.target.text}</span>
+      )}
+    </Sentence>
+  );
+};
 
 const DealMovedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('sales');
   const fromStage = activity.changes?.prev?.stageId as string | undefined;
   const toStage = activity.changes?.current?.stageId as string | undefined;
   const description = activity.action?.description as string | undefined;
@@ -32,7 +37,7 @@ const DealMovedRow = ({ activity }: { activity: TActivityLog }) => {
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">moved deal</span>
+      <span className="text-muted-foreground">{t('move-deal')}</span>
       {description ? (
         <span className="font-medium">{description}</span>
       ) : (
@@ -82,6 +87,7 @@ const DealAssignmentRow = ({ activity }: { activity: TActivityLog }) => {
 };
 
 const DealAssigneeRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('sales');
   const isAdded = activity.action?.type === 'assigned';
   const memberIds =
     (isAdded ? activity.changes?.added : activity.changes?.removed) || [];
@@ -90,11 +96,11 @@ const DealAssigneeRow = ({ activity }: { activity: TActivityLog }) => {
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
       <span className="text-muted-foreground">
-        {isAdded ? 'assigned' : 'unassigned'}
+        {isAdded ? t('assigned') : t('unassigned')}
       </span>
       <MembersInline
         memberIds={Array.isArray(memberIds) ? memberIds : []}
-        placeholder="Unknown member"
+        placeholder={t('unknown-member')}
       />
     </Sentence>
   );
@@ -115,7 +121,58 @@ const DealWatchRow = ({ activity }: { activity: TActivityLog }) => {
   );
 };
 
+type TFormSubmissionField = { label: string; value: unknown };
+
+const formatFormFieldValue = (value: unknown): string => {
+  if (value === null || value === undefined || value === '') return '-';
+  if (Array.isArray(value)) return value.map(formatFormFieldValue).join(', ');
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+};
+
+const DealFormSubmittedActivityRow = ({
+  activity,
+}: {
+  activity: TActivityLog;
+}) => {
+  const { t } = useTranslation('sales');
+  const formTitle = activity.metadata?.formTitle as string | undefined;
+  const submissions = (activity.metadata?.submissions ||
+    []) as TFormSubmissionField[];
+
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">
+          {t('submitted-form', { defaultValue: 'submitted a form' })}
+        </span>
+        {formTitle && (
+          <Badge variant="secondary" className="font-medium">
+            {formTitle}
+          </Badge>
+        )}
+      </Sentence>
+      {submissions.length > 0 && (
+        <div className="border rounded-lg px-4 py-3 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {submissions.map((field, index) => (
+            <div key={index} className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {field.label}
+              </span>
+              <div className="border rounded-md px-3 py-2 text-sm bg-muted/30 wrap-break-word">
+                {formatFormFieldValue(field.value)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('sales');
   const checklistName = activity.metadata?.checklistTitle as string | undefined;
   const itemName = activity.metadata?.checklistItemTitle as string | undefined;
 
@@ -123,7 +180,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">created checklist</span>
+        <span className="text-muted-foreground">{t('created-checklist')}</span>
         {checklistName && (
           <Badge variant="secondary" className="font-medium">
             {checklistName}
@@ -137,7 +194,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">removed checklist</span>
+        <span className="text-muted-foreground">{t('removed-checklist')}</span>
         {checklistName && (
           <Badge variant="secondary" className="font-medium">
             {checklistName}
@@ -151,7 +208,9 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">added checklist item</span>
+        <span className="text-muted-foreground">
+          {t('added-checklist-item')}
+        </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
             {itemName}
@@ -171,7 +230,9 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">removed checklist item</span>
+        <span className="text-muted-foreground">
+          {t('removed-checklist-item')}
+        </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
             {itemName}
@@ -192,7 +253,7 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
         <span className="text-muted-foreground">
-          checked off checklist item
+          {t('checked-off-checklist-item')}
         </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
@@ -213,7 +274,9 @@ const ChecklistActivityRow = ({ activity }: { activity: TActivityLog }) => {
     return (
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">unchecked checklist item</span>
+        <span className="text-muted-foreground">
+          {t('unchecked-checklist-item')}
+        </span>
         {itemName && (
           <Badge variant="secondary" className="font-medium">
             {itemName}
@@ -260,6 +323,10 @@ export const dealCustomActivities: ActivityLogCustomActivity[] = [
   {
     type: 'assignee',
     render: (activity) => <DealAssigneeRow activity={activity} />,
+  },
+  {
+    type: 'deal.form_submitted',
+    render: (activity) => <DealFormSubmittedActivityRow activity={activity} />,
   },
   {
     type: 'deal.watch_added',

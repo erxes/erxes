@@ -1,6 +1,54 @@
 import { IModels } from '~/connectionResolvers';
 import { cfRecordUrl, toCamelCase } from '../utils';
 
+const CDR_TIME_OFFSET = '+08:00';
+const CDR_TIME_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+export const parseCdrDate = (
+  value?: string | Date | null,
+): Date | undefined => {
+  if (!value) return undefined;
+  if (value instanceof Date) {
+    return isNaN(value.getTime()) ? undefined : value;
+  }
+
+  const trimmed = String(value).trim();
+  if (!trimmed) return undefined;
+
+  const normalized = trimmed.includes('T')
+    ? trimmed
+    : trimmed.replace(' ', 'T');
+  const hasZone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized);
+  const date = new Date(
+    hasZone ? normalized : `${normalized}${CDR_TIME_OFFSET}`,
+  );
+
+  return isNaN(date.getTime()) ? undefined : date;
+};
+
+export const getPbxDayRange = (now: Date = new Date()) => {
+  const local = new Date(now.getTime() + CDR_TIME_OFFSET_MS);
+  const dateFrom = new Date(
+    Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate()) -
+      CDR_TIME_OFFSET_MS,
+  );
+  const dateTo = new Date(dateFrom.getTime() + 24 * 60 * 60 * 1000);
+  return { dateFrom, dateTo };
+};
+
+export const formatCdrApiDate = (value?: string | Date | null): string => {
+  if (typeof value === 'string') {
+    return value.includes(' ') ? value.replace(' ', 'T') : value;
+  }
+
+  const date = parseCdrDate(value);
+  if (!date) return '';
+
+  return new Date(date.getTime() + CDR_TIME_OFFSET_MS)
+    .toISOString()
+    .slice(0, 19);
+};
+
 export const findOrCreateCdr = async (
   models: IModels,
   subdomain,
@@ -14,13 +62,14 @@ export const findOrCreateCdr = async (
   const existingCdr = await findExistingCdr(models, acctId);
 
   if (existingCdr) {
-    return await updateExistingCdr(models, existingCdr, conversationId);
+    const cdr = await updateExistingCdr(models, existingCdr, conversationId);
+    return { cdr, created: false };
   }
 
   const newCdr = await createNewCdr(models, cdrParams, inboxId, conversationId);
   await processRecordUrl(models, cdrParams, inboxId, subdomain, acctId);
 
-  return newCdr;
+  return { cdr: newCdr, created: true };
 };
 
 const validateRequiredParams = (cdrParams) => {
@@ -62,6 +111,9 @@ const createNewCdr = async (
     acctId,
     disposition,
     ...filteredParams,
+    start: parseCdrDate(filteredParams.start),
+    answer: parseCdrDate(filteredParams.answer),
+    end: parseCdrDate(filteredParams.end),
     inboxIntegrationId: inboxId,
     conversationId,
     createdAt: new Date(),
@@ -150,7 +202,7 @@ export const determineExtension = (params) => {
     return channel_ext || new_src || src;
   }
 
-  if (userfield === 'Inbound' && lastapp === 'Queue') {
+  if (userfield === 'Inbound' && (lastapp === 'Queue' || lastapp === 'Dial')) {
     return dstanswer || dstchannel_ext || dst;
   }
 };
@@ -158,7 +210,7 @@ export const determineExtension = (params) => {
 export const extractOperatorId = (params) => {
   const { userfield, dst, src, lastapp, action_type } = params;
 
-  if (lastapp !== 'Queue') {
+  if (lastapp !== 'Queue' && lastapp !== 'Dial') {
     return null;
   }
 
@@ -170,75 +222,76 @@ export const extractOperatorId = (params) => {
   return userfield === 'Inbound' ? dst : src;
 };
 
+export const isHumanAnsweredLeg = (leg: any): boolean => {
+  const lastapp = leg?.lastapp;
+  const actionType = String(leg?.actionType ?? leg?.action_type ?? '');
+  return (
+    (leg?.disposition || '').toLowerCase() === 'answered' &&
+    Number(leg?.billsec) > 0 &&
+    (lastapp === 'Queue' || lastapp === 'Dial') &&
+    !actionType.includes('VM')
+  );
+};
+
+export const deriveCallStatusFromLegs = (legs: any[]): string => {
+  const actionTypeOf = (leg: any) => leg.actionType ?? leg.action_type ?? '';
+
+  if (legs.some(isHumanAnsweredLeg)) return 'ANSWERED';
+
+  const answeredBy = (type: string) =>
+    legs.some(
+      (leg) =>
+        actionTypeOf(leg).includes(type) &&
+        (leg.disposition || '').toLowerCase() === 'answered',
+    );
+
+  if (answeredBy('IVR')) return 'IVR';
+  if (answeredBy('VM')) return 'VOICEMAIL';
+
+  if (legs.some((leg) => actionTypeOf(leg).includes('FOLLOWME'))) {
+    return 'FOLLOWME';
+  }
+
+  const dispositions = legs.map((leg) => (leg.disposition || '').toUpperCase());
+  if (dispositions.includes('BUSY')) return 'BUSY';
+  if (dispositions.includes('FAILED')) return 'FAILED';
+  if (dispositions.includes('NO ANSWER')) return 'NO ANSWER';
+  return 'MISSED';
+};
+
 export const getConversationContent = async (models: IModels, cdrParams) => {
-  const { disposition, userfield, action_type } = cdrParams;
+  const { userfield } = cdrParams;
   const direction = userfield === 'Outbound' ? 'Outbound' : 'Inbound';
 
   if (!cdrParams.uniqueid) {
     return 'uniqueId not found';
   }
 
-  const relatedCdrs = await models.CallCdrs.find({
+  const storedCdrs = await models.CallCdrs.find({
     uniqueid: cdrParams.uniqueid,
   });
-  if (relatedCdrs) {
-    const answered = relatedCdrs.some(
-      (cdr) =>
-        cdr.disposition?.toLowerCase() === 'answered' &&
-        cdr.lastapp !== 'ForkCDR' &&
-        !cdr.actionType?.includes('VM') &&
-        !cdr.actionType?.includes('IVR') &&
-        cdr.billsec > 0,
-    );
+  const legs: any[] = [...storedCdrs, cdrParams];
 
-    if (answered) return `ANSWERED · ${direction}`;
-  }
+  const status = deriveCallStatusFromLegs(legs);
+
+  if (status === 'ANSWERED') return `ANSWERED · ${direction}`;
 
   if (userfield === 'Outbound') return `OUTBOUND`;
 
-  if (
-    action_type?.includes('IVR') &&
-    disposition?.toLowerCase() === 'answered' &&
-    userfield?.toLowerCase() === 'inbound'
-  ) {
-    return `IVR · ${direction}`;
-  }
-
-  if (action_type?.includes('FOLLOWME')) {
-    return `FOLLOWME · ${direction}`;
-  }
-
-  switch (disposition) {
-    case 'ANSWERED':
-      return `${disposition} · ${direction}`;
-    case 'NO ANSWER':
-      return `${disposition} · ${direction}`;
-    case 'BUSY':
-      return `${disposition} · ${direction}`;
-    case 'FAILED':
-      return `${disposition} · ${direction}`;
-    default:
-      return `MISSED · ${direction}`;
-  }
+  return `${status} · ${direction}`;
 };
 
 export function selectRelevantCdr(histories: any[]): any | null {
   if (!Array.isArray(histories) || histories.length === 0) return null;
 
-  const answered = histories.find(
-    (h) =>
-      h.disposition === 'ANSWERED' &&
-      h.billsec > 0 &&
-      h.lastapp === 'Queue' &&
-      h.actionType !== 'VM',
-  );
+  const answered = histories.find(isHumanAnsweredLeg);
 
   const ivr = histories.find(
     (h) =>
       h.disposition === 'ANSWERED' &&
       h.billsec > 0 &&
       h.lastapp !== 'ForkCDR' &&
-      h.actionType.includes('IVR'),
+      h.actionType?.includes('IVR'),
   );
 
   const noAnswer = histories.find(

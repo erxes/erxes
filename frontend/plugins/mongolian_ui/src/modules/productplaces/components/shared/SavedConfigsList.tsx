@@ -1,4 +1,5 @@
 import { Card } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type ConfigItem = {
   _id?: string;
@@ -17,13 +18,14 @@ const SavedConfigsList: React.FC<Props> = ({
   activeIndex,
   onSelect,
 }) => {
+  const { t } = useTranslation('mongolian');
   if (!configs.length) return null;
 
   return (
     <Card>
       <Card.Header>
         <div className="flex items-center justify-between">
-          <Card.Title>Saved Configs</Card.Title>
+          <Card.Title>{t('saved-configs')}</Card.Title>
           <span className="inline-flex items-center justify-center min-w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold px-2">
             {configs.length}
           </span>
@@ -46,11 +48,11 @@ const SavedConfigsList: React.FC<Props> = ({
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="font-semibold text-sm">
-                    {cfg.title || '(Untitled config)'}
+                    {cfg.title || `(${t('untitled-config')})`}
                   </div>
                   <div className="text-xs text-muted-foreground mt-2 flex items-center gap-2">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-muted-foreground" />
-                    Stage: {cfg.stageId || '—'}
+                    {t('stage')}: {cfg.stageId || '—'}
                   </div>
                 </div>
               </div>

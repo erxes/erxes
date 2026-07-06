@@ -2,6 +2,7 @@ import { executeEmailAction } from './actions/emailAction/executeEmailAction';
 import { executeAiAgentAction } from './actions/executeAiAgentAction';
 import { executeDelayAction } from './actions/executeDelayAction';
 import { executeIfCondition } from './actions/executeIfCondition';
+import { executeMessageProAction } from './actions/executeMessageProAction';
 import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
 import { executeSplitAction } from './actions/executeSplitAction';
 import { executeTransformAction } from './actions/executeTransformAction';
@@ -122,6 +123,14 @@ export const executeCoreActions = async (
       target: execution.target,
       action,
     });
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.MESSAGE_PRO) {
+    actionResponse = await executeMessageProAction(
+      subdomain,
+      execution,
+      action,
+    );
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.AI_AGENT) {

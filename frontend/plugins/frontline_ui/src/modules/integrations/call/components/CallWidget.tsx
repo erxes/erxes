@@ -1,9 +1,11 @@
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { IconDots } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CallWidgetDraggableRoot } from '@/integrations/call/components/CallWidgetDraggable';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { callWidgetPositionState } from '@/integrations/call/states/callWidgetStates';
+import { callUiAtom } from '@/integrations/call/states/callUiAtom';
 import {
   CSSProperties,
   useEffect,
@@ -73,7 +75,10 @@ export const CallWidgetContent = () => {
 };
 
 export const CallWidgetMoreActions = () => {
+  const { t } = useTranslation('frontline');
   const setPositionState = useSetAtom(callWidgetPositionState);
+  const setCallUi = useSetAtom(callUiAtom);
+  const setOpen = useSetAtom(callWidgetOpenAtom);
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -86,11 +91,14 @@ export const CallWidgetMoreActions = () => {
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        <DropdownMenu.Item>Call history</DropdownMenu.Item>
-        <DropdownMenu.Item>Settings</DropdownMenu.Item>
-        <DropdownMenu.Item>Hide</DropdownMenu.Item>
+        <DropdownMenu.Item onClick={() => setCallUi('history')}>
+          {t('call-history')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onClick={() => setOpen(false)}>
+          {t('hide')}
+        </DropdownMenu.Item>
         <DropdownMenu.Item onClick={() => setPositionState({ x: 0, y: 0 })}>
-          Reset position
+          {t('reset-position')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -138,7 +146,7 @@ export const CallWidget = () => {
                   '--radix-popper-content-height': contentHeight,
                 } as CSSProperties
               }
-              className="z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 rounded-lg bg-background text-foreground shadow-lg min-w-80"
+              className="z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 rounded-lg bg-background text-foreground shadow-lg w-96"
             >
               <CallWidgetContent />
             </PopoverPrimitive.Content>

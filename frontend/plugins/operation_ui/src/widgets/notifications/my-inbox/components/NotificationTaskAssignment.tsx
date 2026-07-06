@@ -3,6 +3,7 @@ import { IconChecklist } from '@tabler/icons-react';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { Avatar, Button, readImage, Skeleton } from 'erxes-ui';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const formatDate = (isoDate: string) => {
   const date = parseISO(isoDate);
@@ -18,6 +19,7 @@ export const NotificationTaskAssignment = ({
   fromUserId,
   createdAt,
 }: any) => {
+  const { t } = useTranslation('operation');
   const { task, loading } = useGetTask({
     variables: { _id: contentTypeId },
     skip: !contentTypeId,
@@ -32,7 +34,7 @@ export const NotificationTaskAssignment = ({
         <IconChecklist size={64} className="text-accent-foreground" stroke={1} />
       </div>
 
-      <p className="font-bold text-lg">Task</p>
+      <p className="font-bold text-lg">{t('task')}</p>
 
       <div className="flex flex-col items-center gap-2 text-center">
         <div className="flex items-center gap-2">
@@ -68,7 +70,7 @@ export const NotificationTaskAssignment = ({
 
       <Button variant="secondary" asChild>
         <Link to={`/settings/team-member?user_id=${fromUserId}`}>
-          View {fromUser?.details?.fullName || fromUser?.email}
+          {t('view')} {fromUser?.details?.fullName || fromUser?.email}
         </Link>
       </Button>
     </div>

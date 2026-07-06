@@ -7,6 +7,7 @@ import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
 import {
   IMAP_FORM_FIELDS,
@@ -31,13 +32,14 @@ export const ImapIntegrationActions = ({
 /* ── Edit sheet ──────────────────────────────────────────────────────── */
 
 export const ImapIntegrationEditSheet = ({ id }: { id: string }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <div className="flex items-center gap-2 w-full cursor-pointer">
           <IconEdit size={16} />
-          Edit
+          {t('edit')}
         </div>
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
@@ -56,6 +58,7 @@ export const ImapIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const { loading, integrationDetail } = useIntegrationDetail({ integrationId: id });
   const { editIntegration, loading: editLoading } = useIntegrationEdit();
 
@@ -97,7 +100,7 @@ export const ImapIntegrationEditForm = ({
       refetchQueries: ['Integrations', 'IntegrationDetail'],
       onCompleted: () => {
         setOpen(false);
-        toast({ title: 'IMAP Integration updated' });
+        toast({ title: t('imap-integration-updated') });
       },
       onError: (err) => {
         toast({ title: err.message, variant: 'destructive' });
@@ -129,12 +132,12 @@ export const ImapIntegrationEditForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Brand</Form.Label>
+                <Form.Label>{t('brand')}</Form.Label>
                 <Form.Control>
                   <SelectBrand
                     value={field.value}
                     onValueChange={field.onChange}
-                    placeholder="Select a brand"
+                    placeholder={t('select-a-brand')}
                     className="w-full h-10 rounded-lg border bg-background"
                   />
                 </Form.Control>
@@ -147,11 +150,11 @@ export const ImapIntegrationEditForm = ({
           <Dialog.Footer className="flex justify-end gap-2 py-4">
             <Dialog.Close asChild>
               <Button variant="ghost" disabled={editLoading}>
-                Close
+                {t('close')}
               </Button>
             </Dialog.Close>
             <Button type="submit" disabled={editLoading}>
-              {editLoading ? 'Saving…' : 'Save'}
+              {editLoading ? t('saving') : t('save')}
             </Button>
           </Dialog.Footer>
         </form>

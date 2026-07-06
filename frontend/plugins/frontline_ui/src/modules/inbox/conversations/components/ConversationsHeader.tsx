@@ -1,6 +1,7 @@
 import { cn, Filter, Skeleton } from 'erxes-ui';
 import { useConversationListContext } from '../hooks/useConversationListContext';
 import { ConversationFilterBar } from '@/inbox/conversations/components/ConversationsFilter';
+import { useTranslation } from 'react-i18next';
 
 export const ConversationsHeader = ({
   children,
@@ -16,7 +17,12 @@ export const ConversationsHeader = ({
         </div>
         <ConversationFilterBar />
         <Filter.Dialog>
-          <Filter.DialogDateView filterKey="created" />
+          <Filter.View filterKey="searchValue" inDialog>
+            <Filter.DialogStringView filterKey="searchValue" />
+          </Filter.View>
+          <Filter.View filterKey="created" inDialog>
+            <Filter.DialogDateView filterKey="created" />
+          </Filter.View>
         </Filter.Dialog>
       </div>
     </Filter>
@@ -24,6 +30,7 @@ export const ConversationsHeader = ({
 };
 
 export const ConversationCount = ({ className }: { className?: string }) => {
+  const { t } = useTranslation('frontline');
   const { totalCount, loading } = useConversationListContext();
 
   return (
@@ -33,7 +40,7 @@ export const ConversationCount = ({ className }: { className?: string }) => {
         className,
       )}
     >
-      {loading ? <Skeleton className="w-4 h-4" /> : totalCount} conversations
+      {loading ? <Skeleton className="w-4 h-4" /> : totalCount} {t('conversations')}
     </span>
   );
 };

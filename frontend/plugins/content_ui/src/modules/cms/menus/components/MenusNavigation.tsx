@@ -4,9 +4,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
 
 export const MenusNavigation = () => {
+  const { t } = useTranslation('content');
   const { pathname } = useLocation();
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
@@ -45,14 +47,14 @@ export const MenusNavigation = () => {
             <Button variant="ghost" asChild>
               <Link to="/content/cms">
                 <IconCube />
-                CMS
+                {t('cms')}
               </Link>
             </Button>
           </Breadcrumb.Item>
           <Breadcrumb.Separator />
           <Breadcrumb.Item>
             <Button variant="ghost" asChild>
-              <Link to="/content/cms">{websiteName || 'Website'}</Link>
+              <Link to="/content/cms">{websiteName || t('website')}</Link>
             </Button>
           </Breadcrumb.Item>
           <Breadcrumb.Separator />
@@ -60,7 +62,7 @@ export const MenusNavigation = () => {
             <Button variant="ghost" asChild>
               <Link to={`${basePath}/menus`}>
                 <IconMenu />
-                Menus
+                {t('menus')}
               </Link>
             </Button>
           </Breadcrumb.Page>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   TBotMessage,
   TMessageActionForm,
@@ -41,6 +42,7 @@ const ActionConfigMessage = ({
   message: TBotMessage;
   actionData: TAutomationAction<TMessageActionForm>;
 }) => {
+  const { t } = useTranslation('frontline');
   const { _id, type } = message;
   switch (type) {
     case 'text':
@@ -75,14 +77,47 @@ const ActionConfigMessage = ({
           buttons={message.quickReplies}
         />
       );
-    // case 'image':
-    //   return renderCard({ image });
-    // case 'video':
-    //   return renderCard({ video });
-    // case 'audio':
-    //   return renderCard({ audio });
-    // case 'attachments':
-    //   return renderCard({ attachments });
+    case 'image':
+      return (
+        <ActionMessageCard
+          _id={_id}
+          type={type}
+          actionData={actionData}
+          text="Image attachment"
+          subtitle={message.image}
+        />
+      );
+    case 'video':
+      return (
+        <ActionMessageCard
+          _id={_id}
+          type={type}
+          actionData={actionData}
+          text="Video attachment"
+          subtitle={message.video}
+        />
+      );
+    case 'audio':
+      return (
+        <ActionMessageCard
+          _id={_id}
+          type={type}
+          actionData={actionData}
+          text="Audio attachment"
+          subtitle={message.audio}
+        />
+      );
+    case 'attachments':
+      return (message.attachments || []).map((attachment) => (
+        <ActionMessageCard
+          key={attachment._id}
+          _id={attachment._id}
+          type={type}
+          actionData={actionData}
+          text="File attachment"
+          subtitle={attachment.url}
+        />
+      ));
     case 'input':
       if (!botId) {
         return (
@@ -90,7 +125,7 @@ const ActionConfigMessage = ({
             _id={_id}
             type={type}
             actionData={actionData}
-            text="This action must be part of a chain that starts with a trigger"
+            text={t('action-requires-trigger')}
           />
         );
       }
@@ -104,8 +139,8 @@ const ActionConfigMessage = ({
             message.input?.type || ''
           }`}
           buttons={[
-            { _id: botId, text: 'If Reply' },
-            { _id: 'ifNotReply', text: 'If Not Reply' },
+            { _id: botId, text: t('if-reply') },
+            { _id: 'ifNotReply', text: t('if-not-reply') },
           ]}
         />
       );

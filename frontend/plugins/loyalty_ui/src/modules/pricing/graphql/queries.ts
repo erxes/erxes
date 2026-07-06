@@ -116,6 +116,28 @@ export const PRICING_PLAN_DETAIL = gql`
       vendors
       tags
       tagsExcluded
+      customerIds
+      customerTags
+      customerExcludeTags
+      customerSegmentIds
+      companyIds
+      companyTags
+      companyExcludeTags
+      companySegmentIds
+      userIds
+      userPositions
+      userSegmentIds
+      brokerCustomerIds
+      brokerCustomerTags
+      brokerCustomerExcludeTags
+      brokerCustomerSegmentIds
+      brokerCompanyIds
+      brokerCompanyTags
+      brokerCompanyExcludeTags
+      brokerCompanySegmentIds
+      brokerUserIds
+      brokerUserPositions
+      brokerUserSegmentIds
       isStartDateEnabled
       isEndDateEnabled
       startDate
@@ -194,6 +216,48 @@ export const productCategories = gql`
       code
       name
       order
+    }
+  }
+`;
+
+export const GET_PRODUCTS_BY_IDS = gql`
+  query AssignedProducts($ids: [String], $categoryIds: [String], $limit: Int) {
+    productsMain(ids: $ids, categoryIds: $categoryIds, limit: $limit) {
+      list {
+        _id
+        name
+        uom
+        unitPrice
+        code
+      }
+    }
+  }
+`;
+
+export const PRICING_FIXED_VALUES_PAGE = gql`
+  query PricingFixedValuesPage(
+    $pricingPlanId: String!
+    $page: Int
+    $perPage: Int
+    $search: String
+  ) {
+    pricingFixedValuesPage(
+      pricingPlanId: $pricingPlanId
+      page: $page
+      perPage: $perPage
+      search: $search
+    ) {
+      totalCount
+      list {
+        _id
+        productId
+        productName
+        sortField
+        uom
+        unitPrice
+        newPrice
+        status
+      }
     }
   }
 `;

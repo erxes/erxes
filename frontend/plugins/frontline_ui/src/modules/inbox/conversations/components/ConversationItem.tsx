@@ -9,9 +9,20 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import {
+  IconPhoneIncoming,
+  IconPhoneOutgoing,
+  IconPhoneX,
+} from '@tabler/icons-react';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { currentUserState, CustomersInline, MembersInline } from 'ui-modules';
 import { DiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
+import { IntegrationType } from '@/types/Integration';
+import {
+  CALL_STATUS_LABEL_KEYS,
+  NOT_ANSWERED_STATUSES,
+  parseCallConversationContent,
+} from '@/integrations/call/utils/callContentUtils';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { activeConversationState } from '../states/activeConversationState';
 import { ConversationIntegrationBadge } from '@/integrations/components/IntegrationBadge';
@@ -21,6 +32,7 @@ import {
   setSelectConversationsState,
 } from '../states/selectConversationsState';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
+import { useTranslation } from 'react-i18next';
 
 export const ConversationItem = ({
   onConversationSelect,
@@ -29,6 +41,7 @@ export const ConversationItem = ({
   onConversationSelect: () => void;
   channelInfo?: DiscordConversationChannel;
 }) => {
+  const { t } = useTranslation('frontline');
   const inboxLayout = useAtomValue(inboxLayoutState);
 
   const { createdAt, updatedAt, customer, integration } =
@@ -100,9 +113,9 @@ export const ConversationItem = ({
         )}
         <ConversationItemContent />
         <div className="w-auto text-right flex-none">
-          <span> to </span>
+          <span> {t('to')} </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
-          <span> via </span>
+          <span> {t('via')} </span>
           {integration && (
             <span title={integration.kind}>{integration.kind}</span>
           )}
@@ -120,17 +133,51 @@ export const ConversationItem = ({
 };
 
 export const ConversationItemContent = () => {
+  const { t } = useTranslation('frontline');
   const inboxLayout = useAtomValue(inboxLayoutState);
-  const { content, assignedUserId, assignedUser } = useConversationContext();
+  const { content, assignedUserId, assignedUser, integration } =
+    useConversationContext();
   if (!content) return null;
 
-  if (content.includes('callDirection/')) {
-    const callDirection = content.split('callDirection/')[1];
+  const callContent =
+    integration?.kind === IntegrationType.CALL ||
+    content.includes('callDirection/')
+      ? parseCallConversationContent(content)
+      : null;
+
+  if (callContent) {
+    const { direction, status } = callContent;
+    const isNotAnswered = !!status && NOT_ANSWERED_STATUSES.includes(status);
+    const isAnswered = status === 'answered';
 
     return (
       <div className="flex items-center gap-2 w-full justify-between flex-nowrap">
-        <div className="font-medium">
-          {callDirection === 'INCOMING' ? 'Incoming Call' : 'Outgoing Call'}
+        <div
+          className={cn(
+            'font-medium flex items-center gap-1',
+            isNotAnswered && 'text-destructive',
+            isAnswered && 'text-success',
+          )}
+        >
+          {isNotAnswered ? (
+            <IconPhoneX className="size-4" />
+          ) : direction === 'incoming' ? (
+            <IconPhoneIncoming className="size-4" />
+          ) : (
+            <IconPhoneOutgoing className="size-4" />
+          )}
+          <span>
+            {direction === 'incoming' ? t('incoming-call') : t('outgoing-call')}
+          </span>
+          {status && (
+            <span
+              className={cn(
+                !isNotAnswered && !isAnswered && 'text-accent-foreground',
+              )}
+            >
+              · {t(CALL_STATUS_LABEL_KEYS[status])}
+            </span>
+          )}
         </div>
         {assignedUserId && assignedUser && (
           <MembersInline.Provider memberIds={[assignedUserId]}>

@@ -83,6 +83,8 @@ export const CategoryDetailSheet = () => {
       if (value) cleanData[key] = value;
     });
     cleanData.attachment = attachment || undefined;
+
+    cleanData.parentId = data.parentId || '';
     const fieldsToUpdate = Object.keys(cleanData);
     productCategoriesEdit(
       {

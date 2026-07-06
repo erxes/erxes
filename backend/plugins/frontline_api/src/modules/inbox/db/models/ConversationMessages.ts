@@ -129,6 +129,7 @@ export const loadClass = (models: IModels) => {
         content?: string;
         firstRespondedUserId?: string;
         firstRespondedDate?: Date;
+        assignedUserId?: string;
       } = {};
 
       // Don't blank the conversation's list preview for a content-less message
@@ -140,6 +141,15 @@ export const loadClass = (models: IModels) => {
       if (!conversation.firstRespondedUserId) {
         modifier.firstRespondedUserId = userId;
         modifier.firstRespondedDate = new Date();
+      }
+
+      if (
+        userId &&
+        !doc.internal &&
+        !doc.fromBot &&
+        !conversation.assignedUserId
+      ) {
+        modifier.assignedUserId = userId;
       }
 
       await models.Conversations.updateConversation(

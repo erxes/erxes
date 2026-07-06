@@ -27,6 +27,7 @@ export const types = `
     number: Int
     tagIds: [String]
     operatorStatus: String
+    automatedReplyControl: JSON
 
     messages: [ConversationMessage]
     callProAudio: String
@@ -66,6 +67,8 @@ export const types = `
     fromBot: Boolean
     getStarted:Boolean
     botData: JSON
+    source: JSON
+    relatedMessage: JSON
     customerId: String
     userId: String
     createdAt: Date
@@ -179,6 +182,7 @@ const mutationFilterParams = `
   segment: String
   customerId: String
   brandId: String
+  searchValue: String
 `;
 
 const convertParams = `
@@ -258,6 +262,12 @@ export const mutations = `
   conversationMarkAsRead(_id: String): Conversation
   conversationAgentTyping(conversationId: String!, typing: Boolean): Boolean
   changeConversationOperator(_id: String!, operatorStatus: String!): JSON
+  conversationSetAutomatedReplyControl(
+    _id: String!
+    status: String!
+    reason: String
+    pausedUntil: Date
+  ): Conversation
   conversationsResolve(ids: [String!]!): Int
   conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation

@@ -1,5 +1,6 @@
 import { ActivityAssignee } from '@/activity/components/ActivityAssignee';
 import { ActivityDate } from '@/activity/components/ActivityDate';
+import { ActivityFormSubmission } from '@/activity/components/ActivityFormSubmission';
 import { ActivityNote } from '@/activity/components/ActivityNote';
 import { ActivityPriority } from '@/activity/components/ActivityPriority';
 import { ActivityStatus } from '@/activity/components/ActivityStatus';
@@ -11,14 +12,17 @@ import {
   IconAlertSquareRounded,
   IconCalendar,
   IconFileDescription,
+  IconForms,
   IconLabel,
   IconNote,
   IconProgressCheck,
   IconQuestionMark,
 } from '@tabler/icons-react';
 import { MembersInline } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
+  const { t } = useTranslation('frontline');
   const { metadata, action } = activity;
 
   switch (activity.module) {
@@ -38,8 +42,10 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
       return <ActivityNote action={action} />;
     case ACTIVITY_MODULES.DESCRIPTION:
       return <ActivityDescription />;
+    case ACTIVITY_MODULES.FORM_SUBMISSION:
+      return <ActivityFormSubmission metadata={metadata} />;
     default:
-      return <div>Unknown module</div>;
+      return <div>{t('unknown-module')}</div>;
   }
 };
 
@@ -73,6 +79,8 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
       return <IconNote className="size-4 text-accent-foreground" />;
     case ACTIVITY_MODULES.DESCRIPTION:
       return <IconFileDescription className="size-4 text-accent-foreground" />;
+    case ACTIVITY_MODULES.FORM_SUBMISSION:
+      return <IconForms className="size-4 text-accent-foreground" />;
     default:
       return <IconQuestionMark className="size-4 text-accent-foreground" />;
   }

@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../../graphql';
 import { UPDATE_ASSIGNMENT_CAMPAIGN } from '../../graphql/mutations/assignmentEditStatusMutations';
 
@@ -18,6 +19,7 @@ export interface EditAssignmentVariables {
 }
 
 export const useAssignmentEdit = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
   const [assignmentEdit, { loading }] = useMutation<
@@ -27,14 +29,14 @@ export const useAssignmentEdit = () => {
     refetchQueries: [QUERY_ASSIGNMENT_CAMPAIGNS],
     onCompleted: () => {
       toast({
-        title: 'Success',
-        description: 'Assignment updated successfully',
+        title: t('success'),
+        description: t('assignment-updated'),
         variant: 'default',
       });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });

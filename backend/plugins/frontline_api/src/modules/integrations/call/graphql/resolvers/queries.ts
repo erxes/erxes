@@ -4,7 +4,11 @@ import {
   ICallHistory,
   ICallHistoryFilterOptions,
 } from '@/integrations/call/@types/histories';
-import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
+import {
+  deriveCallStatusFromLegs,
+  getPbxDayRange,
+  selectRelevantCdr,
+} from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,
   calculateAverageHandlingTime,
@@ -45,9 +49,11 @@ const callQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
-    return models.CallIntegrations.getIntegrations(user._id, isAdmin);
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // return models.CallIntegrations.getIntegrations(user._id, isAdmin);
+    const res = models.CallIntegrations.getIntegrations(user._id);
+    return res;
   },
 
   async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
@@ -96,12 +102,11 @@ const callQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
-      isAdmin,
     );
     if (!integration) {
       throw new Error('Integration not found');
@@ -204,17 +209,7 @@ const callQueries = {
     const DEFAULT_VALUE = 0;
 
     try {
-      const now = new Date();
-      const dateFrom = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-      );
-      const dateTo = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-      );
+      const { dateFrom, dateTo } = getPbxDayRange();
 
       const todayCdrs = await models.CallCdrs.find({
         actionType: { $regex: queue },
@@ -492,7 +487,16 @@ const callQueries = {
       if (_id) {
         const cdr = await models.CallCdrs.findOne({ _id });
         if (cdr) {
-          return mapCdrToCallHistory(cdr);
+          const history = mapCdrToCallHistory(cdr);
+          if (cdr.uniqueid) {
+            const legs = await models.CallCdrs.find({
+              uniqueid: cdr.uniqueid,
+            });
+            if (legs.length) {
+              history.callStatus = deriveCallStatusFromLegs(legs);
+            }
+          }
+          return history;
         }
 
         result = await models.CallHistory.findOne({ _id });
@@ -509,7 +513,9 @@ const callQueries = {
         const selected = selectRelevantCdr(histories);
 
         if (selected) {
-          return mapCdrToCallHistory(selected);
+          const history = mapCdrToCallHistory(selected);
+          history.callStatus = deriveCallStatusFromLegs(histories);
+          return history;
         }
 
         result = await models.CallHistory.findOne({ conversationId });
@@ -540,11 +546,10 @@ const callQueries = {
     { startDate, endDate, queueId, direction },
     { models, user }: IContext,
   ) {
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
-      isAdmin,
     );
 
     const isContainsQueue = true;
@@ -736,11 +741,10 @@ const callQueries = {
     if (!queueId) {
       return [];
     }
-    const isAdmin =
-      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
-      isAdmin,
     );
 
     const isContainsQueue = queueId && queues.includes(queueId);

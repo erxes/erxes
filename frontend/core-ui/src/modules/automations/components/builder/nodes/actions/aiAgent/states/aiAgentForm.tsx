@@ -143,11 +143,8 @@ const goalTypesSchema = z.discriminatedUnion('goalType', [
 
 const commonAiAgentConfigFormSchema = z.object({
   aiAgentId: z.string().min(1),
-  inputMapping: aiActionInputMappingSchema.default({
-    source: 'trigger',
-    path: '',
-    customValue: '',
-  }),
+  input: z.string().optional(),
+  inputMapping: aiActionInputMappingSchema.optional(),
   memory: aiActionMemorySchema.default(getDefaultAiAgentMemoryConfig()),
 });
 

@@ -17,6 +17,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 import {
   generateAutomationHistoriesFilter,
@@ -99,9 +100,19 @@ export const automationQueries = {
   async automationDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    return models.Automations.getAutomation(_id);
+    const automation = await models.Automations.getAutomation(_id);
+
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
+      contentId: _id,
+      ownerId: automation.createdBy,
+      action: 'view',
+    });
+
+    return automation;
   },
 
   async cpAutomationDetail(
@@ -231,8 +242,9 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution =
-      await models.AutomationExecutions.findById(executionId).lean();
+    const execution = await models.AutomationExecutions.findById(
+      executionId,
+    ).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }
@@ -256,12 +268,29 @@ export const automationQueries = {
     return botsConstants;
   },
 
-  async automationsAiAgents(_root, { kind }, { models }: IContext) {
+  async automationsAiAgents(
+    _root,
+    { kind }: { kind?: string },
+    { models, user }: IContext,
+  ) {
     const agents = await models.AiAgents.find(
       kind ? { 'connection.provider': kind } : {},
     );
+    const agentIds = agents.map((agent) => agent._id.toString());
+    const lockStates = await models.ApprovalLocks.getStates({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentIds: agentIds,
+      action: 'view',
+    });
+    const lockStateByAgentId = new Map(
+      lockStates.map((state) => [state.contentId, state]),
+    );
 
-    return sanitizeAiAgents(agents as any[]);
+    return sanitizeAiAgents(agents as any[]).map((agent) => ({
+      ...agent,
+      approvalLockState: lockStateByAgentId.get(agent._id.toString()),
+    }));
   },
 
   async automationsAiAgentTotalCounts(_root, _args, { models }: IContext) {
@@ -286,16 +315,34 @@ export const automationQueries = {
   async automationsAiAgentDetail(
     _root,
     { _id }: { _id?: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    return sanitizeAiAgent(await models.AiAgents.findOne(_id ? { _id } : {}));
+    const agent = await models.AiAgents.findOne(_id ? { _id } : {});
+
+    if (_id && agent) {
+      await models.ApprovalLocks.assertAccess({
+        user,
+        contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+        contentId: _id,
+        action: 'view',
+      });
+    }
+
+    return sanitizeAiAgent(agent);
   },
 
   async automationsAiAgentHealth(
     _root,
     { agentId }: { agentId: string },
-    { subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentId: agentId,
+      action: 'view',
+    });
+
     return await sendWorkerMessage({
       pluginName: 'automations',
       queueName: 'aiAgent',
@@ -304,6 +351,33 @@ export const automationQueries = {
       data: { agentId },
       timeout: 10000,
     });
+  },
+
+  async automationsAiAgentKnowledgeSourceStatuses(
+    _root,
+    { agentId }: { agentId: string },
+    { models, subdomain, user }: IContext,
+  ) {
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentId: agentId,
+      action: 'view',
+    });
+
+    try {
+      return await sendWorkerMessage({
+        pluginName: 'automations',
+        queueName: 'aiAgent',
+        jobName: 'getAiAgentKnowledgeSourceStatuses',
+        subdomain,
+        data: { agentId },
+        defaultValue: [],
+        timeout: 10000,
+      });
+    } catch {
+      return [];
+    }
   },
 
   /**

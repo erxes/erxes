@@ -1,4 +1,5 @@
 import { IconChalkboard } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { Avatar, Button, readImage, Skeleton, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
@@ -31,6 +32,7 @@ export const NotificationChannelContent = ({
   contentTypeId,
   fromUserId,
 }: any) => {
+  const { t } = useTranslation('frontline');
   const { channelDetail, loading } = useChannel(contentTypeId);
   const date = getDate(createdAt);
 
@@ -45,7 +47,7 @@ export const NotificationChannelContent = ({
         />
       </div>
 
-      <p className="font-bold text-lg font-stretch-extra-expanded">Channel</p>
+      <p className="font-bold text-lg font-stretch-extra-expanded">{t('channel-label')}</p>
 
       <div className="flex flex-row items-center gap-2">
         <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm text-foreground">

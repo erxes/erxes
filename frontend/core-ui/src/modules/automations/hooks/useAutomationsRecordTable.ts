@@ -1,13 +1,13 @@
 import { AUTOMATIONS_MAIN_LIST } from '@/automations/graphql/automationQueries';
 import { IAutomation } from '@/automations/types';
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { IPageInfo } from 'ui-modules';
-import { useAutomationRecordTableFilters } from './useAutomationRecordTableFilters';
 import {
   EnumCursorDirection,
-  validateFetchMore,
   mergeCursorData,
+  validateFetchMore,
 } from 'erxes-ui';
+import { IPageInfo } from 'ui-modules';
+import { useAutomationRecordTableFilters } from './useAutomationRecordTableFilters';
 
 type QueryResponse = {
   automationsMain: {

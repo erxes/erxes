@@ -4,11 +4,14 @@ import {
   CheckCustomTriggerInput,
   FindObjectInput,
   CheckTargetMatchInput,
+  LoadAiKnowledgeDocumentBatchInput,
+  LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
   SetPropertiesInput,
 } from './zodTypes';
 import { IAutomationExecution } from './definitions';
+import type { TKnowledgeDocument } from '../../utils/knowledge';
 
 export type IAutomationContext = {
   subdomain: string;
@@ -116,6 +119,7 @@ export type IAutomationsActionConfig = {
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
+  allowedMultiTriggerTypes?: string[];
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
   setPropertyTargets?: TAutomationSetPropertyTarget[];
@@ -128,6 +132,40 @@ export type IAutomationsBotsConfig = {
   description: string;
   logo: string;
   totalCountQueryName: string;
+};
+
+export type TAiKnowledgeSourceConfig = {
+  key: string;
+  label: string;
+  moduleName: string;
+  sourceSelector: 'remote-module' | 'local';
+};
+
+export type TAiToolConfig = {
+  key: string;
+  label: string;
+  moduleName: string;
+  input: string;
+  output: string;
+};
+
+export type TAutomationAiConfig = {
+  knowledgeSources?: TAiKnowledgeSourceConfig[];
+  tools?: TAiToolConfig[];
+};
+
+export type TAiToolLookupResult = {
+  toolKey: string;
+  title: string;
+  items: Record<string, unknown>[];
+  summary?: string;
+};
+
+export type TAiKnowledgeDocumentBatchResult = {
+  documents: TKnowledgeDocument[];
+  totalCount: number;
+  nextCursor?: string;
+  hasMore: boolean;
 };
 
 export type TAiContextHistoryItem = {
@@ -166,6 +204,7 @@ export type AutomationConstants = IAutomationTriggersActionsConfig & {
   bots?: IAutomationsBotsConfig[];
   findObjectTargets?: TAutomationFindObjectTargetDefinition[];
   setPropertyTargets?: TAutomationSetPropertyTarget[];
+  ai?: TAutomationAiConfig;
 };
 
 export type TAutomationFindObjectResult = {
@@ -216,6 +255,16 @@ export interface AutomationProducers {
     },
     context: IAutomationContext,
   ) => Promise<TAiContext | null>;
+
+  loadAiKnowledgeDocumentBatch?: (
+    args: z.infer<typeof LoadAiKnowledgeDocumentBatchInput>,
+    context: IAutomationContext,
+  ) => Promise<TAiKnowledgeDocumentBatchResult>;
+
+  lookupAiTool?: (
+    args: z.infer<typeof LookupAiToolInput>,
+    context: IAutomationContext,
+  ) => Promise<TAiToolLookupResult>;
 
   resolveOutputPaths?: (
     args: z.infer<typeof ResolveOutputPathsInput>,
@@ -373,6 +422,8 @@ export enum TAutomationProducers {
   FIND_OBJECT = 'findObject',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',
+  LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH = 'loadAiKnowledgeDocumentBatch',
+  LOOKUP_AI_TOOL = 'lookupAiTool',
 }
 
 export enum TAutomationActionFolks {

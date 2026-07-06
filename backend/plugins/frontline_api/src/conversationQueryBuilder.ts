@@ -7,7 +7,6 @@ interface IIn {
   $in: string[];
 }
 
-
 interface IExists {
   $exists: boolean;
 }
@@ -53,7 +52,6 @@ interface IIntersectIntegrationIds {
 interface IUnassignedFilter {
   assignedUserId: IExists;
 }
-
 
 export default class Builder {
   public models: IModels;
@@ -358,13 +356,85 @@ export default class Builder {
     };
   }
 
-  public async extendedQueryFilter({ integrationType }: IListArgs) {
+  public async searchFilter(searchValue: string): Promise<{ $or: object[] }> {
+    const value = searchValue.trim();
+    const digits = value.replace(/\D/g, '');
+    const isPhoneSearch =
+      digits.length >= 4 && digits.length >= value.length / 2;
+
+    const escapeRegex = (str: string) =>
+      str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const customerQuery = isPhoneSearch
+      ? {
+          $or: [
+            { primaryPhone: { $regex: escapeRegex(digits) } },
+            { phones: { $regex: escapeRegex(digits) } },
+          ],
+        }
+      : {
+          $or: [
+            { firstName: { $regex: escapeRegex(value), $options: 'i' } },
+            { lastName: { $regex: escapeRegex(value), $options: 'i' } },
+            { primaryEmail: { $regex: escapeRegex(value), $options: 'i' } },
+            { primaryPhone: { $regex: escapeRegex(value) } },
+          ],
+        };
+
+    const customers = await sendTRPCMessage({
+      subdomain: this.subdomain,
+
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'find',
+      input: { query: { status: { $ne: 'deleted' }, ...customerQuery } },
+      defaultValue: [],
+    });
+
+    const customerIds = (customers || []).map((customer: any) =>
+      customer._id.toString(),
+    );
+
+    const orConditions: object[] = [{ customerId: { $in: customerIds } }];
+
+    const availableIntegrationIds: string[] =
+      this.queries?.integrations?.integrationId?.$in || [];
+
+    if (isPhoneSearch && availableIntegrationIds.length) {
+      const digitsRegex = escapeRegex(digits);
+
+      const cdrConversationIds = await this.models.CallCdrs.distinct(
+        'conversationId',
+        {
+          conversationId: { $exists: true, $nin: [null, ''] },
+          inboxIntegrationId: { $in: availableIntegrationIds },
+          $or: [
+            { src: { $regex: digitsRegex } },
+            { dst: { $regex: digitsRegex } },
+          ],
+        },
+      );
+
+      if (cdrConversationIds.length) {
+        orConditions.push({ _id: { $in: cdrConversationIds } });
+      }
+    }
+
+    return { $or: orConditions };
+  }
+
+  public async extendedQueryFilter({
+    integrationType,
+    searchValue,
+  }: IListArgs) {
     return {
       $and: [
         { $or: this.userRelevanceQuery() },
         ...(integrationType
           ? await this.integrationTypeFilter(integrationType)
           : []),
+        ...(searchValue ? [await this.searchFilter(searchValue)] : []),
       ],
     };
   }

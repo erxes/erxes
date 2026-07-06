@@ -1,5 +1,5 @@
 import { atom, WritableAtom } from 'jotai';
-import { ResponsesChartType } from './types';
+import { ResponsesChartType, type TicketPropertyFilter } from './types';
 
 function getOrCreate<K, V>(map: Map<K, V>, key: K, factory: () => V): V {
   let value = map.get(key);
@@ -255,6 +255,28 @@ export const getReportCompanyFilterAtom = (cardId: string) =>
       (get, set, newValue: string[]) => {
         set(reportCompanyFilterState, {
           ...get(reportCompanyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportPropertyFilterState = atom<
+  Record<string, TicketPropertyFilter[]>
+>({});
+
+const propertyFilterAtomCache = new Map<
+  string,
+  WritableAtom<TicketPropertyFilter[], [TicketPropertyFilter[]], void>
+>();
+
+export const getReportPropertyFilterAtom = (cardId: string) =>
+  getOrCreate(propertyFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportPropertyFilterState)[cardId] || [],
+      (get, set, newValue: TicketPropertyFilter[]) => {
+        set(reportPropertyFilterState, {
+          ...get(reportPropertyFilterState),
           [cardId]: newValue,
         });
       },

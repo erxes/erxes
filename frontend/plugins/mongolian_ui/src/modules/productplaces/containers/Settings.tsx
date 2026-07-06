@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { Spinner, Form, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 
 import type {
@@ -37,6 +38,7 @@ const SettingsContainer = ({
   subId,
   multiple = false,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
   const form = useForm();
 
@@ -116,7 +118,7 @@ const SettingsContainer = ({
         <div className="flex flex-col items-center gap-4">
           <Spinner />
           <p className="text-sm text-muted-foreground">
-            Loading configurations...
+            {t('loading-configurations')}
           </p>
         </div>
       </div>
@@ -126,7 +128,7 @@ const SettingsContainer = ({
   if (error && !data) {
     return (
       <div className="p-4 bg-red-50 text-red-700 rounded">
-        Error loading configuration: {error.message}
+        {t('error-loading-configuration', { message: error.message })}
       </div>
     );
   }

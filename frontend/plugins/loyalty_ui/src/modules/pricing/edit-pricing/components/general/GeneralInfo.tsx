@@ -16,7 +16,8 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useEffect, type ReactNode } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Control } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   SelectCompany,
   SelectCategory,
@@ -24,7 +25,6 @@ import {
   SelectSegment,
   SelectTags,
 } from 'ui-modules';
-import { type Control } from 'react-hook-form';
 
 interface GeneralInfoProps {
   pricingId?: string;
@@ -104,6 +104,7 @@ export const GeneralInfo = ({
   pricingDetail,
   onSaveActionChange,
 }: GeneralInfoProps) => {
+  const { t } = useTranslation('loyalty');
   const form = useForm<GeneralFormValues>({
     defaultValues: {
       name: '',
@@ -183,11 +184,11 @@ export const GeneralInfo = ({
     if (!isDateRangeValid(values.startDate, values.endDate)) {
       form.setError('endDate', {
         type: 'validate',
-        message: 'End date must be after start date.',
+        message: t('end-date-after-start'),
       });
       toast({
-        title: 'Invalid date range',
-        description: 'End date must be after start date.',
+        title: t('invalid-date-range'),
+        description: t('end-date-after-start'),
         variant: 'destructive',
       });
       return;
@@ -249,13 +250,13 @@ export const GeneralInfo = ({
       await editPricing(baseDoc);
       form.reset(values);
       toast({
-        title: 'Pricing updated',
-        description: 'Changes have been saved successfully.',
+        title: t('pricing-updated'),
+        description: t('changes-saved'),
       });
     } catch {
       toast({
-        title: 'Failed to update pricing',
-        description: 'An unexpected error occurred.',
+        title: t('failed-to-update-pricing'),
+        description: t('unexpected-error'),
         variant: 'destructive',
       });
     }
@@ -274,7 +275,7 @@ export const GeneralInfo = ({
           size="sm"
           disabled={loading || !pricingId}
         >
-          {loading ? 'Saving...' : 'Save Changes'}
+          {loading ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -290,7 +291,7 @@ export const GeneralInfo = ({
           onSubmit={form.handleSubmit(handleSubmit)}
           noValidate
         >
-          <InfoCard title="General">
+          <InfoCard title={t('general')}>
             <InfoCard.Content className="grid w-full grid-cols-2 gap-6">
               <div className="flex flex-col w-full space-y-4">
                 <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
@@ -299,9 +300,12 @@ export const GeneralInfo = ({
                     name="name"
                     render={({ field }) => (
                       <Form.Item className="min-w-0">
-                        <Form.Label>Name</Form.Label>
+                        <Form.Label>{t('name')}</Form.Label>
                         <Form.Control>
-                          <Input placeholder="Enter pricing name" {...field} />
+                          <Input
+                            placeholder={t('enter-pricing-name')}
+                            {...field}
+                          />
                         </Form.Control>
                       </Form.Item>
                     )}
@@ -312,23 +316,27 @@ export const GeneralInfo = ({
                     name="status"
                     render={({ field }) => (
                       <Form.Item className="min-w-0">
-                        <Form.Label>Status</Form.Label>
+                        <Form.Label>{t('status')}</Form.Label>
                         <Form.Control>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger>
-                              <Select.Value placeholder="Select status" />
+                              <Select.Value placeholder={t('select-status')} />
                             </Select.Trigger>
                             <Select.Content>
-                              <Select.Item value="active">Active</Select.Item>
-                              <Select.Item value="archived">
-                                Archived
+                              <Select.Item value="active">
+                                {t('active')}
                               </Select.Item>
-                              <Select.Item value="draft">Draft</Select.Item>
+                              <Select.Item value="archived">
+                                {t('archived')}
+                              </Select.Item>
+                              <Select.Item value="draft">
+                                {t('draft')}
+                              </Select.Item>
                               <Select.Item value="completed">
-                                Completed
+                                {t('completed')}
                               </Select.Item>
                             </Select.Content>
                           </Select>
@@ -343,7 +351,7 @@ export const GeneralInfo = ({
                   name="isPriority"
                   render={({ field }) => (
                     <Form.Item className="min-w-0">
-                      <Form.Label>Priority</Form.Label>
+                      <Form.Label>{t('priority')}</Form.Label>
                       <Form.Control>
                         <div className="flex items-center h-9">
                           <Checkbox
@@ -362,15 +370,15 @@ export const GeneralInfo = ({
                   <GeneralDateField
                     control={form.control}
                     name="startDate"
-                    label="Start date"
-                    placeholder="Select start date"
+                    label={t('start-date')}
+                    placeholder={t('select-start-date')}
                   />
 
                   <GeneralDateField
                     control={form.control}
                     name="endDate"
-                    label="End date"
-                    placeholder="Select end date"
+                    label={t('end-date')}
+                    placeholder={t('select-end-date')}
                   />
                 </div>
               </div>
@@ -382,33 +390,33 @@ export const GeneralInfo = ({
                     name="appliesTo"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>APPLIES TO</Form.Label>
+                        <Form.Label>{t('applies-to')}</Form.Label>
                         <Form.Control>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger>
-                              <Select.Value placeholder="Select target" />
+                              <Select.Value placeholder={t('select-target')} />
                             </Select.Trigger>
                             <Select.Content>
                               <Select.Item value="category">
-                                Specific Category
+                                {t('specific-category')}
                               </Select.Item>
                               <Select.Item value="product">
-                                Specific Product
+                                {t('specific-product')}
                               </Select.Item>
                               <Select.Item value="segment">
-                                Specific Segment
+                                {t('specific-segment')}
                               </Select.Item>
                               <Select.Item value="vendor">
-                                Specific Vendor
+                                {t('specific-vendor')}
                               </Select.Item>
                               <Select.Item value="tag">
-                                Specific Tag
+                                {t('specific-tag')}
                               </Select.Item>
                               <Select.Item value="bundle">
-                                Specific Bundle
+                                {t('specific-bundle')}
                               </Select.Item>
                             </Select.Content>
                           </Select>
@@ -425,7 +433,9 @@ export const GeneralInfo = ({
                       name="productCategoryIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>PRODUCT CATEGORIES</Form.Label>
+                          <Form.Label>
+                            {t('product-categories-label')}
+                          </Form.Label>
                           <Form.Control>
                             <SelectCategory
                               mode="multiple"
@@ -444,7 +454,7 @@ export const GeneralInfo = ({
                       name="excludeCategoryIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>EXCLUDE CATEGORIES</Form.Label>
+                          <Form.Label>{t('exclude-categories')}</Form.Label>
                           <Form.Control>
                             <SelectCategory
                               mode="multiple"
@@ -463,7 +473,7 @@ export const GeneralInfo = ({
                       name="excludeProductIds"
                       render={({ field }) => (
                         <Form.Item className="lg:col-span-2">
-                          <Form.Label>EXCLUDE PRODUCTS</Form.Label>
+                          <Form.Label>{t('exclude-products')}</Form.Label>
                           <Form.Control>
                             <SelectProduct
                               mode="multiple"
@@ -486,7 +496,7 @@ export const GeneralInfo = ({
                       name="appliesProductIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>PRODUCTS</Form.Label>
+                          <Form.Label>{t('products-label')}</Form.Label>
                           <Form.Control>
                             <SelectProduct
                               mode="multiple"
@@ -509,7 +519,7 @@ export const GeneralInfo = ({
                       name="segmentId"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>SEGMENT</Form.Label>
+                          <Form.Label>{t('segment-label')}</Form.Label>
                           <Form.Control>
                             <SelectSegment
                               selected={field.value || undefined}
@@ -529,7 +539,7 @@ export const GeneralInfo = ({
                       name="vendorCompanyIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>VENDORS</Form.Label>
+                          <Form.Label>{t('vendors')}</Form.Label>
                           <Form.Control>
                             <SelectCompany
                               mode="multiple"
@@ -552,7 +562,7 @@ export const GeneralInfo = ({
                       name="productTagIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>PRODUCT TAGS</Form.Label>
+                          <Form.Label>{t('product-tags')}</Form.Label>
                           <Form.Control>
                             <SelectTags
                               tagType="sales:product"
@@ -572,7 +582,7 @@ export const GeneralInfo = ({
                       name="excludeTagIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>EXCLUDE TAGS</Form.Label>
+                          <Form.Label>{t('exclude-tags')}</Form.Label>
                           <Form.Control>
                             <SelectTags
                               tagType="sales:product"
@@ -592,7 +602,7 @@ export const GeneralInfo = ({
                       name="excludeProductIds"
                       render={({ field }) => (
                         <Form.Item className="lg:col-span-2">
-                          <Form.Label>EXCLUDE PRODUCTS</Form.Label>
+                          <Form.Label>{t('exclude-products')}</Form.Label>
                           <Form.Control>
                             <SelectProduct
                               mode="multiple"
@@ -615,7 +625,7 @@ export const GeneralInfo = ({
                       name="bundleProductIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>PRODUCTS TO BUNDLE</Form.Label>
+                          <Form.Label>{t('products-to-bundle')}</Form.Label>
                           <Form.Control>
                             <SelectProduct
                               mode="multiple"

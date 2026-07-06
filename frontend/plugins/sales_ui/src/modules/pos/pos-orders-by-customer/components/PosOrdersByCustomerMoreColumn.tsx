@@ -3,19 +3,32 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { IPosOrdersByCustomer } from '@/pos/pos-orders-by-customer/types/posOrdersByCustomerType';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
 import { IconEye } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const PosOrdersByCustomerMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IPosOrdersByCustomer, unknown>;
 }) => {
+  const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const { posId } = useParams();
-  const { _id } = cell.row.original;
+  const { _id, customerDetail } = cell.row.original;
 
   const handleSeeOrders = (customerId: string) => {
     const newSearchParams = new URLSearchParams();
     newSearchParams.set('customer', customerId);
+
+    const detail: IPosOrdersByCustomer['customerDetail'] = customerDetail || {};
+    const displayName =
+      detail.primaryName ||
+      `${detail.firstName || ''} ${detail.lastName || ''}`.trim() ||
+      detail.primaryEmail ||
+      detail.primaryPhone ||
+      '';
+    if (displayName) {
+      newSearchParams.set('customerName', displayName);
+    }
 
     if (!posId) {
       navigate(`../orders?${newSearchParams.toString()}`);
@@ -38,7 +51,7 @@ export const PosOrdersByCustomerMoreColumnCell = ({
               onSelect={() => handleSeeOrders(_id)}
               disabled={!_id}
             >
-              <IconEye /> See Orders
+              <IconEye /> {t('see-orders')}
             </Command.Item>
           </Command.List>
         </Command>

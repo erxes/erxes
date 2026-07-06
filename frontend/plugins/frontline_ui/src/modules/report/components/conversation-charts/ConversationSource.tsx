@@ -28,6 +28,7 @@ import {
   YAxis,
 } from 'recharts';
 import { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ResponsesChartType, SourceData } from '@/report/types';
 import { useAtom } from 'jotai';
 import {
@@ -67,6 +68,7 @@ export const ConversationSource = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationSourceProps) => {
+  const { t } = useTranslation('frontline');
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
@@ -162,7 +164,7 @@ export const ConversationSource = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>
               {error.message || 'Failed to load conversation sources'}
             </Alert.Description>

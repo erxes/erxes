@@ -267,8 +267,8 @@ export const schemaWrapper = (schema: Schema) => {
   schema.add({ processId: { type: String, optional: true } });
 
   // Dynamic point-in-time-revert capture: auto-journal destructive writes for
-  // every wrapped schema with no per-model code. No-op unless REVERT_AUTO_JOURNAL
-  // is enabled (so the default behaviour of every schema is unchanged).
+  // every wrapped schema with no per-model code. Always on — every schema is
+  // journaled from boot so no change is ever silently left unrecoverable.
   installRevertCaptureHooks(schema);
 
   return schema;

@@ -82,6 +82,27 @@ export const loadProductSimilarityClass = (
       });
     }
 
+    const linkedIds = activeRows
+      .map((r) => r.productId)
+      .filter((id): id is string => !!id);
+
+    if (linkedIds.length) {
+      const linked = await models.Products.find({ _id: { $in: linkedIds } })
+        .select({ _id: 1, code: 1, similarityId: 1 })
+        .lean();
+
+      const owned = linked.filter(
+        (p) => p.similarityId && p.similarityId !== similarity._id,
+      );
+
+      if (owned.length) {
+        const codes = [...new Set(owned.map((p) => p.code))].join(', ');
+        throw new Error(
+          `Cannot save: these products already belong to another similarity group: ${codes}. Remove them from that group first.`,
+        );
+      }
+    }
+
     const newRowCodes = activeRows
       .filter((r) => !r.productId)
       .map((r) => r.code);
@@ -119,13 +140,6 @@ export const loadProductSimilarityClass = (
     let starProductId: string | undefined;
 
     for (const row of rows) {
-      if (row.isExcluded) {
-        if (row.productId) {
-          await models.Products.removeProducts([row.productId]);
-        }
-        continue;
-      }
-
       const reviveId = !row.productId
         ? reviveIdByCode.get(row.code)
         : undefined;
@@ -133,6 +147,7 @@ export const loadProductSimilarityClass = (
       const productDoc = {
         ...info,
         code: row.code,
+        name: row.name || info.name,
         unitPrice: row.unitPrice ?? info.unitPrice,
         propertiesData: row.propertiesData,
         similarityId: similarity._id,
@@ -213,7 +228,10 @@ export const loadProductSimilarityClass = (
       const similarity = await models.ProductSimilarities.getSimilarity(_id);
 
       if (similarity.productIds?.length) {
-        await models.Products.removeProducts(similarity.productIds);
+        await models.Products.updateMany(
+          { _id: { $in: similarity.productIds } },
+          { $unset: { similarityId: 1 } },
+        );
       }
 
       await models.ProductSimilarities.updateOne(

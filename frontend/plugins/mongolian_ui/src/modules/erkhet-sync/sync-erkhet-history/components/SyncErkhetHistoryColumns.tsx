@@ -7,7 +7,6 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
-  RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -16,9 +15,10 @@ import {
 import { ISyncHistory } from '../types/syncHistory';
 import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
 import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
+import { HeaderCell } from '../../components/HeaderCell';
 
-const stringify = (value: any) => {
-  if (!value) {
+const stringify = (value: unknown) => {
+  if (value == null) {
     return '';
   }
 
@@ -31,13 +31,10 @@ const stringify = (value: any) => {
 
 export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   SyncErkhetHistoryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<ISyncHistory>,
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
-    ),
+    header: () => <HeaderCell icon={IconCalendarPlus} label="created-at" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -51,7 +48,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="User" />,
+    header: () => <HeaderCell icon={IconHash} label="user" />,
     cell: ({ row }) => {
       const user = row.original.createdUser;
       const value =
@@ -67,9 +64,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'contentType',
     accessorKey: 'contentType',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Content Type" />
-    ),
+    header: () => <HeaderCell icon={IconCurrencyDollar} label="content-type" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -81,7 +76,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Content" />,
+    header: () => <HeaderCell icon={IconUser} label="content" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -93,9 +88,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'response',
     accessorKey: 'responseStr',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Response" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} label="response" />,
     cell: ({ row }) => {
       return (
         <SyncHistoryClickableColumnCell
@@ -110,7 +103,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'error',
     accessorKey: 'error',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
+    header: () => <HeaderCell icon={IconCategory} label="error" />,
     cell: ({ row }) => {
       return (
         <SyncHistoryClickableColumnCell

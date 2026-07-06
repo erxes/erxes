@@ -14,6 +14,7 @@ import { ProgressByAssignee } from './ProgressByAssignee';
 import { ProgressSource } from './ProgressSource';
 import { ProgressTags } from './ProgressTag';
 import { SelectReportDate } from './SelectReportDate';
+import { useTranslation } from 'react-i18next';
 
 export enum ConversationsSideWidgetTabsEnum {
   Assignee = 'assignee',
@@ -26,6 +27,7 @@ export const ConversationReportContent = ({
 }: {
   customerId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <>
       <div className="border-b">
@@ -34,7 +36,7 @@ export const ConversationReportContent = ({
             <Collapsible.Trigger asChild>
               <Button variant="secondary" size="sm">
                 <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90 size-3.5" />
-                Progress
+                {t('progress')}
               </Button>
             </Collapsible.Trigger>
             <SelectReportDate />
@@ -65,6 +67,7 @@ export const ConversationsSideWidgetTabs = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const [value, setValue] = useState<ConversationsSideWidgetTabsEnum>(
     ConversationsSideWidgetTabsEnum.Assignee,
   );
@@ -88,19 +91,19 @@ export const ConversationsSideWidgetTabs = ({
             value={ConversationsSideWidgetTabsEnum.Assignee}
             className="flex-auto"
           >
-            Assignee
+            {t('assignee')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ConversationsSideWidgetTabsEnum.Source}
             className="flex-auto"
           >
-            Source
+            {t('source')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ConversationsSideWidgetTabsEnum.Tag}
             className="flex-auto"
           >
-            Tag
+            {t('tag')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

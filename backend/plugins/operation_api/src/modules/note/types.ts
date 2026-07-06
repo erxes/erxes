@@ -5,6 +5,7 @@ export interface INote {
   contentId: string;
   createdBy: string;
   mentions?: string[];
+  statusId?: string;
 }
 
 export interface INoteDocument extends INote, Document {

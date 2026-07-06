@@ -52,7 +52,7 @@ export const collectEmails = async (
   const attributes = generateAttributesFromPlaceholders(
     normalizedMailPlaceHolder,
   );
-  if (!attributes.length) return [];
+  if (!attributes.length) return directEmails;
 
   const replacedContent = await replaceOutputPlaceholders({
     subdomain,

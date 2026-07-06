@@ -1,19 +1,40 @@
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 
+type EventFieldChange = {
+  prev?: unknown;
+  current?: unknown;
+};
+
+type EventUpdateDescription = {
+  updated?: Record<string, EventFieldChange>;
+};
+
 export const checkTriggerDealStageProbality = async ({
   models,
   target,
   config,
+  eventUpdateDescription,
 }: {
   models: IModels;
   target: IDeal;
   config: any;
+  eventUpdateDescription?: EventUpdateDescription;
 }) => {
   const { boardId, pipelineId, stageId, probability } = config || {};
 
   if (!probability) {
     return false;
+  }
+
+
+  const stageChange = eventUpdateDescription?.updated?.stageId as
+    | EventFieldChange
+    | undefined;
+  if (eventUpdateDescription) {
+    if (!stageChange || stageChange.prev === stageChange.current) {
+      return false;
+    }
   }
 
   const filter = { _id: target?.stageId, probability };
@@ -27,7 +48,7 @@ export const checkTriggerDealStageProbality = async ({
       probability,
     }).distinct('_id');
 
-    if (!stageIds.find((stageId) => target.stageId === stageId)) {
+    if (!stageIds.find((id) => target.stageId === String(id))) {
       return false;
     }
   }
@@ -42,7 +63,7 @@ export const checkTriggerDealStageProbality = async ({
       probability,
     }).distinct('_id');
 
-    if (!stageIds.find((stageId) => target.stageId === stageId)) {
+    if (!stageIds.find((id) => target.stageId === String(id))) {
       return false;
     }
   }

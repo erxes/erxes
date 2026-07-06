@@ -3,6 +3,7 @@ import { resetInstagramAddStateAtom } from '@/integrations/instagram/states/inst
 import { useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
 import { z } from 'zod';
 import {
@@ -13,6 +14,7 @@ import { instagramBotFormSchema } from '~/widgets/automations/modules/instagram/
 import { InstagramBotDetailQueryResponse } from '~/widgets/automations/modules/instagram/components/bots/types/instagramBotTypes';
 
 export const useInstagramBotSave = () => {
+  const { t } = useTranslation('frontline');
   const [instagramBotId] = useQueryState<string>('instagramBotId');
   const resetForm = useSetAtom(resetInstagramAddStateAtom);
 
@@ -29,13 +31,13 @@ export const useInstagramBotSave = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: 'Save successful',
+          title: t('save-successful'),
         });
       },
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: 'Something went wrong',
+          title: t('something-went-wrong'),
           description: error?.message,
         });
       },

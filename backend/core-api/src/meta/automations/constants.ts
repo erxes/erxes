@@ -8,11 +8,13 @@ import {
 import {
   AI_AGENT_ACTION_OUTPUT,
   FIND_OBJECT_ACTION_OUTPUT,
+  MESSAGE_PRO_ACTION_OUTPUT,
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
   SEND_EMAIL_ACTION_OUTPUT,
   TRANSFORM_ACTION_OUTPUT,
 } from './actionOutputs';
 import { CORE_FIND_OBJECT_TARGETS_CONST } from './findObjectTargets';
+import { CORE_PRODUCT_KNOWLEDGE_SOURCE_KEY } from '~/modules/products/meta/automations';
 import {
   COMPANY_TRIGGER_OUTPUT,
   CUSTOMER_TRIGGER_OUTPUT,
@@ -30,6 +32,16 @@ const CORE_ACTION_GROUPS = {
 
 export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
   findObjectTargets: CORE_FIND_OBJECT_TARGETS_CONST,
+  ai: {
+    knowledgeSources: [
+      {
+        key: CORE_PRODUCT_KNOWLEDGE_SOURCE_KEY,
+        label: 'Products',
+        moduleName: 'products',
+        sourceSelector: 'local',
+      },
+    ],
+  },
   triggers: [
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.INCOMING_WEBHOOK,
@@ -197,6 +209,15 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       allowTargetFromActions: true,
       output: OUTGOING_WEBHOOK_ACTION_OUTPUT,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.MESSAGE_PRO,
+      icon: 'IconFileText',
+      label: 'Message Pro',
+      description: 'Render a selected document with the target record.',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      allowTargetFromActions: true,
+      output: MESSAGE_PRO_ACTION_OUTPUT,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.AI_AGENT,

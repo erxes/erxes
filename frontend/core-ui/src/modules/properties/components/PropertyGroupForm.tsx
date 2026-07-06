@@ -1,5 +1,6 @@
 import { Button, Form, Input, Sheet, Spinner } from 'erxes-ui';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { IPropertyGroupForm } from '../types/Properties';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { propertyGroupSchema } from '../propertySchema';
@@ -19,6 +20,7 @@ export const PropertyGroupForm = ({
   defaultValues: IPropertyGroupForm;
   onCancel: () => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
   const form = useForm<IPropertyGroupForm>({
     resolver: zodResolver(propertyGroupSchema),
@@ -37,10 +39,12 @@ export const PropertyGroupForm = ({
       >
         <Sheet.Header>
           <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-            Add Group
+            {isEdit ? t('edit-group', 'Edit Group') : t('add-group', 'Add Group')}
           </Sheet.Title>
           <Sheet.Description className="sr-only">
-            Add a new group for the content type {type}
+            {t('group-description', 'Add a new group for the content type {{type}}', {
+              type,
+            })}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
@@ -49,12 +53,12 @@ export const PropertyGroupForm = ({
             name="name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Group Name</Form.Label>
+                <Form.Label>{t('group-name', 'Group Name')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     type="text"
-                    placeholder="Enter group name"
+                    placeholder={t('enter-group-name', 'Enter group name')}
                     className="input"
                   />
                 </Form.Control>
@@ -67,12 +71,12 @@ export const PropertyGroupForm = ({
             name="code"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Code</Form.Label>
+                <Form.Label>{t('code', 'Code')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     type="text"
-                    placeholder="Enter group code"
+                    placeholder={t('enter-group-code', 'Enter group code')}
                     className="input"
                   />
                 </Form.Control>
@@ -83,11 +87,11 @@ export const PropertyGroupForm = ({
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant={'ghost'} onClick={onCancel}>
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={loading}>
             {loading ? <Spinner /> : isEdit ? <IconPencil /> : <IconPlus />}
-            {isEdit ? 'Update' : 'Create'}
+            {isEdit ? t('update', 'Update') : t('create', 'Create')}
           </Button>
         </Sheet.Footer>
       </form>

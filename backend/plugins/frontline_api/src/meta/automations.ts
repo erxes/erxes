@@ -6,6 +6,10 @@ import { inboxAutomationConstants } from '@/inbox/meta/automation/constants';
 import { inboxAutomationWorkers } from '@/inbox/meta/automation/workers';
 import { discordConstants } from '@/integrations/discord/meta/automation/constants';
 import { discordAutomationWorkers } from '@/integrations/discord/meta/automation/workers';
+import {
+  frontlineAiKnowledgeProvider,
+  FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY,
+} from '@/knowledgebase/meta/automations';
 
 import {
   AutomationConfigs,
@@ -22,11 +26,13 @@ const modules = {
   inbox: inboxAutomationWorkers,
   tickets: ticketAutomationProducers,
   discord: discordAutomationWorkers,
+  knowledgebase: frontlineAiKnowledgeProvider,
 };
 
 export const automations = {
   constants: {
     actions: [
+      ...inboxAutomationConstants.actions,
       ...facebookConstants.actions,
       ...instagramConstants.actions,
       ...ticketsAutomationContants.actions,
@@ -40,6 +46,16 @@ export const automations = {
       ...discordConstants.triggers,
     ],
     bots: [...facebookConstants.bots, ...instagramConstants.bots],
+    ai: {
+      knowledgeSources: [
+        {
+          key: FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY,
+          label: 'Knowledge base articles',
+          moduleName: 'knowledgebase',
+          sourceSelector: 'remote-module',
+        },
+      ],
+    },
   },
 
   receiveActions: createCoreModuleProducerHandler({
@@ -68,6 +84,13 @@ export const automations = {
     moduleName: 'automations',
     modules,
     methodName: TAutomationProducers.GENERATE_AI_CONTEXT,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
+  loadAiKnowledgeDocumentBatch: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH,
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),

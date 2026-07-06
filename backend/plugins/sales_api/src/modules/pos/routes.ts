@@ -127,6 +127,7 @@ export const getProductsData = async (
 
     for (const category of productCategories) {
       categories.push({
+        ...category,
         _id: category._id,
         name: category.name,
         description: category.description,
@@ -135,6 +136,7 @@ export const getProductsData = async (
         order: category.order,
         attachment: category.attachment,
         meta: category.meta,
+        status: category.status,
         isSimilarity: category.isSimilarity,
         similarities: category.similarities,
       });
@@ -318,4 +320,27 @@ export const posSyncConfig = async (req, res) => {
   }
 
   return res.send({ error: 'wrong type' });
+};
+
+export const getPosToken = async (req, res) => {
+  const token = req.query.GET_CP_TOKEN as string;
+
+  if (!token) {
+    return res.status(400).json({ error: 'GET_CP_TOKEN is required' });
+  }
+
+  if (token !== process.env.GET_CP_TOKEN) {
+    return res.status(401).json({ error: 'Invalid GET_CP_TOKEN' });
+  }
+
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+
+  const pos = await models.Pos.findOne({ isOnline: true }).lean();
+
+  if (!pos) {
+    return res.status(404).json({ error: 'POS not found' });
+  }
+
+  return res.status(200).json({ token: pos.token });
 };

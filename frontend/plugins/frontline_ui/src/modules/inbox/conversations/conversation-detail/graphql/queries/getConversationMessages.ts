@@ -25,6 +25,8 @@ export const GET_CONVERSATION_MESSAGES = gql`
       isCustomerRead
       userId
       customerId
+      fromBot
+      botData
     }
     conversationMessagesTotalCount(conversationId: $conversationId)
   }

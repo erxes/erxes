@@ -7,8 +7,13 @@ import { Model } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
-import { PRODUCT_STATUSES } from '@/products/constants';
+import {
+  PRODUCT_DURATION_TYPES,
+  PRODUCT_STATUSES,
+  PRODUCT_TYPES,
+} from '@/products/constants';
 import { productSchema } from '@/products/db/definitions/products';
+import { refreshProductKnowledge } from '@/products/meta/automations';
 import {
   checkCodeMask,
   checkSameMaskConfig,
@@ -25,6 +30,10 @@ export interface IProductModel extends Model<IProductDocument> {
     _id: string,
     doc: IProduct,
   ): Promise<IProductDocument | null>;
+  updateProducts(
+    query: any,
+    doc: IProduct,
+  ): Promise<{ n: number; nModified: number; ok: number }>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
     productIds: string[],
@@ -38,7 +47,151 @@ export const loadProductClass = (
   subdomain: string,
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
+  type ProductArrayReference = {
+    model: keyof Pick<IModels, 'ProductRules' | 'ProductSimilarities'>;
+    path: string;
+  };
+
+  const replaceArrayReferences = async (
+    { model, path }: ProductArrayReference,
+    oldIds: string[],
+    newId: string,
+  ) => {
+    await models[model].updateMany(
+      { [path]: { $in: oldIds } },
+      { $addToSet: { [path]: newId } },
+    );
+
+    await models[model].updateMany(
+      { [path]: { $in: oldIds } },
+      { $pull: { [path]: { $in: oldIds } } },
+    );
+  };
+
+  const updateProductMergeReferences = async (
+    oldProductIds: string[],
+    newProductId: string,
+  ) => {
+    await models.Conformities.changeConformity({
+      type: 'product',
+      newTypeId: newProductId,
+      oldTypeIds: oldProductIds,
+    });
+
+    await models.Relations.updateMany(
+      {
+        entities: {
+          $elemMatch: {
+            contentType: 'core:product',
+            contentId: { $in: oldProductIds },
+          },
+        },
+      },
+      {
+        $set: {
+          'entities.$[entity].contentId': newProductId,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'entity.contentType': 'core:product',
+            'entity.contentId': { $in: oldProductIds },
+          },
+        ],
+      },
+    );
+
+    await replaceArrayReferences(
+      { model: 'ProductRules', path: 'productIds' },
+      oldProductIds,
+      newProductId,
+    );
+    await replaceArrayReferences(
+      { model: 'ProductRules', path: 'excludeProductIds' },
+      oldProductIds,
+      newProductId,
+    );
+    await replaceArrayReferences(
+      { model: 'ProductSimilarities', path: 'productIds' },
+      oldProductIds,
+      newProductId,
+    );
+
+    await models.ProductSimilarities.updateMany(
+      { starProductId: { $in: oldProductIds } },
+      { $set: { starProductId: newProductId } },
+    );
+
+    await models.BundleRule.updateMany(
+      { 'rules.productIds': { $in: oldProductIds } },
+      { $addToSet: { 'rules.$[rule].productIds': newProductId } },
+      { arrayFilters: [{ 'rule.productIds': { $in: oldProductIds } }] },
+    );
+
+    await models.BundleRule.updateMany(
+      { 'rules.productIds': { $in: oldProductIds } },
+      { $pull: { 'rules.$[rule].productIds': { $in: oldProductIds } } },
+      { arrayFilters: [{ 'rule.productIds': { $in: oldProductIds } }] },
+    );
+
+    await models.Packages.updateMany(
+      { 'products.productId': { $in: oldProductIds } },
+      { $set: { 'products.$[product].productId': newProductId } },
+      { arrayFilters: [{ 'product.productId': { $in: oldProductIds } }] },
+    );
+  };
+
   class Product {
+    private static normalizeDuration(
+      doc: IProduct,
+      currentProduct?: IProductDocument,
+    ) {
+      const type = doc.type || currentProduct?.type || PRODUCT_TYPES.PRODUCT;
+      const duration = doc.duration ?? currentProduct?.duration;
+      const durationType = doc.durationType ?? currentProduct?.durationType;
+
+      if (type !== PRODUCT_TYPES.UNIQUE) {
+        delete doc.duration;
+        delete doc.durationType;
+        return false;
+      }
+
+      if (
+        typeof duration !== 'number' ||
+        !Number.isFinite(duration) ||
+        duration <= 0
+      ) {
+        throw new Error('Duration must be greater than 0 for unique products');
+      }
+
+      if (!durationType || !PRODUCT_DURATION_TYPES.ALL.includes(durationType)) {
+        throw new Error(
+          'A valid duration type is required for unique products',
+        );
+      }
+
+      if (doc.duration !== undefined) {
+        doc.duration = duration;
+      }
+
+      if (doc.durationType !== undefined) {
+        doc.durationType = durationType;
+      }
+
+      return true;
+    }
+
+    private static async refreshKnowledge(productIds: string[]) {
+      try {
+        await refreshProductKnowledge({ subdomain, productIds });
+      } catch (error) {
+        console.error(
+          `Failed to refresh product knowledge: ${(error as Error).message}`,
+        );
+      }
+    }
+
     /**
      * Get Product
      */
@@ -56,6 +209,8 @@ export const loadProductClass = (
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
+      this.normalizeDuration(doc);
+
       doc.code = doc.code
         .replace(/\*/g, '')
         .replace(/_/g, '')
@@ -124,6 +279,9 @@ export const loadProductClass = (
         },
         changes: {},
       });
+
+      await this.refreshKnowledge([product._id]);
+
       return product;
     }
 
@@ -144,6 +302,7 @@ export const loadProductClass = (
 
     public static async updateProductFromBulk(_id: string, doc: IProduct) {
       const product = await models.Products.getProduct({ _id });
+      const keepsDuration = this.normalizeDuration(doc, product);
 
       const category = await models.ProductCategories.getProductCategory({
         _id: doc.categoryId || product.categoryId,
@@ -176,7 +335,15 @@ export const loadProductClass = (
         ...doc,
       });
 
-      await models.Products.updateOne({ _id }, { $set: doc });
+      await models.Products.updateOne(
+        { _id },
+        keepsDuration
+          ? { $set: doc }
+          : {
+              $set: doc,
+              $unset: { duration: 1, durationType: 1 },
+            },
+      );
 
       const updatedProduct = await models.Products.findOne({ _id }).lean();
       if (updatedProduct) {
@@ -192,8 +359,68 @@ export const loadProductClass = (
           models,
           createActivityLog,
         );
+
+        await this.refreshKnowledge([updatedProduct._id]);
       }
+
       return updatedProduct;
+    }
+
+    public static async updateProducts(query: any, doc: IProduct) {
+      const products = await models.Products.find(query).lean();
+
+      const result = await models.Products.updateMany(query, { $set: doc });
+
+      const updatedProducts = await models.Products.find({
+        _id: { $in: products.map((product) => product._id) },
+      }).lean();
+      const updatedById = new Map(
+        updatedProducts.map((product) => [product._id, product]),
+      );
+
+      const isDeleting = doc.status === PRODUCT_STATUSES.DELETED;
+
+      sendDbEventLog({
+        action: 'updateMany',
+        docIds: products.map((product) => product._id),
+        updateDescription: doc,
+      });
+
+      for (const product of products) {
+        const updatedProduct = updatedById.get(product._id);
+
+        if (!updatedProduct) {
+          continue;
+        }
+
+        if (isDeleting) {
+          if (product.status === PRODUCT_STATUSES.DELETED) {
+            createActivityLog({
+              activityType: 'delete',
+              target: {
+                _id: product._id,
+              },
+              action: {
+                type: 'delete',
+                description: 'Product deleted',
+              },
+              changes: {},
+            });
+          }
+          continue;
+        }
+
+        generateProductUpdateActivityLogs(
+          product,
+          updatedProduct,
+          models,
+          createActivityLog,
+        );
+      }
+
+      await this.refreshKnowledge(products.map((product) => product._id));
+
+      return result;
     }
 
     public static async removeProducts(_ids: string[]) {
@@ -231,6 +458,21 @@ export const loadProductClass = (
           docIds: updated.map((d) => d._id),
           updateDescription: { status: PRODUCT_STATUSES.DELETED },
         });
+        for (const product of toUpdate) {
+          if (product.status !== PRODUCT_STATUSES.DELETED) {
+            createActivityLog({
+              activityType: 'delete',
+              target: {
+                _id: product._id,
+              },
+              action: {
+                type: 'delete',
+                description: 'Product deleted',
+              },
+              changes: {},
+            });
+          }
+        }
         response = 'updated';
       }
 
@@ -244,8 +486,23 @@ export const loadProductClass = (
             action: 'deleteMany',
             docIds: toDelete.map((d) => d._id),
           });
+          for (const product of toDelete) {
+            createActivityLog({
+              activityType: 'delete',
+              target: {
+                _id: product._id,
+              },
+              action: {
+                type: 'delete',
+                description: 'Product deleted',
+              },
+              changes: {},
+            });
+          }
         }
       }
+
+      await this.refreshKnowledge(_ids);
 
       return response;
     }
@@ -257,7 +514,15 @@ export const loadProductClass = (
       const fields = ['name', 'code', 'unitPrice', 'categoryId', 'type'];
 
       for (const field of fields) {
-        if (!productFields[field]) {
+        const value = productFields[field];
+        // unitPrice may legitimately be 0 (e.g. services), so only treat
+        // null/undefined/empty as missing for it
+        const isMissing =
+          field === 'unitPrice'
+            ? value === undefined || value === null || (value as any) === ''
+            : !value;
+
+        if (isMissing) {
           throw new Error(
             `Can not merge products. Must choose ${field} field.`,
           );
@@ -328,6 +593,9 @@ export const loadProductClass = (
         categoryId,
         vendorId,
       });
+
+      await updateProductMergeReferences(productIds, product._id);
+      await this.refreshKnowledge(productIds);
 
       return product;
     }

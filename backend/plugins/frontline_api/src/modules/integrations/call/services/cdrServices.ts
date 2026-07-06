@@ -7,6 +7,8 @@ import {
   extractOperatorId,
   findOrCreateCdr,
   getConversationContent,
+  isHumanAnsweredLeg,
+  parseCdrDate,
 } from '@/integrations/call/services/cdrUtils';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
@@ -31,8 +33,6 @@ export const receiveCdr = async (
       ],
     }));
   if (!integration) return;
-
-  const inboxId = integration.inboxId;
 
   if (params.uniqueid) {
     const lockKey = `${subdomain}:call:session:${params.uniqueid}`;
@@ -101,12 +101,26 @@ const processCdrLocked = async (
     }
   }
 
+  const isAnsweredLeg = isHumanAnsweredLeg(params);
+  const ownerForConversation = isAnsweredLeg ? operatorPhone : undefined;
+
   let conversationId;
+  let isNewConversation = false;
 
   let existingSession: any = null;
   if (params.uniqueid) {
+    const sessionSelectors: any[] = [
+      { uniqueid: params.uniqueid },
+      { linkedid: params.uniqueid },
+    ];
+    if (params.linkedid) {
+      sessionSelectors.push(
+        { uniqueid: params.linkedid },
+        { linkedid: params.linkedid },
+      );
+    }
     existingSession = await models.CallSessions.findOne({
-      $or: [{ uniqueid: params.uniqueid }, { linkedid: params.uniqueid }],
+      $or: sessionSelectors,
     });
     if (existingSession?.conversationId) {
       conversationId = existingSession.conversationId;
@@ -117,7 +131,7 @@ const processCdrLocked = async (
         conversationId,
         content,
         updatedAt: new Date(),
-        owner: operatorPhone || '',
+        owner: ownerForConversation,
         integrationId: inboxId,
       };
       if (customer) payload.customerId = customer?.erxesApiId;
@@ -125,42 +139,59 @@ const processCdrLocked = async (
     }
   }
 
+  const cdrUniqueids = [params.uniqueid, params.linkedid].filter(Boolean);
   const existingCdr = await models.CallCdrs.findOne({
-    uniqueid: params.uniqueid,
+    uniqueid: { $in: cdrUniqueids },
     conversationId: { $exists: true, $ne: '' },
     inboxIntegrationId: inboxId,
   }).sort({ createdAt: 1 });
 
   let followmeCdr: any = null;
-  if (!existingCdr && params.action_type?.includes('FOLLOWME')) {
-    const [datePart, timePart] = params.start.split(' ');
-    const cdrStart = new Date(`${datePart}T${timePart}+08:00`);
-    const fmRangeStart = new Date(cdrStart.getTime() - 300 * 1000);
-    const fmRangeEnd = new Date(cdrStart.getTime() + 300 * 1000);
+  if (!existingCdr) {
+    const isFollowmeLeg = !!params.action_type?.includes('FOLLOWME');
+    const legStart = parseCdrDate(params.start) || null;
+    const legEnd = parseCdrDate(params.end) || legStart;
 
-    followmeCdr = await models.CallCdrs.findOne({
-      $or: [{ src: primaryPhone }, { dst: primaryPhone }],
-      conversationId: { $exists: true, $ne: '' },
-      inboxIntegrationId: inboxId,
-      createdAt: { $gte: fmRangeStart, $lte: fmRangeEnd },
-    }).sort({ createdAt: -1 });
+    const shouldCheck = isFollowmeLeg || params.userfield !== 'Outbound';
 
-    if (followmeCdr) {
-      debugCall(
-        `FOLLOWME merge: reusing conversation ${followmeCdr.conversationId} ` +
-          `from CDR ${followmeCdr._id} for phone=${primaryPhone}`,
-      );
+    if (shouldCheck && legStart && !isNaN(legStart.getTime()) && legEnd) {
+      const bufferMs = 60 * 1000;
+      const overlapSelector: Record<string, any> = {
+        $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+        conversationId: { $exists: true, $ne: '' },
+        inboxIntegrationId: inboxId,
+        start: { $lte: new Date(legEnd.getTime() + bufferMs) },
+        end: { $gte: new Date(legStart.getTime() - bufferMs) },
+      };
+      if (!isFollowmeLeg) {
+        overlapSelector.actionType = { $regex: 'FOLLOWME' };
+      }
+
+      followmeCdr = await models.CallCdrs.findOne(overlapSelector).sort({
+        start: -1,
+      });
+
+      if (followmeCdr) {
+        debugCall(
+          `FOLLOWME merge: reusing conversation ${followmeCdr.conversationId} ` +
+            `from overlapping CDR ${followmeCdr._id} for phone=${primaryPhone}`,
+        );
+      }
     }
   }
 
   if (conversationId) {
+    console.log(
+      'conversationId already exists, updating erxes conversation with new content and owner',
+      conversationId,
+    );
   } else if (existingCdr || followmeCdr) {
     conversationId = existingCdr?.conversationId || followmeCdr?.conversationId;
     const payload = {
       conversationId,
       content: content,
       updatedAt: new Date(),
-      owner: operatorPhone || '',
+      owner: ownerForConversation,
       integrationId: inboxId,
     } as any;
     if (customer) {
@@ -168,69 +199,13 @@ const processCdrLocked = async (
     }
     await createOrUpdateErxesConversation(subdomain, payload);
   } else {
-    const [datePart, timePart] = params.start.split(' ');
-    const localTimeString = `${datePart}T${timePart}+08:00`;
-    const localStart = new Date(localTimeString);
-    const startDate = new Date(localStart.getTime());
-    const rangeSeconds = extension ? 60 : 30;
-    const startTime = new Date(startDate.getTime() - rangeSeconds * 1000);
-    const endTime = new Date(startDate.getTime() + rangeSeconds * 1000);
-
-    const baseSelector: Record<string, any> = {
-      customerPhone: primaryPhone,
-      createdAt: { $gte: startTime, $lte: endTime },
-    };
-
-    let callHistory: any = null;
-    if (extension) {
-      callHistory = await models.CallHistory.findOne({
-        ...baseSelector,
-        extensionNumber: extension,
-      })
-        .sort({ createdAt: -1 })
-        .lean();
-    }
-
-    if (!callHistory) {
-      callHistory = await models.CallHistory.findOne(baseSelector)
-        .sort({ createdAt: -1 })
-        .lean();
-    }
-
-    debugCall(
-      `CDR match: phone=${primaryPhone}, ext=${extension}, ` +
-        `range=${startTime.toISOString()}~${endTime.toISOString()}, ` +
-        `found=${!!callHistory}, historyId=${callHistory?._id || 'none'}`,
-    );
-
-    let resolvedConversationId = callHistory?.conversationId || '';
-
-    if (!resolvedConversationId) {
-      const fiveMinAgo = new Date(startDate.getTime() - 300 * 1000);
-
-      const recentCdr = await models.CallCdrs.findOne({
-        $or: [{ src: primaryPhone }, { dst: primaryPhone }],
-        conversationId: { $exists: true, $ne: '' },
-        inboxIntegrationId: inboxId,
-        createdAt: { $gte: fiveMinAgo },
-      }).sort({ createdAt: -1 });
-
-      if (recentCdr) {
-        resolvedConversationId = recentCdr.conversationId;
-        debugCall(
-          `Reusing recent conversation ${resolvedConversationId} ` +
-            `for repeated call from phone=${primaryPhone}`,
-        );
-      }
-    }
-
     const erxesPayload = {
       customerId: customer?.erxesApiId,
       integrationId: inboxId,
       content: content,
-      conversationId: resolvedConversationId,
+      conversationId: '',
       updatedAt: new Date(),
-      owner: operatorPhone || '',
+      owner: ownerForConversation,
     };
 
     const newErxesConversation = await createOrUpdateErxesConversation(
@@ -240,6 +215,7 @@ const processCdrLocked = async (
 
     if (newErxesConversation.status === 'success') {
       conversationId = newErxesConversation?.data._id;
+      isNewConversation = true;
     }
   }
 
@@ -247,7 +223,7 @@ const processCdrLocked = async (
     throw new Error('Failed to find or create a conversation ID.');
   }
 
-  const cdr = await findOrCreateCdr(
+  const { cdr, created } = await findOrCreateCdr(
     models,
     subdomain,
     params,
@@ -255,23 +231,48 @@ const processCdrLocked = async (
     conversationId,
   );
 
-  const doc = {
-    ...cdr.toObject(),
-    conversationId: cdr.conversationId,
-  };
-  await pConversationClientMessageInserted(subdomain, doc);
+  if (created && isNewConversation) {
+    const doc = {
+      ...cdr.toObject(),
+      conversationId: cdr.conversationId,
+    };
+    await pConversationClientMessageInserted(subdomain, doc);
+  }
 
   if (params.uniqueid) {
     const sessionUniqueid = existingSession?.uniqueid || params.uniqueid;
     try {
+      const candidateExtensions = [
+        extension,
+        matchedOperator?.gsUsername,
+        params.dstchannel_ext,
+        params.channel_ext,
+        params.dstanswer,
+        params.new_src,
+        params.userfield === 'Outbound' ? params.src : params.dst,
+      ].filter(Boolean);
+
+      let opForExt: any = null;
+      let operatorExtension: string | undefined;
+      for (const candidate of candidateExtensions) {
+        const op = integration.operators.find(
+          (o: any) => o.gsUsername === candidate,
+        );
+        if (op) {
+          opForExt = op;
+          operatorExtension = candidate;
+          break;
+        }
+      }
+      if (!operatorExtension) {
+        operatorExtension = extension || matchedOperator?.gsUsername;
+      }
+      const operatorUserId = opForExt?.userId || matchedOperator?.userId;
+
       if (!existingSession) {
         const direction =
           params.userfield === 'Outbound' ? 'outgoing' : 'incoming';
-        let startedAt: Date | undefined;
-        if (params.start) {
-          const [sd, st] = params.start.split(' ');
-          startedAt = new Date(`${sd}T${st}+08:00`);
-        }
+        const startedAt = parseCdrDate(params.start);
 
         await models.CallSessions.upsertSession({
           uniqueid: sessionUniqueid,
@@ -285,67 +286,39 @@ const processCdrLocked = async (
           ...(startedAt ? { startedAt } : {}),
           source: 'cdr',
         });
+      }
 
-        const candidateExtensions = [
-          extension,
-          matchedOperator?.gsUsername,
-          params.dstchannel_ext,
-          params.channel_ext,
-          params.dstanswer,
-          params.new_src,
-          params.userfield === 'Outbound' ? params.src : params.dst,
-        ].filter(Boolean);
-
-        let opForExt: any = null;
-        let operatorExtension: string | undefined;
-        for (const candidate of candidateExtensions) {
-          const op = integration.operators.find(
-            (o: any) => o.gsUsername === candidate,
+      if (operatorExtension) {
+        if (isAnsweredLeg) {
+          await models.CallSessions.markAnswered(
+            sessionUniqueid,
+            operatorExtension,
+            operatorUserId,
           );
-          if (op) {
-            opForExt = op;
-            operatorExtension = candidate;
-            break;
-          }
-        }
-        if (!operatorExtension) {
-          operatorExtension = extension || matchedOperator?.gsUsername;
-        }
-
-        if (operatorExtension) {
-          const operatorUserId = opForExt?.userId || matchedOperator?.userId;
-          const answered =
-            (params.disposition || '').toUpperCase() === 'ANSWERED' &&
-            Number(params.billsec) > 0;
-
-          if (answered) {
-            await models.CallSessions.markAnswered(
-              sessionUniqueid,
-              operatorExtension,
-              operatorUserId,
-            );
-          } else {
-            await models.CallSessions.attachOperator(sessionUniqueid, {
-              extensionNumber: operatorExtension,
-              userId: operatorUserId,
-              state: 'noanswer',
-            });
-          }
+        } else if (!existingSession) {
+          await models.CallSessions.attachOperator(sessionUniqueid, {
+            extensionNumber: operatorExtension,
+            userId: operatorUserId,
+            state: 'noanswer',
+          });
         }
       }
 
-      const endedAt = params.end
-        ? (() => {
-            const [d, t] = params.end.split(' ');
-            return new Date(`${d}T${t}+08:00`);
-          })()
-        : new Date();
+      const endedAt = parseCdrDate(params.end) || new Date();
+
+      const legDisposition = isAnsweredLeg
+        ? 'ANSWERED'
+        : (params.disposition || '').toUpperCase() === 'ANSWERED'
+        ? 'NO ANSWER'
+        : params.disposition;
 
       await models.CallSessions.markEnded(sessionUniqueid, {
         endedAt,
-        durationSec: Number(params.billsec || params.duration) || undefined,
-        hangupCause: params.disposition,
-        disposition: params.disposition,
+        durationSec: isAnsweredLeg
+          ? Number(params.billsec) || undefined
+          : undefined,
+        hangupCause: legDisposition,
+        disposition: legDisposition,
         recordUrl: cdr.recordUrl,
         cdrAcctId: cdr.acctId,
       });

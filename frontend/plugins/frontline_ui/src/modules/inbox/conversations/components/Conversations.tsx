@@ -76,6 +76,7 @@ export const Conversations = () => {
     status,
     created,
     brandId,
+    searchValue,
   } = useNonNullMultiQueryState<{
     channelId: string;
     integrationId: string;
@@ -85,6 +86,7 @@ export const Conversations = () => {
     conversationId: string;
     created: string;
     brandId: string;
+    searchValue: string;
   }>([
     'channelId',
     'integrationId',
@@ -94,6 +96,7 @@ export const Conversations = () => {
     'conversationId',
     'created',
     'brandId',
+    'searchValue',
   ]);
 
   const parsedDate = parseDateRangeFromString(created || '');
@@ -110,6 +113,7 @@ export const Conversations = () => {
         startDate: parsedDate?.from,
         endDate: parsedDate?.to,
         brandId,
+        searchValue,
         cursorMode: EnumCursorMode.INCLUSIVE,
       },
     });

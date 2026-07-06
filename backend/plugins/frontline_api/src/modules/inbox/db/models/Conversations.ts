@@ -2,6 +2,7 @@ import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import {
   IConversation,
   IConversationDocument,
+  TAutomatedReplyControl,
 } from '@/inbox/@types/conversations';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { conversationSchema } from '@/inbox/db/definitions/conversations';
@@ -13,6 +14,10 @@ export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): Promise<IConversationDocument>;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
   updateConversation(_id: string, doc): Promise<IConversationDocument>;
+  setAutomatedReplyControl(
+    _id: string,
+    doc: TAutomatedReplyControl,
+  ): Promise<IConversationDocument | null>;
   checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
 
@@ -134,6 +139,32 @@ export const loadClass = (models: IModels) => {
       // clean custom field values
 
       return models.Conversations.updateOne({ _id }, { $set: doc });
+    }
+
+    public static async setAutomatedReplyControl(
+      _id: string,
+      doc: TAutomatedReplyControl,
+    ) {
+      await models.Conversations.updateOne(
+        { _id },
+        {
+          $set: {
+            automatedReplyControl: {
+              ...doc,
+              updatedAt: new Date(),
+            },
+          },
+        },
+      );
+
+      await graphqlPubsub.publish(`conversationChanged:${_id}`, {
+        conversationChanged: {
+          conversationId: _id,
+          type: 'automatedReplyControlChanged',
+        },
+      });
+
+      return models.Conversations.findOne({ _id });
     }
 
     /*

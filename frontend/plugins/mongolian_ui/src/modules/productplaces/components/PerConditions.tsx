@@ -1,4 +1,5 @@
-import { Button, Input, Label, Select, } from 'erxes-ui';
+import { Button, Input, Label, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import SelectDepartments from '../selects/SelectDepartments';
 import SelectBranches from '../selects/SelectBranches';
@@ -16,7 +17,13 @@ type Props = {
 
 const CLEAR_VALUE = '__clear__';
 
-const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props) => {
+const PerConditions = ({
+  condition,
+  onChange,
+  onRemove,
+  onAddCondition,
+}: Props) => {
+  const { t } = useTranslation('mongolian');
   const onChangeConfig = (key: string, value: any) => {
     onChange(condition.id, { ...condition, [key]: value });
   };
@@ -26,12 +33,12 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
   };
 
   return (
-    <div className="rounded border p-4 space-y-6 bg-white">
+    <div className="rounded border p-4 space-y-6">
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Product Category
+              {t('product-category')}
             </Label>
             <SelectCategory
               value={condition.productCategoryIds ?? []}
@@ -41,7 +48,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Exclude categories
+              {t('exclude-categories')}
             </Label>
             <SelectCategory
               value={condition.excludeCategoryIds ?? []}
@@ -51,7 +58,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Product Tags
+              {t('product-tags')}
             </Label>
             <SelectProductTags
               value={condition.productTagIds ?? []}
@@ -61,7 +68,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Exclude tags
+              {t('exclude-tags')}
             </Label>
             <SelectProductTags
               value={condition.excludeTagIds ?? []}
@@ -71,7 +78,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Exclude products
+              {t('exclude-products')}
             </Label>
             <SelectProducts
               value={condition.excludeProductIds ?? []}
@@ -81,12 +88,14 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Segment
+              {t('segment')}
             </Label>
             <SelectSegments
               contentTypes={['core:product']}
               value={condition.segmentId || ''}
-              onValueChange={(segmentId) => onChangeConfig('segmentId', segmentId)}
+              onValueChange={(segmentId) =>
+                onChangeConfig('segmentId', segmentId)
+              }
             />
           </div>
         </div>
@@ -94,7 +103,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
         <div className="space-y-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Low Count
+              {t('low-count')}
             </Label>
             <Input
               type="number"
@@ -105,7 +114,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Great Count
+              {t('great-count')}
             </Label>
             <Input
               type="number"
@@ -116,7 +125,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Low Unit Price
+              {t('low-unit-price')}
             </Label>
             <Input
               type="number"
@@ -127,7 +136,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Great Unit Price
+              {t('great-unit-price')}
             </Label>
             <Input
               type="number"
@@ -138,7 +147,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Sub uom type
+              {t('sub-uom-type')}
             </Label>
             <Select
               value={condition.subUomType ?? ''}
@@ -147,13 +156,13 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
               }
             >
               <Select.Trigger>
-                <Select.Value placeholder="Not use" />
+                <Select.Value placeholder={t('not-use')} />
               </Select.Trigger>
 
               <Select.Content>
-                <Select.Item value={CLEAR_VALUE}>Not use</Select.Item>
-                <Select.Item value="lt">Low than count</Select.Item>
-                <Select.Item value="gte">Greater, equal than count</Select.Item>
+                <Select.Item value={CLEAR_VALUE}>{t('not-use')}</Select.Item>
+                <Select.Item value="lt">{t('low-than-count')}</Select.Item>
+                <Select.Item value="gte">{t('greater-equal-than-count')}</Select.Item>
               </Select.Content>
             </Select>
           </div>
@@ -164,7 +173,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Set branch
+              {t('set-branch')}
             </Label>
             <SelectBranches
               value={condition.branchId || ''}
@@ -175,7 +184,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
 
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
-              Set department
+              {t('set-department')}
             </Label>
             <SelectDepartments
               value={condition.departmentId || ''}
@@ -196,7 +205,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
             className="h-6 px-4"
             onClick={onAddCondition}
           >
-            + Add Condition
+            + {t('add-condition')}
           </Button>
         )}
         <Button
@@ -206,7 +215,7 @@ const PerConditions = ({ condition, onChange, onRemove, onAddCondition }: Props)
           onClick={() => onRemove(condition.id)}
         >
           <IconTrash size={16} className="" />
-          Delete
+          {t('delete')}
         </Button>
       </div>
     </div>

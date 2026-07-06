@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import SelectBranches from '../selects/SelectBranches';
 import SelectDepartments from '../selects/SelectDepartments';
@@ -11,6 +12,7 @@ type Props = {
 };
 
 const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
+  const { t } = useTranslation('mongolian');
   const onChangeConfig = (key: string, value: any) => {
     onChange(condition.id, { ...condition, [key]: value });
   };
@@ -41,7 +43,7 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
           size="sm"
           onClick={() => onRemove(condition.id)}
         >
-          ✕ Delete Condition
+          ✕ {t('delete-condition')}
         </Button>
       </div>
     </div>

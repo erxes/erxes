@@ -1,6 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -35,6 +36,7 @@ export const AmenityCreateSheet = ({
   onOpenChange,
   showTrigger = true,
 }: AmenityCreateSheetProps) => {
+  const { t } = useTranslation('tourism');
   const [internalOpen, setInternalOpen] = useState(false);
 
   const isControlled = typeof open === 'boolean';
@@ -106,9 +108,8 @@ export const AmenityCreateSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: 'Error',
-        description:
-          'Please enter values for the main language before creating.',
+        title: t('error'),
+        description: t('enter-main-lang-before-creating'),
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
@@ -118,8 +119,8 @@ export const AmenityCreateSheet = ({
   const handleSubmit = async (values: AmenityCreateFormType) => {
     if (!branchId) {
       toast({
-        title: 'Error',
-        description: 'Branch is required to create an amenity',
+        title: t('error'),
+        description: t('branch-required'),
         variant: 'destructive',
       });
       return;
@@ -139,8 +140,8 @@ export const AmenityCreateSheet = ({
       });
 
       toast({
-        title: 'Success',
-        description: 'Amenity created successfully',
+        title: t('success'),
+        description: t('amenity-created-successfully'),
       });
 
       form.reset({
@@ -152,9 +153,9 @@ export const AmenityCreateSheet = ({
       handleOpenChange(false);
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
-          error instanceof Error ? error.message : 'Failed to create amenity',
+          error instanceof Error ? error.message : t('failed-to-create-amenity'),
         variant: 'destructive',
       });
     }
@@ -166,7 +167,7 @@ export const AmenityCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Create amenity
+            {t('create-amenity')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -178,7 +179,7 @@ export const AmenityCreateSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Create amenity</Sheet.Title>
+              <Sheet.Title>{t('create-amenity')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -211,10 +212,10 @@ export const AmenityCreateSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Creating...' : 'Create'}
+                {loading ? t('creating') : t('create')}
               </Button>
             </Sheet.Footer>
           </form>

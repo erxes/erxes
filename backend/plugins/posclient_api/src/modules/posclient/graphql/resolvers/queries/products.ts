@@ -461,33 +461,35 @@ const productQueries = {
   ) {
     const product = await models.Products.getProduct({ _id });
 
-    if (!product.similarityId) {
+    const { similarityId } = product || {};
+
+    if (!similarityId) {
       return null;
     }
 
     const members = await models.Products.find({
-      similarityId: product.similarityId,
+      similarityId: similarityId,
       status: { $ne: PRODUCT_STATUSES.DELETED },
       tokens: { $in: [config.token] },
     })
       .sort({ code: 1 })
       .lean();
 
-    // group doc gives the canonical axis/value order and the star product;
-    // when core is unreachable everything below falls back to member data
     const similarityGroup = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
       action: 'similarities.findOne',
-      input: { _id: product.similarityId },
+      input: { _id: similarityId },
       defaultValue: null,
     });
 
-    const selection: Record<string, string[]> =
-      similarityGroup?.propertiesData || {};
+    const { propertiesData, starProductId } = similarityGroup || {};
+
+    const selection: Record<string, string[]> = propertiesData || {};
 
     let fieldIds = Object.keys(selection);
+
     if (!fieldIds.length) {
       fieldIds = [
         ...new Set(
@@ -512,38 +514,61 @@ const productQueries = {
       : [];
 
     const fieldNameById = {};
+    const optionLabelByValue: Record<string, Record<string, string>> = {};
+
     for (const field of fields || []) {
       fieldNameById[field._id] = field.name || field.text;
+
+      optionLabelByValue[field._id] = {};
+      for (const option of field.options || []) {
+        optionLabelByValue[field._id][option.value] = option.label;
+      }
     }
 
-    const valuesOf = (fieldId: string) => {
-      const present = new Set(
-        members
-          .map((member) => member.propertiesData?.[fieldId])
-          .filter((value) => value != null),
-      );
+    const labelOf = (fieldId: string, value: string) =>
+      optionLabelByValue[fieldId]?.[value] ?? value;
 
-      // keep the group's value order, but only offer existing variants
-      return selection[fieldId]?.length
-        ? selection[fieldId].filter((value) => present.has(value))
-        : [...present];
+    const propertyValueOf = (member: any, fieldId: string) => {
+      const value = member.propertiesData?.[fieldId];
+      return Array.isArray(value) ? value[0] : value;
     };
 
-    return {
-      _id: product.similarityId,
-      starProductId: similarityGroup?.starProductId,
-      products: await checkRemainders(
-        subdomain,
-        models,
-        config,
-        members.length ? members : [product],
-        branchId || '',
-      ),
-      fields: fieldIds.map((fieldId) => ({
-        fieldId,
-        title: fieldNameById[fieldId] || fieldId,
-        values: valuesOf(fieldId),
+    const valuesOf = (fieldId: string) => {
+      if (selection[fieldId]?.length) {
+        return selection[fieldId];
+      }
+
+      return [
+        ...new Set(
+          members
+            .map((member) => propertyValueOf(member, fieldId))
+            .filter((value) => value != null),
+        ),
+      ];
+    };
+
+    const products = await checkRemainders(
+      subdomain,
+      models,
+      config,
+      members.length ? members : [product],
+      branchId || '',
+    );
+
+    const fieldList = fieldIds.map((fieldId) => ({
+      fieldId,
+      title: fieldNameById[fieldId] || fieldId,
+      values: valuesOf(fieldId).map((value) => ({
+        value,
+        label: labelOf(fieldId, value),
       })),
+    }));
+
+    return {
+      _id: similarityId,
+      starProductId,
+      products,
+      fields: fieldList,
     };
   },
 

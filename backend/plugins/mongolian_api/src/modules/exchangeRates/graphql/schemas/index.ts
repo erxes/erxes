@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 const rateFields = `
   _id: String!
   date: Date
@@ -15,6 +17,7 @@ export const types = `
 
   type ExchangeRatesListResponse {
     list: [ExchangeRate],
+    pageInfo: PageInfo,
     totalCount: Int,
   }
 `;
@@ -28,9 +31,8 @@ const rateParams = `
 
 export const queries = `
   exchangeRatesMain(
-    page: Int
-    perPage: Int
     searchValue: String
+    ${GQL_CURSOR_PARAM_DEFS}
   ): ExchangeRatesListResponse
 
   exchangeGetRate(

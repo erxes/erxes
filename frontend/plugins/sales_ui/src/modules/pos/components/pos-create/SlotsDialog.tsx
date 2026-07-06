@@ -3,6 +3,7 @@ import { Button, Dialog, Label } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import POSSlotsManager from '@/pos/slot/components/slot';
 import type { CustomNode } from '@/pos/slot/types';
+import { useTranslation } from 'react-i18next';
 
 interface SlotsDialogProps {
   value?: number | string;
@@ -13,6 +14,7 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
   value,
   onChange,
 }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState<boolean>(false);
   const [nodes, setNodes] = useState<CustomNode[]>([]);
   const slotCount =
@@ -30,7 +32,7 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <div className="space-y-2">
-        <Label className="text-sm font-medium">Slots</Label>
+        <Label className="text-sm font-medium">{t('slots')}</Label>
         <Dialog.Trigger asChild>
           <Button
             type="button"
@@ -40,17 +42,17 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
           >
             <IconPlus size={16} className="mr-2" />
             {slotCount > 0
-              ? `${slotCount} Slots Configured`
-              : 'Configure Slots'}
+              ? `${slotCount} ${t('slots-configured')}`
+              : t('configure-slots')}
           </Button>
         </Dialog.Trigger>
       </div>
 
       <Dialog.Content className="flex h-[90vh] w-[calc(100vw-2rem)] flex-col max-w-7xl">
         <Dialog.Header>
-          <Dialog.Title>Configure Slots</Dialog.Title>
+          <Dialog.Title>{t('configure-slots')}</Dialog.Title>
           <Dialog.Description className="sr-only">
-            Configure the floor plan slots for this POS.
+            {t('configure-slots-description')}
           </Dialog.Description>
         </Dialog.Header>
 
@@ -65,10 +67,10 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
 
         <Dialog.Footer>
           <Button type="button" variant="outline" onClick={handleCancel}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button type="button" onClick={handleSave}>
-            Save Slots ({nodes.length})
+            {t('save-slots')} ({nodes.length})
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

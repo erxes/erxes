@@ -15,6 +15,7 @@ import {
   ISendMessageData,
   TAttachmentMessage,
   TAutomationActionConfig,
+  TBotConfigMessageAttachment,
   TBotConfigMessageButton,
   TFacebookMessageButton,
   TGenericTemplateMessage,
@@ -47,11 +48,30 @@ type TGenerateMessagesParams = {
 };
 
 type TMessageTemplateContext = {
-  prevAction?: Record<string, any>;
+  prevAction?: Record<string, unknown>;
 };
 
+type TFacebookMediaMessageType = 'image' | 'audio' | 'video';
+
+type TFacebookMessageActionTarget =
+  | IFacebookConversationMessageDocument
+  | IFacebookCommentConversation;
+
+const isFacebookMediaMessageType = (
+  type: string,
+): type is TFacebookMediaMessageType =>
+  ['image', 'audio', 'video'].includes(type);
+
+const isCommentMessageActionTarget = (
+  target: TFacebookMessageActionTarget,
+): target is IFacebookCommentConversation => 'comment_id' in target;
+
+const isDirectMessageActionTarget = (
+  target: TFacebookMessageActionTarget,
+): target is IFacebookConversationMessageDocument => 'conversationId' in target;
+
 const getValueByPath = (
-  source: Record<string, any>,
+  source: Record<string, unknown>,
   path: string,
 ): { found: boolean; value?: unknown } => {
   const segments = path.split('.');
@@ -63,12 +83,12 @@ const getValueByPath = (
       current === null ||
       current === undefined ||
       typeof current !== 'object' ||
-      !(segment in (current as Record<string, any>))
+      !(segment in (current as Record<string, unknown>))
     ) {
       return { found: false };
     }
 
-    current = (current as Record<string, any>)[segment];
+    current = (current as Record<string, unknown>)[segment];
   }
 
   return { found: true, value: current };
@@ -79,10 +99,10 @@ const replaceMessageTemplateString = (
   context: TMessageTemplateContext,
 ) => {
   return value.replace(
-    /{{\s*([\w\d]+(?:\.[\w\d\-]+)*)\s*}}/g,
+    /{{\s*([\w\d]+(?:\.[\w\d-]+)*)\s*}}/g,
     (match, placeholderPath) => {
       const { found, value: resolvedValue } = getValueByPath(
-        context as Record<string, any>,
+        context,
         placeholderPath,
       );
 
@@ -144,7 +164,7 @@ export const generateMessages = async ({
   actionId,
   config,
 }: TGenerateMessagesParams) => {
-  let { messages = [] } = config || {};
+  const messages = [...(config?.messages || [])];
 
   const generateButtons = (buttons: TBotConfigMessageButton[] = []) => {
     const generatedButtons: TFacebookMessageButton[] = [];
@@ -182,6 +202,21 @@ export const generateMessages = async ({
     const quickRepliesMessage = messages.splice(quickRepliesIndex, 1)[0];
     messages.push(quickRepliesMessage);
   }
+
+  const generateAttachmentMessage = (
+    type: TFacebookMediaMessageType | 'file',
+    url: string,
+    botData: TAttachmentMessage['botData'],
+  ): TAttachmentMessage => ({
+    attachment: {
+      type,
+      payload: {
+        url: getUrl(subdomain, url),
+      },
+    },
+    botData,
+  });
+
   const generatedMessages: (
     | TTextInputMessage
     | TTemplateMessage
@@ -199,6 +234,7 @@ export const generateMessages = async ({
     image = '',
     video = '',
     audio = '',
+    attachments = [],
     input,
   } of messages) {
     const botData = generateBotData(subdomain, {
@@ -208,6 +244,9 @@ export const generateMessages = async ({
       cards,
       quickReplies,
       image,
+      video,
+      audio,
+      attachments,
     });
 
     if (['text', 'input'].includes(type) && !buttons?.length) {
@@ -250,7 +289,7 @@ export const generateMessages = async ({
           },
         },
         botData,
-      } as TGenericTemplateMessage);
+      });
     }
 
     if (type === 'quickReplies' && quickReplies.length) {
@@ -277,20 +316,22 @@ export const generateMessages = async ({
       });
     }
 
-    if (['image', 'audio', 'video'].includes(type)) {
+    if (isFacebookMediaMessageType(type)) {
       const url = image || video || audio;
 
       if (url) {
-        generatedMessages.push({
-          attachment: {
-            type: type as 'image' | 'audio' | 'video',
-            payload: {
-              url: getUrl(subdomain, url),
-            },
-          },
-          botData,
-        });
+        generatedMessages.push(generateAttachmentMessage(type, url, botData));
       }
+    }
+
+    if (type === 'attachments') {
+      generatedMessages.push(
+        ...attachments
+          .filter(({ url }) => !!url)
+          .map((attachment: TBotConfigMessageAttachment) =>
+            generateAttachmentMessage('file', attachment.url, botData),
+          ),
+      );
     }
   }
 
@@ -310,13 +351,16 @@ export const sendMessage = async (
   }: ISendMessageData,
   isLoop?: boolean,
 ) => {
-  await trySendTypingOn(
-    models,
-    senderId,
-    recipientId,
-    integration.erxesApiId,
-    tag,
-  );
+  if (!commentId) {
+    await trySendTypingOn(
+      models,
+      senderId,
+      recipientId,
+      integration.erxesApiId,
+      tag,
+    );
+  }
+
   const recipient = commentId ? { comment_id: commentId } : { id: senderId };
 
   try {
@@ -333,6 +377,27 @@ export const sendMessage = async (
       integration.erxesApiId,
     );
   } catch (error) {
+    const isAlreadyRepliedComment =
+      !!commentId &&
+      (error.message.includes('Activity already replied to') ||
+        error.message.includes('#10900'));
+
+    if (isAlreadyRepliedComment) {
+      return await sendMessage(
+        models,
+        bot,
+        {
+          senderId,
+          recipientId,
+          integration,
+          message,
+          tag,
+          commentId: undefined,
+        },
+        isLoop,
+      );
+    }
+
     const shouldRetryWithTag =
       error.message.includes(
         'This message is sent outside of allowed window',
@@ -389,7 +454,7 @@ export const getOrCreateFacebookMessageActionContext = async (
   models: IModels,
   subdomain: string,
   collectionType: string,
-  target: any,
+  target: TFacebookMessageActionTarget,
   config: TAutomationActionConfig,
 ): Promise<{
   conversation: IFacebookConversationDocument;
@@ -402,12 +467,20 @@ export const getOrCreateFacebookMessageActionContext = async (
   didCreateConversation: boolean;
 }> => {
   if (collectionType === 'comments') {
+    if (!isCommentMessageActionTarget(target)) {
+      throw new Error('Comment target is required');
+    }
+
     return await getOrCreateCommentMessageActionContext({
       target,
       models,
       config,
       subdomain,
     });
+  }
+
+  if (!isDirectMessageActionTarget(target)) {
+    throw new Error('Direct message target is required');
   }
 
   return await getOrCreateDirectMessageActionContext({
@@ -498,7 +571,7 @@ async function getOrCreateCommentMessageActionContext({
     );
   }
   const integration = await models.FacebookIntegrations.findOne({
-    erxesApiId: customer?.integrationId,
+    erxesApiId: target.integrationId || customer.integrationId,
   });
 
   if (!integration) {

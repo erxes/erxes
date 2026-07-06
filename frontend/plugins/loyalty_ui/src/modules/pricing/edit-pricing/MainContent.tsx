@@ -1,8 +1,10 @@
 import React, { useState, type ReactNode } from 'react';
 import { Badge, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { GeneralInfo } from '@/pricing/edit-pricing/components/general/GeneralInfo';
 import { OptionsInfo } from '@/pricing/edit-pricing/components/options/OptionsInfo';
+import { ParticipantsInfo } from '@/pricing/edit-pricing/components/participants/ParticipantsInfo';
 import { RulesInfo } from '@/pricing/edit-pricing/components/rules/RulesInfo';
 
 interface MainContentProps {
@@ -20,6 +22,7 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
   loading,
   error,
 }) => {
+  const { t } = useTranslation('loyalty');
   const [saveAction, setSaveAction] = useState<ReactNode | null>(null);
 
   const renderContent = (): React.ReactNode => {
@@ -35,6 +38,14 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
       case 'options':
         return (
           <OptionsInfo
+            pricingId={pricingId}
+            pricingDetail={pricingDetail}
+            onSaveActionChange={setSaveAction}
+          />
+        );
+      case 'participants':
+        return (
+          <ParticipantsInfo
             pricingId={pricingId}
             pricingDetail={pricingDetail}
             onSaveActionChange={setSaveAction}
@@ -76,7 +87,7 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
     return (
       <div className="p-6 text-center">
         <p className="text-destructive">
-          Failed to load Pricing details: {error.message}
+          {t('failed-to-load-pricing-details', { message: error.message })}
         </p>
       </div>
     );
@@ -87,11 +98,11 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
       <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background shrink-0">
         <div className="flex items-center flex-1 min-w-0 gap-4">
           <h1 className="max-w-[300px] text-xl font-semibold truncate text-foreground">
-            {pricingDetail?.name || 'New Pricing'}
+            {pricingDetail?.name || t('new-pricing')}
           </h1>
 
           <Badge variant="secondary" className="text-xs shrink-0">
-            {pricingDetail?.applyType || 'N/A'}
+            {pricingDetail?.applyType || t('na')}
           </Badge>
         </div>
 

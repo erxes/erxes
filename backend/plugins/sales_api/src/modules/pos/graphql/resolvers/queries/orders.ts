@@ -50,7 +50,12 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
     excludeStatuses,
     hasPaidDate,
     brandId,
+    dealId,
   } = params;
+
+  if (dealId) {
+    query.convertDealId = dealId;
+  }
 
   if (search) {
     query.$or = [
@@ -133,7 +138,7 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
     query.paidDate = { $exists: true };
   }
 
-  if (paidDate === 'today' || !Object.keys(query).length) {
+  if (paidDate === 'today') {
     const now = new Date();
 
     const startDate = getToday(now);
@@ -483,7 +488,10 @@ const queries = {
     const orderDetail = order as any;
 
     for (const item of orderDetail.items || []) {
-      item.productName = productById[item.productId]?.name || 'unknown';
+      const product = productById[item.productId];
+      item.productName = product
+        ? [product.code, product.name].filter(Boolean).join(' - ')
+        : 'unknown';
     }
 
     return orderDetail;
@@ -884,10 +892,32 @@ const queries = {
       (p) => !(p.status === 'deleted' && !p.count && !p.amount),
     );
 
-    const totalCount = filteredProducts.length;
+    // ❗ STEP 5: filter out products with zero sales when user-applied filters are active
+    // (posId/posToken are contextual scope, not user-applied filters)
+    const hasOrderFilter =
+      params.search ||
+      params.paidStartDate ||
+      params.paidEndDate ||
+      params.createdStartDate ||
+      params.createdEndDate ||
+      params.paidDate ||
+      params.userId ||
+      params.customerId ||
+      params.customerType ||
+      params.types?.length ||
+      params.statuses?.length ||
+      params.excludeStatuses?.length ||
+      params.hasPaidDate !== undefined ||
+      params.brandId;
 
-    // ❗ STEP 5: apply pagination LAST (correct place)
-    const paginatedProducts = filteredProducts.slice(skip, skip + limit);
+    const resultProducts = hasOrderFilter
+      ? filteredProducts.filter((p) => p.count > 0 || p.amount > 0)
+      : filteredProducts;
+
+    const totalCount = resultProducts.length;
+
+    // ❗ STEP 6: apply pagination LAST
+    const paginatedProducts = resultProducts.slice(skip, skip + limit);
 
     return {
       totalCount,

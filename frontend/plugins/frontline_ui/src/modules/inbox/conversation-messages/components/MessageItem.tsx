@@ -18,7 +18,7 @@ import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageE
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
-import { IconFile, IconSparkles } from '@tabler/icons-react';
+import { IconBrain, IconFile, IconSparkles } from '@tabler/icons-react';
 
 // erxes runs on Vite, not Next.js, so next/image (JS-W1015) doesn't apply here.
 const Img = (props: JSX.IntrinsicElements['img']) => (
@@ -33,6 +33,7 @@ const getMessageBubbleClassName = ({
   userId,
   internal,
   fromBot,
+  isBotMessage,
   separatePrevious,
   showAuthorName,
   showBotName,
@@ -40,6 +41,7 @@ const getMessageBubbleClassName = ({
   userId?: string;
   internal?: boolean;
   fromBot?: boolean;
+  isBotMessage?: boolean;
   separatePrevious: boolean;
   showAuthorName: boolean;
   showBotName: boolean;
@@ -47,6 +49,7 @@ const getMessageBubbleClassName = ({
   cn(
     'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
     userId && 'bg-primary/10 hover:bg-primary/10',
+    isBotMessage && 'bg-muted hover:bg-muted',
     internal && 'bg-warning/20 hover:bg-warning/5',
     fromBot && 'bg-primary/5 hover:bg-primary/5 border-l-2 border-primary',
     separatePrevious && (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
@@ -72,10 +75,24 @@ export const MessageItem = () => {
     separatePrevious,
     separateNext,
     isGroupConversation,
+    isBotMessage,
+    botData,
   } = message;
 
   const poll = extraData?.poll;
   const embeds = extraData?.embeds;
+
+  // A structured bot reply (e.g. quick-reply/ticket-form driven) carries its
+  // readable text separately from its raw `content`; extract it for display,
+  // skipping non-text parts. Falls back to plain `content` otherwise.
+  const botText = isBotMessage && botData?.length
+    ? (botData as Array<{ type?: string; text?: string; content?: string }>)
+        .filter((item) => item?.type !== 'quickReplies' && item?.type !== 'ticketForm')
+        .map((item) => item?.text || item?.content || '')
+        .join('')
+    : undefined;
+
+  const displayContent = botText || content;
 
   if (formWidgetData)
     return (
@@ -87,15 +104,16 @@ export const MessageItem = () => {
 
   // In a group conversation, label each customer's message cluster with its
   // author so multiple senders are distinguishable.
-  const showAuthorName =
-    isGroupConversation && !userId && Boolean(customerId) && separatePrevious;
+  const showAuthorName = Boolean(
+    isGroupConversation && !userId && customerId && separatePrevious,
+  );
 
   // Label an automation/AI reply so it reads as a bot answer, not a human one.
   const showBotName = Boolean(fromBot) && separatePrevious;
 
   // A text bubble carries its own timestamp; an attachment-only message (empty
   // content) renders just the file, so it needs the timestamp added separately.
-  const hasTextBubble = Boolean(content) && content !== HAS_ATTACHMENT;
+  const hasTextBubble = Boolean(displayContent) && displayContent !== HAS_ATTACHMENT;
 
   // Nothing to render — no text, attachments, poll, or embeds. This happens for
   // system messages that slip through (e.g. a Discord member-join "just landed"
@@ -134,6 +152,7 @@ export const MessageItem = () => {
               userId,
               internal,
               fromBot,
+              isBotMessage,
               separatePrevious,
               showAuthorName,
               showBotName,
@@ -141,7 +160,7 @@ export const MessageItem = () => {
             asChild
           >
             <div>
-              <MessageContent content={content} internal={internal} />
+              <MessageContent content={displayContent} internal={internal} />
               {separateNext && (
                 <div className="text-muted-foreground mt-1">
                   <RelativeDateDisplay value={createdAt}>
@@ -191,7 +210,9 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
     fromBot,
     formWidgetData,
     isGroupConversation,
+    isBotMessage,
   } = useConversationMessageContext();
+  const isOutgoing = !!userId || isBotMessage;
   const { customer } = useAtomValue(activeConversationState) || {};
   // Resolve the avatar from the message's own customerId by passing `undefined`,
   // which lets the provider fetch by id. We only short-circuit with the
@@ -211,19 +232,18 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
     <div
       className={cn(
         'flex items-end w-full gap-3',
-        userId ? 'justify-end' : 'justify-start',
-        !separateNext && !customerId && 'px-11',
+        isOutgoing ? 'justify-end' : 'justify-start',
+        !separateNext && !isBotMessage && 'px-11',
         // Reserve the avatar column (size-8 + gap-3 = pl-11) for a customer's
         // non-last messages, which don't render an avatar, so every message in
         // a cluster lines up with the avatar'd one instead of jumping left.
         !separateNext && Boolean(customerId) && 'pl-11',
-        !customerId && !userId && 'px-0 pl-0 pr-0',
         !customerId && 'pl-11',
-        !userId && 'pr-11',
+        !isOutgoing && 'pr-11',
         formWidgetData && 'pb-4',
       )}
     >
-      {!!customerId && separateNext && (
+      {!!customerId && separateNext && !isOutgoing && (
         <CustomersInline.Provider
           customerIds={[customerId]}
           customers={inlineCustomers}
@@ -246,6 +266,11 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
         <MembersInline.Provider memberIds={[userId]}>
           <MembersInline.Avatar size="xl" />
         </MembersInline.Provider>
+      )}
+      {isBotMessage && !fromBot && separateNext && (
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
+          <IconBrain className="size-4 text-muted-foreground" />
+        </div>
       )}
     </div>
   );

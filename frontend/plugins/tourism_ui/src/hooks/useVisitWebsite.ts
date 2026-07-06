@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { getWebsiteUrl } from '~/utils/websiteUrl';
 
 type BranchWithWebsite = {
@@ -13,6 +14,7 @@ export const useVisitWebsite = (
   type: 'pms' | 'tms',
   list: BranchWithWebsite[] | undefined,
 ) => {
+  const { t } = useTranslation('tourism');
   return useCallback(
     (branchId: string) => {
       const branch = list?.find((b) => b._id === branchId);
@@ -29,8 +31,8 @@ export const useVisitWebsite = (
 
       if (!url) {
         toast({
-          title: 'Error',
-          description: 'Unable to open website, unexpected hostname format',
+          title: t('error'),
+          description: t('unable-to-open-website'),
           variant: 'destructive',
         });
         return;

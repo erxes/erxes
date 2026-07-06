@@ -2,7 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { PosTRPCContext } from '~/init-trpc';
-import { ordersAdd } from '~/modules/posclient/graphql/resolvers/mutations/orders';
+import { cancelPosOrder, ordersAdd, ordersEdit } from '@/posclient/graphql/resolvers/mutations/orders';
 import { updateMobileAmount } from '~/modules/posclient/utils';
 import {
   importProducts,
@@ -11,8 +11,10 @@ import {
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
+  receiveProductsRemove,
   receiveUser,
 } from '~/modules/posclient/utils/syncUtils';
+import { filterOrders } from '@/posclient/graphql/resolvers/queries/orders';
 
 const t = initTRPC.context<PosTRPCContext>().create();
 
@@ -78,6 +80,9 @@ export const posclientTrpcRouter = t.router({
         switch (type) {
           case 'product':
             await receiveProduct(models, input);
+            break;
+          case 'productsRemove':
+            await receiveProductsRemove(models, input);
             break;
           case 'productCategory':
             await receiveProductCategory(models, input);
@@ -202,6 +207,66 @@ export const posclientTrpcRouter = t.router({
         models,
         config,
       });
+    }),
+    fullOrders: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { posToken, ...params } = input || {};
+
+      const config = await models.Configs.findOne({ token: posToken });
+
+      if (!config) {
+        throw new Error('Cannot find pos config');
+      }
+
+      return filterOrders(params, models, config);
+    }),
+    orderDetail: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { posToken, _id, customerId } = input || {};
+
+      const config = await models.Configs.findOne({ token: posToken });
+
+      if (!config) {
+        throw new Error('Cannot find pos config');
+      }
+
+      const order = await models.Orders.findOne({
+        _id,
+        $or: [{ posToken: config.token }, { subToken: config.token }],
+      }).lean();
+
+      if (
+        !order ||
+        !(order.customerType === 'visitor' || order.customerId === customerId)
+      ) {
+        throw new Error('Not found');
+      }
+
+      return order;
+    }),
+    ordersEdit: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      const { posToken, ...doc } = input || {};
+
+      const config = await models.Configs.findOne({ token: posToken });
+
+      if (!config) {
+        throw new Error('Cannot find pos config');
+      }
+
+      return ordersEdit(doc, { models, subdomain, config, posUser: undefined });
+    }),
+    ordersCancel: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { posToken, _id } = input || {};
+
+      const config = await models.Configs.findOne({ token: posToken });
+
+      if (!config) {
+        throw new Error('Cannot find pos config');
+      }
+
+      return cancelPosOrder(models, _id);
     }),
   }),
 });

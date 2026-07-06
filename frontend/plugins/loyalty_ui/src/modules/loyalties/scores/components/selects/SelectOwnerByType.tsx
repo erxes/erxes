@@ -1,4 +1,5 @@
 import { SelectCustomer, SelectCompany, SelectMember } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { SelectClientPortalUserFormItem } from './SelectOwnerById';
 
 type Props = {
@@ -8,19 +9,19 @@ type Props = {
   placeholder?: string;
 };
 
-const PLACEHOLDERS: Record<string, string> = {
-  customer: 'Choose customer',
-  company: 'Choose company',
-  user: 'Choose team member',
-  cpUser: 'Choose client portal user',
-};
-
 export const SelectOwnerByType = ({
   ownerType,
   value,
   onValueChange,
   placeholder,
 }: Props) => {
+  const { t } = useTranslation('loyalty');
+  const PLACEHOLDERS: Record<string, string> = {
+    customer: t('choose-customer'),
+    company: t('choose-company'),
+    user: t('choose-team-member'),
+    cpUser: t('choose-client-portal-user'),
+  };
   const resolvedPlaceholder = placeholder || PLACEHOLDERS[ownerType];
   const handleChange = (val: string | string[] | null) =>
     onValueChange((Array.isArray(val) ? val[0] : val) || '');

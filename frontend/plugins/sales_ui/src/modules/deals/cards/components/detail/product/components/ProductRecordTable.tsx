@@ -55,7 +55,8 @@ export const ProductsRecordTable = ({
       columns={columns}
       data={products || []}
       className="my-3"
-      stickyColumns={['more', 'checkbox', 'name', 'type', 'unitPrice']}
+      stickyColumns={['more', 'checkbox', 'name', 'type', 'unitPrice', 'assignUserId']}
+      tableId="products_record_table"
     >
       <div className="max-h-[400px] overflow-y-auto">
         <RecordTable.Scroll>

@@ -1,6 +1,7 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Input } from 'erxes-ui';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 import { IMovementDetail } from '../types';
 
 interface Props {
@@ -23,27 +24,27 @@ const ROWS: RowGroup[] = [
   {
     id: 'row-category-branch',
     cols: [
-      { key: 'productCategory', label: 'Product Category' },
-      { key: 'branch', label: 'Branch' },
+      { key: 'productCategory', label: 'product-category' },
+      { key: 'branch', label: 'branch' },
     ],
   },
   {
     id: 'row-department-account',
     cols: [
-      { key: 'department', label: 'Department' },
-      { key: 'mainAccount', label: 'Main Account' },
+      { key: 'department', label: 'department' },
+      { key: 'mainAccount', label: 'main-account' },
     ],
   },
   {
     id: 'row-location-move',
     cols: [
-      { key: 'mainLocation', label: 'Main Location' },
-      { key: 'moveAccount', label: 'Move Account' },
+      { key: 'mainLocation', label: 'main-location' },
+      { key: 'moveAccount', label: 'move-account' },
     ],
   },
   {
     id: 'row-move-location',
-    cols: [{ key: 'moveLocation', label: 'Move Location', fullWidth: true }],
+    cols: [{ key: 'moveLocation', label: 'move-location', fullWidth: true }],
   },
 ];
 
@@ -53,44 +54,48 @@ interface RowProps {
   onRemove: (id: string) => void;
 }
 
-const MovementDetailRow = ({ row, onUpdate, onRemove }: RowProps) => (
-  <div className="overflow-hidden">
-    <div className="p-3 flex flex-col gap-2">
-      {ROWS.map(({ id, cols }) => (
-        <div key={id} className="grid grid-cols-2 gap-4">
-          {cols.map(({ key, label, fullWidth }) => (
-            <div
-              key={key}
-              className={`flex flex-col gap-2 ${fullWidth ? 'col-span-2' : ''}`}
-            >
-              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                {label}
-              </label>
-              <Input
-                placeholder={label}
-                value={row[key] ?? ''}
-                onChange={(e) => onUpdate(row._id, key, e.target.value)}
-                className="h-8 text-sm"
-              />
-            </div>
-          ))}
-        </div>
-      ))}
+const MovementDetailRow = ({ row, onUpdate, onRemove }: RowProps) => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <div className="overflow-hidden">
+      <div className="p-3 flex flex-col gap-2">
+        {ROWS.map(({ id, cols }) => (
+          <div key={id} className="grid grid-cols-2 gap-4">
+            {cols.map(({ key, label, fullWidth }) => (
+              <div
+                key={key}
+                className={`flex flex-col gap-2 ${fullWidth ? 'col-span-2' : ''}`}
+              >
+                <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                  {t(label)}
+                </label>
+                <Input
+                  placeholder={t(label)}
+                  value={row[key] ?? ''}
+                  onChange={(e) => onUpdate(row._id, key, e.target.value)}
+                  className="h-8 text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-end px-3 py-2">
+        <button
+          type="button"
+          onClick={() => onRemove(row._id)}
+          className="flex items-center gap-1 text-xs text-destructive"
+        >
+          <IconTrash size={13} />
+          {t('remove')}
+        </button>
+      </div>
     </div>
-    <div className="flex items-center justify-end px-3 py-2">
-      <button
-        type="button"
-        onClick={() => onRemove(row._id)}
-        className="flex items-center gap-1 text-xs text-destructive"
-      >
-        <IconTrash size={13} />
-        Remove
-      </button>
-    </div>
-  </div>
-);
+  );
+};
 
 export const MovementDetailRows = ({ details, onChange }: Props) => {
+  const { t } = useTranslation('mongolian');
   const addRow = () => {
     onChange([
       ...details,
@@ -123,7 +128,7 @@ export const MovementDetailRows = ({ details, onChange }: Props) => {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Details
+          {t('details')}
         </span>
         <Button
           type="button"
@@ -133,7 +138,7 @@ export const MovementDetailRows = ({ details, onChange }: Props) => {
           className="h-7 text-xs gap-1"
         >
           <IconPlus size={12} />
-          Add
+          {t('add')}
         </Button>
       </div>
 
@@ -152,7 +157,7 @@ export const MovementDetailRows = ({ details, onChange }: Props) => {
 
       {details.length === 0 && (
         <div className="border border-dashed rounded-lg py-6 flex flex-col items-center gap-2 text-muted-foreground">
-          <span className="text-xs">No details added yet</span>
+          <span className="text-xs">{t('no-details-added-yet')}</span>
           <Button
             type="button"
             variant="outline"
@@ -161,7 +166,7 @@ export const MovementDetailRows = ({ details, onChange }: Props) => {
             className="h-7 text-xs gap-1"
           >
             <IconPlus size={12} />
-            Add first detail
+            {t('add-first-detail')}
           </Button>
         </div>
       )}

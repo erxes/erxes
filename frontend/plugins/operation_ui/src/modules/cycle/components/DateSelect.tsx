@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { useUpdateCycle } from '@/cycle/hooks/useUpdateCycle';
 import {
@@ -70,12 +71,13 @@ export const DateSelectProvider = ({
 };
 
 const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('operation');
   const { value } = useDateSelectContext();
 
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select date...'}
+        {placeholder || t('select-date')}
       </span>
     );
   }
@@ -95,6 +97,7 @@ const DateSelectFormItemValue = ({
   placeholder?: string;
   type?: 'start' | 'end';
 }) => {
+  const { t } = useTranslation('operation');
   const { value } = useDateSelectContext();
 
   if (!value) {
@@ -105,7 +108,7 @@ const DateSelectFormItemValue = ({
         ) : (
           <IconCalendarQuestion className="size-4" />
         )}
-        {placeholder || 'Select date'}
+        {placeholder || t('select-date-short')}
       </span>
     );
   }
@@ -134,10 +137,11 @@ const DateSelectContent = ({ startDate }: { startDate?: Date }) => {
 };
 
 export const DateSelectFilterItem = () => {
+  const { t } = useTranslation('operation');
   return (
     <Filter.Item value="Date">
       <IconCalendarTime />
-      Date
+      {t('date-label')}
     </Filter.Item>
   );
 };
@@ -249,6 +253,7 @@ export const DateSelectInlineCell = ({
   type,
   startDate,
 }: DateSelectInlineCellProps) => {
+  const { t } = useTranslation('operation');
   const { updateCycle } = useUpdateCycle();
   const [open, setOpen] = useState(false);
   const handleValueChange = (value?: Date) => {
@@ -278,7 +283,7 @@ export const DateSelectInlineCell = ({
         closeOnEnter
       >
         <RecordTableInlineCell.Trigger>
-          <DateSelectValue placeholder="not specified" />
+          <DateSelectValue placeholder={t('not-specified')} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content className="w-fit">
           <DateSelectContent startDate={startDate} />

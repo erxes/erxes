@@ -11,6 +11,7 @@ import {
   Tooltip,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CustomersInline, ICustomerInline } from 'ui-modules';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { useChannelInline } from '@/inbox/channel/hooks/useChannelInline';
@@ -21,12 +22,18 @@ import { ConversationContext } from '@/inbox/conversations/context/ConversationC
 import { ConversationDetailView } from './ConversationDetailView';
 import { IChannel } from '@/inbox/types/Channel';
 import { IIntegration } from '@/integrations/types/Integration';
+import { IntegrationType } from '@/types/Integration';
+import {
+  CALL_STATUS_LABEL_KEYS,
+  parseCallConversationContent,
+} from '@/integrations/call/utils/callContentUtils';
 
 export const ConversationRelationDetails = ({
   conversationId,
 }: {
   conversationId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const [, setConversationId] = useQueryState<string>('relatedConversationId');
   const { conversationDetail } = useConversationDetail({
@@ -90,7 +97,7 @@ export const ConversationRelationDetails = ({
         </Sheet.Trigger>
         <Sheet.View>
           <Sheet.Header>
-            <Sheet.Title>Conversation Details</Sheet.Title>
+            <Sheet.Title>{t('conversation-details')}</Sheet.Title>
             <Sheet.Close />
           </Sheet.Header>
           <Sheet.Content>
@@ -107,15 +114,22 @@ export const ConversationRelationDetails = ({
 };
 
 export const ConversationItemContent = () => {
-  const { content } = useConversationContext();
+  const { t } = useTranslation('frontline');
+  const { content, integration } = useConversationContext();
   if (!content) return null;
 
-  if (content.includes('callDirection/')) {
-    const callDirection = content.split('callDirection/')[1];
+  const callContent =
+    integration?.kind === IntegrationType.CALL ||
+    content.includes('callDirection/')
+      ? parseCallConversationContent(content)
+      : null;
 
+  if (callContent) {
+    const { direction, status } = callContent;
     return (
       <div className="font-medium">
-        {callDirection === 'INCOMING' ? 'Incoming Call' : 'Outgoing Call'}
+        {direction === 'incoming' ? t('incoming-call') : t('outgoing-call')}
+        {status ? ` · ${t(CALL_STATUS_LABEL_KEYS[status])}` : ''}
       </div>
     );
   }

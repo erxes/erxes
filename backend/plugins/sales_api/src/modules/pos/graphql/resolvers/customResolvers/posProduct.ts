@@ -3,6 +3,9 @@ import { IContext } from '~/connectionResolvers';
 
 const resolvers = {
   category: async (posProduct, _, { subdomain }: IContext) => {
+    if (!posProduct.categoryId) {
+      return null;
+    }
     return await sendTRPCMessage({
       subdomain,
 
