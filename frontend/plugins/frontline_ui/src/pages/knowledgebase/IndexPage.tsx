@@ -1,7 +1,7 @@
 import { Breadcrumb, Button, PageContainer, Kbd, Separator } from 'erxes-ui';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
-import { IconLibraryPhoto, IconPlus, IconStar } from '@tabler/icons-react';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { IconLibraryPhoto, IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { KnowledgeBase } from '../../modules/knowledgebase/components/KnowledgeBase';
 import { useMemo, useState } from 'react';
@@ -34,7 +34,16 @@ const IndexPage = () => {
     return (cats || []).find((c: any) => c._id === categoryId);
   }, [currentTopic, categoryId]);
 
-  const lastLabel = categoryId ? t('articles') : topicId ? t('kb-categories') : t('knowledge-base');
+  const lastLabel = categoryId
+    ? t('articles')
+    : topicId
+      ? t('kb-categories')
+      : t('knowledge-base');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('knowledge-base'),
+    topicId && (currentTopic?.title || t('unnamed-topic')),
+    categoryId && (currentCategory?.title || t('unnamed-category')),
+  );
 
   const handleEditTopic = (topic: any) => {
     setEditingTopic(topic);
@@ -88,7 +97,9 @@ const IndexPage = () => {
                   <Breadcrumb.Separator />
                   <Breadcrumb.Item>
                     <Button variant="ghost" asChild>
-                      <Link to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}>
+                      <Link
+                        to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}
+                      >
                         {currentCategory?.title || t('unnamed-category')}
                       </Link>
                     </Button>
@@ -104,14 +115,16 @@ const IndexPage = () => {
           </Breadcrumb>
 
           <Separator.Inline />
-          <Button variant="ghost" size="icon" type="button">
-            <IconStar className="h-4 w-4" />
-          </Button>
+          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
         </PageHeader.Start>
 
         <PageHeader.End>
-          <Button 
-            onClick={() => categoryId ? setIsArticleDrawerOpen(true) : setIsTopicDrawerOpen(true)} 
+          <Button
+            onClick={() =>
+              categoryId
+                ? setIsArticleDrawerOpen(true)
+                : setIsTopicDrawerOpen(true)
+            }
             className="h-7 py-1"
           >
             <IconPlus className="w-4 h-4" />

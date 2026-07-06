@@ -6,7 +6,7 @@ import {
   ToggleGroup,
 } from 'erxes-ui';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
@@ -31,6 +31,16 @@ export default function ReportIndexPage() {
     : location.pathname.includes('/ticket')
       ? 'ticket'
       : 'overview';
+  const activeSectionLabel =
+    activeSection === 'call'
+      ? t('call-center')
+      : activeSection === 'ticket'
+        ? t('ticket')
+        : t('frontline-overview');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('reports'),
+    activeSectionLabel,
+  );
 
   return (
     <PageContainer>
@@ -64,7 +74,7 @@ export default function ReportIndexPage() {
             <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
         </PageHeader.Start>
       </PageHeader>
 

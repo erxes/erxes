@@ -1,6 +1,6 @@
 import { IconMail } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { InboxLayout } from '@/inbox/components/InboxLayout';
 import { ConversationDetail } from '@/inbox/conversations/conversation-detail/components/ConversationDetail';
@@ -9,6 +9,8 @@ import { useTranslation } from 'react-i18next';
 
 const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('inbox'));
+
   return (
     <div className="flex flex-col h-dvh">
       <PageHeader>
@@ -26,7 +28,7 @@ const InboxIndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
         </PageHeader.Start>
       </PageHeader>
       <InboxLayout

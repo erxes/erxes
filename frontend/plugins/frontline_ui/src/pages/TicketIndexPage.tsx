@@ -1,6 +1,12 @@
-import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
+import {
+  Breadcrumb,
+  Button,
+  PageContainer,
+  PageSubHeader,
+  Separator,
+} from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { Can, PageHeader, Import } from 'ui-modules';
+import { Can, PageHeader, Import, createFavoriteBreadcrumb } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { IconTicket } from '@tabler/icons-react';
@@ -17,6 +23,7 @@ import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
 const TicketsIndexPage = () => {
   const { t } = useTranslation('frontline');
   const variables = useTicketsVariables();
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('tickets'));
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;
@@ -39,6 +46,8 @@ const TicketsIndexPage = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
         </PageHeader.Start>
         <PageHeader.End>
           <AddTicketSheet />

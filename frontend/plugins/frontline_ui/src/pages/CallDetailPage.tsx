@@ -21,7 +21,7 @@ import {
   formatPhoneNumber,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import {
   ICallQueueAgent,
@@ -86,6 +86,13 @@ export const CallDetailPage = ({
     return <Spinner size="md" />;
   }
 
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    backPath.includes('/statistics')
+      ? t('calls-statistics')
+      : t('calls-dashboard'),
+    id,
+  );
+
   return (
     <PageContainer>
       <PageHeader>
@@ -117,6 +124,11 @@ export const CallDetailPage = ({
                 >
                   {id}
                 </Button>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item className="ml-1">
+                <PageHeader.FavoriteToggleButton
+                  breadcrumb={favoriteBreadcrumb}
+                />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
