@@ -46,6 +46,7 @@ const POST_URL_FIELD_DESCRIPTIONS: Record<
   count: 'Post count is assigned by the system and used in public post URLs.',
 };
 
+/** Returns the system-generated URL identifier (_id or count) for display. */
 const getGeneratedPostUrlValue = (
   postUrlField: Exclude<PostUrlField, 'slug'>,
   fullPost: PostUrlSource | null | undefined,

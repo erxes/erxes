@@ -389,6 +389,10 @@ export const usePostSubmission = ({
     translationsRef.current = translations;
   }, [translations]);
 
+  /**
+   * Persists the built input (create or edit), re-baselines the form via
+   * onSaved, then — unless silent — toasts and navigates back to the list.
+   */
   const savePost = async (
     input: Record<string, unknown>,
     formData: PostFormData,

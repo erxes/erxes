@@ -42,6 +42,7 @@ export const PostMoreColumnCell = ({
     useSendPostNotification();
   const loading = removing || duplicating || sendingNotification;
 
+  /** Opens the post in the detail editor (or delegates to onEdit). */
   const handleEdit = () => {
     if (onEdit) {
       onEdit(post);
@@ -86,6 +87,7 @@ export const PostMoreColumnCell = ({
     });
   };
 
+  /** Duplicates the post as a draft copy and refreshes the list. */
   const handleDuplicate = () => {
     duplicatePost(_id)
       .then(() => {
@@ -105,6 +107,7 @@ export const PostMoreColumnCell = ({
       });
   };
 
+  /** Deletes the post after confirmation (or delegates to onDelete). */
   const handleDelete = () => {
     if (onDelete) {
       onDelete(_id);

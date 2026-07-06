@@ -25,7 +25,7 @@ export const usePostAutosave = ({
 
   useEffect(() => {
     if (!enabled) {
-      return;
+      return undefined;
     }
 
     const subscription = form.watch(() => {

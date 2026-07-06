@@ -6,6 +6,10 @@ import {
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
+/**
+ * Scheduler tick handler: enqueues one scheduled-posts check per organization
+ * (every org in saas mode, the single `os` tenant otherwise).
+ */
 export const scheduledPostsDispatcher = async () => {
   const VERSION = getEnv({ name: 'VERSION' });
 
@@ -26,6 +30,11 @@ export const scheduledPostsDispatcher = async () => {
   return 'success';
 };
 
+/**
+ * Publishes scheduled posts whose scheduledDate has passed (keeping an
+ * existing publishedDate) and archives published posts whose autoArchiveDate
+ * has passed, for the organization named in the job data.
+ */
 export const processScheduledPosts = async (job: Job) => {
   const { subdomain } = job?.data ?? {};
 

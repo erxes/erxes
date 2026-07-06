@@ -5,7 +5,14 @@ import {
   scheduledPostsDispatcher,
 } from '~/worker/scheduledPosts';
 
-export const initMQWorkers = async (redis: any) => {
+type TRedisConnection = Parameters<typeof createMQWorkerWithListeners>[3];
+
+/**
+ * Registers the CMS background workers: a repeatable per-minute scheduler
+ * job that dispatches scheduled-post checks, and the per-organization worker
+ * that publishes/archives the due posts.
+ */
+export const initMQWorkers = async (redis: TRedisConnection) => {
   const scheduledPostsQueue = new Queue('content-scheduled-posts-check', {
     connection: redis,
     defaultJobOptions: {

@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { CMS_POSTS_DUPLICATE } from '../graphql/mutations/postsDuplicateMutation';
 
+/** Duplicates a post via cmsPostsDuplicate and refreshes the posts list. */
 export const useDuplicatePost = () => {
   const [_duplicatePost, { loading }] = useMutation(CMS_POSTS_DUPLICATE, {
     refetchQueries: ['CmsPostList'],

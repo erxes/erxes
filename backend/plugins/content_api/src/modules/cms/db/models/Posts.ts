@@ -193,23 +193,29 @@ export const loadPostClass = (models: IModels) => {
 
       const {
         _id: _sourceId,
-        count,
-        slug,
-        viewCount,
-        recentViewCount,
-        reactionCounts,
-        publishedDate,
-        featuredDate,
-        scheduledDate,
-        autoArchiveDate,
-        createdAt,
-        updatedAt,
+        count: _count,
+        slug: _slug,
+        viewCount: _viewCount,
+        recentViewCount: _recentViewCount,
+        reactionCounts: _reactionCounts,
+        publishedDate: _publishedDate,
+        featuredDate: _featuredDate,
+        scheduledDate: _scheduledDate,
+        autoArchiveDate: _autoArchiveDate,
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
         ...rest
-      } = post as any;
+      } = post as unknown as IPost & {
+        _id: string;
+        createdAt?: Date;
+        updatedAt?: Date;
+      };
 
       const duplicated = await this.createPost({
         ...rest,
         title: `${post.title} (Copy)`,
+        // createPost regenerates a unique slug from the new title
+        slug: '',
         status: 'draft',
         featured: false,
         ...(authorId ? { authorId, authorKind: 'user' } : {}),
