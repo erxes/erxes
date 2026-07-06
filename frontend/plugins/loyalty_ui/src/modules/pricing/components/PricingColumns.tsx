@@ -129,7 +129,12 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
     accessorKey: 'createdAt',
     header: () => {
       const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('date-created')} icon={IconCalendarPlus} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('date-created')}
+          icon={IconCalendarPlus}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -146,7 +151,12 @@ export const pricingColumns: ColumnDef<IPricing>[] = [
     accessorKey: 'updatedAt',
     header: () => {
       const { t } = useTranslation('loyalty');
-      return <RecordTable.InlineHead label={t('last-updated-at')} icon={IconCalendarPlus} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('last-updated-at')}
+          icon={IconCalendarPlus}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (

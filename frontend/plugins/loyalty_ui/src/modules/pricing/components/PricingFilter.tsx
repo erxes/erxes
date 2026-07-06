@@ -121,28 +121,36 @@ export const PricingFilterBar = ({
       {isQuantityEnabled === true && (
         <Filter.BarItem queryKey="isQuantityEnabled">
           <Filter.BarName>{t('quantity-enabled')}</Filter.BarName>
-          <Filter.BarButton filterKey="isQuantityEnabled">{t('yes')}</Filter.BarButton>
+          <Filter.BarButton filterKey="isQuantityEnabled">
+            {t('yes')}
+          </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isPriceEnabled === true && (
         <Filter.BarItem queryKey="isPriceEnabled">
           <Filter.BarName>{t('price-enabled')}</Filter.BarName>
-          <Filter.BarButton filterKey="isPriceEnabled">{t('yes')}</Filter.BarButton>
+          <Filter.BarButton filterKey="isPriceEnabled">
+            {t('yes')}
+          </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isExpiryEnabled === true && (
         <Filter.BarItem queryKey="isExpiryEnabled">
           <Filter.BarName>{t('expiry-enabled')}</Filter.BarName>
-          <Filter.BarButton filterKey="isExpiryEnabled">{t('yes')}</Filter.BarButton>
+          <Filter.BarButton filterKey="isExpiryEnabled">
+            {t('yes')}
+          </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isRepeatEnabled === true && (
         <Filter.BarItem queryKey="isRepeatEnabled">
           <Filter.BarName>{t('repeat-enabled')}</Filter.BarName>
-          <Filter.BarButton filterKey="isRepeatEnabled">{t('yes')}</Filter.BarButton>
+          <Filter.BarButton filterKey="isRepeatEnabled">
+            {t('yes')}
+          </Filter.BarButton>
         </Filter.BarItem>
       )}
     </>

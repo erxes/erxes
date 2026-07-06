@@ -22,10 +22,7 @@ export const getRemBranchId = (
   return paramBranchId;
 };
 
-const getRemainderScope = (
-  config: IConfigDocument,
-  paramBranchId?: string,
-) => {
+const getRemainderScope = (config: IConfigDocument, paramBranchId?: string) => {
   const branchIds = paramBranchId
     ? [paramBranchId]
     : config.isOnline
@@ -188,7 +185,10 @@ export const getDiscount = (
     .sort((a, b) => b.discount - a.discount)[0];
 };
 
-const getConditionValueExpression = (conditionsExpression, prefixExpression) => ({
+const getConditionValueExpression = (
+  conditionsExpression,
+  prefixExpression,
+) => ({
   $first: {
     $map: {
       input: {
@@ -204,7 +204,9 @@ const getConditionValueExpression = (conditionsExpression, prefixExpression) => 
   },
 });
 
-const getRuleConditionMatchExpression = (requestConditions: DiscountConditions) => {
+const getRuleConditionMatchExpression = (
+  requestConditions: DiscountConditions,
+) => {
   const requestConditionsExpression = { $literal: requestConditions };
 
   return {
@@ -239,7 +241,9 @@ const getRuleConditionMatchExpression = (requestConditions: DiscountConditions) 
                             {
                               $or: [
                                 { $eq: ['$$ruleValue.start', null] },
-                                { $gte: ['$$requestValue', '$$ruleValue.start'] },
+                                {
+                                  $gte: ['$$requestValue', '$$ruleValue.start'],
+                                },
                               ],
                             },
                             {
@@ -345,9 +349,7 @@ export const pushDiscountRangeFilters = (
       return;
     }
 
-    filters.push(
-      buildDiscountRangeFilter(field, operator, value, conditions),
-    );
+    filters.push(buildDiscountRangeFilter(field, operator, value, conditions));
   };
 
   addRangeFilter('discount', '$gte', params.minDiscountValue);
@@ -389,7 +391,10 @@ export const getDiscountSortedProducts = async ({
     { $match: filter },
     {
       $addFields: {
-        discountSortValue: getDiscountValueExpression(discountField, conditions),
+        discountSortValue: getDiscountValueExpression(
+          discountField,
+          conditions,
+        ),
       },
     },
     { $sort: { discountSortValue: sortDirection, code: 1, _id: 1 } },
@@ -415,10 +420,7 @@ export const checkRemainders = async (
     return products;
   }
 
-  const { branchIds, departmentIds } = getRemainderScope(
-    config,
-    paramBranchId,
-  );
+  const { branchIds, departmentIds } = getRemainderScope(config, paramBranchId);
   const productIds = products.map((p) => p._id);
 
   const coreProducts = await sendTRPCMessage({
@@ -439,12 +441,14 @@ export const checkRemainders = async (
     coreProductsById[coreProduct._id] = coreProduct;
   }
 
-  const bulkOps: Array<{
-    updateOne: {
-      filter: { _id: string };
-      update: { $set: any };
-    };
-  }> | undefined = config.saveRemainder ? [] : undefined;
+  const bulkOps:
+    | Array<{
+        updateOne: {
+          filter: { _id: string };
+          update: { $set: any };
+        };
+      }>
+    | undefined = config.saveRemainder ? [] : undefined;
   const remBranchId = config.saveRemainder
     ? getRemBranchId(config, paramBranchId)
     : '';
@@ -479,7 +483,8 @@ export const checkRemainders = async (
         filter: { _id: product._id },
         update: {
           $set: {
-            [`remainderByToken.${config.token}.${remBranchId}`]: product.remainder ?? 0,
+            [`remainderByToken.${config.token}.${remBranchId}`]:
+              product.remainder ?? 0,
           },
         },
       },

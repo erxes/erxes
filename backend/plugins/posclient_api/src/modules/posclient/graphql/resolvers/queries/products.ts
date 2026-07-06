@@ -449,7 +449,13 @@ const productQueries = {
         params,
       });
 
-      return checkRemainders(subdomain, models, config, products, branchId || '');
+      return checkRemainders(
+        subdomain,
+        models,
+        config,
+        products,
+        branchId || '',
+      );
     }
 
     const paginatedProducts = await paginate(

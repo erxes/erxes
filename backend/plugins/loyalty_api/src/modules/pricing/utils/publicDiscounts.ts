@@ -6,10 +6,7 @@ import { IQuantityRule } from '@/pricing/@types/quantityRule';
 import { IExpiryRule } from '@/pricing/@types/expiryRule';
 import { getChildCategories, getChildTags } from '~/utils/utils';
 import { PRIORITY_TYPES } from '../db/definitions/constants';
-import {
-  calculateDiscountValue,
-  calculatePriceAdjust,
-} from './rule';
+import { calculateDiscountValue, calculatePriceAdjust } from './rule';
 
 type DiscountConditionValue =
   | string
@@ -207,7 +204,11 @@ const calculateAdjustedDiscount = (
     return 0;
   }
 
-  const rawDiscount = calculateDiscountValue(discountType, discountValue, unitPrice);
+  const rawDiscount = calculateDiscountValue(
+    discountType,
+    discountValue,
+    unitPrice,
+  );
 
   return calculatePriceAdjust(
     unitPrice,
@@ -336,7 +337,9 @@ const getPlanConditions = (plan: IPricingPlanDocument): DiscountConditions => {
 
   if (plan.isStartDateEnabled || plan.isEndDateEnabled) {
     addCondition(conditions, 'date', {
-      start: plan.isStartDateEnabled ? plan.startDate?.toISOString() : undefined,
+      start: plan.isStartDateEnabled
+        ? plan.startDate?.toISOString()
+        : undefined,
       end: plan.isEndDateEnabled ? plan.endDate?.toISOString() : undefined,
     });
   }
@@ -376,7 +379,9 @@ const getPlanConditions = (plan: IPricingPlanDocument): DiscountConditions => {
   return conditions;
 };
 
-const getRuleOptions = <TRule extends IPriceRule | IQuantityRule | IExpiryRule>({
+const getRuleOptions = <
+  TRule extends IPriceRule | IQuantityRule | IExpiryRule,
+>({
   enabled,
   rules,
   product,
@@ -408,7 +413,10 @@ const combineRuleOptions = (
     (combinations, options) =>
       combinations.flatMap((combination) =>
         options.map((option) => ({
-          conditions: mergeConditions(combination.conditions, option.conditions),
+          conditions: mergeConditions(
+            combination.conditions,
+            option.conditions,
+          ),
           discount: Math.max(combination.discount, option.discount),
         })),
       ),
@@ -451,7 +459,10 @@ const buildProductDiscounts = (
 
   return ruleCombinations
     .map((combination) => {
-      const conditions = mergeConditions(planConditions, combination.conditions);
+      const conditions = mergeConditions(
+        planConditions,
+        combination.conditions,
+      );
       const discount = combination.discount || defaultDiscount;
 
       return {

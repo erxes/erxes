@@ -110,12 +110,7 @@ export default {
     const remBranchId = getRemBranchId(config, args.branchId);
     return product.remainderByToken?.[config.token]?.[remBranchId] || 0;
   },
-  discount(
-    product: IProductDocument,
-    args,
-    { config }: IContext,
-    info: any,
-  ) {
+  discount(product: IProductDocument, args, { config }: IContext, info: any) {
     const variables = info?.variableValues || {};
 
     return getDiscount(
