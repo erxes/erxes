@@ -323,7 +323,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                         </Select.Trigger>
                         <Select.Content>
                           {PRICING_PRIORITY_OPTIONS.map((option) => (
-                            <Select.Item key={option.label} value={option.value}>
+                            <Select.Item
+                              key={option.label}
+                              value={option.value}
+                            >
                               {t(option.label)}
                             </Select.Item>
                           ))}

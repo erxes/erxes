@@ -112,14 +112,7 @@ const generateFilter = async (
     isRepeatEnabled?: boolean;
   },
 ): Promise<Record<string, any>> => {
-  const {
-    status,
-    priority,
-    branchId,
-    departmentId,
-    date,
-    productId,
-  } = params;
+  const { status, priority, branchId, departmentId, date, productId } = params;
 
   let filter: Record<string, any> = {};
 

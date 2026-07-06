@@ -34,8 +34,7 @@ const getProductPropertyValue = (product: any, fieldId: string) =>
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
 
-const isPropertyField = (field: string) =>
-  field.includes('propertiesData.');
+const isPropertyField = (field: string) => field.includes('propertiesData.');
 
 const propertyExistsFilter = (fieldIds: string[]) => ({
   $or: [
@@ -159,7 +158,6 @@ const generateFilter = async (
       $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
     });
   }
-  
 
   if (type) {
     filter.type = type;
@@ -458,7 +456,13 @@ const cpProductQueries: Record<string, Resolver> = {
         params,
       });
 
-      return checkRemainders(subdomain, models, config, products, branchId || '');
+      return checkRemainders(
+        subdomain,
+        models,
+        config,
+        products,
+        branchId || '',
+      );
     }
 
     const paginatedProducts = await paginate(
@@ -516,9 +520,8 @@ const cpProductQueries: Record<string, Resolver> = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);

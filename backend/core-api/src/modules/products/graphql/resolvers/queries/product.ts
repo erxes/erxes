@@ -56,7 +56,10 @@ const getSortField = (params: IProductParams) => {
   return params.sortField;
 };
 
-const getConditionValueExpression = (conditionsExpression, prefixExpression) => ({
+const getConditionValueExpression = (
+  conditionsExpression,
+  prefixExpression,
+) => ({
   $first: {
     $map: {
       input: {
@@ -72,7 +75,9 @@ const getConditionValueExpression = (conditionsExpression, prefixExpression) => 
   },
 });
 
-const getRuleConditionMatchExpression = (requestConditions: DiscountConditions) => {
+const getRuleConditionMatchExpression = (
+  requestConditions: DiscountConditions,
+) => {
   const requestConditionsExpression = { $literal: requestConditions };
 
   return {
@@ -107,7 +112,9 @@ const getRuleConditionMatchExpression = (requestConditions: DiscountConditions) 
                             {
                               $or: [
                                 { $eq: ['$$ruleValue.start', null] },
-                                { $gte: ['$$requestValue', '$$ruleValue.start'] },
+                                {
+                                  $gte: ['$$requestValue', '$$ruleValue.start'],
+                                },
                               ],
                             },
                             {
@@ -192,12 +199,7 @@ const pushScopedDiscountRangeFilter = (
   }
 
   filters.push(
-    buildScopedDiscountRangeFilter(
-      field,
-      operator,
-      value,
-      conditions,
-    ),
+    buildScopedDiscountRangeFilter(field, operator, value, conditions),
   );
 };
 
@@ -213,7 +215,10 @@ const buildDiscountSortPipeline = (
     { $match: filter },
     {
       $addFields: {
-        discountSortValue: getDiscountValueExpression(discountField, conditions),
+        discountSortValue: getDiscountValueExpression(
+          discountField,
+          conditions,
+        ),
       },
     },
   ];
@@ -434,7 +439,6 @@ const generateFilter = async (
         },
       });
     }
-
   } else {
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
@@ -488,7 +492,6 @@ const generateFilter = async (
         },
       });
     }
-
   }
 
   const discountConditions = getDiscountConditions(params);

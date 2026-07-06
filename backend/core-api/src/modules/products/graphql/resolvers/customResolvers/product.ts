@@ -74,10 +74,7 @@ const conditionMatches = (expected: unknown, actual: unknown) => {
   return expected === actual;
 };
 
-const getDiscount = (
-  discounts: unknown,
-  conditions: DiscountConditions,
-) => {
+const getDiscount = (discounts: unknown, conditions: DiscountConditions) => {
   return ((Array.isArray(discounts) ? discounts : []) as ProductDiscount[])
     .filter((discount) =>
       (discount.prefixes || []).every((prefix) =>
