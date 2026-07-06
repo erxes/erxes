@@ -13,7 +13,6 @@ import { planMatchesContext, EligibilityCache } from './eligibility';
 import { CalculatedRule, OrderItem } from '../types';
 
 type ParticipantKind = 'customer' | 'company' | 'user';
-type PrioritizeRule = string;
 
 export const getMainConditions = ({
   branchId,
@@ -87,7 +86,7 @@ export const getMainConditions = ({
 
 const applyPriorityConditions = (
   conditions: Record<string, any>,
-  prioritizeRule?: PrioritizeRule,
+  prioritizeRule?: string,
 ) => {
   if (prioritizeRule === 'only') {
     conditions.$and = [
@@ -334,7 +333,7 @@ const typedParticipantContext = ({
 export const checkPricing = async (params: {
   models: IModels;
   subdomain: string;
-  prioritizeRule: PrioritizeRule;
+  prioritizeRule: string;
   totalAmount: number;
   departmentId: string;
   branchId: string;
