@@ -2,11 +2,16 @@ import { IconTicket, IconCategory } from '@tabler/icons-react';
 import { Breadcrumb, Toggle, Button, Separator } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const VouchersNavigation = () => {
   const { t } = useTranslation('loyalty');
   const { pathname } = useLocation();
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('vouchers'),
+    pathname.includes('/categories') && t('categories'),
+  );
+
   return (
     <PageHeader.Start>
       <Breadcrumb>
@@ -36,7 +41,10 @@ export const VouchersNavigation = () => {
         </Breadcrumb.List>
       </Breadcrumb>
       <Separator.Inline />
-      <PageHeader.FavoriteToggleButton />
+      <PageHeader.FavoriteToggleButton
+        breadcrumb={favoriteBreadcrumb}
+        icon="IconAward"
+      />
     </PageHeader.Start>
   );
 };

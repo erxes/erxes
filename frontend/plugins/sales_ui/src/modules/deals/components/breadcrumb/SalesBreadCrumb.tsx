@@ -58,7 +58,7 @@ export const SalesBreadCrumb = ({
           </Button>
         </Breadcrumb.Item>
       )}
-      <SalesFavoriteToggle breadcrumb={breadcrumb} />
+      <SalesFavoriteToggle breadcrumb={breadcrumb} icon="IconBriefcase" />
     </>
   );
 };

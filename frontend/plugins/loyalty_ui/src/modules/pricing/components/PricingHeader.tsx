@@ -1,5 +1,10 @@
-import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
-import { Breadcrumb, Button } from 'erxes-ui';
+import {
+  PageHeader,
+  PageHeaderEnd,
+  PageHeaderStart,
+  createFavoriteBreadcrumb,
+} from 'ui-modules';
+import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconCoins } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +12,8 @@ import { PricingCreateSheet } from '@/pricing/create-pricing/PricingCreateSheet'
 
 export function PricingHeader() {
   const { t } = useTranslation('loyalty');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('pricing'));
+
   return (
     <PageHeader>
       <PageHeaderStart>
@@ -22,6 +29,11 @@ export function PricingHeader() {
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>
+        <Separator.Inline />
+        <PageHeader.FavoriteToggleButton
+          breadcrumb={favoriteBreadcrumb}
+          icon="IconCoins"
+        />
       </PageHeaderStart>
       <PageHeaderEnd>
         <PricingCreateSheet />

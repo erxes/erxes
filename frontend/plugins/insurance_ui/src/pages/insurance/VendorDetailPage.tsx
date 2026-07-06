@@ -259,7 +259,7 @@ export const VendorDetailPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleCreate}>

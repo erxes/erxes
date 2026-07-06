@@ -297,7 +297,7 @@ export const ContractTemplateEditorPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleReset} variant="outline">

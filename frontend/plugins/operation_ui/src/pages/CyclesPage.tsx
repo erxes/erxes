@@ -27,7 +27,10 @@ export const CyclesPage = () => {
               <Separator.Inline />
               <CyclesBreadcrumb link={link} />
               <Breadcrumb.Item className="ml-1">
-                <FavoriteToggleIconButton breadcrumb={favoriteBreadcrumb} />
+                <FavoriteToggleIconButton
+                  breadcrumb={favoriteBreadcrumb}
+                  icon="IconListCheck"
+                />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>

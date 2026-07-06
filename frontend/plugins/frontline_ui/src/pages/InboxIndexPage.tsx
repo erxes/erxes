@@ -28,7 +28,10 @@ const InboxIndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconMail"
+          />
         </PageHeader.Start>
       </PageHeader>
       <InboxLayout

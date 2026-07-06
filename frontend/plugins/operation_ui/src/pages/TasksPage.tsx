@@ -47,7 +47,10 @@ export const TasksPage = () => {
               )}
               <TaskBreadCrump link={basePath} />
               <Breadcrumb.Item className="ml-1">
-                <FavoriteToggleIconButton breadcrumb={favoriteBreadcrumb} />
+                <FavoriteToggleIconButton
+                  breadcrumb={favoriteBreadcrumb}
+                  icon="IconChecklist"
+                />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>

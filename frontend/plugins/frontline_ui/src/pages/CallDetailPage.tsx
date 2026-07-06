@@ -128,6 +128,7 @@ export const CallDetailPage = ({
               <Breadcrumb.Item className="ml-1">
                 <PageHeader.FavoriteToggleButton
                   breadcrumb={favoriteBreadcrumb}
+                  icon="IconPhone"
                 />
               </Breadcrumb.Item>
             </Breadcrumb.List>

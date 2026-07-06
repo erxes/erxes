@@ -41,6 +41,12 @@ export const normalizeFavoriteBreadcrumb = (breadcrumb?: string[]) => {
     .slice(0, 3);
 };
 
+export const normalizeFavoriteIcon = (icon?: string) => {
+  const normalizedIcon = icon?.trim();
+
+  return normalizedIcon || undefined;
+};
+
 const getFallbackFavoriteBreadcrumb = (path: string) => {
   const segments = normalizeFavoritePath(path).split(/[?#]/)[0].split('/');
   const breadcrumb = segments.filter(Boolean).slice(0, 3).map(titleize);

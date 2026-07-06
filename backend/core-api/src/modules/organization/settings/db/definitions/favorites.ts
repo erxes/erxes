@@ -5,6 +5,7 @@ export interface IFavorites {
   userId: string;
   path: string;
   breadcrumb?: string[];
+  icon?: string;
 }
 
 export interface IFavoritesDocument extends IFavorites, Document {
@@ -26,6 +27,10 @@ export const favoritesSchema = new Schema(
     },
     breadcrumb: {
       type: [String],
+      default: undefined,
+    },
+    icon: {
+      type: String,
       default: undefined,
     },
   },

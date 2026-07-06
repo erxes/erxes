@@ -52,7 +52,7 @@ export const IndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
         </PageHeader.Start>
         <PageHeader.End>
           <Link to="/insurance/car-insurance">

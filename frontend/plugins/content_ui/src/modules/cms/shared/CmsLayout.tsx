@@ -210,7 +210,10 @@ export function CmsLayout({
               </Breadcrumb.List>
             </Breadcrumb>
             <Separator.Inline />
-            <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
+            <PageHeader.FavoriteToggleButton
+              breadcrumb={favoriteBreadcrumb}
+              icon="IconBooks"
+            />
           </PageHeader.Start>
           <PageHeader.End>
             {headerActions || (

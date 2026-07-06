@@ -1,6 +1,6 @@
 import { IconCashRegister, IconPlus } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { PosCardGrid } from '@/pos/components/PosRecordList';
 import { PosCreate } from '~/modules/pos/components/pos-create';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 const Settings = () => {
   const { t } = useTranslation('sales');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('pos'));
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const onCreatePos = () => {
@@ -32,7 +33,10 @@ const Settings = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconCashRegister"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={onCreatePos}>

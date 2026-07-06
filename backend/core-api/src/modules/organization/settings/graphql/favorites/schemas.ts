@@ -3,6 +3,7 @@ export const types = `
     _id: String!
     path: String!
     breadcrumb: [String]
+    icon: String
   }
 `;
 
@@ -12,5 +13,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  toggleFavorite(path: String!, breadcrumb: [String!]): Favorite
+  toggleFavorite(path: String!, breadcrumb: [String!], icon: String): Favorite
 `;

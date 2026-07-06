@@ -36,7 +36,10 @@ export const ProjectsPage = () => {
                 }
               />
               <Breadcrumb.Item className="ml-1">
-                <FavoriteToggleIconButton breadcrumb={favoriteBreadcrumb} />
+                <FavoriteToggleIconButton
+                  breadcrumb={favoriteBreadcrumb}
+                  icon="IconClipboard"
+                />
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>

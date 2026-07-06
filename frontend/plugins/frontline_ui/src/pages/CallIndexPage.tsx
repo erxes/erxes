@@ -35,7 +35,10 @@ export const CallIndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconPhone"
+          />
         </PageHeader.Start>
       </PageHeader>
       <CallQueueRecordTable />

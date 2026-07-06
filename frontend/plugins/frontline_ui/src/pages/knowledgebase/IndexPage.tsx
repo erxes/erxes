@@ -115,7 +115,10 @@ const IndexPage = () => {
           </Breadcrumb>
 
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconLibraryPhoto"
+          />
         </PageHeader.Start>
 
         <PageHeader.End>

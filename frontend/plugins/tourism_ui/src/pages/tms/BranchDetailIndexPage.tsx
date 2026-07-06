@@ -188,7 +188,7 @@ export const BranchDetailIndexPage = () => {
 
           <Separator.Inline />
 
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton icon="IconBox" />
         </PageHeader.Start>
 
         <PageHeader.End>{renderCreateSheet()}</PageHeader.End>

@@ -3,10 +3,19 @@ import { IconSandbox } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { PUT_RESPONSE_ROUTES } from './PutResponseRoutes';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const PutResponseBreadcrumb = () => {
   const { t } = useTranslation('mongolian');
   const { pathname } = useLocation();
+  const currentLabel = t(
+    PUT_RESPONSE_ROUTES.find((r) => pathname.endsWith(r.value))?.label ?? '',
+  );
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('put-response'),
+    currentLabel,
+  );
+
   return (
     <>
       <Button variant="ghost" className="font-semibold">
@@ -15,8 +24,13 @@ export const PutResponseBreadcrumb = () => {
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {t(PUT_RESPONSE_ROUTES.find((r) => pathname.endsWith(r.value))?.label ?? '')}
+        {currentLabel}
       </Button>
+      <Separator.Inline />
+      <PageHeader.FavoriteToggleButton
+        breadcrumb={favoriteBreadcrumb}
+        icon="IconSandbox"
+      />
     </>
   );
 };

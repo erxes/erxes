@@ -3,6 +3,7 @@ import { Button, Separator } from 'erxes-ui';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { SETTINGS_ROUTES } from '../constants/settingRoutes';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const LoyaltyBreadcrumb = () => {
   const { t } = useTranslation('loyalty');
@@ -10,6 +11,12 @@ export const LoyaltyBreadcrumb = () => {
   const normalizePath = (value: string) => value.replace(/\/+$/, '');
   const label =
     SETTINGS_ROUTES[normalizePath(pathname) as keyof typeof SETTINGS_ROUTES];
+  const currentLabel = label ? t(label) : '';
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('settings'),
+    currentLabel,
+  );
+
   return (
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-2">
@@ -19,8 +26,13 @@ export const LoyaltyBreadcrumb = () => {
         </Button>
         <Separator.Inline />
         <Button variant="ghost" className="font-semibold">
-          {label ? t(label) : ''}
+          {currentLabel}
         </Button>
+        <Separator.Inline />
+        <PageHeader.FavoriteToggleButton
+          breadcrumb={favoriteBreadcrumb}
+          icon="IconAward"
+        />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { IconCashBanknote } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SYNC_ERKHET_ROUTES } from './SyncErkhetRoutes';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const SyncErkhetBreadcrumb = () => {
   const { t } = useTranslation('mongolian');
@@ -10,6 +11,12 @@ export const SyncErkhetBreadcrumb = () => {
   const currentRoute = SYNC_ERKHET_ROUTES.find((r) =>
     pathname.endsWith(r.value),
   );
+  const currentLabel = t(currentRoute?.label ?? '');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('erkhet-sync'),
+    currentLabel,
+  );
+
   return (
     <>
       <Button variant="ghost" className="font-semibold">
@@ -18,8 +25,13 @@ export const SyncErkhetBreadcrumb = () => {
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="font-semibold">
-        {t(currentRoute?.label ?? '')}
+        {currentLabel}
       </Button>
+      <Separator.Inline />
+      <PageHeader.FavoriteToggleButton
+        breadcrumb={favoriteBreadcrumb}
+        icon="IconSandbox"
+      />
     </>
   );
 };

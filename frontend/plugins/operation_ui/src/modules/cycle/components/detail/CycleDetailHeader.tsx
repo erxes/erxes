@@ -36,7 +36,10 @@ export const CycleDetailHeader = () => {
               {cycleDetail?.name}
             </Breadcrumb.Item>
             <Breadcrumb.Item className="ml-1">
-              <FavoriteToggleIconButton breadcrumb={favoriteBreadcrumb} />
+              <FavoriteToggleIconButton
+                breadcrumb={favoriteBreadcrumb}
+                icon="IconListCheck"
+              />
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>

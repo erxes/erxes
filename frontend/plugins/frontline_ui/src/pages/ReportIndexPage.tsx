@@ -74,7 +74,10 @@ export default function ReportIndexPage() {
             <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconChartHistogram"
+          />
         </PageHeader.Start>
       </PageHeader>
 

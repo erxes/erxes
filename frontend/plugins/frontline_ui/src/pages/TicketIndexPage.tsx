@@ -47,7 +47,10 @@ const TicketsIndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconTicket"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <AddTicketSheet />

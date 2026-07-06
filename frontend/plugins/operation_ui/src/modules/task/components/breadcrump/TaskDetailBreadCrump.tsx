@@ -32,7 +32,10 @@ export const TaskDetailBreadCrump = () => {
           </Button>
         </Breadcrumb.Item>
         <Breadcrumb.Item className="ml-1">
-          <FavoriteToggleIconButton breadcrumb={favoriteBreadcrumb} />
+          <FavoriteToggleIconButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconChecklist"
+          />
         </Breadcrumb.Item>
       </Breadcrumb.List>
     </Breadcrumb>

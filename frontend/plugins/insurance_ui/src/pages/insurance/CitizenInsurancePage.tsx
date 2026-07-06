@@ -254,7 +254,7 @@ export const CitizenInsurancePage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
         </PageHeader.Start>
       </PageHeader>
 

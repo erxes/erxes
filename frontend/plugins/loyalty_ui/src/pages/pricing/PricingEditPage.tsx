@@ -3,10 +3,15 @@ import { PricingEdit } from '@/pricing/edit-pricing/PricingEdit';
 import { usePricing } from '@/pricing/hooks/usePricing';
 import { IPricing } from '@/pricing/types';
 import { IconCoins } from '@tabler/icons-react';
-import { Breadcrumb, Button, Select } from 'erxes-ui';
+import { Breadcrumb, Button, Select, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
+import {
+  PageHeader,
+  PageHeaderEnd,
+  PageHeaderStart,
+  createFavoriteBreadcrumb,
+} from 'ui-modules';
 
 export const PricingEditPage = () => {
   const { t } = useTranslation('loyalty');
@@ -15,6 +20,10 @@ export const PricingEditPage = () => {
   const { pricing, loading } = usePricing();
 
   const currentPricing = pricing?.find((p: IPricing) => p._id === id);
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('pricing'),
+    currentPricing?.name,
+  );
 
   const handlePricingChange = (pricingId: string) => {
     navigate(`/settings/loyalty/pricing/${pricingId}`);
@@ -61,6 +70,11 @@ export const PricingEditPage = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconCoins"
+          />
         </PageHeaderStart>
 
         <PageHeaderEnd>

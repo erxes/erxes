@@ -2,15 +2,16 @@ import { IContext } from '~/connectionResolvers';
 import { IFavorites } from '@/organization/settings/db/definitions/favorites';
 import {
   normalizeFavoriteBreadcrumb,
+  normalizeFavoriteIcon,
   normalizeFavoritePath,
 } from '@/organization/settings/graphql/favorites/utils';
 
-type ToggleFavoriteArgs = Pick<IFavorites, 'path' | 'breadcrumb'>;
+type ToggleFavoriteArgs = Pick<IFavorites, 'path' | 'breadcrumb' | 'icon'>;
 
 export const favoriteMutations = {
   toggleFavorite: async (
     _parent: undefined,
-    { path, breadcrumb }: ToggleFavoriteArgs,
+    { path, breadcrumb, icon }: ToggleFavoriteArgs,
     { models, user }: IContext,
   ) => {
     const normalizedPath = normalizeFavoritePath(path);
@@ -30,6 +31,7 @@ export const favoriteMutations = {
     return models.Favorites.createFavorite({
       path: normalizedPath,
       breadcrumb: normalizeFavoriteBreadcrumb(breadcrumb),
+      icon: normalizeFavoriteIcon(icon),
       userId: user._id,
     });
   },

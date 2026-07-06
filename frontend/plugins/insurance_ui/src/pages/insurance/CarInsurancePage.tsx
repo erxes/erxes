@@ -217,7 +217,7 @@ export const CarInsurancePage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton icon="IconSandbox" />
         </PageHeader.Start>
       </PageHeader>
 

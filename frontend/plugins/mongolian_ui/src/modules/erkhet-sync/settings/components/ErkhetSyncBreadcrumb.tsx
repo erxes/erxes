@@ -3,10 +3,20 @@ import { Button, Separator } from 'erxes-ui';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { SETTINGS_ROUTES } from '@/erkhet-sync/settings/constants/settingRoutes';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const ErkhetSyncBreadcrumb = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('mongolian');
+  const currentLabel = t(
+    SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES] ||
+      SETTINGS_ROUTES['/settings/mongolian/sync-erkhet'],
+  );
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('settings'),
+    currentLabel,
+  );
+
   return (
     <>
       <Button variant="ghost" className="font-semibold">
@@ -15,8 +25,13 @@ export const ErkhetSyncBreadcrumb = () => {
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {t(SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES])}
+        {currentLabel}
       </Button>
+      <Separator.Inline />
+      <PageHeader.FavoriteToggleButton
+        breadcrumb={favoriteBreadcrumb}
+        icon="IconSandbox"
+      />
     </>
   );
 };

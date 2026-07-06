@@ -1,8 +1,9 @@
-import { PageContainer } from 'erxes-ui';
+import { PageContainer, Separator } from 'erxes-ui';
 import { Suspense } from 'react';
 import { IconAward } from '@tabler/icons-react';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router';
 import { LoyaltyMainSidebar } from './LoyaltyMainSidebar';
 import {
   LoyaltyHeaderActionProvider,
@@ -20,6 +21,26 @@ export const LoyaltyMainLayout = ({
   children: React.ReactNode;
 }) => {
   const { t } = useTranslation('loyalty');
+  const { pathname } = useLocation();
+  const sectionLabelByPath: Record<string, string> = {
+    vouchers: 'vouchers',
+    lotteries: 'lotteries',
+    spins: 'spins',
+    donates: 'donates',
+    scores: 'scores',
+    assignments: 'assignments',
+    agents: 'agents',
+    coupons: 'coupons',
+  };
+  const currentSection = pathname.split('/').filter(Boolean).pop() || '';
+  const currentLabel = sectionLabelByPath[currentSection]
+    ? t(sectionLabelByPath[currentSection])
+    : '';
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('loyalty-title'),
+    currentLabel,
+  );
+
   return (
     <LoyaltyHeaderActionProvider>
       <PageContainer className="flex flex-col h-full">
@@ -27,6 +48,11 @@ export const LoyaltyMainLayout = ({
           <PageHeader.Start>
             <IconAward className="size-4" />
             <span className="font-medium">{t('loyalty-title')}</span>
+            <Separator.Inline />
+            <PageHeader.FavoriteToggleButton
+              breadcrumb={favoriteBreadcrumb}
+              icon="IconAward"
+            />
           </PageHeader.Start>
           <PageHeader.End>
             <LoyaltyHeaderEnd />

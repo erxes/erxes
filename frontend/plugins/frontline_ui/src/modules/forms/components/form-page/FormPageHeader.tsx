@@ -43,7 +43,10 @@ export const FormPageHeader = () => {
         {!formId && (
           <>
             <Separator.Inline />
-            <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
+            <PageHeader.FavoriteToggleButton
+              breadcrumb={favoriteBreadcrumb}
+              icon="IconBook"
+            />
           </>
         )}
       </PageHeader.Start>

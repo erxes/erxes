@@ -7,6 +7,7 @@ import { useIsFavorite } from './useIsFavorite';
 export const useToggleFavorite = ({
   path: providedPath,
   breadcrumb,
+  icon,
 }: FavoriteToggleParams = {}) => {
   const { pathname, search } = useLocation();
   const path = providedPath || `${pathname}${search}`;
@@ -17,7 +18,7 @@ export const useToggleFavorite = ({
 
   const toggleFavorite = () => {
     toggleFavoriteMutation({
-      variables: { path, breadcrumb },
+      variables: { path, breadcrumb, icon },
       refetchQueries: ['isFavorite', 'getFavoritesByCurrentUser'],
     });
   };

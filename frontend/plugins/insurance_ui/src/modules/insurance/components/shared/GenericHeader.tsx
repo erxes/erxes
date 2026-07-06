@@ -43,7 +43,7 @@ export const GenericHeader = ({
           </Breadcrumb.List>
         </Breadcrumb>
         <Separator.Inline />
-        <PageHeader.FavoriteToggleButton />
+        <PageHeader.FavoriteToggleButton icon="IconSandbox" />
       </PageHeader.Start>
       {actions && <PageHeader.End>{actions}</PageHeader.End>}
     </PageHeader>

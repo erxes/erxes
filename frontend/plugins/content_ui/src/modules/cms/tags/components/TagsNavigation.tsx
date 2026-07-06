@@ -94,7 +94,10 @@ export const TagsNavigation = () => {
             </Button>
           </Breadcrumb.Page>
           <Breadcrumb.Separator />
-          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconBooks"
+          />
         </Breadcrumb.List>
       </Breadcrumb>
     </PageHeader.Start>
