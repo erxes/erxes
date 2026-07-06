@@ -13,7 +13,7 @@ import { planMatchesContext, EligibilityCache } from './eligibility';
 import { CalculatedRule, OrderItem } from '../types';
 
 type ParticipantKind = 'customer' | 'company' | 'user';
-type PrioritizeRule = 'only' | 'exclude' | string;
+type PrioritizeRule = string;
 
 export const getMainConditions = ({
   branchId,
@@ -72,11 +72,11 @@ export const getMainConditions = ({
 
   const departmentFilter = departmentId
     ? {
-        $or: [
-          { departmentIds: { $in: [departmentId] } },
-          { departmentIds: { $size: 0 } },
-        ],
-      }
+      $or: [
+        { departmentIds: { $in: [departmentId] } },
+        { departmentIds: { $size: 0 } },
+      ],
+    }
     : { departmentIds: { $size: 0 } };
 
   return {
@@ -106,7 +106,6 @@ const applyPriorityConditions = (
         $or: [{ priority: { $ne: 'posBase' } }],
       },
     ];
-    return;
   }
 };
 

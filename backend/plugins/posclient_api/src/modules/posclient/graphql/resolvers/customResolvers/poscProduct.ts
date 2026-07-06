@@ -123,8 +123,8 @@ export default {
       config,
       args.branchId || variables.branchId,
       {
-        ...(variables.discountConditions || {}),
-        ...(args.discountConditions || {}),
+        ...variables.discountConditions,
+        ...args.discountConditions,
         departmentId: args.departmentId || variables.departmentId,
         pipelineId: args.pipelineId || variables.pipelineId,
       },

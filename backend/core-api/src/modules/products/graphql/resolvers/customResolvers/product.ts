@@ -32,7 +32,7 @@ const getDiscountConditions = (
   params: Partial<IProductParams> = {},
 ): DiscountConditions =>
   compactDiscountConditions({
-    ...(params.discountConditions || {}),
+    ...params.discountConditions,
     branchId: params.branchId,
     departmentId: params.departmentId,
     pipelineId: params.pipelineId,
@@ -190,7 +190,7 @@ export default {
     return getDiscount(
       product.discounts,
       getDiscountConditions({
-        ...(info?.variableValues || {}),
+        ...info?.variableValues,
         ...args,
       }),
     );

@@ -46,7 +46,7 @@ const compactDiscountConditions = (conditions: DiscountConditions = {}) =>
 
 const getDiscountConditions = (params: IProductParams): DiscountConditions =>
   compactDiscountConditions({
-    ...(params.discountConditions || {}),
+    ...params.discountConditions,
     branchId: params.branchId,
     departmentId: params.departmentId,
     pipelineId: params.pipelineId,
