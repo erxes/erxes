@@ -3,8 +3,10 @@ import { IconCards, IconLayoutCards } from '@tabler/icons-react';
 
 import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
 import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
-import { createFavoriteBreadcrumb } from 'ui-modules';
-import { SalesFavoriteToggle } from './SalesFavoriteToggle';
+import {
+  createFavoriteBreadcrumb,
+  FavoriteToggleIconButton,
+} from 'ui-modules';
 
 export const SalesBreadCrumb = ({
   boardId,
@@ -58,7 +60,12 @@ export const SalesBreadCrumb = ({
           </Button>
         </Breadcrumb.Item>
       )}
-      <SalesFavoriteToggle breadcrumb={breadcrumb} icon="IconBriefcase" />
+      <Breadcrumb.Item className="ml-1">
+        <FavoriteToggleIconButton
+          breadcrumb={breadcrumb}
+          icon="IconBriefcase"
+        />
+      </Breadcrumb.Item>
     </>
   );
 };

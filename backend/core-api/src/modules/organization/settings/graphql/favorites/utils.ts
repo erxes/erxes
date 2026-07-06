@@ -1,25 +1,12 @@
 import { IFavoritesDocument } from '@/organization/settings/db/definitions/favorites';
 
-type FavoriteWithBreadcrumb = Omit<
-  IFavoritesDocument,
-  'breadcrumb' | 'toObject'
-> & {
-  breadcrumb?: string[];
-  toObject?: () => Record<string, unknown>;
-};
-
-type ResolvedFavorite = Record<string, unknown> & {
-  breadcrumb: string[];
-  path: string;
-};
-
-const titleize = (value: string) => {
+function titleize(value: string) {
   return value
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
-};
+}
 
-export const normalizeFavoritePath = (path: string) => {
+export function normalizeFavoritePath(path: string) {
   const trimmedPath = path.trim();
 
   if (!trimmedPath) {
@@ -32,63 +19,43 @@ export const normalizeFavoritePath = (path: string) => {
   } catch {
     return trimmedPath.replace(/\/$/, '') || '/';
   }
-};
+}
 
-export const normalizeFavoriteBreadcrumb = (breadcrumb?: string[]) => {
+export function normalizeFavoriteBreadcrumb(breadcrumb?: string[]) {
   return (breadcrumb || [])
     .map((segment) => segment.trim())
     .filter(Boolean)
     .slice(0, 3);
-};
+}
 
-export const normalizeFavoriteIcon = (icon?: string) => {
+export function normalizeFavoriteIcon(icon?: string) {
   const normalizedIcon = icon?.trim();
 
   return normalizedIcon || undefined;
-};
+}
 
-const getFallbackFavoriteBreadcrumb = (path: string) => {
-  const segments = normalizeFavoritePath(path).split(/[?#]/)[0].split('/');
+function getFallbackFavoriteBreadcrumb(path: string) {
+  const segments = path.split(/[?#]/)[0].split('/');
   const breadcrumb = segments.filter(Boolean).slice(0, 3).map(titleize);
 
   return breadcrumb.length ? breadcrumb : ['Unknown'];
-};
+}
 
-export const getFavoriteBreadcrumb = (favorite: {
-  path: string;
-  breadcrumb?: string[];
-}) => {
-  const breadcrumb = normalizeFavoriteBreadcrumb(favorite.breadcrumb);
-
-  return breadcrumb.length
-    ? breadcrumb
-    : getFallbackFavoriteBreadcrumb(favorite.path);
-};
-
-const toFavoriteObject = (favorite: FavoriteWithBreadcrumb) => {
-  if (typeof favorite.toObject === 'function') {
-    return favorite.toObject();
-  }
-
-  return favorite;
-};
-
-export const resolveFavoritesBreadcrumbs = ({
+export function resolveFavoritesBreadcrumbs({
   favorites,
 }: {
-  favorites: FavoriteWithBreadcrumb[];
-}): ResolvedFavorite[] => {
+  favorites: IFavoritesDocument[];
+}) {
   return favorites.map((favorite) => {
-    const favoriteObject = toFavoriteObject(favorite);
     const path = normalizeFavoritePath(favorite.path);
+    const breadcrumb = normalizeFavoriteBreadcrumb(favorite.breadcrumb);
 
     return {
-      ...favoriteObject,
+      ...favorite.toObject(),
       path,
-      breadcrumb: getFavoriteBreadcrumb({
-        path,
-        breadcrumb: favorite.breadcrumb,
-      }),
+      breadcrumb: breadcrumb.length
+        ? breadcrumb
+        : getFallbackFavoriteBreadcrumb(path),
     };
   });
-};
+}
