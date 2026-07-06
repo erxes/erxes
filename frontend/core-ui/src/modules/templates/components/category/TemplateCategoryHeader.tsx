@@ -4,7 +4,10 @@ import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { TemplateCategoryAddSheet } from './TemplateCategoryAddSheet';
 
 export const TemplateCategoryHeader = () => {
-  const favoriteBreadcrumb = createFavoriteBreadcrumb('Templates', 'Categories');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Templates',
+    'Categories',
+  );
 
   return (
     <PageHeader>

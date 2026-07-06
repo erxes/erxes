@@ -344,7 +344,9 @@ export const VendorDetailPage = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground">{t('no-products-added-yet')}</p>
+                <p className="text-muted-foreground">
+                  {t('no-products-added-yet')}
+                </p>
               )}
             </div>
           </Card>
@@ -382,7 +384,9 @@ export const VendorDetailPage = () => {
             ) : vendorUsers.length === 0 ? (
               <Card className="p-12 text-center">
                 <IconUsers size={64} className="mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">{t('no-users-yet')}</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  {t('no-users-yet')}
+                </h3>
                 <p className="text-muted-foreground mb-4">
                   {t('add-users-to-manage-vendor')}
                 </p>
@@ -501,7 +505,9 @@ export const VendorDetailPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="vendorPercentage">{t('base-rate-optional')}</Label>
+              <Label htmlFor="vendorPercentage">
+                {t('base-rate-optional')}
+              </Label>
               <Input
                 id="vendorPercentage"
                 type="number"
