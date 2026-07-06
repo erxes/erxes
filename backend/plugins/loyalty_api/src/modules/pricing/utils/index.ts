@@ -71,11 +71,11 @@ export const getMainConditions = ({
 
   const departmentFilter = departmentId
     ? {
-      $or: [
-        { departmentIds: { $in: [departmentId] } },
-        { departmentIds: { $size: 0 } },
-      ],
-    }
+        $or: [
+          { departmentIds: { $in: [departmentId] } },
+          { departmentIds: { $size: 0 } },
+        ],
+      }
     : { departmentIds: { $size: 0 } };
 
   return {
