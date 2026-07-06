@@ -12,9 +12,9 @@ const queries = {
     const khanbank = new Khanbank(config);
 
     try {
-      return khanbank.accounts.list();
-    } catch (e) {
-      throw new Error(e.message);
+      return await khanbank.accounts.list();
+    } catch (e: any) {
+      console.error(e);
     }
   },
 
@@ -28,9 +28,9 @@ const queries = {
     const khanbank = new Khanbank(config);
 
     try {
-      return khanbank.accounts.get(accountNumber);
-    } catch (e) {
-      throw new Error(e.message);
+      return await khanbank.accounts.get(accountNumber);
+    } catch (e: any) {
+      console.error(e);
     }
   },
 
@@ -47,7 +47,7 @@ const queries = {
       const config = await models.KhanbankConfigs.getConfig({ _id: configId });
       const khanbank = new Khanbank(config);
 
-      return khanbank.accounts.getHolder(accountNumber, bankCode);
+      return await khanbank.accounts.getHolder(accountNumber, bankCode);
     } catch (e) {
       throw new Error(e.message);
     }
