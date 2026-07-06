@@ -56,11 +56,12 @@ export const broadcastSchema = z.discriminatedUnion('method', [
 
   z.object({
     method: z.literal('notification'),
+    cpId: z.string().min(1),
     notification: z.object({
       inApp: z.boolean().default(true),
       isMobile: z.boolean(),
       title: z.string().min(1),
-      message: z.string(),
+      content: z.string().min(1),
     }),
     ...baseSchema,
   }),

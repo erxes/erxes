@@ -273,7 +273,7 @@ export const pricingPlanQueries = {
 
     // Stale: have a saved fixed value but product no longer on the plan
     const staleProductIds = allFixedValues
-      .filter((fv) => !planProductIdSet.has(fv.productId))
+      .filter((fv) => !planProductIdSet.has(fv.productId ?? ''))
       .map((fv) => fv.productId);
 
     // Full list: plan products first (sorted by their fixed value's sortField),
@@ -327,7 +327,7 @@ export const pricingPlanQueries = {
     const list = pageProductIds.map((productId) => {
       const product = productById.get(productId);
       const fixedValue = fixedByProductId.get(productId);
-      const isActive = planProductIdSet.has(productId);
+      const isActive = planProductIdSet.has(productId ?? '');
 
       let status = 'NEW';
       if (fixedValue && isActive) status = 'SAVED';
@@ -356,6 +356,10 @@ export const pricingPlanQueries = {
       departmentId: string;
       branchId: string;
       pipelineId: string;
+      customerType?: 'customer' | 'company' | 'user';
+      customerId?: string;
+      brokerType?: 'customer' | 'company' | 'user';
+      brokerId?: string;
       products: Array<{
         itemId: string;
         productId: string;
@@ -373,6 +377,10 @@ export const pricingPlanQueries = {
       branchId,
       products,
       pipelineId,
+      customerType,
+      customerId,
+      brokerType,
+      brokerId,
     } = params;
 
     return checkPricing({
@@ -384,6 +392,10 @@ export const pricingPlanQueries = {
       branchId,
       pipelineId,
       orderItems: products || [],
+      customerType,
+      customerId,
+      brokerType,
+      brokerId,
     });
   },
 };

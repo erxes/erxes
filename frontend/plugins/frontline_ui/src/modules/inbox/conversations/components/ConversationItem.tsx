@@ -8,8 +8,19 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import {
+  IconPhoneIncoming,
+  IconPhoneOutgoing,
+  IconPhoneX,
+} from '@tabler/icons-react';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { currentUserState, CustomersInline, MembersInline } from 'ui-modules';
+import { IntegrationType } from '@/types/Integration';
+import {
+  CALL_STATUS_LABEL_KEYS,
+  NOT_ANSWERED_STATUSES,
+  parseCallConversationContent,
+} from '@/integrations/call/utils/callContentUtils';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { activeConversationState } from '../states/activeConversationState';
 import { ConversationIntegrationBadge } from '@/integrations/components/IntegrationBadge';
@@ -97,16 +108,49 @@ export const ConversationItem = ({
 export const ConversationItemContent = () => {
   const { t } = useTranslation('frontline');
   const inboxLayout = useAtomValue(inboxLayoutState);
-  const { content, assignedUserId, assignedUser } = useConversationContext();
+  const { content, assignedUserId, assignedUser, integration } =
+    useConversationContext();
   if (!content) return null;
 
-  if (content.includes('callDirection/')) {
-    const callDirection = content.split('callDirection/')[1];
+  const callContent =
+    integration?.kind === IntegrationType.CALL ||
+    content.includes('callDirection/')
+      ? parseCallConversationContent(content)
+      : null;
+
+  if (callContent) {
+    const { direction, status } = callContent;
+    const isNotAnswered = !!status && NOT_ANSWERED_STATUSES.includes(status);
+    const isAnswered = status === 'answered';
 
     return (
       <div className="flex items-center gap-2 w-full justify-between flex-nowrap">
-        <div className="font-medium">
-          {callDirection === 'INCOMING' ? t('incoming-call') : t('outgoing-call')}
+        <div
+          className={cn(
+            'font-medium flex items-center gap-1',
+            isNotAnswered && 'text-destructive',
+            isAnswered && 'text-success',
+          )}
+        >
+          {isNotAnswered ? (
+            <IconPhoneX className="size-4" />
+          ) : direction === 'incoming' ? (
+            <IconPhoneIncoming className="size-4" />
+          ) : (
+            <IconPhoneOutgoing className="size-4" />
+          )}
+          <span>
+            {direction === 'incoming' ? t('incoming-call') : t('outgoing-call')}
+          </span>
+          {status && (
+            <span
+              className={cn(
+                !isNotAnswered && !isAnswered && 'text-accent-foreground',
+              )}
+            >
+              · {t(CALL_STATUS_LABEL_KEYS[status])}
+            </span>
+          )}
         </div>
         {assignedUserId && assignedUser && (
           <MembersInline.Provider memberIds={[assignedUserId]}>

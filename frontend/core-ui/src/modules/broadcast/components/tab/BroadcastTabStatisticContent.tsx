@@ -10,8 +10,9 @@ import {
   IconXboxXFilled,
 } from '@tabler/icons-react';
 import { Badge } from 'erxes-ui';
+import { BROADCAST_NOTIFICATION_STATISTIC } from '../../constants';
 
-const BROADCAST_DETAIL_STATISTIC = {
+const EMAIL_DETAIL_STATISTIC = {
   total: {
     title: 'Total',
     description:
@@ -68,8 +69,33 @@ const BROADCAST_DETAIL_STATISTIC = {
   },
 };
 
+const buildNotificationStats = (message: any) => {
+  const {
+    totalCustomersCount = 0,
+    validCustomersCount = 0,
+    stats,
+    notification,
+  } = message || {};
+
+  return {
+    total: totalCustomersCount,
+    sent: validCustomersCount,
+    read: stats?.read || 0,
+    push: notification?.isMobile ? 1 : 0,
+  };
+};
+
 export const BroadcastTabStatisticContent = ({ message }: { message: any }) => {
-  const { stats, runCount, lastRunAt } = message || {};
+  const { stats, runCount, lastRunAt, method } = message || {};
+  const isNotification = method === 'notification';
+
+  const displayStats = isNotification
+    ? buildNotificationStats(message)
+    : stats || {};
+
+  const statisticConfig = isNotification
+    ? BROADCAST_NOTIFICATION_STATISTIC
+    : EMAIL_DETAIL_STATISTIC;
 
   return (
     <div className="w-full px-8 py-5 space-y-5">
@@ -90,23 +116,39 @@ export const BroadcastTabStatisticContent = ({ message }: { message: any }) => {
           </strong>
         </span>
       </div>
-      <BroadcastTabStatistics stats={stats} />
+      <BroadcastTabStatistics
+        stats={displayStats}
+        statisticConfig={statisticConfig}
+      />
     </div>
   );
 };
 
 export const BroadcastTabStatistics = ({
   stats,
+  statisticConfig = EMAIL_DETAIL_STATISTIC,
 }: {
   stats: Record<string, number>;
+  statisticConfig?: typeof EMAIL_DETAIL_STATISTIC;
 }) => {
   return (
     <div className="grid grid-cols-3 gap-4">
-      {Object.entries(BROADCAST_DETAIL_STATISTIC).map(
+      {Object.entries(statisticConfig).map(
         ([key, { title, description, icon: Icon }]) => {
           if (Object.keys(stats || {})?.length && !(key in (stats || {}))) {
             return null;
           }
+
+          const total = stats?.total || 0;
+          const value = stats?.[key] || 0;
+          const percentage =
+            key === 'push'
+              ? value > 0
+                ? 100
+                : 0
+              : total > 0
+                ? Math.min((value * 100) / total, 100)
+                : 0;
 
           return (
             <div key={key} className="flex flex-col border rounded-md p-5">
@@ -117,16 +159,20 @@ export const BroadcastTabStatistics = ({
                 </div>
                 <div className="mt-1 flex justify-between items-center">
                   <span className="text-2xl text-primary font-semibold">
-                    {stats?.[key] || 0}
+                    {value}
                   </span>
 
                   <Badge variant="secondary">
-                    {stats?.total
-                      ? ((v) => (Number.isInteger(v) ? v : v.toFixed(2)))(
-                          Math.min((stats[key] * 100) / stats.total, 100),
-                        )
-                      : '-'}
-                    %
+                    {key === 'push'
+                      ? value > 0
+                        ? 'Yes'
+                        : 'No'
+                      : total
+                        ? ((v) => (Number.isInteger(v) ? v : v.toFixed(2)))(
+                            percentage,
+                          )
+                        : '-'}
+                    {key !== 'push' && total ? '%' : ''}
                   </Badge>
                 </div>
               </div>

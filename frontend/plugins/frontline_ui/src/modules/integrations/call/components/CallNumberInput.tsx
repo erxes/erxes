@@ -1,17 +1,24 @@
 import { Button, Input, cn, formatPhoneNumber } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { IconBackspace } from '@tabler/icons-react';
 import { callNumberState } from '@/integrations/call/states/callWidgetStates';
 import { useSip } from '@/integrations/call/components/SipProvider';
+import { sipStateAtom } from '@/integrations/call/states/sipStates';
+import { SipStatusEnum } from '@/integrations/call/types/sipTypes';
 
 export const CallNumberInput = () => {
   const [number, setNumber] = useAtom(callNumberState);
   const { startCall } = useSip();
+  const sipState = useAtomValue(sipStateAtom);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (number.length === 0) return;
+    const canCall =
+      sipState.sipStatus === SipStatusEnum.CONNECTED ||
+      sipState.sipStatus === SipStatusEnum.REGISTERED;
+    if (!canCall) return;
     startCall(number);
   };
 
