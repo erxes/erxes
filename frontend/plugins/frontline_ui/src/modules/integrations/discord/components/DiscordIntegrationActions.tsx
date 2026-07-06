@@ -29,6 +29,7 @@ const REPAIR_INTEGRATION = gql`
   }
 `;
 
+/** Row actions (edit dialog) for a Discord integration. */
 export const DiscordIntegrationActions = ({
   cell,
 }: {
@@ -55,6 +56,7 @@ export const DiscordIntegrationActions = ({
   );
 };
 
+/** Edit form for a Discord integration's name and brand. */
 const DiscordIntegrationEditForm = ({
   id,
   setOpen,
@@ -80,6 +82,7 @@ const DiscordIntegrationEditForm = ({
     }
   }, [integrationDetail, form]);
 
+  /** Persist the edited Discord integration. */
   const onSubmit = (data: z.infer<typeof DISCORD_EDIT_SCHEMA>) => {
     editIntegration({
       variables: {
@@ -153,6 +156,7 @@ const DiscordIntegrationEditForm = ({
   );
 };
 
+/** Repair action that re-syncs a broken Discord integration. */
 export const DiscordIntegrationRepair = ({
   cell,
 }: {
@@ -163,6 +167,7 @@ export const DiscordIntegrationRepair = ({
     refetchQueries: ['Integrations'],
   });
 
+  /** Trigger the repair mutation for this integration. */
   const handleRepair = () => {
     repairIntegration({
       variables: { _id: cell.row.original._id, kind: integrationType },

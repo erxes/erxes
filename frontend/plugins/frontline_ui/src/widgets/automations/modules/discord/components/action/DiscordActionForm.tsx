@@ -111,10 +111,12 @@ const defaultsFromConfig = (
   attachments: config?.attachments?.length ? config.attachments : [],
 });
 
+/** Small bold section heading used within the action form. */
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <div className="text-sm font-semibold text-foreground pt-2">{children}</div>
 );
 
+/** Automation action config form for "Send Discord message". */
 export const DiscordActionForm = ({
   formRef,
   currentAction,

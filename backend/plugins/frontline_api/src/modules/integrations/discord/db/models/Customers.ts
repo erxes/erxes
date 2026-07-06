@@ -13,6 +13,7 @@ export interface IDiscordCustomerModel
 export const loadDiscordCustomerClass = (models: IModels) => {
   // skipcq: JS-0327 — Mongoose's schema.loadClass() requires a class of statics.
   class Customer {
+    /** Fetch a mirrored Discord customer by selector, throwing if not found. */
     public static async getCustomer(
       selector: FilterQuery<IDiscordCustomerDocument>,
     ) {

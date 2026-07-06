@@ -502,7 +502,7 @@ export const conversationMutations = {
         // instead of the raw composer payload — e.g. Discord rewrites its
         // `{@discord:ID}` mention tokens into readable `@Name` for the bubble —
         // and `extraData` for structured content (e.g. a created Discord poll).
-        const messageDoc: typeof doc & { extraData?: any } = {
+        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
           ...doc,
           ...(displayContent ? { content: displayContent } : {}),
           ...(extraData ? { extraData } : {}),

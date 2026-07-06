@@ -14,8 +14,10 @@ const timeLeftLabel = (expiry?: string): string => {
   return `${Math.max(1, Math.floor(ms / 60_000))}m left`;
 };
 
+/** Pluralize a vote-count label ("1 vote" / "n votes"). */
 const votesLabel = (count: number) => `${count} ${count === 1 ? 'vote' : 'votes'}`;
 
+/** Renders a Discord poll with per-answer tallies and totals. */
 export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
   const countById = new Map<number, number>(
     (poll.results?.answerCounts ?? []).map((c) => [c.id, c.count]),

@@ -5,5 +5,6 @@
 export const debugDiscord = (...args: unknown[]) =>
   console.log('[discord]', ...args);
 
+/** Error-level variant of {@link debugDiscord}. */
 export const debugError = (...args: unknown[]) =>
   console.error('[discord:error]', ...args);

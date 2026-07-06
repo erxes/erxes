@@ -37,6 +37,7 @@ export interface IDiscordBotModel extends Model<IDiscordBotDocument> {
 export const loadDiscordBotClass = (models: IModels) => {
   // skipcq: JS-0327 — Mongoose's schema.loadClass() requires a class of statics.
   class DiscordBot {
+    /** Fetch a bot by id, throwing if it does not exist. */
     public static async getBot(_id: string) {
       const bot = await models.DiscordBots.findOne({ _id });
 
@@ -47,12 +48,14 @@ export const loadDiscordBotClass = (models: IModels) => {
       return bot;
     }
 
+    /** List bots matching the filter, newest first. */
     public static getBots(
       filter: FilterQuery<IDiscordBotDocument>,
     ): Promise<IDiscordBotDocument[]> {
       return models.DiscordBots.find(filter).sort({ createdAt: -1 }).exec();
     }
 
+    /** Create a bot, validate its token, then spin up its inbox integration. */
     public static async createBot(
       doc: IDiscordBot & { createdBy: string; channelIds?: string[] },
     ) {
@@ -87,6 +90,7 @@ export const loadDiscordBotClass = (models: IModels) => {
       return validated;
     }
 
+    /** Update a bot (re-sanitizing a rotated token) and re-validate its connection. */
     public static async updateBot(
       _id: string,
       doc: IDiscordBotEditInput & { updatedBy: string },
@@ -124,6 +128,7 @@ export const loadDiscordBotClass = (models: IModels) => {
     public static async validateConnection(_id: string) {
       const bot = await models.DiscordBots.getBot(_id);
 
+      /** Persist the given health snapshot and return the refreshed bot doc. */
       const setHealth = async (health: IDiscordBotDocument['health']) =>
         (await models.DiscordBots.findOneAndUpdate(
           { _id },
@@ -243,6 +248,7 @@ export const loadDiscordBotClass = (models: IModels) => {
       });
     }
 
+    /** Delete a bot and tear down its integration, conversations, and mirrors. */
     public static async removeBot(_id: string) {
       const bot = await models.DiscordBots.getBot(_id);
 

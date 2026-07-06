@@ -24,11 +24,13 @@ const toFilterList = (value: unknown): string[] =>
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);
 
+/** Coerce a Date or string to an ISO string, or undefined when empty. */
 const toISOString = (value?: Date | string) => {
   if (!value) return undefined;
   return value instanceof Date ? value.toISOString() : String(value);
 };
 
+/** Map a stored message to its AI-history role: bot, agent, or customer. */
 const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
   if (message.fromBot) return 'bot' as const;
   if (message.userId) return 'agent' as const;

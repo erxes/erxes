@@ -38,6 +38,7 @@ export const useDiscordValidateToken = () => {
   };
 };
 
+/** Fetch the guilds (servers) a bot token can access. */
 export const useDiscordGuilds = (token: string, skip: boolean) => {
   const { data, loading } = useQuery<{ discordGuilds: DiscordGuild[] }>(
     DISCORD_GUILDS,
@@ -47,6 +48,7 @@ export const useDiscordGuilds = (token: string, skip: boolean) => {
   return { guilds: data?.discordGuilds ?? [], loading };
 };
 
+/** Fetch the text channels of a guild for the given bot token. */
 export const useDiscordGuildChannels = (
   token: string,
   guildId: string,

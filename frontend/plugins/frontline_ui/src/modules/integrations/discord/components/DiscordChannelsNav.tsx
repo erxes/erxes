@@ -237,6 +237,7 @@ const DiscordServerItem = ({
   );
 };
 
+/** Sidebar row for one Discord channel integration, badged with its open count. */
 const DiscordChannelItem = ({
   integration,
   count,
@@ -250,6 +251,7 @@ const DiscordChannelItem = ({
   const isActive = integrationId === integration._id;
   const label = channelLabelFromIntegration(integration);
 
+  /** Toggle this channel as the active integration filter. */
   const handleClick = () => {
     setIntegrationId(isActive ? null : integration._id);
   };

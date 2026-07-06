@@ -17,6 +17,7 @@ const discordTriggerSchema = z.object({
 
 export type TDiscordTriggerForm = z.infer<typeof discordTriggerSchema>;
 
+/** Automation trigger config form for Discord message events. */
 export const DiscordTriggerForm = ({
   activeTrigger,
   onSaveTriggerConfig,

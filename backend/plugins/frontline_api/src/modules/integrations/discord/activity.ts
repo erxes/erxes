@@ -54,6 +54,7 @@ type TEmbedMedia = APIEmbedImage | APIEmbedThumbnail | APIEmbedVideo;
 const embedMediaUrl = (media?: TEmbedMedia) =>
   media ? media.proxy_url || media.url || undefined : undefined;
 
+/** Normalize an embed image/thumbnail/video into our `{ url, width, height }`. */
 const normalizeEmbedMedia = (media?: TEmbedMedia) =>
   media
     ? {
@@ -172,6 +173,7 @@ export const mapMessageCreateToActivity = (
 // `mentions` array. Ids we don't have a name for are left untouched.
 const USER_MENTION_RE = /<@!?(\d+)>/g;
 
+/** Rewrite raw `<@ID>` mention tokens in content to readable `@Name`. */
 export const resolveDiscordMentions = (
   content: string,
   mentions: DiscordMention[] = [],

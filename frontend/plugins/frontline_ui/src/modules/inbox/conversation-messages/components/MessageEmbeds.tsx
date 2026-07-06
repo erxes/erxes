@@ -21,15 +21,18 @@ const Img = (props: JSX.IntrinsicElements['img']) => (
 const isInlineGif = (embed: IMessageEmbed) =>
   embed.type === 'gifv' && Boolean(embed.video?.url);
 
+/** Whether an embed is a bare image (no title/description). */
 const isImageOnly = (embed: IMessageEmbed) =>
   embed.type === 'image' &&
   Boolean(embed.image?.url) &&
   !embed.title &&
   !embed.description;
 
+/** Whether an embed is a video card with a usable thumbnail/image. */
 const isVideoCard = (embed: IMessageEmbed) =>
   embed.type === 'video' && Boolean(embed.thumbnail?.url || embed.image?.url);
 
+/** CSS aspect-ratio string from media width/height, or undefined. */
 const mediaAspect = (media?: { width?: number; height?: number }) =>
   media?.width && media?.height
     ? `${media.width} / ${media.height}`
@@ -101,6 +104,7 @@ const InlineGif = ({ embed }: { embed: IMessageEmbed }) => (
   />
 );
 
+/** Renders a standalone image embed linking to its source. */
 const ImageEmbed = ({ embed }: { embed: IMessageEmbed }) => (
   <a href={embed.url || embed.image?.url} target="_blank" rel="noopener noreferrer">
     <Img
@@ -195,6 +199,7 @@ const RichEmbed = ({ embed }: { embed: IMessageEmbed }) => (
   </div>
 );
 
+/** Renders one embed, dispatching to the right layout by embed shape. */
 const EmbedCard = ({ embed }: { embed: IMessageEmbed }) => {
   if (isInlineGif(embed)) return <InlineGif embed={embed} />;
   if (isImageOnly(embed)) return <ImageEmbed embed={embed} />;
@@ -202,6 +207,7 @@ const EmbedCard = ({ embed }: { embed: IMessageEmbed }) => {
   return <RichEmbed embed={embed} />;
 };
 
+/** Renders a message's Discord embeds, if any. */
 export const MessageEmbeds = ({ embeds }: { embeds?: IMessageEmbed[] }) => {
   if (!embeds?.length) {
     return null;

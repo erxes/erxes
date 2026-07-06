@@ -83,6 +83,7 @@ export const DiscordIntegrationDetail = () => {
     defaultValues: { name: '', brandId: '' },
   });
 
+  /** Reset the setup wizard to its first step. */
   const reset = () => {
     setStep(1);
     setToken('');
@@ -100,6 +101,7 @@ export const DiscordIntegrationDetail = () => {
     setChannels([]);
   }, [token]);
 
+  /** Create the Discord integration from the wizard values. */
   const onSubmit = async (values: FormValues) => {
     if (!validation?.valid || !channels.length) {
       return;

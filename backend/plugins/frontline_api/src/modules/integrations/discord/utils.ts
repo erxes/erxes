@@ -324,6 +324,7 @@ const TYPING_MAX_MS = 15000;
 // never sends a Discord reply can't leave the bot typing forever.
 export const AUTOMATION_TYPING_MAX_MS = 60000;
 
+/** Fire a single Discord "typing…" indicator for a channel (best-effort). */
 export const sendTypingIndicator = (token: string, channelId: string) =>
   discordRequest<unknown>({
     token,
@@ -333,6 +334,7 @@ export const sendTypingIndicator = (token: string, channelId: string) =>
     debugError(`Failed to send Discord typing indicator: ${getErrorMessage(e)}`),
   );
 
+/** Stop and clear a channel's repeating typing indicator. */
 export const stopTypingIndicator = (channelId: string) => {
   const timer = typingTimers.get(channelId);
   if (timer) {
@@ -377,6 +379,7 @@ const CHUNK_SIZE = 1900;
 // the remainder past the cap is truncated with an ellipsis.
 const MAX_CHUNKS = 10;
 
+/** Whether a UTF-16 code unit is a high surrogate (start of a surrogate pair). */
 const isHighSurrogate = (code: number) => code >= 0xd800 && code <= 0xdbff;
 
 // Latest "natural" boundary (paragraph → line → space) in the window that still
@@ -631,6 +634,7 @@ export const getDiscordUser = (token: string, userId: string) => {
 const GATEWAY_MESSAGE_CONTENT = 1 << 18;
 const GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19;
 
+/** Whether the bot's intent flags include the (limited) Message Content intent. */
 export const hasMessageContentIntent = (flags?: number): boolean =>
   typeof flags === 'number' &&
   (flags & (GATEWAY_MESSAGE_CONTENT | GATEWAY_MESSAGE_CONTENT_LIMITED)) !== 0;

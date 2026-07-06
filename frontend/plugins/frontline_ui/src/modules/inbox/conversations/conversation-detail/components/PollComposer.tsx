@@ -32,8 +32,10 @@ const DURATIONS: { label: string; value: number }[] = [
 // Options carry a stable id so React keys survive add/remove without relying on
 // the array index.
 let optionIdSeq = 0;
+/** Create a blank poll option with a stable id. */
 const makeOption = () => ({ id: `opt-${(optionIdSeq += 1)}`, value: '' });
 
+/** Composer for creating a native (Discord) poll. */
 export const PollComposer = ({
   onSubmit,
   loading,
@@ -50,6 +52,7 @@ export const PollComposer = ({
   const [duration, setDuration] = useState(24);
   const [allowMultiselect, setAllowMultiselect] = useState(false);
 
+  /** Reset the composer back to its empty state. */
   const reset = () => {
     setQuestion('');
     setOptions([makeOption(), makeOption()]);
@@ -57,16 +60,19 @@ export const PollComposer = ({
     setAllowMultiselect(false);
   };
 
+  /** Update the value of the option at the given index. */
   const setOption = (index: number, value: string) =>
     setOptions((prev) =>
       prev.map((o, i) => (i === index ? { ...o, value } : o)),
     );
 
+  /** Append a blank option, up to the max allowed. */
   const addOption = () =>
     setOptions((prev) =>
       prev.length < MAX_OPTIONS ? [...prev, makeOption()] : prev,
     );
 
+  /** Remove the option at the given index, keeping at least two. */
   const removeOption = (index: number) =>
     setOptions((prev) =>
       prev.length > 2 ? prev.filter((_, i) => i !== index) : prev,
@@ -75,6 +81,7 @@ export const PollComposer = ({
   const trimmedOptions = options.map((o) => o.value.trim()).filter(Boolean);
   const canSubmit = question.trim().length > 0 && trimmedOptions.length >= 2;
 
+  /** Validate and submit the poll. */
   const handleSubmit = async () => {
     if (!canSubmit) {
       toast({

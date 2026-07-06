@@ -19,9 +19,11 @@ import { TDiscordTriggerTarget } from '@/integrations/discord/meta/automation/ty
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 
+/** Build a Discord CDN avatar URL, or undefined when the user has no avatar hash. */
 const avatarUrl = (userId: string, hash?: string | null) =>
   hash ? `https://cdn.discordapp.com/avatars/${userId}/${hash}.png` : undefined;
 
+/** Promise that resolves after `ms` milliseconds. */
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // How many find→create/wait rounds getOrCreateCustomer runs before treating a

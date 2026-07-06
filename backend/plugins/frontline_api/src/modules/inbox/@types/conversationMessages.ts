@@ -38,7 +38,7 @@ export interface IMessage {
   formWidgetData?: any;
   botData?: any;
   messengerAppData?: any;
-  extraData?: any;
+  extraData?: Record<string, unknown>;
   engageData?: IEngageData;
   contentType?: string;
   botId?: string;

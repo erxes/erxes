@@ -105,6 +105,7 @@ const buildComponents = (
   return rows;
 };
 
+/** Keep only attachments that carry a non-empty URL. */
 const buildFiles = (
   attachments?: DiscordMessageAttachment[],
 ): DiscordMessageAttachment[] =>

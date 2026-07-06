@@ -50,6 +50,7 @@ const ownedTokens = new Map<string, Set<string>>();
 // SaaS org-discovery tick doesn't spawn duplicate loops.
 const ownerLoops = new Set<string>();
 
+/** Record `token` as owned by this replica for `subdomain`. */
 const trackOwnedToken = (subdomain: string, token: string) => {
   let set = ownedTokens.get(subdomain);
   if (!set) {
@@ -59,6 +60,7 @@ const trackOwnedToken = (subdomain: string, token: string) => {
   set.add(token);
 };
 
+/** Drop `token` from this replica's owned set for `subdomain`. */
 const untrackToken = (subdomain: string, token: string) => {
   ownedTokens.get(subdomain)?.delete(token);
 };
@@ -69,6 +71,7 @@ const untrackToken = (subdomain: string, token: string) => {
 // hitting the Discord REST API more than once per distinct channel id.
 const channelParentCache = new Map<string, string | null>();
 
+/** Resolve (and cache) a channel's parent id, or null for top-level channels. */
 const resolveParentId = async (
   token: string,
   channelId: string,
@@ -415,6 +418,7 @@ const runOwnerLoop = async (subdomain: string) => {
     }, LOCK_RENEW_INTERVAL);
 
     try {
+      // skipcq: JS-0092 — `lost` is flipped by the lock-renew setInterval above.
       while (!lost) {
         try {
           await reconcileSubdomain(subdomain);
@@ -461,6 +465,7 @@ const ensureOwnerLoop = (subdomain: string) => {
   });
 };
 
+/** Begin distributing a single subdomain's bots to owner loops (self-hosted). */
 const startDistributing = async (subdomain: string) => {
   if (NODE_ENV === 'production') {
     await sleep(60000);
@@ -468,6 +473,7 @@ const startDistributing = async (subdomain: string) => {
   ensureOwnerLoop(subdomain);
 };
 
+/** Discover SaaS orgs forever and ensure each has an owner loop. */
 const startSaasDistributing = async () => {
   await getSaasCoreConnection();
 

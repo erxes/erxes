@@ -13,6 +13,7 @@ export interface IDiscordConversationModel
 export const loadDiscordConversationClass = (models: IModels) => {
   // skipcq: JS-0327 — Mongoose's schema.loadClass() requires a class of statics.
   class Conversation {
+    /** Fetch a mirrored Discord conversation by selector, throwing if not found. */
     public static async getConversation(
       selector: FilterQuery<IDiscordConversationDocument>,
     ) {
