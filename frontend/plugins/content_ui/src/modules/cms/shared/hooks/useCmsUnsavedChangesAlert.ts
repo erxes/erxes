@@ -2,6 +2,10 @@ import { MutableRefObject, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBlocker } from 'react-router-dom';
 
+/**
+ * Blocks in-app navigation and page unloads while the form has unsaved
+ * changes, exposing the blocker state for a discard-confirmation dialog.
+ */
 export const useCmsUnsavedChangesAlert = ({
   isDirty,
   bypassRef,
@@ -27,6 +31,7 @@ export const useCmsUnsavedChangesAlert = ({
   );
 
   useEffect(() => {
+    /** Asks the browser to confirm closing/reloading while edits are unsaved. */
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!isDirty || bypassRef?.current) {
         return;
@@ -50,6 +55,7 @@ export const useCmsUnsavedChangesAlert = ({
     }
   }, [blocker.state]);
 
+  /** Confirms the discard dialog and lets the blocked navigation continue. */
   const proceedWithoutSaving = () => {
     if (blocker.state !== 'blocked') {
       return;

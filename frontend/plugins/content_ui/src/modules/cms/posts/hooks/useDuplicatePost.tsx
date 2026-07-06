@@ -8,6 +8,7 @@ export const useDuplicatePost = () => {
     awaitRefetchQueries: true,
   });
 
+  /** Runs the duplicate mutation and returns the created draft copy. */
   const duplicatePost = async (postId: string) => {
     const { data } = await _duplicatePost({ variables: { _id: postId } });
 

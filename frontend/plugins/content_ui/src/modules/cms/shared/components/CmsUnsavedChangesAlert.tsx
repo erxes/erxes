@@ -2,6 +2,7 @@ import { MutableRefObject } from 'react';
 import { AlertDialog } from 'erxes-ui';
 import { useCmsUnsavedChangesAlert } from '~/modules/cms/shared/hooks/useCmsUnsavedChangesAlert';
 
+/** Discard-confirmation dialog shown when navigating away from unsaved edits. */
 export const CmsUnsavedChangesAlert = ({
   isDirty,
   bypassRef,

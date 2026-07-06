@@ -90,7 +90,7 @@ const buildScheduleFormValues = (fullPost: TLoadedPost) => ({
   publishDate: toDate(fullPost.publishedDate),
   scheduledDate: toDate(fullPost.scheduledDate),
   autoArchiveDate: toDate(fullPost.autoArchiveDate),
-  enableAutoArchive: !!fullPost.autoArchiveDate,
+  enableAutoArchive: Boolean(fullPost.autoArchiveDate),
 });
 
 /** Maps a loaded post to the full set of form values used on reset. */
@@ -104,7 +104,7 @@ const buildPostFormValues = (fullPost: TLoadedPost): PostFormData => ({
   categoryIds:
     fullPost.categoryIds || fullPost.categories?.map((c) => c._id) || [],
   tagIds: fullPost.tagIds || fullPost.tags?.map((t) => t._id) || [],
-  featured: !!fullPost.featured,
+  featured: Boolean(fullPost.featured),
   seoTitle: fullPost.seoTitle || '',
   seoDescription: fullPost.seoDescription || '',
   customFieldsData: fullPost.customFieldsData || [],
