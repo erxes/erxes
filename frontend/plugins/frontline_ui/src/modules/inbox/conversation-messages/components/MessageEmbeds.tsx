@@ -4,10 +4,15 @@ import { IMessageEmbed } from '@/inbox/types/Conversation';
 
 // erxes runs on Vite, not Next.js, so next/image (JS-W1015) doesn't apply here.
 // This thin wrapper localizes the single suppression instead of repeating it at
-// every embed image.
-const Img = (props: JSX.IntrinsicElements['img']) => (
+// every embed image. `alt` is required (unlike the base img attributes, where
+// it's optional) and destructured onto its own literal attribute so both the
+// type and every caller are held to actually providing one.
+const Img = ({
+  alt,
+  ...props
+}: JSX.IntrinsicElements['img'] & { alt: string }) => (
   // skipcq: JS-W1015
-  <img {...props} />
+  <img alt={alt} {...props} />
 );
 
 // Discord embed media (image/thumbnail/video) carry absolute Discord/Tenor CDN
@@ -38,57 +43,78 @@ const mediaAspect = (media?: { width?: number; height?: number }) =>
     ? `${media.width} / ${media.height}`
     : undefined;
 
+// Discord passes embed.url/author.url/provider.url through from whatever
+// created the embed (a bot, a webhook, or its own link-unfurl) with no scheme
+// validation on our side. An unvalidated scheme in an <a href> (e.g.
+// `javascript:`) would execute on click, so every embed link goes through this
+// first; anything that isn't http(s) is dropped rather than linked.
+const safeHref = (url?: string): string | undefined => {
+  if (!url) return undefined;
+  try {
+    return ['http:', 'https:'].includes(new URL(url).protocol)
+      ? url
+      : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 // Provider / author / title / description — shared by video cards and rich
 // embeds so a YouTube card and a bot embed share the same heading layout.
-const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => (
-  <>
-    {embed.author?.name && (
-      <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
-        {embed.author.iconUrl && (
-          <Img src={embed.author.iconUrl} alt="" className="size-4 rounded-full" />
-        )}
-        {embed.author.url ? (
+const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => {
+  const authorHref = safeHref(embed.author?.url);
+  const titleHref = safeHref(embed.url);
+
+  return (
+    <>
+      {embed.author?.name && (
+        <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
+          {embed.author.iconUrl && (
+            <Img src={embed.author.iconUrl} alt="" className="size-4 rounded-full" />
+          )}
+          {authorHref ? (
+            <a
+              href={authorHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              {embed.author.name}
+            </a>
+          ) : (
+            <span>{embed.author.name}</span>
+          )}
+        </div>
+      )}
+
+      {embed.provider?.name && !embed.author?.name && (
+        <div className="mb-0.5 text-xs text-muted-foreground">
+          {embed.provider.name}
+        </div>
+      )}
+
+      {embed.title &&
+        (titleHref ? (
           <a
-            href={embed.author.url}
+            href={titleHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary hover:underline"
+            className="text-sm font-semibold text-primary hover:underline"
           >
-            {embed.author.name}
+            {embed.title}
           </a>
         ) : (
-          <span>{embed.author.name}</span>
-        )}
-      </div>
-    )}
+          <div className="text-sm font-semibold">{embed.title}</div>
+        ))}
 
-    {embed.provider?.name && !embed.author?.name && (
-      <div className="mb-0.5 text-xs text-muted-foreground">
-        {embed.provider.name}
-      </div>
-    )}
-
-    {embed.title &&
-      (embed.url ? (
-        <a
-          href={embed.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm font-semibold text-primary hover:underline"
-        >
-          {embed.title}
-        </a>
-      ) : (
-        <div className="text-sm font-semibold">{embed.title}</div>
-      ))}
-
-    {embed.description && (
-      <div className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">
-        {embed.description}
-      </div>
-    )}
-  </>
-);
+      {embed.description && (
+        <div className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">
+          {embed.description}
+        </div>
+      )}
+    </>
+  );
+};
 
 // Inline autoplay (muted + looped) so a shared Tenor/Giphy GIF behaves like one.
 const InlineGif = ({ embed }: { embed: IMessageEmbed }) => (
@@ -106,7 +132,11 @@ const InlineGif = ({ embed }: { embed: IMessageEmbed }) => (
 
 /** Renders a standalone image embed linking to its source. */
 const ImageEmbed = ({ embed }: { embed: IMessageEmbed }) => (
-  <a href={embed.url || embed.image?.url} target="_blank" rel="noopener noreferrer">
+  <a
+    href={safeHref(embed.url) || safeHref(embed.image?.url)}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
     <Img
       src={embed.image?.url}
       alt={embed.title || ''}
@@ -126,7 +156,7 @@ const VideoEmbed = ({ embed }: { embed: IMessageEmbed }) => {
     >
       <EmbedHeading embed={embed} />
       <a
-        href={embed.url || poster}
+        href={safeHref(embed.url) || safeHref(poster)}
         target="_blank"
         rel="noopener noreferrer"
         className="relative mt-2 block overflow-hidden rounded"

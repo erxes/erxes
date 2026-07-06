@@ -489,13 +489,20 @@ export const conversationMutations = {
       }
 
       if (response?.data?.data) {
-        const { conversationId, content, displayContent, extraData } =
-          response.data.data;
-        if (conversationId && content) {
-          await models.Conversations.updateConversation(conversationId, {
-            content: content || '',
-            updatedAt: new Date(),
-          });
+        const {
+          conversationId: responseConversationId,
+          content: responseContent,
+          displayContent,
+          extraData,
+        } = response.data.data;
+        if (responseConversationId && responseContent) {
+          await models.Conversations.updateConversation(
+            responseConversationId,
+            {
+              content: responseContent || '',
+              updatedAt: new Date(),
+            },
+          );
         }
 
         // A service may return a `displayContent` to persist on the message

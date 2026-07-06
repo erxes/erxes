@@ -68,11 +68,17 @@ export const connectGateway = async ({
     arg: T,
   ) => {
     if (!handler) return;
-    Promise.resolve(handler(arg)).catch((e) =>
+    try {
+      Promise.resolve(handler(arg)).catch((e) =>
+        debugError(
+          `${label} handler failed for bot ${botId}: ${(e as Error).message}`,
+        ),
+      );
+    } catch (e) {
       debugError(
         `${label} handler failed for bot ${botId}: ${(e as Error).message}`,
-      ),
-    );
+      );
+    }
   };
 
   manager.on(WebSocketShardEvents.Ready, (_data, shardId) => {

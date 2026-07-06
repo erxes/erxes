@@ -105,9 +105,7 @@ export const loadDiscordBotClass = (models: IModels) => {
       // blank a token an edit didn't touch.
       const sanitized: IDiscordBotEditInput & { updatedBy: string } = {
         ...doc,
-        ...(doc.token !== undefined
-          ? { token: sanitizeToken(doc.token) }
-          : {}),
+        ...(doc.token === undefined ? {} : { token: sanitizeToken(doc.token) }),
       };
 
       await models.DiscordBots.findOneAndUpdate(
@@ -199,12 +197,31 @@ export const loadDiscordBotClass = (models: IModels) => {
         userId || '',
       );
 
-      await models.DiscordBots.updateOne(
-        { _id },
+      // Claim the link atomically: `createBot` and the reconcile loop's
+      // self-heal can call this for the same bot concurrently, each creating
+      // its own integration. Only the caller that still finds the bot
+      // unlinked wins; the loser drops the integration it just created
+      // instead of leaving it orphaned for the sweep to reap later.
+      const claimed = await models.DiscordBots.findOneAndUpdate(
+        { _id, $or: [{ erxesApiId: null }, { erxesApiId: '' }] },
         { $set: { erxesApiId: integration._id } },
+        { new: true },
       );
 
-      return models.DiscordBots.getBot(_id);
+      if (!claimed) {
+        await models.Integrations.removeIntegration(integration._id).catch(
+          (e) =>
+            debugError(
+              `Failed to remove duplicate inbox integration ${
+                integration._id
+              }: ${(e as Error).message}`,
+            ),
+        );
+
+        return models.DiscordBots.getBot(_id);
+      }
+
+      return claimed;
     }
 
     /**

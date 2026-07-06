@@ -3,7 +3,7 @@ import {
   getSaasOrganizations,
   getSaasCoreConnection,
 } from 'erxes-api-shared/utils';
-import { generateModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { redlock, TDiscordLock } from '@/integrations/discord/redlock';
 import {
   connectGateway,
@@ -223,6 +223,24 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
       },
     });
 
+    // Ownership may have flipped while we were awaiting `generateModels` /
+    // `findOne` / `connectGateway` above — e.g. a missed lock renewal tore
+    // this replica's sockets down mid-connect. Closing the socket here
+    // instead of registering it is what keeps a former owner from ever
+    // streaming a token in parallel with the new owner. No `await` sits
+    // between this check and `connections.set`/`trackOwnedToken` below, so
+    // nothing can flip ownership again in between.
+    if (!ownedSubdomains.has(subdomain)) {
+      try {
+        await connection.destroy();
+      } catch (e) {
+        debugError(
+          `Failed to close stale Discord gateway: ${(e as Error).message}`,
+        );
+      }
+      return;
+    }
+
     connections.set(connectionKey(subdomain, token), connection);
     trackOwnedToken(subdomain, token);
     debugDiscord(`Connected Discord gateway for app ${label} (${subdomain})`);
@@ -295,17 +313,15 @@ const sleepUnlessLost = async (ms: number, isLost: () => boolean) => {
 };
 
 /**
- * Converges the live Gateway sockets for a subdomain to its DB state: opens a
- * socket for every healthy, inbox-linked bot token, and closes any socket this
- * replica owns whose bot is gone or no longer healthy. Run only by the current
- * owner (the gate in `connectDiscordToken` enforces that). This is the single
- * source of truth — mutations only write the DB; reconcile reflects it.
+ * Reaps integration documents left behind by bots removed outside the
+ * coordinated teardown, so the inbox sidebar can't show phantom channels.
+ * Logs (never throws) on failure — a sweep miss just leaves the reap for the
+ * next reconcile pass.
  */
-const reconcileSubdomain = async (subdomain: string) => {
-  const models = await generateModels(subdomain);
-
-  // Reap integration documents left behind by bots removed outside the
-  // coordinated teardown, so the inbox sidebar can't show phantom channels.
+const sweepDiscordOrphanIntegrations = async (
+  models: IModels,
+  subdomain: string,
+) => {
   try {
     const reaped = await models.DiscordBots.sweepOrphanIntegrations();
     if (reaped) {
@@ -318,12 +334,18 @@ const reconcileSubdomain = async (subdomain: string) => {
       `Discord orphan sweep failed for ${subdomain}: ${(e as Error).message}`,
     );
   }
+};
 
+/**
+ * The distinct tokens of every healthy, inbox-linked bot — multiple
+ * channel-integrations can share one token, so this is the desired *socket*
+ * set (one per token), not one per bot. Self-heals a bot created directly in
+ * the DB (no inbox integration yet) before counting it.
+ */
+const computeDesiredDiscordTokens = async (models: IModels) => {
   const bots = await models.DiscordBots.find({ 'health.status': 'healthy' });
-
-  // Desired = the distinct tokens of healthy bots linked to an inbox
-  // integration. Multiple channel-integrations can share one token → one socket.
   const desired = new Set<string>();
+
   for (const rawBot of bots) {
     // Self-heal: a bot created directly in the DB won't have an inbox
     // integration — create + link it before connecting.
@@ -348,21 +370,56 @@ const reconcileSubdomain = async (subdomain: string) => {
     }
   }
 
+  return desired;
+};
+
+/**
+ * Closes sockets this replica owns for `subdomain` that are no longer desired
+ * (bot deleted or unhealthy) — the teardown the old distributor never did.
+ */
+const closeUndesiredDiscordSockets = async (
+  subdomain: string,
+  desired: Set<string>,
+) => {
+  const owned = ownedTokens.get(subdomain);
+  if (!owned) {
+    return;
+  }
+
+  // Snapshot before iterating: `disconnectDiscordToken` only deletes from this
+  // same set, but this runs while still owner, so a concurrent
+  // `connectDiscordToken` call (e.g. a bot just created via a mutation) can
+  // ADD a token here mid-loop. Iterating the live set would visit that
+  // brand-new entry too — since `desired` was computed before this loop, it
+  // wouldn't know about it yet and this pass would immediately disconnect a
+  // socket that was just opened. The next reconcile pass picks it up correctly.
+  for (const token of [...owned]) {
+    if (!desired.has(token)) {
+      await disconnectDiscordToken(subdomain, token);
+    }
+  }
+};
+
+/**
+ * Converges the live Gateway sockets for a subdomain to its DB state: opens a
+ * socket for every healthy, inbox-linked bot token, and closes any socket this
+ * replica owns whose bot is gone or no longer healthy. Run only by the current
+ * owner (the gate in `connectDiscordToken` enforces that). This is the single
+ * source of truth — mutations only write the DB; reconcile reflects it.
+ */
+const reconcileSubdomain = async (subdomain: string) => {
+  const models = await generateModels(subdomain);
+
+  await sweepDiscordOrphanIntegrations(models, subdomain);
+
+  const desired = await computeDesiredDiscordTokens(models);
+
   // Open desired sockets that aren't up yet (idempotent by token).
   for (const token of desired) {
     await connectDiscordToken(subdomain, token);
   }
 
-  // Close sockets we own for this subdomain that are no longer desired (bot
-  // deleted or unhealthy) — the teardown the old distributor never did.
-  const owned = ownedTokens.get(subdomain);
-  if (owned) {
-    for (const token of [...owned]) {
-      if (!desired.has(token)) {
-        await disconnectDiscordToken(subdomain, token);
-      }
-    }
-  }
+  await closeUndesiredDiscordSockets(subdomain, desired);
 };
 
 /**
@@ -375,7 +432,12 @@ const teardownSubdomain = async (subdomain: string) => {
   if (!owned) {
     return;
   }
-  for (const token of [...owned]) {
+  // No snapshot needed here (unlike `closeUndesiredDiscordSockets`): the
+  // caller already cleared `ownedSubdomains` before calling this, and
+  // `connectDiscordToken`'s ownership gate means nothing can add a token to
+  // this set from this point on — deleting from a Set during `for...of` is
+  // spec-safe, so iterating it live is enough.
+  for (const token of owned) {
     await disconnectDiscordToken(subdomain, token);
   }
   ownedTokens.delete(subdomain);

@@ -61,7 +61,7 @@ const parseEmbedColor = (color?: string): number | undefined => {
   if (!color) return undefined;
   const trimmed = color.trim();
   const value = trimmed.startsWith('#')
-    ? parseInt(trimmed.slice(1), 16)
+    ? Number.parseInt(trimmed.slice(1), 16)
     : Number(trimmed);
   return Number.isFinite(value) ? value : undefined;
 };
@@ -155,14 +155,210 @@ const resolveChannelMirror = (
 };
 
 /**
+ * Resolves the sending bot/channel/conversation-to-mirror for the
+ * 'conversation' target: reply into the triggering conversation's channel.
+ * Prefers the Discord-side mirror's bot/channel; a reused/stale inbox
+ * conversation (e.g. one left over after a bot was reconnected) may have no
+ * live mirror, so falls back to the inbox conversation's integration to find
+ * the bot, and to the bot's configured channel if the mirror has none.
+ */
+const resolveConversationTarget = async (
+  models: IModels,
+  execution: TReceiveActionInput['execution'],
+) => {
+  // The execution's target is transported as an untyped record; for the
+  // Discord message trigger it carries a TDiscordTriggerTarget.
+  const conversationErxesApiId = (
+    execution?.target as Partial<TDiscordTriggerTarget> | undefined
+  )?.conversationId;
+
+  const conversation = await models.DiscordConversations.findOne({
+    erxesApiId: conversationErxesApiId,
+  });
+
+  // Resolve the sending bot from the integration that owns this conversation.
+  // Prefer the mirror's integrationId; if the mirror is missing or its
+  // integration is stale, fall back to the inbox conversation's integration.
+  let integrationId: string | undefined = conversation?.integrationId;
+  if (!integrationId && conversationErxesApiId) {
+    integrationId = (
+      await models.Conversations.findOne({ _id: conversationErxesApiId })
+    )?.integrationId;
+  }
+
+  const bot = integrationId
+    ? await models.DiscordBots.findOne({ erxesApiId: integrationId })
+    : null;
+
+  if (!bot) {
+    throw new Error(
+      'No connected Discord bot for this conversation — its integration may have been removed. Reconnect the bot, or use a Channel/DM target with an explicit bot.',
+    );
+  }
+
+  // The mirror knows the exact channel/thread the message came from; without
+  // it, fall back to the bot's configured channel.
+  const channelId = conversation?.channelId || bot.channelId;
+  if (!channelId) {
+    throw new Error(
+      'Could not resolve a Discord channel for this conversation',
+    );
+  }
+
+  return { token: bot.token, channelId, conversation };
+};
+
+/**
+ * Resolves the sending bot/channel for the 'channel' and 'dm' targets: an
+ * explicitly chosen bot, plus either an explicit channel or a DM opened with
+ * a chosen user. For 'channel', also resolves the channel's existing inbox
+ * conversation to mirror into, if there's an unambiguous one.
+ */
+const resolveChannelOrDmTarget = async (
+  models: IModels,
+  target: 'channel' | 'dm',
+  resolved: Record<string, unknown>,
+) => {
+  const bot = resolved.botId
+    ? await models.DiscordBots.findById(resolved.botId)
+    : null;
+
+  if (!bot) {
+    throw new Error('Select a Discord bot to send this message from');
+  }
+
+  const token = bot.token;
+
+  if (target === 'dm') {
+    // `resolved` comes from placeholder substitution over an untyped record —
+    // guard the type rather than coercing, so a non-string value can't silently
+    // stringify to "[object Object]".
+    const userId = (
+      typeof resolved.userId === 'string' ? resolved.userId : ''
+    ).trim();
+    if (!userId) {
+      throw new Error('Direct message requires a Discord user ID');
+    }
+
+    let channelId: string;
+    try {
+      const dm = await openDmChannel(token, userId);
+      channelId = dm?.id;
+    } catch (e) {
+      debugError(`Failed to open Discord DM channel: ${getErrorMessage(e)}`);
+      throw e;
+    }
+    if (!channelId) {
+      throw new Error('Could not open a DM channel with that user');
+    }
+
+    return { token, channelId, conversation: null as IDiscordConversationDocument | null };
+  }
+
+  const channelId = (
+    typeof resolved.channelId === 'string' ? resolved.channelId : ''
+  ).trim();
+  if (!channelId) {
+    throw new Error('Select a channel to send this message to');
+  }
+
+  // If this channel already has an inbox conversation, mirror the outbound
+  // reply into it — so a channel-target send (e.g. an AI Agent replying into
+  // the same channel it was triggered from) shows up in the inbox thread and
+  // enters AI history, exactly like the conversation target. Left unmirrored
+  // when there's no conversation or the channel is split across several.
+  const conversation = await resolveChannelMirror(
+    models,
+    channelId,
+    bot.erxesApiId,
+  );
+
+  return { token, channelId, conversation };
+};
+
+/**
+ * Mirrors a sent automation reply into its inbox conversation (local message
+ * store + inbox sync). Discord send already succeeded by this point; a
+ * failure here is logged but swallowed so the action still returns its
+ * result.
+ */
+const mirrorSentMessageToInbox = async ({
+  models,
+  subdomain,
+  conversation,
+  sent,
+  content,
+  buttons,
+}: {
+  models: IModels;
+  subdomain: string;
+  conversation: IDiscordConversationDocument;
+  sent: APIMessage;
+  content: string;
+  buttons?: TDiscordButton[];
+}) => {
+  try {
+    const createdPoll = normalizeDiscordPoll(sent?.poll);
+    const mirrorEmbeds = [
+      ...(normalizeDiscordEmbeds(sent?.embeds) || []),
+      ...buttonsToMirrorEmbeds(buttons),
+    ];
+
+    const mirrorAttachments = await rehostImageAttachments(
+      subdomain,
+      normalizeSentAttachments(sent?.attachments),
+    );
+
+    const extraData =
+      createdPoll || mirrorEmbeds.length
+        ? {
+            ...(createdPoll && { poll: createdPoll }),
+            ...(mirrorEmbeds.length && { embeds: mirrorEmbeds }),
+            discordMessageId: sent?.id,
+          }
+        : undefined;
+
+    await models.DiscordConversationMessages.create({
+      conversationId: conversation._id,
+      messageId: sent?.id,
+      createdAt: new Date(),
+      content,
+      attachments: mirrorAttachments,
+      fromBot: true,
+    });
+
+    await receiveInboxMessage(subdomain, {
+      action: 'create-conversation-message',
+      metaInfo: 'replaceContent',
+      payload: JSON.stringify({
+        conversationId: conversation.erxesApiId,
+        content,
+        createdAt: new Date(),
+        attachments: mirrorAttachments,
+        // Structured content (poll + embeds, incl. link buttons rendered as
+        // embed cards) the inbox stores on `extraData` and renders as cards.
+        extraData,
+        // Flag automation-sent replies (e.g. the AI Agent) so the inbox can
+        // visually distinguish them from human-written messages.
+        fromBot: true,
+      }),
+    });
+  } catch (e) {
+    // Discord send already succeeded; only the inbox mirror failed. Surface it
+    // in logs but let the action complete so the result is still returned.
+    debugError(
+      `Discord message sent (${sent?.id}) but failed to mirror into the inbox: ${getErrorMessage(e)}`,
+    );
+  }
+};
+
+/**
  * "Send Discord Message" automation action. Resolves the configured content,
  * embed, buttons and attachments (all of which can reference {{ trigger.* }} or
  * an AI Agent action's output), then sends them as the bot. The destination is
  * one of: the triggering conversation's channel (default), a specific channel,
  * or a DM. The bot's own gateway echo is deduped by messageId.
  */
-// skipcq: JS-R1005 — sequential resolve→send→mirror flow; branches are the
-// three targets (conversation/channel/DM), clearer inline than extracted.
 export const actionSendDiscordMessage = async ({
   models,
   subdomain,
@@ -198,98 +394,10 @@ export const actionSendDiscordMessage = async ({
   // channel target reuses the channel's existing conversation when there is an
   // unambiguous one (see resolveChannelMirror); a DM has none (the bot has no
   // DM gateway intent, so DMs are never ingested as inbox conversations).
-  let token: string;
-  let channelId: string;
-  let conversation: IDiscordConversationDocument | null = null;
-
-  if (target === 'conversation') {
-    // The execution's target is transported as an untyped record; for the
-    // Discord message trigger it carries a TDiscordTriggerTarget.
-    const conversationErxesApiId = (
-      execution?.target as Partial<TDiscordTriggerTarget> | undefined
-    )?.conversationId;
-
-    // The Discord-side mirror of the triggering conversation. Usually present,
-    // but a reused/stale inbox conversation (e.g. one left over after a bot was
-    // reconnected) may have no live mirror — so treat it as optional and fall
-    // back to the inbox conversation's integration to find the bot.
-    conversation = await models.DiscordConversations.findOne({
-      erxesApiId: conversationErxesApiId,
-    });
-
-    // Resolve the sending bot from the integration that owns this conversation.
-    // Prefer the mirror's integrationId; if the mirror is missing or its
-    // integration is stale, fall back to the inbox conversation's integration.
-    let integrationId: string | undefined = conversation?.integrationId;
-    if (!integrationId && conversationErxesApiId) {
-      integrationId = (
-        await models.Conversations.findOne({ _id: conversationErxesApiId })
-      )?.integrationId;
-    }
-
-    const bot = integrationId
-      ? await models.DiscordBots.findOne({ erxesApiId: integrationId })
-      : null;
-
-    if (!bot) {
-      throw new Error(
-        'No connected Discord bot for this conversation — its integration may have been removed. Reconnect the bot, or use a Channel/DM target with an explicit bot.',
-      );
-    }
-
-    // The mirror knows the exact channel/thread the message came from; without
-    // it, fall back to the bot's configured channel.
-    const resolvedChannelId = conversation?.channelId || bot.channelId;
-    if (!resolvedChannelId) {
-      throw new Error('Could not resolve a Discord channel for this conversation');
-    }
-
-    token = bot.token;
-    channelId = resolvedChannelId;
-  } else {
-    const bot = resolved.botId
-      ? await models.DiscordBots.findById(resolved.botId)
-      : null;
-
-    if (!bot) {
-      throw new Error('Select a Discord bot to send this message from');
-    }
-
-    token = bot.token;
-
-    if (target === 'dm') {
-      const userId = String(resolved.userId || '').trim();
-      if (!userId) {
-        throw new Error('Direct message requires a Discord user ID');
-      }
-      try {
-        const dm = await openDmChannel(token, userId);
-        channelId = dm?.id;
-      } catch (e) {
-        debugError(`Failed to open Discord DM channel: ${getErrorMessage(e)}`);
-        throw e;
-      }
-      if (!channelId) {
-        throw new Error('Could not open a DM channel with that user');
-      }
-    } else {
-      channelId = String(resolved.channelId || '').trim();
-      if (!channelId) {
-        throw new Error('Select a channel to send this message to');
-      }
-
-      // If this channel already has an inbox conversation, mirror the outbound
-      // reply into it — so a channel-target send (e.g. an AI Agent replying into
-      // the same channel it was triggered from) shows up in the inbox thread and
-      // enters AI history, exactly like the conversation target. Left unmirrored
-      // when there's no conversation or the channel is split across several.
-      conversation = await resolveChannelMirror(
-        models,
-        channelId,
-        bot.erxesApiId,
-      );
-    }
-  }
+  const { token, channelId, conversation } =
+    target === 'conversation'
+      ? await resolveConversationTarget(models, execution)
+      : await resolveChannelOrDmTarget(models, target, resolved);
 
   // The reply is going out now, so stop any "<bot> is typing…" indicator the
   // inbound message started (posting the message also clears it on Discord's side).
@@ -312,61 +420,15 @@ export const actionSendDiscordMessage = async ({
     throw e;
   }
 
-  
   if (conversation) {
-    try {
-      const createdPoll = normalizeDiscordPoll(sent?.poll);
-      const mirrorEmbeds = [
-        ...(normalizeDiscordEmbeds(sent?.embeds) || []),
-        ...buttonsToMirrorEmbeds(resolved.buttons as TDiscordButton[]),
-      ];
-      
-      const mirrorAttachments = await rehostImageAttachments(
-        subdomain,
-        normalizeSentAttachments(sent?.attachments),
-      );
-
-      const extraData =
-        createdPoll || mirrorEmbeds.length
-          ? {
-              ...(createdPoll && { poll: createdPoll }),
-              ...(mirrorEmbeds.length && { embeds: mirrorEmbeds }),
-              discordMessageId: sent?.id,
-            }
-          : undefined;
-
-      await models.DiscordConversationMessages.create({
-        conversationId: conversation._id,
-        messageId: sent?.id,
-        createdAt: new Date(),
-        content,
-        attachments: mirrorAttachments,
-        fromBot: true,
-      });
-
-      await receiveInboxMessage(subdomain, {
-        action: 'create-conversation-message',
-        metaInfo: 'replaceContent',
-        payload: JSON.stringify({
-          conversationId: conversation.erxesApiId,
-          content,
-          createdAt: new Date(),
-          attachments: mirrorAttachments,
-          // Structured content (poll + embeds, incl. link buttons rendered as
-          // embed cards) the inbox stores on `extraData` and renders as cards.
-          extraData,
-          // Flag automation-sent replies (e.g. the AI Agent) so the inbox can
-          // visually distinguish them from human-written messages.
-          fromBot: true,
-        }),
-      });
-    } catch (e) {
-      // Discord send already succeeded; only the inbox mirror failed. Surface it
-      // in logs but let the action complete so the result is still returned.
-      debugError(
-        `Discord message sent (${sent?.id}) but failed to mirror into the inbox: ${getErrorMessage(e)}`,
-      );
-    }
+    await mirrorSentMessageToInbox({
+      models,
+      subdomain,
+      conversation,
+      sent,
+      content,
+      buttons: resolved.buttons as TDiscordButton[],
+    });
   }
 
   return {

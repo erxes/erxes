@@ -136,7 +136,9 @@ export const MessageInput = ({
   const pingAgentTyping = useThrottledCallback(
     () => {
       if (isDiscord && !isInternalNote && conversationId) {
-        notifyAgentTyping({ variables: { conversationId, typing: true } });
+        notifyAgentTyping({
+          variables: { conversationId, typing: true },
+        }).catch(() => undefined);
       }
     },
     10000,
@@ -145,7 +147,9 @@ export const MessageInput = ({
   const stopAgentTyping = useCallback(() => {
     pingAgentTyping.cancel();
     if (isDiscord && conversationId) {
-      notifyAgentTyping({ variables: { conversationId, typing: false } });
+      notifyAgentTyping({
+        variables: { conversationId, typing: false },
+      }).catch(() => undefined);
     }
   }, [isDiscord, conversationId, notifyAgentTyping, pingAgentTyping]);
   const { upload, isLoading } = useUpload();

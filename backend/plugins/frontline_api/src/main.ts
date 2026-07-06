@@ -71,7 +71,7 @@ startPlugin({
   onServerInit: async (app) => {
     await initCallApp(app);
     await onServerInitImap(app);
-    await initDiscord();
+    initDiscord();
   },
 
   apolloServerContext: async (subdomain, context) => {

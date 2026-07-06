@@ -88,20 +88,30 @@ export async function discordCreateIntegrations({
       health: { status: 'syncing' },
     });
 
-    // Surface token validity via health (does not block creation).
-    const validated = await models.DiscordBots.validateConnection(bot._id);
+    try {
+      // Surface token validity via health (does not block creation).
+      const validated = await models.DiscordBots.validateConnection(bot._id);
 
-    // Connect-on-create: open the Gateway immediately so the bot starts
-    // receiving messages without waiting for the distributor cycle or a restart.
-    await connectDiscordBot(subdomain, validated);
+      // Connect-on-create: open the Gateway immediately so the bot starts
+      // receiving messages without waiting for the distributor cycle or a restart.
+      await connectDiscordBot(subdomain, validated);
 
-    // Auto-backfill recent history (last 100 messages + active threads) so chats
-    // written before the bot connected show up in the inbox. Runs in the
-    // background so it never blocks integration setup; idempotent on message id.
-    if (validated?.health?.isTokenValid) {
-      backfillChannelHistory({ models, subdomain, bot: validated }).catch((e) =>
-        debugError(`Discord history backfill failed: ${(e as Error).message}`),
-      );
+      // Auto-backfill recent history (last 100 messages + active threads) so chats
+      // written before the bot connected show up in the inbox. Runs in the
+      // background so it never blocks integration setup; idempotent on message id.
+      if (validated?.health?.isTokenValid) {
+        backfillChannelHistory({ models, subdomain, bot: validated }).catch(
+          (e) =>
+            debugError(
+              `Discord history backfill failed: ${(e as Error).message}`,
+            ),
+        );
+      }
+    } catch (e) {
+      // The inbox mutation rolls back the Integration it created on any error
+      // from this handler — don't leave this bot behind pointing at it.
+      await models.DiscordBots.deleteOne({ _id: bot._id }).catch(() => {});
+      throw e;
     }
 
     return { status: 'success' };

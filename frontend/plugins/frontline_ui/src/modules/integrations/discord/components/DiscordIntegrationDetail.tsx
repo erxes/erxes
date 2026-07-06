@@ -69,11 +69,19 @@ export const DiscordIntegrationDetail = () => {
   const [guildName, setGuildName] = useState('');
   const [channels, setChannels] = useState<MultiSelectOption[]>([]);
 
+  // useLazyQuery's `data` only updates once a new call resolves, so it still
+  // holds the previous token's result right after the user edits the token —
+  // tracking which token it belongs to lets us tell a current result from a
+  // stale one instead of trusting `validation.valid` (and its `applicationId`)
+  // blindly across a token edit.
+  const [validatedToken, setValidatedToken] = useState('');
   const { validate, validation, loading: validating } =
     useDiscordValidateToken();
+  const currentValidation =
+    !validating && validatedToken === token.trim() ? validation : undefined;
   const { guilds, loading: guildsLoading } = useDiscordGuilds(
     token,
-    step !== 2 || !validation?.valid,
+    step !== 2 || !currentValidation?.valid,
   );
   const { channels: discordChannels, loading: channelsLoading } =
     useDiscordGuildChannels(token, guildId, step !== 3 || !guildId);
@@ -87,6 +95,7 @@ export const DiscordIntegrationDetail = () => {
   const reset = () => {
     setStep(1);
     setToken('');
+    setValidatedToken('');
     setGuildId('');
     setGuildName('');
     setChannels([]);
@@ -103,7 +112,7 @@ export const DiscordIntegrationDetail = () => {
 
   /** Create the Discord integration from the wizard values. */
   const onSubmit = async (values: FormValues) => {
-    if (!validation?.valid || !channels.length) {
+    if (!currentValidation?.valid || !channels.length) {
       return;
     }
 
@@ -123,7 +132,7 @@ export const DiscordIntegrationDetail = () => {
             data: {
               name: multi ? `${values.name} - #${channelName}` : values.name,
               token,
-              applicationId: validation.applicationId,
+              applicationId: currentValidation.applicationId,
               guildId: guildId || undefined,
               guildName: guildName || undefined,
               channelId: channel.value,
@@ -140,9 +149,49 @@ export const DiscordIntegrationDetail = () => {
   };
 
   const inviteUrl =
-    validation?.valid && validation.applicationId
-      ? buildDiscordInviteUrl(validation.applicationId)
+    currentValidation?.valid && currentValidation.applicationId
+      ? buildDiscordInviteUrl(currentValidation.applicationId)
       : undefined;
+
+  let serverStepContent: React.ReactNode;
+  if (guildsLoading) {
+    serverStepContent = (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Spinner size="sm" /> Loading servers…
+      </div>
+    );
+  } else if (guilds.length) {
+    serverStepContent = (
+      <Select
+        value={guildId}
+        onValueChange={(value) => {
+          setGuildId(value);
+          setGuildName(guilds.find((g) => g.id === value)?.name || '');
+        }}
+      >
+        <Select.Trigger id="discord-server">
+          <Select.Value placeholder="Select a server" />
+        </Select.Trigger>
+        <Select.Content>
+          {guilds.map((g) => (
+            <Select.Item key={g.id} value={g.id}>
+              {g.name}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    );
+  } else {
+    serverStepContent = (
+      <Alert variant="warning">
+        <IconAlertTriangle className="size-4" />
+        <Alert.Title>This bot isn&apos;t in any server</Alert.Title>
+        <Alert.Description>
+          Use “Add this bot to a server” on the previous step, then come back.
+        </Alert.Description>
+      </Alert>
+    );
+  }
 
   return (
     // skipcq: JS-0415
@@ -186,13 +235,24 @@ export const DiscordIntegrationDetail = () => {
                   {/* ── Step 1: token ─────────────────────────────────── */}
                   {step === 1 && (
                     <div className="flex flex-col gap-3">
-                      <label className="text-sm font-medium">Bot token</label>
+                      <label
+                        htmlFor="discord-bot-token"
+                        className="text-sm font-medium"
+                      >
+                        Bot token
+                      </label>
                       <Input
+                        id="discord-bot-token"
                         type="password"
                         value={token}
                         placeholder="Paste your bot token"
                         onChange={(e) => setToken(e.target.value)}
-                        onBlur={() => token.trim() && validate(token.trim())}
+                        onBlur={() => {
+                          const trimmed = token.trim();
+                          if (!trimmed) return;
+                          setValidatedToken(trimmed);
+                          validate(trimmed);
+                        }}
                       />
                       <p className="text-xs text-muted-foreground">
                         From the Discord Developer Portal → Bot. We&apos;ll
@@ -205,11 +265,11 @@ export const DiscordIntegrationDetail = () => {
                         </div>
                       )}
 
-                      {!validating && validation?.valid && (
+                      {currentValidation?.valid && (
                         <Alert variant="default">
                           <IconCircleCheck className="size-4 text-green-600" />
                           <Alert.Title>
-                            Connected as {validation.botUsername}
+                            Connected as {currentValidation.botUsername}
                           </Alert.Title>
                           <Alert.Description>
                             Application ID and public key detected
@@ -218,9 +278,8 @@ export const DiscordIntegrationDetail = () => {
                         </Alert>
                       )}
 
-                      {!validating &&
-                        validation?.valid &&
-                        validation.hasMessageContentIntent === false && (
+                      {currentValidation?.valid &&
+                        currentValidation.hasMessageContentIntent === false && (
                           <Alert variant="warning">
                             <IconAlertTriangle className="size-4" />
                             <Alert.Title>
@@ -233,12 +292,12 @@ export const DiscordIntegrationDetail = () => {
                           </Alert>
                         )}
 
-                      {!validating && validation && !validation.valid && (
+                      {currentValidation && !currentValidation.valid && (
                         <Alert variant="destructive">
                           <IconAlertTriangle className="size-4" />
                           <Alert.Title>Invalid token</Alert.Title>
                           <Alert.Description>
-                            {validation.error ||
+                            {currentValidation.error ||
                               'Discord rejected this token. Double-check it and try again.'}
                           </Alert.Description>
                         </Alert>
@@ -261,42 +320,13 @@ export const DiscordIntegrationDetail = () => {
                   {/* ── Step 2: server ────────────────────────────────── */}
                   {step === 2 && (
                     <div className="flex flex-col gap-3">
-                      <label className="text-sm font-medium">Server</label>
-                      {guildsLoading ? (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Spinner size="sm" /> Loading servers…
-                        </div>
-                      ) : guilds.length ? (
-                        <Select
-                          value={guildId}
-                          onValueChange={(value) => {
-                            setGuildId(value);
-                            setGuildName(
-                              guilds.find((g) => g.id === value)?.name || '',
-                            );
-                          }}
-                        >
-                          <Select.Trigger>
-                            <Select.Value placeholder="Select a server" />
-                          </Select.Trigger>
-                          <Select.Content>
-                            {guilds.map((g) => (
-                              <Select.Item key={g.id} value={g.id}>
-                                {g.name}
-                              </Select.Item>
-                            ))}
-                          </Select.Content>
-                        </Select>
-                      ) : (
-                        <Alert variant="warning">
-                          <IconAlertTriangle className="size-4" />
-                          <Alert.Title>This bot isn&apos;t in any server</Alert.Title>
-                          <Alert.Description>
-                            Use “Add this bot to a server” on the previous step,
-                            then come back.
-                          </Alert.Description>
-                        </Alert>
-                      )}
+                      <label
+                        htmlFor="discord-server"
+                        className="text-sm font-medium"
+                      >
+                        Server
+                      </label>
+                      {serverStepContent}
                     </div>
                   )}
 
@@ -305,7 +335,10 @@ export const DiscordIntegrationDetail = () => {
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between">
-                          <label className="text-sm font-medium">
+                          <label
+                            htmlFor="discord-channels"
+                            className="text-sm font-medium"
+                          >
                             Discord channels
                           </label>
                           {discordChannels.length > 0 && (
@@ -333,6 +366,7 @@ export const DiscordIntegrationDetail = () => {
                           )}
                         </div>
                         <MultipleSelector
+                          inputProps={{ id: 'discord-channels' }}
                           value={channels}
                           onChange={setChannels}
                           options={discordChannels.map((c) => ({
@@ -418,7 +452,7 @@ export const DiscordIntegrationDetail = () => {
                   <Button
                     type="button"
                     disabled={
-                      (step === 1 && !validation?.valid) ||
+                      (step === 1 && !currentValidation?.valid) ||
                       (step === 2 && !guildId)
                     }
                     onClick={() => setStep((s) => s + 1)}

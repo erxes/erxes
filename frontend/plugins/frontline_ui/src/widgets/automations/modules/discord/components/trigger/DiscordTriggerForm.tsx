@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Input } from 'erxes-ui';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   AutomationTriggerFormProps,
@@ -38,6 +39,17 @@ export const DiscordTriggerForm = ({
     formRef,
     callback: () => handleSubmit(onSaveTriggerConfig, handleValidationErrors)(),
   });
+
+  // The sidebar reuses this same form instance across different selected
+  // trigger nodes (no remount), so `defaultValues` above only ever applies to
+  // the first node opened. Reset on every node switch or the field would keep
+  // showing (and could re-save) the previous node's keywords.
+  useEffect(() => {
+    form.reset({
+      keywords: (activeTrigger?.config as TDiscordTriggerForm)?.keywords || '',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTrigger?.config]);
 
   return (
     <Form {...form}>

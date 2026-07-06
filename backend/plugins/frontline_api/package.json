@@ -23,6 +23,7 @@
     "fast-xml-parser": "5.2.5",
     "fbgraph": "^1.4.4",
     "graphql-tag": "^2.12.6",
+    "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
     "mailparser": "^3.9.1",
     "moment-timezone": "^0.5.48",

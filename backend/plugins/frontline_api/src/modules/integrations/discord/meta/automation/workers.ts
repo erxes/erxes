@@ -19,7 +19,7 @@ import { debugError } from '@/integrations/discord/debuggers';
 
 // Splits a comma-separated config value into a lowercased, trimmed list.
 const toFilterList = (value: unknown): string[] =>
-  String(value || '')
+  (typeof value === 'string' ? value : '')
     .split(',')
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);

@@ -33,7 +33,10 @@ const DURATIONS: { label: string; value: number }[] = [
 // the array index.
 let optionIdSeq = 0;
 /** Create a blank poll option with a stable id. */
-const makeOption = () => ({ id: `opt-${(optionIdSeq += 1)}`, value: '' });
+const makeOption = () => {
+  optionIdSeq += 1;
+  return { id: `opt-${optionIdSeq}`, value: '' };
+};
 
 /** Composer for creating a native (Discord) poll. */
 export const PollComposer = ({

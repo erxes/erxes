@@ -26,6 +26,32 @@ const Img = (props: JSX.IntrinsicElements['img']) => (
   <img {...props} />
 );
 
+// The text bubble's background/spacing depends on who sent it (own/internal
+// note/bot) and whether an author/bot label already sits above it. Split out
+// of the component's JSX so this branching isn't counted against it.
+const getMessageBubbleClassName = ({
+  userId,
+  internal,
+  fromBot,
+  separatePrevious,
+  showAuthorName,
+  showBotName,
+}: {
+  userId?: string;
+  internal?: boolean;
+  fromBot?: boolean;
+  separatePrevious: boolean;
+  showAuthorName: boolean;
+  showBotName: boolean;
+}) =>
+  cn(
+    'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
+    userId && 'bg-primary/10 hover:bg-primary/10',
+    internal && 'bg-warning/20 hover:bg-warning/5',
+    fromBot && 'bg-primary/5 hover:bg-primary/5 border-l-2 border-primary',
+    separatePrevious && (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
+  );
+
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
 // poll / embed / author / bot labels); flattening them reads clearer than
 // splitting into helpers that each re-derive the same message fields.
@@ -104,15 +130,14 @@ export const MessageItem = () => {
         {hasTextBubble ? (
           <Button
             variant="secondary"
-            className={cn(
-              'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
-              userId && 'bg-primary/10 hover:bg-primary/10',
-              internal && 'bg-warning/20 hover:bg-warning/5',
-              fromBot &&
-                'bg-primary/5 hover:bg-primary/5 border-l-2 border-primary',
-              separatePrevious &&
-                (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
-            )}
+            className={getMessageBubbleClassName({
+              userId,
+              internal,
+              fromBot,
+              separatePrevious,
+              showAuthorName,
+              showBotName,
+            })}
             asChild
           >
             <div>

@@ -37,14 +37,8 @@ export const MentionInEditor = ({
   return (
     <SuggestionMenuController
       triggerCharacter="@"
-      // BlockNote's SuggestionMenuProps requires DefaultReactSuggestionItem,
-      // which this custom item shape (item/isPlaceholder) can't satisfy.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      suggestionMenuComponent={(props: SuggestionMenuProps<any>) => (
-        <MentionMenu {...props} />
-      )}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onItemClick={(item: any) => item.onItemClick?.()}
+      suggestionMenuComponent={MentionMenu}
+      onItemClick={(item: MentionSuggestionItem) => item.onItemClick?.()}
       // skipcq: JS-0116 — BlockNote's getItems prop must return a Promise, so
       // `async` is required here even without an explicit await.
       getItems={async (query) => {
@@ -87,8 +81,7 @@ export const MentionInEditor = ({
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function MentionMenu(props: SuggestionMenuProps<any>) {
+function MentionMenu(props: SuggestionMenuProps<MentionSuggestionItem>) {
   const { items, selectedIndex } = props;
   const mentionItems = items as MentionSuggestionItem[];
 

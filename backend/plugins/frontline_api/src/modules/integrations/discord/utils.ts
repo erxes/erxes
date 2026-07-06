@@ -1,7 +1,7 @@
-import { randomUUID } from 'crypto';
-import { promises as fsPromises } from 'fs';
-import { tmpdir } from 'os';
-import { basename, join } from 'path';
+import { randomUUID } from 'node:crypto';
+import { promises as fsPromises } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, join } from 'node:path';
 import {
   APIActionRowComponent,
   APIApplication,
@@ -217,6 +217,47 @@ const parseDiscordResponse = (text: string): unknown => {
 // error throws immediately, exactly as before.
 const MAX_RATE_LIMIT_RETRIES = 5;
 
+// Multipart: send FormData as-is and let fetch set the boundary +
+// Content-Type. JSON: set Content-Type (Content-Type is omitted for
+// multipart since fetch must derive its own boundary).
+const buildRequestHeaders = (
+  token: string,
+  form?: FormData,
+): Record<string, string> => ({
+  Authorization: `Bot ${token}`,
+  ...(form ? {} : { 'Content-Type': 'application/json' }),
+});
+
+const buildRequestBody = (form: FormData | undefined, body: unknown) => {
+  if (form) {
+    return form;
+  }
+  return body === undefined ? undefined : JSON.stringify(body);
+};
+
+// The `Retry-After` header and body `retry_after` are both seconds on API
+// v10; prefer the header, falling back to the body, then a 1s default. Caps
+// the wait so a pathological value can't hang the caller.
+const resolveRetryAfterMs = (
+  response: Response,
+  errorBody: TDiscordErrorBody,
+) => {
+  const capMs = (retryAfterSec: number) =>
+    Math.min(Math.max(retryAfterSec * 1000, 0), 60_000);
+
+  const headerRetry = Number(response.headers.get('retry-after'));
+  if (Number.isFinite(headerRetry)) {
+    return capMs(headerRetry);
+  }
+
+  const bodyRetry = Number(errorBody?.retry_after);
+  if (Number.isFinite(bodyRetry)) {
+    return capMs(bodyRetry);
+  }
+
+  return capMs(1);
+};
+
 // `T` is the wire shape the endpoint returns (from `discord-api-types`); the
 // cast at the single return point is the one boundary between Discord's JSON
 // and the typed world, so every caller gets a typed result with no `any`.
@@ -230,36 +271,16 @@ const discordRequest = async <T>({
   for (let attempt = 0; ; attempt++) {
     const response = await fetch(`${DISCORD_API_URL}${path}`, {
       method,
-      // Multipart: send FormData as-is and let fetch set the boundary +
-      // Content-Type. JSON: set Content-Type and stringify the body.
-      headers: form
-        ? { Authorization: `Bot ${token}` }
-        : {
-            Authorization: `Bot ${token}`,
-            'Content-Type': 'application/json',
-          },
-      body: form
-        ? form
-        : body === undefined
-          ? undefined
-          : JSON.stringify(body),
+      headers: buildRequestHeaders(token, form),
+      body: buildRequestBody(form, body),
     });
 
     const data = parseDiscordResponse(await response.text());
     const errorBody = data as TDiscordErrorBody;
 
-    // Rate limited: wait the advised interval and retry, up to a bound. The
-    // `Retry-After` header and body `retry_after` are both seconds on API v10.
+    // Rate limited: wait the advised interval and retry, up to a bound.
     if (response.status === 429 && attempt < MAX_RATE_LIMIT_RETRIES) {
-      const headerRetry = Number(response.headers.get('retry-after'));
-      const bodyRetry = Number(errorBody?.retry_after);
-      const retryAfterSec = Number.isFinite(headerRetry)
-        ? headerRetry
-        : Number.isFinite(bodyRetry)
-          ? bodyRetry
-          : 1;
-      // Cap the wait so a pathological value can't hang the caller.
-      const waitMs = Math.min(Math.max(retryAfterSec * 1000, 0), 60_000);
+      const waitMs = resolveRetryAfterMs(response, errorBody);
       await new Promise((resolve) => setTimeout(resolve, waitMs));
       continue;
     }
@@ -278,9 +299,9 @@ const discordRequest = async <T>({
   }
 };
 
-// Discord's default upload cap for non-boosted servers is 8 MiB. We refuse
+// Discord's default upload cap for non-boosted servers is 10 MiB. We refuse
 // larger files up-front rather than letting Discord reject the whole message.
-const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
 export type DiscordMessageAttachment = { url: string; filename?: string };
 
@@ -399,11 +420,11 @@ const pickCut = (window: string, maxLen: number): number | null => {
 const balanceCodeFences = (chunks: string[]): string[] => {
   let open: string | null = null; // language of the currently-open fence, else null
   return chunks.map((chunk) => {
-    const prefix = open !== null ? `\`\`\`${open}\n` : '';
+    const prefix = open === null ? '' : `\`\`\`${open}\n`;
     for (const marker of chunk.match(/^[ \t]*```(\w*)/gm) || []) {
       open = open === null ? marker.trim().slice(3) : null;
     }
-    const suffix = open !== null ? '\n```' : '';
+    const suffix = open === null ? '' : '\n```';
     return prefix + chunk + suffix;
   });
 };
@@ -429,10 +450,8 @@ export const splitDiscordContent = (
 
   while (rest.length > maxLen && chunks.length < MAX_CHUNKS - 1) {
     let cut = pickCut(rest.slice(0, maxLen), maxLen);
-    if (cut == null) {
-      // No boundary (e.g. a very long URL/token): hard-cut, never mid surrogate.
-      cut = isHighSurrogate(rest.charCodeAt(maxLen - 1)) ? maxLen - 1 : maxLen;
-    }
+    // No boundary (e.g. a very long URL/token): hard-cut, never mid surrogate.
+    cut ??= isHighSurrogate(rest.charCodeAt(maxLen - 1)) ? maxLen - 1 : maxLen;
     const piece = rest.slice(0, cut).trimEnd();
     if (piece) chunks.push(piece);
     rest = rest.slice(cut);
@@ -507,7 +526,7 @@ const postDiscordMessage = async ({
       throw new Error(
         `Attachment ${file.url} is ${(blob.size / 1024 / 1024).toFixed(
           1,
-        )}MB, over the 8MB Discord limit`,
+        )}MB, over the 10MB Discord limit`,
       );
     }
 

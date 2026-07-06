@@ -29,33 +29,6 @@ const REPAIR_INTEGRATION = gql`
   }
 `;
 
-/** Row actions (edit dialog) for a Discord integration. */
-export const DiscordIntegrationActions = ({
-  cell,
-}: {
-  cell: CellContext<IIntegrationDetail, unknown>;
-}) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <div className="flex items-center gap-2 w-full">
-          <IconEdit size={16} />
-          Edit
-        </div>
-      </Dialog.Trigger>
-      <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
-        {/* skipcq: JS-0357 */}
-        <DiscordIntegrationEditForm
-          id={cell.row.original._id}
-          setOpen={setOpen}
-        />
-      </Dialog.Content>
-    </Dialog>
-  );
-};
-
 /** Edit form for a Discord integration's name and brand. */
 const DiscordIntegrationEditForm = ({
   id,
@@ -156,6 +129,32 @@ const DiscordIntegrationEditForm = ({
   );
 };
 
+/** Row actions (edit dialog) for a Discord integration. */
+export const DiscordIntegrationActions = ({
+  cell,
+}: {
+  cell: CellContext<IIntegrationDetail, unknown>;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
+        <div className="flex items-center gap-2 w-full">
+          <IconEdit size={16} />
+          Edit
+        </div>
+      </Dialog.Trigger>
+      <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
+        <DiscordIntegrationEditForm
+          id={cell.row.original._id}
+          setOpen={setOpen}
+        />
+      </Dialog.Content>
+    </Dialog>
+  );
+};
+
 /** Repair action that re-syncs a broken Discord integration. */
 export const DiscordIntegrationRepair = ({
   cell,
@@ -178,7 +177,18 @@ export const DiscordIntegrationRepair = ({
   };
 
   return (
-    <div onClick={handleRepair} className="flex items-center gap-2 w-full">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={handleRepair}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleRepair();
+        }
+      }}
+      className="flex items-center gap-2 w-full"
+    >
       {loading ? (
         <Spinner className="size-4 text-primary" />
       ) : (
