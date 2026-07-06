@@ -118,7 +118,18 @@ const getRuleConditionMatchExpression = (requestConditions: DiscountConditions) 
                             },
                           ],
                         },
-                        { $eq: ['$$ruleValue', '$$requestValue'] },
+                        {
+                          $cond: [
+                            {
+                              $in: [
+                                { $type: '$$ruleValue' },
+                                ['int', 'long', 'double', 'decimal'],
+                              ],
+                            },
+                            { $gte: ['$$requestValue', '$$ruleValue'] },
+                            { $eq: ['$$ruleValue', '$$requestValue'] },
+                          ],
+                        },
                       ],
                     },
                   ],

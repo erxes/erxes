@@ -160,6 +160,10 @@ const conditionMatches = (expected: unknown, actual: unknown) => {
     return true;
   }
 
+  if (typeof expected === 'number' && typeof actual === 'number') {
+    return actual >= expected;
+  }
+
   return expected === actual;
 };
 
@@ -246,7 +250,18 @@ const getRuleConditionMatchExpression = (requestConditions: DiscountConditions) 
                             },
                           ],
                         },
-                        { $eq: ['$$ruleValue', '$$requestValue'] },
+                        {
+                          $cond: [
+                            {
+                              $in: [
+                                { $type: '$$ruleValue' },
+                                ['int', 'long', 'double', 'decimal'],
+                              ],
+                            },
+                            { $gte: ['$$requestValue', '$$ruleValue'] },
+                            { $eq: ['$$ruleValue', '$$requestValue'] },
+                          ],
+                        },
                       ],
                     },
                   ],

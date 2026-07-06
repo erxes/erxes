@@ -67,6 +67,10 @@ const conditionMatches = (expected: unknown, actual: unknown) => {
     return true;
   }
 
+  if (typeof expected === 'number' && typeof actual === 'number') {
+    return actual >= expected;
+  }
+
   return expected === actual;
 };
 
