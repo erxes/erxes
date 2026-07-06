@@ -79,7 +79,12 @@ export const paymentColumns = (t: TFunction): ColumnDef<IPayment>[] => [
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label={t('payment-method-label')} icon={IconSettings} />,
+    header: () => (
+      <RecordTable.InlineHead
+        label={t('payment-method-label')}
+        icon={IconSettings}
+      />
+    ),
     cell: ({ cell }) => {
       const kind = cell.getValue() as string;
 
@@ -125,7 +130,9 @@ export const paymentColumns = (t: TFunction): ColumnDef<IPayment>[] => [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} icon={IconProgress} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconProgress} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -137,7 +144,9 @@ export const paymentColumns = (t: TFunction): ColumnDef<IPayment>[] => [
   {
     id: 'credentials',
     accessorKey: 'credentials',
-    header: () => <RecordTable.InlineHead label={t('credentials')} icon={IconKey} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('credentials')} icon={IconKey} />
+    ),
     cell: () => {
       return (
         <RecordTableInlineCell>
@@ -149,7 +158,9 @@ export const paymentColumns = (t: TFunction): ColumnDef<IPayment>[] => [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
