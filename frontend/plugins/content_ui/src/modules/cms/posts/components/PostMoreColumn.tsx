@@ -71,7 +71,9 @@ export const PostMoreColumnCell = ({
           toast({
             title: t('notification-sent'),
             variant: 'success',
-            description: t('notification-sent-to-users', { count: recipientCount }),
+            description: t('notification-sent-to-users', {
+              count: recipientCount,
+            }),
           });
         })
         .catch((e: Error) => {

@@ -153,7 +153,8 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
   // Enforce mutual exclusivity: setting one date filter clears the other two
   const [created, setCreated] = useQueryState<string>('created');
   const [updated, setUpdated] = useQueryState<string>('updated');
-  const [publishedDate, setPublishedDate] = useQueryState<string>('publishedDate');
+  const [publishedDate, setPublishedDate] =
+    useQueryState<string>('publishedDate');
 
   const prevCreated = useRef(created);
   const prevUpdated = useRef(updated);
