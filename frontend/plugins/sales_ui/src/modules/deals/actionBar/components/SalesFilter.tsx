@@ -136,14 +136,14 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
       <Filter.BarItem queryKey="createdStartDate">
         <Filter.BarName>
           <IconCalendarPlus />
-          {t('date-created')}
+          {t('date-created', 'Date created')}
         </Filter.BarName>
         <Filter.Date filterKey="createdStartDate" label="Date created" />
       </Filter.BarItem>
       <Filter.BarItem queryKey="startDateStartDate">
         <Filter.BarName>
           <IconCalendarBolt />
-          {t('start-date')}
+          {t('start-date', 'Start Date')}
         </Filter.BarName>
         <Filter.Date filterKey="startDateStartDate" label="Start date" />
       </Filter.BarItem>
@@ -168,42 +168,42 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
         <SelectCompany.FilterBar
           mode="multiple"
           filterKey="companyIds"
-          label={t('by-company')}
+          label={t('by-company', 'By Company')}
         />
       )}
       {customerIds && (
         <SelectCustomer.FilterBar
           mode="multiple"
           filterKey="customerIds"
-          label={t('by-customer')}
+          label={t('by-customer', 'By Customer')}
         />
       )}
       {assignedUserIds && (
         <SelectMember.FilterBar
           mode="multiple"
           queryKey="assignedUserIds"
-          label={t('by-user')}
+          label={t('by-user', 'By User')}
         />
       )}
       {userIds && (
         <SelectMember.FilterBar
           mode="multiple"
           queryKey="userIds"
-          label={t('by-user')}
+          label={t('by-user', 'By User')}
         />
       )}
       {branchIds && (
         <SelectBranches.FilterBar
           mode="multiple"
           filterKey="branchIds"
-          label={t('by-branch')}
+          label={t('by-branch', 'By Branch')}
         />
       )}
       {departmentIds && (
         <SelectDepartments.FilterBar
           mode="multiple"
           filterKey="departmentIds"
-          label={t('by-department')}
+          label={t('by-department', 'By Department')}
         />
       )}
       {priority && <SelectPriority.FilterBar />}
@@ -211,14 +211,14 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
         <SelectLabels.FilterBar
           filterKey="labelIds"
           mode="multiple"
-          label={t('by-label')}
+          label={t('by-label', 'By Label')}
         />
       )}
       {productId && (
         <SelectProduct.FilterBar
           filterKey="productId"
           mode="multiple"
-          label={t('by-product')}
+          label={t('by-product', 'By Product')}
         />
       )}
     </>
@@ -234,47 +234,47 @@ const SalesFilterView = () => {
           <Command.List className="p-1">
             <SelectCompany.FilterItem
               value="companyIds"
-              label={t('by-company')}
+              label={t('by-company', 'By Company')}
             />
             <SelectCustomer.FilterItem
               value="customerIds"
-              label={t('by-customer')}
+              label={t('by-customer', 'By Customer')}
             />
             <Command.Separator className="my-1" />
             <SelectMember.FilterItem
               value="assignedUserIds"
-              label={t('by-assigned-user')}
+              label={t('by-assigned-user', 'By Assigned user')}
             />
             <SelectMember.FilterItem
               value="userIds"
-              label={t('created-by-user')}
+              label={t('created-by-user', 'Created By')}
             />
             <Command.Separator className="my-1" />
             <SelectBranches.FilterItem
               value="branchIds"
-              label={t('by-branch')}
+              label={t('by-branch', 'By Branch')}
             />
             <SelectDepartments.FilterItem
               value="departmentIds"
-              label={t('by-department')}
+              label={t('by-department', 'By Department')}
             />
             <SelectProduct.FilterItem
               value="productId"
-              label={t('by-product')}
+              label={t('by-product', 'By Product')}
             />
             <SelectPriority.FilterItem
               value="priority"
-              label={t('by-priority')}
+              label={t('by-priority', 'By Priority')}
             />
-            <SelectLabels.FilterItem value="labelIds" label={t('by-label')} />
+            <SelectLabels.FilterItem value="labelIds" label={t('by-label', 'By Label')} />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdStartDate">
               <IconCalendarPlus />
-              {t('date-created')}
+              {t('date-created', 'Date created')}
             </Filter.Item>
             <Filter.Item value="startDateStartDate">
               <IconCalendarBolt />
-              {t('start-date')}
+              {t('start-date', 'Start Date')}
             </Filter.Item>
             <Filter.Item value="closeDateStartDate">
               <IconCalendarX />

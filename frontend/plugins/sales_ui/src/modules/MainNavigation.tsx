@@ -7,12 +7,12 @@ export const MainNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={t('sales-pipeline')}
+        name={t('sales-pipeline', 'Sales Pipeline')}
         path="sales/deals"
         icon={IconSandbox}
       />
       <NavigationMenuLinkItem
-        name={t('pos')}
+        name={t('pos', 'POS')}
         icon={IconCashRegister}
         path="sales/pos"
       />

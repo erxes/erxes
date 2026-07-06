@@ -100,7 +100,7 @@ export const PosCreate = ({
         },
         onError: (e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -121,8 +121,8 @@ export const PosCreate = ({
               );
             } catch {
               toast({
-                title: t('warning'),
-                description: t('pos-create-product-groups-failed'),
+                title: t('warning', 'Warning'),
+                description: t('pos-create-product-groups-failed', 'POS created but failed to save product groups. You can add them later.'),
                 variant: 'destructive',
               });
             }
@@ -161,16 +161,16 @@ export const PosCreate = ({
               });
             } catch {
               toast({
-                title: t('warning'),
-                description: t('pos-create-slots-failed'),
+                title: t('warning', 'Warning'),
+                description: t('pos-create-slots-failed', 'POS created but failed to save slots. You can add them later.'),
                 variant: 'destructive',
               });
             }
           }
 
           toast({
-            title: t('success'),
-            description: t('pos-create-success'),
+            title: t('success', 'Success'),
+            description: t('pos-create-success', 'POS created successfully.'),
           });
           reset();
           productGroupsRef.current = [];
@@ -182,8 +182,8 @@ export const PosCreate = ({
       });
     } catch {
       toast({
-        title: t('error'),
-        description: t('pos-create-failed'),
+        title: t('error', 'Error'),
+        description: t('pos-create-failed', 'Failed to create POS. Please try again.'),
         variant: 'destructive',
       });
       setIsSubmitting(false);
@@ -210,7 +210,7 @@ export const PosCreate = ({
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <Sheet.View className="flex-col p-0 h-full max-h-screen sm:max-w-md">
         <Sheet.Header className="px-5 shrink-0">
-          <Sheet.Title className="text-lg font-bold">{t('pos-create')}</Sheet.Title>
+          <Sheet.Title className="text-lg font-bold">{t('pos-create', 'Create POS')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -222,16 +222,16 @@ export const PosCreate = ({
             <div className="overflow-y-auto flex-1 px-5 py-5 space-y-4 min-h-0">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
-                  {t('name')} <span className="text-destructive">*</span>
+                  {t('name', 'Name')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
-                  placeholder={t('pos-name-placeholder')}
+                  placeholder={t('pos-name-placeholder', 'Enter POS name')}
                   {...register('name', {
-                    required: t('name-required'),
+                    required: t('name-required', 'Name is required'),
                     minLength: {
                       value: 2,
-                      message: t('name-min-length'),
+                      message: t('name-min-length', 'Name must be at least 2 characters'),
                     },
                   })}
                   className={errors.name ? 'border-destructive' : ''}
@@ -245,11 +245,11 @@ export const PosCreate = ({
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-medium">
-                  {t('description')}
+                  {t('description', 'Description')}
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder={t('pos-description-placeholder')}
+                  placeholder={t('pos-description-placeholder', 'Enter POS description')}
                   rows={3}
                   {...register('description')}
                   className="bg-background"
@@ -265,10 +265,10 @@ export const PosCreate = ({
                 onClick={handleCancel}
                 disabled={isSubmitting}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting || !isFormValid}>
-                {isSubmitting ? t('creating') : t('pos-create')}
+                {isSubmitting ? t('creating', 'Creating...') : t('pos-create', 'Create POS')}
               </Button>
             </Sheet.Footer>
           </form>

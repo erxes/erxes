@@ -134,7 +134,7 @@ const SelectCompaniesValue = ({
   if (!selectedCompany) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-company')}
+        {placeholder || t('select-company', 'Select company')}
       </span>
     );
   }
@@ -175,10 +175,10 @@ const SelectCompaniesContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder={t('search-companies')} />
+        <Command.Input placeholder={t('search-companies', 'Search companies')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">{t('loading-companies')}</span>
+            <span className="text-muted-foreground">{t('loading-companies', 'Loading companies...')}</span>
           </div>
         </Command.List>
       </Command>
@@ -187,9 +187,9 @@ const SelectCompaniesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-companies')} />
+      <Command.Input placeholder={t('search-companies', 'Search companies')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-companies-found')}</span>
+        <span className="text-muted-foreground">{t('no-companies-found', 'No companies found')}</span>
       </Command.Empty>
       <Command.List>
         {companies?.map((company) => (
@@ -205,7 +205,7 @@ export const SelectCompaniesFilterItem = () => {
   return (
     <Filter.Item value="companies">
       <IconBuilding />
-      {t('companies')}
+      {t('companies', 'Companies')}
     </Filter.Item>
   );
 };
@@ -265,7 +265,7 @@ export const SelectCompaniesFilterBar = ({
     <Filter.BarItem queryKey={'companies'}>
       <Filter.BarName>
         <IconBuilding />
-        {t('companies')}
+        {t('companies', 'Companies')}
       </Filter.BarName>
       <SelectCompaniesProvider
         mode={mode}

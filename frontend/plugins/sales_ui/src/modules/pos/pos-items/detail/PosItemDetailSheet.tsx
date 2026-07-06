@@ -30,7 +30,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
     accessorKey: 'productName',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />;
+      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('product', 'Product')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
@@ -47,7 +47,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
     accessorKey: 'count',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('count')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('count', 'Count')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
@@ -64,7 +64,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
     accessorKey: 'unitPrice',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('unit-price', 'Unit Price')} />;
     },
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
@@ -81,7 +81,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
     accessorKey: 'amount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('amount')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('amount', 'Amount')} />;
     },
     cell: ({ row }) => {
       const count = row.original.count || 0;
@@ -151,7 +151,7 @@ export const PosItemDetailSheet = () => {
       <>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            {t('customer')}
+            {t('customer', 'Customer')}
           </span>
           <span className="text-base font-medium">
             {posItem.customer?.primaryEmail || '-'}
@@ -159,13 +159,13 @@ export const PosItemDetailSheet = () => {
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            {t('bill-number')}
+            {t('bill-number', 'Bill Number')}
           </span>
           <span className="text-base font-medium">{posItem.number}</span>
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            {t('date')}
+            {t('date', 'Date')}
           </span>
           <span className="text-base font-medium">
             {new Date(posItem.createdAt).toLocaleDateString()}
@@ -173,7 +173,7 @@ export const PosItemDetailSheet = () => {
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            {t('erkhet-info')}
+            {t('erkhet-info', 'Erkhet Info')}
           </span>
           <span className="text-base font-medium">
             {posItem.syncErkhetInfo || '-'}
@@ -181,13 +181,13 @@ export const PosItemDetailSheet = () => {
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            {t('bill-id')}
+            {t('bill-id', 'Bill Id')}
           </span>
           <span className="text-base font-medium">{posItem.billId || '-'}</span>
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            {t('ebarimt-date')}
+            {t('ebarimt-date', 'Ebarimt Date')}
           </span>
           <span className="text-base font-medium">
             {posItem.putResponses?.[0]?.createdAt
@@ -197,7 +197,7 @@ export const PosItemDetailSheet = () => {
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            {t('deal')}
+            {t('deal', 'Deal')}
           </span>
           <span className="text-base font-medium">
             {posItem.deal?.searchText || '-'}
@@ -234,7 +234,7 @@ export const PosItemDetailSheet = () => {
     return (
       <div className="flex justify-between w-full gap-1">
         <span className="text-base font-medium text-muted-foreground">
-          {t('total-amount')}
+          {t('total-amount', 'Total Amount')}
         </span>
         <span className="text-base font-medium">
           {posItem.totalAmount ? posItem.totalAmount.toLocaleString() : '0'}
@@ -252,8 +252,8 @@ export const PosItemDetailSheet = () => {
       try {
         if (posItem?.status === 'returned' || posItem?.status === 'completed') {
           toast({
-            title: t('cannot-modify-payment'),
-            description: t('item-returned-cannot-modify'),
+            title: t('cannot-modify-payment', 'Cannot modify payment'),
+            description: t('item-returned-cannot-modify', 'This item has been returned and cannot be modified.'),
             variant: 'destructive',
           });
           return;
@@ -276,8 +276,8 @@ export const PosItemDetailSheet = () => {
 
         if (expectedTotal > 0 && sum !== expectedTotal) {
           toast({
-            title: t('amount-mismatch'),
-            description: t('payments-sum-must-equal', { sum: sum.toLocaleString(), expectedTotal: expectedTotal.toLocaleString() }),
+            title: t('amount-mismatch', 'Amount mismatch'),
+            description: t('payments-sum-must-equal', 'Sum of payments ({{sum}}) must equal total amount ({{expectedTotal}}).', { sum: sum.toLocaleString(), expectedTotal: expectedTotal.toLocaleString() }),
             variant: 'destructive',
           });
           return;
@@ -289,21 +289,21 @@ export const PosItemDetailSheet = () => {
 
         await refetch();
 
-        toast({ title: t('item-updated-successfully'), variant: 'success' });
+        toast({ title: t('item-updated-successfully', 'Item updated successfully'), variant: 'success' });
         updatePosItemId('');
       } catch (error) {
         let errorMessage = 'Unknown error';
         if (error instanceof Error) {
           if (error.message.includes('Already returned')) {
-            errorMessage = t('item-already-returned');
+            errorMessage = t('item-already-returned', 'This item has been returned and payment changes are not allowed.');
           } else if (error.message.includes('not balanced')) {
-            errorMessage = t('payments-not-balanced', { totalAmount: posItem?.totalAmount?.toLocaleString() || 0 });
+            errorMessage = t('payments-not-balanced', 'Payments must sum to the total amount ({{totalAmount}}).', { totalAmount: posItem?.totalAmount?.toLocaleString() || 0 });
           } else {
             errorMessage = error.message;
           }
         }
         toast({
-          title: t('failed-to-update-item'),
+          title: t('failed-to-update-item', 'Failed to update item'),
           variant: 'destructive',
           description: errorMessage,
         });
@@ -335,7 +335,7 @@ export const PosItemDetailSheet = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>{t('pos-item-detail')}</Sheet.Title>
+              <Sheet.Title>{t('pos-item-detail', 'POS Item detail')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4 overflow-auto">
@@ -361,7 +361,7 @@ export const PosItemDetailSheet = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button type="submit" disabled={mutationLoading || loading}>
-                {t('save-payments-change')}
+                {t('save-payments-change', 'Save payments change')}
               </Button>
             </Sheet.Footer>
           </form>

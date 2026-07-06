@@ -56,15 +56,15 @@ export const useStagesOrder = (options?: MutationHookOptions<any, any>) => {
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: t('successfully-updated-deal-stage'),
+          title: t('successfully-updated-deal-stage', 'Successfully updated a deal stage'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
-          description: err.message || t('update-failed'),
+          title: t('error', 'Error'),
+          description: err.message || t('update-failed', 'Update failed'),
           variant: 'destructive',
         });
       },
@@ -93,13 +93,13 @@ export function useStagesRemove(options?: MutationHookOptions<any, any>) {
     ],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
-      toast({ title: t('stage-removed'), variant: 'default' });
+      toast({ title: t('stage-removed', 'Stage removed'), variant: 'default' });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('remove-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('remove-failed', 'Remove failed'),
         variant: 'destructive',
       });
       options?.onError?.(err);
@@ -128,13 +128,13 @@ export function useStagesEdit(options?: MutationHookOptions<any, any>) {
     ],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
-      toast({ title: t('stage-updated'), variant: 'default' });
+      toast({ title: t('stage-updated', 'Stage updated'), variant: 'default' });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('edit-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('edit-failed', 'Edit failed'),
         variant: 'destructive',
       });
       options?.onError?.(err);
@@ -154,13 +154,13 @@ export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
     },
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
-      toast({ title: t('items-sorted'), variant: 'default' });
+      toast({ title: t('items-sorted', 'Items sorted'), variant: 'default' });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('sorting-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('sorting-failed', 'Sorting failed'),
         variant: 'destructive',
       });
       options?.onError?.(err);

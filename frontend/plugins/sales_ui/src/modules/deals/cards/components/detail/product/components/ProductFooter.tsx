@@ -133,7 +133,7 @@ const ProductFooter = ({
               {/* Discount */}
               <div className="flex items-center gap-2">
                 <span className="text-primary font-semibold">
-                  {t('total-discount')}:
+                  {t('total-discount', 'Total Discount')}:
                 </span>
                 <Input
                   type="number"
@@ -166,7 +166,7 @@ const ProductFooter = ({
 
               {/* Tax */}
               <div className="flex items-center gap-2">
-                <span className="text-primary font-semibold">{t('total-tax')}:</span>
+                <span className="text-primary font-semibold">{t('total-tax', 'Total Tax')}:</span>
                 <Input
                   type="number"
                   className="w-32"
@@ -195,22 +195,22 @@ const ProductFooter = ({
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{t('products')}:</span>
+            <span className="text-sm text-muted-foreground">{t('products', 'Products')}:</span>
             <span className="text-primary font-semibold">{productsCount}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{t('amount')}:</span>
+            <span className="text-sm text-muted-foreground">{t('amount', 'Amount')}:</span>
             {formatTotal(total)}
           </div>
           {Object.keys(unUsedTotal).length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{t('unused')}:</span>
+              <span className="text-muted-foreground">{t('unused', 'Unused')}:</span>
               <span className="font-medium">{formatTotal(unUsedTotal)}</span>
             </div>
           )}
           {Object.keys(unUsedTotal).length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{t('total')}:</span>
+              <span className="text-muted-foreground">{t('total', 'Total')}:</span>
               <span className="font-medium">{formatTotal(bothTotal)}</span>
             </div>
           )}
@@ -225,12 +225,12 @@ const ProductFooter = ({
           >
             <Button variant="secondary">
               <IconPlus className="w-4 h-4 mr-1" />
-              {t('add-products')}
+              {t('add-products', 'Add Products')}
             </Button>
           </SelectProductsBulk>
           <Button onClick={onSave}>
             <IconDeviceFloppy size={16} />
-            {t('save')}
+            {t('save', 'Save')}
           </Button>
         </div>
       </div>

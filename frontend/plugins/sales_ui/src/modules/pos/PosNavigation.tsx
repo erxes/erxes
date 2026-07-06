@@ -6,7 +6,7 @@ export const PosNavigation = () => {
   const { t } = useTranslation('sales');
   return (
     <NavigationMenuLinkItem
-      name={t('pos')}
+      name={t('pos', 'POS')}
       path="sales/pos"
       icon={IconCashRegister}
     />

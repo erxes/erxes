@@ -39,9 +39,9 @@ export const NameField = ({ control }: FieldProps) => {
       name="name"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('name')}</Form.Label>
+          <Form.Label>{t('name', 'Name')}</Form.Label>
           <Form.Control>
-            <Input type="text" placeholder={t('pos-name-placeholder')} {...field} />
+            <Input type="text" placeholder={t('pos-name-placeholder', 'Enter POS name')} {...field} />
           </Form.Control>
         </Form.Item>
       )}
@@ -57,9 +57,9 @@ export const DescriptionField = ({ control }: FieldProps) => {
       name="description"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('description')}</Form.Label>
+          <Form.Label>{t('description', 'Description')}</Form.Label>
           <Form.Control>
-            <Textarea placeholder={t('description')} {...field} />
+            <Textarea placeholder={t('description', 'Description')} {...field} />
           </Form.Control>
         </Form.Item>
       )}
@@ -75,9 +75,9 @@ export const MaxSkipNumberField = ({ control }: FieldProps) => {
       name="maxSkipNumber"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('max-skip-number')}</Form.Label>
+          <Form.Label>{t('max-skip-number', 'Max Skip Number')}</Form.Label>
           <Form.Control>
-            <Input type="number" placeholder={t('max-skip-number')} {...field} />
+            <Input type="number" placeholder={t('max-skip-number', 'Max Skip Number')} {...field} />
           </Form.Control>
         </Form.Item>
       )}
@@ -93,9 +93,9 @@ export const OrderPasswordField = ({ control }: FieldProps) => {
       name="orderPassword"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('order-password')}</Form.Label>
+          <Form.Label>{t('order-password', 'Order Password')}</Form.Label>
           <Form.Control>
-            <Input type="text" placeholder={t('order-password')} {...field} />
+            <Input type="text" placeholder={t('order-password', 'Order Password')} {...field} />
           </Form.Control>
         </Form.Item>
       )}
@@ -111,7 +111,7 @@ export const BranchField = ({ control }: FieldProps) => {
       name="branchId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('branch')}</Form.Label>
+          <Form.Label>{t('branch', 'Branch')}</Form.Label>
           <Form.Control>
             <SelectBranches.FormItem
               mode="single"
@@ -134,7 +134,7 @@ export const DepartmentField = ({ control }: FieldProps) => {
       name="departmentId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('department')}</Form.Label>
+          <Form.Label>{t('department', 'Department')}</Form.Label>
           <Form.Control>
             <SelectDepartments.FormItem
               mode="single"
@@ -157,7 +157,7 @@ export const BrandField = ({ control }: FieldProps) => {
       name="brandId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('brand')}</Form.Label>
+          <Form.Label>{t('brand', 'Brand')}</Form.Label>
           <Form.Control>
             <SelectBrand.FormItem
               mode="single"
@@ -184,7 +184,7 @@ export const OnServerField = ({ control }: FieldProps) => {
             <Form.Control>
               <Checkbox checked={field.value} onCheckedChange={field.onChange} />
             </Form.Control>
-            <Form.Label>{t('on-server')}</Form.Label>
+            <Form.Label>{t('on-server', 'On Server')}</Form.Label>
           </div>
           <Form.Message />
         </Form.Item>
@@ -205,7 +205,7 @@ export const IsOnlineField = ({ control }: FieldProps) => {
             <Form.Control>
               <Checkbox checked={field.value} onCheckedChange={field.onChange} />
             </Form.Control>
-            <Form.Label>{t('is-online')}</Form.Label>
+            <Form.Label>{t('is-online', 'Is Online')}</Form.Label>
           </div>
           <Form.Message />
         </Form.Item>
@@ -222,9 +222,9 @@ export const AllowBranchesField = ({ control }: FieldProps) => {
       name="allowBranchIds"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('allow-branches')}</Form.Label>
+          <Form.Label>{t('allow-branches', 'ALLOW BRANCHES')}</Form.Label>
           <Form.Description>
-            {t('allow-branches-description')}
+            {t('allow-branches-description', 'Select the potential branches for sales from this pos')}
           </Form.Description>
           <Form.Control>
             <SelectBranches.FormItem
@@ -248,9 +248,9 @@ export const PosDomainField = ({ control }: FieldProps) => {
       name="pdomain"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('pos-domain')}</Form.Label>
+          <Form.Label>{t('pos-domain', 'POS Domain')}</Form.Label>
           <Form.Control>
-            <Input type="text" placeholder={t('pos-domain')} {...field} />
+            <Input type="text" placeholder={t('pos-domain', 'POS Domain')} {...field} />
           </Form.Control>
           <Form.Message />
         </Form.Item>
@@ -267,9 +267,9 @@ export const BeginNumberField = ({ control }: FieldProps) => {
       name="beginNumber"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('begin-number')}</Form.Label>
+          <Form.Label>{t('begin-number', 'Begin Number')}</Form.Label>
           <Form.Control>
-            <Input type="number" placeholder={t('begin-number')} {...field} />
+            <Input type="number" placeholder={t('begin-number', 'Begin Number')} {...field} />
           </Form.Control>
           <Form.Message />
         </Form.Item>
@@ -286,7 +286,7 @@ export const AllowTypesField = ({ control }: FieldProps) => {
       name="allowTypes"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('allow-types')}</Form.Label>
+          <Form.Label>{t('allow-types', 'Allow Types')}</Form.Label>
           <Form.Control>
             <MultipleSelector
               value={field.value?.map((v: string) => ({
@@ -298,7 +298,7 @@ export const AllowTypesField = ({ control }: FieldProps) => {
                 value: at.value,
                 label: at.label,
               }))}
-              placeholder={t('select-allow-types')}
+              placeholder={t('select-allow-types', 'Select allow types')}
               hidePlaceholderWhenSelected
             />
           </Form.Control>

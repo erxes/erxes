@@ -72,8 +72,8 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
     async (data: DeliveryConfigFormData) => {
       if (!posId) {
         toast({
-          title: t('error'),
-          description: t('pos-id-required'),
+          title: t('error', 'Error'),
+          description: t('pos-id-required', 'POS ID is required'),
           variant: 'destructive',
         });
         return;
@@ -99,14 +99,14 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
         });
 
         toast({
-          title: t('success'),
-          description: t('delivery-config-saved'),
+          title: t('success', 'Success'),
+          description: t('delivery-config-saved', 'Delivery config saved successfully'),
         });
         reset(data);
       } catch {
         toast({
-          title: t('error'),
-          description: t('failed-to-save-delivery-config'),
+          title: t('error', 'Error'),
+          description: t('failed-to-save-delivery-config', 'Failed to save delivery config'),
           variant: 'destructive',
         });
       }
@@ -127,7 +127,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? t('saving') : t('save-changes')}
+          {saving ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -169,7 +169,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            {t('failed-to-load-pos-details')}: {error.message}
+            {t('failed-to-load-pos-details', 'Failed to load POS details: {{message}}')}: {error.message}
           </p>
         </div>
       );
@@ -183,12 +183,12 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>{t('stage')}</Label>
+            <Label>{t('stage', 'Stage')}</Label>
             <Stage control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>{t('deal-users')}</Label>
+            <Label>{t('deal-users', 'Deal Users')}</Label>
             <DealUsers control={control} />
           </section>
         </form>
@@ -198,7 +198,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('delivery-configuration')}>
+      <InfoCard title={t('delivery-configuration', 'Delivery configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

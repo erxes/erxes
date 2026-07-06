@@ -58,7 +58,7 @@ export const PipelineMoreColumnCell = ({
 
   const onRemove = () => {
     confirm({
-      message: t('confirm-remove-selected'),
+      message: t('confirm-remove-selected', 'Are you sure you want to remove the selected?'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -75,7 +75,7 @@ export const PipelineMoreColumnCell = ({
 
   const onDuplicate = () => {
     confirm({
-      message: t('duplicate-pipeline-confirm'),
+      message: t('duplicate-pipeline-confirm', 'This will duplicate the current pipeline. Are you absolutely sure?'),
     }).then(async () => {
       try {
         copyPipeline({
@@ -91,7 +91,7 @@ export const PipelineMoreColumnCell = ({
 
   const onArchive = () => {
     confirm({
-      message: status === 'active' ? t('archive-pipeline-confirm') : t('unarchive-pipeline-confirm'),
+      message: status === 'active' ? t('archive-pipeline-confirm', 'This will archive the current pipeline. Are you absolutely sure?') : t('unarchive-pipeline-confirm', 'This will unarchive the current pipeline. Are you absolutely sure?'),
     }).then(async () => {
       try {
         archivePipeline({
@@ -118,19 +118,19 @@ export const PipelineMoreColumnCell = ({
               value="edit"
               onSelect={() => setOpen({ pipelineId: _id, tab: null })}
             >
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="duplicate" onSelect={onDuplicate}>
-              <IconCopy /> {t('duplicate')}
+              <IconCopy /> {t('duplicate', 'Duplicate')}
             </Command.Item>
             <Command.Item value="archive" onSelect={onArchive}>
               {status === 'active' ? (
                 <>
-                  <IconArchive /> {t('archive')}
+                  <IconArchive /> {t('archive', 'Archive')}
                 </>
               ) : (
                 <>
-                  <IconArrowBack /> {t('unarchive')}
+                  <IconArrowBack /> {t('unarchive', 'Unarchive')}
                 </>
               )}
             </Command.Item>
@@ -140,21 +140,21 @@ export const PipelineMoreColumnCell = ({
                 setOpen({ pipelineId: _id, tab: 'productConfig' });
               }}
             >
-              <IconSettings /> {t('product-config')}
+              <IconSettings /> {t('product-config', 'Product Config')}
             </Command.Item>
             <Command.Item
               onSelect={() => {
                 navigate(`/sales/deals?boardId=${activeBoardId}&pipelineId=${_id}`)
               }}
             >
-              <IconSandbox /> {t('go-to-pipeline')}
+              <IconSandbox /> {t('go-to-pipeline', 'Go To Pipeline')}
             </Command.Item>
             <Command.Item
               disabled={removeLoading}
               value="remove"
               onSelect={onRemove}
             >
-              <IconTrash /> {t('delete')}
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -176,7 +176,7 @@ export const pipelinesColumns: ColumnDef<
     },
     {
       id: 'name',
-      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('name'); },
+      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('name', 'Name'); },
       accessorKey: 'name',
       cell: ({ cell }) => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -233,7 +233,7 @@ export const pipelinesColumns: ColumnDef<
       size: 300,
     },
     {
-      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('status'); },
+      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return t('status', 'Status'); },
       accessorKey: 'status',
       cell: ({ cell }) => {
         const status = cell.getValue() as string;
@@ -255,7 +255,7 @@ export const pipelinesColumns: ColumnDef<
     {
       id: 'createdAt',
       accessorKey: 'createdAt',
-      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />; },
+      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at', 'Created At')} />; },
       cell: ({ cell }) => {
         return (
           <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -269,7 +269,7 @@ export const pipelinesColumns: ColumnDef<
     {
       id: 'createdBy',
       accessorKey: 'createdUser.details.fullName',
-      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />; },
+      header: () => { /* eslint-disable-next-line react-hooks/rules-of-hooks */ const { t } = useTranslation('sales'); return <RecordTable.InlineHead icon={IconUser} label={t('created-by', 'Created by')} />; },
       cell: ({ cell }) => {
         return (
           <RecordTableInlineCell>
@@ -301,7 +301,7 @@ const PipelineRecordTable = () => {
 
   return (
     <>
-      <PageSubHeader>{t('pipelines-with-count', { count: totalCount })}</PageSubHeader>
+      <PageSubHeader>{t('pipelines-with-count', 'Pipelines ({{count}})', { count: totalCount })}</PageSubHeader>
       <RecordTable.Provider
         columns={pipelinesColumns}
         data={pipelines || []}

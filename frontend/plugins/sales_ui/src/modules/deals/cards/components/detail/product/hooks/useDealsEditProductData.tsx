@@ -22,7 +22,7 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
           variant: 'success',
         });
         const nextProductsData = data.dealsEditProductData.productsData;
@@ -67,7 +67,7 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

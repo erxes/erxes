@@ -10,13 +10,13 @@ interface KitchenScreenProps {
 export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
   const { t } = useTranslation('sales');
   const showTypeOptions = [
-    { value: 'all', label: t('all-saved-orders') },
-    { value: 'paid', label: t('paid-all-orders') },
-    { value: 'defined', label: t('defined-orders-only') },
+    { value: 'all', label: t('all-saved-orders', 'All saved orders') },
+    { value: 'paid', label: t('paid-all-orders', 'Paid all orders') },
+    { value: 'defined', label: t('defined-orders-only', 'Defined orders only') },
   ];
   const statusChangeOptions = [
-    { value: 'manual', label: t('manual') },
-    { value: 'time', label: t('time') },
+    { value: 'manual', label: t('manual', 'Manual') },
+    { value: 'time', label: t('time', 'Time') },
   ];
   return (
     <div className="space-y-4">
@@ -26,7 +26,7 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
         render={({ field }) => (
           <div className="flex gap-2 items-center">
             <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Label>{t('KITCHEN-SCREEN')}</Label>
+            <Label>{t('KITCHEN-SCREEN', 'KITCHEN SCREEN')}</Label>
           </div>
         )}
       />
@@ -42,7 +42,7 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
                 control={control}
                 render={({ field }) => (
                   <div className="space-y-2">
-                    <Label>{t('SHOW-TYPES')}</Label>
+                    <Label>{t('SHOW-TYPES', 'SHOW TYPES')}</Label>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
                         <Select.Value />
@@ -64,7 +64,7 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
                 control={control}
                 render={({ field }) => (
                   <div className="space-y-2">
-                    <Label>{t('STATUS-CHANGE-LEAVE')}</Label>
+                    <Label>{t('STATUS-CHANGE-LEAVE', 'STATUS CHANGE /LEAVE/')}</Label>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
                         <Select.Value />
@@ -91,12 +91,12 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
                       control={control}
                       render={({ field }) => (
                         <div className="space-y-2">
-                          <Label>{t('TIME-MINUTE')}</Label>
+                          <Label>{t('TIME-MINUTE', 'TIME (MINUTE)')}</Label>
                           <Input
                             type="number"
                             {...field}
                             value={field.value || ''}
-                            placeholder={t('enter-time-in-minutes')}
+                            placeholder={t('enter-time-in-minutes', 'Enter time in minutes')}
                           />
                         </div>
                       )}

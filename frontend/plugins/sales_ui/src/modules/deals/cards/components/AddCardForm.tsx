@@ -54,9 +54,9 @@ export function AddCardForm({
         className="flex flex-col h-full overflow-hidden"
       >
         <Sheet.Header className="p-5">
-          <Sheet.Title>{t('add-deal')}</Sheet.Title>
+          <Sheet.Title>{t('add-deal', 'Add Deal')}</Sheet.Title>
           <Sheet.Description className="sr-only">
-            {t('add-new-deal-to-stage')}
+            {t('add-new-deal-to-stage', 'Add a new deal to your stage.')}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
@@ -69,7 +69,7 @@ export function AddCardForm({
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('name')}</Form.Label>
+                      <Form.Label>{t('name', 'Name')}</Form.Label>
                       <Form.Control>
                         <Input {...field} required />
                       </Form.Control>
@@ -82,7 +82,7 @@ export function AddCardForm({
                   name="description"
                   render={({ field }) => (
                     <Form.Item className="mb-5">
-                      <Form.Label>{t('description')}</Form.Label>
+                      <Form.Label>{t('description', 'Description')}</Form.Label>
 
                       <Form.Control>
                         <Editor
@@ -105,7 +105,7 @@ export function AddCardForm({
                   name="assignedUserIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('assigned-to')}</Form.Label>
+                      <Form.Label>{t('assigned-to', 'Assigned to')}</Form.Label>
                       <Form.Control>
                         <SelectMember.FormItem
                           mode="multiple"
@@ -122,7 +122,7 @@ export function AddCardForm({
                   name="labelIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('select-label')}</Form.Label>
+                      <Form.Label>{t('select-label', 'Select Label')}</Form.Label>
                       <Form.Control>
                         <SelectLabels.FormItem
                           mode="multiple"
@@ -139,7 +139,7 @@ export function AddCardForm({
                   name="companyIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('select-companies')}</Form.Label>
+                      <Form.Label>{t('select-companies', 'Select Companies')}</Form.Label>
                       <Form.Control>
                         <SelectCompany
                           mode="multiple"
@@ -156,7 +156,7 @@ export function AddCardForm({
                   name={'customerIds'}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('select-customers')}</Form.Label>
+                      <Form.Label>{t('select-customers', 'Select Customers')}</Form.Label>
                       <SelectCustomer.FormItem
                         mode="multiple"
                         value={field.value}
@@ -178,14 +178,14 @@ export function AddCardForm({
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={loading}
           >
-            {loading ? t('saving') : t('save')}
+            {loading ? t('saving', 'Saving...') : t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </form>

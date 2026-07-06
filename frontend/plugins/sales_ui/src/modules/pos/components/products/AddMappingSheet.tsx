@@ -102,14 +102,14 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
         <Sheet.Trigger asChild>
           <Button variant="outline">
             <IconPlus size={16} className="mr-2" />
-            {t('add-mapping')}
+            {t('add-mapping', 'Add Mapping')}
           </Button>
         </Sheet.Trigger>
       )}
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
-            {isEditing ? t('edit-mapping') : t('add-mapping')}
+            {isEditing ? t('edit-mapping', 'Edit mapping') : t('add-mapping', 'Add Mapping')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -117,7 +117,7 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
         <Sheet.Content className="p-6">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="categoryId">{t('PRODUCT-CATEGORY')}</Label>
+              <Label htmlFor="categoryId">{t('PRODUCT-CATEGORY', 'PRODUCT CATEGORY')}</Label>
               <SelectCategory
                 selected={form.watch('categoryId')}
                 onSelect={handleCategorySelect}
@@ -125,24 +125,24 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="code">{t('product-code-contains')}</Label>
+              <Label htmlFor="code">{t('product-code-contains', 'PRODUCT CODE CONTAINS')}</Label>
               <Input
                 id="code"
                 {...form.register('code')}
-                placeholder={t('enter-product-code-pattern')}
+                placeholder={t('enter-product-code-pattern', 'Enter product code pattern')}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="name">
-                {t('product-name-contains')} <span className="text-red-500">*</span>
+                {t('product-name-contains', 'PRODUCT NAME CONTAINS')} <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
                 {...form.register('name', {
-                  required: t('product-name-required'),
+                  required: t('product-name-required', 'Product name is required'),
                 })}
-                placeholder={t('enter-product-name-pattern')}
+                placeholder={t('enter-product-name-pattern', 'Enter product name pattern')}
               />
               {form.formState.errors.name && (
                 <p className="text-sm text-red-500">
@@ -152,7 +152,7 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="productId">{t('packaging-products')}</Label>
+              <Label htmlFor="productId">{t('packaging-products', 'PACKAGING PRODUCTS')}</Label>
               <SelectProduct
                 value={form.watch('productId')}
                 onValueChange={(productId: string | string[]) => {
@@ -169,10 +169,10 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
 
         <Sheet.Footer className="bg-background">
           <Button variant="outline" onClick={onCancel}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button onClick={form.handleSubmit(onSubmit)}>
-            {isEditing ? t('update-mapping') : t('add-mapping')}
+            {isEditing ? t('update-mapping', 'Update Mapping') : t('add-mapping', 'Add Mapping')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

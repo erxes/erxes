@@ -44,10 +44,10 @@ export const PosOrdersByCustomerRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-pos-order-by-customer-yet')}
+                {t('no-pos-order-by-customer-yet', 'No pos order by customer yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('create-first-pos-order-by-customer')}
+                {t('create-first-pos-order-by-customer', 'Get started by creating your first pos order by customer.')}
               </p>
             </div>
           </div>

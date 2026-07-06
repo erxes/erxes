@@ -82,7 +82,7 @@ export const useDeals = (
     fetchPolicy: 'cache-and-network',
     onError: (e) => {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: e.message,
         variant: 'destructive',
       });
@@ -348,15 +348,15 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: t('deal-updated'),
+        title: t('deal-updated', 'Successfully updated a deal'),
         variant: 'success',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('update-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('update-failed', 'Update failed'),
         variant: 'destructive',
       });
     },
@@ -385,15 +385,15 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: t('deal-added'),
+        title: t('deal-added', 'Successfully added a deal'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('update-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('update-failed', 'Update failed'),
         variant: 'destructive',
       });
     },
@@ -419,15 +419,15 @@ export function useDealsRemove(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: t('deal-removed'),
+        title: t('deal-removed', 'Successfully removed a deal'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('update-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('update-failed', 'Update failed'),
         variant: 'destructive',
       });
     },
@@ -449,15 +449,15 @@ export function useDealsChange(options?: MutationHookOptions<any, any>) {
     },
     onCompleted: (...args) => {
       toast({
-        title: t('deal-order-updated'),
+        title: t('deal-order-updated', 'Successfully updated deal order'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('update-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('update-failed', 'Update failed'),
         variant: 'destructive',
       });
     },
@@ -584,15 +584,15 @@ export function useDealsArchive(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: t('deals-archived'),
+        title: t('deals-archived', 'Successfully archived deals'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('update-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('update-failed', 'Update failed'),
         variant: 'destructive',
       });
     },
@@ -623,15 +623,15 @@ export function useDealsCopy(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: t('deal-copied'),
+        title: t('deal-copied', 'Successfully copied a deal'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('update-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('update-failed', 'Update failed'),
         variant: 'destructive',
       });
     },
@@ -657,15 +657,15 @@ export function useDealsWatch(options?: MutationHookOptions<any, any>) {
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({
-        title: t('watch-status-updated'),
+        title: t('watch-status-updated', 'Successfully updated watch status'),
         variant: 'default',
       });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: t('error'),
-        description: err.message || t('update-failed'),
+        title: t('error', 'Error'),
+        description: err.message || t('update-failed', 'Update failed'),
         variant: 'destructive',
       });
     },

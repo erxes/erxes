@@ -49,7 +49,7 @@ const ChecklistItem = ({
   useEffect(() => {
     if (error) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -114,7 +114,7 @@ const ChecklistItem = ({
     e.stopPropagation();
 
     confirm({
-      message: t('delete-checklist-confirm', { title: item.title }),
+      message: t('delete-checklist-confirm', 'Are you sure you want to delete {{title}}?', { title: item.title }),
     }).then(() => {
       salesChecklistsRemove({
         variables: {
@@ -126,8 +126,8 @@ const ChecklistItem = ({
             error.message?.includes('denied')
           ) {
             toast({
-              title: t('permission-denied'),
-              description: t('no-permission-delete-checklist'),
+              title: t('permission-denied', 'Permission Denied'),
+              description: t('no-permission-delete-checklist', 'You do not have permission to delete this checklist.'),
               variant: 'destructive',
             });
           }
@@ -167,22 +167,22 @@ const ChecklistItem = ({
               }}
             >
               {hideChecked
-                ? t('show-checked-items', { count: checkedCount })
-                : t('hide-completed-items')}
+                ? t('show-checked-items', 'Show checked items ({{count}})', { count: checkedCount })
+                : t('hide-completed-items', 'Hide Completed Items')}
             </Button>
           )}
 
           <Button
             variant="destructive"
             onClick={(e) => onDeleteChecklist(e, item._id)}
-            title={t('delete-checklist')}
+            title={t('delete-checklist', 'Delete Checklist')}
             size="sm"
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
             className={cn(salesChecklistsRemoveLoading && 'opacity-50')}
           >
             <IconTrash />{' '}
-            {salesChecklistsRemoveLoading ? <Spinner /> : t('delete')}
+            {salesChecklistsRemoveLoading ? <Spinner /> : t('delete', 'Delete')}
           </Button>
         </div>
       </Collapsible.TriggerButton>

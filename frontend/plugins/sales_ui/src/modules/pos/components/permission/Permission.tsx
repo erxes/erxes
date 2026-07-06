@@ -83,8 +83,8 @@ const Permission: React.FC<PermissionProps> = ({
     async (data: PermissionFormData) => {
       if (!posId) {
         toast({
-          title: t('error'),
-          description: t('pos-id-required'),
+          title: t('error', 'Error'),
+          description: t('pos-id-required', 'POS ID is required'),
           variant: 'destructive',
         });
         return;
@@ -121,14 +121,14 @@ const Permission: React.FC<PermissionProps> = ({
         });
 
         toast({
-          title: t('success'),
-          description: t('permissions-saved'),
+          title: t('success', 'Success'),
+          description: t('permissions-saved', 'Permissions saved successfully'),
         });
         reset(data);
       } catch {
         toast({
-          title: t('error'),
-          description: t('failed-to-save-permissions'),
+          title: t('error', 'Error'),
+          description: t('failed-to-save-permissions', 'Failed to save permissions'),
           variant: 'destructive',
         });
       }
@@ -154,7 +154,7 @@ const Permission: React.FC<PermissionProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? t('saving') : t('save-changes')}
+          {saving ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -177,7 +177,7 @@ const Permission: React.FC<PermissionProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            {t('failed-to-load-pos-details', { message: error.message })}
+            {t('failed-to-load-pos-details', 'Failed to load POS details: {{message}}', { message: error.message })}
           </p>
         </div>
       );
@@ -191,13 +191,13 @@ const Permission: React.FC<PermissionProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>{t('admins')}</Label>
+            <Label>{t('admins', 'Admins')}</Label>
 
             <AdminPermissions control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>{t('cashiers')}</Label>
+            <Label>{t('cashiers', 'Cashiers')}</Label>
 
             <CashierPermissions control={control} />
           </section>
@@ -208,7 +208,7 @@ const Permission: React.FC<PermissionProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('permission-configuration')}>
+      <InfoCard title={t('permission-configuration', 'Permission configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

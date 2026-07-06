@@ -29,7 +29,7 @@ export const PipelineList = ({
   return (
     <>
       <Accordion.Trigger className="text-gray-400 text-sm">
-        {t('pipelines')} ({pipelines?.length || 0})
+        {t('pipelines', 'Pipelines')} ({pipelines?.length || 0})
       </Accordion.Trigger>
       <Accordion.Content className="content">
         <Sidebar.Menu className="px-2">

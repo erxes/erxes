@@ -90,13 +90,13 @@ const SelectStageValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, stages, loading } = useSelectStageContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">{t('loading-stages')}</span>;
+    return <span className="text-accent-foreground/80">{t('loading-stages', 'Loading stages...')}</span>;
   }
 
   if (!stages || stages.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-stage')}
+        {placeholder || t('select-stage', 'Select Stage')}
       </span>
     );
   }
@@ -106,7 +106,7 @@ const SelectStageValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedStage) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-stage')}
+        {placeholder || t('select-stage', 'Select Stage')}
       </span>
     );
   }
@@ -142,10 +142,10 @@ const SelectStageContent = () => {
   const { t } = useTranslation('sales');
   const { stages, pipelineId, loading } = useSelectStageContext();
   const emptyMessage = loading
-    ? t('loading-stages')
+    ? t('loading-stages', 'Loading stages...')
     : pipelineId
-    ? t('no-stages-found')
-    : t('pipeline-not-selected');
+    ? t('no-stages-found', 'No stages found')
+    : t('pipeline-not-selected', 'Pipeline not selected');
   return (
     <Command>
       <Command.List>

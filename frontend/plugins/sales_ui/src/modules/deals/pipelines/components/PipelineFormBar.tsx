@@ -105,8 +105,8 @@ export function PipelineFormBar() {
     async (data) => {
       const managePipeline = pipelineId ? pipelineEdit : addPipeline;
       const successTitle = pipelineId
-        ? t('pipeline-updated')
-        : t('pipeline-added');
+        ? t('pipeline-updated', 'Pipeline updated successfully')
+        : t('pipeline-added', 'Pipeline added successfully');
 
       const { paymentTypes, paymentIds, ...rest } = data;
 
@@ -118,7 +118,7 @@ export function PipelineFormBar() {
       };
 
       confirm({
-        message: t('are-you-absolutely-sure-to-continue'),
+        message: t('are-you-absolutely-sure-to-continue', 'Are you absolutely sure to continue?'),
       }).then(() => {
         managePipeline({
           variables,
@@ -149,7 +149,7 @@ export function PipelineFormBar() {
     PipelineHotKeyScope.PipelineAddSheet,
   );
 
-  const title = pipelineId ? t('edit-pipeline') : t('add-pipeline');
+  const title = pipelineId ? t('edit-pipeline', 'Edit Pipeline') : t('add-pipeline', 'Add Pipeline');
 
   useEffect(() => {
     if (pipelineId && pipelineDetail) {
@@ -238,10 +238,10 @@ export function PipelineFormBar() {
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant={'ghost'} onClick={onClose}>
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={addLoading || editLoading}>
-                  {pipelineId ? t('update') : t('create')}
+                  {pipelineId ? t('update', 'Update') : t('create', 'Create')}
                 </Button>
               </Sheet.Footer>
             </form>

@@ -47,11 +47,11 @@ export const DealsActions = ({
 
   const handleArchive = async () => {
     const newStatus = allArchived ? 'active' : 'archived';
-    const actionLabel = allArchived ? t('unarchive') : t('archive');
+    const actionLabel = allArchived ? t('unarchive', 'Unarchive') : t('archive', 'Archive');
 
     if (!isSingle) {
       await confirm({
-        message: t('archive-deals-confirm', { count, action: actionLabel }),
+        message: t('archive-deals-confirm', 'Are you sure you want to {{action}} {{count}} deals?', { count, action: actionLabel }),
       });
     }
 
@@ -66,7 +66,7 @@ export const DealsActions = ({
 
   const handleRemove = async () => {
     await confirm({
-      message: t('remove-deals-confirm', { count }),
+      message: t('remove-deals-confirm', 'Are you sure you want to remove {{count}} deals?', { count }),
     });
 
     await Promise.all(
@@ -97,15 +97,15 @@ export const DealsActions = ({
   };
 
   const getArchiveLabel = () => {
-    if (allArchived) return t('unarchive');
-    if (allActive) return t('archive');
-    return isSingle ? t('archive') : t('archive-mixed');
+    if (allArchived) return t('unarchive', 'Unarchive');
+    if (allActive) return t('archive', 'Archive');
+    return isSingle ? t('archive', 'Archive') : t('archive-mixed', 'Archive (Mixed)');
   };
 
   const getWatchLabel = () => {
-    if (allWatched) return t('unwatch');
-    if (allUnwatched) return t('watch');
-    return t('watch-mixed');
+    if (allWatched) return t('unwatch', 'Unwatch');
+    if (allUnwatched) return t('watch', 'Watch');
+    return t('watch-mixed', 'Watch (Mixed)');
   };
 
   return (
@@ -117,13 +117,13 @@ export const DealsActions = ({
           disabled={isLoading}
         >
           {isSingle ? <IconDotsVertical /> : <IconEdit />}
-          {t('edit')}
+          {t('edit', 'Edit')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-48 min-w-fit!">
         <DropdownMenu.Item onClick={handleCopy} disabled={isLoading}>
           <IconCopy />
-          {t('copy')} {isSingle ? '' : `(${count})`}
+          {t('copy', 'Copy')} {isSingle ? '' : `(${count})`}
         </DropdownMenu.Item>
 
         <DropdownMenu.Item onClick={handleWatch} disabled={isLoading}>
@@ -133,7 +133,7 @@ export const DealsActions = ({
 
         <DropdownMenu.Item onClick={handlePrint} disabled={isLoading}>
           <IconPrinter />
-          {t('print-document')}
+          {t('print-document', 'Print Document')}
         </DropdownMenu.Item>
 
         <DropdownMenu.Item onClick={handleArchive} disabled={isLoading}>
@@ -148,7 +148,7 @@ export const DealsActions = ({
             className="text-red-700 focus:text-red-700"
           >
             <IconTrash className="text-red-700" />
-            {t('remove')} {isSingle ? '' : `(${count})`}
+            {t('remove', 'Remove')} {isSingle ? '' : `(${count})`}
           </DropdownMenu.Item>
         )}
       </DropdownMenu.Content>

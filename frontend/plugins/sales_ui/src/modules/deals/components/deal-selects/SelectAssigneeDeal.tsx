@@ -51,7 +51,7 @@ const SelectAssigneeValue = ({
     );
   }
 
-  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
+  return <SelectMember.Value placeholder={placeholder || t('select-assignee', 'Select assignee')} />;
 };
 
 const SelectTeamMemberContent = ({

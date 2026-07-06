@@ -106,7 +106,7 @@ const SelectExcludeStatusValue = ({
   if (!selectedExcludeStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-exclude-status')}
+        {placeholder || t('select-exclude-status', 'Select exclude status')}
       </span>
     );
   }
@@ -147,9 +147,9 @@ const SelectExcludeStatusContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-exclude-status')} />
+      <Command.Input placeholder={t('search-exclude-status', 'Search exclude status')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-exclude-statuses-found')}</span>
+        <span className="text-muted-foreground">{t('no-exclude-statuses-found', 'No exclude statuses found')}</span>
       </Command.Empty>
       <Command.List>
         {excludeStatuses?.map((excludeStatus) => (
@@ -168,7 +168,7 @@ export const SelectExcludeStatusFilterItem = () => {
   return (
     <Filter.Item value="excludeStatus">
       <IconBan />
-      {t('exclude-status')}
+      {t('exclude-status', 'Exclude Status')}
     </Filter.Item>
   );
 };
@@ -223,7 +223,7 @@ export const SelectExcludeStatusFilterBar = ({
     <Filter.BarItem queryKey={'excludeStatus'}>
       <Filter.BarName>
         <IconBan />
-        {t('exclude-status')}
+        {t('exclude-status', 'Exclude Status')}
       </Filter.BarName>
       <SelectExcludeStatusProvider
         mode={mode}

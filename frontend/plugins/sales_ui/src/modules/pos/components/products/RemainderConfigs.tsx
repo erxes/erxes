@@ -34,7 +34,7 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
                   />
                 </Form.Control>
                 <Label htmlFor="isCheckRemainder" className="cursor-pointer">
-                  {t('check-remainder')}
+                  {t('check-remainder', 'Check Remainder')}
                 </Label>
               </div>
             </Form.Item>
@@ -55,7 +55,7 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
                   />
                 </Form.Control>
                 <Label htmlFor="saveRemainder" className="cursor-pointer">
-                  {t('save-remainder')}
+                  {t('save-remainder', 'Save Remainder')}
                 </Label>
               </div>
             </Form.Item>
@@ -75,7 +75,7 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Label htmlFor="banFractions">{t('ban-fractions')}</Label>
+                <Label htmlFor="banFractions">{t('ban-fractions', 'BAN FRACTIONS')}</Label>
               </div>
             </Form.Item>
           )}
@@ -87,14 +87,14 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
         name="checkExcludeCategoryIds"
         render={({ field }) => (
           <Form.Item>
-            <Label>{t('exclude-categories')}</Label>
+            <Label>{t('exclude-categories', 'Exclude Categories')}</Label>
 
             <Form.Control>
               <SelectCategory
                 mode="multiple"
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={t('select-categories-to-exclude')}
+                placeholder={t('select-categories-to-exclude', 'Select categories to exclude')}
               />
             </Form.Control>
           </Form.Item>

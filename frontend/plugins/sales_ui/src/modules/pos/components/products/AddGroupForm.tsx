@@ -115,12 +115,12 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>{t('PRODUCT-CATEGORY')}</Label>
+        <Label>{t('PRODUCT-CATEGORY', 'PRODUCT CATEGORY')}</Label>
         <SelectCategory
           mode="multiple"
           value={formState.categoryIds}
           onValueChange={handleCategorySelect}
-          placeholder={t('select-product-categories')}
+          placeholder={t('select-product-categories', 'Select product categories')}
         />
       </div>
 
@@ -129,22 +129,22 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
       {showMore && (
         <>
           <div className="space-y-2">
-            <Label>{t('EXCLUDE-PRODUCT-CATEGORY')}</Label>
+            <Label>{t('EXCLUDE-PRODUCT-CATEGORY', 'EXCLUDE PRODUCT CATEGORY')}</Label>
             <SelectCategory
               mode="multiple"
               value={formState.excludedCategoryIds}
               onValueChange={handleExcludeCategorySelect}
-              placeholder={t('select-product-categories-to-exclude')}
+              placeholder={t('select-product-categories-to-exclude', 'Select product categories to exclude')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>{t('exclude-products')}</Label>
+            <Label>{t('exclude-products', 'Exclude Products')}</Label>
             <SelectProduct
               mode="multiple"
               value={formState.excludedProductIds}
               onValueChange={handleExcludeProductsChange}
-              placeholder={t('select-products-to-exclude')}
+              placeholder={t('select-products-to-exclude', 'Select products to exclude')}
             />
           </div>
         </>

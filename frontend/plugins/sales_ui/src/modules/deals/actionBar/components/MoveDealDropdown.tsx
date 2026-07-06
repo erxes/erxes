@@ -32,7 +32,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
           stageId,
         },
       });
-      toast({ title: t('deal-moved-successfully'), variant: 'success' });
+      toast({ title: t('deal-moved-successfully', 'Deal moved successfully'), variant: 'success' });
       setOpen(false);
     } finally {
       setIsMoving(false);
@@ -48,7 +48,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
           onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
         >
           <IconLayoutBoard size={16} />
-          {t('move-deal')}
+          {t('move-deal', 'Move Deal')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-62 py-2">

@@ -45,7 +45,7 @@ export const SelectDealsBulk = ({
       <Sheet.View className="sm:max-w-5xl">
         <Sheet.Header>
           <div>
-            <Sheet.Title>{t('select-deals')}</Sheet.Title>
+            <Sheet.Title>{t('select-deals', 'Select Deals')}</Sheet.Title>
           </div>
           <Sheet.Close />
         </Sheet.Header>
@@ -116,10 +116,10 @@ const SelectDealsBulkContent = ({
         <div className="flex items-center gap-2">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Sheet.Close>
-          <Button onClick={handleSelect}>{t('add-many-deals')}</Button>
+          <Button onClick={handleSelect}>{t('add-many-deals', 'Add Many Deals')}</Button>
         </div>
       </Sheet.Footer>
     </>
@@ -156,13 +156,13 @@ const DealsList = ({
       <div className="p-4">
         <div className="flex items-center gap-4">
           <Input
-            placeholder={t('search-deals')}
+            placeholder={t('search-deals', 'Search deals')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="text-accent-foreground text-xs mt-4">
-          {totalCount} {t('results')}
+          {totalCount} {t('results', 'results')}
         </div>
       </div>
       <Separator />
@@ -183,7 +183,7 @@ const DealsList = ({
                       onClick={() => handleDealSelect(deal)}
                     >
                       <div className={cn(!deal.name && 'text-accent-foreground italic')}>
-                        {deal.name || t('untitled-deal')}
+                        {deal.name || t('untitled-deal', 'Untitled deal')}
                       </div>
                       {isSelected ? (
                         <IconCheck className="ml-auto" />
@@ -203,7 +203,7 @@ const DealsList = ({
               <div className="flex items-center gap-2 px-2 h-8" ref={bottomRef}>
                 <Spinner containerClassName="flex-none" />
                 <span className="text-accent-foreground animate-pulse">
-                  {t('loading-more-deals')}
+                  {t('loading-more-deals', 'Loading more deals...')}
                 </span>
               </div>
             )}
@@ -229,7 +229,7 @@ const SelectedDealsList = ({
   return (
     <ScrollArea className="h-full">
       <div className="p-4 flex flex-col gap-1">
-        <div className="text-accent-foreground text-xs px-3 mb-1">{t('added')}</div>
+        <div className="text-accent-foreground text-xs px-3 mb-1">{t('added', 'Added')}</div>
         {selectedDealIds.map((dealId) => {
           const deal = selectedDeals.find((p) => p._id === dealId);
           return (
@@ -240,7 +240,7 @@ const SelectedDealsList = ({
               onClick={() => handleRemoveDeal(dealId)}
             >
               <div className={cn(!deal?.name && 'text-accent-foreground italic')}>
-                {deal?.name || t('untitled-deal')}
+                {deal?.name || t('untitled-deal', 'Untitled deal')}
               </div>
               <IconX className="ml-auto" />
             </Button>

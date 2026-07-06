@@ -126,7 +126,7 @@ const Pipelines = () => {
           {!loading && !pipelines?.length && (
             <Sidebar.MenuItem>
               <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">{t('no-pipelines')}</span>
+                <span className="capitalize text-foreground">{t('no-pipelines', 'No Pipelines')}</span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}
@@ -150,12 +150,12 @@ const ActionsMenu = () => {
       await navigator.clipboard.writeText(link);
       toast({
         variant: 'default',
-        title: t('link-copied-to-clipboard'),
+        title: t('link-copied-to-clipboard', 'Link copied to clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: t('failed-to-copy-link'),
+        title: t('failed-to-copy-link', 'Failed to copy link'),
         description: e as string,
       });
     }
@@ -183,7 +183,7 @@ const ActionsMenu = () => {
           }}
         >
           <IconSettings className="size-4" />
-          {t('manage-board-pipelines')}
+          {t('manage-board-pipelines', 'Manage Board & Pipelines')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={(e) => {
@@ -192,7 +192,7 @@ const ActionsMenu = () => {
           className="cursor-pointer"
         >
           <IconLink className="size-4" />
-          {t('copy-link')}
+          {t('copy-link', 'Copy Link')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -221,14 +221,14 @@ const DealsNavigation = () => {
 
   return (
     <>
-      <NavigationMenuGroup name={t('boards')} actions={<ActionsMenu />}>
+      <NavigationMenuGroup name={t('boards', 'Boards')} actions={<ActionsMenu />}>
         {loading ? (
           <LoadingSkeleton />
         ) : (
           boards?.map((board) => <BoardItem key={board._id} board={board} />)
         )}
       </NavigationMenuGroup>
-      <NavigationMenuGroup name={t('pipelines')} actions={<ActionsMenu />}>
+      <NavigationMenuGroup name={t('pipelines', 'Pipelines')} actions={<ActionsMenu />}>
         {boardId && <Pipelines />}
       </NavigationMenuGroup>
     </>

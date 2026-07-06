@@ -57,10 +57,10 @@ export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-pos-summary-yet')}
+                {t('no-pos-summary-yet', 'No pos summary yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('create-first-pos-summary')}
+                {t('create-first-pos-summary', 'Get started by creating your first pos summary.')}
               </p>
             </div>
           </div>

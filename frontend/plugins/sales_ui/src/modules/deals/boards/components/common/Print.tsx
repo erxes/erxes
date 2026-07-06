@@ -54,8 +54,8 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
 
     if (!documentType || !selectedDealIds.length) {
       toast({
-        title: t('error'),
-        description: t('please-select-document'),
+        title: t('error', 'Error'),
+        description: t('please-select-document', 'Please select a document'),
         variant: 'destructive',
       });
       return;
@@ -77,8 +77,8 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch (e: any) {
       toast({
-        title: t('error'),
-        description: e?.message || t('an-error-occurred'),
+        title: t('error', 'Error'),
+        description: e?.message || t('an-error-occurred', 'An error occurred'),
         variant: 'destructive',
       });
     }
@@ -92,13 +92,13 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
         <Form {...form}>
           <form>
             <Dialog.Header>
-              <Dialog.Title>{t('print-document')}</Dialog.Title>
+              <Dialog.Title>{t('print-document', 'Print Document')}</Dialog.Title>
             </Dialog.Header>
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-4 py-4">
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <Label>{t('copies')}</Label>
+                  <Label>{t('copies', 'COPIES')}</Label>
                   <Form.Field
                     name="copies"
                     render={({ field }) => (
@@ -117,7 +117,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>{t('width')}</Label>
+                  <Label>{t('width', 'WIDTH')}</Label>
                   <Form.Field
                     name="width"
                     render={({ field }) => (
@@ -135,7 +135,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>{t('brand')}</Label>
+                  <Label>{t('brand', 'Brand')}</Label>
                   <Form.Field
                     name="brandId"
                     render={({ field }) => (
@@ -143,7 +143,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                         <SelectBrand
                           value={field.value}
                           onValueChange={field.onChange}
-                          placeholder={t('choose-brands')}
+                          placeholder={t('choose-brands', 'Choose brands')}
                         />
                       </Form.Item>
                     )}
@@ -156,7 +156,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                     name="branchId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('branches')}</Form.Label>
+                        <Form.Label>{t('branches', 'Branches')}</Form.Label>
                         <SelectBranches.FormItem
                           onValueChange={field.onChange}
                           value={field.value}
@@ -173,7 +173,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                     name="departmentId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('department')}</Form.Label>
+                        <Form.Label>{t('department', 'Department')}</Form.Label>
                         <SelectDepartments.FormItem
                           mode="single"
                           value={field.value}
@@ -190,7 +190,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                     name="documentType"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('select-document')}</Form.Label>
+                        <Form.Label>{t('select-document', 'Select a document')}</Form.Label>
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
@@ -199,7 +199,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                             <Select.Value />
                           </Select.Trigger>
                           <Select.Content>
-                            <Select.Item value="sales">{t('sales')}</Select.Item>
+                            <Select.Item value="sales">{t('sales', 'Sales')}</Select.Item>
                           </Select.Content>
                         </Select>
                       </Form.Item>
@@ -213,8 +213,8 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
               <Table>
                 <Table.Header>
                   <Table.Row>
-                    <Table.Head className="w-1/4">{t('number')}</Table.Head>
-                    <Table.Head className="w-3/4">{t('name')}</Table.Head>
+                    <Table.Head className="w-1/4">{t('number', 'Number')}</Table.Head>
+                    <Table.Head className="w-3/4">{t('name', 'Name')}</Table.Head>
                     <Table.Head className="w-[50px]"></Table.Head>
                   </Table.Row>
                 </Table.Header>
@@ -246,7 +246,7 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
                         colSpan={3}
                         className="text-center text-muted-foreground"
                       >
-                        {t('no-deals-in-stage')}
+                        {t('no-deals-in-stage', 'No deals found in this stage')}
                       </Table.Cell>
                     </Table.Row>
                   )}
@@ -257,11 +257,11 @@ export const PrintDialog = ({ open, onClose, stageId }: Props) => {
             <Dialog.Footer className="mt-6">
               <Dialog.Close asChild>
                 <Button type="button" variant="outline">
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
               </Dialog.Close>
               <Button type="button" onClick={() => print()}>
-                {t('print')}
+                {t('print', 'Print')}
               </Button>
             </Dialog.Footer>
           </form>

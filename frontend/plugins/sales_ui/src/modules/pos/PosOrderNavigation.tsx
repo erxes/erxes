@@ -80,37 +80,37 @@ function PosItem({ pos }: posItemProps) {
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               <NavigationMenuLinkItem
-                name={t('pos-orders')}
+                name={t('pos-orders', 'POS orders')}
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`sales/pos/${pos._id}/orders`}
               />
               <NavigationMenuLinkItem
-                name={t('pos-covers')}
+                name={t('pos-covers', 'POS covers')}
                 path={`sales/pos/${pos._id}/covers`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name={t('pos-by-items')}
+                name={t('pos-by-items', 'POS by items')}
                 path={`sales/pos/${pos._id}/by-items`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name={t('pos-items')}
+                name={t('pos-items', 'POS items')}
                 className="pl-6 font-medium"
                 icon={IconClipboard}
                 path={`sales/pos/${pos._id}/items`}
               />
               <NavigationMenuLinkItem
-                name={t('pos-summary')}
+                name={t('pos-summary', 'POS summary')}
                 path={`sales/pos/${pos._id}/summary`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               />
               <NavigationMenuLinkItem
-                name={t('pos-orders-by-customer')}
+                name={t('pos-orders-by-customer', 'POS orders by customer')}
                 path={`sales/pos/${pos._id}/orders-by-customer`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
@@ -146,7 +146,7 @@ export function PosOrderNavigation() {
   }
 
   return (
-    <NavigationMenuGroup name={t('pos-order')}>
+    <NavigationMenuGroup name={t('pos-order', 'POS order')}>
       {loading ? (
         <LoadingSkeleton />
       ) : (
@@ -171,13 +171,13 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
       await navigator.clipboard.writeText(posLink);
       toast({
         variant: 'default',
-        title: t('link-copied-to-clipboard'),
+        title: t('link-copied-to-clipboard', 'Link copied to clipboard'),
       });
     } catch (e) {
       toast({
         variant: 'destructive',
-        title: t('failed-to-copy-link'),
-        description: e instanceof Error ? e.message : t('unknown-error'),
+        title: t('failed-to-copy-link', 'Failed to copy link'),
+        description: e instanceof Error ? e.message : t('unknown-error', 'Unknown error'),
       });
     }
   };
@@ -204,7 +204,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
           }}
         >
           <IconSettings className="size-4" />
-          {t('go-to-pos-settings')}
+          {t('go-to-pos-settings', 'Go to pos settings')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={(e) => {
@@ -213,7 +213,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
           className="cursor-pointer"
         >
           <IconLink className="size-4" />
-          {t('copy-link')}
+          {t('copy-link', 'Copy Link')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

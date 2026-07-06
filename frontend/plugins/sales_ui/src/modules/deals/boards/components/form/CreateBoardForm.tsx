@@ -58,7 +58,7 @@ export const CreateBoardForm = () => {
             name="title"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('title')}</Form.Label>
+                <Form.Label>{t('title', 'Title')}</Form.Label>
                 <Input {...field} />
                 <Form.Message />
               </Form.Item>
@@ -71,7 +71,7 @@ export const CreateBoardForm = () => {
             {loading ? (
               <IconLoader2 className="w-4 h-4 animate-spin" />
             ) : (
-              t('create')
+              t('create', 'Create')
             )}
           </Button>
         </div>
@@ -98,7 +98,7 @@ export function SelectBoardsCreateContainer({
           className="pl-1 gap-1"
         >
           <IconChevronLeft />
-          <h6>{t('create-new-board')}</h6>
+          <h6>{t('create-new-board', 'Create New Board')}</h6>
         </Button>
       </div>
       <Separator />

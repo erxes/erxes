@@ -228,7 +228,7 @@ export const taxPercent: ColumnDef<IProductData> = {
   accessorKey: 'taxPercent',
   header: () => {
     const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('tax-percent')} />;
+    return <RecordTable.InlineHead label={t('tax-percent', 'Tax %')} />;
   },
   cell: ({ cell }) => {
     return (
@@ -250,7 +250,7 @@ export const tax: ColumnDef<IProductData> = {
   accessorKey: 'tax',
   header: () => {
     const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('tax')} />;
+    return <RecordTable.InlineHead label={t('tax', 'Tax')} />;
   },
   cell: ({ cell }) => {
     return (
@@ -272,7 +272,7 @@ export const currency: ColumnDef<IProductData> = {
   accessorKey: 'currency',
   header: () => {
     const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('currency')} />;
+    return <RecordTable.InlineHead label={t('currency', 'Currency')} />;
   },
   cell: ({ cell }) => {
     return (
@@ -292,7 +292,7 @@ export const uom: ColumnDef<IProductData> = {
   accessorKey: 'uom',
   header: () => {
     const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead label={t('uom')} />;
+    return <RecordTable.InlineHead label={t('uom', 'UOM')} />;
   },
   cell: ({ cell }) => {
     return (
@@ -312,7 +312,7 @@ export const branch: ColumnDef<IProductData> = {
   accessorKey: 'branchId',
   header: () => {
     const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead icon={IconGitBranch} label={t('branch')} />;
+    return <RecordTable.InlineHead icon={IconGitBranch} label={t('branch', 'Branch')} />;
   },
   cell: ({ cell }) => {
     return (
@@ -330,7 +330,7 @@ export const department: ColumnDef<IProductData> = {
   accessorKey: 'departmentId',
   header: () => {
     const { t } = useTranslation('sales');
-    return <RecordTable.InlineHead icon={IconBuildingSkyscraper} label={t('department')} />;
+    return <RecordTable.InlineHead icon={IconBuildingSkyscraper} label={t('department', 'Department')} />;
   },
   cell: ({ cell }) => {
     return (

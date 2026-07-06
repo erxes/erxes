@@ -15,18 +15,18 @@ export const PosCoverDelete = ({ productIds }: { productIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-pos-cover-confirm', { count: productIds.length }),
+          message: t('delete-pos-cover-confirm', 'Are you sure you want to delete the {{count}} selected pos covers?', { count: productIds.length }),
         }).then(() => {
           removePosCover(productIds, {
             onCompleted: () => {
               toast({
-                title: t('success'),
-                description: t('pos-cover-deleted', { count: productIds.length }),
+                title: t('success', 'Success'),
+                description: t('pos-cover-deleted', '{{count}} pos covers deleted successfully.', { count: productIds.length }),
               });
             },
             onError: (e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -36,7 +36,7 @@ export const PosCoverDelete = ({ productIds }: { productIds: string[] }) => {
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

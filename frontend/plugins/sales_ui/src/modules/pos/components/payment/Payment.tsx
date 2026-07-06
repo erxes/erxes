@@ -62,8 +62,8 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
     async (data: PaymentFormData) => {
       if (!posId) {
         toast({
-          title: t('error'),
-          description: t('pos-id-required'),
+          title: t('error', 'Error'),
+          description: t('pos-id-required', 'POS ID is required'),
           variant: 'destructive',
         });
         return;
@@ -88,14 +88,14 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
         });
 
         toast({
-          title: t('success'),
-          description: t('payment-settings-saved'),
+          title: t('success', 'Success'),
+          description: t('payment-settings-saved', 'Payment settings saved successfully'),
         });
         reset(data);
       } catch {
         toast({
-          title: t('error'),
-          description: t('failed-to-save-payment'),
+          title: t('error', 'Error'),
+          description: t('failed-to-save-payment', 'Failed to save payment settings'),
           variant: 'destructive',
         });
       }
@@ -116,7 +116,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
           size="sm"
           disabled={saving}
         >
-          {saving ? t('saving') : t('save-changes')}
+          {saving ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -142,7 +142,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            {t('failed-to-load-pos-details', { message: error.message })}
+            {t('failed-to-load-pos-details', 'Failed to load POS details: {{message}}', { message: error.message })}
           </p>
         </div>
       );
@@ -164,7 +164,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
 
   return (
     <div className="p-6">
-      <InfoCard title={t('payment-configuration')}>
+      <InfoCard title={t('payment-configuration', 'Payment configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

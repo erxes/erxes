@@ -18,7 +18,7 @@ export const PipelineCommandBar = () => {
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <PipelineDelete

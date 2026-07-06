@@ -142,8 +142,8 @@ const SelectPriorityContent = () => {
   const { t } = useTranslation('sales');
   return (
     <Command>
-      <Command.Input placeholder={t('search-priority')} />
-      <Command.Empty>{t('no-priority-found')}</Command.Empty>
+      <Command.Input placeholder={t('search-priority', 'Search priority')} />
+      <Command.Empty>{t('no-priority-found', 'No priority found')}</Command.Empty>
       <Command.List>
         {PROJECT_PRIORITIES_OPTIONS.map((priority) => (
           <SelectPriorityCommandItem key={priority} priority={priority} />
@@ -202,7 +202,7 @@ const SelectPriorityFilterBar = () => {
     <Filter.BarItem queryKey="priority">
       <Filter.BarName>
         <IconStackFront />
-        {t('by-priority')}
+        {t('by-priority', 'By Priority')}
       </Filter.BarName>
       <SelectPriorityProvider
         value={priority?.[0] ?? 'No Priority'}

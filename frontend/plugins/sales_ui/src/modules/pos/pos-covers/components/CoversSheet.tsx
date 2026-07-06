@@ -32,7 +32,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
     accessorKey: 'paidType',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />;
+      return <RecordTable.InlineHead icon={IconShoppingCart} label={t('type', 'Type')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -46,7 +46,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
     accessorKey: 'kind',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('kind')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('kind', 'Kind')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -60,7 +60,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
     accessorKey: 'kindOfVal',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('kind-of-val')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('kind-of-val', 'Kind of Val')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -74,7 +74,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
     accessorKey: 'value',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('value')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('value', 'Value')} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -88,7 +88,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
     accessorKey: 'amount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconTag} label={t('amount')} />;
+      return <RecordTable.InlineHead icon={IconTag} label={t('amount', 'Amount')} />;
     },
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -154,7 +154,7 @@ export const PosCoversSheet = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>{t('cover-detail')}</Sheet.Title>
+              <Sheet.Title>{t('cover-detail', 'Cover detail')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -162,7 +162,7 @@ export const PosCoversSheet = () => {
                 <div className="flex flex-col gap-4 w-full my-4">
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('begin-date')}
+                      {t('begin-date', 'Begin Date')}
                     </span>
                     <span className="text-base font-medium">
                       {dayjs(posCovers.beginDate).format('YYYY-MM-DD HH:mm')}
@@ -170,7 +170,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('end-date')}
+                      {t('end-date', 'End Date')}
                     </span>
                     <span className="text-base font-medium">
                       {dayjs(posCovers.endDate).format('YYYY-MM-DD HH:mm')}
@@ -178,7 +178,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('user')}
+                      {t('user', 'User')}
                     </span>
                     <span className="text-base font-medium">
                       {posCovers.user?.email}
@@ -186,7 +186,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('pos')}
+                      {t('pos', 'POS')}
                     </span>
                     <span className="text-base font-medium">
                       {posCovers.posName}
@@ -194,7 +194,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('total-amount')}
+                      {t('total-amount', 'Total Amount')}
                     </span>
                     <span className="text-base font-medium">
                       {(posCovers.details || [])
@@ -205,7 +205,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      {t('description')}
+                      {t('description', 'Description')}
                     </span>
                     <span className="text-base font-medium">
                       {posCovers.description}
@@ -238,10 +238,10 @@ export const PosCoversSheet = () => {
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="flex flex-col items-center justify-center text-center">
                           <h3 className="text-lg font-semibold text-gray-900">
-                            {t('no-payment-details')}
+                            {t('no-payment-details', 'No payment details')}
                           </h3>
                           <p className="mt-1 text-sm text-gray-500">
-                            {t('cover-no-payment-breakdown')}
+                            {t('cover-no-payment-breakdown', 'This cover has no payment breakdown.')}
                           </p>
                         </div>
                       </div>

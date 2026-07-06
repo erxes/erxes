@@ -140,7 +140,7 @@ export const ProductFilterBar = ({
 
   const getTagNames = (tagIds: string[]): string => {
     const tagNames = tagIds.map((id) => tags?.find((tag) => tag._id === id)?.name);
-    return tagNames.length > 0 ? tagNames.join(', ') : t('none');
+    return tagNames.length > 0 ? tagNames.join(', ') : t('none', 'None');
   };
 
   const updateFilter = (key: keyof ProductFilterState, value: any) => {
@@ -155,7 +155,7 @@ export const ProductFilterBar = ({
         >
           <Filter.BarName>
             <IconCategory />
-            {t('category')}
+            {t('category', 'Category')}
           </Filter.BarName>
           <Filter.BarButton>
             {productCategoryIds && (
@@ -171,7 +171,7 @@ export const ProductFilterBar = ({
         >
           <Filter.BarName>
             <IconTag />
-            {t('tags')}
+            {t('tags', 'Tags')}
           </Filter.BarName>
           <Filter.BarButton>
             {productTagIds && productTagIds.length > 0 && (
@@ -195,7 +195,7 @@ export const ProductFilterBar = ({
           <CustomFilterItem
             onClear={() => updateFilter('productVendorIds', undefined)}
           >
-            <Filter.BarName>{t('vendor')}</Filter.BarName>
+            <Filter.BarName>{t('vendor', 'Vendor')}</Filter.BarName>
             <Filter.BarButton>
               <SelectCompany.Value />
             </Filter.BarButton>
@@ -217,7 +217,7 @@ export const ProductFilterBar = ({
           <CustomFilterItem
             onClear={() => updateFilter('branchIds', undefined)}
           >
-            <Filter.BarName>{t('branch')}</Filter.BarName>
+            <Filter.BarName>{t('branch', 'Branch')}</Filter.BarName>
             <Filter.BarButton>
               <SelectBranches.Value />
             </Filter.BarButton>
@@ -239,7 +239,7 @@ export const ProductFilterBar = ({
           <CustomFilterItem
             onClear={() => updateFilter('departmentIds', undefined)}
           >
-            <Filter.BarName>{t('department')}</Filter.BarName>
+            <Filter.BarName>{t('department', 'Department')}</Filter.BarName>
             <Filter.BarButton>
               <SelectDepartments.Value />
             </Filter.BarButton>
@@ -275,20 +275,20 @@ const ProductFilterView = ({
           <Command.List className="p-1">
             <Filter.Item value="productCategoryIds">
               <IconCategory />
-              {t('by-category')}
+              {t('by-category', 'by Category')}
             </Filter.Item>
             <SelectCompany.FilterItem
               value="productVendorIds"
-              label={t('by-vendor')}
+              label={t('by-vendor', 'by Vendor')}
             />
             <Filter.Item value="productTagIds">
               <IconTag />
-              {t('by-tag')}
+              {t('by-tag', 'by Tag')}
             </Filter.Item>
-            <SelectBranches.FilterItem value="branchIds" label={t('by-branch')} />
+            <SelectBranches.FilterItem value="branchIds" label={t('by-branch', 'By Branch')} />
             <SelectDepartments.FilterItem
               value="departmentIds"
-              label={t('by-department')}
+              label={t('by-department', 'By Department')}
             />
           </Command.List>
         </Command>

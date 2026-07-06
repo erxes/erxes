@@ -34,7 +34,7 @@ const LoadingSkeleton = () => {
   const { t } = useTranslation('sales');
   return (
   <div className="p-6">
-    <InfoCard title={t('general-configuration')}>
+    <InfoCard title={t('general-configuration', 'General configuration')}>
       <InfoCard.Content>
         <div className="grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -116,8 +116,8 @@ const Properties: FC<PropertiesProps> = ({
     async (data: FormData) => {
       if (!posId) {
         toast({
-          title: t('error'),
-          description: t('pos-id-required'),
+          title: t('error', 'Error'),
+          description: t('pos-id-required', 'POS ID is required'),
           variant: 'destructive',
         });
         return;
@@ -144,14 +144,14 @@ const Properties: FC<PropertiesProps> = ({
         });
 
         toast({
-          title: t('success'),
-          description: t('properties-saved'),
+          title: t('success', 'Success'),
+          description: t('properties-saved', 'Properties saved successfully'),
         });
         reset(data);
       } catch {
         toast({
-          title: t('error'),
-          description: t('properties-save-failed'),
+          title: t('error', 'Error'),
+          description: t('properties-save-failed', 'Failed to save properties'),
           variant: 'destructive',
         });
       }
@@ -172,7 +172,7 @@ const Properties: FC<PropertiesProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? t('saving') : t('save-changes')}
+          {saving ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -186,7 +186,7 @@ const Properties: FC<PropertiesProps> = ({
     return (
       <div className="p-6 text-center">
         <p className="text-destructive">
-          {t('failed-to-load-pos-details')}: {error.message}
+          {t('failed-to-load-pos-details', 'Failed to load POS details: {{message}}')}: {error.message}
         </p>
       </div>
     );
@@ -194,7 +194,7 @@ const Properties: FC<PropertiesProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('general-configuration')}>
+      <InfoCard title={t('general-configuration', 'General configuration')}>
         <InfoCard.Content>
           <Form {...form}>
             <form

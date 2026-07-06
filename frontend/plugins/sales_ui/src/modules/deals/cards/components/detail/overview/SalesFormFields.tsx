@@ -63,7 +63,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   return (
     <>
       <div className="grid grid-cols-2 gap-4 py-4">
-        <FormField label={t('due-date')}>  
+        <FormField label={t('due-date', 'Due Date')}>  
           <div className="flex items-center">
             <DateSelectDeal
               value={startDate}
@@ -71,7 +71,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
               type="startDate"
               variant="button"
             />
-            <span className="mx-2">{t('date-range-to')}</span>
+            <span className="mx-2">{t('date-range-to', 'to')}</span>
             <DateSelectDeal
               value={closeDate}
               id={_id}
@@ -80,7 +80,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             />
           </div>
         </FormField>
-        <FormField label={t('assigned-to')}>  
+        <FormField label={t('assigned-to', 'Assigned to')}>  
           <SelectMember
             value={assignedUserIds}
             onValueChange={(value) => handleChange('assignedUserIds', value)}
@@ -88,12 +88,12 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             mode="multiple"
           />
         </FormField>
-        <FormField label={t('label')}>  
+        <FormField label={t('label', 'Label')}>  
           <div className="flex flex-wrap items-center gap-1">
             <SelectLabels.FilterBar
               filterKey=""
               mode="multiple"
-              label={t('by-label')}
+              label={t('by-label', 'By Label')}
               variant="card"
               targetId={_id}
               initialValue={labels?.map((label) => label._id || '') || []}
@@ -109,12 +109,12 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             ))}
           </div>
         </FormField>
-        <FormField label={t('priority')}>  
+        <FormField label={t('priority', 'Priority')}>  
           <div>
             <SelectDealPriority dealId={_id} value={priority || ''} variant="card" />
           </div>
         </FormField>
-        <FormField label={t('tags')}>  
+        <FormField label={t('tags', 'Tags')}>  
           <SelectTags
             tagType="sales:deal"
             mode="multiple"
@@ -122,14 +122,14 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             onValueChange={(value) => handleChange('tagIds', value)}
           />
         </FormField>
-        <FormField label={t('branches')}>  
+        <FormField label={t('branches', 'Branches')}>  
           <SelectBranches.ComboboxItem
             value={branchIds}
             onValueChange={(value) => handleChange('branchIds', value)}
             mode="multiple"
           />
         </FormField>
-        <FormField label={t('departments')}>  
+        <FormField label={t('departments', 'Departments')}>  
           <SelectDepartments.ComboboxItem
             mode="multiple"
             value={departmentIds}
@@ -146,7 +146,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           }
         }}
       >
-        <Label>{t('description')}</Label>
+        <Label>{t('description', 'Description')}</Label>
         <Editor
           initialContent={deal.description || ''}
           onChange={(content) => {

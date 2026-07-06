@@ -237,10 +237,10 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
           >
             <Sheet.Header className="justify-between shrink-0">
               <Sheet.Title>
-                {activeTab === 'details' ? t('slot-detail') : t('slots')}
+                {activeTab === 'details' ? t('slot-detail', 'Slot Detail') : t('slots', 'Slots')}
               </Sheet.Title>
               <Sheet.Description className="sr-only">
-                {t('manage-slots-description')}
+                {t('manage-slots-description', 'Manage the slots available on this POS floor plan.')}
               </Sheet.Description>
               <Sheet.Close />
             </Sheet.Header>
@@ -282,10 +282,10 @@ const POSSlotsManager: FC<POSSlotsManagerProps> = ({
             {activeTab === 'details' && selectedNode && (
               <Sheet.Footer className="border-t shrink-0">
                 <Button variant="outline" onClick={handleSidebarCancel}>
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button variant="default" onClick={handleSidebarSave}>
-                  {t('save')}
+                  {t('save', 'Save')}
                 </Button>
               </Sheet.Footer>
             )}

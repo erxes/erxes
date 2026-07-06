@@ -37,10 +37,10 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
         <div className="flex flex-col gap-3 px-4 py-2 min-h-0">
           <div className="flex justify-between">
             <h3 className="text-lg font-medium truncate">
-              {pos.name || t('no-name')}
+              {pos.name || t('no-name', 'No name')}
             </h3>
             <Badge variant={pos.isOnline ? 'success' : 'secondary'}>
-              {pos.isOnline ? t('online') : t('offline')}
+              {pos.isOnline ? t('online', 'Online') : t('offline', 'Offline')}
             </Badge>
           </div>
 

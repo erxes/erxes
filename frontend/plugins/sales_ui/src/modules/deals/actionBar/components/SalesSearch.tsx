@@ -28,7 +28,7 @@ export const SalesSearch = () => {
   return (
     <div className="relative">
       <Input
-        placeholder={t('search')}
+        placeholder={t('search', 'Search')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}

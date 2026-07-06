@@ -28,7 +28,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
     <SideMenu defaultValue="">
       {children}
       <SideMenu.Content value="pos-order-summary">
-        <SideMenu.Header Icon={IconChartHistogram} label={t('pos-order-summary')} />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('pos-order-summary', 'Pos order Summary')} />
 
         <div className="p-4 border-b">
           <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -39,7 +39,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
                 size="sm"
               >
                 <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                {t('summary')}
+                {t('summary', 'Summary')}
               </Button>
             </Collapsible.Trigger>
             <Collapsible.Content>
@@ -51,7 +51,7 @@ export const PosOrderSideWidget = ({ children }: PosOrderSideWidgetProps) => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="pos-order-summary"
-          label={t('pos-order-summary')}
+          label={t('pos-order-summary', 'Pos order Summary')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>

@@ -205,10 +205,10 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
             onClick={() => setShowForm(false)}
             className="text-sm text-blue-600 hover:underline"
           >
-            {t('back')}
+            {t('back', 'Back')}
           </button>
           <h3 className="text-sm font-semibold text-gray-600">
-            {editLabelId ? t('edit-label') : t('add-label')}
+            {editLabelId ? t('edit-label', 'Edit Label') : t('add-label', 'Add Label')}
           </h3>
           <span />
         </div>
@@ -239,7 +239,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
           }}
         >
           <IconPlus size={16} />
-          {t('create-new-label')}
+          {t('create-new-label', 'Create a New Label')}
         </Button>
       </Command>
     );
@@ -247,7 +247,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder={t('search-label')} />
+        <Command.Input placeholder={t('search-label', 'Search label')} />
         <div className="flex items-center gap-2">
           <IconLoader className="animate-spin" />
         </div>
@@ -256,7 +256,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   } else
     return (
       <Command>
-        <Command.Input placeholder={t('search-label')} />
+        <Command.Input placeholder={t('search-label', 'Search label')} />
         <Command.List className="px-1">
           {pipelineLabels.map((label) => {
             return (
@@ -304,7 +304,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
           }}
         >
           <IconPlus size={16} />
-          {t('create-new-label')}
+          {t('create-new-label', 'Create a New Label')}
         </Button>
       </Command>
     );
@@ -359,14 +359,14 @@ export const SelectLabelsValue = ({
           </>
         ) : (
           <>
-            <IconLabel className="w-4 h-4 text-gray-400" /> {t('label')} +
+            <IconLabel className="w-4 h-4 text-gray-400" /> {t('label', 'Label')} +
             {(labelIds || []).length}
           </>
         )}
       </span>
     );
   }
-  return <Combobox.Value placeholder={t('select-label')} />;
+  return <Combobox.Value placeholder={t('select-label', 'Select Label')} />;
 };
 
 export const SelectLabelsContent = ({ targetId }: { targetId?: string }) => {
@@ -455,7 +455,7 @@ export const SelectLabelsCommandbarItem = ({
         <Button variant={'secondary'} asChild>
           <RecordTableInlineCell.Trigger>
             <IconLabel />
-            {t('label')}
+            {t('label', 'Label')}
           </RecordTableInlineCell.Trigger>
         </Button>
         <RecordTableInlineCell.Content className="w-96">

@@ -18,7 +18,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>{t('watched-users')}</Label>
+            <Label>{t('watched-users', 'WATCHED USERS')}</Label>
             <SelectMember.Provider
               value={field.value}
               onValueChange={field.onChange}
@@ -26,7 +26,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
             >
               <PopoverScoped>
                 <Combobox.Trigger className="w-full h-8">
-                  <SelectMember.Value placeholder={t("choose-team-member")} />
+                  <SelectMember.Value placeholder={t('choose-team-member', 'Choose team member')} />
                 </Combobox.Trigger>
                 <Combobox.Content>
                   <SelectMember.Content />
@@ -42,7 +42,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>{t('assigned-users')}</Label>
+            <Label>{t('assigned-users', 'ASSIGNED USERS')}</Label>
             <SelectMember.Provider
               value={field.value}
               onValueChange={field.onChange}
@@ -50,7 +50,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
             >
               <PopoverScoped>
                 <Combobox.Trigger className="w-full h-8">
-                  <SelectMember.Value placeholder={t('choose-team-member')} />
+                  <SelectMember.Value placeholder={t('choose-team-member', 'Choose team member')} />
                 </Combobox.Trigger>
                 <Combobox.Content>
                   <SelectMember.Content />
@@ -66,7 +66,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>{t('delivery-product')}</Label>
+            <Label>{t('delivery-product', 'DELIVERY PRODUCT')}</Label>
             <SelectProduct
               value={field.value}
               onValueChange={(value) => {
@@ -74,7 +74,7 @@ export const DealUsers: React.FC<DealUsersProps> = ({ control }) => {
                 field.onChange(id || '');
               }}
               mode="single"
-              placeholder={t('choose-delivery-product')}
+              placeholder={t('choose-delivery-product', 'Choose-delivery-product')}
             />
           </div>
         )}

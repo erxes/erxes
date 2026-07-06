@@ -29,7 +29,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            {t('general')}
+            {t('general', 'General')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="stages">
@@ -37,7 +37,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            {t('stages')}
+            {t('stages', 'Stages')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="productConfig">
@@ -45,7 +45,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            {t('product-config')}
+            {t('product-config', 'Product Config')}
           </Button>
         </Tabs.Trigger>
       </Tabs.List>

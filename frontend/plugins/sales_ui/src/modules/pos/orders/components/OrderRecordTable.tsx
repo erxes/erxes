@@ -63,10 +63,10 @@ export const OrderRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-orders-yet')}
+                {t('no-orders-yet', 'No orders yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('create-first-order')}
+                {t('create-first-order', 'Get started by creating your first order.')}
               </p>
             </div>
           </div>

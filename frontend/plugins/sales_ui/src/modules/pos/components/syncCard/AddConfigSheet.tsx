@@ -151,13 +151,13 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
         <Sheet.Trigger asChild>
           <Button variant="outline">
             <IconPlus size={16} className="mr-2" />
-            {t('add-config')}
+            {t('add-config', 'Add Config')}
           </Button>
         </Sheet.Trigger>
       )}
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
-          <Sheet.Title>{isEditing ? t('edit-config') : t('add-config')}</Sheet.Title>
+          <Sheet.Title>{isEditing ? t('edit-config', 'Edit Config') : t('add-config', 'Add Config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -166,13 +166,13 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
                 <Label>
-                  {t('TITLE')} <span className="text-red-500">*</span>
+                  {t('TITLE', 'TITLE')} <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   {...form.register('title', {
-                    required: t('title-required'),
+                    required: t('title-required', 'Title is required'),
                   })}
-                  placeholder={t('enter-title')}
+                  placeholder={t('enter-title', 'Enter title')}
                   aria-invalid={!!form.formState.errors.title}
                 />
                 {form.formState.errors.title && (
@@ -183,7 +183,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label>{t('CHOOSE-BRANCH')}</Label>
+                <Label>{t('CHOOSE-BRANCH', 'CHOOSE BRANCH')}</Label>
                 <Form.Field
                   control={form.control}
                   name="branchId"
@@ -199,39 +199,39 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">{t('BOARD')}</Label>
+                  <Label className="text-xs text-muted-foreground">{t('BOARD', 'BOARD')}</Label>
                   <SelectBoardFormItem
                     value={boardId}
                     onValueChange={handleBoardChange}
-                    placeholder={t('choose-board')}
+                    placeholder={t('choose-board', 'Choose a board')}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">
-                    {t('PIPELINE')}
+                    {t('PIPELINE', 'PIPELINE')}
                   </Label>
                   <SelectPipelineFormItem
                     value={pipelineId}
                     onValueChange={handlePipelineChange}
                     boardId={boardId}
-                    placeholder={t('choose-pipeline')}
+                    placeholder={t('choose-pipeline', 'Choose a pipeline')}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">{t('STAGE')}</Label>
+                  <Label className="text-xs text-muted-foreground">{t('STAGE', 'STAGE')}</Label>
                   <SelectStageFormItem
                     value={form.watch('stageId')}
                     onValueChange={(value) => form.setValue('stageId', value)}
                     pipelineId={pipelineId}
-                    placeholder={t('choose-stage')}
+                    placeholder={t('choose-stage', 'Choose a stage')}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>{t('CHOOSE-ASSIGNED-USERS')}</Label>
+                <Label>{t('CHOOSE-ASSIGNED-USERS', 'CHOOSE ASSIGNED USERS')}</Label>
                 <SelectMember.Provider
                   value={form.watch('assignedUserIds')}
                   onValueChange={(value) =>
@@ -241,7 +241,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
                 >
                   <PopoverScoped>
                     <Combobox.Trigger className="w-full h-8">
-                      <SelectMember.Value placeholder={t('choose-team-member')} />
+                      <SelectMember.Value placeholder={t('choose-team-member', 'Choose team member')} />
                     </Combobox.Trigger>
                     <Combobox.Content>
                       <SelectMember.Content />
@@ -251,7 +251,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label>{t('CHOOSE-MAP-FIELD')}</Label>
+                <Label>{t('CHOOSE-MAP-FIELD', 'CHOOSE MAP FIELD')}</Label>
                 <Select
                   value={form.watch('deliveryMapField')}
                   onValueChange={(val) =>
@@ -260,7 +260,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
                 >
                   <Select.Trigger className="w-full" disabled={fieldsLoading}>
                     <Select.Value
-                      placeholder={fieldsLoading ? t('loading') : t('select-option')}
+                      placeholder={fieldsLoading ? t('loading', 'Loading') : t('select-option', 'Select...')}
                     />
                   </Select.Trigger>
                   <Select.Content>
@@ -278,10 +278,10 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
 
         <Sheet.Footer className="bg-background">
           <Button variant="outline" onClick={onCancel}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
 
-          <Button onClick={form.handleSubmit(onSubmit)}>{t('save')}</Button>
+          <Button onClick={form.handleSubmit(onSubmit)}>{t('save', 'Save')}</Button>
         </Sheet.Footer>
       </Sheet.View>
     </Sheet>

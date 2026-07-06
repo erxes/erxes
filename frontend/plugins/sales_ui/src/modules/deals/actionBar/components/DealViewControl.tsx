@@ -34,7 +34,7 @@ export const DealsViewControl = () => {
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconAdjustmentsHorizontal />
-          {t('display')}
+          {t('display', 'Display')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -55,7 +55,7 @@ export const DealsViewControl = () => {
               className="h-11 flex-col gap-0 border"
             >
               <IconList className="size-5!" />
-              <span className="text-xs font-normal">{t('list')}</span>
+              <span className="text-xs font-normal">{t('list', 'List')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="board" asChild>
@@ -65,7 +65,7 @@ export const DealsViewControl = () => {
               className="h-11 flex-col gap-0 border"
             >
               <IconLayoutKanban className="size-5!" />
-              <span className="text-xs font-normal">{t('board')}</span>
+              <span className="text-xs font-normal">{t('board', 'Board')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

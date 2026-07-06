@@ -73,7 +73,7 @@ const SelectPriorityBadgeValue = ({
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-priority')}
+        {placeholder || t('select-priority', 'Select priority')}
       </span>
     );
   }

@@ -11,7 +11,7 @@ export const PosSummaryCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} {t('selected')}
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <PosSummaryDelete
@@ -23,7 +23,7 @@ export const PosSummaryCommandBar = () => {
         <Separator.Inline />
         <Button variant="secondary">
           <IconPlus />
-          {t('create')}
+          {t('create', 'Create')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

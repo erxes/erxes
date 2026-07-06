@@ -62,7 +62,7 @@ export const SalesLeftSidebar = () => {
           >
             <Accordion.Item value="boards">
               <Accordion.Trigger className="text-gray-400 text-sm">
-                {t('boards')} ({boards?.length || 0})
+                {t('boards', 'Boards')} ({boards?.length || 0})
               </Accordion.Trigger>
               <Accordion.Content className="content">
                 <Sidebar.Menu className="px-2">

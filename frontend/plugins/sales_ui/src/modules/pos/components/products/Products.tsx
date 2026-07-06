@@ -150,8 +150,8 @@ const Products: React.FC<ProductsProps> = ({
     async (data: ProductsFormData) => {
       if (!posId) {
         toast({
-          title: t('error'),
-          description: t('pos-id-required'),
+          title: t('error', 'Error'),
+          description: t('pos-id-required', 'POS ID is required'),
           variant: 'destructive',
         });
         return;
@@ -182,14 +182,14 @@ const Products: React.FC<ProductsProps> = ({
         });
 
         toast({
-          title: t('success'),
-          description: t('product-settings-saved'),
+          title: t('success', 'Success'),
+          description: t('product-settings-saved', 'Product settings saved successfully'),
         });
         reset(data);
       } catch {
         toast({
-          title: t('error'),
-          description: t('product-settings-save-failed'),
+          title: t('error', 'Error'),
+          description: t('product-settings-save-failed', 'Failed to save product settings'),
           variant: 'destructive',
         });
       }
@@ -224,7 +224,7 @@ const Products: React.FC<ProductsProps> = ({
           disabled={isSaving}
           onClick={handleHeaderSaveChanges}
         >
-          {isSaving ? t('saving') : t('save-changes')}
+          {isSaving ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -250,7 +250,7 @@ const Products: React.FC<ProductsProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            {t('failed-to-load-pos-details')}: {error.message}
+            {t('failed-to-load-pos-details', 'Failed to load POS details: {{message}}')}: {error.message}
           </p>
         </div>
       );
@@ -264,7 +264,7 @@ const Products: React.FC<ProductsProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>{t('initial-product-categories')}</Label>
+            <Label>{t('initial-product-categories', 'Initial Product Categories')}</Label>
             <InitialProductCategories control={control} />
           </section>
 
@@ -275,12 +275,12 @@ const Products: React.FC<ProductsProps> = ({
           {(!isRestaurant || showMore) && (
             <>
               <section className="pt-6 space-y-4 border-t">
-                <Label>{t('kiosk-exclude-products')}</Label>
+                <Label>{t('kiosk-exclude-products', 'Kiosk exclude products')}</Label>
                 <KioskExcludeProducts control={control} />
               </section>
 
               <section className="pt-6 space-y-4 border-t">
-                <Label>{t('product-category-mapping')}</Label>
+                <Label>{t('product-category-mapping', 'Product & category mapping')}</Label>
                 <ProductAndCategoryMapping
                   mappings={catProdMappings}
                   onMappingAdded={handleMappingAdded}
@@ -290,12 +290,12 @@ const Products: React.FC<ProductsProps> = ({
               </section>
 
               <section className="pt-6 space-y-4 border-t">
-                <Label>{t('remainder-configs')}</Label>
+                <Label>{t('remainder-configs', 'Remainder configs')}</Label>
                 <RemainderConfigs control={control} />
               </section>
 
               <section className="pt-6 space-y-4 border-t">
-                <Label>{t('service-charge')}</Label>
+                <Label>{t('service-charge', 'Service charge')}</Label>
                 <ServiceCharge control={control} />
               </section>
             </>
@@ -307,11 +307,11 @@ const Products: React.FC<ProductsProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title={t('product-config')}>
+      <InfoCard title={t('product-config', 'Product Config')}>
         <InfoCard.Content>
           <div className="space-y-8">
             <section className="space-y-4">
-              <Label>{t('product-groups')}</Label>
+              <Label>{t('product-groups', 'Product Groups')}</Label>
               <ProductGroupsList
                 posId={posId}
                 onSaveStateChange={setProductGroupSaveState}

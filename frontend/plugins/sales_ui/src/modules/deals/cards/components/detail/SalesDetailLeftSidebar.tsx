@@ -24,13 +24,13 @@ export const SalesDetailLeftSidebar = ({
           className="flex-none w-64 border-r justify-start"
         >
           <Sidebar.Group>
-            <Sidebar.GroupLabel>{t('general')}</Sidebar.GroupLabel>
+            <Sidebar.GroupLabel>{t('general', 'General')}</Sidebar.GroupLabel>
             <Sidebar.GroupContent>
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
                   <Tabs.Trigger value="overview" asChild>
                     <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-                      {t('overview')}
+                      {t('overview', 'Overview')}
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
                 </Sidebar.MenuItem>
@@ -41,13 +41,13 @@ export const SalesDetailLeftSidebar = ({
           <Sidebar.Separator />
 
           <Sidebar.Group>
-            <Sidebar.GroupLabel>{t('plugins')}</Sidebar.GroupLabel>
+            <Sidebar.GroupLabel>{t('plugins', 'Plugins')}</Sidebar.GroupLabel>
             <Sidebar.GroupContent>
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
                   <Tabs.Trigger value="products" asChild>
                     <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-                      {t('products')}
+                      {t('products', 'Products')}
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
                 </Sidebar.MenuItem>

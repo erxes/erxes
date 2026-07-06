@@ -21,20 +21,20 @@ export const PosEmptyState = ({
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        {t('no-pos-yet')}
+        {t('no-pos-yet', 'No POS yet')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">
-        {t('create-pos-description')}
+        {t('create-pos-description', 'Create a POS to start managing your sales.')}
       </p>
       {isCreate ? (
         <Button variant="default" onClick={onCreatePos}>
-          {t('pos-create')}
+          {t('pos-create', 'Create POS')}
         </Button>
       ) : (
         <Button variant="outline" asChild>
           <Link to="/settings/sales/pos">
             <IconSettings />
-            {t('go-to-settings')}
+            {t('go-to-settings', 'Go to Settings')}
           </Link>
         </Button>
       )}

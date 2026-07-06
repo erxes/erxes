@@ -78,13 +78,13 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, boards, loading } = useSelectBoardContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">{t('loading-boards')}</span>;
+    return <span className="text-accent-foreground/80">{t('loading-boards', 'Loading boards...')}</span>;
   }
 
   if (!boards || boards.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-board')}
+        {placeholder || t('select-board', 'Select Board')}
       </span>
     );
   }
@@ -94,7 +94,7 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedBoard) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-board')}
+        {placeholder || t('select-board', 'Select Board')}
       </span>
     );
   }
@@ -134,7 +134,7 @@ const SelectBoardContent = () => {
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">
-            {loading ? t('loading-boards') : t('no-boards-found')}
+            {loading ? t('loading-boards', 'Loading boards...') : t('no-boards-found', 'No boards found')}
           </div>
         </Command.Empty>
         {boards?.map((board) => (

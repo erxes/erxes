@@ -84,12 +84,12 @@ const ItemProductProbabilities: FC<Props> = ({
     return (
       <div className="mb-2 w-full px-1">
         {totalAmount && Object.keys(totalAmount).length !== 0 && (
-          <AmountRow label={t('total')} amounts={totalAmount} />
+          <AmountRow label={t('total', 'Total')} amounts={totalAmount} />
         )}
 
         {unusedTotalAmount && Object.keys(unusedTotalAmount).length > 0 && (
           <AmountRow
-            label={t('unused-total')}
+            label={t('unused-total', 'Unused Total')}
             amounts={unusedTotalAmount}
             isUnused
           />
@@ -97,7 +97,7 @@ const ItemProductProbabilities: FC<Props> = ({
 
         {probability && (
           <AmountRow
-            label={t('forecasted', { percentage: probabilityPercentage })}
+            label={t('forecasted', 'Forecasted ({{percentage}}%)', { percentage: probabilityPercentage })}
             amounts={totalAmount}
             percentMultiplier={probabilityPercentage}
           />
@@ -115,7 +115,7 @@ const ItemProductProbabilities: FC<Props> = ({
 
   return (
     <div className="mb-2">
-      <AmountRow label={t('total')} amounts={sumByName} showComma />
+      <AmountRow label={t('total', 'Total')} amounts={sumByName} showComma />
     </div>
   );
 };

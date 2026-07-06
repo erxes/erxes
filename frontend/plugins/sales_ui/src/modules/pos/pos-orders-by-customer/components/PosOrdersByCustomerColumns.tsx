@@ -17,7 +17,7 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     accessorKey: 'customerDetail.state',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('type')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('type', 'Type')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -32,7 +32,7 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     accessorKey: 'customerDetail.primaryName',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('customer-name')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('customer-name', 'Customer Name')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -47,7 +47,7 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     accessorKey: 'customerDetail.emails.email',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('customer-email')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('customer-email', 'Customer Email')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -62,7 +62,7 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     accessorKey: 'totalOrders',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('orders-count')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('orders-count', 'Orders Count')} />;
     },
     cell: ({ cell }) => {
       return (
@@ -77,7 +77,7 @@ export const PosOrdersByCustomerColumns: ColumnDef<IPosOrdersByCustomer>[] = [
     accessorKey: 'totalAmount',
     header: () => {
       const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('total-amount')} />;
+      return <RecordTable.InlineHead icon={IconLabel} label={t('total-amount', 'Total Amount')} />;
     },
     cell: ({ cell }) => {
       return (

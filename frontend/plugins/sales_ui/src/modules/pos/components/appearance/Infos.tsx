@@ -13,7 +13,7 @@ export const Infos: React.FC<InfosProps> = ({ control }) => {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>{t('website')}</Label>
+          <Label>{t('website', 'WEBSITE')}</Label>
           <Controller
             name="website"
             control={control}
@@ -21,14 +21,14 @@ export const Infos: React.FC<InfosProps> = ({ control }) => {
               <Input
                 {...field}
                 value={field.value || ''}
-                placeholder={t('enter-web-url')}
+                placeholder={t('enter-web-url', 'Enter website URL')}
               />
             )}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>{t('phone')}</Label>
+          <Label>{t('phone', 'PHONE')}</Label>
           <Controller
             name="phone"
             control={control}
@@ -36,7 +36,7 @@ export const Infos: React.FC<InfosProps> = ({ control }) => {
               <Input
                 {...field}
                 value={field.value || ''}
-                placeholder={t('enter-phone-number')}
+                placeholder={t('enter-phone-number', 'Enter phone number')}
               />
             )}
           />

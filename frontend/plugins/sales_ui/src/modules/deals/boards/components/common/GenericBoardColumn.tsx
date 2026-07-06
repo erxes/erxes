@@ -103,7 +103,7 @@ const ShowingOf = memo(({ current, total }: { current: number; total: number }) 
   const { t } = useTranslation('sales');
   return (
     <div className="px-3 py-1.5 text-xs text-muted-foreground border-t border-border/50 text-center">
-      {t('showing-of', { current, total })}
+      {t('showing-of', 'Showing {{current}} of {{total}}', { current, total })}
     </div>
   );
 });
@@ -231,7 +231,7 @@ function VirtualizedCardListInner<TItem extends BaseBoardItem>({
             ${isOver ? 'border-primary bg-primary/5' : 'border-muted'}
           `}
         >
-          {t('drop-cards-here')}
+          {t('drop-cards-here', 'Drop cards here!')}
         </div>
       )}
     </div>

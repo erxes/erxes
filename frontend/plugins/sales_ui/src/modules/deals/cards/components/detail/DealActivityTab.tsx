@@ -14,7 +14,7 @@ export const DealActivityTab = () => {
   return (
     <ActivityLogs
       targetId={salesItemId}
-      emptyMessage={t('no-activity-logs-found')}
+      emptyMessage={t('no-activity-logs-found', 'No activity logs found')}
     />
   );
 };

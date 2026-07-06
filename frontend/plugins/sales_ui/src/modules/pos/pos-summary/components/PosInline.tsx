@@ -31,7 +31,7 @@ const PosInlineProvider = ({
       pos: pos || _pos,
       loading: false,
       posIds: posIds || [],
-      placeholder: isUndefinedOrNull(placeholder) ? t('select-pos') : placeholder,
+      placeholder: isUndefinedOrNull(placeholder) ? t('select-pos', 'Select POS') : placeholder,
       updatePos: updatePos || _setPos,
     };
   }, [pos, _pos, posIds, placeholder, updatePos]);

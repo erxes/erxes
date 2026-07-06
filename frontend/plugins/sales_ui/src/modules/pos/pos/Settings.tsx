@@ -25,7 +25,7 @@ const Settings = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/sales/pos">
                     <IconCashRegister />
-                    {t('pos')}
+                    {t('pos', 'POS')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -37,7 +37,7 @@ const Settings = () => {
         <PageHeader.End>
           <Button onClick={onCreatePos}>
             <IconPlus className="mr-2 w-4 h-4" />
-            {t('pos-create')}
+            {t('pos-create', 'Create POS')}
           </Button>
         </PageHeader.End>
       </PageHeader>

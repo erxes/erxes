@@ -51,43 +51,43 @@ export const EntitySelector = ({ card = {} as IDeal }: Props) => {
       {(branches || []).length > 0 && (
         <EntityItem
           Icon={IconGitBranch}
-          text={t('branch')}
+          text={t('branch', 'Branch')}
           totalCount={branches?.length || 0}
         />
       )}
       {companies && (
         <EntityItem
           Icon={IconBuilding}
-          text={t('company')}
+          text={t('company', 'Company')}
           totalCount={companies?.length || 0}
         />
       )}
       {customers && (
         <EntityItem
           Icon={IconUser}
-          text={t('customer')}
+          text={t('customer', 'Customer')}
           totalCount={customers?.length || 0}
         />
       )}
       {(departments || []).length > 0 && (
         <EntityItem
           Icon={IconUsers}
-          text={t('department')}
+          text={t('department', 'Department')}
           totalCount={departments?.length || 0}
         />
       )}
       {priority && (
-        <EntityItem Icon={IconFlag} text={t('priority')} totalCount={0} />
+        <EntityItem Icon={IconFlag} text={t('priority', 'Priority')} totalCount={0} />
       )}
       {relations && (
         <EntityItem
           Icon={IconCirclesRelation}
-          text={t('relation')}
+          text={t('relation', 'Relation')}
           totalCount={relations?.length || 0}
         />
       )}
       {(tags || []).length > 0 && (
-        <EntityItem Icon={IconTag} text={t('tag')} totalCount={tags?.length || 0} />
+        <EntityItem Icon={IconTag} text={t('tag', 'Tag')} totalCount={tags?.length || 0} />
       )}
     </div>
   );

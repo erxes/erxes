@@ -28,13 +28,13 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           control={control}
           render={({ field }) => (
             <div className="space-y-2">
-              <Label>{t('board')}</Label>
+              <Label>{t('board', 'Board')}</Label>
               <SelectBoardFormItem
                 value={field.value}
                 onValueChange={(val) => {
                   field.onChange(val);
                 }}
-                placeholder={t('choose-board')}
+                placeholder={t('choose-board', 'Choose a board')}
               />
             </div>
           )}
@@ -45,12 +45,12 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           control={control}
           render={({ field }) => (
             <div className="space-y-2">
-              <Label>{t('PIPELINE')}</Label>
+              <Label>{t('PIPELINE', 'PIPELINE')}</Label>
               <SelectPipelineFormItem
                 value={field.value}
                 onValueChange={field.onChange}
                 boardId={boardId}
-                placeholder={t('choose-pipeline')}
+                placeholder={t('choose-pipeline', 'Choose a pipeline')}
               />
             </div>
           )}
@@ -61,12 +61,12 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           control={control}
           render={({ field }) => (
             <div className="space-y-2">
-              <Label>{t('STAGE')}</Label>
+              <Label>{t('STAGE', 'STAGE')}</Label>
               <SelectStageFormItem
                 value={field.value}
                 onValueChange={field.onChange}
                 pipelineId={pipelineId}
-                placeholder={t('choose-stage')}
+                placeholder={t('choose-stage', 'Choose a stage')}
               />
             </div>
           )}
@@ -78,11 +78,11 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>{t('CHOOSE-MAP-FIELD')}</Label>
+            <Label>{t('CHOOSE-MAP-FIELD', 'CHOOSE MAP FIELD')}</Label>
             <Select value={field.value} onValueChange={field.onChange}>
               <Select.Trigger className="w-48" disabled={fieldsLoading}>
                 <Select.Value
-                  placeholder={fieldsLoading ? t('loading') : t('select-field')}
+                  placeholder={fieldsLoading ? t('loading', 'Loading') : t('select-field', 'Select field')}
                 />
               </Select.Trigger>
               <Select.Content>

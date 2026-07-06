@@ -29,7 +29,7 @@ const ChooseDealSheet = ({
     >
       <Button variant="secondary" onClick={() => setOpenDealChooser(true)}>
         <IconPointerUp />
-        {showText && t('choose-existing-deal')}
+        {showText && t('choose-existing-deal', 'Choose an existing deal')}
       </Button>
     </SelectDealsBulk>
   );

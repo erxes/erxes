@@ -19,9 +19,9 @@ export const PaymentIdsField = <TFieldValues extends FieldValues>({
       name={'paymentIds' as Path<TFieldValues>}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('PAYMENTS')}</Form.Label>
+          <Form.Label>{t('PAYMENTS', 'PAYMENTS')}</Form.Label>
           <Form.Description>
-            {t('select-payments-to-use')}
+            {t('select-payments-to-use', 'Select payments that you want to use')}
           </Form.Description>
           <SelectPayment.FormItem
             mode="multiple"
@@ -29,7 +29,7 @@ export const PaymentIdsField = <TFieldValues extends FieldValues>({
             onValueChange={(value) => {
               field.onChange(Array.isArray(value) ? value : []);
             }}
-            placeholder={t('select-payments')}
+            placeholder={t('select-payments', 'Select payments')}
           />
           <Form.Message className="text-destructive" />
         </Form.Item>

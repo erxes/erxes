@@ -36,9 +36,9 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('name')}</Form.Label>
+              <Form.Label>{t('name', 'Name')}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder={t('enter-pipeline-name')} />
+                <Input {...field} placeholder={t('enter-pipeline-name', 'Enter Pipeline Name')} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -49,13 +49,13 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="visibility"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('visibility')}</Form.Label>
+              <Form.Label>{t('visibility', 'Visibility')}</Form.Label>
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
                     className={!field.value ? 'text-muted-foreground' : ''}
                   >
-                    {field.value ? t(field.value) : t('select-visibility')}
+                    {field.value ? t(field.value) : t('select-visibility', 'Select visibility')}
                   </Select.Trigger>
                   <Select.Content>
                     {VISIBILITY_TYPES.map((option) => (
@@ -75,7 +75,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="boardId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('board')}</Form.Label>
+              <Form.Label>{t('board', 'Board')}</Form.Label>
               <SelectBoard.FormItem
                 mode="single"
                 onValueChange={field.onChange}
@@ -91,7 +91,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="tagId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('tag')}</Form.Label>
+              <Form.Label>{t('tag', 'Tag')}</Form.Label>
               <SelectTags.Provider
                 tagType="sales:deal"
                 value={field.value}
@@ -121,7 +121,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="branchIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('branches')}</Form.Label>
+              <Form.Label>{t('branches', 'Branches')}</Form.Label>
               <SelectBranches.FormItem
                 onValueChange={field.onChange}
                 value={field.value}
@@ -136,7 +136,7 @@ const GeneralForm = ({ form }: { form: any }) => {
           name="departmentIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('departments')}</Form.Label>
+              <Form.Label>{t('departments', 'Departments')}</Form.Label>
               <SelectDepartments.FormItem
                 mode="multiple"
                 value={field.value}
@@ -153,7 +153,7 @@ const GeneralForm = ({ form }: { form: any }) => {
             control={control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('team-members')}</Form.Label>
+                <Form.Label>{t('team-members', 'Team Members')}</Form.Label>
                 <SelectMember.FormItem
                   value={field.value}
                   onValueChange={field.onChange}

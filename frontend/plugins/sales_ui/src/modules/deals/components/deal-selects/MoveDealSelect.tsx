@@ -21,7 +21,7 @@ export const NameCell = ({ deal }: { deal: IDeal }) => {
         <span>{deal.name}</span>
         {deal.status === 'archived' && (
           <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/50 rounded-sm">
-            {t('archived')}
+            {t('archived', 'Archived')}
           </span>
         )}
       </div>
@@ -45,7 +45,7 @@ export const NumberCell = ({ deal }: { deal: IDeal }) => {
         <span>{deal.number ?? '-'}</span>
         {deal.status === 'archived' && (
           <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/50 rounded-sm">
-            {t('archived')}
+            {t('archived', 'Archived')}
           </span>
         )}
       </div>

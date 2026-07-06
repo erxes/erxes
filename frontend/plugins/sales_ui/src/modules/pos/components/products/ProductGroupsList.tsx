@@ -78,7 +78,7 @@ export const ProductGroupsList: React.FC<ProductGroupsListProps> = ({
     return (
       <div className="p-6 text-center">
         <p className="text-destructive">
-          {t('failed-to-load-product-group')}: {error.message}
+          {t('failed-to-load-product-group', 'Failed to load product group')}: {error.message}
         </p>
       </div>
     );

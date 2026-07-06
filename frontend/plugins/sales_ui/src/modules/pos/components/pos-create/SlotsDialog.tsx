@@ -32,7 +32,7 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <div className="space-y-2">
-        <Label className="text-sm font-medium">{t('slots')}</Label>
+        <Label className="text-sm font-medium">{t('slots', 'Slots')}</Label>
         <Dialog.Trigger asChild>
           <Button
             type="button"
@@ -42,17 +42,17 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
           >
             <IconPlus size={16} className="mr-2" />
             {slotCount > 0
-              ? `${slotCount} ${t('slots-configured')}`
-              : t('configure-slots')}
+              ? `${slotCount} ${t('slots-configured', 'Slots Configured')}`
+              : t('configure-slots', 'Configure Slots')}
           </Button>
         </Dialog.Trigger>
       </div>
 
       <Dialog.Content className="flex h-[90vh] w-[calc(100vw-2rem)] flex-col max-w-7xl">
         <Dialog.Header>
-          <Dialog.Title>{t('configure-slots')}</Dialog.Title>
+          <Dialog.Title>{t('configure-slots', 'Configure Slots')}</Dialog.Title>
           <Dialog.Description className="sr-only">
-            {t('configure-slots-description')}
+            {t('configure-slots-description', 'Configure the floor plan slots for this POS.')}
           </Dialog.Description>
         </Dialog.Header>
 
@@ -67,10 +67,10 @@ export const SlotsDialog: React.FC<SlotsDialogProps> = ({
 
         <Dialog.Footer>
           <Button type="button" variant="outline" onClick={handleCancel}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="button" onClick={handleSave}>
-            {t('save-slots')} ({nodes.length})
+            {t('save-slots', 'Save Slots')} ({nodes.length})
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

@@ -29,7 +29,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            {t('initial-product-categories')}
+            {t('initial-product-categories', 'Initial Product Categories')}
           </h3>
         </div>
         <Form.Field
@@ -54,7 +54,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            {t('pipeline-exclude-products')}
+            {t('pipeline-exclude-products', 'Pipeline Exclude Products')}
           </h3>
         </div>
         <div className="space-y-6">
@@ -64,7 +64,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label className="text-sm font-medium">
-                  {t('exclude-categories')}
+                  {t('exclude-categories', 'Exclude Categories')}
                 </Form.Label>
                 <SelectCategory
                   selected={field.value?.[0] || ''}
@@ -85,13 +85,13 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label className="text-sm font-medium">
-                  {t('exclude-products')}
+                  {t('exclude-products', 'Exclude Products')}
                 </Form.Label>
                 <SelectProduct
                   mode="multiple"
                   value={field.value || ([] as string[])}
                   onValueChange={field.onChange}
-                  placeholder={t('select-products-to-exclude')}
+                  placeholder={t('select-products-to-exclude', 'Select products to exclude')}
                 />
               </Form.Item>
             )}
@@ -101,7 +101,7 @@ const ProductConfig = ({ form }: ProductConfigProps) => {
       <div>
         <div className="mb-6">
           <h3 className="text-base font-semibold text-foreground">
-            {t('other-configuration')}
+            {t('other-configuration', 'Other Configuration')}
           </h3>
         </div>
         <div className="space-y-6">

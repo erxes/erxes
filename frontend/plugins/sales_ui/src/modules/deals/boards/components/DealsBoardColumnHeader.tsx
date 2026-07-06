@@ -44,7 +44,7 @@ export const DealsBoardColumnHeader = ({
 
   const handleArchiveStage = () => {
     confirm({
-      message: t('archive-all-cards-confirm'),
+      message: t('archive-all-cards-confirm', 'Are you sure you want to archive all cards in this list?'),
     }).then(() => {
       archiveDeals(_id);
     });
@@ -52,7 +52,7 @@ export const DealsBoardColumnHeader = ({
 
   const handleArchiveList = () => {
     confirm({
-      message: t('archive-list-confirm'),
+      message: t('archive-list-confirm', 'Are you sure you want to archive this list?'),
     }).then(() => {
       editStage({ variables: { _id, status: 'archived' } });
     });
@@ -60,25 +60,25 @@ export const DealsBoardColumnHeader = ({
 
   const handleRemoveStage = () => {
     confirm({
-      message: t('remove-stage-confirm'),
+      message: t('remove-stage-confirm', 'Are you sure you want to remove this stage?'),
     }).then(() => {
       removeStage({ variables: { _id } });
     });
   };
 
   const getSortLabel = (sortType: string) =>
-    sortType === 'created-desc' ? t('sort-created-desc')
-    : sortType === 'created-asc' ? t('sort-created-asc')
-    : sortType === 'modified-desc' ? t('sort-modified-desc')
-    : sortType === 'modified-asc' ? t('sort-modified-asc')
-    : sortType === 'close-asc' ? t('sort-close-asc')
-    : sortType === 'close-desc' ? t('sort-close-desc')
-    : sortType === 'alphabetically-asc' ? t('sort-alphabetically')
+    sortType === 'created-desc' ? t('sort-created-desc', 'Date created (Newest first)')
+    : sortType === 'created-asc' ? t('sort-created-asc', 'Date created (Oldest first)')
+    : sortType === 'modified-desc' ? t('sort-modified-desc', 'Date modified (Newest first)')
+    : sortType === 'modified-asc' ? t('sort-modified-asc', 'Date modified (Oldest first)')
+    : sortType === 'close-asc' ? t('sort-close-asc', 'Date assigned (Earliest first)')
+    : sortType === 'close-desc' ? t('sort-close-desc', 'Date assigned (Latest first)')
+    : sortType === 'alphabetically-asc' ? t('sort-alphabetically', 'Alphabetically')
     : '';
 
   const handleSortOptionClick = (sortType: string) => {
     confirm({
-      message: t('sort-list-confirm', { label: getSortLabel(sortType) }),
+      message: t('sort-list-confirm', 'Are you sure you want to sort this list by {{label}}?', { label: getSortLabel(sortType) }),
     }).then(() => {
       sortItems(_id, sortType);
     });
@@ -94,31 +94,31 @@ export const DealsBoardColumnHeader = ({
         }}
       >
         <IconArrowLeft className="w-4 h-4 mr-2" />
-        {t('back')}
+        {t('back', 'Back')}
       </DropdownMenu.Item>
       <DropdownMenu.Separator />
       <DropdownMenu.Item onClick={() => handleSortOptionClick('created-desc')}>
-        {t('sort-created-desc')}
+        {t('sort-created-desc', 'Date created (Newest first)')}
       </DropdownMenu.Item>
       <DropdownMenu.Item onClick={() => handleSortOptionClick('created-asc')}>
-        {t('sort-created-asc')}
+        {t('sort-created-asc', 'Date created (Oldest first)')}
       </DropdownMenu.Item>
       <DropdownMenu.Item onClick={() => handleSortOptionClick('modified-desc')}>
-        {t('sort-modified-desc')}
+        {t('sort-modified-desc', 'Date modified (Newest first)')}
       </DropdownMenu.Item>
       <DropdownMenu.Item onClick={() => handleSortOptionClick('modified-asc')}>
-        {t('sort-modified-asc')}
+        {t('sort-modified-asc', 'Date modified (Oldest first)')}
       </DropdownMenu.Item>
       <DropdownMenu.Item onClick={() => handleSortOptionClick('close-asc')}>
-        {t('sort-close-asc')}
+        {t('sort-close-asc', 'Date assigned (Earliest first)')}
       </DropdownMenu.Item>
       <DropdownMenu.Item onClick={() => handleSortOptionClick('close-desc')}>
-        {t('sort-close-desc')}
+        {t('sort-close-desc', 'Date assigned (Latest first)')}
       </DropdownMenu.Item>
       <DropdownMenu.Item
         onClick={() => handleSortOptionClick('alphabetically-asc')}
       >
-        {t('sort-alphabetically')}
+        {t('sort-alphabetically', 'Alphabetically')}
       </DropdownMenu.Item>
     </>
   );
@@ -148,19 +148,19 @@ export const DealsBoardColumnHeader = ({
             <DropdownMenu.Content className="w-56">
               {!showSortOptions ? (
                 <>
-                  <DropdownMenu.Label>{t('stage-section')}</DropdownMenu.Label>
+                  <DropdownMenu.Label>{t('stage-section', 'Stage section')}</DropdownMenu.Label>
                   <DropdownMenu.Separator />
                   <DropdownMenu.Group>
                     <DropdownMenu.Item onClick={handleArchiveStage}>
-                      {t('archive-all-cards')}
+                      {t('archive-all-cards', 'Archive All Cards in This List')}
                       <DropdownMenu.Shortcut>⇧⌘A</DropdownMenu.Shortcut>
                     </DropdownMenu.Item>
                     <DropdownMenu.Item onClick={handleArchiveList}>
-                      {t('archive-this-list')}
+                      {t('archive-this-list', 'Archive This List')}
                       <DropdownMenu.Shortcut>⌘B</DropdownMenu.Shortcut>
                     </DropdownMenu.Item>
                     <DropdownMenu.Item onClick={handleRemoveStage}>
-                      {t('remove-stage')}
+                      {t('remove-stage', 'Remove stage')}
                       <DropdownMenu.Shortcut>⌘S</DropdownMenu.Shortcut>
                     </DropdownMenu.Item>
                   </DropdownMenu.Group>
@@ -172,7 +172,7 @@ export const DealsBoardColumnHeader = ({
                         setShowSortOptions(true);
                       }}
                     >
-                      {t('sort-by')}
+                      {t('sort-by', 'Sort By')}
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
                       onSelect={(e) => {
@@ -180,7 +180,7 @@ export const DealsBoardColumnHeader = ({
                         setShowPrintDialog(true);
                       }}
                     >
-                      {t('print-document')}
+                      {t('print-document', 'Print Document')}
                       <DropdownMenu.Shortcut>⌘T</DropdownMenu.Shortcut>
                     </DropdownMenu.Item>
                   </DropdownMenu.Group>

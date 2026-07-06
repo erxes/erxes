@@ -10,8 +10,8 @@ interface WaitingScreenProps {
 export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
   const { t } = useTranslation('sales');
   const changeTypeOptions = [
-    { value: 'time', label: t('time') },
-    { value: 'count', label: t('count') },
+    { value: 'time', label: t('time', 'Time') },
+    { value: 'count', label: t('count', 'Count') },
   ];
   return (
     <div className="space-y-4">
@@ -21,7 +21,7 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
         render={({ field }) => (
           <div className="flex gap-2 items-center">
             <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Label>{t('WAITING-SCREEN')}</Label>
+            <Label>{t('WAITING-SCREEN', 'WAITING SCREEN')}</Label>
           </div>
         )}
       />
@@ -37,7 +37,7 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                 control={control}
                 render={({ field }) => (
                   <div className="space-y-2">
-                    <Label>{t('CHANGE-TYPE')}</Label>
+                    <Label>{t('CHANGE-TYPE', 'CHANGE TYPE')}</Label>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
                         <Select.Value />
@@ -65,8 +65,8 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                       <div className="space-y-2">
                         <Label>
                           {typeField.value === 'time'
-                            ? t('CHANGE-TIME-MIN')
-                            : t('CHANGE-COUNT')}
+                            ? t('CHANGE-TIME-MIN', 'CHANGE TIME (MIN)')
+                            : t('CHANGE-COUNT', 'CHANGE COUNT')}
                         </Label>
                         <Input
                           type="number"
@@ -74,8 +74,8 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                           value={field.value || ''}
                           placeholder={
                             typeField.value === 'time'
-                              ? t('enter-time-in-minutes')
-                              : t('enter-count')
+                              ? t('enter-time-in-minutes', 'Enter time in minutes')
+                              : t('enter-count', 'Enter count')
                           }
                         />
                       </div>
@@ -89,12 +89,12 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                 control={control}
                 render={({ field }) => (
                   <div className="space-y-2">
-                    <Label>{t('CONTENT-URL')}</Label>
+                    <Label>{t('CONTENT-URL', 'CONTENT URL')}</Label>
                     <Input
                       type="text"
                       {...field}
                       value={field.value || ''}
-                      placeholder={t('enter-content-url')}
+                      placeholder={t('enter-content-url', 'Enter content URL')}
                     />
                   </div>
                 )}

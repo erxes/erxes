@@ -17,7 +17,7 @@ export const AssigneeActivityRow = (activity: TActivityLog<IDeal, IUser[]>) => {
             ? users.filter(({ _id }) => _id).map((user) => user._id)
             : []
         }
-        placeholder={t('unnamed-user')}
+        placeholder={t('unnamed-user', 'Unnamed User')}
       />
     </div>
   );

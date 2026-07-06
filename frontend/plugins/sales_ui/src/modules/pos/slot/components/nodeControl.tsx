@@ -36,7 +36,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
                 </Tooltip.Trigger>
 
                 <Tooltip.Content>
-                  <p>{t('add-new-slot')}</p>
+                  <p>{t('add-new-slot', 'Add New Slot')}</p>
                 </Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
@@ -53,7 +53,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
                   </Button>
                 </Tooltip.Trigger>
                 <Tooltip.Content>
-                  <p>{t('auto-arrange-layout')}</p>
+                  <p>{t('auto-arrange-layout', 'Auto-arrange Layout')}</p>
                 </Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
@@ -73,7 +73,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
                     </Button>
                   </Tooltip.Trigger>
                   <Tooltip.Content>
-                    <p>{t('open-slots')}</p>
+                    <p>{t('open-slots', 'Open Slots')}</p>
                   </Tooltip.Content>
                 </Tooltip>
               </Tooltip.Provider>
@@ -96,7 +96,7 @@ const NodeControls = React.forwardRef<HTMLButtonElement, NodeControlsProps>(
                     </Button>
                   </Tooltip.Trigger>
                   <Tooltip.Content>
-                    <p>{saving ? t('saving') : t('save-changes')}</p>
+                    <p>{saving ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}</p>
                   </Tooltip.Content>
                 </Tooltip>
               </Tooltip.Provider>
