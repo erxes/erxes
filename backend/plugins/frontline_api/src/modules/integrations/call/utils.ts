@@ -105,7 +105,9 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
 
   const retryWithFreshCookie = async () => {
     console.warn(
-      `[Call] Cookie expired (status -6) for ${wsServer}, refreshing and retrying (${retryCount - 1} left)...`,
+      `[Call] Cookie expired (status -6) for ${wsServer}, refreshing and retrying (${
+        retryCount - 1
+      } left)...`,
     );
     await redis.del('callCookie');
     await getOrSetCallCookie(wsServer);
@@ -1101,6 +1103,24 @@ function handleActiveCallStatus(eventBody, graphqlPubsub) {
     }
   });
 }
+const deriveCdrCallStatus = (cdr: ICallCdrDocument): string => {
+  const disposition = (cdr.disposition || '').toUpperCase();
+  const actionType = cdr.actionType || '';
+
+  const isHumanAnswered =
+    disposition === 'ANSWERED' &&
+    (cdr.billsec || 0) > 0 &&
+    ['Queue', 'Dial'].includes(cdr.lastapp || '') &&
+    !actionType.includes('VM');
+
+  if (disposition === 'ANSWERED' && !isHumanAnswered) {
+    if (actionType.includes('IVR')) return 'IVR';
+    if (actionType.includes('VM')) return 'VOICEMAIL';
+  }
+
+  return cdr.disposition || '';
+};
+
 export const mapCdrToCallHistory = (
   cdr: ICallCdrDocument,
 ): ICallHistory & { acctId: string } => {
@@ -1111,7 +1131,7 @@ export const mapCdrToCallHistory = (
     callStartTime: cdr.start,
     callEndTime: cdr.end,
     callType: cdr.userfield || '',
-    callStatus: cdr.disposition || '',
+    callStatus: deriveCdrCallStatus(cdr),
     timeStamp: cdr.start ? cdr.start.getTime() / 1000 : 0,
     modifiedAt: cdr.updatedAt,
     createdAt: cdr.createdAt,

@@ -4,7 +4,11 @@ import {
   ICallHistory,
   ICallHistoryFilterOptions,
 } from '@/integrations/call/@types/histories';
-import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
+import {
+  deriveCallStatusFromLegs,
+  getPbxDayRange,
+  selectRelevantCdr,
+} from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,
   calculateAverageHandlingTime,
@@ -205,17 +209,7 @@ const callQueries = {
     const DEFAULT_VALUE = 0;
 
     try {
-      const now = new Date();
-      const dateFrom = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-      );
-      const dateTo = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-      );
+      const { dateFrom, dateTo } = getPbxDayRange();
 
       const todayCdrs = await models.CallCdrs.find({
         actionType: { $regex: queue },
@@ -493,7 +487,16 @@ const callQueries = {
       if (_id) {
         const cdr = await models.CallCdrs.findOne({ _id });
         if (cdr) {
-          return mapCdrToCallHistory(cdr);
+          const history = mapCdrToCallHistory(cdr);
+          if (cdr.uniqueid) {
+            const legs = await models.CallCdrs.find({
+              uniqueid: cdr.uniqueid,
+            });
+            if (legs.length) {
+              history.callStatus = deriveCallStatusFromLegs(legs);
+            }
+          }
+          return history;
         }
 
         result = await models.CallHistory.findOne({ _id });
@@ -510,7 +513,9 @@ const callQueries = {
         const selected = selectRelevantCdr(histories);
 
         if (selected) {
-          return mapCdrToCallHistory(selected);
+          const history = mapCdrToCallHistory(selected);
+          history.callStatus = deriveCallStatusFromLegs(histories);
+          return history;
         }
 
         result = await models.CallHistory.findOne({ conversationId });

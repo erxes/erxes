@@ -17,7 +17,12 @@ export const ConversationsHeader = ({
         </div>
         <ConversationFilterBar />
         <Filter.Dialog>
-          <Filter.DialogDateView filterKey="created" />
+          <Filter.View filterKey="searchValue" inDialog>
+            <Filter.DialogStringView filterKey="searchValue" />
+          </Filter.View>
+          <Filter.View filterKey="created" inDialog>
+            <Filter.DialogDateView filterKey="created" />
+          </Filter.View>
         </Filter.Dialog>
       </div>
     </Filter>

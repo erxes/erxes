@@ -11,6 +11,7 @@ import {
   callConfigAtom,
   sipStateAtom,
 } from '@/integrations/call/states/sipStates';
+import { SipStatusEnum } from '@/integrations/call/types/sipTypes';
 import {
   IconAddressBook,
   IconDialpadFilled,
@@ -86,8 +87,12 @@ export const CallButton = ({ addCustomer }: { addCustomer: any }) => {
   const [callConfig] = useAtom(callConfigAtom);
   const phoneNumber = useAtomValue(callNumberState);
 
+  const canCall =
+    sipState.sipStatus === SipStatusEnum.CONNECTED ||
+    sipState.sipStatus === SipStatusEnum.REGISTERED;
+
   const call = () => {
-    if (phoneNumber && phoneNumber.length > 0) {
+    if (phoneNumber && phoneNumber.length > 0 && canCall) {
       addCustomer(callConfig?.inboxId || '', phoneNumber, sipState.groupName);
       startCall(phoneNumber);
     }
@@ -96,7 +101,7 @@ export const CallButton = ({ addCustomer }: { addCustomer: any }) => {
   return (
     <Button
       className="my-3 w-full"
-      disabled={!phoneNumber?.length}
+      disabled={!phoneNumber?.length || !canCall}
       onClick={call}
     >
       {t('call')}

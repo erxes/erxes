@@ -167,6 +167,23 @@ export const loadCallHistoryClass = (models: IModels) => {
         match.inboxIntegrationId = integrationId;
       }
 
+      const dateRange: any = {};
+      const startDate = filterOptions.startDate
+        ? new Date(filterOptions.startDate)
+        : null;
+      const endDate = filterOptions.endDate
+        ? new Date(filterOptions.endDate)
+        : null;
+      if (startDate && !isNaN(startDate.getTime())) {
+        dateRange.$gte = startDate;
+      }
+      if (endDate && !isNaN(endDate.getTime())) {
+        dateRange.$lte = endDate;
+      }
+      if (Object.keys(dateRange).length) {
+        match.start = dateRange;
+      }
+
       const pipeline: any[] = [
         { $match: match },
         {

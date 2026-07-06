@@ -4,13 +4,13 @@ import { Sidebar, useQueryState } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtom } from 'jotai';
 import { Outlet, useLocation } from 'react-router';
-import { mainSidebarOpenState } from '../states/mainSidebarState';
+import { mainSidebarCollapseState } from '../states/mainSidebarState';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 
 export const DefaultLayout = () => {
   const location = useLocation();
   const isSettings = location.pathname.includes('/settings');
-  const [mainSidebarOpen, setMainSidebarOpen] = useAtom(mainSidebarOpenState);
+  const [collapseState, setCollapseState] = useAtom(mainSidebarCollapseState);
   const [inPreview] = useQueryState<boolean>('inPreview');
 
   if (inPreview) {
@@ -20,8 +20,8 @@ export const DefaultLayout = () => {
   return (
     <Sidebar.Provider
       className="w-screen"
-      open={mainSidebarOpen}
-      onOpenChange={setMainSidebarOpen}
+      collapseState={collapseState}
+      onCollapseStateChange={setCollapseState}
     >
       <Sidebar collapsible="offcanvas" variant="sidebar" className="p-0">
         <SidebarAnimationContainer isSettings={isSettings}>

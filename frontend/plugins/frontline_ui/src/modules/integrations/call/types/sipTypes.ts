@@ -1,5 +1,3 @@
-import { ICallConfigDoc } from '@/integrations/call/types/callTypes';
-
 export enum SipStatusEnum {
   DISCONNECTED = 'sipStatus/DISCONNECTED',
   CONNECTING = 'sipStatus/CONNECTING',
@@ -90,6 +88,7 @@ export interface SipContextValue {
   };
   registerSip: () => void;
   unregisterSip: () => void;
+  reconnectSip: () => void;
   answerCall: () => void;
   startCall: (destination: string) => void;
   stopCall: () => void;

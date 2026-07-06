@@ -217,6 +217,7 @@ const formQueries: Record<string, Resolver> = {
           contentTypeId: { $first: '$contentTypeId' },
           createdAt: { $first: '$submittedAt' },
           formId: { $first: '$formId' },
+          conversationId: { $first: '$conversationId' },
           customFieldsData: { $first: '$customFieldsData' },
           submissions: {
             $push: {

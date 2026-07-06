@@ -133,12 +133,8 @@ export const SelectCategoryBadge = ({
         <div className="text-muted-foreground">{code}</div>
         <TextOverflowTooltip value={name} className="flex-auto" />
       </div>
-      {!selected ? (
-        productCount > 0 && (
-          <div className="text-muted-foreground ml-auto">{productCount}</div>
-        )
-      ) : (
-        <Combobox.Check checked={selected} />
+      {!selected && productCount > 0 && (
+        <div className="text-muted-foreground ml-auto">{productCount}</div>
       )}
     </>
   );

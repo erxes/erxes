@@ -21,7 +21,8 @@ import {
   rtcSessionAtom,
   sipStateAtom,
 } from '../states/sipStates';
-import { getPluginAssetsUrl } from 'erxes-ui';
+import { getPluginAssetsUrl, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   extractPhoneNumberFromCounterpart,
   logger,
@@ -49,6 +50,7 @@ const SipProvider = ({
   children,
   createSession,
 }: SipProviderProps & { children: React.ReactNode }) => {
+  const { t } = useTranslation('frontline');
   const [callInfo] = useAtom(callInfoAtom);
   const setCallNumber = useSetAtom(callNumberState);
   // State
@@ -63,6 +65,11 @@ const SipProvider = ({
   const loggerRef = useRef<any>(logger);
 
   const historyIdRef = useRef<string>('');
+  const sipStateRef = useRef(sipState);
+
+  useEffect(() => {
+    sipStateRef.current = sipState;
+  }, [sipState]);
 
   useEffect(() => {
     if (currentHistoryId) {
@@ -102,13 +109,11 @@ const SipProvider = ({
         'Calling registerSip is not allowed when autoRegister === true',
       );
     }
-    if (sipState.sipStatus !== SipStatusEnum.CONNECTED) {
-      throw new Error(
-        `Calling registerSip is not allowed when sip status is ${sipState.sipStatus} (expected ${SipStatusEnum.CONNECTED})`,
-      );
+    if (sipStateRef.current.sipStatus !== SipStatusEnum.CONNECTED) {
+      return;
     }
     return uaRef.current?.register();
-  }, [autoRegister, sipState.sipStatus]);
+  }, [autoRegister]);
 
   const unregisterSip = useCallback(() => {
     if (autoRegister) {
@@ -116,13 +121,11 @@ const SipProvider = ({
         'Calling unregisterSip is not allowed when autoRegister === true',
       );
     }
-    if (sipState.sipStatus !== SipStatusEnum.REGISTERED) {
-      throw new Error(
-        `Calling unregisterSip is not allowed when sip status is ${sipState.sipStatus} (expected ${SipStatusEnum.REGISTERED})`,
-      );
+    if (sipStateRef.current.sipStatus !== SipStatusEnum.REGISTERED) {
+      return;
     }
     return uaRef.current?.unregister();
-  }, [autoRegister, sipState.sipStatus]);
+  }, [autoRegister]);
 
   // Call control functions
   const answerCall = useCallback(() => {
@@ -475,6 +478,22 @@ const SipProvider = ({
           }
           customerPhone = extractPhoneNumberFromCounterpart(counterpart);
 
+          if (e?.cause === JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS) {
+            toast({
+              title: t('mic-permission-denied'),
+              variant: 'destructive',
+            });
+          } else if (
+            callDirection === CallDirectionEnum.INCOMING &&
+            e?.originator !== 'local'
+          ) {
+            toast({
+              title: t('missed-call'),
+              description: customerPhone,
+              variant: 'destructive',
+            });
+          }
+
           setSipState((prev) => ({
             ...prev,
             callStatus: CallStatusEnum.IDLE,
@@ -588,7 +607,9 @@ const SipProvider = ({
               ...prev,
               callStatus: CallStatusEnum.ACTIVE,
             }));
-          } catch (error) {}
+          } catch (error) {
+            console.error('Error in accepted event handler:', error);
+          }
         });
 
         if (originator === 'remote' && autoAnswer) {
@@ -661,6 +682,7 @@ const SipProvider = ({
       },
       registerSip,
       unregisterSip,
+      reconnectSip: reinitializeJsSIP,
       answerCall,
       startCall,
       stopCall,
@@ -676,6 +698,7 @@ const SipProvider = ({
       createSession,
       registerSip,
       unregisterSip,
+      reinitializeJsSIP,
       answerCall,
       startCall,
       stopCall,

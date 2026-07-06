@@ -16,7 +16,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useEffect, type ReactNode } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Control } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   SelectCompany,
@@ -25,7 +25,6 @@ import {
   SelectSegment,
   SelectTags,
 } from 'ui-modules';
-import { type Control } from 'react-hook-form';
 
 interface GeneralInfoProps {
   pricingId?: string;
@@ -303,7 +302,10 @@ export const GeneralInfo = ({
                       <Form.Item className="min-w-0">
                         <Form.Label>{t('name')}</Form.Label>
                         <Form.Control>
-                          <Input placeholder={t('enter-pricing-name')} {...field} />
+                          <Input
+                            placeholder={t('enter-pricing-name')}
+                            {...field}
+                          />
                         </Form.Control>
                       </Form.Item>
                     )}
@@ -324,10 +326,18 @@ export const GeneralInfo = ({
                               <Select.Value placeholder={t('select-status')} />
                             </Select.Trigger>
                             <Select.Content>
-                              <Select.Item value="active">{t('active')}</Select.Item>
-                              <Select.Item value="archived">{t('archived')}</Select.Item>
-                              <Select.Item value="draft">{t('draft')}</Select.Item>
-                              <Select.Item value="completed">{t('completed')}</Select.Item>
+                              <Select.Item value="active">
+                                {t('active')}
+                              </Select.Item>
+                              <Select.Item value="archived">
+                                {t('archived')}
+                              </Select.Item>
+                              <Select.Item value="draft">
+                                {t('draft')}
+                              </Select.Item>
+                              <Select.Item value="completed">
+                                {t('completed')}
+                              </Select.Item>
                             </Select.Content>
                           </Select>
                         </Form.Control>
@@ -390,12 +400,24 @@ export const GeneralInfo = ({
                               <Select.Value placeholder={t('select-target')} />
                             </Select.Trigger>
                             <Select.Content>
-                              <Select.Item value="category">{t('specific-category')}</Select.Item>
-                              <Select.Item value="product">{t('specific-product')}</Select.Item>
-                              <Select.Item value="segment">{t('specific-segment')}</Select.Item>
-                              <Select.Item value="vendor">{t('specific-vendor')}</Select.Item>
-                              <Select.Item value="tag">{t('specific-tag')}</Select.Item>
-                              <Select.Item value="bundle">{t('specific-bundle')}</Select.Item>
+                              <Select.Item value="category">
+                                {t('specific-category')}
+                              </Select.Item>
+                              <Select.Item value="product">
+                                {t('specific-product')}
+                              </Select.Item>
+                              <Select.Item value="segment">
+                                {t('specific-segment')}
+                              </Select.Item>
+                              <Select.Item value="vendor">
+                                {t('specific-vendor')}
+                              </Select.Item>
+                              <Select.Item value="tag">
+                                {t('specific-tag')}
+                              </Select.Item>
+                              <Select.Item value="bundle">
+                                {t('specific-bundle')}
+                              </Select.Item>
                             </Select.Content>
                           </Select>
                         </Form.Control>
@@ -411,7 +433,9 @@ export const GeneralInfo = ({
                       name="productCategoryIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('product-categories-label')}</Form.Label>
+                          <Form.Label>
+                            {t('product-categories-label')}
+                          </Form.Label>
                           <Form.Control>
                             <SelectCategory
                               mode="multiple"

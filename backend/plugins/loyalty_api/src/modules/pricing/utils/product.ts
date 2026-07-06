@@ -109,13 +109,11 @@ export const getAllowedProducts = async (
         plan.categoriesExcluded || [],
       );
 
-      // Convert to Set for O(1) lookups instead of O(n) includes
       const excludeCatIdsSet = new Set(excludeCatIds);
       const plansCategoryIdsSet = new Set(
         includeCatIds.filter((c) => !excludeCatIdsSet.has(c)),
       );
 
-      console.log(products.map(p => p.name), plansCategoryIdsSet)
       return products
         .filter((p) => plansCategoryIdsSet.has(p.categoryId))
         .map((p) => p._id);
@@ -158,6 +156,97 @@ export const getAllowedProducts = async (
       return products
         .filter((p) => p.tagIds?.some((tagId) => plansTagIdsSet.has(tagId)))
         .map((p) => p._id);
+    }
+
+    default:
+      return [];
+  }
+};
+export const getProductIdsForPlan = async (
+  subdomain: string,
+  plan: IPricingPlanDocument,
+): Promise<string[]> => {
+  switch (plan.applyType) {
+    case 'product':
+      return plan.products || [];
+
+    case 'segment': {
+      let ids: string[] = [];
+      for (const segment of plan.segments || []) {
+        const segmentIds = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'segment',
+          action: 'fetchSegment',
+          input: { segmentId: segment },
+          defaultValue: [],
+        });
+        ids = ids.concat(segmentIds);
+      }
+      return ids;
+    }
+
+    case 'vendor': {
+      const products = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'find',
+        input: {
+          query: { vendorId: { $in: plan.vendors || [] } },
+          field: { _id: 1 },
+        },
+        defaultValue: [],
+      });
+      return products.map((p) => p._id);
+    }
+
+    case 'category': {
+      const includeCatIds = await getChildCategories(
+        subdomain,
+        plan.categories ?? [],
+      );
+      const excludeCatIds = await getChildCategories(
+        subdomain,
+        plan.categoriesExcluded || [],
+      );
+      const plansCategoryIds = includeCatIds.filter(
+        (c) => !excludeCatIds.includes(c),
+      );
+      const products = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'find',
+        input: {
+          query: {
+            categoryId: { $in: plansCategoryIds },
+            _id: { $nin: plan.productsExcluded },
+          },
+        },
+        defaultValue: [],
+      });
+      return products.map((p) => p._id);
+    }
+
+    case 'tag': {
+      const includeTagIds = await getChildTags(subdomain, plan.tags ?? []);
+      const excludeTagIds = await getChildTags(
+        subdomain,
+        plan.tagsExcluded || [],
+      );
+      const plansTagIds = includeTagIds.filter(
+        (t) => !excludeTagIds.includes(t),
+      );
+      const products = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'find',
+        input: { query: { tagIds: { $in: plansTagIds } } },
+        defaultValue: [],
+      });
+      return products.map((p) => p._id);
     }
 
     default:

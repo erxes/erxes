@@ -96,10 +96,9 @@ export const ticketMutations = {
       graphqlPubsub.publish(`ticketChanged:${ticket._id}`, {
         ticketChanged: { type: 'delete', ticket },
       });
-    });
-
-    graphqlPubsub.publish('ticketListChanged', {
-      ticketListChanged: { type: 'delete', tickets },
+      graphqlPubsub.publish('ticketListChanged', {
+        ticketListChanged: { type: 'delete', ticket },
+      });
     });
 
     return {

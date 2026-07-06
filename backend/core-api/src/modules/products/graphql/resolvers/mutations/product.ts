@@ -44,13 +44,9 @@ export const productMutations = {
   async productsRemove(
     _parent: undefined,
     { productIds }: { productIds: string[] },
-    { models, checkPermission, subdomain }: IContext,
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('productsDelete');
-
-    console.log(
-      `[${subdomain}][graphql:productsRemove] called with ${productIds?.length ?? 0} id(s)`,
-    );
 
     return models.Products.removeProducts(productIds);
   },

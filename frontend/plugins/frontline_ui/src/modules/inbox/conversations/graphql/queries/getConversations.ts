@@ -20,6 +20,7 @@ export const GET_CONVERSATIONS = gql`
     $participating: String
     $customerId: String
     $brandId: String
+    $searchValue: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     conversations(
@@ -36,6 +37,7 @@ export const GET_CONVERSATIONS = gql`
       participating: $participating
       customerId: $customerId
       brandId: $brandId
+      searchValue: $searchValue
       ${GQL_CURSOR_PARAMS}
     ) {
       list {

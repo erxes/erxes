@@ -48,4 +48,6 @@ export interface ICallHistoryFilterOptions {
   updateAt?: Date;
   callType?: 'incoming' | 'outgoing';
   duration?: number;
+  startDate?: string;
+  endDate?: string;
 }

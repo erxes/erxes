@@ -5,7 +5,13 @@ import {
   isInternalState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { Button, readImage, toast, useQueryState } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  REACT_APP_API_URL,
+  toast,
+  useQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCallConversationDetail } from '@/integrations/call/hooks/useCallConversationDetail';
 import { CustomersInline } from 'ui-modules';
@@ -15,8 +21,22 @@ import {
   IconPhoneIncoming,
   IconRefresh,
 } from '@tabler/icons-react';
-import { formatSeconds } from '@/integrations/call/utils/callUtils';
+import {
+  formatSeconds,
+  safeFormatDate,
+} from '@/integrations/call/utils/callUtils';
+import {
+  CALL_STATUS_LABEL_KEYS,
+  NOT_ANSWERED_STATUSES,
+  normalizeCallDirection,
+  normalizeCallStatus,
+} from '@/integrations/call/utils/callContentUtils';
 import { useCallSyncAudioRecord } from '@/integrations/call/hooks/useCallSyncAudioRecord';
+
+const getRecordingUrl = (value: string) => {
+  if (value.startsWith('http') || value.startsWith('/')) return value;
+  return `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(value)}`;
+};
 
 export function CallConversationDetail() {
   const { t } = useTranslation('frontline');
@@ -60,6 +80,7 @@ export function CallConversationDetail() {
 
   const {
     callType,
+    callStatus,
     callDuration,
     callStartTime,
     callEndTime,
@@ -68,10 +89,16 @@ export function CallConversationDetail() {
     inboxIntegrationId,
   } = callHistoryDetail || {};
 
+  const direction = normalizeCallDirection(callType);
+  const status = normalizeCallStatus(callStatus);
+  const isNotAnswered = !!status && NOT_ANSWERED_STATUSES.includes(status);
+
   const formatCallTime = (value?: Date | string | null) => {
     if (!value) return '-';
     const date = new Date(value);
-    return isNaN(date.getTime()) ? '-' : date.toISOString().split('.')[0];
+    return isNaN(date.getTime())
+      ? '-'
+      : safeFormatDate(date, 'yyyy-MM-dd HH:mm:ss');
   };
   return (
     <>
@@ -85,13 +112,33 @@ export function CallConversationDetail() {
             </CustomersInline.Provider>
             <div className="shadow-xs p-1 rounded-xl max-w-[500px] flex-auto bg-accent">
               <div className="h-8 pb-1 flex items-center gap-2 px-4">
-                {callType === 'outgoing' && (
+                {direction === 'outgoing' && (
                   <IconPhoneOutgoing className="size-4 text-primary" />
                 )}
-                {callType === 'incoming' && (
+                {direction === 'incoming' && (
                   <IconPhoneIncoming className="size-4 text-primary" />
                 )}
-                <div className="font-medium capitalize">{callType} call</div>
+                <div className="font-medium">
+                  {direction === 'incoming'
+                    ? t('incoming-call')
+                    : direction === 'outgoing'
+                    ? t('outgoing-call')
+                    : t('call')}
+                </div>
+                {status && (
+                  <Badge
+                    variant={
+                      status === 'answered'
+                        ? 'success'
+                        : isNotAnswered
+                        ? 'destructive'
+                        : 'warning'
+                    }
+                    className="ml-auto"
+                  >
+                    {t(CALL_STATUS_LABEL_KEYS[status])}
+                  </Badge>
+                )}
               </div>
 
               <div className="p-4 bg-background rounded-lg">
@@ -123,7 +170,7 @@ export function CallConversationDetail() {
                 </div>
                 {recordUrl && (
                   <audio controls className="w-full">
-                    <source src={readImage(recordUrl)} type="audio/wav" />
+                    <source src={getRecordingUrl(recordUrl)} type="audio/wav" />
                     Your browser does not support the audio element.
                   </audio>
                 )}

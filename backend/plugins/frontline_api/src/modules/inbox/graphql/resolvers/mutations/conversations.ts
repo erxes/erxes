@@ -387,6 +387,16 @@ export const sendNotifications = async (
           });
 
           if (cpUser?._id && cpUser.clientPortalId) {
+            const clientPortal = await sendTRPCMessage({
+              subdomain,
+              pluginName: 'core',
+              method: 'query',
+              module: 'clientPortals',
+              action: 'get',
+              input: { _id: cpUser.clientPortalId },
+              defaultValue: null,
+            });
+
             await sendTRPCMessage({
               subdomain,
               pluginName: 'core',
@@ -398,7 +408,7 @@ export const sendNotifications = async (
                 clientPortalId: cpUser.clientPortalId,
                 eventType: 'conversationMessage',
                 data: {
-                  title: 'New chat message',
+                  title: clientPortal?.name || 'New chat message',
                   message: strip(doc.content) || 'You have a new message',
                   type: 'info',
                   contentType: 'conversation',

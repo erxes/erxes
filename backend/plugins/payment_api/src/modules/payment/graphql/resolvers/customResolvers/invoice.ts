@@ -8,6 +8,10 @@ export default {
   },
 
   async transactions(invoice: IInvoiceDocument, _args, { models }: IContext) {
+    if (invoice?.transactions && Array.isArray(invoice?.transactions)) {
+      return invoice.transactions;
+    }
+
     return models.Transactions.find({ invoiceId: invoice._id });
   },
 

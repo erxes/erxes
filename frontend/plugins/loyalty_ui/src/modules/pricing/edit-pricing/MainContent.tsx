@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { GeneralInfo } from '@/pricing/edit-pricing/components/general/GeneralInfo';
 import { OptionsInfo } from '@/pricing/edit-pricing/components/options/OptionsInfo';
+import { ParticipantsInfo } from '@/pricing/edit-pricing/components/participants/ParticipantsInfo';
 import { RulesInfo } from '@/pricing/edit-pricing/components/rules/RulesInfo';
 
 interface MainContentProps {
@@ -37,6 +38,14 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
       case 'options':
         return (
           <OptionsInfo
+            pricingId={pricingId}
+            pricingDetail={pricingDetail}
+            onSaveActionChange={setSaveAction}
+          />
+        );
+      case 'participants':
+        return (
+          <ParticipantsInfo
             pricingId={pricingId}
             pricingDetail={pricingDetail}
             onSaveActionChange={setSaveAction}

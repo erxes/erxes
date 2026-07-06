@@ -76,6 +76,9 @@ type IMeta = {
   references?: TRecordReferencesConfig;
   permissions?: IPermissionConfig;
   beforeResolvers?: BeforeResolversConfig;
+  relations?: {
+    subscribedTypes: string[];
+  };
 };
 
 type ApiHandler = {

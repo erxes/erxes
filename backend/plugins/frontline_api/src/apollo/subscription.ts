@@ -107,6 +107,8 @@ export default {
             const ticket = payload.ticketListChanged.ticket;
             const filter = variables.filter || {};
 
+            if (!ticket) return false;
+
             if (!filter) return true;
 
             if (filter._id && ticket._id === filter._id) {

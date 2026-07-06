@@ -5,6 +5,9 @@ export const TICKET_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'ticket',
     label: 'Ticket',
     fields: [
+      { key: 'displayName', label: 'Display name', path: 'name' },
+      { key: '_id', label: 'Ticket ID' },
+      { key: 'name', label: 'Name' },
       {
         key: 'customers',
         label: 'Customers',

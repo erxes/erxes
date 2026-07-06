@@ -9,7 +9,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { splitType } from 'erxes-api-shared/core-modules';
 
-//  TYPES 
+//  TYPES
 export interface ITDBConfig {
   username: string;
   password: string;
@@ -64,7 +64,7 @@ const buildBasicAuth = (username: string, password: string): string => {
   return `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
 };
 
-//  CALLBACK HANDLER 
+//  CALLBACK HANDLER
 export const tdbCallbackHandler = async (
   models: IModels,
   subdomain: string,
@@ -95,32 +95,41 @@ export const tdbCallbackHandler = async (
   }
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
-  if (payment.kind !== 'tdb') {
-    throw new Error('Payment method kind is not tdb');
-  }
 
   const api = new TDBAPI(payment.config, process.env.DOMAIN || '');
-  
-  // checkInvoice uses caching – will avoid GET if recent data exists
   const orderDetail = await api.checkInvoice(transaction);
 
   if (!orderDetail) {
     return transaction;
   }
 
-  const invoice = await models.Invoices.getInvoice({ _id: transaction.invoiceId });
+  const invoice = await models.Invoices.getInvoice({
+    _id: transaction.invoiceId,
+  });
+
   const expectedAmount = invoice.amount;
   const expectedCurrency = invoice.currency;
 
   if (orderDetail.amount !== expectedAmount) {
-    throw new Error(`Amount mismatch: expected ${expectedAmount}, got ${orderDetail.amount}`);
+    throw new Error(
+      `Amount mismatch: expected ${expectedAmount}, got ${orderDetail.amount}`,
+    );
   }
   if (orderDetail.currency !== expectedCurrency) {
-    throw new Error(`Currency mismatch: expected ${expectedCurrency}, got ${orderDetail.currency}`);
+    throw new Error(
+      `Currency mismatch: expected ${expectedCurrency}, got ${orderDetail.currency}`,
+    );
   }
 
-  const successStatuses = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
-  const isPaid = successStatuses.includes(orderDetail.status.toUpperCase());
+  const status = (orderDetail.status || '').toUpperCase();
+  const prevStatus = (orderDetail.prevStatus || '').toUpperCase();
+
+  const isPaid =
+    status === 'FULLYPAID' ||
+    status === 'PARTPAID' ||
+    status === 'AUTHORIZED' ||
+    status === 'PAID' ||
+    (status === 'CLOSED' && prevStatus === 'FULLYPAID');
 
   if (isPaid && transaction.status !== PAYMENT_STATUS.PAID) {
     transaction.status = PAYMENT_STATUS.PAID;
@@ -145,11 +154,17 @@ export const tdbCallbackHandler = async (
 
     if (result === PAYMENT_STATUS.PAID) {
       graphqlPubsub.publish(`invoiceUpdated:${invoice._id}`, {
-        invoiceUpdated: { _id: transaction.invoiceId, status: PAYMENT_STATUS.PAID },
+        invoiceUpdated: {
+          _id: transaction.invoiceId,
+          status: PAYMENT_STATUS.PAID,
+        },
       });
     }
 
-    const [pluginName, moduleName, collectionType] = splitType(invoice.contentType);
+    const [pluginName, moduleName, collectionType] = splitType(
+      invoice.contentType,
+    );
+
     if (await isEnabled(pluginName)) {
       try {
         await sendWorkerMessage({
@@ -184,13 +199,15 @@ export const tdbCallbackHandler = async (
           if (invoice.callback) {
             await fetch(invoice.callback, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+              },
               body: JSON.stringify({
                 _id: invoice._id,
                 amount: invoice.amount,
                 status: PAYMENT_STATUS.PAID,
               }),
-            }).catch(e => console.error('External callback error:', e));
+            }).catch((e) => console.error('External callback error:', e));
           }
         }
       } catch (e) {
@@ -210,14 +227,21 @@ export class TDBAPI extends BaseAPI {
   private cacheTTL: number; // in seconds
 
   constructor(config: ITDBConfig, domain: string = '') {
-    super({ apiUrl: config.apiUrl || PAYMENTS.tdb.apiUrl || 'https://acsmc.tdbmlabs.mn:8000' });
+    super({
+      apiUrl:
+        config.apiUrl ||
+        PAYMENTS.tdb.apiUrl ||
+        'https://acsmc.tdbmlabs.mn:8000',
+    });
     this.username = config.username;
     this.password = config.password;
     this.domain = domain;
     this.cacheTTL = 300; // 5 minutes – adjust as needed
   }
 
-  async createInvoice(transaction: ITransactionDocument): Promise<ITDBCreateOrderResponse> {
+  async createInvoice(
+    transaction: ITransactionDocument,
+  ): Promise<ITDBCreateOrderResponse> {
     const redirectUrl = `${this.domain}/pl:payment/callback/tdb`;
     const currency = (transaction as any).currency || 'MNT';
 
@@ -225,7 +249,9 @@ export class TDBAPI extends BaseAPI {
       typeRid: 'purch',
       amount: transaction.amount,
       currency,
-      description: transaction.description || `Payment for invoice ${transaction.invoiceId}`,
+      description:
+        transaction.description ||
+        `Payment for invoice ${transaction.invoiceId}`,
       language: 'en',
       hppRedirectUrl: redirectUrl,
     };
@@ -241,13 +267,16 @@ export class TDBAPI extends BaseAPI {
     });
 
     const json = await response.json();
-
     if (json.errorCode) {
-      throw new Error(`TDB create order failed: ${json.errorCode} - ${json.errorDescription}`);
+      throw new Error(
+        `TDB create order failed: ${json.errorCode} - ${json.errorDescription}`,
+      );
     }
 
     if (!json.order?.id || !json.order?.password || !json.order?.hppUrl) {
-      throw new Error('Invalid TDB create order response: missing id, password, or hppUrl');
+      throw new Error(
+        'Invalid TDB create order response: missing id, password, or hppUrl',
+      );
     }
 
     // Return the response – caller will save the transaction
@@ -259,13 +288,23 @@ export class TDBAPI extends BaseAPI {
    * Returns cached data if it is recent (< cacheTTL) and the status is terminal.
    * Otherwise makes a fresh GET request.
    */
-  async checkInvoice(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
+  async checkInvoice(
+    transaction: ITransactionDocument,
+  ): Promise<ITDBOrderDetail | null> {
     const details = transaction.details || {};
     const cached = details.tdbOrderDetail;
     const lastChecked = details.tdbLastChecked;
 
     // Terminal statuses that don't need further updates
-    const terminalStatuses = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID', 'CANCELLED', 'REFUNDED'];
+    const terminalStatuses = [
+      'FULLYPAID',
+      'PARTPAID',
+      'AUTHORIZED',
+      'PAID',
+      'CLOSED',
+      'CANCELLED',
+      'REFUNDED',
+    ];
 
     if (cached && lastChecked) {
       const elapsed = (Date.now() - new Date(lastChecked).getTime()) / 1000;
@@ -293,7 +332,9 @@ export class TDBAPI extends BaseAPI {
    * Performs the actual GET request to TDB.
    * Returns null if credentials are missing or the API returns an error.
    */
-  private async fetchOrderDetail(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
+  private async fetchOrderDetail(
+    transaction: ITransactionDocument,
+  ): Promise<ITDBOrderDetail | null> {
     const tdbResponse = transaction.response as any;
     let orderId = tdbResponse?.order?.id;
     let password = tdbResponse?.order?.password;
@@ -304,37 +345,67 @@ export class TDBAPI extends BaseAPI {
     }
 
     if (!orderId || !password) {
-      console.warn(`Missing TDB order ID or password for transaction ${transaction._id}`);
+      console.warn('Missing orderId or password');
+      console.warn({
+        orderId,
+        hasPassword: !!password,
+        details: transaction.details,
+      });
       return null;
     }
+
+    const response = await this.request({
+      method: 'GET',
+      path: `order/${orderId}`,
+      params: {
+        password,
+      },
+      headers: {
+        Authorization: buildBasicAuth(this.username, this.password),
+      },
+    });
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      console.error(`TDB returned HTTP ${response.status}`);
+      console.error(text);
+      return null;
+    }
+
+    let json: any;
 
     try {
-      const response = await this.request({
-        method: 'GET',
-        path: `order/${orderId}?password=${encodeURIComponent(password)}`,
-      });
-
-      const json = await response.json();
-      if (json.errorCode) {
-        console.error(`TDB getOrderDetail error: ${json.errorCode} - ${json.errorDescription}`);
-        return null;
-      }
-      return (json as ITDBGetOrderDetailResponse).order || null;
-    } catch (err) {
-      console.error(`Failed to fetch order detail for ${orderId}:`, err);
+      json = JSON.parse(text);
+    } catch (e) {
+      console.error('Failed to parse JSON');
+      console.error(e);
+      console.error(text);
       return null;
     }
-  }
 
+    if (json.errorCode) {
+      console.error('TDB returned an error');
+      console.error('errorCode:', json.errorCode);
+      console.error('errorDescription:', json.errorDescription);
+      return null;
+    }
+
+    return json.order || null;
+  }
   /**
    * Alias for checkInvoice – used by external polling jobs.
    * Caching is already applied inside checkInvoice.
    */
-  async manualCheck(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
+  async manualCheck(
+    transaction: ITransactionDocument,
+  ): Promise<ITDBOrderDetail | null> {
     return this.checkInvoice(transaction);
   }
 
-  async cancelInvoice(_transaction: ITransactionDocument): Promise<{ error: string }> {
+  async cancelInvoice(
+    _transaction: ITransactionDocument,
+  ): Promise<{ error: string }> {
     return { error: 'Cancel invoice is not supported by TDB payment gateway' };
   }
 }

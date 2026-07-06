@@ -380,13 +380,6 @@ export const loadProductClass = (
 
       const isDeleting = doc.status === PRODUCT_STATUSES.DELETED;
 
-      if (isDeleting) {
-        console.log(
-          `[${subdomain}][updateProducts] soft-deleting ${products.length} product(s) via status=deleted`,
-          new Error('updateProducts delete call site').stack,
-        );
-      }
-
       sendDbEventLog({
         action: 'updateMany',
         docIds: products.map((product) => product._id),
@@ -431,11 +424,6 @@ export const loadProductClass = (
     }
 
     public static async removeProducts(_ids: string[]) {
-      console.log(
-        `[${subdomain}][removeProducts] deleting ${_ids.length} product(s)`,
-        new Error('removeProducts call site').stack,
-      );
-
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
       let response = 'deleted';
@@ -526,7 +514,15 @@ export const loadProductClass = (
       const fields = ['name', 'code', 'unitPrice', 'categoryId', 'type'];
 
       for (const field of fields) {
-        if (!productFields[field]) {
+        const value = productFields[field];
+        // unitPrice may legitimately be 0 (e.g. services), so only treat
+        // null/undefined/empty as missing for it
+        const isMissing =
+          field === 'unitPrice'
+            ? value === undefined || value === null || (value as any) === ''
+            : !value;
+
+        if (isMissing) {
           throw new Error(
             `Can not merge products. Must choose ${field} field.`,
           );

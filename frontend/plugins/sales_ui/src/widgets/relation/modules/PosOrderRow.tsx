@@ -59,7 +59,7 @@ export const PosOrderRow = ({ order }: { order: IPosOrder }) => {
   const hasMobile = !!order.mobileAmount && order.mobileAmount > 0;
 
   const { data: invoiceData } = useQuery(INVOICE_DETAIL_BY_CONTENT, {
-    variables: { contentType: 'pos:orders', contentTypeId: order._id },
+    variables: { contentType: 'sales:pos:order', contentTypeId: order._id },
     skip: !hasMobile,
     fetchPolicy: 'network-only',
   });

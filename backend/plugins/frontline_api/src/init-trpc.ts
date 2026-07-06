@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { generateFacebookFields } from '@/integrations/facebook/fieldUtils';
 import { IModels } from './connectionResolvers';
 import { conversationTrpcRouter } from './modules/inbox/trpc/conversation';
+import { formTrpcRouter } from './modules/form/trpc/form';
+import { relationTrpcRouter } from './modules/inbox/trpc/relation';
 import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
 import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
@@ -19,7 +21,9 @@ export const appRouter = t.mergeRouters(
   integrationTrpcRouter,
   inboxTrpcRouter,
   conversationTrpcRouter,
+  formTrpcRouter,
   ticketTrpcRouter,
+  relationTrpcRouter,
   t.router({
     fields: t.router({
       getFieldList: t.procedure
