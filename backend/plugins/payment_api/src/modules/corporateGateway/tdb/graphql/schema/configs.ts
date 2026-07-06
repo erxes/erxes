@@ -1,5 +1,5 @@
 export const types = `
-  type TdbConfig @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type TdbConfig @key(fields: "_id") {
     _id: String
     name: String
     description: String

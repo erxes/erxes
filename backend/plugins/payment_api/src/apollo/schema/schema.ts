@@ -23,7 +23,16 @@ import {
   queries as GolomtBankQueries,
   mutations as GolomtBankMutations,
 } from '@/corporateGateway/golomtbank/graphql/schema';
-
+import {
+  types as KhanbankTypes,
+  queries as KhanbankQueries,
+  mutations as KhanbankMutations,
+} from '@/corporateGateway/khanbank/graphql/schema';
+import {
+  types as TdbTypes,
+  queries as TdbQueries,
+  mutations as TdbMutations,
+} from '@/corporateGateway/tdb/graphql/schema';
 export const types = `
   ${PaymentTypes}
   ${InvoiceTypes}
@@ -32,6 +41,8 @@ export const types = `
   ${TransactionTypes}
   ${TransactionInputs}
   ${GolomtBankTypes}
+  ${KhanbankTypes}
+  ${TdbTypes}
 `;
 
 export const queries = `
@@ -39,6 +50,8 @@ export const queries = `
   ${InvoiceQueries}
   ${TransactionQueries}
   ${GolomtBankQueries}
+  ${KhanbankQueries}
+  ${TdbQueries}
 `;
 
 export const mutations = `
@@ -46,6 +59,8 @@ export const mutations = `
   ${InvoiceMutations}
   ${TransactionMutations}
   ${GolomtBankMutations}
+  ${KhanbankMutations}
+  ${TdbMutations}
 `;
 
 export default { types, queries, mutations };

@@ -1,6 +1,6 @@
 export const types = `
 
-  type KhanbankConfig @key(fields: "_id") @cacheControl(maxAge: 3){
+  type KhanbankConfig @key(fields: "_id"){
     _id: String
     name: String
     description: String
@@ -10,7 +10,7 @@ export const types = `
   }
 
   type KhanbankConfigListResponse {
-    list: [KhanbankConfig],
+    list: [KhanbankConfig]
     totalCount: Int
   }
 `;
