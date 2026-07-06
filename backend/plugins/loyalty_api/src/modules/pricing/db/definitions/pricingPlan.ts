@@ -54,7 +54,6 @@ export const pricingPlanSchema = schemaWrapper(
 
       // Customer & broker targeting (dynamic conditions).
       // Empty fields mean "no constraint", so pre-existing plans behave unchanged.
-
       customerIds: { type: [String], default: [] },
       customerTags: { type: [String], default: [] },
       customerExcludeTags: { type: [String], default: [] },
