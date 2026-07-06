@@ -110,7 +110,7 @@ export async function discordCreateIntegrations({
     } catch (e) {
       // The inbox mutation rolls back the Integration it created on any error
       // from this handler — don't leave this bot behind pointing at it.
-      await models.DiscordBots.deleteOne({ _id: bot._id }).catch(() => {});
+      await models.DiscordBots.deleteOne({ _id: bot._id }).catch(() => undefined);
       throw e;
     }
 

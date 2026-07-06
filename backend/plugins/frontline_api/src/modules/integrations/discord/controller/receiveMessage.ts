@@ -47,19 +47,12 @@ const CUSTOMER_CREATE_ATTEMPTS = 4;
 const CONVERSATION_LINK_ATTEMPTS = 4;
 
 /**
- * Finds or creates the Discord sender as a customer: a plugin-local mirror
- * (`DiscordCustomers`) plus the canonical core customer (via the inbox bridge),
- * linked by `erxesApiId`. Mirrors Facebook's `getOrCreateCustomer` — minus its
- * throw-on-duplicate: the gateway dispatches events concurrently and never
- * redelivers, so a burst of first messages from a new author used to keep only
- * the one that won the create race and lose the rest. Instead, losers adopt the
- * winner's row, the same way the conversation create race is handled below.
+ * Mints the canonical core customer for a Discord author and returns its id.
+ * NOTE: every call CREATES a new core contact — the bridge dedupes only by
+ * email/phone, which Discord never sends — so it must run at most once per
+ * author. Never call it for a row a concurrent request is already syncing:
+ * that would orphan a duplicate contact.
  */
-// Mints the canonical core customer for a Discord author and returns its id.
-// NOTE: every call CREATES a new core contact — the bridge dedupes only by
-// email/phone, which Discord never sends — so it must run at most once per
-// author. Never call it for a row a concurrent request is already syncing:
-// that would orphan a duplicate contact.
 const syncCustomerToCore = async (
   subdomain: string,
   bot: IDiscordBotDocument,
@@ -162,6 +155,15 @@ const attemptGetOrCreateCustomer = async (
   return customer;
 };
 
+/**
+ * Finds or creates the Discord sender as a customer: a plugin-local mirror
+ * (`DiscordCustomers`) plus the canonical core customer (via the inbox bridge),
+ * linked by `erxesApiId`. Mirrors Facebook's `getOrCreateCustomer` — minus its
+ * throw-on-duplicate: the gateway dispatches events concurrently and never
+ * redelivers, so a burst of first messages from a new author used to keep only
+ * the one that won the create race and lose the rest. Instead, losers adopt the
+ * winner's row, the same way the conversation create race is handled below.
+ */
 const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,

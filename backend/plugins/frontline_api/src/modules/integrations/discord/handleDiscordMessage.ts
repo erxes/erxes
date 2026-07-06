@@ -134,6 +134,7 @@ const resolveMentionsForReply = async (
     nameByUserId.set(id, mentioned?.firstName || 'user');
   }
 
+  /** Replace a matched mention token with its resolved `@Name`. */
   const toName = (_m: string, id: string) => `@${nameByUserId.get(id) || 'user'}`;
 
   return {

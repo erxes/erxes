@@ -81,6 +81,7 @@ export const MentionInEditor = ({
   );
 };
 
+/** Renders the `@`-mention suggestion list (or a placeholder row). */
 function MentionMenu(props: SuggestionMenuProps<MentionSuggestionItem>) {
   const { items, selectedIndex } = props;
   const mentionItems = items as MentionSuggestionItem[];

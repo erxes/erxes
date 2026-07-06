@@ -228,6 +228,7 @@ const buildRequestHeaders = (
   ...(form ? {} : { 'Content-Type': 'application/json' }),
 });
 
+/** The fetch `body` option: the multipart form as-is, or the JSON-stringified body. */
 const buildRequestBody = (form: FormData | undefined, body: unknown) => {
   if (form) {
     return form;
@@ -242,6 +243,7 @@ const resolveRetryAfterMs = (
   response: Response,
   errorBody: TDiscordErrorBody,
 ) => {
+  /** Convert seconds to ms, bounded to a sane retry window. */
   const capMs = (retryAfterSec: number) =>
     Math.min(Math.max(retryAfterSec * 1000, 0), 60_000);
 
