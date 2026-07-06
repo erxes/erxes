@@ -9,7 +9,6 @@ import { PRIORITY_TYPES } from '../db/definitions/constants';
 import {
   calculateDiscountValue,
   calculatePriceAdjust,
-  checkRuleValidity,
 } from './rule';
 
 type DiscountConditionValue =
@@ -46,6 +45,17 @@ type ProductDiscountInfo = {
 type RuleDiscountOption = {
   conditions: DiscountConditions;
   discount: number;
+};
+
+const hasValues = (...values: Array<unknown[] | string | undefined | null>) =>
+  values.some((value) => (Array.isArray(value) ? value.length > 0 : !!value));
+
+const maxRuleValue = (rules?: Array<{ value: number }>) => {
+  if (!rules?.length) {
+    return undefined;
+  }
+
+  return Math.max(...rules.map((rule) => Number(rule.value) || 0));
 };
 
 const addCondition = (
@@ -249,32 +259,80 @@ const getPlanConditions = (plan: IPricingPlanDocument): DiscountConditions => {
   addCondition(conditions, 'boardId', plan.boardId);
   addCondition(conditions, 'pipelineId', plan.pipelineId);
   addCondition(conditions, 'stageId', plan.stageId);
-  addCondition(conditions, 'customerId', plan.customerIds || []);
-  addCondition(conditions, 'customerTagId', plan.customerTags || []);
-  addCondition(conditions, 'customerSegmentId', plan.customerSegmentIds || []);
-  addCondition(conditions, 'companyId', plan.companyIds || []);
-  addCondition(conditions, 'companyTagId', plan.companyTags || []);
-  addCondition(conditions, 'companySegmentId', plan.companySegmentIds || []);
-  addCondition(conditions, 'userId', plan.userIds || []);
-  addCondition(conditions, 'userPosition', plan.userPositions || []);
-  addCondition(conditions, 'userSegmentId', plan.userSegmentIds || []);
-  addCondition(conditions, 'brokerCustomerId', plan.brokerCustomerIds || []);
-  addCondition(conditions, 'brokerCustomerTagId', plan.brokerCustomerTags || []);
+
+  if (
+    hasValues(
+      plan.customerIds,
+      plan.customerTags,
+      plan.customerExcludeTags,
+      plan.customerSegmentIds,
+    )
+  ) {
+    addCondition(conditions, 'customer', 'some customer');
+  }
+
+  if (
+    hasValues(
+      plan.companyIds,
+      plan.companyTags,
+      plan.companyExcludeTags,
+      plan.companySegmentIds,
+    )
+  ) {
+    addCondition(conditions, 'company', 'some company');
+  }
+
+  if (hasValues(plan.userIds, plan.userPositions, plan.userSegmentIds)) {
+    addCondition(conditions, 'user', 'some user');
+  }
+
+  if (
+    hasValues(
+      plan.brokerCustomerIds,
+      plan.brokerCustomerTags,
+      plan.brokerCustomerExcludeTags,
+      plan.brokerCustomerSegmentIds,
+    )
+  ) {
+    addCondition(conditions, 'brokerCustomer', 'some broker customer');
+  }
+
+  if (
+    hasValues(
+      plan.brokerCompanyIds,
+      plan.brokerCompanyTags,
+      plan.brokerCompanyExcludeTags,
+      plan.brokerCompanySegmentIds,
+    )
+  ) {
+    addCondition(conditions, 'brokerCompany', 'some broker company');
+  }
+
+  if (
+    hasValues(
+      plan.brokerUserIds,
+      plan.brokerUserPositions,
+      plan.brokerUserSegmentIds,
+    )
+  ) {
+    addCondition(conditions, 'brokerUser', 'some broker user');
+  }
+
   addCondition(
     conditions,
-    'brokerCustomerSegmentId',
-    plan.brokerCustomerSegmentIds || [],
+    'quantity',
+    plan.isQuantityEnabled ? maxRuleValue(plan.quantityRules) : undefined,
   );
-  addCondition(conditions, 'brokerCompanyId', plan.brokerCompanyIds || []);
-  addCondition(conditions, 'brokerCompanyTagId', plan.brokerCompanyTags || []);
   addCondition(
     conditions,
-    'brokerCompanySegmentId',
-    plan.brokerCompanySegmentIds || [],
+    'price',
+    plan.isPriceEnabled ? maxRuleValue(plan.priceRules) : undefined,
   );
-  addCondition(conditions, 'brokerUserId', plan.brokerUserIds || []);
-  addCondition(conditions, 'brokerUserPosition', plan.brokerUserPositions || []);
-  addCondition(conditions, 'brokerUserSegmentId', plan.brokerUserSegmentIds || []);
+  addCondition(
+    conditions,
+    'expiry',
+    plan.isExpiryEnabled ? maxRuleValue(plan.expiryRules) : undefined,
+  );
 
   if (plan.isStartDateEnabled || plan.isEndDateEnabled) {
     addCondition(conditions, 'date', {
@@ -318,41 +376,29 @@ const getPlanConditions = (plan: IPricingPlanDocument): DiscountConditions => {
   return conditions;
 };
 
-const priceRuleConditions = (rule: IPriceRule): DiscountConditions => ({
-  price: { start: rule.value },
-});
-
-const quantityRuleConditions = (rule: IQuantityRule): DiscountConditions => ({
-  quantity: { start: rule.value },
-});
-
-const expiryRuleConditions = (rule: IExpiryRule): DiscountConditions => ({
-  [`expiry.${rule.type}`]: { start: rule.value },
-});
-
 const getRuleOptions = <TRule extends IPriceRule | IQuantityRule | IExpiryRule>({
   enabled,
   rules,
   product,
   defaultDiscount,
-  getConditions,
 }: {
   enabled?: boolean;
   rules?: TRule[];
   product: CoreProduct;
   defaultDiscount: number;
-  getConditions: (rule: TRule) => DiscountConditions;
 }): RuleDiscountOption[] => {
   if (!enabled) {
     return [{ conditions: {}, discount: defaultDiscount }];
   }
 
-  return (rules || [])
-    .map((rule) => ({
-      conditions: getConditions(rule),
-      discount: calculateRuleDiscount(rule, product, defaultDiscount),
-    }))
-    .filter((option) => option.discount > 0);
+  const discount = Math.max(
+    ...(rules || []).map((rule) =>
+      calculateRuleDiscount(rule, product, defaultDiscount),
+    ),
+    0,
+  );
+
+  return discount > 0 ? [{ conditions: {}, discount }] : [];
 };
 
 const combineRuleOptions = (
@@ -388,21 +434,18 @@ const buildProductDiscounts = (
       rules: plan.priceRules,
       product,
       defaultDiscount,
-      getConditions: priceRuleConditions,
     }),
     getRuleOptions({
       enabled: plan.isQuantityEnabled,
       rules: plan.quantityRules,
       product,
       defaultDiscount,
-      getConditions: quantityRuleConditions,
     }),
     getRuleOptions({
       enabled: plan.isExpiryEnabled,
       rules: plan.expiryRules,
       product,
       defaultDiscount,
-      getConditions: expiryRuleConditions,
     }),
   ]);
 

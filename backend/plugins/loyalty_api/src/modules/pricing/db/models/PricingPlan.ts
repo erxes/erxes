@@ -57,13 +57,19 @@ const participantFields: ParticipantField[] = [
   'brokerUserSegmentIds',
 ];
 
-const normalizePlanDoc = (doc: IPricingPlan): IPricingPlan => {
-  const priority: PricingPlanPriority =
-    doc.priority ?? (PRIORITY_TYPES.NONE as PricingPlanPriority);
+const normalizePlanDoc = (
+  doc: Partial<IPricingPlan>,
+  options: { defaultPriority?: boolean } = {},
+): Partial<IPricingPlan> => {
+  const priority: PricingPlanPriority | undefined =
+    doc.priority ??
+    (options.defaultPriority
+      ? (PRIORITY_TYPES.NONE as PricingPlanPriority)
+      : undefined);
 
-  const normalizedDoc: IPricingPlan = {
+  const normalizedDoc: Partial<IPricingPlan> = {
     ...doc,
-    priority,
+    ...(priority !== undefined ? { priority } : {}),
   };
 
   if (priority === PRIORITY_TYPES.POS_BASE) {
@@ -109,7 +115,7 @@ export const loadPricingPlanClass = (models: IModels) => {
      */
     public static async createPlan(doc: IPricingPlan, userId: string) {
       return models.PricingPlans.create({
-        ...normalizePlanDoc(doc),
+        ...normalizePlanDoc(doc, { defaultPriority: true }),
         // createdAt: new Date(),
         createdBy: userId,
         // updatedAt: new Date(),
