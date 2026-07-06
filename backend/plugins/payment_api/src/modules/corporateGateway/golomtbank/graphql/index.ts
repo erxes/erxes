@@ -1,7 +1,7 @@
 import resolvers from './resolvers';
 
 const mod = {
-  resolvers
+  resolvers,
 };
 
 export default mod;
