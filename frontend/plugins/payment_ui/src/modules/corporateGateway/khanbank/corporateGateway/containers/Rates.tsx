@@ -1,5 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
-import { RatesQueryResponse } from '../../../types';
+import { RatesQueryResponse } from '../../types';
 import Rates from '../components/Rates';
 import queries from '../graphql/queries';
 

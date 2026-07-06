@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { useLocation } from 'react-router-dom';
 import * as queries from '../../configs/graphql/queries';
@@ -15,10 +14,13 @@ const ConfigsListContainer = () => {
   const [addConfig] = useMutation(mutations.addConfig);
   const [editConfig] = useMutation(mutations.editConfig);
 
-  const add = (doc: any) => {
-    addConfig({ variables: doc })
-      .then(() => window.alert('Added'))
-      .catch((e) => window.alert(e.message));
+  const add = async (doc: any) => {
+    try {
+      await addConfig({ variables: doc });
+      window.alert('Added');
+    } catch (e: any) {
+      window.alert(e.message);
+    }
   };
 
   const edit = (id: string, doc: any) => {
@@ -29,10 +31,7 @@ const ConfigsListContainer = () => {
 
   const configs = data?.tdbConfigs || [];
 
-  const params: any = {};
-  queryParams.forEach((value, key) => {
-    params[key] = value;
-  });
+  const params = Object.fromEntries(queryParams.entries());
 
   return (
     <ConfigsList

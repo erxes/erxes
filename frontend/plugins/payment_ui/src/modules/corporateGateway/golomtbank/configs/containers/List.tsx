@@ -52,8 +52,8 @@ export default function ListContainer({ loading: externalLoading }: Props) {
       await removeMutation({ variables: { _id } });
       await refetch();
     } catch (e: any) {
-      onerror;
-    }
+  console.error(e);
+}
   };
 
   if (loading || externalLoading) {
