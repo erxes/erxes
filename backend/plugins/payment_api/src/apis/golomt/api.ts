@@ -194,40 +194,105 @@ export class GolomtAPI extends BaseAPI {
   }
 
   async authorize() {
-    const callback = `${this.domain}/pl:payment/callback/golomt`;
-    // const transactionId = randomAlphanumeric(10);
+  const callback = `${this.domain}/pl:payment/callback/golomt`;
+  const transactionId = random('aA0', 10);
 
-    const transactionId = random('aA0', 10);
+  const message = `${transactionId}1GET${callback}`;
+  const checksum = hmac256(this.key, message);
 
-    const data: IGolomtInvoice = {
-      amount: '1',
-      checksum: hmac256(this.key, transactionId + 1 + 'GET' + callback),
-      transactionId,
-      genToken: 'N',
-      socialDeeplink: 'Y',
+  const data: IGolomtInvoice = {
+    amount: '1',
+    checksum,
+    transactionId,
+    genToken: 'N',
+    socialDeeplink: 'Y',
+    callback,
+    returnType: 'GET',
+  };
+
+  console.log('========== GOLOMT AUTHORIZE REQUEST ==========');
+  console.dir(
+    {
+      url: `${this.apiUrl}/${PAYMENTS.golomt.actions.invoice}`,
+      merchant: this.merchant,
       callback,
-      returnType: 'GET',
-    };
+      transactionId,
+      checksum,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.token.substring(0, 10)}...`,
+      },
+      body: data,
+    },
+    { depth: null },
+  );
+
+  try {
+    const response = await this.request({
+      path: PAYMENTS.golomt.actions.invoice,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.token}`,
+      },
+      data,
+    });
+
+    const body = await response.text();
+
+    console.log('========== GOLOMT AUTHORIZE RESPONSE ==========');
+    console.log({
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get('content-type'),
+    });
+
+    console.log('========== GOLOMT RESPONSE BODY ==========');
+    console.log(body);
+
+    let res;
 
     try {
-      const res = await this.request({
-        path: PAYMENTS.golomt.actions.invoice,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + this.token,
-        },
-        data,
-      }).then((r) => r.json());
+      res = JSON.parse(body);
+    } catch {
+      console.error('========== GOLOMT INVALID RESPONSE ==========');
+      console.error(body);
 
-      if (res.status && res.status !== 200) {
-        throw new Error(res.message);
-      }
-      return { success: true, message: 'Authorized' };
-    } catch (e) {
-      console.error('error', e);
-      throw new Error(e.message);
+      throw new Error(
+        `Golomt returned non-JSON response. Status=${response.status}`,
+      );
     }
+
+    if (!response.ok) {
+      console.error('========== GOLOMT HTTP ERROR ==========');
+      console.dir(res, { depth: null });
+
+      throw new Error(res.message || JSON.stringify(res));
+    }
+
+    if (res.status && res.status !== 200) {
+      console.error('========== GOLOMT API ERROR ==========');
+      console.dir(res, { depth: null });
+
+      throw new Error(res.message || JSON.stringify(res));
+    }
+
+    console.log('========== GOLOMT AUTHORIZE SUCCESS ==========');
+    console.dir(res, { depth: null });
+
+    return { success: true, message: 'Authorized' };
+  } catch (e: any) {
+    console.error('========== GOLOMT AUTHORIZE FAILED ==========');
+    console.error({
+      merchant: this.merchant,
+      callback,
+      transactionId,
+      error: e.message,
+      stack: e.stack,
+    });
+
+    throw new Error(e.message);
+  }
   }
 
   async createInvoice(transaction: ITransactionDocument) {
