@@ -8,9 +8,9 @@ export type IGithubConnection = {
   initiatedUserId?: string;
   isActive: boolean;
   subdomain: string;
-}
+};
 
 export interface IGithubConnectionDocument extends IGithubConnection, Document {
   _id: string;
   updatedAt: Date;
-};
+}

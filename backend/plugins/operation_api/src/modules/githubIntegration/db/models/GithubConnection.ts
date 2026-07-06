@@ -6,8 +6,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { githubConnectionSchema } from '../definitions/githubConnection';
 
-export interface IGithubConnectionModel
-  extends Model<IGithubConnectionDocument> {
+export interface IGithubConnectionModel extends Model<IGithubConnectionDocument> {
   upsertConnection(
     connection: IGithubConnection,
   ): Promise<IGithubConnectionDocument>;

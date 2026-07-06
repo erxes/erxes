@@ -69,7 +69,7 @@ const OperationSettings = () => {
         <Route
           path={OperationPaths.GithubIntegration}
           element={<GithubIntegrationPage />}
-        />           
+        />
       </Routes>
     </Suspense>
   );

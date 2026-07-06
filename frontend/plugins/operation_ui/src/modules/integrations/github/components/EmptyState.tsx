@@ -1,4 +1,4 @@
-import { IconBrandGithub } from '@tabler/icons-react'
+import { IconBrandGithub } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 
 export function EmptyState({ onConnect }: { onConnect: () => void }) {

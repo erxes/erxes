@@ -45,7 +45,10 @@ import {
   loadGithubConfigClass,
 } from '@/githubIntegration/db/models/GithubConfig';
 import { IGithubConfigDocument } from './modules/githubIntegration/@types/githubConfig';
-import { IGithubConnectionModel, loadGithubConnectionClass } from './modules/githubIntegration/db/models/GithubConnection';
+import {
+  IGithubConnectionModel,
+  loadGithubConnectionClass,
+} from './modules/githubIntegration/db/models/GithubConnection';
 import { IGithubConnectionDocument } from './modules/githubIntegration/@types/githubConnection';
 
 export interface IModels {
@@ -142,10 +145,10 @@ export const loadClasses = (
     loadGithubConfigClass(models),
   );
 
-  models.GithubConnection = db.model<IGithubConnectionDocument, IGithubConnectionModel>(
-    'operation_github_connections',
-    loadGithubConnectionClass(models),
-  );
+  models.GithubConnection = db.model<
+    IGithubConnectionDocument,
+    IGithubConnectionModel
+  >('operation_github_connections', loadGithubConnectionClass(models));
 
   return models;
 };
