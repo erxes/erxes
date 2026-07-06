@@ -111,7 +111,30 @@ const applyPriorityConditions = (
 };
 
 // Helper function to calculate default discount value
-const calculateDefaultDiscount = (plan: any, item: any): number => {
+const calculateDefaultDiscount = async (
+  plan: any,
+  item: any,
+  models: IModels,
+): Promise<number> => {
+  if (plan.type === 'fixed') {
+    const fixedValue = await models.PricingFixedValues.findOne({
+      pricingPlanId: plan._id.toString(),
+      productId: item.productId,
+    });
+
+    if (fixedValue?.newPrice == null) {
+      return 0;
+    }
+
+    const discount = item.price - fixedValue.newPrice;
+    return calculatePriceAdjust(
+      item.price,
+      discount,
+      plan.priceAdjustType,
+      plan.priceAdjustFactor,
+    );
+  }
+
   let defaultValue = calculateDiscountValue(plan.type, plan.value, item.price);
   defaultValue = calculatePriceAdjust(
     item.price,
@@ -425,7 +448,7 @@ export const checkPricing = async (params: {
       }
 
       // Calculate discount
-      const defaultValue = calculateDefaultDiscount(plan, item);
+      const defaultValue = await calculateDefaultDiscount(plan, item, models);
 
       // Process item with plan rules
       const { type, value, bonusProducts, shouldApply } = processItemWithPlan(

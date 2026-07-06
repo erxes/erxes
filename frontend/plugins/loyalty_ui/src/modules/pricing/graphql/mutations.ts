@@ -1,5 +1,42 @@
 import gql from 'graphql-tag';
 
+export const PRICING_FIXED_VALUE_ADD = gql`
+  mutation PricingFixedValueAdd(
+    $pricingPlanId: String!
+    $doc: PricingFixedValueInput!
+  ) {
+    pricingFixedValueAdd(pricingPlanId: $pricingPlanId, doc: $doc) {
+      _id
+      pricingPlanId
+      productId
+      uom
+      unitPrice
+      newPrice
+    }
+  }
+`;
+
+export const PRICING_FIXED_VALUE_EDIT = gql`
+  mutation PricingFixedValueEdit($id: String!, $doc: PricingFixedValueInput!) {
+    pricingFixedValueEdit(id: $id, doc: $doc) {
+      _id
+      pricingPlanId
+      productId
+      uom
+      unitPrice
+      newPrice
+    }
+  }
+`;
+
+export const PRICING_FIXED_VALUE_REMOVE = gql`
+  mutation PricingFixedValueRemove($id: String!) {
+    pricingFixedValueRemove(id: $id) {
+      _id
+    }
+  }
+`;
+
 export const PRICING_PLAN_ADD = gql`
   mutation PricingPlanAdd($doc: PricingPlanAddInput) {
     pricingPlanAdd(doc: $doc) {

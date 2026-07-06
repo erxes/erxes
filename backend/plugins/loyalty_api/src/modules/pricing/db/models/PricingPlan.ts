@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { pricingPlanSchema } from '../definitions/pricingPlan';
 import {
@@ -92,7 +92,7 @@ export interface IPricingPlanModel extends Model<IPricingPlanDocument> {
   updatePlan(
     id: string,
     doc: IPricingPlan,
-    userId: string
+    userId: string,
   ): Promise<IPricingPlanDocument>;
   removePlan(id: string): Promise<IPricingPlanDocument>;
 }
@@ -100,8 +100,15 @@ export interface IPricingPlanModel extends Model<IPricingPlanDocument> {
 export const loadPricingPlanClass = (models: IModels) => {
   class PricingPlan {
     public static async getPricingPlan(id) {
-      const plan = await models.PricingPlans.findOne({_id: id}).lean();
-      if(!plan) {
+      // Use raw collection to bypass schema String-cast on _id,
+      // so existing ObjectId documents are found alongside new nanoid ones.
+      const filter: any = { _id: id };
+      if (Types.ObjectId.isValid(id) && id.length === 24) {
+        filter.$or = [{ _id: id }, { _id: new Types.ObjectId(id) }];
+        delete filter._id;
+      }
+      const plan = await models.PricingPlans.collection.findOne(filter);
+      if (!plan) {
         throw new Error('not found pricing plan');
       }
       return plan;
@@ -119,7 +126,7 @@ export const loadPricingPlanClass = (models: IModels) => {
         // createdAt: new Date(),
         createdBy: userId,
         // updatedAt: new Date(),
-        updatedBy: userId
+        updatedBy: userId,
       });
     }
 
@@ -133,25 +140,28 @@ export const loadPricingPlanClass = (models: IModels) => {
     public static async updatePlan(
       id: string,
       doc: IPricingPlan & { _id?: string },
-      userId: string
+      userId: string,
     ) {
-      const result = await models.PricingPlans.findById(id);
-
-      if (!result) {
-        throw new Error(`Can't find plan`);
+      const filter: any = { _id: id };
+      if (Types.ObjectId.isValid(id) && id.length === 24) {
+        filter.$or = [{ _id: id }, { _id: new Types.ObjectId(id) }];
+        delete filter._id;
       }
+
+      const result = await models.PricingPlans.collection.findOne(filter);
+      if (!result) throw new Error(`Can't find plan`);
       if (doc._id) delete doc._id;
       const normalizedDoc = normalizePlanDoc(doc);
 
-      await models.PricingPlans.findByIdAndUpdate(id, {
+      await models.PricingPlans.collection.updateOne(filter, {
         $set: {
           ...normalizedDoc,
           updatedAt: new Date(),
-          updatedBy: userId
-        }
+          updatedBy: userId,
+        },
       });
 
-      return await models.PricingPlans.findById(id);
+      return models.PricingPlans.collection.findOne(filter);
     }
 
     /**
@@ -162,11 +172,11 @@ export const loadPricingPlanClass = (models: IModels) => {
     public static async removePlan(id: string) {
       const result = await models.PricingPlans.findById(id);
 
-      if (!result) {
-        throw new Error(`Can't find plan`);
-      }
+      if (!result) throw new Error(`Can't find plan`);
 
-      return await models.PricingPlans.findByIdAndDelete(id);
+      await models.PricingFixedValues.removeByPlanId(id);
+
+      return models.PricingPlans.findByIdAndDelete(id);
     }
   }
 

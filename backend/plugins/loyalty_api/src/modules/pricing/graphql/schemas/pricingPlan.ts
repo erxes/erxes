@@ -127,8 +127,39 @@ export const types = `
     updatedUser: User
 
     productIds: [String]
-  }
 
+   fixedValues: [PricingFixedValue]    
+     
+  }
+     type PricingFixedValue {
+      _id: String
+      pricingPlanId: String
+      productId: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+      createdBy: String
+      updatedBy: String
+      createdAt: Date
+      updatedAt: Date
+    }
+  
+    type PricingFixedValuePageItem {
+      _id: String
+      productId: String
+      productName: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+      status: String
+    }
+
+    type PricingFixedValuePageResult {
+      list: [PricingFixedValuePageItem]
+      totalCount: Int
+    }
   input QuantityRuleInput {
     type: String,
     value: Float,
@@ -326,6 +357,14 @@ export const types = `
     repeatRules: [RepeatRuleInput],
   }
 
+  input PricingFixedValueInput {
+      productId: String
+      sortField: String
+      uom: String
+      unitPrice: Float
+      newPrice: Float
+    }
+
   input PricingCheckProduct {
     itemId: String
     productId: String
@@ -333,6 +372,7 @@ export const types = `
     price: Float
     manufacturedDate: String
   }
+
 `;
 
 const pricingQueryParams = `
@@ -375,7 +415,13 @@ export const queries = `
   pricingPlans(${pricingQueryParams}): [PricingPlan]
   cpPricingPlans(${pricingQueryParams}): [PricingPlan]
   pricingPlansCount(${pricingQueryParams}): Int
-  pricingPlanDetail(id: String): PricingPlan
+     pricingPlanDetail(id: String): PricingPlan
+    pricingFixedValuesPage(
+      pricingPlanId: String!
+      page: Int
+      perPage: Int
+      search: String
+    ): PricingFixedValuePageResult
   pricingCheckDiscount(${checkDiscountParams}): JSON
 `;
 
@@ -384,4 +430,8 @@ export const mutations = `
   pricingPlanEdit(doc: PricingPlanEditInput): PricingPlan
   pricingPlanRemove(id: String): PricingPlan
   pricingPlansRecalculatePublicDiscounts: JSON
+
+  pricingFixedValueAdd(pricingPlanId: String!, doc: PricingFixedValueInput!): PricingFixedValue
+  pricingFixedValueEdit(id: String!, doc: PricingFixedValueInput!): PricingFixedValue
+  pricingFixedValueRemove(id: String!): PricingFixedValue
 `;
