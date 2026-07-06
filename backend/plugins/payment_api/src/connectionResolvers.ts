@@ -57,7 +57,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'payment_methods',
     loadPaymentClass(models),
   );
-       
+
   models.Invoices = db.model<IInvoiceDocument, IInvoiceModel>(
     'payment_invoices',
     loadInvoiceClass(models),

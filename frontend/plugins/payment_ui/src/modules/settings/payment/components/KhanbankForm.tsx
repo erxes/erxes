@@ -9,7 +9,7 @@ import { IPaymentDocument } from '../../../payment/types/Payment';
 const CONFIGS_QUERY = gql`
   query KhanbankConfigs($page: Int, $perPage: Int) {
     khanbankConfigs(page: $page, perPage: $perPage) {
-     list {
+      list {
         _id
         name
       }
@@ -96,10 +96,7 @@ const KhanbankForm: React.FC<Props> = ({ payment, form, Form }) => {
           <Form.Item>
             <Form.Label>{t('config')} *</Form.Label>
             <Form.Control>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value placeholder={t('select-config')} />
                 </Select.Trigger>
@@ -107,10 +104,7 @@ const KhanbankForm: React.FC<Props> = ({ payment, form, Form }) => {
                 <Select.Content>
                   <Select.Group>
                     {configs.map((config: any) => (
-                      <Select.Item
-                        key={config._id}
-                        value={config._id}
-                      >
+                      <Select.Item key={config._id} value={config._id}>
                         {config.name}
                       </Select.Item>
                     ))}
@@ -140,7 +134,7 @@ const KhanbankForm: React.FC<Props> = ({ payment, form, Form }) => {
                       field.onChange(value);
 
                       const account = accounts.find(
-                        (a: any) => a.number === value
+                        (a: any) => a.number === value,
                       );
 
                       if (account) {
@@ -172,10 +166,7 @@ const KhanbankForm: React.FC<Props> = ({ payment, form, Form }) => {
         />
       )}
 
-      <input
-        type="hidden"
-        {...register('ibanAcctNo')}
-      />
+      <input type="hidden" {...register('ibanAcctNo')} />
 
       <div className="col-span-2">
         <a

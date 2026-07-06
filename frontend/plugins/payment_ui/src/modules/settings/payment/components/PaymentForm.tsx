@@ -143,8 +143,8 @@ const createPaymentSchema = (selectedKind: string) => {
     return quickQrSchema;
   }
   if (selectedKind === PaymentKind.KHANBANK) {
-  return khanbankSchema;
-}
+    return khanbankSchema;
+  }
   return baseSchema.extend(dynamicFields);
 };
 
@@ -314,18 +314,12 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     return <QuickQrForm payment={payment} form={form} Form={Form} />;
   };
   const renderKhanbank = () => {
-  if (selectedKind !== PaymentKind.KHANBANK) {
-    return null;
-  }
+    if (selectedKind !== PaymentKind.KHANBANK) {
+      return null;
+    }
 
-  return (
-    <KhanbankForm
-      payment={payment}
-      form={form}
-      Form={Form}
-    />
-  );
-};
+    return <KhanbankForm payment={payment} form={form} Form={Form} />;
+  };
 
   return (
     <Form {...form}>
@@ -335,7 +329,9 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <Sheet.Header className="gap-3 border-b">
-          <Sheet.Title>{payment ? t('edit-payment') : t('add-payment')}</Sheet.Title>
+          <Sheet.Title>
+            {payment ? t('edit-payment') : t('add-payment')}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -421,10 +417,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   <Form.Item>
                     <Form.Label>{t('display-name')} *</Form.Label>
                     <Form.Control>
-                      <Input
-                        {...field}
-                        placeholder={t('enter-payment-name')}
-                      />
+                      <Input {...field} placeholder={t('enter-payment-name')} />
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -488,9 +481,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   <Form.Item>
                     <div className="flex items-center justify-between gap-3">
                       <div className="space-y-0.5">
-                        <Form.Label>
-                          {t('send-email-after-payment')}
-                        </Form.Label>
+                        <Form.Label>{t('send-email-after-payment')}</Form.Label>
                         <p className="text-xs text-muted-foreground">
                           {t('send-email-description')}
                         </p>
@@ -550,7 +541,11 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
             disabled={isSubmitting}
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            {isSubmitting ? t('saving') : payment ? t('update-payment-method') : t('save-payment-method')}
+            {isSubmitting
+              ? t('saving')
+              : payment
+                ? t('update-payment-method')
+                : t('save-payment-method')}
           </Button>
         </Sheet.Footer>
       </form>
