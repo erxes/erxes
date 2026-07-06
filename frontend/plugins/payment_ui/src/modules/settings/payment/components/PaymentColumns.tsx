@@ -24,15 +24,14 @@ import {
   Sheet,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import type { TFunction } from 'i18next';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import PaymentForm from './PaymentForm';
 
-export const paymentColumns: ColumnDef<IPayment>[] = [
+export const paymentColumns = (t: TFunction): ColumnDef<IPayment>[] => [
   {
     id: 'more',
     cell: ({ cell }: { cell: Cell<IPayment, unknown> }) => {
-      const { t } = useTranslation('payment');
       const payment = cell.row.original as IPaymentDocument;
 
       const [open, setOpen] = useState(false);
@@ -80,10 +79,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('payment-method-label')} icon={IconSettings} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('payment-method-label')} icon={IconSettings} />,
     cell: ({ cell }) => {
       const kind = cell.getValue() as string;
 
@@ -105,10 +101,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('name')} icon={IconHash} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('name')} icon={IconHash} />,
     cell: ({ cell }) => {
       const payment = cell.row.original;
       const [open, setOpen] = useState(false);
@@ -132,10 +125,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('status')} icon={IconProgress} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('status')} icon={IconProgress} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -147,10 +137,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
   {
     id: 'credentials',
     accessorKey: 'credentials',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('credentials')} icon={IconKey} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('credentials')} icon={IconKey} />,
     cell: () => {
       return (
         <RecordTableInlineCell>
@@ -162,10 +149,7 @@ export const paymentColumns: ColumnDef<IPayment>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />;
-    },
+    header: () => <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
