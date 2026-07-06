@@ -1,4 +1,4 @@
-import { IconBell, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconBell, IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import {
   Button,
@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDuplicatePost } from '../hooks/useDuplicatePost';
 import { useRemovePosts } from '../hooks/useRemovePosts';
 import { useSendPostNotification } from '../hooks/useSendPostNotification';
 import { Posts } from '../types/postsType';
@@ -36,9 +37,10 @@ export const PostMoreColumnCell = ({
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removePosts, loading: removing } = useRemovePosts();
+  const { duplicatePost, loading: duplicating } = useDuplicatePost();
   const { sendPostNotification, loading: sendingNotification } =
     useSendPostNotification();
-  const loading = removing || sendingNotification;
+  const loading = removing || duplicating || sendingNotification;
 
   const handleEdit = () => {
     if (onEdit) {
@@ -80,6 +82,25 @@ export const PostMoreColumnCell = ({
           });
         });
     });
+  };
+
+  const handleDuplicate = () => {
+    duplicatePost(_id)
+      .then(() => {
+        toast({
+          title: t('success'),
+          variant: 'success',
+          description: t('post-duplicated-successfully'),
+        });
+        onRefetch?.();
+      })
+      .catch((e: Error) => {
+        toast({
+          title: t('error'),
+          description: e.message,
+          variant: 'destructive',
+        });
+      });
   };
 
   const handleDelete = () => {
@@ -146,6 +167,18 @@ export const PostMoreColumnCell = ({
                 </Button>
               </Command.Item>
             )}
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start h-8"
+                onClick={handleDuplicate}
+                disabled={loading}
+              >
+                <IconCopy className="size-4" />
+                {t('duplicate')}
+              </Button>
+            </Command.Item>
             <Command.Item asChild>
               <Button
                 variant="ghost"

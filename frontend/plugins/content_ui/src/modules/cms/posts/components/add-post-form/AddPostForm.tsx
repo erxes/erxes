@@ -6,9 +6,11 @@ import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
 import { usePostSubmission } from './hooks/usePostSubmission';
+import { usePostAutosave } from './hooks/usePostAutosave';
 import { PostEditorColumn } from './PostEditorColumn';
 import { PostSidebarPanel } from './PostSidebarPanel';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
+import { CmsUnsavedChangesAlert } from '~/modules/cms/shared/components/CmsUnsavedChangesAlert';
 
 interface AddPostFormProps {
   websiteId: string;
@@ -74,6 +76,26 @@ export const AddPostForm = ({
     [availableLanguages, defaultLanguage, translations],
   );
 
+  // After a successful save, re-baseline the form's default values to the
+  // saved snapshot (keeping current values) so edits made while the save was
+  // in flight stay dirty. When the save navigates away right after (non-silent
+  // saves), also stand the guard down via the bypass ref: the reset and the
+  // navigation happen in the same tick, before the blocker re-renders, so its
+  // captured isDirty would still be stale `true`.
+  const guardBypassRef = useRef(false);
+  const handleSaved = useCallback(
+    (savedData: unknown, { navigating }: { navigating: boolean }) => {
+      form.reset(savedData as Parameters<typeof form.reset>[0], {
+        keepValues: true,
+      });
+
+      if (navigating) {
+        guardBypassRef.current = true;
+      }
+    },
+    [form],
+  );
+
   const { onSubmit, creating, saving } = usePostSubmission({
     websiteId,
     editingPost: currentEditingPost,
@@ -82,6 +104,17 @@ export const AddPostForm = ({
     defaultLangData,
     translations,
     onClose,
+    onSaved: handleSaved,
+  });
+
+  // Same safe widening as formForColumns below — the hook only reads known fields.
+  usePostAutosave({
+    form: form as unknown as UseFormReturn<FieldValues>,
+    enabled: Boolean(currentEditingPost?._id),
+    save: onSubmit as unknown as (
+      data: FieldValues,
+      options: { silent: boolean },
+    ) => Promise<void>,
   });
 
   const formInitializedRef = useRef(false);
@@ -313,6 +346,10 @@ export const AddPostForm = ({
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
+      <CmsUnsavedChangesAlert
+        isDirty={form.formState.isDirty}
+        bypassRef={guardBypassRef}
+      />
       <Form {...form}>
         <div className="flex flex-col w-full mb-4 px-4 pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

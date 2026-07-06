@@ -25,6 +25,7 @@ export interface IPostModel extends Model<IPostDocument> {
     _id: string,
     status: 'draft' | 'published' | 'archived' | 'scheduled',
   ) => Promise<IPostDocument>;
+  duplicatePost: (_id: string, authorId?: string) => Promise<IPostDocument>;
   increaseViewCount: (_id: string) => Promise<IPostDocument>;
   updateReactionCount: (
     _id: string,
@@ -181,6 +182,54 @@ export const loadPostClass = (models: IModels) => {
 
     public static deletePost = async (_id: string) => {
       return models.Posts.deleteOne({ _id });
+    };
+
+    public static duplicatePost = async (_id: string, authorId?: string) => {
+      const post = await models.Posts.findOne({ _id }).lean();
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      const {
+        _id: _sourceId,
+        count,
+        slug,
+        viewCount,
+        recentViewCount,
+        reactionCounts,
+        publishedDate,
+        featuredDate,
+        scheduledDate,
+        autoArchiveDate,
+        createdAt,
+        updatedAt,
+        ...rest
+      } = post as any;
+
+      const duplicated = await this.createPost({
+        ...rest,
+        title: `${post.title} (Copy)`,
+        status: 'draft',
+        featured: false,
+        ...(authorId ? { authorId, authorKind: 'user' } : {}),
+      });
+
+      const translations = await models.Translations.find({
+        objectId: _id,
+      }).lean();
+
+      if (translations.length) {
+        await models.Translations.insertMany(
+          translations.map(({ _id: _translationId, ...translation }) => ({
+            ...translation,
+            objectId: duplicated._id,
+            title: translation.title ? `${translation.title} (Copy)` : '',
+          })),
+        );
+      }
+
+      return duplicated;
     };
 
     public static changeStatus = async (

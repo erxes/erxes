@@ -15,6 +15,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { SelectMember } from 'ui-modules';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { PostsTotalCount } from './PostsTotalCount';
 import { useIsPostsLeadSessionKey } from '../hooks/usePostsLeadSessionKey';
@@ -35,6 +36,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
     status: string;
     type: string;
     categories: string[];
+    author: string;
     created: string;
     updated: string;
     publishedDate: string;
@@ -44,6 +46,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
     'status',
     'type',
     'categories',
+    'author',
     'created',
     'updated',
     'publishedDate',
@@ -74,6 +77,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
                 <SelectType.FilterItem />
                 <SelectTags.FilterItem />
                 <SelectCategories.FilterItem />
+                <SelectMember.FilterItem value="author" label={t('author')} />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="created">
                   <IconCalendarPlus />
@@ -92,6 +96,7 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
           </Filter.View>
           <SelectTags.FilterView clientPortalId={clientPortalId || ''} />
           <SelectCategories.FilterView clientPortalId={clientPortalId} />
+          <SelectMember.FilterView queryKey="author" />
           <SelectStatus.FilterView />
           <Filter.View filterKey="type">
             <SelectType.FilterView clientPortalId={clientPortalId} />
@@ -122,6 +127,9 @@ const PostsFilterPopover = ({ clientPortalId }: PostsFilterPopoverProps) => {
         </Filter.View>
         <Filter.View filterKey="tags" inDialog>
           <SelectTags.FilterView clientPortalId={clientPortalId || ''} />
+        </Filter.View>
+        <Filter.View filterKey="author" inDialog>
+          <SelectMember.FilterView queryKey="author" />
         </Filter.View>
         <Filter.View filterKey="created" inDialog>
           <Filter.DialogDateView filterKey="created" />
@@ -198,6 +206,7 @@ export const PostsFilter = ({ clientPortalId }: { clientPortalId: string }) => {
         <SelectType.FilterBar clientPortalId={clientPortalId || undefined} />
         <SelectTags.FilterBar clientPortalId={clientPortalId} />
         <SelectCategories.FilterBar clientPortalId={clientPortalId} />
+        <SelectMember.FilterBar queryKey="author" label={t('author')} />
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />

@@ -58,6 +58,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     customFieldsData: CustomFieldEntry[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
+  const lastResetKeyRef = useRef<string | undefined>();
 
   const form = useForm<PostFormData>({
     defaultValues: {
@@ -141,6 +142,18 @@ export const usePostForm = (editingPost?: { _id: string }) => {
 
   useEffect(() => {
     if (fullPost) {
+      // Reset only when the loaded post (or its load phase: partial list row →
+      // full cmsPost) changes. Refetches triggered by saves return a new object
+      // with the same data — resetting on those would clobber in-flight typing.
+      const resetKey = `${fullPost._id}:${
+        fullPost === fullPostData?.cmsPost ? 'full' : 'partial'
+      }`;
+
+      if (lastResetKeyRef.current === resetKey) {
+        return;
+      }
+      lastResetKeyRef.current = resetKey;
+
       const toDate = (v: string | Date | null | undefined) =>
         v ? new Date(v) : null;
       form.reset({

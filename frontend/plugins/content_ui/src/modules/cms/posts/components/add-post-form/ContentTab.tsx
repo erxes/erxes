@@ -1,4 +1,4 @@
-import { Form, Input, Select, Textarea, Switch } from 'erxes-ui';
+import { Accordion, Form, Input, Select, Textarea, Switch } from 'erxes-ui';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CategoryField } from './CategoryField';
@@ -225,6 +225,58 @@ export const ContentTab = ({
           </Form.Item>
         )}
       />
+
+      {!isTranslationMode && (
+        <Accordion type="single" collapsible className="rounded-md border">
+          <Accordion.Item value="seo" className="border-b-0">
+            <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
+              {t('seo')}
+            </Accordion.Trigger>
+            <Accordion.Content className="space-y-4 px-4 pb-4">
+              <Form.Field
+                control={form.control}
+                name="seoTitle"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('seo-title')}</Form.Label>
+                    <Form.Control>
+                      <Input
+                        {...field}
+                        placeholder={t('seo-title-placeholder')}
+                        maxLength={70}
+                      />
+                    </Form.Control>
+                    <Form.Description>{t('seo-title-desc')}</Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="seoDescription"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('seo-description')}</Form.Label>
+                    <Form.Control>
+                      <Textarea
+                        {...field}
+                        placeholder={t('seo-description-placeholder')}
+                        rows={3}
+                        maxLength={160}
+                      />
+                    </Form.Control>
+                    <Form.Description>
+                      {t('seo-description-desc')}
+                    </Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </Accordion.Content>
+          </Accordion.Item>
+        </Accordion>
+      )}
 
       <CategoryField
         form={form}

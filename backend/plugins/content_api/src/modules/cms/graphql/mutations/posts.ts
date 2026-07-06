@@ -361,6 +361,30 @@ export const postMutations: Record<string, Resolver> = {
     return updatedPost;
   },
 
+  cmsPostsDuplicate: async (_parent, args, context: IContext) => {
+    const { models, user } = context;
+    const { _id } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsAccessByClientPortal(context, post.clientPortalId);
+
+    await requireCmsPermission(context, [
+      CMS_POST_ACTIONS.createPublished,
+      CMS_POST_ACTIONS.createReview,
+    ]);
+
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: post.clientPortalId,
+    });
+
+    return models.Posts.duplicatePost(_id, user._id);
+  },
+
   cmsPostsToggleFeatured: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id } = args;

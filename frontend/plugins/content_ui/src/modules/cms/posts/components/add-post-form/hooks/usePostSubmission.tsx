@@ -90,6 +90,18 @@ interface UsePostSubmissionProps {
   defaultLangData?: DefaultLangData | null;
   translations?: Record<string, TranslationEntry>;
   onClose?: () => void;
+  /**
+   * Called after a successful save, before any navigation, with the form
+   * snapshot that was saved (e.g. to clear the form's dirty state).
+   * `navigating` is true when the save will redirect/close right after —
+   * silent autosaves stay on the page.
+   */
+  onSaved?: (savedData: unknown, meta: { navigating: boolean }) => void;
+}
+
+interface SubmitOptions {
+  /** Save without toast or navigation — used by autosave. */
+  silent?: boolean;
 }
 
 interface MainFields {
@@ -279,6 +291,9 @@ const buildPostInput = (
     scheduledDate: data.scheduledDate ?? undefined,
     autoArchiveDate: data.enableAutoArchive ? data.autoArchiveDate : undefined,
     excerpt: main.excerpt,
+    // Empty strings (not undefined) so clearing a value persists through $set
+    seoTitle: data.seoTitle?.trim() ?? '',
+    seoDescription: data.seoDescription?.trim() ?? '',
     thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
     images: shouldSetImages ? imagesPayload : undefined,
     video: videoPayload,
@@ -343,6 +358,7 @@ export const usePostSubmission = ({
   defaultLangData,
   translations,
   onClose,
+  onSaved,
 }: UsePostSubmissionProps) => {
   const { t } = useTranslation('content');
   const navigate = useNavigate();
@@ -373,15 +389,30 @@ export const usePostSubmission = ({
     translationsRef.current = translations;
   }, [translations]);
 
-  const savePost = async (input: Record<string, unknown>) => {
+  const savePost = async (
+    input: Record<string, unknown>,
+    formData: PostFormData,
+    { silent }: SubmitOptions = {},
+  ) => {
     try {
       if (editingPost?._id) {
         await editPost(editingPost._id, input);
-        toast({ title: t('saved'), description: t('post-saved-successfully') });
       } else {
         await createPost(input);
-        toast({ title: t('saved'), description: t('post-created-successfully') });
       }
+
+      onSaved?.(formData, { navigating: !silent });
+
+      if (silent) {
+        return;
+      }
+
+      toast({
+        title: t('saved'),
+        description: editingPost?._id
+          ? t('post-saved-successfully')
+          : t('post-created-successfully'),
+      });
 
       if (onClose) {
         onClose();
@@ -406,12 +437,18 @@ export const usePostSubmission = ({
    * is a stable useCallback wrapper — safe to capture once in onFormReady.
    */
   // No-op placeholder — immediately replaced below on every render
-  const onSubmitRef = useRef<(data: PostFormData) => Promise<void>>(
+  const onSubmitRef = useRef<
+    (data: PostFormData, options?: SubmitOptions) => Promise<void>
+  >(
     async () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   );
 
-  onSubmitRef.current = async (data: PostFormData) => {
+  onSubmitRef.current = async (data: PostFormData, options?: SubmitOptions) => {
     if (!data.type) {
+      if (options?.silent) {
+        return;
+      }
+
       toast({
         title: t('validation-error'),
         description: t('please-select-a-post-type'),
@@ -462,12 +499,13 @@ export const usePostSubmission = ({
       }
     }
 
-    await savePost(input);
+    await savePost(input, data, options);
   };
 
   // Stable wrapper — safe to capture in onFormReady
   const onSubmit = useCallback(
-    (data: PostFormData) => onSubmitRef.current(data),
+    (data: PostFormData, options?: SubmitOptions) =>
+      onSubmitRef.current(data, options),
     [],
   );
 
