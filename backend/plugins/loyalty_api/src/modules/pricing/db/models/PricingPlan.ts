@@ -69,7 +69,7 @@ const normalizePlanDoc = (
 
   const normalizedDoc: Partial<IPricingPlan> = {
     ...doc,
-    ...priority ? { priority } : {},
+    ...(priority ? { priority } : {}),
   };
 
   if (priority === PRIORITY_TYPES.POS_BASE) {
