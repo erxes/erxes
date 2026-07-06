@@ -209,7 +209,9 @@ export const CallDetailAgents = ({
 
   return (
     <div className="row-span-2 flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">{t('agents')}</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">
+        {t('agents')}
+      </h5>
       <div className="relative">
         <IconSearch className="size-4 absolute left-2 top-1/2 -translate-y-1/2 text-accent-foreground" />
         <Input
@@ -219,7 +221,10 @@ export const CallDetailAgents = ({
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <RecordTable.Provider columns={useAgentColumns()} data={filteredMembersList}>
+      <RecordTable.Provider
+        columns={useAgentColumns()}
+        data={filteredMembersList}
+      >
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
@@ -236,92 +241,92 @@ export const CallDetailAgents = ({
 export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
   const { t } = useTranslation('frontline');
   return [
-  {
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <Badge
-          variant={
-            cell.getValue() === 'Idle'
-              ? 'success'
-              : ['Ringing', 'InUse'].includes(cell.getValue() as string)
-                ? 'warning'
-                : cell.getValue() === 'Paused'
-                  ? 'destructive'
-                  : 'secondary'
-          }
-        >
-          {cell.getValue() as string}
-        </Badge>
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    accessorKey: 'member_extension',
-    header: () => <RecordTable.InlineHead label={t('extension')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-mono">
-        <Badge variant="secondary">{cell.getValue() as string}</Badge>
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-
-  {
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label={t('name')} />,
-    cell: ({ cell }) => {
-      const { first_name, last_name } = cell.row.original;
-      return (
-        <RecordTableInlineCell className="font-medium">
-          {first_name} {last_name}
+    {
+      accessorKey: 'status',
+      header: () => <RecordTable.InlineHead label={t('status')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell>
+          <Badge
+            variant={
+              cell.getValue() === 'Idle'
+                ? 'success'
+                : ['Ringing', 'InUse'].includes(cell.getValue() as string)
+                  ? 'warning'
+                  : cell.getValue() === 'Paused'
+                    ? 'destructive'
+                    : 'secondary'
+            }
+          >
+            {cell.getValue() as string}
+          </Badge>
         </RecordTableInlineCell>
-      );
+      ),
+      size: 100,
     },
-    size: 200,
-  },
-  {
-    accessorKey: 'answer',
-    header: () => <RecordTable.InlineHead label={t('answered')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {cell.getValue() as number}
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    accessorKey: 'abandon',
-    header: () => <RecordTable.InlineHead label={t('abandoned')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {cell.getValue() as number}
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    accessorKey: 'talktime',
-    header: () => <RecordTable.InlineHead label={t('talk-time')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {formatSeconds(cell.getValue() as number)}
-      </RecordTableInlineCell>
-    ),
-    size: 100,
-  },
-  {
-    accessorKey: 'pausetime',
-    header: () => <RecordTable.InlineHead label={t('pause-time')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell className="font-medium">
-        {safeFormatDate(cell?.getValue())}
-      </RecordTableInlineCell>
-    ),
-    size: 200,
-  },
+    {
+      accessorKey: 'member_extension',
+      header: () => <RecordTable.InlineHead label={t('extension')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-mono">
+          <Badge variant="secondary">{cell.getValue() as string}</Badge>
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+
+    {
+      accessorKey: 'name',
+      header: () => <RecordTable.InlineHead label={t('name')} />,
+      cell: ({ cell }) => {
+        const { first_name, last_name } = cell.row.original;
+        return (
+          <RecordTableInlineCell className="font-medium">
+            {first_name} {last_name}
+          </RecordTableInlineCell>
+        );
+      },
+      size: 200,
+    },
+    {
+      accessorKey: 'answer',
+      header: () => <RecordTable.InlineHead label={t('answered')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as number}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+    {
+      accessorKey: 'abandon',
+      header: () => <RecordTable.InlineHead label={t('abandoned')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {cell.getValue() as number}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+    {
+      accessorKey: 'talktime',
+      header: () => <RecordTable.InlineHead label={t('talk-time')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {formatSeconds(cell.getValue() as number)}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
+    {
+      accessorKey: 'pausetime',
+      header: () => <RecordTable.InlineHead label={t('pause-time')} />,
+      cell: ({ cell }) => (
+        <RecordTableInlineCell className="font-medium">
+          {safeFormatDate(cell?.getValue())}
+        </RecordTableInlineCell>
+      ),
+      size: 200,
+    },
   ];
 };
 
@@ -373,7 +378,9 @@ export const CallDetailWaiting = ({
   const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">{t('waiting')}</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">
+        {t('waiting')}
+      </h5>
       <RecordTable.Provider
         columns={[
           {
@@ -390,7 +397,9 @@ export const CallDetailWaiting = ({
           },
           {
             accessorKey: 'callerchannel',
-            header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
+            header: () => (
+              <RecordTable.InlineHead label={t('caller-channel')} />
+            ),
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {cell.getValue() as string}
@@ -424,7 +433,9 @@ export const CallDetailTalking = ({
   const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <h5 className="font-mono text-xs uppercase font-semibold">{t('talking')}</h5>
+      <h5 className="font-mono text-xs uppercase font-semibold">
+        {t('talking')}
+      </h5>
       <RecordTable.Provider
         columns={[
           {
@@ -441,7 +452,9 @@ export const CallDetailTalking = ({
           },
           {
             accessorKey: 'calleeid',
-            header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
+            header: () => (
+              <RecordTable.InlineHead label={t('caller-channel')} />
+            ),
             cell: ({ cell }) => (
               <RecordTableInlineCell className="font-medium">
                 {cell.getValue() as string}
