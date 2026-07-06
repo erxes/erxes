@@ -6,8 +6,6 @@ import { currentUserState } from 'ui-modules';
 import { type ElementType } from 'react';
 import { IconStar } from '@tabler/icons-react';
 
-
-
 interface Favorite {
   _id: string;
   path: string;
@@ -36,9 +34,7 @@ export function useFavorites(): FavoriteModule[] {
 
   return favorites.map((favorite) => ({
     name: favorite.breadcrumb?.join(' / ') || favorite.path,
-    icon: favorite.icon
-      ?  IconStar
-      : IconStar,
+    icon: favorite.icon ? IconStar : IconStar,
     path: favorite.path,
   }));
 }
