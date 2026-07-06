@@ -6,7 +6,7 @@ import {
 } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
@@ -60,6 +60,12 @@ export const TagsNavigation = () => {
     websitesData?.getClientPortals?.list?.find((w: any) => w._id === websiteId)
       ?.name ||
     '';
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('cms'),
+    websiteName || t('website'),
+    currentPage.label,
+  );
+
   return (
     <PageHeader.Start>
       <Breadcrumb>
@@ -88,7 +94,7 @@ export const TagsNavigation = () => {
             </Button>
           </Breadcrumb.Page>
           <Breadcrumb.Separator />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton breadcrumb={favoriteBreadcrumb} />
         </Breadcrumb.List>
       </Breadcrumb>
     </PageHeader.Start>
