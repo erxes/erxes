@@ -55,6 +55,7 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     models: IModels,
   ): Promise<ICPUserDocument>;
   removeUser(userId: string, models: IModels): Promise<void>;
+  removeUsers(userIds: string[], models: IModels): Promise<string[]>;
 }
 
 export const loadCPUserClass = (
@@ -198,6 +199,27 @@ export const loadCPUserClass = (
       } catch {
         // Activity log failure should not fail the mutation
       }
+    }
+
+    /** Removes multiple client portal users and records removal activities. */
+    public static async removeUsers(
+      userIds: string[],
+      models: IModels,
+    ): Promise<string[]> {
+      const users = await models.CPUser.find({ _id: { $in: userIds } }).lean();
+      const removedUserIds = users.map((user) => String(user._id));
+
+      await models.CPUser.deleteMany({ _id: { $in: userIds } });
+
+      for (const user of users) {
+        try {
+          createActivityLog(generateCPUserRemovedActivityLog(user));
+        } catch {
+          // Activity log failure should not fail the mutation
+        }
+      }
+
+      return removedUserIds;
     }
   }
 

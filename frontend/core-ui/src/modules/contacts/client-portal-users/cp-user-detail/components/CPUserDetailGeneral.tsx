@@ -55,7 +55,7 @@ export function CPUserDetailGeneral() {
       }),
     }).then(() => {
       cpUsersRemove({
-        variables: { _id: cpUserId },
+        variables: { ids: [cpUserId] },
         onError: (e: ApolloError) => {
           toast({
             title: t('error', { defaultValue: 'Error' }),
