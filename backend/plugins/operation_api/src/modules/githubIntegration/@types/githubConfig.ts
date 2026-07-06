@@ -14,4 +14,3 @@ export interface IGithubConfigDocument extends IGithubConfig, Document {
   createdAt: Date;
   updatedAt: Date;
 }
-

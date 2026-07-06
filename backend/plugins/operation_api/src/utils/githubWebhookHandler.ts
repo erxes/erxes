@@ -70,15 +70,15 @@ export const handleGithubWebhook = async (
     const rawBody = Buffer.isBuffer(req.rawBody)
       ? req.rawBody
       : Buffer.isBuffer(req.body)
-      ? req.body
-      : Buffer.from(
-          typeof req.rawBody === 'string'
-            ? req.rawBody
-            : typeof req.body === 'string'
-            ? req.body
-            : JSON.stringify(req.body ?? {}),
-          'utf8',
-        );
+        ? req.body
+        : Buffer.from(
+            typeof req.rawBody === 'string'
+              ? req.rawBody
+              : typeof req.body === 'string'
+                ? req.body
+                : JSON.stringify(req.body ?? {}),
+            'utf8',
+          );
 
     let isValid: boolean;
     try {

@@ -27,11 +27,10 @@ const getApp = async (): Promise<App> => {
 };
 
 type AppInstance = Awaited<ReturnType<typeof getApp>>;
-type OctokitInstance = ReturnType<
-  AppInstance['getInstallationOctokit']
-> extends Promise<infer U>
-  ? U
-  : never;
+type OctokitInstance =
+  ReturnType<AppInstance['getInstallationOctokit']> extends Promise<infer U>
+    ? U
+    : never;
 
 export const getInstallationOctokit = async (
   installationId: number,

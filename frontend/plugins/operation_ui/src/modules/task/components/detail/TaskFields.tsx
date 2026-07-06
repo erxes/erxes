@@ -119,11 +119,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           size="sm"
           className="w-fit text-muted-foreground group"
         >
-          <a
-            href={githubIssueUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={githubIssueUrl} target="_blank" rel="noopener noreferrer">
             <IconBrandGithub className="size-4 shrink-0" />
             <span className="text-muted-foreground">Synced with GitHub</span>
             <span className="font-normal">
