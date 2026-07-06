@@ -40,6 +40,13 @@ const products = gql`
     $groupedSimilarity: String
     $ids: [String]
     $minRemainder: Float
+    $minDiscountValue: Float
+    $maxDiscountValue: Float
+    $minDiscountPercent: Float
+    $maxDiscountPercent: Float
+    $discountConditions: JSON
+    $sortField: String
+    $sortDirection: Int
     ) {
     poscProducts(
       searchValue: $searchValue, 
@@ -51,6 +58,13 @@ const products = gql`
       groupedSimilarity: $groupedSimilarity
       ids: $ids
       minRemainder: $minRemainder
+      minDiscountValue: $minDiscountValue
+      maxDiscountValue: $maxDiscountValue
+      minDiscountPercent: $minDiscountPercent
+      maxDiscountPercent: $maxDiscountPercent
+      discountConditions: $discountConditions
+      sortField: $sortField
+      sortDirection: $sortDirection
     ) {
       ${commonFields}
       categoryId
@@ -59,6 +73,7 @@ const products = gql`
       description
       remainder
       remainders
+      discount(discountConditions: $discountConditions)
       isCheckRem
       hasSimilarity
       attachment {
@@ -78,6 +93,7 @@ const productSimilarities = gql`
         name
         remainder
         remainders
+        discount
         isCheckRem
         attachment {
           url
@@ -99,6 +115,12 @@ const productsCount = gql`
     $searchValue: String
     $groupedSimilarity: String
     $isKiosk: Boolean
+    $minRemainder: Float
+    $minDiscountValue: Float
+    $maxDiscountValue: Float
+    $minDiscountPercent: Float
+    $maxDiscountPercent: Float
+    $discountConditions: JSON
   ) {
     poscProductsTotalCount(
       categoryId: $categoryId
@@ -106,6 +128,12 @@ const productsCount = gql`
       searchValue: $searchValue
       groupedSimilarity: $groupedSimilarity
       isKiosk: $isKiosk
+      minRemainder: $minRemainder
+      minDiscountValue: $minDiscountValue
+      maxDiscountValue: $maxDiscountValue
+      minDiscountPercent: $minDiscountPercent
+      maxDiscountPercent: $maxDiscountPercent
+      discountConditions: $discountConditions
     )
   }
 `
