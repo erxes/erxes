@@ -101,15 +101,11 @@ export const KitchenScreen: React.FC<KitchenScreenProps> = ({ control }) => {
                         </div>
                       )}
                     />
-                  ) : (
-                    <></>
-                  )
+                  ) : null
                 }
               />
             </div>
-          ) : (
-            <></>
-          )
+          ) : null
         }
       />
     </div>

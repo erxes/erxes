@@ -78,10 +78,6 @@ const SelectDealsBulkContent = ({
     }
   }, [dealIds]);
 
-  const handleAddDeal = (data: { dealsAdd: { _id: string } }) => {
-    setSelectedDealIds((prev) => [...prev, data.dealsAdd._id]);
-  };
-
   const handleSelect = () => {
     onSelect(
       selectedDeals.map((d) => d._id),
@@ -231,7 +227,6 @@ const SelectedDealsList = ({
       <div className="p-4 flex flex-col gap-1">
         <div className="text-accent-foreground text-xs px-3 mb-1">{t('added')}</div>
         {selectedDealIds.map((dealId) => {
-          const deal = selectedDeals.find((p) => p._id === dealId);
           return (
             <Button
               key={dealId}

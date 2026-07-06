@@ -339,7 +339,11 @@ export const createExportBatchProcessor = (
               data: {
                 moduleName,
                 collectionName,
-                ...(exportDoc.filters !== null && typeof exportDoc.filters === 'object' && !Array.isArray(exportDoc.filters) ? { filters: exportDoc.filters } : {}),
+                ...(exportDoc.filters !== null &&
+                typeof exportDoc.filters === 'object' &&
+                !Array.isArray(exportDoc.filters)
+                  ? { filters: exportDoc.filters }
+                  : {}),
               },
             },
             context,
@@ -392,9 +396,14 @@ export const createExportBatchProcessor = (
               data: {
                 moduleName,
                 collectionName,
+                userId: exportDoc.userId,
                 limit: BATCH_SIZE,
                 ...(cursor ? { cursor } : {}),
-                ...(exportDoc.filters !== null && typeof exportDoc.filters === 'object' && !Array.isArray(exportDoc.filters) ? { filters: exportDoc.filters } : {}),
+                ...(exportDoc.filters !== null &&
+                typeof exportDoc.filters === 'object' &&
+                !Array.isArray(exportDoc.filters)
+                  ? { filters: exportDoc.filters }
+                  : {}),
                 ...(exportDoc.ids && exportDoc.ids.length > 0
                   ? { ids: exportDoc.ids }
                   : {}),

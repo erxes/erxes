@@ -468,7 +468,7 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
       const { type, data } = operation;
 
       switch (type) {
-        case 'addToWishlist':
+        case 'addToWishlist': {
           const { productId, customerId } = data;
           const wishlistItem = await models.Wishlist.createWishlist({
             productId,
@@ -480,8 +480,9 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
             data: wishlistItem as IWishlistDocument,
           });
           break;
+        }
 
-        case 'addReview':
+        case 'addReview': {
           const review = await models.ProductReview.createProductReview(data);
           results.push({
             type,
@@ -489,8 +490,9 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
             data: review as IProductReviewDocument,
           });
           break;
+        }
 
-        case 'addLastViewed':
+        case 'addLastViewed': {
           const lastViewed =
             await models.LastViewedItem.lastViewedItemAdd(data);
           results.push({
@@ -499,8 +501,9 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
             data: lastViewed as ILastViewedItemDocument,
           });
           break;
+        }
 
-        case 'addAddress':
+        case 'addAddress': {
           const address = await models.Address.createAddress(data);
           results.push({
             type,
@@ -508,6 +511,7 @@ export const ecommerceBulkOperations = async (req: any, res: any) => {
             data: address as IAddressDocument,
           });
           break;
+        }
 
         default:
           results.push({
