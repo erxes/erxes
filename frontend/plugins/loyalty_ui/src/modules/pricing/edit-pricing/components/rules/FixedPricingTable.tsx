@@ -53,7 +53,10 @@ export const FixedPricingTable = ({
   const [statusFilter, setStatusFilter] = useState('all');
   const [diffFilter, setDiffFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const PAGE_SIZE = 10;
+  const [pageSize, setPageSize] = useState(10);
+  const [customPageSize, setCustomPageSize] = useState('');
+  const [isCustomMode, setIsCustomMode] = useState(false);
+  const PAGE_SIZE = pageSize;
 
   const watchedFixedValues = useWatch({ control, name: 'fixedValues' });
 
@@ -96,7 +99,11 @@ export const FixedPricingTable = ({
   }, [JSON.stringify(pageItems)]);
 
   const handlePageChange = (newPage: number) => {
-    onSave();
+    const hasDirtyRows = watchedFixedValues?.some((fv, index) => {
+      const item = pageItems[index];
+      return item && fv?.newPrice !== item.newPrice;
+    });
+    if (hasDirtyRows) onSave();
     setCurrentPage(newPage);
   };
 
@@ -217,7 +224,14 @@ export const FixedPricingTable = ({
   };
 
   return (
-    <>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        minHeight: 0,
+      }}
+    >
       <div
         style={{
           display: 'flex',
@@ -271,69 +285,138 @@ export const FixedPricingTable = ({
             </Select.Content>
           </Select>
         </div>
-      </div>
-
-      <RecordTableHotkeyProvider
-        columnLength={1}
-        rowLength={filteredIndices.length}
-        scope="pricingFixedValues"
-      >
-        <Table ref={tableRef}>
-          <Table.Header>
-            <Table.Row>
-              <Table.Head />
-              <Table.Head>Product</Table.Head>
-              <Table.Head>UOM</Table.Head>
-              <Table.Head>Unit Price</Table.Head>
-              <Table.Head>New Price</Table.Head>
-              <Table.Head>Diff Price</Table.Head>
-              <Table.Head>Status</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>{renderTableBody()}</Table.Body>
-        </Table>
-      </RecordTableHotkeyProvider>
-
-      {totalPages > 1 && (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
-            marginTop: '12px',
-            justifyContent: 'flex-end',
+            gap: '6px',
           }}
         >
-          <span style={{ fontSize: '13px', color: '#6b7280' }}>
-            {totalCount} results · Page {currentPage} of {totalPages}
-          </span>
-          <button
-            type="button"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage <= 1}
-            style={{
-              padding: '4px 10px',
-              cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
-              opacity: currentPage <= 1 ? 0.4 : 1,
+          <Select
+            value={
+              [5, 10, 50, 100].includes(pageSize) ? String(pageSize) : 'custom'
+            }
+            onValueChange={(v) => {
+              if (v === 'custom') {
+                setIsCustomMode(true);
+                setCustomPageSize('');
+              } else {
+                setIsCustomMode(false);
+                setPageSize(Number(v));
+                setCustomPageSize('');
+                setCurrentPage(1);
+              }
             }}
           >
-            ‹ Prev
-          </button>
-          <button
-            type="button"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-            style={{
-              padding: '4px 10px',
-              cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
-              opacity: currentPage >= totalPages ? 0.4 : 1,
-            }}
-          >
-            Next ›
-          </button>
+            <Select.Trigger style={{ width: '130px' }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="5">5 / page</Select.Item>
+              <Select.Item value="10">10 / page</Select.Item>
+              <Select.Item value="50">50 / page</Select.Item>
+              <Select.Item value="100">100 / page</Select.Item>
+              <Select.Item value="custom">Custom</Select.Item>
+            </Select.Content>
+          </Select>
+          {isCustomMode && (
+            <input
+              type="number"
+              min={1}
+              placeholder="e.g. 25"
+              value={customPageSize}
+              onChange={(e) => setCustomPageSize(e.target.value)}
+              onBlur={() => {
+                const n = parseInt(customPageSize, 10);
+                if (n > 0) {
+                  setPageSize(n);
+                  setCurrentPage(1);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const n = parseInt(customPageSize, 10);
+                  if (n > 0) {
+                    setPageSize(n);
+                    setCurrentPage(1);
+                  }
+                }
+              }}
+              style={{
+                width: '70px',
+                padding: '4px 8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '13px',
+              }}
+            />
+          )}
         </div>
-      )}
-    </>
+      </div>
+
+      <div style={{ overflowY: 'auto', flex: 1 }}>
+        <RecordTableHotkeyProvider
+          columnLength={1}
+          rowLength={filteredIndices.length}
+          scope="pricingFixedValues"
+        >
+          <Table ref={tableRef}>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head />
+                <Table.Head>Product</Table.Head>
+                <Table.Head>UOM</Table.Head>
+                <Table.Head>Unit Price</Table.Head>
+                <Table.Head>New Price</Table.Head>
+                <Table.Head>Diff Price</Table.Head>
+                <Table.Head>Status</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>{renderTableBody()}</Table.Body>
+          </Table>
+        </RecordTableHotkeyProvider>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginTop: '12px',
+          justifyContent: 'flex-end',
+          flexShrink: 0,
+        }}
+      >
+        <span style={{ fontSize: '13px', color: '#6b7280' }}>
+          {totalCount} results · Page {currentPage} of {totalPages}
+        </span>
+        <button
+          type="button"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage <= 1}
+          style={{
+            padding: '4px 10px',
+            cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+            opacity: currentPage <= 1 ? 0.4 : 1,
+          }}
+        >
+          ‹ Prev
+        </button>
+        <button
+          type="button"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage >= totalPages}
+          style={{
+            padding: '4px 10px',
+            cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+            opacity: currentPage >= totalPages ? 0.4 : 1,
+          }}
+        >
+          Next ›
+        </button>
+      </div>
+    </div>
   );
 };
 
