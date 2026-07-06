@@ -11,6 +11,9 @@ export const triageSchema = new Schema(
     number: { type: Number, label: 'Number', default: 0 },
     priority: { type: Number, label: 'Priority', default: 0 },
     status: { type: Number, label: 'Status', default: STATUS_TYPES.TRIAGE },
+    githubIssueNumber: { type: Number, label: 'GitHub Issue Number' },
+    githubIssueUrl: { type: String, label: 'GitHub Issue URL' },
+    githubRepoName: { type: String, label: 'GitHub Repo Name' },
   },
   {
     timestamps: true,

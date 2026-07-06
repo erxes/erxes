@@ -24,6 +24,11 @@ export const taskSchema = new Schema(
     },
     number: { type: Number, label: 'Number', default: 0 },
     statusType: { type: Number, label: 'Status Type', default: 0 },
+    githubIssueNumber: { type: Number, label: 'GitHub Issue Number' },
+    githubIssueUrl: { type: String, label: 'GitHub Issue URL' },
+    githubRepoName: { type: String, label: 'GitHub Repo Name' },
+    githubPrNumber: { type: Number, label: 'GitHub PR Number' },
+    githubPrUrl: { type: String, label: 'GitHub PR URL' },
   },
   {
     timestamps: true,

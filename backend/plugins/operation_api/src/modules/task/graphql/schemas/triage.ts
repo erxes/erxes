@@ -12,6 +12,9 @@ export const types = `
     createdAt: Date
     updatedAt: Date
     status: Int
+    githubIssueNumber: Int
+    githubIssueUrl: String
+    githubRepoName: String
   }
 
   input ITriageAddInput {

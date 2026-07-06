@@ -7,6 +7,8 @@ import { taskMutations } from '@/task/graphql/resolvers/mutations/task';
 import { teamMutations } from '@/team/graphql/resolvers/mutations/team';
 import { triageMutations } from '@/task/graphql/resolvers/mutations/triage';
 import { mutations as templateMutations } from '@/template/graphql/resolvers';
+import { githubConfigMutations } from '@/githubIntegration/graphql/resolvers/mutations/githubConfig';
+import { githubConnectionMutations } from '@/githubIntegration/graphql/resolvers/mutations/githubConnection';
 
 export const mutations = {
   ...taskMutations,
@@ -18,4 +20,6 @@ export const mutations = {
   ...milestoneMutations,
   ...triageMutations,
   ...templateMutations,
+  ...githubConfigMutations,
+  ...githubConnectionMutations,
 };

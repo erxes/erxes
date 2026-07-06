@@ -18,11 +18,16 @@ import {
   Textarea,
   useBlockEditor,
   Combobox,
+  Button,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { TagsSelect } from 'ui-modules';
-import { IconTags } from '@tabler/icons-react';
+import {
+  IconBrandGithub,
+  IconExternalLink,
+  IconTags,
+} from '@tabler/icons-react';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
@@ -39,6 +44,9 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     cycleId,
     milestoneId,
     tagIds,
+    githubIssueNumber,
+    githubIssueUrl,
+    githubRepoName,
   } = task || {};
 
   const startDate = (task as any)?.startDate;
@@ -104,6 +112,27 @@ export const TaskFields = ({ task }: { task: ITask }) => {
 
   return (
     <div className="flex flex-col gap-3">
+      {githubIssueNumber && githubIssueUrl && (
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="w-fit text-muted-foreground group"
+        >
+          <a
+            href={githubIssueUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconBrandGithub className="size-4 shrink-0" />
+            <span className="text-muted-foreground">Synced with GitHub</span>
+            <span className="font-normal">
+              {githubRepoName ? `${githubRepoName} ` : ''}#{githubIssueNumber}
+            </span>
+            <IconExternalLink className="size-3.5 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" />
+          </a>
+        </Button>
+      )}
       <Textarea
         ref={textareaRef}
         className="shadow-none focus-visible:shadow-none p-0"
