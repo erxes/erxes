@@ -66,7 +66,7 @@ export function PricingSubHeader() {
 
           <div className="h-7 text-sm font-medium leading-7 whitespace-nowrap text-muted-foreground">
             {totalCount
-              ? `${totalCount} ${t('records-found')}`
+              ? `${totalCount} ${t('records-found', 'records found')}`
               : loading && (
                   <Skeleton className="w-20 h-4 inline-block mt-1.5" />
                 )}

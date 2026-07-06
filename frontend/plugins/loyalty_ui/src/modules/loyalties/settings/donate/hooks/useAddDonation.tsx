@@ -84,15 +84,15 @@ export const useAddDonation = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('donation-campaign-created'),
+          title: t('success', 'Success'),
+          description: t('donation-campaign-created', 'Donation campaign created successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

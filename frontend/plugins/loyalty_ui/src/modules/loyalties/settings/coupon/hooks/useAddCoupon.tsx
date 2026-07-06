@@ -98,15 +98,15 @@ export const useAddCoupon = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('coupon-campaign-created'),
+          title: t('success', 'Success'),
+          description: t('coupon-campaign-created', 'Coupon campaign created successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

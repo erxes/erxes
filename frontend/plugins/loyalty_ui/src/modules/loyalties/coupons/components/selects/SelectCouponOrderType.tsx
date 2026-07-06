@@ -17,7 +17,7 @@ export const SelectCouponOrderTypeFilterItem = () => {
   return (
     <Filter.Item value="couponSortField">
       <IconSortAscending />
-      {t('order-type')}
+      {t('order-type', 'Order Type')}
     </Filter.Item>
   );
 };
@@ -59,12 +59,12 @@ export const SelectCouponOrderTypeFilterBar = () => {
     <Filter.BarItem queryKey="couponSortField">
       <Filter.BarName>
         <IconSortAscending />
-        {t('order-type')}
+        {t('order-type', 'Order Type')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="couponSortField">
-            <span>{selected?.label || t('order-type')}</span>
+            <span>{selected?.label || t('order-type', 'Order Type')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

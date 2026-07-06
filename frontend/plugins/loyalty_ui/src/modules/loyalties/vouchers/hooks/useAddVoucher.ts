@@ -26,21 +26,21 @@ export const useAddVoucher = () => {
       onCompleted: (data) => {
         if (data?.vouchersAddMany === 'error') {
           toast({
-            title: t('error'),
-            description: t('voucher-create-failed'),
+            title: t('error', 'Error'),
+            description: t('voucher-create-failed', 'Failed to create vouchers. Please check the campaign configuration.'),
             variant: 'destructive',
           });
           return;
         }
         toast({
-          title: t('success'),
-          description: t('voucher-created'),
+          title: t('success', 'Success'),
+          description: t('voucher-created', 'Voucher created successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

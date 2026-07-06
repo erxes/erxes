@@ -45,7 +45,7 @@ const SpinCampaignInlineProvider = ({
       loading: false,
       spinCampaignId: normalizedSpinCampaignId,
       placeholder: isUndefinedOrNull(placeholder)
-        ? t('select-spin-campaigns')
+        ? t('select-spin-campaigns', 'Select spin campaigns')
         : placeholder,
       updateSpinCampaigns: updateSpinCampaigns || setCurrentSpinCampaigns,
     };
@@ -88,7 +88,7 @@ const SpinCampaignInlineTitle = () => {
   if (!campaign) {
     return (
       <span className="text-muted-foreground">
-        {placeholder ?? t('no-campaign-selected')}
+        {placeholder ?? t('no-campaign-selected', 'No campaign selected')}
       </span>
     );
   }
@@ -96,7 +96,7 @@ const SpinCampaignInlineTitle = () => {
   return (
     <Tooltip>
       <Tooltip.Trigger>
-        <TextOverflowTooltip value={campaign.title || t('untitled-campaign')} />
+        <TextOverflowTooltip value={campaign.title || t('untitled-campaign', 'Untitled Campaign')} />
       </Tooltip.Trigger>
       <Tooltip.Content>
         <p>{campaign.title}</p>

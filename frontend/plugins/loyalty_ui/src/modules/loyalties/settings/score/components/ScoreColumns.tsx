@@ -34,7 +34,7 @@ export const scoreColumns = (
     id: 'title',
     accessorKey: 'title',
     header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('title')} />
+      <RecordTable.InlineHead icon={IconTag} label={t('title', 'Title')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -50,7 +50,7 @@ export const scoreColumns = (
     id: 'order',
     accessorKey: 'order',
     header: () => (
-      <RecordTable.InlineHead icon={IconListNumbers} label={t('order')} />
+      <RecordTable.InlineHead icon={IconListNumbers} label={t('order', 'Order')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -65,7 +65,7 @@ export const scoreColumns = (
     id: 'ownerType',
     accessorKey: 'ownerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />
+      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type', 'Owner Type')} />
     ),
     cell: ({ cell }) => {
       return (

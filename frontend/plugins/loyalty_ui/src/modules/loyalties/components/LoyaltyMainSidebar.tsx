@@ -18,7 +18,7 @@ export const LoyaltyMainSidebar = () => {
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('loyalty-modules')}</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('loyalty-modules', 'Loyalty modules')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {NAV_ITEMS.map(({ label, path }) => (

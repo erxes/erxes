@@ -131,7 +131,7 @@ const SelectSegmentValue = ({
   if (!selectedSegment) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-segment')}
+        {placeholder || t('select-segment', 'Select segment')}
       </span>
     );
   }
@@ -187,10 +187,10 @@ const SelectSegmentContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder={t('search-segments')} />
+        <Command.Input placeholder={t('search-segments', 'Search segments')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">{t('loading-segments')}</span>
+            <span className="text-muted-foreground">{t('loading-segments', 'Loading segments...')}</span>
           </div>
         </Command.List>
       </Command>
@@ -199,9 +199,9 @@ const SelectSegmentContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-segments')} />
+      <Command.Input placeholder={t('search-segments', 'Search segments')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-segments-found')}</span>
+        <span className="text-muted-foreground">{t('no-segments-found', 'No segments found')}</span>
       </Command.Empty>
       <Command.List>
         {segmentsArray.map((segment) => (
@@ -217,7 +217,7 @@ export const SelectSegmentFilterItem = () => {
   return (
     <Filter.Item value="segments">
       <IconTag />
-      {t('segments')}
+      {t('segments', 'Segments')}
     </Filter.Item>
   );
 };
@@ -275,7 +275,7 @@ export const SelectSegmentFilterBar = ({
     <Filter.BarItem queryKey={'segments'}>
       <Filter.BarName>
         <IconTag />
-        {t('segments')}
+        {t('segments', 'Segments')}
       </Filter.BarName>
       <SelectSegmentProvider
         mode={mode}

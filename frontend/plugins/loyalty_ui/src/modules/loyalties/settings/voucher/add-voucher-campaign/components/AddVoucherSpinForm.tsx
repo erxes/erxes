@@ -24,7 +24,7 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
         name="spinCampaignId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('spin-campaign')}</Form.Label>
+            <Form.Label>{t('spin-campaign', 'Spin Campaign')}</Form.Label>
             <Form.Control>
               <Select onValueChange={field.onChange} value={field.value}>
                 <Select.Trigger
@@ -32,7 +32,7 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
                 >
                   {spinCampaigns.find(
                     (campaign: any) => campaign._id === field.value,
-                  )?.title || t('select-spin-campaign')}
+                  )?.title || t('select-spin-campaign', 'Select spin campaign')}
                 </Select.Trigger>
                 <Select.Content>
                   {spinCampaigns.map((campaign: any) => (
@@ -52,11 +52,11 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
         name="spinCount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('spin-count')}</Form.Label>
+            <Form.Label>{t('spin-count', 'Spin Count')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
-                placeholder={t('enter-spin-count')}
+                placeholder={t('enter-spin-count', 'Enter spin count')}
                 value={field.value ?? ''}
                 onChange={(e) =>
                   field.onChange(

@@ -16,7 +16,7 @@ const CouponHeaderActions = () => {
       <Button variant="outline" size="sm" asChild>
         <Link to="/settings/loyalty/config/coupon">
           <IconSettings className="size-4" />
-          {t('go-to-settings')}
+          {t('go-to-settings', 'Go to settings')}
         </Link>
       </Button>
       <Export pluginName="loyalty" moduleName="coupon" collectionName="coupon" />

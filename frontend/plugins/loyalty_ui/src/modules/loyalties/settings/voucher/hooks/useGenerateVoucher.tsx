@@ -40,15 +40,15 @@ export const useGenerateVoucher = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('voucher-generated'),
+          title: t('success', 'Success'),
+          description: t('voucher-generated', 'Voucher generated successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

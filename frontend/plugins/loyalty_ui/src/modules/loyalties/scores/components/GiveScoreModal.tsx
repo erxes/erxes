@@ -89,14 +89,14 @@ export const GiveScoreModal = ({
         },
       });
       toast({
-        title: t('success'),
-        description: t('score-given'),
+        title: t('success', 'Success'),
+        description: t('score-given', 'Score given successfully'),
         variant: 'default',
       });
       handleOpenChange(false);
     } catch (e: unknown) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: e instanceof Error ? e.message : String(e),
         variant: 'destructive',
       });
@@ -108,12 +108,12 @@ export const GiveScoreModal = ({
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {triggerLabel ?? t('give-score')}
+          {triggerLabel ?? t('give-score', 'Give Score')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-2xl p-0">
         <Sheet.Header className="border-b gap-3 px-6 py-4">
-          <Sheet.Title>{t('give-score')}</Sheet.Title>
+          <Sheet.Title>{t('give-score', 'Give Score')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-6 w-full">
@@ -125,10 +125,10 @@ export const GiveScoreModal = ({
               <Form.Field
                 control={form.control}
                 name="ownerType"
-                rules={{ required: t('owner-type-required') }}
+                rules={{ required: t('owner-type-required', 'Owner type is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-type-label')}</Form.Label>
+                    <Form.Label>{t('owner-type-label', 'Owner Type *')}</Form.Label>
                     <SelectOwnerTypeFormItem
                       value={field.value}
                       onValueChange={(val) => {
@@ -144,10 +144,10 @@ export const GiveScoreModal = ({
               <Form.Field
                 control={form.control}
                 name="ownerId"
-                rules={{ required: t('owner-required') }}
+                rules={{ required: t('owner-required', 'Owner is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-label')}</Form.Label>
+                    <Form.Label>{t('owner-label', 'Owner *')}</Form.Label>
                     <SelectOwnerByType
                       ownerType={ownerType}
                       value={field.value}
@@ -160,7 +160,7 @@ export const GiveScoreModal = ({
 
               {ownerId && (
                 <div className="flex flex-col gap-2 w-full">
-                  <span className="text-sm font-medium leading-none">{t('target')}</span>
+                  <span className="text-sm font-medium leading-none">{t('target', 'Target')}</span>
                   <Tabs
                     value={targetType || ''}
                     onValueChange={(val) => {
@@ -181,14 +181,14 @@ export const GiveScoreModal = ({
                         className="flex-1 cursor-pointer w-[50%] font-normal gap-1.5 data-[state=active]:bg-background bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
                       >
                         <IconBriefcase size={15} />
-                        {t('sales-pipeline')}
+                        {t('sales-pipeline', 'Sales pipeline')}
                       </Tabs.Trigger>
                       <Tabs.Trigger
                         value="pos"
                         className="flex-1 cursor-pointer font-normal w-[50%] gap-1.5 data-[state=active]:bg-background bg-background data-[state=active]:shadow after:content-none after:border-none after:shadow-none after:bg-transparent"
                       >
                         <IconShoppingCart size={15} />
-                        {t('pos-order')}
+                        {t('pos-order', 'POS Order')}
                       </Tabs.Trigger>
                     </Tabs.List>
                   </Tabs>
@@ -209,7 +209,7 @@ export const GiveScoreModal = ({
                         onClick={() => setDealSheetOpen(true)}
                         className="text-xs text-primary hover:underline shrink-0 ml-2"
                       >
-                        {t('change')}
+                        {t('change', 'Change')}
                       </button>
                     </div>
                   )}
@@ -221,11 +221,11 @@ export const GiveScoreModal = ({
                 name="campaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('score-campaign')}</Form.Label>
+                    <Form.Label>{t('score-campaign', 'Score Campaign')}</Form.Label>
                     <SelectScoreCampaignFormItem
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder={t('choose-score-campaign')}
+                      placeholder={t('choose-score-campaign', 'Choose score campaign (optional)')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -236,12 +236,12 @@ export const GiveScoreModal = ({
                 control={form.control}
                 name="change"
                 rules={{
-                  required: t('score-required'),
-                  validate: (v) => Number(v) !== 0 || t('score-cannot-be-zero'),
+                  required: t('score-required', 'Score is required'),
+                  validate: (v) => Number(v) !== 0 || t('score-cannot-be-zero', 'Score cannot be zero'),
                 }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('score-label')}</Form.Label>
+                    <Form.Label>{t('score-label', 'Score *')}</Form.Label>
                     <Form.Control>
                       <Input
                         type="number"
@@ -265,7 +265,7 @@ export const GiveScoreModal = ({
                 name="description"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('description')}</Form.Label>
+                    <Form.Label>{t('description', 'Description')}</Form.Label>
                     <Form.Control>
                       <Input {...field} placeholder="manual" />
                     </Form.Control>
@@ -280,10 +280,10 @@ export const GiveScoreModal = ({
                   variant="outline"
                   onClick={() => handleOpenChange(false)}
                 >
-                  {t('close')}
+                  {t('close', 'Close')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('creating') : t('save')}
+                  {loading ? t('creating', 'Creating...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

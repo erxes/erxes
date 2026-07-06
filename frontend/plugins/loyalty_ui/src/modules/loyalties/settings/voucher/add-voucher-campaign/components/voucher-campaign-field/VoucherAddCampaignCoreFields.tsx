@@ -22,9 +22,9 @@ export const VoucherAddCampaignCoreFields: React.FC<
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('title')}</Form.Label>
+              <Form.Label>{t('title', 'Title')}</Form.Label>
               <Form.Control>
-                <Input placeholder={t('enter-voucher-title')} {...field} />
+                <Input placeholder={t('enter-voucher-title', 'Enter voucher title')} {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -35,14 +35,14 @@ export const VoucherAddCampaignCoreFields: React.FC<
           name="type"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('type')}</Form.Label>
+              <Form.Label>{t('type', 'Type')}</Form.Label>
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
                     className={field.value ? '' : 'text-muted-foreground'}
                   >
                     {VOUCHER_TYPES.find((type) => type.value === field.value)
-                      ?.label || t('select-voucher-type')}
+                      ?.label || t('select-voucher-type', 'Select voucher type')}
                   </Select.Trigger>
                   <Select.Content>
                     {VOUCHER_TYPES.map((option) => (
@@ -62,11 +62,11 @@ export const VoucherAddCampaignCoreFields: React.FC<
           name="value"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('count')}</Form.Label>
+              <Form.Label>{t('count', 'Count')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder={t('enter-count')}
+                  placeholder={t('enter-count', 'Enter count')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
@@ -88,11 +88,11 @@ export const VoucherAddCampaignCoreFields: React.FC<
           name="buyScore"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('buy-score')}</Form.Label>
+              <Form.Label>{t('buy-score', 'Buy Score')}</Form.Label>
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder={t('enter-voucher-buy-score')}
+                  placeholder={t('enter-voucher-buy-score', 'Enter voucher buy score')}
                   {...field}
                 />
               </Form.Control>
@@ -105,7 +105,7 @@ export const VoucherAddCampaignCoreFields: React.FC<
           name="kind"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('kind')}</Form.Label>
+              <Form.Label>{t('kind', 'Kind')}</Form.Label>
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
@@ -113,7 +113,7 @@ export const VoucherAddCampaignCoreFields: React.FC<
                   >
                     {VOUCHER_KIND_TYPES.find(
                       (type) => type.value === field.value,
-                    )?.label || t('select-kind')}
+                    )?.label || t('select-kind', 'Select kind')}
                   </Select.Trigger>
                   <Select.Content>
                     {VOUCHER_KIND_TYPES.map((option) => (

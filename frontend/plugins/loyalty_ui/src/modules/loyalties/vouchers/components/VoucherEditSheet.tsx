@@ -82,7 +82,7 @@ export const VoucherEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>{t('edit-voucher')}</Sheet.Title>
+          <Sheet.Title>{t('edit-voucher', 'Edit Voucher')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -96,11 +96,11 @@ export const VoucherEditSheet = ({
                 name="campaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('campaign')}</Form.Label>
+                    <Form.Label>{t('campaign', 'Campaign')}</Form.Label>
                     <SelectVoucherCampaign
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder={t('choose-voucher-campaign')}
+                      placeholder={t('choose-voucher-campaign', 'Choose voucher campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -112,7 +112,7 @@ export const VoucherEditSheet = ({
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-type')}</Form.Label>
+                    <Form.Label>{t('owner-type', 'Owner Type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -125,11 +125,11 @@ export const VoucherEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">{t('customer')}</Select.Item>
-                          <Select.Item value="company">{t('company')}</Select.Item>
-                          <Select.Item value="user">{t('team-members')}</Select.Item>
+                          <Select.Item value="customer">{t('customer', 'Customer')}</Select.Item>
+                          <Select.Item value="company">{t('company', 'Company')}</Select.Item>
+                          <Select.Item value="user">{t('team-members', 'Team Members')}</Select.Item>
                           <Select.Item value="cpUser">
-                            {t('cp-user')}
+                            {t('cp-user', 'Client Portal User')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -144,7 +144,7 @@ export const VoucherEditSheet = ({
                 name="ownerId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-label')}</Form.Label>
+                    <Form.Label>{t('owner-label', 'Owner *')}</Form.Label>
                     <Form.Control>
                       {ownerType === 'company' ? (
                         <SelectCompany
@@ -178,7 +178,7 @@ export const VoucherEditSheet = ({
                 name="status"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('status-label')}</Form.Label>
+                    <Form.Label>{t('status-label', 'Status *')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -188,8 +188,8 @@ export const VoucherEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="new">{t('new')}</Select.Item>
-                          <Select.Item value="used">{t('used')}</Select.Item>
+                          <Select.Item value="new">{t('new', 'New')}</Select.Item>
+                          <Select.Item value="used">{t('used', 'Used')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -204,10 +204,10 @@ export const VoucherEditSheet = ({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  {t('close')}
+                  {t('close', 'Close')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('saving') : t('save')}
+                  {loading ? t('saving', 'Saving...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

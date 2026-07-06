@@ -58,10 +58,10 @@ export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-lotteries-yet')}
+                {t('no-lotteries-yet', 'No lotteries yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('get-started-lottery')}
+                {t('get-started-lottery', 'Get started by creating your first lottery.')}
               </p>
             </div>
           </div>

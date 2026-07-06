@@ -73,7 +73,7 @@ export const PricingFilterBar = ({
   return (
     <>
       <Filter.BarItem queryKey="status">
-        <Filter.BarName>{t('status')}</Filter.BarName>
+        <Filter.BarName>{t('status', 'Status')}</Filter.BarName>
         <Filter.BarButton filterKey="status">{displayStatus}</Filter.BarButton>
       </Filter.BarItem>
 
@@ -81,7 +81,7 @@ export const PricingFilterBar = ({
         <SelectBranches.FilterBar
           mode="single"
           filterKey="branchId"
-          label={t('branch')}
+          label={t('branch', 'Branch')}
         />
       )}
 
@@ -89,17 +89,17 @@ export const PricingFilterBar = ({
         <SelectDepartments.FilterBar
           mode="single"
           filterKey="departmentId"
-          label={t('department')}
+          label={t('department', 'Department')}
         />
       )}
 
       {productId && (
-        <SelectProduct.FilterBar filterKey="productId" label={t('product')} />
+        <SelectProduct.FilterBar filterKey="productId" label={t('product', 'Product')} />
       )}
 
       {priority !== undefined && priority !== null && (
         <Filter.BarItem queryKey="priority">
-          <Filter.BarName>{t('priority')}</Filter.BarName>
+          <Filter.BarName>{t('priority', 'Priority')}</Filter.BarName>
           <Filter.BarButton filterKey="priority">
             {t(priorityLabelKey(priorityOption?.value))}
           </Filter.BarButton>
@@ -110,7 +110,7 @@ export const PricingFilterBar = ({
         <Filter.BarItem queryKey="date">
           <Filter.BarName>
             <IconCalendar size={16} />
-            {t('date')}
+            {t('date', 'Date')}
           </Filter.BarName>
           <Filter.BarButton filterKey="date">
             {formatDateTime(date as string)}
@@ -120,36 +120,36 @@ export const PricingFilterBar = ({
 
       {isQuantityEnabled === true && (
         <Filter.BarItem queryKey="isQuantityEnabled">
-          <Filter.BarName>{t('quantity-enabled')}</Filter.BarName>
+          <Filter.BarName>{t('quantity-enabled', 'Quantity Enabled')}</Filter.BarName>
           <Filter.BarButton filterKey="isQuantityEnabled">
-            {t('yes')}
+            {t('yes', 'Yes')}
           </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isPriceEnabled === true && (
         <Filter.BarItem queryKey="isPriceEnabled">
-          <Filter.BarName>{t('price-enabled')}</Filter.BarName>
+          <Filter.BarName>{t('price-enabled', 'Price Enabled')}</Filter.BarName>
           <Filter.BarButton filterKey="isPriceEnabled">
-            {t('yes')}
+            {t('yes', 'Yes')}
           </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isExpiryEnabled === true && (
         <Filter.BarItem queryKey="isExpiryEnabled">
-          <Filter.BarName>{t('expiry-enabled')}</Filter.BarName>
+          <Filter.BarName>{t('expiry-enabled', 'Expiry Enabled')}</Filter.BarName>
           <Filter.BarButton filterKey="isExpiryEnabled">
-            {t('yes')}
+            {t('yes', 'Yes')}
           </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isRepeatEnabled === true && (
         <Filter.BarItem queryKey="isRepeatEnabled">
-          <Filter.BarName>{t('repeat-enabled')}</Filter.BarName>
+          <Filter.BarName>{t('repeat-enabled', 'Repeat Enabled')}</Filter.BarName>
           <Filter.BarButton filterKey="isRepeatEnabled">
-            {t('yes')}
+            {t('yes', 'Yes')}
           </Filter.BarButton>
         </Filter.BarItem>
       )}
@@ -191,49 +191,49 @@ export const PricingFilterView = () => {
       <Filter.View>
         <Command>
           <Filter.CommandInput
-            placeholder={t('filter')}
+            placeholder={t('filter', 'Filter')}
             variant="secondary"
             className="bg-background"
           />
           <Command.List className="p-1">
             <Filter.Item value="status">
               <IconHierarchy size={16} />
-              {t('status')}
+              {t('status', 'Status')}
             </Filter.Item>
-            <SelectBranches.FilterItem value="branchId" label={t('branch')} />
+            <SelectBranches.FilterItem value="branchId" label={t('branch', 'Branch')} />
             <SelectDepartments.FilterItem
               value="departmentId"
-              label={t('department')}
+              label={t('department', 'Department')}
             />
             <Filter.Item value="productId">
               <IconShoppingCart size={16} />
-              {t('product')}
+              {t('product', 'Product')}
             </Filter.Item>
             <Command.Separator className="my-1" />
             <Filter.Item value="priority">
               <IconFilter size={16} />
-              {t('priority')}
+              {t('priority', 'Priority')}
             </Filter.Item>
             <Filter.Item value="date">
               <IconCalendar size={16} />
-              {t('date')}
+              {t('date', 'Date')}
             </Filter.Item>
             <Command.Separator className="my-1" />
             <BooleanFilterCheckbox
               filterKey="isQuantityEnabled"
-              label={t('quantity-enabled')}
+              label={t('quantity-enabled', 'Quantity Enabled')}
             />
             <BooleanFilterCheckbox
               filterKey="isPriceEnabled"
-              label={t('price-enabled')}
+              label={t('price-enabled', 'Price Enabled')}
             />
             <BooleanFilterCheckbox
               filterKey="isExpiryEnabled"
-              label={t('expiry-enabled')}
+              label={t('expiry-enabled', 'Expiry Enabled')}
             />
             <BooleanFilterCheckbox
               filterKey="isRepeatEnabled"
-              label={t('repeat-enabled')}
+              label={t('repeat-enabled', 'Repeat Enabled')}
             />
           </Command.List>
         </Command>
@@ -266,7 +266,7 @@ const StatusFilterContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-status')} />
+      <Command.Input placeholder={t('search-status', 'Search status')} />
       <Command.List>
         {STATUS_OPTIONS.map((option) => (
           <Command.Item
@@ -335,7 +335,7 @@ const DateFilterContent = () => {
             <TimeField
               value={selectedTime}
               onChange={onTimeChange}
-              aria-label={t('time')}
+              aria-label={t('time', 'Time')}
               className="flex-1"
             >
               <DateInput />
@@ -345,11 +345,11 @@ const DateFilterContent = () => {
       </div>
       <div className="flex gap-2 justify-end px-2 py-2 border-t">
         <Button variant="outline" size="sm" onClick={onCancel}>
-          {t('cancel')}
+          {t('cancel', 'Cancel')}
         </Button>
 
         <Button size="sm" onClick={onApply}>
-          {t('apply')}
+          {t('apply', 'Apply')}
         </Button>
       </div>
     </>
@@ -416,7 +416,7 @@ const PriorityFilterContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-priority')} />
+      <Command.Input placeholder={t('search-priority', 'Search priority')} />
       <Command.List>
         {PRICING_PRIORITY_OPTIONS.map((option) => (
           <Command.Item

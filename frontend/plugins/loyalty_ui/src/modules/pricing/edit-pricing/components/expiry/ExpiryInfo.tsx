@@ -20,12 +20,12 @@ export const ExpiryInfo = (props: ExpiryInfoProps) => {
   return (
     <PricingRuleInfo<ExpiryRuleConfig>
       {...props}
-      title={t('expiry')}
+      title={t('expiry', 'Expiry')}
       rulesKey="expiryRules"
       enabledKey="isExpiryEnabled"
-      successTitle={t('expiry-rules-updated')}
-      errorTitle={t('failed-to-update-expiry-rules')}
-      emptyMessage={<>{t('no-expiry-rules')}</>}
+      successTitle={t('expiry-rules-updated', 'Expiry rules updated')}
+      errorTitle={t('failed-to-update-expiry-rules', 'Failed to update expiry rules')}
+      emptyMessage={<>{t('no-expiry-rules', 'No expiry rules configured yet. Click "Add rule" to set up expiry conditions for this product.')}</>}
       RuleSheet={ExpiryRuleSheet}
     />
   );

@@ -114,7 +114,7 @@ export const SelectClientPortalUserFormItem = ({
           [u.firstName, u.lastName].filter(Boolean).join(' ') ||
           u.email ||
           u.phone ||
-          t('unnamed'),
+          t('unnamed', 'Unnamed'),
       })),
     [data?.getClientPortalUsers?.list, t],
   );
@@ -126,7 +126,7 @@ export const SelectClientPortalUserFormItem = ({
       <Form.Control>
         <SelectTrigger
           selected={selected}
-          placeholder={placeholder ?? t('choose-client-portal-user')}
+          placeholder={placeholder ?? t('choose-client-portal-user', 'Choose client portal user')}
           className={className}
         />
       </Form.Control>
@@ -135,10 +135,10 @@ export const SelectClientPortalUserFormItem = ({
           <Command.Input
             value={search}
             onValueChange={setSearch}
-            placeholder={t('search-cp-users')}
+            placeholder={t('search-cp-users', 'Search client portal users...')}
           />
           <Command.Empty>
-            {loading ? t('loading') : t('no-cp-users-found')}
+            {loading ? t('loading', 'Loading...') : t('no-cp-users-found', 'No client portal users found')}
           </Command.Empty>
           <Command.List>
             <OptionList

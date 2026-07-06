@@ -34,8 +34,8 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
     (data) => {
       if (!scoreDetail?._id) {
         toast({
-          title: t('error'),
-          description: t('score-campaign-id-not-found'),
+          title: t('error', 'Error'),
+          description: t('score-campaign-id-not-found', 'Score campaign ID not found'),
           variant: 'destructive',
         });
         return;
@@ -87,8 +87,8 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
         },
         onCompleted: () => {
           toast({
-            title: t('success'),
-            description: t('score-campaign-updated'),
+            title: t('success', 'Success'),
+            description: t('score-campaign-updated', 'Score campaign updated successfully'),
             variant: 'default',
           });
           setEditScoreId(null);
@@ -96,7 +96,7 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
         },
         onError: (e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -105,8 +105,8 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
     },
     () => {
       toast({
-        title: t('validation-error'),
-        description: t('fill-required-fields'),
+        title: t('validation-error', 'Validation Error'),
+        description: t('fill-required-fields', 'Please fill in all required fields'),
         variant: 'destructive',
       });
     },
@@ -137,14 +137,14 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
               onOpenChange(false);
             }}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={loading}
           >
-            {loading ? t('updating') : t('update')}
+            {loading ? t('updating', 'Updating...') : t('update', 'Update')}
           </Button>
         </Sheet.Footer>
       </form>

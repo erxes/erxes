@@ -21,9 +21,9 @@ export const CouponAddCampaignCoreFields: React.FC<
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('title')}</Form.Label>
+              <Form.Label>{t('title', 'Title')}</Form.Label>
               <Form.Control>
-                <Input placeholder={t('enter-coupon-title')} {...field} />
+                <Input placeholder={t('enter-coupon-title', 'Enter coupon title')} {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -34,7 +34,7 @@ export const CouponAddCampaignCoreFields: React.FC<
           name="count"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('count')}</Form.Label>
+              <Form.Label>{t('count', 'Count')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
@@ -56,11 +56,11 @@ export const CouponAddCampaignCoreFields: React.FC<
           name="buyScore"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('buy-score')}</Form.Label>
+              <Form.Label>{t('buy-score', 'Buy Score')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder={t('enter-coupon-buy-score')}
+                  placeholder={t('enter-coupon-buy-score', 'Enter coupon buy score')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
@@ -81,7 +81,7 @@ export const CouponAddCampaignCoreFields: React.FC<
           name="kind"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('kind')}</Form.Label>
+              <Form.Label>{t('kind', 'Kind')}</Form.Label>
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger
@@ -89,7 +89,7 @@ export const CouponAddCampaignCoreFields: React.FC<
                   >
                     {COUPON_KIND_TYPES.find(
                       (type) => type.value === field.value,
-                    )?.label || t('select-kind')}
+                    )?.label || t('select-kind', 'Select kind')}
                   </Select.Trigger>
                   <Select.Content>
                     {COUPON_KIND_TYPES.map((option) => (

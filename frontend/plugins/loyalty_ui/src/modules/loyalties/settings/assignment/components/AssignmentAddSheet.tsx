@@ -63,7 +63,7 @@ export const LoyaltyAssignmentAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-assignment-campaign')}
+          {t('add-assignment-campaign', 'Add assignment campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -74,7 +74,7 @@ export const LoyaltyAssignmentAddSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>{t('add-assignment-campaign')}</Sheet.Title>
+          <Sheet.Title>{t('add-assignment-campaign', 'Add assignment campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

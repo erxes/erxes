@@ -112,7 +112,7 @@ const SelectAttributionValue = ({
   if (attributionIds.length === 0) {
     return (
       <div className="text-muted-foreground">
-        {placeholder || t('select-attribution')}
+        {placeholder || t('select-attribution', 'Select attribution...')}
       </div>
     );
   }
@@ -128,7 +128,7 @@ const SelectAttributionValue = ({
           {attribution.details?.fullName ||
             attribution.username ||
             attribution.email ||
-            t('unknown')}
+            t('unknown', 'Unknown')}
         </div>
       ))}
     </div>
@@ -153,7 +153,7 @@ const SelectAttributionCommandItem = ({
       <Combobox.Check checked={attributionIds.includes(attribution._id)} />
       <div className="ml-2">
         <div className="font-medium">
-          {attribution.details?.fullName || attribution.username || t('unknown')}
+          {attribution.details?.fullName || attribution.username || t('unknown', 'Unknown')}
         </div>
         {attribution.email && (
           <div className="text-sm text-muted-foreground">
@@ -247,7 +247,7 @@ export const SelectAttributionFilterItem = ({
   return (
     <Filter.Item value={value || 'assignedTo'}>
       <IconUser />
-      {label || t('assigned-to')}
+      {label || t('assigned-to', 'Assigned To')}
     </Filter.Item>
   );
 };
@@ -310,7 +310,7 @@ export const SelectAttributionFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'assignedTo'}>
       <Filter.BarName>
         <IconUser />
-        {label ? label : !iconOnly && t('assigned-to') || ''}
+        {label ? label : !iconOnly && t('assigned-to', 'Assigned To') || ''}
       </Filter.BarName>
       <SelectAttributionProvider
         mode={mode}
@@ -458,7 +458,7 @@ export const SelectAttributionDetail = ({
             </Button>
           ) : (
             <Combobox.TriggerBase className="font-medium">
-              {t('add-owner')} <IconPlus />
+              {t('add-owner', 'Add Owner')} <IconPlus />
             </Combobox.TriggerBase>
           )}
         </Popover.Trigger>

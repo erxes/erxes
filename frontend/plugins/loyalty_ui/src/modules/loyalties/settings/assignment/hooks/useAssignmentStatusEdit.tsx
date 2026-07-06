@@ -29,15 +29,15 @@ export function useAssignmentStatusEdit() {
       },
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('assignment-status-updated'),
+          title: t('success', 'Success'),
+          description: t('assignment-status-updated', 'Assignment status updated successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

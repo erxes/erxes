@@ -46,14 +46,14 @@ const AttributionSelect = ({
           variant="link"
           className="h-auto p-0 text-primary text-sm font-normal"
         >
-          {t('attribution')} ▾
+          {t('attribution', 'Attribution')} ▾
         </Button>
       </Popover.Trigger>
       <Combobox.Content className="w-64">
         <Command>
-          <Command.Input placeholder={t('type-to-search')} />
+          <Command.Input placeholder={t('type-to-search', 'Type to search')} />
           <Command.List>
-            <Command.Group heading={t('attributions')}>
+            <Command.Group heading={t('attributions', 'Attributions')}>
               {attributes.map((attr) => (
                 <Command.Item
                   key={attr.value}
@@ -141,7 +141,7 @@ const FieldNameSection = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Form.Label>{t('field-name')}</Form.Label>
+      <Form.Label>{t('field-name', 'Field Name')}</Form.Label>
       <div className="flex gap-2">
         <button
           type="button"
@@ -151,7 +151,7 @@ const FieldNameSection = ({
             }`}
           onClick={() => setFieldTab('new')}
         >
-          {t('new')}
+          {t('new', 'New')}
         </button>
         <button
           type="button"
@@ -161,7 +161,7 @@ const FieldNameSection = ({
             }`}
           onClick={() => setFieldTab('exists')}
         >
-          {t('exists')}
+          {t('exists', 'Exists')}
         </button>
       </div>
 
@@ -178,7 +178,7 @@ const FieldNameSection = ({
                     lastNewFieldName.current = event.target.value;
                     field.onChange(event);
                   }}
-                  placeholder={t('enter-field-name')}
+                  placeholder={t('enter-field-name', 'Enter field name')}
                 />
               </Form.Control>
               <Form.Message />
@@ -199,7 +199,7 @@ const FieldNameSection = ({
                 }}
                 contentTypes={[`core:${ownerType}`]}
                 groupId={fieldGroupId}
-                placeholder={t('select-field')}
+                placeholder={t('select-field', 'Select field')}
               />
               <Form.Message />
             </Form.Item>
@@ -235,7 +235,7 @@ export const LoyaltyScoreAddMoreFields = ({
           }
           className="justify-between"
         >
-          <span>{t('sales-pipeline')}</span>
+          <span>{t('sales-pipeline', 'Sales pipeline')}</span>
           {selectedService === 'sales' && (
             <span
               role="button"
@@ -268,7 +268,7 @@ export const LoyaltyScoreAddMoreFields = ({
             })
           }
         >
-          {t('pos-order')}
+          {t('pos-order', 'POS Order')}
         </Button>
       </div>
 
@@ -281,9 +281,9 @@ export const LoyaltyScoreAddMoreFields = ({
       {selectedService && (
         <Tabs defaultValue="add" className="w-full">
           <Tabs.List>
-            <Tabs.Trigger value="add">{t('add')}</Tabs.Trigger>
-            <Tabs.Trigger value="subtract">{t('subtract')}</Tabs.Trigger>
-            <Tabs.Trigger value="set">{t('set')}</Tabs.Trigger>
+            <Tabs.Trigger value="add">{t('add', 'Add')}</Tabs.Trigger>
+            <Tabs.Trigger value="subtract">{t('subtract', 'Subtract')}</Tabs.Trigger>
+            <Tabs.Trigger value="set">{t('set', 'Set')}</Tabs.Trigger>
           </Tabs.List>
 
           <Tabs.Content value="add" className="pt-4">
@@ -294,7 +294,7 @@ export const LoyaltyScoreAddMoreFields = ({
                 render={({ field }) => (
                   <Form.Item>
                     <div className="flex items-center gap-2">
-                      <Form.Label>{t('score-value')}</Form.Label>
+                      <Form.Label>{t('score-value', 'Score Value')}</Form.Label>
                       <AttributionSelect
                         serviceName={selectedService}
                         onSelect={(val) =>
@@ -305,7 +305,7 @@ export const LoyaltyScoreAddMoreFields = ({
                     <Form.Control>
                       <Textarea
                         {...field}
-                        placeholder={t('enter-score-placeholder-add')}
+                        placeholder={t('enter-score-placeholder-add', 'Type a placeholder for add score')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -317,9 +317,9 @@ export const LoyaltyScoreAddMoreFields = ({
                 name="add.currencyRatio"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('currency-ratio')}</Form.Label>
+                    <Form.Label>{t('currency-ratio', 'Currency Ratio')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('enter-currency-ratio')} />
+                      <Input {...field} placeholder={t('enter-currency-ratio', 'Type a currency ratio')} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -336,7 +336,7 @@ export const LoyaltyScoreAddMoreFields = ({
                 render={({ field }) => (
                   <Form.Item>
                     <div className="flex items-center gap-2">
-                      <Form.Label>{t('score-value')}</Form.Label>
+                      <Form.Label>{t('score-value', 'Score Value')}</Form.Label>
                       <AttributionSelect
                         serviceName={selectedService}
                         onSelect={(val) =>
@@ -347,7 +347,7 @@ export const LoyaltyScoreAddMoreFields = ({
                     <Form.Control>
                       <Textarea
                         {...field}
-                        placeholder={t('enter-score-placeholder-subtract')}
+                        placeholder={t('enter-score-placeholder-subtract', 'Type a placeholder for subtract score')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -359,9 +359,9 @@ export const LoyaltyScoreAddMoreFields = ({
                 name="subtract.currencyRatio"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('currency-ratio')}</Form.Label>
+                    <Form.Label>{t('currency-ratio', 'Currency Ratio')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('enter-currency-ratio')} />
+                      <Input {...field} placeholder={t('enter-currency-ratio', 'Type a currency ratio')} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -380,7 +380,7 @@ export const LoyaltyScoreAddMoreFields = ({
                       />
                     </Form.Control>
                     <Form.Label className="mb-2">
-                      {t('only-client-portal-optional')}
+                      {t('only-client-portal-optional', 'Only Client Portal (optional)')}
                     </Form.Label>
                   </Form.Item>
                 )}
@@ -396,7 +396,7 @@ export const LoyaltyScoreAddMoreFields = ({
                 render={({ field }) => (
                   <Form.Item>
                     <div className="flex items-center gap-2">
-                      <Form.Label>{t('score-value')}</Form.Label>
+                      <Form.Label>{t('score-value', 'Score Value')}</Form.Label>
                       <AttributionSelect
                         serviceName={selectedService}
                         onSelect={(val) =>
@@ -407,7 +407,7 @@ export const LoyaltyScoreAddMoreFields = ({
                     <Form.Control>
                       <Textarea
                         {...field}
-                        placeholder={t('enter-score-placeholder-set')}
+                        placeholder={t('enter-score-placeholder-set', 'Type a placeholder for set score')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -419,9 +419,9 @@ export const LoyaltyScoreAddMoreFields = ({
                 name="set.currencyRatio"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('currency-ratio')}</Form.Label>
+                    <Form.Label>{t('currency-ratio', 'Currency Ratio')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('enter-currency-ratio')} />
+                      <Input {...field} placeholder={t('enter-currency-ratio', 'Type a currency ratio')} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -436,7 +436,7 @@ export const LoyaltyScoreAddMoreFields = ({
       {
         selectedService && (
           <div className="flex flex-col gap-2">
-            <Form.Label>{t('apply-score-to')}</Form.Label>
+            <Form.Label>{t('apply-score-to', 'Apply Score To')}</Form.Label>
             <div className="grid grid-cols-3 gap-4">
               {OWNER_TYPES.map(({ label, value }) => (
                 <Button
@@ -466,7 +466,7 @@ export const LoyaltyScoreAddMoreFields = ({
               name="fieldGroupId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('field-group')}</Form.Label>
+                  <Form.Label>{t('field-group', 'Field Group')}</Form.Label>
                   <SelectFieldGroup
                     value={field.value || ''}
                     onValueChange={field.onChange}
@@ -488,7 +488,7 @@ export const LoyaltyScoreAddMoreFields = ({
                     />
                   </Form.Control>
                   <Form.Label className="mb-2">
-                    {t('only-client-portal-optional')}
+                    {t('only-client-portal-optional', 'Only Client Portal (optional)')}
                   </Form.Label>
                 </Form.Item>
               )}

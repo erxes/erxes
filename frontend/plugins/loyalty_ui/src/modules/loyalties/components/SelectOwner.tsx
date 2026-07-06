@@ -29,8 +29,8 @@ const useOwnerParts = (ownerType?: string | null): OwnerParts => {
       Provider: SelectCompany.Provider,
       Content: SelectCompany.Content,
       Value: SelectCompany.Value,
-      label: t('company'),
-      placeholder: t('select-company'),
+      label: t('company', 'Company'),
+      placeholder: t('select-company', 'Select Company'),
     };
   }
   if (ownerType === 'user') {
@@ -38,16 +38,16 @@ const useOwnerParts = (ownerType?: string | null): OwnerParts => {
       Provider: SelectMember.Provider,
       Content: SelectMember.Content,
       Value: SelectMember.Value,
-      label: t('team-member'),
-      placeholder: t('select-team-member'),
+      label: t('team-member', 'Team Member'),
+      placeholder: t('select-team-member', 'Select Team Member'),
     };
   }
   return {
     Provider: SelectCustomer.Provider,
     Content: SelectCustomer.Content,
     Value: SelectCustomer.Value,
-    label: t('customer'),
-    placeholder: t('select-customer'),
+    label: t('customer', 'Customer'),
+    placeholder: t('select-customer', 'Select customer'),
   };
 };
 
@@ -73,7 +73,7 @@ const SelectOwnerFilterItem = ({ queryKey }: { queryKey: string }) => {
   return (
     <Filter.Item value={queryKey}>
       <IconUser />
-      {t('owner')}
+      {t('owner', 'Owner')}
     </Filter.Item>
   );
 };

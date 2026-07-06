@@ -19,14 +19,14 @@ export const useDeleteDonate = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('donation-deleted'),
+          title: t('success', 'Success'),
+          description: t('donation-deleted', 'Donation(s) deleted successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

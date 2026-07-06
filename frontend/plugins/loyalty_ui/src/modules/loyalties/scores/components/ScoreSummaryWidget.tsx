@@ -42,24 +42,24 @@ const ScoreStatCards = ({
       <div className="flex flex-col gap-2">
         <StatCard
           icon={<IconTrendingUp className="size-4 text-green-500" />}
-          label={t('total-point-earned')}
+          label={t('total-point-earned', 'Total Point Earned')}
           value={Number(earned).toLocaleString()}
         />
         <StatCard
           icon={<IconCoins className="size-4 text-blue-500" />}
-          label={t('points-balance')}
+          label={t('points-balance', 'Points Balance')}
           value={Number(balance).toLocaleString()}
         />
         <StatCard
           icon={<IconTrendingDown className="size-4 text-red-400" />}
-          label={t('total-point-redeemed')}
+          label={t('total-point-redeemed', 'Total Point Redeemed')}
           value={Number(redeemed).toLocaleString()}
         />
       </div>
       <Separator />
       <div className="flex flex-col gap-2">
         <SecondaryRow
-          label={t('redemption-rates')}
+          label={t('redemption-rates', 'Redemption Rates')}
           value={
             redemptionRate == null
               ? '—'
@@ -67,16 +67,16 @@ const ScoreStatCards = ({
           }
         />
         <SecondaryRow
-          label={t('active-loyalty-members')}
+          label={t('active-loyalty-members', 'Active Loyalty Members')}
           value={stats.activeLoyaltyMembers ?? '—'}
         />
         <SecondaryRow
-          label={t('monthly-active-users')}
+          label={t('monthly-active-users', 'Monthly Active Users')}
           value={stats.monthlyActiveUsers ?? '—'}
         />
         {stats.mostRedeemedProductCategory && (
           <SecondaryRow
-            label={t('top-redeemed-product-catalog')}
+            label={t('top-redeemed-product-catalog', 'Top Redeemed Product Catalog')}
             value={stats.mostRedeemedProductCategory}
           />
         )}
@@ -99,7 +99,7 @@ const ScoreSummaryPanelContent = () => {
             size="sm"
           >
             <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-            {t('summary')}
+            {t('summary', 'Summary')}
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content>
@@ -117,13 +117,13 @@ export const ScoreSummaryPanel = () => {
   return (
     <SideMenu value={open} onValueChange={setOpen}>
       <SideMenu.Content value="score-summary" className="data-[state=active]:w-96">
-        <SideMenu.Header Icon={IconChartHistogram} label={t('score-summary')} />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('score-summary', 'Score Summary')} />
         {open === 'score-summary' && <ScoreSummaryPanelContent />}
       </SideMenu.Content>
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="score-summary"
-          label={t('score-summary')}
+          label={t('score-summary', 'Score Summary')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>
@@ -157,7 +157,7 @@ export const ScoreSummaryWidget = ({
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background">
         <IconChartHistogram className="size-4 text-muted-foreground" />
-        <span className="font-medium text-primary">{t('score-summary')}</span>
+        <span className="font-medium text-primary">{t('score-summary', 'Score Summary')}</span>
         <Button
           variant="secondary"
           size="sm"
@@ -170,7 +170,7 @@ export const ScoreSummaryWidget = ({
           ) : (
             <IconRefresh className="size-4" />
           )}
-          {t('repair')}
+          {t('repair', 'Repair')}
         </Button>
       </div>
       <Separator />

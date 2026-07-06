@@ -29,14 +29,14 @@ export const useAssignmentEdit = () => {
     refetchQueries: [QUERY_ASSIGNMENT_CAMPAIGNS],
     onCompleted: () => {
       toast({
-        title: t('success'),
-        description: t('assignment-updated'),
+        title: t('success', 'Success'),
+        description: t('assignment-updated', 'Assignment campaign updated successfully'),
         variant: 'default',
       });
     },
     onError: (error) => {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       });

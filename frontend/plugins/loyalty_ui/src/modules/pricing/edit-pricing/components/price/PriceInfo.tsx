@@ -20,12 +20,12 @@ export function PriceInfo(props: PriceInfoProps) {
   return (
     <PricingRuleInfo<PriceRuleConfig>
       {...props}
-      title={t('price')}
+      title={t('price', 'Price')}
       rulesKey="priceRules"
       enabledKey="isPriceEnabled"
-      successTitle={t('price-rules-updated')}
-      errorTitle={t('failed-to-update-price-rules')}
-      emptyMessage={<>{t('no-price-rules')}</>}
+      successTitle={t('price-rules-updated', 'Price rules updated')}
+      errorTitle={t('failed-to-update-price-rules', 'Failed to update price rules')}
+      emptyMessage={<>{t('no-price-rules', 'No price rules yet. Click "Add rule" to add one.')}</>}
       RuleSheet={PriceRuleSheet}
     />
   );

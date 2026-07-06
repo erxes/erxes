@@ -43,7 +43,7 @@ export const SelectCouponCampaignFilterItem = () => {
   return (
     <Filter.Item value="couponCampaignId">
       <IconTag />
-      {t('campaign')}
+      {t('campaign', 'Campaign')}
     </Filter.Item>
   );
 };
@@ -61,8 +61,8 @@ export const SelectCouponCampaignFilterView = ({
   return (
     <Filter.View filterKey={queryKey}>
       <Command>
-        <Command.Input placeholder={t('search-campaigns')} />
-        <Command.Empty>{t('no-campaigns-found')}</Command.Empty>
+        <Command.Input placeholder={t('search-campaigns', 'Search campaigns...')} />
+        <Command.Empty>{t('no-campaigns-found', 'No campaigns found')}</Command.Empty>
         <Command.List>
           {options.map((opt) => (
             <Command.Item
@@ -94,17 +94,17 @@ export const SelectCouponCampaignFilterBar = () => {
     <Filter.BarItem queryKey="couponCampaignId">
       <Filter.BarName>
         <IconTag />
-        {t('campaign')}
+        {t('campaign', 'Campaign')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="couponCampaignId">
-            <span>{selected?.label || t('campaign')}</span>
+            <span>{selected?.label || t('campaign', 'Campaign')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
           <Command>
-            <Command.Input placeholder={t('search')} />
+            <Command.Input placeholder={t('search', 'Search...')} />
             <Command.List>
               {options.map((opt) => (
                 <Command.Item
@@ -151,14 +151,14 @@ export const SelectCouponCampaignFormItem = ({
           disabled={loading}
         >
           <span className={selected ? '' : 'text-muted-foreground'}>
-            {selected?.label || placeholder || t('choose-coupon-campaign')}
+            {selected?.label || placeholder || t('choose-coupon-campaign', 'Choose coupon campaign')}
           </span>
         </Combobox.Trigger>
       </Form.Control>
       <Combobox.Content>
         <Command>
-          <Command.Input placeholder={t('search-campaigns')} />
-          <Command.Empty>{t('no-campaigns-found')}</Command.Empty>
+          <Command.Input placeholder={t('search-campaigns', 'Search campaigns...')} />
+          <Command.Empty>{t('no-campaigns-found', 'No campaigns found')}</Command.Empty>
           <Command.List>
             {options.map((opt) => (
               <Command.Item

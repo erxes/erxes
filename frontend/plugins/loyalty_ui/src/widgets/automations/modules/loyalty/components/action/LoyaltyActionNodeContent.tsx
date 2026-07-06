@@ -42,8 +42,8 @@ export const LoyaltyActionNodeContent = ({
           <IconReceipt className="size-3.5" />
         </span>
         <span>
-          {t('issue-voucher-using')}{' '}
-          {voucherCampaignId ? t('voucher-campaign') : t('no-campaign-selected')}
+          {t('issue-voucher-using', 'Issue voucher using')}{' '}
+          {voucherCampaignId ? t('voucher-campaign', 'Voucher Campaign') : t('no-campaign-selected', 'No campaign selected')}
         </span>
       </div>
     );
@@ -59,8 +59,8 @@ export const LoyaltyActionNodeContent = ({
           <IconTicket className="size-3.5" />
         </span>
         <span>
-          {t('award-spin-using')}{' '}
-          {spinCampaignId ? t('spin-campaign') : t('no-campaign-selected')}
+          {t('award-spin-using', 'Award spin using')}{' '}
+          {spinCampaignId ? t('spin-campaign', 'Spin Campaign') : t('no-campaign-selected', 'No campaign selected')}
         </span>
       </div>
     );
@@ -87,8 +87,8 @@ export const LoyaltyActionNodeContent = ({
         <Icon className="size-3.5" />
       </span>
       <span>
-        {SCORE_ACTION_LABELS[action]} {t('using')}{' '}
-        {campaignId ? t('score-campaign') : t('no-campaign-selected')}
+        {SCORE_ACTION_LABELS[action]} {t('using', 'using')}{' '}
+        {campaignId ? t('score-campaign', 'Score Campaign') : t('no-campaign-selected', 'No campaign selected')}
       </span>
     </div>
   );

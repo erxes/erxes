@@ -26,14 +26,14 @@ export const useEditLottery = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('lottery-updated'),
+          title: t('success', 'Success'),
+          description: t('lottery-updated', 'Lottery updated successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

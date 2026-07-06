@@ -106,15 +106,15 @@ export const useAddScoreCampaign = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('score-campaign-created'),
+          title: t('success', 'Success'),
+          description: t('score-campaign-created', 'Score campaign created successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

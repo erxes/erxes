@@ -24,12 +24,16 @@ export const AgentMoreColumnCell = ({
 
     confirm({
       options: { confirmationValue },
-      message: t('delete-agent-confirm', { count: 1 }),
+      message: t(
+        'delete-agent-confirm',
+        'Are you sure you want to delete {{count}} agent(s)?',
+        { count: 1 },
+      ),
     }).then(() => {
       deleteAgent(agent._id).catch(() => {
         toast({
-          title: t('error'),
-          description: t('failed-to-delete-agent'),
+          title: t('error', 'Error'),
+          description: t('failed-to-delete-agent', 'Failed to delete agent'),
           variant: 'destructive',
         });
       });
@@ -38,8 +42,8 @@ export const AgentMoreColumnCell = ({
 
   return (
     <LoyaltyMoreActions
-      editLabel={t('edit')}
-      deleteLabel={t('delete')}
+      editLabel={t('edit', 'Edit')}
+      deleteLabel={t('delete', 'Delete')}
       deleteLoading={loading}
       onEdit={() => setEditOpen(true)}
       onDelete={handleDelete}

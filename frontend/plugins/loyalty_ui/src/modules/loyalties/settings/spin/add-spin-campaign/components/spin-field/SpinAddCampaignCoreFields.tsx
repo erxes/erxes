@@ -28,9 +28,9 @@ export const SpinAddCampaignCoreFields: React.FC<
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('title')}</Form.Label>
+              <Form.Label>{t('title', 'Title')}</Form.Label>
               <Form.Control>
-                <Input placeholder={t('enter-spin-title')} {...field} />
+                <Input placeholder={t('enter-spin-title', 'Enter spin title')} {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -41,11 +41,11 @@ export const SpinAddCampaignCoreFields: React.FC<
           name={`buyScore`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('buy-score')}</Form.Label>
+              <Form.Label>{t('buy-score', 'Buy Score')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder={t('enter-buy-score')}
+                  placeholder={t('enter-buy-score', 'Enter buy score')}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -66,9 +66,9 @@ export const SpinAddCampaignCoreFields: React.FC<
                   name={`awards.${index}.name`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('name')}</Form.Label>
+                      <Form.Label>{t('name', 'Name')}</Form.Label>
                       <Form.Control>
-                        <Input placeholder={t('enter-name')} {...field} />
+                        <Input placeholder={t('enter-name', 'Enter name')} {...field} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -79,7 +79,7 @@ export const SpinAddCampaignCoreFields: React.FC<
                   name={`awards.${index}.voucherCampaignId`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('voucher-campaign')}</Form.Label>
+                      <Form.Label>{t('voucher-campaign', 'Voucher Campaign')}</Form.Label>
                       <Form.Control>
                         <SelectVoucherCampaign
                           value={field.value || undefined}
@@ -95,11 +95,11 @@ export const SpinAddCampaignCoreFields: React.FC<
                   name={`awards.${index}.probability`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('probability')}</Form.Label>
+                      <Form.Label>{t('probability', 'Probability')}</Form.Label>
                       <Form.Control>
                         <Input
                           type="number"
-                          placeholder={t('probability')}
+                          placeholder={t('probability', 'Probability')}
                           {...field}
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
@@ -135,7 +135,7 @@ export const SpinAddCampaignCoreFields: React.FC<
           variant="secondary"
         >
           <IconPlus />
-          {t('add-level')}
+          {t('add-level', 'Add level')}
         </Button>
       </div>
     </div>

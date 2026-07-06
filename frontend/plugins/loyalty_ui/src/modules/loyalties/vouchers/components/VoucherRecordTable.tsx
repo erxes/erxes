@@ -59,10 +59,10 @@ export const VoucherRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-vouchers-yet')}
+                {t('no-vouchers-yet', 'No vouchers yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('get-started-voucher')}
+                {t('get-started-voucher', 'Get started by creating your first voucher.')}
               </p>
             </div>
           </div>

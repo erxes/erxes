@@ -15,16 +15,16 @@ export function PricingRecordTable() {
       <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
         <IconCoins size={64} stroke={1.5} className="text-muted-foreground" />
         <h2 className="text-lg font-semibold text-muted-foreground">
-          {t('no-pricing-yet')}
+          {t('no-pricing-yet', 'No pricing yet')}
         </h2>
         <p className="mb-4 text-md text-muted-foreground">
-          {t('get-started-pricing')}
+          {t('get-started-pricing', 'Add your first pricing to get started.')}
         </p>
         <PricingCreateSheet
           trigger={
             <Button variant="outline">
               <IconPlus />
-              {t('create-pricing')}
+              {t('create-pricing', 'Create Pricing')}
             </Button>
           }
         />

@@ -15,20 +15,20 @@ export const DeleteLottery = ({ lotteryIds }: { lotteryIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-lottery-confirm', { count: lotteryIds.length }),
+          message: t('delete-lottery-confirm', 'Are you sure you want to delete {{count}} selected lottery(s)?', { count: lotteryIds.length }),
         }).then(() => {
           removeLottery({
             variables: { _ids: lotteryIds },
           })
             .then(() => {
               toast({
-                title: t('lotteries-deleted', { count: lotteryIds.length }),
+                title: t('lotteries-deleted', '{{count}} lottery(s) deleted successfully', { count: lotteryIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -37,7 +37,7 @@ export const DeleteLottery = ({ lotteryIds }: { lotteryIds: string[] }) => {
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

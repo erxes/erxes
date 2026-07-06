@@ -23,14 +23,14 @@ export const useEditSpin = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('spin-updated'),
+          title: t('success', 'Success'),
+          description: t('spin-updated', 'Spin updated successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

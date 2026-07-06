@@ -38,9 +38,9 @@ export const LotteryAddCampaignCoreFields: React.FC<
         name="title"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('title')}</Form.Label>
+            <Form.Label>{t('title', 'Title')}</Form.Label>
             <Form.Control>
-              <Input placeholder={t('enter-lottery-title')} {...field} />
+              <Input placeholder={t('enter-lottery-title', 'Enter lottery title')} {...field} />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -51,11 +51,11 @@ export const LotteryAddCampaignCoreFields: React.FC<
         name={`buyScore`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('buy-score')}</Form.Label>
+            <Form.Label>{t('buy-score', 'Buy Score')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
-                placeholder={t('enter-buy-score')}
+                placeholder={t('enter-buy-score', 'Enter buy score')}
                 {...field}
                 onChange={(e) => field.onChange(Number(e.target.value))}
               />
@@ -66,11 +66,11 @@ export const LotteryAddCampaignCoreFields: React.FC<
       />
 
       <div className="space-y-4">
-        <Form.Label>{t('number-format')}</Form.Label>
+        <Form.Label>{t('number-format', 'Number Format')}</Form.Label>
         <div className="flex gap-2 items-center">
           <SelectFormatNumber.FormItem
             value={formatType}
-            placeholder={t('choose-allow-chars')}
+            placeholder={t('choose-allow-chars', 'Choose allow chars')}
             onValueChange={(value) => setFormatType(value)}
             className="w-62"
           />
@@ -96,7 +96,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
             disabled={!formatType}
           >
             <IconPlus />
-            {t('add-format')}
+            {t('add-format', 'Add format')}
           </Button>
         </div>
         <Form.Field
@@ -107,7 +107,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
               <Form.Control>
                 <Input
                   readOnly
-                  placeholder={t('format-preview')}
+                  placeholder={t('format-preview', 'Format preview')}
                   {...field}
                   value={field.value || ''}
                 />
@@ -127,9 +127,9 @@ export const LotteryAddCampaignCoreFields: React.FC<
                   name={`awards.${index}.name`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('name')}</Form.Label>
+                      <Form.Label>{t('name', 'Name')}</Form.Label>
                       <Form.Control>
-                        <Input placeholder={t('enter-name')} {...field} />
+                        <Input placeholder={t('enter-name', 'Enter name')} {...field} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -140,7 +140,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
                   name={`awards.${index}.voucherCampaignId`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('voucher-campaign')}</Form.Label>
+                      <Form.Label>{t('voucher-campaign', 'Voucher Campaign')}</Form.Label>
                       <Form.Control>
                         <SelectVoucherCampaign
                           value={field.value || undefined}
@@ -156,11 +156,11 @@ export const LotteryAddCampaignCoreFields: React.FC<
                   name={`awards.${index}.count`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('count')}</Form.Label>
+                      <Form.Label>{t('count', 'Count')}</Form.Label>
                       <Form.Control>
                         <Input
                           type="number"
-                          placeholder={t('count')}
+                          placeholder={t('count', 'Count')}
                           {...field}
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
@@ -197,7 +197,7 @@ export const LotteryAddCampaignCoreFields: React.FC<
           variant="secondary"
         >
           <IconPlus />
-          {t('add-level')}
+          {t('add-level', 'Add level')}
         </Button>
       </div>
     </div>

@@ -15,7 +15,7 @@ export function PricingCommandBar() {
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('selected-count', { count: selectedCount })}</CommandBar.Value>
+        <CommandBar.Value>{t('selected-count', '{{count}} selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         <PricingDelete pricingIds={selectedIds} />
       </CommandBar.Bar>

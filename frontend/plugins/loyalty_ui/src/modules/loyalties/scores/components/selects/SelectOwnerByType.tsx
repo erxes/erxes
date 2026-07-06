@@ -17,10 +17,10 @@ export const SelectOwnerByType = ({
 }: Props) => {
   const { t } = useTranslation('loyalty');
   const PLACEHOLDERS: Record<string, string> = {
-    customer: t('choose-customer'),
-    company: t('choose-company'),
-    user: t('choose-team-member'),
-    cpUser: t('choose-client-portal-user'),
+    customer: t('choose-customer', 'Choose customer'),
+    company: t('choose-company', 'Choose company'),
+    user: t('choose-team-member', 'Choose team member'),
+    cpUser: t('choose-client-portal-user', 'Choose client portal user'),
   };
   const resolvedPlaceholder = placeholder || PLACEHOLDERS[ownerType];
   const handleChange = (val: string | string[] | null) =>

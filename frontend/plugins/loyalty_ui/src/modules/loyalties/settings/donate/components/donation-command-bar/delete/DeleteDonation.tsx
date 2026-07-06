@@ -15,20 +15,20 @@ export const DeleteDonation = ({ donationIds }: { donationIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-donation-confirm', { count: donationIds.length }),
+          message: t('delete-donation-confirm', 'Are you sure you want to delete {{count}} selected donation(s)?', { count: donationIds.length }),
         }).then(() => {
           removeDonation({
             variables: { _ids: donationIds },
           })
             .then(() => {
               toast({
-                title: t('donations-deleted', { count: donationIds.length }),
+                title: t('donations-deleted', '{{count}} donation(s) deleted successfully', { count: donationIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -37,7 +37,7 @@ export const DeleteDonation = ({ donationIds }: { donationIds: string[] }) => {
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

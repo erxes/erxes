@@ -25,9 +25,9 @@ export function AddCouponCodeRuleForm({
           >
             <Tabs.List className="grid w-full grid-cols-2 border-0">
               <Tabs.Trigger className="" value="default">
-                {t('default')}
+                {t('default', 'Default')}
               </Tabs.Trigger>
-              <Tabs.Trigger value="static">{t('static')}</Tabs.Trigger>
+              <Tabs.Trigger value="static">{t('static', 'Static')}</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="default" className="mt-4">
               <CouponDefaultCodeRuleField form={form} />

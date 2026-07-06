@@ -73,22 +73,22 @@ const DealsList = ({
             htmlFor="deal-search"
             className="text-xs font-medium text-accent-foreground"
           >
-            {t('search-label')}
+            {t('search-label', 'Search')}
           </label>
           <Input
             id="deal-search"
-            placeholder={t('search-deals')}
+            placeholder={t('search-deals', 'Search deals...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium text-accent-foreground">{t('board')}</p>
+          <p className="text-xs font-medium text-accent-foreground">{t('board', 'Board')}</p>
           <SelectBoard value={boardId} onValueChange={handleBoardChange} />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium text-accent-foreground">{t('pipeline')}</p>
+          <p className="text-xs font-medium text-accent-foreground">{t('pipeline', 'Pipeline')}</p>
           <SelectPipeline
             value={pipelineId}
             boardId={boardId}
@@ -97,7 +97,7 @@ const DealsList = ({
           />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium text-accent-foreground">{t('stage')}</p>
+          <p className="text-xs font-medium text-accent-foreground">{t('stage', 'Stage')}</p>
           <SelectStage
             value={stageId}
             pipelineId={pipelineId}
@@ -107,8 +107,8 @@ const DealsList = ({
         </div>
         <div className="text-xs text-accent-foreground">
           {pipelineId || debouncedSearch
-            ? t('results-count', { count: deals.length })
-            : t('select-pipeline-to-see-deals')}
+            ? t('results-count', '{{count}} results', { count: deals.length })
+            : t('select-pipeline-to-see-deals', 'Select a pipeline to see deals')}
         </div>
       </div>
       <Separator />
@@ -118,7 +118,7 @@ const DealsList = ({
             <div className="flex gap-2 items-center px-2 h-8">
               <Spinner containerClassName="flex-none" />
               <span className="animate-pulse text-accent-foreground text-sm">
-                {t('loading-deals')}
+                {t('loading-deals', 'Loading deals...')}
               </span>
             </div>
           )}
@@ -171,7 +171,7 @@ const SelectedDeal = ({
   return (
   <ScrollArea className="h-full">
     <div className="flex flex-col gap-1 p-4">
-      <div className="px-3 mb-1 text-xs text-accent-foreground">{t('added')}</div>
+      <div className="px-3 mb-1 text-xs text-accent-foreground">{t('added', 'Added')}</div>
       {deal && (
         <Button
           variant="ghost"
@@ -217,7 +217,7 @@ export const ChooseDealSheet = ({
     <Sheet open={open} onOpenChange={handleOpenChange} modal>
       <Sheet.View className="sm:max-w-3xl p-0">
         <Sheet.Header className="px-6 py-4">
-          <Sheet.Title>{t('choose-deal')}</Sheet.Title>
+          <Sheet.Title>{t('choose-deal', 'Choose deal')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grid overflow-hidden grid-cols-2 p-0">
@@ -237,7 +237,7 @@ export const ChooseDealSheet = ({
             className="bg-border"
             onClick={() => handleOpenChange(false)}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

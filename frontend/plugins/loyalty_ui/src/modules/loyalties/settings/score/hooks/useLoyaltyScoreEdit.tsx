@@ -12,10 +12,10 @@ export const useLoyaltyScoreEdit = () => {
     editStatus({
       ...options,
       variables,
-      onCompleted: () => toast({ title: t('score-campaign-updated'), variant: 'success' }),
+      onCompleted: () => toast({ title: t('score-campaign-updated', 'Score campaign updated successfully'), variant: 'success' }),
       onError(error) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

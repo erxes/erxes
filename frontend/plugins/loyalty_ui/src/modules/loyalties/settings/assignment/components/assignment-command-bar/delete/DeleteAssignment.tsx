@@ -19,20 +19,20 @@ export const DeleteAssignment = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-assignment-confirm', { count: assignmentIds.length }),
+          message: t('delete-assignment-confirm', 'Are you sure you want to delete {{count}} selected assignment(s)?', { count: assignmentIds.length }),
         }).then(() => {
           removeAssignment({
             variables: { _ids: assignmentIds },
           })
             .then(() => {
               toast({
-                title: t('assignments-deleted', { count: assignmentIds.length }),
+                title: t('assignments-deleted', '{{count}} assignment(s) deleted successfully', { count: assignmentIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -41,7 +41,7 @@ export const DeleteAssignment = ({
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

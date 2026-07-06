@@ -51,7 +51,7 @@ export const AdjustScoreCampaignActionConfigForm = ({
           name="attribution"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('recipient')}</Form.Label>
+              <Form.Label>{t('recipient', 'Recipient')}</Form.Label>
               <PlaceholderInput
                 propertyType={targetType}
                 value={field.value}
@@ -76,11 +76,11 @@ export const AdjustScoreCampaignActionConfigForm = ({
           name="campaignId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('score-campaign')}</Form.Label>
+              <Form.Label>{t('score-campaign', 'Score Campaign')}</Form.Label>
               <SelectScoreCampaign.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={t('select-score-campaign')}
+                placeholder={t('select-score-campaign', 'Select score campaign')}
               />
               <Form.Message />
             </Form.Item>
@@ -92,7 +92,7 @@ export const AdjustScoreCampaignActionConfigForm = ({
           name="action"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('score-change')}</Form.Label>
+              <Form.Label>{t('score-change', 'Score change')}</Form.Label>
               <Form.Control>
                 <ToggleGroup
                   type="single"

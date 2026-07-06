@@ -76,36 +76,36 @@ const getTargetValidationError = (
         ? null
         : {
             field: 'productCategoryIds',
-            message: t('select-at-least-one-category'),
+            message: t('select-at-least-one-category', 'Select at least one category.'),
           };
     case 'product':
       return values.appliesProductIds.length
         ? null
         : {
             field: 'appliesProductIds',
-            message: t('select-at-least-one-product'),
+            message: t('select-at-least-one-product', 'Select at least one product.'),
           };
     case 'segment':
       return values.segmentId
         ? null
-        : { field: 'segmentId', message: t('select-a-segment') };
+        : { field: 'segmentId', message: t('select-a-segment', 'Select a segment.') };
     case 'vendor':
       return values.vendorCompanyIds.length
         ? null
         : {
             field: 'vendorCompanyIds',
-            message: t('select-at-least-one-vendor'),
+            message: t('select-at-least-one-vendor', 'Select at least one vendor.'),
           };
     case 'tag':
       return values.productTagIds.length
         ? null
-        : { field: 'productTagIds', message: t('select-at-least-one-tag') };
+        : { field: 'productTagIds', message: t('select-at-least-one-tag', 'Select at least one tag.') };
     case 'bundle':
       return values.bundleProductIds.length
         ? null
         : {
             field: 'bundleProductIds',
-            message: t('select-at-least-one-bundle-product'),
+            message: t('select-at-least-one-bundle-product', 'Select at least one bundle product.'),
           };
     default:
       return null;
@@ -172,11 +172,11 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
     if (!isDateRangeValid(values.startDate, values.endDate)) {
       form.setError('endDate', {
         type: 'validate',
-        message: t('end-date-after-start'),
+        message: t('end-date-after-start', 'End date must be after start date.'),
       });
       toast({
-        title: t('invalid-date-range'),
-        description: t('end-date-after-start'),
+        title: t('invalid-date-range', 'Invalid date range'),
+        description: t('end-date-after-start', 'End date must be after start date.'),
         variant: 'destructive',
       });
       return;
@@ -190,7 +190,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
         message: targetError.message,
       });
       toast({
-        title: t('missing-pricing-target'),
+        title: t('missing-pricing-target', 'Missing pricing target'),
         description: targetError.message,
         variant: 'destructive',
       });
@@ -254,15 +254,15 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       await createPricing(doc);
 
       toast({
-        title: t('pricing-created'),
-        description: t('pricing-created-desc'),
+        title: t('pricing-created', 'Pricing created'),
+        description: t('pricing-created-desc', 'New pricing has been created successfully.'),
       });
 
       handleOpenChange(false);
     } catch {
       toast({
-        title: t('failed-to-create-pricing'),
-        description: t('unexpected-error'),
+        title: t('failed-to-create-pricing', 'Failed to create pricing'),
+        description: t('unexpected-error', 'An unexpected error occurred.'),
         variant: 'destructive',
       });
     }
@@ -271,7 +271,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
   const defaultTrigger = (
     <Button>
       <IconPlus />
-      {t('create-pricing')}
+      {t('create-pricing', 'Create Pricing')}
     </Button>
   );
 
@@ -281,7 +281,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
       <Sheet.View className="flex-col h-full max-h-screen p-0 sm:max-w-md">
         <Sheet.Header className="px-5 shrink-0">
           <Sheet.Title className="text-lg font-bold">
-            {t('create-pricing')}
+            {t('create-pricing', 'Create Pricing')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -298,10 +298,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('name')} <span className="text-destructive">*</span>
+                      {t('name', 'Name')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
-                      <Input placeholder={t('enter-pricing-name')} {...field} />
+                      <Input placeholder={t('enter-pricing-name', 'Enter pricing name')} {...field} />
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -312,7 +312,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                 name="priority"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('priority')}</Form.Label>
+                    <Form.Label>{t('priority', 'Priority')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -343,11 +343,11 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   name="startDate"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('start-date')}</Form.Label>
+                      <Form.Label>{t('start-date', 'Start Date')}</Form.Label>
                       <Form.Control>
                         <DatePicker
                           value={parseDateValue(field.value)}
-                          placeholder={t('select-start-date')}
+                          placeholder={t('select-start-date', 'Select start date')}
                           onChange={(value) =>
                             field.onChange(
                               formatDateValue(
@@ -367,11 +367,11 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   name="endDate"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('end-date')}</Form.Label>
+                      <Form.Label>{t('end-date', 'End Date')}</Form.Label>
                       <Form.Control>
                         <DatePicker
                           value={parseDateValue(field.value)}
-                          placeholder={t('select-end-date')}
+                          placeholder={t('select-end-date', 'Select end date')}
                           onChange={(value) =>
                             field.onChange(
                               formatDateValue(
@@ -389,7 +389,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
 
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Form.Label className="mx-2">{t('more-info')}</Form.Label>
+                <Form.Label className="mx-2">{t('more-info', 'More Info')}</Form.Label>
                 <div className="flex-1 border-t" />
               </div>
 
@@ -398,33 +398,33 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                 name="appliesTo"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('applies-to')}</Form.Label>
+                    <Form.Label>{t('applies-to', 'APPLIES TO')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="bg-background">
-                          <Select.Value placeholder={t('select-target')} />
+                          <Select.Value placeholder={t('select-target', 'Select target')} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Item value="category">
-                            {t('specific-category')}
+                            {t('specific-category', 'Specific Category')}
                           </Select.Item>
                           <Select.Item value="product">
-                            {t('specific-product')}
+                            {t('specific-product', 'Specific Product')}
                           </Select.Item>
                           <Select.Item value="segment">
-                            {t('specific-segment')}
+                            {t('specific-segment', 'Specific Segment')}
                           </Select.Item>
                           <Select.Item value="vendor">
-                            {t('specific-vendor')}
+                            {t('specific-vendor', 'Specific Vendor')}
                           </Select.Item>
                           <Select.Item value="tag">
-                            {t('specific-tag')}
+                            {t('specific-tag', 'Specific Tag')}
                           </Select.Item>
                           <Select.Item value="bundle">
-                            {t('specific-bundle')}
+                            {t('specific-bundle', 'Specific Bundle')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -441,7 +441,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          {t('product-categories-label')}{' '}
+                          {t('product-categories-label', 'PRODUCT CATEGORIES')}{' '}
                           <span className="text-destructive">*</span>
                         </Form.Label>
                         <Form.Control>
@@ -465,7 +465,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     name="excludeCategoryIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('exclude-categories')}</Form.Label>
+                        <Form.Label>{t('exclude-categories', 'EXCLUDE CATEGORIES')}</Form.Label>
                         <Form.Control>
                           <SelectCategory
                             mode="multiple"
@@ -487,7 +487,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     name="excludeProductIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('exclude-products')}</Form.Label>
+                        <Form.Label>{t('exclude-products', 'EXCLUDE PRODUCTS')}</Form.Label>
                         <Form.Control>
                           <SelectProduct
                             mode="multiple"
@@ -513,7 +513,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('products-label')}{' '}
+                        {t('products-label', 'PRODUCTS')}{' '}
                         <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
@@ -540,7 +540,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('segment-label')}{' '}
+                        {t('segment-label', 'SEGMENT')}{' '}
                         <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
@@ -562,7 +562,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('vendors')}{' '}
+                        {t('vendors', 'VENDORS')}{' '}
                         <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
@@ -590,7 +590,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          {t('product-tags')}{' '}
+                          {t('product-tags', 'PRODUCT TAGS')}{' '}
                           <span className="text-destructive">*</span>
                         </Form.Label>
                         <Form.Control>
@@ -613,7 +613,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     name="excludeTagIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('exclude-tags')}</Form.Label>
+                        <Form.Label>{t('exclude-tags', 'EXCLUDE TAGS')}</Form.Label>
                         <Form.Control>
                           <SelectTags
                             tagType="sales:product"
@@ -634,7 +634,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                     name="excludeProductIds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('exclude-products')}</Form.Label>
+                        <Form.Label>{t('exclude-products', 'EXCLUDE PRODUCTS')}</Form.Label>
                         <Form.Control>
                           <SelectProduct
                             mode="multiple"
@@ -659,7 +659,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
-                        {t('products-to-bundle')}{' '}
+                        {t('products-to-bundle', 'PRODUCTS TO BUNDLE')}{' '}
                         <span className="text-destructive">*</span>
                       </Form.Label>
                       <Form.Control>
@@ -689,10 +689,10 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading || !isFormValid}>
-                {loading ? t('creating') : t('create')}
+                {loading ? t('creating', 'Creating...') : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

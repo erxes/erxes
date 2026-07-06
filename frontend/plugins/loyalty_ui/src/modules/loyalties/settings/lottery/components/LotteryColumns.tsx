@@ -21,7 +21,7 @@ export const lotteryColumns = (
     id: 'title',
     accessorKey: 'title',
     header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('title')} />
+      <RecordTable.InlineHead icon={IconTag} label={t('title', 'Title')} />
     ),
     cell: ({ cell }) => {
       return (

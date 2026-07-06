@@ -25,14 +25,14 @@ export const useEditVoucher = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('voucher-updated'),
+          title: t('success', 'Success'),
+          description: t('voucher-updated', 'Voucher updated successfully'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

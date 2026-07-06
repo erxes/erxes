@@ -40,20 +40,20 @@ export const VoucherMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: t('delete-voucher-single-confirm'),
+      message: t('delete-voucher-single-confirm', 'Are you sure you want to delete this voucher?'),
     }).then(() => {
       removeVoucher({
         variables: { _ids: [_id] },
       })
         .then(() => {
           toast({
-            title: t('vouchers-deleted', { count: 1 }),
+            title: t('vouchers-deleted', '{{count}} voucher(s) deleted successfully', { count: 1 }),
             variant: 'success',
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -74,10 +74,10 @@ export const VoucherMoreColumnCell = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="see-vouchers" onSelect={handleSeeVouchers}>
-              <IconTicket /> {t('see-vouchers')}
+              <IconTicket /> {t('see-vouchers', 'See vouchers')}
             </Command.Item>
             <Command.Item asChild>
               <Button
@@ -88,7 +88,7 @@ export const VoucherMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Button>
             </Command.Item>
           </Command.List>

@@ -50,10 +50,10 @@ export const CouponRecordTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconTicket size={48} className="text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-coupons-yet')}
+                {t('no-coupons-yet', 'No coupons yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 mb-4">
-                {t('get-started-coupon')}
+                {t('get-started-coupon', 'Get started by creating your first coupon.')}
               </p>
               <CouponAddModal />
             </div>

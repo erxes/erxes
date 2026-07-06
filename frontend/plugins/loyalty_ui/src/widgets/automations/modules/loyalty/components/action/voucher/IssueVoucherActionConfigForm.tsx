@@ -48,7 +48,7 @@ export const IssueVoucherActionConfigForm = ({
           name="attribution"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('recipient')}</Form.Label>
+              <Form.Label>{t('recipient', 'Recipient')}</Form.Label>
               <PlaceholderInput
                 propertyType={targetType}
                 value={field.value}
@@ -73,11 +73,11 @@ export const IssueVoucherActionConfigForm = ({
           name="voucherCampaignId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('voucher-campaign')}</Form.Label>
+              <Form.Label>{t('voucher-campaign', 'Voucher Campaign')}</Form.Label>
               <SelectVoucherCampaign.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={t('select-voucher-campaign')}
+                placeholder={t('select-voucher-campaign', 'Select voucher campaign')}
               />
               <Form.Message />
             </Form.Item>

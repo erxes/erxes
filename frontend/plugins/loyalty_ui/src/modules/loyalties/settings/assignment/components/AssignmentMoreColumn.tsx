@@ -40,20 +40,20 @@ export const AssignmentMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: t('delete-assignment-confirm', { count: 1 }),
+      message: t('delete-assignment-confirm', 'Are you sure you want to delete {{count}} selected assignment(s)?', { count: 1 }),
     }).then(() => {
       removeAssignment({
         variables: { _ids: [_id] },
       })
         .then(() => {
           toast({
-            title: t('assignments-deleted', { count: 1 }),
+            title: t('assignments-deleted', '{{count}} assignment(s) deleted successfully', { count: 1 }),
             variant: 'success',
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -74,10 +74,10 @@ export const AssignmentMoreColumnCell = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="see-assignments" onSelect={handleSeeAssignments}>
-              <IconTicket /> {t('see-assignments')}
+              <IconTicket /> {t('see-assignments', 'See assignments')}
             </Command.Item>
             <Command.Item asChild>
               <Button
@@ -88,7 +88,7 @@ export const AssignmentMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Button>
             </Command.Item>
           </Command.List>

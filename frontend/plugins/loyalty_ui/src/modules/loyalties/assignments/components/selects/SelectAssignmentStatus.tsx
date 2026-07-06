@@ -21,7 +21,7 @@ export const SelectAssignmentStatusFilterItem = () => {
   return (
     <Filter.Item value="assignmentStatus">
       <IconToggleLeft />
-      {t('status')}
+      {t('status', 'Status')}
     </Filter.Item>
   );
 };
@@ -64,12 +64,12 @@ export const SelectAssignmentStatusFilterBar = () => {
     <Filter.BarItem queryKey="assignmentStatus">
       <Filter.BarName>
         <IconToggleLeft />
-        {t('status')}
+        {t('status', 'Status')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="assignmentStatus">
-            <span>{selected ? t(selected.label) : t('status')}</span>
+            <span>{selected ? t(selected.label) : t('status', 'Status')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

@@ -43,7 +43,7 @@ const VoucherFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -56,7 +56,7 @@ const VoucherFilterPopover = () => {
                 <SelectStatus.FilterItem />
                 <Filter.Item value="date">
                   <IconCalendar />
-                  {t('date')}
+                  {t('date', 'Date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -115,7 +115,7 @@ export const VoucherFilter = () => {
         <Filter.BarItem queryKey="date">
           <Filter.BarName>
             <IconCalendar />
-            {t('date')}
+            {t('date', 'Date')}
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>

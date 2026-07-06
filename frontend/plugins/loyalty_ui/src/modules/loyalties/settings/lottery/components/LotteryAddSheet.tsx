@@ -64,7 +64,7 @@ export const LotteryAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-lottery-campaign')}
+          {t('add-lottery-campaign', 'Add lottery campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -75,7 +75,7 @@ export const LotteryAddSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>{t('add-lottery-campaign')}</Sheet.Title>
+          <Sheet.Title>{t('add-lottery-campaign', 'Add lottery campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

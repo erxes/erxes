@@ -48,9 +48,9 @@ export const LotteryRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-lotteries-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('no-lotteries-yet', 'No lotteries yet')}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    {t('get-started-lottery')}
+                    {t('get-started-lottery', 'Get started by creating your first lottery.')}
                   </p>
                 </div>
                 <LotteryAddSheet />

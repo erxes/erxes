@@ -129,7 +129,7 @@ const SelectLotteryCampaignCommandItem = ({
       <LotteryCampaignInline
         lotteryCampaigns={[lotteryCampaign]}
         lotteryCampaignId={lotteryCampaign._id}
-        placeholder={t('unnamed-campaign')}
+        placeholder={t('unnamed-campaign', 'Unnamed campaign')}
       />
       <Combobox.Check
         checked={lotteryCampaignId.includes(lotteryCampaign._id)}
@@ -161,7 +161,7 @@ const SelectLotteryCampaignContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder={t('search-lottery-campaigns')}
+        placeholder={t('search-lottery-campaigns', 'Search lottery campaigns...')}
         className="h-9"
       />
       <Command.List>
@@ -204,7 +204,7 @@ export const SelectLotteryCampaignFilterItem = () => {
   return (
     <Filter.Item value="lotteryCampaign">
       <IconTicket />
-      {t('lottery-campaign')}
+      {t('lottery-campaign', 'Lottery Campaign')}
     </Filter.Item>
   );
 };
@@ -261,7 +261,7 @@ export const SelectLotteryCampaignFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'lotteryCampaign'}>
       <Filter.BarName>
         <IconTicket />
-        {!iconOnly && t('lottery-campaign')}
+        {!iconOnly && t('lottery-campaign', 'Lottery Campaign')}
       </Filter.BarName>
 
       <SelectLotteryCampaignProvider

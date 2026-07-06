@@ -154,7 +154,7 @@ export const LoyaltyScoreEditSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>{t('edit-score-campaign')}</Sheet.Title>
+          <Sheet.Title>{t('edit-score-campaign', 'Edit score campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <EditScoreForm

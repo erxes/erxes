@@ -50,10 +50,10 @@ export const AssignmentRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    {t('no-assignments-yet')}
+                    {t('no-assignments-yet', 'No assignments yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    {t('get-started-assignment')}
+                    {t('get-started-assignment', 'Get started by creating your first assignment.')}
                   </p>
                 </div>
                 <LoyaltyAssignmentAddSheet />

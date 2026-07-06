@@ -47,7 +47,7 @@ export const ScoreDetailSheet = ({
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-xs text-destructive">
-          {error.message || t('failed-to-load-score-logs')}
+          {error.message || t('failed-to-load-score-logs', 'Failed to load score logs')}
         </div>
       );
     }
@@ -55,7 +55,7 @@ export const ScoreDetailSheet = ({
     if (logs.length === 0) {
       return (
         <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
-          {t('no-log-records-found')}
+          {t('no-log-records-found', 'No log records found')}
         </div>
       );
     }
@@ -75,7 +75,7 @@ export const ScoreDetailSheet = ({
         </RecordTable.Provider>
         {isTruncated && (
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            {t('showing-latest-entries', { count: SCORE_DETAIL_LIMIT })}
+            {t('showing-latest-entries', 'Showing the latest {{count}} entries.', { count: SCORE_DETAIL_LIMIT })}
           </p>
         )}
       </div>
@@ -89,7 +89,7 @@ export const ScoreDetailSheet = ({
           <div>
             <Sheet.Title>{ownerName || '—'}</Sheet.Title>
             <p className="text-xs text-muted-foreground mt-1 capitalize">
-              {record?.ownerType || ''} · {t('total-score-label')}{' '}
+              {record?.ownerType || ''} · {t('total-score-label', 'Total Score:')}{' '}
               <span className="font-semibold text-foreground">
                 {formatScore(record?.totalScore)}
               </span>

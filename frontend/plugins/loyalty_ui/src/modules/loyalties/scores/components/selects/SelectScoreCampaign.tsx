@@ -118,7 +118,7 @@ const SelectScoreCampaignValue = ({
   if (!selected) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-campaign')}
+        {placeholder || t('select-campaign', 'Select campaign')}
       </span>
     );
   }
@@ -140,10 +140,10 @@ const SelectScoreCampaignContent = () => {
       <Command.Input
         value={search}
         onValueChange={setSearch}
-        placeholder={t('search-campaigns')}
+        placeholder={t('search-campaigns', 'Search campaigns...')}
       />
       <Command.Empty>
-        {loading ? t('loading') : t('no-campaigns-found')}
+        {loading ? t('loading', 'Loading...') : t('no-campaigns-found', 'No campaigns found')}
       </Command.Empty>
       <Command.List>
         {options.map((opt) => (
@@ -166,7 +166,7 @@ export const SelectScoreCampaignFilterItem = () => {
   return (
     <Filter.Item value="scoreCampaignId">
       <IconTag />
-      {t('campaign')}
+      {t('campaign', 'Campaign')}
     </Filter.Item>
   );
 };
@@ -203,7 +203,7 @@ export const SelectScoreCampaignFilterBar = () => {
     <Filter.BarItem queryKey="scoreCampaignId">
       <Filter.BarName>
         <IconTag />
-        {t('campaign')}
+        {t('campaign', 'Campaign')}
       </Filter.BarName>
       <SelectScoreCampaignProvider
         value={value || ''}

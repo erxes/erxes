@@ -161,7 +161,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
       {!isEditing && (
         <Sheet.Trigger asChild>
           <Button type="button" variant="outline">
-            <IconPlus size={16} className="mr-2" /> {t('add-rule')}
+            <IconPlus size={16} className="mr-2" /> {t('add-rule', 'Add rule')}
           </Button>
         </Sheet.Trigger>
       )}
@@ -169,7 +169,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
       <Sheet.View className="flex-col h-full p-0 sm:max-w-xl">
         <Sheet.Header>
           <Sheet.Title>
-            {isEditing ? t('edit-repeat-rule') : t('add-repeat-rule')}
+            {isEditing ? t('edit-repeat-rule', 'Edit repeat rule') : t('add-repeat-rule', 'Add repeat rule')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -190,27 +190,27 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                   name="ruleType"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('rule-type')}</Form.Label>
+                      <Form.Label>{t('rule-type', 'Rule type')}</Form.Label>
                       <Form.Control>
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
                         >
                           <Select.Trigger className="w-full">
-                            <Select.Value placeholder={t('choose-rule-type')} />
+                            <Select.Value placeholder={t('choose-rule-type', 'Choose rule type')} />
                           </Select.Trigger>
                           <Select.Content>
                             <Select.Item value="everyDay">
-                              {t('every-day')}
+                              {t('every-day', 'Every Day')}
                             </Select.Item>
                             <Select.Item value="everyWeek">
-                              {t('every-week')}
+                              {t('every-week', 'Every Week')}
                             </Select.Item>
                             <Select.Item value="everyMonth">
-                              {t('every-month')}
+                              {t('every-month', 'Every Month')}
                             </Select.Item>
                             <Select.Item value="everyYear">
-                              {t('every-year')}
+                              {t('every-year', 'Every Year')}
                             </Select.Item>
                           </Select.Content>
                         </Select>
@@ -227,11 +227,11 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                       name="startDate"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('start-date')}</Form.Label>
+                          <Form.Label>{t('start-date', 'Start Date')}</Form.Label>
                           <Form.Control>
                             <DatePicker
                               value={parseDateValue(field.value)}
-                              placeholder={t('select-start-date')}
+                              placeholder={t('select-start-date', 'Select start date')}
                               onChange={(value) =>
                                 field.onChange(
                                   formatDateValue(
@@ -250,11 +250,11 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                       name="endDate"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('end-date')}</Form.Label>
+                          <Form.Label>{t('end-date', 'End Date')}</Form.Label>
                           <Form.Control>
                             <DatePicker
                               value={parseDateValue(field.value)}
-                              placeholder={t('select-end-date')}
+                              placeholder={t('select-end-date', 'Select end date')}
                               onChange={(value) =>
                                 field.onChange(
                                   formatDateValue(
@@ -277,7 +277,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                       name="startTime"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('start-time')}</Form.Label>
+                          <Form.Label>{t('start-time', 'Start Time')}</Form.Label>
                           <Form.Control>
                             <PricingTimeSelect
                               value={field.value || null}
@@ -295,7 +295,7 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                       name="endTime"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('end-time')}</Form.Label>
+                          <Form.Label>{t('end-time', 'End Time')}</Form.Label>
                           <Form.Control>
                             <PricingTimeSelect
                               value={field.value || null}
@@ -316,14 +316,14 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                     name="weekDay"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('rule-value')}</Form.Label>
+                        <Form.Label>{t('rule-value', 'Rule value')}</Form.Label>
                         <Form.Control>
                           <Select
                             value={field.value || ''}
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger className="w-full">
-                              <Select.Value placeholder={t('select-a-weekday')} />
+                              <Select.Value placeholder={t('select-a-weekday', 'Select a weekday')} />
                             </Select.Trigger>
                             <Select.Content>
                               {WEEK_DAYS.map((day) => (
@@ -345,14 +345,14 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
                     name="monthDay"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('rule-value')}</Form.Label>
+                        <Form.Label>{t('rule-value', 'Rule value')}</Form.Label>
                         <Form.Control>
                           <Select
                             value={field.value || ''}
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger className="w-full">
-                              <Select.Value placeholder={t('select-a-day')} />
+                              <Select.Value placeholder={t('select-a-day', 'Select a day')} />
                             </Select.Trigger>
                             <Select.Content>
                               {MONTH_DAYS.map((day) => (
@@ -372,9 +372,9 @@ export const RepeatRuleSheet: React.FC<RepeatRuleSheetProps> = ({
 
             <Sheet.Footer className="px-6 py-4 bg-background">
               <Button type="button" variant="outline" onClick={handleClose}>
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
-              <Button type="submit">{t('save')}</Button>
+              <Button type="submit">{t('save', 'Save')}</Button>
             </Sheet.Footer>
           </form>
         </Form>

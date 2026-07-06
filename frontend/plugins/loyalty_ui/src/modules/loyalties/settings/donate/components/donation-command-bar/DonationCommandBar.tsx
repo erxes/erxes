@@ -10,7 +10,7 @@ export const DonationCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {t('selected-count', { count: table.getFilteredSelectedRowModel().rows.length })}
+          {t('selected-count', '{{count}} selected', { count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <DeleteDonation

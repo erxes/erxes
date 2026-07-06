@@ -50,10 +50,10 @@ export const DonationRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    {t('no-donations-yet')}
+                    {t('no-donations-yet', 'No donations yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    {t('get-started-donation')}
+                    {t('get-started-donation', 'Get started by creating your first donation.')}
                   </p>
                 </div>
                 <LoyaltyDonationAddSheet />

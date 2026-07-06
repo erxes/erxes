@@ -26,8 +26,8 @@ const StatusContent = ({
   const { t } = useTranslation('loyalty');
   return (
   <Command>
-    <Command.Input placeholder={t('search')} />
-    <Command.Empty>{t('no-statuses-found')}</Command.Empty>
+    <Command.Input placeholder={t('search', 'Search...')} />
+    <Command.Empty>{t('no-statuses-found', 'No statuses found')}</Command.Empty>
     <Command.List>
       {OPTIONS.map((o) => (
         <Command.Item
@@ -49,7 +49,7 @@ const FilterItem = () => {
   return (
     <Filter.Item value="agentStatus">
       <IconCheck />
-      {t('status')}
+      {t('status', 'Status')}
     </Filter.Item>
   );
 };
@@ -80,12 +80,12 @@ const FilterBar = () => {
     <Filter.BarItem queryKey="agentStatus">
       <Filter.BarName>
         <IconCheck />
-        {t('status')}
+        {t('status', 'Status')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="agentStatus">
-            <span>{label ? t(label) : t('select-status')}</span>
+            <span>{label ? t(label) : t('select-status', 'Select status')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -119,7 +119,7 @@ const FormItem = ({
       <Form.Control>
         <Combobox.Trigger className="w-full shadow-xs">
           <span className={label ? '' : 'text-accent-foreground/80'}>
-            {label ? t(label) : placeholder || t('select-status')}
+            {label ? t(label) : placeholder || t('select-status', 'Select status')}
           </span>
         </Combobox.Trigger>
       </Form.Control>

@@ -25,7 +25,7 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
         name="lottery"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('lottery')}</Form.Label>
+            <Form.Label>{t('lottery', 'Lottery')}</Form.Label>
             <Form.Control>
               <Select onValueChange={field.onChange} value={field.value}>
                 <Select.Trigger
@@ -33,7 +33,7 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
                 >
                   {lotteryCampaigns.find(
                     (campaign: any) => campaign._id === field.value,
-                  )?.title || t('select-lottery')}
+                  )?.title || t('select-lottery', 'Select lottery')}
                 </Select.Trigger>
                 <Select.Content>
                   {lotteryCampaigns.map((campaign: any) => (
@@ -53,11 +53,11 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
         name="lotteryCount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('lottery-count')}</Form.Label>
+            <Form.Label>{t('lottery-count', 'Lottery Count')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
-                placeholder={t('enter-lottery-count')}
+                placeholder={t('enter-lottery-count', 'Enter Lottery Count')}
                 value={field.value ?? ''}
                 onChange={(e) =>
                   field.onChange(

@@ -197,12 +197,12 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       setHasChanges(false);
       toast({
         title: successTitle,
-        description: t('changes-saved'),
+        description: t('changes-saved', 'Changes have been saved successfully.'),
       });
     } catch {
       toast({
         title: errorTitle,
-        description: t('unexpected-error'),
+        description: t('unexpected-error', 'An unexpected error occurred.'),
         variant: 'destructive',
       });
     }
@@ -231,7 +231,7 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
           onClick={handleSaveAll}
           disabled={loading}
         >
-          {loading ? t('saving') : t('save-changes')}
+          {loading ? t('saving', 'Saving...') : t('save-changes', 'Save Changes')}
         </Button>
       ) : null,
     );
@@ -261,13 +261,13 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       ) : (
         <div className="space-y-2">
           <div className="flex flex-1 px-3 text-sm font-medium text-muted-foreground">
-            <div className="flex-1">{t('rule-type')}</div>
-            <div className="flex-1">{t('rule-value')}</div>
-            <div className="flex-1">{t('discount-type')}</div>
-            <div className="flex-1">{t('discount-value')}</div>
-            <div className="flex-1">{t('price-adjust-type')}</div>
-            <div className="flex-1">{t('price-adjust-factor')}</div>
-            <div className="w-20 text-center">{t('actions')}</div>
+            <div className="flex-1">{t('rule-type', 'Rule type')}</div>
+            <div className="flex-1">{t('rule-value', 'Rule value')}</div>
+            <div className="flex-1">{t('discount-type', 'Discount type')}</div>
+            <div className="flex-1">{t('discount-value', 'Discount value')}</div>
+            <div className="flex-1">{t('price-adjust-type', 'Price adjust type')}</div>
+            <div className="flex-1">{t('price-adjust-factor', 'Price adjust factor')}</div>
+            <div className="w-20 text-center">{t('actions', 'Actions')}</div>
           </div>
 
           {rules.map((rule) => (

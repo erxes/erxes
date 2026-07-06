@@ -48,10 +48,10 @@ export const AgentRecordTable = () => {
                 <IconUsers size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-agents-yet')}
+                {t('no-agents-yet', 'No agents yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('get-started-agent')}
+                {t('get-started-agent', 'Get started by creating your first agent.')}
               </p>
             </div>
           </div>

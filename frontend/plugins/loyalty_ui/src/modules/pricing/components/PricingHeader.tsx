@@ -37,7 +37,7 @@ export function PricingHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/loyalty/pricing">
                   <IconCoins />
-                  {t('pricing')}
+                  {t('pricing', 'Pricing')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

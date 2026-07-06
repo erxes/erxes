@@ -120,7 +120,7 @@ const SelectVoucherCampaignCommandItem = ({
     >
       <VoucherCampaignInline
         voucherCampaigns={[voucherCampaign]}
-        placeholder={t('unnamed-campaign')}
+        placeholder={t('unnamed-campaign', 'Unnamed campaign')}
       />
       <Combobox.Check
         checked={voucherCampaignId.includes(voucherCampaign._id)}
@@ -152,7 +152,7 @@ const SelectVoucherCampaignContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder={t('search-voucher-campaigns')}
+        placeholder={t('search-voucher-campaigns', 'Search voucher campaigns...')}
         className="h-9"
       />
       <Command.List>
@@ -195,7 +195,7 @@ export const SelectVoucherCampaignFilterItem = () => {
   return (
     <Filter.Item value="voucherCampaign">
       <IconReceipt />
-      {t('voucher-campaign')}
+      {t('voucher-campaign', 'Voucher Campaign')}
     </Filter.Item>
   );
 };
@@ -252,7 +252,7 @@ export const SelectVoucherCampaignFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'voucherCampaign'}>
       <Filter.BarName>
         <IconReceipt />
-        {!iconOnly && t('voucher-campaign')}
+        {!iconOnly && t('voucher-campaign', 'Voucher Campaign')}
       </Filter.BarName>
 
       <SelectVoucherCampaignProvider

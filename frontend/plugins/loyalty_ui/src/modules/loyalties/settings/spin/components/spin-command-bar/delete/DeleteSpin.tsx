@@ -15,20 +15,20 @@ export const DeleteSpin = ({ spinIds }: { spinIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-spin-confirm', { count: spinIds.length }),
+          message: t('delete-spin-confirm', 'Are you sure you want to delete {{count}} selected spin(s)?', { count: spinIds.length }),
         }).then(() => {
           removeSpin({
             variables: { _ids: spinIds },
           })
             .then(() => {
               toast({
-                title: t('spins-deleted', { count: spinIds.length }),
+                title: t('spins-deleted', '{{count}} spin(s) deleted successfully', { count: spinIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -37,7 +37,7 @@ export const DeleteSpin = ({ spinIds }: { spinIds: string[] }) => {
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

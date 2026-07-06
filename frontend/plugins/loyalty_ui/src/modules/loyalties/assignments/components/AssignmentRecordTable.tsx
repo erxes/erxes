@@ -50,10 +50,10 @@ export const AssignmentRecordTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconClipboardList size={48} className="text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-assignments-yet')}
+                {t('no-assignments-yet', 'No assignments yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 mb-4">
-                {t('get-started-assignment')}
+                {t('get-started-assignment', 'Get started by creating your first assignment.')}
               </p>
               <AssignmentAddModal />
             </div>

@@ -15,20 +15,20 @@ export const DeleteCoupon = ({ couponIds }: { couponIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: t('delete-coupon-confirm', { count: couponIds.length }),
+          message: t('delete-coupon-confirm', 'Are you sure you want to delete {{count}} selected coupon(s)?', { count: couponIds.length }),
         }).then(() => {
           removeCoupon({
             variables: { _ids: couponIds },
           })
             .then(() => {
               toast({
-                title: t('coupons-deleted', { count: couponIds.length }),
+                title: t('coupons-deleted', '{{count}} coupon(s) deleted successfully', { count: couponIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: t('error'),
+                title: t('error', 'Error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -37,7 +37,7 @@ export const DeleteCoupon = ({ couponIds }: { couponIds: string[] }) => {
       }
     >
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

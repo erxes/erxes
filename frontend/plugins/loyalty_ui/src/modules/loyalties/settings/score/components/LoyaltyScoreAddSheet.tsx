@@ -41,7 +41,7 @@ export const LoyaltyScoreAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-score-campaign')}
+          {t('add-score-campaign', 'Add score campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -61,7 +61,7 @@ export const LoyaltyScoreAddSheetHeader = () => {
   const { t } = useTranslation('loyalty');
   return (
     <Sheet.Header className="border-b gap-3">
-      <Sheet.Title>{t('create-loyalty-score')}</Sheet.Title> <Sheet.Close />
+      <Sheet.Title>{t('create-loyalty-score', 'Create Loyalty Score')}</Sheet.Title> <Sheet.Close />
     </Sheet.Header>
   );
 };

@@ -102,15 +102,15 @@ export const useAddVoucher = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('voucher-campaign-created'),
+          title: t('success', 'Success'),
+          description: t('voucher-campaign-created', 'Voucher campaign created successfully'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

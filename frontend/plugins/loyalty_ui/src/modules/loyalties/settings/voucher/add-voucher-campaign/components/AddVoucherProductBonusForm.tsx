@@ -20,7 +20,7 @@ export const AddVoucherProductBonusForm: React.FC<
         name="bonusProduct"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('bonus-product')}</Form.Label>
+            <Form.Label>{t('bonus-product', 'Bonus Product')}</Form.Label>
             <Form.Control>
               <SelectProduct
                 value={field.value}
@@ -38,11 +38,11 @@ export const AddVoucherProductBonusForm: React.FC<
         name="bonusCount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('bonus-count')}</Form.Label>
+            <Form.Label>{t('bonus-count', 'Bonus Count')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
-                placeholder={t('enter-bonus-count')}
+                placeholder={t('enter-bonus-count', 'Enter bonus count')}
                 value={field.value ?? ''}
                 onChange={(e) =>
                   field.onChange(

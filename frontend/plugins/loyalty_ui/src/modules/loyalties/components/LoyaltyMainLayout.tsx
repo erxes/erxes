@@ -26,7 +26,7 @@ export const LoyaltyMainLayout = ({
         <PageHeader className="p-3 mx-0">
           <PageHeader.Start>
             <IconAward className="size-4" />
-            <span className="font-medium">{t('loyalty-title')}</span>
+            <span className="font-medium">{t('loyalty-title', 'Loyalty')}</span>
           </PageHeader.Start>
           <PageHeader.End>
             <LoyaltyHeaderEnd />

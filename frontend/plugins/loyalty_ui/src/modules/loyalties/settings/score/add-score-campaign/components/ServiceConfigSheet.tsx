@@ -74,7 +74,7 @@ const MultiStageSelect = ({
           {selectedLabel ? (
             <p className="font-medium text-sm truncate">{selectedLabel}</p>
           ) : (
-            <span className="text-accent-foreground/80">{placeholder ?? t('select-stages')}</span>
+            <span className="text-accent-foreground/80">{placeholder ?? t('select-stages', 'Select stages...')}</span>
           )}
         </Combobox.Trigger>
       </Form.Control>
@@ -83,10 +83,10 @@ const MultiStageSelect = ({
           <Command.Input
             value={search}
             onValueChange={setSearch}
-            placeholder={t('search-stage')}
+            placeholder={t('search-stage', 'Search stage...')}
           />
           <Command.Empty>
-            {loading ? t('loading') : t('no-stages-found')}
+            {loading ? t('loading', 'Loading...') : t('no-stages-found', 'No stages found')}
           </Command.Empty>
           <Command.List>
             {searchStages.map((stage) => (
@@ -129,7 +129,7 @@ const CardBasedRuleRow = ({
           name={`additionalConfig.cardBasedRule.${index}.boardId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('board')}</Form.Label>
+              <Form.Label>{t('board', 'Board')}</Form.Label>
               <SelectBoard.FormItem
                 mode="single"
                 value={field.value || ''}
@@ -148,7 +148,7 @@ const CardBasedRuleRow = ({
                     [],
                   );
                 }}
-                placeholder={t('select-placeholder')}
+                placeholder={t('select-placeholder', 'Select...')}
               />
               <Form.Message />
             </Form.Item>
@@ -160,7 +160,7 @@ const CardBasedRuleRow = ({
           name={`additionalConfig.cardBasedRule.${index}.pipelineId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('pipeline')}</Form.Label>
+              <Form.Label>{t('pipeline', 'Pipeline')}</Form.Label>
               <SelectPipeline.FormItem
                 mode="single"
                 value={field.value || ''}
@@ -176,7 +176,7 @@ const CardBasedRuleRow = ({
                     [],
                   );
                 }}
-                placeholder={t('select-placeholder')}
+                placeholder={t('select-placeholder', 'Select...')}
               />
               <Form.Message />
             </Form.Item>
@@ -188,12 +188,12 @@ const CardBasedRuleRow = ({
           name={`additionalConfig.cardBasedRule.${index}.stageIds`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('stages')}</Form.Label>
+              <Form.Label>{t('stages', 'Stages')}</Form.Label>
               <MultiStageSelect
                 value={field.value || []}
                 pipelineId={pipelineId}
                 onValueChange={field.onChange}
-                placeholder={t('select-placeholder')}
+                placeholder={t('select-placeholder', 'Select...')}
               />
               <Form.Message />
             </Form.Item>
@@ -205,12 +205,12 @@ const CardBasedRuleRow = ({
           name={`additionalConfig.cardBasedRule.${index}.refundStageIds`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('refund-stages')}</Form.Label>
+              <Form.Label>{t('refund-stages', 'Refund Stages')}</Form.Label>
               <MultiStageSelect
                 value={field.value || []}
                 pipelineId={pipelineId}
                 onValueChange={field.onChange}
-                placeholder={t('select-placeholder')}
+                placeholder={t('select-placeholder', 'Select...')}
               />
               <Form.Message />
             </Form.Item>
@@ -250,7 +250,7 @@ export const ServiceConfigSheet = ({
     <Dialog open={open} onOpenChange={onOpenChange} modal>
       <Dialog.Content className="max-w-5xl h-[70vh] p-0 gap-0 flex flex-col">
         <Dialog.Header className="border-b py-4 px-8 flex flex-row items-center justify-between shrink-0">
-          <Dialog.Title>{t('service-configurations')}</Dialog.Title>
+          <Dialog.Title>{t('service-configurations', 'Service Configurations')}</Dialog.Title>
           <Dialog.Close asChild>
             <Button type="button" variant="ghost" size="icon">
               <IconX className="size-4" />
@@ -262,7 +262,7 @@ export const ServiceConfigSheet = ({
           <div className="p-5 flex flex-col gap-6">
             <div>
               <h3 className="text-base font-semibold text-primary mb-3">
-                {t('product-based-rule')}
+                {t('product-based-rule', 'Product based rule')}
               </h3>
               <Form.Field
                 control={form.control}
@@ -270,7 +270,7 @@ export const ServiceConfigSheet = ({
                 render={({ field }) => (
                   <Form.Item className="flex flex-row items-center gap-3">
                     <Form.Label className="mb-0 uppercase text-xs tracking-wide">
-                      {t('discount-check-optional')}
+                      {t('discount-check-optional', 'Discount Check (optional)')}
                     </Form.Label>
                     <Form.Control>
                       <Checkbox
@@ -285,7 +285,7 @@ export const ServiceConfigSheet = ({
 
             <div>
               <h3 className="text-base font-semibold text-primary mb-3">
-                {t('deal-based-rule')}
+                {t('deal-based-rule', 'Deal based rule')}
               </h3>
               <div className="flex flex-col gap-4">
                 {fields.map((fieldItem, index) => (
@@ -311,7 +311,7 @@ export const ServiceConfigSheet = ({
                   }
                 >
                   <IconPlus className="size-4" />
-                  {t('add')}
+                  {t('add', 'Add')}
                 </Button>
               </div>
             </div>

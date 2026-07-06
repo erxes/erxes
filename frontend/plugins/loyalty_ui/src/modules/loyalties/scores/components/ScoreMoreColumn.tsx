@@ -63,7 +63,7 @@ export const ScoreMoreColumnCell = ({
               disabled={!ownerId}
             >
               <IconListDetails size={14} />
-              {t('detail')}
+              {t('detail', 'Detail')}
             </Command.Item>
             <Command.Item
               value="see-profile"
@@ -71,7 +71,7 @@ export const ScoreMoreColumnCell = ({
               disabled={!ownerId}
             >
               <IconExternalLink size={14} />
-              {t('see-profile')}
+              {t('see-profile', 'See Profile')}
             </Command.Item>
           </Command.List>
         </Command>

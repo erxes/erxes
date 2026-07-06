@@ -118,7 +118,7 @@ const SelectSpinCampaignCommandItem = ({
       <SpinCampaignInline
         spinCampaigns={[spinCampaign]}
         spinCampaignId={spinCampaign._id}
-        placeholder={t('unnamed-campaign')}
+        placeholder={t('unnamed-campaign', 'Unnamed campaign')}
       />
       <Combobox.Check checked={spinCampaignId.includes(spinCampaign._id)} />
     </Command.Item>
@@ -148,7 +148,7 @@ const SelectSpinCampaignContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder={t('search-spin-campaigns')}
+        placeholder={t('search-spin-campaigns', 'Search spin campaigns...')}
         className="h-9"
       />
       <Command.List>
@@ -189,7 +189,7 @@ export const SelectSpinCampaignFilterItem = () => {
   return (
     <Filter.Item value="spinCampaign">
       <IconTicket />
-      {t('spin-campaign')}
+      {t('spin-campaign', 'Spin Campaign')}
     </Filter.Item>
   );
 };
@@ -246,7 +246,7 @@ export const SelectSpinCampaignFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'spinCampaign'}>
       <Filter.BarName>
         <IconTicket />
-        {!iconOnly && t('spin-campaign')}
+        {!iconOnly && t('spin-campaign', 'Spin Campaign')}
       </Filter.BarName>
 
       <SelectSpinCampaignProvider

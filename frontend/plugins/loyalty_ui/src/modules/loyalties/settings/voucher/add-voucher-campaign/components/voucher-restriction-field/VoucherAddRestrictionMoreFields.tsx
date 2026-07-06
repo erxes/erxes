@@ -21,7 +21,7 @@ export const VoucherAddRestrictionMoreFields: React.FC<
           name="productIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('product')}</Form.Label>
+              <Form.Label>{t('product', 'Product')}</Form.Label>
               <Form.Control>
                 <SelectProduct
                   mode="multiple"
@@ -40,7 +40,7 @@ export const VoucherAddRestrictionMoreFields: React.FC<
           name="tag"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('tag')}</Form.Label>
+              <Form.Label>{t('tag', 'Tag')}</Form.Label>
               <Form.Control>
                 <SelectTags
                   mode="multiple"
@@ -61,7 +61,7 @@ export const VoucherAddRestrictionMoreFields: React.FC<
           name="excludeProductIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('or-exclude-product')}</Form.Label>
+              <Form.Label>{t('or-exclude-product', 'Or Exclude Product')}</Form.Label>
               <Form.Control>
                 <SelectProduct
                   mode="multiple"
@@ -80,7 +80,7 @@ export const VoucherAddRestrictionMoreFields: React.FC<
           name="orExcludeTag"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('or-exclude-tag')}</Form.Label>
+              <Form.Label>{t('or-exclude-tag', 'Or Exclude Tag')}</Form.Label>
               <Form.Control>
                 <SelectTags
                   mode="multiple"

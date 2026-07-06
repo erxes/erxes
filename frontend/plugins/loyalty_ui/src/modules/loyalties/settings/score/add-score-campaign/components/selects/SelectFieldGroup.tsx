@@ -133,7 +133,7 @@ const SelectFieldGroupValue = ({
   if (!selectedFieldGroup) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-field-group')}
+        {placeholder || t('select-field-group', 'Select field group')}
       </span>
     );
   }
@@ -181,11 +181,11 @@ const SelectFieldGroupContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder={t('search-field-groups')} />
+        <Command.Input placeholder={t('search-field-groups', 'Search field groups')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
             <span className="text-muted-foreground">
-              {t('loading-field-groups')}
+              {t('loading-field-groups', 'Loading field groups...')}
             </span>
           </div>
         </Command.List>
@@ -195,9 +195,9 @@ const SelectFieldGroupContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-field-groups')} />
+      <Command.Input placeholder={t('search-field-groups', 'Search field groups')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-field-groups-found')}</span>
+        <span className="text-muted-foreground">{t('no-field-groups-found', 'No field groups found')}</span>
       </Command.Empty>
       <Command.List>
         {fieldGroupsArray.map((fieldGroup) => (
@@ -216,7 +216,7 @@ export const SelectFieldGroupFilterItem = () => {
   return (
     <Filter.Item value="fieldGroups">
       <IconComponents />
-      {t('field-groups')}
+      {t('field-groups', 'Field Groups')}
     </Filter.Item>
   );
 };
@@ -276,7 +276,7 @@ export const SelectFieldGroupFilterBar = ({
     <Filter.BarItem queryKey={'fieldGroups'}>
       <Filter.BarName>
         <IconComponents />
-        {t('field-groups')}
+        {t('field-groups', 'Field Groups')}
       </Filter.BarName>
       <SelectFieldGroupProvider
         mode={mode}

@@ -45,7 +45,7 @@ const LotteryCampaignInlineProvider = ({
       loading: false,
       lotteryCampaignId: normalizedLotteryCampaignId,
       placeholder: isUndefinedOrNull(placeholder)
-        ? t('select-lottery-campaigns')
+        ? t('select-lottery-campaigns', 'Select lottery campaigns')
         : placeholder,
       updateLotteryCampaigns:
         updateLotteryCampaigns || setCurrentLotteryCampaigns,
@@ -91,7 +91,7 @@ const LotteryCampaignInlineTitle = () => {
   if (!campaign) {
     return (
       <span className="text-muted-foreground">
-        {placeholder ?? t('no-campaign-selected')}
+        {placeholder ?? t('no-campaign-selected', 'No campaign selected')}
       </span>
     );
   }
@@ -99,7 +99,7 @@ const LotteryCampaignInlineTitle = () => {
   return (
     <Tooltip>
       <Tooltip.Trigger>
-        <TextOverflowTooltip value={campaign.title || t('untitled-campaign')} />
+        <TextOverflowTooltip value={campaign.title || t('untitled-campaign', 'Untitled Campaign')} />
       </Tooltip.Trigger>
       <Tooltip.Content>
         <p>{campaign.title}</p>

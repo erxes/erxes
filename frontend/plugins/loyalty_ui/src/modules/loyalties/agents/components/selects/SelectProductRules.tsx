@@ -48,17 +48,17 @@ export const SelectProductRules = ({
         <Combobox.Trigger className="w-full shadow-xs">
           {selectedNames || (
             <span className="text-accent-foreground/80">
-              {placeholder || t('choose-product-rule')}
+              {placeholder || t('choose-product-rule', 'Choose product rule')}
             </span>
           )}
         </Combobox.Trigger>
       </Form.Control>
       <Combobox.Content>
         <Command>
-          <Command.Input placeholder={t('search-rules')} />
+          <Command.Input placeholder={t('search-rules', 'Search rules...')} />
           <Command.Empty>
             <span className="text-muted-foreground">
-              {loading ? t('loading') : t('no-rules-found')}
+              {loading ? t('loading', 'Loading...') : t('no-rules-found', 'No rules found')}
             </span>
           </Command.Empty>
           <Command.List>

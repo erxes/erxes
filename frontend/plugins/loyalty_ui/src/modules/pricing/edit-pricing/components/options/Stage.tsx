@@ -62,13 +62,13 @@ export const Stage = ({ pricingId, pricingDetail }: StageProps) => {
         stageId: stageId || undefined,
       });
       toast({
-        title: t('stage-updated'),
-        description: t('changes-saved'),
+        title: t('stage-updated', 'Stage updated'),
+        description: t('changes-saved', 'Changes have been saved successfully.'),
       });
     } catch {
       toast({
-        title: t('failed-to-update-stage'),
-        description: t('unexpected-error'),
+        title: t('failed-to-update-stage', 'Failed to update stage'),
+        description: t('unexpected-error', 'An unexpected error occurred.'),
         variant: 'destructive',
       });
     }
@@ -78,31 +78,31 @@ export const Stage = ({ pricingId, pricingDetail }: StageProps) => {
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label>{t('board-caps')}</Label>
+          <Label>{t('board-caps', 'BOARD')}</Label>
           <SelectBoardFormItem
             value={boardId}
             onValueChange={handleBoardChange}
-            placeholder={t('choose-a-board')}
+            placeholder={t('choose-a-board', 'Choose a board')}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>{t('pipeline-caps')}</Label>
+          <Label>{t('pipeline-caps', 'PIPELINE')}</Label>
           <SelectPipelineFormItem
             value={pipelineId}
             onValueChange={handlePipelineChange}
             boardId={boardId}
-            placeholder={t('choose-a-pipeline')}
+            placeholder={t('choose-a-pipeline', 'Choose a pipeline')}
           />
         </div>
 
         <div className="space-y-2">
-          <Label>{t('stage-caps')}</Label>
+          <Label>{t('stage-caps', 'STAGE')}</Label>
           <SelectStageFormItem
             value={stageId}
             onValueChange={handleStageChange}
             pipelineId={pipelineId}
-            placeholder={t('choose-a-stage')}
+            placeholder={t('choose-a-stage', 'Choose a stage')}
           />
         </div>
       </div>
@@ -110,7 +110,7 @@ export const Stage = ({ pricingId, pricingDetail }: StageProps) => {
       {hasChanges && (
         <div className="flex justify-end pt-4 border-t">
           <Button onClick={handleSave} disabled={loading}>
-            {t('save-changes')}
+            {t('save-changes', 'Save Changes')}
           </Button>
         </div>
       )}

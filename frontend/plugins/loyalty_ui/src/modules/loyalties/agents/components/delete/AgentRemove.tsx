@@ -17,7 +17,11 @@ export const AgentRemove = ({ agentIds, rows }: AgentRemoveProps) => {
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-agent-confirm', { count: rows.length }),
+      message: t(
+        'delete-agent-confirm',
+        'Are you sure you want to delete {{count}} agent(s)?',
+        { count: rows.length },
+      ),
       options: {
         confirmationValue: 'delete',
       },
@@ -31,7 +35,7 @@ export const AgentRemove = ({ agentIds, rows }: AgentRemoveProps) => {
   return (
     <Button variant="ghost" size="sm" onClick={handleDelete} disabled={loading}>
       <IconTrash className="h-4 w-4" />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

@@ -86,7 +86,7 @@ export const firstLotteryColumns = (
     id: 'number',
     accessorKey: 'number',
     header: () => (
-      <RecordTable.InlineHead icon={IconHash} label={t('number')} />
+      <RecordTable.InlineHead icon={IconHash} label={t('number', 'Number')} />
     ),
     cell: ({ row }) => <NumberCell lottery={row.original} />,
     size: 300,
@@ -95,7 +95,7 @@ export const firstLotteryColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at', 'Created At')} />
     ),
     size: 100,
     cell: ({ row }) => <CreatedAtCell lottery={row.original} />,
@@ -104,7 +104,7 @@ export const firstLotteryColumns = (
     id: 'ownerType',
     accessorKey: 'ownerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type', 'Owner Type')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -123,7 +123,7 @@ export const secondLotteryColumns = (
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner', 'Owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -134,7 +134,7 @@ export const secondLotteryColumns = (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status', 'Status')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

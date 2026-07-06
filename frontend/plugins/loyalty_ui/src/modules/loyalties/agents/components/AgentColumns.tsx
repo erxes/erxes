@@ -38,7 +38,7 @@ const ProductRulesCell = ({ agent }: { agent: IAgent }) => {
   return (
     <RecordTableInlineCell>
       <span className="text-xs text-muted-foreground">
-        {t('rules-count', { count: rules.length })}
+        {t('rules-count', '{{count}} rule(s)', { count: rules.length })}
       </span>
     </RecordTableInlineCell>
   );
@@ -53,7 +53,7 @@ export const agentColumns = (
     id: 'number',
     accessorKey: 'number',
     header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('number')} />
+      <RecordTable.InlineHead icon={IconTag} label={t('number', 'Number')} />
     ),
     size: 150,
     cell: ({ row }) => <NumberCell agent={row.original} />,
@@ -62,7 +62,7 @@ export const agentColumns = (
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('status')} />
+      <RecordTable.InlineHead icon={IconTag} label={t('status', 'Status')} />
     ),
     size: 100,
     cell: ({ cell }) => {
@@ -77,7 +77,7 @@ export const agentColumns = (
     id: 'hasReturn',
     accessorKey: 'hasReturn',
     header: () => (
-      <RecordTable.InlineHead icon={IconRefresh} label={t('has-return')} />
+      <RecordTable.InlineHead icon={IconRefresh} label={t('has-return', 'Has Return')} />
     ),
     size: 100,
     cell: ({ cell }) => (
@@ -99,7 +99,7 @@ export const agentColumns = (
     id: 'productRules',
     accessorKey: 'rulesOfProducts',
     header: () => (
-      <RecordTable.InlineHead icon={IconBox} label={t('product-rules')} />
+      <RecordTable.InlineHead icon={IconBox} label={t('product-rules', 'Product Rules')} />
     ),
     cell: ({ row }) => <ProductRulesCell agent={row.original} />,
   },

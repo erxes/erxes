@@ -47,7 +47,7 @@ export const assignmentColumns = (
     id: 'campaign',
     accessorKey: 'campaign',
     header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('campaign')} />
+      <RecordTable.InlineHead icon={IconTag} label={t('campaign', 'Campaign')} />
     ),
     size: 180,
     cell: ({ row }) => (
@@ -60,7 +60,7 @@ export const assignmentColumns = (
     id: 'ownerId',
     accessorKey: 'ownerId',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label={t('owner-id')} />
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-id', 'Owner Id')} />
     ),
     size: 180,
     cell: ({ row }) => (
@@ -73,7 +73,7 @@ export const assignmentColumns = (
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status', 'Status')} />
     ),
     size: 100,
     cell: ({ cell }) => {
@@ -91,7 +91,7 @@ export const assignmentColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created At')} />
     ),
     size: 150,
     cell: ({ cell }) => (

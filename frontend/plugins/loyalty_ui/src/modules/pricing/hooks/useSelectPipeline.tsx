@@ -83,14 +83,14 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
 
   if (loading) {
     return (
-      <span className="text-accent-foreground/80">{t('loading-pipelines')}</span>
+      <span className="text-accent-foreground/80">{t('loading-pipelines', 'Loading pipelines...')}</span>
     );
   }
 
   if (!pipelines || pipelines.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-pipeline')}
+        {placeholder || t('select-pipeline', 'Select pipeline')}
       </span>
     );
   }
@@ -102,7 +102,7 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedPipeline) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-pipeline')}
+        {placeholder || t('select-pipeline', 'Select pipeline')}
       </span>
     );
   }
@@ -138,10 +138,10 @@ const SelectPipelineContent = () => {
   const { t } = useTranslation('loyalty');
   const { pipelines, boardId, loading } = useSelectPipelineContext();
   const emptyMessage = loading
-    ? t('loading-pipelines')
+    ? t('loading-pipelines', 'Loading pipelines...')
     : boardId
-    ? t('no-pipelines-found')
-    : t('board-not-selected');
+    ? t('no-pipelines-found', 'No pipelines found')
+    : t('board-not-selected', 'Board not selected');
   return (
     <Command>
       <Command.List>

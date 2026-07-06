@@ -80,7 +80,7 @@ const SelectScoreActionValue = ({
   if (!selected) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-action')}
+        {placeholder || t('select-action', 'Select action')}
       </span>
     );
   }
@@ -98,9 +98,9 @@ const SelectScoreActionContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-action')} />
+      <Command.Input placeholder={t('search-action', 'Search action...')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-action-found')}</span>
+        <span className="text-muted-foreground">{t('no-action-found', 'No action found')}</span>
       </Command.Empty>
       <Command.List>
         {ACTION_OPTIONS.map((opt) => (
@@ -123,7 +123,7 @@ export const SelectScoreActionFilterItem = () => {
   return (
     <Filter.Item value="scoreOrderType">
       <IconArrowsExchange />
-      {t('order-type')}
+      {t('order-type', 'Order Type')}
     </Filter.Item>
   );
 };
@@ -160,7 +160,7 @@ export const SelectScoreActionFilterBar = () => {
     <Filter.BarItem queryKey="scoreOrderType">
       <Filter.BarName>
         <IconArrowsExchange />
-        {t('order-type')}
+        {t('order-type', 'Order Type')}
       </Filter.BarName>
       <SelectScoreActionProvider
         value={value || ''}

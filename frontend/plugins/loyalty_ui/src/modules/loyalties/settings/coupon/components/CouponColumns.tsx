@@ -33,7 +33,7 @@ export const couponColumns = (
     id: 'title',
     accessorKey: 'title',
     header: () => (
-      <RecordTable.InlineHead icon={IconTag} label={t('title')} />
+      <RecordTable.InlineHead icon={IconTag} label={t('title', 'Title')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -51,7 +51,7 @@ export const couponColumns = (
     id: 'kind',
     accessorKey: 'kind',
     header: () => (
-      <RecordTable.InlineHead icon={IconTicket} label={t('type')} />
+      <RecordTable.InlineHead icon={IconTicket} label={t('type', 'Type')} />
     ),
     cell: ({ cell }) => {
       return (

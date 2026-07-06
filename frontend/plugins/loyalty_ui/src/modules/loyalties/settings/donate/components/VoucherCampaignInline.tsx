@@ -46,7 +46,7 @@ const VoucherCampaignInlineProvider = ({
       loading: false,
       voucherCampaignId: normalizedVoucherCampaignId,
       placeholder: isUndefinedOrNull(placeholder)
-        ? t('choose-voucher-campaign')
+        ? t('choose-voucher-campaign', 'Choose voucher campaign')
         : placeholder,
       updateVoucherCampaigns:
         updateVoucherCampaigns || setSelectedVoucherCampaigns,
@@ -121,7 +121,7 @@ const VoucherCampaignInlineTitle = () => {
     return (
       <TextOverflowTooltip
         value={voucherCampaigns
-          .map((c) => c.title || t('unnamed-campaign'))
+          .map((c) => c.title || t('unnamed-campaign', 'Unnamed campaign'))
           .join(', ')}
       />
     );
@@ -131,11 +131,11 @@ const VoucherCampaignInlineTitle = () => {
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <span>{t('voucher-campaigns-count', { count: voucherCampaigns.length })}</span>
+          <span>{t('voucher-campaigns-count', '{{count}} voucher campaigns', { count: voucherCampaigns.length })}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>
           {voucherCampaigns
-            .map((c) => c.title || t('unnamed-campaign'))
+            .map((c) => c.title || t('unnamed-campaign', 'Unnamed campaign'))
             .join(', ')}
         </Tooltip.Content>
       </Tooltip>

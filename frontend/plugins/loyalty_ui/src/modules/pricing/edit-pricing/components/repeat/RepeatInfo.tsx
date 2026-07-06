@@ -80,7 +80,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
 
   return (
     <div className="p-6 space-y-4">
-      <InfoCard title={t('repeat')}>
+      <InfoCard title={t('repeat', 'Repeat')}>
         <InfoCard.Content className="space-y-4">
           <div className="flex justify-end">
             <RepeatRuleSheet
@@ -93,7 +93,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
 
           {rules.length === 0 ? (
             <div className="py-6 text-sm text-center text-muted-foreground">
-              {t('no-repeat-rules')}
+              {t('no-repeat-rules', 'No repeat rules yet. Click "Add rule" to add one.')}
             </div>
           ) : (
             <div className="space-y-2">
@@ -108,7 +108,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
                     <Button
                       variant="outline"
                       size="icon"
-                      aria-label={t('edit-repeat-rule')}
+                      aria-label={t('edit-repeat-rule', 'Edit repeat rule')}
                       onClick={() => setEditingRule(rule)}
                     >
                       <IconEdit size={14} />
@@ -117,7 +117,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
                       variant="outline"
                       size="icon"
                       className="text-destructive"
-                      aria-label={t('delete-repeat-rule')}
+                      aria-label={t('delete-repeat-rule', 'Delete repeat rule')}
                       onClick={() => handleRuleDelete(rule)}
                     >
                       <IconTrash size={14} />

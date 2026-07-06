@@ -103,7 +103,7 @@ const SelectSortFieldValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-sort-field')}
+        {placeholder || t('select-sort-field', 'Select sort field')}
       </span>
     );
   }
@@ -146,9 +146,9 @@ const SelectSortFieldContent = () => {
   const { t } = useTranslation('loyalty');
   return (
     <Command>
-      <Command.Input placeholder={t('search-sort-fields')} />
+      <Command.Input placeholder={t('search-sort-fields', 'Search sort fields...')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-sort-fields-found')}</span>
+        <span className="text-muted-foreground">{t('no-sort-fields-found', 'No sort fields found')}</span>
       </Command.Empty>
       <Command.List>
         {SORT_FIELD_OPTIONS.map((option) => (
@@ -164,7 +164,7 @@ export const SelectSortFieldFilterItem = () => {
   return (
     <Filter.Item value="sortField">
       <IconSortAscending />
-      {t('sort-field')}
+      {t('sort-field', 'Sort Field')}
     </Filter.Item>
   );
 };
@@ -219,7 +219,7 @@ export const SelectSortFieldFilterBar = ({
     <Filter.BarItem queryKey={'sortField'}>
       <Filter.BarName>
         <IconSortAscending />
-        {!iconOnly && t('sort-field')}
+        {!iconOnly && t('sort-field', 'Sort Field')}
       </Filter.BarName>
       <SelectSortFieldProvider
         mode={mode}

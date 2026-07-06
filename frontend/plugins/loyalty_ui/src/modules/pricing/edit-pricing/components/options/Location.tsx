@@ -54,13 +54,13 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
         branchIds: values.branchIds,
       });
       toast({
-        title: t('location-updated'),
-        description: t('changes-saved'),
+        title: t('location-updated', 'Location updated'),
+        description: t('changes-saved', 'Changes have been saved successfully.'),
       });
     } catch {
       toast({
-        title: t('failed-to-update-location'),
-        description: t('unexpected-error'),
+        title: t('failed-to-update-location', 'Failed to update location'),
+        description: t('unexpected-error', 'An unexpected error occurred.'),
         variant: 'destructive',
       });
     }
@@ -79,7 +79,7 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
             name="branchIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('branches')}</Form.Label>
+                <Form.Label>{t('branches', 'Branches')}</Form.Label>
                 <Form.Control>
                   <SelectBranches.FormItem
                     mode="multiple"
@@ -95,7 +95,7 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
             name="departmentIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('departments')}</Form.Label>
+                <Form.Label>{t('departments', 'Departments')}</Form.Label>
                 <Form.Control>
                   <SelectDepartments.FormItem
                     mode="multiple"
@@ -111,7 +111,7 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
         {hasChanges && (
           <div className="flex justify-end pt-4 border-t">
             <Button type="submit" disabled={loading}>
-              {t('save-changes')}
+              {t('save-changes', 'Save Changes')}
             </Button>
           </div>
         )}

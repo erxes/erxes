@@ -15,7 +15,7 @@ export const DonateCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('selected-count', { count: selectedRows.length })}</CommandBar.Value>
+        <CommandBar.Value>{t('selected-count', '{{count}} selected', { count: selectedRows.length })}</CommandBar.Value>
         <Separator.Inline />
         <DonateRemove donateIds={donateIds} rows={selectedRows} />
       </CommandBar.Bar>

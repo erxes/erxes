@@ -40,7 +40,7 @@ export const AssignmentTabs = ({ onOpenChange, form }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -60,7 +60,7 @@ export const AssignmentTabs = ({ onOpenChange, form }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        {t('cancel')}
+        {t('cancel', 'Cancel')}
       </Button>
       <Button
         type="button"
@@ -68,7 +68,7 @@ export const AssignmentTabs = ({ onOpenChange, form }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? t('saving') : t('save')}
+        {editLoading ? t('saving', 'Saving...') : t('save', 'Save')}
       </Button>
     </Sheet.Footer>
   );

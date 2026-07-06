@@ -54,10 +54,10 @@ export const ScoreRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    {t('no-score-campaigns-yet')}
+                    {t('no-score-campaigns-yet', 'No score campaign yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    {t('get-started-score-campaign')}
+                    {t('get-started-score-campaign', 'Get started by creating your first score campaign.')}
                   </p>
                 </div>
                 <LoyaltyScoreAddSheet />

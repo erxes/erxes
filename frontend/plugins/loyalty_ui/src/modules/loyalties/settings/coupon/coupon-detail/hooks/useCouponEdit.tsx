@@ -24,15 +24,15 @@ export const useCouponEdit = (
     refetchQueries,
     onCompleted: () => {
       toast({
-        title: t('success'),
-        description: t('coupon-updated'),
+        title: t('success', 'Success'),
+        description: t('coupon-updated', 'Coupon updated successfully'),
         variant: 'default',
       });
       onCompleted?.();
     },
     onError: (error) => {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       });

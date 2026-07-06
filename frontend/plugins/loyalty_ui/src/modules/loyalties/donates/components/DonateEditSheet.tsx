@@ -111,7 +111,7 @@ export const DonateEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>{t('edit-donation')}</Sheet.Title>
+          <Sheet.Title>{t('edit-donation', 'Edit Donation')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -123,14 +123,14 @@ export const DonateEditSheet = ({
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: t('campaign-required') }}
+                rules={{ required: t('campaign-required', 'Campaign is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('campaign-label')}</Form.Label>
+                    <Form.Label>{t('campaign-label', 'Campaign *')}</Form.Label>
                     <SelectDonateCampaign.FormItem
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder={t('select-campaign')}
+                      placeholder={t('select-campaign', 'Select campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -142,7 +142,7 @@ export const DonateEditSheet = ({
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-type')}</Form.Label>
+                    <Form.Label>{t('owner-type', 'Owner Type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -155,9 +155,9 @@ export const DonateEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">{t('customer')}</Select.Item>
-                          <Select.Item value="company">{t('company')}</Select.Item>
-                          <Select.Item value="user">{t('user')}</Select.Item>
+                          <Select.Item value="customer">{t('customer', 'Customer')}</Select.Item>
+                          <Select.Item value="company">{t('company', 'Company')}</Select.Item>
+                          <Select.Item value="user">{t('user', 'User')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -169,10 +169,10 @@ export const DonateEditSheet = ({
               <Form.Field
                 control={form.control}
                 name="ownerId"
-                rules={{ required: t('owner-required') }}
+                rules={{ required: t('owner-required', 'Owner is required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('owner-label')}</Form.Label>
+                    <Form.Label>{t('owner-label', 'Owner *')}</Form.Label>
                     <Form.Control>
                       <DonateOwnerSelect
                         ownerType={ownerType}
@@ -190,12 +190,12 @@ export const DonateEditSheet = ({
                 name="donateScore"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('donate-score')}</Form.Label>
+                    <Form.Label>{t('donate-score', 'Donate Score')}</Form.Label>
                     <Form.Control>
                       <Input
                         type="number"
                         min={0}
-                        placeholder={t('enter-donate-score')}
+                        placeholder={t('enter-donate-score', 'Enter donate score')}
                         {...field}
                       />
                     </Form.Control>
@@ -210,10 +210,10 @@ export const DonateEditSheet = ({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? t('saving') : t('save')}
+                  {loading ? t('saving', 'Saving...') : t('save', 'Save')}
                 </Button>
               </div>
             </form>

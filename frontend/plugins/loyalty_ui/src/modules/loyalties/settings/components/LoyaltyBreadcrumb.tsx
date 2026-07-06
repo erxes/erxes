@@ -15,7 +15,7 @@ export const LoyaltyBreadcrumb = () => {
       <div className="flex items-center gap-2">
         <Button variant="ghost" className="font-semibold">
           <IconCashBanknote className="w-4 h-4 text-accent-foreground" />
-          {t('settings')}
+          {t('settings', 'Settings')}
         </Button>
         <Separator.Inline />
         <Button variant="ghost" className="font-semibold">

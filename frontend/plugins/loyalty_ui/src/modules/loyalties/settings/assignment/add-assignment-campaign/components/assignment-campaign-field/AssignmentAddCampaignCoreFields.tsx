@@ -21,9 +21,9 @@ export const AssignmentAddCampaignCoreFields: React.FC<
         name="title"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('title')}</Form.Label>
+            <Form.Label>{t('title', 'Title')}</Form.Label>
             <Form.Control>
-              <Input placeholder={t('enter-assignment-title')} {...field} />
+              <Input placeholder={t('enter-assignment-title', 'Enter assignment title')} {...field} />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -35,7 +35,7 @@ export const AssignmentAddCampaignCoreFields: React.FC<
         name="segmentIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('segment')}</Form.Label>
+            <Form.Label>{t('segment', 'Segment')}</Form.Label>
             <SelectSegment
               value={field.value?.[0] || ''}
               onValueChange={(id) => field.onChange(id ? [id] : [])}
@@ -49,7 +49,7 @@ export const AssignmentAddCampaignCoreFields: React.FC<
         name="voucherCampaignId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('voucher-campaign')}</Form.Label>
+            <Form.Label>{t('voucher-campaign', 'Voucher Campaign')}</Form.Label>
             <Form.Control>
               <SelectVoucherCampaign
                 value={field.value || undefined}

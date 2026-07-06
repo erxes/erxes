@@ -40,20 +40,20 @@ export const SpinMoreColumnCell = ({
     if (!_id) return;
 
     confirm({
-      message: t('delete-spin-campaign-confirm'),
+      message: t('delete-spin-campaign-confirm', 'Are you sure you want to delete this spin campaign?'),
     }).then(() => {
       removeSpin({
         variables: { _ids: [_id] },
       })
         .then(() => {
           toast({
-            title: t('spins-deleted', { count: 1 }),
+            title: t('spins-deleted', '{{count}} spin(s) deleted successfully', { count: 1 }),
             variant: 'success',
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -74,10 +74,10 @@ export const SpinMoreColumnCell = ({
         <Command>
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="see-spins" onSelect={handleSeeSpins}>
-              <IconTicket /> {t('see-spins')}
+              <IconTicket /> {t('see-spins', 'See spins')}
             </Command.Item>
             <Command.Item asChild>
               <Button
@@ -88,7 +88,7 @@ export const SpinMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                {t('delete')}
+                {t('delete', 'Delete')}
               </Button>
             </Command.Item>
           </Command.List>
