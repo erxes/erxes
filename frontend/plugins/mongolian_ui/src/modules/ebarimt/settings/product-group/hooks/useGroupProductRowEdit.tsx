@@ -12,8 +12,8 @@ export const useGroupProductRowEdit = () => {
       awaitRefetchQueries: true,
       onError: (error) => {
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-update-product-group'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-update-product-group', 'Failed to update product group'),
           variant: 'destructive',
         });
       },

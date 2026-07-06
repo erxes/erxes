@@ -50,11 +50,11 @@ export const AddMSDynamicConfig = () => {
       onOpenChange={setOpen}
       onSubmit={handleSubmit}
       open={open}
-      title={t('new-config')}
+      title={t('new-config', 'New Config')}
       trigger={
         <Button>
           <IconPlus />
-          {t('new-config')}
+          {t('new-config', 'New Config')}
         </Button>
       }
     />

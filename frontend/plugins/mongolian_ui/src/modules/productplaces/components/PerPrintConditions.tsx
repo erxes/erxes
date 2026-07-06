@@ -43,7 +43,7 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
           size="sm"
           onClick={() => onRemove(condition.id)}
         >
-          ✕ {t('delete-condition')}
+          ✕ {t('delete-condition', 'Delete Condition')}
         </Button>
       </div>
     </div>

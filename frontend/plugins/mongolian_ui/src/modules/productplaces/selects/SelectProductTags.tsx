@@ -96,7 +96,7 @@ const SelectProductTagsValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedNames) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('choose-product-tags')}
+        {placeholder || t('choose-product-tags', 'Choose product tags')}
       </span>
     );
   }
@@ -141,7 +141,7 @@ const SelectProductTagsContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -149,7 +149,7 @@ const SelectProductTagsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error-colon', { message: error.message })}
+          {t('error-colon', 'Error: {{message}}', { message: error.message })}
         </div>
       );
     }
@@ -161,9 +161,9 @@ const SelectProductTagsContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-product-tag')} />
+      <Command.Input placeholder={t('search-product-tag', 'Search product tag')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-product-tags-found')}</span>
+        <span className="text-muted-foreground">{t('no-product-tags-found', 'No product tags found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

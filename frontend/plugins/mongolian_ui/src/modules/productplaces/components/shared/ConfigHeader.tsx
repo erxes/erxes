@@ -14,7 +14,7 @@ const ConfigHeader: React.FC<Props> = ({ title, onNew, disabled }) => {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
         <p className="text-xs text-muted-foreground mt-1">
-          {t('manage-product-placement')}
+          {t('manage-product-placement', 'Manage product placement configurations for different stages')}
         </p>
       </div>
       <Button
@@ -22,7 +22,7 @@ const ConfigHeader: React.FC<Props> = ({ title, onNew, disabled }) => {
         disabled={disabled}
         className="text-sm"
       >
-        + {t('new-config')}
+        + {t('new-config', 'New Config')}
       </Button>
     </div>
   );

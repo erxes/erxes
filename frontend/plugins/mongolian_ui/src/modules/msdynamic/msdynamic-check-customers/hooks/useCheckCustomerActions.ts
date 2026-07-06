@@ -65,14 +65,14 @@ export const useCheckCustomerActions = (brandId: string) => {
       setItems(flattenItems(data));
 
       toast({
-        title: t('customers-checked-successfully'),
+        title: t('customers-checked-successfully', 'Customers checked successfully'),
         variant: 'success',
       });
     } catch (e: unknown) {
       const description =
         e instanceof Error ? e.message : 'Unexpected error occurred';
       toast({
-        title: t('failed-to-check-customers'),
+        title: t('failed-to-check-customers', 'Failed to check customers'),
         description,
         variant: 'destructive',
       });
@@ -122,14 +122,14 @@ export const useCheckCustomerActions = (brandId: string) => {
       );
 
       toast({
-        title: t('customers-synced-successfully'),
+        title: t('customers-synced-successfully', 'Customers synced successfully'),
         variant: 'success',
       });
     } catch (e: unknown) {
       const description =
         e instanceof Error ? e.message : 'Unexpected error occurred';
       toast({
-        title: t('failed-to-sync-customers'),
+        title: t('failed-to-sync-customers', 'Failed to sync customers'),
         description,
         variant: 'destructive',
       });

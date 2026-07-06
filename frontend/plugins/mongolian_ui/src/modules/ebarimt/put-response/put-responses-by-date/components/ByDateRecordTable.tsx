@@ -43,9 +43,9 @@ export const ByDateRecordTable = () => {
               <div className="mb-6">
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold">{t('no-by-date')}</h3>
+              <h3 className="text-lg font-semibold">{t('no-by-date', 'No by date')}</h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('create-first-by-date')}
+                {t('create-first-by-date', 'Get started by creating your first by date.')}
               </p>
             </div>
           </div>

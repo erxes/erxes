@@ -50,7 +50,7 @@ export const SyncHistoryDetailSheet = <T extends ISyncHistoryFields>({
     <Sheet open={Boolean(syncHistoryId)} onOpenChange={handleOpenChange} modal>
       <Sheet.View className="sm:max-w-3xl">
         <Sheet.Header>
-          <Sheet.Title>{t('sync-history-detail')}</Sheet.Title>
+          <Sheet.Title>{t('sync-history-detail', 'Sync history detail')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="overflow-y-auto p-5 space-y-5">
@@ -58,35 +58,35 @@ export const SyncHistoryDetailSheet = <T extends ISyncHistoryFields>({
             <>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <div className="text-muted-foreground">{t('content-type')}</div>
+                  <div className="text-muted-foreground">{t('content-type', 'Content Type')}</div>
                   <div className="font-medium">
                     {history.contentType || '-'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground">{t('content')}</div>
+                  <div className="text-muted-foreground">{t('content', 'Content')}</div>
                   <div className="font-medium">
                     {history.content || history.contentId}
                   </div>
                 </div>
               </div>
               <DetailBlock
-                title={t('consume')}
+                title={t('consume', 'Consume')}
                 value={history.consumeData || history.consumeStr}
               />
               <DetailBlock
-                title={t('send')}
+                title={t('send', 'Send')}
                 value={history.sendData || history.sendStr}
               />
               <DetailBlock
-                title={t('response')}
+                title={t('response', 'Response')}
                 value={history.responseData || history.responseStr}
               />
-              <DetailBlock title={t('error')} value={history.error} />
+              <DetailBlock title={t('error', 'Error')} value={history.error} />
             </>
           ) : (
             <div className="text-sm text-muted-foreground">
-              {t('history-not-found')}
+              {t('history-not-found', 'History not found.')}
             </div>
           )}
         </Sheet.Content>

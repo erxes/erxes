@@ -202,8 +202,8 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     if (!ids.length) {
       if (!checkOptions?.silent) {
         toast({
-          title: t('warning'),
-          description: t('no-orders-to-check'),
+          title: t('warning', 'Warning'),
+          description: t('no-orders-to-check', 'No orders to check'),
           variant: 'destructive',
         });
       }
@@ -214,7 +214,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
       variables: { ids, contentType: 'pos:order' },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -263,7 +263,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     });
     if (!checkOptions?.silent) {
       toast({
-        title: t('success'),
+        title: t('success', 'Success'),
         description: t('orders-checked', { count: checked.length }),
       });
     }
@@ -276,8 +276,8 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
 
     if (!syncableIds.length) {
       toast({
-        title: t('warning'),
-        description: t('no-checked-orders-to-sync'),
+        title: t('warning', 'Warning'),
+        description: t('no-checked-orders-to-sync', 'No checked orders to sync'),
         variant: 'destructive',
       });
       return;
@@ -317,7 +317,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
         variables: { orderIds: batchIds },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -418,7 +418,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     const syncedCount = summary.success - summary.resynced;
 
     toast({
-      title: t('sync-complete'),
+      title: t('sync-complete', 'Sync Complete'),
       description: t('synced-summary', {
         synced: syncedCount,
         resynced: summary.resynced,

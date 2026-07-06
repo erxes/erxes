@@ -36,7 +36,7 @@ export const ErkhetConfigRecordTable = <T extends object>({
           <div className="flex flex-col items-center gap-3 text-center">
             <IconSettings2 size={48} className="text-gray-400" />
             <h3 className="text-lg font-semibold text-gray-900">
-              {t('no-configs-yet')}
+              {t('no-configs-yet', 'No configs yet')}
             </h3>
             <p className="text-sm text-gray-500">{emptyDescription}</p>
           </div>

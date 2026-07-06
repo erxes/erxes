@@ -19,11 +19,11 @@ export const InventoryCategoryCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.resetRowSelection()}>
-          {selectedRows.length} {t('selected')}
+          {selectedRows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <Button variant="secondary" onClick={handleSync} disabled={loading}>
-          {t('sync')}
+          {t('sync', 'Sync')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

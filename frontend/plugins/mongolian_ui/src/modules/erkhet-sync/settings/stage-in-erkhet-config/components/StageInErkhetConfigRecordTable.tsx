@@ -25,7 +25,7 @@ export const StageInErkhetConfigRecordTable = ({
     <ErkhetConfigRecordTable
       configs={configs}
       columns={buildStageInErkhetConfigColumns(onEdit, onDelete, editLoading)}
-      emptyDescription={t('create-first-stage-in-erkhet-config')}
+      emptyDescription={t('create-first-stage-in-erkhet-config', 'Create your first stage in erkhet config using the button above.')}
       commandBar={<StageInErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
     />
   );

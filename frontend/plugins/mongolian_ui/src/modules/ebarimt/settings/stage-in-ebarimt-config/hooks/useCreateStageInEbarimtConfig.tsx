@@ -16,15 +16,15 @@ export const useCreateStageInEbarimtConfig = () => {
     {
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('stage-in-ebarimt-config-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('stage-in-ebarimt-config-created-successfully', 'Stage in ebarimt config created successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

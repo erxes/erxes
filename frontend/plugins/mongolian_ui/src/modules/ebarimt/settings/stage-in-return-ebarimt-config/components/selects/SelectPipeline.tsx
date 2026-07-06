@@ -100,14 +100,14 @@ const SelectPipelineValue = ({
 
   if (!boardId) {
     return (
-      <span className="text-accent-foreground/80">{t('choose-board-first')}</span>
+      <span className="text-accent-foreground/80">{t('choose-board-first', 'Choose board first')}</span>
     );
   }
 
   if (!selectedPipeline) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-pipeline')}
+        {placeholder || t('select-pipeline', 'Select pipeline')}
       </span>
     );
   }
@@ -146,7 +146,7 @@ const SelectPipelineContent = () => {
     if (!boardId) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('choose-board-first')}</span>
+          <span className="text-muted-foreground">{t('choose-board-first', 'Choose board first')}</span>
         </div>
       );
     }
@@ -154,7 +154,7 @@ const SelectPipelineContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -162,7 +162,7 @@ const SelectPipelineContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error')}: {error.message}
+          {t('error', 'Error')}: {error.message}
         </div>
       );
     }
@@ -172,11 +172,11 @@ const SelectPipelineContent = () => {
     ));
   }, [boardId, loading, error, pipelines, t]);
 
-  const emptyMessage = boardId ? t('no-pipelines-found') : t('choose-board-first');
+  const emptyMessage = boardId ? t('no-pipelines-found', 'No pipelines found') : t('choose-board-first', 'Choose board first');
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-pipeline')} />
+      <Command.Input placeholder={t('search-pipeline', 'Search pipeline')} />
       <Command.Empty>
         <span className="text-muted-foreground">{emptyMessage}</span>
       </Command.Empty>

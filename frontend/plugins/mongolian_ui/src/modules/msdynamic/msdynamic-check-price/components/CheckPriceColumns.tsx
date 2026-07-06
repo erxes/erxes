@@ -25,7 +25,7 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
     accessorKey: 'status',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('type')} icon={IconCategory} />;
+      return <RecordTable.InlineHead label={t('type', 'Type')} icon={IconCategory} />;
     },
     cell: ({ cell }) => {
       const { t } = useTranslation('mongolian');
@@ -44,7 +44,7 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
     accessorKey: 'Item_No',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('code')} icon={IconCode} />;
+      return <RecordTable.InlineHead label={t('code', 'Code')} icon={IconCode} />;
     },
     cell: ({ cell }) => {
       const row = cell.row.original;
@@ -61,7 +61,7 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
     accessorKey: 'Unit_Price',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('unit-price')} icon={IconHash} />;
+      return <RecordTable.InlineHead label={t('unit-price', 'Unit Price')} icon={IconHash} />;
     },
     cell: ({ cell }) => {
       const row = cell.row.original;
@@ -81,7 +81,7 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
     accessorKey: 'Ending_Date',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('ending-date')} icon={IconHash} />;
+      return <RecordTable.InlineHead label={t('ending-date', 'Ending Date')} icon={IconHash} />;
     },
     cell: ({ cell }) => {
       const row = cell.row.original;
@@ -98,7 +98,7 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
     accessorKey: 'isSynced',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead label={t('status')} icon={IconCircleCheck} />;
+      return <RecordTable.InlineHead label={t('status', 'Status')} icon={IconCircleCheck} />;
     },
     cell: ({ row }) => {
       const { t } = useTranslation('mongolian');
@@ -106,9 +106,9 @@ export const checkPriceColumns: ColumnDef<IPriceItem>[] = [
       return (
         <RecordTableInlineCell>
           {isSynced ? (
-            <Badge variant="success">{t('synced')}</Badge>
+            <Badge variant="success">{t('synced', 'Synced')}</Badge>
           ) : (
-            <Badge variant="warning">{t('pending')}</Badge>
+            <Badge variant="warning">{t('pending', 'Pending')}</Badge>
           )}
         </RecordTableInlineCell>
       );

@@ -68,7 +68,7 @@ export const EditProductGroupRow = () => {
     };
 
     if (isDeeplyEqual({ ...initialData, ...data }, initialData)) {
-      toast({ title: t('info'), description: t('no-changes-made') });
+      toast({ title: t('info', 'Info'), description: t('no-changes-made', 'No changes were made') });
       reset();
       return closeDetail();
     }
@@ -84,8 +84,8 @@ export const EditProductGroupRow = () => {
       },
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('product-group-updated-successfully'),
+          title: t('success', 'Success'),
+          description: t('product-group-updated-successfully', 'Product group updated successfully'),
         });
         closeDetail();
         reset();
@@ -93,8 +93,8 @@ export const EditProductGroupRow = () => {
       },
       onError: (error) => {
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-update-product-group'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-update-product-group', 'Failed to update product group'),
           variant: 'destructive',
         });
       },
@@ -105,7 +105,7 @@ export const EditProductGroupRow = () => {
     <Sheet open={open !== null} onOpenChange={handleClose}>
       <Sheet.View side="right" className="bg-background sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>{t('edit-product-group')}</Sheet.Title>
+          <Sheet.Title>{t('edit-product-group', 'Edit Product Group')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <div className="flex-1 overflow-y-auto px-5 py-4 relative">
@@ -125,7 +125,7 @@ export const EditProductGroupRow = () => {
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Sheet.Close>
           <Button
@@ -134,7 +134,7 @@ export const EditProductGroupRow = () => {
             size="lg"
             disabled={editLoading || loading}
           >
-            {editLoading ? <Spinner /> : t('save')}
+            {editLoading ? <Spinner /> : t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

@@ -35,7 +35,7 @@ export const usePipelineRemainderConfigs = () => {
 
   const mutationOptions = {
     onError: (e: Error) => {
-      toast({ title: t('error'), description: e.message, variant: 'destructive' });
+      toast({ title: t('error', 'Error'), description: e.message, variant: 'destructive' });
     },
   };
 
@@ -57,7 +57,7 @@ export const usePipelineRemainderConfigs = () => {
       variables: { code: CONFIG_CODE, subId: data.pipelineId, value: data },
     });
     await refetch();
-    toast({ title: t('success'), description: t('config-created-successfully') });
+    toast({ title: t('success', 'Success'), description: t('config-created-successfully', 'Config created successfully') });
   };
 
   const editConfig = async (id: string, data: AddPipelineRemainderConfig) => {
@@ -65,19 +65,19 @@ export const usePipelineRemainderConfigs = () => {
       variables: { id, subId: data.pipelineId, value: data },
     });
     await refetch();
-    toast({ title: t('success'), description: t('config-updated-successfully') });
+    toast({ title: t('success', 'Success'), description: t('config-updated-successfully', 'Config updated successfully') });
   };
 
   const deleteConfig = async (id: string) => {
     await removeConfig({ variables: { id } });
     await refetch();
-    toast({ title: t('success'), description: t('config-deleted-successfully') });
+    toast({ title: t('success', 'Success'), description: t('config-deleted-successfully', 'Configuration deleted successfully') });
   };
 
   const deleteManyConfigs = async (ids: string[]) => {
     await Promise.all(ids.map((id) => removeConfig({ variables: { id } })));
     await refetch();
-    toast({ title: t('success'), description: t('configs-deleted', { count: ids.length }) });
+    toast({ title: t('success', 'Success'), description: t('configs-deleted', { count: ids.length }) });
   };
 
   return {

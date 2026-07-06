@@ -12,7 +12,7 @@ export const ExchangeRatesCommandbar = () => {
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {selectedCount} {t('selected')}
+          {selectedCount} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <ExchangeRatesDelete />
@@ -38,7 +38,7 @@ const ExchangeRatesDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

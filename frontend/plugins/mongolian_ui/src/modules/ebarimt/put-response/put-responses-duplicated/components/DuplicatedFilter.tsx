@@ -27,7 +27,7 @@ const DuplicatedFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -35,7 +35,7 @@ const DuplicatedFilterPopover = () => {
                 <SelectBillType.FilterItem />
                 <Filter.Item value="dateRange">
                   <IconCalendarPlus />
-                  {t('date-range')}
+                  {t('date-range', 'Date Range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -70,7 +70,7 @@ export const DuplicatedFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendarPlus />
-            {t('date-range')}
+            {t('date-range', 'Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>

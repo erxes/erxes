@@ -40,11 +40,11 @@ export const AddExchangeRate = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-exchange-rate')}
+          {t('add-exchange-rate', 'Add Exchange Rate')}
         </Button>
       </Sheet.Trigger>
       <ExchangeRateSheetContent
-        title={t('add-exchange-rate')}
+        title={t('add-exchange-rate', 'Add Exchange Rate')}
         formId={FORM_ID}
         form={form}
         loading={loading}

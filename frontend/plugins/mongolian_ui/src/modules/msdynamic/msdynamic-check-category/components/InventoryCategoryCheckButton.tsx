@@ -19,19 +19,19 @@ export const InventoryCategoryCheckButton = () => {
     <div className="flex items-center justify-end gap-2">
       <SelectCategory
         value={queryParams.categoryId || ''}
-        placeholder={t('select-category')}
+        placeholder={t('select-category', 'Select category')}
         className="min-w-[200px]"
         mode="single"
         onValueChange={(val) => setCategory(Array.isArray(val) ? val[0] : val)}
       />
       <SelectBrand
         value={queryParams.brandId || ''}
-        placeholder={t('select-brand')}
+        placeholder={t('select-brand', 'Select brand')}
         mode="single"
         onValueChange={(val) => setBrand(Array.isArray(val) ? val[0] : val)}
       />
       <Button onClick={handleCheck} disabled={loading}>
-        {loading ? t('checking') : t('check')}
+        {loading ? t('checking', 'Checking...') : t('check', 'Check')}
       </Button>
     </div>
   );

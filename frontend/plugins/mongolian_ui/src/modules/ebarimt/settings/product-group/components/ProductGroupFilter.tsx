@@ -95,7 +95,7 @@ const StatusFilterBar = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconToggleLeft />
-        {t('status')}
+        {t('status', 'Status')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
@@ -135,16 +135,16 @@ const ProductGroupFilterPopover = () => {
         <Filter.View>
           <Command>
             <Filter.CommandInput
-              placeholder={t('filter')}
+              placeholder={t('filter', 'Filter')}
               variant="secondary"
               className="bg-background"
             />
             <Command.List className="p-1">
               <Filter.SearchValueTrigger />
-              <SelectProduct.FilterItem value="productId" label={t('product')} />
+              <SelectProduct.FilterItem value="productId" label={t('product', 'Product')} />
               <Filter.Item value="status">
                 <IconToggleLeft />
-                {t('status')}
+                {t('status', 'Status')}
               </Filter.Item>
             </Command.List>
           </Command>
@@ -173,7 +173,7 @@ export const ProductGroupFilter = () => {
         <Filter.SearchValueBarItem />
         <SelectProduct.FilterBar
           filterKey="productId"
-          label={t('product')}
+          label={t('product', 'Product')}
           onValueChange={resetCursor}
         />
         <StatusFilterBar />
@@ -181,7 +181,7 @@ export const ProductGroupFilter = () => {
       </Filter.Bar>
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>
-          <Filter.DialogStringView filterKey="searchValue" label={t('search')} />
+          <Filter.DialogStringView filterKey="searchValue" label={t('search', 'Search')} />
         </Filter.View>
       </Filter.Dialog>
     </Filter>

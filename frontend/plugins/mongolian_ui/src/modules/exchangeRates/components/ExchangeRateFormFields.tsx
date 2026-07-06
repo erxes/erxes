@@ -76,7 +76,7 @@ export const ExchangeRateFormFields = ({ form, formId, onSubmit }: Props) => {
           name="date"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('start-date')}</Form.Label>
+              <Form.Label>{t('start-date', 'Start Date')}</Form.Label>
               <Form.Control>
                 <DatePicker
                   value={field.value}
@@ -93,15 +93,15 @@ export const ExchangeRateFormFields = ({ form, formId, onSubmit }: Props) => {
           <CurrencyField
             form={form}
             name="mainCurrency"
-            label={t('main-currency')}
-            placeholder={t('choose-main-currency')}
+            label={t('main-currency', 'Main Currency')}
+            placeholder={t('choose-main-currency', 'Choose a main currency')}
             currencies={currencies}
           />
           <CurrencyField
             form={form}
             name="rateCurrency"
-            label={t('rate-currency')}
-            placeholder={t('choose-rate-currency')}
+            label={t('rate-currency', 'Rate Currency')}
+            placeholder={t('choose-rate-currency', 'Choose a rate currency')}
             currencies={currencies}
           />
         </div>
@@ -111,7 +111,7 @@ export const ExchangeRateFormFields = ({ form, formId, onSubmit }: Props) => {
           name="rate"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('rate')}</Form.Label>
+              <Form.Label>{t('rate', 'Rate')}</Form.Label>
               <Form.Control>
                 <Input.Number
                   value={field.value}

@@ -15,8 +15,8 @@ export const useSyncCategory = () => {
   ): Promise<CategoryItem[] | undefined> => {
     if (!toCheckCategories || toCheckCategories.length === 0) {
       toast({
-        title: t('error'),
-        description: t('sync-categories-not-found'),
+        title: t('error', 'Error'),
+        description: t('sync-categories-not-found', 'No categories found to sync'),
         variant: 'destructive',
       });
       return;
@@ -28,8 +28,8 @@ export const useSyncCategory = () => {
 
     if (categoriesToSync.length === 0) {
       toast({
-        title: t('info'),
-        description: t('all-categories-already-synced'),
+        title: t('info', 'Info'),
+        description: t('all-categories-already-synced', 'All categories are already synced'),
       });
       return toCheckCategories;
     }
@@ -56,7 +56,7 @@ export const useSyncCategory = () => {
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -78,8 +78,8 @@ export const useSyncCategory = () => {
         });
 
         toast({
-          title: t('success'),
-          description: t('categories-synced', { count: categoriesToSync.length }),
+          title: t('success', 'Success'),
+          description: t('categories-synced', '{{count}} {{filter}} categories synced', { count: categoriesToSync.length }),
         });
 
         return updatedCategories;
@@ -87,8 +87,8 @@ export const useSyncCategory = () => {
     } catch (err) {
       console.error('Sync categories error:', err);
       toast({
-        title: t('error'),
-        description: t('sync-categories-error'),
+        title: t('error', 'Error'),
+        description: t('sync-categories-error', 'Sync categories error'),
         variant: 'destructive',
       });
     }

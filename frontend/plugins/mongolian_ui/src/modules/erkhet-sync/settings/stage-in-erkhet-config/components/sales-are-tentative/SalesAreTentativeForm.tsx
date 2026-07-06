@@ -75,7 +75,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
               Борлуулалт урьдчилсан байдлаар
             </h1>
             <Button type="button" onClick={onNewConfig}>
-              {t('new-config')}
+              {t('new-config', 'New Config')}
             </Button>
           </div>
 
@@ -84,9 +84,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('title')}</Form.Label>
+                <Form.Label>{t('title', 'Title')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={t('title')} />
+                  <Input {...field} placeholder={t('title', 'Title')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -113,7 +113,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   name="responseField"
                   render={({ field }) => (
                     <Form.Item className="w-full">
-                      <Form.Label>{t('choose-response-field')}</Form.Label>
+                      <Form.Label>{t('choose-response-field', 'Choose Response Field')}</Form.Label>
                       <Select
                         value={field.value}
                         onValueChange={(value) => {
@@ -122,7 +122,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                       >
                         <Select.Trigger className="w-full">
                           <Select.Value
-                            placeholder={t('choose-response-field')}
+                            placeholder={t('choose-response-field', 'Choose Response Field')}
                           />
                         </Select.Trigger>
                         <Select.Content>
@@ -146,9 +146,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   name="userEmail"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('user-email')}</Form.Label>
+                      <Form.Label>{t('user-email', 'User Email')}</Form.Label>
                       <Form.Control>
-                        <Input {...field} placeholder={t('user-email')} />
+                        <Input {...field} placeholder={t('user-email', 'User Email')} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -159,7 +159,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   name="hasVat"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                      <Form.Label variant="peer">{t('has-vat')}</Form.Label>
+                      <Form.Label variant="peer">{t('has-vat', 'Has Vat')}</Form.Label>
                       <Form.Control>
                         <Checkbox
                           checked={field.value}
@@ -176,7 +176,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          {t('another-rules-of-products-on-vat')}
+                          {t('another-rules-of-products-on-vat', 'Another Rules of Products on VAT')}
                         </Form.Label>
                         <SelectAnotherRulesOfProductsOnCityTax
                           value={field.value}
@@ -193,7 +193,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                   name="hasCitytax"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                      <Form.Label variant="peer">{t('has-citytax')}</Form.Label>
+                      <Form.Label variant="peer">{t('has-citytax', 'Has Citytax')}</Form.Label>
                       <Form.Control>
                         <Checkbox
                           checked={field.value}
@@ -212,7 +212,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          {t('another-rules-of-products-on-citytax')}
+                          {t('another-rules-of-products-on-citytax', 'Another rules of products on citytax')}
                         </Form.Label>
                         <SelectAnotherRulesOfProductsOnCityTax
                           value={field.value}
@@ -234,7 +234,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
 
           <div className="flex justify-end">
             <Button type="submit" disabled={loading}>
-              {loading ? t('saving') : t('save')}
+              {loading ? t('saving', 'Saving...') : t('save', 'Save')}
             </Button>
           </div>
         </form>
@@ -279,9 +279,9 @@ const NewConfigForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('title')}</Form.Label>
+                <Form.Label>{t('title', 'Title')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={t('title')} />
+                  <Input {...field} placeholder={t('title', 'Title')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -307,7 +307,7 @@ const NewConfigForm = ({
                   name="responseField"
                   render={({ field }) => (
                     <Form.Item className="w-full">
-                      <Form.Label>{t('choose-response-field')}</Form.Label>
+                      <Form.Label>{t('choose-response-field', 'Choose Response Field')}</Form.Label>
                       <Select
                         value={field.value}
                         onValueChange={(value) => {
@@ -316,7 +316,7 @@ const NewConfigForm = ({
                       >
                         <Select.Trigger className="w-full">
                           <Select.Value
-                            placeholder={t('choose-response-field')}
+                            placeholder={t('choose-response-field', 'Choose Response Field')}
                           />
                         </Select.Trigger>
                         <Select.Content>
@@ -340,9 +340,9 @@ const NewConfigForm = ({
                   name="userEmail"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('user-email')}</Form.Label>
+                      <Form.Label>{t('user-email', 'User Email')}</Form.Label>
                       <Form.Control>
-                        <Input {...field} placeholder={t('user-email')} />
+                        <Input {...field} placeholder={t('user-email', 'User Email')} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -353,7 +353,7 @@ const NewConfigForm = ({
                   name="hasVat"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                      <Form.Label variant="peer">{t('has-vat')}</Form.Label>
+                      <Form.Label variant="peer">{t('has-vat', 'Has Vat')}</Form.Label>
                       <Form.Control>
                         <Checkbox
                           checked={field.value}
@@ -370,7 +370,7 @@ const NewConfigForm = ({
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          {t('another-rules-of-products-on-vat')}
+                          {t('another-rules-of-products-on-vat', 'Another Rules of Products on VAT')}
                         </Form.Label>
                         <SelectAnotherRulesOfProductsOnCityTax
                           value={field.value}
@@ -387,7 +387,7 @@ const NewConfigForm = ({
                   name="hasCitytax"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                      <Form.Label variant="peer">{t('has-citytax')}</Form.Label>
+                      <Form.Label variant="peer">{t('has-citytax', 'Has Citytax')}</Form.Label>
                       <Form.Control>
                         <Checkbox
                           checked={field.value}
@@ -406,7 +406,7 @@ const NewConfigForm = ({
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          {t('another-rules-of-products-on-citytax')}
+                          {t('another-rules-of-products-on-citytax', 'Another rules of products on citytax')}
                         </Form.Label>
                         <SelectAnotherRulesOfProductsOnCityTax
                           value={field.value}
@@ -428,10 +428,10 @@ const NewConfigForm = ({
 
           <div className="flex justify-end gap-2 mt-6">
             <Button type="button" variant="outline" onClick={onCancel}>
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? t('saving') : t('save')}
+              {loading ? t('saving', 'Saving...') : t('save', 'Save')}
             </Button>
           </div>
         </form>
@@ -498,7 +498,7 @@ export const SalesAreTentativeForm = () => {
   };
 
   if (loading) {
-    return <div>{t('loading')}</div>;
+    return <div>{t('loading', 'Loading...')}</div>;
   }
 
   return (

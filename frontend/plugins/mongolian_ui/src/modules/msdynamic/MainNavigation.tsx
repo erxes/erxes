@@ -16,37 +16,37 @@ export const MainNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={t('customers')}
+        name={t('customers', 'Customers')}
         path="mongolian/msdynamic/customers"
         icon={IconUsers}
       />
 
       <NavigationMenuLinkItem
-        name={t('products')}
+        name={t('products', 'Products')}
         path="mongolian/msdynamic/products"
         icon={IconPackage}
       />
 
       <NavigationMenuLinkItem
-        name={t('categories')}
+        name={t('categories', 'Categories')}
         path="mongolian/msdynamic/categories"
         icon={IconCategory}
       />
 
       <NavigationMenuLinkItem
-        name={t('prices')}
+        name={t('prices', 'Prices')}
         path="mongolian/msdynamic/price"
         icon={IconCurrencyDollar}
       />
 
       <NavigationMenuLinkItem
-        name={t('synced-orders')}
+        name={t('synced-orders', 'Synced Orders')}
         path="mongolian/msdynamic/synced-orders"
         icon={IconChecklist}
       />
 
       <NavigationMenuLinkItem
-        name={t('sync-history')}
+        name={t('sync-history', 'Sync History')}
         path="mongolian/msdynamic/sync-history"
         icon={IconHistory}
       />

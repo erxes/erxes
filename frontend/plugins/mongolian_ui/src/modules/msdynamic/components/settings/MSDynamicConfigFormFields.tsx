@@ -115,7 +115,7 @@ export const MSDynamicConfigFormFields = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 py-2"
       >
-        <MSDynamicFieldSection title={t('connection')}>
+        <MSDynamicFieldSection title={t('connection', 'Connection')}>
           <Form.Field
             control={form.control}
             name="brandId"
@@ -146,7 +146,7 @@ export const MSDynamicConfigFormFields = ({
           ))}
         </MSDynamicFieldSection>
 
-        <MSDynamicFieldSection title={t('apis')}>
+        <MSDynamicFieldSection title={t('apis', 'APIs')}>
           {API_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}
@@ -157,7 +157,7 @@ export const MSDynamicConfigFormFields = ({
           ))}
         </MSDynamicFieldSection>
 
-        <MSDynamicFieldSection title={t('posting-groups')}>
+        <MSDynamicFieldSection title={t('posting-groups', 'Posting Groups')}>
           {POSTING_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}
@@ -168,7 +168,7 @@ export const MSDynamicConfigFormFields = ({
           ))}
         </MSDynamicFieldSection>
 
-        <MSDynamicFieldSection title={t('defaults')}>
+        <MSDynamicFieldSection title={t('defaults', 'Defaults')}>
           {DEFAULT_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}
@@ -224,7 +224,7 @@ export const MSDynamicConfigFormFields = ({
                       onValueChange={(value) =>
                         handleBoardChange(value, field.onChange)
                       }
-                      placeholder={t('select-board')}
+                      placeholder={t('select-board', 'Select board')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -246,7 +246,7 @@ export const MSDynamicConfigFormFields = ({
                       onValueChange={(value) =>
                         handlePipelineChange(value, field.onChange)
                       }
-                      placeholder={t('select-pipeline')}
+                      placeholder={t('select-pipeline', 'Select pipeline')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -268,7 +268,7 @@ export const MSDynamicConfigFormFields = ({
                       onValueChange={(value) =>
                         field.onChange(getSingleSelectValue(value))
                       }
-                      placeholder={t('select-stage')}
+                      placeholder={t('select-stage', 'Select stage')}
                     />
                     <Form.Message />
                   </Form.Item>

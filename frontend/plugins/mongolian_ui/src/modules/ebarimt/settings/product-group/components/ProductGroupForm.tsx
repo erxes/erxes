@@ -60,7 +60,7 @@ export const ProductGroupForm = ({
             name="mainProductId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('main-product')}</Form.Label>
+                <Form.Label>{t('main-product', 'Main Product')}</Form.Label>
                 <SelectProduct
                   value={field.value}
                   onValueChange={(value) => field.onChange(value)}
@@ -75,7 +75,7 @@ export const ProductGroupForm = ({
             name="subProductId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('sub-product')}</Form.Label>
+                <Form.Label>{t('sub-product', 'Sub Product')}</Form.Label>
                 <SelectProduct
                   value={field.value}
                   onValueChange={(value) => field.onChange(value)}
@@ -92,7 +92,7 @@ export const ProductGroupForm = ({
             name="sortNum"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('sort-number')}</Form.Label>
+                <Form.Label>{t('sort-number', 'Sort Number')}</Form.Label>
                 <Form.Control>
                   <Input
                     type="text"
@@ -101,7 +101,7 @@ export const ProductGroupForm = ({
                     onChange={(e) =>
                       handleNumberChange(e.target.value, field.onChange)
                     }
-                    placeholder={t('enter-sort-number')}
+                    placeholder={t('enter-sort-number', 'Enter sort number')}
                     disabled={loading}
                   />
                 </Form.Control>
@@ -114,7 +114,7 @@ export const ProductGroupForm = ({
             name="ratio"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('ratio')}</Form.Label>
+                <Form.Label>{t('ratio', 'Ratio')}</Form.Label>
                 <Form.Control>
                   <Input
                     type="text"
@@ -123,7 +123,7 @@ export const ProductGroupForm = ({
                     onChange={(e) =>
                       handleNumberChange(e.target.value, field.onChange)
                     }
-                    placeholder={t('enter-ratio')}
+                    placeholder={t('enter-ratio', 'Enter ratio')}
                     disabled={loading}
                   />
                 </Form.Control>
@@ -145,7 +145,7 @@ export const ProductGroupForm = ({
                   disabled={loading}
                 />
               </Form.Control>
-              <Form.Label variant="peer">{t('is-active')}</Form.Label>
+              <Form.Label variant="peer">{t('is-active', 'Is Active')}</Form.Label>
             </Form.Item>
           )}
         />
@@ -153,11 +153,11 @@ export const ProductGroupForm = ({
           <Dialog.Footer className="col-span-2 mt-3 gap-2">
             <Dialog.Close asChild>
               <Button variant="outline" size="lg" disabled={loading}>
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
             </Dialog.Close>
             <Button type="submit" disabled={loading} size="lg">
-              {loading ? <Spinner /> : t('save')}
+              {loading ? <Spinner /> : t('save', 'Save')}
             </Button>
           </Dialog.Footer>
         )}

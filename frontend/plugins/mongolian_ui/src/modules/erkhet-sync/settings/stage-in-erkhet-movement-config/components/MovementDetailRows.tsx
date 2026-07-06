@@ -87,7 +87,7 @@ const MovementDetailRow = ({ row, onUpdate, onRemove }: RowProps) => {
           className="flex items-center gap-1 text-xs text-destructive"
         >
           <IconTrash size={13} />
-          {t('remove')}
+          {t('remove', 'Remove')}
         </button>
       </div>
     </div>
@@ -128,7 +128,7 @@ export const MovementDetailRows = ({ details, onChange }: Props) => {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {t('details')}
+          {t('details', 'Details')}
         </span>
         <Button
           type="button"
@@ -138,7 +138,7 @@ export const MovementDetailRows = ({ details, onChange }: Props) => {
           className="h-7 text-xs gap-1"
         >
           <IconPlus size={12} />
-          {t('add')}
+          {t('add', 'Add')}
         </Button>
       </div>
 
@@ -157,7 +157,7 @@ export const MovementDetailRows = ({ details, onChange }: Props) => {
 
       {details.length === 0 && (
         <div className="border border-dashed rounded-lg py-6 flex flex-col items-center gap-2 text-muted-foreground">
-          <span className="text-xs">{t('no-details-added-yet')}</span>
+          <span className="text-xs">{t('no-details-added-yet', 'No details added yet')}</span>
           <Button
             type="button"
             variant="outline"
@@ -166,7 +166,7 @@ export const MovementDetailRows = ({ details, onChange }: Props) => {
             className="h-7 text-xs gap-1"
           >
             <IconPlus size={12} />
-            {t('add-first-detail')}
+            {t('add-first-detail', 'Add first detail')}
           </Button>
         </div>
       )}

@@ -12,11 +12,11 @@ export const MSDynamicCheckProductsCheckButton = () => {
     <div className="flex items-center gap-3">
       {typeof productsData?.matched?.count === 'number' && (
         <div className="text-sm text-muted-foreground">
-          {t('matched-count', { count: productsData.matched.count })}
+          {t('matched-count', 'Matched: {{count}}', { count: productsData.matched.count })}
         </div>
       )}
       <Button onClick={checkProducts} disabled={checking}>
-        {checking ? t('checking') : t('check')}
+        {checking ? t('checking', 'Checking...') : t('check', 'Check')}
       </Button>
     </div>
   );

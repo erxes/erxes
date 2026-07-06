@@ -29,10 +29,10 @@ export const MSDynamicMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => setEditDetail(row)}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={() => removeConfig(row)}>
-              <IconTrash /> {t('delete')}
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

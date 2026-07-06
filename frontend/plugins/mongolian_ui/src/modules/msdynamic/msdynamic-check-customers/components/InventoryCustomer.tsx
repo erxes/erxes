@@ -18,10 +18,10 @@ export const InventoryCustomer = () => {
           <SelectBrand
             value={brandId === 'noBrand' ? '' : brandId}
             onValueChange={(val) => setSelectedBrandId(val as string)}
-            placeholder={t('choose-brand')}
+            placeholder={t('choose-brand', 'Choose brand')}
           />
           <Button onClick={checkCustomers} disabled={checking}>
-            {checking ? t('checking') : t('check')}
+            {checking ? t('checking', 'Checking...') : t('check', 'Check')}
           </Button>
         </div>
       </PageSubHeader>

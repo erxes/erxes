@@ -116,8 +116,8 @@ export const useMSDynamicCheckProductsActions = ({
   const checkProducts = async () => {
     if (!hasDynamicConfig) {
       toast({
-        title: t('error'),
-        description: t('ms-dynamic-config-not-found'),
+        title: t('error', 'Error'),
+        description: t('ms-dynamic-config-not-found', 'MS Dynamic config not found for the selected brand. Configure MS Dynamic settings first.'),
         variant: 'destructive',
       });
       return;
@@ -140,13 +140,13 @@ export const useMSDynamicCheckProductsActions = ({
       setProductsData(responseData);
 
       toast({
-        title: t('success'),
-        description: t('products-found', { count: normalizedProducts.length }),
+        title: t('success', 'Success'),
+        description: t('products-found', '{{count}} products found', { count: normalizedProducts.length }),
       });
     } catch (error) {
       toast({
-        title: t('error'),
-        description: getErrorMessage(error, t('failed-to-check-products')),
+        title: t('error', 'Error'),
+        description: getErrorMessage(error, t('failed-to-check-products', 'Failed to check products')),
         variant: 'destructive',
       });
     } finally {
@@ -160,8 +160,8 @@ export const useMSDynamicCheckProductsActions = ({
 
     if (!hasDynamicConfig) {
       toast({
-        title: t('error'),
-        description: t('ms-dynamic-config-not-found'),
+        title: t('error', 'Error'),
+        description: t('ms-dynamic-config-not-found', 'MS Dynamic config not found for the selected brand. Configure MS Dynamic settings first.'),
         variant: 'destructive',
       });
       return;
@@ -169,8 +169,8 @@ export const useMSDynamicCheckProductsActions = ({
 
     if (!productsToSync.length) {
       toast({
-        title: t('warning'),
-        description: t('no-products-to-sync'),
+        title: t('warning', 'Warning'),
+        description: t('no-products-to-sync', 'No products to sync'),
         variant: 'destructive',
       });
       return;
@@ -198,13 +198,13 @@ export const useMSDynamicCheckProductsActions = ({
       setProductsData(refreshedData || null);
 
       toast({
-        title: t('success'),
-        description: t('products-synced', { count: productsToSync.length }),
+        title: t('success', 'Success'),
+        description: t('products-synced', '{{count}} products synced', { count: productsToSync.length }),
       });
     } catch (error) {
       toast({
-        title: t('error'),
-        description: getErrorMessage(error, t('failed-to-sync-products')),
+        title: t('error', 'Error'),
+        description: getErrorMessage(error, t('failed-to-sync-products', 'Failed to sync products')),
         variant: 'destructive',
       });
     } finally {

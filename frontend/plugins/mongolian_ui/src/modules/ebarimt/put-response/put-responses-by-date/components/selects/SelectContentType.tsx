@@ -105,7 +105,7 @@ const SelectContentTypeValue = ({
   if (!selectedContentType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-content-type')}
+        {placeholder || t('select-content-type', 'Select content type')}
       </span>
     );
   }
@@ -147,9 +147,9 @@ const SelectContentTypeContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-content-type')} />
+      <Command.Input placeholder={t('search-content-type', 'Search content type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-content-types-found')}</span>
+        <span className="text-muted-foreground">{t('no-content-types-found', 'No content types found')}</span>
       </Command.Empty>
       <Command.List>
         {contentTypes?.map((contentType) => (
@@ -173,7 +173,7 @@ export const SelectContentTypeFilterItem = () => {
       }}
     >
       <IconTag />
-      {t('content-type')}
+      {t('content-type', 'Content Type')}
     </Filter.Item>
   );
 };
@@ -227,7 +227,7 @@ export const SelectContentTypeFilterBar = ({
     <Filter.BarItem queryKey={'contentType'}>
       <Filter.BarName>
         <IconTag />
-        {t('content-type')}
+        {t('content-type', 'Content Type')}
       </Filter.BarName>
       <SelectContentTypeProvider
         mode={mode}

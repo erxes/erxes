@@ -104,13 +104,13 @@ export default function SelectUsers({
       disabled={disabled || loading}
     >
       <Select.Trigger className="w-full">
-        <Select.Value placeholder={loading ? t('loading') : t('choose-user')}>
+        <Select.Value placeholder={loading ? t('loading', 'Loading...') : t('choose-user', 'Choose user')}>
           {value ? label : null}
         </Select.Value>
       </Select.Trigger>
 
       <Select.Content>
-        <Select.Item value={CLEAR_VALUE}>{t('clear')}</Select.Item>
+        <Select.Item value={CLEAR_VALUE}>{t('clear', 'Clear')}</Select.Item>
 
         {users.map((u) => {
           const name = u.details?.fullName || u.username || u.email || u._id;

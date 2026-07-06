@@ -26,7 +26,7 @@ const ConfigFooter: React.FC<Props> = ({
           disabled={loading}
           className="text-xs"
         >
-          {t('delete-config')}
+          {t('delete-config', 'Delete Config')}
         </Button>
       )}
       <div className="flex gap-3 ml-auto">
@@ -36,10 +36,10 @@ const ConfigFooter: React.FC<Props> = ({
           disabled={loading}
           className="text-xs"
         >
-          {t('clear')}
+          {t('clear', 'Clear')}
         </Button>
         <Button onClick={onSave} disabled={loading} className="text-xs">
-          {loading ? t('saving') : t('save-config')}
+          {loading ? t('saving', 'Saving...') : t('save-config', 'Save Config')}
         </Button>
       </div>
     </div>

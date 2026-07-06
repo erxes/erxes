@@ -34,7 +34,7 @@ export const getMsDynamicSyncHistoryColumns = (
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
+      <RecordTable.InlineHead label={t('created-at', 'Created At')} icon={IconCalendarPlus} />
     ),
     cell: ({ getValue }) => {
       const msDynamicSyncHistoryCreatedAt = getValue() as string;
@@ -50,7 +50,7 @@ export const getMsDynamicSyncHistoryColumns = (
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('user')} />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('user', 'User')} />,
     cell: ({ row }) => {
       const user = row.original.createdUser;
       const value =
@@ -67,21 +67,21 @@ export const getMsDynamicSyncHistoryColumns = (
     id: 'contentType',
     accessorKey: 'contentType',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label={t('content-type')} />
+      <RecordTable.InlineHead icon={IconCategory} label={t('content-type', 'Content Type')} />
     ),
     cell: ({ cell }) => <InlineCell value={cell.getValue()} />,
   },
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('content')} />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('content', 'Content')} />,
     cell: ({ cell }) => <InlineCell value={cell.getValue()} />,
   },
   {
     id: 'response',
     accessorKey: 'responseStr',
     header: () => (
-      <RecordTable.InlineHead icon={IconExchange} label={t('response')} />
+      <RecordTable.InlineHead icon={IconExchange} label={t('response', 'Response')} />
     ),
     cell: ({ row }) => {
       return (
@@ -98,7 +98,7 @@ export const getMsDynamicSyncHistoryColumns = (
     id: 'error',
     accessorKey: 'error',
     header: () => (
-      <RecordTable.InlineHead icon={IconAlertTriangle} label={t('error')} />
+      <RecordTable.InlineHead icon={IconAlertTriangle} label={t('error', 'Error')} />
     ),
     cell: ({ row }) => {
       return (

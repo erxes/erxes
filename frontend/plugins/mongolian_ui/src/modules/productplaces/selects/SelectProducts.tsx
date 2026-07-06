@@ -90,7 +90,7 @@ const SelectProductsValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedNames) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('choose-products')}
+        {placeholder || t('choose-products', 'Choose products')}
       </span>
     );
   }
@@ -135,7 +135,7 @@ const SelectProductsContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -143,7 +143,7 @@ const SelectProductsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error-colon', { message: error.message })}
+          {t('error-colon', 'Error: {{message}}', { message: error.message })}
         </div>
       );
     }
@@ -155,9 +155,9 @@ const SelectProductsContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-product')} />
+      <Command.Input placeholder={t('search-product', 'Search product')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-products-found')}</span>
+        <span className="text-muted-foreground">{t('no-products-found', 'No products found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

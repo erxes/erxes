@@ -18,7 +18,7 @@ export const CheckPriceCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.resetRowSelection()}>
-          {selectedRows.length} {t('selected')}
+          {selectedRows.length} {t('selected', 'selected')}
         </CommandBar.Value>
         <Separator.Inline />
         <Button
@@ -26,7 +26,7 @@ export const CheckPriceCommandBar = () => {
           onClick={handleSyncSelected}
           disabled={syncing}
         >
-          {t('sync')}
+          {t('sync', 'Sync')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

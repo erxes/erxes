@@ -45,7 +45,7 @@ export const useCheckCategory = () => {
       const response = await mutate({
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -81,15 +81,15 @@ export const useCheckCategory = () => {
         setToCheckCategories(allCategories);
 
         toast({
-          title: t('success'),
+          title: t('success', 'Success'),
           description: t('categories-found', { count: allCategories.length }),
         });
       }
     } catch (err) {
       console.error('Check category error:', err);
       toast({
-        title: t('error'),
-        description: t('failed-to-check-categories'),
+        title: t('error', 'Error'),
+        description: t('failed-to-check-categories', 'Failed to check categories'),
         variant: 'destructive',
       });
     }
@@ -98,8 +98,8 @@ export const useCheckCategory = () => {
   const syncCategories = async () => {
     if (!toCheckCategories || toCheckCategories.length === 0) {
       toast({
-        title: t('warning'),
-        description: t('no-categories-to-sync'),
+        title: t('warning', 'Warning'),
+        description: t('no-categories-to-sync', 'No categories to sync'),
         variant: 'destructive',
       });
       return;

@@ -67,7 +67,7 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('number')} />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('number', 'Number')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -78,7 +78,7 @@ export const getCheckSyncedOrdersColumns = ({
     id: 'totalAmount',
     accessorKey: 'totalAmount',
     header: () => (
-      <RecordTable.InlineHead icon={IconCash} label={t('total-amount')} />
+      <RecordTable.InlineHead icon={IconCash} label={t('total-amount', 'Total Amount')} />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
@@ -93,7 +93,7 @@ export const getCheckSyncedOrdersColumns = ({
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at', 'Created At')} />
     ),
     cell: ({ cell, row }) => (
       <CheckSyncedOrderDateRow
@@ -107,7 +107,7 @@ export const getCheckSyncedOrdersColumns = ({
     id: 'paidDate',
     accessorKey: 'paidDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label={t('paid-at')} />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('paid-at', 'Paid At')} />
     ),
     cell: ({ cell, row }) => (
       <CheckSyncedOrderDateRow
@@ -119,7 +119,7 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'syncedDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label={t('synced-date')} />
+      <RecordTable.InlineHead icon={IconLabel} label={t('synced-date', 'Synced Date')} />
     ),
     cell: ({ row }) => {
       const syncedInfo = syncedOrderInfos[row.original._id];
@@ -139,7 +139,7 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'syncedBillNumber',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label={t('synced-bill-number')} />
+      <RecordTable.InlineHead icon={IconLabel} label={t('synced-bill-number', 'Synced bill Number')} />
     ),
     cell: ({ row }) => {
       const syncedInfo = syncedOrderInfos[row.original._id];
@@ -153,7 +153,7 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'syncedCustomer',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label={t('synced-customer')} />
+      <RecordTable.InlineHead icon={IconLabel} label={t('synced-customer', 'Synced Customer')} />
     ),
     cell: ({ row }) => {
       const syncedInfo = syncedOrderInfos[row.original._id];

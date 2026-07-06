@@ -14,7 +14,7 @@ export const SyncErkhetBreadcrumb = () => {
     <>
       <Button variant="ghost" className="font-semibold">
         <IconCashBanknote className="w-4 h-4 mr-1.5" />
-        {t('erkhet-sync')}
+        {t('erkhet-sync', 'Erkhet Sync')}
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="font-semibold">

@@ -64,7 +64,7 @@ const ReturnEbarimtConfigCard = ({
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-md font-medium">
-          {config.title || t('untitled-config')}
+          {config.title || t('untitled-config', 'Untitled Config')}
         </h3>
       </div>
 
@@ -76,9 +76,9 @@ const ReturnEbarimtConfigCard = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('title')}</Form.Label>
+                  <Form.Label>{t('title', 'Title')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('title')} />
+                    <Input {...field} placeholder={t('title', 'Title')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -89,7 +89,7 @@ const ReturnEbarimtConfigCard = ({
               name="destinationStageBoard"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('destination-stage-board')}</Form.Label>
+                  <Form.Label>{t('destination-stage-board', 'Destination Stage Board')}</Form.Label>
                   <SelectBoard.FormItem
                     value={field.value}
                     onValueChange={handleBoardChange}
@@ -104,7 +104,7 @@ const ReturnEbarimtConfigCard = ({
               name="pipelineId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('pipeline')}</Form.Label>
+                  <Form.Label>{t('pipeline', 'Pipeline')}</Form.Label>
                   <SelectPipeline.FormItem
                     value={field.value}
                     boardId={form.watch('destinationStageBoard')}
@@ -120,7 +120,7 @@ const ReturnEbarimtConfigCard = ({
               name="stageId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('stage')}</Form.Label>
+                  <Form.Label>{t('stage', 'Stage')}</Form.Label>
                   <SelectStage.FormItem
                     value={field.value}
                     pipelineId={selectedPipelineId}
@@ -139,31 +139,31 @@ const ReturnEbarimtConfigCard = ({
             >
               <AlertDialog.Trigger asChild>
                 <Button variant="ghost" size="sm">
-                  <p className="text-black">{t('delete')}</p>
+                  <p className="text-black">{t('delete', 'Delete')}</p>
                 </Button>
               </AlertDialog.Trigger>
               <AlertDialog.Content>
                 <AlertDialog.Header>
-                  <AlertDialog.Title>{t('delete-configuration')}</AlertDialog.Title>
+                  <AlertDialog.Title>{t('delete-configuration', 'Delete Configuration')}</AlertDialog.Title>
                   <AlertDialog.Description>
-                    {t('delete-config-confirm', { title: config.title || t('untitled-config') })}
+                    {t('delete-config-confirm', 'Are you sure you want to delete "{{title}}"? This action cannot be undone.', { title: config.title || t('untitled-config') })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>
                 <AlertDialog.Footer>
-                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+                  <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
                   <AlertDialog.Action
                     onClick={() => {
                       onDelete(configKey);
                       setIsDeleteDialogOpen(false);
                     }}
                   >
-                    {t('delete')}
+                    {t('delete', 'Delete')}
                   </AlertDialog.Action>
                 </AlertDialog.Footer>
               </AlertDialog.Content>
             </AlertDialog>
             <Button type="submit" size="sm">
-              {t('save')}
+              {t('save', 'Save')}
             </Button>
           </div>
         </form>
@@ -214,7 +214,7 @@ export const ReturnEBarimtConfigForm = () => {
     <div className="h-full w-full p-6 overflow-y-auto">
       <div className="space-y-6">
         <div className="border-b pb-4">
-          <h1 className="text-xl font-semibold">{t('return-ebarimt')}</h1>
+          <h1 className="text-xl font-semibold">{t('return-ebarimt', 'Return Ebarimt')}</h1>
         </div>
 
         <div className="flex justify-end">
@@ -224,14 +224,14 @@ export const ReturnEBarimtConfigForm = () => {
             className="flex items-center gap-2"
           >
             <IconPlus className="h-4 w-4" />
-            {t('new-config')}
+            {t('new-config', 'New Config')}
           </Button>
         </div>
 
         <div className="space-y-4">
           {Object.keys(localConfigsMap).length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              {t('no-configurations-found')}
+              {t('no-configurations-found', 'No configurations found. Click "New Config" to create one.')}
             </div>
           ) : (
             <Accordion
@@ -245,7 +245,7 @@ export const ReturnEBarimtConfigForm = () => {
                   <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
                     <div className="flex justify-between items-center w-full">
                       <span>
-                        {localConfigsMap[configKey].title || t('untitled-config')}
+                        {localConfigsMap[configKey].title || t('untitled-config', 'Untitled Config')}
                       </span>
                     </div>
                   </Accordion.Trigger>

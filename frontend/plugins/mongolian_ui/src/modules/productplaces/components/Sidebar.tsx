@@ -16,7 +16,7 @@ const ProductPlacesSidebar = () => {
   return (
     <Sidebar collapsible="none" className="border-r flex-none w-[300px]">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('product-places')}</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('product-places', 'Product Places')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu className="capitalize">
             {Object.entries(SIDEBAR_ROUTES).map(([path, label]) => (

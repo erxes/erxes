@@ -33,9 +33,9 @@ export const ReturnEBarimtConfigFormFields = ({
           control={form.control}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('title')}</Form.Label>
+              <Form.Label>{t('title', 'Title')}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder={t('title')} />
+                <Input {...field} placeholder={t('title', 'Title')} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -48,7 +48,7 @@ export const ReturnEBarimtConfigFormFields = ({
             name="destinationStageBoard"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('destination-stage-board')}</Form.Label>
+                <Form.Label>{t('destination-stage-board', 'Destination Stage Board')}</Form.Label>
                 <SelectBoard.FormItem
                   value={field.value}
                   onValueChange={onBoardChange}
@@ -62,7 +62,7 @@ export const ReturnEBarimtConfigFormFields = ({
             name="pipelineId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('pipeline')}</Form.Label>
+                <Form.Label>{t('pipeline', 'Pipeline')}</Form.Label>
                 <SelectPipeline.FormItem
                   value={field.value}
                   boardId={selectedBoardId}
@@ -77,7 +77,7 @@ export const ReturnEBarimtConfigFormFields = ({
             name="stageId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('stage')}</Form.Label>
+                <Form.Label>{t('stage', 'Stage')}</Form.Label>
                 <SelectStage.FormItem
                   value={field.value}
                   pipelineId={selectedPipelineId}

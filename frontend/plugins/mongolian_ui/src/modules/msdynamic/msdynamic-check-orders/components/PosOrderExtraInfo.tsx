@@ -10,16 +10,16 @@ const EbarimtResponses = ({ responses }: { responses: IPutResponse[] }) => {
   if (!responses.length) return null;
 
   return (
-    <DetailSection title={t('ebarimt-responses')}>
+    <DetailSection title={t('ebarimt-responses', 'Ebarimt Responses')}>
       <div className="rounded-md border border-border/70 px-4">
         {responses.map((response: IPutResponse) => (
           <div
             key={response.billId}
             className="border-b border-border/60 py-3 last:border-b-0"
           >
-            <DetailRow label={t('bill-id')} value={response.billId} />
+            <DetailRow label={t('bill-id', 'Bill ID')} value={response.billId} />
             <DetailRow
-              label={t('ebarimt-date')}
+              label={t('ebarimt-date', 'Ebarimt Date')}
               value={response.date ? dayjs(response.date).format('LLL') : '-'}
             />
           </div>
@@ -46,30 +46,30 @@ export const PosOrderExtraInfo = ({
   return (
     <div className="space-y-6">
       {hasExtraInfo && (
-        <DetailSection title={t('extra-info')}>
+        <DetailSection title={t('extra-info', 'Extra Info')}>
           <div className="rounded-md border border-border/70 px-4">
             {orders.deliveryInfo && (
               <DetailRow
-                label={t('delivery-info')}
+                label={t('delivery-info', 'Delivery Info')}
                 value={orders.deliveryInfo.description}
               />
             )}
             {orders.syncErkhetInfo && (
-              <DetailRow label={t('erkhet-info')} value={orders.syncErkhetInfo} />
+              <DetailRow label={t('erkhet-info', 'Erkhet Info')} value={orders.syncErkhetInfo} />
             )}
             {orders.convertDealId && (
               <DetailRow
-                label={t('deal')}
+                label={t('deal', 'Deal')}
                 value={
                   orders.dealLink ? (
                     <Link
                       to={orders.dealLink}
                       className="text-primary underline underline-offset-4"
                     >
-                      {orders.deal?.name || t('deal')}
+                      {orders.deal?.name || t('deal', 'Deal')}
                     </Link>
                   ) : (
-                    orders.deal?.name || t('deal')
+                    orders.deal?.name || t('deal', 'Deal')
                   )
                 }
               />

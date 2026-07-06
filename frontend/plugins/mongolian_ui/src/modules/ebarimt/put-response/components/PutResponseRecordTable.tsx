@@ -43,9 +43,9 @@ export const PutResponseRecordTable = () => {
               <div className="mb-6">
                 <IconShoppingCartX size={48} className="text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold">{t('no-put-response')}</h3>
+              <h3 className="text-lg font-semibold">{t('no-put-response', 'No put response')}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                {t('create-first-put-response')}
+                {t('create-first-put-response', 'Get started by creating your first put response.')}
               </p>
             </div>
           </div>

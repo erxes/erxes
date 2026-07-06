@@ -108,7 +108,7 @@ const SelectBranchDistrictValue = ({
   if (!selectedBranchDistrict) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-branch-district')}
+        {placeholder || t('select-branch-district', 'Select branch district')}
       </span>
     );
   }
@@ -149,9 +149,9 @@ const SelectBranchDistrictContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-branch-district')} />
+      <Command.Input placeholder={t('search-branch-district', 'Search branch district')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-branch-districts-found')}</span>
+        <span className="text-muted-foreground">{t('no-branch-districts-found', 'No branch districts found')}</span>
       </Command.Empty>
       <Command.List>
         {branchDistricts?.map((branchDistrict) => (
@@ -170,7 +170,7 @@ export const SelectBranchDistrictFilterItem = () => {
   return (
     <Filter.Item value="branchDistrict">
       <IconBuilding />
-      {t('branch-district')}
+      {t('branch-district', 'Branch District')}
     </Filter.Item>
   );
 };
@@ -225,7 +225,7 @@ export const SelectBranchDistrictFilterBar = ({
     <Filter.BarItem queryKey={'branchDistrict'}>
       <Filter.BarName>
         <IconBuilding />
-        {t('branch-district')}
+        {t('branch-district', 'Branch District')}
       </Filter.BarName>
       <SelectBranchDistrictProvider
         mode={mode}

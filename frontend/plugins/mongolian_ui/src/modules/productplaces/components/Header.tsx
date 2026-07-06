@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({ title, onNew }) => {
 
       {onNew && (
         <button type="button" className="btn btn-outline" onClick={onNew}>
-          + {t('new-config')}
+          + {t('new-config', 'New Config')}
         </button>
       )}
     </div>

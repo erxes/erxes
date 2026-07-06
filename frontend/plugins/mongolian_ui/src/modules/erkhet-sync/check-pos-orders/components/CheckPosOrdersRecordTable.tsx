@@ -50,10 +50,10 @@ export const CheckPosOrdersRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    {t('no-orders-yet')}
+                    {t('no-orders-yet', 'No orders yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    {t('create-first-order')}
+                    {t('create-first-order', 'Get started by creating your first order.')}
                   </p>
                 </div>
               </div>

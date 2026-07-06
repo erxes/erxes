@@ -28,10 +28,10 @@ const CheckSyncedOrdersMoreActions = ({
     <Command shouldFilter={false}>
       <Command.List>
         <Command.Item value="view" onSelect={() => onView(orderId)}>
-          <IconEye /> {t('view-detail')}
+          <IconEye /> {t('view-detail', 'View Detail')}
         </Command.Item>
         <Command.Item value="resend" onSelect={() => onResend(orderId)}>
-          <IconSend /> {t('resend')}
+          <IconSend /> {t('resend', 'Resend')}
         </Command.Item>
       </Command.List>
     </Command>

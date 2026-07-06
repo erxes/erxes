@@ -61,8 +61,8 @@ export const useSavePosInEbarimtConfig = () => {
       }
 
       toast.toast({
-        title: t('success'),
-        description: t('config-saved-successfully'),
+        title: t('success', 'Success'),
+        description: t('config-saved-successfully', 'Configuration saved successfully'),
         variant: 'default',
       });
 
@@ -73,8 +73,8 @@ export const useSavePosInEbarimtConfig = () => {
       );
     } catch (error) {
       toast.toast({
-        title: t('error'),
-        description: t('failed-to-save-config'),
+        title: t('error', 'Error'),
+        description: t('failed-to-save-config', 'Failed to save configuration'),
         variant: 'destructive',
       });
       throw error;

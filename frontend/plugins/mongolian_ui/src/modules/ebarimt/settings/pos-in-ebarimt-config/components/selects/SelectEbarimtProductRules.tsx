@@ -106,7 +106,7 @@ const SelectEbarimtProductRulesValue = ({
   if (!selectedRules?.length) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-rule')}
+        {placeholder || t('select-rule', 'Select rule')}
       </span>
     );
   }
@@ -150,7 +150,7 @@ const SelectEbarimtProductRulesContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -158,7 +158,7 @@ const SelectEbarimtProductRulesContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error')}: {error.message}
+          {t('error', 'Error')}: {error.message}
         </div>
       );
     }
@@ -170,9 +170,9 @@ const SelectEbarimtProductRulesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-rule')} />
+      <Command.Input placeholder={t('search-rule', 'Search rule')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-rules-found')}</span>
+        <span className="text-muted-foreground">{t('no-rules-found', 'No rules found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

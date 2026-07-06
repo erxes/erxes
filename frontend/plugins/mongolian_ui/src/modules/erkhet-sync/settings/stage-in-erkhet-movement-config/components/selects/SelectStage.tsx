@@ -98,7 +98,7 @@ const SelectStageValue = ({
   if (!selectedStage) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-stage')}
+        {placeholder || t('select-stage', 'Select stage')}
       </span>
     );
   }
@@ -137,7 +137,7 @@ const SelectStageContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -145,7 +145,7 @@ const SelectStageContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error')}: {error.message}
+          {t('error', 'Error')}: {error.message}
         </div>
       );
     }
@@ -155,11 +155,11 @@ const SelectStageContent = () => {
     ));
   }, [loading, error, stages, t]);
 
-  const emptyMessage = pipelineId ? t('no-stage-found') : t('pipeline-not-selected');
+  const emptyMessage = pipelineId ? t('no-stage-found', 'No stage found') : t('pipeline-not-selected', 'Pipeline not selected');
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-stage')} />
+      <Command.Input placeholder={t('search-stage', 'Search stage')} />
       <Command.Empty>
         <span className="text-muted-foreground">{emptyMessage}</span>
       </Command.Empty>

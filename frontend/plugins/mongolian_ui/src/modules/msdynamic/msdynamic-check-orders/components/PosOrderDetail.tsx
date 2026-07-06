@@ -26,7 +26,7 @@ const PosOrderDetail = ({ orders }: Props) => {
     <Sheet open={open} onOpenChange={handleOpenChange} modal>
       <Sheet.View className="sm:max-w-3xl">
         <Sheet.Header className="border-b border-border/70">
-          <Sheet.Title>{t('order-detail')}</Sheet.Title>
+          <Sheet.Title>{t('order-detail', 'Order detail')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex min-h-0 flex-1 flex-col overflow-hidden p-5">
@@ -34,7 +34,7 @@ const PosOrderDetail = ({ orders }: Props) => {
             <PosOrderDetailContent orders={orders} />
           ) : (
             <div className="text-sm text-muted-foreground">
-              {t('order-not-found')}
+              {t('order-not-found', 'Order not found')}
             </div>
           )}
         </Sheet.Content>

@@ -39,16 +39,16 @@ export const AddProductGroup = () => {
       },
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('product-group-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('product-group-created-successfully', 'Product group created successfully'),
         });
         setOpen(false);
         form.reset();
       },
       onError: (error: any) => {
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-create-product-group'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-create-product-group', 'Failed to create product group'),
           variant: 'destructive',
         });
       },
@@ -60,12 +60,12 @@ export const AddProductGroup = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-group')}
+          {t('add-group', 'Add Group')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View side="right" className="bg-background sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>{t('add-group')}</Sheet.Title>
+          <Sheet.Title>{t('add-group', 'Add Group')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <div className="flex-1 overflow-y-auto px-5 py-4">
@@ -80,11 +80,11 @@ export const AddProductGroup = () => {
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Sheet.Close>
           <Button type="submit" form={FORM_ID} size="lg" disabled={loading}>
-            {loading ? <Spinner /> : t('save')}
+            {loading ? <Spinner /> : t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>
@@ -121,16 +121,16 @@ export const AddProductGroupForm = ({
       },
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('product-group-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('product-group-created-successfully', 'Product group created successfully'),
         });
         setOpen(false);
         form.reset();
       },
       onError: (error: any) => {
         toast({
-          title: t('error'),
-          description: error.message || t('failed-to-create-product-group'),
+          title: t('error', 'Error'),
+          description: error.message || t('failed-to-create-product-group', 'Failed to create product group'),
           variant: 'destructive',
         });
       },

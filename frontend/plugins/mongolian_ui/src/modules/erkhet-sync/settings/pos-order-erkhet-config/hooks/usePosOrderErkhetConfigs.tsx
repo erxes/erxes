@@ -166,7 +166,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -177,7 +177,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -188,7 +188,7 @@ export const usePosOrderErkhetConfigs = () => {
     {
       onError: (e) =>
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         }),
@@ -233,8 +233,8 @@ export const usePosOrderErkhetConfigs = () => {
         variables: { id: data._id, subId: value.posId, value },
       });
       toast({
-        title: t('success'),
-        description: t('config-updated-successfully'),
+        title: t('success', 'Success'),
+        description: t('config-updated-successfully', 'Config updated successfully'),
       });
     } else {
       await createConfig({
@@ -245,8 +245,8 @@ export const usePosOrderErkhetConfigs = () => {
         },
       });
       toast({
-        title: t('success'),
-        description: t('config-created-successfully'),
+        title: t('success', 'Success'),
+        description: t('config-created-successfully', 'Config created successfully'),
       });
     }
 
@@ -257,8 +257,8 @@ export const usePosOrderErkhetConfigs = () => {
     await removeConfig({ variables: { id } });
     await refetch();
     toast({
-      title: t('success'),
-      description: t('config-deleted-successfully'),
+      title: t('success', 'Success'),
+      description: t('config-deleted-successfully', 'Configuration deleted successfully'),
     });
   };
 
@@ -266,8 +266,8 @@ export const usePosOrderErkhetConfigs = () => {
     await Promise.all(ids.map((id) => removeConfig({ variables: { id } })));
     await refetch();
     toast({
-      title: t('success'),
-      description: t('configs-deleted', { count: ids.length }),
+      title: t('success', 'Success'),
+      description: t('configs-deleted', 'Configs Deleted', { count: ids.length }),
     });
   };
 

@@ -16,15 +16,15 @@ export const useCreateStageInErkhetConfig = () => {
     {
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('stage-in-erkhet-config-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('stage-in-erkhet-config-created-successfully', 'Stage in erkhet config created successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

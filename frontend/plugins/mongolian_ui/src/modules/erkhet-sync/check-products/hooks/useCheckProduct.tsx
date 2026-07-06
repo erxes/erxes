@@ -44,7 +44,7 @@ export const useCheckProduct = () => {
       const response = await mutate({
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -80,15 +80,15 @@ export const useCheckProduct = () => {
         setToCheckProducts(allProducts);
 
         toast({
-          title: t('success'),
-          description: t('products-found', { count: allProducts.length }),
+          title: t('success', 'Success'),
+          description: t('products-found', '{{count}} products found', { count: allProducts.length }),
         });
       }
     } catch (err) {
       console.error('Check product error:', err);
       toast({
-        title: t('error'),
-        description: t('failed-to-check-products'),
+        title: t('error', 'Error'),
+        description: t('failed-to-check-products', 'Failed to check products'),
         variant: 'destructive',
       });
     }
@@ -97,8 +97,8 @@ export const useCheckProduct = () => {
   const syncProducts = async () => {
     if (!toCheckProducts || toCheckProducts.length === 0) {
       toast({
-        title: t('warning'),
-        description: t('no-products-to-sync'),
+        title: t('warning', 'Warning'),
+        description: t('no-products-to-sync', 'No products to sync'),
         variant: 'destructive',
       });
       return;

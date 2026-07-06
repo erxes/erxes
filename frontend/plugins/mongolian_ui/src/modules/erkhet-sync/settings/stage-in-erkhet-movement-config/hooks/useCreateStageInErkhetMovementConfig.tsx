@@ -15,15 +15,15 @@ export const useCreateStageInErkhetMovementConfig = () => {
     useMutation(CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG, {
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('stage-in-erkhet-movement-config-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('stage-in-erkhet-movement-config-created-successfully', 'Stage in erkhet movement config created successfully'),
           variant: 'default',
         });
         setCursor("");
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

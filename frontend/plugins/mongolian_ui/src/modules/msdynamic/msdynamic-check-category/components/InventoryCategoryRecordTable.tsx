@@ -65,10 +65,10 @@ export const InventoryCategoryRecordTable = () => {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h3 className="text-xl font-semibold mb-2">
-                  {t('no-categories-in-group')}
+                  {t('no-categories-in-group', 'No categories in this group')}
                 </h3>
                 <p className="text-muted-foreground max-w-md">
-                  {t('run-check-or-choose-another')}
+                  {t('run-check-or-choose-another', 'Run a check or choose another group.')}
                 </p>
               </div>
             </div>

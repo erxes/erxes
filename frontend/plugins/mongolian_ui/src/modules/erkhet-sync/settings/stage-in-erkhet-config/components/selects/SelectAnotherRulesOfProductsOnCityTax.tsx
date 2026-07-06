@@ -55,10 +55,10 @@ export const SelectAnotherRulesOfProductsOnCityTax = ({
       <MultipleSelector
         value={selectedOptions}
         options={options}
-        placeholder={t('select-product-rules')}
+        placeholder={t('select-product-rules', 'Select product rules')}
         emptyIndicator={
           <p className="text-center text-sm text-muted-foreground">
-            {t('no-rules-found')}
+            {t('no-rules-found', 'No rules found')}
           </p>
         }
         loadingIndicator={

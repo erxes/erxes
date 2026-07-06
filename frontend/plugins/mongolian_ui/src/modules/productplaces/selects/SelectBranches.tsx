@@ -106,7 +106,7 @@ const SelectBranchesValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedBranch) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('choose-branch')}
+        {placeholder || t('choose-branch', 'Choose branch')}
       </span>
     );
   }
@@ -142,7 +142,7 @@ const SelectBranchesContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">{t('loading')}</span>
+          <span className="text-muted-foreground">{t('loading', 'Loading...')}</span>
         </div>
       );
     }
@@ -150,7 +150,7 @@ const SelectBranchesContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          {t('error-colon', { message: error.message })}
+          {t('error-colon', 'Error: {{message}}', { message: error.message })}
         </div>
       );
     }
@@ -162,9 +162,9 @@ const SelectBranchesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-branch')} />
+      <Command.Input placeholder={t('search-branch', 'Search branch')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-branches-found')}</span>
+        <span className="text-muted-foreground">{t('no-branches-found', 'No branches found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

@@ -8,11 +8,11 @@ const PosOrderItemsTableHeader = () => {
   return (
     <thead>
       <tr className="border-b border-border/70 bg-muted/20 text-xs text-muted-foreground">
-        <th className="px-4 py-3 text-left font-medium">{t('product')}</th>
-        <th className="w-20 px-4 py-3 text-right font-medium">{t('qty')}</th>
-        <th className="w-32 px-4 py-3 text-right font-medium">{t('unit-price')}</th>
-        <th className="w-32 px-4 py-3 text-right font-medium">{t('amount')}</th>
-        <th className="w-28 px-4 py-3 text-right font-medium">{t('discount')}</th>
+        <th className="px-4 py-3 text-left font-medium">{t('product', 'Product')}</th>
+        <th className="w-20 px-4 py-3 text-right font-medium">{t('qty', 'Qty')}</th>
+        <th className="w-32 px-4 py-3 text-right font-medium">{t('unit-price', 'Unit Price')}</th>
+        <th className="w-32 px-4 py-3 text-right font-medium">{t('amount', 'Amount')}</th>
+        <th className="w-28 px-4 py-3 text-right font-medium">{t('discount', 'Discount')}</th>
       </tr>
     </thead>
   );
@@ -43,7 +43,7 @@ const PosOrderItemsEmptyRow = () => {
   return (
     <tr>
       <td className="px-4 py-10 text-center text-muted-foreground" colSpan={5}>
-        {t('no-items')}
+        {t('no-items', 'No items')}
       </td>
     </tr>
   );

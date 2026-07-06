@@ -81,12 +81,12 @@ export const useEBarimtConfig = () => {
         });
 
         toast({
-          title: t('success'),
-          description: t('ebarimt-config-saved-successfully'),
+          title: t('success', 'Success'),
+          description: t('ebarimt-config-saved-successfully', 'Ebarimt config saved successfully'),
         });
       } catch (err: any) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });
@@ -103,12 +103,12 @@ export const useEBarimtConfig = () => {
         });
 
         toast({
-          title: t('success'),
-          description: t('ebarimt-config-saved-successfully'),
+          title: t('success', 'Success'),
+          description: t('ebarimt-config-saved-successfully', 'Ebarimt config saved successfully'),
         });
       } catch (err: any) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

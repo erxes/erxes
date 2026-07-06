@@ -100,7 +100,7 @@ const PosInEbarimtConfigCard = ({
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-md font-medium">
-          {config.title || t('untitled-config')}
+          {config.title || t('untitled-config', 'Untitled Config')}
         </h3>
       </div>
 
@@ -109,8 +109,8 @@ const PosInEbarimtConfigCard = ({
           <div className="grid grid-cols-2 gap-4">
             <FormInput
               name="title"
-              label={t('title')}
-              placeholder={t('title')}
+              label={t('title', 'Title')}
+              placeholder={t('title', 'Title')}
               control={form.control}
             />
 
@@ -119,7 +119,7 @@ const PosInEbarimtConfigCard = ({
               name="posId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('pos')}</Form.Label>
+                  <Form.Label>{t('pos', 'Pos')}</Form.Label>
                   <SelectPos
                     variant="form"
                     value={field.value}
@@ -132,29 +132,29 @@ const PosInEbarimtConfigCard = ({
 
             <FormInput
               name="companyName"
-              label={t('company-name')}
-              placeholder={t('enter-company-name')}
+              label={t('company-name', 'Company name')}
+              placeholder={t('enter-company-name', 'Enter company name')}
               control={form.control}
             />
 
             <FormInput
               name="posNo"
-              label={t('pos-no')}
-              placeholder={t('pos-no')}
+              label={t('pos-no', 'Pos No')}
+              placeholder={t('pos-no', 'Pos No')}
               control={form.control}
             />
 
             <FormInput
               name="companyRD"
-              label={t('company-rd')}
-              placeholder={t('company-rd')}
+              label={t('company-rd', 'Company RD')}
+              placeholder={t('company-rd', 'Company RD')}
               control={form.control}
             />
 
             <FormInput
               name="merchantTin"
-              label={t('merchant-tin')}
-              placeholder={t('merchant-tin')}
+              label={t('merchant-tin', 'MerchantTin')}
+              placeholder={t('merchant-tin', 'MerchantTin')}
               control={form.control}
             />
 
@@ -164,7 +164,7 @@ const PosInEbarimtConfigCard = ({
                 name="branchOfProvince"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('branch-of-province-district')}</Form.Label>
+                    <Form.Label>{t('branch-of-province-district', 'Branch of Province / District')}</Form.Label>
                     <SelectBranchDistrict
                       value={field.value}
                       onValueChange={handleBranchChange}
@@ -178,7 +178,7 @@ const PosInEbarimtConfigCard = ({
                 name="subProvince"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('sub-province-district')}</Form.Label>
+                    <Form.Label>{t('sub-province-district', 'Sub Province / District')}</Form.Label>
                     <SelectSubBranchDistrict
                       value={field.value}
                       branchCode={selectedBranchCode}
@@ -192,8 +192,8 @@ const PosInEbarimtConfigCard = ({
 
             <FormDistrictCode
               name="districtCode"
-              label={t('district-code')}
-              placeholder={t('district-code')}
+              label={t('district-code', 'District Code')}
+              placeholder={t('district-code', 'District Code')}
               control={form.control}
               branchCode={selectedBranchCode}
               subBranchCode={selectedSubBranchCode}
@@ -202,15 +202,15 @@ const PosInEbarimtConfigCard = ({
 
             <FormInput
               name="defaultUnitedCode"
-              label={t('default-united-code')}
-              placeholder={t('default-united-code')}
+              label={t('default-united-code', 'Default United Code')}
+              placeholder={t('default-united-code', 'Default United Code')}
               control={form.control}
             />
 
             <FormInput
               name="branchNo"
-              label={t('branch-no')}
-              placeholder={t('branch-no')}
+              label={t('branch-no', 'Branch No')}
+              placeholder={t('branch-no', 'Branch No')}
               control={form.control}
             />
           </div>
@@ -220,21 +220,21 @@ const PosInEbarimtConfigCard = ({
                 <div className="grid grid-cols-2 gap-4">
                   <FormCheckbox
                     name="hasVat"
-                    label={t('has-vat')}
+                    label={t('has-vat', 'Has Vat')}
                     control={form.control}
                     labelPosition="before"
                   />
                   <FormInput
                     name={'vatPercent'}
-                    label={t('vat-percent')}
-                    placeholder={t('enter-vat-percent')}
+                    label={t('vat-percent', 'Vat percent')}
+                    placeholder={t('enter-vat-percent', 'Enter vat percent')}
                     control={form.control}
                     type="number"
                   />
                 </div>
                 <FormSelectEbarimtProductRules
                   name="reverseVatRules"
-                  label={t('another-rules-of-products-on-vat')}
+                  label={t('another-rules-of-products-on-vat', 'Another Rules of Products on VAT')}
                   kind="vat"
                   control={form.control}
                 />
@@ -242,7 +242,7 @@ const PosInEbarimtConfigCard = ({
             ) : (
               <FormCheckbox
                 name="hasVat"
-                label={t('has-vat')}
+                label={t('has-vat', 'Has Vat')}
                 control={form.control}
                 labelPosition="before"
               />
@@ -253,14 +253,14 @@ const PosInEbarimtConfigCard = ({
               <div className="grid grid-cols-2 gap-4">
                 <FormCheckbox
                   name="hasCitytax"
-                  label={t('has-all-citytax')}
+                  label={t('has-all-citytax', 'Has all Citytax')}
                   control={form.control}
                   labelPosition="before"
                 />
                 <FormInput
                   name={'citytaxPercent'}
-                  label={t('citytax-percent')}
-                  placeholder={t('enter-citytax-percent')}
+                  label={t('citytax-percent', 'Citytax Percent')}
+                  placeholder={t('enter-citytax-percent', 'Enter citytax percent')}
                   control={form.control}
                   type="number"
                 />
@@ -269,13 +269,13 @@ const PosInEbarimtConfigCard = ({
               <>
                 <FormCheckbox
                   name="hasCitytax"
-                  label={t('has-all-citytax')}
+                  label={t('has-all-citytax', 'Has all Citytax')}
                   control={form.control}
                   labelPosition="before"
                 />
                 <FormSelectEbarimtProductRules
                   name={'reverseCtaxRules'}
-                  label={t('another-rules-of-products-on-citytax')}
+                  label={t('another-rules-of-products-on-citytax', 'Another rules of products on citytax')}
                   kind="ctax"
                   control={form.control}
                 />
@@ -285,35 +285,35 @@ const PosInEbarimtConfigCard = ({
           <div className="grid grid-cols-2 gap-4">
             <FormArea
               name="headerText"
-              label={t('header-text')}
-              placeholder={t('header-text')}
+              label={t('header-text', 'Header text')}
+              placeholder={t('header-text', 'Header text')}
               control={form.control}
             />
 
             <FormArea
               name="footerText"
-              label={t('footer-text')}
-              placeholder={t('footer-text')}
+              label={t('footer-text', 'Footer text')}
+              placeholder={t('footer-text', 'Footer text')}
               control={form.control}
             />
 
             <FormCheckbox
               name="withDescription"
-              label={t('with-description')}
+              label={t('with-description', 'With Description')}
               control={form.control}
               labelPosition="before"
             />
 
             <FormCheckbox
               name="skipEbarimt"
-              label={t('skip-ebarimt')}
+              label={t('skip-ebarimt', 'Skip Ebarimt')}
               control={form.control}
               labelPosition="before"
             />
             <FormInput
               name={'ebarimtUrl'}
-              label={t('ebarimt-url')}
-              placeholder={t('not-must-fill')}
+              label={t('ebarimt-url', 'Ebarimt url')}
+              placeholder={t('not-must-fill', 'not must fill')}
               control={form.control}
             />
           </div>
@@ -325,31 +325,31 @@ const PosInEbarimtConfigCard = ({
             >
               <AlertDialog.Trigger asChild>
                 <Button variant="ghost" size="sm">
-                  <p className="text-black">{t('delete')}</p>
+                  <p className="text-black">{t('delete', 'Delete')}</p>
                 </Button>
               </AlertDialog.Trigger>
               <AlertDialog.Content>
                 <AlertDialog.Header>
-                  <AlertDialog.Title>{t('delete-configuration')}</AlertDialog.Title>
+                  <AlertDialog.Title>{t('delete-configuration', 'Delete Configuration')}</AlertDialog.Title>
                   <AlertDialog.Description>
-                    {t('delete-config-confirm', { title: config.title || t('untitled-config') })}
+                    {t('delete-config-confirm', 'Are you sure you want to delete "{{title}}"? This action cannot be undone.', { title: config.title || t('untitled-config') })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>
                 <AlertDialog.Footer>
-                  <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+                  <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
                   <AlertDialog.Action
                     onClick={() => {
                       onDelete(configKey);
                       setIsDeleteDialogOpen(false);
                     }}
                   >
-                    {t('delete')}
+                    {t('delete', 'Delete')}
                   </AlertDialog.Action>
                 </AlertDialog.Footer>
               </AlertDialog.Content>
             </AlertDialog>
             <Button type="submit" size="sm">
-              {t('save')}
+              {t('save', 'Save')}
             </Button>
           </div>
         </form>
@@ -406,7 +406,7 @@ export const PosInEBarimtConfigForm = () => {
     <div className="h-full w-full p-6 overflow-y-auto">
       <div className="space-y-6">
         <div className="border-b pb-4">
-          <h1 className="text-xl font-semibold">{t('pos-in-ebarimt')}</h1>
+          <h1 className="text-xl font-semibold">{t('pos-in-ebarimt', 'Pos In Ebarimt')}</h1>
         </div>
 
         <div className="flex justify-end">
@@ -416,14 +416,14 @@ export const PosInEBarimtConfigForm = () => {
             className="flex items-center gap-2"
           >
             <IconPlus className="h-4 w-4" />
-            {t('new-config')}
+            {t('new-config', 'New Config')}
           </Button>
         </div>
 
         <div className="space-y-4">
           {Object.keys(localConfigsMap).length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              {t('no-configurations-found')}
+              {t('no-configurations-found', 'No configurations found. Click "New Config" to create one.')}
             </div>
           ) : (
             <Accordion
@@ -437,7 +437,7 @@ export const PosInEBarimtConfigForm = () => {
                   <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
                     <div className="flex justify-between items-center w-full">
                       <span>
-                        {localConfigsMap[configKey].title || t('untitled-config')}
+                        {localConfigsMap[configKey].title || t('untitled-config', 'Untitled Config')}
                       </span>
                     </div>
                   </Accordion.Trigger>

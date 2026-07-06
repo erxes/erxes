@@ -92,8 +92,8 @@ const StageInEBarimtConfigMoreCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('delete-this-config-confirm'),
-      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
+      message: t('delete-this-config-confirm', 'Are you sure you want to delete this config?'),
+      options: { okLabel: t('delete', 'Delete'), cancelLabel: t('cancel', 'Cancel') },
     }).then(() => removeStageInEbarimtConfig(cell.row.original._id));
   };
 
@@ -106,10 +106,10 @@ const StageInEBarimtConfigMoreCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> {t('delete')}
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -132,7 +132,7 @@ const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
     {
       id: 'title',
       accessorKey: 'title',
-      header: () => <RecordTable.InlineHead label={t('title')} icon={IconCode} />,
+      header: () => <RecordTable.InlineHead label={t('title', 'Title')} icon={IconCode} />,
       cell: ({ cell }) => <StageInEBarimtConfigTitleCell cell={cell} />,
       size: 200,
     },
@@ -140,7 +140,7 @@ const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
       id: 'companyName',
       accessorKey: 'companyName',
       header: () => (
-        <RecordTable.InlineHead label={t('company-name')} icon={IconCode} />
+        <RecordTable.InlineHead label={t('company-name', 'Company name')} icon={IconCode} />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -152,7 +152,7 @@ const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
     {
       id: 'posNo',
       accessorKey: 'posNo',
-      header: () => <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />,
+      header: () => <RecordTable.InlineHead label={t('pos-no', 'Pos No')} icon={IconCode} />,
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
@@ -164,11 +164,11 @@ const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
       id: 'hasVat',
       accessorKey: 'hasVat',
       header: () => (
-        <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />
+        <RecordTable.InlineHead label={t('has-vat', 'Has Vat')} icon={IconToggleLeft} />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
+          <TextOverflowTooltip value={cell.getValue() ? t('yes', 'Yes') : t('no', 'No')} />
         </RecordTableInlineCell>
       ),
       size: 100,
@@ -177,11 +177,11 @@ const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
       id: 'hasCitytax',
       accessorKey: 'hasCitytax',
       header: () => (
-        <RecordTable.InlineHead label={t('has-citytax')} icon={IconToggleLeft} />
+        <RecordTable.InlineHead label={t('has-citytax', 'Has Citytax')} icon={IconToggleLeft} />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
+          <TextOverflowTooltip value={cell.getValue() ? t('yes', 'Yes') : t('no', 'No')} />
         </RecordTableInlineCell>
       ),
       size: 100,
@@ -209,10 +209,10 @@ export const StageInEBarimtConfigTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconClipboardList size={48} className="text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-stage-in-ebarimt-config-yet')}
+                {t('no-stage-in-ebarimt-config-yet', 'No Stage In Ebarimt config yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 mb-4">
-                {t('create-first-stage-in-ebarimt-config')}
+                {t('create-first-stage-in-ebarimt-config', 'Get started by creating your first Stage In Ebarimt config.')}
               </p>
               <AddStageInEBarimtConfig />
             </div>

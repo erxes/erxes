@@ -20,7 +20,7 @@ export const GeneralSettings = () => {
           <Button variant="outline" asChild>
             <Link to="/mongolian/msdynamic">
               <IconExternalLink />
-              {t('go-to-msdynamic')}
+              {t('go-to-msdynamic', 'Go to MS Dynamics')}
             </Link>
           </Button>
           <AddMSDynamicConfig />

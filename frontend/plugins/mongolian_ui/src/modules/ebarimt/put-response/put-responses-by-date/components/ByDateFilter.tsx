@@ -81,14 +81,14 @@ const ByDateFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="billId" inDialog>
                   <IconSearch />
-                  {t('bill-id')}
+                  {t('bill-id', 'Bill ID')}
                 </Filter.Item>
                 <SelectContentType.FilterItem />
 
@@ -96,7 +96,7 @@ const ByDateFilterPopover = () => {
                   <>
                     <Filter.Item value="dealName" inDialog>
                       <IconBuilding />
-                      {t('deal-name')}
+                      {t('deal-name', 'Deal Name')}
                     </Filter.Item>
                     <SelectSalesBoard.FilterItem />
                     <SelectPipeline.FilterItem />
@@ -107,7 +107,7 @@ const ByDateFilterPopover = () => {
                 {showPosFields && (
                   <Filter.Item value="orderNumber" inDialog>
                     <IconReceipt />
-                    {t('order-number')}
+                    {t('order-number', 'Order Number')}
                   </Filter.Item>
                 )}
 
@@ -115,11 +115,11 @@ const ByDateFilterPopover = () => {
                   <>
                     <Filter.Item value="contractNumber" inDialog>
                       <IconFileText />
-                      {t('contract-number')}
+                      {t('contract-number', 'Contract Number')}
                     </Filter.Item>
                     <Filter.Item value="transactionNumber" inDialog>
                       <IconCreditCard />
-                      {t('transaction-number')}
+                      {t('transaction-number', 'Transaction Number')}
                     </Filter.Item>
                   </>
                 )}
@@ -133,7 +133,7 @@ const ByDateFilterPopover = () => {
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dateRange">
                   <IconCalendarPlus />
-                  {t('date-range')}
+                  {t('date-range', 'Date Range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -246,7 +246,7 @@ export const ByDateFilter = () => {
         <Filter.BarItem queryKey="billId">
           <Filter.BarName>
             <IconSearch />
-            {t('bill-id')}
+            {t('bill-id', 'Bill ID')}
           </Filter.BarName>
           <Filter.BarButton filterKey="billId" inDialog>
             {billId}
@@ -258,7 +258,7 @@ export const ByDateFilter = () => {
             <Filter.BarItem queryKey="dealName">
               <Filter.BarName>
                 <IconBuilding />
-                {t('deal-name')}
+                {t('deal-name', 'Deal Name')}
               </Filter.BarName>
               <Filter.BarButton filterKey="dealName" inDialog>
                 {dealName}
@@ -274,7 +274,7 @@ export const ByDateFilter = () => {
           <Filter.BarItem queryKey="orderNumber">
             <Filter.BarName>
               <IconReceipt />
-              {t('order-number')}
+              {t('order-number', 'Order Number')}
             </Filter.BarName>
             <Filter.BarButton filterKey="orderNumber" inDialog>
               {orderNumber}
@@ -287,7 +287,7 @@ export const ByDateFilter = () => {
             <Filter.BarItem queryKey="contractNumber">
               <Filter.BarName>
                 <IconFileText />
-                {t('contract-number')}
+                {t('contract-number', 'Contract Number')}
               </Filter.BarName>
               <Filter.BarButton filterKey="contractNumber" inDialog>
                 {contractNumber}
@@ -296,7 +296,7 @@ export const ByDateFilter = () => {
             <Filter.BarItem queryKey="transactionNumber">
               <Filter.BarName>
                 <IconCreditCard />
-                {t('transaction-number')}
+                {t('transaction-number', 'Transaction Number')}
               </Filter.BarName>
               <Filter.BarButton filterKey="transactionNumber" inDialog>
                 {transactionNumber}
@@ -308,7 +308,7 @@ export const ByDateFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendarPlus />
-            {t('date-range')}
+            {t('date-range', 'Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>

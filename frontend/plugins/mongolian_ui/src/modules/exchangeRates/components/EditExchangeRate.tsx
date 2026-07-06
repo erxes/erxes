@@ -61,7 +61,7 @@ export const EditExchangeRate = () => {
   return (
     <Sheet open={!!openId} onOpenChange={(value) => !value && close()}>
       <ExchangeRateSheetContent
-        title={t('edit-exchange-rate')}
+        title={t('edit-exchange-rate', 'Edit Exchange Rate')}
         formId={FORM_ID}
         form={form}
         loading={loading}

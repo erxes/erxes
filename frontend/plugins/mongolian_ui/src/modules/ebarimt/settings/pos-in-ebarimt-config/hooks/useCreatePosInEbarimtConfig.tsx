@@ -16,15 +16,15 @@ export const useCreatePosInEbarimtConfig = () => {
     {
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('pos-in-ebarimt-config-created-successfully'),
+          title: t('success', 'Success'),
+          description: t('pos-in-ebarimt-config-created-successfully', 'Pos in ebarimt config created successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

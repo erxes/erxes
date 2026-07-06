@@ -36,7 +36,7 @@ const PosInlineProvider = ({
       pos: pos || _pos,
       loading: false,
       posIds: posIds || [],
-      placeholder: isUndefinedOrNull(placeholder) ? t('select-pos') : placeholder,
+      placeholder: isUndefinedOrNull(placeholder) ? t('select-pos', 'Select pos') : placeholder,
       updatePos: updatePos || _setPos,
     };
   }, [pos, _pos, posIds, placeholder, updatePos, t]);
@@ -91,7 +91,7 @@ const PosInlineTitle = () => {
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <span>{`${pos.length} ${t('pos')}`}</span>
+          <span>{`${pos.length} ${t('pos', 'Pos')}`}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>{pos.map((p) => p.name).join(', ')}</Tooltip.Content>
       </Tooltip>

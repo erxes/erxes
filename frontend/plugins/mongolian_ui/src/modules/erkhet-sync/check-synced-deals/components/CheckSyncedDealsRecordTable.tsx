@@ -46,10 +46,10 @@ export const CheckSyncedDealsRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-sync-yet')}
+                {t('no-sync-yet', 'No sync yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {t('create-first-sync')}
+                {t('create-first-sync', 'Get started by creating your first sync.')}
               </p>
             </div>
           </div>

@@ -51,10 +51,10 @@ export const MSDynamicCheckProductsRecordTable = () => {
                   className="text-muted-foreground mx-auto mb-4"
                 />
                 <h3 className="text-xl font-semibold mb-2">
-                  {t('no-products-in-this-group')}
+                  {t('no-products-in-this-group', 'No products in this group')}
                 </h3>
                 <p className="text-muted-foreground max-w-md">
-                  {t('run-check-or-choose-another-product-group')}
+                  {t('run-check-or-choose-another-product-group', 'Run check or choose another product group.')}
                 </p>
               </div>
             </div>

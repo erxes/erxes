@@ -90,33 +90,33 @@ const DefaultFilterConfig: React.FC<Props> = ({
     try {
       save({ filters });
       toast({
-        title: t('success'),
-        description: t('filter-configuration-saved'),
+        title: t('success', 'Success'),
+        description: t('filter-configuration-saved', 'Filter configuration saved successfully'),
         variant: 'default',
       });
     } catch (error: any) {
       toast({
-        title: t('error'),
-        description: error?.message || t('failed-to-save-filter'),
+        title: t('error', 'Error'),
+        description: error?.message || t('failed-to-save-filter', 'Failed to save filter configuration'),
         variant: 'destructive',
       });
     }
   };
 
   const handleDeleteAll = () => {
-    if (!window.confirm(t('delete-all-filter-confirm'))) return;
+    if (!window.confirm(t('delete-all-filter-confirm', 'Delete all filter configs?'))) return;
     try {
       deleteConfig();
       setFilters([]);
       toast({
-        title: t('success'),
-        description: t('filter-configuration-deleted'),
+        title: t('success', 'Success'),
+        description: t('filter-configuration-deleted', 'Filter configuration deleted successfully'),
         variant: 'default',
       });
     } catch (error: any) {
       toast({
-        title: t('error'),
-        description: error?.message || t('failed-to-delete-filter'),
+        title: t('error', 'Error'),
+        description: error?.message || t('failed-to-delete-filter', 'Failed to delete filter configuration'),
         variant: 'destructive',
       });
     }
@@ -127,17 +127,17 @@ const DefaultFilterConfig: React.FC<Props> = ({
       <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
         <div className="space-y-2">
           <h2 className="text-xl font-semibold">
-            {t('default-filter-configuration')}
+            {t('default-filter-configuration', 'Default Filter Configuration')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {t('configure-default-filters')}
+            {t('configure-default-filters', 'Configure default product filters by segment')}
             {currentStageId ? ` (Stage: ${currentStageId})` : ''}
           </p>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Button type="button" onClick={addFilter}>
-            + {t('add-filter')}
+            + {t('add-filter', 'Add Filter')}
           </Button>
 
           <div className="flex gap-3">
@@ -146,18 +146,18 @@ const DefaultFilterConfig: React.FC<Props> = ({
               variant="destructive"
               onClick={handleDeleteAll}
             >
-              {t('delete-all')}
+              {t('delete-all', 'Delete All')}
             </Button>
 
             <Button type="button" onClick={handleSave}>
-              {t('save-all')}
+              {t('save-all', 'Save All')}
             </Button>
           </div>
         </div>
 
         {filters.length === 0 ? (
           <div className="rounded-xl border p-10 text-center text-muted-foreground shadow-sm">
-            {t('no-filter-configurations')}
+            {t('no-filter-configurations', 'No filter configurations. Click "Add Filter" to create one.')}
           </div>
         ) : (
           <div className="space-y-6">
@@ -175,24 +175,24 @@ const DefaultFilterConfig: React.FC<Props> = ({
                     size="sm"
                     onClick={() => removeFilter(index)}
                   >
-                    {t('remove')}
+                    {t('remove', 'Remove')}
                   </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t('title')}</Label>
+                    <Label className="text-sm font-medium">{t('title', 'Title')}</Label>
                     <Input
                       value={filter.title}
                       onChange={(e) =>
                         updateFilter(index, 'title', e.target.value)
                       }
-                      placeholder={t('filter-title')}
+                      placeholder={t('filter-title', 'Filter title')}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t('segment')}</Label>
+                    <Label className="text-sm font-medium">{t('segment', 'Segment')}</Label>
                     <SelectSegments
                       contentTypes={SEGMENT_CONTENT_TYPES}
                       value={filter.segmentId}
@@ -204,7 +204,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm font-medium">{t('assigned-users')}</Label>
+                  <Label className="text-sm font-medium">{t('assigned-users', 'Assigned Users')}</Label>
 
                   <div className="flex gap-3 items-center">
                     <div className="flex-1">
@@ -223,13 +223,13 @@ const DefaultFilterConfig: React.FC<Props> = ({
                       onClick={() => updateFilter(index, 'userIds', [])}
                       disabled={(filter.userIds || []).length === 0}
                     >
-                      {t('clear')}
+                      {t('clear', 'Clear')}
                     </Button>
                   </div>
 
                   {(filter.userIds || []).length === 0 ? (
                     <div className="text-sm text-muted-foreground">
-                      {t('no-users-selected')}
+                      {t('no-users-selected', 'No users selected')}
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-2">

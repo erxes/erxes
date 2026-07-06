@@ -58,22 +58,22 @@ const PrintConfig: React.FC = () => {
 
   const onSave = () =>
     handleSave(
-      () => toast({ title: t('success'), description: t('configuration-saved') }),
+      () => toast({ title: t('success', 'Success'), description: t('configuration-saved', 'Configuration saved successfully') }),
       (e) =>
         toast({
-          title: t('error'),
-          description: e?.message || t('failed-to-save-configuration'),
+          title: t('error', 'Error'),
+          description: e?.message || t('failed-to-save-configuration', 'Failed to save configuration'),
           variant: 'destructive',
         }),
     );
 
   const onDelete = () =>
     handleDelete(
-      () => toast({ title: t('success'), description: t('configuration-deleted') }),
+      () => toast({ title: t('success', 'Success'), description: t('configuration-deleted', 'Configuration deleted successfully') }),
       (e) =>
         toast({
-          title: t('error'),
-          description: e?.message || t('failed-to-delete-configuration'),
+          title: t('error', 'Error'),
+          description: e?.message || t('failed-to-delete-configuration', 'Failed to delete configuration'),
           variant: 'destructive',
         }),
     );
@@ -82,7 +82,7 @@ const PrintConfig: React.FC = () => {
     <div className="w-full h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-6xl px-6 py-8 space-y-8">
         <ConfigHeader
-          title={t('print-configuration')}
+          title={t('print-configuration', 'Print Configuration')}
           onNew={reset}
           disabled={loading}
         />
@@ -97,10 +97,10 @@ const PrintConfig: React.FC = () => {
           <Card.Content className="space-y-6 pt-4">
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                {t('title')}
+                {t('title', 'Title')}
               </Label>
               <Input
-                placeholder={t('enter-configuration-title')}
+                placeholder={t('enter-configuration-title', 'Enter configuration title')}
                 value={formData.title}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, title: e.target.value }))
@@ -111,7 +111,7 @@ const PrintConfig: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  {t('board')}
+                  {t('board', 'Board')}
                 </Label>
                 <SelectSalesBoard
                   variant="form"
@@ -122,7 +122,7 @@ const PrintConfig: React.FC = () => {
 
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  {t('pipeline')}
+                  {t('pipeline', 'Pipeline')}
                 </Label>
                 <SelectPipeline
                   variant="form"
@@ -135,7 +135,7 @@ const PrintConfig: React.FC = () => {
 
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                  {t('stage')}
+                  {t('stage', 'Stage')}
                 </Label>
                 <SelectStage
                   id="print-stage"
@@ -155,9 +155,9 @@ const PrintConfig: React.FC = () => {
         <Card>
           <Card.Header>
             <div className="flex items-center justify-between">
-              <Card.Title>{t('conditions', { count: formData.conditions.length })}</Card.Title>
+              <Card.Title>{t('conditions', 'Conditions ({{count}})', { count: formData.conditions.length })}</Card.Title>
               <Button onClick={addCondition} variant="outline" className="text-xs">
-                + {t('add-condition')}
+                + {t('add-condition', 'Add Condition')}
               </Button>
             </div>
           </Card.Header>
@@ -166,7 +166,7 @@ const PrintConfig: React.FC = () => {
             {formData.conditions.length === 0 ? (
               <div className="flex items-center justify-center py-8 text-muted-foreground">
                 <p className="text-sm">
-                  {t('no-conditions-yet')}
+                  {t('no-conditions-yet', 'No conditions added yet. Click "Add Condition" to get started.')}
                 </p>
               </div>
             ) : (

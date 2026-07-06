@@ -5,33 +5,33 @@ export const SettingsNavigation = () => {
   const { t } = useTranslation('mongolian');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">{t('mongolian')}</Sidebar.GroupLabel>
+      <Sidebar.GroupLabel className="h-4">{t('mongolian', 'Mongolian')}</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/ebarimt"
-            name={t('ebarimt')}
+            name={t('ebarimt', 'Ebarimt')}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/sync-erkhet"
-            name={t('erkhet')}
+            name={t('erkhet', 'Erkhet')}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/product-places"
-            name={t('product-place')}
+            name={t('product-place', 'Product Place')}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/exchange-rates"
-            name={t('exchange-rates-label')}
+            name={t('exchange-rates-label', 'Exchange Rates')}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/msdynamic"
-            name={t('ms-dynamic')}
+            name={t('ms-dynamic', 'MSDynamic')}
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

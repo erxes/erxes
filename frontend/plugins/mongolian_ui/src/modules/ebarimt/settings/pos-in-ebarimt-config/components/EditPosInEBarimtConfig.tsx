@@ -97,8 +97,8 @@ export const EditPosInEBarimtConfig = () => {
       reset();
     } catch {
       toast({
-        title: t('error'),
-        description: t('failed-to-save-config'),
+        title: t('error', 'Error'),
+        description: t('failed-to-save-config', 'Failed to save configuration'),
         variant: 'destructive',
       });
     }
@@ -131,7 +131,7 @@ export const EditPosInEBarimtConfig = () => {
     <Sheet open={open !== null} onOpenChange={handleClose}>
       <Sheet.View side="right" className="bg-background sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>{t('edit-pos-in-ebarimt-config')}</Sheet.Title>
+          <Sheet.Title>{t('edit-pos-in-ebarimt-config', 'Edit Pos In Ebarimt Config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <div className="flex-1 overflow-y-auto px-5 py-4">
@@ -147,11 +147,11 @@ export const EditPosInEBarimtConfig = () => {
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Sheet.Close>
           <Button type="submit" form={FORM_ID} size="lg">
-            {t('save')}
+            {t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

@@ -59,7 +59,7 @@ export const CheckSyncedDealsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -67,27 +67,27 @@ export const CheckSyncedDealsFilterPopover = () => {
                 <SelectSalesBoard.FilterItem />
                 <SelectPipeline.FilterItem />
                 <SelectStage.FilterItem />
-                <SelectMember.FilterItem value="user" label={t('assigned-to')} />
+                <SelectMember.FilterItem value="user" label={t('assigned-to', 'Assigned To')} />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dealSearch" inDialog>
                   <IconBuilding />
-                  {t('deal-search')}
+                  {t('deal-search', 'Deal Search')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  {t('number')}
+                  {t('number', 'Number')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  {t('close-date-range')}
+                  {t('close-date-range', 'Close Date Range')}
                 </Filter.Item>
                 <Filter.Item value="createdDateRange">
                   <IconCalendar />
-                  {t('created-date-range')}
+                  {t('created-date-range', 'Created Date Range')}
                 </Filter.Item>
                 <Filter.Item value="stageChangedDateRange">
                   <IconCalendar />
-                  {t('stage-changed-date-range')}
+                  {t('stage-changed-date-range', 'Stage Changed Date Range')}
                 </Filter.Item>
                 <SelectDateType.FilterItem />
               </Command.List>
@@ -158,7 +158,7 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dealSearch">
           <Filter.BarName>
             <IconBuilding />
-            {t('deal-search')}
+            {t('deal-search', 'Deal Search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="dealSearch" inDialog>
             {dealSearch}
@@ -167,7 +167,7 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            {t('number')}
+            {t('number', 'Number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -176,21 +176,21 @@ export const CheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            {t('close-date-range')}
+            {t('close-date-range', 'Close Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconCalendar />
-            {t('created-date-range')}
+            {t('created-date-range', 'Created Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="stageChangedDateRange">
           <Filter.BarName>
             <IconCalendar />
-            {t('stage-changed-date-range')}
+            {t('stage-changed-date-range', 'Stage Changed Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="stageChangedDateRange" />
         </Filter.BarItem>
@@ -199,7 +199,7 @@ export const CheckSyncedDealsFilter = () => {
         <SelectPipeline.FilterBar boardId={boardId || undefined} />
         <SelectStage.FilterBar pipelineId={pipelineId || undefined} />
         <Filter.BarItem queryKey="user">
-          <Filter.BarName>{t('assigned-to')}</Filter.BarName>
+          <Filter.BarName>{t('assigned-to', 'Assigned To')}</Filter.BarName>
           <SelectMember.Provider
             mode="single"
             value={user || ''}

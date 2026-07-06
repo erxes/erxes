@@ -104,7 +104,7 @@ const SelectDateTypeValue = ({
   if (!selectedDateType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-date-type')}
+        {placeholder || t('select-date-type', 'Select date type')}
       </span>
     );
   }
@@ -142,9 +142,9 @@ const SelectDateTypeContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-date-type')} />
+      <Command.Input placeholder={t('search-date-type', 'Search date type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-date-types-found')}</span>
+        <span className="text-muted-foreground">{t('no-date-types-found', 'No date types found')}</span>
       </Command.Empty>
       <Command.List>
         {dateTypes?.map((dateType) => (
@@ -160,7 +160,7 @@ export const SelectDateTypeFilterItem = () => {
   return (
     <Filter.Item value="dateType">
       <IconClock />
-      {t('date-type')}
+      {t('date-type', 'Date Type')}
     </Filter.Item>
   );
 };
@@ -213,7 +213,7 @@ export const SelectDateTypeFilterBar = ({
     <Filter.BarItem queryKey={'dateType'}>
       <Filter.BarName>
         <IconClock />
-        {t('date-type')}
+        {t('date-type', 'Date Type')}
       </Filter.BarName>
       <SelectDateTypeProvider
         mode={mode}

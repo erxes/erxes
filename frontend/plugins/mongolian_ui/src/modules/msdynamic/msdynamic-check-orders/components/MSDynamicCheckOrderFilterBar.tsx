@@ -24,14 +24,14 @@ const MSDynamicCheckOrderDateFilterBarItem = () => {
       <Filter.BarItem queryKey="paidDateRange">
         <Filter.BarName>
           <IconCalendar />
-          {t('paid-date-range')}
+          {t('paid-date-range', 'Paid Date Range')}
         </Filter.BarName>
         <Filter.Date filterKey="paidDateRange" />
       </Filter.BarItem>
       <Filter.BarItem queryKey="createdAtRange">
         <Filter.BarName>
           <IconCalendar />
-          {t('created-date-range')}
+          {t('created-date-range', 'Created Date Range')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAtRange" />
       </Filter.BarItem>

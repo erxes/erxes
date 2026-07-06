@@ -59,7 +59,7 @@ export const SyncErkhetHistoryFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -67,36 +67,36 @@ export const SyncErkhetHistoryFilterPopover = () => {
               <Command.List className="p-1">
                 <Filter.Item value="user">
                   <IconUser />
-                  {t('assigned-to')}
+                  {t('assigned-to', 'Assigned To')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  {t('date-range')}
+                  {t('date-range', 'Date Range')}
                 </Filter.Item>
                 <Filter.Item value="contentType" inDialog>
                   <IconTag />
-                  {t('content-type')}
+                  {t('content-type', 'Content Type')}
                 </Filter.Item>
                 <Filter.Item value="contentId" inDialog>
                   <IconHash />
-                  {t('content-id')}
+                  {t('content-id', 'Content ID')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="searchConsume" inDialog>
                   <IconDownload />
-                  {t('search-consume')}
+                  {t('search-consume', 'Search Consume')}
                 </Filter.Item>
                 <Filter.Item value="searchSend" inDialog>
                   <IconUpload />
-                  {t('search-send')}
+                  {t('search-send', 'Search Send')}
                 </Filter.Item>
                 <Filter.Item value="searchResponse" inDialog>
                   <IconExchange />
-                  {t('search-response')}
+                  {t('search-response', 'Search Response')}
                 </Filter.Item>
                 <Filter.Item value="searchError" inDialog>
                   <IconAlertTriangle />
-                  {t('search-error')}
+                  {t('search-error', 'Search Error')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -163,7 +163,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            {t('assigned-to')}
+            {t('assigned-to', 'Assigned To')}
           </Filter.BarName>
           <SelectMember.Provider
             mode="single"
@@ -188,14 +188,14 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            {t('date-range')}
+            {t('date-range', 'Date Range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="contentType">
           <Filter.BarName>
             <IconTag />
-            {t('content-type')}
+            {t('content-type', 'Content Type')}
           </Filter.BarName>
           <Filter.BarButton filterKey="contentType" inDialog>
             {contentType}
@@ -204,7 +204,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="contentId">
           <Filter.BarName>
             <IconHash />
-            {t('content-id')}
+            {t('content-id', 'Content ID')}
           </Filter.BarName>
           <Filter.BarButton filterKey="contentId" inDialog>
             {contentId}
@@ -213,7 +213,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="searchConsume">
           <Filter.BarName>
             <IconDownload />
-            {t('search-consume')}
+            {t('search-consume', 'Search Consume')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchConsume" inDialog>
             {searchConsume}
@@ -222,7 +222,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="searchSend">
           <Filter.BarName>
             <IconUpload />
-            {t('search-send')}
+            {t('search-send', 'Search Send')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchSend" inDialog>
             {searchSend}
@@ -231,7 +231,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="searchResponse">
           <Filter.BarName>
             <IconExchange />
-            {t('search-response')}
+            {t('search-response', 'Search Response')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchResponse" inDialog>
             {searchResponse}
@@ -240,7 +240,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="searchError">
           <Filter.BarName>
             <IconAlertTriangle />
-            {t('search-error')}
+            {t('search-error', 'Search Error')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchError" inDialog>
             {searchError}

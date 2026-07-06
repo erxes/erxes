@@ -114,7 +114,7 @@ const SelectSubBranchDistrictValue = ({
   if (!selectedSubBranchDistrict) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-sub-branch-district')}
+        {placeholder || t('select-sub-branch-district', 'Select sub branch district')}
       </span>
     );
   }
@@ -155,10 +155,10 @@ const SelectSubBranchDistrictContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder={t('search-sub-branch-district')} />
+      <Command.Input placeholder={t('search-sub-branch-district', 'Search sub branch district')} />
       <Command.Empty>
         <span className="text-muted-foreground">
-          {t('no-sub-branch-districts-found')}
+          {t('no-sub-branch-districts-found', 'No sub branch districts found')}
         </span>
       </Command.Empty>
       <Command.List>
@@ -178,7 +178,7 @@ export const SelectSubBranchDistrictFilterItem = () => {
   return (
     <Filter.Item value="subBranchDistrict">
       <IconBuildingStore />
-      {t('sub-branch-district')}
+      {t('sub-branch-district', 'Sub Branch District')}
     </Filter.Item>
   );
 };
@@ -238,7 +238,7 @@ export const SelectSubBranchDistrictFilterBar = ({
     <Filter.BarItem queryKey={'subBranchDistrict'}>
       <Filter.BarName>
         <IconBuildingStore />
-        {t('sub-branch-district')}
+        {t('sub-branch-district', 'Sub Branch District')}
       </Filter.BarName>
       <SelectSubBranchDistrictProvider
         mode={mode}

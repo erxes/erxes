@@ -28,7 +28,7 @@ const BulkDelete = <T extends { _id: string }>({
     }).then(() => {
       rows.forEach((r) => r.toggleSelected(false));
       onDeleteMany(ids).catch((e: Error) => {
-        toast({ title: t('error'), description: e.message, variant: 'destructive' });
+        toast({ title: t('error', 'Error'), description: e.message, variant: 'destructive' });
       });
     });
   };
@@ -36,7 +36,7 @@ const BulkDelete = <T extends { _id: string }>({
   return (
     <Button variant="secondary" className="text-destructive" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };
@@ -49,7 +49,7 @@ export const ErkhetConfigCommandBar = <T extends { _id: string }>({ onDeleteMany
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} {t('selected')}</CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} {t('selected', 'selected')}</CommandBar.Value>
         <Separator.Inline />
         <BulkDelete rows={selectedRows} onDeleteMany={onDeleteMany} loading={loading} />
       </CommandBar.Bar>

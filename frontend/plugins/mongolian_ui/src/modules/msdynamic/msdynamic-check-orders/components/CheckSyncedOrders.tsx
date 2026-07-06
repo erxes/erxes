@@ -27,7 +27,7 @@ const CheckSyncedOrdersEmptyState = () => {
     <div className="flex h-full min-h-[400px] w-full items-center justify-center px-8 text-center">
       <div>
         <IconInbox size={64} className="mx-auto mb-4 text-muted-foreground" />
-        <h3 className="mb-2 text-xl font-semibold">{t('no-order-yet')}</h3>
+        <h3 className="mb-2 text-xl font-semibold">{t('no-order-yet', 'No orders yet')}</h3>
       </div>
     </div>
   );
@@ -83,14 +83,14 @@ const CheckSyncedOrders = () => {
         return { ...remainingInfos, ...syncedInfos };
       });
       toast({
-        title: t('orders-checked-successfully'),
+        title: t('orders-checked-successfully', 'Orders checked successfully'),
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: t('failed-to-check-orders'),
+        title: t('failed-to-check-orders', 'Failed to check orders'),
         description:
-          error instanceof Error ? error.message : t('please-try-again-later'),
+          error instanceof Error ? error.message : t('please-try-again-later', 'Please try again later.'),
         variant: 'destructive',
       });
     }
@@ -120,14 +120,14 @@ const CheckSyncedOrders = () => {
           },
         }));
         toast({
-          title: t('order-resent-successfully'),
+          title: t('order-resent-successfully', 'Order resent successfully'),
           variant: 'success',
         });
       } catch (error) {
         toast({
-          title: t('failed-to-resend-order'),
+          title: t('failed-to-resend-order', 'Failed to resend order'),
           description:
-            error instanceof Error ? error.message : t('please-try-again-later'),
+            error instanceof Error ? error.message : t('please-try-again-later', 'Please try again later.'),
           variant: 'destructive',
         });
       }
