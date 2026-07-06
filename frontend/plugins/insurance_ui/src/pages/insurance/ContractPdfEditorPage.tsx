@@ -185,7 +185,9 @@ export const ContractPdfEditorPage = () => {
                     <IconCode className="text-blue-600" size={24} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">{t('html-template-editor')}</h2>
+                    <h2 className="text-xl font-bold">
+                      {t('html-template-editor')}
+                    </h2>
                     <p className="text-sm text-muted-foreground">
                       {t('contract-number')}: {contract.contractNumber}
                     </p>
@@ -237,19 +239,24 @@ export const ContractPdfEditorPage = () => {
                 </h3>
                 <ul className="text-sm text-blue-700 space-y-1">
                   <li>
-                    • <strong>{t('edit-mode')}:</strong> {t('edit-html-template-directly')}
+                    • <strong>{t('edit-mode')}:</strong>{' '}
+                    {t('edit-html-template-directly')}
                   </li>
                   <li>
-                    • <strong>{t('preview')}:</strong> {t('opens-in-new-window')}
+                    • <strong>{t('preview')}:</strong>{' '}
+                    {t('opens-in-new-window')}
                   </li>
                   <li>
-                    • <strong>{t('print')}:</strong> {t('opens-print-dialog-for-pdf')}
+                    • <strong>{t('print')}:</strong>{' '}
+                    {t('opens-print-dialog-for-pdf')}
                   </li>
                   <li>
-                    • <strong>{t('download-html')}:</strong> {t('downloads-html-file')}
+                    • <strong>{t('download-html')}:</strong>{' '}
+                    {t('downloads-html-file')}
                   </li>
                   <li>
-                    • <strong>{t('reset')}:</strong> {t('reverts-to-original-template')}
+                    • <strong>{t('reset')}:</strong>{' '}
+                    {t('reverts-to-original-template')}
                   </li>
                 </ul>
               </div>

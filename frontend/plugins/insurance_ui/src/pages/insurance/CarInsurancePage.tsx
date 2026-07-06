@@ -230,7 +230,9 @@ export const CarInsurancePage = () => {
                   <IconCar className="text-blue-600" size={32} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">{t('vehicle-insurance')}</h2>
+                  <h2 className="text-2xl font-bold">
+                    {t('vehicle-insurance')}
+                  </h2>
                   <p className="text-muted-foreground">
                     {t('create-vehicle-insurance-contract')}
                   </p>
@@ -407,14 +409,18 @@ export const CarInsurancePage = () => {
                     </h4>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-blue-700">{t('assessed-value')}:</span>
+                        <span className="text-blue-700">
+                          {t('assessed-value')}:
+                        </span>
                         <span className="font-medium">
                           {insuredObject.assessedValue?.toLocaleString()} ₮
                         </span>
                       </div>
                       {durationInMonths > 0 && (
                         <div className="flex justify-between">
-                          <span className="text-blue-700">{t('duration')}:</span>
+                          <span className="text-blue-700">
+                            {t('duration')}:
+                          </span>
                           <span className="font-medium">
                             {durationInMonths} {t('months')}
                           </span>
