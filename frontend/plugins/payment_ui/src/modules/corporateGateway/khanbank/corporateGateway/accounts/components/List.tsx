@@ -22,24 +22,22 @@ const List = ({ queryParams, configId, accounts }: Props) => {
 
   return (
     <Button
-  key={account.ibanAcctNo}
-  variant="ghost"
-  className={`w-full h-auto justify-start p-3 border rounded-lg
+      key={account.ibanAcctNo}
+      variant="ghost"
+      className={`w-full h-auto justify-start p-3 border rounded-lg
     ${isActive ? 'bg-primary/10 border-primary' : 'hover:bg-muted'}`}
-  onClick={() => handleClick(account.ibanAcctNo)}
->
-  <div className="text-left">
-    <div className="text-sm font-medium">Данс: {account.number}</div>
+      onClick={() => handleClick(account.ibanAcctNo)}
+    >
+      <div className="text-left">
+        <div className="text-sm font-medium">Данс: {account.number}</div>
 
-    <div className="text-xs text-muted-foreground">
-      IBAN: {account.ibanAcctNo}
-    </div>
+        <div className="text-xs text-muted-foreground">
+          IBAN: {account.ibanAcctNo}
+        </div>
 
-    <div className="text-xs text-muted-foreground mt-1">
-      {account.name}
-    </div>
-  </div>
-</Button>
+        <div className="text-xs text-muted-foreground mt-1">{account.name}</div>
+      </div>
+    </Button>
   );
 };
 

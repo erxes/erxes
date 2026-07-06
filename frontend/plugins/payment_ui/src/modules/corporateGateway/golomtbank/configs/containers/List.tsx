@@ -61,19 +61,18 @@ export default function ListContainer({ loading: externalLoading }: Props) {
   }
 
   const configs = data?.golomtBankConfigsList?.list ?? [];
-const totalCount = data?.golomtBankConfigsList?.totalCount ?? 0;
+  const totalCount = data?.golomtBankConfigsList?.totalCount ?? 0;
 
-const sharedProps = {
-  loading,
-  configs,
-  totalCount,
-  refetch,
-  remove,
-  queryParams,
-};
+  const sharedProps = {
+    loading,
+    configs,
+    totalCount,
+    refetch,
+    remove,
+    queryParams,
+  };
 
-const Component = isSettings ? List : SidebarList;
+  const Component = isSettings ? List : SidebarList;
 
-return <Component {...sharedProps} />;
-
+  return <Component {...sharedProps} />;
 }
