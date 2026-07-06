@@ -212,7 +212,10 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
     isGroupConversation,
     isBotMessage,
   } = useConversationMessageContext();
-  const isOutgoing = !!userId || isBotMessage;
+  // In a group conversation (Discord channel), there's no "our side" vs
+  // "their side" — every sender, including the bot, is just another poster
+  // in a shared channel and should render left-aligned like everyone else.
+  const isOutgoing = !!userId || (isBotMessage && !isGroupConversation);
   const { customer } = useAtomValue(activeConversationState) || {};
   // Resolve the avatar from the message's own customerId by passing `undefined`,
   // which lets the provider fetch by id. We only short-circuit with the

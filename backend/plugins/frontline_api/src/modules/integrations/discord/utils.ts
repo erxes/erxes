@@ -247,7 +247,8 @@ const resolveRetryAfterMs = (
   const capMs = (retryAfterSec: number) =>
     Math.min(Math.max(retryAfterSec * 1000, 0), 60_000);
 
-  const headerRetry = Number(response.headers.get('retry-after'));
+  const headerRetryHeader = response.headers.get('retry-after');
+  const headerRetry = headerRetryHeader === null ? NaN : Number(headerRetryHeader);
   if (Number.isFinite(headerRetry)) {
     return capMs(headerRetry);
   }

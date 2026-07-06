@@ -28,8 +28,7 @@ export const INTEGRATIONS = {
   },
   [IntegrationType.DISCORD_MESSENGER]: {
     name: 'Discord',
-    description:
-      'Connect and manage Discord channel messages right from your Team Inbox',
+    descriptionKey: 'integration-desc-discord',
     img: 'discord.svg',
   },
   [IntegrationType.CALL]: {

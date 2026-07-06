@@ -575,6 +575,7 @@
   "integration-desc-instagram-post": "Manage comments and replies on your Instagram posts.",
   "integration-desc-call": "Handle inbound and outbound calls using the Grandstream call integration.",
   "integration-desc-imap": "Connect your email account via IMAP to manage email conversations.",
+  "integration-desc-discord": "Connect and manage Discord channel messages right from your Team Inbox.",
   "connecting-to-facebook": "Connecting to Facebook...",
   "connect-facebook-account": "Connect Facebook Account",
   "accounts-found": "{{count}} accounts found",

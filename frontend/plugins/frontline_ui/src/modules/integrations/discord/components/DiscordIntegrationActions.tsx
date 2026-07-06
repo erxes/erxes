@@ -168,6 +168,8 @@ export const DiscordIntegrationRepair = ({
 
   /** Trigger the repair mutation for this integration. */
   const handleRepair = () => {
+    if (loading) return;
+
     repairIntegration({
       variables: { _id: cell.row.original._id, kind: integrationType },
       onCompleted: () => toast({ title: 'Repaired successfully' }),
