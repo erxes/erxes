@@ -7,17 +7,28 @@ import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { TasksExportButton, TasksImportButton } from '@/task/components/TasksLayout';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useLocation, useParams } from 'react-router-dom';
-import { Can, PageHeader } from 'ui-modules';
+import {
+  Can,
+  FavoriteToggleIconButton,
+  PageHeader,
+  createFavoriteBreadcrumb,
+} from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
   const { pathname } = useLocation();
+  const { t } = useTranslation('operation');
 
   const basePath = teamId
     ? `/operation/team/${teamId}/tasks`
     : `/operation/tasks`;
 
   const isCreatedView = pathname === '/operation/tasks/created';
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('tasks'),
+    !teamId && (isCreatedView ? t('created') : t('assigned')),
+  );
 
   return (
     <>
@@ -32,6 +43,9 @@ export const TasksPage = () => {
                 </>
               )}
               <TaskBreadCrump link={basePath} />
+              <Breadcrumb.Item className="ml-1">
+                <FavoriteToggleIconButton breadcrumb={favoriteBreadcrumb} />
+              </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
@@ -54,4 +68,3 @@ export const TasksPage = () => {
     </>
   );
 };
-

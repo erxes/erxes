@@ -1,13 +1,12 @@
 import { useQuery } from '@apollo/client';
 import { GET_FAVORITES } from '@/navigation/graphql/queries/getFavorites';
-import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 
 interface Favorite {
   _id: string;
-  type: 'module' | 'submenu';
   path: string;
+  breadcrumb?: string[];
 }
 
 interface FavoriteModule {
@@ -21,7 +20,6 @@ interface GetFavoritesResponse {
 }
 
 export function useFavorites(): FavoriteModule[] {
-  const modules = usePluginsModules();
   const currentUser = useAtomValue(currentUserState);
 
   const { data } = useQuery<GetFavoritesResponse>(GET_FAVORITES, {
@@ -30,21 +28,8 @@ export function useFavorites(): FavoriteModule[] {
 
   const favorites = data?.getFavoritesByCurrentUser ?? [];
 
-  return favorites.reduce<FavoriteModule[]>((acc, favorite) => {
-    if (favorite.type === 'module') {
-      const module = modules?.find(
-        (m) => m.path === favorite.path.replace('/', ''),
-      );
-
-      if (module) {
-        acc.push({
-          name: module.name,
-          icon: module.icon,
-          path: module.path,
-        });
-      }
-    }
-
-    return acc;
-  }, []);
+  return favorites.map((favorite) => ({
+    name: favorite.breadcrumb?.join(' / ') || favorite.path,
+    path: favorite.path,
+  }));
 }

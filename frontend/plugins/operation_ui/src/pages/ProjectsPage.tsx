@@ -1,13 +1,20 @@
-import { PageHeader } from 'ui-modules';
+import {
+  FavoriteToggleIconButton,
+  PageHeader,
+  createFavoriteBreadcrumb,
+} from 'ui-modules';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { AddProjectSheet } from '@/project/components/add-project/AddProjectSheet';
 import { useParams } from 'react-router-dom';
 import { ProjectBreadCrumb } from '@/project/components/breadcumb/ProjectBreadCrumb';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { ProjectsRecordTable } from '@/project/components/ProjectsRecordTable';
+import { useTranslation } from 'react-i18next';
 
 export const ProjectsPage = () => {
   const { teamId } = useParams();
+  const { t } = useTranslation('operation');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('projects'));
 
   return (
     <>
@@ -28,6 +35,9 @@ export const ProjectsPage = () => {
                     : `/operation/projects`
                 }
               />
+              <Breadcrumb.Item className="ml-1">
+                <FavoriteToggleIconButton breadcrumb={favoriteBreadcrumb} />
+              </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>

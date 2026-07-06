@@ -9,6 +9,7 @@ import {
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetProject } from '@/project/hooks/useGetProject';
 import { useTranslation } from 'react-i18next';
+import { FavoriteToggleIconButton, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const ProjectDetailBreadCrumb = () => {
   const { t } = useTranslation('operation');
@@ -31,6 +32,13 @@ export const ProjectDetailBreadCrumb = () => {
   const basePath = teamId
     ? `/operation/team/${teamId}/projects/${projectId}`
     : `/operation/projects/${projectId}`;
+  const currentView =
+    pathname === `${basePath}/tasks` ? t('tasks') : t('overview');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('projects'),
+    project?.name,
+    currentView,
+  );
 
   return (
     <Breadcrumb>
@@ -52,6 +60,9 @@ export const ProjectDetailBreadCrumb = () => {
             <Link to={`${basePath}/tasks`}>{t('tasks')}</Link>
           </ToggleGroup.Item>
         </ToggleGroup>
+        <Breadcrumb.Item className="ml-1">
+          <FavoriteToggleIconButton breadcrumb={favoriteBreadcrumb} />
+        </Breadcrumb.Item>
       </Breadcrumb.List>
     </Breadcrumb>
   );

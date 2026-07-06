@@ -1,32 +1,36 @@
 import { IContext } from '~/connectionResolvers';
 import { IFavorites } from '@/organization/settings/db/definitions/favorites';
+import {
+  normalizeFavoriteBreadcrumb,
+  normalizeFavoritePath,
+} from '@/organization/settings/graphql/favorites/utils';
+
+type ToggleFavoriteArgs = Pick<IFavorites, 'path' | 'breadcrumb'>;
 
 export const favoriteMutations = {
   toggleFavorite: async (
     _parent: undefined,
-    { type, path }: IFavorites,
+    { path, breadcrumb }: ToggleFavoriteArgs,
     { models, user }: IContext,
   ) => {
-    const favorite = await models.Favorites.getFavorites({
-      type,
-      path,
+    const normalizedPath = normalizeFavoritePath(path);
+
+    const favorite = await models.Favorites.getFavorite({
+      path: normalizedPath,
       userId: user._id,
     });
 
     if (favorite) {
       return models.Favorites.deleteFavorite({
-        type,
-        path,
-        userId: user._id,
-      });
-    } else {
-      return models.Favorites.createFavorite({
-        type,
-        path,
+        path: normalizedPath,
         userId: user._id,
       });
     }
+
+    return models.Favorites.createFavorite({
+      path: normalizedPath,
+      breadcrumb: normalizeFavoriteBreadcrumb(breadcrumb),
+      userId: user._id,
+    });
   },
 };
-
-export default favoriteMutations;
