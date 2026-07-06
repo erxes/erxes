@@ -22,8 +22,16 @@ import {
   projectExportHandlers,
 } from './meta/import-export/export/exportHandlers';
 import { taskImportHandlers } from './meta/import-export/import/importHandlers';
+import {
+  handleGithubWebhook,
+  handleGithubSetup,
+} from './utils/githubWebhookHandler';
 
 export const router: Router = Router();
+
+router.post('/integrations/github/webhook', handleGithubWebhook);
+
+router.get('/integrations/github/setup', handleGithubSetup);
 
 startPlugin({
   name: 'operation',

@@ -13,6 +13,9 @@ export interface ITriage {
   number: number;
   priority: number;
   status: number;
+  githubIssueNumber?: number;
+  githubIssueUrl?: string;
+  githubRepoName?: string;
 }
 
 export interface ITriageUpdate extends ITriage {

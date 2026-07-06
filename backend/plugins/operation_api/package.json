@@ -12,11 +12,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@octokit/app": "^16.1.2",
+    "@octokit/rest": "^22.0.1",
     "date-fns": "^4.1.0",
     "erxes-api-shared": "workspace:^",
     "graphql-tag": "^2.12.6",
     "moment-timezone": "^0.5.48",
     "mongodb": "^6.18.0"
-  },
-  "devDependencies": {}
+  }
 }
