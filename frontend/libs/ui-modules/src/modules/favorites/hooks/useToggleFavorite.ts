@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import { useLocation } from 'react-router-dom';
 import { TOGGLE_FAVORITE } from '../graphql/mutations/toggleFavorite';
 import { FavoriteToggleParams } from '../types';
@@ -16,11 +17,18 @@ export const useToggleFavorite = ({
 
   const [toggleFavoriteMutation] = useMutation(TOGGLE_FAVORITE);
 
-  const toggleFavorite = () => {
-    toggleFavoriteMutation({
-      variables: { path, breadcrumb, icon },
-      refetchQueries: ['isFavorite', 'getFavoritesByCurrentUser'],
-    });
+  const toggleFavorite = async () => {
+    try {
+      await toggleFavoriteMutation({
+        variables: { path, breadcrumb, icon },
+        refetchQueries: ['isFavorite', 'getFavoritesByCurrentUser'],
+      });
+    } catch (error) {
+      toast({
+        title: error instanceof Error ? error.message : String(error),
+        variant: 'destructive',
+      });
+    }
   };
 
   return { isFavorite, toggleFavorite };

@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 export const ProjectsPage = () => {
   const { teamId } = useParams();
   const { t } = useTranslation('operation');
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('projects'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(teamId, t('projects'));
 
   return (
     <>

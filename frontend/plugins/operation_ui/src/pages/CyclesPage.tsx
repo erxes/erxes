@@ -15,7 +15,7 @@ export const CyclesPage = () => {
   const { teamId } = useParams();
   const { t } = useTranslation('operation');
   const link = `/operation/team/${teamId}/cycles`;
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('cycles'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(teamId, t('cycles'));
 
   return (
     <>

@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useToggleFavorite } from '../hooks/useToggleFavorite';
 import { FavoriteToggleParams } from '../types';
 
+const PARTICLE_IDS = ['top', 'right', 'bottom-right', 'bottom-left', 'left'];
+
 const animations = {
   icon: {
     initial: { scale: 1, rotate: 0 },
@@ -42,7 +44,7 @@ export function FavoriteToggleIconButton(
   const [isAnimating, setIsAnimating] = useState(false);
 
   const handleToggle = () => {
-    toggleFavorite();
+    void toggleFavorite();
     if (!isFavorite) {
       setIsAnimating(true);
     }
@@ -55,6 +57,7 @@ export function FavoriteToggleIconButton(
         size="icon"
         onClick={handleToggle}
         aria-pressed={isFavorite}
+        aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
       >
         <motion.div
           initial={{ scale: 1 }}
@@ -99,9 +102,9 @@ export function FavoriteToggleIconButton(
       <AnimatePresence>
         {isAnimating && isFavorite && (
           <motion.div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            {[...Array(5)].map((_, i) => (
+            {PARTICLE_IDS.map((particleId, index) => (
               <motion.div
-                key={i}
+                key={particleId}
                 className="absolute rounded-full bg-amber-500"
                 style={{
                   width: `${4 + Math.random() * 2}px`,
@@ -109,9 +112,9 @@ export function FavoriteToggleIconButton(
                   filter: 'blur(1px)',
                   transform: 'translate(-50%, -50%)',
                 }}
-                initial={animations.particles(i).initial}
-                animate={animations.particles(i).animate}
-                transition={animations.particles(i).transition}
+                initial={animations.particles(index).initial}
+                animate={animations.particles(index).animate}
+                transition={animations.particles(index).transition}
               />
             ))}
           </motion.div>

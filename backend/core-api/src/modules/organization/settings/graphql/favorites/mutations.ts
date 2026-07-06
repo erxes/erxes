@@ -28,11 +28,24 @@ export const favoriteMutations = {
       });
     }
 
-    return models.Favorites.createFavorite({
-      path: normalizedPath,
-      breadcrumb: normalizeFavoriteBreadcrumb(breadcrumb),
-      icon: normalizeFavoriteIcon(icon),
-      userId: user._id,
-    });
+    try {
+      return await models.Favorites.createFavorite({
+        path: normalizedPath,
+        breadcrumb: normalizeFavoriteBreadcrumb(breadcrumb),
+        icon: normalizeFavoriteIcon(icon),
+        userId: user._id,
+      });
+    } catch (error) {
+      const { code } = error as { code?: number };
+
+      if (code === 11000) {
+        return models.Favorites.getFavorite({
+          path: normalizedPath,
+          userId: user._id,
+        });
+      }
+
+      throw error;
+    }
   },
 };

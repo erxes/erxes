@@ -2,8 +2,6 @@ import { cn, Separator, Sidebar } from 'erxes-ui';
 import React from 'react';
 import { FavoriteToggleIconButton } from '../../favorites/components/FavoriteToggleIconButton';
 
-export { FavoriteToggleIconButton };
-
 export const PageHeaderRoot = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
