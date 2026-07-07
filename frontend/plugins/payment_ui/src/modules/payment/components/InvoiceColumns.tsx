@@ -114,7 +114,7 @@ export const invoicesColumns = (
               </Badge>
             </RelativeDateDisplay>
           ) : (
-            <Badge variant="outline">{t('not-scanned')}</Badge>
+            <Badge variant="secondary">{t('not-scanned')}</Badge>
           )}
         </RecordTableInlineCell>
       );
