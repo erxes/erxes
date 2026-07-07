@@ -286,6 +286,7 @@ export const extractConfig = async (subdomain, doc) => {
     orderPassword: doc.orderPassword,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
+    erkhetConfig: doc.erkhetConfig,
     kitchenScreen: doc.kitchenScreen,
     waitingScreen: doc.waitingScreen,
     catProdMappings: doc.catProdMappings,

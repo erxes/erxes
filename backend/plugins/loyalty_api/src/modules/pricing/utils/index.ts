@@ -335,9 +335,9 @@ export const checkPricing = async (params: {
   subdomain: string;
   prioritizeRule: string;
   totalAmount: number;
-  departmentId: string;
-  branchId: string;
-  pipelineId: string;
+  departmentId?: string;
+  branchId?: string;
+  pipelineId?: string;
   orderItems: OrderItem[];
   customerType?: ParticipantKind;
   customerId?: string;
