@@ -70,7 +70,13 @@ export const tdbCallbackHandler = async (
   subdomain: string,
   data: ITDBCallbackQuery,
 ): Promise<ITransactionDocument> => {
+  console.log('========== TDB CALLBACK ==========');
+  console.log('Callback payload:', data);
+
   const { ID, STATUS } = data;
+
+  console.log('Order ID:', ID);
+  console.log('Callback STATUS:', STATUS);
 
   if (!ID || !STATUS) {
     throw new Error('Missing ID or STATUS in callback query parameters');
@@ -85,21 +91,41 @@ export const tdbCallbackHandler = async (
     ],
   });
 
+  console.log('Transaction found:', !!transaction);
+
+  if (transaction) {
+    console.log({
+      transactionId: transaction._id,
+      invoiceId: transaction.invoiceId,
+      paymentId: transaction.paymentId,
+      paymentKind: transaction.paymentKind,
+      status: transaction.status,
+      responseOrderId: transaction.response?.order?.id,
+    });
+  }
+
   if (!transaction) {
     throw new Error(`Transaction not found for TDB order ID: ${ID}`);
   }
 
-  // Early exit: already paid → no need to call TDB again
   if (transaction.status === PAYMENT_STATUS.PAID) {
+    console.log('Transaction already paid. Returning.');
     return transaction;
   }
 
+  console.log('Loading payment method...');
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
+  console.log('Payment kind:', payment.kind);
 
   const api = new TDBAPI(payment.config, process.env.DOMAIN || '');
+
+  console.log('Checking TDB order...');
   const orderDetail = await api.checkInvoice(transaction);
 
+  console.log('Order detail:', orderDetail);
+
   if (!orderDetail) {
+    console.log('No order detail returned.');
     return transaction;
   }
 
@@ -107,19 +133,19 @@ export const tdbCallbackHandler = async (
     _id: transaction.invoiceId,
   });
 
-  const expectedAmount = invoice.amount;
-  const expectedCurrency = invoice.currency;
+  console.log({
+    invoiceId: invoice._id,
+    invoiceStatus: invoice.status,
+    invoiceAmount: invoice.amount,
+    invoiceCurrency: invoice.currency,
+  });
 
-  if (orderDetail.amount !== expectedAmount) {
-    throw new Error(
-      `Amount mismatch: expected ${expectedAmount}, got ${orderDetail.amount}`,
-    );
-  }
-  if (orderDetail.currency !== expectedCurrency) {
-    throw new Error(
-      `Currency mismatch: expected ${expectedCurrency}, got ${orderDetail.currency}`,
-    );
-  }
+  console.log({
+    tdbAmount: orderDetail.amount,
+    tdbCurrency: orderDetail.currency,
+    tdbStatus: orderDetail.status,
+    tdbPrevStatus: orderDetail.prevStatus,
+  });
 
   const status = (orderDetail.status || '').toUpperCase();
   const prevStatus = (orderDetail.prevStatus || '').toUpperCase();
@@ -131,7 +157,11 @@ export const tdbCallbackHandler = async (
     status === 'PAID' ||
     (status === 'CLOSED' && prevStatus === 'FULLYPAID');
 
+  console.log('isPaid =', isPaid);
+
   if (isPaid && transaction.status !== PAYMENT_STATUS.PAID) {
+    console.log('Marking transaction as PAID...');
+
     transaction.status = PAYMENT_STATUS.PAID;
     transaction.updatedAt = new Date();
     transaction.details = {
@@ -139,85 +169,29 @@ export const tdbCallbackHandler = async (
       tdbOrderDetail: orderDetail,
       tdbLastChecked: new Date(),
     };
+
     await transaction.save();
 
-    graphqlPubsub.publish(`transactionUpdated:${transaction.invoiceId}`, {
-      transactionUpdated: {
-        _id: transaction._id,
-        status: PAYMENT_STATUS.PAID,
-        amount: transaction.amount,
-        paymentKind: transaction.paymentKind,
-      },
-    });
+    console.log('Transaction saved.');
 
-    const result = await models.Invoices.checkInvoice(invoice._id, subdomain);
-
-    if (result === PAYMENT_STATUS.PAID) {
-      graphqlPubsub.publish(`invoiceUpdated:${invoice._id}`, {
-        invoiceUpdated: {
-          _id: transaction.invoiceId,
-          status: PAYMENT_STATUS.PAID,
-        },
-      });
-    }
-
-    const [pluginName, moduleName, collectionType] = splitType(
-      invoice.contentType,
+    const result = await models.Invoices.checkInvoice(
+      invoice._id,
+      subdomain,
     );
 
-    if (await isEnabled(pluginName)) {
-      try {
-        await sendWorkerMessage({
-          subdomain,
-          pluginName,
-          queueName: 'payments',
-          jobName: 'transactionCallback',
-          data: {
-            ...transaction.toObject(),
-            moduleName,
-            collectionType,
-            apiResponse: 'success',
-          },
-          defaultValue: null,
-        });
+    console.log('checkInvoice() returned:', result);
 
-        if (result === PAYMENT_STATUS.PAID) {
-          await sendWorkerMessage({
-            subdomain,
-            pluginName,
-            queueName: 'payments',
-            jobName: 'callback',
-            data: {
-              ...invoice.toObject(),
-              moduleName,
-              collectionType,
-              status: PAYMENT_STATUS.PAID,
-            },
-            defaultValue: null,
-          });
+    const updatedInvoice = await models.Invoices.getInvoice({
+      _id: invoice._id,
+    });
 
-          if (invoice.callback) {
-            await fetch(invoice.callback, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                _id: invoice._id,
-                amount: invoice.amount,
-                status: PAYMENT_STATUS.PAID,
-              }),
-            }).catch((e) => console.error('External callback error:', e));
-          }
-        }
-      } catch (e) {
-        console.error('Worker message error:', e);
-      }
-    }
+    console.log('Invoice status after checkInvoice:', updatedInvoice.status);
   }
 
+  console.log('========== END CALLBACK ==========');
+
   return transaction;
-};
+}
 
 // API CLIENT
 export class TDBAPI extends BaseAPI {
