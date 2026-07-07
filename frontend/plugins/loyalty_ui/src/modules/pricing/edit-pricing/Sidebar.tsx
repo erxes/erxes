@@ -2,21 +2,31 @@ import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { PRICING_STEPS } from '@/pricing/edit-pricing/components';
+import { IPricingPlanDetail } from '@/pricing/types';
 
 interface PricingEditSidebarProps {
   activeTab: string;
+  pricingDetail?: IPricingPlanDetail;
 }
 
 const RULE_TABS = new Set(['rules', 'common', 'quantity', 'price', 'expiry']);
 
-export const PricingEditSidebar = ({ activeTab }: PricingEditSidebarProps) => {
+export const PricingEditSidebar = ({
+  activeTab,
+  pricingDetail,
+}: PricingEditSidebarProps) => {
   const { t } = useTranslation('loyalty');
+  const steps = PRICING_STEPS.filter(
+    (step) =>
+      step.value !== 'participants' || pricingDetail?.priority !== 'posBase',
+  );
+
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {PRICING_STEPS.map((step) => (
+            {steps.map((step) => (
               <PricingEditSidebarItem
                 key={step.value}
                 to={step.value}

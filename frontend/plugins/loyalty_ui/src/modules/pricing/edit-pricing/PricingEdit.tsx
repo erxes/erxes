@@ -12,21 +12,44 @@ export const PricingEdit = ({ id }: PricingEditProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { pricingDetail, loading, error } = usePricingDetail(id);
 
-  const activeTab = searchParams.get('activeTab') || 'general';
+  const requestedActiveTab = searchParams.get('activeTab') || 'general';
+  const shouldHideParticipants = pricingDetail?.priority === 'posBase';
+  const activeTab =
+    shouldHideParticipants && requestedActiveTab === 'participants'
+      ? 'general'
+      : requestedActiveTab;
 
   useEffect(() => {
-    if (!searchParams.get('activeTab')) {
+    const activeTabParam = searchParams.get('activeTab');
+
+    if (!activeTabParam) {
       setSearchParams((prev) => {
         const newParams = new URLSearchParams(prev);
         newParams.set('activeTab', 'general');
         return newParams;
       });
+
+      return;
     }
-  }, [searchParams, setSearchParams]);
+
+    if (
+      pricingDetail?.priority === 'posBase' &&
+      activeTabParam === 'participants'
+    ) {
+      setSearchParams(
+        (prev) => {
+          const newParams = new URLSearchParams(prev);
+          newParams.set('activeTab', 'general');
+          return newParams;
+        },
+        { replace: true },
+      );
+    }
+  }, [pricingDetail?.priority, searchParams, setSearchParams]);
 
   return (
     <div className="flex h-full">
-      <PricingEditSidebar activeTab={activeTab} />
+      <PricingEditSidebar activeTab={activeTab} pricingDetail={pricingDetail} />
 
       <PricingMainContent
         activeStep={activeTab}

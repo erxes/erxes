@@ -68,6 +68,31 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
       ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
   };
 
+  const erkhetConfigs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolian',
+    module: 'mnConfigs',
+    action: 'find',
+    input: {
+      query: {
+        $or: [
+          { code: 'ERKHET' },
+          { code: 'posOrderErkhetConfig', subId: pos._id },
+        ],
+      },
+    },
+    defaultValue: [],
+  });
+  const erkhetMain = erkhetConfigs.find((conf) => conf.code === 'ERKHET');
+  const posOrderErkhetConfig = erkhetConfigs.find(
+    (conf) => conf.code === 'posOrderErkhetConfig' && conf.subId === pos._id,
+  );
+
+  data.pos.erkhetConfig = {
+    ...erkhetMain?.value,
+    ...posOrderErkhetConfig?.value,
+  };
+
   return data;
 };
 

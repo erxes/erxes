@@ -12,6 +12,7 @@ interface ExpiryInfoProps {
   pricingDetail?: IPricingPlanDetail;
   embedded?: boolean;
   onSaveActionChange?: (action: ReactNode | null) => void;
+  onEnabledChange?: (enabled: boolean) => void;
 }
 
 export const ExpiryInfo = (props: ExpiryInfoProps) => {

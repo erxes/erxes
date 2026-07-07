@@ -21,6 +21,10 @@ import {
   IconHierarchy,
   IconShoppingCart,
 } from '@tabler/icons-react';
+import {
+  PRICING_PRIORITY_OPTIONS,
+  priorityLabelKey,
+} from '@/pricing/constants';
 
 const formatDateTime = (dateString: string) => {
   if (!dateString) return '';
@@ -33,7 +37,7 @@ type PricingFilterState = {
   branchId?: string | null;
   departmentId?: string | null;
   productId?: string | null;
-  isPriority?: string | null;
+  priority?: string | null;
   date?: string | null;
   isQuantityEnabled?: boolean | null;
   isPriceEnabled?: boolean | null;
@@ -53,7 +57,7 @@ export const PricingFilterBar = ({
     branchId,
     departmentId,
     productId,
-    isPriority,
+    priority,
     date,
     isQuantityEnabled,
     isPriceEnabled,
@@ -62,6 +66,9 @@ export const PricingFilterBar = ({
   } = queries || {};
 
   const displayStatus = status || 'active';
+  const priorityOption = PRICING_PRIORITY_OPTIONS.find(
+    (option) => option.value === priority,
+  );
 
   return (
     <>
@@ -90,11 +97,11 @@ export const PricingFilterBar = ({
         <SelectProduct.FilterBar filterKey="productId" label={t('product')} />
       )}
 
-      {isPriority && (
-        <Filter.BarItem queryKey="isPriority">
+      {priority !== undefined && priority !== null && (
+        <Filter.BarItem queryKey="priority">
           <Filter.BarName>{t('priority')}</Filter.BarName>
-          <Filter.BarButton filterKey="isPriority">
-            {isPriority}
+          <Filter.BarButton filterKey="priority">
+            {t(priorityLabelKey(priorityOption?.value))}
           </Filter.BarButton>
         </Filter.BarItem>
       )}
@@ -114,28 +121,36 @@ export const PricingFilterBar = ({
       {isQuantityEnabled === true && (
         <Filter.BarItem queryKey="isQuantityEnabled">
           <Filter.BarName>{t('quantity-enabled')}</Filter.BarName>
-          <Filter.BarButton filterKey="isQuantityEnabled">{t('yes')}</Filter.BarButton>
+          <Filter.BarButton filterKey="isQuantityEnabled">
+            {t('yes')}
+          </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isPriceEnabled === true && (
         <Filter.BarItem queryKey="isPriceEnabled">
           <Filter.BarName>{t('price-enabled')}</Filter.BarName>
-          <Filter.BarButton filterKey="isPriceEnabled">{t('yes')}</Filter.BarButton>
+          <Filter.BarButton filterKey="isPriceEnabled">
+            {t('yes')}
+          </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isExpiryEnabled === true && (
         <Filter.BarItem queryKey="isExpiryEnabled">
           <Filter.BarName>{t('expiry-enabled')}</Filter.BarName>
-          <Filter.BarButton filterKey="isExpiryEnabled">{t('yes')}</Filter.BarButton>
+          <Filter.BarButton filterKey="isExpiryEnabled">
+            {t('yes')}
+          </Filter.BarButton>
         </Filter.BarItem>
       )}
 
       {isRepeatEnabled === true && (
         <Filter.BarItem queryKey="isRepeatEnabled">
           <Filter.BarName>{t('repeat-enabled')}</Filter.BarName>
-          <Filter.BarButton filterKey="isRepeatEnabled">{t('yes')}</Filter.BarButton>
+          <Filter.BarButton filterKey="isRepeatEnabled">
+            {t('yes')}
+          </Filter.BarButton>
         </Filter.BarItem>
       )}
     </>
@@ -195,9 +210,9 @@ export const PricingFilterView = () => {
               {t('product')}
             </Filter.Item>
             <Command.Separator className="my-1" />
-            <Filter.Item value="isPriority">
+            <Filter.Item value="priority">
               <IconFilter size={16} />
-              {t('prioritize-rule')}
+              {t('priority')}
             </Filter.Item>
             <Filter.Item value="date">
               <IconCalendar size={16} />
@@ -229,7 +244,7 @@ export const PricingFilterView = () => {
       <Filter.View filterKey="status">
         <StatusFilterContent />
       </Filter.View>
-      <Filter.View filterKey="isPriority">
+      <Filter.View filterKey="priority">
         <PriorityFilterContent />
       </Filter.View>
       <DateFilterView />
@@ -394,31 +409,26 @@ const DateFilterView = () => {
   );
 };
 
-const PRIORITY_OPTIONS = [
-  { label: 'only', value: 'only' },
-  { label: 'exclude', value: 'exclude' },
-];
-
 const PriorityFilterContent = () => {
   const { t } = useTranslation('loyalty');
-  const [isPriority, setIsPriority] = useQueryState<string>('isPriority');
+  const [priority, setPriority] = useQueryState<string>('priority');
   const { resetFilterState } = useFilterContext();
 
   return (
     <Command>
       <Command.Input placeholder={t('search-priority')} />
       <Command.List>
-        {PRIORITY_OPTIONS.map((option) => (
+        {PRICING_PRIORITY_OPTIONS.map((option) => (
           <Command.Item
             key={option.value}
             value={option.value}
             onSelect={() => {
-              setIsPriority(option.value);
+              setPriority(option.value);
               resetFilterState();
             }}
           >
             {t(option.label)}
-            <Combobox.Check checked={isPriority === option.value} />
+            <Combobox.Check checked={priority === option.value} />
           </Command.Item>
         ))}
       </Command.List>

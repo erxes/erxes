@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { Button, InfoCard, useToast } from 'erxes-ui';
+import { Button, InfoCard, Switch, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import {
@@ -54,6 +54,7 @@ interface PricingRuleInfoProps<T extends PricingRuleConfig> {
   pricingDetail?: IPricingPlanDetail;
   embedded?: boolean;
   onSaveActionChange?: (action: ReactNode | null) => void;
+  onEnabledChange?: (enabled: boolean) => void;
   title: string;
   rulesKey: PricingRuleField;
   enabledKey: PricingRuleEnabledField;
@@ -104,6 +105,7 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
   pricingDetail,
   embedded = false,
   onSaveActionChange,
+  onEnabledChange,
   title,
   rulesKey,
   enabledKey,
@@ -132,10 +134,13 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       | undefined;
 
     setRules((detailRules?.map(mapRuleToConfig) || []) as T[]);
-    setEnabled(pricingDetail[enabledKey] ?? !!detailRules?.length);
+    const nextEnabled = pricingDetail[enabledKey] ?? false;
+
+    setEnabled(nextEnabled);
+    onEnabledChange?.(nextEnabled);
     setHasChanges(false);
     setInitialLoaded(true);
-  }, [enabledKey, pricingDetail, rulesKey]);
+  }, [enabledKey, onEnabledChange, pricingDetail, rulesKey]);
 
   const markChanged = () => {
     if (initialLoaded) {
@@ -148,6 +153,14 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       ...prev,
       { ...rule, _id: rule._id || `${Date.now()}_${prev.length}` },
     ]);
+    setEnabled(true);
+    onEnabledChange?.(true);
+    markChanged();
+  };
+
+  const handleEnabledChange = (checked: boolean) => {
+    setEnabled(checked);
+    onEnabledChange?.(checked);
     markChanged();
   };
 
@@ -175,7 +188,6 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
     }
 
     const mappedRules = rules.map(mapConfigToRule);
-
     try {
       await editPricing({
         _id: pricingId,
@@ -229,7 +241,11 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
 
   const content = (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-3">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <Switch checked={enabled} onCheckedChange={handleEnabledChange} />
+          {t('enabled')}
+        </label>
         <RuleSheet
           onRuleAdded={handleRuleAdded}
           onRuleUpdated={handleRuleUpdated}

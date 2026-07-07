@@ -45,6 +45,13 @@ export const types = `
     soonIn: Float
     soonOut: Float
     remainders: [JSON]
+    discounts: JSON
+    discount(
+      branchId: String
+      departmentId: String
+      pipelineId: String
+      discountConditions: JSON
+    ): JSON
     
     isCheckRem: Boolean
     hasSimilarity: Boolean
@@ -97,6 +104,11 @@ const productsQueryParams = `
   maxRemainder: Float
   minPrice: Float
   maxPrice: Float
+  minDiscountValue: Float
+  maxDiscountValue: Float
+  minDiscountPercent: Float
+  maxDiscountPercent: Float
+  discountConditions: JSON
 `;
 
 const productCategoriesParams = `

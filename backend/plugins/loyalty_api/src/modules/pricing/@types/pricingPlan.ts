@@ -4,6 +4,8 @@ import { IQuantityRule } from './quantityRule';
 import { IExpiryRule } from './expiryRule';
 import { IRepeatRule } from './repeatRule';
 
+export type PricingPlanPriority = '' | 'public' | 'posBase';
+
 export interface IPricingPlan {
   name: string;
   status: string;
@@ -12,7 +14,7 @@ export interface IPricingPlan {
   priceAdjustType: 'none' | 'round' | 'floor' | 'ceil' | 'endsWith9';
   priceAdjustFactor: number;
   bonusProduct?: string;
-  isPriority: boolean;
+  priority: PricingPlanPriority;
 
   applyType: string;
 

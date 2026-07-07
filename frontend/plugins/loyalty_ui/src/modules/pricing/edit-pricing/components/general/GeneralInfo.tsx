@@ -1,13 +1,18 @@
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import { IPricingPlanDetail } from '@/pricing/types';
 import {
+  PRICING_PRIORITY_OPTIONS,
+  PricingPriorityFormValue,
+  priorityFromFormValue,
+  priorityToFormValue,
+} from '@/pricing/constants';
+import {
   formatDateValue,
   isDateRangeValid,
   parseDateValue,
 } from '@/pricing/utils/date';
 import {
   Button,
-  Checkbox,
   DatePicker,
   Form,
   InfoCard,
@@ -36,7 +41,7 @@ interface GeneralFormValues {
   name: string;
   status: 'active' | 'archived' | 'draft' | 'completed';
   applyType: 'category' | 'product' | 'order';
-  isPriority: boolean;
+  priority: PricingPriorityFormValue;
   startDate: string | null;
   endDate: string | null;
   appliesTo: 'category' | 'product' | 'segment' | 'vendor' | 'tag' | 'bundle';
@@ -110,7 +115,7 @@ export const GeneralInfo = ({
       name: '',
       status: 'active',
       applyType: 'product',
-      isPriority: false,
+      priority: 'none',
       startDate: null,
       endDate: null,
       appliesTo: 'category',
@@ -156,7 +161,7 @@ export const GeneralInfo = ({
       applyType:
         (pricingDetail.applyType as GeneralFormValues['applyType']) ||
         'product',
-      isPriority: pricingDetail.isPriority ?? false,
+      priority: priorityToFormValue(pricingDetail.priority),
       startDate:
         pricingDetail.isStartDateEnabled && pricingDetail.startDate
           ? pricingDetail.startDate.slice(0, 10)
@@ -201,7 +206,7 @@ export const GeneralInfo = ({
       name: values.name.trim(),
       status: values.status,
       applyType: appliesToApplyTypeMap[values.appliesTo] || values.applyType,
-      isPriority: values.isPriority,
+      priority: priorityFromFormValue(values.priority),
     };
 
     if (values.startDate) {
@@ -348,19 +353,29 @@ export const GeneralInfo = ({
 
                 <Form.Field
                   control={form.control}
-                  name="isPriority"
+                  name="priority"
                   render={({ field }) => (
                     <Form.Item className="min-w-0">
                       <Form.Label>{t('priority')}</Form.Label>
                       <Form.Control>
-                        <div className="flex items-center h-9">
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={(checked) =>
-                              field.onChange(checked === true)
-                            }
-                          />
-                        </div>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <Select.Trigger>
+                            <Select.Value placeholder={t('select-priority')} />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {PRICING_PRIORITY_OPTIONS.map((option) => (
+                              <Select.Item
+                                key={option.label}
+                                value={option.value}
+                              >
+                                {t(option.label)}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
                       </Form.Control>
                     </Form.Item>
                   )}

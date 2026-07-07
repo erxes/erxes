@@ -17,9 +17,27 @@ import { queries } from "../graphql"
 export const useProducts = (props?: {
   skip?: boolean
   perPage?: number
+  sortField?: string
+  sortDirection?: number
+  minDiscountValue?: number
+  maxDiscountValue?: number
+  minDiscountPercent?: number
+  maxDiscountPercent?: number
+  discountConditions?: Record<string, unknown>
   onCompleted?: (product: IProduct[]) => void
 }): IUseProducts => {
-  const { skip, perPage, onCompleted } = props || {}
+  const {
+    skip,
+    perPage,
+    sortField,
+    sortDirection,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+    onCompleted,
+  } = props || {}
   const groupedSimilarity = useAtomValue(similarityConfigAtom)
 
   const [search] = useAtom(searchAtom)
@@ -37,6 +55,13 @@ export const useProducts = (props?: {
       perPage: perPage || FETCH_MORE_PER_PAGE,
       categoryId: categoryId,
       minRemainder: toggleRemainder ? 0.005 : undefined,
+      minDiscountValue,
+      maxDiscountValue,
+      minDiscountPercent,
+      maxDiscountPercent,
+      discountConditions,
+      sortField,
+      sortDirection,
       searchValue: searchValue,
       page: 1,
       groupedSimilarity: isCafe ? groupedSimilarity : undefined,
@@ -52,6 +77,11 @@ export const useProducts = (props?: {
     variables: {
       categoryId,
       minRemainder: toggleRemainder ? 0.005 : undefined,
+      minDiscountValue,
+      maxDiscountValue,
+      minDiscountPercent,
+      maxDiscountPercent,
+      discountConditions,
       searchValue,
       groupedSimilarity: isCafe ? groupedSimilarity : null,
       isKiosk: isKiosk ? true : undefined,

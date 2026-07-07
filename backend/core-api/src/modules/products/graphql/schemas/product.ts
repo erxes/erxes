@@ -50,7 +50,12 @@ export const types = `
     discounts: JSON
 
     remainder: JSON
-    discount: JSON
+    discount(
+      branchId: String
+      departmentId: String
+      pipelineId: String
+      discountConditions: JSON
+    ): JSON
   }
 
   type ProductSimilarityGroup {
@@ -103,6 +108,7 @@ const queryParams = `
   maxDiscountValue: Float,
   minDiscountPercent: Float,
   maxDiscountPercent: Float,
+  discountConditions: JSON,
 `;
 
 export const queries = `

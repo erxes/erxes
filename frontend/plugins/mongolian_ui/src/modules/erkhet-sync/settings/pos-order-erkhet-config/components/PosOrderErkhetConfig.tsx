@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { SelectPos } from '@/ebarimt/settings/pos-in-ebarimt-config/components/selects/SelectPos';
 import { DEFAULT_PAY_DATA } from '../../stage-in-erkhet-config/constants/defaultPayData';
+import { SelectAnotherRulesOfProductsOnCityTax } from '../../stage-in-erkhet-config/components/selects/SelectAnotherRulesOfProductsOnCityTax';
 import { TPos, TPosOrderErkhetConfig } from '../hooks/usePosOrderErkhetConfigs';
 import { ErkhetConfigRecordTable } from '../../shared/components/ErkhetConfigRecordTable';
 import { ErkhetConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';
@@ -40,9 +41,14 @@ const formSchema = z
     beginNumber: z.string().optional(),
     hasVat: z.boolean().default(false),
     hasCitytax: z.boolean().default(false),
-    reverseVatRules: z.string().optional(),
-    reverseCtaxRules: z.string().optional(),
+    reverseVatRules: z.array(z.string()).optional().default([]),
+    reverseCtaxRules: z.array(z.string()).optional().default([]),
+    useRemainder: z.boolean().default(false),
+    accounts: z.string().optional(),
+    locations: z.string().optional(),
     defaultPay: z.string().default('debtAmount'),
+    cashAmount: z.string().optional().default('cashAmount'),
+    mobileAmount: z.string().optional().default('mobileAmount'),
   })
   .catchall(z.any());
 
@@ -53,9 +59,14 @@ const defaultValues: TPosOrderErkhetConfig = {
   beginNumber: '',
   hasVat: true,
   hasCitytax: false,
-  reverseVatRules: '',
-  reverseCtaxRules: '',
+  reverseVatRules: [],
+  reverseCtaxRules: [],
+  useRemainder: false,
+  accounts: '',
+  locations: '',
   defaultPay: 'debtAmount',
+  cashAmount: 'cashAmount',
+  mobileAmount: 'mobileAmount',
 };
 
 const ConfigForm = ({
@@ -76,6 +87,8 @@ const ConfigForm = ({
   });
 
   const posId = form.watch('posId');
+  const hasVat = form.watch('hasVat');
+  const hasCitytax = form.watch('hasCitytax');
   const selectedPos = poss.find((pos) => pos._id === posId);
   const paymentTypes = selectedPos?.paymentTypes || [];
 
@@ -129,7 +142,10 @@ const ConfigForm = ({
                 <Form.Item>
                   <Form.Label>{t('user-email')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('enter-erkhet-user-email')} />
+                    <Input
+                      {...field}
+                      placeholder={t('enter-erkhet-user-email')}
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -142,7 +158,10 @@ const ConfigForm = ({
                 <Form.Item>
                   <Form.Label>{t('begin-number')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('prefix-for-order-number')} />
+                    <Input
+                      {...field}
+                      placeholder={t('prefix-for-order-number')}
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -178,58 +197,70 @@ const ConfigForm = ({
               name="hasVat"
               render={({ field }) => (
                 <Form.Item className="flex items-center gap-2 space-y-0">
+                  <Form.Label variant="peer">{t('has-vat')}</Form.Label>
                   <Form.Control>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
                   </Form.Control>
-                  <Form.Label className="font-medium">{t('has-vat')}</Form.Label>
                 </Form.Item>
               )}
             />
+            {hasVat && (
+              <Form.Field
+                control={form.control}
+                name="reverseVatRules"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('another-rules-of-products-on-vat')}
+                    </Form.Label>
+                    <SelectAnotherRulesOfProductsOnCityTax
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      kind="vat"
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            )}
             <Form.Field
               control={form.control}
               name="hasCitytax"
               render={({ field }) => (
                 <Form.Item className="flex items-center gap-2 space-y-0">
+                  <Form.Label variant="peer">{t('has-citytax')}</Form.Label>
                   <Form.Control>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
                   </Form.Control>
-                  <Form.Label className="font-medium">{t('has-citytax')}</Form.Label>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Field
-              control={form.control}
-              name="reverseVatRules"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('reverse-vat-rule-ids')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} placeholder={t('comma-separated-rule-ids')} />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="reverseCtaxRules"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('reverse-citytax-rule-ids')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} placeholder={t('comma-separated-rule-ids')} />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            {!hasCitytax && (
+              <Form.Field
+                control={form.control}
+                name="reverseCtaxRules"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('another-rules-of-products-on-citytax')}
+                    </Form.Label>
+                    <SelectAnotherRulesOfProductsOnCityTax
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      kind="ctax"
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            )}
           </div>
 
           {!!paymentTypes.length && (
@@ -238,7 +269,7 @@ const ConfigForm = ({
                 <Form.Field
                   key={paymentType.type}
                   control={form.control}
-                  name={`_${paymentType.type}`}
+                  name={paymentType.formField || `_${paymentType.type}`}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
@@ -249,7 +280,9 @@ const ConfigForm = ({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('erkhet-payment-type')} />
+                          <Select.Value
+                            placeholder={t('erkhet-payment-type')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {DEFAULT_PAY_DATA.map((item) => (
@@ -265,6 +298,57 @@ const ConfigForm = ({
               ))}
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-4 border-t pt-4">
+            <Form.Field
+              control={form.control}
+              name="useRemainder"
+              render={({ field }) => (
+                <Form.Item className="flex items-center gap-2 space-y-0">
+                  <Form.Control>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </Form.Control>
+                  <Form.Label className="font-medium">
+                    {t('use-remainder')}
+                  </Form.Label>
+                </Form.Item>
+              )}
+            />
+            <div />
+            <Form.Field
+              control={form.control}
+              name="accounts"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('accounts')}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t('comma-separated-accounts')}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="locations"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('locations')}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t('comma-separated-locations')}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          </div>
         </div>
       </form>
     </Form>
@@ -431,7 +515,9 @@ const buildColumns = ({
     accessorKey: 'posId',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconBuildingStore} label={t('pos')} />;
+      return (
+        <RecordTable.InlineHead icon={IconBuildingStore} label={t('pos')} />
+      );
     },
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -461,7 +547,9 @@ const buildColumns = ({
     accessorKey: 'defaultPay',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconHash} label={t('default-pay')} />;
+      return (
+        <RecordTable.InlineHead icon={IconHash} label={t('default-pay')} />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

@@ -64,7 +64,7 @@ const plan = (
     value: DISCOUNT,
     applyType: 'product',
     products: ['p1'],
-    isPriority: false,
+    priority: '',
     customerIds: [],
     customerTags: [],
     customerExcludeTags: [],

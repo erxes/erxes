@@ -23,7 +23,10 @@ import {
   validateConfig,
 } from '~/modules/posclient/utils/syncUtils';
 import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
-import { syncRemainders } from '~/modules/posclient/utils/products';
+import {
+  syncDiscounts,
+  syncRemainders,
+} from '~/modules/posclient/utils/products';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 import { Resolver } from 'erxes-api-shared/core-types';
 
@@ -393,12 +396,11 @@ const configMutations: Record<string, Resolver> = {
       $and.push({ categoryId: { $in: relatedCategoryIds } });
     }
 
-    await syncRemainders(
-      subdomain,
-      models,
-      config,
-      await models.Products.find({ ...filter }).lean(),
-    );
+    const products = await models.Products.find({ ...filter }).lean();
+
+    await syncRemainders(subdomain, models, config, products);
+    await syncDiscounts(subdomain, models, products);
+
     return 'success';
   },
 };

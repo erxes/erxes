@@ -1,7 +1,10 @@
 import { IProductDocument } from '@/posclient/@types/products';
 import { IContext } from '@/posclient/@types/types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { getRemBranchId } from '~/modules/posclient/utils/products';
+import {
+  getDiscount,
+  getRemBranchId,
+} from '~/modules/posclient/utils/products';
 
 const propertyToCustomFieldData = (field: string, value: any) => {
   const data: any = { field, value };
@@ -106,6 +109,21 @@ export default {
   savedRemainder(product: IProductDocument, args, { config }: IContext) {
     const remBranchId = getRemBranchId(config, args.branchId);
     return product.remainderByToken?.[config.token]?.[remBranchId] || 0;
+  },
+  discount(product: IProductDocument, args, { config }: IContext, info: any) {
+    const variables = info?.variableValues || {};
+
+    return getDiscount(
+      product.discounts,
+      config,
+      args.branchId || variables.branchId,
+      {
+        ...variables.discountConditions,
+        ...args.discountConditions,
+        departmentId: args.departmentId || variables.departmentId,
+        pipelineId: args.pipelineId || variables.pipelineId,
+      },
+    );
   },
   isCheckRem(product: IProductDocument, _args, { config }: IContext) {
     return product?.isCheckRems?.[config.token] || false;

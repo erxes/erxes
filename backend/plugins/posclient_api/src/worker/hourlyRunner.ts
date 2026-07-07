@@ -7,7 +7,10 @@ import {
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { PRODUCT_STATUSES } from '~/modules/posclient/db/definitions/constants';
-import { syncRemainders } from '~/modules/posclient/utils/products';
+import {
+  syncDiscounts,
+  syncRemainders,
+} from '~/modules/posclient/utils/products';
 
 export const mainScheduler = async () => {
   const VERSION = getEnv({ name: 'VERSION' });
@@ -69,8 +72,9 @@ export const runner = async (job: Job) => {
     }
 
     await syncRemainders(subdomain, models, config, products);
+    await syncDiscounts(subdomain, models, products);
     console.log(
-      'Fetched remainder per hour at: ',
+      'Fetched remainder and discounts per hour at: ',
       new Date(),
       ', org: ',
       subdomain,

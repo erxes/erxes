@@ -75,6 +75,11 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'remainderByToken by token',
     }),
+    discounts: field({
+      type: [Object],
+      optional: true,
+      label: 'discounts by pricing conditions',
+    }),
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,

@@ -18,7 +18,7 @@ type PricingFilterState = {
   branchId?: string | null;
   departmentId?: string | null;
   productId?: string | null;
-  isPriority?: string | null;
+  priority?: string | null;
   date?: string | null;
   isQuantityEnabled?: boolean | null;
   isPriceEnabled?: boolean | null;
@@ -36,7 +36,7 @@ export function PricingSubHeader() {
     'branchId',
     'departmentId',
     'productId',
-    'isPriority',
+    'priority',
     'date',
     'isQuantityEnabled',
     'isPriceEnabled',

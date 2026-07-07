@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { InfoCard, Tabs } from 'erxes-ui';
+import { IconCircleCheckFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { IPricingPlanDetail } from '@/pricing/types';
@@ -15,6 +16,7 @@ import { PriceInfo } from '@/pricing/edit-pricing/components/price/PriceInfo';
 import { ExpiryInfo } from '@/pricing/edit-pricing/components/expiry/ExpiryInfo';
 
 export type PricingRuleType = 'common' | 'quantity' | 'price' | 'expiry';
+type EnabledRuleType = Exclude<PricingRuleType, 'common'>;
 
 interface RulesInfoProps {
   pricingId?: string;
@@ -48,6 +50,13 @@ export const RulesInfo = ({
     quantity: null,
     price: null,
     expiry: null,
+  });
+  const [enabledRules, setEnabledRules] = useState<
+    Record<EnabledRuleType, boolean>
+  >({
+    quantity: false,
+    price: false,
+    expiry: false,
   });
   const activeRuleParam = searchParams.get('activeTab') || undefined;
   let currentRule: PricingRuleType = 'common';
@@ -91,6 +100,37 @@ export const RulesInfo = ({
   );
 
   useEffect(() => {
+    setEnabledRules({
+      quantity: Boolean(pricingDetail?.isQuantityEnabled),
+      price: Boolean(pricingDetail?.isPriceEnabled),
+      expiry: Boolean(pricingDetail?.isExpiryEnabled),
+    });
+  }, [
+    pricingDetail?.isExpiryEnabled,
+    pricingDetail?.isPriceEnabled,
+    pricingDetail?.isQuantityEnabled,
+  ]);
+
+  const handleEnabledChange = useCallback(
+    (ruleType: EnabledRuleType) => (enabled: boolean) => {
+      setEnabledRules((currentRules) => ({
+        ...currentRules,
+        [ruleType]: enabled,
+      }));
+    },
+    [],
+  );
+
+  const enabledChangeHandlers = useMemo(
+    () => ({
+      quantity: handleEnabledChange('quantity'),
+      price: handleEnabledChange('price'),
+      expiry: handleEnabledChange('expiry'),
+    }),
+    [handleEnabledChange],
+  );
+
+  useEffect(() => {
     if (!onSaveActionChange) {
       return;
     }
@@ -108,7 +148,12 @@ export const RulesInfo = ({
             <Tabs.List className="w-fit">
               {RULE_TABS.map((tab) => (
                 <Tabs.Trigger key={tab.value} value={tab.value}>
-                  {t(tab.label)}
+                  <span className="inline-flex items-center gap-1.5">
+                    {t(tab.label)}
+                    {tab.value !== 'common' && enabledRules[tab.value] && (
+                      <IconCircleCheckFilled className="size-3 text-success" />
+                    )}
+                  </span>
                 </Tabs.Trigger>
               ))}
             </Tabs.List>
@@ -136,6 +181,7 @@ export const RulesInfo = ({
                 pricingDetail={pricingDetail}
                 embedded
                 onSaveActionChange={saveActionHandlers.quantity}
+                onEnabledChange={enabledChangeHandlers.quantity}
               />
             </Tabs.Content>
 
@@ -149,6 +195,7 @@ export const RulesInfo = ({
                 pricingDetail={pricingDetail}
                 embedded
                 onSaveActionChange={saveActionHandlers.price}
+                onEnabledChange={enabledChangeHandlers.price}
               />
             </Tabs.Content>
 
@@ -162,6 +209,7 @@ export const RulesInfo = ({
                 pricingDetail={pricingDetail}
                 embedded
                 onSaveActionChange={saveActionHandlers.expiry}
+                onEnabledChange={enabledChangeHandlers.expiry}
               />
             </Tabs.Content>
           </Tabs>
