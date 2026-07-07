@@ -49,6 +49,9 @@ export const useProducts = (props?: {
 
   const isCafe = mode === "coffee-shop"
   const isKiosk = mode === "kiosk"
+  // main-family layouts collapse bulk-similarity groups to their starred
+  // product; searching stays ungrouped so exact variant codes remain findable
+  const isMainList = ["main", "restaurant", "mobile"].includes(mode)
 
   const { data, loading, fetchMore } = useQuery(queries.products, {
     variables: {
@@ -65,6 +68,7 @@ export const useProducts = (props?: {
       searchValue: searchValue,
       page: 1,
       groupedSimilarity: isCafe ? groupedSimilarity : undefined,
+      similarity: isMainList && !searchValue ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     skip,
@@ -84,6 +88,7 @@ export const useProducts = (props?: {
       discountConditions,
       searchValue,
       groupedSimilarity: isCafe ? groupedSimilarity : null,
+      similarity: isMainList && !searchValue ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     onCompleted(data) {
