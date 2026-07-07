@@ -18,10 +18,10 @@ const queries = {
     });
 
     return {
-      list: result.list.map((config) => config.toJSON()),
-      totalCount: result.totalCount,
-      pageInfo: result.pageInfo,
-    };
+  list: result.list,
+  totalCount: result.totalCount,
+  pageInfo: result.pageInfo,
+};
   },
 
   async khanbankConfigs(
@@ -39,7 +39,7 @@ const queries = {
       },
     });
 
-    return result.list.map((config) => config.toJSON());
+    return result.list;
   },
 
   async khanbankConfigsDetail(
