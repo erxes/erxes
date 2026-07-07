@@ -68,7 +68,7 @@ export interface IProductParams extends ICommonParams {
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
-  similarity?: boolean;
+  isSimilarity?: boolean;
   categoryMeta?: string;
   image?: string;
 
@@ -116,7 +116,7 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
-    similarity,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
@@ -138,7 +138,7 @@ const generateFilter = async (
   };
 
   // one card per bulk-similarity group: standalone products + each group's star
-  if (similarity) {
+  if (isSimilarity) {
     const similarityGroups = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',

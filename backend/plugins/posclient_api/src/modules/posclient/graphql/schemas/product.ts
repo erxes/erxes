@@ -97,7 +97,7 @@ const productsQueryParams = `
   segmentData: String,
   isKiosk: Boolean,
   groupedSimilarity: String,
-  similarity: Boolean,
+  isSimilarity: Boolean,
   categoryMeta: String,
   image: String,
   minRemainder: Float

@@ -66,7 +66,7 @@ export const useProducts = (props?: {
       sortDirection,
       searchValue: searchValue,
       page: 1,
-      similarity: isMainList && !searchValue ? true : undefined,
+      isSimilarity: isMainList && !searchValue ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     skip,
@@ -85,7 +85,7 @@ export const useProducts = (props?: {
       maxDiscountPercent,
       discountConditions,
       searchValue,
-      similarity: isMainList && !searchValue ? true : undefined,
+      isSimilarity: isMainList && !searchValue ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     onCompleted(data) {

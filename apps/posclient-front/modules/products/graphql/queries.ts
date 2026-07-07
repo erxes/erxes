@@ -38,7 +38,7 @@ const products = gql`
     $perPage: Int, 
     $isKiosk: Boolean, 
     $groupedSimilarity: String
-    $similarity: Boolean
+    $isSimilarity: Boolean
     $ids: [String]
     $minRemainder: Float
     $minDiscountValue: Float
@@ -57,7 +57,7 @@ const products = gql`
       perPage: $perPage, 
       isKiosk: $isKiosk, 
       groupedSimilarity: $groupedSimilarity
-      similarity: $similarity
+      isSimilarity: $isSimilarity
       ids: $ids
       minRemainder: $minRemainder
       minDiscountValue: $minDiscountValue
@@ -116,7 +116,7 @@ const productsCount = gql`
     $type: String
     $searchValue: String
     $groupedSimilarity: String
-    $similarity: Boolean
+    $isSimilarity: Boolean
     $isKiosk: Boolean
     $minRemainder: Float
     $minDiscountValue: Float
@@ -130,7 +130,7 @@ const productsCount = gql`
       type: $type
       searchValue: $searchValue
       groupedSimilarity: $groupedSimilarity
-      similarity: $similarity
+      isSimilarity: $isSimilarity
       isKiosk: $isKiosk
       minRemainder: $minRemainder
       minDiscountValue: $minDiscountValue
