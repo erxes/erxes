@@ -88,7 +88,7 @@ const SelectInvoiceKindFilterBar = () => {
   const { resetFilterState } = useFilterContext();
 
   const kindLabel = kind
-    ? PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind
+    ? (PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind)
     : undefined;
 
   return (
