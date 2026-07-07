@@ -76,7 +76,7 @@ const SelectInvoiceKindFilterBar = () => {
   const { t } = useTranslation('payment');
 
   const kindLabel = kind
-    ? PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind
+    ? (PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind)
     : undefined;
 
   return (

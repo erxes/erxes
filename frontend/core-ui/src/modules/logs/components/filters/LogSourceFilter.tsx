@@ -67,7 +67,6 @@ export const LogSourceFilter = ({
               onValueChange?.();
             }}
           >
-
             <Icon />
             {label}
             {source === value && <IconCheck className="ml-auto" />}

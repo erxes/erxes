@@ -1,4 +1,8 @@
-import { IconCheck, IconProgressCheck, IconProgressX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconProgressCheck,
+  IconProgressX,
+} from '@tabler/icons-react';
 import {
   Combobox,
   Command,
