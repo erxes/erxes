@@ -22,6 +22,7 @@ interface ContentTypeOption {
   collectionName: string;
 }
 
+/** Single selectable content type row, checked when it matches the current value. */
 const LogContentTypeItem = ({
   value,
   collectionName,
@@ -43,6 +44,7 @@ const LogContentTypeItem = ({
   </Command.Item>
 );
 
+/** Renders one module's content type options under its module label. */
 const LogContentTypeModuleGroup = ({
   moduleName,
   items,
@@ -70,6 +72,7 @@ const LogContentTypeModuleGroup = ({
   </div>
 );
 
+/** Renders one plugin's grouped modules with an optional trailing separator. */
 const LogContentTypePluginGroup = ({
   pluginName,
   modules,
@@ -155,6 +158,7 @@ export const LogContentTypeFilter = ({
     ),
   );
 
+  /** Applies the selected content type and resets the filter popover state. */
   const handleSelect = (value: string) => {
     setQueries({
       contentType: value === contentType ? null : value,
