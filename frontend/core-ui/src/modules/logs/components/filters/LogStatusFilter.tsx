@@ -25,6 +25,7 @@ const LOG_STATUS_OPTIONS = [
   },
 ] as const;
 
+/** Command list for picking a log status; syncs the `status` query param. */
 export const LogStatusFilter = ({
   onValueChange,
 }: {

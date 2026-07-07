@@ -11,6 +11,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { INVOICE_STATUS_OPTIONS } from '~/modules/payment/constants';
 
+/** Searchable command list of invoice statuses with the current selection checked. */
 const SelectInvoiceStatusContent = ({
   value,
   onValueChange,
@@ -42,6 +43,7 @@ const SelectInvoiceStatusContent = ({
   );
 };
 
+/** Menu item that opens the status filter view from the filter popover root. */
 const SelectInvoiceStatusFilterItem = () => {
   const { t } = useTranslation('payment');
 
@@ -53,6 +55,7 @@ const SelectInvoiceStatusFilterItem = () => {
   );
 };
 
+/** Filter popover view that binds the status selection to the `status` query param. */
 const SelectInvoiceStatusFilterView = () => {
   const [status, setStatus] = useQueryState<string>('status');
   const { resetFilterState } = useFilterContext();
@@ -70,6 +73,7 @@ const SelectInvoiceStatusFilterView = () => {
   );
 };
 
+/** Filter bar chip showing the selected status with a popover to change it. */
 const SelectInvoiceStatusFilterBar = () => {
   const [status, setStatus] = useQueryState<string>('status');
   const [open, setOpen] = useState(false);
@@ -105,6 +109,7 @@ const SelectInvoiceStatusFilterBar = () => {
   );
 };
 
+/** Compound component for filtering invoices by status. */
 export const SelectInvoiceStatus = {
   Content: SelectInvoiceStatusContent,
   FilterItem: SelectInvoiceStatusFilterItem,

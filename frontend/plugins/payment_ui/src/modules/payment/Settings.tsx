@@ -20,6 +20,7 @@ export const CorporateGatewayPage = lazy(() =>
     default: module.default,
   })),
 );
+/** Routes for payment settings pages under a shared header layout. */
 const PaymentSettings = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>

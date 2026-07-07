@@ -42,6 +42,10 @@ interface InvoicesQueryVariables extends OperationVariables {
   status?: string;
 }
 
+/**
+ * Fetches the cursor-paginated invoice list using filters from query params
+ * and keeps the invoice total count atom in sync.
+ */
 export const useInvoices = (
   options?: QueryHookOptions<InvoicesQueryResult, InvoicesQueryVariables>,
 ) => {
@@ -58,9 +62,9 @@ export const useInvoices = (
 
   const variables = useMemo(
     () => ({
-      searchValue: queries?.searchValue,
-      status: queries?.status,
-      kind: queries?.kind,
+      searchValue: queries?.searchValue ?? undefined,
+      status: queries?.status ?? undefined,
+      kind: queries?.kind ?? undefined,
       limit: LIMIT,
       cursor,
       ...options?.variables,
@@ -147,7 +151,7 @@ export const useInvoices = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult?.invoices || !prev?.invoices) return prev;
         return Object.assign({}, prev, {
           invoices: mergeCursorData({
             direction,

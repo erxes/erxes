@@ -12,6 +12,7 @@ import {
   useMultiQueryState,
 } from 'erxes-ui';
 
+/** Command list for picking a log source; resets the dependent action filter. */
 export const LogSourceFilter = ({
   onValueChange,
 }: {

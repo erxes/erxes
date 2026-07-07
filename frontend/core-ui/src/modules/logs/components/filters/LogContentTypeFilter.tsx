@@ -15,6 +15,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+/** Searchable command list for picking a log content type grouped by plugin. */
 export const LogContentTypeFilter = ({
   onValueChange,
 }: {

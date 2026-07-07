@@ -16,6 +16,7 @@ import { LogSourceFilter } from './LogSourceFilter';
 import { LogStatusFilter } from './LogStatusFilter';
 import { LogsTotalCount } from '../LogsTotalCount';
 
+/** Filter bar chip for the log status filter with a popover to change it. */
 const LogStatusBarItem = () => {
   const [status] = useFilterQueryState<string>('status');
   const [open, setOpen] = useState(false);
@@ -40,6 +41,7 @@ const LogStatusBarItem = () => {
   );
 };
 
+/** Filter bar chip for the log source filter with a popover to change it. */
 const LogSourceBarItem = () => {
   const [source] = useFilterQueryState<string>('source');
   const [open, setOpen] = useState(false);
@@ -64,6 +66,7 @@ const LogSourceBarItem = () => {
   );
 };
 
+/** Filter bar chip for the log action filter with a popover to change it. */
 const LogActionBarItem = () => {
   const [action] = useFilterQueryState<string>('action');
   const [open, setOpen] = useState(false);
@@ -88,6 +91,7 @@ const LogActionBarItem = () => {
   );
 };
 
+/** Filter bar chip for the log content type filter with a popover to change it. */
 const LogContentTypeBarItem = () => {
   const [contentType] = useFilterQueryState<string>('contentType');
   const [open, setOpen] = useState(false);
@@ -112,6 +116,7 @@ const LogContentTypeBarItem = () => {
   );
 };
 
+/** Filter bar for the logs list with active filter chips and total count. */
 export const LogsFilterBar = () => {
   const [source] = useFilterQueryState<string>('source');
   const [docId] = useFilterQueryState<string>('docId');
