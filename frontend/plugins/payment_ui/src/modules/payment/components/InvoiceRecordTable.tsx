@@ -21,15 +21,16 @@ const InvoiceEmptyState = () => {
 };
 
 export function InvoiceRecordTable() {
+  const { t } = useTranslation('payment');
   const { invoices, loading, pageInfo, handleFetchMore } = useInvoices();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
       data={invoices || []}
-      columns={invoicesColumns}
+      columns={invoicesColumns(t)}
       className="m-3"
-      stickyColumns={['checkbox', 'invoiceNumber']}
+      stickyColumns={['invoiceNumber']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

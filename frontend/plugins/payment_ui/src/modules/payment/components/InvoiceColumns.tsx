@@ -1,4 +1,9 @@
-import { IconAlignLeft, IconCalendarPlus, IconHash, IconQrcode } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconCalendarPlus,
+  IconHash,
+  IconQrcode,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -6,18 +11,20 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { IInvoice } from '~/modules/payment/types/Payment';
 
-export const invoicesColumns: ColumnDef<IInvoice>[] = [
-  RecordTable.checkboxColumn as ColumnDef<IInvoice>,
+export const invoicesColumns = (
+  t: (key: string) => string,
+): ColumnDef<IInvoice>[] => [
   {
     id: 'invoiceNumber',
     accessorKey: 'invoiceNumber',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('invoice-number')} icon={IconAlignLeft} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead
+        label={t('invoice-number')}
+        icon={IconAlignLeft}
+      />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -30,10 +37,9 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('description')} icon={IconHash} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('description')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -46,10 +52,9 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('amount')} icon={IconHash} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('amount')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -61,10 +66,9 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'currency',
     accessorKey: 'currency',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('currency')} icon={IconHash} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('currency')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -76,10 +80,9 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('status')} icon={IconHash} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -97,12 +100,10 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'scannedAt',
     accessorKey: 'scannedAt',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('scanned')} icon={IconQrcode} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead label={t('scanned')} icon={IconQrcode} />
+    ),
     cell: ({ cell }) => {
-      const { t } = useTranslation('payment');
       const scannedAt = cell.getValue() as string | undefined;
       return (
         <RecordTableInlineCell>
@@ -122,10 +123,12 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('date-created')} icon={IconCalendarPlus} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead
+        label={t('date-created')}
+        icon={IconCalendarPlus}
+      />
+    ),
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
