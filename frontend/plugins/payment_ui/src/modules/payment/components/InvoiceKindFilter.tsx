@@ -6,10 +6,11 @@ import {
   Filter,
   Popover,
   useFilterContext,
-  useQueryState,
+  useFilterQueryState,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
+import { INVOICES_CURSOR_SESSION_KEY } from '~/modules/payment/hooks/use-invoices';
 
 /** Searchable command list of payment kinds with the current selection checked. */
 const SelectInvoiceKindContent = ({
@@ -57,7 +58,10 @@ const SelectInvoiceKindFilterItem = () => {
 
 /** Filter popover view that binds the kind selection to the `kind` query param. */
 const SelectInvoiceKindFilterView = () => {
-  const [kind, setKind] = useQueryState<string>('kind');
+  const [kind, setKind] = useFilterQueryState<string>(
+    'kind',
+    INVOICES_CURSOR_SESSION_KEY,
+  );
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -75,12 +79,15 @@ const SelectInvoiceKindFilterView = () => {
 
 /** Filter bar chip showing the selected kind with a popover to change it. */
 const SelectInvoiceKindFilterBar = () => {
-  const [kind, setKind] = useQueryState<string>('kind');
+  const [kind, setKind] = useFilterQueryState<string>(
+    'kind',
+    INVOICES_CURSOR_SESSION_KEY,
+  );
   const [open, setOpen] = useState(false);
   const { t } = useTranslation('payment');
 
   const kindLabel = kind
-    ? (PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind)
+    ? PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind
     : undefined;
 
   return (

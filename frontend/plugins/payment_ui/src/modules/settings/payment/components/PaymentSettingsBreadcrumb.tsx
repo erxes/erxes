@@ -43,7 +43,7 @@ export const PaymentSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <Button variant="ghost" className="font-semibold">
-            Corporate Gateway
+            {t('corporate-gateway')}
           </Button>
         </>
       )}

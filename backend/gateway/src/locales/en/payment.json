@@ -26,6 +26,7 @@
   "connect-storepay-account": "Connect your StorePay merchant account.",
   "connect-tdb-account": "Connect your Trade and Development Bank E-Commerce account.",
   "connect-toki-account": "Connect your Toki merchant account.",
+  "corporate-gateway": "Corporate Gateway",
   "credentials": "Credentials",
   "created-at": "Created At",
   "currency": "currency",

@@ -6,10 +6,11 @@ import {
   Filter,
   Popover,
   useFilterContext,
-  useQueryState,
+  useFilterQueryState,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { INVOICE_STATUS_OPTIONS } from '~/modules/payment/constants';
+import { INVOICES_CURSOR_SESSION_KEY } from '~/modules/payment/hooks/use-invoices';
 
 /** Searchable command list of invoice statuses with the current selection checked. */
 const SelectInvoiceStatusContent = ({
@@ -57,7 +58,10 @@ const SelectInvoiceStatusFilterItem = () => {
 
 /** Filter popover view that binds the status selection to the `status` query param. */
 const SelectInvoiceStatusFilterView = () => {
-  const [status, setStatus] = useQueryState<string>('status');
+  const [status, setStatus] = useFilterQueryState<string>(
+    'status',
+    INVOICES_CURSOR_SESSION_KEY,
+  );
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -75,7 +79,10 @@ const SelectInvoiceStatusFilterView = () => {
 
 /** Filter bar chip showing the selected status with a popover to change it. */
 const SelectInvoiceStatusFilterBar = () => {
-  const [status, setStatus] = useQueryState<string>('status');
+  const [status, setStatus] = useFilterQueryState<string>(
+    'status',
+    INVOICES_CURSOR_SESSION_KEY,
+  );
   const [open, setOpen] = useState(false);
   const { t } = useTranslation('payment');
 

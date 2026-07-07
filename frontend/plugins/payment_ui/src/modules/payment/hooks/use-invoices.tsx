@@ -60,6 +60,9 @@ export const useInvoices = (
     kind?: string;
   }>(['searchValue', 'status', 'kind']);
 
+  const contentType = options?.variables?.contentType;
+  const contentTypeId = options?.variables?.contentTypeId;
+
   const variables = useMemo(
     () => ({
       searchValue: queries?.searchValue ?? undefined,
@@ -67,19 +70,20 @@ export const useInvoices = (
       kind: queries?.kind ?? undefined,
       limit: LIMIT,
       cursor,
-      ...options?.variables,
+      contentType,
+      contentTypeId,
     }),
     [
+      contentType,
+      contentTypeId,
       cursor,
-      options?.variables,
       queries?.kind,
       queries?.searchValue,
       queries?.status,
     ],
   );
 
-  const shouldSyncInvoiceTotalCount =
-    !options?.variables?.contentType && !options?.variables?.contentTypeId;
+  const shouldSyncInvoiceTotalCount = !contentType && !contentTypeId;
 
   const { data, error, loading, fetchMore, subscribeToMore } = useQuery<
     InvoicesQueryResult,
@@ -121,7 +125,13 @@ export const useInvoices = (
   useEffect(() => {
     if (!shouldSyncInvoiceTotalCount) return;
     setInvoicesTotalCount(null);
-  }, [setInvoicesTotalCount, shouldSyncInvoiceTotalCount, variables]);
+  }, [
+    queries?.kind,
+    queries?.searchValue,
+    queries?.status,
+    setInvoicesTotalCount,
+    shouldSyncInvoiceTotalCount,
+  ]);
 
   useEffect(() => {
     if (!shouldSyncInvoiceTotalCount || loading) return;
