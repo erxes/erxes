@@ -6,7 +6,6 @@ import {
   searchAtom,
   toggleRemainderAtom,
 } from "@/store"
-import { similarityConfigAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -38,8 +37,6 @@ export const useProducts = (props?: {
     discountConditions,
     onCompleted,
   } = props || {}
-  const groupedSimilarity = useAtomValue(similarityConfigAtom)
-
   const [search] = useAtom(searchAtom)
   const [searchValue, setSearchValue] = useState(search)
   const categoryId = useAtomValue(activeCategoryAtom)
@@ -47,11 +44,13 @@ export const useProducts = (props?: {
   const setProductCount = useSetAtom(productCountAtom)
   const mode = useAtomValue(modeAtom)
 
-  const isCafe = mode === "coffee-shop"
   const isKiosk = mode === "kiosk"
-  // main-family layouts collapse bulk-similarity groups to their starred
-  // product; searching stays ungrouped so exact variant codes remain findable
-  const isMainList = ["main", "restaurant", "mobile"].includes(mode)
+  // main-family layouts and coffee-shop collapse bulk-similarity groups to
+  // their starred product; searching stays ungrouped so exact variant codes
+  // remain findable
+  const isMainList = ["main", "restaurant", "mobile", "coffee-shop"].includes(
+    mode
+  )
 
   const { data, loading, fetchMore } = useQuery(queries.products, {
     variables: {
@@ -67,7 +66,6 @@ export const useProducts = (props?: {
       sortDirection,
       searchValue: searchValue,
       page: 1,
-      groupedSimilarity: isCafe ? groupedSimilarity : undefined,
       similarity: isMainList && !searchValue ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
@@ -87,7 +85,6 @@ export const useProducts = (props?: {
       maxDiscountPercent,
       discountConditions,
       searchValue,
-      groupedSimilarity: isCafe ? groupedSimilarity : null,
       similarity: isMainList && !searchValue ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },

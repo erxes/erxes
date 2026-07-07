@@ -74,11 +74,6 @@ const ProductItem = (props: IProduct) => {
             })
         }}
       >
-        {hasSimilarity && (
-          <span className="absolute right-1 top-1 rounded bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
-            Сонгох...
-          </span>
-        )}
         <Image
           src={(attachment || {}).url || ""}
           alt=""
@@ -98,34 +93,41 @@ const ProductItem = (props: IProduct) => {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <p className="font-extrabold">
-          {formatNum(unitPrice)}₮{" "}
-          {typeof remainder === "number" &&
-            (remainders && remainders?.length > 1 ? (
-              <HoverCard>
-                <HoverCardTrigger>{"/" + remainder + "/"}</HoverCardTrigger>
-                <HoverCardContent className="w-48">
-                  <div className="flex flex-col border border-b-0">
-                    {remainders?.map(({ location, remainder }) => (
-                      <div
-                        key={location}
-                        className="flex items-center border-b font-semibold"
-                      >
-                        <span className="flex-1 border-r p-1 text-left text-neutral-600">
-                          {location}
-                        </span>
-                        <span className="flex-1 p-1 text-right ">
-                          {remainder}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
-            ) : (
-              <span>{`/ ${remainder}/`}</span>
-            ))}
-        </p>
+        <div className="flex items-center justify-between gap-2 text-left">
+          <p className="font-extrabold">
+            {formatNum(unitPrice)}₮{" "}
+            {typeof remainder === "number" &&
+              (remainders && remainders?.length > 1 ? (
+                <HoverCard>
+                  <HoverCardTrigger>{"/" + remainder + "/"}</HoverCardTrigger>
+                  <HoverCardContent className="w-48">
+                    <div className="flex flex-col border border-b-0">
+                      {remainders?.map(({ location, remainder }) => (
+                        <div
+                          key={location}
+                          className="flex items-center border-b font-semibold"
+                        >
+                          <span className="flex-1 border-r p-1 text-left text-neutral-600">
+                            {location}
+                          </span>
+                          <span className="flex-1 p-1 text-right ">
+                            {remainder}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              ) : (
+                <span>{`/ ${remainder}/`}</span>
+              ))}
+          </p>
+          {hasSimilarity && (
+            <span className="shrink-0 whitespace-nowrap rounded-md cursor-pointer bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">
+              Сонгох...
+            </span>
+          )}
+        </div>
       </div>
       {hasSimilarity && (
         <Dialog open={open} onOpenChange={() => setOpen(false)}>
