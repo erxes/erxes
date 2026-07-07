@@ -111,7 +111,7 @@ export const loadPostClass = (models: IModels) => {
       query: FilterQuery<IPostDocument>,
       sort: Record<string, SortOrder>,
     ) => {
-      return models.Posts.find(query).sort(sort).lean();
+      return await models.Posts.find(query).sort(sort).lean();
     };
 
     public static createPost = async (doc: IPost) => {
