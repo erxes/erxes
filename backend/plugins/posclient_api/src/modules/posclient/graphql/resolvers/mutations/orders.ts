@@ -1183,7 +1183,7 @@ const orderMutations: Record<string, Resolver> = {
                   contentId: order.customerId,
                 },
               ],
-            }
+            },
           },
           defaultValue: null,
         });
