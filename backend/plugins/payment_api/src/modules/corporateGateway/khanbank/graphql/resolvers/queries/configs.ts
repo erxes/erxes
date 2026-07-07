@@ -18,10 +18,10 @@ const queries = {
     });
 
     return {
-  list: result.list,
-  totalCount: result.totalCount,
-  pageInfo: result.pageInfo,
-};
+      list: result.list,
+      totalCount: result.totalCount,
+      pageInfo: result.pageInfo,
+    };
   },
 
   async khanbankConfigs(

@@ -40,17 +40,11 @@ const TdbCard = () => {
 
             <div>
               <p className="font-semibold">{TDB_PAYMENT.name}</p>
-              <p className="text-xs text-muted-foreground">
-                (Accepts MNT)
-              </p>
+              <p className="text-xs text-muted-foreground">(Accepts MNT)</p>
             </div>
           </div>
 
-          <Button
-            variant="link"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
+          <Button variant="link" size="sm" onClick={() => setOpen(true)}>
             {hasConfig ? 'Manage' : '+ Add'}
           </Button>
         </div>
@@ -78,9 +72,7 @@ const TdbCard = () => {
             <>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-gray-400" />
-                <span className="text-sm font-medium">
-                  Not connected
-                </span>
+                <span className="text-sm font-medium">Not connected</span>
               </div>
 
               <p className="text-sm text-muted-foreground">
