@@ -5,3 +5,5 @@ export const CMS_CATEGORIES_REMOVE = gql`
     cmsCategoriesRemove(_id: $id)
   }
 `;
+
+

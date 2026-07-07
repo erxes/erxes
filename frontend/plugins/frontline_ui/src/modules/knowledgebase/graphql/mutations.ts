@@ -27,6 +27,8 @@ export const REMOVE_TOPIC = gql`
   }
 `;
 
+
+
 export const ADD_CATEGORY = gql`
   mutation KnowledgeBaseCategoriesAdd($doc: KnowledgeBaseCategoryDoc!) {
   knowledgeBaseCategoriesAdd(doc: $doc) {

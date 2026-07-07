@@ -678,22 +678,22 @@ export const CMS_CATEGORIES_EDIT = gql`
   }
 `;
 
-export const CMS_CATEGORIES_REMOVE = gql`
-  mutation CmsCategoriesRemove($id: String!) {
-    cmsCategoriesRemove(_id: $id)
-  }
-`;
+// export const CMS_CATEGORIES_REMOVE = gql`
+//   mutation CmsCategoriesRemove($id: String!) {
+//     cmsCategoriesRemove(_id: $id)
+//   }
+// `;
 
-export const CMS_CATEGORIES_ADD = gql`
-  mutation CmsCategoriesAdd($input: PostCategoryInput!) {
-    cmsCategoriesAdd(input: $input) {
-      _id
-      name
-      slug
-      __typename
-    }
-  }
-`;
+// export const CMS_CATEGORIES_ADD = gql`
+//   mutation CmsCategoriesAdd($input: PostCategoryInput!) {
+//     cmsCategoriesAdd(input: $input) {
+//       _id
+//       name
+//       slug
+//       __typename
+//     }
+//   }
+// `;
 
 export const PAGE_LIST = gql`
   query PageList(

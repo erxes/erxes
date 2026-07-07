@@ -7,7 +7,7 @@ import { PagesCommandbar } from './pages-command-bar/PagesCommandBar';
 import { PAGES_CURSOR_SESSION_KEY } from '../constants/pagesCursorSessionKey';
 import { usePages } from '../hooks/usePages';
 import { IPage } from '../types/pageTypes';
-import { EmptyState } from '../../shared/EmptyState';
+import { EmptyState } from '../../shared/components/EmptyState';
 
 interface PagesRecordTableProps {
   clientPortalId: string;
