@@ -152,16 +152,17 @@ export const updateCartAtom = atom(
     }
     set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
 
-    const changedCartItems = changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))
+    const changedCartItems = changeCartItem(
+      update,
+      get(cartAtom),
+      !!get(banFractionsAtom)
+    )
 
     const currentCart = get(cartAtom)
-  if (currentCart.length > 0 && changedCartItems.length === 0) {
-  set(setOpenCancelDialogAtom)
-}
-    set(
-      cartAtom,
-      changedCartItems
-    )
+    if (currentCart.length > 0 && changedCartItems.length === 0) {
+      set(setOpenCancelDialogAtom)
+    }
+    set(cartAtom, changedCartItems)
   }
 )
 export const setCartAtom = atom(

@@ -101,8 +101,7 @@ const ProductItem = (props: IProduct) => {
             </HoverCard>
           ) : (
             <span>{`/ ${remainder}/`}</span>
-          ))
-        }
+          ))}
       </p>
     </div>
   )

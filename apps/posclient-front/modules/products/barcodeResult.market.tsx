@@ -23,9 +23,7 @@ const BarcodeResult = () => {
   const [searchValue, manufacturedDate] = barcode.split("_")
 
   const handleAddToCart = (product: IProduct) =>
-    addToCart(
-      manufacturedDate ? { ...product, manufacturedDate } : product
-    )
+    addToCart(manufacturedDate ? { ...product, manufacturedDate } : product)
 
   const [getProducts, { loading, data }] = useLazyQuery(queries.products, {
     onCompleted(data) {
