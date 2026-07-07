@@ -174,10 +174,7 @@ export const tdbCallbackHandler = async (
 
     console.log('Transaction saved.');
 
-    const result = await models.Invoices.checkInvoice(
-      invoice._id,
-      subdomain,
-    );
+    const result = await models.Invoices.checkInvoice(invoice._id, subdomain);
 
     console.log('checkInvoice() returned:', result);
 
@@ -191,7 +188,7 @@ export const tdbCallbackHandler = async (
   console.log('========== END CALLBACK ==========');
 
   return transaction;
-}
+};
 
 // API CLIENT
 export class TDBAPI extends BaseAPI {
