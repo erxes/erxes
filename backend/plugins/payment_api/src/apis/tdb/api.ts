@@ -69,15 +69,21 @@ export const tdbCallbackHandler = async (
 ): Promise<ITransactionDocument> => {
   const { transactionId } = data;
 
+  console.log('data', data)
+
   const transaction = await models.Transactions.getTransaction({
     _id: transactionId,
   });
+
+  console.log('1 transaction', transaction)
 
   if (!transaction) {
     throw new Error(`Transaction not found for TDB order ${transactionId}`);
   }
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
+
+  console.log('payment', payment)
 
   if (payment.kind !== 'tdb') {
     throw new Error('Payment config type is mismatched');
@@ -90,30 +96,20 @@ export const tdbCallbackHandler = async (
   try {
     const api = new TDBAPI(payment.config);
 
-    const orderDetail = await api.checkInvoice(transaction);
+    const status = await api.checkInvoice(transaction);
 
-    if (!orderDetail) {
+    console.log('status', status)
+
+    if (status !== PAYMENT_STATUS.PAID) {
       return transaction;
     }
 
-    const status = (orderDetail.status || '').toUpperCase();
+    await models.Transactions.updateOne(
+      { _id: transaction._id },
+      { status, updatedAt: new Date() },
+    );
 
-    const SUCCESSFUL_STATUSES = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
-
-    if (!SUCCESSFUL_STATUSES.includes(status)) {
-      return transaction;
-    }
-
-    transaction.status = status;
-    transaction.updatedAt = new Date();
-    transaction.response = {
-      ...transaction.response,
-      order: orderDetail,
-    };
-
-    await transaction.save();
-
-    return transaction;
+    return models.Transactions.getTransaction({ _id: transaction._id });
   } catch (error) {
     throw new Error(error.message);
   }
@@ -141,6 +137,8 @@ export class TDBAPI extends BaseAPI {
   ): Promise<ITDBCreateOrderResponse> {
     const redirectUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.tdb.kind}?transactionId=${transaction._id}`;
 
+    console.log('redirectUrl', redirectUrl)
+
     const payload: ITDBCreateOrderRequest = {
       typeRid: 'purch',
       amount: transaction.amount,
@@ -149,6 +147,8 @@ export class TDBAPI extends BaseAPI {
       language: 'en',
       hppRedirectUrl: redirectUrl,
     };
+
+    console.log('payload', JSON.stringify(payload))
 
     const response = await this.request({
       method: 'POST',
@@ -160,15 +160,17 @@ export class TDBAPI extends BaseAPI {
       data: { order: payload },
     }).then((r) => r.json());
 
+    console.log('[createInvoice] response', response)
+
     return response;
   }
 
-  async checkInvoice(
-    transaction: ITransactionDocument,
-  ): Promise<ITDBOrderDetail | null> {
+  async checkInvoice(transaction: ITransactionDocument): Promise<string> {
     const { id: orderId, password } = transaction?.response?.order || {};
 
-    const response = await this.request({
+    console.log('transaction', transaction)
+
+    const orderDetail: ITDBOrderDetail | null = await this.request({
       method: 'GET',
       path: `order/${orderId}`,
       params: {
@@ -179,12 +181,18 @@ export class TDBAPI extends BaseAPI {
       },
     }).then((r) => r.json());
 
-    return response;
+    console.log('[checkInvoice] response', orderDetail)
+
+    const status = (orderDetail?.status || '').toUpperCase();
+
+    const SUCCESSFUL_STATUSES = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
+
+    return SUCCESSFUL_STATUSES.includes(status)
+      ? PAYMENT_STATUS.PAID
+      : PAYMENT_STATUS.PENDING;
   }
 
-  async manualCheck(
-    transaction: ITransactionDocument,
-  ): Promise<ITDBOrderDetail | null> {
+  async manualCheck(transaction: ITransactionDocument): Promise<string> {
     return this.checkInvoice(transaction);
   }
 }
