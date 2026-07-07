@@ -39,7 +39,6 @@ const ProductItem = (props: IProduct) => {
     remainders,
     isCheckRem,
     hasSimilarity,
-    _id,
   } = props
   const [open, setOpen] = useState(false)
   const addToCart = useSetAtom(addToCartAtom)
@@ -58,7 +57,7 @@ const ProductItem = (props: IProduct) => {
             setOpen(true)
             return
           }
-          addToCart({ name, _id, unitPrice })
+          addToCart(props)
           mode === "mobile" &&
             toast({
               variant: "default",
