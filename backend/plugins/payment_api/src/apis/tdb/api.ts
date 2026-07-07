@@ -170,7 +170,7 @@ export class TDBAPI extends BaseAPI {
 
     console.log('transaction', transaction)
 
-    const orderDetail: ITDBOrderDetail | null = await this.request({
+    const response: ITDBGetOrderDetailResponse = await this.request({
       method: 'GET',
       path: `order/${orderId}`,
       params: {
@@ -181,9 +181,9 @@ export class TDBAPI extends BaseAPI {
       },
     }).then((r) => r.json());
 
-    console.log('[checkInvoice] response', orderDetail)
+    console.log('[checkInvoice] response', response)
 
-    const status = (orderDetail?.status || '').toUpperCase();
+    const status = (response?.order?.status || '').toUpperCase();
 
     const SUCCESSFUL_STATUSES = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
 
