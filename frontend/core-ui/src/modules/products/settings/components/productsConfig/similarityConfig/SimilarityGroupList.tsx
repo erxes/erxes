@@ -35,7 +35,10 @@ export const SimilarityGroupList = ({
 
   if (configsLoading) {
     return (
-      <InfoCard title={t('similarity-groups', 'Similarity Groups')} className="h-full">
+      <InfoCard
+        title={t('similarity-groups', 'Similarity Groups')}
+        className="h-full"
+      >
         <InfoCard.Content className="space-y-0">
           <Skeleton className="w-full h-12" />
           <Skeleton className="w-full h-12" />

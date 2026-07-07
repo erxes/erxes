@@ -2,14 +2,10 @@ import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { IChannelMember } from '@/channels/types';
 import { Skeleton, useQueryState } from 'erxes-ui';
-import {
-  IconBrandTrello,
-  IconSearchOff,
-} from '@tabler/icons-react';
+import { IconBrandTrello, IconSearchOff } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { ChannelCard } from './ChannelCard';
 import { useTranslation } from 'react-i18next';
-
 
 export function Channels() {
   const { t } = useTranslation('frontline');
