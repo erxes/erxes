@@ -8,7 +8,13 @@ import {
   ReactCustomBlockRenderProps,
   useResolveUrl,
 } from '@blocknote/react';
-import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
+import {
+  IconLayoutGrid,
+  IconPhoto,
+  IconPlus,
+  IconX,
+  IconLoader2,
+} from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
 
@@ -115,7 +121,9 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   };
 
   const removeImage = (index: number) => {
-    updateBlock({ images: JSON.stringify(images.filter((_, i) => i !== index)) });
+    updateBlock({
+      images: JSON.stringify(images.filter((_, i) => i !== index)),
+    });
   };
 
   const setColumns = (n: number) => {
@@ -173,7 +181,13 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
               ) : (
                 <IconPlus size={15} />
               )}
-              <span>{uploading ? 'Uploading...' : images.length === 0 ? 'Add images to gallery' : 'Add more'}</span>
+              <span>
+                {uploading
+                  ? 'Uploading...'
+                  : images.length === 0
+                    ? 'Add images to gallery'
+                    : 'Add more'}
+              </span>
             </button>
           ) : (
             images.length === 0 && (
@@ -234,11 +248,20 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
       {images.map((img, i) =>
         img.caption ? (
           <figure key={i} style={{ margin: 0 }}>
-            <img src={img.url} alt={img.caption} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <img
+              src={img.url}
+              alt={img.caption}
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
             <figcaption>{img.caption}</figcaption>
           </figure>
         ) : (
-          <img key={i} src={img.url} alt="" style={{ width: '100%', height: 'auto', display: 'block' }} />
+          <img
+            key={i}
+            src={img.url}
+            alt=""
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
         ),
       )}
     </div>
