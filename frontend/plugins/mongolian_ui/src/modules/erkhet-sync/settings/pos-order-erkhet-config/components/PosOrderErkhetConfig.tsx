@@ -142,7 +142,10 @@ const ConfigForm = ({
                 <Form.Item>
                   <Form.Label>{t('user-email')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('enter-erkhet-user-email')} />
+                    <Input
+                      {...field}
+                      placeholder={t('enter-erkhet-user-email')}
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -155,7 +158,10 @@ const ConfigForm = ({
                 <Form.Item>
                   <Form.Label>{t('begin-number')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('prefix-for-order-number')} />
+                    <Input
+                      {...field}
+                      placeholder={t('prefix-for-order-number')}
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -274,7 +280,9 @@ const ConfigForm = ({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('erkhet-payment-type')} />
+                          <Select.Value
+                            placeholder={t('erkhet-payment-type')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {DEFAULT_PAY_DATA.map((item) => (
@@ -507,7 +515,9 @@ const buildColumns = ({
     accessorKey: 'posId',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconBuildingStore} label={t('pos')} />;
+      return (
+        <RecordTable.InlineHead icon={IconBuildingStore} label={t('pos')} />
+      );
     },
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -537,7 +547,9 @@ const buildColumns = ({
     accessorKey: 'defaultPay',
     header: () => {
       const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconHash} label={t('default-pay')} />;
+      return (
+        <RecordTable.InlineHead icon={IconHash} label={t('default-pay')} />
+      );
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

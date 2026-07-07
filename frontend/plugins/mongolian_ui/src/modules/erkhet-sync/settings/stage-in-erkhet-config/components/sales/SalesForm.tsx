@@ -115,7 +115,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                         }}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-response-field')} />
+                          <Select.Value
+                            placeholder={t('choose-response-field')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {CHOOSE_RESPONSE_FIELD_DATA.map(
@@ -301,7 +303,9 @@ const NewConfigForm = ({
                         }}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder={t('choose-response-field')} />
+                          <Select.Value
+                            placeholder={t('choose-response-field')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {CHOOSE_RESPONSE_FIELD_DATA.map(
