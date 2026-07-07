@@ -105,7 +105,7 @@ type RemainderBulkOperation = {
   };
 };
 
-type ProductWithRemainder = IProductDocument & {
+export type ProductWithRemainder = IProductDocument & {
   remainders?: unknown[];
   remainder?: number;
   soonIn?: number;

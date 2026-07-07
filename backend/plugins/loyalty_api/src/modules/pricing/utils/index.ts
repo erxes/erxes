@@ -334,10 +334,10 @@ export const checkPricing = async (params: {
   models: IModels;
   subdomain: string;
   prioritizeRule: string;
-  totalAmount: number;
-  departmentId: string;
-  branchId: string;
-  pipelineId: string;
+  totalAmount?: number;
+  departmentId?: string;
+  branchId?: string;
+  pipelineId?: string;
   orderItems: OrderItem[];
   customerType?: ParticipantKind;
   customerId?: string;

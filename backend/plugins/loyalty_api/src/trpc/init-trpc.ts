@@ -90,14 +90,14 @@ const participantKindSchema = z.preprocess(
 const checkPricingInput = z.object({
   prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
-  departmentId: z.string().nullish().default(''),
-  branchId: z.string().nullish().default(''),
+  departmentId: z.string().optional().default(''),
+  branchId: z.string().optional().default(''),
   products: z.array(pricingProductSchema),
   pipelineId: z.string().nullish(),
   customerType: participantKindSchema,
-  customerId: z.string().nullish(),
+  customerId: z.string().optional(),
   brokerType: participantKindSchema,
-  brokerId: z.string().nullish(),
+  brokerId: z.string().optional(),
 });
 
 const quantityRulesInput = z.object({
