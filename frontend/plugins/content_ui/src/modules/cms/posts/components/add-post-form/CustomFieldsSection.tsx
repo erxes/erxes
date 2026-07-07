@@ -38,9 +38,7 @@ export const CustomFieldsSection = ({
           htmlFor={`custom-field-${field._id}`}
         >
           {field.label}
-          {field.isRequired && (
-            <span className="text-destructive ml-1">*</span>
-          )}
+          {field.isRequired && <span className="text-destructive ml-1">*</span>}
         </Form.Label>
         <CustomFieldInput
           field={field}

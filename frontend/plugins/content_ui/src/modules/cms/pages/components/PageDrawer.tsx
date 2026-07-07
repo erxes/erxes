@@ -12,7 +12,10 @@ import { pageFormSchema } from '../../constants/pageFormSchema';
 import { useEditPage } from '../hooks/useEditPage';
 import { useAddPage } from '../hooks/useAddPage';
 import { IPage, IPageDrawerProps, IPageFormData } from '../types/pageTypes';
-import { CONTENT_CMS_LIST, CMS_CUSTOM_FIELD_GROUPS } from '../../graphql/queries';
+import {
+  CONTENT_CMS_LIST,
+  CMS_CUSTOM_FIELD_GROUPS,
+} from '../../graphql/queries';
 import {
   useCmsTranslation,
   TranslationData,
@@ -20,10 +23,7 @@ import {
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 import { PageEditorColumn } from './PageEditorColumn';
 import { PageSidebarPanel } from './PageSidebarPanel';
-import {
-  PageCustomFieldsSection,
-  FieldGroup,
-} from './PageCustomFieldsSection';
+import { PageCustomFieldsSection, FieldGroup } from './PageCustomFieldsSection';
 import {
   normalizeAttachment,
   makeAttachmentArrayFromUrls,

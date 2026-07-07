@@ -67,7 +67,9 @@ export function CustomTypes() {
             <div className="flex flex-col">
               <div className="flex pt-2 pl-4 justify-between items-center mb-2">
                 <div className="text-sm text-gray-600">
-                  {t('found-x-custom-types', { count: customTypes?.length || 0 })}
+                  {t('found-x-custom-types', {
+                    count: customTypes?.length || 0,
+                  })}
                 </div>
               </div>
               {!loading && (!customTypes || customTypes.length === 0) ? (

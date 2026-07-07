@@ -72,10 +72,7 @@ export function Tag() {
           {!loading && (!tags || tags.length === 0) ? (
             <div className="rounded-lg overflow-hidden">
               {searchValue ? (
-                <EmptyState
-                  icon={IconTags}
-                  title={t('no-tags-found')}
-                />
+                <EmptyState icon={IconTags} title={t('no-tags-found')} />
               ) : (
                 <EmptyState
                   icon={IconTags}

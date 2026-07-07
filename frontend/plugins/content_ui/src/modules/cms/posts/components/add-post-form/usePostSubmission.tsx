@@ -380,7 +380,10 @@ export const usePostSubmission = ({
         toast({ title: t('saved'), description: t('post-saved-successfully') });
       } else {
         await createPost(input);
-        toast({ title: t('saved'), description: t('post-created-successfully') });
+        toast({
+          title: t('saved'),
+          description: t('post-created-successfully'),
+        });
       }
 
       if (onClose) {

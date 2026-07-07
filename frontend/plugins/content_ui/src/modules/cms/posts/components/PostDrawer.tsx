@@ -113,8 +113,7 @@ export function PostDrawer({
       } else {
         toast({
           title: t('error'),
-          description:
-            error.message || t('failed-to-create-post'),
+          description: error.message || t('failed-to-create-post'),
           variant: 'destructive',
           duration: 5000,
         });
@@ -138,7 +137,9 @@ export function PostDrawer({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <Sheet.View className="sm:max-w-lg p-0">
         <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>{isEditing ? t('edit-post') : t('new-post')}</Sheet.Title>
+          <Sheet.Title>
+            {isEditing ? t('edit-post') : t('new-post')}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -170,7 +171,11 @@ export function PostDrawer({
                 <Form.Item>
                   <Form.Label>{t('post-title')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('enter-post-title')} required />
+                    <Input
+                      {...field}
+                      placeholder={t('enter-post-title')}
+                      required
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -212,8 +217,12 @@ export function PostDrawer({
                       </Select.Trigger>
                       <Select.Content>
                         <Select.Item value="draft">{t('draft')}</Select.Item>
-                        <Select.Item value="published">{t('published')}</Select.Item>
-                        <Select.Item value="archived">{t('archived')}</Select.Item>
+                        <Select.Item value="published">
+                          {t('published')}
+                        </Select.Item>
+                        <Select.Item value="archived">
+                          {t('archived')}
+                        </Select.Item>
                       </Select.Content>
                     </Select>
                   </Form.Control>
@@ -239,7 +248,9 @@ export function PostDrawer({
                       </Select.Trigger>
                       <Select.Content>
                         <Select.Item value="post">{t('post')}</Select.Item>
-                        <Select.Item value="article">{t('article')}</Select.Item>
+                        <Select.Item value="article">
+                          {t('article')}
+                        </Select.Item>
                         <Select.Item value="page">{t('page')}</Select.Item>
                       </Select.Content>
                     </Select>

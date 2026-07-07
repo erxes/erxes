@@ -222,7 +222,9 @@ export function CmsLayout({
           {showSidebar && (
             <Sidebar collapsible="none" className="border-r flex-none">
               <Sidebar.Group>
-                <Sidebar.GroupLabel>{t('content-management')}</Sidebar.GroupLabel>
+                <Sidebar.GroupLabel>
+                  {t('content-management')}
+                </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   {navigationItems.map((item) => (
                     <Sidebar.Menu key={item.id}>

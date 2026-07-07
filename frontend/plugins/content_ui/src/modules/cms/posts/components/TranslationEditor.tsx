@@ -256,7 +256,10 @@ export function TranslationEditor({
                     <Form.Item>
                       <Form.Label>{t('title-with-lang', { lang })}</Form.Label>
                       <Form.Control>
-                        <Input {...field} placeholder={t('title-in-lang', { lang })} />
+                        <Input
+                          {...field}
+                          placeholder={t('title-in-lang', { lang })}
+                        />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -268,7 +271,9 @@ export function TranslationEditor({
                   name="excerpt"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('excerpt-with-lang', { lang })}</Form.Label>
+                      <Form.Label>
+                        {t('excerpt-with-lang', { lang })}
+                      </Form.Label>
                       <Form.Control>
                         <Textarea
                           {...field}
@@ -286,7 +291,9 @@ export function TranslationEditor({
                   name="content"
                   render={() => (
                     <Form.Item>
-                      <Form.Label>{t('content-with-lang', { lang })}</Form.Label>
+                      <Form.Label>
+                        {t('content-with-lang', { lang })}
+                      </Form.Label>
                       <Form.Control>
                         <Editor
                           key={`editor-${lang}-${postId}`}

@@ -297,8 +297,7 @@ export function TagDrawer({
       } else {
         toast({
           title: t('error'),
-          description:
-            error.message || t('failed-to-create-tag'),
+          description: error.message || t('failed-to-create-tag'),
           variant: 'destructive',
           duration: 5000,
         });
@@ -337,8 +336,7 @@ export function TagDrawer({
       } else {
         toast({
           title: t('error'),
-          description:
-            error.message || t('failed-to-update-tag'),
+          description: error.message || t('failed-to-update-tag'),
           variant: 'destructive',
           duration: 5000,
         });

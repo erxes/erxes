@@ -775,8 +775,12 @@ export function CmsCategoryDrawer({
                           <Select.Value placeholder={t('select-status')} />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="active">{t('active')}</Select.Item>
-                          <Select.Item value="inactive">{t('inactive')}</Select.Item>
+                          <Select.Item value="active">
+                            {t('active')}
+                          </Select.Item>
+                          <Select.Item value="inactive">
+                            {t('inactive')}
+                          </Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>

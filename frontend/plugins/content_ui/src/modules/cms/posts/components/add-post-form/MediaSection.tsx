@@ -39,96 +39,92 @@ interface ThumbnailUploaderProps {
 export const MediaSection = ({ form }: MediaSectionProps) => {
   const { t } = useTranslation('content');
   return (
-  <div>
-    <div className="mt-1 space-y-4">
-      <div className="text-sm font-medium">{t('media')}</div>
+    <div>
+      <div className="mt-1 space-y-4">
+        <div className="text-sm font-medium">{t('media')}</div>
 
-      <Form.Field
-        control={form.control}
-        name="thumbnail"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('featured-image')}</Form.Label>
-            <Form.Description>
-              {t('featured-image-desc')}
-            </Form.Description>
-            <Form.Control>
-              <ThumbnailUploader field={field} form={form} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+        <Form.Field
+          control={form.control}
+          name="thumbnail"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('featured-image')}</Form.Label>
+              <Form.Description>{t('featured-image-desc')}</Form.Description>
+              <Form.Control>
+                <ThumbnailUploader field={field} form={form} />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
 
-      <Form.Field
-        control={form.control}
-        name="gallery"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('image-gallery')}</Form.Label>
-            <Form.Description>
-              {t('image-gallery-desc')}
-            </Form.Description>
-            <Form.Control>
-              <GalleryUploader
-                value={(field.value as string[]) || []}
-                onChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+        <Form.Field
+          control={form.control}
+          name="gallery"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('image-gallery')}</Form.Label>
+              <Form.Description>{t('image-gallery-desc')}</Form.Description>
+              <Form.Control>
+                <GalleryUploader
+                  value={(field.value as string[]) || []}
+                  onChange={field.onChange}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
 
-      <Form.Field
-        control={form.control}
-        name="videoUrl"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('video-url')}</Form.Label>
-            <Form.Control>
-              <Input value={field.value} onChange={field.onChange} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+        <Form.Field
+          control={form.control}
+          name="videoUrl"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('video-url')}</Form.Label>
+              <Form.Control>
+                <Input value={field.value} onChange={field.onChange} />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
 
-      <Form.Field
-        control={form.control}
-        name="documents"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('documents')}</Form.Label>
-            <Form.Control>
-              <DocumentsUploader
-                value={(field.value as string[]) || []}
-                onChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+        <Form.Field
+          control={form.control}
+          name="documents"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('documents')}</Form.Label>
+              <Form.Control>
+                <DocumentsUploader
+                  value={(field.value as string[]) || []}
+                  onChange={field.onChange}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
 
-      <Form.Field
-        control={form.control}
-        name="attachments"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('attachments')}</Form.Label>
-            <Form.Control>
-              <AttachmentsUploader
-                value={(field.value as string[]) || []}
-                onChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+        <Form.Field
+          control={form.control}
+          name="attachments"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('attachments')}</Form.Label>
+              <Form.Control>
+                <AttachmentsUploader
+                  value={(field.value as string[]) || []}
+                  onChange={field.onChange}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      </div>
     </div>
-  </div>
   );
 };
 

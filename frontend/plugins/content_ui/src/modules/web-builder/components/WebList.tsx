@@ -37,7 +37,9 @@ export const WebList = () => {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-muted-foreground">{t('found-results', { count: webs.length })}</div>
+        <div className="text-sm text-muted-foreground">
+          {t('found-results', { count: webs.length })}
+        </div>
         <ToggleGroup
           type="single"
           value={viewMode}

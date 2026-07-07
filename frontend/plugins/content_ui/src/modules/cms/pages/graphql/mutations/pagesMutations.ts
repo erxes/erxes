@@ -72,7 +72,6 @@ export const PAGES_REMOVE = gql`
   }
 `;
 
-
 export const PAGE_LIST = gql`
   query PageList(
     $clientPortalId: String!
