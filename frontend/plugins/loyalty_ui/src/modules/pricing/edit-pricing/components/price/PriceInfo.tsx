@@ -12,6 +12,7 @@ interface PriceInfoProps {
   pricingDetail?: IPricingPlanDetail;
   embedded?: boolean;
   onSaveActionChange?: (action: ReactNode | null) => void;
+  onEnabledChange?: (enabled: boolean) => void;
 }
 
 export function PriceInfo(props: PriceInfoProps) {

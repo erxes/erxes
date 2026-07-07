@@ -84,8 +84,55 @@ export const getMainConditions = ({
   };
 };
 
+const applyPriorityConditions = (
+  conditions: Record<string, any>,
+  prioritizeRule?: string,
+) => {
+  if (prioritizeRule === 'only') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [{ priority: 'posBase' }],
+      },
+    ];
+    return;
+  }
+
+  if (prioritizeRule === 'exclude') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [{ priority: { $ne: 'posBase' } }],
+      },
+    ];
+  }
+};
+
 // Helper function to calculate default discount value
-const calculateDefaultDiscount = (plan: any, item: any): number => {
+const calculateDefaultDiscount = async (
+  plan: any,
+  item: any,
+  models: IModels,
+): Promise<number> => {
+  if (plan.type === 'fixed') {
+    const fixedValue = await models.PricingFixedValues.findOne({
+      pricingPlanId: plan._id.toString(),
+      productId: item.productId,
+    });
+
+    if (fixedValue?.newPrice == null) {
+      return 0;
+    }
+
+    const discount = item.price - fixedValue.newPrice;
+    return calculatePriceAdjust(
+      item.price,
+      discount,
+      plan.priceAdjustType,
+      plan.priceAdjustFactor,
+    );
+  }
+
   let defaultValue = calculateDiscountValue(plan.type, plan.value, item.price);
   defaultValue = calculatePriceAdjust(
     item.price,
@@ -204,7 +251,7 @@ const updateResultWithCalculations = (
 ): void => {
   if (type !== 'bonus') {
     result[itemId].type = type;
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].value += value;
     } else if (
       (value > 0 && result[itemId].value < value) ||
@@ -215,7 +262,7 @@ const updateResultWithCalculations = (
   }
 
   if (type === 'bonus') {
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].bonusProducts = [
         ...result[itemId].bonusProducts,
         ...bonusProducts,
@@ -331,15 +378,11 @@ export const checkPricing = async (params: {
 
   // Prepare query conditions
   const conditions = getMainConditions({ branchId, departmentId, pipelineId });
-  if (prioritizeRule === 'only') {
-    conditions.isPriority = true;
-  } else if (prioritizeRule === 'exclude') {
-    conditions.isPriority = false;
-  }
+  applyPriorityConditions(conditions, prioritizeRule);
 
   // Fix: Use proper sort order type for MongoDB
   const sortArgs: Record<string, 1 | -1> = {
-    isPriority: 1,
+    priority: 1,
     value: 1,
   };
 
@@ -403,7 +446,7 @@ export const checkPricing = async (params: {
       }
 
       // Calculate discount
-      const defaultValue = calculateDefaultDiscount(plan, item);
+      const defaultValue = await calculateDefaultDiscount(plan, item, models);
 
       // Process item with plan rules
       const { type, value, bonusProducts, shouldApply } = processItemWithPlan(
