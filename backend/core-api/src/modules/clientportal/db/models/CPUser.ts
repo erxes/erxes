@@ -22,7 +22,6 @@ import { cpUserService } from '@/clientportal/services';
 import {
   generateCPUserCreatedActivityLog,
   generateCPUserUpdateActivityLogs,
-  generateCPUserRemovedActivityLog,
 } from '@/clientportal/meta/activity-log';
 
 export interface ICPUserModel extends Model<ICPUserDocument> {
@@ -54,14 +53,13 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
     },
     models: IModels,
   ): Promise<ICPUserDocument>;
-  removeUser(userId: string, models: IModels): Promise<void>;
   removeUsers(userIds: string[], models: IModels): Promise<string[]>;
 }
 
 export const loadCPUserClass = (
   models: IModels,
   _subdomain: string,
-  { createActivityLog }: EventDispatcherReturn,
+  { createActivityLog, sendDbEventLog }: EventDispatcherReturn,
 ) => {
   class CPUser {
     public static async comparePassword(
@@ -188,36 +186,23 @@ export const loadCPUserClass = (
       return updatedUser;
     }
 
-    public static async removeUser(
-      userId: string,
-      models: IModels,
-    ): Promise<void> {
-      const user = await getCPUserByIdOrThrow(userId, models);
-      await models.CPUser.findOneAndDelete({ _id: userId });
-      try {
-        createActivityLog(generateCPUserRemovedActivityLog(user));
-      } catch {
-        // Activity log failure should not fail the mutation
-      }
-    }
-
-    /** Removes multiple client portal users and records removal activities. */
     public static async removeUsers(
       userIds: string[],
       models: IModels,
     ): Promise<string[]> {
-      const users = await models.CPUser.find({ _id: { $in: userIds } }).lean();
-      const removedUserIds = users.map((user) => String(user._id));
+      // Snapshot before deletion so the removal is revertable (point-in-time).
+      const prevDocuments = await models.CPUser.find({
+        _id: { $in: userIds },
+      }).lean();
+      const removedUserIds = prevDocuments.map((user) => String(user._id));
 
-      await models.CPUser.deleteMany({ _id: { $in: userIds } });
+      await models.CPUser.deleteMany({ _id: { $in: removedUserIds } });
 
-      for (const user of users) {
-        try {
-          createActivityLog(generateCPUserRemovedActivityLog(user));
-        } catch {
-          // Activity log failure should not fail the mutation
-        }
-      }
+      sendDbEventLog({
+        action: 'deleteMany',
+        docIds: removedUserIds,
+        prevDocuments,
+      });
 
       return removedUserIds;
     }
