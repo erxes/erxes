@@ -27,7 +27,7 @@ export const ProductsSimilarityGroupPage = () => {
       </ProductsHeader>
       <div className="flex overflow-hidden flex-auto">
         <ProductSidebar />
-        <div className="flex overflow-y-auto flex-col flex-auto p-3 w-full min-h-0">
+        <div className="flex overflow-hidden flex-col flex-auto p-3 w-full min-h-0">
           <SimilarityGroupList
             groupsMap={groupsMap}
             configsLoading={configsLoading}
