@@ -53,6 +53,7 @@ export function CPUserDetailGeneral() {
         defaultValue:
           'Are you sure you want to delete this client portal user?',
       }),
+      options: { confirmationValue: 'delete' },
     }).then(() => {
       cpUsersRemove({
         variables: { ids: [cpUserId] },
