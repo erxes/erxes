@@ -17,7 +17,6 @@ import {
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { checkApprovalLock } from '@/approval/utils/checkApprovalLock';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 import {
@@ -105,8 +104,7 @@ export const automationQueries = {
   ) {
     const automation = await models.Automations.getAutomation(_id);
 
-    await checkApprovalLock.assert({
-      models,
+    await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
       contentId: _id,
@@ -270,12 +268,29 @@ export const automationQueries = {
     return botsConstants;
   },
 
-  async automationsAiAgents(_root, { kind }, { models }: IContext) {
+  async automationsAiAgents(
+    _root,
+    { kind }: { kind?: string },
+    { models, user }: IContext,
+  ) {
     const agents = await models.AiAgents.find(
       kind ? { 'connection.provider': kind } : {},
     );
+    const agentIds = agents.map((agent) => agent._id.toString());
+    const lockStates = await models.ApprovalLocks.getStates({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentIds: agentIds,
+      action: 'view',
+    });
+    const lockStateByAgentId = new Map(
+      lockStates.map((state) => [state.contentId, state]),
+    );
 
-    return sanitizeAiAgents(agents as any[]);
+    return sanitizeAiAgents(agents as any[]).map((agent) => ({
+      ...agent,
+      approvalLockState: lockStateByAgentId.get(agent._id.toString()),
+    }));
   },
 
   async automationsAiAgentTotalCounts(_root, _args, { models }: IContext) {
@@ -305,8 +320,7 @@ export const automationQueries = {
     const agent = await models.AiAgents.findOne(_id ? { _id } : {});
 
     if (_id && agent) {
-      await checkApprovalLock.assert({
-        models,
+      await models.ApprovalLocks.assertAccess({
         user,
         contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
         contentId: _id,
@@ -322,8 +336,7 @@ export const automationQueries = {
     { agentId }: { agentId: string },
     { models, subdomain, user }: IContext,
   ) {
-    await checkApprovalLock.assert({
-      models,
+    await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
       contentId: agentId,
@@ -345,8 +358,7 @@ export const automationQueries = {
     { agentId }: { agentId: string },
     { models, subdomain, user }: IContext,
   ) {
-    await checkApprovalLock.assert({
-      models,
+    await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
       contentId: agentId,

@@ -64,7 +64,7 @@ export const ApprovalRequestsRecordTable = () => {
             </ToggleGroup.Item>
           ))}
         </ToggleGroup>
-        <div className="h-7 whitespace-nowrap text-sm font-medium leading-7 text-muted-foreground">
+        <div className="h-7 whitespace-nowrap text-sm font-medium leading-7 text-muted-foreground ml-auto">
           {loading && !totalCount ? (
             <Skeleton className="mt-1.5 inline-block h-4 w-20" />
           ) : (
@@ -77,7 +77,7 @@ export const ApprovalRequestsRecordTable = () => {
         columns={columns}
         data={list}
         className="m-3"
-        stickyColumns={['actions']}
+        stickyColumns={['details']}
       >
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}

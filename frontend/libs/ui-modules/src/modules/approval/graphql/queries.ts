@@ -52,7 +52,6 @@ export const APPROVAL_LOCK_STATE_FIELDS = gql`
       contentType
       contentId
       label
-      link
       ownerId
     }
     lock {

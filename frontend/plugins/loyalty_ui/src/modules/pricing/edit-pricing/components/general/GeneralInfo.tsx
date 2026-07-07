@@ -1,13 +1,18 @@
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import { IPricingPlanDetail } from '@/pricing/types';
 import {
+  PRICING_PRIORITY_OPTIONS,
+  PricingPriorityFormValue,
+  priorityFromFormValue,
+  priorityToFormValue,
+} from '@/pricing/constants';
+import {
   formatDateValue,
   isDateRangeValid,
   parseDateValue,
 } from '@/pricing/utils/date';
 import {
   Button,
-  Checkbox,
   DatePicker,
   Form,
   InfoCard,
@@ -16,7 +21,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useEffect, type ReactNode } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Control } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   SelectCompany,
@@ -25,7 +30,6 @@ import {
   SelectSegment,
   SelectTags,
 } from 'ui-modules';
-import { type Control } from 'react-hook-form';
 
 interface GeneralInfoProps {
   pricingId?: string;
@@ -37,7 +41,7 @@ interface GeneralFormValues {
   name: string;
   status: 'active' | 'archived' | 'draft' | 'completed';
   applyType: 'category' | 'product' | 'order';
-  isPriority: boolean;
+  priority: PricingPriorityFormValue;
   startDate: string | null;
   endDate: string | null;
   appliesTo: 'category' | 'product' | 'segment' | 'vendor' | 'tag' | 'bundle';
@@ -111,7 +115,7 @@ export const GeneralInfo = ({
       name: '',
       status: 'active',
       applyType: 'product',
-      isPriority: false,
+      priority: 'none',
       startDate: null,
       endDate: null,
       appliesTo: 'category',
@@ -157,7 +161,7 @@ export const GeneralInfo = ({
       applyType:
         (pricingDetail.applyType as GeneralFormValues['applyType']) ||
         'product',
-      isPriority: pricingDetail.isPriority ?? false,
+      priority: priorityToFormValue(pricingDetail.priority),
       startDate:
         pricingDetail.isStartDateEnabled && pricingDetail.startDate
           ? pricingDetail.startDate.slice(0, 10)
@@ -202,7 +206,7 @@ export const GeneralInfo = ({
       name: values.name.trim(),
       status: values.status,
       applyType: appliesToApplyTypeMap[values.appliesTo] || values.applyType,
-      isPriority: values.isPriority,
+      priority: priorityFromFormValue(values.priority),
     };
 
     if (values.startDate) {
@@ -303,7 +307,10 @@ export const GeneralInfo = ({
                       <Form.Item className="min-w-0">
                         <Form.Label>{t('name')}</Form.Label>
                         <Form.Control>
-                          <Input placeholder={t('enter-pricing-name')} {...field} />
+                          <Input
+                            placeholder={t('enter-pricing-name')}
+                            {...field}
+                          />
                         </Form.Control>
                       </Form.Item>
                     )}
@@ -324,10 +331,18 @@ export const GeneralInfo = ({
                               <Select.Value placeholder={t('select-status')} />
                             </Select.Trigger>
                             <Select.Content>
-                              <Select.Item value="active">{t('active')}</Select.Item>
-                              <Select.Item value="archived">{t('archived')}</Select.Item>
-                              <Select.Item value="draft">{t('draft')}</Select.Item>
-                              <Select.Item value="completed">{t('completed')}</Select.Item>
+                              <Select.Item value="active">
+                                {t('active')}
+                              </Select.Item>
+                              <Select.Item value="archived">
+                                {t('archived')}
+                              </Select.Item>
+                              <Select.Item value="draft">
+                                {t('draft')}
+                              </Select.Item>
+                              <Select.Item value="completed">
+                                {t('completed')}
+                              </Select.Item>
                             </Select.Content>
                           </Select>
                         </Form.Control>
@@ -338,19 +353,29 @@ export const GeneralInfo = ({
 
                 <Form.Field
                   control={form.control}
-                  name="isPriority"
+                  name="priority"
                   render={({ field }) => (
                     <Form.Item className="min-w-0">
                       <Form.Label>{t('priority')}</Form.Label>
                       <Form.Control>
-                        <div className="flex items-center h-9">
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={(checked) =>
-                              field.onChange(checked === true)
-                            }
-                          />
-                        </div>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <Select.Trigger>
+                            <Select.Value placeholder={t('select-priority')} />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {PRICING_PRIORITY_OPTIONS.map((option) => (
+                              <Select.Item
+                                key={option.label}
+                                value={option.value}
+                              >
+                                {t(option.label)}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
                       </Form.Control>
                     </Form.Item>
                   )}
@@ -390,12 +415,24 @@ export const GeneralInfo = ({
                               <Select.Value placeholder={t('select-target')} />
                             </Select.Trigger>
                             <Select.Content>
-                              <Select.Item value="category">{t('specific-category')}</Select.Item>
-                              <Select.Item value="product">{t('specific-product')}</Select.Item>
-                              <Select.Item value="segment">{t('specific-segment')}</Select.Item>
-                              <Select.Item value="vendor">{t('specific-vendor')}</Select.Item>
-                              <Select.Item value="tag">{t('specific-tag')}</Select.Item>
-                              <Select.Item value="bundle">{t('specific-bundle')}</Select.Item>
+                              <Select.Item value="category">
+                                {t('specific-category')}
+                              </Select.Item>
+                              <Select.Item value="product">
+                                {t('specific-product')}
+                              </Select.Item>
+                              <Select.Item value="segment">
+                                {t('specific-segment')}
+                              </Select.Item>
+                              <Select.Item value="vendor">
+                                {t('specific-vendor')}
+                              </Select.Item>
+                              <Select.Item value="tag">
+                                {t('specific-tag')}
+                              </Select.Item>
+                              <Select.Item value="bundle">
+                                {t('specific-bundle')}
+                              </Select.Item>
                             </Select.Content>
                           </Select>
                         </Form.Control>
@@ -411,7 +448,9 @@ export const GeneralInfo = ({
                       name="productCategoryIds"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('product-categories-label')}</Form.Label>
+                          <Form.Label>
+                            {t('product-categories-label')}
+                          </Form.Label>
                           <Form.Control>
                             <SelectCategory
                               mode="multiple"

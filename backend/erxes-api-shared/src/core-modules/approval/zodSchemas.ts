@@ -21,14 +21,18 @@ export const approvalLockStatesInputSchema = z.object({
 
 export const approvalLockCreateInputSchema = z.object({
   contentType: z.string().min(1),
-  contentId: z.string().min(1),
-  ownerId: z.string().optional(),
+  contentTypeId: z.string().min(1),
+  ownerId: z.string().min(1),
   allowedUserIds: z.array(z.string()).optional(),
-  approverScope: z.enum([
-    APPROVAL_APPROVER_SCOPES.LOCKER_ONLY,
-    APPROVAL_APPROVER_SCOPES.LOCKER_AND_ALLOWED_USERS,
-  ]),
-  approvalMode: z.enum([APPROVAL_MODES.FIRST_WINS, APPROVAL_MODES.UNANIMOUS]),
+  scope: z
+    .enum([
+      APPROVAL_APPROVER_SCOPES.LOCKER_ONLY,
+      APPROVAL_APPROVER_SCOPES.LOCKER_AND_ALLOWED_USERS,
+    ])
+    .optional(),
+  mode: z
+    .enum([APPROVAL_MODES.FIRST_WINS, APPROVAL_MODES.UNANIMOUS])
+    .optional(),
 });
 
 export const approvalRequestCreateInputSchema = z.object({

@@ -64,7 +64,6 @@ export type ApprovalContentMeta = {
   contentType: string;
   contentId: string;
   label?: string;
-  link?: string;
   ownerId?: string;
 };
 
@@ -112,11 +111,11 @@ export type ApprovalLockAssertResponse = {
 
 export type ApprovalLockCreateInput = {
   contentType: string;
-  contentId: string;
-  ownerId?: string;
+  contentTypeId: string;
+  ownerId: string;
   allowedUserIds?: string[];
-  approverScope: ApprovalApproverScope;
-  approvalMode: ApprovalMode;
+  scope?: ApprovalApproverScope;
+  mode?: ApprovalMode;
 };
 
 export type ApprovalRequestCreateInput = {
@@ -131,5 +130,4 @@ export type ApprovalNotificationMetadata = {
   targetContentType: string;
   targetContentId: string;
   targetLabel?: string;
-  targetLink?: string;
 };

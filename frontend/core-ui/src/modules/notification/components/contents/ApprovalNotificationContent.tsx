@@ -1,14 +1,8 @@
+import { ApprovalContentTarget } from '@/approval/components/ApprovalContentTarget';
 import { useQuery } from '@apollo/client';
 import { IconLock } from '@tabler/icons-react';
-import {
-  Badge,
-  Button,
-  RelativeDateDisplay,
-  Separator,
-  Spinner,
-} from 'erxes-ui';
+import { Badge, RelativeDateDisplay, Separator, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import {
   ApprovalNotificationActions,
   ApprovalNotificationMetadata,
@@ -125,18 +119,17 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
         <div className="text-xs font-medium uppercase text-muted-foreground">
           {t('target')}
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
+        <div className="rounded-md border p-3">
           <div className="min-w-0">
-            <div className="truncate text-sm font-medium">{targetLabel}</div>
+            <ApprovalContentTarget
+              contentType={metadata.targetContentType}
+              contentId={metadata.targetContentId}
+              label={targetLabel}
+            />
             <div className="truncate text-xs text-muted-foreground">
               {metadata.targetContentType}
             </div>
           </div>
-          {metadata.targetLink && (
-            <Button variant="outline" asChild>
-              <Link to={metadata.targetLink}>{t('open')}</Link>
-            </Button>
-          )}
         </div>
       </div>
       {request && (

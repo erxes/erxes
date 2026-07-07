@@ -948,6 +948,83 @@ const orderMutations: Record<string, Resolver> = {
     return newOrder;
   },
 
+  async cpOrdersAddPayment(
+    _root,
+    {
+      _id,
+      cashAmount,
+      paidAmounts,
+    }: {
+      _id: string;
+      cashAmount?: number;
+      paidAmounts?: IPaidAmount[];
+    },
+    { models, config, subdomain }: IContext,
+  ) {
+    const order = await models.Orders.getOrder(_id);
+
+    const amount =
+      (cashAmount || 0) +
+      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
+
+    checkOrderStatus(order);
+    checkOrderAmount(order, amount);
+    await checkScoreAviableSubtractScoreCampaign(
+      subdomain,
+      models,
+      order,
+      paidAmounts,
+    );
+    await checkCouponCode({ subdomain, order });
+
+    const modifier: any = {
+      $set: {
+        cashAmount: cashAmount
+          ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
+          : order.cashAmount || 0,
+        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
+        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
+      },
+    };
+
+    await models.Orders.updateOne({ _id: order._id }, modifier);
+
+    const newOrder = await models.Orders.getOrder(order._id);
+
+    if (newOrder?.isPre) {
+      const items = await models.OrderItems.find({ orderId: newOrder._id });
+      if (config.isOnline) {
+        const products = await models.Products.find({
+          _id: { $in: items.map((i) => i.productId) },
+        }).lean();
+        for (const item of items) {
+          const product = products.find((p) => p._id === item.productId);
+          item.productName = `${product?.code} - ${product?.name}`;
+        }
+      }
+
+      try {
+        await sendTRPCMessage({
+          subdomain,
+          method: 'mutation',
+          pluginName: 'sales',
+          module: 'pos',
+          action: 'createOrUpdateOrders',
+          input: {
+            posToken: config.token,
+            action: 'makePayment',
+            order,
+            items,
+          },
+        });
+      } catch (e) {
+        debugError(`Error occurred while sending data to erxes: ${e.message}`);
+      }
+    }
+
+    return newOrder;
+  },
+
   async ordersCancel(_root, { _id }, { models, posUser, config }: IContext) {
     assertPosUser(posUser);
 
@@ -1095,16 +1172,18 @@ const orderMutations: Record<string, Resolver> = {
           module: 'relation',
           action: 'createRelation',
           input: {
-            entities: [
-              {
-                contentType: 'sales:deal',
-                contentId: deal._id,
-              },
-              {
-                contentType: `core:${order.customerType || 'customer'}`,
-                contentId: order.customerId,
-              },
-            ],
+            relation: {
+              entities: [
+                {
+                  contentType: 'sales:deal',
+                  contentId: deal._id,
+                },
+                {
+                  contentType: `core:${order.customerType || 'customer'}`,
+                  contentId: order.customerId,
+                },
+              ],
+            }
           },
           defaultValue: null,
         });
@@ -1418,4 +1497,9 @@ orderMutations.cpOrderChangeSaleStatus.wrapperConfig = {
 orderMutations.cpOrdersCancel.wrapperConfig = {
   forClientPortal: true,
 };
+
+orderMutations.cpOrdersAddPayment.wrapperConfig = {
+  forClientPortal: true,
+};
+
 export default orderMutations;

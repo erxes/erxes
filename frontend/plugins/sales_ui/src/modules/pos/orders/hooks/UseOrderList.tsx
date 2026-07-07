@@ -1,4 +1,4 @@
-import queries from '~/modules/pos/orders/graphql/queries/queries';
+import { POS_ORDERS_QUERY } from '~/modules/pos/orders/graphql/queries/queries';
 import { useQuery } from '@apollo/client';
 import { useMemo, useCallback, useEffect } from 'react';
 import { IOrder } from '@/pos/types/order';
@@ -98,7 +98,7 @@ export const useOrdersList = (
 ): UseOrdersListReturn => {
   const variables = useOrdersVariables(options);
   const setOrdersTotalCount = useSetAtom(posOrderTotalCountAtom);
-  const { data, loading, fetchMore } = useQuery(queries.POS_ORDERS_QUERY, {
+  const { data, loading, fetchMore } = useQuery(POS_ORDERS_QUERY, {
     variables,
   });
 
@@ -133,8 +133,7 @@ export const useOrdersList = (
   }, [ordersList.length, fetchMore, data?.posOrders]);
 
   useEffect(() => {
-    if (!totalCount) return;
-    setOrdersTotalCount(totalCount);
+    setOrdersTotalCount(totalCount ?? null);
   }, [totalCount, setOrdersTotalCount]);
 
   return {

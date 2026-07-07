@@ -217,6 +217,7 @@ const mutationParams = `
   kind: String
   method: String
   fromUserId: String
+  cpId: String
 
   targetType: String
   targetIds: [String]

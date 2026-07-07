@@ -9,7 +9,10 @@ import {
   calculatePriceAdjust,
 } from './rule';
 import { getAllowedProducts } from './product';
+import { planMatchesContext, EligibilityCache } from './eligibility';
 import { CalculatedRule, OrderItem } from '../types';
+
+type ParticipantKind = 'customer' | 'company' | 'user';
 
 export const getMainConditions = ({
   branchId,
@@ -58,40 +61,78 @@ export const getMainConditions = ({
     ],
   };
 
-  const publicFilter = {
-    branchIds: { $size: 0 },
-    departmentIds: { $size: 0 },
-    pipelineId: { $in: [null, ''] },
-  };
+  const pipelineFilter = pipelineId
+    ? { $or: [{ pipelineId }, { pipelineId: { $in: [null, ''] } }] }
+    : { pipelineId: { $in: [null, ''] } };
 
-  const targetFilter: Record<string, any>[] = [];
+  const branchFilter = branchId
+    ? { $or: [{ branchIds: { $in: [branchId] } }, { branchIds: { $size: 0 } }] }
+    : { branchIds: { $size: 0 } };
 
-  if (pipelineId) {
-    targetFilter.push({ pipelineId });
-  }
-
-  if (branchId || departmentId) {
-    targetFilter.push({
-      branchIds: branchId ? { $in: [branchId] } : { $size: 0 },
-      departmentIds: departmentId ? { $in: [departmentId] } : { $size: 0 },
-    });
-  }
-
-  let lastFilter: any = publicFilter;
-  if (targetFilter.length) {
-    lastFilter = {
-      $or: [{ $and: targetFilter }, publicFilter],
-    };
-  }
+  const departmentFilter = departmentId
+    ? {
+        $or: [
+          { departmentIds: { $in: [departmentId] } },
+          { departmentIds: { $size: 0 } },
+        ],
+      }
+    : { departmentIds: { $size: 0 } };
 
   return {
     status: 'active',
-    $and: [dateFilter, lastFilter],
+    $and: [dateFilter, pipelineFilter, branchFilter, departmentFilter],
   };
 };
 
+const applyPriorityConditions = (
+  conditions: Record<string, any>,
+  prioritizeRule?: string,
+) => {
+  if (prioritizeRule === 'only') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [{ priority: 'posBase' }],
+      },
+    ];
+    return;
+  }
+
+  if (prioritizeRule === 'exclude') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [{ priority: { $ne: 'posBase' } }],
+      },
+    ];
+  }
+};
+
 // Helper function to calculate default discount value
-const calculateDefaultDiscount = (plan: any, item: any): number => {
+const calculateDefaultDiscount = async (
+  plan: any,
+  item: any,
+  models: IModels,
+): Promise<number> => {
+  if (plan.type === 'fixed') {
+    const fixedValue = await models.PricingFixedValues.findOne({
+      pricingPlanId: plan._id.toString(),
+      productId: item.productId,
+    });
+
+    if (fixedValue?.newPrice == null) {
+      return 0;
+    }
+
+    const discount = item.price - fixedValue.newPrice;
+    return calculatePriceAdjust(
+      item.price,
+      discount,
+      plan.priceAdjustType,
+      plan.priceAdjustFactor,
+    );
+  }
+
   let defaultValue = calculateDiscountValue(plan.type, plan.value, item.price);
   defaultValue = calculatePriceAdjust(
     item.price,
@@ -210,7 +251,7 @@ const updateResultWithCalculations = (
 ): void => {
   if (type !== 'bonus') {
     result[itemId].type = type;
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].value += value;
     } else if (
       (value > 0 && result[itemId].value < value) ||
@@ -221,7 +262,7 @@ const updateResultWithCalculations = (
   }
 
   if (type === 'bonus') {
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].bonusProducts = [
         ...result[itemId].bonusProducts,
         ...bonusProducts,
@@ -250,16 +291,58 @@ const applyBundleCalculation = (
   });
 };
 
+const typedParticipantContext = ({
+  type,
+  id,
+  prefix = '',
+}: {
+  type?: ParticipantKind;
+  id?: string;
+  prefix?: 'broker' | '';
+}) => {
+  if (!id) {
+    return {};
+  }
+
+  const participantType = type || 'customer';
+
+  if (prefix === 'broker') {
+    if (participantType === 'company') {
+      return { brokerCompanyIds: [id] };
+    }
+
+    if (participantType === 'user') {
+      return { brokerUserIds: [id] };
+    }
+
+    return { brokerCustomerIds: [id] };
+  }
+
+  if (participantType === 'company') {
+    return { companyIds: [id] };
+  }
+
+  if (participantType === 'user') {
+    return { userIds: [id] };
+  }
+
+  return { customerIds: [id] };
+};
+
 // Main function with reduced complexity
 export const checkPricing = async (params: {
   models: IModels;
   subdomain: string;
   prioritizeRule: string;
   totalAmount: number;
-  departmentId: string;
-  branchId: string;
-  pipelineId: string;
+  departmentId?: string;
+  branchId?: string;
+  pipelineId?: string;
   orderItems: OrderItem[];
+  customerType?: ParticipantKind;
+  customerId?: string;
+  brokerType?: ParticipantKind;
+  brokerId?: string;
 }) => {
   const {
     models,
@@ -270,6 +353,10 @@ export const checkPricing = async (params: {
     branchId,
     pipelineId,
     orderItems,
+    customerType,
+    customerId,
+    brokerType,
+    brokerId,
   } = params;
 
   const productIds = orderItems.map((p) => p.productId);
@@ -291,15 +378,11 @@ export const checkPricing = async (params: {
 
   // Prepare query conditions
   const conditions = getMainConditions({ branchId, departmentId, pipelineId });
-  if (prioritizeRule === 'only') {
-    conditions.isPriority = true;
-  } else if (prioritizeRule === 'exclude') {
-    conditions.isPriority = false;
-  }
+  applyPriorityConditions(conditions, prioritizeRule);
 
   // Fix: Use proper sort order type for MongoDB
   const sortArgs: Record<string, 1 | -1> = {
-    isPriority: 1,
+    priority: 1,
     value: 1,
   };
 
@@ -309,8 +392,35 @@ export const checkPricing = async (params: {
     return;
   }
 
+  // Memoize segment + entity-fact lookups across every plan in this request.
+  const eligibilityCache: EligibilityCache = new Map();
+  const customerContext = typedParticipantContext({
+    type: customerType,
+    id: customerId,
+  });
+  const brokerContext = typedParticipantContext({
+    type: brokerType,
+    id: brokerId,
+    prefix: 'broker',
+  });
+
   // Process each plan
   for (const plan of plans) {
+    // Customer + broker eligibility gate (product targeting is handled below).
+    if (
+      !(await planMatchesContext(
+        subdomain,
+        plan,
+        {
+          ...customerContext,
+          ...brokerContext,
+        },
+        eligibilityCache,
+      ))
+    ) {
+      continue;
+    }
+
     const allowedProductIds = await getAllowedProducts(
       subdomain,
       plan,
@@ -336,7 +446,7 @@ export const checkPricing = async (params: {
       }
 
       // Calculate discount
-      const defaultValue = calculateDefaultDiscount(plan, item);
+      const defaultValue = await calculateDefaultDiscount(plan, item, models);
 
       // Process item with plan rules
       const { type, value, bonusProducts, shouldApply } = processItemWithPlan(

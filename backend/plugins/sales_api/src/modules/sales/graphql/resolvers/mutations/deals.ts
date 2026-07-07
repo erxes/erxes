@@ -45,12 +45,10 @@ export const dealMutations: Record<string, Resolver> = {
   async cpDealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
-    {  models, subdomain ,cpUser}: IContext,
+    { models, subdomain, cpUser }: IContext,
   ) {
-    const userId =
-    cpUser?.erxesCustomerId ||
-    cpUser?._id || null;
-    
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || null;
+
     if (!userId) {
       throw new Error('ClientPortal User not found');
     }
@@ -90,12 +88,9 @@ export const dealMutations: Record<string, Resolver> = {
     },
     { cpUser, models, subdomain }: IContext,
   ) {
-    const userId =
-      cpUser?.erxesCustomerId ||
-      cpUser?._id ||
-      null;
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || null;
     if (!userId) {
-        throw new Error('ClientPortal User not found');
+      throw new Error('ClientPortal User not found');
     }
     return changeDeal(subdomain, models, `cp:${userId}`, { ...doc });
   },
