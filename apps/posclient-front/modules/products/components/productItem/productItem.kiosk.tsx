@@ -14,7 +14,7 @@ const ProductItem = (props: IProduct) => {
       className="bg-neutral-100 rounded-3xl p-2"
       onClick={() => addToCart(props)}
     >
-      <AspectRatio >
+      <AspectRatio>
         <Image
           src={attachment?.url || ""}
           alt=""
