@@ -582,6 +582,7 @@ export const inboxAutomationWorkers = {
       execution,
       targetType,
       relation: setPropertyTarget?.relation,
+      targetPath: setPropertyTarget?.targetPath,
     });
 
     return await setProperty({

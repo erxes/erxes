@@ -5,7 +5,14 @@ import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { useEffect, useMemo } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
-import { useGetFieldsProperties, TAutomationAction } from 'ui-modules';
+import { useAutomationSetPropertyTargets, TAutomationAction } from 'ui-modules';
+
+const LEGACY_AUTOMATION_SOURCE_TYPES: Record<string, string> = {
+  'tickets:ticket': 'frontline:tickets.tickets',
+};
+
+const normalizeAutomationSourceType = (sourceType?: string) =>
+  sourceType ? LEGACY_AUTOMATION_SOURCE_TYPES[sourceType] || sourceType : '';
 
 export const useManagePropertySidebarContent = (
   currentAction: TAutomationAction,
@@ -35,18 +42,13 @@ export const useManagePropertySidebarContent = (
     actionFolks,
   );
 
-  const sourceType = selectedActionType || trigger?.type || '';
-  const selectedPropertyType = module || sourceType;
-  console.log({ selectedPropertyType, module, sourceType });
-  const { propertyTypes, loading } = useGetFieldsProperties(
-    selectedPropertyType,
-    {
-      source: 'automations',
-      sourceType,
-    },
+  const sourceType = normalizeAutomationSourceType(
+    selectedActionType || trigger?.type,
   );
+  const { propertyTypes, loading } = useAutomationSetPropertyTargets(sourceType);
   const defaultPropertyType = propertyTypes[0]?.value || sourceType;
-  const propertyType = module || defaultPropertyType;
+  const normalizedModule = normalizeAutomationSourceType(module);
+  const propertyType = normalizedModule || defaultPropertyType;
   const selectedPropertyTarget = useMemo(
     () =>
       propertyTypes.find((p) => p.value === propertyType) ||
@@ -56,16 +58,24 @@ export const useManagePropertySidebarContent = (
   const isPropertyTypeValid = useMemo(
     () =>
       !!propertyTypes.find(
-        (p) => propertyType === p.value || propertyType.startsWith(p.value),
+        (p) =>
+          propertyType === p.value ||
+          propertyType.startsWith(p.value) ||
+          p.sourceType === propertyType,
       ),
     [propertyTypes, propertyType],
   );
 
   useEffect(() => {
+    if (module && normalizedModule !== module) {
+      setValue('module', normalizedModule);
+      return;
+    }
+
     if (!module && defaultPropertyType) {
       setValue('module', defaultPropertyType);
     }
-  }, [defaultPropertyType, module, setValue]);
+  }, [defaultPropertyType, module, normalizedModule, setValue]);
 
   useEffect(() => {
     if (!selectedPropertyTarget) {

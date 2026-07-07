@@ -43,10 +43,15 @@ export const invokeAnthropicMessages = async (
     throw new Error(formatAnthropicMessagesError(response));
   }
 
-  const text = extractText(response.json);
+  let text = extractText(response.json);
 
   if (!text) {
     throw new Error('AI provider returned an empty response.');
+  }
+
+  // The "{" prefill is not echoed back, so restore it for the parser.
+  if (input.responseFormat === 'json' && !text.startsWith('{')) {
+    text = `{${text}`;
   }
 
   return {

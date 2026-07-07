@@ -5,6 +5,7 @@ const managePropertyRuleSchema = z.object({
   fieldLabel: z.string().optional(),
   operator: z.string().min(1, 'Operator is required'),
   value: z.any().optional(),
+  fallbackValue: z.string().optional(),
   isExpression: z.boolean().optional(),
   meta: z.record(z.any()).optional(),
 });
@@ -12,7 +13,7 @@ const managePropertyRuleSchema = z.object({
 const setPropertyTargetSchema = z.object({
   label: z.string().optional(),
   type: z.string().optional(),
-  source: z.enum(['target', 'relation', 'resolver']).optional(),
+  source: z.enum(['target', 'relation', 'resolver', 'targetField']).optional(),
   cardinality: z.enum(['one', 'many']).optional(),
   sourceType: z.string().optional(),
   relation: z
@@ -22,6 +23,7 @@ const setPropertyTargetSchema = z.object({
     })
     .optional(),
   resolverKey: z.string().optional(),
+  targetPath: z.string().optional(),
   pluginName: z.string().optional(),
   value: z.string().optional(),
   description: z.string().optional(),

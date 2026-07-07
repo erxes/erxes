@@ -16,6 +16,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { Link, useNavigate } from 'react-router-dom';
 import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
 
@@ -68,7 +69,7 @@ export const AutomationsRecordTable = () => {
         <PageHeader.End>
           <Button variant="outline" asChild>
             <Link
-              to="/settings/automations"
+              to={AutomationSettingsPath.Index}
               onClick={() => setAutomationSettingsReturnPath('/automations')}
             >
               <IconSettings />

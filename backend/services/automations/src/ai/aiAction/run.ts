@@ -60,6 +60,23 @@ const createAiProviderFallbackResponse = (
   };
 };
 
+const getAiResponseFormat = (
+  actionConfig: TAiAgentActionConfig,
+): 'json' | undefined => {
+  if (actionConfig.goalType === 'classification') {
+    return 'json';
+  }
+
+  if (
+    actionConfig.goalType === 'generateText' &&
+    (actionConfig.captureFields || []).length
+  ) {
+    return 'json';
+  }
+
+  return undefined;
+};
+
 const invokeAiProviderWithRealtimeFallback = async ({
   agent,
   messages,
@@ -71,11 +88,15 @@ const invokeAiProviderWithRealtimeFallback = async ({
   subdomain: string;
   actionConfig: TAiAgentActionConfig;
 }) => {
+  const responseFormat = getAiResponseFormat(actionConfig);
+
   if (actionConfig.goalType !== 'generateText') {
-    return invokeAiProvider(agent, messages, subdomain);
+    return invokeAiProvider(agent, messages, subdomain, { responseFormat });
   }
 
-  const providerPromise = invokeAiProvider(agent, messages, subdomain).catch(
+  const providerPromise = invokeAiProvider(agent, messages, subdomain, {
+    responseFormat,
+  }).catch(
     (error) => {
       if (isAiProviderTimeoutError(error)) {
         const fallbackResponse = createAiProviderFallbackResponse(actionConfig);

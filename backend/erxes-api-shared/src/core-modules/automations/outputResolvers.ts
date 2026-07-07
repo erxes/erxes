@@ -143,6 +143,61 @@ const toReferenceIds = (value: unknown) =>
     .filter((item) => item !== undefined && item !== null && item !== '')
     .map(String);
 
+const resolveNestedFieldsOutputValue = (
+  definition: TAutomationRuntimeOutputDefinition,
+  source: TAutomationOutputSource,
+  path: string,
+) => {
+  const [head, ...restParts] = path.split('.');
+  const restPath = restParts.join('.');
+
+  if (!restPath) {
+    return { found: false };
+  }
+
+  const variable = (definition.variables || []).find(
+    (item) => item.fields?.length && (item.key === head || item.field === head),
+  );
+
+  if (!variable) {
+    return { found: false };
+  }
+
+  const sourceValue = getValueByPath(source, variable.field || variable.key);
+
+  if (!sourceValue.found) {
+    return { found: false };
+  }
+
+  if (Array.isArray(sourceValue.value)) {
+    const values = sourceValue.value
+      .map((item) =>
+        getValueByPath((item ?? {}) as TAutomationOutputSource, restPath),
+      )
+      .filter(
+        (result) =>
+          result.found && result.value != null && result.value !== '',
+      )
+      .map((result) => result.value);
+
+    return {
+      found: true,
+      value: values.length ? values.join(', ') : undefined,
+    };
+  }
+
+  if (sourceValue.value && typeof sourceValue.value === 'object') {
+    const nested = getValueByPath(
+      sourceValue.value as TAutomationOutputSource,
+      restPath,
+    );
+
+    return nested.found ? nested : { found: false };
+  }
+
+  return { found: false };
+};
+
 const resolveReferenceOutputValue = async ({
   definition,
   defaultValue,
@@ -300,6 +355,17 @@ const resolveOutputPathsFromDefinition = async ({
       result[path] = field
         ? (propertiesData?.[field._id] ?? defaultValue)
         : defaultValue;
+      continue;
+    }
+
+    const nestedFields = resolveNestedFieldsOutputValue(
+      definition,
+      source,
+      path,
+    );
+
+    if (nestedFields.found) {
+      result[path] = nestedFields.value ?? defaultValue;
       continue;
     }
 

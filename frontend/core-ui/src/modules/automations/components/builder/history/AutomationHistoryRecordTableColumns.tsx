@@ -53,7 +53,9 @@ export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
     id: 'title',
     accessorKey: 'title',
     header: TitleHeader,
-    cell: AutomationHistoryResultName,
+    cell: ({ cell }) => (
+      <AutomationHistoryResultName executionDetail={cell.row.original} />
+    ),
   },
   {
     id: 'description',

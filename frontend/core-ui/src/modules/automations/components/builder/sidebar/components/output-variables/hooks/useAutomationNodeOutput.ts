@@ -11,6 +11,7 @@ import {
   TAutomationOutputVariable,
   TAutomationVariableSourceNode,
 } from '../AutomationVariableBrowserTypes';
+import { splitAutomationNodeType } from 'ui-modules/modules/automations';
 
 const INCOMING_WEBHOOK_TRIGGER_TYPE = 'core:webhooks.incoming';
 
@@ -47,13 +48,15 @@ export const useAutomationNodeOutput = (
 ) => {
   const { findObjectTargetsConst } = useAutomation();
   const { actions, triggers } = useAutomationNodes();
-
+  const [pluginName, moduleName, recordName] = splitAutomationNodeType(
+    activeSourceNode?.type || '',
+  );
   const { data, loading } = useQuery<TAutomationNodeOutputResponse>(
     AUTOMATION_NODE_OUTPUT,
     {
       skip: !activeSourceNode?.type,
       variables: {
-        nodeType: activeSourceNode?.type || '',
+        nodeType: `${pluginName}:${moduleName}.${recordName}`,
       },
       fetchPolicy: 'cache-first',
     },
@@ -109,8 +112,38 @@ export const useAutomationNodeOutput = (
       ? buildIncomingWebhookReferenceVariables(sourceNodeConfig)
       : null;
 
+  const aiAgentFieldDefinitions =
+    activeSourceNode?.nodeType === AutomationNodeType.Action &&
+    activeSourceNode?.type === 'aiAgent'
+      ? sourceNodeConfig?.goalType === 'classification'
+        ? sourceNodeConfig?.objectFields
+        : sourceNodeConfig?.goalType === 'generateText'
+        ? sourceNodeConfig?.captureFields
+        : []
+      : [];
+
+  const aiAgentAttributeFields = (aiAgentFieldDefinitions || [])
+    .filter((field: any) => field?.fieldName?.trim())
+    .map((field: any) => ({
+      key: field.fieldName.trim(),
+      label: field.fieldName.trim(),
+      type: field.dataType,
+    }));
+
+  const baseVariables = aiAgentAttributeFields.length
+    ? variables.map((variable) =>
+        variable.key === 'attributes'
+          ? {
+              ...variable,
+              exposure: 'reference' as const,
+              referenceFields: aiAgentAttributeFields,
+            }
+          : variable,
+      )
+    : variables;
+
   const nodeVariables = webhookReferenceVariables
-    ? variables.map((variable) => {
+    ? baseVariables.map((variable) => {
         if (variable.key === 'body') {
           return webhookReferenceVariables.bodyReferenceFields.length
             ? {
@@ -142,7 +175,7 @@ export const useAutomationNodeOutput = (
 
         return variable;
       })
-    : variables;
+    : baseVariables;
 
   const mergedVariables = [
     ...nodeVariables,

@@ -254,8 +254,11 @@ export const AiAgentContextFileEditorDialog = ({
             </div>
           </div>
 
-          <div className="min-h-0 bg-muted/20">
-            <ScrollArea className="h-full">
+          <div className="min-h-0 min-w-0 bg-muted/20">
+            <ScrollArea
+              className="h-full"
+              viewportClassName="[&>div]:!block"
+            >
               <div className="space-y-4 p-6">
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Current File</h3>
@@ -268,7 +271,7 @@ export const AiAgentContextFileEditorDialog = ({
                         : 'hover:border-border hover:bg-accent/20'
                     }`}
                   >
-                    <div className="font-medium">
+                    <div className="break-all font-medium">
                       {file?.name || 'Untitled'}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
@@ -303,7 +306,9 @@ export const AiAgentContextFileEditorDialog = ({
                               : 'hover:border-border hover:bg-accent/20'
                           }`}
                         >
-                          <div className="font-medium">{version.name}</div>
+                          <div className="break-all font-medium">
+                            {version.name}
+                          </div>
                           <div className="mt-1 text-xs text-muted-foreground">
                             {formatContextFileSize(version.size)}
                           </div>

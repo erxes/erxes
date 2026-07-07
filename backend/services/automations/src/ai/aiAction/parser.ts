@@ -85,11 +85,22 @@ export const parseAiActionResult = ({
   usage?: TAiActionExecutionResult['usage'];
 }): TAiActionExecutionResult => {
   if (actionConfig.goalType === 'generateText') {
-    return {
-      type: 'generateText',
-      text: text.trim(),
+    const captureFields = actionConfig.captureFields || [];
+
+    if (!captureFields.length) {
+      return {
+        type: 'generateText',
+        text: text.trim(),
+        usage,
+      };
+    }
+
+    return parseGenerateTextWithCapture({
+      text,
+      captureFields,
+      fallbackText: actionConfig.fallbackText,
       usage,
-    };
+    });
   }
 
   if (actionConfig.goalType === 'splitTopic') {
@@ -113,13 +124,131 @@ export const parseAiActionResult = ({
   const attributes = Object.fromEntries(
     actionConfig.objectFields.map(({ fieldName }) => [
       fieldName,
-      (parsed as Record<string, unknown>)[fieldName] ?? null,
+      normalizeAiAttributeValue(
+        (parsed as Record<string, unknown>)[fieldName] ?? null,
+      ),
     ]),
   );
 
   return {
     type: 'classification',
     attributes,
+    usage,
+  };
+};
+
+// Models sometimes answer "not found" as a literal string instead of JSON null.
+const PSEUDO_NULL_VALUES = new Set([
+  'null',
+  'undefined',
+  'none',
+  'n/a',
+  'na',
+  '-',
+  '',
+]);
+
+const normalizeAiAttributeValue = (value: unknown): unknown => {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const trimmed = value.trim();
+
+  return PSEUDO_NULL_VALUES.has(trimmed.toLowerCase()) ? null : trimmed;
+};
+
+const isEmptyAiAttributeValue = (value: unknown) =>
+  value === null ||
+  value === undefined ||
+  (typeof value === 'string' && !value.trim()) ||
+  (Array.isArray(value) && !value.length);
+
+export const isAiClassificationResultEmpty = (
+  result: TAiActionExecutionResult,
+): boolean =>
+  result.type === 'classification' &&
+  Object.values(result.attributes).every(isEmptyAiAttributeValue);
+
+const buildCaptureAttributes = (
+  captureFields: { fieldName: string }[],
+  rawAttributes: unknown,
+) => {
+  const source =
+    rawAttributes && typeof rawAttributes === 'object' && !Array.isArray(rawAttributes)
+      ? (rawAttributes as Record<string, unknown>)
+      : {};
+
+  return Object.fromEntries(
+    captureFields.map(({ fieldName }) => [
+      fieldName,
+      normalizeAiAttributeValue(source[fieldName] ?? null),
+    ]),
+  );
+};
+
+const parseGenerateTextWithCapture = ({
+  text,
+  captureFields,
+  fallbackText,
+  usage,
+}: {
+  text: string;
+  captureFields: { fieldName: string }[];
+  fallbackText?: string;
+  usage?: TAiActionExecutionResult['usage'];
+}): TAiActionExecutionResult => {
+  let parsed: unknown = null;
+
+  try {
+    parsed = parseJsonObject(text);
+  } catch (_error) {
+    parsed = null;
+  }
+
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    const parsedRecord = parsed as Record<string, unknown>;
+    const attributes = buildCaptureAttributes(
+      captureFields,
+      parsedRecord.attributes,
+    );
+
+    if (typeof parsedRecord.reply === 'string') {
+      return {
+        type: 'generateText',
+        text: parsedRecord.reply.trim(),
+        attributes,
+        usage,
+      };
+    }
+
+    // JSON came back without a usable reply — salvage the attributes but
+    // never leak the raw JSON into the conversation.
+    return {
+      type: 'generateText',
+      text: (fallbackText || '').trim(),
+      attributes,
+      usage,
+    };
+  }
+
+  const emptyAttributes = buildCaptureAttributes(captureFields, null);
+  const cleaned = stripCodeFence(text);
+
+  // Looks like broken JSON: sending it would show garbage to the customer.
+  if (cleaned.startsWith('{')) {
+    return {
+      type: 'generateText',
+      text: (fallbackText || '').trim(),
+      attributes: emptyAttributes,
+      usage,
+    };
+  }
+
+  return {
+    type: 'generateText',
+    text: text.trim(),
+    attributes: emptyAttributes,
     usage,
   };
 };

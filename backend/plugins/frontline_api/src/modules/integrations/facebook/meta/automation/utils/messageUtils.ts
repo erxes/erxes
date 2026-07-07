@@ -289,9 +289,9 @@ export const checkContentConditions = (
 
     switch (cond?.operator || '') {
       case 'every':
-        return keywords.every((keyword) => content.includes(keyword));
+        return keywords.every((keyword) => content === keyword);
       case 'some':
-        return keywords.some((keyword) => content.includes(keyword));
+        return keywords.some((keyword) => content === keyword);
       case 'isEqual':
         return keywords.some((keyword) => keyword === content);
       case 'isContains':

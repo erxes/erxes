@@ -3,8 +3,50 @@ import {
   TAutomationRuntimeOutputDefinition,
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateTotalAmount } from './action/generateTotalAmount';
 import { IDeal } from '../../@types';
+
+/**
+ * Deal products data stores only productId (name is rarely denormalized), so
+ * resolve product names via a core lookup for the ones that miss it.
+ */
+const resolveProductsDataNames = async (subdomain: string, source: IDeal) => {
+  const productsData = source.productsData || [];
+
+  if (!productsData.length) {
+    return undefined;
+  }
+
+  const namesByProductId = new Map<string, string>();
+  const missingIds = productsData
+    .filter((item) => !item.name && item.productId)
+    .map((item) => item.productId);
+
+  if (missingIds.length) {
+    const products = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: {
+        query: { _id: { $in: missingIds } },
+        fields: { _id: 1, name: 1 },
+      },
+      defaultValue: [],
+    });
+
+    for (const product of Array.isArray(products) ? products : []) {
+      namesByProductId.set(product._id, product.name);
+    }
+  }
+
+  const names = productsData
+    .map((item) => item.name || namesByProductId.get(item.productId))
+    .filter(Boolean);
+
+  return names.length ? names.join(', ') : undefined;
+};
 
 export const SALES_DEAL_FIND_OBJECT_TYPE = 'sales:sales.deals';
 
@@ -134,7 +176,20 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
       field: 'companies',
       referenceType: 'core:company',
     },
-    { key: 'productsData.amount', label: 'Products amount' },
+    {
+      key: 'productsData',
+      label: 'Products',
+      fields: [
+        { key: 'name', label: 'Product name' },
+        { key: 'quantity', label: 'Product quantity' },
+        { key: 'unitPrice', label: 'Product unit price' },
+        { key: 'amount', label: 'Product amount' },
+        { key: 'discount', label: 'Product discount' },
+        { key: 'tax', label: 'Product tax' },
+        { key: 'currency', label: 'Currency' },
+        { key: 'uom', label: 'Unit of measure' },
+      ],
+    },
     { key: 'link', label: 'Deal link' },
     { key: 'pipelineLabels', label: 'Pipeline labels' },
     { key: 'createdAt', label: 'Created at' },
@@ -146,6 +201,12 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     propertyType: 'sales:deal',
   },
   resolvers: {
+    productsData: ({ subdomain, source }) => {
+      console.log({ source });
+      const re = resolveProductsDataNames(subdomain, source);
+      console.log({ re });
+      return re;
+    },
     totalAmount: ({ source }) => generateTotalAmount(source.productsData),
     unUsedTotalAmount: ({ source }) => {
       let totalAmount = 0;
