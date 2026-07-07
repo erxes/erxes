@@ -42,6 +42,9 @@ const formSchema = z
     hasCitytax: z.boolean().default(false),
     reverseVatRules: z.string().optional(),
     reverseCtaxRules: z.string().optional(),
+    useRemainder: z.boolean().default(false),
+    accounts: z.string().optional(),
+    locations: z.string().optional(),
     defaultPay: z.string().default('debtAmount'),
   })
   .catchall(z.any());
@@ -55,6 +58,9 @@ const defaultValues: TPosOrderErkhetConfig = {
   hasCitytax: false,
   reverseVatRules: '',
   reverseCtaxRules: '',
+  useRemainder: false,
+  accounts: '',
+  locations: '',
   defaultPay: 'debtAmount',
 };
 
@@ -265,6 +271,57 @@ const ConfigForm = ({
               ))}
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-4 border-t pt-4">
+            <Form.Field
+              control={form.control}
+              name="useRemainder"
+              render={({ field }) => (
+                <Form.Item className="flex items-center gap-2 space-y-0">
+                  <Form.Control>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </Form.Control>
+                  <Form.Label className="font-medium">
+                    {t('use-remainder')}
+                  </Form.Label>
+                </Form.Item>
+              )}
+            />
+            <div />
+            <Form.Field
+              control={form.control}
+              name="accounts"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('accounts')}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t('comma-separated-accounts')}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="locations"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('locations')}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t('comma-separated-locations')}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          </div>
         </div>
       </form>
     </Form>

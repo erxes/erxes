@@ -74,6 +74,11 @@ export type TPosOrderErkhetConfig = {
   hasCitytax: boolean;
   reverseVatRules?: string | string[];
   reverseCtaxRules?: string | string[];
+  useRemainder?: boolean;
+  accounts?: string;
+  locations?: string;
+  account?: string;
+  location?: string;
   defaultPay: string;
   [key: string]: any;
 };
@@ -112,15 +117,29 @@ const readConfig = (config: any): TPosOrderErkhetConfig => {
     ...value,
     reverseVatRules: toFormValue(value.reverseVatRules),
     reverseCtaxRules: toFormValue(value.reverseCtaxRules),
+    accounts: value.accounts || value.account || '',
+    locations: value.locations || value.location || '',
   };
 };
 
 const writeConfig = (data: TPosOrderErkhetConfig) => {
-  const { _id, subId, reverseVatRules, reverseCtaxRules, ...value } = data;
+  const {
+    _id,
+    subId,
+    reverseVatRules,
+    reverseCtaxRules,
+    accounts,
+    locations,
+    ...value
+  } = data;
 
   return {
     ...value,
     isSyncErkhet: true,
+    accounts,
+    locations,
+    account: accounts,
+    location: locations,
     reverseVatRules: toArrayValue(reverseVatRules),
     reverseCtaxRules: toArrayValue(reverseCtaxRules),
   };
