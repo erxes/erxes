@@ -12,19 +12,18 @@ import { generateModels } from '~/connectionResolvers';
  */
 export const scheduledPostsDispatcher = async () => {
   const VERSION = getEnv({ name: 'VERSION' });
+  const scheduleQueue = sendWorkerQueue('content', 'schedule');
 
   if (VERSION && VERSION === 'saas') {
     const orgs = await getSaasOrganizations();
 
-    for (const org of orgs) {
-      sendWorkerQueue('content', 'schedule').add('schedule', {
-        subdomain: org.subdomain,
-      });
-    }
+    await Promise.all(
+      orgs.map((org: { subdomain: string }) =>
+        scheduleQueue.add('schedule', { subdomain: org.subdomain }),
+      ),
+    );
   } else {
-    sendWorkerQueue('content', 'schedule').add('schedule', {
-      subdomain: 'os',
-    });
+    await scheduleQueue.add('schedule', { subdomain: 'os' });
   }
 
   return 'success';

@@ -392,6 +392,14 @@ export const postMutations: Record<string, Resolver> = {
       CMS_POST_ACTIONS.createReview,
     ]);
 
+    // Duplicating copies the source content, so the user must also be
+    // allowed to read this specific post.
+    await assertCmsDocumentAccess({
+      context,
+      actions: CMS_POST_ACTIONS.read,
+      document: post,
+    });
+
     await assertCmsLanguageAccess({
       context,
       clientPortalId: post.clientPortalId,
