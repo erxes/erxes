@@ -72,8 +72,12 @@ const ProductContent = ({
   <>
     <ProductItemImage src={attachment?.url || ""} />
     <ProductItemTitle>{`${code} - ${name}`}</ProductItemTitle>
-    <ProductItemDescription description={description ?? ''} />
-    <ProductItemPriceWithWrapper unitPrice={unitPrice} remainder={remainder} remainders={remainders}>
+    <ProductItemDescription description={description ?? ""} />
+    <ProductItemPriceWithWrapper
+      unitPrice={unitPrice}
+      remainder={remainder}
+      remainders={remainders}
+    >
       {hasSimilarity && (
         <Button className="absolute h-auto rounded-r-none right-0 px-3 border-r">
           Сонгох...
@@ -152,9 +156,9 @@ export const ProductItemPriceWithWrapper = ({
 }: {
   children: React.ReactNode
   className?: string
-  unitPrice?: number,
-  remainder?: number,
-  remainders?: { location: string; remainder: number }[],
+  unitPrice?: number
+  remainder?: number
+  remainders?: { location: string; remainder: number }[]
 }) => {
   return (
     <div className={cn("flex items-center justify-between", className)}>
@@ -184,8 +188,7 @@ export const ProductItemPriceWithWrapper = ({
             </HoverCard>
           ) : (
             <span>{`/ ${remainder}/`}</span>
-          ))
-        }
+          ))}
       </div>
       {children}
     </div>
