@@ -172,7 +172,9 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     notifyOnNetworkStatusChange: false,
   });
 
-  const fullPost = (fullPostData?.cmsPost as any) || editingPost;
+  const fullPost = (fullPostData?.cmsPost || editingPost) as
+    | TLoadedPost
+    | undefined;
 
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId: editingPost?._id, type: 'post' },

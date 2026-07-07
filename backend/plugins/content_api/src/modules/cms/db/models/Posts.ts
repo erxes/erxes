@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model, SortOrder } from 'mongoose';
 
 import {
   IPost,
@@ -17,7 +17,7 @@ import {
 } from '@/cms/utils/common';
 
 export interface IPostModel extends Model<IPostDocument> {
-  getPosts: (query: any) => Promise<IPostDocument[]>;
+  getPosts: (query: FilterQuery<IPostDocument>) => Promise<IPostDocument[]>;
   createPost: (doc: IPost) => Promise<IPostDocument>;
   updatePost: (_id: string, doc: IPost) => Promise<IPostDocument>;
   deletePost: (_id: string) => Promise<IPostDocument>;
@@ -107,7 +107,10 @@ export const loadPostClass = (models: IModels) => {
       return models.Posts.countDocuments({ clientPortalId });
     };
 
-    public static getPosts = async (query: any, sort: any) => {
+    public static getPosts = async (
+      query: FilterQuery<IPostDocument>,
+      sort: Record<string, SortOrder>,
+    ) => {
       return models.Posts.find(query).sort(sort).lean();
     };
 

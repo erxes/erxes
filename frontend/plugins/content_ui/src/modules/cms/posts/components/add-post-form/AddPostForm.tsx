@@ -12,13 +12,17 @@ import { PostSidebarPanel } from './PostSidebarPanel';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CmsUnsavedChangesAlert } from '~/modules/cms/shared/components/CmsUnsavedChangesAlert';
 
+// A post being edited: only _id matters here, everything else is read via
+// the detail query inside usePostForm.
+type TEditingPost = { _id: string };
+
 interface AddPostFormProps {
   websiteId: string;
-  editingPost?: any;
+  editingPost?: TEditingPost;
   onClose?: () => void;
   onFormReady?: (formState: {
-    form: any;
-    onSubmit: (data?: any) => Promise<void>;
+    form: UseFormReturn<FieldValues>;
+    onSubmit: (data?: FieldValues) => Promise<void>;
     creating: boolean;
     saving: boolean;
     handleLanguageChange: (lang: string) => void;
@@ -31,11 +35,14 @@ export const AddPostForm = ({
   onClose,
   onFormReady,
 }: AddPostFormProps) => {
-  const location = useLocation() as any;
+  const location = useLocation();
+  const locationState = (location.state ?? null) as {
+    post?: TEditingPost;
+  } | null;
   const [searchParams] = useSearchParams();
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
-  const currentEditingPost = editingPost || (location?.state?.post as any);
+  const currentEditingPost = editingPost || locationState?.post;
 
   const {
     form,
@@ -151,9 +158,10 @@ export const AddPostForm = ({
 
   useEffect(() => {
     if (onFormReady && form && !formInitializedRef.current) {
+      // Same safe widening as formForColumns — consumers only read known fields.
       onFormReady({
-        form,
-        onSubmit,
+        form: form as unknown as UseFormReturn<FieldValues>,
+        onSubmit: onSubmit as unknown as (data?: FieldValues) => Promise<void>,
         creating,
         saving,
         handleLanguageChange: handleLanguageChangeStable,
@@ -273,7 +281,9 @@ export const AddPostForm = ({
     if (currentEditingPost || !customTypes.length) return;
     const typeCode = searchParams.get('type');
     if (!typeCode || typeCode === 'post') return;
-    const matched = customTypes.find((t: any) => t.code === typeCode);
+    const matched = customTypes.find(
+      (t: { _id: string; code?: string }) => t.code === typeCode,
+    );
     if (matched) form.setValue('type', matched._id);
   }, [customTypes, currentEditingPost, form, searchParams]);
 

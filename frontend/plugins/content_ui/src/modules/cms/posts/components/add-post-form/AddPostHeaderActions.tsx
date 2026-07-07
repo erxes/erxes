@@ -1,5 +1,5 @@
 import { Button, Form, Spinner, Switch } from 'erxes-ui';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { DateTimeInput } from './DateTimeInput';
 
@@ -36,8 +36,8 @@ export interface PostFormData {
 }
 
 interface AddPostHeaderActionsProps {
-  form: UseFormReturn<PostFormData>;
-  onSubmit: (data?: PostFormData) => void | Promise<void>;
+  form: UseFormReturn<FieldValues>;
+  onSubmit: (data?: FieldValues) => void | Promise<void>;
   creating: boolean;
   saving: boolean;
 }
@@ -200,20 +200,20 @@ export const AddPostHeaderActions = ({
             {status === 'published'
               ? t('publishing')
               : status === 'draft'
-                ? t('saving')
-                : status === 'scheduled'
-                  ? t('scheduling')
-                  : t('saving')}
+              ? t('saving')
+              : status === 'scheduled'
+              ? t('scheduling')
+              : t('saving')}
           </>
         ) : (
           <div>
             {status === 'published'
               ? t('publish')
               : status === 'draft'
-                ? t('save-draft')
-                : status === 'scheduled'
-                  ? t('schedule')
-                  : t('save')}
+              ? t('save-draft')
+              : status === 'scheduled'
+              ? t('schedule')
+              : t('save')}
           </div>
         )}
       </Button>

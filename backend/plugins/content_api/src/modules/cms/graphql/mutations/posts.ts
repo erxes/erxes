@@ -1,5 +1,6 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { POST_REACTION_TYPES, PostReactionType } from '@/cms/@types/posts';
+import { ITranslation } from '@/cms/@types/translations';
 import { IContext } from '~/connectionResolvers';
 import {
   assertOwnedDocument,
@@ -25,10 +26,16 @@ const getDefaultLanguage = async (
   return cms?.language;
 };
 
+// Translation entries arrive from PostInput without an objectId; it is
+// assigned from the saved post before upserting.
+type TPostTranslationInput = Omit<ITranslation, 'objectId'> & {
+  objectId?: string;
+};
+
 const saveTranslations = async (
   models: IContext['models'],
   objectId: string,
-  translations: any[],
+  translations: TPostTranslationInput[],
 ) => {
   if (!Array.isArray(translations) || translations.length === 0) return;
 
@@ -93,7 +100,9 @@ export const postMutations: Record<string, Resolver> = {
 
       const fallback =
         (defaultLanguage &&
-          translations.find((t: any) => t?.language === defaultLanguage)) ||
+          translations.find(
+            (t: TPostTranslationInput) => t?.language === defaultLanguage,
+          )) ||
         translations[0];
 
       if (fallback) {
@@ -166,7 +175,9 @@ export const postMutations: Record<string, Resolver> = {
 
       const fallback =
         (defaultLanguage &&
-          translations.find((t: any) => t?.language === defaultLanguage)) ||
+          translations.find(
+            (t: TPostTranslationInput) => t?.language === defaultLanguage,
+          )) ||
         translations[0];
 
       if (fallback) {
@@ -227,7 +238,11 @@ export const postMutations: Record<string, Resolver> = {
       const defaultLanguage = rawDefault || 'en';
 
       if (language !== defaultLanguage) {
-        const translationDoc: any = { objectId: _id, language, type: 'post' };
+        const translationDoc: ITranslation = {
+          objectId: _id,
+          language,
+          type: 'post',
+        };
 
         if (postInput.title !== undefined)
           translationDoc.title = postInput.title;
@@ -253,9 +268,9 @@ export const postMutations: Record<string, Resolver> = {
 
         const post = await models.Posts.updatePost(_id, safePostInput);
 
-        const remainingTranslations = (translations || []).filter(
-          (t: any) => t?.language !== language,
-        );
+        const remainingTranslations = (
+          (translations || []) as TPostTranslationInput[]
+        ).filter((t) => t?.language !== language);
         await saveTranslations(models, _id, remainingTranslations);
 
         return post;
