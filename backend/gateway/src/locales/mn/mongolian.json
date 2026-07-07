@@ -419,6 +419,8 @@
   "default-customer": "Үндсэн харилцагч",
   "begin-number": "Эхлэх дугаар",
   "default-pay": "Үндсэн төлбөр",
+  "cash-payment": "Бэлнээр",
+  "mobile-payment": "Цахимаар",
   "reverse-vat-rule-ids": "Буцаалтын НӨАТ дүрмийн ID-ууд",
   "reverse-citytax-rule-ids": "Буцаалтын хотын татварын дүрмийн ID-ууд",
   "erkhet-payment-type": "Эрхэт төлбөрийн төрөл",

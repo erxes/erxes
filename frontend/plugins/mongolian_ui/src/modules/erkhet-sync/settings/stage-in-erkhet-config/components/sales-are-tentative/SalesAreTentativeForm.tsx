@@ -9,9 +9,9 @@ import { addStageInErkhetConfigSchema } from '../../constants/addStageInErkhetCo
 import { PipelineFields } from '../PipelineFields';
 import { CHOOSE_RESPONSE_FIELD_DATA } from '../../constants/chooseResponseFieldData';
 import { SelectAnotherRulesOfProductsOnCityTax } from '../selects/SelectAnotherRulesOfProductsOnCityTax';
+import { PaymentFields } from '../PaymentFields';
 import { useCreateStageInErkhetConfig } from '../../hooks/useCreateStageInErkhetConfig';
 import { GET_CONFIGS_GET_VALUE } from '../../graphql/queries/useStageInErkhetConfigQuery';
-import { DEFAULT_PAY_DATA } from '../../constants/defaultPayData';
 
 const defaultValues = {
   title: '',
@@ -55,10 +55,6 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
       reverseCtaxRules: normalizeRuleIds(config?.reverseCtaxRules),
       reverseVatRules: normalizeRuleIds(config?.reverseVatRules),
       defaultPay: config?.defaultPay || '',
-      нэхэмжлэх: config?.нэхэмжлэх || '',
-      хаанБанкданс: config?.хаанБанкданс || '',
-      голомтБанкданс: config?.голомтБанкданс || '',
-      barter: config?.barter || '',
     },
   });
 
@@ -230,28 +226,9 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
             </div>
           </div>
 
-          <Form.Field
-            control={form.control}
-            name="defaultPay"
-            render={({ field }) => (
-              <Form.Item className="w-full">
-                <Form.Label>{t('default-pay')}</Form.Label>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger className="w-full">
-                    <Select.Value placeholder={t('default-pay')} />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {DEFAULT_PAY_DATA.map((type) => (
-                      <Select.Item key={type.value} value={type.value}>
-                        {type.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          <div className="grid grid-cols-3 gap-4">
+            <PaymentFields control={form.control} />
+          </div>
 
           <div className="flex justify-end">
             <Button type="submit" disabled={loading}>
@@ -441,28 +418,9 @@ const NewConfigForm = ({
             </div>
           </div>
 
-          <Form.Field
-            control={form.control}
-            name="defaultPay"
-            render={({ field }) => (
-              <Form.Item className="w-full">
-                <Form.Label>{t('default-pay')}</Form.Label>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger className="w-full">
-                    <Select.Value placeholder={t('default-pay')} />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {DEFAULT_PAY_DATA.map((type) => (
-                      <Select.Item key={type.value} value={type.value}>
-                        {type.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          <div className="grid grid-cols-3 gap-4">
+            <PaymentFields control={form.control} />
+          </div>
 
           <div className="flex justify-end gap-2 mt-6">
             <Button type="button" variant="outline" onClick={onCancel}>
@@ -516,10 +474,6 @@ export const SalesAreTentativeForm = () => {
             ? normalizeRuleIds(formData.reverseVatRules)
             : [],
           defaultPay: formData.defaultPay,
-          нэхэмжлэх: formData.нэхэмжлэх,
-          хаанБанкданс: formData.хаанБанкданс,
-          голомтБанкданс: formData.голомтБанкданс,
-          barter: formData.barter,
         },
       };
 

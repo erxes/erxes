@@ -25,10 +25,6 @@ const defaultValues = {
   reverseCtaxRules: [],
   reverseVatRules: [],
   defaultPay: 'debtAmount',
-  нэхэмжлэх: '',
-  хаанБанкданс: '',
-  голомтБанкданс: '',
-  barter: '',
 };
 
 const normalizeRuleIds = (value?: string | string[]) => {
@@ -55,10 +51,6 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
       reverseCtaxRules: normalizeRuleIds(config?.reverseCtaxRules),
       reverseVatRules: normalizeRuleIds(config?.reverseVatRules),
       defaultPay: config?.defaultPay || '',
-      нэхэмжлэх: config?.нэхэмжлэх || '',
-      хаанБанкданс: config?.хаанБанкданс || '',
-      голомтБанкданс: config?.голомтБанкданс || '',
-      barter: config?.barter || '',
     },
   });
 
@@ -467,6 +459,8 @@ export const SalesForm = () => {
             ? normalizeRuleIds(formData.reverseVatRules)
             : [],
           defaultPay: formData.defaultPay,
+          cash: formData.cash,
+          bank: formData.bank,
           нэхэмжлэх: formData.нэхэмжлэх,
           хаанБанкданс: formData.хаанБанкданс,
           голомтБанкданс: formData.голомтБанкданс,

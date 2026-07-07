@@ -22,6 +22,7 @@ const POS_LIST = gql`
       name
       token
       beginNumber
+      paymentIds
       paymentTypes
     }
   }
@@ -72,14 +73,16 @@ export type TPosOrderErkhetConfig = {
   beginNumber?: string;
   hasVat: boolean;
   hasCitytax: boolean;
-  reverseVatRules?: string | string[];
-  reverseCtaxRules?: string | string[];
+  reverseVatRules?: string[];
+  reverseCtaxRules?: string[];
   useRemainder?: boolean;
   accounts?: string;
   locations?: string;
   account?: string;
   location?: string;
   defaultPay: string;
+  cashAmount?: string;
+  mobileAmount?: string;
   [key: string]: any;
 };
 
@@ -88,7 +91,8 @@ export type TPos = {
   name: string;
   token: string;
   beginNumber?: string;
-  paymentTypes?: { type: string; title?: string }[];
+  paymentIds?: string[];
+  paymentTypes?: { type: string; title?: string; formField?: string }[];
 };
 
 const parseConfigValue = (value: any) =>
@@ -105,9 +109,6 @@ const toArrayValue = (value?: string | string[]) => {
     .filter(Boolean);
 };
 
-const toFormValue = (value?: string | string[]) =>
-  Array.isArray(value) ? value.join(',') : value || '';
-
 const readConfig = (config: any): TPosOrderErkhetConfig => {
   const value = parseConfigValue(config.value);
 
@@ -115,10 +116,12 @@ const readConfig = (config: any): TPosOrderErkhetConfig => {
     _id: config._id,
     subId: config.subId,
     ...value,
-    reverseVatRules: toFormValue(value.reverseVatRules),
-    reverseCtaxRules: toFormValue(value.reverseCtaxRules),
+    reverseVatRules: toArrayValue(value.reverseVatRules),
+    reverseCtaxRules: toArrayValue(value.reverseCtaxRules),
     accounts: value.accounts || value.account || '',
     locations: value.locations || value.location || '',
+    cashAmount: value.cashAmount || value.cash || 'cashAmount',
+    mobileAmount: value.mobileAmount || value.bank || 'mobileAmount',
   };
 };
 
@@ -140,8 +143,8 @@ const writeConfig = (data: TPosOrderErkhetConfig) => {
     locations,
     account: accounts,
     location: locations,
-    reverseVatRules: toArrayValue(reverseVatRules),
-    reverseCtaxRules: toArrayValue(reverseCtaxRules),
+    reverseVatRules: value.hasVat ? toArrayValue(reverseVatRules) : [],
+    reverseCtaxRules: value.hasCitytax ? [] : toArrayValue(reverseCtaxRules),
   };
 };
 
@@ -193,7 +196,34 @@ export const usePosOrderErkhetConfigs = () => {
   );
 
   const configs = (data?.mnConfigs || []).map(readConfig);
-  const poss: TPos[] = posData?.posList || [];
+  const poss: TPos[] = (posData?.posList || []).map((pos: TPos) => {
+    const posPaymentTypes = pos.paymentTypes || [];
+    const otherPaymentTypes = posPaymentTypes.filter(
+      (paymentType) =>
+        !['cashAmount', 'mobileAmount'].includes(paymentType.type),
+    );
+
+    return {
+      ...pos,
+      paymentTypes: [
+        {
+          type: 'cashAmount',
+          title: 'Бэлнээр',
+          formField: 'cashAmount',
+        },
+        ...((pos.paymentIds || []).length
+          ? [
+              {
+                type: 'mobileAmount',
+                title: 'Цахимаар',
+                formField: 'mobileAmount',
+              },
+            ]
+          : []),
+        ...otherPaymentTypes,
+      ],
+    };
+  });
 
   const saveConfig = async (data: TPosOrderErkhetConfig) => {
     const value = writeConfig(data);

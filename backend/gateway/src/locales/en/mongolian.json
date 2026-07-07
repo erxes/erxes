@@ -418,6 +418,8 @@
   "default-customer": "Default Customer",
   "begin-number": "Begin Number",
   "default-pay": "Default Pay",
+  "cash-payment": "Бэлнээр",
+  "mobile-payment": "Цахимаар",
   "reverse-vat-rule-ids": "Reverse VAT Rule IDs",
   "reverse-citytax-rule-ids": "Reverse City Tax Rule IDs",
   "erkhet-payment-type": "Erkhet payment type",

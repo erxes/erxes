@@ -255,8 +255,8 @@ export const getConfigPostData = async (
     const configure = {
       ...config,
       prepay: 'preAmount',
-      cash: 'cashAmount',
-      bank: 'mobileAmount',
+      cash: config.cash || 'cashAmount',
+      bank: config.bank || 'mobileAmount',
       pos: 'cardAmount',
       wallet: 'debtAmount',
       barter: 'debtBarterAmount',
