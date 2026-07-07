@@ -60,20 +60,6 @@ export const loadInvoiceClass = (models: IModels) => {
         try {
           const response = await api.createInvoice(transaction.toObject());
           transaction.response = response;
-          if (payment.kind === 'tdb') {
-            const tdbResponse = response as {
-              order: {
-                id: number;
-                password: string;
-              };
-            };
-
-            transaction.details = {
-              ...transaction.details,
-              tdbOrderId: tdbResponse.order.id,
-              tdbPassword: tdbResponse.order.password,
-            };
-          }
           await transaction.save();
 
           return invoice;
