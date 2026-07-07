@@ -200,20 +200,20 @@ export const AddPostHeaderActions = ({
             {status === 'published'
               ? t('publishing')
               : status === 'draft'
-              ? t('saving')
-              : status === 'scheduled'
-              ? t('scheduling')
-              : t('saving')}
+                ? t('saving')
+                : status === 'scheduled'
+                  ? t('scheduling')
+                  : t('saving')}
           </>
         ) : (
           <div>
             {status === 'published'
               ? t('publish')
               : status === 'draft'
-              ? t('save-draft')
-              : status === 'scheduled'
-              ? t('schedule')
-              : t('save')}
+                ? t('save-draft')
+                : status === 'scheduled'
+                  ? t('schedule')
+                  : t('save')}
           </div>
         )}
       </Button>
