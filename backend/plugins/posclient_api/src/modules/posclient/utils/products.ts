@@ -123,13 +123,7 @@ const getErkhetRemainderUrl = (configuredUrl?: string) => {
     return '';
   }
 
-  const normalizedUrl = url.replace(/\/+$/, '');
-
-  if (normalizedUrl.endsWith('/get-api')) {
-    return `${normalizedUrl}/`;
-  }
-
-  return `${normalizedUrl}/get-api/`;
+  return `${url}/get-api/`;
 };
 
 const fetchErkhetRemainders = async (
@@ -239,12 +233,8 @@ const applyErkhetRemainders = async (
         continue;
       }
 
-      if (!product.remainderByToken) {
-        product.remainderByToken = {};
-      }
-      if (!product.remainderByToken[config.token]) {
-        product.remainderByToken[config.token] = {};
-      }
+      product.remainderByToken ??= {};
+      product.remainderByToken[config.token] ??= {};
 
       product.remainderByToken[config.token][remBranchId] =
         product.remainder ?? 0;
@@ -666,12 +656,8 @@ export const checkRemainders = async (
       continue;
     }
 
-    if (!product.remainderByToken) {
-      product.remainderByToken = {};
-    }
-    if (!product.remainderByToken[config.token]) {
-      product.remainderByToken[config.token] = {};
-    }
+    product.remainderByToken ??= {};
+    product.remainderByToken[config.token] ??= {};
 
     product.remainderByToken[config.token][remBranchId] =
       product.remainder ?? 0;
