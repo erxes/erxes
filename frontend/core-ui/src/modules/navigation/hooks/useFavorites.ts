@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { IconStar } from '@tabler/icons-react';
+import { IconRobot } from '@tabler/icons-react';
 import { GET_FAVORITES } from '@/navigation/graphql/queries/getFavorites';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
 import { useAtomValue } from 'jotai';
@@ -38,7 +38,7 @@ export function useFavorites(): FavoriteModule[] {
       acc.push({
         _id: favorite._id,
         name: favorite.label,
-        icon: IconStar,
+        icon: IconRobot,
         path: favorite.path,
       });
       return acc;
