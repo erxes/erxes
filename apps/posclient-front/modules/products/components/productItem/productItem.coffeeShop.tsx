@@ -24,14 +24,14 @@ const ChooseSimilarities: any = dynamic(
 
 const ProductItem = (props: IProduct) => {
   const [open, setOpen] = useState(false)
-  const { name, unitPrice, _id, hasSimilarity } = props
+  const { hasSimilarity } = props
   const addToCart = useSetAtom(addToCartAtom)
 
   return (
     <>
       <ProductItemWrapper
         onClick={() =>
-          hasSimilarity ? setOpen(true) : addToCart({ name, _id, unitPrice })
+          hasSimilarity ? setOpen(true) : addToCart(props)
         }
         className="relative"
       >

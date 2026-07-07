@@ -116,8 +116,7 @@ const ChooseFromSimilarities = (
 
   const handleAdd = () => {
     if (!!chosen) {
-      const { name, _id, unitPrice } = chosen
-      addToCart({ name, _id, unitPrice })
+      addToCart(chosen)
     }
     setOpen(false)
   }

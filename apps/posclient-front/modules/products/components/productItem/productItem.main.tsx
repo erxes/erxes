@@ -19,16 +19,16 @@ import {
 } from "@/components/ui/tooltip"
 import { toast } from "@/components/ui/use-toast"
 
-const ProductItem = ({
-  attachment,
-  name,
-  code,
-  unitPrice,
-  remainder,
-  remainders,
-  isCheckRem,
-  _id,
-}: IProduct) => {
+const ProductItem = (props: IProduct) => {
+  const {
+    attachment,
+    name,
+    code,
+    unitPrice,
+    remainder,
+    remainders,
+    isCheckRem,
+  } = props
   const addToCart = useSetAtom(addToCartAtom)
   const mode = useAtomValue(modeAtom)
   const setTab = useSetAtom(mobileTabAtom)
@@ -40,7 +40,7 @@ const ProductItem = ({
         isCheckRem && !remainder && "opacity-70"
       )}
       onClick={() => {
-        addToCart({ name, _id, unitPrice })
+        addToCart(props)
         mode === "mobile" &&
           toast({
             variant: "default",

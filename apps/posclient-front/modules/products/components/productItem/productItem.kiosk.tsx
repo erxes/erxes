@@ -5,13 +5,14 @@ import { IProduct } from "@/types/product.types"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import Image from "@/components/ui/image"
 
-const ProductItem = ({ _id, attachment, name, unitPrice }: IProduct) => {
+const ProductItem = (props: IProduct) => {
+  const { _id, attachment, name, unitPrice } = props
   const addToCart = useSetAtom(addToCartAtom)
   return (
     <div
       key={_id}
       className="bg-neutral-100 rounded-3xl p-2"
-      onClick={() => addToCart({ name, _id, unitPrice, attachment })}
+      onClick={() => addToCart(props)}
     >
       <AspectRatio >
         <Image
