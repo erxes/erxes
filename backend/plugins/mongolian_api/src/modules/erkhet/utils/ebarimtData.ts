@@ -89,9 +89,9 @@ export const getConfigPostData = async (
     const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
     for (const company of companies) {
       if (re.test(company.code)) {
-          billType = 3;
-          customerCode = company.code;
-          continue;
+        billType = 3;
+        customerCode = company.code;
+        continue;
       }
     }
   }
