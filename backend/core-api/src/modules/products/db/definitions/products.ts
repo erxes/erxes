@@ -100,7 +100,7 @@ export const productSchema = schemaWrapper(
       },
 
       inventories: { type: Object, optional: true },
-      discounts: { type: Object, optional: true },
+      discounts: { type: [Object], optional: true },
       duration: {
         type: Number,
         optional: true,

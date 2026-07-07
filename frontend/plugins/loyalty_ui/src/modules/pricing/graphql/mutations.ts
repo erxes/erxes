@@ -61,3 +61,9 @@ export const PRICING_PLAN_EDIT = gql`
     }
   }
 `;
+
+export const PRICING_PLANS_RECALCULATE_PUBLIC_DISCOUNTS = gql`
+  mutation PricingPlansRecalculatePublicDiscounts {
+    pricingPlansRecalculatePublicDiscounts
+  }
+`;

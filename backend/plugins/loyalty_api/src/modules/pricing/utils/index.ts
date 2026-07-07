@@ -84,6 +84,30 @@ export const getMainConditions = ({
   };
 };
 
+const applyPriorityConditions = (
+  conditions: Record<string, any>,
+  prioritizeRule?: string,
+) => {
+  if (prioritizeRule === 'only') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [{ priority: 'posBase' }],
+      },
+    ];
+    return;
+  }
+
+  if (prioritizeRule === 'exclude') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [{ priority: { $ne: 'posBase' } }],
+      },
+    ];
+  }
+};
+
 // Helper function to calculate default discount value
 const calculateDefaultDiscount = async (
   plan: any,
@@ -227,7 +251,7 @@ const updateResultWithCalculations = (
 ): void => {
   if (type !== 'bonus') {
     result[itemId].type = type;
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].value += value;
     } else if (
       (value > 0 && result[itemId].value < value) ||
@@ -238,7 +262,7 @@ const updateResultWithCalculations = (
   }
 
   if (type === 'bonus') {
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].bonusProducts = [
         ...result[itemId].bonusProducts,
         ...bonusProducts,
@@ -354,15 +378,11 @@ export const checkPricing = async (params: {
 
   // Prepare query conditions
   const conditions = getMainConditions({ branchId, departmentId, pipelineId });
-  if (prioritizeRule === 'only') {
-    conditions.isPriority = true;
-  } else if (prioritizeRule === 'exclude') {
-    conditions.isPriority = false;
-  }
+  applyPriorityConditions(conditions, prioritizeRule);
 
   // Fix: Use proper sort order type for MongoDB
   const sortArgs: Record<string, 1 | -1> = {
-    isPriority: 1,
+    priority: 1,
     value: 1,
   };
 
