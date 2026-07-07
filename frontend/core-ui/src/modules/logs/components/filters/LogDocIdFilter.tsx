@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Input, useMultiQueryState } from 'erxes-ui';
+import { Input, useFilterContext, useMultiQueryState } from 'erxes-ui';
 
 export const LogDocIdFilter = () => {
   const [queries, setQueries] = useMultiQueryState<{
@@ -7,6 +7,7 @@ export const LogDocIdFilter = () => {
     docIdOperator: string;
   }>(['docId', 'docIdOperator']);
   const { docId } = queries;
+  const { resetFilterState } = useFilterContext();
   const [value, setValue] = useState(docId || '');
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export const LogDocIdFilter = () => {
               docId: value.trim() || null,
               docIdOperator: null,
             });
+            resetFilterState();
           }
         }}
       />

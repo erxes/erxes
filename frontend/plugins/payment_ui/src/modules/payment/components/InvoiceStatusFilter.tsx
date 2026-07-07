@@ -1,48 +1,113 @@
-import { IconCheck, IconChevronLeft } from '@tabler/icons-react';
-import { Command, useFilterContext, useMultiQueryState } from 'erxes-ui';
+import { useState } from 'react';
+import { IconProgressCheck } from '@tabler/icons-react';
+import {
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { INVOICE_STATUS_OPTIONS } from '~/modules/payment/constants';
 
-const STATUS_OPTIONS = [
-  { value: 'paid', label: 'paid' },
-  { value: 'pending', label: 'pending' },
-  { value: 'refunded', label: 'refunded' },
-  { value: 'failed', label: 'failed' },
-  { value: 'cancelled', label: 'cancelled' },
-  { value: 'rejected', label: 'rejected' },
-];
-
-export const InvoiceStatusFilter = () => {
+const SelectInvoiceStatusContent = ({
+  value,
+  onValueChange,
+}: {
+  value: string;
+  onValueChange: (status: string) => void;
+}) => {
   const { t } = useTranslation('payment');
-  const [queries, setQueries] = useMultiQueryState<{ status?: string }>([
-    'status',
-  ]);
-  const { status } = queries;
-  const { setView } = useFilterContext();
 
   return (
-    <Command shouldFilter={false}>
+    <Command>
+      <Command.Input placeholder={t('search')} />
+      <Command.Empty>
+        <span className="text-muted-foreground">{t('no-results-found')}</span>
+      </Command.Empty>
       <Command.List>
-        <Command.Item
-          value="back"
-          className="cursor-pointer text-sm text-muted-foreground"
-          onSelect={() => setView('root')}
-        >
-          <IconChevronLeft className="w-3 h-3" />
-          {t('back')}
-        </Command.Item>
-        <Command.Separator />
-        {STATUS_OPTIONS.map((opt) => (
+        {INVOICE_STATUS_OPTIONS.map((status) => (
           <Command.Item
-            key={opt.value}
-            value={opt.value}
-            className="cursor-pointer text-sm"
-            onSelect={() => setQueries({ status: opt.value })}
+            key={status.value}
+            value={status.value}
+            onSelect={() => onValueChange(status.value)}
           >
-            {t(opt.label)}
-            {status === opt.value && <IconCheck className="ml-auto" />}
+            <span className="font-medium">{t(status.label)}</span>
+            <Combobox.Check checked={value === status.value} />
           </Command.Item>
         ))}
       </Command.List>
     </Command>
   );
+};
+
+const SelectInvoiceStatusFilterItem = () => {
+  const { t } = useTranslation('payment');
+
+  return (
+    <Filter.Item value="status">
+      <IconProgressCheck />
+      {t('status')}
+    </Filter.Item>
+  );
+};
+
+const SelectInvoiceStatusFilterView = () => {
+  const [status, setStatus] = useQueryState<string>('status');
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Filter.View filterKey="status">
+      <SelectInvoiceStatusContent
+        value={status || ''}
+        onValueChange={(value) => {
+          setStatus(value);
+          resetFilterState();
+        }}
+      />
+    </Filter.View>
+  );
+};
+
+const SelectInvoiceStatusFilterBar = () => {
+  const [status, setStatus] = useQueryState<string>('status');
+  const [open, setOpen] = useState(false);
+  const { t } = useTranslation('payment');
+
+  const selectedStatus = INVOICE_STATUS_OPTIONS.find(
+    (option) => option.value === status,
+  );
+
+  return (
+    <Filter.BarItem queryKey="status">
+      <Filter.BarName>
+        <IconProgressCheck />
+        {t('status')}
+      </Filter.BarName>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <Filter.BarButton filterKey="status">
+            {selectedStatus ? t(selectedStatus.label) : status}
+          </Filter.BarButton>
+        </Popover.Trigger>
+        <Combobox.Content>
+          <SelectInvoiceStatusContent
+            value={status || ''}
+            onValueChange={(value) => {
+              setStatus(value || null);
+              setOpen(false);
+            }}
+          />
+        </Combobox.Content>
+      </Popover>
+    </Filter.BarItem>
+  );
+};
+
+export const SelectInvoiceStatus = {
+  Content: SelectInvoiceStatusContent,
+  FilterItem: SelectInvoiceStatusFilterItem,
+  FilterView: SelectInvoiceStatusFilterView,
+  FilterBar: SelectInvoiceStatusFilterBar,
 };

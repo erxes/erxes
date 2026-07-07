@@ -1362,3 +1362,12 @@ export const CITIES = [
     name: 'Увс аймаг',
   },
 ];
+
+export const INVOICE_STATUS_OPTIONS = [
+  { value: 'paid', label: 'paid' },
+  { value: 'pending', label: 'pending' },
+  { value: 'refunded', label: 'refunded' },
+  { value: 'failed', label: 'failed' },
+  { value: 'cancelled', label: 'cancelled' },
+  { value: 'rejected', label: 'rejected' },
+];

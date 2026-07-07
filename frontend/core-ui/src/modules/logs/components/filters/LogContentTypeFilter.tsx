@@ -6,17 +6,27 @@ import {
   formatLogContentTypeSegmentLabel,
 } from '@/logs/constants/logFilter';
 import { IconCheck } from '@tabler/icons-react';
-import { Combobox, Command, useMultiQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  useFilterContext,
+  useMultiQueryState,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const LogContentTypeFilter = () => {
+export const LogContentTypeFilter = ({
+  onValueChange,
+}: {
+  onValueChange?: () => void;
+}) => {
   const { t } = useTranslation('common');
   const [queries, setQueries] = useMultiQueryState<{
     contentType: string;
     contentTypeOperator: string;
   }>(['contentType', 'contentTypeOperator']);
   const { contentType } = queries;
+  const { resetFilterState } = useFilterContext();
   const [search, setSearch] = useState('');
   const { data, loading, error } = useQuery<LogsGetContentTypesQueryResponse>(
     LOGS_GET_CONTENT_TYPES,
@@ -97,12 +107,14 @@ export const LogContentTypeFilter = () => {
                       key={value}
                       value={value}
                       className="cursor-pointer pl-4"
-                      onSelect={() =>
+                      onSelect={() => {
                         setQueries({
                           contentType: value === contentType ? null : value,
                           contentTypeOperator: null,
-                        })
-                      }
+                        });
+                        resetFilterState();
+                        onValueChange?.();
+                      }}
                     >
                       {formatLogContentTypeSegmentLabel(collectionName)}
                       {contentType === value && (

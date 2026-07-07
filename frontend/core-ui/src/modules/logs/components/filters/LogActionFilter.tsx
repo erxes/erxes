@@ -1,8 +1,17 @@
 import { LOGS_SOURCE_ACTIONS } from '@/logs/constants/logFilter';
 import { IconCheck } from '@tabler/icons-react';
-import { Combobox, Command, useMultiQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  useFilterContext,
+  useMultiQueryState,
+} from 'erxes-ui';
 
-export const LogActionsFilter = () => {
+export const LogActionsFilter = ({
+  onValueChange,
+}: {
+  onValueChange?: () => void;
+}) => {
   const [queries, setQueries] = useMultiQueryState<{
     status: string;
     source: 'mongo' | 'graphql' | 'webhook' | 'auth';
@@ -13,6 +22,7 @@ export const LogActionsFilter = () => {
   }>(['status', 'source', 'action', 'userIds', 'createdAt', 'actionOperator']);
 
   const { source, action } = queries;
+  const { resetFilterState } = useFilterContext();
 
   const actions = source ? LOGS_SOURCE_ACTIONS[source] : [];
 
@@ -25,12 +35,14 @@ export const LogActionsFilter = () => {
             key={value}
             value={value}
             className="cursor-pointer "
-            onSelect={() =>
+            onSelect={() => {
               setQueries({
                 action: value === action ? null : value,
                 actionOperator: null,
-              })
-            }
+              });
+              resetFilterState();
+              onValueChange?.();
+            }}
           >
             <Icon />
             {label}
