@@ -25,7 +25,7 @@ export const ClientPortalUsersDelete = ({
       onClick={() =>
         confirm({
           message: `Are you sure you want to delete the ${cpUserIds.length} selected client portal users?`,
-          options: { confirmationValue: 'delete' },
+          options: { confirmationValue: 'delete', okLabel: 'Delete' },
         }).then(() => {
           cpUsersRemove({
             variables: { ids: cpUserIds },
