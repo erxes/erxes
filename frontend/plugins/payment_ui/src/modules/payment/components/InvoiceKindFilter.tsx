@@ -85,9 +85,10 @@ const SelectInvoiceKindFilterBar = () => {
   );
   const [open, setOpen] = useState(false);
   const { t } = useTranslation('payment');
+  const { resetFilterState } = useFilterContext();
 
   const kindLabel = kind
-    ? (PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind)
+    ? PAYMENT_KINDS[kind as keyof typeof PAYMENT_KINDS]?.name ?? kind
     : undefined;
 
   return (
@@ -105,6 +106,7 @@ const SelectInvoiceKindFilterBar = () => {
             value={kind || ''}
             onValueChange={(value) => {
               setKind(value || null);
+              resetFilterState();
               setOpen(false);
             }}
           />
