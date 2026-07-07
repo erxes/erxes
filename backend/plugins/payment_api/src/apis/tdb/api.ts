@@ -98,7 +98,7 @@ export const tdbCallbackHandler = async (
 
     const status = (orderDetail.status || '').toUpperCase();
 
-    const SUCCESSFUL_STATUSES = ['FULLYPAID','PARTPAID','AUTHORIZED','PAID'];
+    const SUCCESSFUL_STATUSES = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
 
     if (!SUCCESSFUL_STATUSES.includes(status)) {
       return transaction;
@@ -109,7 +109,7 @@ export const tdbCallbackHandler = async (
     transaction.response = {
       ...transaction.response,
       order: orderDetail,
-    }
+    };
 
     await transaction.save();
 
@@ -166,7 +166,7 @@ export class TDBAPI extends BaseAPI {
   async checkInvoice(
     transaction: ITransactionDocument,
   ): Promise<ITDBOrderDetail | null> {
-    const { id: orderId, password} = transaction?.response?.order || {};
+    const { id: orderId, password } = transaction?.response?.order || {};
 
     const response = await this.request({
       method: 'GET',
