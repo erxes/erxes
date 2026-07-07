@@ -6,6 +6,7 @@ import {
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
+  useResolveUrl,
 } from '@blocknote/react';
 import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
@@ -45,6 +46,43 @@ const parseImages = (raw: string): GalleryImage[] => {
   } catch {
     return [];
   }
+};
+
+const GalleryImage: FC<{
+  image: GalleryImage;
+  readonly: boolean;
+  onRemove: () => void;
+}> = ({ image, readonly, onRemove }) => {
+  const { downloadUrl } = useResolveUrl(image.url);
+  const src = downloadUrl ?? image.url;
+
+  return (
+    <div className="relative group aspect-square overflow-hidden rounded-md bg-muted">
+      <img
+        src={src}
+        alt={image.caption ?? ''}
+        className="w-full h-full object-cover"
+        draggable={false}
+      />
+      {!readonly && (
+        <button
+          type="button"
+          className="absolute top-1 right-1 flex items-center justify-center w-5 h-5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onRemove();
+          }}
+        >
+          <IconX size={12} />
+        </button>
+      )}
+      {image.caption && (
+        <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-1.5 py-0.5 truncate">
+          {image.caption}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
@@ -94,34 +132,12 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
           style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
         >
           {images.map((img, i) => (
-            <div
+            <GalleryImage
               key={i}
-              className="relative group aspect-square overflow-hidden rounded-md bg-muted"
-            >
-              <img
-                src={img.url}
-                alt={img.caption ?? ''}
-                className="w-full h-full object-cover"
-                draggable={false}
-              />
-              {!readonly && (
-                <button
-                  type="button"
-                  className="absolute top-1 right-1 flex items-center justify-center w-5 h-5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    removeImage(i);
-                  }}
-                >
-                  <IconX size={12} />
-                </button>
-              )}
-              {img.caption && (
-                <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-1.5 py-0.5 truncate">
-                  {img.caption}
-                </div>
-              )}
-            </div>
+              image={img}
+              readonly={readonly}
+              onRemove={() => removeImage(i)}
+            />
           ))}
         </div>
       )}
