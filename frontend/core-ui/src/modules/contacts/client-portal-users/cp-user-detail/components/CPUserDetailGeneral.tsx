@@ -53,9 +53,13 @@ export function CPUserDetailGeneral() {
         defaultValue:
           'Are you sure you want to delete this client portal user?',
       }),
+      options: {
+        confirmationValue: 'delete',
+        okLabel: t('delete', { defaultValue: 'Delete' }),
+      },
     }).then(() => {
       cpUsersRemove({
-        variables: { _id: cpUserId },
+        variables: { ids: [cpUserId] },
         onError: (e: ApolloError) => {
           toast({
             title: t('error', { defaultValue: 'Error' }),

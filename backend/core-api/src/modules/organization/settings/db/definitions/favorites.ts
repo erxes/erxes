@@ -5,6 +5,7 @@ export interface IFavorites {
   type: string;
   path: string;
   userId: string;
+  label?: string;
 }
 
 export interface IFavoritesDocument extends IFavorites, Document {
@@ -28,6 +29,9 @@ export const favoritesSchema = new Schema(
     userId: {
       type: String,
       required: true,
+    },
+    label: {
+      type: String,
     },
   },
   { timestamps: true },

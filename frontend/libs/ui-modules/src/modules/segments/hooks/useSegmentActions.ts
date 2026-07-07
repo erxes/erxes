@@ -13,8 +13,10 @@ import {
 
 export const useSegmentActions = ({
   callback,
+  onCreateSuccess,
 }: {
   callback?: (id: string) => void;
+  onCreateSuccess?: (id: string) => void;
 }) => {
   const { form, contentType, segment, mode } = useSegment();
   const [segmentId, setSegmentId] = useQueryState<string>('segmentId');
@@ -114,7 +116,11 @@ export const useSegmentActions = ({
         form.reset(form.getValues());
 
         if (!segmentId) {
-          setSegmentId(_id);
+          if (onCreateSuccess) {
+            onCreateSuccess(_id);
+          } else {
+            setSegmentId(_id);
+          }
         }
       },
     });

@@ -58,6 +58,7 @@ export function SegmentDetail({ onRefresh }: Props) {
               contentType={selectedContentType}
               segmentId={segmentId || ''}
               callback={onRefresh}
+              onCreateSuccess={() => setIsCreatingNew(false)}
             />
           </div>
         </Sheet.Content>

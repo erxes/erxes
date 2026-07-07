@@ -12,6 +12,7 @@ export interface IFavoritesModel extends Model<IFavoritesDocument> {
     type,
     path,
     userId,
+    label,
   }: IFavorites): Promise<IFavoritesDocument>;
   getFavorites({
     type,

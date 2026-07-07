@@ -210,7 +210,7 @@ const cpUsersEditParams = `
 export const mutations = `
   cpUsersAdd(${cpUsersAddParams}): CPUser
   cpUsersEdit(${cpUsersEditParams}): CPUser
-  cpUsersRemove(_id: String!): CPUserRemoveResponse
+  cpUsersRemove(ids: [String!]!): [String]
   cpUsersSetPassword(_id: String!, newPassword: String!): CPUser
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser

@@ -16,7 +16,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 
 const ChooseSimilarities: any = dynamic(
-  () => import("../ChooseFromSimilarities"),
+  () => import("../ChooseFromBulkSimilarity"),
   {
     loading: () => <div style={{ height: "350px" }}></div>,
   }
