@@ -178,6 +178,85 @@ export const removeFxaIncomeInstances = async (
   await models.FxaInstances.deleteMany({ _id: { $in: instanceIds } });
 };
 
+const buildOptionalFieldUpdate = (
+  fields: Record<string, string | undefined>,
+) => {
+  const $set: Record<string, string | Date> = { updatedAt: new Date() };
+  const $unset: Record<string, string> = {};
+
+  for (const [field, value] of Object.entries(fields)) {
+    if (value) {
+      $set[field] = value;
+      continue;
+    }
+
+    $unset[field] = '';
+  }
+
+  return Object.keys($unset).length ? { $set, $unset } : { $set };
+};
+
+export const removeFxaDisposalInstances = async (
+  models: IModels,
+  transaction: ITransactionDocument,
+) => {
+  const logs = await models.FxaInstanceLogs.find({
+    transactionId: transaction._id,
+    eventType: { $in: [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE] },
+  }).lean();
+
+  if (!logs.length) {
+    return;
+  }
+
+  for (const log of logs) {
+    await models.FxaInstances.updateOne(
+      { _id: log.fxaInstanceId },
+      {
+        $set: {
+          status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
+          updatedAt: new Date(),
+        },
+        $unset: {
+          disposalDate: '',
+          disposalTransactionId: '',
+          disposalTrDetailId: '',
+        },
+      },
+    );
+  }
+
+  await models.FxaInstanceLogs.deleteMany({ transactionId: transaction._id });
+};
+
+export const removeFxaMoveInstances = async (
+  models: IModels,
+  transaction: ITransactionDocument,
+) => {
+  const logs = await models.FxaInstanceLogs.find({
+    transactionId: transaction._id,
+    eventType: FXA_LOG_EVENT_TYPES.MOVE,
+  }).lean();
+
+  if (!logs.length) {
+    return;
+  }
+
+  for (const log of logs) {
+    await models.FxaInstances.updateOne(
+      { _id: log.fxaInstanceId },
+      buildOptionalFieldUpdate({
+        branchId: log.fromBranchId,
+        departmentId: log.fromDepartmentId,
+        responsibleUserId: log.fromResponsibleUserId,
+        status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
+      }),
+    );
+  }
+
+  await models.FxaInstanceLogs.deleteMany({ transactionId: transaction._id });
+};
+
 export const syncFxaIncomeInstances = async (
   models: IModels,
   userId: string,

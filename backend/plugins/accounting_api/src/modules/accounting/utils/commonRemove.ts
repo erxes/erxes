@@ -4,7 +4,9 @@ import { ITransactionDocument } from '../@types/transaction';
 import { removeSyncProductsInventory } from './utils';
 import { TR_FOLLOW_TYPES } from '../@types/constants';
 import {
+  removeFxaDisposalInstances,
   removeFxaIncomeInstances,
+  removeFxaMoveInstances,
   TFxaIncomeInstanceRemoveOptions,
 } from './fixedAssets';
 
@@ -45,6 +47,9 @@ function getJournalHandler(journal: string) {
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
     fxaIncome: handleFxaIncome,
+    fxaOut: handleFxaOut,
+    fxaMove: handleFxaMove,
+    fxaSale: handleFxaSale,
   };
 
   return handlers[journal];
@@ -140,4 +145,34 @@ async function handleFxaIncome(
   options?: TCommonRemoveOptions,
 ) {
   await removeFxaIncomeInstances(models, transaction, options);
+}
+
+async function handleFxaOut(
+  models: IModels,
+  _subdomain: string,
+  transaction: ITransactionDocument,
+  _followTrs?: ITransactionDocument[],
+  _options?: TCommonRemoveOptions,
+) {
+  await removeFxaDisposalInstances(models, transaction);
+}
+
+async function handleFxaMove(
+  models: IModels,
+  _subdomain: string,
+  transaction: ITransactionDocument,
+  _followTrs?: ITransactionDocument[],
+  _options?: TCommonRemoveOptions,
+) {
+  await removeFxaMoveInstances(models, transaction);
+}
+
+async function handleFxaSale(
+  models: IModels,
+  _subdomain: string,
+  transaction: ITransactionDocument,
+  _followTrs?: ITransactionDocument[],
+  _options?: TCommonRemoveOptions,
+) {
+  await removeFxaDisposalInstances(models, transaction);
 }
