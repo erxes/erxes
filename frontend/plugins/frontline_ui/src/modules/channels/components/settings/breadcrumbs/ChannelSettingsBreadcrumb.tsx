@@ -6,6 +6,7 @@ import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailB
 import { PipelineConfigBreadcrumb } from '@/pipelines/components/configs/components/PipelineConfigBreadcrumb';
 import { PipelinePermissionsBreadcrumb } from '@/pipelines/components/permissions/components/PipelinePermissionsBreadcrumb';
 import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
+import { CreateResponse } from '@/responseTemplate/components/CreateResponse';
 import { TicketStatusesBreadcrumb } from '@/status/components/TicketStatusesBreadcrumb';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { IconCircles } from '@tabler/icons-react';
@@ -94,6 +95,11 @@ export const ChannelSettingsBreadcrumb = () => {
               {t('response-templates')}
             </Button>
           </Link>
+          {!isMatchingLocation(FrontlinePaths.ResponseDetail) && (
+            <span className="ml-auto">
+              <CreateResponse />
+            </span>
+          )}
         </>
       )}
       {isMatchingLocation(FrontlinePaths.ResponseDetail) && (
