@@ -41,9 +41,7 @@ const fixedAssets = {
       filter.departmentId = departmentId;
     }
 
-    return models.FxaInstances.find(filter)
-      .sort({ fixedAssetId: 1, code: 1 })
-      .lean();
+    return models.FxaInstances.listByFilter(filter);
   },
 
   fixedAssets: async (

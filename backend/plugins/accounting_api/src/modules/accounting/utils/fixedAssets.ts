@@ -21,15 +21,6 @@ type TFxaInstanceInput = {
   depreciationStartDate?: Date;
 };
 
-type TFxaPersistedInstance = {
-  _id: string;
-  fixedAssetId: string;
-  code: string;
-  sequence?: number;
-  transactionDetailId?: string;
-  acquisitionTrDetailId?: string;
-};
-
 export type TFxaIncomeInstanceRemoveOptions = {
   detailIds?: string[];
   validateOnly?: boolean;
@@ -39,12 +30,6 @@ const getFxaInstanceInputs = (transaction: ITransactionDocument) =>
   ((transaction.extraData as any)?.fxaInstances || []) as TFxaInstanceInput[];
 
 const getDetailId = (detail: { _id?: string }) => detail._id?.toString() || '';
-
-const getCodeSequence = (code: string, fixedAssetCode: string) => {
-  const escapedCode = fixedAssetCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = new RegExp(`^${escapedCode}_(\\d+)$`).exec(code);
-  return match ? Number(match[1]) : 0;
-};
 
 const assignMissingInstanceSequences = async (
   models: IModels,
@@ -60,42 +45,8 @@ const assignMissingInstanceSequences = async (
   const fixedAssetsById = new Map(
     fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
   );
-  const maxSequences = new Map<string, number>();
-  const usedSequences = new Map<string, Set<number>>();
-
-  for (const fixedAssetId of fixedAssetIds) {
-    const fixedAssetCode = fixedAssetsById.get(fixedAssetId)?.code;
-    const selector: Record<string, unknown> = { fixedAssetId };
-
-    if (transactionId) {
-      selector.acquisitionTransactionId = { $ne: transactionId };
-      selector.transactionId = { $ne: transactionId };
-    }
-
-    const instances = await models.FxaInstances.find(selector)
-      .select({ code: 1, sequence: 1 })
-      .lean();
-    const used = new Set<number>();
-    let maxSequence = 0;
-
-    for (const instance of instances) {
-      const sequence = Math.max(
-        instance.sequence || 0,
-        fixedAssetCode
-          ? getCodeSequence(instance.code || '', fixedAssetCode)
-          : 0,
-        getCodeSequence(instance.code || '', fixedAssetId),
-      );
-
-      if (sequence > 0) {
-        used.add(sequence);
-        maxSequence = Math.max(maxSequence, sequence);
-      }
-    }
-
-    usedSequences.set(fixedAssetId, used);
-    maxSequences.set(fixedAssetId, maxSequence);
-  }
+  const { maxSequences, usedSequences } =
+    await models.FxaInstances.getSequenceState(fixedAssets, transactionId);
 
   for (const input of inputs) {
     if (!input.fixedAssetId) {
@@ -105,9 +56,9 @@ const assignMissingInstanceSequences = async (
     const fixedAssetCode = fixedAssetsById.get(input.fixedAssetId)?.code;
     const used = usedSequences.get(input.fixedAssetId) || new Set<number>();
     const assetCodeSequence = fixedAssetCode
-      ? getCodeSequence(input.code || '', fixedAssetCode)
+      ? models.FxaInstances.getCodeSequence(input.code || '', fixedAssetCode)
       : 0;
-    const idCodeSequence = getCodeSequence(
+    const idCodeSequence = models.FxaInstances.getCodeSequence(
       input.code || '',
       input.fixedAssetId,
     );
@@ -170,25 +121,6 @@ const buildDefaultIncomeInputs = async (
   return result;
 };
 
-const buildFxaIncomeInstanceSelector = (
-  transaction: ITransactionDocument,
-  detailIds?: string[],
-) => {
-  const selector: Record<string, unknown> = {
-    acquisitionTransactionId: transaction._id,
-  };
-  const filteredDetailIds = (detailIds || []).filter(Boolean);
-
-  if (filteredDetailIds.length) {
-    selector.$or = [
-      { acquisitionTrDetailId: { $in: filteredDetailIds } },
-      { transactionDetailId: { $in: filteredDetailIds } },
-    ];
-  }
-
-  return selector;
-};
-
 const getInputDetailId = (input: TFxaInstanceInput) =>
   input.transactionDetailId || '';
 
@@ -204,12 +136,12 @@ const removeFxaIncomeInstanceIds = async (
     return;
   }
 
-  const blockingLog = await models.FxaInstanceLogs.findOne({
-    fxaInstanceId: { $in: instanceIds },
-    eventType: { $ne: FXA_LOG_EVENT_TYPES.ACQUISITION },
-  }).lean();
-
-  if (blockingLog) {
+  if (
+    await models.FxaInstanceLogs.hasBlockingUsage(
+      instanceIds,
+      FXA_LOG_EVENT_TYPES.ACQUISITION,
+    )
+  ) {
     throw new Error(
       'Cannot remove transaction detail because fixed asset instances are already used in other transactions',
     );
@@ -219,10 +151,8 @@ const removeFxaIncomeInstanceIds = async (
     return;
   }
 
-  await models.FxaInstanceLogs.deleteMany({
-    fxaInstanceId: { $in: instanceIds },
-  });
-  await models.FxaInstances.deleteMany({ _id: { $in: instanceIds } });
+  await models.FxaInstanceLogs.deleteForInstances(instanceIds);
+  await models.FxaInstances.removeByIds(instanceIds);
 };
 
 export const removeFxaIncomeInstances = async (
@@ -230,11 +160,10 @@ export const removeFxaIncomeInstances = async (
   transaction: ITransactionDocument,
   options: TFxaIncomeInstanceRemoveOptions = {},
 ) => {
-  const instances = await models.FxaInstances.find(
-    buildFxaIncomeInstanceSelector(transaction, options.detailIds),
-  )
-    .select({ _id: 1 })
-    .lean();
+  const instances = await models.FxaInstances.findIncomeInstances(
+    transaction._id,
+    options.detailIds,
+  );
 
   if (!instances.length) {
     return;
@@ -247,85 +176,52 @@ export const removeFxaIncomeInstances = async (
   );
 };
 
-const buildOptionalFieldUpdate = (
-  fields: Record<string, string | undefined>,
-) => {
-  const $set: Record<string, string | Date> = { updatedAt: new Date() };
-  const $unset: Record<string, string> = {};
-
-  for (const [field, value] of Object.entries(fields)) {
-    if (value) {
-      $set[field] = value;
-      continue;
-    }
-
-    $unset[field] = '';
-  }
-
-  return Object.keys($unset).length ? { $set, $unset } : { $set };
-};
-
 export const removeFxaDisposalInstances = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const logs = await models.FxaInstanceLogs.find({
-    transactionId: transaction._id,
-    eventType: {
-      $in: [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE],
-    },
-  }).lean();
+  const logs = await models.FxaInstanceLogs.findByTransaction(
+    transaction._id,
+    [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE],
+  );
 
   if (!logs.length) {
     return;
   }
 
   for (const log of logs) {
-    await models.FxaInstances.updateOne(
-      { _id: log.fxaInstanceId },
-      {
-        $set: {
-          status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
-          updatedAt: new Date(),
-        },
-        $unset: {
-          disposalDate: '',
-          disposalTransactionId: '',
-          disposalTrDetailId: '',
-        },
-      },
-    );
+    await models.FxaInstances.restoreDisposalInstance({
+      instanceId: log.fxaInstanceId,
+      status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
+    });
   }
 
-  await models.FxaInstanceLogs.deleteMany({ transactionId: transaction._id });
+  await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
 };
 
 export const removeFxaMoveInstances = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const logs = await models.FxaInstanceLogs.find({
-    transactionId: transaction._id,
-    eventType: FXA_LOG_EVENT_TYPES.MOVE,
-  }).lean();
+  const logs = await models.FxaInstanceLogs.findByTransaction(
+    transaction._id,
+    FXA_LOG_EVENT_TYPES.MOVE,
+  );
 
   if (!logs.length) {
     return;
   }
 
   for (const log of logs) {
-    await models.FxaInstances.updateOne(
-      { _id: log.fxaInstanceId },
-      buildOptionalFieldUpdate({
-        branchId: log.fromBranchId,
-        departmentId: log.fromDepartmentId,
-        responsibleUserId: log.fromResponsibleUserId,
-        status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
-      }),
-    );
+    await models.FxaInstances.restoreMoveInstance(log.fxaInstanceId, {
+      branchId: log.fromBranchId,
+      departmentId: log.fromDepartmentId,
+      responsibleUserId: log.fromResponsibleUserId,
+      status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
+    });
   }
 
-  await models.FxaInstanceLogs.deleteMany({ transactionId: transaction._id });
+  await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
 };
 
 const matchFxaIncomeInputsToExisting = async (
@@ -333,23 +229,13 @@ const matchFxaIncomeInputsToExisting = async (
   transaction: ITransactionDocument,
   inputs: TFxaInstanceInput[],
 ) => {
-  const existingInstances = (await models.FxaInstances.find(
-    buildFxaIncomeInstanceSelector(transaction),
-  )
-    .sort({ fixedAssetId: 1, transactionDetailId: 1, sequence: 1, code: 1 })
-    .select({
-      _id: 1,
-      fixedAssetId: 1,
-      code: 1,
-      sequence: 1,
-      transactionDetailId: 1,
-      acquisitionTrDetailId: 1,
-    })
-    .lean()) as TFxaPersistedInstance[];
+  const existingInstances = await models.FxaInstances.findIncomeInstances(
+    transaction._id,
+  );
   const existingById = new Map(
     existingInstances.map((instance) => [instance._id, instance]),
   );
-  const existingByKey = new Map<string, TFxaPersistedInstance[]>();
+  const existingByKey = new Map<string, (typeof existingInstances)[number][]>();
   const usedExistingIds = new Set<string>();
 
   for (const instance of existingInstances) {
@@ -406,10 +292,10 @@ export const syncFxaIncomeInstances = async (
   const date = transaction.date || new Date();
 
   await removeFxaIncomeInstanceIds(models, removedInstanceIds);
-  await models.FxaInstanceLogs.deleteMany({
-    transactionId: transaction._id,
-    eventType: FXA_LOG_EVENT_TYPES.ACQUISITION,
-  });
+  await models.FxaInstanceLogs.deleteByTransaction(
+    transaction._id,
+    FXA_LOG_EVENT_TYPES.ACQUISITION,
+  );
 
   for (const input of inputs) {
     const detail = (transaction.details || []).find(
@@ -457,24 +343,11 @@ export const syncFxaIncomeInstances = async (
       acquisitionTrDetailId:
         input.transactionDetailId || getDetailId(detail || {}),
     };
-    const instance = input._id
-      ? await models.FxaInstances.findOneAndUpdate(
-          { _id: input._id },
-          {
-            $set: {
-              ...instanceDoc,
-              modifiedBy: userId,
-              updatedAt: new Date(),
-            },
-          },
-          { new: true },
-        ).lean()
-      : await models.FxaInstances.create({
-          _id: nanoid(),
-          ...instanceDoc,
-          createdBy: userId,
-          createdAt: new Date(),
-        });
+    const instance = await models.FxaInstances.upsertIncomeInstance({
+      _id: input._id,
+      doc: instanceDoc,
+      userId,
+    });
 
     if (!instance) {
       continue;
@@ -484,7 +357,7 @@ export const syncFxaIncomeInstances = async (
     input.code = instance.code;
     input.sequence = instance.sequence;
 
-    await models.FxaInstanceLogs.create({
+    await models.FxaInstanceLogs.createLog({
       fxaInstanceId: instance._id,
       fixedAssetId,
       eventType: FXA_LOG_EVENT_TYPES.ACQUISITION,
@@ -542,14 +415,11 @@ const getSelectedInstanceIds = async (
     throw new Error('Selected fixed asset instances must match detail counts');
   }
 
-  const instances = await models.FxaInstances.find({
-    _id: { $in: uniqueIds },
-    $or: [
-      { status: FXA_INSTANCE_STATUSES.ACTIVE },
-      { transactionId: transaction._id },
-      { disposalTransactionId: transaction._id },
-    ],
-  }).lean();
+  const instances = await models.FxaInstances.findAvailableSelected(
+    uniqueIds,
+    transaction._id,
+    FXA_INSTANCE_STATUSES.ACTIVE,
+  );
 
   if (instances.length !== uniqueIds.length) {
     throw new Error('Selected fixed asset instances are not available');
@@ -586,28 +456,20 @@ export const syncFxaDisposalInstances = async (
   }
 
   const date = transaction.date || new Date();
-  await models.FxaInstanceLogs.deleteMany({ transactionId: transaction._id });
+  await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
 
-  const instances = await models.FxaInstances.find({
-    _id: { $in: instanceIds },
-  }).lean();
+  const instances = await models.FxaInstances.findByIds(instanceIds);
 
   for (const instance of instances) {
-    await models.FxaInstances.updateOne(
-      { _id: instance._id },
-      {
-        $set: {
-          status,
-          transactionId: transaction._id,
-          disposalDate: date,
-          disposalTransactionId: transaction._id,
-          modifiedBy: userId,
-          updatedAt: new Date(),
-        },
-      },
-    );
+    await models.FxaInstances.applyDisposal({
+      instanceId: instance._id,
+      status,
+      transactionId: transaction._id,
+      date,
+      userId,
+    });
 
-    await models.FxaInstanceLogs.create({
+    await models.FxaInstanceLogs.createLog({
       fxaInstanceId: instance._id,
       fixedAssetId: instance.fixedAssetId,
       eventType,
@@ -647,27 +509,20 @@ export const syncFxaMoveInstances = async (
     throw new Error('Move destination branch is required');
   }
 
-  await models.FxaInstanceLogs.deleteMany({ transactionId: transaction._id });
+  await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
 
-  const instances = await models.FxaInstances.find({
-    _id: { $in: instanceIds },
-  }).lean();
+  const instances = await models.FxaInstances.findByIds(instanceIds);
 
   for (const instance of instances) {
-    await models.FxaInstances.updateOne(
-      { _id: instance._id },
-      {
-        $set: {
-          branchId: destinationBranchId,
-          departmentId: destinationDepartmentId,
-          transactionId: transaction._id,
-          modifiedBy: userId,
-          updatedAt: new Date(),
-        },
-      },
-    );
+    await models.FxaInstances.applyMove({
+      instanceId: instance._id,
+      branchId: destinationBranchId,
+      departmentId: destinationDepartmentId,
+      transactionId: transaction._id,
+      userId,
+    });
 
-    await models.FxaInstanceLogs.create({
+    await models.FxaInstanceLogs.createLog({
       fxaInstanceId: instance._id,
       fixedAssetId: instance.fixedAssetId,
       eventType: FXA_LOG_EVENT_TYPES.MOVE,

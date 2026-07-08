@@ -200,10 +200,10 @@ export const runAdjustFixedAsset = async (
   );
   const endDate = getPureDate(adjust.date);
   const previousDetails = await getPreviousDetailMap(models, beforeAdjust?._id);
-  const instances = await models.FxaInstances.find({
+  const instances = await models.FxaInstances.findAdjustable({
     status: FXA_INSTANCE_STATUSES.ACTIVE,
-    acquisitionDate: { $lte: endDate },
-  }).lean();
+    endDate,
+  });
   const fixedAssets = await models.FixedAssets.find({
     _id: { $in: instances.map((instance) => instance.fixedAssetId) },
   }).lean();
