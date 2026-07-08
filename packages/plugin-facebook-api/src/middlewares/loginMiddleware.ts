@@ -2,7 +2,12 @@ import * as graph from 'fbgraph';
 
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from '../connectionResolver';
-import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
+import {
+  debugError,
+  debugFacebook,
+  debugRequest,
+  debugResponse
+} from '../debuggers';
 import { repairIntegrations } from '../helpers';
 import { getConfig, getEnv } from '../commonUtils';
 import { graphRequest } from '../utils';
@@ -66,48 +71,64 @@ const loginMiddleware = async (req, res) => {
   // code is set
   // we'll send that and get the access token
 
-  return graph.authorize(config, async (_err, facebookRes) => {
-    const { access_token } = facebookRes;
-
-    const userAccount: {
-      id: string;
-      first_name: string;
-      last_name: string;
-    } = await graphRequest.get(
-      'me?fields=id,first_name,last_name',
-      access_token
-    );
-    const name = `${userAccount.first_name} ${userAccount.last_name}`;
-    const account = await models.Accounts.findOne({ uid: userAccount.id });
-
-    if (account) {
-      await models.Accounts.updateOne(
-        { _id: account._id },
-        { $set: { token: access_token } }
+  return graph.authorize(config, async (err, facebookRes) => {
+    if (err || !facebookRes) {
+      debugError(
+        `Facebook authorize failed: ${(err && err.message) || 'empty response'}`
       );
-      const integrations = await models.Integrations.find({
-        accountId: account._id
-      });
-
-      for (const integration of integrations) {
-        await repairIntegrations(subdomain, models, integration.erxesApiId);
-      }
-    } else {
-      await models.Accounts.create({
-        token: access_token,
-        name,
-        kind: 'facebook',
-        uid: userAccount.id
-      });
+      return res
+        .status(502)
+        .send(
+          'Could not reach Facebook (graph.facebook.com). Check outbound network access.'
+        );
     }
 
-    const reactAppUrl = !DOMAIN.includes('zrok')
-      ? DOMAIN
-      : 'http://localhost:3000';
-    const url = `${reactAppUrl}/settings/fb-authorization?fbAuthorized=true`;
-    debugResponse(debugFacebook, req, url);
+    const { access_token } = facebookRes;
 
-    return res.redirect(url);
+    try {
+      const userAccount: {
+        id: string;
+        first_name: string;
+        last_name: string;
+      } = await graphRequest.get(
+        'me?fields=id,first_name,last_name',
+        access_token
+      );
+      const name = `${userAccount.first_name} ${userAccount.last_name}`;
+      const account = await models.Accounts.findOne({ uid: userAccount.id });
+
+      if (account) {
+        await models.Accounts.updateOne(
+          { _id: account._id },
+          { $set: { token: access_token } }
+        );
+        const integrations = await models.Integrations.find({
+          accountId: account._id
+        });
+
+        for (const integration of integrations) {
+          await repairIntegrations(subdomain, models, integration.erxesApiId);
+        }
+      } else {
+        await models.Accounts.create({
+          token: access_token,
+          name,
+          kind: 'facebook',
+          uid: userAccount.id
+        });
+      }
+
+      const reactAppUrl = !DOMAIN.includes('zrok')
+        ? DOMAIN
+        : 'http://localhost:3000';
+      const url = `${reactAppUrl}/settings/fb-authorization?fbAuthorized=true`;
+      debugResponse(debugFacebook, req, url);
+
+      return res.redirect(url);
+    } catch (e) {
+      debugError(`Facebook login failed: ${e.message}`);
+      return res.status(502).send(`Facebook login failed: ${e.message}`);
+    }
   });
 };
 
