@@ -9,8 +9,13 @@ import {
 } from '../../../graphql/queries/fixedAssets';
 import {
   ITransactionGroupForm,
+  TFxaDetail,
   TFxaIncomeJournal,
 } from '../../../types/JournalForms';
+import {
+  getFxaCodeSequence,
+  getFxaInstanceDisplayCode,
+} from '../../helpers/fxaHelpers';
 
 type TFixedAsset = {
   _id: string;
@@ -37,27 +42,94 @@ type TFxaIncomeInstance = {
   originalCost?: number;
 };
 
-const getCodeSequence = (code: string, assetCode: string) => {
-  const escapedAssetCode = assetCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = new RegExp(`^${escapedAssetCode}_(\\d+)$`).exec(code);
+const getExistingIncomeInstance = (
+  previous: TFxaIncomeInstance[],
+  detail: TFxaDetail,
+  index: number,
+) =>
+  previous.find(
+    (instance) =>
+      instance.transactionDetailId === detail._id &&
+      instance.fixedAssetId === detail.fixedAssetId &&
+      instance.tempId?.endsWith(`-${index}`),
+  );
 
-  return match ? Number(match[1]) : 0;
-};
+const buildIncomeInstance = ({
+  detail,
+  fixedAssetsById,
+  index,
+  nextSequenceByAsset,
+  previous,
+  trDoc,
+}: {
+  detail: TFxaDetail;
+  fixedAssetsById: Map<string, TFixedAsset>;
+  index: number;
+  nextSequenceByAsset: Map<string, number>;
+  previous: TFxaIncomeInstance[];
+  trDoc: TFxaIncomeJournal;
+}): TFxaIncomeInstance | undefined => {
+  const existing = getExistingIncomeInstance(previous, detail, index);
+  const assetCode = fixedAssetsById.get(detail.fixedAssetId)?.code;
 
-const getInstanceDisplayCode = (
-  instance: TFxaIncomeInstance,
-  fixedAssetCode?: string,
-) => {
-  if (instance.code) {
-    return instance.code;
+  if (!assetCode) {
+    return;
   }
 
-  if (!fixedAssetCode || !instance.sequence) {
-    return '-';
-  }
+  const sequence = nextSequenceByAsset.get(detail.fixedAssetId) || 0;
+  const instanceSequence = existing?.sequence || sequence + 1;
+  const code =
+    existing?.code ||
+    `${assetCode}_${String(instanceSequence).padStart(3, '0')}`;
 
-  return `${fixedAssetCode}_${String(instance.sequence).padStart(3, '0')}`;
+  nextSequenceByAsset.set(
+    detail.fixedAssetId,
+    Math.max(sequence, instanceSequence, getFxaCodeSequence(code, assetCode)),
+  );
+
+  return {
+    ...existing,
+    tempId: existing?.tempId || `${detail._id}-${index}`,
+    transactionDetailId: detail._id,
+    fixedAssetId: detail.fixedAssetId,
+    code,
+    sequence: instanceSequence,
+    branchId: existing?.branchId || detail.branchId || trDoc.branchId,
+    departmentId:
+      existing?.departmentId || detail.departmentId || trDoc.departmentId,
+    responsibleUserId: existing?.responsibleUserId || '',
+    locationId: existing?.locationId || '',
+    originalCost: existing?.originalCost ?? detail.unitPrice ?? 0,
+  };
 };
+
+const buildFxaIncomeInstances = ({
+  details,
+  fixedAssetsById,
+  nextSequenceByAsset,
+  previous,
+  trDoc,
+}: {
+  details: TFxaDetail[];
+  fixedAssetsById: Map<string, TFixedAsset>;
+  nextSequenceByAsset: Map<string, number>;
+  previous: TFxaIncomeInstance[];
+  trDoc: TFxaIncomeJournal;
+}) =>
+  details.flatMap((detail) =>
+    Array.from(
+      { length: Math.max(0, Math.trunc(detail.count || 0)) },
+      (_, index) =>
+        buildIncomeInstance({
+          detail,
+          fixedAssetsById,
+          index,
+          nextSequenceByAsset,
+          previous,
+          trDoc,
+        }),
+    ).filter((instance): instance is TFxaIncomeInstance => !!instance),
+  );
 
 export const FxaIncomeInstancesSync = ({
   form,
@@ -117,61 +189,19 @@ export const FxaIncomeInstancesSync = ({
         Math.max(
           nextSequenceByAsset.get(instance.fixedAssetId) || 0,
           instance.sequence || 0,
-          getCodeSequence(instance.code || '', assetCode),
-          getCodeSequence(instance.code || '', instance.fixedAssetId),
+          getFxaCodeSequence(instance.code || '', assetCode),
+          getFxaCodeSequence(instance.code || '', instance.fixedAssetId),
         ),
       );
     }
 
-    const next = (trDoc.details || []).flatMap((detail) =>
-      Array.from({ length: Math.max(0, Math.trunc(detail.count || 0)) }).map(
-        (_, index) => {
-          const existing = previous.find(
-            (instance) =>
-              instance.transactionDetailId === detail._id &&
-              instance.fixedAssetId === detail.fixedAssetId &&
-              instance.tempId?.endsWith(`-${index}`),
-          );
-          const assetCode = fixedAssetsById.get(detail.fixedAssetId)?.code;
-
-          if (!assetCode) {
-            return [];
-          }
-
-          const sequence = nextSequenceByAsset.get(detail.fixedAssetId) || 0;
-          const instanceSequence = existing?.sequence || sequence + 1;
-          const code =
-            existing?.code ||
-            `${assetCode}_${String(instanceSequence).padStart(3, '0')}`;
-
-          nextSequenceByAsset.set(
-            detail.fixedAssetId,
-            Math.max(
-              sequence,
-              instanceSequence,
-              getCodeSequence(code, assetCode),
-            ),
-          );
-
-          return {
-            ...(existing || {}),
-            tempId: existing?.tempId || `${detail._id}-${index}`,
-            transactionDetailId: detail._id,
-            fixedAssetId: detail.fixedAssetId,
-            code,
-            sequence: instanceSequence,
-            branchId: existing?.branchId || detail.branchId || trDoc.branchId,
-            departmentId:
-              existing?.departmentId ||
-              detail.departmentId ||
-              trDoc.departmentId,
-            responsibleUserId: existing?.responsibleUserId || '',
-            locationId: existing?.locationId || '',
-            originalCost: existing?.originalCost ?? detail.unitPrice ?? 0,
-          };
-        },
-      ),
-    );
+    const next = buildFxaIncomeInstances({
+      details: trDoc.details || [],
+      fixedAssetsById,
+      nextSequenceByAsset,
+      previous,
+      trDoc,
+    });
 
     form.setValue(`trDocs.${journalIndex}.extraData.fxaInstances`, next);
   }, [
@@ -262,7 +292,7 @@ export const FxaIncomeDetailInstancesSheet = ({
                 return (
                   <Table.Row key={instance.tempId || instanceIndex}>
                     <Table.Cell>
-                      {getInstanceDisplayCode(instance, fixedAsset?.code)}
+                      {getFxaInstanceDisplayCode(instance, fixedAsset?.code)}
                     </Table.Cell>
                     <Table.Cell>
                       <Form.Field

@@ -15,21 +15,8 @@ import {
   TFxaDetail,
   TFxaIncomeJournal,
 } from '../../../types/JournalForms';
-import { getTempId } from '../../utils';
+import { getFxaDetailDefaultValues } from '../../helpers/fxaHelpers';
 import { FixedAssetRow } from './FixedAssetRow';
-
-const getFxaDetailDefaultValues = (
-  detail?: Partial<TFxaDetail>,
-): TFxaDetail => ({
-  ...(detail || {}),
-  _id: getTempId(),
-  accountId: detail?.accountId || '',
-  fixedAssetId: detail?.fixedAssetId || '',
-  count: detail?.count ?? 0,
-  unitPrice: detail?.unitPrice ?? 0,
-  amount: detail?.amount ?? 0,
-  checked: false,
-});
 
 export const FixedAssetForm = ({
   form,

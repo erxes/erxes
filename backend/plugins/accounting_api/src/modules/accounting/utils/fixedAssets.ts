@@ -4,6 +4,7 @@ import {
   FXA_INSTANCE_STATUSES,
   FXA_LOG_EVENT_TYPES,
 } from '@/fixedAssets/@types/constants';
+import { IFixedAsset } from '@/fixedAssets/@types/fixedAsset';
 import { ITransactionDocument } from '../@types/transaction';
 
 type TFxaInstanceInput = {
@@ -21,32 +22,81 @@ type TFxaInstanceInput = {
   depreciationStartDate?: Date;
 };
 
+type TFixedAssetSnapshot = Pick<
+  IFixedAsset,
+  | 'categoryId'
+  | 'code'
+  | 'depreciationMethod'
+  | 'usefulLife'
+  | 'salvageValue'
+  | 'taxDepreciationMethod'
+  | 'taxUsefulLife'
+  | 'taxSalvageValue'
+> & {
+  _id: string;
+};
+
+type TFxaTransactionExtraData = {
+  fxaInstances?: TFxaInstanceInput[];
+  fxaInstanceIds?: string[];
+};
+
+type TFxaMoveFollowInfos = {
+  moveInBranchId?: string;
+  moveInDepartmentId?: string;
+};
+
 export type TFxaIncomeInstanceRemoveOptions = {
   detailIds?: string[];
   validateOnly?: boolean;
 };
 
+const getFxaExtraData = (
+  transaction: ITransactionDocument,
+): TFxaTransactionExtraData => transaction.extraData || {};
+
+const getFxaMoveFollowInfos = (
+  transaction: ITransactionDocument,
+): TFxaMoveFollowInfos => transaction.followInfos || {};
+
 const getFxaInstanceInputs = (transaction: ITransactionDocument) =>
-  ((transaction.extraData as any)?.fxaInstances || []) as TFxaInstanceInput[];
+  getFxaExtraData(transaction).fxaInstances || [];
 
 const getDetailId = (detail: { _id?: string }) => detail._id?.toString() || '';
+
+const getFixedAssetIdsFromInputs = (inputs: TFxaInstanceInput[]) =>
+  Array.from(
+    new Set(
+      inputs
+        .map((input) => input.fixedAssetId)
+        .filter((fixedAssetId): fixedAssetId is string => !!fixedAssetId),
+    ),
+  );
+
+const getFixedAssetsById = async (
+  models: IModels,
+  inputs: TFxaInstanceInput[],
+) => {
+  const fixedAssets = await models.FixedAssets.find({
+    _id: { $in: getFixedAssetIdsFromInputs(inputs) },
+  }).lean();
+
+  return new Map<string, TFixedAssetSnapshot>(
+    fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
+  );
+};
 
 const assignMissingInstanceSequences = async (
   models: IModels,
   inputs: TFxaInstanceInput[],
+  fixedAssetsById: Map<string, TFixedAssetSnapshot>,
   transactionId?: string,
 ) => {
-  const fixedAssetIds = Array.from(
-    new Set(inputs.map((input) => input.fixedAssetId).filter(Boolean)),
-  ) as string[];
-  const fixedAssets = await models.FixedAssets.find({
-    _id: { $in: fixedAssetIds },
-  }).lean();
-  const fixedAssetsById = new Map(
-    fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
-  );
   const { maxSequences, usedSequences } =
-    await models.FxaInstances.getSequenceState(fixedAssets, transactionId);
+    await models.FxaInstances.getSequenceState(
+      Array.from(fixedAssetsById.values()),
+      transactionId,
+    );
 
   for (const input of inputs) {
     if (!input.fixedAssetId) {
@@ -126,6 +176,61 @@ const getInputDetailId = (input: TFxaInstanceInput) =>
 
 const getIncomeInstanceMatchKey = (fixedAssetId?: string, detailId?: string) =>
   `${fixedAssetId || ''}:${detailId || ''}`;
+
+const buildIncomeInstanceDoc = ({
+  date,
+  detail,
+  fixedAsset,
+  fixedAssetId,
+  input,
+  transaction,
+}: {
+  date: Date;
+  detail?: {
+    _id?: string;
+    unitPrice?: number;
+    amount?: number;
+    branchId?: string;
+    departmentId?: string;
+  };
+  fixedAsset?: TFixedAssetSnapshot;
+  fixedAssetId: string;
+  input: TFxaInstanceInput;
+  transaction: ITransactionDocument;
+}) => {
+  const transactionDetailId =
+    input.transactionDetailId || getDetailId(detail || {});
+
+  return {
+    fixedAssetId,
+    categoryId: fixedAsset?.categoryId,
+    code:
+      input.code ||
+      (fixedAsset?.code && input.sequence
+        ? `${fixedAsset.code}_${String(input.sequence).padStart(3, '0')}`
+        : nanoid(6)),
+    sequence: input.sequence,
+    status: FXA_INSTANCE_STATUSES.ACTIVE,
+    originalCost: input.originalCost ?? detail?.unitPrice ?? detail?.amount ?? 0,
+    depreciationMethod: fixedAsset?.depreciationMethod,
+    usefulLife: fixedAsset?.usefulLife,
+    salvageValue: fixedAsset?.salvageValue,
+    taxDepreciationMethod: fixedAsset?.taxDepreciationMethod,
+    taxUsefulLife: fixedAsset?.taxUsefulLife,
+    taxSalvageValue: fixedAsset?.taxSalvageValue,
+    acquisitionDate: date,
+    depreciationStartDate: input.depreciationStartDate,
+    branchId: input.branchId || detail?.branchId || transaction.branchId,
+    departmentId:
+      input.departmentId || detail?.departmentId || transaction.departmentId,
+    responsibleUserId: input.responsibleUserId,
+    locationId: input.locationId,
+    transactionId: transaction._id,
+    transactionDetailId,
+    acquisitionTransactionId: transaction._id,
+    acquisitionTrDetailId: transactionDetailId,
+  };
+};
 
 const removeFxaIncomeInstanceIds = async (
   models: IModels,
@@ -255,7 +360,7 @@ const matchFxaIncomeInputsToExisting = async (
       getInputDetailId(input),
     );
     const existing =
-      existingByInputId ||
+      existingByInputId ??
       (existingByKey.get(key) || []).find(
         (instance) => !usedExistingIds.has(instance._id),
       );
@@ -288,8 +393,14 @@ export const syncFxaIncomeInstances = async (
     transaction,
     inputs,
   );
-  await assignMissingInstanceSequences(models, inputs, transaction._id);
   const date = transaction.date || new Date();
+  const fixedAssetsById = await getFixedAssetsById(models, inputs);
+  await assignMissingInstanceSequences(
+    models,
+    inputs,
+    fixedAssetsById,
+    transaction._id,
+  );
 
   await removeFxaIncomeInstanceIds(models, removedInstanceIds);
   await models.FxaInstanceLogs.deleteByTransaction(
@@ -307,42 +418,14 @@ export const syncFxaIncomeInstances = async (
       continue;
     }
 
-    const fixedAsset = await models.FixedAssets.findOne({
-      _id: fixedAssetId,
-    }).lean();
-
-    const instanceDoc = {
+    const instanceDoc = buildIncomeInstanceDoc({
+      date,
+      detail,
+      fixedAsset: fixedAssetsById.get(fixedAssetId),
       fixedAssetId,
-      categoryId: fixedAsset?.categoryId,
-      code:
-        input.code ||
-        (fixedAsset?.code && input.sequence
-          ? `${fixedAsset.code}_${String(input.sequence).padStart(3, '0')}`
-          : nanoid(6)),
-      sequence: input.sequence,
-      status: FXA_INSTANCE_STATUSES.ACTIVE,
-      originalCost:
-        input.originalCost ?? detail?.unitPrice ?? detail?.amount ?? 0,
-      depreciationMethod: fixedAsset?.depreciationMethod,
-      usefulLife: fixedAsset?.usefulLife,
-      salvageValue: fixedAsset?.salvageValue,
-      taxDepreciationMethod: fixedAsset?.taxDepreciationMethod,
-      taxUsefulLife: fixedAsset?.taxUsefulLife,
-      taxSalvageValue: fixedAsset?.taxSalvageValue,
-      acquisitionDate: date,
-      depreciationStartDate: input.depreciationStartDate,
-      branchId: input.branchId || detail?.branchId || transaction.branchId,
-      departmentId:
-        input.departmentId || detail?.departmentId || transaction.departmentId,
-      responsibleUserId: input.responsibleUserId,
-      locationId: input.locationId,
-      transactionId: transaction._id,
-      transactionDetailId:
-        input.transactionDetailId || getDetailId(detail || {}),
-      acquisitionTransactionId: transaction._id,
-      acquisitionTrDetailId:
-        input.transactionDetailId || getDetailId(detail || {}),
-    };
+      input,
+      transaction,
+    });
     const instance = await models.FxaInstances.upsertIncomeInstance({
       _id: input._id,
       doc: instanceDoc,
@@ -374,7 +457,7 @@ export const syncFxaIncomeInstances = async (
   }
 
   transaction.extraData = {
-    ...(transaction.extraData || {}),
+    ...transaction.extraData,
     fxaInstances: inputs,
   };
 
@@ -388,8 +471,7 @@ const getSelectedInstanceIds = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const selectedIds = ((transaction.extraData as any)?.fxaInstanceIds ||
-    []) as string[];
+  const selectedIds = getFxaExtraData(transaction).fxaInstanceIds || [];
 
   const uniqueIds = Array.from(new Set(selectedIds));
   const expectedByAsset = new Map<string, number>();
@@ -501,9 +583,9 @@ export const syncFxaMoveInstances = async (
   }
 
   const date = transaction.date || new Date();
-  const destinationBranchId = (transaction.followInfos as any)?.moveInBranchId;
-  const destinationDepartmentId = (transaction.followInfos as any)
-    ?.moveInDepartmentId;
+  const moveFollowInfos = getFxaMoveFollowInfos(transaction);
+  const destinationBranchId = moveFollowInfos.moveInBranchId;
+  const destinationDepartmentId = moveFollowInfos.moveInDepartmentId;
 
   if (!destinationBranchId) {
     throw new Error('Move destination branch is required');

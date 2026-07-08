@@ -8,6 +8,7 @@ import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
 import { FXA_INSTANCES_QUERY } from '../../graphql/queries/fixedAssets';
 import { ITransactionGroupForm, TFxaDetail } from '../../types/JournalForms';
 import { MembersInline, SelectBranches, SelectDepartments } from 'ui-modules';
+import { getFxaCodeSequence, getFxaInstanceDisplayCode } from './fxaHelpers';
 
 type IFxaInstance = {
   _id: string;
@@ -17,13 +18,6 @@ type IFxaInstance = {
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
-};
-
-const getCodeSequence = (code: string, assetCode: string) => {
-  const escapedAssetCode = assetCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = new RegExp(`^${escapedAssetCode}_(\\d+)$`).exec(code);
-
-  return match ? Number(match[1]) : 0;
 };
 
 export const FxaInstanceSelectionSheet = ({
@@ -147,23 +141,21 @@ export const FxaInstanceSelectionSheet = ({
 
     return (
       instance.sequence ||
-      (fixedAssetCode ? getCodeSequence(instance.code, fixedAssetCode) : 0) ||
-      getCodeSequence(instance.code, instance.fixedAssetId)
+      (fixedAssetCode
+        ? getFxaCodeSequence(instance.code, fixedAssetCode)
+        : 0) ||
+      getFxaCodeSequence(instance.code, instance.fixedAssetId)
     );
   };
   const getFixedAssetSequenceLabel = (instance: IFxaInstance) => {
-    if (instance.code) {
-      return instance.code;
-    }
-
     const fixedAssetCode = fixedAssetsById.get(instance.fixedAssetId)?.code;
-    const sequence = getDisplaySequence(instance);
-
-    if (!fixedAssetCode || !sequence) {
-      return '-';
-    }
-
-    return `${fixedAssetCode}_${String(sequence).padStart(3, '0')}`;
+    return getFxaInstanceDisplayCode(
+      {
+        code: instance.code,
+        sequence: getDisplaySequence(instance),
+      },
+      fixedAssetCode,
+    );
   };
 
   const toggleInstance = (instance: IFxaInstance, checked: boolean) => {

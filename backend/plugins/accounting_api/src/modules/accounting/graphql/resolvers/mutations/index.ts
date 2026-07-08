@@ -7,7 +7,7 @@ import AccountingCheckSynced from './checkSynced';
 import Transactions from './transacations';
 import AdjustInventories from './adjustInventories';
 import AccountPermissions from './permissions';
-import { AdjustFixedAssets } from './adjustFixedAssets';
+export { AdjustFixedAssets } from './adjustFixedAssets';
 
 export {
   Accounts,
@@ -18,6 +18,5 @@ export {
   CtaxRows,
   Transactions,
   AdjustInventories,
-  AdjustFixedAssets,
   AccountPermissions,
 };

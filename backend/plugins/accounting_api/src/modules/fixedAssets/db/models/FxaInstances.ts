@@ -110,8 +110,11 @@ export const loadFxaInstanceClass = () => {
       code: string,
       fixedAssetCode: string,
     ) {
-      const escapedCode = fixedAssetCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const match = new RegExp(`^${escapedCode}_(\\d+)$`).exec(code);
+      const escapedCode = fixedAssetCode.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        String.raw`\$&`,
+      );
+      const match = new RegExp(String.raw`^${escapedCode}_(\d+)$`).exec(code);
 
       return match ? Number(match[1]) : 0;
     }

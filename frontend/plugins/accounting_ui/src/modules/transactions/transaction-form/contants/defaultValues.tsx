@@ -333,7 +333,7 @@ const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
       ];
 
 const FXA_EXTRA_DATA_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => ({
-  ...(doc?.extraData || {}),
+  ...doc?.extraData,
   fxaInstances: doc?.extraData?.fxaInstances || [],
   fxaInstanceIds: doc?.extraData?.fxaInstanceIds || [],
 });
