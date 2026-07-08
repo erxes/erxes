@@ -35,7 +35,9 @@ export const SimilarityList = ({ onNew }: SimilarityListProps) => {
         </Empty.Header>
         {onNew && (
           <Empty.Content>
-            <Button onClick={onNew}>{t('new-similarity', 'New similarity')}</Button>
+            <Button onClick={onNew}>
+              {t('new-similarity', 'New similarity')}
+            </Button>
           </Empty.Content>
         )}
       </Empty>
@@ -56,7 +58,10 @@ export const SimilarityList = ({ onNew }: SimilarityListProps) => {
             {loading && <RecordTable.RowSkeleton rows={10} />}
             {!loading && similarities.length > 0 && <RecordTable.RowList />}
             {!loading && hasMore && (
-              <RecordTable.RowSkeleton rows={1} handleInView={handleFetchMore} />
+              <RecordTable.RowSkeleton
+                rows={1}
+                handleInView={handleFetchMore}
+              />
             )}
           </RecordTable.Body>
         </RecordTable>
