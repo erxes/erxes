@@ -1,8 +1,10 @@
 import { Document } from 'mongoose';
-import { IPriceRule} from './priceRule';
+import { IPriceRule } from './priceRule';
 import { IQuantityRule } from './quantityRule';
 import { IExpiryRule } from './expiryRule';
 import { IRepeatRule } from './repeatRule';
+
+export type PricingPlanPriority = '' | 'public' | 'posBase';
 
 export interface IPricingPlan {
   name: string;
@@ -12,7 +14,7 @@ export interface IPricingPlan {
   priceAdjustType: 'none' | 'round' | 'floor' | 'ceil' | 'endsWith9';
   priceAdjustFactor: number;
   bonusProduct?: string;
-  isPriority: boolean;
+  priority: PricingPlanPriority;
 
   applyType: string;
 
@@ -25,6 +27,34 @@ export interface IPricingPlan {
   vendors?: string[];
   tags?: string[];
   tagsExcluded?: string[];
+
+  customerIds?: string[];
+  customerTags?: string[];
+  customerExcludeTags?: string[];
+  customerSegmentIds?: string[];
+
+  companyIds?: string[];
+  companyTags?: string[];
+  companyExcludeTags?: string[];
+  companySegmentIds?: string[];
+
+  userIds?: string[];
+  userPositions?: string[];
+  userSegmentIds?: string[];
+
+  brokerCustomerIds?: string[];
+  brokerCustomerTags?: string[];
+  brokerCustomerExcludeTags?: string[];
+  brokerCustomerSegmentIds?: string[];
+
+  brokerCompanyIds?: string[];
+  brokerCompanyTags?: string[];
+  brokerCompanyExcludeTags?: string[];
+  brokerCompanySegmentIds?: string[];
+
+  brokerUserIds?: string[];
+  brokerUserPositions?: string[];
+  brokerUserSegmentIds?: string[];
 
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;

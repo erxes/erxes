@@ -302,8 +302,8 @@ export const generateFilter = async (
     Object.assign(filter, {
       $or: [
         regexSearchText(search),
-        { name: { $regex: new RegExp(`.*${escapeRegExp(search)}.*`, 'i') } },
-        { number: { $regex: new RegExp(`.*${escapeRegExp(search)}.*`, 'i') } },
+        { name: { $regex: new RegExp(`${escapeRegExp(search)}`, 'i') } },
+        { number: { $regex: new RegExp(`^${escapeRegExp(search)}`, 'i') } },
       ],
     });
   }
@@ -682,6 +682,12 @@ const fetchDeals = async (
   user: IContext['user'],
   forClientPortal = false,
 ) => {
+  const { search, noSkipArchive } = args;
+
+  if (noSkipArchive && search) {
+    args.orderBy = { status: 1, ...args.orderBy }
+  }
+
   const filter = await generateFilter(
     models,
     subdomain,
@@ -776,7 +782,11 @@ export const dealQueries: Record<string, Resolver> = {
       stageId: stage._id,
       pipelineId: pipeline._id,
       boardId: pipeline.boardId,
-      href: `/sales/deals?boardId=${encodeURIComponent(pipeline.boardId)}&pipelineId=${encodeURIComponent(pipeline._id)}&salesItemId=${encodeURIComponent(deal._id)}`,
+      href: `/sales/deals?boardId=${encodeURIComponent(
+        pipeline.boardId,
+      )}&pipelineId=${encodeURIComponent(
+        pipeline._id,
+      )}&salesItemId=${encodeURIComponent(deal._id)}`,
     };
   },
 

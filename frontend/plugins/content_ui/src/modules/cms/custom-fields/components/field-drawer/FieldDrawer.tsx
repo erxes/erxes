@@ -60,7 +60,7 @@ export function FieldDrawer({
   }, [editingField, form, isOpen]);
 
   const selectedFieldType = form.watch('type');
-  const needsOptions = ['select', 'radio'].includes(selectedFieldType);
+  const needsOptions = ['select', 'multiSelect', 'radio'].includes(selectedFieldType);
 
   return (
     <Sheet

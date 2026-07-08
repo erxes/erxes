@@ -15,6 +15,7 @@ import {
   TAiAgentFormDetail,
   TAiAgentForm,
 } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
+import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconActivityHeartbeat,
@@ -26,6 +27,7 @@ import {
 import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
+import { ApprovalLockButton } from 'ui-modules';
 
 export const AutomationAiAgentDetail = ({
   detail,
@@ -87,10 +89,21 @@ export const AutomationAiAgentDetail = ({
           }
           backTo="/settings/automations/agents"
           actions={
-            <Button onClick={handleSubmit}>
-              <IconDeviceFloppy className="size-4 " />
-              Save
-            </Button>
+            <div className="flex items-center gap-2">
+              {detail?._id && (
+                <ApprovalLockButton
+                  contentType={
+                    AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT
+                  }
+                  contentId={detail._id}
+                  action="edit"
+                />
+              )}
+              <Button onClick={handleSubmit}>
+                <IconDeviceFloppy className="size-4 " />
+                Save
+              </Button>
+            </div>
           }
         />
 

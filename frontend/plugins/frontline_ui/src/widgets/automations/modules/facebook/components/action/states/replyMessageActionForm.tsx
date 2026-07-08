@@ -94,12 +94,6 @@ const ticketFormSchema = z.object({
   text: z.string(),
 });
 
-const ticketFormSchema = z.object({
-  _id: z.string(),
-  type: z.literal('ticketForm'),
-  text: z.string(),
-});
-
 const replyMessageSchema = z.discriminatedUnion('type', [
   textMessageSchema,
   imageMessageSchema,

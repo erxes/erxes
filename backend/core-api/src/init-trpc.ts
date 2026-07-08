@@ -20,6 +20,7 @@ import { logsTrpcRouter } from './modules/logs/trpc';
 import { clientPortalNotificationTrpcRouter } from '@/clientportal/trpc';
 import { permissionTrpcRouter } from './modules/permissions/trpc/permission';
 import { documentTrpcRouter } from '~/modules/documents/trpc/document';
+import { approvalTrpcRouter } from './modules/approval/trpc/approval';
 
 export type CoreTRPCContext = ITRPCContext<{
   models: IModels;
@@ -57,6 +58,7 @@ export const appRouter = t.mergeRouters(
   categoriesNamedRouter,
   clientPortalNotificationTrpcRouter,
   permissionTrpcRouter,
+  approvalTrpcRouter,
   documentTrpcRouter,
 );
 

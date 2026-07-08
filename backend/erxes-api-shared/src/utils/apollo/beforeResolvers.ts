@@ -45,16 +45,20 @@ export type BeforeResolverHandler = (
 export interface BeforeResolversConfig {
   resolvers: Record<string, string[]>;
   handler: BeforeResolverHandler;
+  check?: BeforeResolverHandler;
+  blocker?: BeforeResolverHandler;
 }
 
 export enum TBeforeResolversProducers {
   HANDLE = 'handle',
   CHECK = 'check',
+  BLOCKER = 'blocker',
 }
 
 export type TBeforeResolversProducersInput = {
   [TBeforeResolversProducers.HANDLE]: BeforeResolverParams;
   [TBeforeResolversProducers.CHECK]: BeforeResolverParams;
+  [TBeforeResolversProducers.BLOCKER]: BeforeResolverParams;
 };
 
 const beforeResolverInput = z.object({
@@ -72,7 +76,7 @@ export const startBeforeResolvers = async (
   pluginName: string,
   config: BeforeResolversConfig,
 ) => {
-  const { resolvers, handler } = config || {};
+  const { resolvers, handler, check, blocker } = config || {};
 
   if (!handler || !resolvers) {
     return;
@@ -89,7 +93,18 @@ export const startBeforeResolvers = async (
         return await handler(input.subdomain, input.data);
       }),
     check: t.procedure.input(beforeResolverInput).query(async ({ input }) => {
-      return await handler(input.subdomain, input.data);
+      if (check) {
+        return await check(input.subdomain, input.data);
+      }
+
+      return { status: 'ok' };
+    }),
+    blocker: t.procedure.input(beforeResolverInput).query(async ({ input }) => {
+      if (blocker) {
+        return await blocker(input.subdomain, input.data);
+      }
+
+      return { status: 'ok' };
     }),
   });
 

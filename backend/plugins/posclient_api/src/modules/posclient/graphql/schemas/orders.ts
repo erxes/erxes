@@ -225,6 +225,7 @@ export const mutations = `
   cpOrdersEdit(_id: String!, ${addEditParams}): Order
   cpOrderChangeSaleStatus(_id: String!, saleStatus: String): Order
   cpOrdersCancel(_id: String!): JSON
+  cpOrdersAddPayment(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: [PaidAmountInput] ): Order
 `;
 
 export const queries = `

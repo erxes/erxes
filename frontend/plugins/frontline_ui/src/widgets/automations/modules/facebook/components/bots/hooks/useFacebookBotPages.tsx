@@ -15,6 +15,7 @@ export const useFacebookBotPages = (accountId: string, pageId: string) => {
       accountId,
       kind: IntegrationType.FACEBOOK_MESSENGER,
     },
+    skip: !accountId,
   });
 
   const facebookGetPages = data?.facebookGetPages || [];

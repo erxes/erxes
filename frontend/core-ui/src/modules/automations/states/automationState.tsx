@@ -2,11 +2,9 @@ import { AutomationBuilderTabsType } from '@/automations/types';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
-export const automationBuilderActiveTabState =
-  atomWithStorage<AutomationBuilderTabsType>(
-    'activeTab',
-    AutomationBuilderTabsType.Builder,
-  );
+export const automationBuilderActiveTabState = atom<AutomationBuilderTabsType>(
+  AutomationBuilderTabsType.Builder,
+);
 
 export const automationBuilderSiderbarOpenState = atomWithStorage<boolean>(
   'automationSidebarOpen',

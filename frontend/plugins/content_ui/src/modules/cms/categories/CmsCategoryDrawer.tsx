@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useApolloClient } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -89,12 +89,6 @@ interface CmsCategoryDrawerProps {
   onClose: () => void | Promise<void>;
   clientPortalId: string;
   onRefetch?: () => void;
-}
-
-interface CmsCategoriesResponse {
-  cmsCategories: {
-    list: Category[];
-  };
 }
 
 interface CategoryFormData {
@@ -231,7 +225,6 @@ export function CmsCategoryDrawer({
 }: CmsCategoryDrawerProps) {
   const { t } = useTranslation('content');
   const isEditing = !!category?._id;
-  const client = useApolloClient();
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
@@ -520,38 +513,8 @@ export function CmsCategoryDrawer({
   );
 
   const [addCategory, { loading: adding }] = useMutation(CMS_CATEGORIES_ADD, {
-    onCompleted: (data) => {
-      // Update cache to automatically refresh all components using CMS_CATEGORIES query
-      const existingCategories = client.readQuery<CmsCategoriesResponse>({
-        query: CMS_CATEGORIES,
-        variables: {
-          clientPortalId,
-          limit: 100,
-          language: selectedLanguage || defaultLanguage,
-        },
-      });
-
-      if (existingCategories && data?.cmsCategoriesAdd) {
-        client.writeQuery({
-          query: CMS_CATEGORIES,
-          variables: {
-            clientPortalId,
-            limit: 100,
-            language: selectedLanguage || defaultLanguage,
-          },
-          data: {
-            ...existingCategories,
-            cmsCategories: {
-              ...existingCategories.cmsCategories,
-              list: [
-                ...existingCategories.cmsCategories.list,
-                data.cmsCategoriesAdd,
-              ],
-            },
-          },
-        });
-      }
-
+    refetchQueries: ['CmsCategories'],
+    onCompleted: () => {
       onRefetch?.();
       toast({ title: t('success'), description: t('category-created') });
       onClose();
@@ -569,42 +532,8 @@ export function CmsCategoryDrawer({
   const [editCategory, { loading: editing }] = useMutation(
     CMS_CATEGORIES_EDIT,
     {
-      onCompleted: (data) => {
-        // Update cache to automatically refresh all components using CMS_CATEGORIES query
-        const existingCategories = client.readQuery<CmsCategoriesResponse>({
-          query: CMS_CATEGORIES,
-          variables: {
-            clientPortalId,
-            limit: 100,
-            language: selectedLanguage || defaultLanguage,
-          },
-        });
-
-        if (existingCategories && data?.cmsCategoriesEdit) {
-          const updatedList = existingCategories.cmsCategories.list.map(
-            (cat: Category) =>
-              cat._id === data.cmsCategoriesEdit._id
-                ? data.cmsCategoriesEdit
-                : cat,
-          );
-
-          client.writeQuery({
-            query: CMS_CATEGORIES,
-            variables: {
-              clientPortalId,
-              limit: 100,
-              language: selectedLanguage || defaultLanguage,
-            },
-            data: {
-              ...existingCategories,
-              cmsCategories: {
-                ...existingCategories.cmsCategories,
-                list: updatedList,
-              },
-            },
-          });
-        }
-
+      refetchQueries: ['CmsCategories'],
+      onCompleted: () => {
         onRefetch?.();
         toast({ title: t('success'), description: t('category-updated') });
         onClose();

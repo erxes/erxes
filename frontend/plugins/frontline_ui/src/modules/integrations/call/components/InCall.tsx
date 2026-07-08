@@ -8,9 +8,10 @@ import {
   IconFileText,
   IconMicrophone,
   IconMicrophoneOff,
-  IconUser,
+  IconPlayerPause,
+  IconPlayerPlay,
 } from '@tabler/icons-react';
-import { Button, ButtonProps, cn } from 'erxes-ui';
+import { Button, ButtonProps, cn, Popover } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import { useSip } from '@/integrations/call/components/SipProvider';
@@ -66,10 +67,10 @@ export const InCall = ({
       <Transfer />
       <div className="grid grid-cols-5 p-1 gap-1 items-stretch border-b-0">
         <Mute />
+        <Hold />
         <TransferTrigger />
         <Detail />
         <KeypadTrigger />
-        <SelectCustomer />
       </div>
       <div className="px-3 pb-6">
         <Button
@@ -159,22 +160,71 @@ export const Detail = () => {
   );
 };
 
+const DTMF_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
+
 export const KeypadTrigger = () => {
   const { t } = useTranslation('frontline');
+  const { sendDtmf } = useSip();
+  const sip = useAtomValue(sipStateAtom);
+  const [sentTones, setSentTones] = useState('');
+
+  const handleKey = (key: string) => {
+    sendDtmf(key);
+    setSentTones((prev) => (prev + key).slice(-20));
+  };
+
   return (
-    <InCallActionButton>
-      <IconDialpad />
-      {t('keypad')}
-    </InCallActionButton>
+    <Popover onOpenChange={(open) => !open && setSentTones('')}>
+      <Popover.Trigger asChild>
+        <InCallActionButton disabled={sip.callStatus !== CallStatusEnum.ACTIVE}>
+          <IconDialpad />
+          {t('keypad')}
+        </InCallActionButton>
+      </Popover.Trigger>
+      <Popover.Content className="w-48 p-2" align="center">
+        <div className="h-7 mb-1 text-center font-medium leading-7 tracking-widest truncate">
+          {sentTones}
+        </div>
+        <div className="grid grid-cols-3 gap-1">
+          {DTMF_KEYS.map((key) => (
+            <Button
+              key={key}
+              variant="secondary"
+              className="h-9 text-base font-semibold"
+              onClick={() => handleKey(key)}
+            >
+              {key}
+            </Button>
+          ))}
+        </div>
+      </Popover.Content>
+    </Popover>
   );
 };
 
-export const SelectCustomer = () => {
+export const Hold = () => {
   const { t } = useTranslation('frontline');
+  const { hold, unhold, isHeld } = useSip();
+  const sip = useAtomValue(sipStateAtom);
+  const [isHeldState, setIsHeldState] = useState(!!isHeld().localHold);
+
+  const handleClick = () => {
+    if (isHeld().localHold) {
+      unhold();
+    } else {
+      hold();
+    }
+    setTimeout(() => setIsHeldState(!!isHeld().localHold), 100);
+  };
+
   return (
-    <InCallActionButton>
-      <IconUser />
-      {t('select')} <br/> {t('customer')}
+    <InCallActionButton
+      onClick={handleClick}
+      disabled={sip.callStatus !== CallStatusEnum.ACTIVE}
+      className={cn(isHeldState && 'text-warning hover:text-warning')}
+    >
+      {isHeldState ? <IconPlayerPlay /> : <IconPlayerPause />}
+      {isHeldState ? t('unhold') : t('hold')}
     </InCallActionButton>
   );
 };

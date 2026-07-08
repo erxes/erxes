@@ -1,5 +1,16 @@
 export type TPropertyInputMeta = Record<string, unknown>;
 
+export type TActivityRowProps = {
+  activity: {
+    _id: string;
+    activityType: string;
+    sourcePlugin?: string;
+    createdAt: string | Date;
+    metadata?: Record<string, any>;
+    [key: string]: any;
+  };
+};
+
 export type TPropertyInputProps = {
   value: string;
   onValueChange: (value: string) => void;
@@ -36,6 +47,7 @@ export type IUIConfig = {
       icon?: React.ElementType;
     }[];
     propertyInputs?: Record<string, React.ComponentType<TPropertyInputProps>>;
+    activityRows?: Record<string, React.ComponentType<TActivityRowProps>>;
   };
   modules?: {
     name: string;

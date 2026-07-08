@@ -1,9 +1,10 @@
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { TagsDelete } from './delete/TagsDelete';
+import { TagsBulkColor } from './bulk-color/TagsBulkColor';
 
 interface TagsCommandBarProps {
-  onBulkDelete: (ids: string[]) => Promise<void> | void;
+  onBulkDelete?: (ids: string[]) => Promise<void> | void;
 }
 
 export const TagsCommandBar = ({ onBulkDelete }: TagsCommandBarProps) => {
@@ -18,12 +19,18 @@ export const TagsCommandBar = ({ onBulkDelete }: TagsCommandBarProps) => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{t('x-selected', { count: selectedRows.length })}</CommandBar.Value>
+        {onBulkDelete && (
+          <>
+            <Separator.Inline />
+            <TagsDelete
+              selectedIds={selectedIds}
+              selectedRows={selectedRows}
+              onBulkDelete={onBulkDelete}
+            />
+          </>
+        )}
         <Separator.Inline />
-        <TagsDelete
-          selectedIds={selectedIds}
-          selectedRows={selectedRows}
-          onBulkDelete={onBulkDelete}
-        />
+        <TagsBulkColor />
       </CommandBar.Bar>
     </CommandBar>
   );

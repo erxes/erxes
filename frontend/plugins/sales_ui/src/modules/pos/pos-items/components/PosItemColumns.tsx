@@ -4,6 +4,7 @@ import {
   IconLabel,
   IconClock,
   IconUser,
+  TablerIcon,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -21,15 +22,23 @@ import { useTranslation } from 'react-i18next';
 const fmt = (val: number | null | undefined) =>
   val != null ? val.toLocaleString() : '0';
 
+const PosItemHeaderCell = ({
+  icon,
+  label,
+}: {
+  icon: TablerIcon;
+  label: string;
+}) => {
+  const { t } = useTranslation('sales');
+  return <RecordTable.InlineHead icon={icon} label={t(label)} />;
+};
+
 export const PosItemColumns: ColumnDef<IPosItem>[] = [
   PosItemMoreColumn,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('number')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconLabel} label="number" />,
     cell: ({ cell, row }) => (
       <ClickableBillNumber value={cell.getValue() as string} row={row} />
     ),
@@ -37,10 +46,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('created-date')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconLabel} label="created-date" />,
     cell: ({ cell }) => {
       const val = cell.getValue() as string;
       return (
@@ -56,10 +62,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'createdTime',
     accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconLabel} label={t('created-time')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconLabel} label="created-time" />,
     cell: ({ cell }) => {
       const val = cell.getValue() as string;
       return (
@@ -75,10 +78,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'posName',
     accessorKey: 'posName',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconBuilding} label={t('pos')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconBuilding} label="pos" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -89,10 +89,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'branch',
     accessorKey: 'branch',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconChartBar} label={t('branch')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconChartBar} label="branch" />,
     cell: ({ row }) => {
       const b = row.original.branch;
       return (
@@ -106,10 +103,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'department',
     accessorKey: 'department',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconClock} label={t('department')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconClock} label="department" />,
     cell: ({ row }) => {
       const d = row.original.department;
       return (
@@ -123,10 +117,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'user',
     accessorKey: 'user',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('cashier')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="cashier" />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={row.original.user?.email || ''} />
@@ -137,10 +128,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('type')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="type" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="default">{(cell.getValue() as string) || ''}</Badge>
@@ -151,10 +139,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'billType',
     accessorKey: 'billType',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('bill-type')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="bill-type" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -165,10 +150,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'registerNumber',
     accessorKey: 'registerNumber',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('company-rd')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="company-rd" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -179,10 +161,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'customerType',
     accessorKey: 'customerType',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('customer-type')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="customer-type" />,
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
       return (
@@ -196,10 +175,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'customer',
     accessorKey: 'customer.primaryEmail',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('customer')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="customer" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
@@ -209,10 +185,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'barcode',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('barcode')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="barcode" />,
     cell: ({ row }) => {
       const item = row.original.items;
       const barcodes = item?.barcodes ?? item?.product?.barcodes ?? [];
@@ -227,10 +200,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'factor',
     accessorKey: 'factor',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('factor')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="factor" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={fmt(cell.getValue() as number)} />
@@ -240,10 +210,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'code',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('code')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="code" />,
     cell: ({ row }) => {
       const item = row.original.items;
       return (
@@ -256,10 +223,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'categoryCode',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('category-code')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="category-code" />,
     cell: ({ row }) => {
       const item = row.original.items;
       return (
@@ -267,6 +231,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
           <TextOverflowTooltip
             value={
               item?.productCategoryCode ||
+              item?.productCategory?.code ||
               item?.product?.productCategory?.code ||
               ''
             }
@@ -278,10 +243,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'categoryName',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('category-name')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="category-name" />,
     cell: ({ row }) => {
       const item = row.original.items;
       return (
@@ -289,6 +251,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
           <TextOverflowTooltip
             value={
               item?.productCategoryName ||
+              item?.productCategory?.name ||
               item?.product?.productCategory?.name ||
               ''
             }
@@ -300,10 +263,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'name',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('name')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="name" />,
     cell: ({ row }) => {
       const item = row.original.items;
       return (
@@ -316,10 +276,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'count',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('count')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="count" />,
     cell: ({ row }) => {
       const item = row.original.items;
       return (
@@ -334,10 +291,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'firstPrice',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('first-price')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="first-price" />,
     cell: ({ row }) => {
       const item = row.original.items;
       return (
@@ -350,10 +304,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'discount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('discount')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="discount" />,
     cell: ({ row }) => {
       const item = row.original.items;
       return (
@@ -366,13 +317,15 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'discountType',
-    accessorKey: 'discountType',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('discount-type')} />;
-    },
-    cell: ({ cell }) => {
-      const value = cell.getValue() as string;
+    header: () => <PosItemHeaderCell icon={IconUser} label="discount-type" />,
+    cell: ({ row }) => {
+      const item = row.original.items;
+      let value = '';
+      if (item?.discountPercent && item.discountPercent > 0) {
+        value = 'Percent';
+      } else if (item?.discountAmount && item.discountAmount > 0) {
+        value = 'Amount';
+      }
       return (
         <RecordTableInlineCell>
           {value ? <Badge variant="default">{value}</Badge> : ''}
@@ -383,10 +336,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   },
   {
     id: 'salePrice',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('sale-price')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="sale-price" />,
     cell: ({ row }) => {
       const item = row.original.items;
       return (
@@ -400,10 +350,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('amount')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="amount" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={fmt(cell.getValue() as number)} />
@@ -414,10 +361,7 @@ export const PosItemColumns: ColumnDef<IPosItem>[] = [
   {
     id: 'paymentType',
     accessorKey: 'paidAmounts',
-    header: () => {
-      const { t } = useTranslation('sales');
-      return <RecordTable.InlineHead icon={IconUser} label={t('payment-type')} />;
-    },
+    header: () => <PosItemHeaderCell icon={IconUser} label="payment-type" />,
     cell: ({ row }) => {
       const raw = row.original.paidAmounts;
       const paidAmounts: Array<{ type?: string }> = Array.isArray(raw)

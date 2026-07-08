@@ -1,12 +1,15 @@
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CategoriesDelete } from './delete/CategoriesDelete';
+import { CategoriesBulkEdit } from './CategoriesBulkEdit';
 
 interface CategoriesCommandBarProps {
-  onBulkDelete: (ids: string[]) => Promise<void> | void;
+  clientPortalId: string;
+  onBulkDelete?: (ids: string[]) => Promise<void> | void;
 }
 
 export const CategoriesCommandBar = ({
+  clientPortalId,
   onBulkDelete,
 }: CategoriesCommandBarProps) => {
   const { t } = useTranslation('content');
@@ -20,12 +23,18 @@ export const CategoriesCommandBar = ({
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{t('x-selected', { count: selectedRows.length })}</CommandBar.Value>
+        {onBulkDelete && (
+          <>
+            <Separator.Inline />
+            <CategoriesDelete
+              selectedIds={selectedIds}
+              selectedRows={selectedRows}
+              onBulkDelete={onBulkDelete}
+            />
+          </>
+        )}
         <Separator.Inline />
-        <CategoriesDelete
-          selectedIds={selectedIds}
-          selectedRows={selectedRows}
-          onBulkDelete={onBulkDelete}
-        />
+        <CategoriesBulkEdit clientPortalId={clientPortalId} />
       </CommandBar.Bar>
     </CommandBar>
   );

@@ -18,6 +18,7 @@ import {
   IconChevronRight,
   IconDownload,
 } from '@tabler/icons-react';
+import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import {
@@ -34,7 +35,6 @@ import {
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { ColumnDef, Cell } from '@tanstack/react-table';
-import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import { useTicketExport } from '@/report/hooks/useTicketExport';
 import { generateTicketExcel, downloadExcel } from '@/report/utils/exportCsv';
 import { getTicketPropertyFilterVariables } from '@/report/utils';
@@ -346,17 +346,37 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
     ),
   },
   {
-    id: 'priority',
-    header: 'Priority',
-    accessorKey: 'priority',
-    size: 80,
+    id: 'status',
+    header: 'Status',
+    accessorKey: 'status',
+    size: 160,
     cell: ({ cell }) => {
-      const priority = cell.getValue() as number;
-      const label = PROJECT_PRIORITIES_OPTIONS[priority] || 'Unknown';
+      const status = cell.getValue<TicketListItem['status']>();
+
+      if (!status) {
+        return (
+          <RecordTableInlineCell className="flex items-center justify-center">
+            <span className="text-xs text-muted-foreground">—</span>
+          </RecordTableInlineCell>
+        );
+      }
+
       return (
         <RecordTableInlineCell className="flex items-center justify-center">
-          <Badge variant="secondary" className="text-xs">
-            {label}
+          <Badge
+            variant="secondary"
+            className="text-xs gap-1 max-w-40 truncate"
+            style={{
+              backgroundColor: status.color ? `${status.color}1a` : undefined,
+              color: status.color,
+            }}
+          >
+            <StatusInlineIcon
+              statusType={status.type}
+              color={status.color}
+              className="size-3"
+            />
+            <span className="truncate">{status.name}</span>
           </Badge>
         </RecordTableInlineCell>
       );
@@ -423,7 +443,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
 ];
 
-const TicketMoreCell = ({ cell }: { cell: Cell<TicketListItem, any> }) => {
+const TicketMoreCell = ({ cell }: { cell: Cell<TicketListItem, unknown> }) => {
   const { _id } = cell.row.original || {};
   const navigate = useNavigate();
   return (

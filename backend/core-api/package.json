@@ -18,6 +18,7 @@
     "@sentry/node": "^10.55.0",
     "@workos-inc/node": "^7.65.0",
     "bcryptjs": "^3.0.2",
+    "bwip-js": "^4.11.1",
     "erxes-api-shared": "workspace:^",
     "firebase-admin": "^13.6.0",
     "formidable": "^3.5.4",
