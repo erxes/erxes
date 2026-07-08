@@ -367,7 +367,9 @@ export const EMConfig = () => {
                   name="knowledgeBaseTopicId"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('select-knowledge-base-topic')}</Form.Label>
+                      <Form.Label>
+                        {t('select-knowledge-base-topic')}
+                      </Form.Label>
                       <Form.Control>
                         <SelectKnowledgeBaseTopic field={field} />
                       </Form.Control>
@@ -452,7 +454,9 @@ const PersistentMenu = ({
                           </Select.Trigger>
                         </Form.Control>
                         <Select.Content>
-                          <Select.Item value="button">{t('button')}</Select.Item>
+                          <Select.Item value="button">
+                            {t('button')}
+                          </Select.Item>
                           <Select.Item value="link">{t('link')}</Select.Item>
                         </Select.Content>
                       </Select>
@@ -497,7 +501,9 @@ const PersistentMenu = ({
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Form.Control>
                         <Select.Trigger>
-                          <Select.Value placeholder={t('select-content-type')} />
+                          <Select.Value
+                            placeholder={t('select-content-type')}
+                          />
                         </Select.Trigger>
                       </Form.Control>
                       <Select.Content>
@@ -626,17 +632,15 @@ const SelectMessengerAutomation = ({
           {loading
             ? t('loading')
             : selected
-            ? selected.name
-            : t('select-an-automation')}
+              ? selected.name
+              : t('select-an-automation')}
         </span>
       </Combobox.Trigger>
       <Combobox.Content>
         <Command>
           <Command.List>
             <Command.Input placeholder={t('search-automation')} />
-            <Command.Empty>
-              {t('no-automations-found')}
-            </Command.Empty>
+            <Command.Empty>{t('no-automations-found')}</Command.Empty>
             {automations.map((automation) => (
               <Command.Item
                 key={automation._id}
@@ -672,7 +676,9 @@ const SelectKnowledgeBaseTopic = ({
   const [_open, _setOpen] = useState<boolean>(false);
   const { topics } = useTopics();
   const selectedTopic = (field.value?.length &&
-    topics?.find((topic) => topic._id === field.value)) || { title: t('select-a-topic') };
+    topics?.find((topic) => topic._id === field.value)) || {
+    title: t('select-a-topic'),
+  };
 
   console.log('topic', field.value);
 
