@@ -65,7 +65,10 @@ export const resolveFromSourceField =
       defaultValue,
     });
 
-export const matchAutomationResolverKey = (resolverKey: string, path: string) =>
+export const matchAutomationResolverKey = (
+  resolverKey: string,
+  path: string,
+) =>
   resolverKey.endsWith('.*')
     ? path.startsWith(resolverKey.slice(0, -1))
     : resolverKey === path;
@@ -349,7 +352,7 @@ const resolveOutputPathsFromDefinition = async ({
         | undefined;
 
       result[path] = field
-        ? propertiesData?.[field._id] ?? defaultValue
+        ? (propertiesData?.[field._id] ?? defaultValue)
         : defaultValue;
       continue;
     }
@@ -832,7 +835,7 @@ const replaceOutputPlaceholderValue = (
       return resolved;
     }
 
-    return keepUnresolvedPlaceholders ? defaultValue ?? value : defaultValue;
+    return keepUnresolvedPlaceholders ? (defaultValue ?? value) : defaultValue;
   }
 
   // Otherwise replace placeholders in curly -> bracket order.

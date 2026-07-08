@@ -174,8 +174,8 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
             {isLoading
               ? 'Saving...'
               : isEditing
-              ? 'Update Template'
-              : 'Create Template'}
+                ? 'Update Template'
+                : 'Create Template'}
           </Button>
         }
       />

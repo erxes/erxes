@@ -167,7 +167,9 @@ const hasTableCellContent = (cell: EmailTableCell) => {
   return renderInlineContent(content).trim() !== '';
 };
 
-const renderTableBlock = (content?: EmailInlineContent[] | EmailTableContent) => {
+const renderTableBlock = (
+  content?: EmailInlineContent[] | EmailTableContent,
+) => {
   if (!content || Array.isArray(content)) {
     return '';
   }
@@ -275,8 +277,8 @@ export const renderEmailBlocks = (blocks: readonly EmailEditorBlock[]) => {
       block.type === 'bulletListItem'
         ? 'ul'
         : block.type === 'numberedListItem'
-        ? 'ol'
-        : null;
+          ? 'ol'
+          : null;
 
     if (tag) {
       if (listTag !== tag) {

@@ -248,12 +248,12 @@ export const generateBotData = (
     type === 'image'
       ? [image]
       : type === 'video'
-      ? [video || '']
-      : type === 'audio'
-      ? [audio || '']
-      : type === 'attachments'
-      ? (attachments || []).map(({ url }) => url)
-      : [];
+        ? [video || '']
+        : type === 'audio'
+          ? [audio || '']
+          : type === 'attachments'
+            ? (attachments || []).map(({ url }) => url)
+            : [];
 
   for (const mediaUrl of mediaUrls.filter(Boolean)) {
     botData.push({

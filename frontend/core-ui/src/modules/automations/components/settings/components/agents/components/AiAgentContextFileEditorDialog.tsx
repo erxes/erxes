@@ -255,10 +255,7 @@ export const AiAgentContextFileEditorDialog = ({
           </div>
 
           <div className="min-h-0 min-w-0 bg-muted/20">
-            <ScrollArea
-              className="h-full"
-              viewportClassName="[&>div]:!block"
-            >
+            <ScrollArea className="h-full" viewportClassName="[&>div]:!block">
               <div className="space-y-4 p-6">
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Current File</h3>

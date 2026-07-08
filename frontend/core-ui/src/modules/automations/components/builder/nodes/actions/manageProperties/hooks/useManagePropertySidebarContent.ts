@@ -45,7 +45,8 @@ export const useManagePropertySidebarContent = (
   const sourceType = normalizeAutomationSourceType(
     selectedActionType || trigger?.type,
   );
-  const { propertyTypes, loading } = useAutomationSetPropertyTargets(sourceType);
+  const { propertyTypes, loading } =
+    useAutomationSetPropertyTargets(sourceType);
   const defaultPropertyType = propertyTypes[0]?.value || sourceType;
   const normalizedModule = normalizeAutomationSourceType(module);
   const propertyType = normalizedModule || defaultPropertyType;

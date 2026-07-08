@@ -38,7 +38,9 @@ const StatusHeader = () => {
 
 const CreatedAtHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />;
+  return (
+    <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />
+  );
 };
 
 export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [

@@ -151,10 +151,10 @@ const hasMatchingStatusCondition = (
 
   return Boolean(
     action &&
-      conditions.some(
-        (condition) =>
-          condition.type === 'status' && condition.actions.includes(action),
-      ),
+    conditions.some(
+      (condition) =>
+        condition.type === 'status' && condition.actions.includes(action),
+    ),
   );
 };
 

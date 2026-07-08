@@ -175,7 +175,9 @@ const buildCaptureAttributes = (
   rawAttributes: unknown,
 ) => {
   const source =
-    rawAttributes && typeof rawAttributes === 'object' && !Array.isArray(rawAttributes)
+    rawAttributes &&
+    typeof rawAttributes === 'object' &&
+    !Array.isArray(rawAttributes)
       ? (rawAttributes as Record<string, unknown>)
       : {};
 

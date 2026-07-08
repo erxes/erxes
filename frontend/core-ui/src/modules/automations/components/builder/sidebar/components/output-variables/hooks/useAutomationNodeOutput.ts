@@ -118,8 +118,8 @@ export const useAutomationNodeOutput = (
       ? sourceNodeConfig?.goalType === 'classification'
         ? sourceNodeConfig?.objectFields
         : sourceNodeConfig?.goalType === 'generateText'
-        ? sourceNodeConfig?.captureFields
-        : []
+          ? sourceNodeConfig?.captureFields
+          : []
       : [];
 
   const aiAgentAttributeFields = (aiAgentFieldDefinitions || [])
