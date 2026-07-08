@@ -4,7 +4,7 @@ import { IFavorites } from '@/organization/settings/db/definitions/favorites';
 export const favoriteMutations = {
   toggleFavorite: async (
     _parent: undefined,
-    { type, path }: IFavorites,
+    { type, path, label }: IFavorites,
     { models, user }: IContext,
   ) => {
     const favorite = await models.Favorites.getFavorites({
@@ -24,6 +24,7 @@ export const favoriteMutations = {
         type,
         path,
         userId: user._id,
+        label,
       });
     }
   },

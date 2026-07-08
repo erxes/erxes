@@ -242,12 +242,10 @@ export const SelectCategoriesFilterView = ({
 };
 
 export const SelectCategoriesFilterBar = ({
-  iconOnly,
   onValueChange,
   mode = 'single',
   clientPortalId,
 }: {
-  iconOnly?: boolean;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   clientPortalId?: string;
@@ -260,7 +258,10 @@ export const SelectCategoriesFilterBar = ({
 
   return (
     <Filter.BarItem queryKey={'categories'}>
-      <Filter.BarName>{t('categories')}</Filter.BarName>
+      <Filter.BarName>
+        <IconFolder />
+        {t('categories')}
+      </Filter.BarName>
       <SelectCategoriesProvider
         mode={mode}
         value={categories || (mode === 'single' ? '' : [])}

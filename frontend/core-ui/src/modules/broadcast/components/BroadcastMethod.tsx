@@ -43,7 +43,6 @@ export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
           <DropdownMenu.RadioItem
             value="notification"
             className="cursor-pointer"
-            disabled
           >
             <div className="flex flex-col  gap-1 p-2">
               <Label variant="peer">Notification</Label>

@@ -1,8 +1,8 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { IChannelMember } from '@/channels/types';
-import { useQueryState, Skeleton } from 'erxes-ui';
-import { IconBrandTrello } from '@tabler/icons-react';
+import { Skeleton, useQueryState } from 'erxes-ui';
+import { IconBrandTrello, IconSearchOff } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { ChannelCard } from './ChannelCard';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +42,24 @@ export function Channels() {
   }
 
   if (!loading && (!channels || channels.length === 0)) {
+    if (searchValue) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+          <IconSearchOff
+            size={48}
+            stroke={1.5}
+            className="text-muted-foreground"
+          />
+          <p className="text-sm font-medium text-accent-foreground">
+            No channels match &ldquo;{searchValue}&rdquo;
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Try a different term or clear the search
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="overflow-hidden h-full px-8 flex flex-col">
         <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
@@ -63,17 +81,9 @@ export function Channels() {
     );
   }
 
-  const channelCount = channels?.length ?? 0;
-
   return (
     <div className="overflow-auto h-full">
       <div className="mx-auto w-full max-w-7xl px-6 py-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-foreground">
-            All channels
-            <span className="ml-1.5 text-muted-foreground">{channelCount}</span>
-          </h2>
-        </div>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
           {(channels ?? []).map((channel) => (
             <ChannelCard

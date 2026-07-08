@@ -160,22 +160,4 @@ export const getMsDynamicConfigColumns = (
     cell: ({ cell }) => <MSDynamicStageCell cell={cell} />,
     size: 220,
   },
-  {
-    id: 'posConf',
-    accessorKey: 'posConf',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label={t('pos-config')} />
-    ),
-    cell: ({ cell }) => <MSDynamicTextCell cell={cell} />,
-    size: 220,
-  },
-  {
-    id: 'productUrl',
-    accessorKey: 'productUrl',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLink} label={t('product-url')} />
-    ),
-    cell: ({ cell }) => <MSDynamicTextCell cell={cell} />,
-    size: 280,
-  },
 ];

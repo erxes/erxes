@@ -10,7 +10,7 @@ export const AutoamtionConfigFormFooter = ({
   disabledToSave?: boolean;
 }) => {
   return (
-    <div className="p-2 flex justify-end border-t bg-background">
+    <div className="shrink-0 border-t bg-background p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] flex justify-end">
       <Button disabled={disabledToSave} onClick={onSave}>
         {label}
       </Button>

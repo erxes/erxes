@@ -38,6 +38,7 @@ export const types = `
         _id: String
         createdAt: Date
         activityType: String
+        sourcePlugin: String
         actorType: String
         actor: JSON
         targetType: String
@@ -139,6 +140,7 @@ export const queries = `
     logsMainList(${commonQueryParams}):MainLogsList
     logsGetContentTypes: [LogContentType!]!
     logDetail(_id:String!):Log
+    logsRevertPreview(processId: String!): LogRevertResult
 `;
 
 export const mutations = `

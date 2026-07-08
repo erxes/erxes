@@ -1,7 +1,13 @@
 import { JournalEnum } from '@/settings/account/types/Account';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Dialog, Form, Spinner, useQueryState } from 'erxes-ui';
-import { useEffect } from 'react';
+import {
+  IconArrowDownLeft,
+  IconArrowUpRight,
+  IconExternalLink,
+  IconShoppingCart,
+} from '@tabler/icons-react';
+import { Button, Form, Spinner, useQueryState } from 'erxes-ui';
+import { ReactNode, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -53,155 +59,177 @@ export const EditSafeRemainder = () => {
         className="p-6 flex-auto overflow-auto"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
-        <h5 className="">
-          Орлого:{' '}
-          {safeRemainder?.incomeTrId ? (
-            <Link
-              className="text-blue-500 underline"
-              to={`/accounting/transaction/edit?parentId=${safeRemainder.incomeTrId}&trId=${safeRemainder.incomeTrId}}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ( Гүйлгээ )
-            </Link>
-          ) : (
-            ''
-          )}
-        </h5>
-        <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
-          <Form.Field
-            control={form.control}
-            name="incomeRule.accountId"
-            render={({ field }) => (
-              <Form.Item className="col-span-2">
-                <Form.Label>{t('account')}</Form.Label>
-                <Form.Control>
-                  <SelectAccount
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                    defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                    mode="single"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </div>
-        <h5 className="">
-          Зарлага:{' '}
-          {safeRemainder?.outTrId ? (
-            <Link
-              className="text-blue-500 underline"
-              to={`/accounting/transaction/edit?parentId=${safeRemainder.outTrId}&trId=${safeRemainder.outTrId}}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ( Гүйлгээ )
-            </Link>
-          ) : (
-            ''
-          )}
-        </h5>
-        <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
-          <Form.Field
-            control={form.control}
-            name="outRule.accountId"
-            render={({ field }) => (
-              <Form.Item className="col-span-2">
-                <Form.Label>{t('account')}</Form.Label>
-                <Form.Control>
-                  <SelectAccount
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                    mode="single"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </div>
-        <h5 className="">
-          Борлуулалт:{' '}
-          {safeRemainder?.saleTrId ? (
-            <Link
-              className="text-blue-500 underline"
-              to={`/accounting/transaction/edit?parentId=${safeRemainder.saleTrId}&trId=${safeRemainder.saleTrId}}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ( Гүйлгээ )
-            </Link>
-          ) : (
-            ''
-          )}
-        </h5>
-        <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
-          <Form.Field
-            control={form.control}
-            name="saleRule.outAccountId"
-            render={({ field }) => (
-              <Form.Item className="col-span-2">
-                <Form.Label>{t('account')}</Form.Label>
-                <Form.Control>
-                  <SelectAccount
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                    mode="single"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={form.control}
-            name="saleRule.costAccountId"
-            render={({ field }) => (
-              <Form.Item className="col-span-2">
-                <Form.Label>{t('cost-account')}</Form.Label>
-                <Form.Control>
-                  <SelectAccount
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-                    mode="single"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={form.control}
-            name="saleRule.accountId"
-            render={({ field }) => (
-              <Form.Item className="col-span-2">
-                <Form.Label>{t('sale-account')}</Form.Label>
-                <Form.Control>
-                  <SelectAccount
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-                    mode="single"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </div>
+        <div className="max-w-3xl space-y-4">
+          <RuleSection
+            title="Орлого"
+            icon={<IconArrowDownLeft size={16} />}
+            trId={safeRemainder?.incomeTrId}
+          >
+            <Form.Field
+              control={form.control}
+              name="incomeRule.accountId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('account')}</Form.Label>
+                  <Form.Control>
+                    <SelectAccount
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                      defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                      mode="single"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </RuleSection>
 
-        <Dialog.Footer className="col-span-2 mt-4">
-          <Button type="submit" size="lg" disabled={loading}>
-            {loading && <Spinner />}
-            {t('save')}
-          </Button>
-        </Dialog.Footer>
+          <RuleSection
+            title="Зарлага"
+            icon={<IconArrowUpRight size={16} />}
+            trId={safeRemainder?.outTrId}
+          >
+            <Form.Field
+              control={form.control}
+              name="outRule.accountId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('account')}</Form.Label>
+                  <Form.Control>
+                    <SelectAccount
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                      mode="single"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </RuleSection>
+
+          <RuleSection
+            title="Борлуулалт"
+            icon={<IconShoppingCart size={16} />}
+            trId={safeRemainder?.saleTrId}
+          >
+            <Form.Field
+              control={form.control}
+              name="saleRule.outAccountId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('account')}</Form.Label>
+                  <Form.Control>
+                    <SelectAccount
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                      mode="single"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="saleRule.costAccountId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('cost-account')}</Form.Label>
+                  <Form.Control>
+                    <SelectAccount
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
+                      mode="single"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="saleRule.accountId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('sale-account')}</Form.Label>
+                  <Form.Control>
+                    <SelectAccount
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
+                      mode="single"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </RuleSection>
+
+          <div className="flex justify-end pt-2">
+            <Button type="submit" size="lg" disabled={loading}>
+              {loading && <Spinner />}
+              {t('save')}
+            </Button>
+          </div>
+        </div>
       </form>
     </Form>
+  );
+};
+
+const RuleSection = ({
+  title,
+  description,
+  icon,
+  trId,
+  children,
+}: {
+  title: string;
+  description?: string;
+  icon?: ReactNode;
+  trId?: string;
+  children: ReactNode;
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="flex items-center justify-between gap-2 border-b bg-muted/40 px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          {icon && (
+            <div className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+              {icon}
+            </div>
+          )}
+          <div>
+            <h5 className="text-sm font-semibold leading-none">{title}</h5>
+            {description && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+        {trId && (
+          <Link
+            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            to={`/accounting/transaction/edit?parentId=${trId}&trId=${trId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconExternalLink size={14} />
+            {t('transaction')}
+          </Link>
+        )}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        {children}
+      </div>
+    </div>
   );
 };

@@ -86,4 +86,13 @@ export const cpUsersTrpcRouter = t.router({
         return null;
       }),
   }),
+  clientPortals: t.router({
+    get: t.procedure
+      .input(z.object({ _id: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        return models.ClientPortal.findOne({ _id: input._id }).lean();
+      }),
+  }),
 });

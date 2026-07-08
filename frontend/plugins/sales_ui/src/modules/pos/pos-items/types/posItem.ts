@@ -83,6 +83,10 @@ export interface IPosItem extends IFields {
       name?: string;
     };
     productCode?: string;
+    productCategory?: {
+      code?: string;
+      name?: string;
+    };
     productCategoryCode?: string;
     productCategoryName?: string;
     productName?: string;

@@ -1,7 +1,10 @@
 import { IContext, IModels } from '~/connectionResolvers';
 import dayjs from 'dayjs';
-import { cursorPaginate } from 'erxes-api-shared/utils';
-import { getAllowedProducts } from '../../../utils/product';
+import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getAllowedProducts,
+  getProductIdsForPlan,
+} from '../../../utils/product';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { checkPricing } from '../../../utils';
 
@@ -43,7 +46,7 @@ const applyProductIdFilter = async (
   const plans: IPricingPlanDocument[] = await models.PricingPlans.find(
     baseFilter,
   ).sort({
-    isPriority: 1,
+    priority: 1,
     value: 1,
   });
 
@@ -57,19 +60,6 @@ const applyProductIdFilter = async (
   }
 
   return { ...baseFilter, _id: { $in: planIds } };
-};
-
-const applyPrioritizeRuleFilter = (
-  filter: Record<string, any>,
-  prioritizeRule?: 'only' | 'exclude',
-): Record<string, any> => {
-  if (prioritizeRule === 'only') {
-    return { ...filter, isPriority: true };
-  }
-  if (prioritizeRule === 'exclude') {
-    return { ...filter, isPriority: false };
-  }
-  return filter;
 };
 
 const applyBooleanFilters = (
@@ -111,24 +101,27 @@ const generateFilter = async (
   models: IModels,
   params: {
     status?: string;
+    priority?: string;
     branchId?: string;
     departmentId?: string;
     date?: string | Date;
     productId?: string;
-    prioritizeRule?: 'only' | 'exclude';
     isQuantityEnabled?: boolean;
     isPriceEnabled?: boolean;
     isExpiryEnabled?: boolean;
     isRepeatEnabled?: boolean;
   },
 ): Promise<Record<string, any>> => {
-  const { status, branchId, departmentId, date, productId, prioritizeRule } =
-    params;
+  const { status, priority, branchId, departmentId, date, productId } = params;
 
   let filter: Record<string, any> = {};
 
   if (status && status !== 'all') {
     filter.status = status;
+  }
+
+  if (priority !== undefined && priority !== 'all') {
+    filter.priority = priority;
   }
 
   if (branchId) {
@@ -144,8 +137,6 @@ const generateFilter = async (
   if (date) {
     filter.$or = buildDateFilter(date);
   }
-
-  filter = applyPrioritizeRuleFilter(filter, prioritizeRule);
 
   if (productId) {
     filter = await applyProductIdFilter(subdomain, models, filter, productId);
@@ -234,6 +225,117 @@ export const pricingPlanQueries = {
     return await models.PricingPlans.getPricingPlan(id);
   },
 
+  pricingFixedValuesPage: async (
+    _root: any,
+    {
+      pricingPlanId,
+      page = 1,
+      perPage = 50,
+      search = '',
+    }: {
+      pricingPlanId: string;
+      page?: number;
+      perPage?: number;
+      search?: string;
+    },
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('pricingPlanView');
+
+    const plan = await models.PricingPlans.getPricingPlan(pricingPlanId);
+
+    // Load all fixed values for this plan — small documents, no limit needed
+    const allFixedValues = await models.PricingFixedValues.find({
+      pricingPlanId,
+    })
+      .sort({ sortField: 1 })
+      .lean();
+
+    const fixedByProductId = new Map(
+      allFixedValues.map((fv) => [fv.productId, fv]),
+    );
+
+    // Get all product IDs that belong to this plan
+    const planProductIds = await getProductIdsForPlan(subdomain, plan);
+    const planProductIdSet = new Set(planProductIds);
+
+    // Stale: have a saved fixed value but product no longer on the plan
+    const staleProductIds = allFixedValues
+      .filter((fv) => !planProductIdSet.has(fv.productId ?? ''))
+      .map((fv) => fv.productId);
+
+    // Full list: plan products first (sorted by their fixed value's sortField),
+    // then stale products at the end
+    let candidateProductIds = [...planProductIds, ...staleProductIds];
+
+    // Server-side search — filter by sortField (product code) from fixed values
+    if (search) {
+      const lower = search.toLowerCase();
+      const matchedByCode = new Set(
+        allFixedValues
+          .filter((fv) => fv.sortField?.toLowerCase().includes(lower))
+          .map((fv) => fv.productId),
+      );
+      const nameMatches: any[] = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'products',
+        action: 'find',
+        input: { query: { name: { $regex: search, $options: 'i' } } },
+        defaultValue: [],
+      });
+      const matchedByName = new Set(
+        nameMatches.map((p: any) => p._id.toString()),
+      );
+      candidateProductIds = candidateProductIds.filter(
+        (id) => matchedByCode.has(id) || matchedByName.has(id),
+      );
+    }
+
+    const totalCount = candidateProductIds.length;
+    const skip = (page - 1) * perPage;
+    const pageProductIds = candidateProductIds.slice(skip, skip + perPage);
+
+    if (!pageProductIds.length) {
+      return { list: [], totalCount };
+    }
+
+    // Fetch product details from core for this page only
+    const products: any[] = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: { query: { _id: { $in: pageProductIds } } },
+      defaultValue: [],
+    });
+
+    const productById = new Map(products.map((p) => [p._id.toString(), p]));
+
+    const list = pageProductIds.map((productId) => {
+      const product = productById.get(productId);
+      const fixedValue = fixedByProductId.get(productId);
+      const isActive = planProductIdSet.has(productId ?? '');
+
+      let status = 'NEW';
+      if (fixedValue && isActive) status = 'SAVED';
+      else if (fixedValue && !isActive) status = 'STALE';
+
+      return {
+        _id: fixedValue?._id?.toString() || null,
+        productId,
+        productName: product?.name || `Unknown (${productId})`,
+        sortField: fixedValue?.sortField || product?.code || '',
+        uom: product?.uom || fixedValue?.uom || '',
+        unitPrice: product?.unitPrice ?? fixedValue?.unitPrice ?? 0,
+        newPrice: fixedValue?.newPrice ?? product?.unitPrice ?? 0,
+        status,
+      };
+    });
+
+    return { list, totalCount };
+  },
+
   pricingCheckDiscount: async (
     _root: any,
     params: {
@@ -242,6 +344,10 @@ export const pricingPlanQueries = {
       departmentId: string;
       branchId: string;
       pipelineId: string;
+      customerType?: 'customer' | 'company' | 'user';
+      customerId?: string;
+      brokerType?: 'customer' | 'company' | 'user';
+      brokerId?: string;
       products: Array<{
         itemId: string;
         productId: string;
@@ -259,6 +365,10 @@ export const pricingPlanQueries = {
       branchId,
       products,
       pipelineId,
+      customerType,
+      customerId,
+      brokerType,
+      brokerId,
     } = params;
 
     return checkPricing({
@@ -270,6 +380,10 @@ export const pricingPlanQueries = {
       branchId,
       pipelineId,
       orderItems: products || [],
+      customerType,
+      customerId,
+      brokerType,
+      brokerId,
     });
   },
 };
@@ -277,5 +391,3 @@ export const pricingPlanQueries = {
 (pricingPlanQueries.cpPricingPlans as any).wrapperConfig = {
   forClientPortal: true,
 };
-
-export default pricingPlanQueries;

@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
-
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
 import { Dialog } from 'erxes-ui/components/dialog';
 import { REACT_APP_API_URL } from 'erxes-ui';
-
 import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
-
 import { configs } from './configs/graphql/queries';
 import ConfigFormContainer from './configs/containers/Form';
 

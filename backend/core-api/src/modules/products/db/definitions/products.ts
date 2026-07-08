@@ -100,7 +100,7 @@ export const productSchema = schemaWrapper(
       },
 
       inventories: { type: Object, optional: true },
-      discounts: { type: Object, optional: true },
+      discounts: { type: [Object], optional: true },
       duration: {
         type: Number,
         optional: true,
@@ -128,5 +128,16 @@ export const productSchema = schemaWrapper(
 );
 
 productSchema.index({ _id: 1, createdAt: 1 });
+productSchema.index({ categoryId: 1, status: 1, code: 1 });
+productSchema.index(
+  {
+    name: 'text',
+    shortName: 'text',
+    code: 'text',
+    barcodes: 'text',
+    description: 'text',
+  },
+  { name: 'products_ai_lookup_text' },
+);
 productSchema.index({ similarityId: 1 });
 productSchema.index({ similarityId: 1, code: 1 });

@@ -26,12 +26,15 @@ export const AutomationBuilderWorkspace = () => {
     return <Spinner />;
   }
   return (
-    <Resizable.PanelGroup direction="vertical" className="w-full h-full">
+    <Resizable.PanelGroup
+      direction="vertical"
+      className="h-full min-h-0 w-full"
+    >
       {/* Canvas */}
       <Resizable.Panel
         id="main-canvas"
         minSize={30}
-        className="relative flex flex-row w-full"
+        className="relative flex min-h-0 w-full flex-row overflow-hidden"
       >
         <AutomationBuilderCanvas />
       </Resizable.Panel>
