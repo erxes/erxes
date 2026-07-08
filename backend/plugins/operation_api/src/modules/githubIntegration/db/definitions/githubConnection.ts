@@ -22,5 +22,8 @@ export const githubConnectionSchema = new Schema(
   { timestamps: true },
 );
 
-githubConnectionSchema.index({ installationId: 1, subdomain: 1 }, { unique: true });
+githubConnectionSchema.index(
+  { installationId: 1, subdomain: 1 },
+  { unique: true },
+);
 githubConnectionSchema.index({ isActive: 1, subdomain: 1 });

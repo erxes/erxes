@@ -20,4 +20,7 @@ export const triageSchema = new Schema(
   },
 );
 
-triageSchema.index({ githubRepoName: 1, githubIssueNumber: 1 }, { unique: true, sparse: true });
+triageSchema.index(
+  { githubRepoName: 1, githubIssueNumber: 1 },
+  { unique: true, sparse: true },
+);
