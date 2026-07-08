@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { IconChecklist } from '@tabler/icons-react';
 import { Button, Checkbox, Sheet, Table } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
@@ -62,24 +62,47 @@ export const FxaInstanceSelectionSheet = ({
   );
   const selectedIds: string[] = trDoc?.extraData?.fxaInstanceIds || [];
   const selectedFixedAssetId = detail?.fixedAssetId;
-  const { data } = useQuery<{ fxaInstances: IFxaInstance[] }>(
+  const { data: activeInstancesData } = useQuery<{
+    fxaInstances: IFxaInstance[];
+  }>(
     FXA_INSTANCES_QUERY,
     {
       variables: { fixedAssetIds, status: 'active' },
       skip: !fixedAssetIds.length,
     },
   );
-  const instances = data?.fxaInstances || [];
+  const { data: selectedInstancesData } = useQuery<{
+    fxaInstances: IFxaInstance[];
+  }>(
+    FXA_INSTANCES_QUERY,
+    {
+      variables: { ids: selectedIds },
+      skip: !selectedIds.length,
+    },
+  );
+  const instances = useMemo(() => {
+    const instancesById = new Map<string, IFxaInstance>();
+
+    for (const instance of activeInstancesData?.fxaInstances || []) {
+      instancesById.set(instance._id, instance);
+    }
+
+    for (const instance of selectedInstancesData?.fxaInstances || []) {
+      instancesById.set(instance._id, instance);
+    }
+
+    return Array.from(instancesById.values());
+  }, [activeInstancesData, selectedInstancesData]);
   const { fixedAssets } = useFixedAssets({
-      variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
-      skip: !fixedAssetIds.length,
+    variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
+    skip: !fixedAssetIds.length,
   });
   const fixedAssetsById = new Map(
     (fixedAssets || []).map((fixedAsset) => [fixedAsset._id, fixedAsset]),
   );
 
   useEffect(() => {
-    if (!data) {
+    if (!activeInstancesData || (selectedIds.length && !selectedInstancesData)) {
       return;
     }
 
@@ -92,7 +115,14 @@ export const FxaInstanceSelectionSheet = ({
         nextSelectedIds,
       );
     }
-  }, [data, form, instances, journalIndex, selectedIds]);
+  }, [
+    activeInstancesData,
+    form,
+    instances,
+    journalIndex,
+    selectedIds,
+    selectedInstancesData,
+  ]);
 
   const visibleInstances = selectedFixedAssetId
     ? instances.filter(

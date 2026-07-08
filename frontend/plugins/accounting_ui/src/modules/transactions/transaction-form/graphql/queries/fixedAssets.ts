@@ -18,8 +18,8 @@ export const FIXED_ASSETS_QUERY = gql`
 `;
 
 export const FXA_INSTANCES_QUERY = gql`
-  query FxaInstances($fixedAssetIds: [String], $status: String) {
-    fxaInstances(fixedAssetIds: $fixedAssetIds, status: $status) {
+  query FxaInstances($ids: [String], $fixedAssetIds: [String], $status: String) {
+    fxaInstances(ids: $ids, fixedAssetIds: $fixedAssetIds, status: $status) {
       _id
       fixedAssetId
       code

@@ -5,11 +5,13 @@ const fixedAssets = {
   fxaInstances: async (
     _root: undefined,
     {
+      ids,
       fixedAssetIds,
       status,
       branchId,
       departmentId,
     }: {
+      ids?: string[];
       fixedAssetIds?: string[];
       status?: string;
       branchId?: string;
@@ -18,6 +20,10 @@ const fixedAssets = {
     { models }: IContext,
   ) => {
     const filter: Record<string, unknown> = {};
+
+    if (ids?.length) {
+      filter._id = { $in: ids };
+    }
 
     if (fixedAssetIds?.length) {
       filter.fixedAssetId = { $in: fixedAssetIds };

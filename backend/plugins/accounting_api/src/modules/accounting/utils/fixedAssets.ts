@@ -293,11 +293,15 @@ const getSelectedInstanceIds = async (
 
   const instances = await models.FxaInstances.find({
     _id: { $in: uniqueIds },
-    status: FXA_INSTANCE_STATUSES.ACTIVE,
+    $or: [
+      { status: FXA_INSTANCE_STATUSES.ACTIVE },
+      { transactionId: transaction._id },
+      { disposalTransactionId: transaction._id },
+    ],
   }).lean();
 
   if (instances.length !== uniqueIds.length) {
-    throw new Error('Selected fixed asset instances are not active');
+    throw new Error('Selected fixed asset instances are not available');
   }
 
   const selectedByAsset = new Map<string, number>();

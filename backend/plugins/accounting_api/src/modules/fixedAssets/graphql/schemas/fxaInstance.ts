@@ -40,6 +40,7 @@ export const types = `
 
 export const queries = `
   fxaInstances(
+    ids: [String]
     fixedAssetIds: [String]
     status: String
     branchId: String
