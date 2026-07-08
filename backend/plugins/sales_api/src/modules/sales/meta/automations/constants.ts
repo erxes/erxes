@@ -5,7 +5,71 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateTotalAmount } from './action/generateTotalAmount';
-import { IDeal } from '../../@types';
+import { IDeal, IProductData } from '../../@types';
+
+type TAutomationProductData = IProductData & { maxQuantity?: number };
+
+const PRODUCTS_DATA_FIELD_RESOLVERS: Record<
+  string,
+  (product: TAutomationProductData) => unknown
+> = {
+  _id: (product) => product._id,
+  productId: (product) => product.productId,
+  uom: (product) => product.uom,
+  currency: (product) => product.currency,
+  quantity: (product) => product.quantity,
+  maxQuantity: (product) => product.maxQuantity,
+  unitPrice: (product) => product.unitPrice,
+  globalUnitPrice: (product) => product.globalUnitPrice,
+  unitPricePercent: (product) => product.unitPricePercent,
+  taxPercent: (product) => product.taxPercent,
+  tax: (product) => product.tax,
+  vatPercent: (product) => product.vatPercent,
+  discountPercent: (product) => product.discountPercent,
+  discount: (product) => product.discount,
+  bonusCount: (product) => product.bonusCount,
+  amount: (product) => product.amount,
+  tickUsed: (product) => product.tickUsed,
+  isVatApplied: (product) => product.isVatApplied,
+  assignUserId: (product) => product.assignUserId,
+  branch: (product) => product.branchId,
+  branchId: (product) => product.branchId,
+  department: (product) => product.departmentId,
+  departmentId: (product) => product.departmentId,
+  startDate: (product) => product.startDate,
+  endDate: (product) => product.endDate,
+  parentId: (product) => product.parentId,
+  information: (product) => product.information,
+  extraIds: (product) => product.extraIds,
+};
+
+const formatProductsDataValue = (value: unknown) => {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.length ? value.join(', ') : undefined;
+  }
+
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
+};
+
+const joinProductsDataValues = (values: unknown[]) => {
+  const formattedValues = values
+    .map(formatProductsDataValue)
+    .filter((value): value is string => Boolean(value));
+
+  return formattedValues.length ? formattedValues.join(', ') : undefined;
+};
 
 /**
  * Deal products data stores only productId (name is rarely denormalized), so
@@ -46,6 +110,31 @@ const resolveProductsDataNames = async (subdomain: string, source: IDeal) => {
     .filter(Boolean);
 
   return names.length ? names.join(', ') : undefined;
+};
+
+const resolveProductsDataPath = async (
+  subdomain: string,
+  source: IDeal,
+  path: string,
+) => {
+  const productsData: TAutomationProductData[] = source.productsData || [];
+  const field = path.replace(/^productsData\./, '');
+
+  if (!field) {
+    return resolveProductsDataNames(subdomain, source);
+  }
+
+  if (field === 'name') {
+    return resolveProductsDataNames(subdomain, source);
+  }
+
+  const fieldResolver = PRODUCTS_DATA_FIELD_RESOLVERS[field];
+
+  if (!fieldResolver) {
+    return undefined;
+  }
+
+  return joinProductsDataValues(productsData.map(fieldResolver));
 };
 
 export const SALES_DEAL_FIND_OBJECT_TYPE = 'sales:sales.deals';
@@ -201,12 +290,10 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     propertyType: 'sales:deal',
   },
   resolvers: {
-    productsData: ({ subdomain, source }) => {
-      console.log({ source });
-      const re = resolveProductsDataNames(subdomain, source);
-      console.log({ re });
-      return re;
-    },
+    productsData: ({ subdomain, source }) =>
+      resolveProductsDataNames(subdomain, source),
+    'productsData.*': ({ subdomain, source, path }) =>
+      resolveProductsDataPath(subdomain, source, path),
     totalAmount: ({ source }) => generateTotalAmount(source.productsData),
     unUsedTotalAmount: ({ source }) => {
       let totalAmount = 0;
