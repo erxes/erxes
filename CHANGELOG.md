@@ -1,5 +1,44 @@
 
 
+## [3.0.52](https://github.com/erxes/erxes/compare/3.0.51...3.0.52) (2026-07-08)
+
+
+### Bug Fixes
+
+* **calls:** fix call content & cdr dates & add call date migration ([66ec6cc](https://github.com/erxes/erxes/commit/66ec6ccefb78a4e1d4e70a3490d0b4c8ba1dc9a8))
+* **calls:** fix cdr timezone and add conversation content migration ([987a475](https://github.com/erxes/erxes/commit/987a475f903e8ee7bfa207257349eb915821b8e2))
+* **calls:** fix migration date ([636044f](https://github.com/erxes/erxes/commit/636044fbf78959fc8752d11580608b3f99af2e39))
+* **calls:** prevent notification sound spam on cdr ([e461dc4](https://github.com/erxes/erxes/commit/e461dc49a86b0a10fe383439741aac97146e73fb))
+* **calls:** treat voicemail legs as not answered ([fb1baa6](https://github.com/erxes/erxes/commit/fb1baa6de4b3d5d37cf734927c21e309cb37acea))
+* channels response create, similarities ([920e2eb](https://github.com/erxes/erxes/commit/920e2ebe5b5ffd45ea084eef2bf72109a3442b45))
+* frontline channels subheader, products similarities ([111446d](https://github.com/erxes/erxes/commit/111446d5d4fa87487386188ccd6be43ae509eedc))
+* **frontline:** improve call widget UI and phone number search & add translation ([a6debd6](https://github.com/erxes/erxes/commit/a6debd6d707f8fcfab4ca1f25e65e33339bfac62))
+* **frontline:** stabilize ticket UI state for create, archive and delete flows ([99e5a59](https://github.com/erxes/erxes/commit/99e5a599372e9e80e959d2fbab010508c30b4cb4))
+* **frontline:** use client portal name as mobile chat notification title ([216299b](https://github.com/erxes/erxes/commit/216299b52f73bf9996b3de150578b51952b95107))
+* import redis from erxes-api-shared public entry point ([632daa8](https://github.com/erxes/erxes/commit/632daa80628a1c6442d0d792edc53f8798762d6f))
+* **loyalty:** skip permission check for cpOwnerVouchers ([347ab87](https://github.com/erxes/erxes/commit/347ab87eccfb0aace6b8fd5001f90237f273d283))
+* **mongolian:** remainders from erkhet on posclient ([#8618](https://github.com/erxes/erxes/issues/8618)) ([b01cc0f](https://github.com/erxes/erxes/commit/b01cc0f5239d01115c3ac3c05e2f05e2eec1384b))
+* **payment:** declare crypto-js as a direct dependency of payment_api ([221a05e](https://github.com/erxes/erxes/commit/221a05eaa38979f2416088fa156dd4013855d474))
+* **payment:** improve TDB callback handling ([#8546](https://github.com/erxes/erxes/issues/8546)) ([2f38c81](https://github.com/erxes/erxes/commit/2f38c8181a9877cfe872ea40ed5702c6ab6d1711))
+* **payment:** persist TDB order details for callback processing ([#8590](https://github.com/erxes/erxes/issues/8590)) ([9f376a8](https://github.com/erxes/erxes/commit/9f376a8ccca51bd1a4dee152d3f50d8967535baf))
+* **payment:** read TDB order status from nested order field ([71d4a31](https://github.com/erxes/erxes/commit/71d4a313543d75e63ca1c2bd5322398d58bd4b27))
+* resolve TDB invoice stuck in pending after payment ([#8622](https://github.com/erxes/erxes/issues/8622)) ([51548f6](https://github.com/erxes/erxes/commit/51548f632a85b7777aa47f79fac109831960aef7))
+* **shared:** add SaaS active addon helper ([#8559](https://github.com/erxes/erxes/issues/8559)) ([3163476](https://github.com/erxes/erxes/commit/3163476d1b73fa2d43b79b586dfb4d3a613f8fe2))
+* subscription on deal drag and drop ([#8636](https://github.com/erxes/erxes/issues/8636)) ([f51d409](https://github.com/erxes/erxes/commit/f51d40978222c0261e4cc2bc5fd0445392b66397))
+* thread subdomain through invoice creation for correct callback ([80c85cc](https://github.com/erxes/erxes/commit/80c85ccd065f2d5e331a35289c675018cdb6a2e9))
+
+
+### Features
+
+* bulk similarity variant picker in main pos ([#8617](https://github.com/erxes/erxes/issues/8617)) ([b78cc10](https://github.com/erxes/erxes/commit/b78cc10f1695f991eebedd8144757c66b3ef112a))
+* **core-ui:** render labeled favorites with a robot icon ([#8628](https://github.com/erxes/erxes/issues/8628)) ([62d041a](https://github.com/erxes/erxes/commit/62d041afb8ba063129940a2fe804f727ded9400c))
+* **core:** store optional label on favorites and render labeled favorites in the sidebar ([#8627](https://github.com/erxes/erxes/issues/8627)) ([1fcfab8](https://github.com/erxes/erxes/commit/1fcfab881d7263b3929e51f8ccf72079fdce26de))
+* golomtbank and khanbank integrations ([#8444](https://github.com/erxes/erxes/issues/8444)) ([7977445](https://github.com/erxes/erxes/commit/7977445210bef99ce969ff5ffa654d65880bca0a))
+* **loyalty:** add fixed pricing per-product price override ([#7753](https://github.com/erxes/erxes/issues/7753)) ([3e464db](https://github.com/erxes/erxes/commit/3e464dbabe39393b1cd133fbb528c1421ad0d5ad))
+* **saas-migrations:** add products migration for org pairs ([f90d066](https://github.com/erxes/erxes/commit/f90d066a52d74272af4f6fd801dc167699b50c00))
+* **saas-migrations:** add products migration for org pairs ([a829389](https://github.com/erxes/erxes/commit/a829389e47fcf737abc3a9b68c2d5b9b4d9e0bf5))
+* to cache products discount when Pricing priority is public ([#8589](https://github.com/erxes/erxes/issues/8589)) ([6e14f75](https://github.com/erxes/erxes/commit/6e14f755a9af53a648ed1fbbefcd48ba34c4c47f))
+
 ## [3.0.51](https://github.com/erxes/erxes/compare/3.0.50...3.0.51) (2026-07-02)
 
 
