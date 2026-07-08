@@ -4,16 +4,16 @@ export const githubConfigQueries = {
   async getGithubConfigByTeam(
     _parent: undefined,
     { teamId }: { teamId: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    return models.GithubConfig.findByTeam(teamId);
+    return models.GithubConfig.findByTeam(teamId, subdomain);
   },
 
   async getAllGithubConfigs(
     _parent: undefined,
     { installationId }: { installationId: number },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    return models.GithubConfig.find({ installationId }).lean();
+    return models.GithubConfig.find({ installationId, subdomain }).lean();
   },
 };

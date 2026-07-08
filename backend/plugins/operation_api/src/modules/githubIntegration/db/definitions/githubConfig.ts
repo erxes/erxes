@@ -13,6 +13,7 @@ export const githubConfigSchema = new Schema(
       type: String,
       enum: ['oneWay', 'twoWay'],
       label: 'Sync Mode',
+      required: true,
     },
   },
   { timestamps: true },

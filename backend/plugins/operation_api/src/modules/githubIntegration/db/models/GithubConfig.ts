@@ -7,14 +7,14 @@ import { IModels } from '~/connectionResolvers';
 import { githubConfigSchema } from '../definitions/githubConfig';
 
 export interface IGithubConfigModel extends Model<IGithubConfigDocument> {
-  findByTeam(teamId: string): Promise<IGithubConfigDocument | null>;
+  findByTeam(teamId: string, subdomain: string): Promise<IGithubConfigDocument | null>;
   upsertConfig(config: IGithubConfig): Promise<IGithubConfigDocument>;
 }
 
 export const loadGithubConfigClass = (models: IModels) => {
   class GithubConfigClass {
-    public static async findByTeam(teamId: string) {
-      const config = await models.GithubConfig.findOne({ teamId }).lean();
+    public static async findByTeam(teamId: string, subdomain: string) {
+      const config = await models.GithubConfig.findOne({ teamId, subdomain }).lean();
 
       if (!config) {
         return null;

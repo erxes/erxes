@@ -5,8 +5,10 @@ import {
 } from '../../@types/githubConnection';
 import { IModels } from '~/connectionResolvers';
 import { githubConnectionSchema } from '../definitions/githubConnection';
+import { isDuplicateKeyError } from '~/utils/mongoErrors';
 
-export interface IGithubConnectionModel extends Model<IGithubConnectionDocument> {
+export interface IGithubConnectionModel
+  extends Model<IGithubConnectionDocument> {
   upsertConnection(
     connection: IGithubConnection,
   ): Promise<IGithubConnectionDocument>;
@@ -15,16 +17,27 @@ export interface IGithubConnectionModel extends Model<IGithubConnectionDocument>
 export const loadGithubConnectionClass = (models: IModels) => {
   class GithubConnectionClass {
     public static async upsertConnection(connection: IGithubConnection) {
-      const existingConnection = await models.GithubConnection.findOne({
-        installationId: connection.installationId,
-        subdomain: connection.subdomain,
-      });
-      if (existingConnection) {
-        Object.assign(existingConnection, connection);
-        return existingConnection.save();
-      } else {
-        const newConnection = new models.GithubConnection(connection);
-        return newConnection.save();
+      try {
+        return await models.GithubConnection.findOneAndUpdate(
+          {
+            installationId: connection.installationId,
+            subdomain: connection.subdomain,
+          },
+          { $set: connection },
+          { new: true, upsert: true, setDefaultsOnInsert: true },
+        );
+      } catch (error) {
+        if (isDuplicateKeyError(error)) {
+          return models.GithubConnection.findOneAndUpdate(
+            {
+              installationId: connection.installationId,
+              subdomain: connection.subdomain,
+            },
+            { $set: connection },
+            { new: true },
+          );
+        }
+        throw error;
       }
     }
   }

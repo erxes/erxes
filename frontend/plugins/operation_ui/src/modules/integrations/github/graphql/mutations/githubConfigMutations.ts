@@ -5,7 +5,7 @@ export const UPSERT_GITHUB_CONFIG = gql`
     $teamId: String!
     $repoName: String!
     $installationId: Int!
-    $syncMode: String
+    $syncMode: String!
   ) {
     upsertGithubConfig(
       teamId: $teamId

@@ -17,7 +17,17 @@ export const githubConnectionQueries = {
   async getGithubRepositories(
     _parent: undefined,
     { installationId }: { installationId: number },
+    { models, subdomain }: IContext,
   ) {
+    const connection = await models.GithubConnection.findOne({
+      installationId,
+      subdomain,
+      isActive: true,
+    }).lean();
+    if (!connection) {
+      throw new Error('GitHub connection not found');
+    }
+
     const octokit = await getInstallationOctokit(installationId);
     const response = await octokit.request('GET /installation/repositories', {
       per_page: 100,
