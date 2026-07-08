@@ -73,9 +73,11 @@ type IMeta = {
   notifications?: any;
   tags?: any;
   documents?: {
-    label: string;
-    contentType: string;
-  }[];
+    types: {
+      label: string;
+      contentType: string;
+    }[];
+  };
   properties?: IPropertyMeta;
   references?: TRecordReferencesConfig;
   permissions?: IPermissionConfig;
