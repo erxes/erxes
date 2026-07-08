@@ -19,7 +19,10 @@ export const AdjustFixedAssetTable = () => {
           <RecordTable.Body>
             <RecordTable.RowList />
             {!loading && totalCount > adjustFixedAssets.length && (
-              <RecordTable.RowSkeleton rows={4} handleInView={handleFetchMore} />
+              <RecordTable.RowSkeleton
+                rows={4}
+                handleInView={handleFetchMore}
+              />
             )}
           </RecordTable.Body>
         </RecordTable>

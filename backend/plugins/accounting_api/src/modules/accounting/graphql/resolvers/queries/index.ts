@@ -21,5 +21,5 @@ export {
   Inventories,
   JournalReport,
   Transactions,
-  VatRows
+  VatRows,
 };

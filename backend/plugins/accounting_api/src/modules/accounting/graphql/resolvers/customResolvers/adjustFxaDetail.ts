@@ -6,7 +6,11 @@ export const AdjustFxaDetail = {
     return models.AdjustFxaDetails.findOne({ _id });
   },
 
-  async account(detail: IAdjustFxaDetail, _args: undefined, { models }: IContext) {
+  async account(
+    detail: IAdjustFxaDetail,
+    _args: undefined,
+    { models }: IContext,
+  ) {
     if (!detail.accountId) {
       return null;
     }
