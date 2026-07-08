@@ -81,7 +81,9 @@ const assignMissingInstanceSequences = async (
     for (const instance of instances) {
       const sequence = Math.max(
         instance.sequence || 0,
-        fixedAssetCode ? getCodeSequence(instance.code || '', fixedAssetCode) : 0,
+        fixedAssetCode
+          ? getCodeSequence(instance.code || '', fixedAssetCode)
+          : 0,
         getCodeSequence(instance.code || '', fixedAssetId),
       );
 
@@ -105,7 +107,10 @@ const assignMissingInstanceSequences = async (
     const assetCodeSequence = fixedAssetCode
       ? getCodeSequence(input.code || '', fixedAssetCode)
       : 0;
-    const idCodeSequence = getCodeSequence(input.code || '', input.fixedAssetId);
+    const idCodeSequence = getCodeSequence(
+      input.code || '',
+      input.fixedAssetId,
+    );
     const parsedSequence = Math.max(assetCodeSequence, idCodeSequence);
     let sequence = input._id ? input.sequence || parsedSequence || 0 : 0;
 
@@ -123,9 +128,7 @@ const assignMissingInstanceSequences = async (
 
     if (
       fixedAssetCode &&
-      (!input.code ||
-        assetCodeSequence > 0 ||
-        idCodeSequence > 0)
+      (!input.code || assetCodeSequence > 0 || idCodeSequence > 0)
     ) {
       input.code = `${fixedAssetCode}_${String(sequence).padStart(3, '0')}`;
     }
@@ -358,7 +361,9 @@ const matchFxaIncomeInputsToExisting = async (
   }
 
   for (const input of inputs) {
-    const existingByInputId = input._id ? existingById.get(input._id) : undefined;
+    const existingByInputId = input._id
+      ? existingById.get(input._id)
+      : undefined;
     const key = getIncomeInstanceMatchKey(
       input.fixedAssetId,
       getInputDetailId(input),
