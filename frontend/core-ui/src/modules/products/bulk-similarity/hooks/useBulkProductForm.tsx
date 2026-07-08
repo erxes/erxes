@@ -43,6 +43,7 @@ const toFormValues = (
       fieldIds,
       selection,
       code: initial?.info?.code || '',
+      name: initial?.info?.name || '',
       products: initial?.products,
       starProductId: initial?.starProductId,
       labelOf: (_fieldId, value) => value,
@@ -58,12 +59,16 @@ export const useBulkProductForm = (initial?: IProductSimilarity) => {
   });
 
   const { control } = form;
-  const { fields: fieldDefs } = useFields({ contentType: 'core:product' });
+  const { fields: fieldDefs } = useFields({
+    contentType: 'core:product',
+    limit: 100,
+  });
 
   const rows = useFieldArray({ control, name: 'rows' });
 
   const watchedProperties = useWatch({ control, name: 'properties' }) || [];
   const code = useWatch({ control, name: 'code' });
+  const name = useWatch({ control, name: 'name' });
   const fieldIds = watchedProperties.map((p) => p.fieldId);
 
   const labelOf = (fieldId: string, value: string) =>
@@ -83,15 +88,23 @@ export const useBulkProductForm = (initial?: IProductSimilarity) => {
           watchedProperties.map((p) => [p.fieldId, p.values]),
         ),
         code: code || '',
+        name: name || '',
         products: initial?.products,
         starProductId: initial?.starProductId,
         labelOf,
         previousRows: form.getValues('rows'),
         baseCodeDirty: (code || '') !== (initial?.info?.code || ''),
+        baseNameDirty: (name || '') !== (initial?.info?.name || ''),
       }),
     );
     form.trigger('rows');
-  }, [JSON.stringify(watchedProperties), code, initial?._id, fieldDefs.length]);
+  }, [
+    JSON.stringify(watchedProperties),
+    code,
+    name,
+    initial?._id,
+    fieldDefs.length,
+  ]);
 
   return {
     form,

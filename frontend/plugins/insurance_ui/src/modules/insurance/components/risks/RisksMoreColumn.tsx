@@ -1,14 +1,16 @@
 import { IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useDeleteRiskType } from '~/modules/insurance/hooks';
 
 export const RisksMoreColumn = ({ cell }: { cell: any }) => {
+  const { t } = useTranslation('insurance');
   const riskId = cell.row.original.id;
   const riskName = cell.row.original.name;
   const { deleteRiskType, loading } = useDeleteRiskType();
 
   const handleDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete "${riskName}"?`)) {
+    if (window.confirm(t('confirm-delete-risk-type'))) {
       try {
         await deleteRiskType({ variables: { id: riskId } });
       } catch (error) {
@@ -34,7 +36,7 @@ export const RisksMoreColumn = ({ cell }: { cell: any }) => {
           }}
         >
           <IconEdit size={16} />
-          Edit
+          {t('edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={handleDelete}
@@ -42,7 +44,7 @@ export const RisksMoreColumn = ({ cell }: { cell: any }) => {
           className="text-destructive"
         >
           <IconTrash size={16} />
-          Delete
+          {t('delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

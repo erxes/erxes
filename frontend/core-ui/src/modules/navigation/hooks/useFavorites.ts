@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { IconRobot } from '@tabler/icons-react';
 import { GET_FAVORITES } from '@/navigation/graphql/queries/getFavorites';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
 import { useAtomValue } from 'jotai';
@@ -8,9 +9,11 @@ interface Favorite {
   _id: string;
   type: 'module' | 'submenu';
   path: string;
+  label?: string | null;
 }
 
 interface FavoriteModule {
+  _id: string;
   name: string;
   icon?: React.ElementType;
   path: string;
@@ -31,6 +34,16 @@ export function useFavorites(): FavoriteModule[] {
   const favorites = data?.getFavoritesByCurrentUser ?? [];
 
   return favorites.reduce<FavoriteModule[]>((acc, favorite) => {
+    if (favorite.label) {
+      acc.push({
+        _id: favorite._id,
+        name: favorite.label,
+        icon: IconRobot,
+        path: favorite.path,
+      });
+      return acc;
+    }
+
     if (favorite.type === 'module') {
       const module = modules?.find(
         (m) => m.path === favorite.path.replace('/', ''),
@@ -38,6 +51,7 @@ export function useFavorites(): FavoriteModule[] {
 
       if (module) {
         acc.push({
+          _id: favorite._id,
           name: module.name,
           icon: module.icon,
           path: module.path,

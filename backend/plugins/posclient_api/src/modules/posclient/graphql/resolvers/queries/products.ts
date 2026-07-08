@@ -16,7 +16,11 @@ import {
 import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
+  getDiscountSortedProducts,
   getRemBranchId,
+  isDiscountSortField,
+  pushDiscountRangeFilters,
+  type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
 
 const getPropertyFieldId = (field: string) =>
@@ -64,7 +68,7 @@ export interface IProductParams extends ICommonParams {
   segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
-  similarity?: boolean;
+  isSimilarity?: boolean;
   categoryMeta?: string;
   image?: string;
 
@@ -72,6 +76,11 @@ export interface IProductParams extends ICommonParams {
   maxRemainder?: number;
   minPrice?: number;
   maxPrice?: number;
+  minDiscountValue?: number;
+  maxDiscountValue?: number;
+  minDiscountPercent?: number;
+  maxDiscountPercent?: number;
+  discountConditions?: Record<string, unknown>;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -107,11 +116,16 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
-    similarity,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
     maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -124,7 +138,7 @@ const generateFilter = async (
   };
 
   // one card per bulk-similarity group: standalone products + each group's star
-  if (similarity) {
+  if (isSimilarity) {
     const similarityGroups = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -303,6 +317,14 @@ const generateFilter = async (
     });
   }
 
+  pushDiscountRangeFilters($and, config, branchId, {
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+  });
+
   const lastFilter = { ...filter, $and };
 
   if (isKiosk) {
@@ -420,6 +442,23 @@ const productQueries = {
       });
     }
 
+    if (isDiscountSortField(sortField)) {
+      const products = await getDiscountSortedProducts({
+        models,
+        filter,
+        config,
+        params,
+      });
+
+      return checkRemainders(
+        subdomain,
+        models,
+        config,
+        products,
+        branchId || '',
+      );
+    }
+
     const paginatedProducts = await paginate(
       models.Products.find(filter).sort(sortParams).lean(),
       paginationArgs,
@@ -461,31 +500,32 @@ const productQueries = {
   ) {
     const product = await models.Products.getProduct({ _id });
 
-    if (!product.similarityId) {
+    const { similarityId } = product || {};
+
+    if (!similarityId) {
       return null;
     }
 
     const members = await models.Products.find({
-      similarityId: product.similarityId,
+      similarityId: similarityId,
       status: { $ne: PRODUCT_STATUSES.DELETED },
       tokens: { $in: [config.token] },
     })
       .sort({ code: 1 })
       .lean();
 
-    // group doc gives the canonical axis/value order and the star product;
-    // when core is unreachable everything below falls back to member data
     const similarityGroup = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
       action: 'similarities.findOne',
-      input: { _id: product.similarityId },
+      input: { _id: similarityId },
       defaultValue: null,
     });
 
-    const selection: Record<string, string[]> =
-      similarityGroup?.propertiesData || {};
+    const { propertiesData, starProductId } = similarityGroup || {};
+
+    const selection: Record<string, string[]> = propertiesData || {};
 
     let fieldIds = Object.keys(selection);
 
@@ -513,9 +553,24 @@ const productQueries = {
       : [];
 
     const fieldNameById = {};
+    const optionLabelByValue: Record<string, Record<string, string>> = {};
+
     for (const field of fields || []) {
       fieldNameById[field._id] = field.name || field.text;
+
+      optionLabelByValue[field._id] = {};
+      for (const option of field.options || []) {
+        optionLabelByValue[field._id][option.value] = option.label;
+      }
     }
+
+    const labelOf = (fieldId: string, value: string) =>
+      optionLabelByValue[fieldId]?.[value] ?? value;
+
+    const propertyValueOf = (member: any, fieldId: string) => {
+      const value = member.propertiesData?.[fieldId];
+      return Array.isArray(value) ? value[0] : value;
+    };
 
     const valuesOf = (fieldId: string) => {
       if (selection[fieldId]?.length) {
@@ -525,28 +580,34 @@ const productQueries = {
       return [
         ...new Set(
           members
-            .map((member) => member.propertiesData?.[fieldId])
-            .map((value) => (Array.isArray(value) ? value[0] : value))
+            .map((member) => propertyValueOf(member, fieldId))
             .filter((value) => value != null),
         ),
       ];
     };
 
-    return {
-      _id: product.similarityId,
-      starProductId: similarityGroup?.starProductId,
-      products: await checkRemainders(
-        subdomain,
-        models,
-        config,
-        members.length ? members : [product],
-        branchId || '',
-      ),
-      fields: fieldIds.map((fieldId) => ({
-        fieldId,
-        title: fieldNameById[fieldId] || fieldId,
-        values: valuesOf(fieldId),
+    const products = await checkRemainders(
+      subdomain,
+      models,
+      config,
+      members.length ? members : [product],
+      branchId || '',
+    );
+
+    const fieldList = fieldIds.map((fieldId) => ({
+      fieldId,
+      title: fieldNameById[fieldId] || fieldId,
+      values: valuesOf(fieldId).map((value) => ({
+        value,
+        label: labelOf(fieldId, value),
       })),
+    }));
+
+    return {
+      _id: similarityId,
+      starProductId,
+      products,
+      fields: fieldList,
     };
   },
 
@@ -658,7 +719,9 @@ const productQueries = {
         ],
       };
 
-      let products = await models.Products.find(filters).sort({ code: 1 });
+      let products: ProductWithRemainder[] = await models.Products.find(
+        filters,
+      ).sort({ code: 1 });
       if (!products.length) {
         products = await checkRemainders(
           subdomain,

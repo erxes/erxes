@@ -190,16 +190,18 @@ export const importProducts = async (
       }[] = [];
 
       for (const product of products) {
-        const { _id, ...productDoc } = product;
+        const { _id, createdAt, ...productDoc } = product;
         bulkOps.push({
           updateOne: {
             filter: { _id },
             update: {
               $set: {
                 ...productDoc,
+                ...(createdAt ? { createdAt: new Date(createdAt) } : {}),
                 [`prices.${token}`]: product.unitPrice,
                 [`taxRules.${token}`]: product.taxRule || null,
                 uom: product.uom || 'ш',
+                discounts: product.discounts || [],
                 attachment: attachmentUrlChanger(product.attachment),
                 attachmentMore: (product.attachmentMore || []).map((a) =>
                   attachmentUrlChanger(a),
@@ -284,6 +286,7 @@ export const extractConfig = async (subdomain, doc) => {
     orderPassword: doc.orderPassword,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
+    erkhetConfig: doc.erkhetConfig,
     kitchenScreen: doc.kitchenScreen,
     waitingScreen: doc.waitingScreen,
     catProdMappings: doc.catProdMappings,
@@ -356,6 +359,7 @@ export const receiveProduct = async (models: IModels, data) => {
         [`prices.${token}`]: info.unitPrice,
         [`isCheckRems.${token}`]: info.isCheckRem,
         [`taxRules.${token}`]: info.taxRule || null,
+        discounts: info.discounts || [],
         tokens,
         sameDefault: info.sameDefault || null,
         sameMasks: info.sameMasks || null,

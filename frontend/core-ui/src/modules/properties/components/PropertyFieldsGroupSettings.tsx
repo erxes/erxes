@@ -8,6 +8,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Properties } from './Properties';
 import { useFieldGroupRemove } from '../hooks/useFieldGroupRemove';
 import { PropertyGroupEditSheet } from './PropertyGroupEdit';
@@ -17,6 +18,7 @@ import { IFieldGroup } from '../types/Properties';
 import { Can, useFieldGroups } from 'ui-modules';
 
 export const PropertyFieldsGroupSettings = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
 
   const { fieldGroups } = useFieldGroups({ contentType: type || '' });
@@ -29,8 +31,8 @@ export const PropertyFieldsGroupSettings = () => {
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head>Name</Table.Head>
-                <Table.Head>Data type</Table.Head>
+                <Table.Head>{t('name', 'Name')}</Table.Head>
+                <Table.Head>{t('data-type', 'Data type')}</Table.Head>
                 <Table.Head className="w-12"></Table.Head>
               </Table.Row>
             </Table.Header>
@@ -64,7 +66,7 @@ export const PropertyFieldsGroupSettings = () => {
                         to={`/settings/properties/${type}/${group._id}/add`}
                       >
                         <IconPlus />
-                        Add field
+                        {t('add-field', 'Add field')}
                       </Link>
                     </Button>
                   </Can>
@@ -87,13 +89,17 @@ export const FieldGroupSettingsDropdown = ({
   contentType: string;
   group: IFieldGroup;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { removeFieldGroup, loading } = useFieldGroupRemove({ contentType });
   const setActivePropertyGroup = useSetAtom(activePropertyState);
 
   const { confirm } = useConfirm();
   const handleDeleteFieldGroup = () => {
     confirm({
-      message: 'Are you sure you want to delete this field group?',
+      message: t(
+        'confirm-delete-group',
+        'Are you sure you want to delete this field group?',
+      ),
     }).then(() => removeFieldGroup(groupId));
   };
   return (
@@ -113,7 +119,7 @@ export const FieldGroupSettingsDropdown = ({
         <Can action="fieldGroupsManage">
           <DropdownMenu.Item onClick={() => setActivePropertyGroup(group)}>
             <IconEdit />
-            Edit
+            {t('edit', 'Edit')}
           </DropdownMenu.Item>
         </Can>
         <Can action="fieldGroupsManage">
@@ -123,7 +129,7 @@ export const FieldGroupSettingsDropdown = ({
             onClick={handleDeleteFieldGroup}
           >
             {loading ? <Spinner size="sm" /> : <IconTrash />}
-            Delete
+            {t('delete', 'Delete')}
           </DropdownMenu.Item>
         </Can>
       </DropdownMenu.Content>

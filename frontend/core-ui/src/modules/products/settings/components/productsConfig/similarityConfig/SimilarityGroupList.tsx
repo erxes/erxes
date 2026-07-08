@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { InfoCard, Skeleton } from 'erxes-ui';
 import { SimilarityGroupItem } from './SimilarityGroupItem';
 import { ISimilarityGroupConfig, ISimilarityGroupMap } from './types';
@@ -23,6 +24,7 @@ export const SimilarityGroupList = ({
   onSave,
   onDelete,
 }: SimilarityGroupListProps) => {
+  const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
   const [openKey, setOpenKey] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,7 +35,10 @@ export const SimilarityGroupList = ({
 
   if (configsLoading) {
     return (
-      <InfoCard title="Similarity Groups" className="h-full">
+      <InfoCard
+        title={t('similarity-groups', 'Similarity Groups')}
+        className="h-full"
+      >
         <InfoCard.Content className="space-y-0">
           <Skeleton className="w-full h-12" />
           <Skeleton className="w-full h-12" />
@@ -45,44 +50,49 @@ export const SimilarityGroupList = ({
 
   const entries = Object.entries(groupsMap);
 
+  if (entries.length === 0) {
+    return <EmptyStateRow />;
+  }
+
   return (
-    <>
-      {entries.length === 0 ? (
-        <EmptyStateRow />
-      ) : (
-        <InfoCard title="Similarity Groups" className="h-full">
-          <InfoCard.Content className="overflow-y-auto flex-1">
-            {entries.map(([codeGroupKey, config]) => (
-              <SimilarityGroupItem
-                key={codeGroupKey}
-                codeGroupKey={codeGroupKey}
-                config={config}
-                isOpen={openKey === codeGroupKey}
-                onToggle={() =>
-                  setOpenKey((prev) =>
-                    prev === codeGroupKey ? null : codeGroupKey,
-                  )
-                }
-                onSave={onSave}
-                onDelete={onDelete}
-              />
-            ))}
-          </InfoCard.Content>
-        </InfoCard>
-      )}
-    </>
+    <InfoCard
+      title={t('similarity-groups', 'Similarity Groups')}
+      className="h-full min-h-0"
+    >
+      <InfoCard.Content className="overflow-y-auto flex-1 min-h-0">
+        {entries.map(([codeGroupKey, config]) => (
+          <SimilarityGroupItem
+            key={codeGroupKey}
+            codeGroupKey={codeGroupKey}
+            config={config}
+            isOpen={openKey === codeGroupKey}
+            onToggle={() =>
+              setOpenKey((prev) =>
+                prev === codeGroupKey ? null : codeGroupKey,
+              )
+            }
+            onSave={onSave}
+            onDelete={onDelete}
+          />
+        ))}
+      </InfoCard.Content>
+    </InfoCard>
   );
 };
 
 function EmptyStateRow() {
+  const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
       <IconStack2 size={64} stroke={1.5} className="text-muted-foreground" />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No similarity groups yet
+        {t('no-similarity-groups', 'No similarity groups yet')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">
-        Get started by creating your first similarity group config.
+        {t(
+          'empty-similarity-hint',
+          'Get started by creating your first similarity group config.',
+        )}
       </p>
     </div>
   );

@@ -5,6 +5,7 @@ import { buildTableBlock, replaceBlocks } from './replaceBlocks';
 
 const TABLE_ATTRIBUTES = [
   'productsInfo',
+  'allProductsInfo',
   'productCategoryInfo',
   'servicesInfo',
 ];
@@ -124,7 +125,7 @@ export const buildDealReplacer = async (
     attrMap.labels = '-';
   }
 
-  const customerIds: string[] = await sendTRPCMessage({
+  let customerIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
@@ -137,6 +138,10 @@ export const buildDealReplacer = async (
     },
     defaultValue: [],
   });
+
+  if (!customerIds?.length && deal.customerIds?.length) {
+    customerIds = deal.customerIds;
+  }
 
   let customers: any[] = [];
   if (customerIds?.length) {
@@ -169,7 +174,7 @@ export const buildDealReplacer = async (
   attrMap['customers.primaryPhone'] = primaryCustomer?.primaryPhone || '-';
   attrMap['customers.primaryEmail'] = primaryCustomer?.primaryEmail || '-';
 
-  const companyIds: string[] = await sendTRPCMessage({
+  let companyIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
@@ -182,6 +187,10 @@ export const buildDealReplacer = async (
     },
     defaultValue: [],
   });
+
+  if (!companyIds?.length && deal.companyIds?.length) {
+    companyIds = deal.companyIds;
+  }
 
   if (companyIds?.length) {
     const companies = await sendTRPCMessage({
@@ -225,6 +234,8 @@ export const buildDealReplacer = async (
 
   let productIndex = 0;
   let serviceIndex = 0;
+  let hasDiscountPercent = false;
+  let hasDiscountAmount = false;
 
   for (const item of enriched) {
     const product = item.product || {};
@@ -238,6 +249,9 @@ export const buildDealReplacer = async (
     addToMap(totalAmount, currency, amount);
     addToMap(vatAmount, currency, item.tax);
     addToMap(discountAmount, currency, item.discount);
+
+    if ((item.discountPercent || 0) > 0) hasDiscountPercent = true;
+    if ((item.discount || 0) > 0) hasDiscountAmount = true;
 
     if (isService) {
       addToMap(serviceAmount, currency, amount);
@@ -274,7 +288,22 @@ export const buildDealReplacer = async (
     }
   }
 
-  // Resolve category names for productCategoryInfo.
+  const allProductRows: string[][] = [
+    ['#', 'Name', 'Quantity', 'Unit price', 'Amount', 'Currency'],
+  ];
+  let allIndex = 0;
+  for (const item of enriched) {
+    const product = item.product || {};
+    allProductRows.push([
+      String(++allIndex),
+      product.name || item.name || '-',
+      formatNumber(item.quantity || 0),
+      formatNumber(item.unitPrice || 0),
+      formatNumber(item.amount || 0),
+      item.currency || 'MNT',
+    ]);
+  }
+
   const categoryIds = Object.keys(categoryMap).filter(
     (id) => id !== 'uncategorized',
   );
@@ -312,6 +341,7 @@ export const buildDealReplacer = async (
   }
 
   tables.productsInfo = productRows;
+  tables.allProductsInfo = allProductRows;
   tables.servicesInfo = serviceRows;
   tables.productCategoryInfo = categoryRows;
 
@@ -327,12 +357,16 @@ export const buildDealReplacer = async (
   attrMap.totalAmountAfterTaxVat = formatAmounts(totalAmount);
   attrMap.totalAmountWithoutVat = formatAmounts(totalWithoutVat);
   attrMap.discount = formatAmounts(discountAmount);
-  attrMap.discountType = '-';
+  attrMap.discountType = hasDiscountPercent ? '%' : hasDiscountAmount ? 'amount' : '-';
 
-  const paymentsData = (deal.paymentsData || {}) as Record<string, any>;
+  const rawPayments = deal.paymentsData;
+  const paymentsEntries: Array<[string, any]> = Array.isArray(rawPayments)
+    ? (rawPayments as any[]).map((p: any, i: number) => [p?.kind || String(i), p])
+    : Object.entries((rawPayments || {}) as Record<string, any>);
+
   let cash = 0;
   let nonCash = 0;
-  for (const [kind, value] of Object.entries(paymentsData)) {
+  for (const [kind, value] of paymentsEntries) {
     const amount =
       typeof value === 'number' ? value : Number(value?.amount) || 0;
     if (/cash/i.test(kind) && !/non/i.test(kind)) {

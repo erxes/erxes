@@ -18,6 +18,10 @@ export type SalesFilterState = {
   createdEndDate?: string | null;
   startDateStartDate?: string | null;
   startDateEndDate?: string | null;
+  closeDateStartDate?: string | null;
+  closeDateEndDate?: string | null;
+  stageChangedStartDate?: string | null;
+  stageChangedEndDate?: string | null;
   priority?: string[] | null;
   labelIds?: string[] | null;
   tagIds?: string[] | null;

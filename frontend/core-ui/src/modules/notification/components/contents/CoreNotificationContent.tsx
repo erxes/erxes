@@ -1,11 +1,11 @@
 import { lazy } from 'react';
 
 const WelcomeNotificationContent = lazy(() =>
-  import(
-    '@/notification/components/contents/system/WelcomeMessage'
-  ).then((module) => ({
-    default: module.WelcomeMessageContent,
-  })),
+  import('@/notification/components/contents/system/WelcomeMessage').then(
+    (module) => ({
+      default: module.WelcomeMessageContent,
+    }),
+  ),
 );
 
 const BranchNotificationContent = lazy(() =>
@@ -40,10 +40,19 @@ const ImportNotificationContent = lazy(() =>
   })),
 );
 
+const ApprovalNotificationContent = lazy(() =>
+  import('@/notification/components/contents/ApprovalNotificationContent').then(
+    (module) => ({
+      default: module.ApprovalNotificationContent,
+    }),
+  ),
+);
+
 export const CoreNotificationContent = {
   welcome: WelcomeNotificationContent,
+  approval: ApprovalNotificationContent,
   branch: BranchNotificationContent,
   department: DepartmentNotificationContent,
-  exports: ExportNotificationContent, 
+  exports: ExportNotificationContent,
   imports: ImportNotificationContent,
 };

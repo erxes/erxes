@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { useMSDynamicConfigActions } from '../../hooks/useMSDynamicConfigActions';
 import { useMSDynamicConfigs } from '../../hooks/useMSDynamicConfigs';
@@ -17,6 +18,7 @@ import { MSDynamicConfigSheet } from './MSDynamicConfigSheet';
 const FORM_ID = 'edit-msdynamic-config-form';
 
 export const EditMSDynamicConfig = () => {
+  const { t } = useTranslation('mongolian');
   const [editDetail, setEditDetail] = useAtom(msDynamicConfigDetailAtom);
   const {
     configsMap,
@@ -64,7 +66,7 @@ export const EditMSDynamicConfig = () => {
       onOpenChange={handleClose}
       onSubmit={handleSubmit}
       open={editDetail !== null}
-      title="Edit config"
+      title={t('edit-config')}
     />
   );
 };

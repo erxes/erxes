@@ -1,5 +1,6 @@
 import { IconSearch, IconBuilding } from '@tabler/icons-react';
 import { Combobox, Command, Filter, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useVendors } from '~/modules/insurance/hooks';
 
 const VENDOR_USERS_CURSOR_SESSION_KEY = 'vendor-users-cursor';
@@ -13,6 +14,7 @@ export const VendorUsersFilter = ({
   selectedVendorId,
   onVendorChange,
 }: VendorUsersFilterProps) => {
+  const { t } = useTranslation('insurance');
   const { vendors, loading: vendorsLoading } = useVendors();
 
   return (
@@ -30,13 +32,13 @@ export const VendorUsersFilter = ({
             }
           >
             <Select.Trigger className="w-[200px] h-7">
-              <Select.Value placeholder="All Vendors" />
+              <Select.Value placeholder={t('all-vendors')} />
             </Select.Trigger>
             <Select.Content>
-              <Select.Item value="all">All Vendors</Select.Item>
+              <Select.Item value="all">{t('all-vendors')}</Select.Item>
               {vendorsLoading ? (
                 <Select.Item value="loading" disabled>
-                  Loading vendors...
+                  {t('loading-vendors')}
                 </Select.Item>
               ) : (
                 vendors.map((vendor) => (

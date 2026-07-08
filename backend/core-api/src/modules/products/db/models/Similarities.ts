@@ -140,13 +140,6 @@ export const loadProductSimilarityClass = (
     let starProductId: string | undefined;
 
     for (const row of rows) {
-      if (row.isExcluded) {
-        if (row.productId) {
-          await models.Products.removeProducts([row.productId]);
-        }
-        continue;
-      }
-
       const reviveId = !row.productId
         ? reviveIdByCode.get(row.code)
         : undefined;
@@ -154,6 +147,7 @@ export const loadProductSimilarityClass = (
       const productDoc = {
         ...info,
         code: row.code,
+        name: row.name || info.name,
         unitPrice: row.unitPrice ?? info.unitPrice,
         propertiesData: row.propertiesData,
         similarityId: similarity._id,

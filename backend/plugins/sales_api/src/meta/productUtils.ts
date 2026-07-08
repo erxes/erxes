@@ -5,17 +5,23 @@ import { IPosDocument } from '~/modules/pos/@types/pos';
 import { getProductsData } from '~/modules/pos/routes';
 import { getChildCategories } from '~/modules/pos/utils';
 
-export const productMutationNames = [
+export const posSyncMutationNames = [
   'productsAdd',
   'productsEdit',
   'productsRemove',
+  'productsMerge',
   'productCategoriesAdd',
   'productCategoriesEdit',
   'productCategoriesRemove',
 ];
 
-const productMutations = ['productsAdd', 'productsEdit', 'productsRemove'];
-const productCategoryMutations = [
+const posProductSyncMutationNames = [
+  'productsAdd',
+  'productsEdit',
+  'productsRemove',
+  'productsMerge',
+];
+const posProductCategorySyncMutationNames = [
   'productCategoriesAdd',
   'productCategoriesEdit',
   'productCategoriesRemove',
@@ -65,7 +71,7 @@ const getSingleId = (args: Record<string, unknown>, result: unknown) =>
   resultObject(result)._id || (isString(args._id) ? args._id : undefined);
 
 const getProductSyncAction = (mutationName: string) =>
-  mutationName === 'productsAdd'
+  ['productsAdd', 'productsMerge'].includes(mutationName)
     ? 'create'
     : createOrUpdateProductMutations.includes(mutationName)
       ? 'update'
@@ -324,6 +330,55 @@ const syncProducts = async (
 ) => {
   const posList = await getProductGroupPos(models);
 
+  if (mutationName === 'productsMerge') {
+    const oldProductIds = stringArray(args.productIds);
+    const oldProducts = await getProducts(subdomain, oldProductIds);
+    const newProductId = resultObject(result)._id;
+
+    for (const pos of posList) {
+      const productGroups = await getRawProductGroups(models, pos._id);
+      const posProductIds: string[] = [];
+
+      for (const product of oldProducts) {
+        if (
+          product._id &&
+          (await isInProductGroup(subdomain, productGroups, product))
+        ) {
+          posProductIds.push(product._id);
+        }
+      }
+
+      if (posProductIds.length) {
+        await sendProductsRemoveToPosClient({
+          subdomain,
+          pos,
+          productIds: posProductIds,
+        });
+      }
+
+      if (newProductId) {
+        const product = await getProductFromGroups(
+          subdomain,
+          models,
+          pos,
+          newProductId,
+        );
+
+        if (product) {
+          await sendProductToPosClient({
+            subdomain,
+            pos,
+            mutationName,
+            productId: newProductId,
+            product,
+          });
+        }
+      }
+    }
+
+    return;
+  }
+
   if (mutationName === 'productsRemove') {
     const productIds = stringArray(args.productIds);
     const products = await getProducts(subdomain, productIds);
@@ -444,12 +499,12 @@ export const syncPosProductGroups = async (
   args: Record<string, unknown>,
   result: unknown,
 ) => {
-  if (productMutations.includes(mutationName)) {
+  if (posProductSyncMutationNames.includes(mutationName)) {
     await syncProducts(subdomain, models, mutationName, args, result);
     return;
   }
 
-  if (productCategoryMutations.includes(mutationName)) {
+  if (posProductCategorySyncMutationNames.includes(mutationName)) {
     await syncProductCategories(subdomain, models, mutationName, args, result);
   }
 };

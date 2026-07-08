@@ -1,4 +1,5 @@
 import { Button, cn, useErxesUpload } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconGripVertical, IconUpload, IconX } from '@tabler/icons-react';
 import { readImage } from 'erxes-ui/utils/core';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -117,6 +118,7 @@ export const GalleryUploader = ({
   onChange,
   maxImages = MAX_GALLERY_IMAGES,
 }: GalleryUploaderProps) => {
+  const { t } = useTranslation('content');
   const urls = useMemo(
     () => Array.from(new Set(value.filter(Boolean))),
     [value],
@@ -238,7 +240,7 @@ export const GalleryUploader = ({
                     <div
                       className="absolute inset-0 bg-white/70"
                       aria-label={
-                        uploadProps.loading ? 'Uploading image' : 'Ready'
+                        uploadProps.loading ? t('uploading-image') : t('ready')
                       }
                     />
                   </div>
@@ -262,7 +264,7 @@ export const GalleryUploader = ({
           </DndContext>
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
-              <div className="text-sm text-gray-500">Uploading...</div>
+              <div className="text-sm text-gray-500">{t('uploading')}</div>
             </div>
           )}
         </div>
@@ -277,16 +279,16 @@ export const GalleryUploader = ({
           type="button"
         >
           <IconUpload size={16} className="mr-2" />
-          Add Images
+          {t('add-images')}
         </Button>
         {urls.length >= maxImages && (
           <p className="text-xs text-muted-foreground mt-1">
-            Maximum {maxImages} images allowed
+            {t('maximum-images-allowed', { count: maxImages })}
           </p>
         )}
         {Boolean(uploadProps.errors.length) && (
           <p className="text-xs text-destructive mt-1">
-            {uploadProps.errors[0]?.message || 'Upload failed'}
+            {uploadProps.errors[0]?.message || t('upload-failed')}
           </p>
         )}
       </div>

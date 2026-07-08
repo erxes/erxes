@@ -19,9 +19,11 @@ import {
 import { checkboxColumn } from 'erxes-ui/modules/record-table/components/CheckboxColumn';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { SelectPos } from '@/ebarimt/settings/pos-in-ebarimt-config/components/selects/SelectPos';
 import { DEFAULT_PAY_DATA } from '../../stage-in-erkhet-config/constants/defaultPayData';
+import { SelectAnotherRulesOfProductsOnCityTax } from '../../stage-in-erkhet-config/components/selects/SelectAnotherRulesOfProductsOnCityTax';
 import { TPos, TPosOrderErkhetConfig } from '../hooks/usePosOrderErkhetConfigs';
 import { ErkhetConfigRecordTable } from '../../shared/components/ErkhetConfigRecordTable';
 import { ErkhetConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';
@@ -39,9 +41,14 @@ const formSchema = z
     beginNumber: z.string().optional(),
     hasVat: z.boolean().default(false),
     hasCitytax: z.boolean().default(false),
-    reverseVatRules: z.string().optional(),
-    reverseCtaxRules: z.string().optional(),
+    reverseVatRules: z.array(z.string()).optional().default([]),
+    reverseCtaxRules: z.array(z.string()).optional().default([]),
+    useRemainder: z.boolean().default(false),
+    accounts: z.string().optional(),
+    locations: z.string().optional(),
     defaultPay: z.string().default('debtAmount'),
+    cashAmount: z.string().optional().default('cashAmount'),
+    mobileAmount: z.string().optional().default('mobileAmount'),
   })
   .catchall(z.any());
 
@@ -52,9 +59,14 @@ const defaultValues: TPosOrderErkhetConfig = {
   beginNumber: '',
   hasVat: true,
   hasCitytax: false,
-  reverseVatRules: '',
-  reverseCtaxRules: '',
+  reverseVatRules: [],
+  reverseCtaxRules: [],
+  useRemainder: false,
+  accounts: '',
+  locations: '',
   defaultPay: 'debtAmount',
+  cashAmount: 'cashAmount',
+  mobileAmount: 'mobileAmount',
 };
 
 const ConfigForm = ({
@@ -68,12 +80,15 @@ const ConfigForm = ({
   onSubmit: (data: TPosOrderErkhetConfig) => Promise<void> | void;
   poss: TPos[];
 }) => {
+  const { t } = useTranslation('mongolian');
   const form = useForm<TPosOrderErkhetConfig>({
     resolver: zodResolver(formSchema),
     defaultValues: { ...defaultValues, ...config },
   });
 
   const posId = form.watch('posId');
+  const hasVat = form.watch('hasVat');
+  const hasCitytax = form.watch('hasCitytax');
   const selectedPos = poss.find((pos) => pos._id === posId);
   const paymentTypes = selectedPos?.paymentTypes || [];
 
@@ -91,9 +106,9 @@ const ConfigForm = ({
               name="title"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Title</Form.Label>
+                  <Form.Label>{t('title')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Title" />
+                    <Input {...field} placeholder={t('title')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -104,7 +119,7 @@ const ConfigForm = ({
               name="posId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>POS</Form.Label>
+                  <Form.Label>{t('pos')}</Form.Label>
                   <SelectPos
                     variant="form"
                     value={field.value}
@@ -125,9 +140,12 @@ const ConfigForm = ({
               name="userEmail"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>User Email</Form.Label>
+                  <Form.Label>{t('user-email')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Erkhet user email" />
+                    <Input
+                      {...field}
+                      placeholder={t('enter-erkhet-user-email')}
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -138,9 +156,12 @@ const ConfigForm = ({
               name="beginNumber"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Begin Number</Form.Label>
+                  <Form.Label>{t('begin-number')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Prefix for order number" />
+                    <Input
+                      {...field}
+                      placeholder={t('prefix-for-order-number')}
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -151,10 +172,10 @@ const ConfigForm = ({
               name="defaultPay"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Default Pay</Form.Label>
+                  <Form.Label>{t('default-pay')}</Form.Label>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger className="w-full">
-                      <Select.Value placeholder="Default pay" />
+                      <Select.Value placeholder={t('default-pay')} />
                     </Select.Trigger>
                     <Select.Content>
                       {DEFAULT_PAY_DATA.map((item) => (
@@ -176,58 +197,70 @@ const ConfigForm = ({
               name="hasVat"
               render={({ field }) => (
                 <Form.Item className="flex items-center gap-2 space-y-0">
+                  <Form.Label variant="peer">{t('has-vat')}</Form.Label>
                   <Form.Control>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
                   </Form.Control>
-                  <Form.Label className="font-medium">Has VAT</Form.Label>
                 </Form.Item>
               )}
             />
+            {hasVat && (
+              <Form.Field
+                control={form.control}
+                name="reverseVatRules"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('another-rules-of-products-on-vat')}
+                    </Form.Label>
+                    <SelectAnotherRulesOfProductsOnCityTax
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      kind="vat"
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            )}
             <Form.Field
               control={form.control}
               name="hasCitytax"
               render={({ field }) => (
                 <Form.Item className="flex items-center gap-2 space-y-0">
+                  <Form.Label variant="peer">{t('has-citytax')}</Form.Label>
                   <Form.Control>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
                   </Form.Control>
-                  <Form.Label className="font-medium">Has City Tax</Form.Label>
+                  <Form.Message />
                 </Form.Item>
               )}
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Field
-              control={form.control}
-              name="reverseVatRules"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Reverse VAT Rule IDs</Form.Label>
-                  <Form.Control>
-                    <Input {...field} placeholder="Comma separated rule ids" />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="reverseCtaxRules"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Reverse City Tax Rule IDs</Form.Label>
-                  <Form.Control>
-                    <Input {...field} placeholder="Comma separated rule ids" />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            {!hasCitytax && (
+              <Form.Field
+                control={form.control}
+                name="reverseCtaxRules"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('another-rules-of-products-on-citytax')}
+                    </Form.Label>
+                    <SelectAnotherRulesOfProductsOnCityTax
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      kind="ctax"
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            )}
           </div>
 
           {!!paymentTypes.length && (
@@ -236,7 +269,7 @@ const ConfigForm = ({
                 <Form.Field
                   key={paymentType.type}
                   control={form.control}
-                  name={`_${paymentType.type}`}
+                  name={paymentType.formField || `_${paymentType.type}`}
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
@@ -247,7 +280,9 @@ const ConfigForm = ({
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder="Erkhet payment type" />
+                          <Select.Value
+                            placeholder={t('erkhet-payment-type')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {DEFAULT_PAY_DATA.map((item) => (
@@ -263,6 +298,57 @@ const ConfigForm = ({
               ))}
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-4 border-t pt-4">
+            <Form.Field
+              control={form.control}
+              name="useRemainder"
+              render={({ field }) => (
+                <Form.Item className="flex items-center gap-2 space-y-0">
+                  <Form.Control>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </Form.Control>
+                  <Form.Label className="font-medium">
+                    {t('use-remainder')}
+                  </Form.Label>
+                </Form.Item>
+              )}
+            />
+            <div />
+            <Form.Field
+              control={form.control}
+              name="accounts"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('accounts')}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t('comma-separated-accounts')}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="locations"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('locations')}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t('comma-separated-locations')}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          </div>
         </div>
       </form>
     </Form>
@@ -278,6 +364,7 @@ export const PosOrderErkhetConfigAddSheet = ({
   onSubmit: (data: TPosOrderErkhetConfig) => Promise<void>;
   poss: TPos[];
 }) => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useState(false);
   const formId = 'pos-order-erkhet-config-add-form';
   const formKey = open ? 'open' : 'closed';
@@ -292,12 +379,12 @@ export const PosOrderErkhetConfigAddSheet = ({
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          New Config
+          {t('new-config')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>New POS Order Erkhet Config</Sheet.Title>
+          <Sheet.Title>{t('new-pos-order-erkhet-config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -310,7 +397,7 @@ export const PosOrderErkhetConfigAddSheet = ({
         </Sheet.Content>
         <Sheet.Footer>
           <Button type="submit" form={formId} disabled={loading}>
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('saving') : t('save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>
@@ -333,6 +420,7 @@ const PosOrderErkhetConfigEditSheet = ({
   open: boolean;
   poss: TPos[];
 }) => {
+  const { t } = useTranslation('mongolian');
   const formId = `pos-order-erkhet-config-edit-${config._id}`;
 
   const handleSubmit = async (data: TPosOrderErkhetConfig) => {
@@ -344,7 +432,7 @@ const PosOrderErkhetConfigEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>Edit POS Order Erkhet Config</Sheet.Title>
+          <Sheet.Title>{t('edit-pos-order-erkhet-config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -357,7 +445,7 @@ const PosOrderErkhetConfigEditSheet = ({
         </Sheet.Content>
         <Sheet.Footer>
           <Button type="submit" form={formId} disabled={loading}>
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('saving') : t('save')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>
@@ -401,7 +489,10 @@ const buildColumns = ({
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Title" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconHash} label={t('title')} />;
+    },
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
         config={{ _id: row.original._id ?? '', title: row.original.title }}
@@ -422,9 +513,12 @@ const buildColumns = ({
   {
     id: 'posId',
     accessorKey: 'posId',
-    header: () => (
-      <RecordTable.InlineHead icon={IconBuildingStore} label="POS" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return (
+        <RecordTable.InlineHead icon={IconBuildingStore} label={t('pos')} />
+      );
+    },
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {poss.find((pos) => pos._id === row.original.posId)?.name ||
@@ -437,7 +531,10 @@ const buildColumns = ({
   {
     id: 'userEmail',
     accessorKey: 'userEmail',
-    header: () => <RecordTable.InlineHead icon={IconAt} label="User Email" />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -448,9 +545,12 @@ const buildColumns = ({
   {
     id: 'defaultPay',
     accessorKey: 'defaultPay',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Default Pay" />
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return (
+        <RecordTable.InlineHead icon={IconHash} label={t('default-pay')} />
+      );
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '—'}
@@ -474,16 +574,19 @@ export const PosOrderErkhetConfigRecordTable = ({
   onDeleteMany: (ids: string[]) => Promise<void>;
   onEdit: (id: string, data: TPosOrderErkhetConfig) => Promise<void>;
   poss: TPos[];
-}) => (
-  <ErkhetConfigRecordTable
-    configs={configs}
-    columns={buildColumns({ editLoading, onDelete, onEdit, poss })}
-    emptyDescription="Create your first POS order Erkhet config using the button above."
-    commandBar={
-      <ErkhetConfigCommandBar
-        onDeleteMany={onDeleteMany}
-        loading={editLoading}
-      />
-    }
-  />
-);
+}) => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <ErkhetConfigRecordTable
+      configs={configs}
+      columns={buildColumns({ editLoading, onDelete, onEdit, poss })}
+      emptyDescription={t('create-first-pos-order-erkhet-config')}
+      commandBar={
+        <ErkhetConfigCommandBar
+          onDeleteMany={onDeleteMany}
+          loading={editLoading}
+        />
+      }
+    />
+  );
+};

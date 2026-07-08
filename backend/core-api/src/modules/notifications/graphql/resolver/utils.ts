@@ -43,5 +43,9 @@ export const generateNotificationsFilter = (params: {
     filter.fromUserId = params.fromUserId;
   }
 
+  if (params?.module === 'approval') {
+    filter.contentType = 'core:approval';
+  }
+
   return filter;
 };

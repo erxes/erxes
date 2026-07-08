@@ -31,7 +31,7 @@ export const schemaHooksWrapper = (schema, _cacheKey: string) => {
 export const getDateFieldDefinition = (label: string) =>
   field({
     type: Date,
-    default: new Date(),
+    default: () => new Date(),
     label
   });
 
