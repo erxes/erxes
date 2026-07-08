@@ -155,6 +155,10 @@ export const FxaInstanceSelectionSheet = ({
     );
   };
   const getFixedAssetSequenceLabel = (instance: IFxaInstance) => {
+    if (instance.code) {
+      return instance.code;
+    }
+
     const fixedAssetCode = fixedAssetsById.get(instance.fixedAssetId)?.code;
     const sequence = getDisplaySequence(instance);
 

@@ -44,6 +44,21 @@ const getCodeSequence = (code: string, assetCode: string) => {
   return match ? Number(match[1]) : 0;
 };
 
+const getInstanceDisplayCode = (
+  instance: TFxaIncomeInstance,
+  fixedAssetCode?: string,
+) => {
+  if (instance.code) {
+    return instance.code;
+  }
+
+  if (!fixedAssetCode || !instance.sequence) {
+    return '-';
+  }
+
+  return `${fixedAssetCode}_${String(instance.sequence).padStart(3, '0')}`;
+};
+
 export const FxaIncomeInstancesSync = ({
   form,
   journalIndex,
@@ -77,6 +92,10 @@ export const FxaIncomeInstancesSync = ({
   });
 
   useEffect(() => {
+    if (fixedAssetIds.length && (!fixedAssetsData || !instancesData)) {
+      return;
+    }
+
     const previous = trDoc.extraData?.fxaInstances || [];
     const fixedAssetsById = new Map(
       (fixedAssetsData?.fixedAssets || []).map((asset) => [asset._id, asset]),
@@ -243,11 +262,7 @@ export const FxaIncomeDetailInstancesSheet = ({
                 return (
                   <Table.Row key={instance.tempId || instanceIndex}>
                     <Table.Cell>
-                      {fixedAsset?.code && instance.sequence
-                        ? `${fixedAsset.code}_${String(
-                            instance.sequence,
-                          ).padStart(3, '0')}`
-                        : '-'}
+                      {getInstanceDisplayCode(instance, fixedAsset?.code)}
                     </Table.Cell>
                     <Table.Cell>
                       <Form.Field
