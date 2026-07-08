@@ -7,8 +7,6 @@ import { AnyBulkWriteOperation, Collection, Db, MongoClient } from 'mongodb';
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
   CORE_MONGO_URL,
-  SOURCE_SUBDOMAIN,
-  TARGET_SUBDOMAIN,
   DRY_RUN,
   BATCH_SIZE = '1000',
 } = process.env;
@@ -21,8 +19,6 @@ const isDryRun = DRY_RUN === '1' || DRY_RUN === 'true';
 const batchSize = Math.max(1, parseInt(BATCH_SIZE, 10) || 1000);
 
 // source (app.erxes.io) → target (next.erxes.io) subdomain pairs.
-// SOURCE_SUBDOMAIN/TARGET_SUBDOMAIN env vars override this list to run a
-// single pair.
 const ORG_PAIRS: { source: string; target: string }[] = [
   { source: 'belty', target: 'bbelty' },
   { source: 'cmlbrotherss', target: 'cmlbrothers' },
@@ -306,10 +302,7 @@ async function migratePair(
 }
 
 async function main() {
-  const pairs =
-    SOURCE_SUBDOMAIN && TARGET_SUBDOMAIN
-      ? [{ source: SOURCE_SUBDOMAIN, target: TARGET_SUBDOMAIN }]
-      : ORG_PAIRS;
+  const pairs = ORG_PAIRS;
 
   const coreUrl = CORE_MONGO_URL || MONGO_URL;
   const coreDbName = extractDbName(coreUrl);
