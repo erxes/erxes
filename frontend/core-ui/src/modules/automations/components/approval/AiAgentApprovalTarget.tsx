@@ -1,4 +1,5 @@
 import { TApprovalTargetProps } from '@/approval/types';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { IconExternalLink } from '@tabler/icons-react';
 import { Link } from 'react-router';
 
@@ -7,7 +8,7 @@ export const AiAgentApprovalTarget = ({
   label,
 }: TApprovalTargetProps) => (
   <Link
-    to={`/settings/automations/agents/${contentId}`}
+    to={`${AutomationSettingsPath.Agents}/${contentId}`}
     className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
   >
     {label || 'AI Agent'}

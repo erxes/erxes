@@ -6,7 +6,7 @@ import { themeState } from 'erxes-ui/state';
 import { parseBlocks } from '../utils';
 import DOMPurify from 'dompurify';
 import { cn } from 'erxes-ui/lib';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { readImage } from '../../../utils/core';
 
 export const BlockEditorReadOnly = React.forwardRef<
@@ -24,6 +24,16 @@ export const BlockEditorReadOnly = React.forwardRef<
     resolveFileUrl: (url) => Promise.resolve(readImage(url)),
   });
   const theme = useAtomValue(themeState);
+
+  // The editor instance keeps its initialContent; sync blocks when the
+  // content prop changes after mount.
+  useEffect(() => {
+    const blocks = parseBlocks(content);
+
+    if (blocks) {
+      editor.replaceBlocks(editor.document, blocks);
+    }
+  }, [editor, content]);
 
   const sanitized = useMemo(
     () => (content ? DOMPurify.sanitize(content) : ''),

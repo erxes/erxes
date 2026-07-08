@@ -35,13 +35,10 @@ export const AutomationSendEmailActionResult = ({
   const errorText = response?.error ? getLabelText(response) : '';
 
   return (
-    <div className="flex flex-row gap-2 items-center justify-between w-full">
-      <div className="flex-1 overflow-x-auto whitespace-nowrap py-2">
+    <div className="flex flex-col gap-2 items-center justify-between w-full">
+      <div className="min-w-0 flex-1 py-2">
         {response.error ? (
-          <AutomationNodeMetaInfoRow
-            fieldName="Error"
-            content={<div className="text-destructive ">{errorText}</div>}
-          />
+          <div className="text-destructive">{errorText}</div>
         ) : (
           'Sent successfully'
         )}
